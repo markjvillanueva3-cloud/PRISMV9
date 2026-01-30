@@ -1,0 +1,106 @@
+{
+  "agent_id": "AGT-HAIKU-006",
+  "name": "state_manager",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "State Manager - Fast State Read/Write Operations",
+  
+  "domain_expertise": [
+    "State file operations",
+    "JSON manipulation",
+    "Quick state updates",
+    "Status checks",
+    "Simple persistence"
+  ],
+
+  "design_principle": "Fast atomic operations - delegate complex state logic to session_continuity",
+
+  "capabilities": [
+    {
+      "id": "CAP-STATE-001",
+      "name": "Read State File",
+      "description": "Reads CURRENT_STATE.json quickly",
+      "category": "READ",
+      "inputs": { "optional": ["fields"] },
+      "outputs": { "primary": "state_content" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-STATE-002",
+      "name": "Write State File",
+      "description": "Writes to CURRENT_STATE.json atomically",
+      "category": "WRITE",
+      "inputs": { "required": ["state_content"] },
+      "outputs": { "primary": "write_result" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-STATE-003",
+      "name": "Update Field",
+      "description": "Updates single field in state file",
+      "category": "UPDATE",
+      "inputs": { "required": ["field_path", "value"] },
+      "outputs": { "primary": "update_result" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-STATE-004",
+      "name": "Check Status",
+      "description": "Quick status check (IN_PROGRESS, COMPLETE, etc.)",
+      "category": "READ",
+      "inputs": { "optional": ["status_field"] },
+      "outputs": { "primary": "status" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-STATE-005",
+      "name": "Increment Counter",
+      "description": "Atomically increments a counter field",
+      "category": "UPDATE",
+      "inputs": { "required": ["counter_path"], "optional": ["amount"] },
+      "outputs": { "primary": "new_value" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-STATE-006",
+      "name": "Read Quick Resume",
+      "description": "Reads quickResume field only",
+      "category": "READ",
+      "inputs": {},
+      "outputs": { "primary": "quick_resume" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 20
+    },
+    {
+      "id": "CAP-STATE-007",
+      "name": "Write Quick Resume",
+      "description": "Updates quickResume field",
+      "category": "WRITE",
+      "inputs": { "required": ["quick_resume_content"] },
+      "outputs": { "primary": "write_result" },
+      "skills_used": ["prism-session-master"],
+      "latency_target_ms": 50
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-session-master"
+  ],
+
+  "hooks_subscribed": ["state:preAccess"],
+
+  "can_delegate_to": ["session_continuity"],
+  "receives_from": ["coordinator_v2", "session_continuity"],
+
+  "performance_metrics": {
+    "operation_success_rate": 1.0,
+    "average_latency_ms": 50,
+    "operations_per_second": 50
+  }
+}

@@ -1,0 +1,368 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-01-30",
+    "totalPatterns": 89,
+    "purpose": "Automatic skill loading based on user message patterns"
+  },
+  "triggers": {
+    "prism-sp-brainstorm": {
+      "patterns": [
+        "design",
+        "plan new",
+        "new feature",
+        "new task",
+        "brainstorm",
+        "explore options",
+        "think through"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-planning": {
+      "patterns": [
+        "task list",
+        "break down",
+        "roadmap",
+        "create tasks",
+        "schedule",
+        "decompose"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-execution": {
+      "patterns": [
+        "execute",
+        "implement",
+        "build",
+        "code",
+        "write",
+        "create file",
+        "do it"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-debugging": {
+      "patterns": [
+        "debug",
+        "error",
+        "fix",
+        "broken",
+        "not working",
+        "issue",
+        "bug",
+        "crash"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-verification": {
+      "patterns": [
+        "verify",
+        "prove",
+        "complete",
+        "done",
+        "evidence",
+        "check if"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-review-spec": {
+      "patterns": [
+        "check spec",
+        "verify output",
+        "matches requirement",
+        "spec compliance"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-review-quality": {
+      "patterns": [
+        "code review",
+        "quality check",
+        "review code",
+        "patterns",
+        "best practices"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-sp-handoff": {
+      "patterns": [
+        "session end",
+        "handoff",
+        "continue later",
+        "save state",
+        "wrap up"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-tdd-enhanced": {
+      "patterns": [
+        "test",
+        "unittest",
+        "TDD",
+        "test driven",
+        "write tests"
+      ],
+      "priority": 10,
+      "level": "L2"
+    },
+    "prism-monolith-extractor": {
+      "patterns": [
+        "extract",
+        "pull out",
+        "migrate",
+        "extraction",
+        "from monolith"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-monolith-index": {
+      "patterns": [
+        "find module",
+        "line number",
+        "where is",
+        "locate in monolith",
+        "module location"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-monolith-navigator": {
+      "patterns": [
+        "navigate monolith",
+        "search monolith",
+        "monolith search"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-codebase-packaging": {
+      "patterns": [
+        "pack codebase",
+        "repomix",
+        "package code",
+        "single file"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-material-schema": {
+      "patterns": [
+        "material",
+        "127 param",
+        "material structure",
+        "material schema"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-material-physics": {
+      "patterns": [
+        "Kienzle",
+        "Taylor",
+        "Johnson-Cook",
+        "cutting force",
+        "tool life"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-material-lookup": {
+      "patterns": [
+        "find material",
+        "lookup material",
+        "material search",
+        "which material"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-material-validator": {
+      "patterns": [
+        "validate material",
+        "check coverage",
+        "material grade",
+        "completeness"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-material-enhancer": {
+      "patterns": [
+        "enhance material",
+        "fill gaps",
+        "estimate param",
+        "missing data"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-fanuc-programming": {
+      "patterns": [
+        "Fanuc",
+        "0i",
+        "30i",
+        "31i",
+        "Fanuc G-code",
+        "Fanuc alarm"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-siemens-programming": {
+      "patterns": [
+        "Siemens",
+        "840D",
+        "828D",
+        "Sinumerik",
+        "Siemens G-code"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-heidenhain-programming": {
+      "patterns": [
+        "Heidenhain",
+        "TNC",
+        "iTNC",
+        "Heidenhain cycle"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-gcode-reference": {
+      "patterns": [
+        "G-code",
+        "M-code",
+        "ISO 6983",
+        "G01",
+        "G02",
+        "G03"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-expert-master": {
+      "patterns": [
+        "consult expert",
+        "expert opinion",
+        "ask expert"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-expert-master-machinist": {
+      "patterns": [
+        "machinist",
+        "shop floor",
+        "practical",
+        "experience"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-expert-materials-scientist": {
+      "patterns": [
+        "metallurgy",
+        "material properties",
+        "alloy"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-product-calculators": {
+      "patterns": [
+        "speed",
+        "feed",
+        "calculate",
+        "SFM",
+        "IPM",
+        "RPM",
+        "cutting speed"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-tool-holder-schema": {
+      "patterns": [
+        "tool holder",
+        "holder",
+        "collet",
+        "arbor",
+        "BT40",
+        "CAT40",
+        "HSK"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-quality-master": {
+      "patterns": [
+        "quality",
+        "validation",
+        "quality gate"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-validator": {
+      "patterns": [
+        "validate",
+        "check syntax",
+        "verify format"
+      ],
+      "priority": 20,
+      "level": "L3"
+    },
+    "prism-api-contracts": {
+      "patterns": [
+        "API",
+        "gateway",
+        "route",
+        "endpoint",
+        "contract"
+      ],
+      "priority": 30,
+      "level": "L4"
+    },
+    "prism-error-catalog": {
+      "patterns": [
+        "error code",
+        "lookup error",
+        "error message",
+        "exception"
+      ],
+      "priority": 30,
+      "level": "L4"
+    },
+    "prism-manufacturing-tables": {
+      "patterns": [
+        "thread",
+        "tap",
+        "drill",
+        "tolerance",
+        "lookup table"
+      ],
+      "priority": 30,
+      "level": "L4"
+    },
+    "prism-wiring-templates": {
+      "patterns": [
+        "wiring",
+        "consumer",
+        "wire up",
+        "connect"
+      ],
+      "priority": 30,
+      "level": "L4"
+    }
+  }
+}

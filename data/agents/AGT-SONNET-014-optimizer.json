@@ -1,0 +1,384 @@
+{
+  "agent_id": "AGT-SONNET-014",
+  "name": "optimizer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Parameter Optimizer - Mathematical Optimization for Cutting Parameters, Schedules, and Resources",
+  
+  "domain_expertise": [
+    "Multi-objective optimization",
+    "Speed/feed optimization",
+    "Tool life optimization",
+    "Cost minimization",
+    "Time minimization",
+    "Quality maximization",
+    "Constraint handling",
+    "Pareto frontiers",
+    "Metaheuristic algorithms",
+    "Parameter tuning"
+  ],
+
+  "optimization_philosophy": {
+    "principle": "Every optimization must have mathematical proof of optimality or near-optimality",
+    "constraint": "Safety (S ≥ 0.70) and rigor (M ≥ 0.60) constraints NEVER relaxed",
+    "uncertainty": "All outputs include uncertainty bounds"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-OPT-001",
+      "name": "Cutting Parameter Optimization",
+      "description": "Optimizes speed, feed, depth for given objectives (LIFE SAFETY)",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["material", "tool", "machine", "objectives"],
+        "optional": ["constraints", "weights"]
+      },
+      "outputs": {
+        "primary": "optimal_parameters",
+        "secondary": ["speed", "feed", "depth", "objective_values", "uncertainty"]
+      },
+      "skills_used": ["prism-material-physics", "prism-product-calculators", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "OPT-CUTTING"],
+      "synergizes_with": ["force_calculator", "thermal_calculator", "materials_scientist"],
+      "objectives": {
+        "MRR": "Maximize material removal rate",
+        "tool_life": "Maximize tool life",
+        "surface_finish": "Minimize Ra",
+        "cost": "Minimize cost per part",
+        "time": "Minimize cycle time"
+      },
+      "constraints": {
+        "force_limit": "Fc ≤ machine_capacity",
+        "power_limit": "P ≤ spindle_power",
+        "temperature_limit": "T ≤ tool_limit",
+        "chatter_limit": "Within stability lobe"
+      },
+      "success_criteria": "Optimal parameters with safety validation"
+    },
+    {
+      "id": "CAP-OPT-002",
+      "name": "Multi-Objective Optimization",
+      "description": "Finds Pareto-optimal solutions for conflicting objectives",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["objectives", "decision_variables", "constraints"],
+        "optional": ["algorithm", "population_size", "generations"]
+      },
+      "outputs": {
+        "primary": "pareto_frontier",
+        "secondary": ["pareto_solutions", "objective_trade_offs", "visualization"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-knowledge-master"],
+      "hooks_triggered": ["OPT-MULTIOBJECTIVE"],
+      "synergizes_with": ["combination_optimizer", "proof_generator"],
+      "algorithms": {
+        "NSGA-II": "2-3 objectives",
+        "NSGA-III": "4+ objectives",
+        "MOEA/D": "Decomposition-based"
+      },
+      "success_criteria": "Pareto frontier with diversity"
+    },
+    {
+      "id": "CAP-OPT-003",
+      "name": "Tool Life Optimization",
+      "description": "Optimizes parameters for maximum tool life using Taylor equation",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["material", "tool", "target_life"],
+        "optional": ["cost_model", "constraints"]
+      },
+      "outputs": {
+        "primary": "optimal_conditions",
+        "secondary": ["predicted_life", "uncertainty", "cost_analysis"]
+      },
+      "skills_used": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["OPT-TOOL-LIFE"],
+      "synergizes_with": ["force_calculator", "materials_scientist"],
+      "taylor_equation": "VT^n = C, where V=speed, T=life, n,C from material",
+      "success_criteria": "Life prediction with ±uncertainty"
+    },
+    {
+      "id": "CAP-OPT-004",
+      "name": "Cost Optimization",
+      "description": "Minimizes cost per part considering all factors",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["operation_params", "cost_model"],
+        "optional": ["batch_size", "constraints"]
+      },
+      "outputs": {
+        "primary": "minimum_cost_params",
+        "secondary": ["cost_breakdown", "sensitivity_analysis"]
+      },
+      "skills_used": ["prism-product-calculators", "prism-mathematical-planning"],
+      "hooks_triggered": ["OPT-COST"],
+      "synergizes_with": ["force_calculator"],
+      "cost_components": [
+        "Machine time cost",
+        "Tool cost (per part)",
+        "Tool change cost",
+        "Material cost",
+        "Labor cost"
+      ],
+      "success_criteria": "Minimum cost with breakdown"
+    },
+    {
+      "id": "CAP-OPT-005",
+      "name": "Schedule Optimization",
+      "description": "Optimizes job scheduling for minimum makespan or due dates",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["jobs", "machines", "objective"],
+        "optional": ["due_dates", "setup_times", "precedence"]
+      },
+      "outputs": {
+        "primary": "optimal_schedule",
+        "secondary": ["gantt_chart", "utilization", "tardiness"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-knowledge-master"],
+      "hooks_triggered": ["OPT-SCHEDULE"],
+      "synergizes_with": ["coordinator_v2"],
+      "objectives": {
+        "makespan": "Minimize total completion time",
+        "tardiness": "Minimize late jobs",
+        "utilization": "Maximize machine utilization"
+      },
+      "success_criteria": "Feasible schedule meeting objectives"
+    },
+    {
+      "id": "CAP-OPT-006",
+      "name": "Resource Allocation Optimization",
+      "description": "Optimizes allocation of limited resources (F-PSI-001 integration)",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["resources", "demands", "constraints"],
+        "optional": ["priorities", "costs"]
+      },
+      "outputs": {
+        "primary": "optimal_allocation",
+        "secondary": ["utilization", "unmet_demand", "cost"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["OPT-RESOURCE"],
+      "synergizes_with": ["combination_optimizer", "coordinator_v2"],
+      "success_criteria": "Maximum value from limited resources"
+    },
+    {
+      "id": "CAP-OPT-007",
+      "name": "Constraint Handling",
+      "description": "Handles complex constraints in optimization problems",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["constraints"],
+        "optional": ["handling_method"]
+      },
+      "outputs": {
+        "primary": "constraint_formulation",
+        "secondary": ["feasibility_check", "constraint_violations"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-validator"],
+      "hooks_triggered": ["CONSTRAINT-HANDLE"],
+      "synergizes_with": ["proof_generator"],
+      "handling_methods": {
+        "penalty": "Add penalty to objective",
+        "repair": "Repair infeasible solutions",
+        "barrier": "Interior point methods",
+        "Lagrangian": "Relax constraints"
+      },
+      "success_criteria": "All constraints satisfied or reported"
+    },
+    {
+      "id": "CAP-OPT-008",
+      "name": "Sensitivity Analysis",
+      "description": "Analyzes how changes in inputs affect optimal solution",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["optimization_result", "parameters_to_vary"],
+        "optional": ["variation_range"]
+      },
+      "outputs": {
+        "primary": "sensitivity_report",
+        "secondary": ["parameter_sensitivities", "robustness_score"]
+      },
+      "skills_used": ["prism-uncertainty-propagation", "prism-mathematical-planning"],
+      "hooks_triggered": ["SENSITIVITY-ANALYZE"],
+      "synergizes_with": ["proof_generator"],
+      "success_criteria": "Sensitivity quantified for key parameters"
+    },
+    {
+      "id": "CAP-OPT-009",
+      "name": "Metaheuristic Selection",
+      "description": "Selects appropriate optimization algorithm for problem type",
+      "category": "SELECTION",
+      "inputs": {
+        "required": ["problem_characteristics"],
+        "optional": ["time_budget", "accuracy_requirement"]
+      },
+      "outputs": {
+        "primary": "recommended_algorithm",
+        "secondary": ["algorithm_parameters", "alternatives"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-all-skills"],
+      "hooks_triggered": ["ALGORITHM-SELECT"],
+      "synergizes_with": ["architect"],
+      "algorithm_selection": {
+        "continuous_smooth": "Gradient descent, Interior point",
+        "continuous_nonsmooth": "PSO, Differential evolution",
+        "discrete_small": "Branch and bound, Dynamic programming",
+        "discrete_large": "GA, ACO, Simulated annealing",
+        "multi_objective": "NSGA-II, NSGA-III, MOEA/D"
+      },
+      "success_criteria": "Appropriate algorithm for problem"
+    },
+    {
+      "id": "CAP-OPT-010",
+      "name": "Surface Finish Optimization",
+      "description": "Optimizes parameters for target surface finish (Ra)",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["material", "tool", "target_Ra"],
+        "optional": ["constraints", "other_objectives"]
+      },
+      "outputs": {
+        "primary": "optimal_params",
+        "secondary": ["predicted_Ra", "uncertainty", "trade_offs"]
+      },
+      "skills_used": ["prism-material-physics", "prism-product-calculators"],
+      "hooks_triggered": ["OPT-SURFACE"],
+      "synergizes_with": ["force_calculator", "materials_scientist"],
+      "Ra_factors": [
+        "Feed rate (primary)",
+        "Tool nose radius",
+        "Cutting speed",
+        "Depth of cut",
+        "Material properties"
+      ],
+      "success_criteria": "Ra within target ± tolerance"
+    },
+    {
+      "id": "CAP-OPT-011",
+      "name": "Chatter-Free Optimization",
+      "description": "Optimizes within stability lobe diagram constraints",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["machine_dynamics", "tool", "material"],
+        "optional": ["stability_margin"]
+      },
+      "outputs": {
+        "primary": "chatter_free_params",
+        "secondary": ["stability_lobe", "margin", "recommended_speeds"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "OPT-CHATTER"],
+      "synergizes_with": ["force_calculator", "machinist"],
+      "success_criteria": "Parameters within stable region"
+    },
+    {
+      "id": "CAP-OPT-012",
+      "name": "Bayesian Optimization",
+      "description": "Uses Bayesian optimization for expensive objective functions",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["objective_function", "bounds"],
+        "optional": ["acquisition_function", "max_iterations"]
+      },
+      "outputs": {
+        "primary": "optimal_point",
+        "secondary": ["surrogate_model", "uncertainty_map", "convergence"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["OPT-BAYESIAN"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "success_criteria": "Optimal with minimal evaluations"
+    },
+    {
+      "id": "CAP-OPT-013",
+      "name": "Optimization Report Generation",
+      "description": "Generates comprehensive optimization report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["optimization_results"],
+        "optional": ["report_format", "include_visualizations"]
+      },
+      "outputs": {
+        "primary": "optimization_report",
+        "secondary": ["summary", "recommendations", "visualizations"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete optimization documentation"
+    },
+    {
+      "id": "CAP-OPT-014",
+      "name": "Optimality Verification",
+      "description": "Verifies solution optimality or near-optimality",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["solution", "problem_definition"],
+        "optional": ["verification_method"]
+      },
+      "outputs": {
+        "primary": "optimality_certificate",
+        "secondary": ["gap", "bounds", "proof"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-mathematical-planning"],
+      "hooks_triggered": ["OPT-VERIFY"],
+      "synergizes_with": ["proof_generator"],
+      "certificates": {
+        "OPTIMAL": "Gap = 0%",
+        "NEAR_OPTIMAL": "Gap ≤ 2%",
+        "GOOD": "Gap ≤ 5%",
+        "HEURISTIC": "No optimality proof"
+      },
+      "success_criteria": "Optimality certificate issued"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-mathematical-planning",
+    "prism-material-physics",
+    "prism-product-calculators",
+    "prism-uncertainty-propagation",
+    "prism-combination-engine",
+    "prism-knowledge-master",
+    "prism-validator",
+    "prism-manufacturing-tables",
+    "prism-quality-master",
+    "prism-sp-verification"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW1-SAFETY",
+    "calc:preOptimize",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "force_calculator",
+    "thermal_calculator",
+    "proof_generator"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "architect",
+    "machinist"
+  ],
+
+  "quality_gates": [
+    "Safety constraints satisfied (S ≥ 0.70)",
+    "Rigor constraints satisfied (M ≥ 0.60)",
+    "Uncertainty bounds provided",
+    "Optimality verified or bounded"
+  ],
+
+  "performance_metrics": {
+    "optimization_quality": 0.95,
+    "constraint_satisfaction": 1.0,
+    "latency_target_ms": 5000,
+    "optimizations_per_hour": 50
+  }
+}

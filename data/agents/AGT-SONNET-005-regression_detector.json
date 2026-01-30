@@ -1,0 +1,376 @@
+{
+  "agent_id": "AGT-SONNET-005",
+  "name": "regression_detector",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Regression Detector - Enforces Law 4: New ≥ Old (Anti-Regression)",
+  
+  "domain_expertise": [
+    "Content regression detection",
+    "Feature regression detection",
+    "Size comparison analysis",
+    "Version comparison",
+    "Migration validation",
+    "Replacement auditing",
+    "Loss prevention",
+    "Before/after analysis",
+    "Inventory management",
+    "Delta analysis"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-REG-001",
+      "name": "Size Regression Detection",
+      "description": "Detects when new version is smaller than old (>20% smaller = RED FLAG)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_artifact", "new_artifact"],
+        "optional": ["threshold", "unit"]
+      },
+      "outputs": {
+        "primary": "size_comparison",
+        "secondary": ["size_delta", "percentage_change", "regression_detected"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "SIZE-COMPARE"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "thresholds": {
+        "warning": "-10%",
+        "critical": "-20%",
+        "acceptable_growth": "+50%"
+      },
+      "success_criteria": "New ≥ Old size OR justified removals"
+    },
+    {
+      "id": "CAP-REG-002",
+      "name": "Content Inventory Comparison",
+      "description": "Compares content inventory between old and new versions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_inventory", "new_inventory"],
+        "optional": ["inventory_type"]
+      },
+      "outputs": {
+        "primary": "inventory_comparison",
+        "secondary": ["items_added", "items_removed", "items_modified", "items_unchanged"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "INVENTORY-COMPARE"],
+      "synergizes_with": ["completeness_auditor"],
+      "success_criteria": "All removals justified"
+    },
+    {
+      "id": "CAP-REG-003",
+      "name": "Feature Regression Detection",
+      "description": "Detects when features present in old version are missing in new",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_features", "new_features"],
+        "optional": ["feature_definitions"]
+      },
+      "outputs": {
+        "primary": "feature_comparison",
+        "secondary": ["features_added", "features_removed", "features_modified"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "FEATURE-COMPARE"],
+      "synergizes_with": ["completeness_auditor", "test_orchestrator"],
+      "success_criteria": "No unintended feature removals"
+    },
+    {
+      "id": "CAP-REG-004",
+      "name": "Section Regression Detection",
+      "description": "Detects when sections present in old version are missing in new",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_sections", "new_sections"],
+        "optional": ["section_definitions"]
+      },
+      "outputs": {
+        "primary": "section_comparison",
+        "secondary": ["sections_added", "sections_removed", "sections_modified"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "SECTION-COMPARE"],
+      "synergizes_with": ["completeness_auditor", "validator"],
+      "success_criteria": "No section loss"
+    },
+    {
+      "id": "CAP-REG-005",
+      "name": "Parameter Regression Detection",
+      "description": "Detects when parameters present in old data are missing in new",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_parameters", "new_parameters"],
+        "optional": ["parameter_schema"]
+      },
+      "outputs": {
+        "primary": "parameter_comparison",
+        "secondary": ["params_added", "params_removed", "params_modified", "value_changes"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "PARAM-COMPARE"],
+      "synergizes_with": ["validator", "materials_scientist"],
+      "success_criteria": "No unintended parameter loss"
+    },
+    {
+      "id": "CAP-REG-006",
+      "name": "Line Count Regression Detection",
+      "description": "Compares line counts between versions (quick size check)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_file", "new_file"],
+        "optional": ["threshold"]
+      },
+      "outputs": {
+        "primary": "line_comparison",
+        "secondary": ["old_lines", "new_lines", "delta", "percentage"]
+      },
+      "skills_used": ["prism-anti-regression"],
+      "hooks_triggered": ["SIZE-COMPARE"],
+      "synergizes_with": ["code_reviewer"],
+      "success_criteria": "Line count acceptable"
+    },
+    {
+      "id": "CAP-REG-007",
+      "name": "Pre-Update Inventory",
+      "description": "Creates comprehensive inventory BEFORE any update/replacement",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["artifact"],
+        "optional": ["inventory_depth"]
+      },
+      "outputs": {
+        "primary": "inventory",
+        "secondary": ["section_count", "feature_count", "parameter_count", "size_metrics"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["INVENTORY-CREATE"],
+      "synergizes_with": ["completeness_auditor"],
+      "inventory_includes": [
+        "Section names and counts",
+        "Feature names",
+        "Parameter names",
+        "Line count",
+        "File size",
+        "Checksum"
+      ],
+      "success_criteria": "Complete inventory created"
+    },
+    {
+      "id": "CAP-REG-008",
+      "name": "Post-Update Comparison",
+      "description": "Compares post-update state against pre-update inventory",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["pre_inventory", "updated_artifact"],
+        "optional": ["allowed_removals"]
+      },
+      "outputs": {
+        "primary": "comparison_result",
+        "secondary": ["preserved_items", "lost_items", "new_items", "regression_verdict"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "POST-UPDATE-COMPARE"],
+      "synergizes_with": ["completeness_auditor", "data_quality_enforcer"],
+      "success_criteria": "No unintended loss detected"
+    },
+    {
+      "id": "CAP-REG-009",
+      "name": "Migration Regression Check",
+      "description": "Validates data migration preserves all content",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["source_data", "migrated_data"],
+        "optional": ["migration_rules"]
+      },
+      "outputs": {
+        "primary": "migration_valid",
+        "secondary": ["data_preserved", "data_lost", "data_transformed"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "MIGRATION-CHECK"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "success_criteria": "100% data preservation"
+    },
+    {
+      "id": "CAP-REG-010",
+      "name": "Test Regression Detection",
+      "description": "Detects when tests that passed before now fail",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_test_results", "new_test_results"],
+        "optional": ["test_definitions"]
+      },
+      "outputs": {
+        "primary": "test_comparison",
+        "secondary": ["new_failures", "new_passes", "consistent"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master"],
+      "hooks_triggered": ["TEST-REGRESSION"],
+      "synergizes_with": ["test_orchestrator"],
+      "success_criteria": "No new test failures"
+    },
+    {
+      "id": "CAP-REG-011",
+      "name": "Performance Regression Detection",
+      "description": "Detects when performance metrics degrade",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_metrics", "new_metrics"],
+        "optional": ["threshold_definitions"]
+      },
+      "outputs": {
+        "primary": "performance_comparison",
+        "secondary": ["improved_metrics", "degraded_metrics", "unchanged"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["PERF-REGRESSION"],
+      "synergizes_with": ["test_orchestrator"],
+      "success_criteria": "No significant degradation"
+    },
+    {
+      "id": "CAP-REG-012",
+      "name": "API Regression Detection",
+      "description": "Detects breaking changes in API contracts",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_api", "new_api"],
+        "optional": ["breaking_change_rules"]
+      },
+      "outputs": {
+        "primary": "api_comparison",
+        "secondary": ["breaking_changes", "additions", "deprecations"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-anti-regression"],
+      "hooks_triggered": ["API-REGRESSION"],
+      "synergizes_with": ["architect", "api_designer"],
+      "breaking_changes": [
+        "Endpoint removal",
+        "Required parameter addition",
+        "Response format change",
+        "Type change"
+      ],
+      "success_criteria": "No breaking changes"
+    },
+    {
+      "id": "CAP-REG-013",
+      "name": "Database Record Regression",
+      "description": "Detects when database records are lost during updates",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_count", "new_count"],
+        "optional": ["record_type"]
+      },
+      "outputs": {
+        "primary": "record_comparison",
+        "secondary": ["records_added", "records_removed", "net_change"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "DB-RECORD-CHECK"],
+      "synergizes_with": ["completeness_auditor"],
+      "success_criteria": "No unintended record loss"
+    },
+    {
+      "id": "CAP-REG-014",
+      "name": "Regression Report Generation",
+      "description": "Generates comprehensive regression analysis report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["comparison_results"],
+        "optional": ["report_format"]
+      },
+      "outputs": {
+        "primary": "regression_report",
+        "secondary": ["summary", "detailed_findings", "recommendations"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "report_sections": [
+        "Executive Summary",
+        "Size Comparison",
+        "Content Analysis",
+        "Regression Findings",
+        "Remediation Steps"
+      ],
+      "success_criteria": "Actionable report generated"
+    },
+    {
+      "id": "CAP-REG-015",
+      "name": "Regression Trigger Detection",
+      "description": "Auto-detects operations that should trigger regression checks",
+      "category": "DETECTION",
+      "inputs": {
+        "required": ["operation_description"],
+        "optional": ["trigger_patterns"]
+      },
+      "outputs": {
+        "primary": "should_check",
+        "secondary": ["trigger_type", "check_recommendations"]
+      },
+      "skills_used": ["prism-anti-regression"],
+      "hooks_triggered": ["TRIGGER-DETECT"],
+      "synergizes_with": ["coordinator_v2"],
+      "trigger_patterns": [
+        "version numbers (v2, v3, 2.0)",
+        "replacement words (update, upgrade, replace, rewrite)",
+        "combination words (merge, consolidate, combine)",
+        "restructure words (refactor, migrate)",
+        "file overwrite operations"
+      ],
+      "success_criteria": "Triggers correctly identified"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-anti-regression",
+    "prism-sp-verification",
+    "prism-validator",
+    "prism-quality-master",
+    "prism-tdd-enhanced",
+    "prism-api-contracts",
+    "prism-code-master"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW4-REGRESSION",
+    "file:preWrite",
+    "db:preUpdate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "completeness_auditor"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "data_quality_enforcer",
+    "architect"
+  ],
+
+  "quality_gates": [
+    "Pre-inventory created",
+    "All comparisons complete",
+    "Regressions flagged",
+    "Report generated"
+  ],
+
+  "performance_metrics": {
+    "detection_accuracy": 0.99,
+    "false_negative_rate": 0.01,
+    "latency_target_ms": 500,
+    "comparison_throughput": 100
+  },
+
+  "v10_lesson": {
+    "incident": "v10.0 lost 54% of v9.0 content (969→442 lines)",
+    "lost_content": ["Defensive Layer", "Predictive Layer", "Skill Triggers", "Expert Matrix"],
+    "root_cause": "No comparison before declaring done",
+    "prevention": "ALWAYS inventory before replacing, ALWAYS compare after"
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "agent_id": "AGT-SONNET-019",
+  "name": "session_continuity",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Session Continuity - Manages State Persistence and Session Handoff (Law 6)",
+  
+  "domain_expertise": [
+    "Session state management",
+    "Context preservation",
+    "Checkpoint creation",
+    "State file management",
+    "Quick resume protocols",
+    "Handoff documentation",
+    "Context compaction handling",
+    "Session recovery",
+    "Progress tracking",
+    "Continuity enforcement"
+  ],
+
+  "continuity_philosophy": {
+    "principle": "Never lose work (Law 6: CONTINUITY)",
+    "standard": "Every session must be resumable in <30 seconds",
+    "enforcement": "State file always current, checkpoints at boundaries"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-SESS-001",
+      "name": "State File Management",
+      "description": "Manages CURRENT_STATE.json for session continuity",
+      "category": "MANAGEMENT",
+      "inputs": {
+        "required": ["operation"],
+        "optional": ["state_data"]
+      },
+      "outputs": {
+        "primary": "state_result",
+        "secondary": ["state_content", "last_updated", "version"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["SYS-LAW6-CONTINUITY", "STATE-MANAGE"],
+      "synergizes_with": ["coordinator_v2"],
+      "operations": ["read", "update", "verify", "backup"],
+      "success_criteria": "State file always current and valid"
+    },
+    {
+      "id": "CAP-SESS-002",
+      "name": "Checkpoint Creation",
+      "description": "Creates checkpoints at session boundaries",
+      "category": "CREATION",
+      "inputs": {
+        "required": ["progress"],
+        "optional": ["checkpoint_type"]
+      },
+      "outputs": {
+        "primary": "checkpoint",
+        "secondary": ["checkpoint_id", "timestamp", "resumption_point"]
+      },
+      "skills_used": ["prism-session-master", "prism-sp-handoff"],
+      "hooks_triggered": ["CHECKPOINT-CREATE"],
+      "synergizes_with": ["coordinator_v2"],
+      "checkpoint_types": [
+        "Microsession boundary",
+        "Phase completion",
+        "Pre-compaction",
+        "Manual"
+      ],
+      "success_criteria": "Checkpoint enables seamless resume"
+    },
+    {
+      "id": "CAP-SESS-003",
+      "name": "Quick Resume Generation",
+      "description": "Generates quickResume content for fast session start",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["session_state"],
+        "optional": ["detail_level"]
+      },
+      "outputs": {
+        "primary": "quick_resume",
+        "secondary": ["context", "next_actions", "blockers"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["RESUME-GENERATE"],
+      "synergizes_with": ["context_builder"],
+      "format": "What was done + What's next + Any blockers",
+      "success_criteria": "Resume provides complete context in <100 tokens"
+    },
+    {
+      "id": "CAP-SESS-004",
+      "name": "Session Handoff",
+      "description": "Manages session handoff to next session/agent",
+      "category": "HANDOFF",
+      "inputs": {
+        "required": ["current_state"],
+        "optional": ["handoff_notes"]
+      },
+      "outputs": {
+        "primary": "handoff_package",
+        "secondary": ["state", "quick_resume", "next_session_id"]
+      },
+      "skills_used": ["prism-sp-handoff", "prism-session-master"],
+      "hooks_triggered": ["SESSION-HANDOFF"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Next session can start in <30 seconds"
+    },
+    {
+      "id": "CAP-SESS-005",
+      "name": "Context Compaction Handling",
+      "description": "Handles context compaction gracefully",
+      "category": "RECOVERY",
+      "inputs": {
+        "required": ["pre_compaction_state"],
+        "optional": ["recovery_strategy"]
+      },
+      "outputs": {
+        "primary": "recovery_state",
+        "secondary": ["preserved_context", "lost_context", "recovery_actions"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["COMPACTION-HANDLE"],
+      "synergizes_with": ["context_builder"],
+      "success_criteria": "No work lost during compaction"
+    },
+    {
+      "id": "CAP-SESS-006",
+      "name": "Session Recovery",
+      "description": "Recovers session from checkpoints or logs",
+      "category": "RECOVERY",
+      "inputs": {
+        "required": ["recovery_source"],
+        "optional": ["target_checkpoint"]
+      },
+      "outputs": {
+        "primary": "recovered_state",
+        "secondary": ["recovery_point", "data_recovered"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["SESSION-RECOVER"],
+      "synergizes_with": ["coordinator_v2"],
+      "recovery_sources": [
+        "CURRENT_STATE.json",
+        "SESSION_LOGS",
+        "Checkpoints",
+        "Transcripts"
+      ],
+      "success_criteria": "Session recovered to last known good state"
+    },
+    {
+      "id": "CAP-SESS-007",
+      "name": "Progress Tracking",
+      "description": "Tracks progress across sessions",
+      "category": "TRACKING",
+      "inputs": {
+        "required": ["task"],
+        "optional": ["granularity"]
+      },
+      "outputs": {
+        "primary": "progress_report",
+        "secondary": ["completed", "remaining", "percentage", "estimate"]
+      },
+      "skills_used": ["prism-session-master", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROGRESS-TRACK"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Accurate progress tracking"
+    },
+    {
+      "id": "CAP-SESS-008",
+      "name": "Buffer Zone Monitoring",
+      "description": "Monitors tool call buffer zones",
+      "category": "MONITORING",
+      "inputs": {
+        "required": ["current_calls"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "buffer_status",
+        "secondary": ["zone", "calls_remaining", "action_needed"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["BUFFER-MONITOR"],
+      "synergizes_with": ["coordinator_v2"],
+      "zones": {
+        "GREEN": "0-8 calls - Work freely",
+        "YELLOW": "9-14 calls - Checkpoint soon",
+        "ORANGE": "15-18 calls - Checkpoint NOW",
+        "RED": "19+ calls - EMERGENCY STOP"
+      },
+      "success_criteria": "Never exceed RED zone"
+    },
+    {
+      "id": "CAP-SESS-009",
+      "name": "Session Log Writing",
+      "description": "Writes session logs for history and recovery",
+      "category": "LOGGING",
+      "inputs": {
+        "required": ["session_data"],
+        "optional": ["log_format"]
+      },
+      "outputs": {
+        "primary": "session_log",
+        "secondary": ["log_path", "entries"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["LOG-WRITE"],
+      "synergizes_with": ["documentation_writer"],
+      "log_contents": [
+        "Session ID",
+        "Start/End times",
+        "Tasks completed",
+        "Files modified",
+        "Decisions made",
+        "Issues encountered"
+      ],
+      "success_criteria": "Complete session log written"
+    },
+    {
+      "id": "CAP-SESS-010",
+      "name": "IN_PROGRESS Detection",
+      "description": "Detects and handles IN_PROGRESS tasks",
+      "category": "DETECTION",
+      "inputs": {
+        "required": ["state_file"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "status",
+        "secondary": ["task", "checkpoint", "resume_instructions"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["INPROGRESS-DETECT"],
+      "synergizes_with": ["coordinator_v2"],
+      "rule": "If IN_PROGRESS, RESUME don't RESTART",
+      "success_criteria": "No task restarts when resume possible"
+    },
+    {
+      "id": "CAP-SESS-011",
+      "name": "Multi-Session Planning",
+      "description": "Plans work across multiple sessions",
+      "category": "PLANNING",
+      "inputs": {
+        "required": ["total_work"],
+        "optional": ["session_constraints"]
+      },
+      "outputs": {
+        "primary": "multi_session_plan",
+        "secondary": ["session_breakdown", "checkpoints", "dependencies"]
+      },
+      "skills_used": ["prism-session-master", "prism-sp-planning"],
+      "hooks_triggered": ["MULTI-SESSION-PLAN"],
+      "synergizes_with": ["coordinator_v2", "architect"],
+      "success_criteria": "Work distributed across sessions efficiently"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-session-master",
+    "prism-sp-handoff",
+    "prism-mathematical-planning",
+    "prism-sp-planning",
+    "prism-quality-master"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW6-CONTINUITY",
+    "session:preStart",
+    "session:preEnd",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "context_builder"
+  ],
+
+  "receives_from": [
+    "coordinator_v2"
+  ],
+
+  "quality_gates": [
+    "State file always current",
+    "Checkpoints at boundaries",
+    "Quick resume under 100 tokens",
+    "No work lost on compaction"
+  ],
+
+  "performance_metrics": {
+    "state_currency": 1.0,
+    "recovery_success": 0.99,
+    "resume_time_seconds": 30,
+    "checkpoints_per_session": 5
+  }
+}

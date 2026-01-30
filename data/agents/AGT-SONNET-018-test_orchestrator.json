@@ -1,0 +1,315 @@
+{
+  "agent_id": "AGT-SONNET-018",
+  "name": "test_orchestrator",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Test Orchestrator - Orchestrates All Testing Including Ralph Loop",
+  
+  "domain_expertise": [
+    "Test-driven development",
+    "Unit testing",
+    "Integration testing",
+    "Ralph loop testing",
+    "Regression testing",
+    "Performance testing",
+    "Test coverage analysis",
+    "Test suite management",
+    "Continuous testing",
+    "Test automation"
+  ],
+
+  "testing_philosophy": {
+    "principle": "Tests exist to catch bugs before they reach production",
+    "standard": "≥90% coverage, all edge cases, all integrations",
+    "ralph_loop": "Iterative improvement through test-feedback cycles"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-TEST-001",
+      "name": "Unit Test Orchestration",
+      "description": "Orchestrates unit testing across modules",
+      "category": "ORCHESTRATION",
+      "inputs": {
+        "required": ["modules"],
+        "optional": ["test_filter", "coverage_threshold"]
+      },
+      "outputs": {
+        "primary": "test_results",
+        "secondary": ["passed", "failed", "coverage", "duration"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master"],
+      "hooks_triggered": ["TEST-UNIT"],
+      "synergizes_with": ["coder", "code_reviewer"],
+      "success_criteria": "All unit tests pass, coverage ≥90%"
+    },
+    {
+      "id": "CAP-TEST-002",
+      "name": "Integration Test Orchestration",
+      "description": "Orchestrates integration testing between modules",
+      "category": "ORCHESTRATION",
+      "inputs": {
+        "required": ["modules"],
+        "optional": ["integration_points"]
+      },
+      "outputs": {
+        "primary": "integration_results",
+        "secondary": ["integrations_tested", "issues_found"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-wiring-templates"],
+      "hooks_triggered": ["TEST-INTEGRATION"],
+      "synergizes_with": ["architect", "coder"],
+      "success_criteria": "All integrations work correctly"
+    },
+    {
+      "id": "CAP-TEST-003",
+      "name": "Ralph Loop Testing",
+      "description": "Executes Ralph improvement loop (test → feedback → improve)",
+      "category": "ORCHESTRATION",
+      "inputs": {
+        "required": ["subject", "iterations"],
+        "optional": ["improvement_criteria"]
+      },
+      "outputs": {
+        "primary": "ralph_results",
+        "secondary": ["iteration_scores", "improvements_made", "final_quality"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master", "prism-deep-learning"],
+      "hooks_triggered": ["RALPH-LOOP"],
+      "synergizes_with": ["validator", "code_reviewer"],
+      "ralph_phases": [
+        "Test: Evaluate current state",
+        "Feedback: Identify improvements",
+        "Improve: Apply changes",
+        "Verify: Confirm improvement"
+      ],
+      "success_criteria": "Quality improves with each iteration"
+    },
+    {
+      "id": "CAP-TEST-004",
+      "name": "Regression Test Orchestration",
+      "description": "Orchestrates regression testing (Law 4 enforcement)",
+      "category": "ORCHESTRATION",
+      "inputs": {
+        "required": ["changes"],
+        "optional": ["regression_suite"]
+      },
+      "outputs": {
+        "primary": "regression_results",
+        "secondary": ["regressions_found", "new_issues"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-tdd-enhanced"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "TEST-REGRESSION"],
+      "synergizes_with": ["regression_detector"],
+      "success_criteria": "No regressions introduced"
+    },
+    {
+      "id": "CAP-TEST-005",
+      "name": "Performance Test Orchestration",
+      "description": "Orchestrates performance and benchmark testing",
+      "category": "ORCHESTRATION",
+      "inputs": {
+        "required": ["components"],
+        "optional": ["benchmarks", "thresholds"]
+      },
+      "outputs": {
+        "primary": "performance_results",
+        "secondary": ["latencies", "throughput", "resource_usage"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["TEST-PERFORMANCE"],
+      "synergizes_with": ["optimizer"],
+      "thresholds": {
+        "load_time": "<2s",
+        "calc_time": "<500ms",
+        "memory": "<100MB"
+      },
+      "success_criteria": "All performance thresholds met"
+    },
+    {
+      "id": "CAP-TEST-006",
+      "name": "Test Coverage Analysis",
+      "description": "Analyzes test coverage across codebase",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["test_results"],
+        "optional": ["coverage_tool"]
+      },
+      "outputs": {
+        "primary": "coverage_report",
+        "secondary": ["line_coverage", "branch_coverage", "uncovered_areas"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master"],
+      "hooks_triggered": ["COVERAGE-ANALYZE"],
+      "synergizes_with": ["code_reviewer"],
+      "targets": {
+        "line_coverage": "≥90%",
+        "branch_coverage": "≥85%",
+        "critical_paths": "100%"
+      },
+      "success_criteria": "Coverage meets targets"
+    },
+    {
+      "id": "CAP-TEST-007",
+      "name": "Test Suite Management",
+      "description": "Manages test suites and test organization",
+      "category": "MANAGEMENT",
+      "inputs": {
+        "required": ["test_suite"],
+        "optional": ["action"]
+      },
+      "outputs": {
+        "primary": "suite_status",
+        "secondary": ["test_count", "categories", "dependencies"]
+      },
+      "skills_used": ["prism-tdd-enhanced"],
+      "hooks_triggered": ["SUITE-MANAGE"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "Test suite organized and maintained"
+    },
+    {
+      "id": "CAP-TEST-008",
+      "name": "Physics Validation Testing",
+      "description": "Tests physics calculations against known values (LIFE SAFETY)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["physics_module", "validation_data"],
+        "optional": ["tolerance"]
+      },
+      "outputs": {
+        "primary": "physics_validation",
+        "secondary": ["accuracy", "deviations", "safety_check"]
+      },
+      "skills_used": ["prism-material-physics", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "TEST-PHYSICS"],
+      "synergizes_with": ["physics_validator", "force_calculator"],
+      "success_criteria": "Physics within safe tolerances"
+    },
+    {
+      "id": "CAP-TEST-009",
+      "name": "Edge Case Testing",
+      "description": "Tests edge cases and boundary conditions",
+      "category": "TESTING",
+      "inputs": {
+        "required": ["module"],
+        "optional": ["edge_cases"]
+      },
+      "outputs": {
+        "primary": "edge_case_results",
+        "secondary": ["cases_tested", "failures", "recommendations"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-predictive-thinking"],
+      "hooks_triggered": ["TEST-EDGE"],
+      "synergizes_with": ["coder"],
+      "edge_case_types": [
+        "Null/undefined inputs",
+        "Empty collections",
+        "Boundary values",
+        "Extreme values",
+        "Invalid inputs",
+        "Race conditions"
+      ],
+      "success_criteria": "All edge cases handled correctly"
+    },
+    {
+      "id": "CAP-TEST-010",
+      "name": "Test Report Generation",
+      "description": "Generates comprehensive test reports",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["test_results"],
+        "optional": ["report_format"]
+      },
+      "outputs": {
+        "primary": "test_report",
+        "secondary": ["summary", "details", "trends"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete test report"
+    },
+    {
+      "id": "CAP-TEST-011",
+      "name": "Test Prioritization",
+      "description": "Prioritizes tests based on risk and impact",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["test_suite", "changes"],
+        "optional": ["priority_criteria"]
+      },
+      "outputs": {
+        "primary": "prioritized_tests",
+        "secondary": ["high_priority", "medium_priority", "low_priority"]
+      },
+      "skills_used": ["prism-predictive-thinking", "prism-mathematical-planning"],
+      "hooks_triggered": ["TEST-PRIORITIZE"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Tests prioritized by risk"
+    },
+    {
+      "id": "CAP-TEST-012",
+      "name": "Continuous Testing Setup",
+      "description": "Sets up continuous testing infrastructure",
+      "category": "SETUP",
+      "inputs": {
+        "required": ["project"],
+        "optional": ["ci_platform"]
+      },
+      "outputs": {
+        "primary": "ci_config",
+        "secondary": ["pipelines", "triggers", "notifications"]
+      },
+      "skills_used": ["prism-dev-utilities"],
+      "hooks_triggered": ["CI-SETUP"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "CI/CD testing active"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-tdd-enhanced",
+    "prism-quality-master",
+    "prism-anti-regression",
+    "prism-wiring-templates",
+    "prism-deep-learning",
+    "prism-material-physics",
+    "prism-sp-verification",
+    "prism-predictive-thinking",
+    "prism-mathematical-planning",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW4-REGRESSION",
+    "SYS-LAW1-SAFETY",
+    "test:preSuite",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "regression_detector",
+    "physics_validator"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "coder"
+  ],
+
+  "quality_gates": [
+    "All tests pass",
+    "Coverage ≥90%",
+    "No regressions",
+    "Performance within thresholds"
+  ],
+
+  "performance_metrics": {
+    "test_pass_rate": 1.0,
+    "coverage_achieved": 0.90,
+    "latency_target_ms": 30000,
+    "tests_per_hour": 1000
+  }
+}

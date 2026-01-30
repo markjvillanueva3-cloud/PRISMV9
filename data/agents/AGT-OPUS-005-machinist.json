@@ -1,0 +1,603 @@
+{
+  "agent_id": "AGT-OPUS-005",
+  "name": "machinist",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Master Machinist (40+ Years Experience) - Practical Shop Floor Expertise",
+  
+  "domain_expertise": [
+    "CNC machine operation and programming",
+    "Cutting parameter optimization",
+    "Tool selection and application",
+    "Workholding and fixturing",
+    "Alarm troubleshooting",
+    "Surface finish achievement",
+    "Tolerance control",
+    "Shop floor problem solving"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-MCH-001",
+      "name": "Alarm Diagnosis and Resolution",
+      "description": "Diagnoses CNC controller alarms based on 40+ years of experience, identifying root causes and providing specific resolution steps with safety considerations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_code", "controller_type"],
+        "optional": ["machine_context", "recent_operations", "symptom_details"]
+      },
+      "outputs": {
+        "primary": "diagnosis_report",
+        "secondary": ["root_cause", "resolution_steps", "safety_warnings", "prevention_tips"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+      "hooks_triggered": ["ALARM-DIAGNOSE", "TROUBLESHOOT-START"],
+      "synergizes_with": ["alarm_validator", "gcode_expert", "data_quality_enforcer"],
+      "validation_rules": [
+        "Identify true root cause not symptom",
+        "Provide specific actionable steps",
+        "Include safety warnings for dangerous alarms",
+        "Never say just 'check manual'"
+      ],
+      "success_criteria": "Operator can resolve alarm safely"
+    },
+    {
+      "id": "CAP-MCH-002",
+      "name": "Cutting Parameter Optimization",
+      "description": "Optimizes cutting parameters (speed, feed, DOC) based on practical experience with specific material-tool-machine combinations",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["material", "tool", "operation"],
+        "optional": ["machine", "rigidity", "surface_finish_target", "cycle_time_priority"]
+      },
+      "outputs": {
+        "primary": "optimized_parameters",
+        "secondary": ["cutting_speed", "feed_rate", "depth_of_cut", "reasoning", "adjustments"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PARAM-OPTIMIZE", "CUTTING-RECOMMEND"],
+      "synergizes_with": ["materials_scientist", "force_calculator", "physics_validator"],
+      "validation_rules": [
+        "Start conservative, adjust up",
+        "Account for machine rigidity",
+        "Balance tool life vs productivity",
+        "Consider surface finish requirements"
+      ],
+      "success_criteria": "Parameters achieve desired results safely"
+    },
+    {
+      "id": "CAP-MCH-003",
+      "name": "Tool Selection Guidance",
+      "description": "Recommends optimal cutting tool selection including geometry, grade, coating based on application requirements and practical experience",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["operation", "material"],
+        "optional": ["tolerance", "surface_finish", "production_volume", "existing_tooling"]
+      },
+      "outputs": {
+        "primary": "tool_recommendation",
+        "secondary": ["tool_type", "geometry", "grade", "coating", "alternatives", "reasoning"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["TOOL-SELECT", "TOOLING-RECOMMEND"],
+      "synergizes_with": ["materials_scientist", "data_quality_enforcer"],
+      "validation_rules": [
+        "Match tool to application",
+        "Consider workholding rigidity",
+        "Account for chip evacuation",
+        "Balance performance vs cost"
+      ],
+      "success_criteria": "Tool performs as expected"
+    },
+    {
+      "id": "CAP-MCH-004",
+      "name": "Workholding Strategy Design",
+      "description": "Designs workholding strategies for part clamping including fixture selection, clamping points, and distortion prevention",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["part_geometry", "operations"],
+        "optional": ["material", "tolerances", "existing_fixtures", "production_volume"]
+      },
+      "outputs": {
+        "primary": "workholding_strategy",
+        "secondary": ["fixture_type", "clamping_points", "sequence", "distortion_prevention"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["WORKHOLD-DESIGN", "FIXTURE-PLAN"],
+      "synergizes_with": ["force_calculator", "physics_validator"],
+      "validation_rules": [
+        "Support against cutting forces",
+        "Avoid thin wall distortion",
+        "Maintain accessibility",
+        "Consider op sequence"
+      ],
+      "success_criteria": "Part held securely without distortion"
+    },
+    {
+      "id": "CAP-MCH-005",
+      "name": "Chatter Troubleshooting",
+      "description": "Diagnoses and resolves machining chatter problems using practical techniques and experience with stability improvement",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["chatter_description"],
+        "optional": ["current_parameters", "setup_details", "audio_frequency"]
+      },
+      "outputs": {
+        "primary": "chatter_resolution",
+        "secondary": ["cause_identification", "immediate_fixes", "long_term_solutions", "parameter_adjustments"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["CHATTER-DIAGNOSE", "STABILITY-IMPROVE"],
+      "synergizes_with": ["physics_validator", "force_calculator"],
+      "validation_rules": [
+        "Identify chatter type (regen vs forced)",
+        "Try spindle speed variation first",
+        "Reduce DOC or width before speed",
+        "Check toolholder runout"
+      ],
+      "success_criteria": "Chatter eliminated or minimized"
+    },
+    {
+      "id": "CAP-MCH-006",
+      "name": "Surface Finish Improvement",
+      "description": "Provides practical techniques to achieve target surface finish based on experience with different materials and operations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["current_finish", "target_finish"],
+        "optional": ["operation", "material", "current_parameters", "tool_condition"]
+      },
+      "outputs": {
+        "primary": "finish_improvement_plan",
+        "secondary": ["parameter_changes", "tool_changes", "technique_tips", "expected_improvement"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["FINISH-IMPROVE", "SURFACE-OPTIMIZE"],
+      "synergizes_with": ["materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "Ra proportional to f²/r",
+        "Higher speed often better finish",
+        "Nose radius affects finish",
+        "Consider wiper insert for finishing"
+      ],
+      "success_criteria": "Target surface finish achieved"
+    },
+    {
+      "id": "CAP-MCH-007",
+      "name": "Tool Wear Analysis",
+      "description": "Analyzes tool wear patterns to identify causes and recommend corrective actions based on decades of experience",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["wear_description OR wear_image"],
+        "optional": ["cutting_conditions", "material", "tool_life_achieved"]
+      },
+      "outputs": {
+        "primary": "wear_analysis",
+        "secondary": ["wear_type", "cause", "corrections", "expected_improvement"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["TOOL-WEAR-ANALYZE", "WEAR-DIAGNOSE"],
+      "synergizes_with": ["materials_scientist", "physics_validator"],
+      "validation_rules": [
+        "Flank wear: normal, may need speed reduction",
+        "Crater wear: too hot, reduce speed",
+        "Chipping: mechanical shock, reduce feed",
+        "BUE: speed in wrong range"
+      ],
+      "success_criteria": "Wear cause identified with corrective action"
+    },
+    {
+      "id": "CAP-MCH-008",
+      "name": "Quick Fix Procedure Generation",
+      "description": "Generates practical, actionable quick fix procedures for common machining problems based on shop floor experience",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["problem_description"],
+        "optional": ["urgency", "available_resources", "production_context"]
+      },
+      "outputs": {
+        "primary": "quick_fix_procedure",
+        "secondary": ["immediate_steps", "safety_warnings", "follow_up_actions", "root_cause_fix"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-manufacturing-tables"],
+      "hooks_triggered": ["QUICK-FIX-GEN", "PROCEDURE-CREATE"],
+      "synergizes_with": ["alarm_validator", "documentation_writer"],
+      "validation_rules": [
+        "Steps must be actionable",
+        "Include safety first",
+        "Specific tool/parameter values",
+        "Never 'check manual' only"
+      ],
+      "success_criteria": "Procedure resolves problem safely"
+    },
+    {
+      "id": "CAP-MCH-009",
+      "name": "Chip Control Strategy",
+      "description": "Develops chip control strategies for difficult materials based on practical experience with chip breaker selection and parameter adjustment",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material", "operation"],
+        "optional": ["current_chip_issues", "tool_type", "machine_constraints"]
+      },
+      "outputs": {
+        "primary": "chip_control_strategy",
+        "secondary": ["breaker_selection", "parameter_ranges", "technique_tips", "coolant_strategy"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["CHIP-CONTROL", "CHIP-STRATEGY"],
+      "synergizes_with": ["materials_scientist", "physics_validator"],
+      "validation_rules": [
+        "Match chip breaker to feed range",
+        "Consider chip thickness",
+        "Account for material ductility",
+        "Pecking for deep holes"
+      ],
+      "success_criteria": "Manageable chips achieved"
+    },
+    {
+      "id": "CAP-MCH-010",
+      "name": "G-Code Troubleshooting",
+      "description": "Troubleshoots G-code programming issues based on experience with multiple CNC controllers and common programming mistakes",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["gcode_snippet OR error_message", "controller_type"],
+        "optional": ["expected_behavior", "actual_behavior"]
+      },
+      "outputs": {
+        "primary": "gcode_analysis",
+        "secondary": ["issue_identified", "correction", "explanation", "best_practice"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+      "hooks_triggered": ["GCODE-TROUBLESHOOT", "PROGRAM-DEBUG"],
+      "synergizes_with": ["gcode_expert", "alarm_validator"],
+      "validation_rules": [
+        "Check syntax for controller",
+        "Verify modal states",
+        "Check coordinate systems",
+        "Validate tool calls"
+      ],
+      "success_criteria": "G-code issue resolved"
+    },
+    {
+      "id": "CAP-MCH-011",
+      "name": "Threading Parameter Selection",
+      "description": "Selects optimal threading parameters based on experience with thread cutting on lathes and mills including tap, die, and single-point",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["thread_spec", "material"],
+        "optional": ["machine_type", "production_volume", "accuracy_requirement"]
+      },
+      "outputs": {
+        "primary": "threading_parameters",
+        "secondary": ["method", "speeds_feeds", "depth_passes", "tips"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-gcode-reference"],
+      "hooks_triggered": ["THREAD-PARAM-SELECT"],
+      "synergizes_with": ["gcode_expert", "materials_scientist"],
+      "validation_rules": [
+        "Match method to requirements",
+        "Depth sequence for single-point",
+        "Speed for tapping",
+        "Coolant critical"
+      ],
+      "success_criteria": "Thread meets specifications"
+    },
+    {
+      "id": "CAP-MCH-012",
+      "name": "Drilling Parameter Optimization",
+      "description": "Optimizes drilling parameters including peck cycles, speeds, feeds, and coolant strategies based on hole requirements and material",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["hole_diameter", "depth", "material"],
+        "optional": ["tolerance", "surface_finish", "drill_type", "coolant_available"]
+      },
+      "outputs": {
+        "primary": "drilling_parameters",
+        "secondary": ["speed", "feed", "peck_depth", "coolant_strategy", "cycle_type"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-gcode-reference"],
+      "hooks_triggered": ["DRILL-PARAM-OPTIMIZE"],
+      "synergizes_with": ["materials_scientist", "gcode_expert"],
+      "validation_rules": [
+        "Peck for deep holes",
+        "Through coolant if available",
+        "Chip evacuation critical",
+        "Point angle matches material"
+      ],
+      "success_criteria": "Hole meets requirements with good tool life"
+    },
+    {
+      "id": "CAP-MCH-013",
+      "name": "Setup Reduction Guidance",
+      "description": "Provides guidance on reducing setup time based on lean manufacturing principles and practical shop experience",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["current_setup_description"],
+        "optional": ["target_reduction", "available_tooling", "machine_capabilities"]
+      },
+      "outputs": {
+        "primary": "setup_reduction_plan",
+        "secondary": ["quick_wins", "long_term_improvements", "investment_needs", "expected_savings"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["SETUP-REDUCE", "LEAN-IMPROVE"],
+      "synergizes_with": ["documentation_writer"],
+      "validation_rules": [
+        "External vs internal setup",
+        "Quick-change tooling",
+        "Standardized fixtures",
+        "Program macros for families"
+      ],
+      "success_criteria": "Setup time meaningfully reduced"
+    },
+    {
+      "id": "CAP-MCH-014",
+      "name": "Multi-Axis Strategy Selection",
+      "description": "Selects optimal machining strategy for 4-axis and 5-axis operations based on part geometry and machine capability",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["part_geometry", "machine_type"],
+        "optional": ["tolerance_requirements", "surface_finish", "cycle_time_priority"]
+      },
+      "outputs": {
+        "primary": "multiaxis_strategy",
+        "secondary": ["approach", "tool_axis_control", "positioning_vs_continuous", "collision_considerations"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-gcode-reference"],
+      "hooks_triggered": ["MULTIAXIS-STRATEGY", "5AXIS-PLAN"],
+      "synergizes_with": ["gcode_expert", "collision_checker"],
+      "validation_rules": [
+        "3+2 vs simultaneous",
+        "Tool length considerations",
+        "Machine kinematics limits",
+        "Collision avoidance"
+      ],
+      "success_criteria": "Strategy achieves requirements efficiently"
+    },
+    {
+      "id": "CAP-MCH-015",
+      "name": "Coolant Strategy Optimization",
+      "description": "Optimizes coolant strategy including type, concentration, delivery method based on operation requirements",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["operation", "material"],
+        "optional": ["machine_capability", "environmental_constraints", "current_issues"]
+      },
+      "outputs": {
+        "primary": "coolant_strategy",
+        "secondary": ["coolant_type", "concentration", "delivery_method", "maintenance_tips"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["COOLANT-OPTIMIZE"],
+      "synergizes_with": ["materials_scientist", "thermal_calculator"],
+      "validation_rules": [
+        "Match coolant to material",
+        "Through-tool when possible",
+        "High pressure for deep holes",
+        "Mist for certain applications"
+      ],
+      "success_criteria": "Coolant effectively supports machining"
+    },
+    {
+      "id": "CAP-MCH-016",
+      "name": "Tolerance Achievement Strategy",
+      "description": "Develops strategies to achieve tight tolerances based on practical experience with thermal compensation, gauging, and process control",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["tolerance_requirement", "feature_type"],
+        "optional": ["material", "current_capability", "environmental_factors"]
+      },
+      "outputs": {
+        "primary": "tolerance_strategy",
+        "secondary": ["process_approach", "gauging_plan", "compensation_method", "control_factors"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["TOLERANCE-ACHIEVE", "PRECISION-PLAN"],
+      "synergizes_with": ["physics_validator", "thermal_calculator"],
+      "validation_rules": [
+        "Account for thermal growth",
+        "Proper gauging technique",
+        "Statistical process control",
+        "Machine capability adequate"
+      ],
+      "success_criteria": "Tolerance consistently achieved"
+    },
+    {
+      "id": "CAP-MCH-017",
+      "name": "Machine Warm-Up Guidance",
+      "description": "Provides guidance on machine warm-up procedures to achieve thermal stability for precision work",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["machine_type"],
+        "optional": ["precision_requirement", "environmental_conditions", "time_available"]
+      },
+      "outputs": {
+        "primary": "warmup_procedure",
+        "secondary": ["spindle_warmup", "axis_warmup", "timing", "verification_method"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["MACHINE-WARMUP"],
+      "synergizes_with": ["thermal_calculator"],
+      "validation_rules": [
+        "Spindle needs longest warmup",
+        "Cycle through speed range",
+        "Move axes through travel",
+        "Verify thermal stability"
+      ],
+      "success_criteria": "Machine thermally stable"
+    },
+    {
+      "id": "CAP-MCH-018",
+      "name": "First Article Strategy",
+      "description": "Develops first article inspection and prove-out strategy for new parts or setups based on quality requirements",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["part_requirements"],
+        "optional": ["critical_features", "inspection_capability", "production_volume"]
+      },
+      "outputs": {
+        "primary": "first_article_strategy",
+        "secondary": ["prove_out_sequence", "inspection_points", "adjustment_plan", "documentation"]
+      },
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["FIRST-ARTICLE-PLAN"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "validation_rules": [
+        "Start with test cut",
+        "Measure critical features first",
+        "Document offsets and adjustments",
+        "Sign-off before production"
+      ],
+      "success_criteria": "First article approved efficiently"
+    },
+    {
+      "id": "CAP-MCH-019",
+      "name": "Emergency Response Guidance",
+      "description": "Provides emergency response guidance for machine incidents including collision recovery, tool breakage, and emergency stops",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["emergency_type"],
+        "optional": ["machine_state", "damage_assessment"]
+      },
+      "outputs": {
+        "primary": "emergency_response",
+        "secondary": ["immediate_actions", "safety_checks", "recovery_steps", "damage_assessment"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-manufacturing-tables"],
+      "hooks_triggered": ["EMERGENCY-RESPOND", "INCIDENT-HANDLE"],
+      "synergizes_with": ["alarm_validator"],
+      "validation_rules": [
+        "Safety first always",
+        "Don't restart without checks",
+        "Document incident",
+        "Investigate root cause"
+      ],
+      "success_criteria": "Emergency handled safely"
+    },
+    {
+      "id": "CAP-MCH-020",
+      "name": "Process Capability Assessment",
+      "description": "Assesses process capability based on practical measurement and statistical analysis experience",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["measurement_data"],
+        "optional": ["specification_limits", "sample_size", "measurement_system"]
+      },
+      "outputs": {
+        "primary": "capability_assessment",
+        "secondary": ["Cp", "Cpk", "interpretation", "improvement_suggestions"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["CAPABILITY-ASSESS"],
+      "synergizes_with": ["physics_validator", "data_quality_enforcer"],
+      "validation_rules": [
+        "Cpk > 1.33 for capable process",
+        "Account for measurement error",
+        "Adequate sample size",
+        "Check for stability first"
+      ],
+      "success_criteria": "Capability accurately assessed"
+    },
+    {
+      "id": "CAP-MCH-021",
+      "name": "Machinist Knowledge Sharing",
+      "description": "Shares practical machining knowledge including tips, tricks, and lessons learned from 40+ years of experience",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["topic"],
+        "optional": ["skill_level", "specific_application"]
+      },
+      "outputs": {
+        "primary": "knowledge_content",
+        "secondary": ["practical_tips", "common_mistakes", "pro_techniques", "safety_notes"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-manufacturing-tables"],
+      "hooks_triggered": ["KNOWLEDGE-SHARE"],
+      "synergizes_with": ["documentation_writer", "materials_scientist"],
+      "validation_rules": [
+        "Practical and actionable",
+        "Based on real experience",
+        "Include safety considerations",
+        "Appropriate to skill level"
+      ],
+      "success_criteria": "Knowledge useful and accurate"
+    },
+    {
+      "id": "CAP-MCH-022",
+      "name": "Alarm Quick Fix Generation",
+      "description": "Generates quick fix procedures for CNC alarms that are immediately actionable by operators on the shop floor",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["alarm_code", "controller_type"],
+        "optional": ["machine_model", "context"]
+      },
+      "outputs": {
+        "primary": "quick_fix",
+        "secondary": ["immediate_action", "safety_check", "verification_step", "when_to_call_service"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["ALARM-QUICK-FIX-GEN"],
+      "synergizes_with": ["alarm_validator", "data_quality_enforcer"],
+      "validation_rules": [
+        "Steps must be specific",
+        "Include safety warnings",
+        "Actionable by operator",
+        "Never generic 'check manual'"
+      ],
+      "success_criteria": "Operator can resolve alarm"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-error-catalog",
+    "prism-manufacturing-tables",
+    "prism-gcode-reference",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-material-physics",
+    "prism-knowledge-master"
+  ],
+
+  "hooks_subscribed": [
+    "ALARM-DIAGNOSE",
+    "PARAM-OPTIMIZE",
+    "TOOL-SELECT",
+    "WORKHOLD-DESIGN",
+    "CHATTER-DIAGNOSE",
+    "FINISH-IMPROVE",
+    "TOOL-WEAR-ANALYZE",
+    "QUICK-FIX-GEN",
+    "GCODE-TROUBLESHOOT",
+    "EMERGENCY-RESPOND",
+    "ALARM-QUICK-FIX-GEN"
+  ],
+
+  "can_delegate_to": [
+    "gcode_expert",
+    "alarm_validator",
+    "force_calculator"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "materials_scientist",
+    "physics_validator",
+    "alarm extraction swarm"
+  ],
+
+  "quality_gates": [
+    "Advice must be safe",
+    "Steps must be actionable",
+    "Never generic instructions",
+    "Include relevant safety warnings"
+  ],
+
+  "performance_metrics": {
+    "practical_accuracy": 0.95,
+    "safety_compliance": 1.00,
+    "latency_target_ms": 3000,
+    "user_satisfaction_target": 0.90,
+    "cost_budget_per_call": 0.15
+  }
+}

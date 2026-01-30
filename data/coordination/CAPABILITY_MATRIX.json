@@ -1,0 +1,3916 @@
+{
+  "capabilityMatrix": {
+    "metadata": {
+      "version": "2.0.0",
+      "created": "2026-01-28T19:19:58.472269",
+      "lastUpdated": "2026-01-28T19:51:18.639665",
+      "purpose": "Resource-to-task capability scoring for F-RESOURCE-001",
+      "dimensions": {
+        "domains": 15,
+        "operations": 18,
+        "resources": 101
+      }
+    },
+    "domains": [
+      "materials",
+      "physics",
+      "tooling",
+      "machining",
+      "gcode",
+      "planning",
+      "validation",
+      "extraction",
+      "calculation",
+      "documentation",
+      "testing",
+      "coordination",
+      "optimization",
+      "learning",
+      "safety"
+    ],
+    "operations": [
+      "calculate",
+      "validate",
+      "generate",
+      "extract",
+      "optimize",
+      "coordinate",
+      "prove",
+      "calibrate",
+      "learn",
+      "verify",
+      "transform",
+      "analyze",
+      "synthesize",
+      "debug",
+      "document",
+      "test",
+      "plan",
+      "execute"
+    ],
+    "resourceCapabilities": {
+      "SKILL-001": {
+        "name": "prism-combination-engine",
+        "domainScores": {
+          "coordination": 1.0,
+          "optimization": 0.98,
+          "planning": 0.95
+        },
+        "operationScores": {
+          "coordinate": 1.0,
+          "optimize": 0.98,
+          "prove": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.81,
+        "taskTypeScores": {}
+      },
+      "SKILL-002": {
+        "name": "prism-deep-learning",
+        "domainScores": {
+          "learning": 1.0,
+          "optimization": 0.85,
+          "validation": 0.75
+        },
+        "operationScores": {
+          "learn": 1.0,
+          "optimize": 0.85,
+          "analyze": 0.9
+        },
+        "complexity": 0.8400000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-003": {
+        "name": "prism-formula-evolution",
+        "domainScores": {
+          "calculation": 0.95,
+          "physics": 0.9,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "calibrate": 1.0,
+          "verify": 0.9
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "SKILL-004": {
+        "name": "prism-uncertainty-propagation",
+        "domainScores": {
+          "calculation": 0.9,
+          "validation": 0.95,
+          "physics": 0.8
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "validate": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.8400000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-005": {
+        "name": "prism-mathematical-planning",
+        "domainScores": {
+          "planning": 1.0,
+          "calculation": 0.9,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "plan": 1.0,
+          "prove": 0.95,
+          "calculate": 0.9
+        },
+        "complexity": 0.64,
+        "taskTypeScores": {}
+      },
+      "SKILL-006": {
+        "name": "prism-hook-system",
+        "domainScores": {
+          "coordination": 0.9,
+          "validation": 0.95,
+          "safety": 0.9
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "coordinate": 0.9,
+          "verify": 0.9
+        },
+        "complexity": 0.67,
+        "taskTypeScores": {}
+      },
+      "SKILL-007": {
+        "name": "prism-swarm-coordinator",
+        "domainScores": {
+          "coordination": 0.95,
+          "planning": 0.85,
+          "optimization": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "optimize": 0.85,
+          "execute": 0.8
+        },
+        "complexity": 0.55,
+        "taskTypeScores": {}
+      },
+      "SKILL-008": {
+        "name": "prism-resource-optimizer",
+        "domainScores": {
+          "optimization": 0.95,
+          "coordination": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "calculate": 0.85,
+          "analyze": 0.8
+        },
+        "complexity": 0.85,
+        "taskTypeScores": {}
+      },
+      "SKILL-009": {
+        "name": "prism-agent-selector",
+        "domainScores": {
+          "coordination": 0.9,
+          "optimization": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "optimize": 0.9,
+          "analyze": 0.85,
+          "calculate": 0.8
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-010": {
+        "name": "prism-synergy-calculator",
+        "domainScores": {
+          "calculation": 0.9,
+          "optimization": 0.85,
+          "learning": 0.8
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "optimize": 0.85,
+          "learn": 0.8
+        },
+        "complexity": 0.64,
+        "taskTypeScores": {}
+      },
+      "SKILL-011": {
+        "name": "prism-claude-code-bridge",
+        "domainScores": {
+          "coordination": 0.85,
+          "extraction": 0.8,
+          "testing": 0.75
+        },
+        "operationScores": {
+          "execute": 0.9,
+          "coordinate": 0.85,
+          "test": 0.75
+        },
+        "complexity": 0.52,
+        "taskTypeScores": {}
+      },
+      "SKILL-012": {
+        "name": "prism-sp-brainstorm",
+        "domainScores": {
+          "planning": 0.95,
+          "documentation": 0.8,
+          "coordination": 0.75
+        },
+        "operationScores": {
+          "plan": 0.95,
+          "analyze": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "SKILL-013": {
+        "name": "prism-sp-planning",
+        "domainScores": {
+          "planning": 1.0,
+          "coordination": 1.0,
+          "documentation": 0.8999999999999999
+        },
+        "operationScores": {
+          "plan": 1.0,
+          "coordinate": 1.0,
+          "document": 0.96
+        },
+        "complexity": 0.77,
+        "taskTypeScores": {}
+      },
+      "SKILL-014": {
+        "name": "prism-sp-execution",
+        "domainScores": {
+          "coordination": 1.0,
+          "planning": 0.96,
+          "testing": 0.8999999999999999
+        },
+        "operationScores": {
+          "execute": 1.0,
+          "coordinate": 1.0,
+          "verify": 0.96
+        },
+        "complexity": 0.71,
+        "taskTypeScores": {}
+      },
+      "SKILL-015": {
+        "name": "prism-sp-debugging",
+        "domainScores": {
+          "testing": 0.95,
+          "validation": 0.9,
+          "documentation": 0.75
+        },
+        "operationScores": {
+          "debug": 1.0,
+          "analyze": 0.9,
+          "verify": 0.85
+        },
+        "complexity": 0.81,
+        "taskTypeScores": {}
+      },
+      "SKILL-016": {
+        "name": "prism-material-schema",
+        "domainScores": {
+          "materials": 1.0,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "document": 0.9,
+          "validate": 0.85,
+          "generate": 0.8
+        },
+        "complexity": 0.51,
+        "taskTypeScores": {}
+      },
+      "SKILL-017": {
+        "name": "prism-material-physics",
+        "domainScores": {
+          "materials": 0.95,
+          "physics": 1.0,
+          "calculation": 0.9
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.79,
+        "taskTypeScores": {}
+      },
+      "SKILL-018": {
+        "name": "prism-material-lookup",
+        "domainScores": {
+          "materials": 0.95,
+          "extraction": 0.85,
+          "calculation": 0.75
+        },
+        "operationScores": {
+          "extract": 0.9,
+          "analyze": 0.8,
+          "calculate": 0.75
+        },
+        "complexity": 0.61,
+        "taskTypeScores": {}
+      },
+      "SKILL-019": {
+        "name": "prism-material-validator",
+        "domainScores": {
+          "materials": 0.9,
+          "validation": 0.95,
+          "testing": 0.85
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.7,
+        "taskTypeScores": {}
+      },
+      "SKILL-020": {
+        "name": "prism-material-enhancer",
+        "domainScores": {
+          "materials": 0.95,
+          "learning": 0.8,
+          "optimization": 0.75
+        },
+        "operationScores": {
+          "optimize": 0.85,
+          "generate": 0.8,
+          "validate": 0.8
+        },
+        "complexity": 0.63,
+        "taskTypeScores": {}
+      },
+      "SKILL-021": {
+        "name": "prism-monolith-extractor",
+        "domainScores": {
+          "extraction": 1.0,
+          "documentation": 0.96,
+          "validation": 0.8999999999999999
+        },
+        "operationScores": {
+          "extract": 1.0,
+          "analyze": 1.0,
+          "document": 0.8999999999999999
+        },
+        "complexity": 0.85,
+        "taskTypeScores": {}
+      },
+      "SKILL-022": {
+        "name": "prism-monolith-index",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.95,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.9,
+          "extract": 0.85
+        },
+        "complexity": 0.79,
+        "taskTypeScores": {}
+      },
+      "SKILL-023": {
+        "name": "prism-monolith-navigator",
+        "domainScores": {
+          "extraction": 1.0,
+          "documentation": 1.0,
+          "planning": 0.8999999999999999
+        },
+        "operationScores": {
+          "extract": 1.0,
+          "analyze": 1.0,
+          "document": 0.96
+        },
+        "complexity": 0.86,
+        "taskTypeScores": {}
+      },
+      "SKILL-024": {
+        "name": "prism-fanuc-programming",
+        "domainScores": {
+          "gcode": 1.0,
+          "machining": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "document": 0.85
+        },
+        "complexity": 0.78,
+        "taskTypeScores": {}
+      },
+      "SKILL-025": {
+        "name": "prism-siemens-programming",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "document": 0.85
+        },
+        "complexity": 0.69,
+        "taskTypeScores": {}
+      },
+      "SKILL-026": {
+        "name": "prism-heidenhain-programming",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "document": 0.85
+        },
+        "complexity": 0.52,
+        "taskTypeScores": {}
+      },
+      "SKILL-027": {
+        "name": "prism-gcode-reference",
+        "domainScores": {
+          "gcode": 1.0,
+          "machining": 0.85,
+          "documentation": 0.9
+        },
+        "operationScores": {
+          "document": 0.95,
+          "generate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.77,
+        "taskTypeScores": {}
+      },
+      "SKILL-028": {
+        "name": "prism-code-perfection",
+        "domainScores": {
+          "gcode": 0.8
+        },
+        "operationScores": {
+          "generate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "SKILL-029": {
+        "name": "prism-master-equation",
+        "domainScores": {
+          "optimization": 0.95,
+          "coordination": 0.9
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "optimize": 0.9
+        },
+        "complexity": 0.88,
+        "taskTypeScores": {}
+      },
+      "SKILL-030": {
+        "name": "prism-process-optimizer",
+        "domainScores": {
+          "optimization": 0.95,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.61,
+        "taskTypeScores": {}
+      },
+      "SKILL-031": {
+        "name": "prism-reasoning-engine",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "SKILL-032": {
+        "name": "prism-safety-framework",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.64,
+        "taskTypeScores": {}
+      },
+      "SKILL-033": {
+        "name": "prism-universal-formulas",
+        "domainScores": {
+          "physics": 0.8,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.85
+        },
+        "complexity": 0.71,
+        "taskTypeScores": {}
+      },
+      "SKILL-034": {
+        "name": "prism-sp-handoff",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.69,
+        "taskTypeScores": {}
+      },
+      "SKILL-035": {
+        "name": "prism-sp-review-quality",
+        "domainScores": {
+          "validation": 1.0
+        },
+        "operationScores": {
+          "validate": 1.0
+        },
+        "complexity": 0.74,
+        "taskTypeScores": {}
+      },
+      "SKILL-036": {
+        "name": "prism-sp-review-spec",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.87,
+        "taskTypeScores": {}
+      },
+      "SKILL-037": {
+        "name": "prism-sp-verification",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.7,
+        "taskTypeScores": {}
+      },
+      "SKILL-038": {
+        "name": "prism-code-master",
+        "domainScores": {
+          "gcode": 0.8
+        },
+        "operationScores": {
+          "generate": 0.8
+        },
+        "complexity": 0.8200000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-039": {
+        "name": "prism-controller-quick-ref",
+        "domainScores": {
+          "gcode": 0.9,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "generate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.67,
+        "taskTypeScores": {}
+      },
+      "SKILL-040": {
+        "name": "prism-dev-utilities",
+        "domainScores": {
+          "coordination": 1.0,
+          "testing": 0.96
+        },
+        "operationScores": {
+          "execute": 1.0,
+          "coordinate": 0.96
+        },
+        "complexity": 0.71,
+        "taskTypeScores": {}
+      },
+      "SKILL-041": {
+        "name": "prism-expert-master",
+        "domainScores": {
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "analyze": 1.0
+        },
+        "complexity": 0.59,
+        "taskTypeScores": {}
+      },
+      "SKILL-042": {
+        "name": "prism-knowledge-master",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.87,
+        "taskTypeScores": {}
+      },
+      "SKILL-043": {
+        "name": "prism-quality-master",
+        "domainScores": {
+          "validation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.85
+        },
+        "complexity": 0.6799999999999999,
+        "taskTypeScores": {}
+      },
+      "SKILL-044": {
+        "name": "prism-session-master",
+        "domainScores": {
+          "planning": 0.96
+        },
+        "operationScores": {
+          "plan": 0.96
+        },
+        "complexity": 0.63,
+        "taskTypeScores": {}
+      },
+      "SKILL-045": {
+        "name": "prism-validator",
+        "domainScores": {
+          "validation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.85
+        },
+        "complexity": 0.8300000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-046": {
+        "name": "prism-speed-feed-engine",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.61,
+        "taskTypeScores": {}
+      },
+      "SKILL-047": {
+        "name": "prism-tool-holder-schema",
+        "domainScores": {
+          "tooling": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.8
+        },
+        "complexity": 0.85,
+        "taskTypeScores": {}
+      },
+      "SKILL-048": {
+        "name": "prism-api-contracts",
+        "domainScores": {
+          "documentation": 1.0,
+          "coordination": 0.96
+        },
+        "operationScores": {
+          "document": 1.0,
+          "validate": 0.96
+        },
+        "complexity": 0.7,
+        "taskTypeScores": {}
+      },
+      "SKILL-049": {
+        "name": "prism-error-catalog",
+        "domainScores": {
+          "documentation": 0.95,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "document": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.86,
+        "taskTypeScores": {}
+      },
+      "SKILL-050": {
+        "name": "prism-expert-cad-expert",
+        "domainScores": {
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "analyze": 1.0
+        },
+        "complexity": 0.66,
+        "taskTypeScores": {}
+      },
+      "SKILL-051": {
+        "name": "prism-expert-cam-programmer",
+        "domainScores": {
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.85
+        },
+        "complexity": 0.8300000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-052": {
+        "name": "prism-expert-master-machinist",
+        "domainScores": {
+          "machining": 0.95,
+          "tooling": 0.9
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "optimize": 0.85
+        },
+        "complexity": 0.69,
+        "taskTypeScores": {}
+      },
+      "SKILL-053": {
+        "name": "prism-expert-materials-scientist",
+        "domainScores": {
+          "materials": 0.85,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.85
+        },
+        "complexity": 0.86,
+        "taskTypeScores": {}
+      },
+      "SKILL-054": {
+        "name": "prism-expert-mathematics",
+        "domainScores": {
+          "calculation": 0.95,
+          "physics": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "prove": 0.9
+        },
+        "complexity": 0.88,
+        "taskTypeScores": {}
+      },
+      "SKILL-055": {
+        "name": "prism-expert-mechanical-engineer",
+        "domainScores": {
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "analyze": 1.0
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-056": {
+        "name": "prism-expert-post-processor",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.85
+        },
+        "complexity": 0.64,
+        "taskTypeScores": {}
+      },
+      "SKILL-057": {
+        "name": "prism-expert-quality-control",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "analyze": 0.9
+        },
+        "complexity": 0.65,
+        "taskTypeScores": {}
+      },
+      "SKILL-058": {
+        "name": "prism-expert-quality-manager",
+        "domainScores": {
+          "validation": 0.85,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.85,
+          "analyze": 0.85
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-059": {
+        "name": "prism-expert-thermodynamics",
+        "domainScores": {
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.85
+        },
+        "complexity": 0.89,
+        "taskTypeScores": {}
+      },
+      "SKILL-060": {
+        "name": "prism-manufacturing-tables",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.66,
+        "taskTypeScores": {}
+      },
+      "SKILL-061": {
+        "name": "prism-post-processor-reference",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.56,
+        "taskTypeScores": {}
+      },
+      "SKILL-062": {
+        "name": "prism-product-calculators",
+        "domainScores": {
+          "coordination": 0.72,
+          "documentation": 0.6
+        },
+        "operationScores": {
+          "analyze": 0.72,
+          "document": 0.6
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "SKILL-063": {
+        "name": "prism-wiring-templates",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.53,
+        "taskTypeScores": {}
+      },
+      "SKILL-064": {
+        "name": "prism-algorithm-selector",
+        "domainScores": {
+          "optimization": 0.95,
+          "planning": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.74,
+        "taskTypeScores": {}
+      },
+      "SKILL-065": {
+        "name": "prism-auditor",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.54,
+        "taskTypeScores": {}
+      },
+      "SKILL-066": {
+        "name": "prism-coding-patterns",
+        "domainScores": {
+          "documentation": 0.9,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "transform": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-067": {
+        "name": "prism-consumer-mapper",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "extract": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.66,
+        "taskTypeScores": {}
+      },
+      "SKILL-068": {
+        "name": "prism-context-dna",
+        "domainScores": {
+          "coordination": 0.85,
+          "learning": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.85,
+          "extract": 0.8
+        },
+        "complexity": 0.76,
+        "taskTypeScores": {}
+      },
+      "SKILL-069": {
+        "name": "prism-context-pressure",
+        "domainScores": {
+          "coordination": 0.9,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "analyze": 0.8
+        },
+        "complexity": 0.5700000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-070": {
+        "name": "prism-debugging",
+        "domainScores": {
+          "testing": 0.95,
+          "validation": 0.9
+        },
+        "operationScores": {
+          "debug": 0.95,
+          "analyze": 0.9
+        },
+        "complexity": 0.87,
+        "taskTypeScores": {}
+      },
+      "SKILL-071": {
+        "name": "prism-dependency-graph",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85
+        },
+        "complexity": 0.76,
+        "taskTypeScores": {}
+      },
+      "SKILL-072": {
+        "name": "prism-error-recovery",
+        "domainScores": {
+          "validation": 1.0,
+          "safety": 1.0
+        },
+        "operationScores": {
+          "validate": 1.0,
+          "coordinate": 1.0
+        },
+        "complexity": 0.63,
+        "taskTypeScores": {}
+      },
+      "SKILL-073": {
+        "name": "prism-extractor",
+        "domainScores": {
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "extract": 0.85
+        },
+        "complexity": 0.71,
+        "taskTypeScores": {}
+      },
+      "SKILL-074": {
+        "name": "prism-hierarchy-manager",
+        "domainScores": {
+          "coordination": 0.9,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "analyze": 0.8
+        },
+        "complexity": 0.5700000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-075": {
+        "name": "prism-large-file-writer",
+        "domainScores": {
+          "extraction": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "generate": 0.85,
+          "extract": 0.8
+        },
+        "complexity": 0.55,
+        "taskTypeScores": {}
+      },
+      "SKILL-076": {
+        "name": "prism-python-tools",
+        "domainScores": {
+          "coordination": 0.85,
+          "testing": 0.8
+        },
+        "operationScores": {
+          "execute": 0.85,
+          "coordinate": 0.8
+        },
+        "complexity": 0.65,
+        "taskTypeScores": {}
+      },
+      "SKILL-077": {
+        "name": "prism-state-manager",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.5,
+        "taskTypeScores": {}
+      },
+      "SKILL-078": {
+        "name": "prism-unit-converter",
+        "domainScores": {
+          "calculation": 0.9,
+          "physics": 0.8
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "transform": 0.85
+        },
+        "complexity": 0.8300000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-079": {
+        "name": "prism-all-skills",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.5,
+        "taskTypeScores": {}
+      },
+      "SKILL-080": {
+        "name": "prism-category-defaults",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.52,
+        "taskTypeScores": {}
+      },
+      "SKILL-081": {
+        "name": "prism-derivation-helpers",
+        "domainScores": {
+          "physics": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "prove": 0.85
+        },
+        "complexity": 0.77,
+        "taskTypeScores": {}
+      },
+      "SKILL-082": {
+        "name": "prism-development",
+        "domainScores": {
+          "coordination": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.85,
+          "plan": 0.8
+        },
+        "complexity": 0.7,
+        "taskTypeScores": {}
+      },
+      "SKILL-083": {
+        "name": "prism-extraction-index",
+        "domainScores": {
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "extract": 0.85
+        },
+        "complexity": 0.74,
+        "taskTypeScores": {}
+      },
+      "SKILL-084": {
+        "name": "prism-knowledge-base",
+        "domainScores": {
+          "documentation": 0.9,
+          "learning": 0.85
+        },
+        "operationScores": {
+          "document": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.77,
+        "taskTypeScores": {}
+      },
+      "SKILL-085": {
+        "name": "prism-material-template",
+        "domainScores": {
+          "materials": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "generate": 0.9,
+          "document": 0.8
+        },
+        "complexity": 0.72,
+        "taskTypeScores": {}
+      },
+      "SKILL-086": {
+        "name": "prism-material-templates",
+        "domainScores": {
+          "materials": 1.0,
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "generate": 1.0,
+          "document": 1.0
+        },
+        "complexity": 0.81,
+        "taskTypeScores": {}
+      },
+      "SKILL-087": {
+        "name": "prism-monolith-navigator-sp",
+        "domainScores": {
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "extract": 0.85
+        },
+        "complexity": 0.59,
+        "taskTypeScores": {}
+      },
+      "SKILL-088": {
+        "name": "prism-physics-formulas",
+        "domainScores": {
+          "physics": 0.95,
+          "calculation": 0.9
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.85,
+        "taskTypeScores": {}
+      },
+      "SKILL-089": {
+        "name": "prism-physics-reference",
+        "domainScores": {
+          "physics": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "document": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-090": {
+        "name": "prism-planning",
+        "domainScores": {
+          "planning": 0.95,
+          "coordination": 0.85
+        },
+        "operationScores": {
+          "plan": 0.95,
+          "coordinate": 0.85
+        },
+        "complexity": 0.5,
+        "taskTypeScores": {}
+      },
+      "SKILL-091": {
+        "name": "prism-quality-gates",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9
+        },
+        "complexity": 0.71,
+        "taskTypeScores": {}
+      },
+      "SKILL-092": {
+        "name": "prism-quick-start",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.53,
+        "taskTypeScores": {}
+      },
+      "SKILL-093": {
+        "name": "prism-review",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.52,
+        "taskTypeScores": {}
+      },
+      "SKILL-094": {
+        "name": "prism-session-buffer",
+        "domainScores": {
+          "coordination": 0.9,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "analyze": 0.8
+        },
+        "complexity": 0.56,
+        "taskTypeScores": {}
+      },
+      "SKILL-095": {
+        "name": "prism-session-handoff",
+        "domainScores": {
+          "coordination": 0.95,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "document": 0.85
+        },
+        "complexity": 0.5700000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-096": {
+        "name": "prism-swarm-orchestrator",
+        "domainScores": {
+          "coordination": 0.95,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "optimize": 0.85
+        },
+        "complexity": 0.8400000000000001,
+        "taskTypeScores": {}
+      },
+      "SKILL-097": {
+        "name": "prism-task-continuity",
+        "domainScores": {
+          "coordination": 0.9,
+          "planning": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "verify": 0.85
+        },
+        "complexity": 0.5,
+        "taskTypeScores": {}
+      },
+      "SKILL-098": {
+        "name": "prism-tdd",
+        "domainScores": {
+          "coordination": 0.6,
+          "documentation": 0.5
+        },
+        "operationScores": {
+          "analyze": 0.6,
+          "document": 0.5
+        },
+        "complexity": 0.73,
+        "taskTypeScores": {}
+      },
+      "SKILL-099": {
+        "name": "prism-tool-selector",
+        "domainScores": {
+          "tooling": 0.95,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "analyze": 0.85
+        },
+        "complexity": 0.61,
+        "taskTypeScores": {}
+      },
+      "SKILL-100": {
+        "name": "prism-utilization",
+        "domainScores": {
+          "validation": 0.9,
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "validate": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.55,
+        "taskTypeScores": {}
+      },
+      "SKILL-101": {
+        "name": "prism-verification",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9
+        },
+        "operationScores": {
+          "verify": 0.95,
+          "validate": 0.9
+        },
+        "complexity": 0.85,
+        "taskTypeScores": {}
+      },
+      "AGENT-001": {
+        "name": "architect",
+        "domainScores": {
+          "planning": 0.95,
+          "coordination": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "plan": 0.95,
+          "coordinate": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-002": {
+        "name": "coordinator",
+        "domainScores": {
+          "coordination": 0.95,
+          "planning": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "plan": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-003": {
+        "name": "materials_scientist",
+        "domainScores": {
+          "materials": 0.98,
+          "physics": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-004": {
+        "name": "machinist",
+        "domainScores": {
+          "machining": 0.98,
+          "tooling": 0.9,
+          "gcode": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "calculate": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-005": {
+        "name": "physics_validator",
+        "domainScores": {
+          "physics": 0.98,
+          "validation": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-006": {
+        "name": "domain_expert",
+        "domainScores": {
+          "documentation": 0.9,
+          "planning": 0.85,
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-007": {
+        "name": "migration_specialist",
+        "domainScores": {
+          "extraction": 0.95,
+          "coordination": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "coordinate": 0.85,
+          "plan": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-008": {
+        "name": "synthesizer",
+        "domainScores": {
+          "learning": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "synthesize": 0.95,
+          "analyze": 0.85,
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-009": {
+        "name": "debugger",
+        "domainScores": {
+          "testing": 0.98,
+          "validation": 0.9,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "debug": 0.98,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-010": {
+        "name": "root_cause_analyst",
+        "domainScores": {
+          "testing": 0.95,
+          "validation": 0.9,
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "debug": 0.9,
+          "verify": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-011": {
+        "name": "task_decomposer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-012": {
+        "name": "learning_extractor",
+        "domainScores": {
+          "learning": 0.95,
+          "extraction": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "learn": 0.95,
+          "extract": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-013": {
+        "name": "verification_chain",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-014": {
+        "name": "uncertainty_quantifier",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-015": {
+        "name": "meta_analyst",
+        "domainScores": {
+          "learning": 0.95,
+          "coordination": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "synthesize": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-016": {
+        "name": "combination_optimizer",
+        "domainScores": {
+          "optimization": 0.98,
+          "coordination": 0.9,
+          "planning": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.98,
+          "coordinate": 0.9,
+          "prove": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-017": {
+        "name": "synergy_analyst",
+        "domainScores": {
+          "optimization": 0.95,
+          "learning": 0.9,
+          "coordination": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "learn": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-018": {
+        "name": "proof_generator",
+        "domainScores": {
+          "validation": 0.95,
+          "calculation": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "prove": 0.98,
+          "verify": 0.9,
+          "document": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-019": {
+        "name": "extractor",
+        "domainScores": {
+          "extraction": 0.95,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-020": {
+        "name": "validator",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-021": {
+        "name": "merger",
+        "domainScores": {
+          "coordination": 0.9,
+          "extraction": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-022": {
+        "name": "coder",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-023": {
+        "name": "analyst",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-024": {
+        "name": "researcher",
+        "domainScores": {
+          "documentation": 0.9,
+          "learning": 0.85,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "extract": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-025": {
+        "name": "tool_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-026": {
+        "name": "cam_specialist",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-027": {
+        "name": "quality_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-028": {
+        "name": "process_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-029": {
+        "name": "machine_specialist",
+        "domainScores": {
+          "machining": 0.95,
+          "tooling": 0.85,
+          "gcode": 0.8
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "validate": 0.85,
+          "calculate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-030": {
+        "name": "gcode_expert",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.9,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-031": {
+        "name": "monolith_navigator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-032": {
+        "name": "schema_designer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-033": {
+        "name": "api_designer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-034": {
+        "name": "completeness_auditor",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-035": {
+        "name": "regression_checker",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-036": {
+        "name": "test_generator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-037": {
+        "name": "code_reviewer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-038": {
+        "name": "optimizer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-039": {
+        "name": "refactorer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-040": {
+        "name": "security_auditor",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-041": {
+        "name": "documentation_writer",
+        "domainScores": {
+          "documentation": 0.95,
+          "extraction": 0.8,
+          "validation": 0.75
+        },
+        "operationScores": {
+          "document": 0.95,
+          "generate": 0.85,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-042": {
+        "name": "thermal_calculator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-043": {
+        "name": "force_calculator",
+        "domainScores": {
+          "physics": 0.95,
+          "calculation": 0.9,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-044": {
+        "name": "estimator",
+        "domainScores": {
+          "calculation": 0.9,
+          "planning": 0.85,
+          "optimization": 0.8
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "plan": 0.85,
+          "estimate": 0.9
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-045": {
+        "name": "context_builder",
+        "domainScores": {
+          "coordination": 0.9,
+          "documentation": 0.85,
+          "learning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "document": 0.85,
+          "analyze": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-046": {
+        "name": "cross_referencer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-047": {
+        "name": "pattern_matcher",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-048": {
+        "name": "quality_gate",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-049": {
+        "name": "session_continuity",
+        "domainScores": {
+          "coordination": 0.9,
+          "planning": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "plan": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-050": {
+        "name": "dependency_analyzer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-051": {
+        "name": "resource_auditor",
+        "domainScores": {
+          "validation": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.9,
+          "analyze": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-052": {
+        "name": "calibration_engineer",
+        "domainScores": {
+          "optimization": 0.9,
+          "calculation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "calibrate": 0.95,
+          "calculate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-053": {
+        "name": "test_orchestrator",
+        "domainScores": {
+          "testing": 0.95,
+          "coordination": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "test": 0.95,
+          "coordinate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-054": {
+        "name": "state_manager",
+        "domainScores": {
+          "coordination": 0.85,
+          "planning": 0.8,
+          "documentation": 0.75
+        },
+        "operationScores": {
+          "coordinate": 0.85,
+          "plan": 0.8,
+          "document": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-055": {
+        "name": "cutting_calculator",
+        "domainScores": {
+          "machining": 0.9,
+          "calculation": 0.85,
+          "optimization": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "optimize": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-056": {
+        "name": "surface_calculator",
+        "domainScores": {
+          "calculation": 0.85,
+          "machining": 0.8,
+          "physics": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-057": {
+        "name": "standards_expert",
+        "domainScores": {
+          "validation": 0.85,
+          "documentation": 0.8,
+          "machining": 0.75
+        },
+        "operationScores": {
+          "validate": 0.85,
+          "document": 0.8,
+          "verify": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-058": {
+        "name": "formula_lookup",
+        "domainScores": {
+          "calculation": 0.85,
+          "documentation": 0.8,
+          "physics": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "calculate": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-059": {
+        "name": "material_lookup",
+        "domainScores": {
+          "materials": 0.9,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-060": {
+        "name": "tool_lookup",
+        "domainScores": {
+          "tooling": 0.9,
+          "documentation": 0.8,
+          "machining": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-061": {
+        "name": "call_tracer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-062": {
+        "name": "knowledge_graph_builder",
+        "domainScores": {
+          "learning": 0.85,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "learn": 0.85,
+          "document": 0.8,
+          "extract": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-063": {
+        "name": "architect",
+        "domainScores": {
+          "planning": 0.95,
+          "coordination": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "plan": 0.95,
+          "coordinate": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-064": {
+        "name": "coordinator",
+        "domainScores": {
+          "coordination": 0.95,
+          "planning": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "plan": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-065": {
+        "name": "materials_scientist",
+        "domainScores": {
+          "materials": 0.98,
+          "physics": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-066": {
+        "name": "machinist",
+        "domainScores": {
+          "machining": 0.98,
+          "tooling": 0.9,
+          "gcode": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "calculate": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-067": {
+        "name": "physics_validator",
+        "domainScores": {
+          "physics": 0.98,
+          "validation": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-068": {
+        "name": "domain_expert",
+        "domainScores": {
+          "documentation": 0.9,
+          "planning": 0.85,
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-069": {
+        "name": "migration_specialist",
+        "domainScores": {
+          "extraction": 0.95,
+          "coordination": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "coordinate": 0.85,
+          "plan": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-070": {
+        "name": "synthesizer",
+        "domainScores": {
+          "learning": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "synthesize": 0.95,
+          "analyze": 0.85,
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-071": {
+        "name": "debugger",
+        "domainScores": {
+          "testing": 0.98,
+          "validation": 0.9,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "debug": 0.98,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-072": {
+        "name": "root_cause_analyst",
+        "domainScores": {
+          "testing": 0.95,
+          "validation": 0.9,
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "debug": 0.9,
+          "verify": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-073": {
+        "name": "task_decomposer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-074": {
+        "name": "learning_extractor",
+        "domainScores": {
+          "learning": 0.95,
+          "extraction": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "learn": 0.95,
+          "extract": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-075": {
+        "name": "verification_chain",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-076": {
+        "name": "uncertainty_quantifier",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-077": {
+        "name": "meta_analyst",
+        "domainScores": {
+          "learning": 0.95,
+          "coordination": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "synthesize": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-078": {
+        "name": "combination_optimizer",
+        "domainScores": {
+          "optimization": 0.98,
+          "coordination": 0.9,
+          "planning": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.98,
+          "coordinate": 0.9,
+          "prove": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-079": {
+        "name": "synergy_analyst",
+        "domainScores": {
+          "optimization": 0.95,
+          "learning": 0.9,
+          "coordination": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "learn": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-080": {
+        "name": "proof_generator",
+        "domainScores": {
+          "validation": 1.0,
+          "calculation": 1.0,
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "prove": 1.0,
+          "verify": 1.0,
+          "document": 1.0
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-081": {
+        "name": "extractor",
+        "domainScores": {
+          "extraction": 0.95,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-082": {
+        "name": "validator",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-083": {
+        "name": "merger",
+        "domainScores": {
+          "coordination": 0.9,
+          "extraction": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-084": {
+        "name": "coder",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-085": {
+        "name": "analyst",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-086": {
+        "name": "researcher",
+        "domainScores": {
+          "documentation": 0.9,
+          "learning": 0.85,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "extract": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-087": {
+        "name": "tool_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-088": {
+        "name": "cam_specialist",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-089": {
+        "name": "quality_engineer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-090": {
+        "name": "process_engineer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-091": {
+        "name": "machine_specialist",
+        "domainScores": {
+          "machining": 0.95,
+          "tooling": 0.85,
+          "gcode": 0.8
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "validate": 0.85,
+          "calculate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-092": {
+        "name": "gcode_expert",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.9,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-093": {
+        "name": "monolith_navigator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-094": {
+        "name": "schema_designer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-095": {
+        "name": "api_designer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-096": {
+        "name": "completeness_auditor",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-097": {
+        "name": "regression_checker",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-098": {
+        "name": "test_generator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-099": {
+        "name": "code_reviewer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-100": {
+        "name": "optimizer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-101": {
+        "name": "refactorer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-102": {
+        "name": "security_auditor",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-103": {
+        "name": "documentation_writer",
+        "domainScores": {
+          "documentation": 0.95,
+          "extraction": 0.8,
+          "validation": 0.75
+        },
+        "operationScores": {
+          "document": 0.95,
+          "generate": 0.85,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-104": {
+        "name": "thermal_calculator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-105": {
+        "name": "force_calculator",
+        "domainScores": {
+          "physics": 0.95,
+          "calculation": 0.9,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-106": {
+        "name": "estimator",
+        "domainScores": {
+          "calculation": 1.0,
+          "planning": 1.0,
+          "optimization": 1.0
+        },
+        "operationScores": {
+          "calculate": 1.0,
+          "plan": 1.0,
+          "estimate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-107": {
+        "name": "context_builder",
+        "domainScores": {
+          "coordination": 0.9,
+          "documentation": 0.85,
+          "learning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "document": 0.85,
+          "analyze": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-108": {
+        "name": "cross_referencer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-109": {
+        "name": "pattern_matcher",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-110": {
+        "name": "quality_gate",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-111": {
+        "name": "session_continuity",
+        "domainScores": {
+          "coordination": 1.0,
+          "planning": 1.0,
+          "documentation": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0,
+          "plan": 1.0,
+          "document": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-112": {
+        "name": "dependency_analyzer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-113": {
+        "name": "resource_auditor",
+        "domainScores": {
+          "validation": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.9,
+          "analyze": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-114": {
+        "name": "calibration_engineer",
+        "domainScores": {
+          "optimization": 1.0,
+          "calculation": 1.0,
+          "validation": 1.0
+        },
+        "operationScores": {
+          "calibrate": 1.0,
+          "calculate": 1.0,
+          "validate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-115": {
+        "name": "test_orchestrator",
+        "domainScores": {
+          "testing": 0.95,
+          "coordination": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "test": 0.95,
+          "coordinate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-116": {
+        "name": "state_manager",
+        "domainScores": {
+          "coordination": 1.0,
+          "planning": 1.0,
+          "documentation": 0.9375
+        },
+        "operationScores": {
+          "coordinate": 1.0,
+          "plan": 1.0,
+          "document": 0.9375
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-117": {
+        "name": "cutting_calculator",
+        "domainScores": {
+          "machining": 0.9,
+          "calculation": 0.85,
+          "optimization": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "optimize": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-118": {
+        "name": "surface_calculator",
+        "domainScores": {
+          "calculation": 0.85,
+          "machining": 0.8,
+          "physics": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-119": {
+        "name": "standards_expert",
+        "domainScores": {
+          "validation": 1.0,
+          "documentation": 1.0,
+          "machining": 0.9375
+        },
+        "operationScores": {
+          "validate": 1.0,
+          "document": 1.0,
+          "verify": 0.9375
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-120": {
+        "name": "formula_lookup",
+        "domainScores": {
+          "calculation": 1.0,
+          "documentation": 1.0,
+          "physics": 0.9375
+        },
+        "operationScores": {
+          "extract": 1.0,
+          "calculate": 1.0,
+          "validate": 0.9375
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-121": {
+        "name": "material_lookup",
+        "domainScores": {
+          "materials": 0.9,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-122": {
+        "name": "tool_lookup",
+        "domainScores": {
+          "tooling": 1.0,
+          "documentation": 1.0,
+          "machining": 0.9375
+        },
+        "operationScores": {
+          "extract": 1.0,
+          "analyze": 1.0,
+          "validate": 0.9375
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-123": {
+        "name": "call_tracer",
+        "domainScores": {
+          "coordination": 1.0
+        },
+        "operationScores": {
+          "coordinate": 1.0
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-124": {
+        "name": "knowledge_graph_builder",
+        "domainScores": {
+          "learning": 0.85,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "learn": 0.85,
+          "document": 0.8,
+          "extract": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-125": {
+        "name": "architect",
+        "domainScores": {
+          "planning": 0.95,
+          "coordination": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "plan": 0.95,
+          "coordinate": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-126": {
+        "name": "coordinator",
+        "domainScores": {
+          "coordination": 0.95,
+          "planning": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "coordinate": 0.95,
+          "plan": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-127": {
+        "name": "materials_scientist",
+        "domainScores": {
+          "materials": 0.98,
+          "physics": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-128": {
+        "name": "machinist",
+        "domainScores": {
+          "machining": 0.98,
+          "tooling": 0.9,
+          "gcode": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "calculate": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-129": {
+        "name": "physics_validator",
+        "domainScores": {
+          "physics": 0.98,
+          "validation": 0.9,
+          "calculation": 0.85
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "analyze": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-130": {
+        "name": "domain_expert",
+        "domainScores": {
+          "documentation": 0.9,
+          "planning": 0.85,
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-131": {
+        "name": "migration_specialist",
+        "domainScores": {
+          "extraction": 0.95,
+          "coordination": 0.85,
+          "planning": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "coordinate": 0.85,
+          "plan": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-132": {
+        "name": "synthesizer",
+        "domainScores": {
+          "learning": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "synthesize": 0.95,
+          "analyze": 0.85,
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-133": {
+        "name": "debugger",
+        "domainScores": {
+          "testing": 0.98,
+          "validation": 0.9,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "debug": 0.98,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-134": {
+        "name": "root_cause_analyst",
+        "domainScores": {
+          "testing": 0.95,
+          "validation": 0.9,
+          "extraction": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "debug": 0.9,
+          "verify": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-135": {
+        "name": "task_decomposer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-136": {
+        "name": "learning_extractor",
+        "domainScores": {
+          "learning": 0.95,
+          "extraction": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "learn": 0.95,
+          "extract": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-137": {
+        "name": "verification_chain",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-138": {
+        "name": "uncertainty_quantifier",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-139": {
+        "name": "meta_analyst",
+        "domainScores": {
+          "learning": 0.95,
+          "coordination": 0.9,
+          "optimization": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "synthesize": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-140": {
+        "name": "combination_optimizer",
+        "domainScores": {
+          "optimization": 0.98,
+          "coordination": 0.9,
+          "planning": 0.85
+        },
+        "operationScores": {
+          "optimize": 0.98,
+          "coordinate": 0.9,
+          "prove": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-141": {
+        "name": "synergy_analyst",
+        "domainScores": {
+          "optimization": 0.95,
+          "learning": 0.9,
+          "coordination": 0.85
+        },
+        "operationScores": {
+          "analyze": 0.95,
+          "learn": 0.9,
+          "coordinate": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-142": {
+        "name": "proof_generator",
+        "domainScores": {
+          "validation": 0.95,
+          "calculation": 0.9,
+          "documentation": 0.85
+        },
+        "operationScores": {
+          "prove": 0.98,
+          "verify": 0.9,
+          "document": 0.85
+        },
+        "complexity": 0.75,
+        "taskTypeScores": {}
+      },
+      "AGENT-143": {
+        "name": "extractor",
+        "domainScores": {
+          "extraction": 0.95,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "extract": 0.95,
+          "document": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-144": {
+        "name": "validator",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-145": {
+        "name": "merger",
+        "domainScores": {
+          "coordination": 0.9,
+          "extraction": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-146": {
+        "name": "coder",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-147": {
+        "name": "analyst",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-148": {
+        "name": "researcher",
+        "domainScores": {
+          "documentation": 0.9,
+          "learning": 0.85,
+          "extraction": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "document": 0.85,
+          "extract": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-149": {
+        "name": "tool_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-150": {
+        "name": "cam_specialist",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-151": {
+        "name": "quality_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-152": {
+        "name": "process_engineer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-153": {
+        "name": "machine_specialist",
+        "domainScores": {
+          "machining": 0.95,
+          "tooling": 0.85,
+          "gcode": 0.8
+        },
+        "operationScores": {
+          "optimize": 0.95,
+          "validate": 0.85,
+          "calculate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-154": {
+        "name": "gcode_expert",
+        "domainScores": {
+          "gcode": 0.95,
+          "machining": 0.9,
+          "validation": 0.85
+        },
+        "operationScores": {
+          "generate": 0.95,
+          "validate": 0.9,
+          "optimize": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-155": {
+        "name": "monolith_navigator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-156": {
+        "name": "schema_designer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-157": {
+        "name": "api_designer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-158": {
+        "name": "completeness_auditor",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-159": {
+        "name": "regression_checker",
+        "domainScores": {
+          "validation": 0.95,
+          "testing": 0.9,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.95,
+          "verify": 0.9,
+          "test": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-160": {
+        "name": "test_generator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-161": {
+        "name": "code_reviewer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-162": {
+        "name": "optimizer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-163": {
+        "name": "refactorer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-164": {
+        "name": "security_auditor",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-165": {
+        "name": "documentation_writer",
+        "domainScores": {
+          "documentation": 0.95,
+          "extraction": 0.8,
+          "validation": 0.75
+        },
+        "operationScores": {
+          "document": 0.95,
+          "generate": 0.85,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-166": {
+        "name": "thermal_calculator",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-167": {
+        "name": "force_calculator",
+        "domainScores": {
+          "physics": 0.95,
+          "calculation": 0.9,
+          "machining": 0.85
+        },
+        "operationScores": {
+          "calculate": 0.95,
+          "analyze": 0.9,
+          "validate": 0.85
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-168": {
+        "name": "estimator",
+        "domainScores": {
+          "calculation": 0.9,
+          "planning": 0.85,
+          "optimization": 0.8
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "plan": 0.85,
+          "estimate": 0.9
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-169": {
+        "name": "context_builder",
+        "domainScores": {
+          "coordination": 0.9,
+          "documentation": 0.85,
+          "learning": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "document": 0.85,
+          "analyze": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-170": {
+        "name": "cross_referencer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-171": {
+        "name": "pattern_matcher",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-172": {
+        "name": "quality_gate",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-173": {
+        "name": "session_continuity",
+        "domainScores": {
+          "coordination": 0.9,
+          "planning": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.9,
+          "plan": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-174": {
+        "name": "dependency_analyzer",
+        "domainScores": {
+          "extraction": 0.9,
+          "documentation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "analyze": 0.9,
+          "extract": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-175": {
+        "name": "resource_auditor",
+        "domainScores": {
+          "validation": 0.9,
+          "coordination": 0.85,
+          "documentation": 0.8
+        },
+        "operationScores": {
+          "validate": 0.9,
+          "analyze": 0.85,
+          "document": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-176": {
+        "name": "calibration_engineer",
+        "domainScores": {
+          "optimization": 0.9,
+          "calculation": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "calibrate": 0.95,
+          "calculate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-177": {
+        "name": "test_orchestrator",
+        "domainScores": {
+          "testing": 0.95,
+          "coordination": 0.85,
+          "validation": 0.8
+        },
+        "operationScores": {
+          "test": 0.95,
+          "coordinate": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-178": {
+        "name": "state_manager",
+        "domainScores": {
+          "coordination": 0.85,
+          "planning": 0.8,
+          "documentation": 0.75
+        },
+        "operationScores": {
+          "coordinate": 0.85,
+          "plan": 0.8,
+          "document": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-179": {
+        "name": "cutting_calculator",
+        "domainScores": {
+          "machining": 0.9,
+          "calculation": 0.85,
+          "optimization": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.9,
+          "optimize": 0.85,
+          "validate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-180": {
+        "name": "surface_calculator",
+        "domainScores": {
+          "calculation": 0.85,
+          "machining": 0.8,
+          "physics": 0.75
+        },
+        "operationScores": {
+          "calculate": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-181": {
+        "name": "standards_expert",
+        "domainScores": {
+          "validation": 0.85,
+          "documentation": 0.8,
+          "machining": 0.75
+        },
+        "operationScores": {
+          "validate": 0.85,
+          "document": 0.8,
+          "verify": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-182": {
+        "name": "formula_lookup",
+        "domainScores": {
+          "calculation": 0.85,
+          "documentation": 0.8,
+          "physics": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "calculate": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-183": {
+        "name": "material_lookup",
+        "domainScores": {
+          "materials": 0.9,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-184": {
+        "name": "tool_lookup",
+        "domainScores": {
+          "tooling": 0.9,
+          "documentation": 0.8,
+          "machining": 0.75
+        },
+        "operationScores": {
+          "extract": 0.85,
+          "analyze": 0.8,
+          "validate": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-185": {
+        "name": "call_tracer",
+        "domainScores": {
+          "coordination": 0.8
+        },
+        "operationScores": {
+          "coordinate": 0.8
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      },
+      "AGENT-186": {
+        "name": "knowledge_graph_builder",
+        "domainScores": {
+          "learning": 0.85,
+          "documentation": 0.8,
+          "extraction": 0.75
+        },
+        "operationScores": {
+          "learn": 0.85,
+          "document": 0.8,
+          "extract": 0.75
+        },
+        "complexity": 0.6,
+        "taskTypeScores": {}
+      }
+    }
+  }
+}

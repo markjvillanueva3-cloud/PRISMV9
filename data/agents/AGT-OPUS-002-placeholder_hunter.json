@@ -1,0 +1,607 @@
+{
+  "agent_id": "AGT-OPUS-002",
+  "name": "placeholder_hunter",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Placeholder Hunter - Finds and Eliminates ALL Fake Data",
+  
+  "domain_expertise": [
+    "Placeholder pattern recognition",
+    "Fake data detection",
+    "Copy-paste identification",
+    "Template marker detection",
+    "Auto-generated content detection",
+    "Semantic emptiness analysis",
+    "Data authenticity verification"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-PHT-001",
+      "name": "Explicit Placeholder Detection",
+      "description": "Detects explicit placeholder markers like TBD, TODO, FIXME, PLACEHOLDER, TEMP, XXX, HACK, N/A, NA, and variants with different cases and punctuation",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["text_content"],
+        "optional": ["case_sensitive", "include_variants"]
+      },
+      "outputs": {
+        "primary": "explicit_placeholder_list",
+        "secondary": ["locations", "pattern_matched", "context"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-EXPLICIT-FOUND"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "Case-insensitive matching",
+        "Word boundary detection",
+        "Punctuation variants (TBD., [TBD], etc.)",
+        "Abbreviation expansion"
+      ],
+      "success_criteria": "All explicit placeholders identified"
+    },
+    {
+      "id": "CAP-PHT-002",
+      "name": "Empty Value Detection",
+      "description": "Finds empty, null, undefined, whitespace-only, and effectively empty values across all data types",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object"],
+        "optional": ["include_arrays", "check_nested"]
+      },
+      "outputs": {
+        "primary": "empty_value_report",
+        "secondary": ["field_paths", "empty_type", "depth_level"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-EMPTY-FOUND"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "validation_rules": [
+        "null/undefined = empty",
+        "'' or whitespace-only = empty",
+        "[] empty array = empty",
+        "{} empty object = empty"
+      ],
+      "success_criteria": "All empty values flagged"
+    },
+    {
+      "id": "CAP-PHT-003",
+      "name": "Fake Number Detection",
+      "description": "Identifies sentinel and placeholder numbers like -1, 0 (when contextually wrong), 999, 9999, 12345, sequential patterns, and suspiciously round numbers",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["numeric_fields", "field_context"],
+        "optional": ["known_sentinels", "allow_zero"]
+      },
+      "outputs": {
+        "primary": "fake_number_report",
+        "secondary": ["suspicious_values", "pattern_type", "field_paths"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PLACEHOLDER-FAKE-NUMBER"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "validation_rules": [
+        "-1 = likely placeholder",
+        "999, 9999 = likely placeholder",
+        "12345, 123456 = sequential placeholder",
+        "0 for positive-only fields = placeholder"
+      ],
+      "success_criteria": "All fake numbers identified"
+    },
+    {
+      "id": "CAP-PHT-004",
+      "name": "Generic Text Detection",
+      "description": "Identifies generic, vague, or useless text like 'see manual', 'contact support', 'error occurred', 'check settings', 'unknown error'",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["text_content", "expected_purpose"],
+        "optional": ["generic_phrases_list", "minimum_specificity"]
+      },
+      "outputs": {
+        "primary": "generic_text_report",
+        "secondary": ["phrases_found", "specificity_score", "improvement_needed"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-GENERIC-TEXT"],
+      "synergizes_with": ["data_quality_enforcer", "documentation_writer"],
+      "validation_rules": [
+        "'see manual' = useless for quick_fix",
+        "'contact support' = not actionable",
+        "'error' alone = not descriptive",
+        "'check' without what = vague"
+      ],
+      "success_criteria": "All generic text flagged"
+    },
+    {
+      "id": "CAP-PHT-005",
+      "name": "Test Data Detection",
+      "description": "Finds test, sample, example, demo, and development data that should not be in production including foo, bar, baz, lorem ipsum, asdf, qwerty",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_content"],
+        "optional": ["test_patterns", "allow_examples"]
+      },
+      "outputs": {
+        "primary": "test_data_report",
+        "secondary": ["test_items", "pattern_type", "confidence"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-TEST-DATA"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "test*, sample*, example* prefixes",
+        "foo, bar, baz patterns",
+        "lorem ipsum content",
+        "keyboard patterns (asdf, qwerty)"
+      ],
+      "success_criteria": "All test data identified"
+    },
+    {
+      "id": "CAP-PHT-006",
+      "name": "Copy-Paste Pattern Detection",
+      "description": "Detects content that has been copy-pasted across multiple entries, indicating lazy data entry or automation failure",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_collection", "text_fields"],
+        "optional": ["similarity_threshold", "minimum_length"]
+      },
+      "outputs": {
+        "primary": "copy_paste_report",
+        "secondary": ["duplicate_groups", "similarity_matrix", "original_source"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-COPY-PASTE"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "validation_rules": [
+        "Exact match = definite copy-paste",
+        ">90% similar = likely copy-paste",
+        "Same structure different values = template",
+        "Repeated phrases across entries = suspicious"
+      ],
+      "success_criteria": "All copy-paste patterns identified"
+    },
+    {
+      "id": "CAP-PHT-007",
+      "name": "Template Marker Detection",
+      "description": "Finds template markers and unfilled placeholders like {{field}}, [[VALUE]], <INSERT_HERE>, ${variable}, %PLACEHOLDER%",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["text_content"],
+        "optional": ["template_styles", "case_sensitive"]
+      },
+      "outputs": {
+        "primary": "template_marker_report",
+        "secondary": ["markers_found", "marker_type", "locations"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-TEMPLATE-MARKER"],
+      "synergizes_with": ["data_quality_enforcer", "extractor"],
+      "validation_rules": [
+        "{{...}} double brace templates",
+        "[[...]] wiki-style placeholders",
+        "<...> XML-style markers",
+        "${...} variable templates",
+        "%...% environment style"
+      ],
+      "success_criteria": "All template markers found"
+    },
+    {
+      "id": "CAP-PHT-008",
+      "name": "Auto-Generated ID Detection",
+      "description": "Detects IDs that appear to be auto-generated without human verification, including sequential numbers, UUIDs used as content, timestamps as data",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["id_fields"],
+        "optional": ["expected_format", "check_sequence"]
+      },
+      "outputs": {
+        "primary": "autogen_id_report",
+        "secondary": ["sequential_ids", "uuid_content", "timestamp_patterns"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-AUTOGEN-ID"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "Sequential IDs (1,2,3...) = auto-generated",
+        "UUID as description = wrong field",
+        "Timestamp as name = auto-generated",
+        "Incrementing patterns = batch generated"
+      ],
+      "success_criteria": "Auto-generated content flagged"
+    },
+    {
+      "id": "CAP-PHT-009",
+      "name": "Truncated Content Detection",
+      "description": "Finds content that appears truncated, cut off, or incomplete including text ending with '...', mid-sentence endings, partial words",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["text_content"],
+        "optional": ["check_completeness", "minimum_sentence"]
+      },
+      "outputs": {
+        "primary": "truncated_content_report",
+        "secondary": ["truncation_points", "completeness_estimate", "missing_content_hint"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-TRUNCATED"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "validation_rules": [
+        "Ends with '...' = truncated",
+        "Ends mid-sentence = incomplete",
+        "Partial word at end = cut off",
+        "Missing closing punctuation = unfinished"
+      ],
+      "success_criteria": "All truncated content identified"
+    },
+    {
+      "id": "CAP-PHT-010",
+      "name": "Repetitive Pattern Detection",
+      "description": "Identifies repetitive character patterns like 'aaaa', '1111', '----', repeated words, and other signs of filler content",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["text_content"],
+        "optional": ["minimum_repetition", "allowed_patterns"]
+      },
+      "outputs": {
+        "primary": "repetitive_pattern_report",
+        "secondary": ["patterns_found", "repetition_count", "locations"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-REPETITIVE"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "Same char 4+ times = suspicious",
+        "Same word 3+ times = filler",
+        "Repeated punctuation = placeholder",
+        "Pattern like 'abcabc' = generated"
+      ],
+      "success_criteria": "All repetitive patterns found"
+    },
+    {
+      "id": "CAP-PHT-011",
+      "name": "Minimum Length Violation Detection",
+      "description": "Finds fields that are suspiciously short for their intended purpose (e.g., 2-char description, single-word cause, abbreviated quick_fix)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["field_values", "field_purposes"],
+        "optional": ["length_requirements", "context_adjustments"]
+      },
+      "outputs": {
+        "primary": "short_content_report",
+        "secondary": ["too_short_fields", "required_vs_actual", "severity"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-TOO-SHORT"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "validation_rules": [
+        "description: minimum 25 chars",
+        "causes[]: minimum 15 chars each",
+        "quick_fix: minimum 20 chars",
+        "name: minimum 10 chars"
+      ],
+      "success_criteria": "All too-short content flagged"
+    },
+    {
+      "id": "CAP-PHT-012",
+      "name": "Semantic Emptiness Analysis",
+      "description": "Analyzes content that technically has characters but is semantically empty or meaningless (e.g., 'the the the', 'asdfasdf', random characters)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["text_content", "language"],
+        "optional": ["semantic_model", "coherence_threshold"]
+      },
+      "outputs": {
+        "primary": "semantic_analysis_report",
+        "secondary": ["coherence_score", "meaningful_ratio", "garbage_segments"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-SEMANTIC-EMPTY"],
+      "synergizes_with": ["data_quality_enforcer", "documentation_writer"],
+      "validation_rules": [
+        "Real words required",
+        "Coherent sentences for descriptions",
+        "Technical vocabulary for manufacturing",
+        "Actionable verbs for procedures"
+      ],
+      "success_criteria": "Semantically empty content identified"
+    },
+    {
+      "id": "CAP-PHT-013",
+      "name": "Cross-Entry Anomaly Detection",
+      "description": "Identifies entries that are anomalous compared to their peers, suggesting placeholder or error (e.g., one material with all zeros)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["entry", "peer_entries"],
+        "optional": ["anomaly_threshold", "comparison_fields"]
+      },
+      "outputs": {
+        "primary": "cross_entry_anomaly_report",
+        "secondary": ["anomaly_score", "peer_comparison", "suspect_fields"]
+      },
+      "skills_used": ["prism-quality-master", "prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-CROSS-ENTRY-ANOMALY"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "validation_rules": [
+        "Compare to category peers",
+        "Flag extreme outliers",
+        "Check for default values",
+        "Identify pattern breaks"
+      ],
+      "success_criteria": "Anomalous entries flagged for review"
+    },
+    {
+      "id": "CAP-PHT-014",
+      "name": "Date/Time Placeholder Detection",
+      "description": "Finds placeholder dates like 1970-01-01, 1900-01-01, 9999-12-31, obviously wrong timestamps, and epoch-zero values",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["datetime_fields"],
+        "optional": ["valid_date_range", "timezone"]
+      },
+      "outputs": {
+        "primary": "datetime_placeholder_report",
+        "secondary": ["invalid_dates", "placeholder_type", "expected_range"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-DATE"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "1970-01-01 = unix epoch placeholder",
+        "1900-01-01 = excel epoch placeholder",
+        "9999-12-31 = max date placeholder",
+        "Future dates for past events = error"
+      ],
+      "success_criteria": "All date placeholders found"
+    },
+    {
+      "id": "CAP-PHT-015",
+      "name": "URL/Path Placeholder Detection",
+      "description": "Finds placeholder URLs and file paths like example.com, localhost, /path/to/file, C:\\temp\\, and development-only paths",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["url_path_fields"],
+        "optional": ["allowed_domains", "allowed_paths"]
+      },
+      "outputs": {
+        "primary": "url_path_placeholder_report",
+        "secondary": ["placeholder_urls", "placeholder_paths", "dev_only_refs"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-URL-PATH"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "example.com = placeholder",
+        "localhost = development only",
+        "/path/to/ = template path",
+        "C:\\temp\\ = temporary path"
+      ],
+      "success_criteria": "All URL/path placeholders found"
+    },
+    {
+      "id": "CAP-PHT-016",
+      "name": "Email Placeholder Detection",
+      "description": "Identifies placeholder email addresses like test@example.com, noreply@, admin@localhost, and obviously fake emails",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["email_fields"],
+        "optional": ["allowed_domains", "validate_format"]
+      },
+      "outputs": {
+        "primary": "email_placeholder_report",
+        "secondary": ["placeholder_emails", "invalid_format", "suspicious_domains"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-EMAIL"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "test@example.com = placeholder",
+        "noreply@* = not a contact",
+        "*@localhost = development",
+        "obvious fake (aaa@bbb.ccc) = placeholder"
+      ],
+      "success_criteria": "All email placeholders found"
+    },
+    {
+      "id": "CAP-PHT-017",
+      "name": "Placeholder Confidence Scoring",
+      "description": "Calculates confidence score for each potential placeholder, helping prioritize investigation and allowing threshold-based filtering",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["suspect_items"],
+        "optional": ["context", "prior_probability"]
+      },
+      "outputs": {
+        "primary": "confidence_scores",
+        "secondary": ["high_confidence_list", "uncertain_list", "false_positive_risk"]
+      },
+      "skills_used": ["prism-quality-master", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["PLACEHOLDER-CONFIDENCE-CALC"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        ">95% confidence = definite placeholder",
+        "70-95% = likely placeholder, review",
+        "50-70% = uncertain, investigate",
+        "<50% = probably legitimate"
+      ],
+      "success_criteria": "Accurate confidence scores assigned"
+    },
+    {
+      "id": "CAP-PHT-018",
+      "name": "Batch Placeholder Scanning",
+      "description": "Scans large batches of data efficiently, providing summary statistics and prioritized lists for remediation",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_batch"],
+        "optional": ["scan_depth", "priority_threshold", "parallel"]
+      },
+      "outputs": {
+        "primary": "batch_scan_report",
+        "secondary": ["summary_stats", "priority_list", "pattern_frequency"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["PLACEHOLDER-BATCH-START", "PLACEHOLDER-BATCH-COMPLETE"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "validation_rules": [
+        "Scan all entries",
+        "Track pattern frequency",
+        "Prioritize by severity",
+        "Generate remediation plan"
+      ],
+      "success_criteria": "All placeholders in batch identified"
+    },
+    {
+      "id": "CAP-PHT-019",
+      "name": "Real-Time Placeholder Blocking",
+      "description": "Provides real-time blocking of placeholder data as it enters the system, preventing contamination before storage",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["incoming_data"],
+        "optional": ["block_threshold", "quarantine_action"]
+      },
+      "outputs": {
+        "primary": "block_decision",
+        "secondary": ["blocked_items", "pass_items", "block_reason"]
+      },
+      "skills_used": ["prism-validator", "prism-hook-system"],
+      "hooks_triggered": ["PLACEHOLDER-BLOCK-ATTEMPT", "PLACEHOLDER-BLOCKED"],
+      "synergizes_with": ["data_quality_enforcer", "output_validator"],
+      "validation_rules": [
+        "Block before storage",
+        "Log all blocks",
+        "Quarantine for review",
+        "Alert on patterns"
+      ],
+      "success_criteria": "No placeholders reach storage"
+    },
+    {
+      "id": "CAP-PHT-020",
+      "name": "Placeholder Pattern Learning",
+      "description": "Learns new placeholder patterns from identified instances, expanding detection capability over time",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["confirmed_placeholders"],
+        "optional": ["pattern_type", "confidence_threshold"]
+      },
+      "outputs": {
+        "primary": "learned_patterns",
+        "secondary": ["pattern_rules", "effectiveness_prediction", "false_positive_risk"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-formula-evolution"],
+      "hooks_triggered": ["PLACEHOLDER-PATTERN-LEARNED"],
+      "synergizes_with": ["data_quality_enforcer", "learning_extractor_v2", "synergy_analyst"],
+      "validation_rules": [
+        "Minimum 3 examples to learn",
+        "Test against known good data",
+        "Measure false positive rate",
+        "Review before deployment"
+      ],
+      "success_criteria": "New patterns effectively learned"
+    },
+    {
+      "id": "CAP-PHT-021",
+      "name": "Placeholder Remediation Suggestions",
+      "description": "Provides specific suggestions for remediating identified placeholders based on field type, context, and available data",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["placeholder_item", "field_schema"],
+        "optional": ["reference_data", "auto_remediate"]
+      },
+      "outputs": {
+        "primary": "remediation_suggestions",
+        "secondary": ["suggested_values", "source_for_values", "confidence"]
+      },
+      "skills_used": ["prism-quality-master", "prism-material-enhancer"],
+      "hooks_triggered": ["PLACEHOLDER-REMEDIATE-SUGGEST"],
+      "synergizes_with": ["data_quality_enforcer", "material_enhancer", "documentation_writer"],
+      "validation_rules": [
+        "Suggest real values only",
+        "Cite data sources",
+        "Estimate confidence",
+        "Flag uncertain suggestions"
+      ],
+      "success_criteria": "Actionable remediation provided"
+    },
+    {
+      "id": "CAP-PHT-022",
+      "name": "Placeholder Report Generation",
+      "description": "Generates comprehensive reports on placeholder contamination including statistics, patterns, severity, and remediation roadmap",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["scan_results"],
+        "optional": ["report_format", "detail_level", "audience"]
+      },
+      "outputs": {
+        "primary": "placeholder_report",
+        "secondary": ["executive_summary", "detailed_findings", "action_items"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-verification"],
+      "hooks_triggered": ["PLACEHOLDER-REPORT-GEN"],
+      "synergizes_with": ["data_quality_enforcer", "documentation_writer", "proof_generator"],
+      "validation_rules": [
+        "Complete coverage",
+        "Prioritized findings",
+        "Actionable recommendations",
+        "Clear severity ratings"
+      ],
+      "success_criteria": "Report enables effective remediation"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-validator",
+    "prism-quality-master",
+    "prism-hook-system",
+    "prism-deep-learning",
+    "prism-formula-evolution",
+    "prism-sp-verification",
+    "prism-material-enhancer",
+    "prism-uncertainty-propagation"
+  ],
+
+  "hooks_subscribed": [
+    "PLACEHOLDER-EXPLICIT-FOUND",
+    "PLACEHOLDER-EMPTY-FOUND",
+    "PLACEHOLDER-FAKE-NUMBER",
+    "PLACEHOLDER-GENERIC-TEXT",
+    "PLACEHOLDER-TEST-DATA",
+    "PLACEHOLDER-COPY-PASTE",
+    "PLACEHOLDER-TEMPLATE-MARKER",
+    "PLACEHOLDER-AUTOGEN-ID",
+    "PLACEHOLDER-TRUNCATED",
+    "PLACEHOLDER-REPETITIVE",
+    "PLACEHOLDER-TOO-SHORT",
+    "PLACEHOLDER-SEMANTIC-EMPTY",
+    "PLACEHOLDER-BLOCK-ATTEMPT",
+    "PLACEHOLDER-BLOCKED",
+    "PLACEHOLDER-PATTERN-LEARNED"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "field_validator",
+    "quick_placeholder_check"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "extractor",
+    "swarm patterns"
+  ],
+
+  "quality_gates": [
+    "All 22 placeholder types checked",
+    "Confidence score for each finding",
+    "Zero false negatives on explicit placeholders",
+    "False positive rate < 5%"
+  ],
+
+  "performance_metrics": {
+    "accuracy_target": 0.98,
+    "false_positive_rate": 0.05,
+    "false_negative_rate": 0.01,
+    "latency_target_ms": 1500,
+    "throughput_items_per_second": 200,
+    "cost_budget_per_call": 0.12
+  }
+}

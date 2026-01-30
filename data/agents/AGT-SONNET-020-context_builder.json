@@ -1,0 +1,301 @@
+{
+  "agent_id": "AGT-SONNET-020",
+  "name": "context_builder",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Context Builder - Builds and Injects Context for Agent Operations",
+  
+  "domain_expertise": [
+    "Context construction",
+    "System prompt building",
+    "Task context assembly",
+    "Domain knowledge injection",
+    "Skill loading",
+    "Resource identification",
+    "Context optimization",
+    "Token management",
+    "Knowledge synthesis",
+    "Agent preparation"
+  ],
+
+  "context_philosophy": {
+    "principle": "Agents without context produce garbage (root cause of initial failures)",
+    "standard": "Every agent receives tailored context for their task",
+    "optimization": "Balance completeness with token efficiency"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-CTX-001",
+      "name": "Core Context Generation",
+      "description": "Generates PRISM core context for all agents",
+      "category": "GENERATION",
+      "inputs": {
+        "required": [],
+        "optional": ["context_version"]
+      },
+      "outputs": {
+        "primary": "core_context",
+        "secondary": ["laws", "commandments", "hooks", "formulas"]
+      },
+      "skills_used": ["prism-all-skills"],
+      "hooks_triggered": ["CONTEXT-CORE"],
+      "synergizes_with": ["coordinator_v2"],
+      "core_includes": [
+        "8 Laws",
+        "10 Commandments",
+        "15 System Hooks",
+        "22 Formulas",
+        "Resource inventory"
+      ],
+      "success_criteria": "Core context complete and current"
+    },
+    {
+      "id": "CAP-CTX-002",
+      "name": "Task-Specific Context Assembly",
+      "description": "Assembles context specific to the task at hand",
+      "category": "ASSEMBLY",
+      "inputs": {
+        "required": ["task"],
+        "optional": ["detail_level"]
+      },
+      "outputs": {
+        "primary": "task_context",
+        "secondary": ["relevant_skills", "relevant_agents", "relevant_data"]
+      },
+      "skills_used": ["prism-skill-orchestrator", "prism-combination-engine"],
+      "hooks_triggered": ["CONTEXT-TASK"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Task-relevant context assembled"
+    },
+    {
+      "id": "CAP-CTX-003",
+      "name": "Agent System Prompt Building",
+      "description": "Builds system prompts for agent invocation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["agent", "task"],
+        "optional": ["custom_instructions"]
+      },
+      "outputs": {
+        "primary": "system_prompt",
+        "secondary": ["agent_context", "task_context", "constraints"]
+      },
+      "skills_used": ["prism-all-skills", "prism-swarm-coordinator"],
+      "hooks_triggered": ["PROMPT-BUILD"],
+      "synergizes_with": ["coordinator_v2"],
+      "prompt_sections": [
+        "Agent role and expertise",
+        "Core context",
+        "Task-specific context",
+        "Constraints and safety",
+        "Output format"
+      ],
+      "success_criteria": "Complete system prompt for agent"
+    },
+    {
+      "id": "CAP-CTX-004",
+      "name": "Skill Context Loading",
+      "description": "Loads relevant skill content into context",
+      "category": "LOADING",
+      "inputs": {
+        "required": ["skills"],
+        "optional": ["sections"]
+      },
+      "outputs": {
+        "primary": "skill_context",
+        "secondary": ["skills_loaded", "token_count"]
+      },
+      "skills_used": ["prism-skill-orchestrator", "prism-all-skills"],
+      "hooks_triggered": ["SKILL-LOAD"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Required skills loaded efficiently"
+    },
+    {
+      "id": "CAP-CTX-005",
+      "name": "Domain Knowledge Injection",
+      "description": "Injects domain-specific knowledge into context",
+      "category": "INJECTION",
+      "inputs": {
+        "required": ["domain"],
+        "optional": ["depth"]
+      },
+      "outputs": {
+        "primary": "domain_context",
+        "secondary": ["knowledge_sources", "key_concepts"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-expert-master"],
+      "hooks_triggered": ["KNOWLEDGE-INJECT"],
+      "synergizes_with": ["materials_scientist", "machinist"],
+      "domains": [
+        "Materials science",
+        "Cutting physics",
+        "Machine dynamics",
+        "CNC programming",
+        "Tool management"
+      ],
+      "success_criteria": "Domain knowledge available to agent"
+    },
+    {
+      "id": "CAP-CTX-006",
+      "name": "Resource Identification",
+      "description": "Identifies resources needed for a task",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["task"],
+        "optional": ["resource_types"]
+      },
+      "outputs": {
+        "primary": "required_resources",
+        "secondary": ["skills", "agents", "databases", "formulas"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer"],
+      "hooks_triggered": ["RESOURCE-IDENTIFY"],
+      "synergizes_with": ["coordinator_v2", "resource_auditor"],
+      "success_criteria": "All required resources identified"
+    },
+    {
+      "id": "CAP-CTX-007",
+      "name": "Context Optimization",
+      "description": "Optimizes context for token efficiency",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["context"],
+        "optional": ["token_limit"]
+      },
+      "outputs": {
+        "primary": "optimized_context",
+        "secondary": ["original_tokens", "optimized_tokens", "reduction"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["CONTEXT-OPTIMIZE"],
+      "synergizes_with": ["session_continuity"],
+      "optimization_strategies": [
+        "Remove redundancy",
+        "Summarize verbose sections",
+        "Prioritize essential content",
+        "Reference vs inline"
+      ],
+      "success_criteria": "Context fits within token budget"
+    },
+    {
+      "id": "CAP-CTX-008",
+      "name": "Historical Context Loading",
+      "description": "Loads relevant historical context from logs/state",
+      "category": "LOADING",
+      "inputs": {
+        "required": ["context_type"],
+        "optional": ["time_range"]
+      },
+      "outputs": {
+        "primary": "historical_context",
+        "secondary": ["sessions", "decisions", "learnings"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["HISTORY-LOAD"],
+      "synergizes_with": ["session_continuity"],
+      "success_criteria": "Relevant history available"
+    },
+    {
+      "id": "CAP-CTX-009",
+      "name": "Swarm Context Coordination",
+      "description": "Coordinates context across multi-agent swarms",
+      "category": "COORDINATION",
+      "inputs": {
+        "required": ["swarm_agents"],
+        "optional": ["shared_context"]
+      },
+      "outputs": {
+        "primary": "swarm_contexts",
+        "secondary": ["agent_contexts", "shared_context", "coordination_notes"]
+      },
+      "skills_used": ["prism-swarm-coordinator"],
+      "hooks_triggered": ["SWARM-CONTEXT"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "All swarm agents have coordinated context"
+    },
+    {
+      "id": "CAP-CTX-010",
+      "name": "Safety Context Injection",
+      "description": "Injects safety-critical context (LIFE SAFETY)",
+      "category": "INJECTION",
+      "inputs": {
+        "required": ["task_type"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "safety_context",
+        "secondary": ["safety_constraints", "validation_requirements"]
+      },
+      "skills_used": ["prism-life-safety-mindset"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "SAFETY-INJECT"],
+      "synergizes_with": ["force_calculator", "thermal_calculator"],
+      "always_includes": [
+        "Safety thresholds",
+        "Validation requirements",
+        "Life-safety warnings",
+        "Uncertainty requirements"
+      ],
+      "success_criteria": "Safety context always present"
+    },
+    {
+      "id": "CAP-CTX-011",
+      "name": "Quick Context Generation",
+      "description": "Generates minimal context for quick operations",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["operation"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "quick_context",
+        "secondary": ["token_count"]
+      },
+      "skills_used": ["prism-session-master"],
+      "hooks_triggered": ["QUICK-CONTEXT"],
+      "synergizes_with": ["session_continuity"],
+      "target": "<100 tokens for quick operations",
+      "success_criteria": "Minimal viable context"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-all-skills",
+    "prism-skill-orchestrator",
+    "prism-combination-engine",
+    "prism-resource-optimizer",
+    "prism-knowledge-master",
+    "prism-expert-master",
+    "prism-swarm-coordinator",
+    "prism-session-master",
+    "prism-life-safety-mindset"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW1-SAFETY",
+    "context:preGenerate",
+    "agent:preInvoke"
+  ],
+
+  "can_delegate_to": [],
+
+  "receives_from": [
+    "coordinator_v2",
+    "session_continuity"
+  ],
+
+  "quality_gates": [
+    "Core context complete",
+    "Task context relevant",
+    "Safety context present",
+    "Token budget respected"
+  ],
+
+  "performance_metrics": {
+    "context_completeness": 0.99,
+    "token_efficiency": 0.80,
+    "latency_target_ms": 500,
+    "contexts_per_minute": 60
+  }
+}

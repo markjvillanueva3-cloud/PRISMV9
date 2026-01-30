@@ -1,0 +1,388 @@
+{
+  "agent_id": "AGT-OPUS-013",
+  "name": "meta_analyst_v2",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "System Meta-Analyst - Analyzes PRISM Performance and Resource Utilization",
+  
+  "domain_expertise": [
+    "System performance analysis",
+    "Resource utilization metrics",
+    "Cost efficiency optimization",
+    "Quality trend analysis",
+    "Bottleneck identification",
+    "Capacity planning",
+    "ROI analysis",
+    "Benchmark comparison",
+    "Health monitoring",
+    "Strategic recommendations"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-META-001",
+      "name": "Resource Utilization Analysis",
+      "description": "Analyzes utilization of all 691 PRISM resources (skills, agents, formulas, databases) ensuring Commandment 1 compliance",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["usage_data", "resource_registry"],
+        "optional": ["time_period", "utilization_threshold"]
+      },
+      "outputs": {
+        "primary": "utilization_report",
+        "secondary": ["underutilized_resources", "overutilized_resources", "recommendations", "wiring_gaps"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-all-skills"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "UTILIZATION-ANALYZE"],
+      "synergizes_with": ["resource_auditor", "coordinator_v2"],
+      "success_criteria": "100% resource utilization visibility"
+    },
+    {
+      "id": "CAP-META-002",
+      "name": "Cost Efficiency Analysis",
+      "description": "Analyzes cost efficiency of agent invocations, swarm executions, and resource usage",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["cost_data", "output_quality"],
+        "optional": ["baseline", "benchmarks"]
+      },
+      "outputs": {
+        "primary": "cost_efficiency_report",
+        "secondary": ["cost_breakdown", "roi_analysis", "optimization_opportunities"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-combination-engine"],
+      "hooks_triggered": ["agent:costTrack", "COST-ANALYZE"],
+      "synergizes_with": ["coordinator_v2", "combination_optimizer"],
+      "success_criteria": "Positive ROI demonstrated"
+    },
+    {
+      "id": "CAP-META-003",
+      "name": "Quality Trend Analysis",
+      "description": "Analyzes quality trends over time - Ω scores, S(x), M(x), error rates",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["quality_history"],
+        "optional": ["trend_period", "quality_targets"]
+      },
+      "outputs": {
+        "primary": "quality_trend_report",
+        "secondary": ["improving_areas", "degrading_areas", "plateau_detection", "recommendations"]
+      },
+      "skills_used": ["prism-quality-master", "prism-deep-learning"],
+      "hooks_triggered": ["quality:gateAggregate", "QUALITY-TREND"],
+      "synergizes_with": ["data_quality_enforcer", "learning_extractor_v2"],
+      "success_criteria": "Quality trends accurately identified"
+    },
+    {
+      "id": "CAP-META-004",
+      "name": "Bottleneck Identification",
+      "description": "Identifies performance bottlenecks in execution pipelines, resource access, and workflows",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_metrics"],
+        "optional": ["latency_thresholds"]
+      },
+      "outputs": {
+        "primary": "bottleneck_report",
+        "secondary": ["bottleneck_locations", "impact_assessment", "remediation_plan"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-sp-debugging"],
+      "hooks_triggered": ["health:check", "BOTTLENECK-IDENTIFY"],
+      "synergizes_with": ["debugger", "optimizer"],
+      "success_criteria": "Bottlenecks identified and quantified"
+    },
+    {
+      "id": "CAP-META-005",
+      "name": "Agent Performance Benchmarking",
+      "description": "Benchmarks agent performance against baselines and peer agents",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent_performance_data"],
+        "optional": ["benchmarks", "peer_comparison"]
+      },
+      "outputs": {
+        "primary": "benchmark_report",
+        "secondary": ["rankings", "performance_gaps", "improvement_recommendations"]
+      },
+      "skills_used": ["prism-agent-selector", "prism-synergy-calculator"],
+      "hooks_triggered": ["AGENT-BENCHMARK"],
+      "synergizes_with": ["coordinator_v2", "synergy_analyst"],
+      "success_criteria": "Accurate agent benchmarks"
+    },
+    {
+      "id": "CAP-META-006",
+      "name": "Formula Accuracy Tracking",
+      "description": "Tracks accuracy of all 22 formulas comparing predictions to actuals",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["formula_predictions", "actuals"],
+        "optional": ["formula_ids", "accuracy_thresholds"]
+      },
+      "outputs": {
+        "primary": "formula_accuracy_report",
+        "secondary": ["accuracy_by_formula", "calibration_needs", "drift_detection"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["SYS-CALIBRATION-MONITOR", "FORMULA-TRACK"],
+      "synergizes_with": ["calibration_engineer", "proof_generator"],
+      "success_criteria": "Formula accuracy monitored"
+    },
+    {
+      "id": "CAP-META-007",
+      "name": "Swarm Efficiency Tracking",
+      "description": "Tracks efficiency of swarm patterns comparing output quality to cost",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["swarm_executions"],
+        "optional": ["efficiency_baseline"]
+      },
+      "outputs": {
+        "primary": "swarm_efficiency_report",
+        "secondary": ["pattern_rankings", "inefficient_patterns", "recommendations"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-resource-optimizer"],
+      "hooks_triggered": ["swarm:complete", "SWARM-TRACK"],
+      "synergizes_with": ["coordinator_v2", "synergy_analyst"],
+      "formula": "Efficiency = (Output_quality/Cost_swarm) / (Output_quality/Cost_independent)",
+      "success_criteria": "Swarm efficiency > 1.0"
+    },
+    {
+      "id": "CAP-META-008",
+      "name": "Database Consumer Analysis",
+      "description": "Analyzes database consumer counts ensuring minimum 6-8 consumers per database",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["database_registry", "consumer_map"],
+        "optional": ["minimum_consumers"]
+      },
+      "outputs": {
+        "primary": "consumer_analysis",
+        "secondary": ["consumer_counts", "underwired_databases", "wiring_recommendations"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "CONSUMER-ANALYZE"],
+      "synergizes_with": ["resource_auditor", "architect"],
+      "success_criteria": "All databases have 6+ consumers"
+    },
+    {
+      "id": "CAP-META-009",
+      "name": "Skill Loading Optimization",
+      "description": "Analyzes skill loading patterns to optimize progressive disclosure",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["skill_loading_data"],
+        "optional": ["loading_strategy"]
+      },
+      "outputs": {
+        "primary": "loading_optimization",
+        "secondary": ["redundant_loads", "missing_loads", "loading_recommendations"]
+      },
+      "skills_used": ["prism-skill-orchestrator", "prism-resource-optimizer"],
+      "hooks_triggered": ["skill:load", "SKILL-OPTIMIZE"],
+      "synergizes_with": ["resource_optimizer", "coordinator_v2"],
+      "success_criteria": "Skill loading optimized"
+    },
+    {
+      "id": "CAP-META-010",
+      "name": "Hook Execution Analysis",
+      "description": "Analyzes hook execution patterns, latencies, and blocking rates",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["hook_execution_data"],
+        "optional": ["hook_categories"]
+      },
+      "outputs": {
+        "primary": "hook_analysis",
+        "secondary": ["blocking_rates", "latency_distribution", "optimization_recommendations"]
+      },
+      "skills_used": ["prism-hook-system", "prism-dev-utilities"],
+      "hooks_triggered": ["HOOK-ANALYZE"],
+      "synergizes_with": ["architect", "test_orchestrator"],
+      "success_criteria": "Hook performance optimized"
+    },
+    {
+      "id": "CAP-META-011",
+      "name": "Capacity Planning",
+      "description": "Plans capacity requirements based on usage trends and growth projections",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["usage_history", "growth_projections"],
+        "optional": ["capacity_constraints"]
+      },
+      "outputs": {
+        "primary": "capacity_plan",
+        "secondary": ["resource_forecasts", "scaling_recommendations", "investment_timeline"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-deep-learning"],
+      "hooks_triggered": ["CAPACITY-PLAN"],
+      "synergizes_with": ["architect", "coordinator_v2"],
+      "success_criteria": "Capacity plan supports growth"
+    },
+    {
+      "id": "CAP-META-012",
+      "name": "Health Score Calculation",
+      "description": "Calculates overall system health score combining multiple metrics",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["system_metrics"],
+        "optional": ["health_weights"]
+      },
+      "outputs": {
+        "primary": "health_score",
+        "secondary": ["health_components", "degraded_areas", "alerts"]
+      },
+      "skills_used": ["prism-quality-master", "prism-hook-system"],
+      "hooks_triggered": ["health:check", "HEALTH-CALC"],
+      "synergizes_with": ["coordinator_v2", "test_orchestrator"],
+      "success_criteria": "Health accurately assessed"
+    },
+    {
+      "id": "CAP-META-013",
+      "name": "Regression Detection",
+      "description": "Detects performance regressions across metrics, quality scores, and capabilities",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["current_metrics", "baseline_metrics"],
+        "optional": ["regression_threshold"]
+      },
+      "outputs": {
+        "primary": "regression_report",
+        "secondary": ["regressions_detected", "severity", "root_cause_hints"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "REGRESSION-DETECT"],
+      "synergizes_with": ["regression_checker", "debugger"],
+      "success_criteria": "Regressions detected early"
+    },
+    {
+      "id": "CAP-META-014",
+      "name": "Strategic Recommendations",
+      "description": "Generates strategic recommendations for system improvement based on analysis",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["analysis_results"],
+        "optional": ["priorities", "constraints"]
+      },
+      "outputs": {
+        "primary": "recommendations",
+        "secondary": ["priority_ranking", "expected_impact", "implementation_plan"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-deep-learning"],
+      "hooks_triggered": ["STRATEGY-RECOMMEND"],
+      "synergizes_with": ["architect", "coordinator_v2"],
+      "success_criteria": "Actionable recommendations"
+    },
+    {
+      "id": "CAP-META-015",
+      "name": "Executive Dashboard Generation",
+      "description": "Generates executive-level dashboard showing key metrics and trends",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["system_data"],
+        "optional": ["dashboard_config", "audience"]
+      },
+      "outputs": {
+        "primary": "dashboard",
+        "secondary": ["kpi_summary", "trend_charts", "alert_summary"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-quality-master"],
+      "hooks_triggered": ["DASHBOARD-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Dashboard provides insight"
+    },
+    {
+      "id": "CAP-META-016",
+      "name": "Comparative Analysis",
+      "description": "Compares PRISM performance across time periods, configurations, or deployments",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["comparison_sets"],
+        "optional": ["metrics_to_compare"]
+      },
+      "outputs": {
+        "primary": "comparison_report",
+        "secondary": ["differences", "improvements", "degradations"]
+      },
+      "skills_used": ["prism-quality-master", "prism-deep-learning"],
+      "hooks_triggered": ["COMPARE-ANALYZE"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "success_criteria": "Clear comparison insights"
+    },
+    {
+      "id": "CAP-META-017",
+      "name": "Anomaly Alert Generation",
+      "description": "Generates alerts when system metrics show anomalous behavior",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["current_metrics", "normal_ranges"],
+        "optional": ["alert_severity_rules"]
+      },
+      "outputs": {
+        "primary": "alerts",
+        "secondary": ["anomaly_details", "severity", "recommended_actions"]
+      },
+      "skills_used": ["prism-quality-master", "prism-hook-system"],
+      "hooks_triggered": ["health:alert", "ANOMALY-ALERT"],
+      "synergizes_with": ["debugger", "coordinator_v2"],
+      "success_criteria": "Anomalies caught early"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-dev-utilities",
+    "prism-all-skills",
+    "prism-resource-optimizer",
+    "prism-combination-engine",
+    "prism-quality-master",
+    "prism-deep-learning",
+    "prism-agent-selector",
+    "prism-synergy-calculator",
+    "prism-formula-evolution",
+    "prism-uncertainty-propagation",
+    "prism-swarm-coordinator",
+    "prism-wiring-templates",
+    "prism-hook-system",
+    "prism-anti-regression",
+    "prism-knowledge-master",
+    "prism-skill-orchestrator"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-CMD1-WIRING",
+    "SYS-LAW4-REGRESSION",
+    "SYS-CALIBRATION-MONITOR",
+    "agent:costTrack",
+    "quality:gateAggregate",
+    "health:check",
+    "health:alert",
+    "swarm:complete",
+    "skill:load"
+  ],
+
+  "can_delegate_to": [
+    "resource_auditor",
+    "calibration_engineer",
+    "regression_checker"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "learning_extractor_v2",
+    "test_orchestrator"
+  ],
+
+  "quality_gates": [
+    "Analysis comprehensive",
+    "Metrics accurate",
+    "Recommendations actionable",
+    "Regressions detected"
+  ],
+
+  "performance_metrics": {
+    "analysis_accuracy": 0.95,
+    "anomaly_detection_rate": 0.98,
+    "recommendation_quality": 0.90,
+    "latency_target_ms": 5000
+  }
+}

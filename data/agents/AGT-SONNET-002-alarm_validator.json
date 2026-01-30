@@ -1,0 +1,399 @@
+{
+  "agent_id": "AGT-SONNET-002",
+  "name": "alarm_validator",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Controller Alarm Validator - Validates CNC Alarm Data for 12 Controller Families",
+  
+  "domain_expertise": [
+    "FANUC alarm codes",
+    "SIEMENS alarm codes",
+    "HAAS alarm codes",
+    "MAZAK alarm codes",
+    "OKUMA alarm codes",
+    "HEIDENHAIN alarm codes",
+    "MITSUBISHI alarm codes",
+    "BROTHER alarm codes",
+    "Alarm severity classification",
+    "Alarm category standards"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-ALRM-001",
+      "name": "Alarm Schema Validation",
+      "description": "Validates alarm entries against the required schema (alarm_id, code, name, category, severity, description, causes, quick_fix)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": ["controller_family"]
+      },
+      "outputs": {
+        "primary": "schema_result",
+        "secondary": ["missing_fields", "invalid_fields", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["ALARM-SCHEMA-VALIDATE"],
+      "synergizes_with": ["validator", "data_quality_enforcer"],
+      "required_fields": {
+        "alarm_id": "ALM-{FAMILY}-{CODE} pattern",
+        "code": "Original controller code",
+        "name": "Descriptive alarm name",
+        "category": "SERVO|SPINDLE|ATC|PROGRAM|SAFETY|SYSTEM|COMMUNICATION|THERMAL|HYDRAULIC|LUBRICATION",
+        "severity": "CRITICAL|HIGH|MEDIUM|LOW|INFO",
+        "description": "What the alarm means",
+        "causes": "Array of possible causes",
+        "quick_fix": "Immediate action to take"
+      },
+      "success_criteria": "All required fields present and valid"
+    },
+    {
+      "id": "CAP-ALRM-002",
+      "name": "Alarm ID Format Validation",
+      "description": "Validates alarm ID follows pattern ALM-{FAMILY}-{CODE}",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_id"],
+        "optional": ["expected_family"]
+      },
+      "outputs": {
+        "primary": "format_valid",
+        "secondary": ["parsed_components", "format_errors"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["ALARM-ID-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "id_patterns": {
+        "FANUC": "ALM-FANUC-\\d{3,4}",
+        "SIEMENS": "ALM-SIEMENS-\\d{5,6}",
+        "HAAS": "ALM-HAAS-\\d{3,4}",
+        "MAZAK": "ALM-MAZAK-\\d{3,4}",
+        "OKUMA": "ALM-OKUMA-\\d{3,4}",
+        "HEIDENHAIN": "ALM-HEIDEN-\\d{3,5}",
+        "MITSUBISHI": "ALM-MITS-\\d{3,4}",
+        "BROTHER": "ALM-BROTHER-\\d{3}",
+        "HURCO": "ALM-HURCO-\\d{3,4}",
+        "FAGOR": "ALM-FAGOR-\\d{3,4}",
+        "DMG_MORI": "ALM-DMG-\\d{4,5}",
+        "DOOSAN": "ALM-DOOSAN-\\d{3,4}"
+      },
+      "success_criteria": "ID matches family pattern"
+    },
+    {
+      "id": "CAP-ALRM-003",
+      "name": "Severity Classification Validation",
+      "description": "Validates severity levels are appropriate for alarm type and category",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": ["severity_rules"]
+      },
+      "outputs": {
+        "primary": "severity_valid",
+        "secondary": ["severity_issues", "recommended_severity"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["SEVERITY-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "severity_rules": {
+        "CRITICAL": "Machine stops, potential damage, safety hazard",
+        "HIGH": "Machine stops, requires attention",
+        "MEDIUM": "Operation affected, can continue with caution",
+        "LOW": "Advisory, no immediate action needed",
+        "INFO": "Informational only"
+      },
+      "category_severity_expectations": {
+        "SAFETY": "CRITICAL or HIGH only",
+        "SERVO": "Usually CRITICAL or HIGH",
+        "SPINDLE": "Usually CRITICAL or HIGH",
+        "PROGRAM": "Usually MEDIUM or LOW",
+        "COMMUNICATION": "Usually MEDIUM"
+      },
+      "success_criteria": "Severity appropriate for category"
+    },
+    {
+      "id": "CAP-ALRM-004",
+      "name": "Category Validation",
+      "description": "Validates alarm category is from approved list and appropriate for alarm type",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["category", "alarm_description"],
+        "optional": ["controller_family"]
+      },
+      "outputs": {
+        "primary": "category_valid",
+        "secondary": ["suggested_category", "category_confidence"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["CATEGORY-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "approved_categories": [
+        "SERVO", "SPINDLE", "ATC", "PROGRAM", "SAFETY", "SYSTEM",
+        "COMMUNICATION", "THERMAL", "HYDRAULIC", "LUBRICATION",
+        "AXIS", "OVERTRAVEL", "IO", "PLC", "PARAMETER", "MACRO"
+      ],
+      "success_criteria": "Category valid and appropriate"
+    },
+    {
+      "id": "CAP-ALRM-005",
+      "name": "Description Quality Validation",
+      "description": "Validates alarm description is meaningful, not placeholder text",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["description"],
+        "optional": ["min_length", "quality_threshold"]
+      },
+      "outputs": {
+        "primary": "description_quality",
+        "secondary": ["quality_issues", "improvement_suggestions"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["DESC-VALIDATE"],
+      "synergizes_with": ["placeholder_hunter", "data_quality_enforcer"],
+      "quality_checks": [
+        "Minimum 10 characters",
+        "Not generic (TODO, TBD, placeholder)",
+        "Contains actionable information",
+        "Grammatically reasonable"
+      ],
+      "forbidden_patterns": [
+        "TODO", "TBD", "placeholder", "fix later",
+        "alarm description", "error message", "unknown"
+      ],
+      "success_criteria": "Description is meaningful and complete"
+    },
+    {
+      "id": "CAP-ALRM-006",
+      "name": "Causes Array Validation",
+      "description": "Validates causes array has meaningful entries",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["causes"],
+        "optional": ["min_causes"]
+      },
+      "outputs": {
+        "primary": "causes_valid",
+        "secondary": ["cause_issues", "suggested_causes"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["CAUSES-VALIDATE"],
+      "synergizes_with": ["placeholder_hunter"],
+      "validation_rules": [
+        "At least 1 cause required",
+        "Each cause is meaningful string",
+        "No duplicate causes",
+        "Causes are actionable"
+      ],
+      "success_criteria": "Causes array valid and meaningful"
+    },
+    {
+      "id": "CAP-ALRM-007",
+      "name": "Quick Fix Validation",
+      "description": "Validates quick_fix field contains actionable remediation",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["quick_fix"],
+        "optional": ["severity"]
+      },
+      "outputs": {
+        "primary": "quickfix_valid",
+        "secondary": ["quickfix_issues", "suggested_fix"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["QUICKFIX-VALIDATE"],
+      "synergizes_with": ["machinist", "placeholder_hunter"],
+      "validation_rules": [
+        "Not empty or placeholder",
+        "Contains actionable steps",
+        "Appropriate for severity level",
+        "Safety-conscious for CRITICAL alarms"
+      ],
+      "success_criteria": "Quick fix is actionable"
+    },
+    {
+      "id": "CAP-ALRM-008",
+      "name": "Duplicate Alarm Detection",
+      "description": "Detects duplicate alarms within and across controller families",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_collection"],
+        "optional": ["duplicate_threshold"]
+      },
+      "outputs": {
+        "primary": "duplicates_found",
+        "secondary": ["duplicate_pairs", "similarity_scores"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["DUP-DETECT"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "duplicate_detection": [
+        "Exact ID match",
+        "Code + family match",
+        "Name similarity > 90%",
+        "Description similarity > 85%"
+      ],
+      "success_criteria": "No duplicates detected"
+    },
+    {
+      "id": "CAP-ALRM-009",
+      "name": "Controller Family Consistency",
+      "description": "Validates alarms are consistent within their controller family",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["family_alarms", "controller_family"],
+        "optional": ["consistency_rules"]
+      },
+      "outputs": {
+        "primary": "consistency_result",
+        "secondary": ["inconsistencies", "family_patterns"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["FAMILY-CONSISTENT"],
+      "synergizes_with": ["validator"],
+      "success_criteria": "Family alarms are consistent"
+    },
+    {
+      "id": "CAP-ALRM-010",
+      "name": "Cross-Reference Validation",
+      "description": "Validates alarm references to other alarms, parameters, or machine components",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry", "reference_database"],
+        "optional": ["reference_types"]
+      },
+      "outputs": {
+        "primary": "references_valid",
+        "secondary": ["broken_references", "suggested_references"]
+      },
+      "skills_used": ["prism-validator", "prism-wiring-templates"],
+      "hooks_triggered": ["XREF-VALIDATE"],
+      "synergizes_with": ["validator", "resource_auditor"],
+      "success_criteria": "All references valid"
+    },
+    {
+      "id": "CAP-ALRM-011",
+      "name": "Batch Alarm Validation",
+      "description": "Validates batch of alarms with aggregated statistics",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_batch"],
+        "optional": ["validation_level", "stop_on_error"]
+      },
+      "outputs": {
+        "primary": "batch_result",
+        "secondary": ["per_alarm_results", "statistics", "common_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["BATCH-ALARM-VALIDATE"],
+      "synergizes_with": ["validator", "data_quality_enforcer"],
+      "success_criteria": "Batch validation complete with statistics"
+    },
+    {
+      "id": "CAP-ALRM-012",
+      "name": "Alarm Coverage Analysis",
+      "description": "Analyzes alarm coverage by category, severity, and code range",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["family_alarms"],
+        "optional": ["coverage_targets"]
+      },
+      "outputs": {
+        "primary": "coverage_analysis",
+        "secondary": ["coverage_by_category", "gaps_identified", "recommendations"]
+      },
+      "skills_used": ["prism-validator", "prism-sp-verification"],
+      "hooks_triggered": ["COVERAGE-ANALYZE"],
+      "synergizes_with": ["completeness_auditor"],
+      "success_criteria": "Coverage gaps identified"
+    },
+    {
+      "id": "CAP-ALRM-013",
+      "name": "Alarm Quality Scoring",
+      "description": "Scores alarm data quality on A-F scale",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": ["scoring_weights"]
+      },
+      "outputs": {
+        "primary": "quality_grade",
+        "secondary": ["score_breakdown", "improvement_priorities"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["QUALITY-SCORE"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "grading_criteria": {
+        "A": "Complete, accurate, well-documented (90-100%)",
+        "B": "Minor issues, mostly complete (80-89%)",
+        "C": "Some gaps, usable (70-79%)",
+        "D": "Significant issues (60-69%)",
+        "F": "Incomplete or unusable (<60%)"
+      },
+      "success_criteria": "Quality grade assigned"
+    },
+    {
+      "id": "CAP-ALRM-014",
+      "name": "Power Cycle Requirement Validation",
+      "description": "Validates requires_power_cycle field is appropriate for alarm severity",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": ["controller_family"]
+      },
+      "outputs": {
+        "primary": "power_cycle_valid",
+        "secondary": ["recommendation", "reasoning"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["POWER-CYCLE-VALIDATE"],
+      "synergizes_with": ["machinist"],
+      "rules": {
+        "CRITICAL_usually_yes": "Safety and servo alarms often require power cycle",
+        "INFO_usually_no": "Informational alarms shouldn't require power cycle"
+      },
+      "success_criteria": "Power cycle requirement appropriate"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-validator",
+    "prism-error-catalog",
+    "prism-quality-master",
+    "prism-sp-verification",
+    "prism-wiring-templates",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-gcode-reference"
+  ],
+
+  "hooks_subscribed": [
+    "db:preValidate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "field_validator"
+  ],
+
+  "receives_from": [
+    "validator",
+    "data_quality_enforcer",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Schema compliant",
+    "No duplicates",
+    "Severity appropriate",
+    "No placeholders"
+  ],
+
+  "performance_metrics": {
+    "validation_accuracy": 0.98,
+    "false_positive_rate": 0.02,
+    "latency_target_ms": 200,
+    "batch_throughput": 500
+  }
+}

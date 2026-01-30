@@ -1,0 +1,629 @@
+{
+  "agent_id": "AGT-SONNET-003",
+  "name": "alarm_expert",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "CNC Alarm Expert - Controller Alarm Knowledge for 12 Families",
+  
+  "mission": "Provides comprehensive CNC controller alarm expertise across 12 controller families (Fanuc, Siemens, Haas, Mazak, Okuma, Heidenhain, Mitsubishi, Brother, Hurco, Fagor, DMG MORI, Doosan) with 9,200 alarm target",
+
+  "domain_expertise": [
+    "CNC controller alarm systems",
+    "Fanuc alarm codes (0000-9999)",
+    "Siemens 840D alarm codes",
+    "Haas alarm and message system",
+    "Mazak alarm architecture",
+    "Okuma OSP alarms",
+    "Heidenhain TNC alarms",
+    "Mitsubishi M70/M80 alarms",
+    "Alarm categorization (SERVO, SPINDLE, ATC, SAFETY, SYSTEM)",
+    "Alarm severity classification",
+    "Root cause analysis",
+    "Quick fix procedures"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-ALM-001",
+      "name": "Alarm Extraction from Documentation",
+      "description": "Extracts alarm codes, names, descriptions, and categories from controller documentation PDFs and manuals",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["controller_family", "documentation_source"],
+        "optional": ["alarm_range", "category_filter"]
+      },
+      "outputs": {
+        "primary": "extracted_alarms",
+        "secondary": ["alarm_count", "categories_found", "extraction_confidence"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+      "hooks_triggered": ["ALARM-EXTRACT"],
+      "synergizes_with": ["extractor", "data_quality_enforcer", "machinist"],
+      "validation_rules": [
+        "Alarm codes valid format",
+        "No duplicates",
+        "Categories assigned"
+      ],
+      "success_criteria": "Alarms extracted with complete data"
+    },
+    {
+      "id": "CAP-ALM-002",
+      "name": "Alarm Categorization",
+      "description": "Categorizes alarms into SERVO, SPINDLE, ATC, PROGRAM, SAFETY, SYSTEM, COMMUNICATION, THERMAL, LUBRICATION categories",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_code", "alarm_name", "description"],
+        "optional": ["controller_family"]
+      },
+      "outputs": {
+        "primary": "category",
+        "secondary": ["subcategory", "confidence", "category_reasoning"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["ALARM-CATEGORIZE"],
+      "synergizes_with": ["data_quality_enforcer", "machinist"],
+      "validation_rules": [
+        "Category valid",
+        "Confidence ≥ 80%"
+      ],
+      "success_criteria": "Correct category assigned"
+    },
+    {
+      "id": "CAP-ALM-003",
+      "name": "Severity Classification",
+      "description": "Classifies alarm severity as CRITICAL, HIGH, MEDIUM, LOW, or INFO based on impact and safety implications",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_data"],
+        "optional": ["safety_context"]
+      },
+      "outputs": {
+        "primary": "severity",
+        "secondary": ["severity_reasoning", "safety_impact", "production_impact"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY"],
+      "synergizes_with": ["machinist", "data_quality_enforcer"],
+      "validation_rules": [
+        "Severity assigned",
+        "Safety alarms = CRITICAL",
+        "Reasoning documented"
+      ],
+      "success_criteria": "Appropriate severity assigned"
+    },
+    {
+      "id": "CAP-ALM-004",
+      "name": "Root Cause Identification",
+      "description": "Identifies potential root causes for alarms based on controller knowledge and troubleshooting experience",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_data"],
+        "optional": ["machine_context", "recent_history"]
+      },
+      "outputs": {
+        "primary": "root_causes",
+        "secondary": ["probability_ranking", "diagnostic_steps"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-manufacturing-tables"],
+      "hooks_triggered": ["ROOT-CAUSE-ANALYZE"],
+      "synergizes_with": ["machinist", "root_cause_analyst", "debugger"],
+      "validation_rules": [
+        "Causes specific not generic",
+        "Multiple causes considered",
+        "Probability estimated"
+      ],
+      "success_criteria": "Actionable root causes identified"
+    },
+    {
+      "id": "CAP-ALM-005",
+      "name": "Quick Fix Generation",
+      "description": "Generates immediate actionable quick fixes for alarms that operators can perform",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["alarm_data", "root_causes"],
+        "optional": ["operator_skill_level"]
+      },
+      "outputs": {
+        "primary": "quick_fix",
+        "secondary": ["safety_warnings", "tools_needed", "estimated_time"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-manufacturing-tables"],
+      "hooks_triggered": ["QUICKFIX-GENERATE", "SYS-LAW1-SAFETY"],
+      "synergizes_with": ["machinist", "documentation_writer"],
+      "validation_rules": [
+        "Fix is actionable",
+        "Safety considered",
+        "No dangerous shortcuts"
+      ],
+      "success_criteria": "Safe, actionable quick fix generated"
+    },
+    {
+      "id": "CAP-ALM-006",
+      "name": "Detailed Troubleshooting Procedure",
+      "description": "Creates comprehensive step-by-step troubleshooting procedures for complex alarms",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["alarm_data"],
+        "optional": ["machine_model", "maintenance_level"]
+      },
+      "outputs": {
+        "primary": "troubleshooting_procedure",
+        "secondary": ["steps", "decision_points", "escalation_criteria"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["PROCEDURE-GENERATE"],
+      "synergizes_with": ["machinist", "documentation_writer"],
+      "validation_rules": [
+        "Steps sequential",
+        "Safety first",
+        "Escalation defined"
+      ],
+      "success_criteria": "Complete troubleshooting procedure"
+    },
+    {
+      "id": "CAP-ALM-007",
+      "name": "Alarm Cross-Reference",
+      "description": "Cross-references alarms across controller families to identify equivalent alarms",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_code", "source_controller"],
+        "optional": ["target_controllers"]
+      },
+      "outputs": {
+        "primary": "cross_references",
+        "secondary": ["equivalent_codes", "differences", "confidence"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["ALARM-XREF"],
+      "synergizes_with": ["cross_referencer"],
+      "validation_rules": [
+        "Equivalence verified",
+        "Differences documented"
+      ],
+      "success_criteria": "Cross-references accurate"
+    },
+    {
+      "id": "CAP-ALM-008",
+      "name": "Alarm Chain Analysis",
+      "description": "Analyzes alarm chains and cascades to identify primary alarm from secondary effects",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_sequence"],
+        "optional": ["timing_data"]
+      },
+      "outputs": {
+        "primary": "primary_alarm",
+        "secondary": ["cascade_chain", "timing_analysis", "root_alarm"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["ALARM-CHAIN"],
+      "synergizes_with": ["root_cause_analyst", "machinist"],
+      "validation_rules": [
+        "Primary identified",
+        "Chain documented",
+        "Causation established"
+      ],
+      "success_criteria": "Root alarm identified"
+    },
+    {
+      "id": "CAP-ALM-009",
+      "name": "Fanuc Alarm Expertise",
+      "description": "Deep expertise in Fanuc alarm system including Series 0i, 30i, 31i, 32i with 1,500 alarm target",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["fanuc_alarm_code"],
+        "optional": ["series", "machine_type"]
+      },
+      "outputs": {
+        "primary": "fanuc_alarm_detail",
+        "secondary": ["series_specific", "parameter_checks", "diagnostic_screens"]
+      },
+      "skills_used": ["prism-fanuc-programming", "prism-error-catalog"],
+      "hooks_triggered": ["FANUC-LOOKUP"],
+      "synergizes_with": ["machinist", "gcode_expert"],
+      "validation_rules": [
+        "Code valid for Fanuc",
+        "Series matched"
+      ],
+      "success_criteria": "Complete Fanuc alarm data"
+    },
+    {
+      "id": "CAP-ALM-010",
+      "name": "Siemens Alarm Expertise",
+      "description": "Deep expertise in Siemens SINUMERIK 840D alarm system with 1,200 alarm target",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["siemens_alarm_code"],
+        "optional": ["controller_version", "drive_type"]
+      },
+      "outputs": {
+        "primary": "siemens_alarm_detail",
+        "secondary": ["alarm_text", "reaction", "remedy"]
+      },
+      "skills_used": ["prism-siemens-programming", "prism-error-catalog"],
+      "hooks_triggered": ["SIEMENS-LOOKUP"],
+      "synergizes_with": ["machinist", "gcode_expert"],
+      "validation_rules": [
+        "Code valid for Siemens",
+        "Version matched"
+      ],
+      "success_criteria": "Complete Siemens alarm data"
+    },
+    {
+      "id": "CAP-ALM-011",
+      "name": "Haas Alarm Expertise",
+      "description": "Deep expertise in Haas alarm and message system with 1,000 alarm target",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["haas_alarm_code"],
+        "optional": ["machine_model"]
+      },
+      "outputs": {
+        "primary": "haas_alarm_detail",
+        "secondary": ["message_type", "parameters_to_check"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-error-catalog"],
+      "hooks_triggered": ["HAAS-LOOKUP"],
+      "synergizes_with": ["machinist"],
+      "validation_rules": [
+        "Code valid for Haas"
+      ],
+      "success_criteria": "Complete Haas alarm data"
+    },
+    {
+      "id": "CAP-ALM-012",
+      "name": "Heidenhain Alarm Expertise",
+      "description": "Deep expertise in Heidenhain TNC alarm system with 800 alarm target",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["heidenhain_alarm_code"],
+        "optional": ["control_type"]
+      },
+      "outputs": {
+        "primary": "heidenhain_alarm_detail",
+        "secondary": ["error_class", "nc_stop_reaction"]
+      },
+      "skills_used": ["prism-heidenhain-programming", "prism-error-catalog"],
+      "hooks_triggered": ["HEIDENHAIN-LOOKUP"],
+      "synergizes_with": ["machinist", "gcode_expert"],
+      "validation_rules": [
+        "Code valid for Heidenhain"
+      ],
+      "success_criteria": "Complete Heidenhain alarm data"
+    },
+    {
+      "id": "CAP-ALM-013",
+      "name": "Alarm Database Validation",
+      "description": "Validates alarm database entries for completeness, consistency, and quality",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_database"],
+        "optional": ["validation_level"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["issues", "completeness_score", "recommendations"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["db:preValidate"],
+      "synergizes_with": ["data_quality_enforcer", "placeholder_hunter"],
+      "validation_rules": [
+        "All required fields present",
+        "No placeholders",
+        "Categories valid"
+      ],
+      "success_criteria": "Database validation passed"
+    },
+    {
+      "id": "CAP-ALM-014",
+      "name": "Alarm Enhancement",
+      "description": "Enhances existing alarm entries with missing information from knowledge and documentation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["incomplete_alarm"],
+        "optional": ["enhancement_sources"]
+      },
+      "outputs": {
+        "primary": "enhanced_alarm",
+        "secondary": ["fields_added", "sources_used", "confidence"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-material-enhancer"],
+      "hooks_triggered": ["ALARM-ENHANCE"],
+      "synergizes_with": ["machinist", "researcher"],
+      "validation_rules": [
+        "Enhancement accurate",
+        "Sources documented",
+        "No fabrication"
+      ],
+      "success_criteria": "Alarm enhanced with real data"
+    },
+    {
+      "id": "CAP-ALM-015",
+      "name": "Batch Alarm Processing",
+      "description": "Processes batches of alarms (15-25 per microsession) with progress tracking",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["alarm_batch"],
+        "optional": ["processing_mode"]
+      },
+      "outputs": {
+        "primary": "processed_alarms",
+        "secondary": ["success_count", "failure_count", "issues"]
+      },
+      "skills_used": ["prism-sp-execution"],
+      "hooks_triggered": ["microsession:progress"],
+      "synergizes_with": ["coordinator_v2"],
+      "validation_rules": [
+        "Batch size 15-25",
+        "Progress tracked",
+        "Errors handled"
+      ],
+      "success_criteria": "Batch processed successfully"
+    },
+    {
+      "id": "CAP-ALM-016",
+      "name": "Power Cycle Determination",
+      "description": "Determines whether alarm requires power cycle for reset or can be cleared otherwise",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_data"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "requires_power_cycle",
+        "secondary": ["reset_method", "clear_sequence"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": [],
+      "synergizes_with": ["machinist"],
+      "validation_rules": [
+        "Reset method accurate",
+        "Safety considered"
+      ],
+      "success_criteria": "Reset method determined"
+    },
+    {
+      "id": "CAP-ALM-017",
+      "name": "Alarm Statistics Analysis",
+      "description": "Analyzes alarm database statistics including coverage, distribution, and gaps",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["alarm_database"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "statistics_report",
+        "secondary": ["coverage_by_family", "category_distribution", "gaps"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["STATS-ANALYZE"],
+      "synergizes_with": ["meta_analyst_v2", "completeness_auditor"],
+      "validation_rules": [
+        "Stats accurate",
+        "Gaps identified"
+      ],
+      "success_criteria": "Complete statistics generated"
+    },
+    {
+      "id": "CAP-ALM-018",
+      "name": "Missing Controller Family Identification",
+      "description": "Identifies missing or underrepresented controller families needing alarm extraction",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["current_coverage"],
+        "optional": ["target_coverage"]
+      },
+      "outputs": {
+        "primary": "missing_families",
+        "secondary": ["priority_ranking", "estimated_effort"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["GAP-IDENTIFY"],
+      "synergizes_with": ["completeness_auditor"],
+      "validation_rules": [
+        "All 12 families checked",
+        "Targets defined"
+      ],
+      "success_criteria": "Gaps identified with priorities"
+    },
+    {
+      "id": "CAP-ALM-019",
+      "name": "Alarm Duplicate Detection",
+      "description": "Detects duplicate or near-duplicate alarms across the database",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_database"],
+        "optional": ["similarity_threshold"]
+      },
+      "outputs": {
+        "primary": "duplicates",
+        "secondary": ["duplicate_groups", "merge_recommendations"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["DUPLICATE-DETECT"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "validation_rules": [
+        "Duplicates identified",
+        "Exact and fuzzy matched"
+      ],
+      "success_criteria": "Duplicates found and flagged"
+    },
+    {
+      "id": "CAP-ALM-020",
+      "name": "Alarm Schema Compliance",
+      "description": "Validates alarm entries against the required schema (alarm_id, code, name, category, severity, etc.)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "compliance_result",
+        "secondary": ["missing_fields", "invalid_fields"]
+      },
+      "skills_used": ["prism-validator", "prism-api-contracts"],
+      "hooks_triggered": ["SCHEMA-CHECK"],
+      "synergizes_with": ["data_quality_enforcer", "schema_designer"],
+      "validation_rules": [
+        "Required fields present",
+        "Types correct",
+        "Enums valid"
+      ],
+      "success_criteria": "Schema compliance verified"
+    },
+    {
+      "id": "CAP-ALM-021",
+      "name": "Alarm Report Generation",
+      "description": "Generates alarm database reports for progress tracking and documentation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["alarm_database"],
+        "optional": ["report_type"]
+      },
+      "outputs": {
+        "primary": "alarm_report",
+        "secondary": ["summary", "details", "recommendations"]
+      },
+      "skills_used": [],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "validation_rules": [
+        "Report accurate",
+        "Metrics included"
+      ],
+      "success_criteria": "Report generated"
+    },
+    {
+      "id": "CAP-ALM-022",
+      "name": "Servo Alarm Specialization",
+      "description": "Specialized expertise in servo drive alarms including axis faults, encoder errors, and motor issues",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["servo_alarm"],
+        "optional": ["axis_number", "drive_type"]
+      },
+      "outputs": {
+        "primary": "servo_diagnosis",
+        "secondary": ["axis_specific", "parameter_checks", "replacement_parts"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-manufacturing-tables"],
+      "hooks_triggered": ["SERVO-DIAGNOSE"],
+      "synergizes_with": ["machinist", "machine_specialist"],
+      "validation_rules": [
+        "Servo-specific knowledge applied",
+        "Axis identified"
+      ],
+      "success_criteria": "Servo alarm diagnosed"
+    },
+    {
+      "id": "CAP-ALM-023",
+      "name": "Spindle Alarm Specialization",
+      "description": "Specialized expertise in spindle alarms including orientation, temperature, and drive faults",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["spindle_alarm"],
+        "optional": ["spindle_type"]
+      },
+      "outputs": {
+        "primary": "spindle_diagnosis",
+        "secondary": ["temperature_checks", "orientation_checks", "load_analysis"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["SPINDLE-DIAGNOSE"],
+      "synergizes_with": ["machinist", "thermal_calculator"],
+      "validation_rules": [
+        "Spindle-specific knowledge applied"
+      ],
+      "success_criteria": "Spindle alarm diagnosed"
+    },
+    {
+      "id": "CAP-ALM-024",
+      "name": "ATC Alarm Specialization",
+      "description": "Specialized expertise in automatic tool changer alarms including magazine, arm, and sensor issues",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["atc_alarm"],
+        "optional": ["atc_type"]
+      },
+      "outputs": {
+        "primary": "atc_diagnosis",
+        "secondary": ["sensor_checks", "timing_analysis", "mechanical_checks"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["ATC-DIAGNOSE"],
+      "synergizes_with": ["machinist", "tool_engineer"],
+      "validation_rules": [
+        "ATC-specific knowledge applied"
+      ],
+      "success_criteria": "ATC alarm diagnosed"
+    },
+    {
+      "id": "CAP-ALM-025",
+      "name": "Safety Alarm Specialization",
+      "description": "Specialized expertise in safety alarms including door interlocks, E-stop, and SLS/SLP functions",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["safety_alarm"],
+        "optional": ["safety_system_type"]
+      },
+      "outputs": {
+        "primary": "safety_diagnosis",
+        "secondary": ["interlock_status", "safety_chain", "reset_requirements"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "SAFETY-DIAGNOSE"],
+      "synergizes_with": ["machinist", "quality_engineer"],
+      "validation_rules": [
+        "Safety-critical knowledge applied",
+        "No unsafe shortcuts"
+      ],
+      "success_criteria": "Safety alarm diagnosed safely"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-error-catalog",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-gcode-reference",
+    "prism-manufacturing-tables",
+    "prism-validator",
+    "prism-quality-master",
+    "prism-api-contracts"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW1-SAFETY",
+    "db:preValidate",
+    "microsession:progress"
+  ],
+
+  "can_delegate_to": [
+    "machinist",
+    "gcode_expert",
+    "documentation_writer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "extractor",
+    "data_quality_enforcer"
+  ],
+
+  "quality_gates": [
+    "No placeholder data",
+    "All required fields present",
+    "Categories valid",
+    "Severity appropriate",
+    "Safety alarms flagged correctly"
+  ],
+
+  "performance_metrics": {
+    "extraction_accuracy": 0.95,
+    "categorization_accuracy": 0.90,
+    "quick_fix_quality": 0.85,
+    "throughput_alarms_per_session": 25
+  }
+}

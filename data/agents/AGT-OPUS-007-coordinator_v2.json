@@ -1,0 +1,675 @@
+{
+  "agent_id": "AGT-OPUS-007",
+  "name": "coordinator_v2",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Master Orchestrator - ILP-Optimized Multi-Agent Coordination",
+  
+  "domain_expertise": [
+    "Multi-agent orchestration",
+    "ILP optimization (F-PSI-001)",
+    "Resource allocation",
+    "Task decomposition",
+    "Swarm pattern selection",
+    "Agent delegation",
+    "Synergy maximization",
+    "Cost optimization",
+    "Parallel execution",
+    "Failure recovery"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-COORD-001",
+      "name": "ILP Resource Selection",
+      "description": "Applies F-PSI-001 to select optimal combination of skills (≤8) and agents (≤8) for any task, maximizing capability while minimizing cost",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["task_description", "task_requirements"],
+        "optional": ["cost_budget", "time_constraint", "quality_target"]
+      },
+      "outputs": {
+        "primary": "optimal_resource_selection",
+        "secondary": ["capability_scores", "synergy_matrix", "cost_estimate", "optimality_certificate"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer", "prism-agent-selector"],
+      "hooks_triggered": ["swarm:preStart", "agent:preExecute"],
+      "synergizes_with": ["combination_optimizer", "synergy_analyst", "proof_generator"],
+      "formula": "Ψ(T,R) = argmax[Σᵢ Cap(rᵢ,T) × Syn(R) × Ω(R) / Cost(R)]",
+      "constraints": ["|skills|≤8", "|agents|≤8", "S≥0.70", "M≥0.60", "Coverage=1.0"],
+      "success_criteria": "OPTIMAL or NEAR_OPTIMAL certificate achieved"
+    },
+    {
+      "id": "CAP-COORD-002",
+      "name": "Swarm Pattern Selection",
+      "description": "Selects optimal swarm pattern from 8 predefined patterns based on task characteristics and agent capabilities",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["task_type", "complexity_estimate"],
+        "optional": ["available_agents", "time_constraint"]
+      },
+      "outputs": {
+        "primary": "selected_swarm_pattern",
+        "secondary": ["agent_assignments", "execution_order", "communication_topology"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-combination-engine"],
+      "hooks_triggered": ["swarm:preStart", "SWARM-SELECT"],
+      "synergizes_with": ["combination_optimizer", "task_decomposer"],
+      "swarm_patterns": [
+        "deep_extraction_swarm",
+        "validation_swarm",
+        "enhancement_swarm",
+        "parallel_processing_swarm",
+        "sequential_pipeline_swarm",
+        "hierarchical_swarm",
+        "consensus_swarm",
+        "specialized_swarm"
+      ],
+      "success_criteria": "Pattern matches task requirements"
+    },
+    {
+      "id": "CAP-COORD-003",
+      "name": "Task Decomposition",
+      "description": "Decomposes complex tasks into subtasks suitable for parallel agent execution while respecting dependencies",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["complex_task"],
+        "optional": ["max_parallelism", "dependency_hints"]
+      },
+      "outputs": {
+        "primary": "task_decomposition",
+        "secondary": ["subtask_list", "dependency_graph", "critical_path", "parallelization_plan"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-sp-planning"],
+      "hooks_triggered": ["task:prePlan", "TASK-DECOMPOSE"],
+      "synergizes_with": ["task_decomposer", "architect"],
+      "validation_rules": [
+        "All subtasks sum to original scope",
+        "Dependencies respected",
+        "No cycles in dependency graph",
+        "Critical path identified"
+      ],
+      "success_criteria": "Decomposition enables parallel execution"
+    },
+    {
+      "id": "CAP-COORD-004",
+      "name": "Agent Assignment",
+      "description": "Assigns optimal agents to subtasks based on capability scores, synergy potential, and cost efficiency",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["subtasks", "available_agents"],
+        "optional": ["agent_history", "cost_weights"]
+      },
+      "outputs": {
+        "primary": "agent_assignments",
+        "secondary": ["assignment_rationale", "backup_agents", "estimated_performance"]
+      },
+      "skills_used": ["prism-agent-selector", "prism-synergy-calculator"],
+      "hooks_triggered": ["agent:preExecute", "AGENT-ASSIGN"],
+      "synergizes_with": ["combination_optimizer", "synergy_analyst"],
+      "validation_rules": [
+        "Each subtask has assigned agent",
+        "Agent capabilities match requirements",
+        "Synergies maximized",
+        "Cost within budget"
+      ],
+      "success_criteria": "Optimal agent-task matching"
+    },
+    {
+      "id": "CAP-COORD-005",
+      "name": "Execution Orchestration",
+      "description": "Orchestrates multi-agent execution including sequencing, parallel coordination, and inter-agent communication",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["execution_plan", "agent_assignments"],
+        "optional": ["timeout", "checkpoint_frequency"]
+      },
+      "outputs": {
+        "primary": "execution_results",
+        "secondary": ["agent_outputs", "execution_timeline", "performance_metrics"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-sp-execution"],
+      "hooks_triggered": ["swarm:progress", "agent:postExecute", "task:checkpoint"],
+      "synergizes_with": ["test_orchestrator", "session_continuity"],
+      "validation_rules": [
+        "All agents complete or timeout",
+        "Checkpoints captured",
+        "Errors handled",
+        "Results aggregated"
+      ],
+      "success_criteria": "All subtasks complete successfully"
+    },
+    {
+      "id": "CAP-COORD-006",
+      "name": "Result Synthesis",
+      "description": "Synthesizes outputs from multiple agents into coherent, validated final result",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["agent_outputs"],
+        "optional": ["synthesis_rules", "conflict_resolution"]
+      },
+      "outputs": {
+        "primary": "synthesized_result",
+        "secondary": ["contribution_map", "conflicts_resolved", "quality_assessment"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-verification"],
+      "hooks_triggered": ["swarm:synthesize", "RESULT-SYNTHESIZE"],
+      "synergizes_with": ["synthesizer", "data_quality_enforcer"],
+      "validation_rules": [
+        "All contributions included",
+        "Conflicts resolved",
+        "Result validated",
+        "Quality meets threshold"
+      ],
+      "success_criteria": "Coherent, validated output"
+    },
+    {
+      "id": "CAP-COORD-007",
+      "name": "Failure Recovery",
+      "description": "Handles agent failures, timeouts, and partial results with graceful degradation and retry strategies",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["failure_info"],
+        "optional": ["retry_budget", "fallback_agents"]
+      },
+      "outputs": {
+        "primary": "recovery_action",
+        "secondary": ["retry_plan", "degradation_level", "user_notification"]
+      },
+      "skills_used": ["prism-sp-debugging", "prism-error-catalog"],
+      "hooks_triggered": ["circuit:halfOpen", "FAILURE-RECOVER"],
+      "synergizes_with": ["debugger", "root_cause_analyst"],
+      "validation_rules": [
+        "Failure categorized",
+        "Retry if appropriate",
+        "Graceful degradation",
+        "User informed"
+      ],
+      "success_criteria": "System recovers or degrades gracefully"
+    },
+    {
+      "id": "CAP-COORD-008",
+      "name": "Cost Tracking and Optimization",
+      "description": "Tracks agent invocation costs and optimizes for cost-effectiveness while maintaining quality",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["execution_log"],
+        "optional": ["cost_targets", "quality_minimums"]
+      },
+      "outputs": {
+        "primary": "cost_report",
+        "secondary": ["cost_breakdown", "optimization_suggestions", "roi_analysis"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-combination-engine"],
+      "hooks_triggered": ["agent:costTrack", "COST-OPTIMIZE"],
+      "synergizes_with": ["resource_auditor", "meta_analyst_v2"],
+      "validation_rules": [
+        "Costs accurately tracked",
+        "ROI positive",
+        "Quality maintained",
+        "Budget respected"
+      ],
+      "success_criteria": "Cost within budget with quality maintained"
+    },
+    {
+      "id": "CAP-COORD-009",
+      "name": "Synergy Maximization",
+      "description": "Identifies and maximizes synergies between agents using the 150+ learned pairwise interactions",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["candidate_agents"],
+        "optional": ["synergy_matrix", "historical_performance"]
+      },
+      "outputs": {
+        "primary": "synergy_optimized_team",
+        "secondary": ["synergy_scores", "interaction_predictions", "team_dynamics"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-combination-engine"],
+      "hooks_triggered": ["SYNERGY-OPTIMIZE"],
+      "synergizes_with": ["synergy_analyst", "combination_optimizer"],
+      "formula": "Syn(R) = geometric_mean(synergy_ij for all pairs i,j in R)",
+      "success_criteria": "Team synergy > 0.80"
+    },
+    {
+      "id": "CAP-COORD-010",
+      "name": "Ralph Loop Orchestration",
+      "description": "Orchestrates Ralph improvement loops with configurable iterations, quality gates, and convergence detection",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["initial_task", "agent", "max_iterations"],
+        "optional": ["quality_threshold", "convergence_criteria"]
+      },
+      "outputs": {
+        "primary": "ralph_result",
+        "secondary": ["iteration_history", "improvement_curve", "convergence_analysis"]
+      },
+      "skills_used": ["prism-quality-master", "prism-deep-learning"],
+      "hooks_triggered": ["ralph:iterationStart", "ralph:completionCheck", "ralph:exhausted"],
+      "synergizes_with": ["test_orchestrator", "learning_extractor_v2"],
+      "validation_rules": [
+        "Quality improves each iteration",
+        "Convergence detected",
+        "Max iterations respected",
+        "Best result retained"
+      ],
+      "success_criteria": "Quality target met or max iterations with best result"
+    },
+    {
+      "id": "CAP-COORD-011",
+      "name": "Parallel Execution Management",
+      "description": "Manages parallel agent execution with proper synchronization, resource sharing, and deadlock prevention",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["parallel_tasks", "agents"],
+        "optional": ["max_parallelism", "shared_resources"]
+      },
+      "outputs": {
+        "primary": "parallel_results",
+        "secondary": ["execution_timeline", "resource_usage", "bottleneck_analysis"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-sp-execution"],
+      "hooks_triggered": ["swarm:progress", "PARALLEL-MANAGE"],
+      "synergizes_with": ["test_orchestrator"],
+      "validation_rules": [
+        "No deadlocks",
+        "Resources shared safely",
+        "Results collected correctly",
+        "Parallelism utilized"
+      ],
+      "success_criteria": "Parallel execution completes correctly"
+    },
+    {
+      "id": "CAP-COORD-012",
+      "name": "Agent Capability Assessment",
+      "description": "Assesses agent capabilities for task requirements using F-RESOURCE-001 capability scoring",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent", "task_requirements"],
+        "optional": ["historical_performance", "context"]
+      },
+      "outputs": {
+        "primary": "capability_score",
+        "secondary": ["capability_breakdown", "gaps_identified", "recommendations"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-agent-selector"],
+      "hooks_triggered": ["CAPABILITY-ASSESS"],
+      "synergizes_with": ["resource_auditor", "meta_analyst_v2"],
+      "formula": "Cap(r,T) = weighted_match(domains, operations, complexity)",
+      "success_criteria": "Accurate capability assessment"
+    },
+    {
+      "id": "CAP-COORD-013",
+      "name": "Coverage Verification",
+      "description": "Verifies that selected resources provide 100% coverage of task requirements per F-COVERAGE-001",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["selected_resources", "task_requirements"],
+        "optional": ["coverage_threshold"]
+      },
+      "outputs": {
+        "primary": "coverage_score",
+        "secondary": ["coverage_map", "gaps", "gap_recommendations"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW3-COMPLETENESS", "COVERAGE-VERIFY"],
+      "synergizes_with": ["completeness_auditor", "data_quality_enforcer"],
+      "formula": "Coverage(R,T) = |requirements_covered| / |total_requirements|",
+      "success_criteria": "Coverage = 1.0 (100%)"
+    },
+    {
+      "id": "CAP-COORD-014",
+      "name": "Optimality Proof Generation",
+      "description": "Generates mathematical proofs that selected resources are optimal or near-optimal using LP duality",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["ilp_solution", "problem_constraints"],
+        "optional": ["proof_detail_level"]
+      },
+      "outputs": {
+        "primary": "optimality_certificate",
+        "secondary": ["proof_steps", "duality_gap", "sensitivity_analysis"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-GENERATE"],
+      "synergizes_with": ["proof_generator", "combination_optimizer"],
+      "certificates": ["OPTIMAL (0%)", "NEAR_OPTIMAL (≤2%)", "GOOD (≤5%)", "HEURISTIC (timeout)"],
+      "success_criteria": "OPTIMAL or NEAR_OPTIMAL certificate"
+    },
+    {
+      "id": "CAP-COORD-015",
+      "name": "Swarm Efficiency Calculation",
+      "description": "Calculates swarm efficiency ratio comparing output quality to cost versus independent agents",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["swarm_output", "swarm_cost"],
+        "optional": ["independent_baseline"]
+      },
+      "outputs": {
+        "primary": "swarm_efficiency",
+        "secondary": ["efficiency_breakdown", "improvement_potential", "recommendations"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-resource-optimizer"],
+      "hooks_triggered": ["swarm:complete", "EFFICIENCY-CALC"],
+      "synergizes_with": ["meta_analyst_v2", "synergy_analyst"],
+      "formula": "Efficiency = (Output_quality/Cost_swarm) / (Output_quality/Cost_independent)",
+      "success_criteria": "Efficiency > 1.0 (swarm better than independent)"
+    },
+    {
+      "id": "CAP-COORD-016",
+      "name": "Dynamic Re-planning",
+      "description": "Dynamically re-plans execution when circumstances change (agent failure, new requirements, budget changes)",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["current_state", "change_trigger"],
+        "optional": ["constraints_changed", "urgency"]
+      },
+      "outputs": {
+        "primary": "revised_plan",
+        "secondary": ["changes_made", "impact_assessment", "notification"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-sp-planning"],
+      "hooks_triggered": ["REPLAN-TRIGGER"],
+      "synergizes_with": ["architect", "task_decomposer"],
+      "validation_rules": [
+        "Plan remains valid",
+        "Constraints satisfied",
+        "Quality maintained",
+        "Minimal disruption"
+      ],
+      "success_criteria": "Plan updated smoothly"
+    },
+    {
+      "id": "CAP-COORD-017",
+      "name": "Inter-Agent Communication",
+      "description": "Manages communication between agents including message passing, shared context, and coordination signals",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["agents", "communication_requirements"],
+        "optional": ["protocol", "security_level"]
+      },
+      "outputs": {
+        "primary": "communication_established",
+        "secondary": ["message_log", "shared_context", "coordination_state"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-api-contracts"],
+      "hooks_triggered": ["AGENT-COMMUNICATE"],
+      "synergizes_with": ["synthesizer"],
+      "validation_rules": [
+        "Messages delivered",
+        "Context shared correctly",
+        "No message loss",
+        "Security maintained"
+      ],
+      "success_criteria": "Agents communicate effectively"
+    },
+    {
+      "id": "CAP-COORD-018",
+      "name": "Workload Balancing",
+      "description": "Balances workload across agents to prevent bottlenecks and ensure efficient resource utilization",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["tasks", "agents"],
+        "optional": ["agent_capacities", "priority_weights"]
+      },
+      "outputs": {
+        "primary": "balanced_assignments",
+        "secondary": ["load_distribution", "utilization_metrics", "bottleneck_analysis"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-agent-selector"],
+      "hooks_triggered": ["WORKLOAD-BALANCE"],
+      "synergizes_with": ["resource_auditor"],
+      "validation_rules": [
+        "Load evenly distributed",
+        "No agent overloaded",
+        "Priorities respected",
+        "Utilization high"
+      ],
+      "success_criteria": "Balanced workload with high utilization"
+    },
+    {
+      "id": "CAP-COORD-019",
+      "name": "Execution Monitoring",
+      "description": "Monitors ongoing execution for progress, anomalies, and potential issues with real-time alerting",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_state"],
+        "optional": ["alert_thresholds", "monitoring_frequency"]
+      },
+      "outputs": {
+        "primary": "monitoring_report",
+        "secondary": ["progress_metrics", "anomalies_detected", "alerts_raised"]
+      },
+      "skills_used": ["prism-hook-system", "prism-quality-master"],
+      "hooks_triggered": ["swarm:progress", "health:check", "MONITOR-EXEC"],
+      "synergizes_with": ["test_orchestrator", "meta_analyst_v2"],
+      "validation_rules": [
+        "Progress tracked",
+        "Anomalies detected early",
+        "Alerts actionable",
+        "No blind spots"
+      ],
+      "success_criteria": "Full visibility into execution"
+    },
+    {
+      "id": "CAP-COORD-020",
+      "name": "Checkpoint Management",
+      "description": "Manages execution checkpoints for recovery, progress tracking, and state persistence",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["execution_state"],
+        "optional": ["checkpoint_frequency", "persistence_target"]
+      },
+      "outputs": {
+        "primary": "checkpoint_created",
+        "secondary": ["checkpoint_data", "recovery_point", "state_snapshot"]
+      },
+      "skills_used": ["prism-session-master", "prism-sp-execution"],
+      "hooks_triggered": ["task:checkpoint", "SYS-LAW6-CONTINUITY"],
+      "synergizes_with": ["session_continuity", "state_manager"],
+      "validation_rules": [
+        "Checkpoints reliable",
+        "State recoverable",
+        "No data loss",
+        "Frequency appropriate"
+      ],
+      "success_criteria": "Checkpoints enable recovery"
+    },
+    {
+      "id": "CAP-COORD-021",
+      "name": "Delegation Decision Making",
+      "description": "Decides when and how to delegate subtasks to other agents based on capability and efficiency analysis",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["task", "available_agents"],
+        "optional": ["delegation_history", "urgency"]
+      },
+      "outputs": {
+        "primary": "delegation_decision",
+        "secondary": ["delegation_rationale", "agent_selection", "handoff_instructions"]
+      },
+      "skills_used": ["prism-agent-selector", "prism-synergy-calculator"],
+      "hooks_triggered": ["DELEGATE-DECIDE"],
+      "synergizes_with": ["task_decomposer", "meta_analyst_v2"],
+      "validation_rules": [
+        "Delegation improves efficiency",
+        "Agent capable",
+        "Handoff clear",
+        "Accountability maintained"
+      ],
+      "success_criteria": "Delegation improves outcome"
+    },
+    {
+      "id": "CAP-COORD-022",
+      "name": "Quality Gate Enforcement",
+      "description": "Enforces quality gates during multi-agent execution ensuring S≥0.70, M≥0.60, and Ω≥0.90",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["agent_outputs"],
+        "optional": ["gate_overrides", "quality_targets"]
+      },
+      "outputs": {
+        "primary": "gate_result",
+        "secondary": ["gate_scores", "failures", "remediation_suggestions"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-review-quality"],
+      "hooks_triggered": ["quality:gateCheck", "SYS-LAW1-SAFETY", "SYS-LAW8-MATH-EVOLUTION"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "S(x) ≥ 0.70",
+        "M(x) ≥ 0.60",
+        "Ω ≥ 0.90 for release",
+        "Gates enforced consistently"
+      ],
+      "success_criteria": "All quality gates pass"
+    },
+    {
+      "id": "CAP-COORD-023",
+      "name": "Execution History Analysis",
+      "description": "Analyzes historical execution data to improve future orchestration decisions",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_history"],
+        "optional": ["analysis_depth", "comparison_baselines"]
+      },
+      "outputs": {
+        "primary": "history_analysis",
+        "secondary": ["patterns_identified", "improvement_opportunities", "recommendations"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["learning:extract", "HISTORY-ANALYZE"],
+      "synergizes_with": ["learning_extractor_v2", "meta_analyst_v2"],
+      "validation_rules": [
+        "Data sufficient",
+        "Patterns validated",
+        "Recommendations actionable",
+        "Biases considered"
+      ],
+      "success_criteria": "Actionable insights extracted"
+    },
+    {
+      "id": "CAP-COORD-024",
+      "name": "Resource Constraint Satisfaction",
+      "description": "Ensures all resource constraints are satisfied during planning and execution (budget, time, agents)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["plan", "constraints"],
+        "optional": ["constraint_priorities", "relaxation_options"]
+      },
+      "outputs": {
+        "primary": "constraint_satisfaction_result",
+        "secondary": ["satisfied_constraints", "violated_constraints", "relaxation_suggestions"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["CONSTRAINT-CHECK"],
+      "synergizes_with": ["proof_generator", "combination_optimizer"],
+      "validation_rules": [
+        "All hard constraints satisfied",
+        "Soft constraints optimized",
+        "Violations reported",
+        "Alternatives suggested"
+      ],
+      "success_criteria": "All constraints satisfied or reported"
+    },
+    {
+      "id": "CAP-COORD-025",
+      "name": "Adaptive Strategy Selection",
+      "description": "Adapts orchestration strategy based on real-time performance and changing conditions",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["current_performance", "target_metrics"],
+        "optional": ["adaptation_triggers", "strategy_options"]
+      },
+      "outputs": {
+        "primary": "adapted_strategy",
+        "secondary": ["adaptation_rationale", "expected_improvement", "rollback_plan"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-deep-learning"],
+      "hooks_triggered": ["STRATEGY-ADAPT"],
+      "synergizes_with": ["meta_analyst_v2", "learning_extractor_v2"],
+      "validation_rules": [
+        "Adaptation justified",
+        "Expected improvement positive",
+        "Rollback possible",
+        "Stability maintained"
+      ],
+      "success_criteria": "Strategy improves performance"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-combination-engine",
+    "prism-swarm-coordinator",
+    "prism-agent-selector",
+    "prism-synergy-calculator",
+    "prism-resource-optimizer",
+    "prism-mathematical-planning",
+    "prism-sp-planning",
+    "prism-sp-execution",
+    "prism-sp-verification",
+    "prism-quality-master",
+    "prism-deep-learning",
+    "prism-session-master",
+    "prism-hook-system",
+    "prism-error-catalog",
+    "prism-api-contracts",
+    "prism-knowledge-master"
+  ],
+
+  "hooks_subscribed": [
+    "swarm:preStart",
+    "swarm:progress",
+    "swarm:synthesize",
+    "swarm:complete",
+    "agent:preExecute",
+    "agent:postExecute",
+    "agent:costTrack",
+    "ralph:iterationStart",
+    "ralph:completionCheck",
+    "ralph:exhausted",
+    "task:prePlan",
+    "task:checkpoint",
+    "task:complete",
+    "quality:gateCheck",
+    "learning:extract",
+    "health:check",
+    "circuit:halfOpen",
+    "SYS-LAW1-SAFETY",
+    "SYS-LAW3-COMPLETENESS",
+    "SYS-LAW6-CONTINUITY",
+    "SYS-LAW8-MATH-EVOLUTION"
+  ],
+
+  "can_delegate_to": [
+    "combination_optimizer",
+    "synergy_analyst",
+    "proof_generator",
+    "task_decomposer",
+    "synthesizer",
+    "test_orchestrator",
+    "session_continuity",
+    "data_quality_enforcer"
+  ],
+
+  "receives_from": [
+    "architect",
+    "meta_analyst_v2",
+    "domain_expert"
+  ],
+
+  "quality_gates": [
+    "S(x) ≥ 0.70 for all orchestration",
+    "Coverage = 1.0 for all tasks",
+    "Cost within budget",
+    "Quality gates pass",
+    "Optimality certificate achieved"
+  ],
+
+  "performance_metrics": {
+    "orchestration_success_rate": 0.98,
+    "average_synergy_score": 0.85,
+    "cost_efficiency": 0.90,
+    "latency_target_ms": 3000,
+    "coverage_target": 1.00
+  }
+}

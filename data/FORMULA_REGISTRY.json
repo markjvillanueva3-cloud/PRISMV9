@@ -1,0 +1,1390 @@
+{
+  "formulaRegistry": {
+    "metadata": {
+      "version": "3.0",
+      "lastUpdated": "2026-01-30T02:15:00Z",
+      "totalFormulas": 22,
+      "lastModified": "2026-01-27T05:25:00Z",
+      "changelog": [
+        {
+          "version": "1.1",
+          "date": "2026-01-26",
+          "changes": "Upgraded F-PLAN-002 and F-PLAN-005 to v2.0 with hook/latency awareness"
+        },
+        {
+          "version": "2.0",
+          "date": "2026-01-27",
+          "changes": "Added 7 COORDINATION formulas: F-PSI-001, F-RESOURCE-001, F-SYNERGY-001, F-COVERAGE-001, F-SWARM-001, F-AGENT-001, F-PROOF-001"
+        },
+        {
+          "version": "3.0",
+          "date": "2026-01-30",
+          "changes": "Removed artificial skill/agent limits. MAXIMUM UTILIZATION policy active."
+        }
+      ],
+      "activeFormulas": 22,
+      "deprecatedFormulas": 0,
+      "categories": {
+        "PLANNING": 5,
+        "MATERIALS": 2,
+        "QUALITY": 3,
+        "PHYSICS": 3,
+        "VERIFICATION": 1,
+        "COORDINATION": 7
+      },
+      "constraint_policy": "UNLIMITED_DEPLOYMENT"
+    },
+    "formulas": {
+      "F-PSI-001": {
+        "id": "F-PSI-001",
+        "name": "Master Combination Equation",
+        "symbol": "\u00ce\u00a8(T,R)",
+        "version": "3.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "OPTIMIZATION",
+        "definition": {
+          "form": "\u00ce\u00a8(T,R) = argmax_R\u00e2\u0160\u2020ALL [ \u00ce\u00a3\u00e1\u00b5\u00a2 Cap(r\u00e1\u00b5\u00a2,T) \u00c3\u2014 Syn(R) \u00c3\u2014 \u00ce\u00a9(R) / Cost(R) ]",
+          "expanded": "Maximize capability-weighted synergy product, quality-adjusted, cost-normalized over all possible resource subsets R",
+          "description": "Finds optimal resource combination for task T using Integer Linear Programming"
+        },
+        "variables": [
+          {
+            "symbol": "T",
+            "name": "Task requirements",
+            "unit": "vector",
+            "type": "object"
+          },
+          {
+            "symbol": "R",
+            "name": "Resource subset",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "Cap(r\u00e1\u00b5\u00a2,T)",
+            "name": "Capability score of resource i for task T",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "Syn(R)",
+            "name": "Synergy multiplier for combination R",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "\u00ce\u00a9(R)",
+            "name": "Quality score of combination R",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "Cost(R)",
+            "name": "Total cost of combination R",
+            "unit": "dollars",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "\u00ce\u00a8*",
+          "name": "Optimal combination score",
+          "unit": "dimensionless",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "constraints": [
+          "|R_skills| = UNLIMITED (deploy all relevant)",
+          "|R_agents| = UNLIMITED (deploy all relevant)",
+          "|R_execution| = 1",
+          "S(R) >= 0.70 (HARD - safety)",
+          "M(R) >= 0.60 (rigor)",
+          "Coverage(R,T) = 1.0 (full coverage)"
+        ],
+        "solver": {
+          "method": "ILP",
+          "library": "PuLP",
+          "fallback": "greedy_local_search",
+          "warmStart": true,
+          "maxSolveTime": 500,
+          "optimalityGap": 0.02
+        },
+        "coefficients": [
+          "K-SYNERGY-WEIGHT",
+          "K-QUALITY-WEIGHT",
+          "K-COST-WEIGHT"
+        ],
+        "calibration": {
+          "method": "prediction_tracking",
+          "dataPoints": 0
+        },
+        "performance": {
+          "usageCount": 0,
+          "avgSolveTime": null,
+          "avgGap": null
+        },
+        "dependencies": [
+          "F-RESOURCE-001",
+          "F-SYNERGY-001",
+          "F-QUAL-001",
+          "F-COVERAGE-001"
+        ],
+        "dependents": [
+          "F-PROOF-001"
+        ],
+        "constraint_philosophy": {
+          "policy": "MAXIMUM_UTILIZATION",
+          "principle": "Deploy ALL resources that improve task outcome",
+          "restriction": "Only restrict if context overflow imminent (>15 tool calls approaching)",
+          "goal": "100% utilization of available capabilities"
+        }
+      },
+      "F-RESOURCE-001": {
+        "id": "F-RESOURCE-001",
+        "name": "Resource Capability Score",
+        "symbol": "Cap(r,T)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "SCORING",
+        "definition": {
+          "form": "Cap(r,T) = w_d \u00c3\u2014 DomainMatch(r,T) + w_o \u00c3\u2014 OperationMatch(r,T) + w_c \u00c3\u2014 ComplexityMatch(r,T)",
+          "expanded": "Weighted sum of fuzzy matches between resource capabilities and task requirements across domain, operation, and complexity dimensions",
+          "description": "Scores how well a resource r can handle task T"
+        },
+        "variables": [
+          {
+            "symbol": "r",
+            "name": "Resource",
+            "unit": "resource",
+            "type": "object"
+          },
+          {
+            "symbol": "T",
+            "name": "Task requirements",
+            "unit": "vector",
+            "type": "object"
+          },
+          {
+            "symbol": "w_d",
+            "name": "Domain weight",
+            "unit": "dimensionless",
+            "type": "float",
+            "default": 0.4
+          },
+          {
+            "symbol": "w_o",
+            "name": "Operation weight",
+            "unit": "dimensionless",
+            "type": "float",
+            "default": 0.35
+          },
+          {
+            "symbol": "w_c",
+            "name": "Complexity weight",
+            "unit": "dimensionless",
+            "type": "float",
+            "default": 0.25
+          },
+          {
+            "symbol": "DomainMatch",
+            "name": "Domain fuzzy match",
+            "unit": "dimensionless",
+            "type": "function"
+          },
+          {
+            "symbol": "OperationMatch",
+            "name": "Operation fuzzy match",
+            "unit": "dimensionless",
+            "type": "function"
+          },
+          {
+            "symbol": "ComplexityMatch",
+            "name": "Complexity fuzzy match",
+            "unit": "dimensionless",
+            "type": "function"
+          }
+        ],
+        "output": {
+          "symbol": "Cap(r,T)",
+          "name": "Capability score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [
+          "K-CAP-DOMAIN-WEIGHT",
+          "K-CAP-OPERATION-WEIGHT",
+          "K-CAP-COMPLEXITY-WEIGHT"
+        ],
+        "calibration": {
+          "method": "expert_judgment",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0,
+          "mae": null,
+          "mape": null
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-PSI-001",
+          "F-COVERAGE-001"
+        ]
+      },
+      "F-SYNERGY-001": {
+        "id": "F-SYNERGY-001",
+        "name": "Synergy Matrix Calculator",
+        "symbol": "Syn(R)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "INTERACTION",
+        "definition": {
+          "form": "Syn(R) = [ \u00ce\u00a0\u00e1\u00b5\u00a2<\u00e2\u00b1\u00bc SynMatrix[r\u00e1\u00b5\u00a2][r\u00e2\u00b1\u00bc] ]^(2/(|R|\u00c3\u2014(|R|-1)))",
+          "expanded": "Geometric mean of all pairwise synergy scores in the resource set R",
+          "description": "Computes combined synergy effect of a resource combination"
+        },
+        "variables": [
+          {
+            "symbol": "R",
+            "name": "Resource set",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "SynMatrix",
+            "name": "Synergy matrix",
+            "unit": "matrix",
+            "type": "matrix"
+          },
+          {
+            "symbol": "|R|",
+            "name": "Resource count",
+            "unit": "count",
+            "type": "integer"
+          }
+        ],
+        "output": {
+          "symbol": "Syn(R)",
+          "name": "Combined synergy",
+          "unit": "dimensionless",
+          "range": "[0, 2]"
+        },
+        "synergyScale": {
+          "0.0": "CONFLICT - Resources interfere",
+          "0.5": "NEGATIVE - Slight interference",
+          "1.0": "NEUTRAL - No interaction",
+          "1.5": "POSITIVE - Complementary",
+          "2.0": "SYNERGISTIC - Strong amplification"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "learning",
+          "dataPoints": 0
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-PSI-001"
+        ]
+      },
+      "F-COVERAGE-001": {
+        "id": "F-COVERAGE-001",
+        "name": "Task Coverage Score",
+        "symbol": "Coverage(R,T)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "COMPLETENESS",
+        "definition": {
+          "form": "Coverage(R,T) = |{req \u00e2\u02c6\u02c6 T.requirements : \u00e2\u02c6\u0192r \u00e2\u02c6\u02c6 R, Cap(r,req) \u00e2\u2030\u00a5 \u00ce\u00b8}| / |T.requirements|",
+          "expanded": "Fraction of task requirements that are covered by at least one resource with capability above threshold \u00ce\u00b8",
+          "description": "Ensures task requirements are fully covered by selected resources"
+        },
+        "variables": [
+          {
+            "symbol": "R",
+            "name": "Resource set",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "T",
+            "name": "Task",
+            "unit": "task",
+            "type": "object"
+          },
+          {
+            "symbol": "\u00ce\u00b8",
+            "name": "Coverage threshold",
+            "unit": "dimensionless",
+            "type": "float",
+            "default": 0.5
+          }
+        ],
+        "output": {
+          "symbol": "Coverage(R,T)",
+          "name": "Coverage score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [
+          "K-COVERAGE-THRESHOLD"
+        ],
+        "calibration": {
+          "method": "fixed",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-RESOURCE-001"
+        ],
+        "dependents": [
+          "F-PSI-001",
+          "F-AGENT-001"
+        ]
+      },
+      "F-SWARM-001": {
+        "id": "F-SWARM-001",
+        "name": "Swarm Efficiency Score",
+        "symbol": "SwarmEff(A)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "EFFICIENCY",
+        "definition": {
+          "form": "SwarmEff(A) = [\u00ce\u00a3\u00e1\u00b5\u00a2 Output(a\u00e1\u00b5\u00a2)] / [|A| \u00c3\u2014 AvgSingleOutput] \u00c3\u2014 (1 - (|A|-1) \u00c3\u2014 k_coord)",
+          "expanded": "Swarm output relative to independent agents, minus coordination overhead",
+          "description": "Measures efficiency of multi-agent swarm execution"
+        },
+        "variables": [
+          {
+            "symbol": "A",
+            "name": "Agent set",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "Output(a\u00e1\u00b5\u00a2)",
+            "name": "Agent output quality",
+            "unit": "quality",
+            "type": "float"
+          },
+          {
+            "symbol": "|A|",
+            "name": "Agent count",
+            "unit": "count",
+            "type": "integer"
+          },
+          {
+            "symbol": "AvgSingleOutput",
+            "name": "Average single agent output",
+            "unit": "quality",
+            "type": "float"
+          },
+          {
+            "symbol": "k_coord",
+            "name": "Coordination overhead",
+            "unit": "dimensionless",
+            "type": "float",
+            "default": 0.05
+          }
+        ],
+        "output": {
+          "symbol": "SwarmEff(A)",
+          "name": "Swarm efficiency",
+          "unit": "dimensionless",
+          "range": "[0, 2]"
+        },
+        "interpretation": {
+          "<1.0": "Swarm underperforms vs independent agents",
+          "1.0": "Swarm matches independent agent sum",
+          ">1.0": "Swarm achieves super-linear performance"
+        },
+        "coefficients": [
+          "K-COORD-001"
+        ],
+        "calibration": {
+          "method": "prediction_tracking",
+          "dataPoints": 0
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-AGENT-001": {
+        "id": "F-AGENT-001",
+        "name": "Agent Selection Optimization",
+        "symbol": "A*(T)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "SELECTION",
+        "definition": {
+          "form": "A*(T) = argmin_{A\u00e2\u0160\u2020Agents} \u00ce\u00a3\u00e1\u00b5\u00a2 Cost(a\u00e1\u00b5\u00a2) s.t. Coverage(A,T) \u00e2\u2030\u00a5 0.95, |A| \u00e2\u2030\u00a4 8",
+          "expanded": "Find minimum cost agent set that covers at least 95% of task requirements with at most 8 agents",
+          "description": "Optimal agent selection for task T"
+        },
+        "variables": [
+          {
+            "symbol": "T",
+            "name": "Task",
+            "unit": "task",
+            "type": "object"
+          },
+          {
+            "symbol": "A",
+            "name": "Agent set",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "Cost(a\u00e1\u00b5\u00a2)",
+            "name": "Agent cost",
+            "unit": "$/Mtok",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "A*(T)",
+          "name": "Optimal agent set",
+          "unit": "set",
+          "range": "subset of Agents"
+        },
+        "constraints": [
+          "Coverage(A,T) \u00e2\u2030\u00a5 0.95",
+          "|A| \u00e2\u2030\u00a4 8",
+          "TierBalance(A): at least 1 OPUS for complex tasks"
+        ],
+        "solver": {
+          "method": "ILP",
+          "library": "PuLP"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-COVERAGE-001"
+        ],
+        "dependents": [
+          "F-PSI-001"
+        ]
+      },
+      "F-PROOF-001": {
+        "id": "F-PROOF-001",
+        "name": "Optimality Proof Generator",
+        "symbol": "Proof(R*)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "COORDINATION",
+        "category": "VERIFICATION",
+        "definition": {
+          "form": "Proof(R*) = {\u00ce\u00a8*, \u00ce\u00a8_LB, \u00ce\u00a8_UB, gap, constraints_verified, alternatives_rejected}",
+          "expanded": "Generates mathematical certificate of solution optimality via LP duality",
+          "description": "Proves that selected resource combination is optimal or near-optimal"
+        },
+        "variables": [
+          {
+            "symbol": "R*",
+            "name": "Optimal solution",
+            "unit": "set",
+            "type": "set"
+          },
+          {
+            "symbol": "\u00ce\u00a8*",
+            "name": "Solution value",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "\u00ce\u00a8_LB",
+            "name": "Lower bound (dual)",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "\u00ce\u00a8_UB",
+            "name": "Upper bound (primal)",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "gap",
+            "name": "Optimality gap",
+            "unit": "percent",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "Proof",
+          "name": "Optimality proof object",
+          "unit": "proof_object",
+          "fields": [
+            "solution_value",
+            "lower_bound",
+            "upper_bound",
+            "optimality_gap",
+            "gap_certificate",
+            "constraints_satisfied",
+            "alternatives_rejected_count",
+            "top_alternatives"
+          ]
+        },
+        "proofTypes": {
+          "OPTIMAL": "gap = 0%, solution is provably optimal",
+          "NEAR_OPTIMAL": "gap \u00e2\u2030\u00a4 2%, solution within 2% of theoretical maximum",
+          "GOOD": "gap \u00e2\u2030\u00a4 5%, acceptable solution",
+          "HEURISTIC": "ILP timed out, using warm-start heuristic"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-PSI-001"
+        ],
+        "dependents": []
+      },
+      "F-PLAN-001": {
+        "id": "F-PLAN-001",
+        "name": "Task Completeness",
+        "symbol": "C(T)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PLANNING",
+        "category": "COMPLETENESS",
+        "definition": {
+          "form": "C(T) = (1/n) \u00c3\u2014 \u00ce\u00a3\u00e1\u00b5\u00a2 Done(i)",
+          "description": "Fraction of task items completed"
+        },
+        "variables": [
+          {
+            "symbol": "n",
+            "name": "Total items",
+            "unit": "items",
+            "type": "integer"
+          },
+          {
+            "symbol": "Done(i)",
+            "name": "Item completion status",
+            "unit": "dimensionless",
+            "type": "binary"
+          }
+        ],
+        "output": {
+          "symbol": "C(T)",
+          "name": "Completeness",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0,
+          "mae": null,
+          "mape": null,
+          "r2": null,
+          "bias": null
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-PLAN-003"
+        ]
+      },
+      "F-PLAN-002": {
+        "id": "F-PLAN-002",
+        "name": "Effort Estimation (Hook-Aware)",
+        "symbol": "EFFORT(T)",
+        "version": "2.0",
+        "status": "ACTIVE",
+        "domain": "PLANNING",
+        "category": "ESTIMATION",
+        "definition": {
+          "form": "EFFORT(T) = \u00ce\u00a3\u00e1\u00b5\u00a2(Base\u00e1\u00b5\u00a2 \u00c3\u2014 Complexity\u00e1\u00b5\u00a2 \u00c3\u2014 Risk\u00e1\u00b5\u00a2) \u00c3\u2014 HOOK_FACTOR \u00c3\u2014 COORD_FACTOR \u00c3\u2014 VERIFY_FACTOR",
+          "expanded": "where HOOK_FACTOR = 1 + (n_hooks \u00c3\u2014 t_hook / t_avg), COORD_FACTOR = 1 + (agents-1) \u00c3\u2014 k_coord, VERIFY_FACTOR = 1 + (levels \u00c3\u2014 k_verify)",
+          "description": "Total effort in tool calls with hook, coordination, and verification overhead"
+        },
+        "variables": [
+          {
+            "symbol": "Base",
+            "name": "Base effort",
+            "unit": "calls",
+            "type": "float"
+          },
+          {
+            "symbol": "Complexity",
+            "name": "Complexity multiplier",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "Risk",
+            "name": "Risk multiplier",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "agents",
+            "name": "Agent count in swarm",
+            "unit": "agents",
+            "type": "integer"
+          },
+          {
+            "symbol": "levels",
+            "name": "Verification levels required",
+            "unit": "levels",
+            "type": "integer"
+          }
+        ],
+        "output": {
+          "symbol": "EFFORT(T)",
+          "name": "Total effort",
+          "unit": "calls",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [
+          "K-EFFORT-001",
+          "K-EFFORT-002",
+          "K-EFFORT-003",
+          "K-EFFORT-004",
+          "K-EFFORT-005",
+          "K-EFFORT-006",
+          "K-HOOK-001",
+          "K-HOOK-002",
+          "K-COORD-001",
+          "K-VERIFY-001",
+          "K-LEARN-001"
+        ],
+        "calibration": {
+          "method": "prediction_tracking",
+          "dataPoints": 1
+        },
+        "performance": {
+          "usageCount": 1,
+          "mae": 7.0,
+          "mape": 0.28,
+          "r2": null,
+          "bias": -0.28
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-PLAN-004",
+          "F-PLAN-005"
+        ]
+      },
+      "F-PLAN-003": {
+        "id": "F-PLAN-003",
+        "name": "Task Completion Confidence",
+        "symbol": "TCC(T)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PLANNING",
+        "category": "CONFIDENCE",
+        "definition": {
+          "form": "TCC(T) = C(T) \u00c3\u2014 V(T) \u00c3\u2014 (1 - E(T))",
+          "description": "Confidence that task is truly complete"
+        },
+        "variables": [
+          {
+            "symbol": "C(T)",
+            "name": "Completeness score",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "V(T)",
+            "name": "Verification score",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "E(T)",
+            "name": "Error rate",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "TCC(T)",
+          "name": "Completion confidence",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-PLAN-001"
+        ],
+        "dependents": []
+      },
+      "F-PLAN-004": {
+        "id": "F-PLAN-004",
+        "name": "Microsession Count",
+        "symbol": "MS_COUNT",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PLANNING",
+        "category": "SIZING",
+        "definition": {
+          "form": "MS_COUNT = \u00e2\u0152\u02c6EFFORT(T) / 15\u00e2\u0152\u2030",
+          "description": "Number of microsessions needed"
+        },
+        "variables": [
+          {
+            "symbol": "EFFORT(T)",
+            "name": "Total effort",
+            "unit": "calls",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "MS_COUNT",
+          "name": "Microsession count",
+          "unit": "sessions",
+          "range": "[1, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [
+          "K-SESSION-001"
+        ],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-PLAN-002"
+        ],
+        "dependents": []
+      },
+      "F-PLAN-005": {
+        "id": "F-PLAN-005",
+        "name": "Time Estimation (Latency-Aware)",
+        "symbol": "TIME(T)",
+        "version": "2.0",
+        "status": "ACTIVE",
+        "domain": "PLANNING",
+        "category": "ESTIMATION",
+        "definition": {
+          "form": "TIME(T) = EFFORT(T) \u00c3\u2014 AVG_TIME \u00c3\u2014 BUFFER + LATENCY_OVERHEAD",
+          "expanded": "where LATENCY_OVERHEAD = t_state + t_context + (levels \u00c3\u2014 t_verify_level) + t_learn",
+          "description": "Estimated time with system latency overhead"
+        },
+        "variables": [
+          {
+            "symbol": "EFFORT(T)",
+            "name": "Total effort",
+            "unit": "calls",
+            "type": "float"
+          },
+          {
+            "symbol": "AVG_TIME",
+            "name": "Average time per call",
+            "unit": "seconds/call",
+            "type": "float"
+          },
+          {
+            "symbol": "BUFFER",
+            "name": "Safety buffer",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "levels",
+            "name": "Verification levels required",
+            "unit": "levels",
+            "type": "integer"
+          }
+        ],
+        "output": {
+          "symbol": "TIME(T)",
+          "name": "Estimated time",
+          "unit": "seconds",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [
+          "K-TIME-001",
+          "K-TIME-002",
+          "K-LATENCY-001",
+          "K-LATENCY-002",
+          "K-LATENCY-003",
+          "K-LATENCY-004"
+        ],
+        "calibration": {
+          "method": "prediction_tracking",
+          "dataPoints": 0
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-PLAN-002"
+        ],
+        "dependents": []
+      },
+      "F-MAT-001": {
+        "id": "F-MAT-001",
+        "name": "Material Coverage Index",
+        "symbol": "MCI(m)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "MATERIALS",
+        "category": "COMPLETENESS",
+        "definition": {
+          "form": "MCI(m) = \u00ce\u00a3\u00e2\u00b1\u00bc(w\u00e2\u00b1\u00bc \u00c3\u2014 hasValue(m,p\u00e2\u00b1\u00bc)) / \u00ce\u00a3\u00e2\u00b1\u00bcw\u00e2\u00b1\u00bc",
+          "description": "Weighted parameter completeness for a material"
+        },
+        "variables": [
+          {
+            "symbol": "m",
+            "name": "Material",
+            "unit": "material",
+            "type": "object"
+          },
+          {
+            "symbol": "w\u00e2\u00b1\u00bc",
+            "name": "Parameter weight",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "hasValue",
+            "name": "Has parameter",
+            "unit": "dimensionless",
+            "type": "binary"
+          }
+        ],
+        "output": {
+          "symbol": "MCI(m)",
+          "name": "Coverage index",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [
+          "K-MAT-WEIGHT-001",
+          "K-MAT-WEIGHT-002",
+          "K-MAT-WEIGHT-003",
+          "K-MAT-WEIGHT-004",
+          "K-MAT-WEIGHT-005",
+          "K-MAT-WEIGHT-006",
+          "K-MAT-WEIGHT-007"
+        ],
+        "calibration": {
+          "method": "expert_judgment",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-MAT-002": {
+        "id": "F-MAT-002",
+        "name": "Database Utilization Factor",
+        "symbol": "DUF(db)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "MATERIALS",
+        "category": "UTILIZATION",
+        "definition": {
+          "form": "DUF(db) = (1/n) \u00c3\u2014 \u00ce\u00a3\u00e1\u00b5\u00a2 min(consumers(i)/target, 1)",
+          "description": "How well database items are being used"
+        },
+        "variables": [
+          {
+            "symbol": "n",
+            "name": "Item count",
+            "unit": "items",
+            "type": "integer"
+          },
+          {
+            "symbol": "consumers(i)",
+            "name": "Consumer count",
+            "unit": "consumers",
+            "type": "integer"
+          },
+          {
+            "symbol": "target",
+            "name": "Target consumers",
+            "unit": "consumers",
+            "type": "integer"
+          }
+        ],
+        "output": {
+          "symbol": "DUF(db)",
+          "name": "Utilization factor",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [
+          "K-UTIL-001"
+        ],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-QUAL-001": {
+        "id": "F-QUAL-001",
+        "name": "Master Equation",
+        "symbol": "\u00ce\u00a9(x)",
+        "version": "2.0",
+        "status": "ACTIVE",
+        "domain": "QUALITY",
+        "category": "COMPOSITE",
+        "definition": {
+          "form": "\u00ce\u00a9(x) = w_R\u00c2\u00b7R(x) + w_C\u00c2\u00b7C(x) + w_P\u00c2\u00b7P(x) + w_S\u00c2\u00b7S(x) + w_L\u00c2\u00b7L(x) + w_M\u00c2\u00b7M(x)",
+          "description": "Overall quality score with mathematical rigor"
+        },
+        "variables": [
+          {
+            "symbol": "R(x)",
+            "name": "Reasoning quality",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "C(x)",
+            "name": "Code quality",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "P(x)",
+            "name": "Process efficiency",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "S(x)",
+            "name": "Safety score",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "L(x)",
+            "name": "Learning integration",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "M(x)",
+            "name": "Mathematical rigor",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "\u00ce\u00a9(x)",
+          "name": "Quality score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [
+          "K-OMEGA-R",
+          "K-OMEGA-C",
+          "K-OMEGA-P",
+          "K-OMEGA-S",
+          "K-OMEGA-L",
+          "K-OMEGA-M"
+        ],
+        "calibration": {
+          "method": "expert_judgment",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [
+          "F-QUAL-002",
+          "F-QUAL-003"
+        ],
+        "dependents": [
+          "F-PSI-001"
+        ]
+      },
+      "F-QUAL-002": {
+        "id": "F-QUAL-002",
+        "name": "Safety Score",
+        "symbol": "S(x)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "QUALITY",
+        "category": "SAFETY",
+        "definition": {
+          "form": "S(x) = (verification_passed \u00c3\u2014 risk_mitigated \u00c3\u2014 bounds_checked) / 3",
+          "description": "Safety compliance score"
+        },
+        "variables": [
+          {
+            "symbol": "verification_passed",
+            "name": "Verification status",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "risk_mitigated",
+            "name": "Risk mitigation",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "bounds_checked",
+            "name": "Bounds verification",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "S(x)",
+          "name": "Safety score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-QUAL-001"
+        ]
+      },
+      "F-QUAL-003": {
+        "id": "F-QUAL-003",
+        "name": "Mathematical Rigor Score",
+        "symbol": "M(x)",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "QUALITY",
+        "category": "RIGOR",
+        "definition": {
+          "form": "M(x) = (U(x) + D(x) + E(x) + V(x)) / 4",
+          "description": "Mathematical rigor compliance"
+        },
+        "variables": [
+          {
+            "symbol": "U(x)",
+            "name": "Uncertainty coverage",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "D(x)",
+            "name": "Dimensional consistency",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "E(x)",
+            "name": "Evolution compliance",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "V(x)",
+            "name": "Verification coverage",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "M(x)",
+          "name": "Rigor score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": [
+          "F-QUAL-001"
+        ]
+      },
+      "F-PHYS-001": {
+        "id": "F-PHYS-001",
+        "name": "Kienzle Cutting Force",
+        "symbol": "Fc",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PHYSICS",
+        "category": "CUTTING",
+        "definition": {
+          "form": "Fc = Kc1.1 \u00c3\u2014 b \u00c3\u2014 h^(1-mc)",
+          "description": "Main cutting force using Kienzle model"
+        },
+        "variables": [
+          {
+            "symbol": "Kc1.1",
+            "name": "Specific cutting force",
+            "unit": "MPa",
+            "type": "float"
+          },
+          {
+            "symbol": "b",
+            "name": "Width of cut",
+            "unit": "mm",
+            "type": "float"
+          },
+          {
+            "symbol": "h",
+            "name": "Chip thickness",
+            "unit": "mm",
+            "type": "float"
+          },
+          {
+            "symbol": "mc",
+            "name": "Kienzle exponent",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "Fc",
+          "name": "Cutting force",
+          "unit": "N",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "empirical_from_material",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-PHYS-002": {
+        "id": "F-PHYS-002",
+        "name": "Taylor Tool Life",
+        "symbol": "T",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PHYSICS",
+        "category": "TOOL_LIFE",
+        "definition": {
+          "form": "V \u00c3\u2014 T^n = C",
+          "description": "Taylor tool life equation"
+        },
+        "variables": [
+          {
+            "symbol": "V",
+            "name": "Cutting speed",
+            "unit": "m/min",
+            "type": "float"
+          },
+          {
+            "symbol": "T",
+            "name": "Tool life",
+            "unit": "min",
+            "type": "float"
+          },
+          {
+            "symbol": "n",
+            "name": "Taylor exponent",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "C",
+            "name": "Taylor constant",
+            "unit": "varies",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "T",
+          "name": "Tool life",
+          "unit": "min",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "empirical_from_material",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-PHYS-003": {
+        "id": "F-PHYS-003",
+        "name": "Johnson-Cook Flow Stress",
+        "symbol": "\u00cf\u0192",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "PHYSICS",
+        "category": "MATERIAL",
+        "definition": {
+          "form": "\u00cf\u0192 = (A + B\u00c3\u2014\u00ce\u00b5^n) \u00c3\u2014 (1 + C\u00c3\u2014ln(\u00ce\u00b5\u00cc\u2021*)) \u00c3\u2014 (1 - T*^m)",
+          "description": "Johnson-Cook constitutive model"
+        },
+        "variables": [
+          {
+            "symbol": "A",
+            "name": "Yield stress",
+            "unit": "MPa",
+            "type": "float"
+          },
+          {
+            "symbol": "B",
+            "name": "Hardening coefficient",
+            "unit": "MPa",
+            "type": "float"
+          },
+          {
+            "symbol": "n",
+            "name": "Hardening exponent",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "C",
+            "name": "Strain rate coefficient",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "m",
+            "name": "Thermal softening exponent",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "\u00ce\u00b5",
+            "name": "Plastic strain",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "\u00ce\u00b5\u00cc\u2021*",
+            "name": "Normalized strain rate",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "T*",
+            "name": "Homologous temperature",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "\u00cf\u0192",
+          "name": "Flow stress",
+          "unit": "MPa",
+          "range": "[0, \u00e2\u02c6\u017e)"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "empirical_from_material",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      },
+      "F-VERIFY-001": {
+        "id": "F-VERIFY-001",
+        "name": "Verification Chain Score",
+        "symbol": "VCS",
+        "version": "1.0",
+        "status": "ACTIVE",
+        "domain": "VERIFICATION",
+        "category": "QUALITY",
+        "definition": {
+          "form": "VCS = (L1 + L2 + L3 + L4) / 4",
+          "description": "4-level verification chain compliance"
+        },
+        "variables": [
+          {
+            "symbol": "L1",
+            "name": "Self verification",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "L2",
+            "name": "Peer verification",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "L3",
+            "name": "Cross verification",
+            "unit": "dimensionless",
+            "type": "float"
+          },
+          {
+            "symbol": "L4",
+            "name": "Historical verification",
+            "unit": "dimensionless",
+            "type": "float"
+          }
+        ],
+        "output": {
+          "symbol": "VCS",
+          "name": "Chain score",
+          "unit": "dimensionless",
+          "range": "[0, 1]"
+        },
+        "coefficients": [],
+        "calibration": {
+          "method": "exact",
+          "dataPoints": null
+        },
+        "performance": {
+          "usageCount": 0
+        },
+        "dependencies": [],
+        "dependents": []
+      }
+    }
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "category": "N_NONFERROUS",
+  "subcategory": "tool_steel",
+  "material_count": 1,
+  "generated": "2026-01-26T10:23:20.812691",
+  "materials": [
+    {
+      "id": "N-AL-099",
+      "name": "A201-T7 High Strength Cast",
+      "designation": {
+        "cda": "",
+        "uns": "A02010",
+        "aa": "A201",
+        "grade": ""
+      },
+      "iso_group": "N",
+      "material_class": "Aluminum - Axxx Series",
+      "condition": "Solution + Overage",
+      "composition": {
+        "copper": {
+          "min": 4.0,
+          "typical": 4.6,
+          "max": 5.2
+        },
+        "magnesium": {
+          "min": 0.15,
+          "typical": 0.35,
+          "max": 0.55
+        },
+        "silver": {
+          "min": 0.4,
+          "typical": 0.7,
+          "max": 1.0
+        }
+      },
+      "physical": {
+        "density": 2800,
+        "melting_point": {
+          "solidus": 521,
+          "liquidus": 571
+        },
+        "thermal_conductivity": 121,
+        "poissons_ratio": 0.33,
+        "elastic_modulus": 71000,
+        "shear_modulus": 27307,
+        "specific_heat": 900,
+        "specific_heat_source": "class_default"
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 115,
+          "vickers": 120
+        },
+        "tensile_strength": {
+          "min": 389,
+          "typical": 414,
+          "max": 438
+        },
+        "yield_strength": {
+          "min": 320,
+          "typical": 345,
+          "max": 369
+        },
+        "elongation": {
+          "min": 1,
+          "typical": 5,
+          "max": 9
+        },
+        "fatigue_strength": 144,
+        "fracture_toughness": 37
+      },
+      "kienzle": {
+        "kc1_1": 720,
+        "mc": 0.25
+      },
+      "taylor": {
+        "C": 800,
+        "n": 0.34
+      },
+      "johnson_cook": {
+        "A": 300,
+        "B": 440,
+        "n": 0.3,
+        "C": 0.014,
+        "m": 0.92,
+        "T_melt": 571,
+        "T_ref": 20,
+        "epsilon_ref": 1.0
+      },
+      "machinability": {
+        "aisi_rating": 90,
+        "relative_to_1212": 0.9
+      },
+      "recommended_cutting": {
+        "turning": {
+          "carbide": {
+            "speed": {
+              "min": 235,
+              "opt": 470,
+              "max": 705
+            }
+          }
+        }
+      },
+      "applications": [
+        "aerospace_castings"
+      ],
+      "notes": "Highest strength cast",
+      "chipFormation": {
+        "chipType": {
+          "primary": "CONTINUOUS",
+          "secondary": "varies with parameters"
+        },
+        "shearAngle": {
+          "value": 30,
+          "unit": "degrees",
+          "range": {
+            "min": 25,
+            "max": 36
+          }
+        },
+        "chipCompressionRatio": {
+          "value": 2.0,
+          "range": {
+            "min": 1.5,
+            "max": 3.5
+          }
+        },
+        "segmentationFrequency": {
+          "value": 20,
+          "unit": "kHz"
+        },
+        "builtUpEdge": {
+          "tendency": "MODERATE",
+          "speedRange": {
+            "min": 10,
+            "max": 40,
+            "unit": "m/min"
+          }
+        },
+        "breakability": {
+          "rating": "FAIR",
+          "chipBreakerRequired": false
+        },
+        "colorAtSpeed": {
+          "slow": "silver",
+          "optimal": "straw",
+          "high": "blue"
+        }
+      },
+      "friction": {
+        "toolChipInterface": {
+          "dry": 0.4,
+          "withCoolant": 0.26,
+          "withMQL": 0.31
+        },
+        "toolWorkpieceInterface": {
+          "dry": 0.33,
+          "withCoolant": 0.22
+        },
+        "contactLength": {
+          "stickingZone": {
+            "ratio": 0.35
+          },
+          "slidingZone": {
+            "ratio": 0.65
+          }
+        },
+        "seizureTemperature": {
+          "value": 800,
+          "unit": "C"
+        },
+        "adhesionTendency": {
+          "rating": "HIGH"
+        },
+        "abrasiveness": {
+          "rating": "LOW"
+        },
+        "diffusionWearTendency": {
+          "rating": "MODERATE"
+        }
+      },
+      "thermalMachining": {
+        "cuttingTemperature": {
+          "model": "empirical",
+          "coefficients": {
+            "a": 180,
+            "b": 0.22,
+            "c": 0.08
+          },
+          "maxRecommended": {
+            "value": 450,
+            "unit": "C"
+          }
+        },
+        "heatPartition": {
+          "chip": 0.85,
+          "tool": 0.09,
+          "workpiece": 0.05,
+          "coolant": 0.01
+        },
+        "coolantEffectiveness": {
+          "flood": 0.3,
+          "mist": 0.1,
+          "mql": 0.22,
+          "cryogenic": 0.35
+        },
+        "thermalDamageThreshold": {
+          "whiteLayer": 530,
+          "overTempering": 270,
+          "burning": 650
+        }
+      },
+      "surfaceIntegrity": {
+        "residualStress": {
+          "surface": -60,
+          "subsurface": 36,
+          "unit": "MPa",
+          "depth": 50
+        },
+        "workHardening": {
+          "depthAffected": 65,
+          "hardnessIncrease": 12,
+          "strainHardeningExponent": 0.15
+        },
+        "surfaceRoughness": {
+          "roughing": {
+            "Ra": 4.5
+          },
+          "finishing": {
+            "Ra": 0.8
+          },
+          "unit": "um"
+        },
+        "metallurgicalDamage": {
+          "whiteLayerRisk": "NONE",
+          "microcrackRisk": "LOW"
+        },
+        "burr": {
+          "tendency": "HIGH",
+          "type": "rollover"
+        }
+      },
+      "statisticalData": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.86,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM Handbook Vol 16",
+          "Machining Data Handbook 3rd Ed"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "ESTIMATED"
+      },
+      "_category": "N_NONFERROUS",
+      "_subcategory": "tool_steel",
+      "kc1_1": {
+        "value": 2760.0,
+        "unit": "N/mm2",
+        "uncertainty": 414.0,
+        "confidence": 0.85,
+        "source": "calculated_correlation",
+        "method": "Kienzle_hardness_tensile_correlation"
+      },
+      "taylor_C": {
+        "value": 69.6,
+        "unit": "m/min",
+        "uncertainty": 13.9,
+        "confidence": 0.8,
+        "source": "calculated_correlation"
+      },
+      "taylor_n": {
+        "value": 0.2,
+        "unit": "dimensionless",
+        "uncertainty": 0.03,
+        "confidence": 0.85,
+        "source": "calculated_correlation"
+      },
+      "jc_A": {
+        "value": 460.0,
+        "unit": "MPa",
+        "uncertainty": 69.0,
+        "confidence": 0.8,
+        "source": "calculated_correlation"
+      },
+      "jc_B": {
+        "value": 248.0,
+        "unit": "MPa",
+        "uncertainty": 50.0,
+        "confidence": 0.75,
+        "source": "calculated_correlation"
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "dimensionless",
+        "uncertainty": 0.045,
+        "confidence": 0.8,
+        "source": "literature_typical"
+      },
+      "jc_C": {
+        "value": 0.012,
+        "unit": "dimensionless",
+        "uncertainty": 0.003,
+        "confidence": 0.75,
+        "source": "literature_typical"
+      },
+      "jc_m": {
+        "value": 0.9,
+        "unit": "dimensionless",
+        "uncertainty": 0.14,
+        "confidence": 0.8,
+        "source": "literature_typical"
+      },
+      "_enhanced": true,
+      "_enhanced_date": "2026-01-26T10:45:58.937268",
+      "_safety_factor": 1.15,
+      "_physics_mode": "accurate",
+      "_enhancement": {
+        "timestamp": "2026-01-27T13:51:21.660134",
+        "version": "1.0",
+        "changes": [
+          "specific_heat set to class default"
+        ],
+        "confidence": "estimated"
+      }
+    }
+  ],
+  "enhanced_date": "2026-01-26T10:45:58.937268",
+  "physics_complete": true,
+  "physics_mode": "accurate",
+  "_enhanced": {
+    "timestamp": "2026-01-27T13:51:21.660134",
+    "version": "1.0"
+  }
+}

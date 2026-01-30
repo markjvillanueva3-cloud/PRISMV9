@@ -1,0 +1,234 @@
+{
+  "scriptRegistry": {
+    "metadata": {
+      "version": "1.0.0",
+      "created": "2026-01-30",
+      "totalScripts": 52,
+      "categories": 8,
+      "purpose": "Maps all Python scripts to orchestrator for unified access"
+    },
+    "categories": {
+      "session": {
+        "description": "Session and state management",
+        "scripts": {
+          "session_manager": {
+            "path": "C:\\PRISM\\scripts\\session_manager.py",
+            "commands": ["start", "status", "end", "verify"],
+            "trigger": "session",
+            "description": "Session lifecycle management"
+          },
+          "update_state": {
+            "path": "C:\\PRISM\\scripts\\update_state.py",
+            "commands": ["complete", "next", "stats", "blocker"],
+            "trigger": "state",
+            "description": "Quick state updates"
+          },
+          "context_generator": {
+            "path": "C:\\PRISM\\scripts\\context_generator.py",
+            "commands": ["--file", "--clipboard"],
+            "trigger": "context",
+            "description": "Minimal context generation"
+          }
+        }
+      },
+      "extraction": {
+        "description": "Monolith extraction tools",
+        "scripts": {
+          "extract_module": {
+            "path": "C:\\PRISM\\scripts\\extract_module.py",
+            "commands": ["<monolith> <start> <end> <out>"],
+            "trigger": "extract module",
+            "description": "Module extraction from monolith"
+          },
+          "extract_prism_constants": {
+            "path": "C:\\PRISM\\scripts\\extract_prism_constants.py",
+            "commands": [],
+            "trigger": "constants",
+            "description": "Extract PRISM_CONSTANTS"
+          },
+          "extract_tool_holders": {
+            "path": "C:\\PRISM\\scripts\\extract_tool_holders_v2.py",
+            "commands": [],
+            "trigger": "tool holders",
+            "description": "Extract tool holder database"
+          }
+        }
+      },
+      "materials": {
+        "description": "Materials database tools",
+        "scripts": {
+          "materials_audit": {
+            "path": "C:\\PRISM\\scripts\\materials_audit_v2.py",
+            "commands": [],
+            "trigger": "audit materials",
+            "description": "Audit material completeness"
+          },
+          "materials_enhancer": {
+            "path": "C:\\PRISM\\scripts\\materials_bulk_enhancer_v2.py",
+            "commands": [],
+            "trigger": "enhance materials",
+            "description": "Bulk enhance materials"
+          },
+          "materials_verify": {
+            "path": "C:\\PRISM\\scripts\\verify_materials_db.py",
+            "commands": [],
+            "trigger": "verify materials",
+            "description": "Verify materials database"
+          },
+          "materials_physics": {
+            "path": "C:\\PRISM\\scripts\\materials_physics_engine.py",
+            "commands": [],
+            "trigger": "physics params",
+            "description": "Calculate physics parameters"
+          },
+          "consolidate_materials": {
+            "path": "C:\\PRISM\\scripts\\consolidate_materials_v2.py",
+            "commands": [],
+            "trigger": "consolidate materials",
+            "description": "Consolidate material files"
+          }
+        }
+      },
+      "validation": {
+        "description": "Validation and quality tools",
+        "scripts": {
+          "skill_validator": {
+            "path": "C:\\PRISM\\scripts\\skill_validator.py",
+            "commands": ["--all", "<skills_dir>"],
+            "trigger": "validate skills",
+            "description": "Validate skill files"
+          },
+          "workflow_validator": {
+            "path": "C:\\PRISM\\scripts\\workflow_validator.py",
+            "commands": ["--all", "<logs_dir>"],
+            "trigger": "validate workflow",
+            "description": "Validate SP workflow"
+          },
+          "regression_checker": {
+            "path": "C:\\PRISM\\scripts\\regression_checker.py",
+            "commands": ["<old>", "<new>", "--strict"],
+            "trigger": "regression check",
+            "description": "Compare versions for loss"
+          },
+          "code_quality_scanner": {
+            "path": "C:\\PRISM\\scripts\\code_quality_scanner.py",
+            "commands": ["<directory>", "--strict"],
+            "trigger": "code quality",
+            "description": "Scan for TODOs, issues"
+          }
+        }
+      },
+      "audit": {
+        "description": "Audit and analysis tools",
+        "scripts": {
+          "database_auditor": {
+            "path": "C:\\PRISM\\scripts\\database_auditor.py",
+            "commands": ["<extracted_dir>"],
+            "trigger": "audit database",
+            "description": "Audit DB utilization"
+          },
+          "dependency_mapper": {
+            "path": "C:\\PRISM\\scripts\\dependency_mapper.py",
+            "commands": ["<dir>", "--mermaid"],
+            "trigger": "map dependencies",
+            "description": "Map module dependencies"
+          },
+          "skill_comparison": {
+            "path": "C:\\PRISM\\scripts\\skill_comparison_audit.py",
+            "commands": [],
+            "trigger": "compare skills",
+            "description": "Compare skill versions"
+          }
+        }
+      },
+      "orchestration": {
+        "description": "Orchestration and coordination",
+        "scripts": {
+          "prism_unified_v6": {
+            "path": "C:\\PRISM\\scripts\\prism_unified_system_v6.py",
+            "commands": ["--intelligent", "--swarm", "--single", "--ralph", "--list"],
+            "trigger": "orchestrate",
+            "description": "Master orchestrator with ILP"
+          },
+          "prism_toolkit": {
+            "path": "C:\\PRISM\\scripts\\prism_toolkit.py",
+            "commands": ["health", "audit", "dashboard", "report"],
+            "trigger": "toolkit",
+            "description": "Master coordination toolkit"
+          },
+          "swarm_trigger": {
+            "path": "C:\\PRISM\\scripts\\swarm_trigger.py",
+            "commands": [],
+            "trigger": "swarm",
+            "description": "Trigger swarm execution"
+          },
+          "prism_hooks": {
+            "path": "C:\\PRISM\\scripts\\prism_hooks.py",
+            "commands": [],
+            "trigger": "hooks",
+            "description": "Hook system implementation"
+          }
+        }
+      },
+      "testing": {
+        "description": "Testing and verification",
+        "scripts": {
+          "test_orchestrator": {
+            "path": "C:\\PRISM\\scripts\\test_orchestrator.py",
+            "commands": [],
+            "trigger": "test orchestrator",
+            "description": "Test trigger system"
+          },
+          "test_validator": {
+            "path": "C:\\PRISM\\scripts\\test_validator.py",
+            "commands": [],
+            "trigger": "test validator",
+            "description": "Test validation"
+          },
+          "verify_features": {
+            "path": "C:\\PRISM\\scripts\\verify_features.py",
+            "commands": ["<build_dir>"],
+            "trigger": "verify features",
+            "description": "Verify 85+ UI features"
+          }
+        }
+      },
+      "building": {
+        "description": "Database building tools",
+        "scripts": {
+          "build_level5_databases": {
+            "path": "C:\\PRISM\\scripts\\build_level5_databases.py",
+            "commands": [],
+            "trigger": "build databases",
+            "description": "Build Level 5 DBs from CAD"
+          },
+          "controller_alarm_builder": {
+            "path": "C:\\PRISM\\scripts\\controller_alarm_builder.py",
+            "commands": [],
+            "trigger": "build alarms",
+            "description": "Build controller alarm DB"
+          },
+          "generate_tool_holder_db": {
+            "path": "C:\\PRISM\\scripts\\generate_tool_holder_db.py",
+            "commands": [],
+            "trigger": "build tool holders",
+            "description": "Generate tool holder DB"
+          }
+        }
+      }
+    },
+    "quickCommands": {
+      "health": "py -3 C:\\PRISM\\scripts\\prism_toolkit.py health",
+      "audit": "py -3 C:\\PRISM\\scripts\\prism_toolkit.py audit",
+      "dashboard": "py -3 C:\\PRISM\\scripts\\prism_toolkit.py dashboard",
+      "session_start": "py -3 C:\\PRISM\\scripts\\session_manager.py start",
+      "session_end": "py -3 C:\\PRISM\\scripts\\session_manager.py end",
+      "state_complete": "py -3 C:\\PRISM\\scripts\\update_state.py complete",
+      "intelligent": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v6.py --intelligent",
+      "swarm": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v6.py --swarm",
+      "single": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v6.py --single",
+      "ralph": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v6.py --ralph",
+      "regression": "py -3 C:\\PRISM\\scripts\\regression_checker.py"
+    }
+  }
+}

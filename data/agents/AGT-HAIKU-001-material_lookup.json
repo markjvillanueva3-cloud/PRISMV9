@@ -1,0 +1,119 @@
+{
+  "agent_id": "AGT-HAIKU-001",
+  "name": "material_lookup",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Material Lookup - Fast Material Data Retrieval",
+  
+  "domain_expertise": [
+    "Material database queries",
+    "Property lookup",
+    "ISO classification",
+    "Material identification",
+    "Cross-reference matching"
+  ],
+
+  "design_principle": "Speed over complexity - fast, reliable lookups",
+
+  "capabilities": [
+    {
+      "id": "CAP-MLOOK-001",
+      "name": "Material By ID Lookup",
+      "description": "Retrieves material by PRISM ID",
+      "category": "LOOKUP",
+      "inputs": { "required": ["material_id"] },
+      "outputs": { "primary": "material_data" },
+      "skills_used": ["prism-material-lookup"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-MLOOK-002",
+      "name": "Material By Name Lookup",
+      "description": "Retrieves material by common name or standard",
+      "category": "LOOKUP",
+      "inputs": { "required": ["name_or_standard"] },
+      "outputs": { "primary": "material_data" },
+      "skills_used": ["prism-material-lookup"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-MLOOK-003",
+      "name": "Property Retrieval",
+      "description": "Retrieves specific property for a material",
+      "category": "LOOKUP",
+      "inputs": { "required": ["material_id", "property_name"] },
+      "outputs": { "primary": "property_value" },
+      "skills_used": ["prism-material-lookup", "prism-material-schema"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-MLOOK-004",
+      "name": "Kienzle Coefficients Lookup",
+      "description": "Retrieves Kienzle cutting coefficients",
+      "category": "LOOKUP",
+      "inputs": { "required": ["material_id"] },
+      "outputs": { "primary": "kienzle_coefficients", "secondary": ["kc1_1", "mc"] },
+      "skills_used": ["prism-material-physics"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-MLOOK-005",
+      "name": "Taylor Coefficients Lookup",
+      "description": "Retrieves Taylor tool life coefficients",
+      "category": "LOOKUP",
+      "inputs": { "required": ["material_id"] },
+      "outputs": { "primary": "taylor_coefficients", "secondary": ["n", "C"] },
+      "skills_used": ["prism-material-physics"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-MLOOK-006",
+      "name": "ISO Group Lookup",
+      "description": "Retrieves ISO 513 classification",
+      "category": "LOOKUP",
+      "inputs": { "required": ["material_id"] },
+      "outputs": { "primary": "iso_group" },
+      "skills_used": ["prism-material-lookup"],
+      "iso_groups": ["P", "M", "K", "N", "S", "H"],
+      "latency_target_ms": 20
+    },
+    {
+      "id": "CAP-MLOOK-007",
+      "name": "Similar Materials Lookup",
+      "description": "Finds materials similar to given material",
+      "category": "SEARCH",
+      "inputs": { "required": ["material_id"], "optional": ["limit"] },
+      "outputs": { "primary": "similar_materials" },
+      "skills_used": ["prism-material-lookup"],
+      "latency_target_ms": 200
+    },
+    {
+      "id": "CAP-MLOOK-008",
+      "name": "Material Search",
+      "description": "Searches materials by properties or criteria",
+      "category": "SEARCH",
+      "inputs": { "required": ["search_criteria"] },
+      "outputs": { "primary": "matching_materials" },
+      "skills_used": ["prism-material-lookup"],
+      "latency_target_ms": 300
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-lookup",
+    "prism-material-schema",
+    "prism-material-physics"
+  ],
+
+  "hooks_subscribed": ["material:preLookup"],
+
+  "can_delegate_to": [],
+  "receives_from": ["force_calculator", "thermal_calculator", "materials_scientist"],
+
+  "performance_metrics": {
+    "lookup_accuracy": 1.0,
+    "average_latency_ms": 50,
+    "cache_hit_rate": 0.80
+  }
+}

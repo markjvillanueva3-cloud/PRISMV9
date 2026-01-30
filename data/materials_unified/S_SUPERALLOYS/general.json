@@ -1,0 +1,3934 @@
+{
+  "category": "S_SUPERALLOYS",
+  "subcategory": "general",
+  "material_count": 9,
+  "generated": "2026-01-26T10:23:20.821339",
+  "materials": [
+    {
+      "id": "S-CO-007",
+      "name": "Tribaloy T-800",
+      "designation": {
+        "cda": "",
+        "uns": "R30800",
+        "aa": "",
+        "grade": ""
+      },
+      "iso_group": "S",
+      "material_class": "Cobalt Superalloy - Wear Resistant",
+      "condition": "As-Cast",
+      "composition": {
+        "silicon": {
+          "min": 3.0,
+          "typical": 3.4,
+          "max": 3.8
+        },
+        "chromium": {
+          "min": 17.0,
+          "typical": 18.0,
+          "max": 19.0
+        },
+        "molybdenum": {
+          "min": 28.0,
+          "typical": 29.0,
+          "max": 30.0
+        },
+        "cobalt": {
+          "min": 50.0,
+          "typical": 53.0,
+          "max": 56.0
+        }
+      },
+      "physical": {
+        "density": 8640,
+        "melting_point": {
+          "solidus": 1180,
+          "liquidus": 1280
+        },
+        "thermal_conductivity": 11.0,
+        "poissons_ratio": 0.31,
+        "elastic_modulus": 235000,
+        "shear_modulus": 90384
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 550,
+          "vickers": 577
+        },
+        "tensile_strength": {
+          "min": 611,
+          "typical": 650,
+          "max": 689
+        },
+        "yield_strength": {
+          "min": 511,
+          "typical": 550,
+          "max": 588
+        },
+        "elongation": {
+          "min": 1,
+          "typical": 0.5,
+          "max": 4.5
+        },
+        "fatigue_strength": 227,
+        "fracture_toughness": 30
+      },
+      "kienzle": {
+        "kc1_1": 4000,
+        "mc": 0.12
+      },
+      "taylor": {
+        "C": 10,
+        "n": 0.08
+      },
+      "johnson_cook": {
+        "A": 520,
+        "B": 1500,
+        "n": 0.25,
+        "C": 0.008,
+        "m": 0.72,
+        "T_melt": 1280
+      },
+      "machinability": {
+        "aisi_rating": 5,
+        "relative_to_1212": 0.05
+      },
+      "recommended_cutting": {
+        "turning": {
+          "carbide": {
+            "speed": {
+              "min": 7,
+              "opt": 14.0,
+              "max": 21
+            }
+          }
+        }
+      },
+      "applications": [
+        "valve_components",
+        "pump_sleeves"
+      ],
+      "notes": "Extreme wear resistance. Grinding only",
+      "chipFormation": {
+        "chipType": {
+          "primary": "SEGMENTED",
+          "secondary": "varies with parameters"
+        },
+        "shearAngle": {
+          "value": 26,
+          "unit": "degrees",
+          "range": {
+            "min": 21,
+            "max": 32
+          }
+        },
+        "chipCompressionRatio": {
+          "value": 2.5,
+          "range": {
+            "min": 1.5,
+            "max": 3.5
+          }
+        },
+        "segmentationFrequency": {
+          "value": 40,
+          "unit": "kHz"
+        },
+        "builtUpEdge": {
+          "tendency": "MODERATE",
+          "speedRange": {
+            "min": 10,
+            "max": 40,
+            "unit": "m/min"
+          }
+        },
+        "breakability": {
+          "rating": "FAIR",
+          "chipBreakerRequired": false
+        },
+        "colorAtSpeed": {
+          "slow": "silver",
+          "optimal": "straw",
+          "high": "blue"
+        }
+      },
+      "friction": {
+        "toolChipInterface": {
+          "dry": 0.58,
+          "withCoolant": 0.38,
+          "withMQL": 0.43
+        },
+        "toolWorkpieceInterface": {
+          "dry": 0.51,
+          "withCoolant": 0.34
+        },
+        "contactLength": {
+          "stickingZone": {
+            "ratio": 0.35
+          },
+          "slidingZone": {
+            "ratio": 0.65
+          }
+        },
+        "seizureTemperature": {
+          "value": 800,
+          "unit": "C"
+        },
+        "adhesionTendency": {
+          "rating": "HIGH"
+        },
+        "abrasiveness": {
+          "rating": "HIGH"
+        },
+        "diffusionWearTendency": {
+          "rating": "HIGH"
+        }
+      },
+      "thermalMachining": {
+        "cuttingTemperature": {
+          "model": "empirical",
+          "coefficients": {
+            "a": 400,
+            "b": 0.36,
+            "c": 0.16
+          },
+          "maxRecommended": {
+            "value": 880,
+            "unit": "C"
+          }
+        },
+        "heatPartition": {
+          "chip": 0.68,
+          "tool": 0.26,
+          "workpiece": 0.05,
+          "coolant": 0.01
+        },
+        "coolantEffectiveness": {
+          "flood": 0.3,
+          "mist": 0.1,
+          "mql": 0.22,
+          "cryogenic": 0.5
+        },
+        "thermalDamageThreshold": {
+          "whiteLayer": 960,
+          "overTempering": 700,
+          "burning": 1080
+        }
+      },
+      "surfaceIntegrity": {
+        "residualStress": {
+          "surface": -280,
+          "subsurface": 168,
+          "unit": "MPa",
+          "depth": 50
+        },
+        "workHardening": {
+          "depthAffected": 65,
+          "hardnessIncrease": 30,
+          "strainHardeningExponent": 0.38
+        },
+        "surfaceRoughness": {
+          "roughing": {
+            "Ra": 4.5
+          },
+          "finishing": {
+            "Ra": 0.8
+          },
+          "unit": "um"
+        },
+        "metallurgicalDamage": {
+          "whiteLayerRisk": "MODERATE",
+          "microcrackRisk": "LOW"
+        },
+        "burr": {
+          "tendency": "MODERATE",
+          "type": "rollover"
+        }
+      },
+      "statisticalData": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.78,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM Handbook Vol 16",
+          "Machining Data Handbook 3rd Ed"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "ESTIMATED"
+      },
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-NI-008",
+      "name": "Monel 400",
+      "designation": {
+        "cda": "",
+        "uns": "N04400",
+        "aa": "",
+        "grade": ""
+      },
+      "iso_group": "S",
+      "material_class": "Nickel Superalloy - Solid Solution",
+      "condition": "Annealed",
+      "composition": {
+        "copper": {
+          "min": 28.0,
+          "typical": 31.5,
+          "max": 34.0
+        },
+        "nickel": {
+          "min": 63.0,
+          "typical": 66.0,
+          "max": 70.0
+        },
+        "iron": {
+          "min": 1.0,
+          "typical": 2.0,
+          "max": 2.5
+        }
+      },
+      "physical": {
+        "density": 8800,
+        "melting_point": {
+          "solidus": 1300,
+          "liquidus": 1350
+        },
+        "thermal_conductivity": 21.8,
+        "poissons_ratio": 0.31,
+        "elastic_modulus": 193000,
+        "shear_modulus": 74230
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 130,
+          "vickers": 136
+        },
+        "tensile_strength": {
+          "min": 517,
+          "typical": 550,
+          "max": 583
+        },
+        "yield_strength": {
+          "min": 223,
+          "typical": 240,
+          "max": 256
+        },
+        "elongation": {
+          "min": 44,
+          "typical": 48,
+          "max": 52
+        },
+        "fatigue_strength": 192,
+        "fracture_toughness": 102
+      },
+      "kienzle": {
+        "kc1_1": 2200,
+        "mc": 0.19
+      },
+      "taylor": {
+        "C": 45,
+        "n": 0.15
+      },
+      "johnson_cook": {
+        "A": 240,
+        "B": 1100,
+        "n": 0.55,
+        "C": 0.025,
+        "m": 1.12,
+        "T_melt": 1350
+      },
+      "machinability": {
+        "aisi_rating": 18,
+        "relative_to_1212": 0.18
+      },
+      "recommended_cutting": {
+        "turning": {
+          "carbide": {
+            "speed": {
+              "min": 12,
+              "opt": 24.4,
+              "max": 36
+            }
+          }
+        }
+      },
+      "applications": [
+        "marine",
+        "chemical",
+        "petroleum"
+      ],
+      "notes": "",
+      "chipFormation": {
+        "chipType": {
+          "primary": "SEGMENTED",
+          "secondary": "varies with parameters"
+        },
+        "shearAngle": {
+          "value": 26,
+          "unit": "degrees",
+          "range": {
+            "min": 21,
+            "max": 32
+          }
+        },
+        "chipCompressionRatio": {
+          "value": 2.5,
+          "range": {
+            "min": 1.5,
+            "max": 3.5
+          }
+        },
+        "segmentationFrequency": {
+          "value": 40,
+          "unit": "kHz"
+        },
+        "builtUpEdge": {
+          "tendency": "MODERATE",
+          "speedRange": {
+            "min": 10,
+            "max": 40,
+            "unit": "m/min"
+          }
+        },
+        "breakability": {
+          "rating": "FAIR",
+          "chipBreakerRequired": false
+        },
+        "colorAtSpeed": {
+          "slow": "silver",
+          "optimal": "straw",
+          "high": "blue"
+        }
+      },
+      "friction": {
+        "toolChipInterface": {
+          "dry": 0.58,
+          "withCoolant": 0.38,
+          "withMQL": 0.43
+        },
+        "toolWorkpieceInterface": {
+          "dry": 0.51,
+          "withCoolant": 0.34
+        },
+        "contactLength": {
+          "stickingZone": {
+            "ratio": 0.35
+          },
+          "slidingZone": {
+            "ratio": 0.65
+          }
+        },
+        "seizureTemperature": {
+          "value": 800,
+          "unit": "C"
+        },
+        "adhesionTendency": {
+          "rating": "HIGH"
+        },
+        "abrasiveness": {
+          "rating": "HIGH"
+        },
+        "diffusionWearTendency": {
+          "rating": "HIGH"
+        }
+      },
+      "thermalMachining": {
+        "cuttingTemperature": {
+          "model": "empirical",
+          "coefficients": {
+            "a": 400,
+            "b": 0.36,
+            "c": 0.16
+          },
+          "maxRecommended": {
+            "value": 880,
+            "unit": "C"
+          }
+        },
+        "heatPartition": {
+          "chip": 0.68,
+          "tool": 0.26,
+          "workpiece": 0.05,
+          "coolant": 0.01
+        },
+        "coolantEffectiveness": {
+          "flood": 0.3,
+          "mist": 0.1,
+          "mql": 0.22,
+          "cryogenic": 0.5
+        },
+        "thermalDamageThreshold": {
+          "whiteLayer": 960,
+          "overTempering": 700,
+          "burning": 1080
+        }
+      },
+      "surfaceIntegrity": {
+        "residualStress": {
+          "surface": -280,
+          "subsurface": 168,
+          "unit": "MPa",
+          "depth": 50
+        },
+        "workHardening": {
+          "depthAffected": 65,
+          "hardnessIncrease": 30,
+          "strainHardeningExponent": 0.38
+        },
+        "surfaceRoughness": {
+          "roughing": {
+            "Ra": 4.5
+          },
+          "finishing": {
+            "Ra": 0.8
+          },
+          "unit": "um"
+        },
+        "metallurgicalDamage": {
+          "whiteLayerRisk": "MODERATE",
+          "microcrackRisk": "LOW"
+        },
+        "burr": {
+          "tendency": "MODERATE",
+          "type": "rollover"
+        }
+      },
+      "statisticalData": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.78,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM Handbook Vol 16",
+          "Machining Data Handbook 3rd Ed"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "ESTIMATED"
+      },
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-015",
+      "name": "Astroloy",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "Astroloy - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1380,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 1035,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 400,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3400,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-016",
+      "name": "Udimet 500",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "Udimet 500 - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1170,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 795,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 350,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3200,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-017",
+      "name": "Udimet 520",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "Udimet 520 - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1240,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 860,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 365,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3280,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-018",
+      "name": "Udimet 700",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "Udimet 700 - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1310,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 930,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 385,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3350,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-019",
+      "name": "Udimet 720",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "Udimet 720 - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1380,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 1000,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 400,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3400,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-031",
+      "name": "MAR-M 247",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "MAR-M 247 - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1000,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 850,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 340,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3200,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    },
+    {
+      "id": "S-SA-EXP-032",
+      "name": "CMSX-4 Single Crystal",
+      "uns": "",
+      "din": "",
+      "jis": "",
+      "iso": "",
+      "aliases": [],
+      "manufacturer_names": {},
+      "description": "CMSX-4 Single Crystal - SUPERALLOY material for precision machining",
+      "typical_applications": [],
+      "similar_materials": [],
+      "image_url": "",
+      "category": "SUPERALLOY",
+      "family": "SUPERALLOY",
+      "group": "SUPERALLOY",
+      "iso_p_class": null,
+      "iso_m_class": null,
+      "iso_k_class": null,
+      "iso_n_class": null,
+      "iso_s_class": "S3",
+      "iso_x_class": null,
+      "tensile_strength": {
+        "value": 1100,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "yield_strength": {
+        "value": 950,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elongation": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "reduction_of_area": {
+        "value": 0,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "hardness_hrc": {
+        "value": null,
+        "unit": "HRC",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hb": {
+        "value": 360,
+        "unit": "HB",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "hardness_hv": {
+        "value": 0,
+        "unit": "HV",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "elastic_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "shear_modulus": {
+        "value": 0,
+        "unit": "GPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "poisson_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "fatigue_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "impact_strength": {
+        "value": 0,
+        "unit": "J",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "fracture_toughness": {
+        "value": 0,
+        "unit": "MPa*m^0.5",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "compressive_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "shear_strength": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "work_hardening_exp": {
+        "value": 0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strength_coefficient": {
+        "value": 0,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "strain_rate_sensitivity": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "thermal_conductivity": {
+        "value": 50,
+        "unit": "W/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "specific_heat": {
+        "value": 500,
+        "unit": "J/kg*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "melting_point": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.9
+      },
+      "solidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "liquidus_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "thermal_expansion": {
+        "value": 12,
+        "unit": "um/m*K",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "thermal_diffusivity": {
+        "value": 10,
+        "unit": "mm2/s",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "emissivity": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "max_service_temp": {
+        "value": 0,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.8
+      },
+      "annealing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "tempering_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "austenitizing_temp": {
+        "value": null,
+        "unit": "C",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "density": {
+        "value": 0,
+        "unit": "kg/m3",
+        "source": "estimated",
+        "confidence": 0.95
+      },
+      "crystal_structure": null,
+      "magnetic": false,
+      "electrical_resistivity": {
+        "value": 0,
+        "unit": "uOhm*cm",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "corrosion_resistance": "GOOD",
+      "weldability": "FAIR",
+      "machinability_index": {
+        "value": 50,
+        "unit": "%",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "reference_material": "AISI_1212",
+      "chip_type": "SEGMENTED",
+      "chip_breakability": "FAIR",
+      "built_up_edge_tendency": "MEDIUM",
+      "abrasiveness": "MEDIUM",
+      "work_hardening_severity": "LOW",
+      "cutting_temp_tendency": "MEDIUM",
+      "surface_finish_quality": "GOOD",
+      "tool_wear_mode": "FLANK",
+      "recommended_tool_material": [
+        "Carbide"
+      ],
+      "recommended_coating": [
+        "TiAlN"
+      ],
+      "recommended_coolant": "FLOOD",
+      "specific_cutting_energy": {
+        "value": 2.0,
+        "unit": "J/mm3",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "cutting_speed_multiplier": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1": {
+        "value": 3400,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "mc": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "kc1_1_turning": {
+        "value": 1500,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_milling": {
+        "value": 1650,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "kc1_1_drilling": {
+        "value": 1800,
+        "unit": "N/mm2",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "rake_angle_correction": {
+        "value": 1.5,
+        "unit": "%/deg",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "wear_correction_factor": {
+        "value": 1.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "speed_correction_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "coolant_correction_factor": {
+        "value": 0.9,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "feed_force_ratio": {
+        "value": 0.5,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "passive_force_ratio": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "kc_source": "estimated",
+      "jc_A": {
+        "value": 400,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_B": {
+        "value": 500,
+        "unit": "MPa",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_n": {
+        "value": 0.3,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_C": {
+        "value": 0.01,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_m": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "jc_ref_strain_rate": {
+        "value": 1.0,
+        "unit": "1/s",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_ref_temp": {
+        "value": 20,
+        "unit": "C",
+        "source": "literature",
+        "confidence": 0.9
+      },
+      "jc_source": "estimated",
+      "taylor_C": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_n": {
+        "value": 0.25,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_C_turning": {
+        "value": 200,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_milling": {
+        "value": 180,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_C_drilling": {
+        "value": 150,
+        "unit": "m/min",
+        "source": "estimated",
+        "confidence": 0.6
+      },
+      "taylor_feed_exp": {
+        "value": 0.15,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_doc_exp": {
+        "value": 0.1,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_coolant_factor": {
+        "value": 1.2,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_hardness_factor": {
+        "value": 1.0,
+        "unit": "-",
+        "source": "estimated",
+        "confidence": 0.5
+      },
+      "taylor_source": "estimated",
+      "min_achievable_ra": {
+        "value": 0.8,
+        "unit": "um",
+        "source": "estimated",
+        "confidence": 0.7
+      },
+      "typical_ra_range": {
+        "min": 0.8,
+        "max": 6.3,
+        "unit": "um"
+      },
+      "surface_integrity_sensitivity": "MEDIUM",
+      "residual_stress_tendency": "COMPRESSIVE",
+      "burr_formation_tendency": "MEDIUM",
+      "surface_hardening_tendency": "LOW",
+      "surface_chemistry_sensitivity": "LOW",
+      "surface_source": "estimated",
+      "coolant_compatibility": {
+        "flood": {
+          "compatible": true,
+          "effectiveness": 0.9
+        },
+        "mist": {
+          "compatible": true,
+          "effectiveness": 0.7
+        },
+        "mql": {
+          "compatible": true,
+          "effectiveness": 0.8
+        },
+        "dry": {
+          "compatible": true,
+          "effectiveness": 0.5
+        },
+        "cryogenic": {
+          "compatible": true,
+          "effectiveness": 0.85
+        },
+        "high_pressure": {
+          "compatible": true,
+          "effectiveness": 0.95
+        }
+      },
+      "coolant_primary_recommendation": "FLOOD",
+      "coolant_secondary_recommendation": "MQL",
+      "coolant_restrictions": [],
+      "coolant_notes": "",
+      "emulsion_concentration": {
+        "min": 5,
+        "max": 10,
+        "unit": "%"
+      },
+      "coolant_pressure_recommendation": {
+        "min": 20,
+        "max": 70,
+        "unit": "bar"
+      },
+      "coolant_source": "estimated",
+      "data_quality_grade": "C",
+      "primary_source": "estimated",
+      "secondary_sources": [],
+      "last_verified": "2026-01-26",
+      "created_date": "2026-01-26",
+      "created_by": "PRISM_EXPANSION_GENERATOR",
+      "version": "1.0",
+      "notes": "",
+      "validation_status": "PENDING",
+      "confidence_overall": 0.65,
+      "_category": "S_SUPERALLOYS",
+      "_subcategory": "general"
+    }
+  ]
+}
