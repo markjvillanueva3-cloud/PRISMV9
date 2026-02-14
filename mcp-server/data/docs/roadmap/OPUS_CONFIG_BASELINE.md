@@ -68,3 +68,15 @@
 | Registry read-only | ACTIVE | REGISTRY_READONLY=true in .env |
 | Input validation | ACTIVE | validateMaterialName() in calcDispatcher |
 | Namespace audit | PASS | Only 1 MCP server (prism) configured |
+
+
+## Skill Size Audit (IA2-5.1 — P0-MS1)
+
+| Metric | Value | Notes |
+|---|---|---|
+| Skills registered | 126 | Exceeds 119 target |
+| Total skill lines | 33740 | From skill_stats_v2 |
+| Total skill size | 1111.5KB | 126 skills across 14 categories |
+| Largest skill loaded | prism-hook-system: 39KB raw | Well above 0.5K metadata estimate |
+| Truncation cap | 20KB per response | responseSlimmer prevents overflow |
+| Recommendation | Phase-specific loading preferred | Budget 15-100KB for 3-5 skill loads |

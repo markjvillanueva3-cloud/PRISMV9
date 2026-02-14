@@ -2,4 +2,4 @@
 
 [2026-02-14] P0-MS0a COMPLETE — All utility files, schemas, validations, tests created. 35/35 tests pass. Build clean (3.9MB). strictNullChecks active. Verified by file-by-file audit of existing code.
 
-[2026-02-14] P0-MS0b COMPLETE — Opus 4.6 wired + All 31 dispatchers verified. 28 PASS, 1 BASELINE-INVALID (thread data lookup), 1 BASELINE-DEFECT (compliance listProvisioned), 1 DEFERRED (ralph API spend). Ω=0.77, S=0.80. Build clean. 35/35 tests. Security foundation: 127.0.0.1 bind, REGISTRY_READONLY, input validation. Docs: P0_DISPATCHER_BASELINE.md + OPUS_CONFIG_BASELINE.md.
+[2026-02-14] P0-MS0b COMPLETE — Wire Opus 4.6 + Verify All Dispatchers. 31/31 dispatchers verified via live MCP calls. Code wiring: 6 imports across 5 dispatchers, apiWrapper.ts complete with effort/thinking/timeout integration. Security foundation: localhost binding, input validation, registry readonly. Documentation: P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md. 1 bug found (compliance:listProvisioned). Ω=0.77 RELEASE_READY. Registry totals: 11,843 entries.
