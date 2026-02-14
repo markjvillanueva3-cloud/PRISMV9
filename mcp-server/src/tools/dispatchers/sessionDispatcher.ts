@@ -5,6 +5,7 @@ import * as path from "path";
 import { execSync } from "child_process";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
+import { atomicWrite } from "../../utils/atomicWrite.js";
 
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {

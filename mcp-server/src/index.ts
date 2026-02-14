@@ -360,8 +360,9 @@ async function runHTTP(): Promise<void> {
   });
   
   const port = parseInt(process.env.PORT || "3000", 10);
-  app.listen(port, () => {
-    log.info(`MCP server running on http://localhost:${port}/mcp`);
+  // XA-6: Local-only transport during development (P0-R5)
+  app.listen(port, '127.0.0.1', () => {
+    log.info(`MCP server running on http://127.0.0.1:${port}/mcp`);
   });
 }
 

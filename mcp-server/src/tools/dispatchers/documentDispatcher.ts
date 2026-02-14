@@ -7,6 +7,7 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { atomicWrite } from "../../utils/atomicWrite.js";
 
 const DOCS_DIR = path.join(__dirname, "../../data/docs");
 const LEGACY_STATE_DIR = "C:\\PRISM\\state";

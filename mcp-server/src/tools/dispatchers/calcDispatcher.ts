@@ -3,6 +3,9 @@ import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
 import { registryManager } from "../../registries/manager.js";
+import { SafetyBlockError } from "../../errors/PrismError.js";
+import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
+import type { SafetyCalcResult } from "../../schemas/safetyCalcSchema.js";
 
 // Import original handlers
 import {
@@ -41,6 +44,16 @@ import {
   estimateCycleTime,
   calculateArcFitting
 } from "../../engines/ToolpathCalculations.js";
+
+/** XA-6: Basic input validation for material name parameters */
+function validateMaterialName(name: string | undefined): string | null {
+  if (!name) return null;
+  // Reject path traversal, injection patterns
+  if (/[\.\.\/\\]|<|>|\$|\{|\}/.test(name)) return null;
+  // Allow alphanumeric + common material name chars
+  if (!/^[a-zA-Z0-9\-_.\/\s]+$/.test(name)) return null;
+  return name.trim();
+}
 
 const ACTIONS = [
   "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish", 

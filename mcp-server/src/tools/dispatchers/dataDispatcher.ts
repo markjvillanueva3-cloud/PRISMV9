@@ -8,6 +8,7 @@ import { z } from "zod";
 import { registryManager } from "../../registries/index.js";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { validateMaterialSanity } from "../../validation/materialSanity.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
 
 const DataDispatcherSchema = z.object({

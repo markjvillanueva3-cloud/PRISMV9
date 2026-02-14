@@ -4,6 +4,7 @@ import { handleCoolantValidationTool } from "../coolantValidationTools.js";
 import { handleSpindleProtectionTool } from "../spindleProtectionTools.js";
 import { handleToolBreakageTool } from "../toolBreakageTools.js";
 import { handleWorkholdingTool } from "../workholdingTools.js";
+import { SafetyBlockError } from "../../errors/PrismError.js";
 
 const COLLISION_ACTIONS = new Set([
   "check_toolpath_collision", "validate_rapid_moves", "check_fixture_clearance",
