@@ -124,7 +124,23 @@ export const ALL_ISO_METRIC = [...ISO_METRIC_COARSE, ...ISO_METRIC_FINE];
 
 export function findISOMetricThread(designation: string): ISOMetricThread | null {
   const norm = designation.toUpperCase().replace(/\s/g, '');
-  return ALL_ISO_METRIC.find(t => t.designation.toUpperCase() === norm) || null;
+  // Try exact match first
+  const exact = ALL_ISO_METRIC.find(t => t.designation.toUpperCase() === norm);
+  if (exact) return exact;
+  
+  // Fallback: parse M{d}x{p} and match by diameter+pitch (handles coarse pitch with explicit notation e.g. M10x1.5 → M10)
+  const match = norm.match(/^M(\d+(?:\.\d+)?)(?:X(\d+(?:\.\d+)?))?$/);
+  if (match) {
+    const d = parseFloat(match[1]);
+    const p = match[2] ? parseFloat(match[2]) : null;
+    if (p !== null) {
+      const byParams = ALL_ISO_METRIC.find(t => t.nominalDiameter === d && t.pitch === p);
+      if (byParams) return byParams;
+    } else {
+      return getISOCoarsePitch(d);
+    }
+  }
+  return null;
 }
 
 export function getISOCoarsePitch(diameter: number): ISOMetricThread | null {

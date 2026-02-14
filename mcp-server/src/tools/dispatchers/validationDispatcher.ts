@@ -50,7 +50,9 @@ Params vary by action - see individual action docs.`,
             break;
           }
           case "safety": {
-            const r = computeSafetyScore(params.material || {});
+            // Accept either params.material (wrapped) or flat params
+            const materialData = params.material || (params.density || params.kc1_1 ? params : {});
+            const r = computeSafetyScore(materialData);
             result = r;
             break;
           }

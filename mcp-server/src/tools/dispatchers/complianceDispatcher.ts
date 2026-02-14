@@ -37,7 +37,7 @@ export function registerComplianceDispatcher(server: McpServer): void {
             result = complianceEngine.removeTemplate(params.template_id);
             break;
           case "list_templates":
-            result = { available: complianceEngine.listTemplates(), provisioned: complianceEngine.listProvisioned(), stats: complianceEngine.getStats() };
+            result = { available: complianceEngine.listTemplates(), provisioned: complianceEngine.listTemplates(), stats: complianceEngine.getStats() };
             break;
           case "audit_status":
             result = complianceEngine.runAudit(params.template_id);

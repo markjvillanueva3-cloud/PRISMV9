@@ -549,10 +549,12 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
   const density = material.density as number | undefined;
   const meltingPoint = material.melting_point as number | undefined;
   
-  if (density !== undefined && density > 0 && density < 25) {
+  // Accept density in kg/m³ (>100) or g/cm³ (<100), normalize to g/cm³
+  const densityGcm3 = density !== undefined ? (density > 100 ? density / 1000 : density) : undefined;
+  if (densityGcm3 !== undefined && densityGcm3 > 0 && densityGcm3 < 25) {
     components.physical_limits.score += 0.5;
-  } else if (density !== undefined) {
-    issues.push(`Density ${density} g/cm³ outside valid range (0-25)`);
+  } else if (densityGcm3 !== undefined) {
+    issues.push(`Density ${densityGcm3} g/cm³ outside valid range (0-25)`);
   } else {
     issues.push("Missing density");
   }

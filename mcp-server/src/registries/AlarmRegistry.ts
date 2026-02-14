@@ -236,8 +236,9 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
         if (!this.indexByCode.has(controller)) {
           this.indexByCode.set(controller, new Map());
         }
-        if (alarm.code) {
-          this.indexByCode.get(controller)!.set(alarm.code.toUpperCase(), id);
+        const alarmCodeVal = alarm.alarm_code || alarm.code || (alarm.alarm_number != null ? String(alarm.alarm_number) : null);
+        if (alarmCodeVal) {
+          this.indexByCode.get(controller)!.set(String(alarmCodeVal).toUpperCase(), id);
         }
       }
       

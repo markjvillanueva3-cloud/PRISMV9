@@ -130,8 +130,9 @@ export function registerDataDispatcher(server: any): void {
           case "alarm_decode": {
             const alarmCode = params.code || params.alarm_code || params.identifier;
             if (!alarmCode) return jsonResponse({ error: "alarm_decode requires 'code' or 'alarm_code' parameter" });
-            const alarm = await registryManager.alarms.decode(alarmCode, params.controller);
-            if (!alarm) return jsonResponse({ error: `Alarm not found: ${params.code}` });
+            const controller = params.controller || params.manufacturer || "UNKNOWN";
+            const alarm = await registryManager.alarms.decode(controller, alarmCode);
+            if (!alarm) return jsonResponse({ error: `Alarm not found: ${alarmCode} (controller: ${controller})` });
             result = alarm;
             break;
           }
