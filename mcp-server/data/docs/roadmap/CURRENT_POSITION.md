@@ -1,1 +1,1 @@
-CURRENT: R1 (next phase) | LAST_COMPLETE: P0 2026-02-14 | PHASE: P0 COMPLETE | vars: dispatchers=31/31, skills=126, hooks=62, registries=4/4, omega=0.77, chains=9/14-PASS+3-BASELINE-INVALID+1-KNOWN-FIX+1-PARTIAL
+CURRENT: R1-MS0 | LAST_COMPLETE: P0 2026-02-14 | PHASE: R1 in-progress | vars: 3-P0-fixes-applied, alarm-no-crash, safety-flat-params, compliance-method-fixed, mat=521/3518, mach=402/824, tools=0/1944, alarms=10033-in-knowledge-not-registry
