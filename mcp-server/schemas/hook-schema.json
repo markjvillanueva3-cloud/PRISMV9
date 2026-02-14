@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-hook-schema-v1",
+  "title": "PRISM Hook Schema",
+  "description": "Cognitive hook definition for AI enhancement",
+  "type": "object",
+  "required": ["id", "name", "pattern", "trigger", "action"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^(BAYES|OPT|MULTI|GRAD|RL|SYS-LAW)-[0-9]{3}$" },
+    "name": { "type": "string" },
+    "pattern": {
+      "type": "string",
+      "enum": ["bayesian", "optimization", "multi_objective", "gradient", "reinforcement", "system_law"]
+    },
+    "level": { "type": "string", "enum": ["L0", "L1", "L2"], "description": "L0=always-on, L1=task, L2=meta" },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "condition": { "type": "string" },
+        "event": { "type": "string" },
+        "automatic": { "type": "boolean" }
+      }
+    },
+    "action": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["compute", "validate", "transform", "block", "alert"] },
+        "function": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "destination": { "type": "string" }
+        }
+      }
+    },
+    "quality_component": {
+      "type": "string",
+      "enum": ["R(x)", "C(x)", "P(x)", "S(x)", "L(x)", "Omega(x)"],
+      "description": "Which quality metric this hook affects"
+    },
+    "threshold": { "type": "number", "description": "Activation threshold if applicable" },
+    "blocking": { "type": "boolean", "description": "If true, can block output" },
+    "skill_source": { "type": "string", "description": "Which skill defines this hook" },
+    "related_hooks": { "type": "array", "items": { "type": "string" } },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" }
+      }
+    }
+  }
+}

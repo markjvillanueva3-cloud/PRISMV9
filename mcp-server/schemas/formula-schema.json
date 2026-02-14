@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-formula-schema-v1",
+  "title": "PRISM Formula Schema",
+  "description": "Manufacturing physics and AI formula definition",
+  "type": "object",
+  "required": ["id", "name", "domain", "equation", "inputs", "outputs"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^F-[A-Z]+-[0-9]{3}$" },
+    "name": { "type": "string" },
+    "domain": {
+      "type": "string",
+      "enum": ["KIENZLE", "TAYLOR", "JOHNSON_COOK", "MERCHANT", "OXLEY", "THERMAL", "STABILITY", "DEFLECTION", "SURFACE", "OPTIMIZATION", "STATISTICS", "AI_ML", "SIGNAL", "COST", "LEARNING"]
+    },
+    "category": { "type": "string" },
+    "equation": { "type": "string", "description": "LaTeX or text representation" },
+    "equation_code": { "type": "string", "description": "JavaScript/Python implementation" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "symbol", "unit"],
+        "properties": {
+          "name": { "type": "string" },
+          "symbol": { "type": "string" },
+          "unit": { "type": "string" },
+          "description": { "type": "string" },
+          "range_min": { "type": "number" },
+          "range_max": { "type": "number" },
+          "default": { "type": "number" }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "symbol", "unit"],
+        "properties": {
+          "name": { "type": "string" },
+          "symbol": { "type": "string" },
+          "unit": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "constants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "symbol": { "type": "string" },
+          "value": { "type": "number" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "accuracy": { "type": "string", "description": "Typical accuracy range" },
+    "references": { "type": "array", "items": { "type": "string" } },
+    "related_formulas": { "type": "array", "items": { "type": "string" } },
+    "example": {
+      "type": "object",
+      "properties": {
+        "inputs": { "type": "object" },
+        "outputs": { "type": "object" },
+        "description": { "type": "string" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "skill": { "type": "string" }
+      }
+    }
+  }
+}

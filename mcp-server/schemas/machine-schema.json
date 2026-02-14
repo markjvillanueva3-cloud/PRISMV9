@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-machine-schema-v1",
+  "title": "PRISM Machine Schema",
+  "description": "Complete CNC machine specification for machining intelligence",
+  "type": "object",
+  "required": ["id", "manufacturer", "model", "type", "envelope", "spindle"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^MCH-[A-Z]+-[A-Z0-9]+-[0-9]{3}$",
+      "description": "Unique machine identifier"
+    },
+    "manufacturer": { "type": "string" },
+    "model": { "type": "string" },
+    "series": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["vertical_mill", "horizontal_mill", "5_axis", "lathe", "turn_mill", "swiss", "edm_wire", "edm_sinker", "grinder", "multi_spindle"]
+    },
+    "subtype": { "type": "string" },
+    "controller": {
+      "type": "object",
+      "properties": {
+        "manufacturer": { "type": "string", "enum": ["FANUC", "SIEMENS", "HAAS", "MAZAK", "OKUMA", "HEIDENHAIN", "MITSUBISHI", "BROTHER", "HURCO", "FAGOR"] },
+        "model": { "type": "string" },
+        "version": { "type": "string" },
+        "options": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "envelope": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number", "description": "X travel in mm" },
+        "y": { "type": "number", "description": "Y travel in mm" },
+        "z": { "type": "number", "description": "Z travel in mm" },
+        "a": { "type": "number", "description": "A rotation in degrees" },
+        "b": { "type": "number", "description": "B rotation in degrees" },
+        "c": { "type": "number", "description": "C rotation in degrees" },
+        "table_size_x": { "type": "number" },
+        "table_size_y": { "type": "number" },
+        "max_workpiece_weight": { "type": "number", "description": "kg" },
+        "max_workpiece_diameter": { "type": "number", "description": "mm" },
+        "max_workpiece_length": { "type": "number", "description": "mm" }
+      }
+    },
+    "spindle": {
+      "type": "object",
+      "required": ["max_rpm", "power"],
+      "properties": {
+        "max_rpm": { "type": "number" },
+        "min_rpm": { "type": "number" },
+        "power": { "type": "number", "description": "kW continuous" },
+        "power_peak": { "type": "number", "description": "kW peak" },
+        "torque": { "type": "number", "description": "Nm continuous" },
+        "torque_peak": { "type": "number", "description": "Nm peak" },
+        "taper": { "type": "string", "enum": ["BT30", "BT40", "BT50", "CAT40", "CAT50", "HSK-A63", "HSK-A100", "HSK-E40", "HSK-F63"] },
+        "bearing_type": { "type": "string" },
+        "cooling": { "type": "string", "enum": ["air", "oil", "oil_air", "water"] },
+        "through_spindle_coolant": { "type": "boolean" },
+        "through_spindle_coolant_pressure": { "type": "number", "description": "bar" }
+      }
+    },
+    "axes": {
+      "type": "object",
+      "properties": {
+        "linear_axes": { "type": "integer", "minimum": 2, "maximum": 6 },
+        "rotary_axes": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "simultaneous_axes": { "type": "integer" },
+        "x_rapid": { "type": "number", "description": "m/min" },
+        "y_rapid": { "type": "number", "description": "m/min" },
+        "z_rapid": { "type": "number", "description": "m/min" },
+        "a_rapid": { "type": "number", "description": "rpm" },
+        "b_rapid": { "type": "number", "description": "rpm" },
+        "c_rapid": { "type": "number", "description": "rpm" },
+        "positioning_accuracy": { "type": "number", "description": "mm" },
+        "repeatability": { "type": "number", "description": "mm" }
+      }
+    },
+    "tool_changer": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["arm", "turret", "chain", "drum", "rack", "rotary"] },
+        "capacity": { "type": "integer" },
+        "max_tool_diameter": { "type": "number", "description": "mm" },
+        "max_tool_length": { "type": "number", "description": "mm" },
+        "max_tool_weight": { "type": "number", "description": "kg" },
+        "change_time": { "type": "number", "description": "seconds tool-to-tool" },
+        "chip_to_chip_time": { "type": "number", "description": "seconds" }
+      }
+    },
+    "coolant": {
+      "type": "object",
+      "properties": {
+        "tank_capacity": { "type": "number", "description": "liters" },
+        "pump_pressure": { "type": "number", "description": "bar" },
+        "high_pressure_option": { "type": "boolean" },
+        "high_pressure_value": { "type": "number", "description": "bar" },
+        "mist_coolant": { "type": "boolean" },
+        "chip_conveyor": { "type": "string", "enum": ["none", "screw", "hinge_belt", "scraper", "auger"] }
+      }
+    },
+    "physical": {
+      "type": "object",
+      "properties": {
+        "footprint_length": { "type": "number", "description": "mm" },
+        "footprint_width": { "type": "number", "description": "mm" },
+        "height": { "type": "number", "description": "mm" },
+        "weight": { "type": "number", "description": "kg" },
+        "power_requirement": { "type": "number", "description": "kVA" },
+        "air_requirement": { "type": "number", "description": "L/min at bar" }
+      }
+    },
+    "kinematics": {
+      "type": "object",
+      "description": "Machine kinematics for simulation",
+      "properties": {
+        "type": { "type": "string", "enum": ["serial", "parallel", "hybrid"] },
+        "configuration": { "type": "string" },
+        "pivot_point": { "type": "object", "properties": { "x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"} } },
+        "home_position": { "type": "object", "properties": { "x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"} } }
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "post_processor": {
+      "type": "object",
+      "properties": {
+        "default_post": { "type": "string" },
+        "compatible_posts": { "type": "array", "items": { "type": "string" } },
+        "special_codes": { "type": "object" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "layer": { "type": "string", "enum": ["BASIC", "CORE", "ENHANCED", "LEVEL5"] },
+        "cad_file": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "updated": { "type": "string", "format": "date-time" },
+        "source": { "type": "string" }
+      }
+    }
+  }
+}

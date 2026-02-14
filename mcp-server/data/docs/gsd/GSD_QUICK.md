@@ -1,0 +1,118 @@
+# PRISM Quick Reference v22.0
+## 31 dispatchers | 368 verified actions | 30 cadence auto-functions | 37 engines | 112+6 hooks
+## F1-F8 COMPLETE | W1-W7 COMPLETE | D1-D4 COMPLETE | See MASTER_INDEX.md for full reference
+
+## SESSION LIFECYCLE
+START: prism_dev→session_boot THEN prism_context→todo_update (2 calls, always)
+WORK: Use dispatchers per task type (see DECISION TREE below)
+BUILD: npm run build (esbuild, NEVER tsc) → gsd_sync auto-fires → Phase Checklist triggers
+END: prism_session→state_save → prism_doc→append(ACTION_TRACKER.md) → prism_context→todo_update
+
+## 6 LAWS (HARD RULES)
+1. S(x)≥0.70 BLOCK — safety score must pass before any release
+2. NO PLACEHOLDERS — every value real, complete, verified
+3. NEW≥OLD — never lose data, actions, hooks, knowledge, line counts
+4. MCP FIRST — use prism: dispatchers before Desktop Commander or bash
+5. NO DUPLICATES — check before creating, one source of truth
+6. 100% UTILIZATION — if it exists, use it everywhere
+
+## DECISION TREE — What Tool For What Task
+Manufacturing calculation → prism_calc (21 actions) + prism_safety (29 tools)
+Material/machine/tool data → prism_data (14 actions)
+Thread operations → prism_thread (12 actions)
+Toolpath strategy → prism_toolpath (8 actions)
+Alarm decode/fix → prism_data alarm_decode/search/fix
+Session management → prism_session (30 actions)
+Context/attention → prism_context (18 actions)
+Read/write docs → prism_doc (7 actions)
+Find skills/scripts → prism_skill_script (23 actions)
+Hook management → prism_hook (18 actions)
+Quality validation → prism_validate (7) + prism_omega (5) + prism_ralph (3)
+Agent orchestration → prism_orchestrate (14 actions)
+Autonomous tasks → prism_atcs (10) + prism_autonomous (8)
+System diagnostics → prism_telemetry (7) + prism_pfp (6) + prism_memory (6)
+GSD/protocol reference → prism_gsd (6 actions)
+Development workflow → prism_dev (9 actions) + prism_sp (19 actions)
+Code generation → prism_generator (6 actions)
+External research → prism_manus (11 actions)
+Knowledge query → prism_knowledge (5 actions)
+Reasoning/enforcement → prism_guard (14 actions)
+Workflow orchestration → prism_autopilot_d (8 actions)
+Natural language hooks → prism_nl_hook (8 actions)
+Compliance templates → prism_compliance (8 actions)
+Multi-tenant management → prism_tenant (15 actions)
+Protocol bridge / API → prism_bridge (13 actions)
+
+## ORCHESTRATOR-FIRST — When to Use Automation vs Manual
+
+### Complexity Routing:
+SIMPLE (1-3 steps, single domain) → Manual sequence per Decision Tree above
+MEDIUM (4-8 steps, multi-domain) → prism_autopilot_d→autopilot_quick (lightweight)
+COMPLEX (8+ steps, brainstorm needed) → prism_autopilot_d→autopilot (full 6-phase pipeline)
+MULTI-SESSION (spans context windows) → prism_atcs→task_init + prism_autonomous→auto_plan
+PARALLEL (independent subtasks) → prism_orchestrate→swarm_parallel
+
+### What AutoPilot Does (so you don't have to):
+1. Loads GSD protocol (canonical v21.2+)
+2. Loads current state (CURRENT_STATE.json)
+3. Brainstorms with 7 parallel API calls (real, not canned)
+4. Executes with real swarm deployment
+5. Validates with 4-phase Ralph loop (real API)
+6. Updates state, hooks, memories
+
+### When NOT to use orchestrators:
+- Quick data lookups (material_get, alarm_decode)
+- Single calculations (speed_feed, cutting_force)
+- File reads/writes (doc operations)
+- Session management (boot, save, checkpoint)
+
+## QUALITY GATES (Use in this order)
+Quick check → prism_validate action=safety (is S(x)≥0.70?)
+Code review → prism_ralph action=scrutinize (single validator pass)
+Full validation → prism_ralph action=loop (4-phase: SCRUTINIZE→IMPROVE→VALIDATE→ASSESS)
+Final assessment → prism_ralph action=assess (Opus-grade, use for releases)
+Release readiness → prism_omega action=compute (Ω score, all components)
+
+## AUTO-FIRE (zero cost, no calls needed)
+@every-call: autoSkillHint, autoKnowledgeCrossQuery, autoScriptRecommend
+@every-error: autoD3ErrorChain (extract→detect→store)
+@every-success: autoD3LkgUpdate (last-known-good)
+@5 calls: autoTodoRefresh (attention anchor)
+@8 calls: autoContextPressure, autoAttentionScore, autoD4BatchTick
+@10 calls: autoCheckpoint (state snapshot)
+@12 calls: autoCompactionDetect (predict compaction risk)
+@15 calls: autoCompactionSurvival, autoD4CacheCheck, autoD4DiffCheck
+@20 calls: autoResponseVariation
+@41+ calls: autoCompactionSurvival (second save)
+@60%+ pressure: autoContextCompress + autoCompactionSurvival (third save)
+@build-success: gsd_sync_v2.py (auto-updates tools.md and GSD_QUICK.md)
+@file-write: autoDocAntiRegression (warn >30%, BLOCK >60% content loss)
+
+## BUFFER ZONES (ADVISORY ONLY — pressure governs, not call counts)
+🟢0-20: Normal operation. Full 20KB responses.
+🟡21-30: Plan upcoming checkpoint. Consider prism_session→auto_checkpoint.
+🔴31-40: Checkpoint recommended. Verify todo is current.
+⚫41+: Auto-save fires. Continue working — NO forced stops.
+Caps: 20KB/12KB(60%+)/8KB(70%+)/5KB(85%+) — PRESSURE determines cap, not zone.
+
+## COMPACTION RECOVERY (v21.1 — 3-layer automatic)
+**L1 (_context)**: Every MCP response includes task/resume/next action. Always present, zero cost.
+**L2 (_COMPACTION_RECOVERY)**: 5-call injection on 30s gap OR session_boot-mid-session.
+**L3 (Aggressive hijack)**: First call after detection → response REPLACED with full recovery payload.
+If you see `_COMPACTION_DETECTED: true` → follow `_MANDATORY_RECOVERY` instructions. DO NOT re-audit. DO NOT ask user.
+Survival reads: ACTION_TRACKER pending items, RECENT_ACTIONS flight recorder, CURRENT_STATE quick_resume.
+Transcripts: /mnt/transcripts/ (Claude container)
+
+## EDITING PROTOCOL
+READ file → edit_block/str_replace → VERIFY change
+Never retype existing code. Append don't rewrite. State exact lines changed.
+Plan first for >50 lines. Ask when ambiguous.
+>30% doc reduction → warning. >60% doc reduction → BLOCKED.
+
+## Changelog
+- 2026-02-13: v22.0 — F1-F8 complete. 31 dispatchers, 368 actions, 37 engines. Added nl_hook, compliance, tenant, bridge to decision tree. Synergy cadence (compliance@25, crossHealth@15).
+- 2026-02-11: v21.2 — Verified audit: 324 actions (was ~279), 29 engines (was 26), 30 session actions (was 26). Added guard+autopilot to decision tree. MASTER_INDEX.md now truth source.
+- 2026-02-10: v21.1 — Compaction recovery section added (3-layer system).
+- 2026-02-10: v21.0 — Content-optimized. Decision tree added. Quality gate sequence. Full auto-fire schedule. Editing protocol.
+- 2026-02-10: v20.0 — File-based GSD. Pressure-only caps. Advisory buffer zones.
+- 2026-02-09: v19.0 — Buffer zone fix, telemetry rebuild.

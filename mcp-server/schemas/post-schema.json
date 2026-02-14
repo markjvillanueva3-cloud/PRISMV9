@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-post-schema-v1",
+  "title": "PRISM Post Processor Schema",
+  "description": "CNC post processor configuration",
+  "type": "object",
+  "required": ["id", "name", "controller", "machine_type"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^POST-[A-Z]+-[A-Z0-9]+$" },
+    "name": { "type": "string" },
+    "controller": { "type": "string" },
+    "controller_version": { "type": "string" },
+    "machine_type": { "type": "string", "enum": ["mill", "lathe", "turn_mill", "wire_edm", "router", "5_axis"] },
+    "manufacturer": { "type": "string" },
+    "machine_models": { "type": "array", "items": { "type": "string" } },
+    "format": {
+      "type": "object",
+      "properties": {
+        "program_number_format": { "type": "string" },
+        "line_number_format": { "type": "string" },
+        "coordinate_format": { "type": "string" },
+        "feed_format": { "type": "string" },
+        "speed_format": { "type": "string" }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "rotary_axes": { "type": "boolean" },
+        "tool_compensation": { "type": "boolean" },
+        "high_speed_mode": { "type": "boolean" },
+        "subprograms": { "type": "boolean" },
+        "canned_cycles": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "special_codes": { "type": "object", "additionalProperties": { "type": "string" } },
+    "startup_sequence": { "type": "array", "items": { "type": "string" } },
+    "shutdown_sequence": { "type": "array", "items": { "type": "string" } },
+    "tool_change_sequence": { "type": "array", "items": { "type": "string" } },
+    "file_extension": { "type": "string" },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "author": { "type": "string" },
+        "tested_machines": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

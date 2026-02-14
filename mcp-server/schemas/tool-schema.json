@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-tool-schema-v1",
+  "title": "PRISM Cutting Tool Schema",
+  "description": "Complete cutting tool specification",
+  "type": "object",
+  "required": ["id", "type", "diameter", "material"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^TOOL-[A-Z]+-[0-9]{4}$" },
+    "manufacturer": { "type": "string" },
+    "part_number": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["end_mill", "face_mill", "ball_mill", "bull_mill", "drill", "tap", "reamer", "boring_bar", "insert", "turning_tool", "threading_tool", "grooving_tool", "chamfer_mill", "slot_drill"]
+    },
+    "subtype": { "type": "string" },
+    "material": {
+      "type": "string",
+      "enum": ["hss", "hss_cobalt", "carbide", "coated_carbide", "cermet", "ceramic", "cbn", "pcd"]
+    },
+    "coating": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["none", "TiN", "TiCN", "TiAlN", "AlTiN", "AlCrN", "diamond", "DLC", "multi_layer"] },
+        "layers": { "type": "integer" },
+        "thickness": { "type": "number", "description": "μm" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "properties": {
+        "diameter": { "type": "number", "description": "mm" },
+        "shank_diameter": { "type": "number", "description": "mm" },
+        "overall_length": { "type": "number", "description": "mm" },
+        "flute_length": { "type": "number", "description": "mm" },
+        "cutting_length": { "type": "number", "description": "mm" },
+        "flutes": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "helix_angle": { "type": "number", "description": "degrees" },
+        "rake_angle": { "type": "number", "description": "degrees" },
+        "clearance_angle": { "type": "number", "description": "degrees" },
+        "corner_radius": { "type": "number", "description": "mm" },
+        "point_angle": { "type": "number", "description": "degrees (for drills)" },
+        "nose_radius": { "type": "number", "description": "mm (for turning)" }
+      }
+    },
+    "cutting_data": {
+      "type": "object",
+      "properties": {
+        "max_rpm": { "type": "number" },
+        "recommended_sfm_min": { "type": "number" },
+        "recommended_sfm_max": { "type": "number" },
+        "feed_per_tooth_min": { "type": "number" },
+        "feed_per_tooth_max": { "type": "number" },
+        "max_doc": { "type": "number", "description": "mm axial" },
+        "max_woc": { "type": "number", "description": "mm radial" },
+        "max_chipload": { "type": "number" }
+      }
+    },
+    "application": {
+      "type": "object",
+      "properties": {
+        "material_groups": { "type": "array", "items": { "type": "string", "enum": ["P", "M", "K", "N", "S", "H"] } },
+        "operations": { "type": "array", "items": { "type": "string" } },
+        "coolant_required": { "type": "boolean" },
+        "through_tool_coolant": { "type": "boolean" }
+      }
+    },
+    "holder_compatibility": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "updated": { "type": "string", "format": "date-time" },
+        "source": { "type": "string" }
+      }
+    }
+  }
+}

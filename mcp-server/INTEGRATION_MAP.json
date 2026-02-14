@@ -1,0 +1,888 @@
+{
+  "metadata": {
+    "name": "PRISM MCP Integration Map",
+    "version": "1.0.0",
+    "created": "2026-01-31",
+    "description": "Complete mapping of MCP tools to PRISM resources",
+    "totalTools": 117,
+    "totalResources": 1735,
+    "principle": "IF IT EXISTS, USE IT EVERYWHERE"
+  },
+
+  "resourceSummary": {
+    "databases": {
+      "materials": { "count": 1047, "parameters": 127, "path": "EXTRACTED/materials" },
+      "machines": { "count": 824, "layers": 4, "path": "EXTRACTED/machines" },
+      "tools": { "count": 500, "parameters": 85, "path": "EXTRACTED/tools" },
+      "alarms": { "count": 2500, "families": 12, "path": "EXTRACTED/controllers/alarms" },
+      "fixtures": { "count": 200, "path": "EXTRACTED/workholding" },
+      "gcodes": { "count": 800, "path": "EXTRACTED/controllers/gcodes" },
+      "posts": { "count": 150, "path": "EXTRACTED/controllers/posts" }
+    },
+    "knowledge": {
+      "skills": { "count": 135, "totalLines": 50000, "path": "skills-consolidated" },
+      "modules": { "count": 950, "totalMB": 154, "path": "extracted_modules" },
+      "knowledgeBases": { "count": 10, "path": "EXTRACTED/knowledge_bases" }
+    },
+    "orchestration": {
+      "agents": { "count": 64, "tiers": 3, "path": "data/coordination/AGENT_REGISTRY.json" },
+      "formulas": { "count": 109, "domains": 20, "path": "data/coordination/FORMULA_REGISTRY.json" },
+      "hooks": { "count": 162, "patterns": 5, "path": "skills-consolidated/prism-cognitive-core" },
+      "workflows": { "count": 12, "path": "data/coordination/WORKFLOW_REGISTRY.json" },
+      "swarmPatterns": { "count": 8, "path": "data/coordination/SWARM_PATTERNS.json" }
+    }
+  },
+
+  "toolIntegrations": {
+    "data_access": {
+      "prism_material_get": {
+        "description": "Retrieve material by ID or name",
+        "databases": ["materials"],
+        "dataLayers": ["CORE", "ENHANCED", "USER", "LEARNED"],
+        "formulas": [],
+        "hooks": ["BAYES-001"],
+        "skills": ["prism-material-physics", "prism-material-lookup"],
+        "outputFormat": ["json", "markdown"],
+        "consumers": ["prism_speed_feed", "prism_cutting_force", "prism_tool_life"]
+      },
+      "prism_material_search": {
+        "description": "Search materials with filters",
+        "databases": ["materials"],
+        "filters": ["iso_group", "category", "hardness", "machinability"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-material-lookup"],
+        "pagination": true,
+        "consumers": ["prism_material_get", "prism_material_compare"]
+      },
+      "prism_material_compare": {
+        "description": "Compare 2-5 materials",
+        "databases": ["materials"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-material-physics"],
+        "consumers": ["speed_feed_optimization"]
+      },
+      "prism_material_add": {
+        "description": "Add material to USER/LEARNED layer",
+        "databases": ["materials"],
+        "dataLayers": ["USER", "LEARNED"],
+        "formulas": [],
+        "hooks": ["BAYES-002", "SYS-LAW4"],
+        "skills": ["prism-material-schema", "prism-material-validator"],
+        "validation": "prism-validator"
+      },
+      "prism_material_enhance": {
+        "description": "Enhance existing material data",
+        "databases": ["materials"],
+        "formulas": [],
+        "hooks": ["BAYES-002", "SYS-LAW3"],
+        "skills": ["prism-material-enhancer"],
+        "antiRegression": true
+      },
+      "prism_machine_get": {
+        "description": "Get machine specifications",
+        "databases": ["machines"],
+        "dataLayers": ["BASIC", "CORE", "ENHANCED", "LEVEL5"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-monolith-index"],
+        "consumers": ["prism_speed_feed", "prism_post_generate"]
+      },
+      "prism_machine_search": {
+        "description": "Search machines by criteria",
+        "databases": ["machines"],
+        "filters": ["manufacturer", "type", "controller", "travel", "spindle"],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "pagination": true
+      },
+      "prism_machine_capabilities": {
+        "description": "Get machine capability matrix",
+        "databases": ["machines", "tools"],
+        "formulas": ["F-KINEMATICS-001"],
+        "hooks": [],
+        "skills": ["prism-monolith-index"],
+        "consumers": ["prism_speed_feed"]
+      },
+      "prism_tool_get": {
+        "description": "Get cutting tool data",
+        "databases": ["tools"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-cutting-tools"],
+        "consumers": ["prism_speed_feed", "prism_tool_life"]
+      },
+      "prism_tool_search": {
+        "description": "Search cutting tools",
+        "databases": ["tools"],
+        "filters": ["type", "diameter", "material", "coating", "flutes"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-cutting-tools"],
+        "pagination": true
+      },
+      "prism_tool_recommend": {
+        "description": "Recommend tools for operation",
+        "databases": ["tools", "materials"],
+        "formulas": ["F-TOOL-SELECT-001"],
+        "hooks": ["OPT-001"],
+        "skills": ["prism-cutting-tools", "prism-material-physics"],
+        "agents": ["TOOL-SELECTOR-AGENT"]
+      },
+      "prism_alarm_decode": {
+        "description": "Decode controller alarm code",
+        "databases": ["alarms"],
+        "controllerFamilies": 12,
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming", "prism-error-catalog"],
+        "outputFormat": ["json", "markdown"]
+      },
+      "prism_alarm_search": {
+        "description": "Search alarms by keyword/category",
+        "databases": ["alarms"],
+        "filters": ["controller", "category", "severity", "query"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-error-catalog"],
+        "pagination": true
+      },
+      "prism_alarm_fix": {
+        "description": "Get detailed fix procedure",
+        "databases": ["alarms"],
+        "formulas": [],
+        "hooks": ["SYS-LAW1"],
+        "skills": ["prism-error-catalog", "prism-sp-debugging"],
+        "safetyGate": "S(x) >= 0.70"
+      },
+      "prism_fixture_get": {
+        "description": "Get fixture/workholding data",
+        "databases": ["fixtures"],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "consumers": ["prism_speed_feed"]
+      },
+      "prism_fixture_search": {
+        "description": "Search fixtures",
+        "databases": ["fixtures"],
+        "filters": ["type", "clamping_force", "repeatability"],
+        "formulas": [],
+        "hooks": [],
+        "pagination": true
+      }
+    },
+
+    "calculations": {
+      "prism_speed_feed": {
+        "description": "Calculate optimal cutting parameters",
+        "databases": ["materials", "tools", "machines"],
+        "formulas": ["F-KIENZLE-001", "F-TAYLOR-001", "F-MRR-001", "F-POWER-001"],
+        "hooks": ["OPT-001", "MULTI-001", "SYS-LAW1"],
+        "skills": ["prism-material-physics", "prism-cutting-mechanics", "prism-universal-formulas"],
+        "agents": ["SPEED-FEED-OPTIMIZER"],
+        "optimizationTargets": ["mrr", "surface_finish", "tool_life", "balanced"],
+        "safetyGate": "S(x) >= 0.70"
+      },
+      "prism_cutting_force": {
+        "description": "Kienzle cutting force calculation",
+        "databases": ["materials"],
+        "formulas": ["F-KIENZLE-001", "F-KIENZLE-002", "F-KIENZLE-003"],
+        "hooks": [],
+        "skills": ["prism-material-physics", "prism-cutting-mechanics", "prism-universal-formulas"],
+        "requiredParams": ["kc1_1", "mc"],
+        "outputs": ["Fc", "Ff", "Fp", "power"]
+      },
+      "prism_tool_life": {
+        "description": "Taylor tool life estimation",
+        "databases": ["materials", "tools"],
+        "formulas": ["F-TAYLOR-001", "F-TAYLOR-002"],
+        "hooks": [],
+        "skills": ["prism-material-physics", "prism-universal-formulas"],
+        "requiredParams": ["C", "n"]
+      },
+      "prism_surface_finish": {
+        "description": "Surface roughness prediction",
+        "databases": ["materials", "tools"],
+        "formulas": ["F-SURFACE-001", "F-SURFACE-002"],
+        "hooks": [],
+        "skills": ["prism-cutting-mechanics"],
+        "outputs": ["Ra", "Rz", "Rt"]
+      },
+      "prism_power_calc": {
+        "description": "Cutting power calculation",
+        "databases": ["materials", "machines"],
+        "formulas": ["F-POWER-001", "F-POWER-002"],
+        "hooks": ["SYS-LAW1"],
+        "skills": ["prism-universal-formulas"],
+        "safetyCheck": "power <= machine.spindle.power"
+      },
+      "prism_mrr_calc": {
+        "description": "Material removal rate",
+        "databases": [],
+        "formulas": ["F-MRR-001"],
+        "hooks": [],
+        "skills": ["prism-universal-formulas"]
+      },
+      "prism_chip_calc": {
+        "description": "Chip thickness and formation",
+        "databases": ["materials"],
+        "formulas": ["F-CHIP-001", "F-MERCHANT-001"],
+        "hooks": [],
+        "skills": ["prism-cutting-mechanics"]
+      },
+      "prism_thermal_calc": {
+        "description": "Cutting temperature prediction",
+        "databases": ["materials", "tools"],
+        "formulas": ["F-THERMAL-001", "F-THERMAL-002"],
+        "hooks": [],
+        "skills": ["prism-material-physics"]
+      },
+      "prism_deflection_calc": {
+        "description": "Tool/workpiece deflection",
+        "databases": ["tools", "fixtures"],
+        "formulas": ["F-DEFLECT-001", "F-DEFLECT-002"],
+        "hooks": [],
+        "skills": ["prism-cutting-mechanics"]
+      },
+      "prism_chatter_predict": {
+        "description": "Chatter stability prediction",
+        "databases": ["materials", "tools", "machines"],
+        "formulas": ["F-STABILITY-001", "F-STABILITY-002"],
+        "hooks": ["SYS-LAW1"],
+        "skills": ["prism-cutting-mechanics"],
+        "safetyGate": "stability_ratio > 1.0"
+      },
+      "prism_formula_calc": {
+        "description": "Execute any formula from library",
+        "databases": [],
+        "formulas": "ALL_109_FORMULAS",
+        "hooks": [],
+        "skills": ["prism-universal-formulas"],
+        "formulaDomains": 20
+      },
+      "prism_formula_list": {
+        "description": "List available formulas",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-universal-formulas"],
+        "pagination": true
+      }
+    },
+
+    "agent_orchestration": {
+      "prism_agent_list": {
+        "description": "List available AI agents",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-skill-orchestrator"],
+        "agents": "ALL_64_AGENTS",
+        "filters": ["tier", "capability", "domain"]
+      },
+      "prism_agent_get": {
+        "description": "Get agent configuration",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-skill-orchestrator"],
+        "outputs": ["system_prompt", "skills_used", "formulas_used", "capabilities"]
+      },
+      "prism_agent_invoke": {
+        "description": "Invoke single agent",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["RL-001"],
+        "skills": ["prism-skill-orchestrator"],
+        "agents": "ANY",
+        "requiresAPI": true,
+        "timeout": "30000ms"
+      },
+      "prism_agent_swarm": {
+        "description": "Execute agent swarm pattern",
+        "databases": [],
+        "formulas": ["F-PSI-001"],
+        "hooks": ["OPT-001", "MULTI-001"],
+        "skills": ["prism-skill-orchestrator", "prism-extraction-orchestrator"],
+        "swarmPatterns": ["PARALLEL_EXTRACTION", "SEQUENTIAL_VALIDATION", "HIERARCHICAL_REVIEW", "CONSENSUS_BUILDING", "DIVIDE_CONQUER", "EXPERT_ENSEMBLE", "COMPETITIVE_OPTIMIZATION", "COOPERATIVE_LEARNING"],
+        "requiresAPI": true
+      },
+      "prism_ralph_loop": {
+        "description": "Iterative validation loop",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["BAYES-003", "SYS-LAW7"],
+        "skills": ["prism-sp-review-quality", "prism-sp-review-spec", "prism-sp-verification"],
+        "convergenceThreshold": 0.95,
+        "maxIterations": 10
+      },
+      "prism_quality_check": {
+        "description": "Check output quality score",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["ALL_QUALITY_HOOKS"],
+        "skills": ["prism-master-equation", "prism-quality-master"],
+        "components": ["R(x)", "C(x)", "P(x)", "S(x)", "L(x)"],
+        "threshold": "Omega(x) >= 0.70"
+      },
+      "prism_safety_check": {
+        "description": "Validate safety constraints",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["SYS-LAW1", "SYS-LAW7"],
+        "skills": ["prism-safety-framework"],
+        "hardBlock": "S(x) >= 0.70"
+      },
+      "prism_regression_check": {
+        "description": "Anti-regression validation",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["BAYES-002", "SYS-LAW4"],
+        "skills": ["prism-validator"],
+        "rule": "new_count >= old_count"
+      },
+      "prism_ilp_optimize": {
+        "description": "ILP resource combination",
+        "databases": [],
+        "formulas": ["F-PSI-001"],
+        "hooks": ["OPT-001", "OPT-002"],
+        "skills": ["prism-skill-orchestrator"],
+        "constraints": ["skills <= 8", "agents <= 8", "S >= 0.70", "coverage = 1.0"]
+      }
+    },
+
+    "script_execution": {
+      "prism_script_list": {
+        "description": "List available scripts",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "scriptCategories": ["extraction", "materials", "validation", "gsd", "orchestration", "api", "utility", "test", "controller"],
+        "totalScripts": 367
+      },
+      "prism_script_run": {
+        "description": "Execute Python script",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "timeout": "120000ms",
+        "asyncSupport": true
+      },
+      "prism_script_status": {
+        "description": "Check async script status",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": []
+      },
+      "prism_gsd_startup": {
+        "description": "Run GSD startup script",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-quick-start"],
+        "script": "gsd_startup.py"
+      },
+      "prism_session_checkpoint": {
+        "description": "Create session checkpoint",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-buffer"],
+        "script": "session_memory_manager.py"
+      }
+    },
+
+    "hook_system": {
+      "prism_hook_list": {
+        "description": "List cognitive hooks",
+        "databases": [],
+        "formulas": [],
+        "hooks": "ALL_162_HOOKS",
+        "skills": ["prism-cognitive-core"],
+        "patterns": ["BAYESIAN", "OPTIMIZATION", "MULTI_OBJECTIVE", "GRADIENT", "REINFORCEMENT"]
+      },
+      "prism_hook_trigger": {
+        "description": "Manually trigger hook",
+        "databases": [],
+        "formulas": [],
+        "hooks": "ANY",
+        "skills": ["prism-cognitive-core"]
+      },
+      "prism_hook_status": {
+        "description": "Check hook execution status",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-cognitive-core"]
+      },
+      "prism_bayes_update": {
+        "description": "Update Bayesian priors",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["BAYES-001", "BAYES-002", "BAYES-003"],
+        "skills": ["prism-cognitive-core"]
+      },
+      "prism_quality_compute": {
+        "description": "Compute Omega(x) quality score",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["ALL_QUALITY_HOOKS"],
+        "skills": ["prism-master-equation", "prism-reasoning-engine", "prism-code-perfection", "prism-process-optimizer", "prism-safety-framework"]
+      }
+    },
+
+    "knowledge_access": {
+      "prism_skill_list": {
+        "description": "List available skills",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": "ALL_135_SKILLS",
+        "categories": 9
+      },
+      "prism_skill_load": {
+        "description": "Load skill content",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": "ANY",
+        "sectionExtraction": true
+      },
+      "prism_skill_search": {
+        "description": "Search within skills",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": "ALL",
+        "contextLines": 2
+      },
+      "prism_module_list": {
+        "description": "List extracted modules",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-monolith-index"],
+        "totalModules": 950
+      },
+      "prism_module_load": {
+        "description": "Load module source",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-monolith-navigator", "prism-monolith-extractor"]
+      },
+      "prism_module_search": {
+        "description": "Search module content",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-monolith-navigator"]
+      },
+      "prism_kb_query": {
+        "description": "Query knowledge base",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-knowledge-master"],
+        "knowledgeBases": ["algorithms", "data_structures", "manufacturing", "ai_structures"]
+      },
+      "prism_course_lookup": {
+        "description": "Look up MIT/Stanford course content",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-knowledge-master"],
+        "courses": 220
+      }
+    },
+
+    "geometry_cad": {
+      "prism_nurbs_eval": {
+        "description": "Evaluate NURBS curve/surface",
+        "databases": [],
+        "formulas": ["F-NURBS-001"],
+        "hooks": [],
+        "skills": [],
+        "modules": ["PRISM_NURBS", "PRISM_BSPLINE"]
+      },
+      "prism_mesh_analyze": {
+        "description": "Analyze mesh geometry",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "modules": ["PRISM_MESH"]
+      },
+      "prism_feature_detect": {
+        "description": "Detect machining features",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-cam-strategies"],
+        "modules": ["PRISM_FEATURE_RECOGNITION"]
+      },
+      "prism_toolpath_gen": {
+        "description": "Generate basic toolpath",
+        "databases": ["tools", "machines"],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-cam-strategies"],
+        "modules": ["PRISM_TOOLPATH_2D", "PRISM_TOOLPATH_3D"]
+      },
+      "prism_collision_check": {
+        "description": "Check tool/holder collision",
+        "databases": ["tools", "machines"],
+        "formulas": [],
+        "hooks": ["SYS-LAW1"],
+        "skills": [],
+        "modules": ["PRISM_COLLISION"],
+        "safetyGate": true
+      }
+    },
+
+    "signal_analysis": {
+      "prism_fft_analyze": {
+        "description": "FFT frequency analysis",
+        "databases": [],
+        "formulas": ["F-FFT-001"],
+        "hooks": [],
+        "skills": ["prism-signal-processing"],
+        "modules": ["PRISM_FFT"]
+      },
+      "prism_filter_apply": {
+        "description": "Apply signal filter",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-signal-processing"],
+        "filters": ["lowpass", "highpass", "bandpass", "notch"]
+      },
+      "prism_vibration_analyze": {
+        "description": "Analyze vibration signature",
+        "databases": ["machines"],
+        "formulas": ["F-VIBRATION-001"],
+        "hooks": [],
+        "skills": ["prism-signal-processing"]
+      }
+    },
+
+    "ai_ml": {
+      "prism_ml_predict": {
+        "description": "ML prediction with trained model",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["RL-001"],
+        "skills": ["prism-ai-ml-master", "prism-ai-deep-learning"],
+        "models": ["random_forest", "gradient_boosting", "neural_network"]
+      },
+      "prism_optimize_pso": {
+        "description": "PSO optimization",
+        "databases": [],
+        "formulas": ["F-PSO-001"],
+        "hooks": ["OPT-001"],
+        "skills": ["prism-ai-optimization"]
+      },
+      "prism_optimize_ga": {
+        "description": "Genetic algorithm optimization",
+        "databases": [],
+        "formulas": ["F-GA-001"],
+        "hooks": ["OPT-001"],
+        "skills": ["prism-ai-optimization"]
+      },
+      "prism_cluster_analyze": {
+        "description": "Clustering analysis",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-ai-ml-master"],
+        "algorithms": ["kmeans", "dbscan", "hierarchical"]
+      }
+    },
+
+    "session_state": {
+      "prism_state_load": {
+        "description": "Load session state",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-state-manager", "prism-quick-start"],
+        "file": "CURRENT_STATE.json"
+      },
+      "prism_state_save": {
+        "description": "Save session state",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-state-manager"],
+        "file": "CURRENT_STATE.json"
+      },
+      "prism_state_checkpoint": {
+        "description": "Create progress checkpoint",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-buffer", "prism-sp-execution"]
+      },
+      "prism_state_diff": {
+        "description": "Compare state versions",
+        "databases": [],
+        "formulas": [],
+        "hooks": ["BAYES-002"],
+        "skills": ["prism-state-manager"]
+      },
+      "prism_handoff_prepare": {
+        "description": "Prepare session handoff",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-sp-handoff", "prism-task-continuity"]
+      },
+      "prism_resume_session": {
+        "description": "Resume from saved state",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-quick-start", "prism-task-continuity"]
+      },
+      "prism_memory_save": {
+        "description": "Save to persistent memory",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-master"],
+        "file": "SESSION_MEMORY.json"
+      },
+      "prism_memory_recall": {
+        "description": "Recall from memory",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-master"],
+        "file": "SESSION_MEMORY.json"
+      },
+      "prism_buffer_status": {
+        "description": "Check context buffer status",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-buffer"],
+        "zones": ["GREEN_0-8", "YELLOW_9-14", "RED_15-18", "BLACK_19+"]
+      },
+      "prism_compaction_prepare": {
+        "description": "Prepare for context compaction",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-session-buffer", "prism-task-continuity"]
+      }
+    },
+
+    "external_integrations": {
+      "prism_obsidian_note": {
+        "description": "Create Obsidian note",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Obsidian"
+      },
+      "prism_obsidian_search": {
+        "description": "Search Obsidian vault",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Obsidian"
+      },
+      "prism_git_status": {
+        "description": "Git repository status",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Git"
+      },
+      "prism_git_commit": {
+        "description": "Git commit changes",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Git"
+      },
+      "prism_box_sync": {
+        "description": "Sync with Box cloud",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Box"
+      },
+      "prism_duckdb_query": {
+        "description": "Query DuckDB database",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "DuckDB"
+      },
+      "prism_excel_read": {
+        "description": "Read Excel file",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Excel"
+      },
+      "prism_excel_write": {
+        "description": "Write Excel file",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "external": "Excel"
+      },
+      "prism_export_report": {
+        "description": "Export formatted report",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": [],
+        "formats": ["json", "csv", "markdown", "html", "pdf"]
+      },
+      "prism_api_call": {
+        "description": "Call Claude API for agent",
+        "databases": [],
+        "formulas": [],
+        "hooks": [],
+        "skills": ["prism-api-acceleration"],
+        "external": "Claude API"
+      }
+    }
+  },
+
+  "crossToolDependencies": {
+    "prism_speed_feed": {
+      "requires": ["prism_material_get", "prism_tool_get"],
+      "optional": ["prism_machine_get", "prism_fixture_get"],
+      "uses_formulas": ["F-KIENZLE-001", "F-TAYLOR-001", "F-MRR-001"],
+      "triggers_hooks": ["OPT-001", "SYS-LAW1"]
+    },
+    "prism_cutting_force": {
+      "requires": ["prism_material_get"],
+      "uses_formulas": ["F-KIENZLE-001"],
+      "outputTo": ["prism_power_calc", "prism_deflection_calc"]
+    },
+    "prism_agent_swarm": {
+      "requires": ["prism_agent_list"],
+      "uses": ["prism_ilp_optimize"],
+      "triggers_hooks": ["OPT-001", "MULTI-001"],
+      "validates_with": ["prism_ralph_loop"]
+    },
+    "prism_ralph_loop": {
+      "requires": ["prism_agent_invoke"],
+      "uses": ["prism_quality_check", "prism_safety_check"],
+      "triggers_hooks": ["BAYES-003", "SYS-LAW7"]
+    }
+  },
+
+  "databaseConsumers": {
+    "materials": {
+      "consumers": [
+        "prism_material_get",
+        "prism_material_search",
+        "prism_material_compare",
+        "prism_speed_feed",
+        "prism_cutting_force",
+        "prism_tool_life",
+        "prism_surface_finish",
+        "prism_thermal_calc",
+        "prism_chip_calc",
+        "prism_chatter_predict",
+        "prism_tool_recommend"
+      ],
+      "count": 11,
+      "principle": "IF IT EXISTS, USE IT EVERYWHERE"
+    },
+    "machines": {
+      "consumers": [
+        "prism_machine_get",
+        "prism_machine_search",
+        "prism_machine_capabilities",
+        "prism_speed_feed",
+        "prism_power_calc",
+        "prism_chatter_predict",
+        "prism_collision_check",
+        "prism_toolpath_gen",
+        "prism_vibration_analyze"
+      ],
+      "count": 9
+    },
+    "tools": {
+      "consumers": [
+        "prism_tool_get",
+        "prism_tool_search",
+        "prism_tool_recommend",
+        "prism_speed_feed",
+        "prism_tool_life",
+        "prism_surface_finish",
+        "prism_deflection_calc",
+        "prism_collision_check",
+        "prism_toolpath_gen"
+      ],
+      "count": 9
+    },
+    "alarms": {
+      "consumers": [
+        "prism_alarm_decode",
+        "prism_alarm_search",
+        "prism_alarm_fix"
+      ],
+      "count": 3
+    }
+  },
+
+  "formulaConsumers": {
+    "F-KIENZLE-001": ["prism_cutting_force", "prism_speed_feed", "prism_power_calc"],
+    "F-TAYLOR-001": ["prism_tool_life", "prism_speed_feed"],
+    "F-MRR-001": ["prism_mrr_calc", "prism_speed_feed"],
+    "F-POWER-001": ["prism_power_calc", "prism_speed_feed"],
+    "F-PSI-001": ["prism_ilp_optimize", "prism_agent_swarm"]
+  },
+
+  "skillConsumers": {
+    "prism-material-physics": ["prism_material_get", "prism_speed_feed", "prism_cutting_force", "prism_tool_life"],
+    "prism-cutting-mechanics": ["prism_cutting_force", "prism_chip_calc", "prism_chatter_predict"],
+    "prism-universal-formulas": ["prism_formula_calc", "prism_speed_feed", "prism_cutting_force"],
+    "prism-cognitive-core": ["prism_hook_list", "prism_hook_trigger", "prism_quality_compute"],
+    "prism-skill-orchestrator": ["prism_agent_list", "prism_agent_invoke", "prism_agent_swarm", "prism_ilp_optimize"]
+  },
+
+  "safetyGates": {
+    "hardBlocks": [
+      { "tool": "prism_speed_feed", "gate": "S(x) >= 0.70", "reason": "Cutting parameters affect operator safety" },
+      { "tool": "prism_alarm_fix", "gate": "S(x) >= 0.70", "reason": "Fix procedures must be verified" },
+      { "tool": "prism_power_calc", "gate": "power <= machine.spindle.power", "reason": "Prevent spindle damage" },
+      { "tool": "prism_chatter_predict", "gate": "stability_ratio > 1.0", "reason": "Prevent resonance failures" },
+      { "tool": "prism_collision_check", "gate": "no_collision", "reason": "Prevent crashes" }
+    ],
+    "qualityGates": [
+      { "tool": "ALL", "gate": "Omega(x) >= 0.70", "action": "WARN" },
+      { "tool": "ALL", "gate": "S(x) >= 0.70", "action": "HARD_BLOCK" }
+    ]
+  },
+
+  "validationMatrix": {
+    "G1_drive_access": { "check": "C: drive accessible", "tools": "ALL" },
+    "G5_output_path": { "check": "Output on C: not /home", "tools": "ALL_FILE_OPS" },
+    "G7_anti_regression": { "check": "new >= old", "tools": ["prism_material_enhance", "prism_state_save"] },
+    "G8_safety": { "check": "S(x) >= 0.70", "tools": "ALL", "action": "HARD_BLOCK" },
+    "G9_quality": { "check": "Omega(x) >= 0.70", "tools": "ALL", "action": "WARN" }
+  }
+}

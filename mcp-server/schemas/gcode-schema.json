@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-gcode-schema-v1",
+  "title": "PRISM G-Code Schema",
+  "description": "G-code and M-code reference definition",
+  "type": "object",
+  "required": ["code", "type", "function"],
+  "properties": {
+    "code": { "type": "string", "pattern": "^[GM][0-9]{1,4}(\\.[0-9])?$" },
+    "type": { "type": "string", "enum": ["G", "M"] },
+    "function": { "type": "string" },
+    "description": { "type": "string" },
+    "group": { "type": "string", "enum": ["motion", "plane_selection", "positioning", "canned_cycle", "coordinate_system", "cutter_compensation", "tool_length", "feed_rate", "spindle", "coolant", "program_control", "misc"] },
+    "modal": { "type": "boolean", "description": "Code remains active until cancelled" },
+    "syntax": { "type": "string", "description": "Code syntax with parameters" },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "letter": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "required": { "type": "boolean" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "controllers": {
+      "type": "object",
+      "description": "Controller-specific variations",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "supported": { "type": "boolean" },
+          "syntax": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "example": { "type": "string" },
+    "related_codes": { "type": "array", "items": { "type": "string" } },
+    "cancels": { "type": "array", "items": { "type": "string" } },
+    "cancelled_by": { "type": "array", "items": { "type": "string" } }
+  }
+}

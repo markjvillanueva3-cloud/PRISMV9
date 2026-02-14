@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-material-schema-v1",
+  "title": "PRISM Material Schema",
+  "description": "Complete 127-parameter material definition for CNC machining",
+  "type": "object",
+  "required": ["id", "name", "iso_group", "category", "physical", "mechanical", "thermal", "machining"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}-[A-Z0-9]+-[0-9]{3}$",
+      "description": "Unique material identifier (e.g., CS-1045-001, SS-316L-001)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Common material name"
+    },
+    "iso_group": {
+      "type": "string",
+      "enum": ["P", "M", "K", "N", "S", "H", "X"],
+      "description": "ISO 513 material classification group"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "carbon_steel", "alloy_steel", "tool_steel", "free_machining_steel", "hsla_steel",
+        "austenitic_stainless", "ferritic_stainless", "martensitic_stainless", "duplex_stainless", "ph_stainless",
+        "gray_cast_iron", "ductile_iron", "malleable_iron", "white_cast_iron", "cgi",
+        "wrought_aluminum", "cast_aluminum", "copper", "brass", "bronze", "magnesium", "zinc",
+        "nickel_alloy", "cobalt_alloy", "titanium_alloy",
+        "hardened_steel",
+        "composite", "plastic", "ceramic", "refractory"
+      ]
+    },
+    "subcategory": { "type": "string" },
+    "designation": {
+      "type": "object",
+      "properties": {
+        "uns": { "type": "string", "description": "UNS number" },
+        "aisi_sae": { "type": "string", "description": "AISI/SAE designation" },
+        "din": { "type": "string", "description": "DIN standard" },
+        "en": { "type": "string", "description": "European standard" },
+        "jis": { "type": "string", "description": "Japanese standard" },
+        "trade_names": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "properties": {
+        "heat_treatment": { "type": "string", "enum": ["annealed", "normalized", "quenched", "tempered", "solution_treated", "aged", "as_rolled", "cold_worked"] },
+        "temper": { "type": "string" },
+        "hardness_state": { "type": "string" }
+      }
+    },
+    "physical": {
+      "type": "object",
+      "required": ["density"],
+      "properties": {
+        "density": { "type": "number", "minimum": 0.5, "maximum": 25, "description": "g/cm³" },
+        "melting_point": { "type": "number", "description": "°C" },
+        "melting_range_min": { "type": "number" },
+        "melting_range_max": { "type": "number" },
+        "specific_heat": { "type": "number", "description": "J/(kg·K)" },
+        "electrical_resistivity": { "type": "number", "description": "μΩ·cm" },
+        "magnetic_permeability": { "type": "number" },
+        "poissons_ratio": { "type": "number", "minimum": 0, "maximum": 0.5 }
+      }
+    },
+    "mechanical": {
+      "type": "object",
+      "required": ["hardness"],
+      "properties": {
+        "hardness": {
+          "type": "object",
+          "properties": {
+            "brinell": { "type": "number", "description": "HB" },
+            "rockwell_b": { "type": "number", "description": "HRB" },
+            "rockwell_c": { "type": "number", "description": "HRC" },
+            "vickers": { "type": "number", "description": "HV" }
+          }
+        },
+        "tensile_strength": { "type": "number", "description": "MPa" },
+        "yield_strength": { "type": "number", "description": "MPa" },
+        "elongation": { "type": "number", "description": "%" },
+        "reduction_of_area": { "type": "number", "description": "%" },
+        "elastic_modulus": { "type": "number", "description": "GPa" },
+        "shear_modulus": { "type": "number", "description": "GPa" },
+        "fatigue_strength": { "type": "number", "description": "MPa" },
+        "impact_strength": { "type": "number", "description": "J (Charpy)" }
+      }
+    },
+    "thermal": {
+      "type": "object",
+      "required": ["thermal_conductivity"],
+      "properties": {
+        "thermal_conductivity": { "type": "number", "description": "W/(m·K)" },
+        "thermal_diffusivity": { "type": "number", "description": "mm²/s" },
+        "thermal_expansion": { "type": "number", "description": "μm/(m·K)" },
+        "max_service_temp": { "type": "number", "description": "°C" },
+        "min_service_temp": { "type": "number", "description": "°C" }
+      }
+    },
+    "machining": {
+      "type": "object",
+      "required": ["machinability_rating"],
+      "properties": {
+        "machinability_rating": { "type": "number", "minimum": 0, "maximum": 200, "description": "% relative to AISI 1212 = 100%" },
+        "recommended_speed_range": {
+          "type": "object",
+          "properties": {
+            "carbide_min": { "type": "number", "description": "m/min" },
+            "carbide_max": { "type": "number", "description": "m/min" },
+            "hss_min": { "type": "number", "description": "m/min" },
+            "hss_max": { "type": "number", "description": "m/min" },
+            "ceramic_min": { "type": "number" },
+            "ceramic_max": { "type": "number" }
+          }
+        },
+        "chip_formation": {
+          "type": "string",
+          "enum": ["continuous", "segmented", "discontinuous", "built_up_edge", "serrated"]
+        },
+        "surface_finish_achievable": { "type": "number", "description": "Ra μm" },
+        "work_hardening_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "abrasiveness": { "type": "string", "enum": ["none", "low", "moderate", "high", "extreme"] },
+        "recommended_coolant": { "type": "string", "enum": ["flood", "mist", "dry", "mql", "cryogenic", "high_pressure"] },
+        "tool_material_preference": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["hss", "carbide", "coated_carbide", "cermet", "ceramic", "cbn", "pcd"] }
+        }
+      }
+    },
+    "kienzle": {
+      "type": "object",
+      "description": "Kienzle cutting force coefficients",
+      "properties": {
+        "kc1_1": { "type": "number", "description": "Specific cutting force at h=1mm, b=1mm (N/mm²)" },
+        "mc": { "type": "number", "description": "Kienzle exponent (typically 0.2-0.35)" },
+        "kc1_1_axial": { "type": "number" },
+        "mc_axial": { "type": "number" },
+        "gamma_correction": { "type": "number", "description": "Rake angle correction factor" },
+        "wear_correction": { "type": "number", "description": "Tool wear correction factor" },
+        "speed_correction": { "type": "number", "description": "Cutting speed correction factor" }
+      }
+    },
+    "johnson_cook": {
+      "type": "object",
+      "description": "Johnson-Cook constitutive model parameters",
+      "properties": {
+        "A": { "type": "number", "description": "Initial yield stress (MPa)" },
+        "B": { "type": "number", "description": "Hardening modulus (MPa)" },
+        "n": { "type": "number", "description": "Hardening exponent" },
+        "C": { "type": "number", "description": "Strain rate sensitivity" },
+        "m": { "type": "number", "description": "Thermal softening exponent" },
+        "T_melt": { "type": "number", "description": "Melting temperature (K)" },
+        "T_ref": { "type": "number", "description": "Reference temperature (K)" },
+        "epsilon_dot_ref": { "type": "number", "description": "Reference strain rate (1/s)" }
+      }
+    },
+    "taylor": {
+      "type": "object",
+      "description": "Taylor tool life equation parameters",
+      "properties": {
+        "C": { "type": "number", "description": "Taylor constant" },
+        "n": { "type": "number", "description": "Taylor exponent" },
+        "reference_tool_life": { "type": "number", "description": "minutes" },
+        "reference_speed": { "type": "number", "description": "m/min" }
+      }
+    },
+    "tribology": {
+      "type": "object",
+      "properties": {
+        "friction_coefficient_dry": { "type": "number" },
+        "friction_coefficient_lubricated": { "type": "number" },
+        "adhesion_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "galling_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] }
+      }
+    },
+    "chemistry": {
+      "type": "object",
+      "description": "Chemical composition in weight %",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "applications": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Typical applications"
+    },
+    "notes": { "type": "string" },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Data sources and references"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "updated": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "layer": { "type": "string", "enum": ["CORE", "ENHANCED", "USER", "LEARNED"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "validation_status": { "type": "string", "enum": ["unvalidated", "partial", "validated", "verified"] }
+      }
+    }
+  }
+}
