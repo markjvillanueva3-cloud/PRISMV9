@@ -1,9 +1,18 @@
 # PRISM ROADMAP TRACKER — Milestone Completion Log
 
-[2026-02-14] P0-MS0a COMPLETE — All utility files, schemas, validations, tests created. 35/35 tests pass. Build clean (3.9MB). strictNullChecks active. Verified by file-by-file audit of existing code.
+[2026-02-14] P0-MS0a COMPLETE — Utilities, schemas, validations, tests. 35/35 tests. Build clean 3.9MB.
+[2026-02-14] P0-MS0b COMPLETE — Opus 4.6 wired. 31/31 dispatchers verified. Security foundation. Ω=0.77.
+[2026-02-14] P0-MS1 COMPLETE — 126/119 skills. skill_find_for_task verified. Guard OK.
+[2026-02-14] P0-MS2 COMPLETE — 62 hooks (100% coverage). Cadence executor active.
+[2026-02-14] P0-MS3 COMPLETE — 4/4 registry pairs resolved. Single-path confirmed.
+[2026-02-14] P0-MS4 COMPLETE — AutoPilot loads GSD v22.0. autopilot_d:working_tools OK.
+[2026-02-14] P0-MS5 COMPLETE — Generator: 42 domains, 95 patterns, 772 hooks.
+[2026-02-14] P0-MS6 COMPLETE — 8 swarm patterns. 75 agents. ATCS operational.
+[2026-02-14] P0-MS7 COMPLETE — All F-series dispatchers respond.
+[2026-02-14] P0-MS8 COMPLETE — 9/14 chains PASS, 3 BASELINE-INVALID, 1 KNOWN-FIX, 1 PARTIAL. Ω=0.77≥0.70 RELEASE_READY.
 
-[2026-02-14] P0-MS0b COMPLETE — Opus 4.6 wired. All 31 dispatchers verified live (31/31 respond). Imports wired (SafetyBlockError→calcDispatcher, crossFieldPhysics→calcDispatcher, materialSanity→dataDispatcher, atomicWrite→session+doc, SafetyBlockError→safety, getEffort→api-config). Security foundation: 127.0.0.1, REGISTRY_READONLY, input validation. Ω=0.77. Known issues: compliance.listProvisioned bug, thread data lookup M10x1.5 missing.
+=== PHASE P0 COMPLETE ===
 
-[2026-02-14] P0-MS1 COMPLETE — 126/119 skills registered (EXCEEDS target). skill_find_for_task: titanium→5 skills (cutting-mechanics, cutting-tools, material-enhancer, cognitive-core, master-equation), FANUC alarm→prism-fanuc-programming (1676 lines). Guard pattern_scan returns structured data. Skill size audit: prism-fanuc-programming=55KB, prism-cutting-mechanics=19KB, prism-cutting-tools=10KB (P0 budget OK).
+Artifacts produced: P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md, P0_CHAIN_RESULTS.md, SYSTEM_ACTIVATION_REPORT.md, PHASE_FINDINGS.md
 
-[2026-02-14] P0-MS2 COMPLETE — 62 hooks registered (100% coverage, 11 categories). Hook coverage: CALC(12), FILE(8), STATE(6), AGENT(9), BATCH(7), FORMULA(4), INTEL(3), DIAG(2), REFL(2), DISPATCH(3), ORCH(6). Build triggers gsd_sync cadence (verified: GSD v22.0 current). Cadence executor active (autoCheckpoint, autoTodoRefresh, autoCompactionDetect all firing as observed in _cadence blocks).
+NEXT: R1 (Registry Resurrection) — Load DATA into the wiring P0 fixed. Fix thread/alarm/safety/compliance data paths.

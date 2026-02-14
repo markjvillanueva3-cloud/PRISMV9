@@ -1,1 +1,1 @@
-CURRENT: P0-MS3 | LAST_COMPLETE: P0-MS2 2026-02-14 | PHASE: P0 in-progress | vars: dispatchers=31/31, skills=126, hooks=62, omega=0.77, build_warnings=14
+CURRENT: R1 (next phase) | LAST_COMPLETE: P0 2026-02-14 | PHASE: P0 COMPLETE | vars: dispatchers=31/31, skills=126, hooks=62, registries=4/4, omega=0.77, chains=9/14-PASS+3-BASELINE-INVALID+1-KNOWN-FIX+1-PARTIAL
