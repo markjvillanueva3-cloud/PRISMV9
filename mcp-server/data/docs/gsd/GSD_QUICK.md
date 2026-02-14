@@ -1,5 +1,5 @@
 # PRISM Quick Reference v22.0
-## 31 dispatchers | 368 verified actions | 30 cadence auto-functions | 37 engines | 112+6 hooks
+## 31 dispatchers | 368 verified actions | 33 cadence auto-functions | 37 engines | 112+6 hooks
 ## F1-F8 COMPLETE | W1-W7 COMPLETE | D1-D4 COMPLETE | See MASTER_INDEX.md for full reference
 
 ## SESSION LIFECYCLE
