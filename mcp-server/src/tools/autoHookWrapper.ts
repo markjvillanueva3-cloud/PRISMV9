@@ -1839,8 +1839,6 @@ export function wrapWithUniversalHooks(toolName, handler) {
             _original: parsed
           };
           result.content[0].text = JSON.stringify(hijacked);
-          compactionDetectedThisCall = false;;
-          result.content[0].text = JSON.stringify(hijacked);
           compactionDetectedThisCall = false;
         } else {
           result.content[0].text = JSON.stringify(parsed);
@@ -1874,6 +1872,28 @@ export function wrapWithUniversalHooks(toolName, handler) {
       }
     }
     recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, error?.message);
+    // CRITICAL: Write survival data on EVERY call so compaction recovery always has current state
+    try {
+      const survivalData = {
+        captured_at: new Date().toISOString(),
+        call_number: callNum,
+        session: process.env.SESSION_ID || "unknown",
+        phase: cadence.todo?.taskName || cadence.pressure?.phase || "unknown",
+        current_task: `Working with ${toolName}:${action2} (call ${callNum})`,
+        recent_actions: recentToolCalls.slice(-10),
+        key_findings: cadence.actions.filter((a: string) => !a.startsWith("TODO") && !a.startsWith("PRESSURE")).slice(-5),
+        active_files: [],
+        todo_snapshot: cadence.todo?.raw?.slice?.(0, 1000) || "",
+        quick_resume: `Phase: ${cadence.todo?.taskName || "unknown"}, Call: ${callNum}, Last: ${toolName}:${action2}`,
+        next_action: cadence.todo?.nextStep || null,
+      };
+      fs.writeFileSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
+      // Also keep HOT_RESUME.md current on every call
+      const hrPath = path.join(STATE_DIR12, "HOT_RESUME.md");
+      const recentStr = recentToolCalls.slice(-8).map(t => `- ${t}`).join("\n");
+      const hotContent = `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## What Just Happened\nLast call: ${toolName}:${action2} (call ${callNum}, ${durationMs}ms, ${error ? "FAILED" : "OK"})\n\n## Recent Calls\n${recentStr}\n\n## Cadence Actions This Call\n${cadence.actions.slice(-5).map((a: string) => `- ${a}`).join("\n")}\n\n## Recovery\nRead ACTION_TRACKER.md for pending items. Transcripts: /mnt/transcripts/\n`;
+      fs.writeFileSync(hrPath, hotContent);
+    } catch { /* non-fatal */ }
     if (error) throw error;
     return result;
   };
