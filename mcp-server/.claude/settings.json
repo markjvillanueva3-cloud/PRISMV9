@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "prism": {
+      "command": "node",
+      "args": ["C:\\PRISM\\mcp-server\\dist\\index.js"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "CADENCE_VERBOSITY": "critical",
+        "NODE_ENV": "production"
+      }
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm run build:fast)", 
+      "Bash(powershell*verify-build*)",
+      "Bash(git *)",
+      "Read(C:\\PRISM\\**)",
+      "Write(C:\\PRISM\\mcp-server\\src\\**)",
+      "Write(C:\\PRISM\\mcp-server\\data\\**)",
+      "Write(C:\\PRISM\\mcp-server\\scripts\\**)",
+      "Write(C:\\PRISM\\state\\**)"
+    ],
+    "deny": [
+      "Write(C:\\PRISM\\mcp-server\\src\\data\\goldenBenchmarks.json)"
+    ]
+  }
+}
