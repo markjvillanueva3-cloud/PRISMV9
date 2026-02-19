@@ -37,7 +37,7 @@ import {
 // STATE
 // ============================================================================
 
-const STATE_DIR = path.join(process.cwd(), 'state', 'nl_hooks');
+const STATE_DIR = path.join("C:\\PRISM\\mcp-server", 'state', 'nl_hooks');
 const REGISTRY_FILE = path.join(STATE_DIR, 'registry.json');
 const CONFIG_FILE = path.join(STATE_DIR, 'config.json');
 
@@ -216,7 +216,8 @@ export class NLHookEngine {
     } catch { /* use defaults */ }
     try {
       if (fs.existsSync(REGISTRY_FILE)) {
-        const records: NLHookRecord[] = JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf-8'));
+        const raw = JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf-8'));
+        const records: NLHookRecord[] = Array.isArray(raw) ? raw : (raw.hooks || []);
         for (const rec of records) this.registry.set(rec.id, rec);
         log.info(`[NLHookEngine] Loaded ${this.registry.size} NL hooks from registry`);
       }
@@ -228,7 +229,7 @@ export class NLHookEngine {
     try {
       ensureStateDir();
       const records = Array.from(this.registry.values());
-      fs.writeFileSync(REGISTRY_FILE, JSON.stringify(records, null, 2));
+      fs.writeFileSync(REGISTRY_FILE, JSON.stringify({ hooks: records, version: 1, last_updated: new Date().toISOString() }, null, 2));
     } catch (e: any) {
       log.warn(`[NLHookEngine] Failed to save registry: ${e.message}`);
     }

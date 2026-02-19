@@ -1,6 +1,21 @@
 /**
  * autoHookWrapper.ts - Universal hook/cadence system
- * RECOVERED from dist/index.js bundle on 2026-02-10T00:38:09.318Z
+ * 
+ * RECOVERED AND RECONSTRUCTED: 2026-02-18
+ * Source: dist/index.js bundle extraction (autoHookWrapper.recovered.js, 1820 lines)
+ * 
+ * This file wraps every MCP dispatcher with:
+ *   - Safety validation hooks (Λ/Φ scores)
+ *   - Cadence-based auto-fire functions (todo, checkpoint, pressure, etc.)
+ *   - Telemetry, memory graph, and certificate integration
+ *   - Compaction detection and recovery
+ *   - Anti-regression and error learning
+ *   - DA-MS11 enforcement: phase skills, context matching, NL hooks, hook activation
+ * 
+ * EXPORTS: wrapToolWithAutoHooks, wrapWithUniversalHooks, getDispatchCount,
+ *          AUTO_HOOK_CONFIG, registerAutoHookTools, getHookHistory, resetReconFlag
+ * 
+ * BACKUP POLICY: Always run backup-before-edit.ps1 before modifying this file.
  */
 import * as fs from "fs";
 import * as path from "path";
@@ -15,14 +30,27 @@ import {
   autoTodoRefresh, autoCheckpoint, autoContextPressure,
   autoContextCompress, autoCompactionDetect, autoCompactionSurvival,
   rehydrateFromSurvival, autoAttentionScore, autoContextPullBack,
-  autoRecoveryManifest, autoHandoffPackage, markHandoffResumed
+  autoRecoveryManifest, autoHandoffPackage, markHandoffResumed,
+  autoPreCompactionDump,
+  autoPreTaskRecon, autoWarmStartData, autoContextRehydrate,
+  autoInputValidation, autoErrorLearn, autoD3ErrorChain,
+  autoD3LkgUpdate, autoAntiRegression, autoDecisionCapture,
+  autoQualityGate, autoVariationCheck,
+  autoD4CacheCheck, autoD4DiffCheck, autoD4BatchTick,
+  autoTelemetrySnapshot,
+  autoPythonCompactionPredict, autoPythonCompress, autoPythonExpand
+} from "./cadenceExecutor.js";
+import {
+  autoSkillHint, autoKnowledgeCrossQuery, autoDocAntiRegression, autoAgentRecommend,
+  autoScriptRecommend,
+  autoPhaseSkillLoader, autoSkillContextMatch, autoNLHookEvaluator,
+  autoHookActivationPhaseCheck, autoD4PerfSummary
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
-import { autoSkillHint, autoKnowledgeCrossQuery, autoDocAntiRegression, autoAgentRecommend } from "./cadenceExecutor.js";
 import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
 import { TelemetryEngine } from "../engines/TelemetryEngine.js";
 import { MemoryGraphEngine } from "../engines/MemoryGraphEngine.js";
-import { PredictiveFailureEngine } from "../engines/PredictiveFailureEngine.js";
+import { PredictiveFailureEngine, pfpEngine } from "../engines/PredictiveFailureEngine.js";
 import { computationCache } from "../engines/ComputationCache.js";
 import {
   recordSessionToolCall, recordSessionHook, recordSessionSkillInjection,
@@ -32,23 +60,57 @@ import {
 } from "../engines/SessionLifecycleEngine.js";
 import { autoManusATCSPoll, getBridgeStatus } from "../engines/ManusATCSBridge.js";
 
-// hookExecutor imported as singleton from HookExecutor.ts — shares instance with hookRegistration
-let telemetryEngine: TelemetryEngine | null = null;
-let memoryGraphEngine: MemoryGraphEngine | null = null;
-let pfpEngine: PredictiveFailureEngine | null = null;
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
 
-function getTelemetry(): TelemetryEngine {
-  if (!telemetryEngine) telemetryEngine = TelemetryEngine.getInstance();
-  return telemetryEngine;
+// H1-MS4: Decision logging — top-level function to prevent tree-shaking
+const DECISION_ACTIONS = new Set([
+  "strategy_select", "speed_feed", "tool_recommend", "cross_query",
+  "cutting_force", "tool_life", "coolant_strategy", "multi_pass"
+]);
+
+function logDecisionIfApplicable(
+  toolName: string, action: string, args: any, result: any, error: any, durationMs: number
+): void {
+  try {
+    if (!DECISION_ACTIONS.has(action) || error) return;
+    const resultText = result?.content?.[0]?.text || "";
+    let parsed: any = {};
+    try { parsed = JSON.parse(resultText); } catch { /* not JSON */ }
+    const entry = {
+      ts: new Date().toISOString(),
+      session: process.env.SESSION_ID || "unknown",
+      type: "auto_decision",
+      dispatcher: toolName,
+      action,
+      params: typeof args.params === "object" ? JSON.stringify(args.params).slice(0, 300) : "",
+      chosen: (parsed.strategy_id || parsed.name || parsed.strategy || resultText.slice(0, 100)),
+      duration_ms: durationMs,
+    };
+    const decLogPath = path.join("C:", "PRISM", "state", "DECISION_LOG.jsonl");
+    fs.appendFileSync(decLogPath, JSON.stringify(entry) + "\n");
+  } catch { /* decision logging non-fatal */ }
 }
-function getMemoryGraph(): MemoryGraphEngine {
-  if (!memoryGraphEngine) memoryGraphEngine = MemoryGraphEngine.getInstance();
-  return memoryGraphEngine;
+
+let telemetryEngine: any = null;
+
+// H1-MS4: Error→Fix tracking in LEARNING_LOG
+export function logErrorFix(errorSignature: string, dispatcher: string, action: string, fix: string, file?: string): void {
+  try {
+    const entry = {
+      ts: new Date().toISOString(),
+      type: "error_fix",
+      error_signature: errorSignature,
+      dispatcher, action, fix, file,
+      session: process.env.SESSION_ID || "unknown",
+    };
+    const logPath = path.join("C:", "PRISM", "state", "LEARNING_LOG.jsonl");
+    fs.appendFileSync(logPath, JSON.stringify(entry) + "\n");
+  } catch { /* non-fatal */ }
 }
-function getPFP(): PredictiveFailureEngine {
-  if (!pfpEngine) pfpEngine = PredictiveFailureEngine.getInstance();
-  return pfpEngine;
-}
+
+
 
 export var AUTO_HOOK_CONFIG = {
   enabled: true,
@@ -104,31 +166,30 @@ export var AUTO_HOOK_CONFIG = {
   }
 };
 var hookHistory = [];
-var MAX_HISTORY = 1e3;
+var MAX_HISTORY = 1000;
 function logHookExecution(execution) {
   hookHistory.unshift(execution);
   if (hookHistory.length > MAX_HISTORY) {
     hookHistory.pop();
   }
-  // P0 BRIDGE: Feed execution data to HookEngine for unified telemetry
   try {
     hookEngine.recordExternalExecution({
       hookId: execution.hook_id || execution.hookId || "unknown",
-      timestamp: execution.timestamp || new Date().toISOString(),
+      timestamp: execution.timestamp || (/* @__PURE__ */ new Date()).toISOString(),
       success: execution.success !== false,
       duration_ms: Math.max(0, Number(execution.duration_ms) || 0),
       source: "autoHookWrapper",
       event: execution.event || "cadence"
     });
   } catch (e) {
-    // Telemetry failures are NON-BLOCKING per P0 spec — log to stderr only
-    process.stderr.write(`[PRISM-TELEMETRY-WARN] Bridge failed: ${e instanceof Error ? e.message : String(e)}\n`);
+    process.stderr.write(`[PRISM-TELEMETRY-WARN] Bridge failed: ${e instanceof Error ? e.message : String(e)}
+`);
   }
 }
 export function getHookHistory(limit = 50) {
   return hookHistory.slice(0, limit);
 }
-export function validateSafetyProof(context) {
+function validateSafetyProof(context) {
   const { tool_name, inputs, result } = context;
   const issues = [];
   let validityScore = 1;
@@ -185,7 +246,7 @@ export function validateSafetyProof(context) {
     issues
   };
 }
-export function verifyFactualClaims(content) {
+function verifyFactualClaims(content) {
   const detectedClaims = [];
   const lowerContent = content.toLowerCase();
   for (const indicator of AUTO_HOOK_CONFIG.claimIndicators) {
@@ -231,7 +292,7 @@ export function verifyFactualClaims(content) {
     caveats
   };
 }
-export async function fireHook(hookId, data) {
+async function fireHook(hookId, data) {
   const startTime = Date.now();
   try {
     const hookContext = {
@@ -405,7 +466,7 @@ var lastPressureCheck = 0;
 var lastCompactionCheck = 0;
 var lastAttentionCheck = 0;
 var handoffFired = false;
-var handoffFired = false;  // F2.4: One-time yellow zone handoff trigger
+var handoffFired = false;
 var accumulatedResultBytes = 0;
 var largestResultBytes = 0;
 var totalResultCount = 0;
@@ -415,30 +476,22 @@ var lastVariationCheck = 0;
 var lastCallTimestamp = 0;
 var compactionRecoveryCallsRemaining = 0;
 var compactionRecoverySurvival = null;
-var recentToolCalls: string[] = []; // Track last N tool:action calls for better survival context
+var recentToolCalls = [];
 var RECENT_ACTIONS_FILE = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
-const STATE_DIR = "C:\\PRISM\\state";
-
-/**
- * Build a rich currentTask description from all available context.
- * Used by autoCompactionSurvival for meaningful recovery instructions.
- */
-function buildCurrentTaskDescription(cadence: any, toolName: string, action: string): string {
-  // Priority 1: Todo-based focus (most reliable if populated)
+var STATE_DIR12 = "C:\\PRISM\\state";
+function buildCurrentTaskDescription(cadence, toolName, action2) {
   const todoFocus = cadence.todo?.currentFocus || cadence.todo?.taskName;
   if (todoFocus && todoFocus !== "Initialization" && todoFocus !== "Session startup") {
-    return `${todoFocus} (last: ${toolName}:${action})`;
+    return `${todoFocus} (last: ${toolName}:${action2})`;
   }
-  // Priority 2: Build task from recent tool calls pattern
   if (recentToolCalls.length >= 3) {
     const unique = [...new Set(recentToolCalls.slice(-5))];
     return `Working with ${unique.join(", ")} (${recentToolCalls.length} calls)`;
   }
-  // Priority 3: Current tool call context
-  return `${toolName}:${action} (call #${cadence.call_number})`;
+  return `${toolName}:${action2} (call #${cadence.call_number})`;
 }
 var MAX_RECORDED_ACTIONS = 12;
-function recordFlightAction(callNum, toolName, action2, params, success, durationMs, result, errorMsg) {
+function recordFlightAction(callNum, toolName, action2, params2, success, durationMs, result, errorMsg) {
   try {
     let actions = [];
     if (fs.existsSync(RECENT_ACTIONS_FILE)) {
@@ -449,7 +502,7 @@ function recordFlightAction(callNum, toolName, action2, params, success, duratio
     }
     let paramsSummary = "{}";
     try {
-      const p = params?.params || params || {};
+      const p = params2?.params || params2 || {};
       const keys = Object.keys(p);
       if (keys.length > 0) {
         paramsSummary = keys.map((k) => {
@@ -513,48 +566,40 @@ export function wrapWithUniversalHooks(toolName, handler) {
     const callNum = globalDispatchCount;
     const cadence = { call_number: callNum, actions: [] };
     let compactionDetectedThisCall = false;
-
-    // W6.1: _notes capture — strip from params, append to SESSION_JOURNAL.jsonl
-    const journalPath = path.join(STATE_DIR, "SESSION_JOURNAL.jsonl");
+    const journalPath = path.join(STATE_DIR12, "SESSION_JOURNAL.jsonl");
     const userNotes = args[0]?.params?._notes;
     if (userNotes) {
-      delete args[0].params._notes; // Strip before dispatcher sees it
+      delete args[0].params._notes;
     }
-    // Always log tool call; include notes if provided
     try {
       const entry = JSON.stringify({
-        ts: new Date().toISOString(),
+        ts: (/* @__PURE__ */ new Date()).toISOString(),
         call: callNum,
         tool: toolName,
         action: action2,
         notes: userNotes || null,
-        params_hint: Object.keys(args[0]?.params || {}).filter(k => k !== '_notes').join(',')
+        params_hint: Object.keys(args[0]?.params || {}).filter((k) => k !== "_notes").join(",")
       }) + "\n";
       fs.appendFileSync(journalPath, entry);
-      // Rotate: keep last 100 entries if file exceeds 200
       try {
-        const stat = fs.statSync(journalPath);
-        if (stat.size > 50000) { // ~50KB, roughly 200+ entries
+        const stat3 = fs.statSync(journalPath);
+        if (stat3.size > 5e4) {
           const all = fs.readFileSync(journalPath, "utf-8").trim().split("\n");
           if (all.length > 200) {
             fs.writeFileSync(journalPath, all.slice(-100).join("\n") + "\n");
           }
         }
-      } catch {}
-    } catch {}
-
-    // Track tool calls for better survival context
+      } catch {
+      }
+    } catch {
+    }
     recentToolCalls.push(`${toolName}:${action2}`);
     if (recentToolCalls.length > 20) recentToolCalls = recentToolCalls.slice(-20);
     const now = Date.now();
     if (lastCallTimestamp > 0 && compactionRecoveryCallsRemaining <= 0) {
-      const gapSeconds = (now - lastCallTimestamp) / 1e3;
-      // FIX W6.2: Raised from 30s to 120s — 30s triggers on normal reading between tool calls
-      // Also trigger on session_boot being called mid-session (strong compaction signal)
-      const isSessionReboot = (action2 === "session_boot" && firstCallReconDone);
-      if ((gapSeconds > 120 && firstCallReconDone) || isSessionReboot) {
-        // AGGRESSIVE FIX: On first call after compaction, HIJACK the response entirely
-        // Don't just inject metadata — make the response itself be the recovery instruction
+      const gapSeconds = (now - lastCallTimestamp) / 1000;
+      const isSessionReboot = action2 === "session_boot" && firstCallReconDone;
+      if (gapSeconds > 120 && firstCallReconDone || isSessionReboot) {
         compactionDetectedThisCall = true;
         try {
           const rehydrateResult = autoContextRehydrate(callNum);
@@ -571,7 +616,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
               next_action: survival.next_action || null,
               age_minutes: rehydrateResult.age_minutes
             };
-            compactionRecoveryCallsRemaining = 5;
+            compactionRecoveryCallsRemaining = 1;
             compactionRecoverySurvival = cadence.rehydrated;
           }
         } catch {
@@ -610,11 +655,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
           }
         } catch {
         }
-        // D1.3: Agent recommendation on first call
         try {
           const agentRec = autoAgentRecommend(callNum, toolName, action2, args[0]?.params || {});
           if (agentRec.hint) {
-            cadence.actions.push(`🤖 AGENT_REC: ${agentRec.hint}`);
+            cadence.actions.push(`\u{1F916} AGENT_REC: ${agentRec.hint}`);
             cadence.agent_recommend = agentRec;
           }
         } catch {
@@ -635,15 +679,12 @@ export function wrapWithUniversalHooks(toolName, handler) {
               next_action: rehydrated.next_action || null,
               age_minutes: rehydrateResult.age_minutes
             };
-            // FIX: Also trigger recovery mode on fresh server if survival data exists
-            // This catches: server restart after compaction (gap detection won't fire)
-            // BUT: Exclude session_boot — that's a legitimate new session, not compaction
-            const isLegitBoot = (action2 === "session_boot");
-            if (rehydrateResult.age_minutes < 240 && !isLegitBoot) { // < 4 hours old
-              compactionRecoveryCallsRemaining = 5;
+            const isLegitBoot = action2 === "session_boot";
+            if (rehydrateResult.age_minutes < 240 && !isLegitBoot) {
+              compactionRecoveryCallsRemaining = 1;
               compactionRecoverySurvival = cadence.rehydrated;
-              compactionDetectedThisCall = true; // Trigger aggressive hijack
-              cadence.actions.push("⚠️ RECOVERY_TRIGGERED: Fresh survival data found on server start — likely post-compaction");
+              compactionDetectedThisCall = true;
+              cadence.actions.push("\u26A0\uFE0F RECOVERY_TRIGGERED: Fresh survival data found on server start \u2014 likely post-compaction");
             }
           }
         } catch {
@@ -674,7 +715,6 @@ export function wrapWithUniversalHooks(toolName, handler) {
         category: mapping.category
       });
     }
-    // Fire domain hooks for agent/orchestration phases (HookExecutor system)
     if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
       try {
         const domainPhase = mapping.category === "ORCH" ? "pre-swarm-execute" : "pre-agent-execute";
@@ -682,11 +722,14 @@ export function wrapWithUniversalHooks(toolName, handler) {
           operation: action2,
           target: { type: "dispatcher", id: `${toolName}:${action2}` },
           metadata: {
-            dispatcher: toolName, action: action2, call_number: callNum,
-            ...(args[0]?.params || {})
+            dispatcher: toolName,
+            action: action2,
+            call_number: callNum,
+            ...args[0]?.params || {}
           }
         });
-      } catch { /* domain hooks are advisory, don't block dispatch */ }
+      } catch {
+      }
     }
     let inputBlocked = false;
     try {
@@ -729,7 +772,34 @@ export function wrapWithUniversalHooks(toolName, handler) {
         }]
       };
     } else {
-      const cacheKey = `${toolName}:${action2}`;
+      // === PFP PRE-FILTER (B1) ===
+      let pfpBlocked = false;
+      let pfpAssessment: any = null;
+      try {
+        pfpAssessment = pfpEngine.assessRisk(toolName, action2, args[0]?.params || {}, 0, callNum);
+        if (pfpAssessment && pfpAssessment.riskLevel === 'RED' && pfpAssessment.recommendation === 'PRE_FILTER') {
+          pfpBlocked = true;
+          cadence.actions.push(`??? PFP_BLOCKED: ${toolName}:${action2} risk=${(pfpAssessment.riskScore * 100).toFixed(0)}% (${pfpAssessment.matchedPatterns?.length || 0} patterns)`);
+        } else if (pfpAssessment && pfpAssessment.riskLevel === 'YELLOW') {
+          cadence.actions.push(`?? PFP_WARNING: ${toolName}:${action2} risk=${(pfpAssessment.riskScore * 100).toFixed(0)}%`);
+        }
+      } catch { /* PFP failure = proceed normally (fail-open) */ }
+
+      if (pfpBlocked) {
+        result = {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              error: `??? PFP PRE-FILTER BLOCK: High failure probability for ${toolName}:${action2}`,
+              risk_score: pfpAssessment?.riskScore,
+              matched_patterns: pfpAssessment?.matchedPatterns?.length || 0,
+              guidance: "This action has a high historical failure rate. Review parameters and retry.",
+              _cadence: cadence
+            })
+          }]
+        };
+      } else {
+            const cacheKey = `${toolName}:${action2}`;
       const cacheResult = computationCache.get(cacheKey, args[0]?.params || args[0] || {});
       if (cacheResult.hit) {
         result = cacheResult.value;
@@ -737,6 +807,8 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } else {
         try {
           result = await handler.apply(this, args);
+            // FIX 5: Slim main tool response based on pressure
+            try { const _sl = getSlimLevel(getCurrentPressurePct()); if (_sl !== "NORMAL") { const txt = result?.content?.[0]?.text; if (txt) { try { const _p = JSON.parse(txt); result.content[0].text = JSON.stringify(slimJsonResponse(_p, _sl)); } catch {} } } } catch {}
           if (!error) {
             try {
               computationCache.set(cacheKey, args[0]?.params || args[0] || {}, result);
@@ -783,7 +855,13 @@ export function wrapWithUniversalHooks(toolName, handler) {
         }
       }
     }
-    const durationMs = Date.now() - startTime;
+    } // end PFP else block
+        const durationMs = Date.now() - startTime;
+    // === PFP OUTCOME RECORDING (B1) ===
+    try {
+      const pfpOutcome = error ? 'failure' : 'success';
+      pfpEngine.recordAction(toolName, action2, pfpOutcome as any, durationMs, error?.constructor?.name, args[0]?.params || {});
+    } catch { /* PFP recording failure is non-fatal */ }
     await fireHook("DISPATCH-PERF-TRACK-001", {
       tool_name: toolName,
       action: action2,
@@ -799,7 +877,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       const errorClass = error ? error.constructor?.name || "UnknownError" : undefined;
       const payloadSize = result?.content?.[0]?.text?.length || 0;
       const pressurePct = cadence.pressure?.pressure_pct ?? 0;
-      telemetryEngine.record(
+      telemetryEngine2.record(
         toolName,
         action2,
         telemetryStartMs,
@@ -809,11 +887,11 @@ export function wrapWithUniversalHooks(toolName, handler) {
         payloadSize,
         pressurePct
       );
-      telemetryEngine.recordWrapperOverhead(durationMs < 1 ? 0 : 0.1);
+      telemetryEngine2.recordWrapperOverhead(durationMs < 1 ? 0 : 0.1);
     } catch {
     }
     try {
-      const { memoryGraphEngine: memoryGraphEngine2 } = (init_MemoryGraphEngine(), __toCommonJS(MemoryGraphEngine_exports));
+      const { memoryGraphEngine: memoryGraphEngine2 } = await import("../engines/MemoryGraphEngine.js");
       const paramsSummary = typeof args.params === "object" ? JSON.stringify(args.params).slice(0, 200) : String(args.params || "").slice(0, 200);
       const resultSummary = result?.content?.[0]?.text?.slice(0, 200) || "";
       const errorClass = error ? error.constructor?.name || "UnknownError" : undefined;
@@ -829,8 +907,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
       );
     } catch {
     }
+    // H1-MS4: Auto-capture decisions for high-value actions
+    logDecisionIfApplicable(toolName, action2, args, result, error, durationMs);
     try {
-      const { certificateEngine: certificateEngine2 } = (init_CertificateEngine(), __toCommonJS(CertificateEngine_exports));
+      const { certificateEngine: certificateEngine2 } = await import("../engines/CertificateEngine.js");
       const validationSteps = [];
       if (mapping) {
         validationSteps.push({
@@ -885,16 +965,18 @@ export function wrapWithUniversalHooks(toolName, handler) {
             build_call: callNum,
             completed: { skills: false, hooks: false, gsd: false, memories: false, orchestrators: false, state: false, scripts: false }
           }, null, 2));
-          // W1.2: Auto-sync GSD after successful build
           try {
             const syncOut = execSync(`py -3 "${path.join("C:\\PRISM\\scripts\\core", "gsd_sync_v2.py")}" --apply --json`, {
-              encoding: "utf-8", timeout: 15000, cwd: "C:\\PRISM\\scripts\\core"
+              encoding: "utf-8",
+              timeout: 15e3,
+              cwd: "C:\\PRISM\\scripts\\core"
             }).trim();
             const syncResult = JSON.parse(syncOut);
             if (syncResult.changed) {
-              cadence.actions.push(`📊 GSD_SYNC: ${syncResult.changes?.length || 0} changes applied`);
+              cadence.actions.push(`\u{1F4CA} GSD_SYNC: ${syncResult.changes?.length || 0} changes applied`);
             }
-          } catch { /* non-blocking — gsd_sync failure doesn't break builds */ }
+          } catch {
+          }
         }
       } catch {
       }
@@ -958,7 +1040,6 @@ export function wrapWithUniversalHooks(toolName, handler) {
         });
       } catch {
       }
-      // Fire domain post-hooks for agent/orchestration (HookExecutor system)
       if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
         try {
           const domainPhase = mapping.category === "ORCH" ? "post-swarm-complete" : "post-agent-execute";
@@ -966,12 +1047,16 @@ export function wrapWithUniversalHooks(toolName, handler) {
             operation: action2,
             target: { type: "dispatcher", id: `${toolName}:${action2}` },
             metadata: {
-              dispatcher: toolName, action: action2, call_number: callNum,
-              duration_ms: durationMs, success: true,
-              ...(args[0]?.params || {})
+              dispatcher: toolName,
+              action: action2,
+              call_number: callNum,
+              duration_ms: durationMs,
+              success: true,
+              ...args[0]?.params || {}
             }
           });
-        } catch { /* domain hooks advisory */ }
+        } catch {
+        }
       }
     }
     let resultBytes = 0;
@@ -1034,28 +1119,26 @@ export function wrapWithUniversalHooks(toolName, handler) {
     totalResultCount++;
     if (resultBytes > largestResultBytes) largestResultBytes = resultBytes;
     const avgResultBytes = totalResultCount > 0 ? Math.round(accumulatedResultBytes / totalResultCount) : 0;
-    // D1.3+D1.4: Classify domain ONCE, share between agent_recommend and skill_hint
-    let classifiedDomain: string | undefined;
+    let classifiedDomain;
     const mfgDispatchers = ["prism_calc", "prism_safety", "prism_thread", "prism_toolpath", "prism_data", "prism_orchestrate", "prism_atcs"];
     if (!error && mfgDispatchers.includes(toolName)) {
-      // D1.3: Agent/Swarm recommend (runs first to classify domain)
       try {
         const agentRec = autoAgentRecommend(callNum, toolName, action2, args[0]?.params || {});
         if (agentRec.hint) {
-          cadence.actions.push(`🤖 AGENT_REC: ${agentRec.hint}`);
+          cadence.actions.push(`\u{1F916} AGENT_REC: ${agentRec.hint}`);
           cadence.agent_recommend = agentRec;
         }
-        // Extract domain for downstream use
         classifiedDomain = agentRec.classification?.domain;
-      } catch {}
-      // D1.4: Skill hints (uses classified domain to avoid double-classification)
+      } catch {
+      }
       try {
         const skillHint = autoSkillHint(callNum, toolName, action2, args[0]?.params || {}, classifiedDomain);
         if (skillHint.hints.length > 0) {
-          cadence.actions.push(`💡 SKILL_HINTS: ${skillHint.hints.length} from [${skillHint.skill_ids.join(", ")}]`);
+          cadence.actions.push(`\u{1F4A1} SKILL_HINTS: ${skillHint.hints.length} from [${skillHint.skill_ids.join(", ")}]`);
           cadence.skill_hints = skillHint;
         }
-      } catch {}
+      } catch {
+      }
     }
     if (!error && ["prism_calc", "prism_safety", "prism_thread", "prism_data", "prism_atcs"].includes(toolName)) {
       try {
@@ -1067,14 +1150,13 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } catch {
       }
     }
-    // P3B: Auto Response Template injection — format hints for manufacturing results
     if (!error && ["prism_calc", "prism_data", "prism_safety", "prism_thread", "prism_toolpath"].includes(toolName)) {
       try {
         const pressurePct = getCurrentPressurePct();
         const resultStr = typeof rawResult === "string" ? rawResult : JSON.stringify(rawResult);
         const templateMatch = autoResponseTemplate(toolName, action2, resultStr, pressurePct);
         if (templateMatch) {
-          cadence.actions.push(`📋 TEMPLATE: ${templateMatch.template_id} (${templateMatch.size_level})`);
+          cadence.actions.push(`\u{1F4CB} TEMPLATE: ${templateMatch.template_id} (${templateMatch.size_level})`);
           cadence.response_template = templateMatch;
         }
       } catch {
@@ -1085,24 +1167,65 @@ export function wrapWithUniversalHooks(toolName, handler) {
       const todoResult = autoTodoRefresh(callNum);
       cadence.actions.push(todoResult.success ? "TODO_AUTO_REFRESHED" : "TODO_REFRESH_FAILED");
       cadence.todo = todoResult;
+      // H1: Also write HOT_RESUME at todo cadence (every 5 calls, more frequent than checkpoint@10)
+      try {
+        const hrPath5 = "C:\\PRISM\\state\\HOT_RESUME.md";
+        const cpPath5 = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+        let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
+        let errs5 = ""; try { const ep = "C:\\PRISM\\state\\ERROR_LOG.jsonl"; if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
+        const ra5 = (() => { try { return JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions?.slice(-8)?.map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
+        fs.writeFileSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
+      } catch {}
       await fireHook("STATE-SESSION-BOUNDARY-001", {
         event: "cadence_todo_executed",
         call_number: callNum,
         success: todoResult.success,
         preview: todoResult.todo_preview
       });
-      // F2.2: Recovery manifest — single file with everything needed to continue
       try {
         const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
         const pct = cadence.pressure?.pressure_pct || 0;
         const manifestResult = autoRecoveryManifest(callNum, pct, cadence.actions, currentTask);
-        if (manifestResult.success) cadence.actions.push("📋 RECOVERY_MANIFEST_SAVED");
-      } catch {}
+        if (manifestResult.success) cadence.actions.push("\u{1F4CB} RECOVERY_MANIFEST_SAVED");
+      } catch {
+      }
     }
     if (callNum - lastCheckpointReminder >= 10) {
       lastCheckpointReminder = callNum;
       const cpResult = autoCheckpoint(callNum);
       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
+          // TOKEN OPT v2: Write HOT_RESUME.md at checkpoint cadence
+          try {
+            const hrPath = "C:\\PRISM\\state\\HOT_RESUME.md";
+            const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+            let positionContent = "";
+            try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch {}
+            // Read recent errors for context
+            let recentErrors = "";
+            try {
+              const errPath = "C:\\PRISM\\state\\ERROR_LOG.jsonl";
+              if (fs.existsSync(errPath)) {
+                const errLines = fs.readFileSync(errPath, "utf-8").trim().split("\n").filter(Boolean).slice(-3);
+                const errs = errLines.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; } }).filter(Boolean);
+                if (errs.length) recentErrors = "Recent errors: " + errs.join(" | ");
+              }
+            } catch {}
+            const hotContent = [
+              "# HOT_RESUME (auto-generated call " + callNum + " — " + new Date().toISOString() + ")",
+              "",
+              "## Position",
+              positionContent,
+              "",
+              "## Recent Activity",
+              (() => { try { const ra = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || []; return ra.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n"); } catch { return "unavailable"; } })(),
+              "",
+              recentErrors ? "## Errors\n" + recentErrors + "\n" : "",
+              "## Recovery",
+              "Continue the task in Position above. Do NOT re-audit or ask user what to do.",
+              "Transcripts: /mnt/transcripts/"
+            ].join("\n");
+            fs.writeFileSync(hrPath, hotContent);
+          } catch {}
       cadence.checkpoint = cpResult;
       await fireHook("STATE-CHECKPOINT-CREATE-001", {
         event: "cadence_checkpoint_executed",
@@ -1143,6 +1266,16 @@ export function wrapWithUniversalHooks(toolName, handler) {
         estimated_tokens: pressureResult.estimated_tokens,
         recommendation: pressureResult.recommendation
       });
+      if (pressureResult.pressure_pct >= 55) {
+        try {
+          const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
+          const dumpResult = autoPreCompactionDump(callNum, pressureResult.pressure_pct, cadence.actions, currentTask);
+          if (dumpResult.success) {
+            cadence.actions.push(`\u{1F4BE} PRE_COMPACTION_DUMP: pos=${dumpResult.position_saved} snap=${dumpResult.snapshot_saved}`);
+          }
+        } catch {
+        }
+      }
       if (pressureResult.pressure_pct >= 70) {
         const compressResult = autoContextCompress(callNum, {
           task: "Active session \u2014 auto-triggered by high pressure",
@@ -1315,21 +1448,20 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } catch {
       }
     }
-    // W1.3: Doc anti-regression — protect skills & docs from content loss
-    const isFileWrite = (toolName === "prism_dev" && action2 === "file_write") || (toolName === "prism_doc" && (action2 === "write" || action2 === "append"));
+    const isFileWrite = toolName === "prism_dev" && action2 === "file_write" || toolName === "prism_doc" && (action2 === "write" || action2 === "append");
     if (isFileWrite && args[0]?.params?.content && (args[0]?.params?.path || args[0]?.params?.name)) {
       try {
         const docPath = args[0].params.path || path.join("C:\\PRISM\\mcp-server\\data\\docs", args[0].params.name);
         const docResult = autoDocAntiRegression(docPath, args[0].params.content);
         if (docResult.severity === "BLOCK" && !args[0]?.params?.bypass_doc_regression) {
-          cadence.actions.push(`🛑 DOC_ANTI_REGRESSION_BLOCKED: ${docResult.file} (${docResult.old_lines}→${docResult.new_lines}, -${docResult.reduction_pct}%)`);
+          cadence.actions.push(`\u{1F6D1} DOC_ANTI_REGRESSION_BLOCKED: ${docResult.file} (${docResult.old_lines}\u2192${docResult.new_lines}, -${docResult.reduction_pct}%)`);
           cadence.doc_anti_regression = docResult;
         } else if (docResult.severity === "WARNING") {
-          cadence.actions.push(`⚠️ DOC_CONTENT_WARNING: ${docResult.file} (-${docResult.reduction_pct}%)`);
+          cadence.actions.push(`\u26A0\uFE0F DOC_CONTENT_WARNING: ${docResult.file} (-${docResult.reduction_pct}%)`);
           cadence.doc_anti_regression = docResult;
         }
         if (!docResult.has_changelog && docResult.new_lines > 20) {
-          cadence.actions.push(`⚠️ MISSING_CHANGELOG: ${docResult.file}`);
+          cadence.actions.push(`\u26A0\uFE0F MISSING_CHANGELOG: ${docResult.file}`);
         }
       } catch {
       }
@@ -1395,15 +1527,15 @@ export function wrapWithUniversalHooks(toolName, handler) {
         }
       } catch {
       }
-      // F2.3: Manus↔ATCS bridge poll — check for completed delegated units
       try {
         const bridgePoll = autoManusATCSPoll(callNum);
         if (bridgePoll.completed && bridgePoll.completed > 0) {
-          cadence.actions.push(`🤖 MANUS_BRIDGE: ${bridgePoll.completed} units auto-completed`);
+          cadence.actions.push(`\u{1F916} MANUS_BRIDGE: ${bridgePoll.completed} units auto-completed`);
         } else if (bridgePoll.running && bridgePoll.running > 0) {
-          cadence.actions.push(`⏳ MANUS_BRIDGE: ${bridgePoll.running} units running`);
+          cadence.actions.push(`\u23F3 MANUS_BRIDGE: ${bridgePoll.running} units running`);
         }
-      } catch {}
+      } catch {
+      }
     }
     if (callNum % 15 === 0) {
       try {
@@ -1413,45 +1545,92 @@ export function wrapWithUniversalHooks(toolName, handler) {
         }
       } catch {
       }
-      // Synergy: Cross-engine health check piggybacked on telemetry cadence
       try {
-        const { synergyCrossEngineHealth } = await import("./synergyIntegration.js");
-        const health = synergyCrossEngineHealth();
+        const { synergyCrossEngineHealth: synergyCrossEngineHealth2 } = await import("../engines/synergyIntegration.js");
+        const health = synergyCrossEngineHealth2();
         if (!health.all_healthy) {
-          const degraded = Object.entries(health.engines).filter(([, v]) => v.status !== 'healthy').map(([k]) => k);
-          cadence.actions.push(`⚠️ ENGINE_HEALTH: ${degraded.join(', ')} degraded`);
+          const degraded = Object.entries(health.engines).filter(([, v]) => v.status !== "healthy").map(([k]) => k);
+          cadence.actions.push(`\u26A0\uFE0F ENGINE_HEALTH: ${degraded.join(", ")} degraded`);
         }
-      } catch { }
+      } catch {
+      }
     }
     if (callNum === 1 && globalThis.__prism_recon) {
       cadence.session_recon = globalThis.__prism_recon;
       delete globalThis.__prism_recon;
     }
-    // PERIODIC SURVIVAL SAVE — safety net every 15 calls regardless of pressure
-    // Ensures compaction survival data is never more than ~15 calls stale
     if (callNum > 0 && callNum % 15 === 0) {
       try {
         const currentTask = cadence.todo?.currentFocus || cadence.todo?.taskName || "unknown";
         const pct = cadence.pressure?.pressure_pct || 50;
         const survResult = autoCompactionSurvival(callNum, pct, cadence.actions, currentTask);
         if (survResult.success) cadence.actions.push("SURVIVAL_CHECKPOINT_15");
-      } catch { }
+      } catch {
+      }
     }
-    // F8 SYNERGY: Compliance audit cadence — every 25 calls
     if (callNum > 0 && callNum % 25 === 0) {
       try {
-        const { synergyComplianceAudit } = await import("./synergyIntegration.js");
-        const auditResult = synergyComplianceAudit(callNum);
+        const { synergyComplianceAudit: synergyComplianceAudit2 } = await import("../engines/synergyIntegration.js");
+        const auditResult = synergyComplianceAudit2(callNum);
         if (auditResult.ran) {
-          cadence.actions.push(`📋 COMPLIANCE_AUDIT: ${auditResult.details}`);
+          cadence.actions.push(`\u{1F4CB} COMPLIANCE_AUDIT: ${auditResult.details}`);
         }
-      } catch { }
+      } catch {
+      }
     }
-    // BUFFER ZONES — PRESSURE-FIRST ARCHITECTURE (v2, 2026-02-10)
-    // Truncation caps governed SOLELY by pressure-based system (every 8 calls).
-    // Call-count zones: advisory warnings + auto-save ONLY. NO cap overrides.
+    if (callNum > 0 && callNum % 10 === 0) {
+      try {
+        const phaseSkills = autoPhaseSkillLoader(callNum);
+        if (phaseSkills.success && phaseSkills.skills_loaded > 0) {
+          cadence.actions.push(`\u{1F4DA} PHASE_SKILLS: ${phaseSkills.skills_loaded}/${phaseSkills.skills_matched} loaded for phase "${phaseSkills.current_phase}" (${phaseSkills.pressure_mode})`);
+          cadence.phase_skills = phaseSkills;
+        }
+      } catch {
+      }
+    }
+    try {
+      const ctxMatch = autoSkillContextMatch(callNum, toolName, action, params);
+      if (ctxMatch.success && ctxMatch.total_matched > 0) {
+        cadence.actions.push(`\u{1F3AF} SKILL_MATCH: ${ctxMatch.total_matched} skills matched for ${ctxMatch.context_key}`);
+        cadence.skill_context_matches = ctxMatch;
+      }
+    } catch {
+    }
+    if (callNum > 0 && callNum % 8 === 0) {
+      try {
+        fs.appendFileSync(path.join("C:\\PRISM\\state", "nl_hook_debug.log"), `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
+        const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
+        if (nlResult.success && nlResult.hooks_fired > 0) {
+          cadence.actions.push(`\u{1FA9D} NL_HOOKS: ${nlResult.hooks_fired}/${nlResult.hooks_evaluated} fired`);
+          cadence.nl_hook_eval = nlResult;
+          fs.appendFileSync(path.join("C:\\PRISM\\state", "nl_hook_debug.log"), `  -> result: success=${nlResult.success} fired=${nlResult.hooks_fired} evaluated=${nlResult.hooks_evaluated}\n`);
+        }
+      } catch {
+      }
+    }
+    if (callNum > 0 && callNum % 25 === 0) {
+      try {
+        const hookCheck = autoHookActivationPhaseCheck(callNum);
+        if (hookCheck.success && hookCheck.missing_hooks.length > 0) {
+          cadence.actions.push(`\u26A0\uFE0F HOOK_PHASE_GAP: ${hookCheck.missing_hooks.length} hooks missing for phase "${hookCheck.current_phase}" (${hookCheck.coverage_pct}% coverage)`);
+          cadence.hook_activation_check = hookCheck;
+        }
+      } catch {
+      }
+    }
+    // D4 Performance summary — cache/diff/batch stats + recommendations (every 40 calls)
+    if (callNum > 0 && callNum % 40 === 0) {
+      try {
+        const perfSummary = autoD4PerfSummary(callNum);
+        if (perfSummary.success && perfSummary.recommendations.length > 0) {
+          cadence.actions.push(`📊 D4_PERF: ${perfSummary.recommendations.length} recommendations — ${perfSummary.recommendations[0]}`);
+          cadence.d4_perf_summary = perfSummary;
+        }
+      } catch {
+      }
+    }
     if (callNum >= 41) {
-      cadence.actions.push("⚫ ADVISORY: 41+ calls — consider checkpoint if pressure is rising");
+      cadence.actions.push("\u26AB ADVISORY: 41+ calls \u2014 consider checkpoint if pressure is rising");
       try {
         const autoSaveState = {};
         const stateFile = path.join("C:\\PRISM\\state", "CURRENT_STATE.json");
@@ -1471,13 +1650,13 @@ export function wrapWithUniversalHooks(toolName, handler) {
         autoSaveState.lastUpdated = (/* @__PURE__ */ new Date()).toISOString();
         fs.writeFileSync(stateFile, JSON.stringify(autoSaveState, null, 2));
         cadence.actions.push("STATE_AUTO_SAVED:HIGH_CALLS");
-        // Also save compaction survival at high call counts for seamless recovery
         try {
           const currentTask = cadence.todo?.currentFocus || cadence.todo?.taskName || "unknown";
           const pct = cadence.pressure?.pressure_pct || 50;
           const survResult = autoCompactionSurvival(callNum, pct, cadence.actions, currentTask);
           if (survResult.success) cadence.actions.push("COMPACTION_SURVIVAL_SAVED:HIGH_CALLS");
-        } catch { }
+        } catch {
+        }
         try {
           const atcsDir = "C:\\PRISM\\autonomous-tasks";
           if (fs.existsSync(atcsDir)) {
@@ -1510,21 +1689,21 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } catch {
       }
     } else if (callNum >= 31) {
-      cadence.actions.push("🔴 NOTICE: 31+ calls — checkpoint recommended, monitor pressure");
+      cadence.actions.push("\u{1F534} NOTICE: 31+ calls \u2014 checkpoint recommended, monitor pressure");
     } else if (callNum >= 21) {
-      cadence.actions.push("🟡 NOTICE: 21+ calls — plan checkpoint soon");
+      cadence.actions.push("\u{1F7E1} NOTICE: 21+ calls \u2014 plan checkpoint soon");
     }
-    // F2.4: Auto-handoff package — fires ONCE when entering yellow zone or high pressure
     if (!handoffFired && (callNum >= 21 || (cadence.pressure?.pressure_pct || 0) >= 60)) {
       try {
         const trigger = callNum >= 21 ? "yellow_zone" : "pressure_high";
         const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
-        const handoffResult = autoHandoffPackage(callNum, trigger as any, currentTask);
+        const handoffResult = autoHandoffPackage(callNum, trigger, currentTask);
         if (handoffResult.success) {
-          cadence.actions.push(`📦 HANDOFF_PACKAGE_SAVED: ${trigger} (call ${callNum})`);
+          cadence.actions.push(`\u{1F4E6} HANDOFF_PACKAGE_SAVED: ${trigger} (call ${callNum})`);
           handoffFired = true;
         }
-      } catch {}
+      } catch {
+      }
     }
     if (cadence.actions.length > 0 && result?.content?.[0]?.text) {
       try {
@@ -1536,247 +1715,133 @@ export function wrapWithUniversalHooks(toolName, handler) {
         }
         const pressurePct = cadence.pressure?.pressure_pct ?? 0;
         parsed._cadence = slimCadence(fullCadence, pressurePct);
-        // FIX: Always-on context reminder — survives compaction because it's in EVERY response
-        // Claude sees this every call. After compaction, this is the ONLY context Claude has.
-        // Cost: ~300 bytes per response. Benefit: 100% compaction recovery.
+        try {
+          const cadenceFiresPath = path.join("C:\\PRISM\\state", "CADENCE_FIRES.json");
+          let fires = {};
+          if (fs.existsSync(cadenceFiresPath)) {
+            try {
+              fires = JSON.parse(fs.readFileSync(cadenceFiresPath, "utf-8"));
+            } catch {
+              fires = {};
+            }
+          }
+          for (const action3 of cadence.actions) {
+            if (typeof action3 !== "string") continue;
+            if (action3.includes("TODO_AUTO_REFRESHED")) fires["autoTodoRefresh"] = (fires["autoTodoRefresh"] || 0) + 1;
+            else if (action3.includes("CHECKPOINT_AUTO_SAVED")) fires["autoCheckpoint"] = (fires["autoCheckpoint"] || 0) + 1;
+            else if (action3.includes("PRESSURE_CHECK")) fires["autoContextPressure"] = (fires["autoContextPressure"] || 0) + 1;
+            else if (action3.includes("COMPACTION_DETECT")) fires["autoCompactionDetect"] = (fires["autoCompactionDetect"] || 0) + 1;
+            else if (action3.includes("ATTENTION_SCORED")) fires["autoAttentionScore"] = (fires["autoAttentionScore"] || 0) + 1;
+            else if (action3.includes("SKILL_HINT")) fires["autoSkillHint"] = (fires["autoSkillHint"] || 0) + 1;
+            else if (action3.includes("KNOWLEDGE_CROSS")) fires["autoKnowledgeCrossQuery"] = (fires["autoKnowledgeCrossQuery"] || 0) + 1;
+            else if (action3.includes("DOC_ANTI_REGRESSION")) fires["autoDocAntiRegression"] = (fires["autoDocAntiRegression"] || 0) + 1;
+            else if (action3.includes("PHASE_SKILLS")) fires["autoPhaseSkillLoader"] = (fires["autoPhaseSkillLoader"] || 0) + 1;
+            else if (action3.includes("SKILL_MATCH")) fires["autoSkillContextMatch"] = (fires["autoSkillContextMatch"] || 0) + 1;
+            else if (action3.includes("NL_HOOK")) fires["autoNLHookEvaluator"] = (fires["autoNLHookEvaluator"] || 0) + 1;
+            else if (action3.includes("HOOK_PHASE")) fires["autoHookActivationPhaseCheck"] = (fires["autoHookActivationPhaseCheck"] || 0) + 1;
+            else if (action3.includes("D4_PERF")) fires["autoD4PerfSummary"] = (fires["autoD4PerfSummary"] || 0) + 1;
+            else if (action3.includes("SCRIPT_REC")) fires["autoScriptRecommend"] = (fires["autoScriptRecommend"] || 0) + 1;
+            else if (action3.includes("RECOVERY_MANIFEST")) fires["autoRecoveryManifest"] = (fires["autoRecoveryManifest"] || 0) + 1;
+            else if (action3.includes("SURVIVAL_SAVED")) fires["autoSurvivalSave"] = (fires["autoSurvivalSave"] || 0) + 1;
+            else if (action3.includes("COMPACTION_PREDICT")) fires["autoCompactionPredict"] = (fires["autoCompactionPredict"] || 0) + 1;
+            else if (action3.includes("TELEMETRY_SNAP")) fires["autoTelemetrySnapshot"] = (fires["autoTelemetrySnapshot"] || 0) + 1;
+            else if (action3.includes("COMPLIANCE_AUDIT")) fires["autoComplianceAudit"] = (fires["autoComplianceAudit"] || 0) + 1;
+          }
+          fires._last_call = callNum;
+          fires._updated = (/* @__PURE__ */ new Date()).toISOString();
+          if (callNum % 5 === 0) fs.writeFileSync(cadenceFiresPath, JSON.stringify(fires, null, 2));
+        } catch {
+        }
         try {
           const survivalPath = path.join("C:\\PRISM\\state", "COMPACTION_SURVIVAL.json");
           const actionsPath = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
           const trackerPath = path.join("C:\\PRISM\\mcp-server\\data\\docs", "ACTION_TRACKER.md");
-          let ctx: any = { call: callNum };
-          // Quick resume from survival
-          if (fs.existsSync(survivalPath)) {
-            try {
-              const surv = JSON.parse(fs.readFileSync(survivalPath, "utf-8"));
-              const ageMin = Math.round((Date.now() - new Date(surv.captured_at).getTime()) / 60000);
-              if (ageMin < 240) { // Only if < 4 hours old
-                ctx.task = surv.current_task !== "unknown" ? surv.current_task : undefined;
-                ctx.resume = surv.quick_resume?.slice(0, 200);
-                ctx.next = surv.next_action?.slice(0, 150);
-              }
-            } catch {}
-          }
-          // Get current task from ACTION_TRACKER if survival didn't have it
-          if (!ctx.task && fs.existsSync(trackerPath)) {
-            try {
-              const tracker = fs.readFileSync(trackerPath, "utf-8");
-              const nextMatch = tracker.match(/## NEXT SESSION[:\s]*([^\n]*)\n([\s\S]*?)(?=\n##|\n$)/);
-              if (nextMatch) {
-                const items = nextMatch[2].match(/⏳[^⏳✅]*/g);
-                if (items && items.length > 0) {
-                  ctx.task = items[0].replace(/⏳\s*/, "").trim().slice(0, 100);
-                }
-              }
-            } catch {}
-          }
-          // Latest transcript — note: transcripts live on Claude's container at /mnt/transcripts/
-          // not on this Windows machine. We just remind Claude where to look.
-          ctx.transcripts_hint = "/mnt/transcripts/ (on Claude container)";
-          // W6.1: Inject active workflow state — OVERRIDES stale task/next when active
+          let ctx = { call: callNum };
+          // SURVIVAL_READ REMOVED v2
+          // TRACKER_CTX REMOVED v2
+          // transcripts_hint REMOVED ? static waste
           try {
-            const wfPath = path.join(STATE_DIR, "WORKFLOW_STATE.json");
+            const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
             if (fs.existsSync(wfPath)) {
               const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
               if (wf.status === "active" && wf.current_step && wf.steps) {
                 const cur = wf.steps[wf.current_step - 1];
-                const done = wf.steps.filter((s: any) => s.status === "done").length;
-                ctx.workflow = `${wf.workflow_type}:${wf.current_step}/${wf.total_steps} ${cur?.name || "?"} — ${cur?.intent || "?"}`;
-                // Override stale task/next with workflow-aware values
-                ctx.task = `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}: ${cur?.name || "?"} — ${cur?.intent || "?"}`;
-                ctx.next = wf.current_step < wf.total_steps
-                  ? `Step ${wf.current_step + 1}: ${wf.steps[wf.current_step]?.name} — ${wf.steps[wf.current_step]?.intent}`
-                  : "Final step — complete workflow after this";
+                const done = wf.steps.filter((s) => s.status === "done").length;
+                ctx.workflow = `${wf.workflow_type}:${wf.current_step}/${wf.total_steps} ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+                ctx.task = `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}: ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+                ctx.next = wf.current_step < wf.total_steps ? `Step ${wf.current_step + 1}: ${wf.steps[wf.current_step]?.name} \u2014 ${wf.steps[wf.current_step]?.intent}` : "Final step \u2014 complete workflow after this";
               }
             }
-          } catch {}
-          // Only inject if we have something useful
+          } catch {
+          }
           if (ctx.resume || ctx.task || ctx.next || ctx.workflow) {
-            ctx._hint = "If you lost context (compaction), read /mnt/transcripts/ and C:\\PRISM\\state\\RECENT_ACTIONS.json BEFORE responding to user.";
-            // D1.3: Inject agent recommendation into _context
+            // _hint REMOVED ? static waste, points stale
             if (cadence.agent_recommend?.classification) {
               const c = cadence.agent_recommend.classification;
               if (c.recommended_agents?.length > 0 || c.recommended_swarm) {
                 ctx.agent_hint = cadence.agent_recommend.hint;
               }
             }
-            // D1.4: Inject skill bundle info into _context
             if (cadence.skill_hints?.bundle_name) {
               const sh = cadence.skill_hints;
-              ctx.skill_bundle = `📦 ${sh.bundle_name} (${sh.loaded_excerpts} skills, ${sh.pressure_mode || "full"})${sh.chain_suggestion ? ` | chain: ${sh.chain_suggestion}` : ""}`;
+              ctx.skill_bundle = `\u{1F4E6} ${sh.bundle_name} (${sh.loaded_excerpts} skills, ${sh.pressure_mode || "full"})${sh.chain_suggestion ? ` | chain: ${sh.chain_suggestion}` : ""}`;
             }
-            // F2.1: Inject ATCS recommendation if detected
             if (cadence.agent_recommend?.atcs_recommendation?.suggested) {
               const atcs = cadence.agent_recommend.atcs_recommendation;
-              ctx.atcs_hint = `🔄 ATCS RECOMMENDED: ${atcs.reason} (~${atcs.estimated_units} units). Consider: prism_atcs→task_init to manage this as autonomous multi-unit task.`;
+              ctx.atcs_hint = `\u{1F504} ATCS RECOMMENDED: ${atcs.reason} (~${atcs.estimated_units} units). Consider: prism_atcs\u2192task_init to manage this as autonomous multi-unit task.`;
             }
-            // F2.3: Inject Manus bridge status when delegations active
             try {
               const bridge = getBridgeStatus();
               if (bridge.active_delegations > 0) {
-                ctx.manus_bridge = `🤖 ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
+                ctx.manus_bridge = `\u{1F916} ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
               }
-            } catch {}
-            // W6.1: Periodic nudge to write findings to disk (every 8 calls)
-            if (callNum > 0 && callNum % 8 === 0) {
-              ctx._wip_reminder = "⚠️ Add _notes to your next tool call to save your current reasoning. Example: {action: '...', params: {_notes: 'what I found/decided/plan next', ...other_params}}. Notes auto-save to SESSION_JOURNAL.jsonl and survive compaction.";
+            } catch {
             }
+            // _wip_reminder REMOVED v2
             parsed._context = ctx;
           }
-        } catch {}
+        } catch {
+        }
         const recoveryData = cadence.rehydrated || compactionRecoverySurvival;
         if (recoveryData && compactionRecoveryCallsRemaining > 0) {
           const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
-          parsed._COMPACTION_RECOVERY = {
-            alert: `\u26A0\uFE0F COMPACTION RECOVERY (${compactionRecoveryCallsRemaining} reminders left) \u2014 You lost context. Read files before responding.`,
-            instruction: `STOP. Before doing ANYTHING: 1) Read C:\\PRISM\\state\\RECENT_ACTIONS.json 2) Read /mnt/transcripts/ latest file 3) Then: ${nextAction}`,
-            context: {
-              you_were_doing: recoveryData.previous_task,
-              quick_resume: recoveryData.quick_resume,
-              recent_decisions: recoveryData.recent_decisions
-            },
-            protocol: "6 LAWS: S(x)\u22650.70|No placeholders|New\u2265Old|MCP First|No dupes|100% util. EDITING: READ\u2192edit_block\u2192verify. END: state_save\u2192ACTION_TRACKER\u2192todo_update. QUALITY: validate\u2192scrutinize\u2192loop\u2192assess\u2192omega.",
-            rule: "Do NOT ask the user what to do. Do NOT explain compaction. Just continue the task seamlessly."
-          };
+          parsed._COMPACTION_RECOVERY = { _read: "C:\\PRISM\\state\\HOT_RESUME.md", rule: "Read HOT_RESUME.md via Shell then continue." };
           compactionRecoveryCallsRemaining--;
           if (compactionRecoveryCallsRemaining <= 0) compactionRecoverySurvival = null;
         }
-        // AGGRESSIVE HIJACK: If compaction was detected THIS call, completely replace 
-        // the response with recovery instructions. The actual tool result becomes secondary.
-        // This ensures Claude CANNOT ignore the recovery — it IS the response.
         if (compactionDetectedThisCall) {
-          // F2.2: Try RECOVERY_MANIFEST.json FIRST — single file with everything
-          let recoveryManifest: any = null;
+          // TOKEN OPT v2: Lean compaction recovery
+          // Read CURRENT_POSITION.md (always fresh, ~1KB) instead of 5 stale state files
+          let hotResume = "";
           try {
-            const manifestPath = path.join("C:\\PRISM\\state", "RECOVERY_MANIFEST.json");
-            if (fs.existsSync(manifestPath)) {
-              recoveryManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-              const ageMs = Date.now() - new Date(recoveryManifest.captured_at).getTime();
-              if (ageMs > 4 * 60 * 60 * 1000) recoveryManifest = null; // stale >4h
+            const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+            if (fs.existsSync(cpPath)) {
+              hotResume = fs.readFileSync(cpPath, "utf-8").slice(0, 2000);
             }
           } catch {}
-          let survivalInfo: any = {};
+          
+          // Also read HOT_RESUME.md if it exists (auto-maintained by cadence)
+          let hotResumeExtra = "";
           try {
-            const survPath = path.join("C:\\PRISM\\state", "COMPACTION_SURVIVAL.json");
-            if (fs.existsSync(survPath)) {
-              survivalInfo = JSON.parse(fs.readFileSync(survPath, "utf-8"));
+            const hrPath = "C:\\PRISM\\state\\HOT_RESUME.md";
+            if (fs.existsSync(hrPath)) {
+              hotResumeExtra = fs.readFileSync(hrPath, "utf-8").slice(0, 3000);
             }
           } catch {}
-          let recentActionsInfo: any = {};
-          try {
-            const raPath = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
-            if (fs.existsSync(raPath)) {
-              recentActionsInfo = JSON.parse(fs.readFileSync(raPath, "utf-8"));
-            }
-          } catch {}
-          let trackerNext = "";
-          try {
-            const tkPath = "C:\\PRISM\\mcp-server\\data\\docs\\ACTION_TRACKER.md";
-            if (fs.existsSync(tkPath)) {
-              const tk = fs.readFileSync(tkPath, "utf-8");
-              const nm = tk.match(/## NEXT SESSION[^\n]*\n([\s\S]*?)(?=\n## |$)/);
-              if (nm) trackerNext = nm[1].trim().slice(0, 500);
-            }
-          } catch {}
-          let transcriptHint = "/mnt/transcripts/ (read latest .txt file on Claude container)";
-          // Build a comprehensive recovery payload that IS the response
-          // W6.1: Read reasoning journal for context trail
-          let reasoningTrail: any[] = [];
-          try {
-            const jPath = path.join(STATE_DIR, "SESSION_JOURNAL.jsonl");
-            if (fs.existsSync(jPath)) {
-              const lines = fs.readFileSync(jPath, "utf-8").trim().split("\n").filter(Boolean);
-              reasoningTrail = lines.slice(-15).map(l => {
-                try { return JSON.parse(l); } catch { return null; }
-              }).filter(Boolean);
-            }
-          } catch {}
-          const notesEntries = reasoningTrail.filter(e => e.notes);
+          
           const hijacked = {
             _COMPACTION_DETECTED: true,
-            _MANDATORY_RECOVERY: {
-              status: "⚠️ CONTEXT LOST — COMPACTION DETECTED. You MUST recover before doing anything else.",
-              step_1: recoveryManifest
-                ? "READ recovery_manifest below — it has EVERYTHING you need in one place."
-                : "READ reasoning_trail below FIRST — these are YOUR OWN NOTES from before compaction happened.",
-              step_2: "READ workflow_recovery — it tells you exactly which step you're on.",
-              step_3: "DO NOT ask the user what to do. DO NOT re-audit. DO NOT re-investigate. Continue seamlessly.",
-              step_4: "If reasoning_trail has notes, those are YOUR analysis/findings. Trust them. Build on them. Don't redo them.",
-              step_5: "If still unclear, read /mnt/transcripts/ latest file + C:\\PRISM\\state\\WIP_NOTES.md"
+            _RECOVERY: {
+              instruction: "Read HOT_RESUME below, then continue seamlessly. Do NOT ask user what happened.",
+              position: hotResume,
+              context: hotResumeExtra,
             },
-            // F2.2: Single-file recovery — everything in one place
-            recovery_manifest: recoveryManifest ? {
-              _priority: "⚡ THIS IS YOUR PRIMARY RECOVERY SOURCE. Read this first, skip other sections if this is sufficient.",
-              next_action: recoveryManifest.next_action,
-              current_task: recoveryManifest.current_task,
-              phase: recoveryManifest.phase,
-              workflow_step: recoveryManifest.workflow_step,
-              active_files: recoveryManifest.active_files,
-              pending_todos: recoveryManifest.pending_todos,
-              reasoning_notes: recoveryManifest.reasoning_notes,
-              recent_calls: recoveryManifest.recent_calls,
-              recent_decisions: recoveryManifest.recent_decisions,
-              atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
-              age_seconds: Math.round((Date.now() - new Date(recoveryManifest.captured_at).getTime()) / 1000),
-            } : null,
-            reasoning_trail: {
-              total_entries: reasoningTrail.length,
-              entries_with_notes: notesEntries.length,
-              your_notes: notesEntries.map(e => `[call ${e.call}] ${e.tool}:${e.action} — ${e.notes}`),
-              recent_calls: reasoningTrail.slice(-8).map(e => `[${e.call}] ${e.tool}:${e.action}${e.notes ? ' 📝 ' + e.notes : ''}`),
-              _hint: notesEntries.length > 0 
-                ? "⚡ You left notes for yourself. READ THEM. They contain your reasoning from before compaction."
-                : "No notes found. Check WIP_NOTES.md and /mnt/transcripts/ for context."
-            },
-            workflow_recovery: (() => {
-              try {
-                const wfPath = path.join(STATE_DIR, "WORKFLOW_STATE.json");
-                if (fs.existsSync(wfPath)) {
-                  const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
-                  if (wf.status === "active") {
-                    const cur = wf.steps[wf.current_step - 1];
-                    const done = wf.steps.filter((s: any) => s.status === "done").map((s: any) => `${s.name} ✅`);
-                    const remaining = wf.steps.filter((s: any) => s.status !== "done").map((s: any) => `Step ${s.id}: ${s.name} — ${s.intent}`);
-                    return {
-                      active: true,
-                      type: wf.workflow_type,
-                      name: wf.name,
-                      progress: `Step ${wf.current_step} of ${wf.total_steps}`,
-                      current_step: cur ? { name: cur.name, intent: cur.intent } : null,
-                      instruction: `RESUME step ${wf.current_step}/${wf.total_steps} (${cur?.name}): ${cur?.intent}. Steps done: ${done.join(", ")}. Do NOT redo.`,
-                      remaining,
-                      files_touched: [...new Set(wf.steps.flatMap((s: any) => s.files_touched || []))],
-                    };
-                  }
-                }
-              } catch {}
-              return { active: false, instruction: "No active workflow. Use recovery_context below." };
-            })(),
-            recovery_context: {
-              quick_resume: survivalInfo.quick_resume || parsed._context?.resume || "Unknown",
-              current_task: survivalInfo.current_task || parsed._context?.task || "Unknown",
-              next_action: survivalInfo.next_action || "Read ACTION_TRACKER.md and WORKFLOW_STATE.json",
-              phase: (() => {
-                if (survivalInfo.phase) return survivalInfo.phase;
-                try {
-                  const cs = JSON.parse(fs.readFileSync(path.join(STATE_DIR, "CURRENT_STATE.json"), "utf-8"));
-                  return cs.phase || "unknown";
-                } catch { return "unknown"; }
-              })(),
-              call_at_capture: survivalInfo.call_number || 0,
-              pressure_at_capture: survivalInfo.pressure_pct || 0,
-              active_files: survivalInfo.active_files || [],
-              recent_decisions: (survivalInfo.recent_decisions || []).slice(-5)
-            },
-            action_tracker_next: trackerNext,
-            recent_tool_calls: (recentActionsInfo.actions || []).slice(-5).map((a: any) => 
-              `${a.tool}:${a.action} (${a.success ? 'OK' : 'FAIL'}) ${(a.params_summary || '').slice(0, 60)}`
-            ),
-            transcripts: transcriptHint,
-            original_response: parsed, // Include the actual tool response too
-            protocol: "6 LAWS: S(x)≥0.70|No placeholders|New≥Old|MCP First|No dupes|100% util."
+            _original: parsed
           };
           result.content[0].text = JSON.stringify(hijacked);
-          compactionDetectedThisCall = false; // Reset so subsequent calls get normal responses
+          compactionDetectedThisCall = false;;
+          result.content[0].text = JSON.stringify(hijacked);
+          compactionDetectedThisCall = false;
         } else {
           result.content[0].text = JSON.stringify(parsed);
         }
@@ -1813,4 +1878,11 @@ export function wrapWithUniversalHooks(toolName, handler) {
     return result;
   };
   return wrapped;
+}
+
+
+// registerAutoHookTools: stub — imported by index.ts but was never
+// defined (tree-shook away in original build). Providing no-op.
+export function registerAutoHookTools(server: any): void {
+  // No-op: tool registration handled elsewhere
 }

@@ -316,7 +316,8 @@ export class KnowledgeQueryEngine {
 
       case "formulas": {
         const queryLC = query.toLowerCase();
-        const formulaResults = formulaRegistry.search((f: any) => 
+        const allFormulas = await formulaRegistry.list({ limit: 200 });
+        const formulaResults = allFormulas.formulas.filter((f: any) => 
           f.name?.toLowerCase().includes(queryLC) ||
           f.formula_id?.toLowerCase().includes(queryLC) ||
           f.category?.toLowerCase().includes(queryLC) ||
@@ -533,7 +534,7 @@ export class KnowledgeQueryEngine {
     if (results.machines && results.alarms) {
       for (const m of results.machines) {
         for (const a of results.alarms) {
-          if (a.controller_family?.toLowerCase().includes(m.controller?.toLowerCase() || "")) {
+          if (a.controller_family?.toLowerCase().includes(String(m.controller || "").toLowerCase())) {
             relations.push({
               source_registry: "machines",
               source_id: m.machine_id,
@@ -628,18 +629,18 @@ export class KnowledgeQueryEngine {
     const results: FormulaQueryResult[] = [];
     const needLower = need.toLowerCase();
 
-    // Search formulas
-    let formulas = formulaRegistry.search({ 
-      query: need, 
+    // Search formulas via list (registry has list, not search)
+    let formulaResult = await formulaRegistry.list({ 
       category: options?.category,
-      limit: 20 
-    }).formulas;
+      limit: 50 
+    });
+    let formulas = formulaResult.formulas;
 
     // Also search by domain if detectable
     for (const [domain, categories] of Object.entries(FORMULA_DOMAINS)) {
       if (needLower.includes(domain)) {
         for (const cat of categories) {
-          const catFormulas = formulaRegistry.getByCategory(cat);
+          const catFormulas = await formulaRegistry.getByCategory(cat);
           formulas.push(...catFormulas);
         }
       }

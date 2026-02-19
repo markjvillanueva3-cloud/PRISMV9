@@ -197,6 +197,17 @@ export function calculateKienzleCuttingForce(
   
   log.debug(`[Kienzle] h=${h.toFixed(4)}, kc=${kc.toFixed(0)}, Fc=${Fc.toFixed(0)}N`);
   
+  // R2-MS1.5: AI-generated safety warnings (threshold tuned R3: 2.5× for high-mc materials)
+  const kcInflationRatio = kc / kc1_1;
+  if (kcInflationRatio > 3.0) {
+    warnings.push(`⚠️ KC_INFLATED: Specific cutting force kc=${kc.toFixed(0)} is ${kcInflationRatio.toFixed(1)}× reference kc1_1=${kc1_1}. Model outside valid regime — increase chip thickness.`);
+  } else if (kcInflationRatio > 2.5) {
+    warnings.push(`ℹ️ KC_ELEVATED: kc=${kc.toFixed(0)} is ${kcInflationRatio.toFixed(1)}× kc1_1=${kc1_1}. Thin chip effect — consider increasing feed or engagement.`);
+  }
+  if (radial_depth >= tool_diameter * 0.99) {
+    warnings.push(`⚠️ FULL_SLOT: Full slotting detected (ae≈D). High tool load, chip evacuation risk, increased deflection.`);
+  }
+  
   // W5: Uncertainty bounds — Kienzle model ±15% for verified data, ±25% for estimated
   const dataQuality = (coefficients as any).data_quality || "estimated";
   const uncertaintyPct = dataQuality === "verified" ? 0.15 : 0.25;
@@ -263,6 +274,14 @@ export function calculateTaylorToolLife(
   if (tool_life < SAFETY_LIMITS.MIN_TOOL_LIFE) {
     warnings.push(`Tool life ${tool_life.toFixed(2)} min very low`);
     tool_life = SAFETY_LIMITS.MIN_TOOL_LIFE;
+  }
+  
+  // R2-MS1.5: Taylor cliff edge warnings (AI-generated safety finding)
+  if (tool_life < 5) {
+    warnings.push(`⚠️ TAYLOR_CLIFF: Tool life ${tool_life.toFixed(1)} min is dangerously short. Small speed increase will cause rapid tool failure.`);
+  }
+  if (cutting_speed > C * 0.9) {
+    warnings.push(`⚠️ TAYLOR_CLIFF: Cutting speed ${cutting_speed} m/min is within 10% of Taylor C=${C}. Operating on exponential curve — small increases drastically reduce tool life.`);
   }
   
   const optimal_speed = cutting_speed * 0.85;
@@ -486,6 +505,13 @@ export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
 function validateCuttingConditions(conditions: CuttingConditions, warnings: string[]): void {
   const { cutting_speed, feed_per_tooth, axial_depth, radial_depth, tool_diameter } = conditions;
   
+  // R2: Safety-critical bounds checks — reject physically impossible values
+  if (!Number.isFinite(axial_depth) || axial_depth <= 0) throw new Error(`SAFETY BLOCK: axial_depth (${axial_depth}) must be a positive finite number`);
+  if (!Number.isFinite(radial_depth) || radial_depth <= 0) throw new Error(`SAFETY BLOCK: radial_depth (${radial_depth}) must be a positive finite number`);
+  if (!Number.isFinite(tool_diameter) || tool_diameter <= 0) throw new Error(`SAFETY BLOCK: tool_diameter (${tool_diameter}) must be a positive finite number`);
+  if (!Number.isFinite(feed_per_tooth) || feed_per_tooth <= 0) throw new Error(`SAFETY BLOCK: feed_per_tooth (${feed_per_tooth}) must be a positive finite number`);
+  if (!Number.isFinite(cutting_speed) || cutting_speed <= 0) throw new Error(`SAFETY BLOCK: cutting_speed (${cutting_speed}) must be a positive finite number`);
+  
   if (cutting_speed < SAFETY_LIMITS.MIN_CUTTING_SPEED || cutting_speed > SAFETY_LIMITS.MAX_CUTTING_SPEED)
     warnings.push(`Cutting speed ${cutting_speed} outside range`);
   if (feed_per_tooth < SAFETY_LIMITS.MIN_FEED_PER_TOOTH || feed_per_tooth > SAFETY_LIMITS.MAX_FEED_PER_TOOTH)
@@ -536,6 +562,188 @@ export function getDefaultTaylor(material_group: string, tool_material: string =
   return defaults[key] || DEFAULT_TAYLOR;
 }
 
+// ============================================================================
+// SPINDLE POWER CALCULATION
+// P = Fc × Vc / (60000 × η)
+// ============================================================================
+export function calculateSpindlePower(
+  cutting_force: number,    // N - tangential cutting force
+  cutting_speed: number,    // m/min
+  tool_diameter: number,    // mm (for RPM derivation)
+  efficiency: number = 0.80 // machine spindle efficiency (0.7-0.9 typical)
+): any {
+  if (!cutting_force || !cutting_speed) {
+    throw new Error("cutting_force and cutting_speed are required");
+  }
+  if (efficiency < 0.1 || efficiency > 1.0) {
+    throw new Error(`Invalid efficiency ${efficiency}: must be 0.1-1.0`);
+  }
+
+  const power_cutting_kw = (cutting_force * cutting_speed) / 60000;
+  const power_spindle_kw = power_cutting_kw / efficiency;
+  const rpm = tool_diameter > 0 ? (cutting_speed * 1000) / (Math.PI * tool_diameter) : 0;
+  const torque_nm = rpm > 0 ? (power_spindle_kw * 9549) / rpm : 0;
+
+  return {
+    power_cutting_kw: Math.round(power_cutting_kw * 1000) / 1000,
+    power_spindle_kw: Math.round(power_spindle_kw * 1000) / 1000,
+    power_spindle_hp: Math.round(power_spindle_kw * 1.341 * 1000) / 1000,
+    torque_nm: Math.round(torque_nm * 100) / 100,
+    rpm: Math.round(rpm),
+    efficiency,
+    formula: "P_cut = Fc × Vc / 60000; P_spindle = P_cut / η",
+    safety_note: "Verify spindle power does not exceed machine rating"
+  };
+}
+
+// ============================================================================
+// CHIP LOAD CALCULATION
+// fz_actual = Vf / (n × z) adjusted for radial engagement
+// ============================================================================
+export function calculateChipLoad(
+  feed_rate: number,        // mm/min - table feed rate
+  spindle_speed: number,    // RPM
+  number_of_teeth: number,  // z
+  radial_depth?: number,    // mm - ae (optional, for thin-chip adjustment)
+  tool_diameter?: number    // mm - D (optional, for thin-chip adjustment)
+): any {
+  if (!feed_rate || !spindle_speed || !number_of_teeth) {
+    throw new Error("feed_rate, spindle_speed, and number_of_teeth are required");
+  }
+  if (spindle_speed <= 0) throw new Error("spindle_speed must be > 0");
+  if (number_of_teeth <= 0) throw new Error("number_of_teeth must be > 0");
+
+  const fz = feed_rate / (spindle_speed * number_of_teeth);
+
+  // Thin-chip adjustment: when ae < D, actual chip thickness is thinner
+  let fz_effective = fz;
+  let chip_thinning_factor = 1.0;
+  let hex = fz; // maximum chip thickness
+
+  if (radial_depth && tool_diameter && radial_depth < tool_diameter) {
+    // hex = fz × sqrt(D/ae) for center cutting, simplified
+    chip_thinning_factor = Math.sqrt(tool_diameter / radial_depth);
+    hex = fz * Math.sqrt((radial_depth / tool_diameter) * (1 - radial_depth / tool_diameter)) * 2;
+    // If hex < fz, recommend compensated feed
+    fz_effective = fz * chip_thinning_factor;
+  }
+
+  return {
+    chip_load_fz_mm: Math.round(fz * 10000) / 10000,
+    hex_mm: Math.round(hex * 10000) / 10000,
+    chip_thinning_factor: Math.round(chip_thinning_factor * 1000) / 1000,
+    recommended_fz_compensated_mm: Math.round(fz_effective * 10000) / 10000,
+    feed_rate_mm_min: feed_rate,
+    spindle_speed_rpm: spindle_speed,
+    number_of_teeth: number_of_teeth,
+    formula: "fz = Vf / (n × z); hex adjusted for ae/D ratio",
+    note: chip_thinning_factor > 1.2
+      ? `Chip thinning detected (factor ${chip_thinning_factor.toFixed(2)}). Consider increasing programmed feed to achieve target chip load.`
+      : "Chip thickness is within normal range."
+  };
+}
+
+// ============================================================================
+// TORQUE CALCULATION
+// M = Fc × D / (2 × 1000) for milling
+// M = Fc × r for turning
+// ============================================================================
+export function calculateTorque(
+  cutting_force: number,    // N - tangential cutting force
+  tool_diameter: number,    // mm
+  operation: string = "milling" // milling or turning
+): any {
+  if (!cutting_force || !tool_diameter) {
+    throw new Error("cutting_force and tool_diameter are required");
+  }
+
+  let torque_nm: number;
+  if (operation === "turning") {
+    // For turning: torque at the workpiece = Fc × (workpiece_diameter/2) / 1000
+    torque_nm = (cutting_force * (tool_diameter / 2)) / 1000;
+  } else {
+    // For milling: torque at spindle = Fc × (tool_diameter/2) / 1000
+    torque_nm = (cutting_force * (tool_diameter / 2)) / 1000;
+  }
+
+  const torque_ft_lbs = torque_nm * 0.7376;
+
+  return {
+    torque_nm: Math.round(torque_nm * 100) / 100,
+    torque_ft_lbs: Math.round(torque_ft_lbs * 100) / 100,
+    cutting_force_n: cutting_force,
+    diameter_mm: tool_diameter,
+    operation,
+    formula: operation === "turning"
+      ? "M = Fc × (D_work/2) / 1000"
+      : "M = Fc × (D_tool/2) / 1000",
+    safety_note: "Verify torque does not exceed spindle or turret rating"
+  };
+}
+
+// ============================================================================
+// PRODUCTIVITY METRICS
+// Comprehensive: MRR, cost/part, tool changes/part, machine utilization
+// ============================================================================
+export function calculateProductivityMetrics(
+  cutting_speed: number,    // m/min
+  feed_per_tooth: number,   // mm/tooth
+  axial_depth: number,      // mm
+  radial_depth: number,     // mm
+  tool_diameter: number,    // mm
+  number_of_teeth: number,
+  taylor_C: number,         // Taylor constant
+  taylor_n: number,         // Taylor exponent
+  tool_cost: number,        // $ per insert/tool
+  machine_rate: number      // $/min (machine + operator)
+): any {
+  if (!cutting_speed || !feed_per_tooth || !tool_diameter) {
+    throw new Error("cutting_speed, feed_per_tooth, and tool_diameter are required");
+  }
+
+  // RPM
+  const rpm = (cutting_speed * 1000) / (Math.PI * tool_diameter);
+  // Table feed
+  const feed_rate = rpm * number_of_teeth * feed_per_tooth;
+  // MRR
+  const mrr = axial_depth * radial_depth * feed_rate; // mm³/min
+  const mrr_cm3 = mrr / 1000;
+
+  // Tool life (Taylor)
+  let tool_life_min = 15; // default
+  if (taylor_C && taylor_n && taylor_n > 0) {
+    tool_life_min = Math.pow(taylor_C / cutting_speed, 1 / taylor_n);
+  }
+
+  // Volume per tool life
+  const volume_per_tool = mrr * tool_life_min; // mm³
+
+  // Cost analysis
+  const cost_per_min_cutting = machine_rate;
+  const cost_per_tool_change = machine_rate * 1.0 + tool_cost; // 1 min tool change assumed
+  const cost_per_mm3 = (cost_per_min_cutting + cost_per_tool_change / tool_life_min) / mrr;
+  const cost_per_cm3 = cost_per_mm3 * 1000;
+
+  return {
+    rpm: Math.round(rpm),
+    feed_rate_mm_min: Math.round(feed_rate),
+    mrr_mm3_min: Math.round(mrr),
+    mrr_cm3_min: Math.round(mrr_cm3 * 100) / 100,
+    tool_life_min: Math.round(tool_life_min * 10) / 10,
+    volume_per_tool_cm3: Math.round(volume_per_tool / 1000 * 100) / 100,
+    cost_per_cm3: Math.round(cost_per_cm3 * 100) / 100,
+    cost_per_minute: machine_rate,
+    tool_cost,
+    productivity_index: Math.round((mrr_cm3 / cost_per_cm3) * 100) / 100,
+    formula: "MRR = ae × ap × Vf; Cost = (machine_rate + tool_cost/T) / MRR",
+    recommendations: mrr_cm3 < 1
+      ? "Low MRR — consider increasing depth of cut or feed rate"
+      : mrr_cm3 > 100
+        ? "High MRR — verify spindle power is sufficient"
+        : "MRR within typical range"
+  };
+}
+
 // Export singleton
 export const manufacturingCalculations = {
   kienzle: calculateKienzleCuttingForce,
@@ -544,6 +752,10 @@ export const manufacturingCalculations = {
   surfaceFinish: calculateSurfaceFinish,
   mrr: calculateMRR,
   speedFeed: calculateSpeedFeed,
+  power: calculateSpindlePower,
+  chipLoad: calculateChipLoad,
+  torque: calculateTorque,
+  productivity: calculateProductivityMetrics,
   getDefaultKienzle,
   getDefaultTaylor,
   SAFETY_LIMITS

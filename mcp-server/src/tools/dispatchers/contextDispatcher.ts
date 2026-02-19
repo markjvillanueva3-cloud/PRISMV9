@@ -181,7 +181,18 @@ export function registerContextDispatcher(server: any): void {
               }
             };
             
-            const state = TOOL_STATES[current_state];
+            const state = TOOL_STATES[current_state || "EXECUTION"];
+            if (!state) {
+              return ok({
+                status: "TOOL MASK STATE",
+                law: "Manus Law 2: Mask Don't Remove",
+                current_state: current_state || "UNKNOWN",
+                available_patterns: ["*"],
+                masked_patterns: [],
+                valid_states: Object.keys(TOOL_STATES),
+                note: `Unknown state '${current_state}'. Defaulting to full access. Valid states: ${Object.keys(TOOL_STATES).join(", ")}`
+              });
+            }
             
             return ok({
               status: "TOOL MASK STATE",

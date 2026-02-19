@@ -40,35 +40,34 @@ export function registerKnowledgeDispatcher(server: any): void {
         switch (action) {
           case "search": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            result = await engine.search(params.query || "", {
-              registries: params.registries, limit: params.limit || 20, minScore: params.min_score || 0.2
+            result = await engine.unifiedSearch(params.query || "", {
+              registries: params.registries, limit: params.limit || 20, min_score: params.min_score || 0.2
             });
             break;
           }
           case "cross_query": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            result = await engine.crossQuery(params.task || "", {
-              context: params.context, requiredRegistries: params.required_registries
+            result = await engine.crossRegistryQuery({
+              task: params.task || "", context: params.context, required_registries: params.required_registries
             });
             break;
           }
           case "formula": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            result = await engine.findFormula(params.need || "", {
+            result = await engine.findFormulas(params.need || "", {
               category: params.category, materialId: params.material_id, includeRelated: params.include_related !== false
             });
             break;
           }
           case "relations": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            result = await engine.getRelations(params.source_id || "", params.source_registry || "materials", {
-              relationTypes: params.relation_types
-            });
+            // Relations not yet implemented in engine — return stub
+            result = { error: "relations action not yet implemented in KnowledgeQueryEngine", source_id: params.source_id };
             break;
           }
           case "stats": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            result = await engine.getStats({ includeDetails: params.include_details || false });
+            result = await engine.getStats();
             break;
           }
         }

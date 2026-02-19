@@ -17,7 +17,7 @@ import { log } from "./Logger.js";
  */
 export async function readJsonFile<T>(filePath: string): Promise<T> {
   try {
-    const content = await fs.readFile(filePath, "utf-8");
+    const content = (await fs.readFile(filePath, "utf-8")).replace(/^\uFEFF/, "");
     return JSON.parse(content) as T;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {

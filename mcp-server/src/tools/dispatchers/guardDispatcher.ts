@@ -58,6 +58,7 @@ const KNOWN_RENAMES: Record<string, string> = {
   "tool_get": "prism:prism_data action=tool_get",
   "tool_search": "prism:prism_data action=tool_search",
   "tool_recommend": "prism:prism_data action=tool_recommend",
+  "tool_facets": "prism:prism_data action=tool_facets",
   "alarm_decode": "prism:prism_data action=alarm_decode",
   "alarm_search": "prism:prism_data action=alarm_search",
   "alarm_fix": "prism:prism_data action=alarm_fix",

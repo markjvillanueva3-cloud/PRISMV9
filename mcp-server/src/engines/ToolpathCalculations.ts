@@ -670,3 +670,395 @@ export const toolpathCalculations = {
   arcFitting: calculateArcFitting,
   CAM_CONSTANTS
 };
+
+// ============================================================
+// ADVANCED COMPETITIVE FEATURES
+// ============================================================
+
+/**
+ * Chip Thinning Compensation
+ * When ae < 50% of tool diameter, the actual chip thickness is less than fz.
+ * Must increase programmed fz to maintain effective chip load.
+ * This is what separates advanced from basic speed/feed calculators.
+ */
+export function calculateChipThinning(
+  tool_diameter: number,
+  radial_depth: number,
+  programmed_fz: number,
+  number_of_teeth: number,
+  cutting_speed: number
+): any {
+  const ae_ratio = radial_depth / tool_diameter;
+  
+  // Engagement angle (radians)
+  const engagement_angle = Math.acos(1 - (2 * radial_depth / tool_diameter));
+  
+  // Average chip thickness
+  const hex = programmed_fz * Math.sin(engagement_angle) * (180 / Math.PI) / (engagement_angle * 180 / Math.PI);
+  
+  // True hex using radial chip thinning formula
+  // hex = fz × (ae/D) when ae < D/2, simplified
+  const hex_actual = programmed_fz * Math.sqrt(2 * radial_depth / tool_diameter - Math.pow(radial_depth / tool_diameter, 2));
+  
+  // Compensated fz to achieve target hex = programmed_fz
+  const fz_compensated = ae_ratio < 0.5 
+    ? programmed_fz / Math.sqrt(2 * ae_ratio - ae_ratio * ae_ratio)
+    : programmed_fz;
+  
+  // Compensated feed rate
+  const rpm = (cutting_speed * 1000) / (Math.PI * tool_diameter);
+  const vf_original = rpm * number_of_teeth * programmed_fz;
+  const vf_compensated = rpm * number_of_teeth * fz_compensated;
+  
+  const warnings: string[] = [];
+  if (fz_compensated > programmed_fz * 3) warnings.push("Compensation >3x — check radial depth is not too small");
+  if (ae_ratio < 0.05) warnings.push("Very light radial engagement — consider increasing ae for stability");
+  
+  return {
+    input: { tool_diameter, radial_depth, programmed_fz, ae_ratio: Math.round(ae_ratio * 100) / 100 },
+    chip_thinning: {
+      engagement_angle_deg: Math.round(engagement_angle * 180 / Math.PI * 10) / 10,
+      hex_without_compensation: Math.round(hex_actual * 10000) / 10000,
+      hex_target: programmed_fz,
+      fz_compensated: Math.round(fz_compensated * 10000) / 10000,
+      compensation_factor: Math.round(fz_compensated / programmed_fz * 100) / 100,
+      needs_compensation: ae_ratio < 0.5
+    },
+    feed_rates: {
+      vf_original: Math.round(vf_original),
+      vf_compensated: Math.round(vf_compensated),
+      feed_increase_pct: Math.round((vf_compensated / vf_original - 1) * 100)
+    },
+    warnings
+  };
+}
+
+/**
+ * Multi-Pass Strategy Optimizer
+ * Given total stock to remove, calculates optimal number of passes,
+ * DOC per pass, and parameters for rough → semi → finish sequence.
+ */
+export function calculateMultiPassStrategy(
+  total_stock: number,        // mm to remove
+  tool_diameter: number,
+  material_kc1_1: number,     // Kienzle specific force
+  machine_power_kw: number,
+  cutting_speed_rough: number,
+  cutting_speed_finish: number,
+  fz_rough: number,
+  fz_finish: number,
+  target_Ra?: number          // target surface finish μm
+): any {
+  const warnings: string[] = [];
+  
+  // Finish pass: fixed small DOC
+  const finish_ap = target_Ra ? Math.min(0.5, total_stock * 0.1) : 0.3;
+  const finish_ae = tool_diameter * 0.7; // 70% stepover for finish
+  
+  // Semi-finish: moderate DOC
+  const semi_ap = Math.min(1.0, total_stock * 0.15);
+  const semi_ae = tool_diameter * 0.5;
+  
+  // Remaining stock for roughing
+  const rough_stock = total_stock - finish_ap - semi_ap;
+  
+  // Max roughing DOC based on power limit
+  // P = kc1_1 × ap × ae × fz × z × n / (60000 × efficiency)
+  const rough_ae = tool_diameter * 0.5;
+  const rough_rpm = (cutting_speed_rough * 1000) / (Math.PI * tool_diameter);
+  const efficiency = 0.8;
+  // Solve for max ap: ap_max = P × 60000 × eff / (kc1_1 × ae × fz × z × n)
+  const z = 4; // assume 4 flutes
+  const ap_max_power = (machine_power_kw * 60000 * efficiency) / (material_kc1_1 * rough_ae * fz_rough * z * rough_rpm / 1000);
+  const ap_max = Math.min(ap_max_power, tool_diameter * 1.5, rough_stock);
+  
+  // Number of roughing passes
+  const rough_passes = rough_stock > 0 ? Math.ceil(rough_stock / ap_max) : 0;
+  const actual_rough_ap = rough_stock > 0 ? rough_stock / rough_passes : 0;
+  
+  // MRR per phase
+  const rough_vf = rough_rpm * z * fz_rough;
+  const rough_mrr = actual_rough_ap * rough_ae * rough_vf / 1000;
+  
+  const semi_rpm = ((cutting_speed_rough + cutting_speed_finish) / 2 * 1000) / (Math.PI * tool_diameter);
+  const semi_fz = (fz_rough + fz_finish) / 2;
+  const semi_vf = semi_rpm * z * semi_fz;
+  const semi_mrr = semi_ap * semi_ae * semi_vf / 1000;
+  
+  const finish_rpm = (cutting_speed_finish * 1000) / (Math.PI * tool_diameter);
+  const finish_vf = finish_rpm * z * fz_finish;
+  const finish_mrr = finish_ap * finish_ae * finish_vf / 1000;
+  
+  if (rough_stock < 0) warnings.push("Total stock too small for 3-pass strategy — consider 2-pass");
+  if (actual_rough_ap > tool_diameter) warnings.push("Roughing DOC exceeds tool diameter — verify tool capability");
+  
+  return {
+    strategy: {
+      total_stock_mm: total_stock,
+      total_passes: rough_passes + 2,
+      phases: [
+        {
+          phase: "roughing",
+          passes: rough_passes,
+          ap_mm: Math.round(actual_rough_ap * 100) / 100,
+          ae_mm: Math.round(rough_ae * 100) / 100,
+          vc: cutting_speed_rough,
+          fz: fz_rough,
+          rpm: Math.round(rough_rpm),
+          vf: Math.round(rough_vf),
+          mrr_cm3_min: Math.round(rough_mrr * 10) / 10
+        },
+        {
+          phase: "semi-finishing",
+          passes: 1,
+          ap_mm: Math.round(semi_ap * 100) / 100,
+          ae_mm: Math.round(semi_ae * 100) / 100,
+          vc: Math.round((cutting_speed_rough + cutting_speed_finish) / 2),
+          fz: Math.round(semi_fz * 1000) / 1000,
+          rpm: Math.round(semi_rpm),
+          vf: Math.round(semi_vf),
+          mrr_cm3_min: Math.round(semi_mrr * 10) / 10
+        },
+        {
+          phase: "finishing",
+          passes: 1,
+          ap_mm: Math.round(finish_ap * 100) / 100,
+          ae_mm: Math.round(finish_ae * 100) / 100,
+          vc: cutting_speed_finish,
+          fz: fz_finish,
+          rpm: Math.round(finish_rpm),
+          vf: Math.round(finish_vf),
+          mrr_cm3_min: Math.round(finish_mrr * 10) / 10
+        }
+      ]
+    },
+    power_check: {
+      max_rough_ap_by_power: Math.round(ap_max_power * 100) / 100,
+      actual_rough_ap: Math.round(actual_rough_ap * 100) / 100,
+      power_limited: actual_rough_ap >= ap_max_power * 0.95
+    },
+    warnings
+  };
+}
+
+/**
+ * Coolant Strategy Recommendation
+ * Based on material, operation, speed, and tool — recommends optimal coolant approach.
+ */
+export function recommendCoolantStrategy(
+  iso_group: string,
+  operation: string,
+  cutting_speed: number,
+  tool_has_coolant_through: boolean,
+  material_thermal_conductivity?: number
+): any {
+  const op = operation.toLowerCase();
+  const warnings: string[] = [];
+  
+  // Decision matrix
+  let primary = "flood";
+  let pressure_bar = 20;
+  let concentration_pct = 8;
+  let reasoning: string[] = [];
+  
+  // High-speed → MQL or dry
+  if (cutting_speed > 300) {
+    primary = "dry";
+    reasoning.push("Speed >300 m/min — thermal shock risk with flood coolant");
+    if (iso_group === "N") {
+      primary = "mql"; // Aluminum needs lubrication even at high speed
+      reasoning.push("Aluminum: MQL preferred for lubricity even at high speed");
+    }
+  }
+  
+  // Superalloys and titanium → high pressure
+  if (iso_group === "S" || (iso_group === "N" && (material_thermal_conductivity || 50) < 15)) {
+    primary = "high_pressure";
+    pressure_bar = 70;
+    reasoning.push("Low thermal conductivity material — high pressure coolant needed for chip breaking and heat removal");
+    if (tool_has_coolant_through) {
+      pressure_bar = 100;
+      reasoning.push("Through-tool coolant available — maximize pressure for chip evacuation");
+    }
+  }
+  
+  // Hardened steel → dry or MQL
+  if (iso_group === "H") {
+    primary = cutting_speed > 150 ? "dry" : "mql";
+    reasoning.push("Hardened steel: dry/MQL preferred to avoid thermal cracking of CBN/ceramic tools");
+  }
+  
+  // Cast iron → dry preferred
+  if (iso_group === "K") {
+    primary = "dry";
+    reasoning.push("Cast iron: dry cutting preferred — short chips, graphite provides natural lubrication");
+    if (op.includes("drill")) {
+      primary = "mql";
+      reasoning.push("Drilling exception: MQL for chip evacuation in deep holes");
+    }
+  }
+  
+  // Drilling always needs coolant
+  if (op.includes("drill") && primary === "dry") {
+    primary = tool_has_coolant_through ? "high_pressure" : "flood";
+    pressure_bar = tool_has_coolant_through ? 40 : 20;
+    reasoning.push("Drilling requires coolant for chip evacuation regardless of material");
+  }
+  
+  // Stainless → flood with high concentration
+  if (iso_group === "M") {
+    if (primary === "dry") primary = "flood";
+    concentration_pct = 10;
+    reasoning.push("Stainless steel: higher coolant concentration for anti-galling protection");
+  }
+  
+  // MQL specifics
+  let mql_flow_rate = primary === "mql" ? 50 : 0; // ml/hr
+  
+  return {
+    recommendation: {
+      strategy: primary,
+      pressure_bar: primary.includes("pressure") ? pressure_bar : (primary === "flood" ? 20 : 0),
+      concentration_pct: primary === "flood" || primary === "high_pressure" ? concentration_pct : 0,
+      mql_flow_rate_ml_hr: mql_flow_rate,
+      coolant_type: primary === "dry" ? "none" : (primary === "mql" ? "vegetable_ester" : "semi_synthetic")
+    },
+    alternatives: getAlternatives(primary, iso_group),
+    reasoning,
+    warnings
+  };
+}
+
+function getAlternatives(primary: string, iso_group: string): any[] {
+  const alts: any[] = [];
+  if (primary !== "flood") alts.push({ strategy: "flood", note: "Safe fallback for any material" });
+  if (primary !== "mql") alts.push({ strategy: "mql", note: "50-80 ml/hr, reduced mess, environmentally friendly" });
+  if (primary !== "dry" && iso_group !== "S") alts.push({ strategy: "dry", note: "Fastest chip evacuation, no cleanup" });
+  if (iso_group === "S" || iso_group === "N") alts.push({ strategy: "cryogenic_CO2", note: "Sub-zero cooling for heat-resistant alloys" });
+  return alts;
+}
+
+/**
+ * G-Code Snippet Generator
+ * Generates ready-to-paste G-code for common operations across controller families.
+ */
+export function generateGCodeSnippet(
+  controller: string,
+  operation: string,
+  params: {
+    rpm: number;
+    feed_rate: number;
+    tool_number?: number;
+    depth_of_cut?: number;
+    x_start?: number;
+    y_start?: number;
+    z_safe?: number;
+    z_depth?: number;
+    coolant?: string;
+  }
+): any {
+  const ctrl = controller.toLowerCase();
+  const op = operation.toLowerCase();
+  const T = params.tool_number || 1;
+  const S = params.rpm;
+  const F = params.feed_rate;
+  const zSafe = params.z_safe || 5;
+  const zDepth = params.z_depth || -(params.depth_of_cut || 3);
+  const coolantCode = params.coolant === "mist" ? "M7" : "M8";
+  
+  let code = "";
+  let notes: string[] = [];
+  
+  if (ctrl.includes("fanuc") || ctrl.includes("haas")) {
+    // Fanuc/Haas G-code
+    if (op.includes("face") || op.includes("mill")) {
+      code = [
+        `( ${operation.toUpperCase()} OPERATION )`,
+        `( Generated by PRISM Manufacturing Intelligence )`,
+        `G90 G54 G17`,
+        `T${T} M6`,
+        `G43 H${T} Z${zSafe}`,
+        `S${S} M3`,
+        coolantCode,
+        `G0 X${params.x_start || 0} Y${params.y_start || 0}`,
+        `G0 Z${zSafe}`,
+        `G1 Z${zDepth} F${Math.round(F * 0.3)}`,
+        `G1 X100. F${F}`,
+        `G0 Z${zSafe}`,
+        `M9`,
+        `M5`,
+        `G91 G28 Z0`,
+        `M30`
+      ].join("\n");
+      notes = ["Modify X100. to match your part width", "Adjust Z depth per pass"];
+    } else if (op.includes("drill")) {
+      code = [
+        `( DRILLING OPERATION )`,
+        `G90 G54 G17`,
+        `T${T} M6`,
+        `G43 H${T} Z${zSafe}`,
+        `S${S} M3`,
+        coolantCode,
+        `G0 X${params.x_start || 0} Y${params.y_start || 0}`,
+        `G83 Z${zDepth} R${zSafe} Q${Math.abs(zDepth / 3).toFixed(1)} F${F}`,
+        `G80`,
+        `M9`,
+        `M5`,
+        `G91 G28 Z0`,
+        `M30`
+      ].join("\n");
+      notes = ["G83 = peck drilling cycle", "Q = peck depth (set to 1/3 of total depth)"];
+    }
+  } else if (ctrl.includes("siemens") || ctrl.includes("sinumerik")) {
+    if (op.includes("face") || op.includes("mill")) {
+      code = [
+        `; ${operation.toUpperCase()} OPERATION`,
+        `; Generated by PRISM Manufacturing Intelligence`,
+        `G90 G54 G17`,
+        `T${T} D1`,
+        `M6`,
+        `G0 Z${zSafe}`,
+        `S${S} M3`,
+        coolantCode,
+        `G0 X${params.x_start || 0} Y${params.y_start || 0}`,
+        `G1 Z${zDepth} F${Math.round(F * 0.3)}`,
+        `G1 X100. F${F}`,
+        `G0 Z${zSafe}`,
+        `M9`,
+        `M5`,
+        `G0 Z200 M30`
+      ].join("\n");
+      notes = ["Siemens uses D1 for tool offset", "Modify X100. to match part"];
+    }
+  } else if (ctrl.includes("heidenhain")) {
+    if (op.includes("face") || op.includes("mill")) {
+      code = [
+        `; ${operation.toUpperCase()} OPERATION`,
+        `; Generated by PRISM Manufacturing Intelligence`,
+        `TOOL CALL ${T} Z S${S}`,
+        `L Z+${zSafe} R0 FMAX M3 ${coolantCode}`,
+        `L X+${params.x_start || 0} Y+${params.y_start || 0} R0 FMAX`,
+        `L Z${zDepth} R0 F${Math.round(F * 0.3)}`,
+        `L X+100 R0 F${F}`,
+        `L Z+${zSafe} R0 FMAX`,
+        `M9`,
+        `M5`,
+        `L Z+200 R0 FMAX M30`
+      ].join("\n");
+      notes = ["Heidenhain conversational format", "L = linear move, FMAX = rapid"];
+    }
+  }
+  
+  if (!code) {
+    code = `( Unsupported controller: ${controller} )`;
+    notes = ["Supported: Fanuc, Haas, Siemens/Sinumerik, Heidenhain"];
+  }
+  
+  return {
+    controller,
+    operation,
+    gcode: code,
+    parameters_used: { S, F, T, Z: zDepth },
+    notes
+  };
+}

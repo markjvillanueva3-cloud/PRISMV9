@@ -51,7 +51,8 @@ const ACTIONS = [
   "workflow_start",
   "workflow_advance", 
   "workflow_status",
-  "workflow_complete"
+  "workflow_complete",
+  "health_check"
 ] as const;
 
 function ok(data: any) {
@@ -706,7 +707,22 @@ export function registerSessionDispatcher(server: any): void {
               nextSessionPrep = JSON.parse(prepOutput);
             } catch { /* non-fatal */ }
 
-            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep });
+            // DA-MS11 UTILIZATION: Run enhanced shutdown for quality scoring + cadence tracking
+            let enhancedShutdown: any = null;
+            try {
+              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+              const shutdownScript = "C:\\PRISM\\scripts\\session_enhanced_shutdown.py";
+              const summary = params.summary || params.quick_resume || "session ended";
+              if (fs.existsSync(shutdownScript)) {
+                const sdOutput = execSync(
+                  `"${PYTHON_PATH}" "${shutdownScript}" --summary "${summary.replace(/"/g, "'")}" --json`,
+                  { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
+                );
+                try { enhancedShutdown = JSON.parse(sdOutput); } catch { enhancedShutdown = { raw: sdOutput.slice(0, 200) }; }
+              }
+            } catch { /* enhanced shutdown non-fatal */ }
+
+            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep, enhanced_shutdown: enhancedShutdown });
           }
           
           case "auto_checkpoint": {
@@ -871,6 +887,85 @@ export function registerSessionDispatcher(server: any): void {
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
           }
           
+          case "health_check": {
+            // W4-1: Session Health Signal
+            // Thresholds: GREEN (healthy) / YELLOW (aging) / RED (wrap up)
+            const HEALTH_THRESHOLDS = {
+              CALL_YELLOW: 20, CALL_RED: 35,
+              TOKEN_YELLOW: 50000, TOKEN_RED: 80000,
+              COMPACTION_YELLOW: 1, COMPACTION_RED: 2
+            };
+
+            // Get call count from pressure log (proxy for session calls)
+            let callCount = 0;
+            let latestTokens = 0;
+            let compactionCount = 0;
+            if (fs.existsSync(PRESSURE_LOG)) {
+              const history = loadJsonFile(PRESSURE_LOG);
+              if (Array.isArray(history)) {
+                callCount = history.length;
+                if (history.length > 0) {
+                  latestTokens = history[history.length - 1].tokens_used || 0;
+                }
+              }
+            }
+            // Count compaction events from session events
+            if (fs.existsSync(EVENT_LOG_FILE)) {
+              try {
+                const eventLines = fs.readFileSync(EVENT_LOG_FILE, "utf-8").split("\n").filter(Boolean);
+                for (const line of eventLines) {
+                  try {
+                    const evt = JSON.parse(line);
+                    if (evt.type === "compaction" || evt.event === "compaction") compactionCount++;
+                  } catch { /* skip malformed */ }
+                }
+              } catch { /* no events */ }
+            }
+
+            // Allow override from params
+            const estimatedTokens = params.estimated_tokens || latestTokens || 0;
+            const calls = params.call_count || callCount;
+            const compactions = params.compaction_count ?? compactionCount;
+
+            // Determine health status
+            let healthStatus: "GREEN" | "YELLOW" | "RED" = "GREEN";
+            const reasons: string[] = [];
+            if (calls > HEALTH_THRESHOLDS.CALL_RED || estimatedTokens > HEALTH_THRESHOLDS.TOKEN_RED || compactions >= HEALTH_THRESHOLDS.COMPACTION_RED) {
+              healthStatus = "RED";
+              if (calls > HEALTH_THRESHOLDS.CALL_RED) reasons.push(`calls=${calls} (>${HEALTH_THRESHOLDS.CALL_RED})`);
+              if (estimatedTokens > HEALTH_THRESHOLDS.TOKEN_RED) reasons.push(`tokens=${estimatedTokens} (>${HEALTH_THRESHOLDS.TOKEN_RED})`);
+              if (compactions >= HEALTH_THRESHOLDS.COMPACTION_RED) reasons.push(`compactions=${compactions} (>=${HEALTH_THRESHOLDS.COMPACTION_RED})`);
+            } else if (calls > HEALTH_THRESHOLDS.CALL_YELLOW || estimatedTokens > HEALTH_THRESHOLDS.TOKEN_YELLOW || compactions >= HEALTH_THRESHOLDS.COMPACTION_YELLOW) {
+              healthStatus = "YELLOW";
+              if (calls > HEALTH_THRESHOLDS.CALL_YELLOW) reasons.push(`calls=${calls} (>${HEALTH_THRESHOLDS.CALL_YELLOW})`);
+              if (estimatedTokens > HEALTH_THRESHOLDS.TOKEN_YELLOW) reasons.push(`tokens=${estimatedTokens} (>${HEALTH_THRESHOLDS.TOKEN_YELLOW})`);
+              if (compactions >= HEALTH_THRESHOLDS.COMPACTION_YELLOW) reasons.push(`compactions=${compactions} (>=${HEALTH_THRESHOLDS.COMPACTION_YELLOW})`);
+            }
+
+            // Get last position save time
+            let lastPositionSave: string | null = null;
+            const posFile = path.join(PRISM_ROOT, "mcp-server", "data", "docs", "roadmap", "CURRENT_POSITION.md");
+            if (fs.existsSync(posFile)) {
+              lastPositionSave = fs.statSync(posFile).mtime.toISOString();
+            }
+
+            const advisory = healthStatus === "RED"
+              ? "Complete current step, write handoff, stop."
+              : healthStatus === "YELLOW"
+              ? "Session aging. Save state, consider wrapping up."
+              : "Healthy. Continue normally.";
+
+            return ok({
+              health_status: healthStatus,
+              call_count: calls,
+              estimated_tokens: estimatedTokens,
+              compaction_count: compactions,
+              last_position_save: lastPositionSave,
+              reasons,
+              advisory
+            });
+          }
+
           default:
             return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }

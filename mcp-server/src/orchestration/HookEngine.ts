@@ -328,7 +328,7 @@ class HookEngine {
       // Simple lookup actions that never need OPUS ($75/1M tokens)
       const simpleLookupActions = [
         "material_get", "material_search", "machine_get", "machine_search",
-        "tool_get", "tool_search", "alarm_decode", "alarm_search",
+        "tool_get", "tool_search", "tool_facets", "alarm_decode", "alarm_search",
         "formula_get", "skill_get", "script_get", "skill_list", "script_list"
       ];
       const taskComplexity = context.data.task_complexity || context.data.complexity || "";

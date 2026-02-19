@@ -15,6 +15,10 @@ import {
   calculateSurfaceFinish,
   calculateMRR,
   calculateSpeedFeed,
+  calculateSpindlePower,
+  calculateChipLoad,
+  calculateTorque,
+  calculateProductivityMetrics,
   getDefaultKienzle,
   getDefaultTaylor,
   type CuttingConditions,
@@ -42,7 +46,11 @@ import {
   calculateScallopHeight,
   calculateOptimalStepover,
   estimateCycleTime,
-  calculateArcFitting
+  calculateArcFitting,
+  calculateChipThinning,
+  calculateMultiPassStrategy,
+  recommendCoolantStrategy,
+  generateGCodeSnippet
 } from "../../engines/ToolpathCalculations.js";
 
 /** XA-6: Basic input validation for material name parameters */
@@ -57,21 +65,45 @@ function validateMaterialName(name: string | undefined): string | null {
 
 const ACTIONS = [
   "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish", 
-  "mrr", "power", "chip_load", "stability", "deflection", "thermal", 
+  "mrr", "power", "torque", "chip_load", "stability", "deflection", "thermal", 
   "cost_optimize", "multi_optimize", "productivity", "engagement", 
-  "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit"
+  "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
+  "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time.",
+    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation.",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
     },
-    async ({ action, params = {} }) => {
+    async ({ action, params: rawParams = {} }) => {
       log.info(`[prism_calc] Action: ${action}`);
+      
+      // Normalize common parameter aliases for usability
+      const params: Record<string, any> = { ...rawParams };
+      if (params.depth_of_cut !== undefined && params.axial_depth === undefined) params.axial_depth = params.depth_of_cut;
+      if (params.width_of_cut !== undefined && params.radial_depth === undefined) params.radial_depth = params.width_of_cut;
+      if (params.flutes !== undefined && params.number_of_teeth === undefined) params.number_of_teeth = params.flutes;
+      if (params.ap !== undefined && params.axial_depth === undefined) params.axial_depth = params.ap;
+      if (params.ae !== undefined && params.radial_depth === undefined) params.radial_depth = params.ae;
+      if (params.fz !== undefined && params.feed_per_tooth === undefined) params.feed_per_tooth = params.fz;
+      if (params.vc !== undefined && params.cutting_speed === undefined) params.cutting_speed = params.vc;
+      if (params.fn !== undefined && params.feed_per_rev === undefined) params.feed_per_rev = params.fn;
+      if (params.n !== undefined && params.rpm === undefined) params.rpm = params.n;
+      if (params.diameter !== undefined && params.tool_diameter === undefined) params.tool_diameter = params.diameter;
+      // H1-MS2: Also accept camelCase → snake_case for calc
+      if (params.toolDiameter !== undefined && params.tool_diameter === undefined) params.tool_diameter = params.toolDiameter;
+      if (params.feedPerTooth !== undefined && params.feed_per_tooth === undefined) params.feed_per_tooth = params.feedPerTooth;
+      if (params.axialDepth !== undefined && params.axial_depth === undefined) params.axial_depth = params.axialDepth;
+      if (params.radialDepth !== undefined && params.radial_depth === undefined) params.radial_depth = params.radialDepth;
+      if (params.cuttingSpeed !== undefined && params.cutting_speed === undefined) params.cutting_speed = params.cuttingSpeed;
+      if (params.spindleSpeed !== undefined && params.rpm === undefined) params.rpm = params.spindleSpeed;
+      if (params.numberOfFlutes !== undefined && params.number_of_teeth === undefined) params.number_of_teeth = params.numberOfFlutes;
+      if (params.feedPerRev !== undefined && params.feed_per_rev === undefined) params.feed_per_rev = params.feedPerRev;
+      if (params.feedRate !== undefined && params.feed_rate === undefined) params.feed_rate = params.feedRate;
       
       let result: any;
       
@@ -122,8 +154,19 @@ export function registerCalcDispatcher(server: any): void {
         
         switch (action) {
           case "cutting_force": {
+            // Auto-derive cutting_speed from material if not provided
+            let autoVc = params.cutting_speed;
+            if (!autoVc && (params.material_id || params.material)) {
+              const matLookup = await registryManager.materials.getByIdOrName(params.material_id || params.material);
+              if (matLookup) {
+                const cr = (matLookup as any).cutting_recommendations?.milling;
+                autoVc = cr?.speed_roughing || cr?.speed_finishing || 150;
+              }
+            }
+            if (!autoVc) autoVc = 150; // Safe default
+            
             const conditions: CuttingConditions = {
-              cutting_speed: params.cutting_speed,
+              cutting_speed: autoVc,
               feed_per_tooth: params.feed_per_tooth,
               axial_depth: params.axial_depth,
               radial_depth: params.radial_depth,
@@ -135,9 +178,9 @@ export function registerCalcDispatcher(server: any): void {
             let coefficients: KienzleCoefficients;
             if (params.kc1_1 && params.mc) {
               coefficients = { kc1_1: params.kc1_1, mc: params.mc };
-            } else if (params.material_id) {
-              // W5: Auto-lookup from material registry — .get() returns data directly
-              const mat = registryManager.materials.get(params.material_id);
+            } else if (params.material_id || params.material) {
+              const matId = params.material_id || params.material;
+              const mat = await registryManager.materials.getByIdOrName(matId);
               if (mat?.kienzle) {
                 const k = mat.kienzle;
                 coefficients = { 
@@ -148,7 +191,7 @@ export function registerCalcDispatcher(server: any): void {
                 } as any;
               } else {
                 coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");
-                result = { error: `Material ${params.material_id} not found or no Kienzle data`, fallback: "using defaults" };
+                result = { error: `Material ${matId} not found or no Kienzle data`, fallback: "using defaults" };
               }
             } else {
               coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");
@@ -162,9 +205,9 @@ export function registerCalcDispatcher(server: any): void {
             let coefficients: TaylorCoefficients;
             if (params.taylor_C && params.taylor_n) {
               coefficients = { C: params.taylor_C, n: params.taylor_n, tool_material: params.tool_material || "Carbide" };
-            } else if (params.material_id) {
-              // W5: Auto-lookup Taylor coefficients — .get() returns data directly
-              const mat = registryManager.materials.get(params.material_id);
+            } else if (params.material_id || params.material) {
+              const matId = params.material_id || params.material;
+              const mat = await registryManager.materials.getByIdOrName(matId);
               const toolMat = params.tool_material || "Carbide";
               if (mat?.taylor) {
                 const t = mat.taylor;
@@ -188,13 +231,29 @@ export function registerCalcDispatcher(server: any): void {
           }
           
           case "speed_feed": {
-            result = calculateSpeedFeed(
-              params.material_hardness || 200,
-              params.tool_material || "Carbide",
-              params.operation || "semi-finishing",
-              params.tool_diameter,
-              params.number_of_teeth
-            );
+            // R1: Pass SpeedFeedInput object, not positional args
+            const sfInput = {
+              material_hardness: params.material_hardness || 200,
+              tool_material: params.tool_material || "Carbide",
+              operation: params.operation || "semi-finishing",
+              tool_diameter: params.tool_diameter || 12,
+              number_of_teeth: params.number_of_teeth || 4,
+              kienzle: undefined as any,
+              taylor: undefined as any,
+            };
+            
+            // Auto-lookup material data if material_id provided
+            if (params.material_id || params.material) {
+              const matId = params.material_id || params.material;
+              const mat = await registryManager.materials.getByIdOrName(matId);
+              if (mat) {
+                sfInput.material_hardness = mat.mechanical?.hardness?.brinell || sfInput.material_hardness;
+                if (mat.kienzle) sfInput.kienzle = { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc };
+                if (mat.taylor) sfInput.taylor = { C: mat.taylor.C, n: mat.taylor.n };
+              }
+            }
+            
+            result = calculateSpeedFeed(sfInput);
             break;
           }
           
@@ -259,6 +318,15 @@ export function registerCalcDispatcher(server: any): void {
               params.number_of_teeth,
               params.radial_depth,
               params.tool_diameter
+            );
+            break;
+          }
+          
+          case "torque": {
+            result = calculateTorque(
+              params.cutting_force,
+              params.tool_diameter || params.workpiece_diameter,
+              params.operation || "milling"
             );
             break;
           }
@@ -438,7 +506,32 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
+          case "chip_thinning": {
+            result = calculateChipThinning(params.tool_diameter, params.radial_depth, params.feed_per_tooth, params.number_of_teeth || 4, params.cutting_speed || 150);
+            break;
+          }
+
+          case "multi_pass": {
+            const mpMat = (params.material_id || params.material) ? await registryManager.materials.getByIdOrName(params.material_id || params.material) : null;
+            const mpKc = params.kc1_1 || mpMat?.kienzle?.kc1_1 || 1800;
+            const mpCr = (mpMat as any)?.cutting_recommendations?.milling || {};
+            result = calculateMultiPassStrategy(params.total_stock || params.stock || 10, params.tool_diameter || 12, mpKc, params.machine_power_kw || params.max_power || 15, params.cutting_speed_rough || mpCr.speed_roughing || 150, params.cutting_speed_finish || mpCr.speed_finishing || 200, params.fz_rough || mpCr.feed_per_tooth_roughing || 0.12, params.fz_finish || mpCr.feed_per_tooth_finishing || 0.06, params.target_Ra);
+            break;
+          }
+
+          case "coolant_strategy": {
+            const csMat = (params.material_id || params.material) ? await registryManager.materials.getByIdOrName(params.material_id || params.material) : null;
+            result = recommendCoolantStrategy(params.iso_group || csMat?.iso_group || "P", params.operation || "milling", params.cutting_speed || 150, params.coolant_through || false, (csMat as any)?.physical?.thermal_conductivity);
+            break;
+          }
+
+          case "gcode_snippet": {
+            const gcRpm = params.rpm || Math.round(((params.cutting_speed || 150) * 1000) / (Math.PI * (params.tool_diameter || 12)));
+            result = generateGCodeSnippet(params.controller || "fanuc", params.operation || "milling", { rpm: gcRpm, feed_rate: params.feed_rate || params.vf || 1000, tool_number: params.tool_number || 1, depth_of_cut: params.axial_depth || 3, x_start: params.x_start, y_start: params.y_start, z_safe: params.z_safe || 5, z_depth: params.z_depth, coolant: params.coolant });
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

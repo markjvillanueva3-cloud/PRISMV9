@@ -1,5 +1,6 @@
 # PHASE P0: FULL SYSTEM ACTIVATION — v13.9
-# Status: not-started | Sessions: 2 | MS: 10 (MS0a, MS0b, MS1-MS8) | Role: Systems Integration Architect
+# Status: COMPLETE | Sessions: 2 | MS: 10 (MS0a, MS0b, MS1-MS8) | Role: Systems Integration Architect
+<!-- LOADER: SKIP TO LINE 871 — P0 is fully complete. Do not load this file unless re-gating. -->
 # Pattern: Every MS follows AUDIT → FIX → VERIFY → DOCUMENT
 # v13.9: Cross-Audit Governance Hardening — 3 P0-specific improvements.
 #         SECURITY FOUNDATION in MS0b: local-only transport, read-only registry, input validation (XA-6).
@@ -39,6 +40,7 @@
 
 ---
 
+<!-- ANCHOR: p0_context_bridge -->
 ## CONTEXT BRIDGE
 
 WHAT CAME BEFORE: PRISM MCP server exists with 31 dispatchers, 37 engines, 368 actions — all compiled and running. ROOT PROBLEM: 4 duplicate registry pairs (Material, Machine, Alarm, Tool) cause subsystems to read different data. warm_start sees 707 materials/2 machines/0 alarms/8 tools. knowledge sees 521 materials/402 machines/10033 alarms/0 tools. Neither gets complete data.
@@ -54,6 +56,7 @@ ARTIFACT MANIFEST (XA-1):
 
 ---
 
+<!-- ANCHOR: p0_objectives -->
 ## OBJECTIVES
 
 1. All 31 dispatchers respond with valid data (or tagged BASELINE-INVALID for data-dependent ones)
@@ -63,6 +66,7 @@ ARTIFACT MANIFEST (XA-1):
 5. MASTER_INDEX S1 counts match live system.
 6. Opus 4.6 fully configured: Compaction API, Adaptive Thinking, effort tiers, structured outputs, streaming, prefilling removed, context editing wired.
 
+<!-- ANCHOR: p0_quantified_acceptance_criteria_xa_2 -->
 ## QUANTIFIED ACCEPTANCE CRITERIA (XA-2)
 
 ```
@@ -89,6 +93,7 @@ MS-LEVEL ACCEPTANCE:
 
 ---
 
+<!-- ANCHOR: p0_parallelism_map -->
 ## PARALLELISM MAP
 
 ```
@@ -110,6 +115,7 @@ OPTIMAL 2-SESSION PATH (with Opus 4.6):
 
 ---
 
+<!-- ANCHOR: p0_p0_ms0a_create_files_utilities_schemas_validations_tests -->
 ## P0-MS0a: Create Files — Utilities, Schemas, Validations, Tests
 
 **Effort:** ~28 calls | **Tier:** STANDARD | **Context:** ~10KB
@@ -206,6 +212,7 @@ NOTE: Steps 6-7 (model string fixes, API wiring) are in MS0b. MS0a creates files
 
 ---
 
+<!-- ANCHOR: p0_p0_ms0b_wire_opus_4_6_verify_all_dispatchers -->
 ## P0-MS0b: Wire Opus 4.6 + Verify All Dispatchers
 
 **Effort:** ~30 calls | **Tier:** STANDARD | **Context:** ~12KB
@@ -410,6 +417,7 @@ NOTE: Steps 6-7 (model string fixes, API wiring) are in MS0b. MS0a creates files
 
 ---
 
+<!-- ANCHOR: p0_p0_ms1_skills_registration_guard_activation -->
 ## P0-MS1: Skills Registration + Guard Activation
 
 **Effort:** ~12 calls | **Tier:** STANDARD | **Context:** ~6KB
@@ -483,6 +491,7 @@ NOTE: Steps 6-7 (model string fixes, API wiring) are in MS0b. MS0a creates files
 
 ---
 
+<!-- ANCHOR: p0_p0_ms2_hooks_cadence_session_prep_wiring -->
 ## P0-MS2: Hooks + Cadence + Session Prep Wiring
 
 **Effort:** ~12 calls | **Tier:** STANDARD | **Context:** ~6KB
@@ -526,6 +535,7 @@ NOTE: Steps 6-7 (model string fixes, API wiring) are in MS0b. MS0a creates files
 
 ---
 
+<!-- ANCHOR: p0_p0_ms3_registry_deduplication_4_pairs_4_singles -->
 ## P0-MS3: Registry Deduplication (4 Pairs → 4 Singles)
 
 **Effort:** ~15 calls | **Tier:** DEEP | **Context:** ~7KB
@@ -585,6 +595,7 @@ NOTE: Steps 6-7 (model string fixes, API wiring) are in MS0b. MS0a creates files
 
 ---
 
+<!-- ANCHOR: p0_p0_ms4_autopilot_gsd_sync_wiring -->
 ## P0-MS4: AutoPilot + GSD Sync Wiring
 
 **Effort:** ~10 calls | **Tier:** STANDARD | **Context:** ~5KB
@@ -615,6 +626,7 @@ Do NOT load §Sequencing Guides here — save those tokens for MS8.
 
 ---
 
+<!-- ANCHOR: p0_p0_ms5_scripts_nl_hooks_generator -->
 ## P0-MS5: Scripts + NL Hooks + Generator
 
 **Effort:** ~10 calls | **Tier:** STANDARD | **Context:** ~5KB
@@ -650,6 +662,7 @@ Do NOT load §Sequencing Guides here — save those tokens for MS8.
 
 ---
 
+<!-- ANCHOR: p0_p0_ms6_agents_swarms_atcs -->
 ## P0-MS6: Agents + Swarms + ATCS
 
 **Effort:** ~10 calls | **Tier:** STANDARD | **Context:** ~5KB
@@ -698,6 +711,7 @@ Do NOT load §Sequencing Guides here — save those tokens for MS8.
 
 ---
 
+<!-- ANCHOR: p0_p0_ms7_memory_manus_pfp_telemetry_compliance_tenant_bridge -->
 ## P0-MS7: Memory + Manus + PFP + Telemetry + Compliance + Tenant + Bridge
 
 **Effort:** ~12 calls | **Tier:** STANDARD | **Context:** ~6KB
@@ -748,6 +762,7 @@ Do NOT load §Sequencing Guides here — save those tokens for MS8.
 
 ---
 
+<!-- ANCHOR: p0_p0_ms8_integration_gate_14_chains_parallel_execution -->
 ## P0-MS8: Integration Gate (14 Chains — PARALLEL EXECUTION)
 
 **Effort:** ~20 effective calls (was ~45 sequential in v12.2) | **Tier:** RELEASE | **Context:** ~12KB

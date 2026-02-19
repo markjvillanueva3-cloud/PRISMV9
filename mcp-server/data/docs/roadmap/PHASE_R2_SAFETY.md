@@ -1,209 +1,566 @@
-# PHASE R2: SAFETY TEST MATRIX — v13.9
-# Status: not-started | Sessions: 1 | MS: 5 (MS0-MS4, including new MS1.5) | Role: Safety Test Engineer
-# Pattern: Every MS follows SETUP → EXECUTE → VALIDATE → DOCUMENT
-# v13.9: Cross-Audit Governance Hardening — artifact manifest, fault injection, test levels (XA-1,13,7).
-# v13.5: LIMITATION category added to fix cycle (5th classification for formula boundaries — OB-1).
-#         Alarm tolerance clarified: structured-field exact + description similarity (SK-4).
-#         Reference values from src/data/referenceValues.ts for tolerance validation (SK-3).
-#         Cross-field physics validation runs on every calc result (SK-1).
-#         Parallel equivalence tolerance for R6 diff (CB-5).
-#         Minimum VALID-DANGEROUS count (≥5). Regression sample selection guidance.
-# v13.3: AI edge case generator specifies exact dispatcher (agent_execute opus).
-#         Fix cycle has explicit code_search→file_read→str_replace→build→verify flow.
-#         Triage step has effort annotation.
-# v13.2: Parallel result sorting before flush. Tolerance import from source file (not hardcoded).
-#         Content verification on MANDATORY flushes. Automated vitest suite creation in MS3.
-# v13.1: Restored Canonical Tolerance Table reference (math accuracy separate from S(x) safety).
-#         Added flush/checkpoint granularity per material group. All v13.0 additions retained.
-# v13.0: NEW MS1.5 for AI-generated edge cases (Opus 4.6 novel reasoning at max effort).
-#         Parallel material groups in MS0 via Agent Teams. Structured outputs on ALL safety calcs.
-#         All safety calcs use effort=max. Session estimate stays at 1 (Agent Teams offset new MS).
+# PHASE R2: SAFETY + ENGINE VALIDATION â€” v14.2
+### RECOMMENDED_SKILLS: prism-safety-framework, prism-master-equation, prism-cutting-mechanics, prism-material-physics
+### HOOKS_EXPECTED: DISPATCH, FILE, STATE, CALC, FORMULA, SAFETY
+### DATA_PATHS: C:\PRISM\data\materials, C:\PRISM\mcp-server\src\engines
+
+# Status: not-started | Sessions: 2-3 | MS: 7 (MS0-MS5, with MS1.5 new) | Role: Safety Systems Engineer
+# DEPENDS ON: R1-MS9 complete (registries loaded, data validated, formulas wired). R1-MS10 is optional and NOT required for R2 entry.
+# v14.2: Added MS1.5 (Calc Regression Suite â€” locks golden dataset before building on calcs)
+# Pattern: TEST â†’ RECORD â†’ FIX â†’ RETEST â†’ GATE
+# v14.0: Unified Roadmap â€” absorbs Superpower Roadmap Phase 1 (29 safety engine action tests)
+#         as new R2-MS1. Original milestones renumbered:
+#           MS0 = 50-Calc Test Matrix (unchanged)
+#           MS1 = Safety Engine Activation â€” 29 actions across 5 engines (NEW from Superpower)
+#           MS2 = AI-Generated Edge Cases (was MS1.5)
+#           MS3 = Manual Edge Cases + Fix Cycle (was MS1 + MS2 merged)
+#           MS4 = Build Gate + Phase Completion (was MS3)
+#
+#         WHY MS1 IS NEW: The Superpower Roadmap tested 29 individual safety engine actions
+#         with exact parameter sets. R2's original 50-calc matrix tests the INTEGRATED calc
+#         chain but not the INDIVIDUAL safety engines. Both are needed:
+#           - MS0 tests: "Does the integrated chain produce correct results?"
+#           - MS1 tests: "Does each individual safety engine respond correctly to its inputs?"
+#         Testing the chain without testing the components misses single-engine failures.
+#         Testing components without testing the chain misses integration failures.
+#
+#         R1-MS7 (machine field population) means these tests now use REAL machine data
+#         instead of hardcoded spindleSpec values. This is a major improvement â€” the safety
+#         engines are validated against actual machine capabilities.
+#
+#         REFERENCE DOCUMENT: Load SUPERPOWER_ROADMAP.md during R2-MS1 ONLY for exact test
+#         parameters. Contains the specific input values for all 29 safety actions.
+#
+# v13.9: Cross-Audit Governance Hardening (XA-1,13,7) â€” retained unchanged.
+# v13.5-v13.8: All prior hardening retained unchanged.
+
+# SAFETY-CRITICAL MODEL REQUIREMENT (Roadmap Audit 2026-02-17 Finding 10):
+# ALL R2 milestones that define golden values or safety thresholds REQUIRE Opus.
+# If running Sonnet or Haiku: STOP. Switch to Opus before proceeding.
+# Sonnet is acceptable ONLY for test harness scaffolding (non-safety code).
+# This is a HARD requirement, not advisory.
 
 ---
 
+<!-- ANCHOR: r2_quick_reference_standalone_after_compaction_no_other_doc_needed -->
+## QUICK REFERENCE (standalone after compaction â€” no other doc needed)
+```
+BUILD:      npm run build (NEVER standalone tsc â€” OOM at current scale)
+SAFETY:     S(x) >= 0.70 is HARD BLOCK
+POSITION:   Update CURRENT_POSITION.md every 3 calls
+FLUSH:      Write results to disk after each logical unit of work
+ERROR:      Fix ONE build error, rebuild, repeat. >5 from one edit â†’ git revert
+IDEMPOTENT: Read-only = safe to re-run. Write = check if already done first.
+STUCK:      3 same-approach fails â†’ try different approach. 6 total â†’ skip if non-blocking.
+TRANSITION: Update CURRENT_POSITION first, ROADMAP_TRACKER second.
+RECOVERY:   Read PRISM_RECOVERY_CARD.md for full recovery steps.
+ENV:        R2 = Claude Code 70% + MCP 30%. Opus for safety calcs. 50-calc matrix + regression.
+```
+
+---
+
+<!-- ANCHOR: r2_quick_reference_standalone_after_compaction_no_other_doc_needed -->
+## QUICK REFERENCE (standalone after compaction â€” no other doc needed)
+```
+BUILD:      npm run build (NEVER standalone tsc â€” OOM at current scale)
+SAFETY:     S(x) >= 0.70 is HARD BLOCK
+POSITION:   Update CURRENT_POSITION.md every 3 calls
+FLUSH:      Write results to disk after each logical unit of work
+ERROR:      Fix ONE build error, rebuild, repeat. >5 from one edit â†’ git revert
+IDEMPOTENT: Read-only = safe to re-run. Write = check if already done first.
+STUCK:      3 same-approach fails â†’ try different approach. 6 total â†’ skip if non-blocking.
+TRANSITION: Update CURRENT_POSITION first, ROADMAP_TRACKER second.
+RECOVERY:   Read PRISM_RECOVERY_CARD.md for full recovery steps.
+ENV:        R2 = Hybrid: Code (benchmarks) + MCP (Ralph validation). Safety Systems Engineer.
+```
+
+<!-- ANCHOR: r2_knowledge_contributions_what_this_phase_feeds_into_the_hierarchical_index -->
+## KNOWLEDGE CONTRIBUTIONS (what this phase feeds into the hierarchical index)
+```
+BRANCH 3 (Relationships): Every validated calculation produces materialâ†”toolâ†”formula edges.
+  "Kienzle kc1.1=2800, mc=0.25 validated for Inconel-718 + carbide C6" â†’ relationship edge.
+  Expected: 50-200 new relationship edges from the 50-calculation matrix.
+BRANCH 4 (Session Knowledge): Formula validation findings, safety threshold observations,
+  edge cases where S(x) < 0.70, formula parameter corrections.
+AT PHASE GATE: RELATIONSHIP_GRAPH.json has  50 validated edges from R2 calculations.
+```
+
+---
+
+<!-- ANCHOR: r2_execution_model -->
+### EXECUTION MODEL
+```
+Environment: Hybrid â€” Claude Code (benchmark execution) + Claude.ai MCP (Ralph validation)
+Model: Sonnet (test harness creation) â†’ Opus (safety calculation review, failure classification)
+
+PARALLEL EXECUTION:
+- 50-calc benchmark matrix: fan across 5 subagents (10 materials each)
+- 29 safety engine tests (from Superpower Phase 1): execute as background agent batch
+- Main session handles ONLY failure analysis and Ralph validation loops
+- Ralph validation requires API key and prism_ralph dispatcher â†’ MUST use MCP
+- safety-reviewer subagent accumulates failure patterns in persistent memory
+```
+
+
+<!-- ANCHOR: r2_context_bridge -->
 ## CONTEXT BRIDGE
 
-WHAT CAME BEFORE: R1 loaded ALL registry data >95%. Materials 3518+, Machines 824+, Tools 1944+, Alarms 9200+. Formula definitions (Taylor, Kienzle, specific cutting force) validated with structured outputs. REGISTRY_AUDIT.md documents load counts and gap analysis. PHASE_FINDINGS.md has P0+R1 sections.
+WHAT CAME BEFORE: R1 loaded all registries >95% AND built data foundation:
+  Materials: 3,392 loaded, 80%+ enriched with tribology/composition/designation
+  Machines: 1,016 loaded, top 50 with spindle/power/envelope specs
+  Tools: 5,238 loaded, normalized schema, ToolIndex with O(1) lookup, tool_facets action
+  Alarms: 10,033 loaded (100%)
+  Formulas: 509 (500 original + 9 calculator formulas)
+  New actions: tool_facets, strategy_for_job, strategy_compare, category_browse,
+    novel_strategies, strategy_detail, thread_recommend, tap_drill_calc,
+    thread_mill_params, go_nogo_limits, unified_search, formula_calculate
+  Build: clean. Omega >= 0.70. Fault injection passed.
 
-WHAT THIS PHASE DOES: Execute 50-calc test matrix across 10 material categories × 5 operation types. NEW: AI-generate 10-15 additional edge cases that human-defined tests would miss, leveraging Opus 4.6's near-doubled novel problem-solving capability (ARC-AGI-2: 68.8%). ALL calcs enforce S(x)>=0.70 with structured output validation. Build gate: green build with all tests passing.
+WHAT THIS PHASE DOES: Validate that the wired engines + loaded data produce CORRECT,
+SAFE cutting parameters. Two dimensions:
+  1. Integrated chain validation: 50 calculations across 10 materials Ã— 5 operations
+  2. Individual engine validation: 29 safety engine actions tested with exact parameters
+  3. Edge case discovery: AI-generated adversarial inputs that humans wouldn't think of
+  Fix any calculation errors, parameter mapping bugs, or safety gate failures.
 
-WHAT COMES AFTER: R3 (Data Campaigns) expands coverage to full material library in batches. R4 (Enterprise) builds compliance and multi-tenant. R2 outputs: test matrix in build, edge case definitions, safety baselines, R2_CALC_RESULTS.md.
+WHAT COMES AFTER: R3 (Intelligence + Data Campaigns) builds intelligence features
+(job_plan, wear_prediction, process_cost, etc.) and runs full-library batch campaigns.
+R3 assumes ALL safety calcs are validated and ALL safety engines respond correctly.
 
 ARTIFACT MANIFEST (XA-1):
   REQUIRES: REGISTRY_AUDIT.md, PHASE_FINDINGS.md (R1 section)
   PRODUCES: R2_CALC_RESULTS.md, PHASE_FINDINGS.md (R2 section),
-            src/__tests__/safetyMatrix.test.ts, src/__tests__/edgeCases.test.ts
+            src/__tests__/safetyMatrix.test.ts, src/__tests__/edgeCases.test.ts,
+            src/__tests__/safetyEngines.test.ts
+
+TEST LEVELS: L1-L5 required (unit + contract + integration + orchestration + safety invariants)
+
+FAULT INJECTION TEST (XA-13):
+  R2 FAULT TEST: Pass NaN as a cutting parameter â†’ verify S(x)=0 (safety block).
+  WHEN: After R2-MS0 matrix is working (need known-good baseline to inject fault against).
+  HOW: prism_calc action=speed_feed material="4140" operation="turning"
+       with Vc=NaN manually injected in the test harness.
+  EXPECTED: Structured output schema REJECTS NaN (exclusiveMinimum:0 fails).
+            Cross-field physics validation blocks the result.
+            Safety score = 0.0 (physically impossible result is never safe).
+  PASS: No NaN propagates to output. Safety block activates.
+  FAIL: NaN appears in output, or safety score > 0 with NaN input.
+  EFFORT: ~3 calls.
 
 ---
 
-## OBJECTIVES
-
-1. 50 standard calculations (10 materials × 5 operations) all pass S(x) >= 0.70 AND within tolerance bounds
-2. 10-15 AI-generated edge cases covering non-obvious dangerous inputs
-3. ALL calculation outputs validated via structured output schemas (no NaN, no missing fields)
-4. ALL safety calculations run at effort=max (deepest reasoning for life-critical math)
-5. Build gate: npm run build passes with test matrix included
-6. R2_CALC_RESULTS.md with all results, edge cases, and safety baselines
-7. TEST LEVELS: L1-L5 required (unit + contract + integration + orchestration + safety invariants)
-
-## FAULT INJECTION TEST (XA-13 — one test per phase)
+<!-- ANCHOR: r2_canonical_tolerance_table_r2_tolerances -->
+## CANONICAL TOLERANCE TABLE (R2_TOLERANCES)
 
 ```
-R2 FAULT TEST: Feed NaN to safety calc → verify S(x) blocks it.
-  WHEN: After R2-MS0 standard calcs are working (need a working baseline to break).
-  HOW:  Craft an input where one parameter is NaN (or Infinity, or null):
-        prism_calc action=speed_feed material="4140" operation="turning" [with NaN Vc override]
-        EXPECTED: S(x) blocks the operation. Does NOT return NaN >= 0.70 = true (JS quirk).
-        VERIFY: Safety block is logged as safety_decision_record with correlationId.
-                Structured output schema rejects NaN (exclusiveMinimum:0 should catch this).
-  PASS: NaN is caught by either schema validation or physics cross-check. Safety blocks.
-  FAIL: NaN passes through and system returns "safe" for a garbage input.
-  EFFORT: ~3 calls. Run during R2-MS1 (manual edge cases — natural place for adversarial inputs).
+WHAT THIS IS: Acceptable deviation between PRISM's calculated values and
+reference values from Machining Data Handbook, Sandvik Coromant, Walter tools.
+
+SEPARATE from S(x) safety score:
+  S(x) = "is it safe to cut at these parameters?"
+  R2_TOLERANCES = "is our math producing numbers in the right ballpark?"
+
+Both must pass. A calc can be safe (S(x)=0.80) but wrong (Vc off by 50%).
+A calc can be accurate (Vc within 5%) but unsafe (power exceeds machine).
+
+  speed_feed:        15% on Vc,  20% on fz (cutting data varies by source)
+  cutting_force:     25% on Fc (Kienzle uncertainty is inherent â€” material kc1_1 varies)
+  v14.5 S-3: S(x) MUST use WORST-CASE force (predicted + uncertainty), not nominal.
+  If S(x) = 0.72 and force has 25% uncertainty, true safety could be below 0.70.
+  R2-MS0 must verify safety score uses upper-bound force estimate.
+  tool_life:         30% on T (Taylor is notoriously imprecise â€” n exponent sensitivity)
+  spindle_speed:     2% on n_rpm (pure arithmetic â€” should be exact)
+  safety:            0.05 on S(x) (composite score tolerance)
+  alarm_decode:     Exact on structured fields (controller, code, severity).
+                    similarity >= 0.90 on description (SK-4 â€” different wording same alarm).
+
+SOURCE for reference values: src/schemas/referenceValues.ts (SK-3)
+  Created during P0, validated in R2. Contains:
+    Standard values from Machining Data Handbook
+    Sandvik Coromant cutting data catalog
+    Walter online cutting data calculator
+    With source citations for audit traceability
+
+COMPARISON PROTOCOL:
+  For each calc: | PRISM_value - reference_value | / reference_value <= tolerance
+  If within tolerance â†’ PASS (with actual delta recorded)
+  If outside tolerance â†’ INVESTIGATE:
+    1. Is the reference value correct? (old edition, different conditions?)
+    2. Is the material data correct? (kc1_1, mc, Taylor C/n sourced properly?)
+    3. Is the formula correct? (implementation matches equation?)
+    4. Is it a FORMULA LIMITATION? (Kienzle doesn't model thin-chip effects at low ap)
+  After investigation: FIX or DOCUMENT as known limitation with reasoning.
+
+PARALLEL EQUIVALENCE TOLERANCE (CB-5 â€” for R6 regression testing):
+  When comparing parallel vs sequential execution results:
+    Floating-point results may differ by â‰¤1e-10 due to operation ordering.
+    Compare using: Math.abs(parallel - sequential) < 1e-6 * Math.max(1, Math.abs(sequential))
+    This is tolerance-based comparison, NOT exact equality.
 ```
 
 ---
 
-## CANONICAL TOLERANCE TABLE REFERENCE
+<!-- ANCHOR: r2_r2_ms0_50_calc_test_matrix -->
+## R2-MS0: 50-Calc Test Matrix
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_golden_values_sonnet_test_harness_effort_xl_25_calls_sessions_2 -->
+### Role: Safety Engineer | Model: Opus (golden values) â†’ Sonnet (test harness) | Effort: XL (25 calls) | Sessions: 2
 
-ALL milestones in R2 validate against the tolerance bounds defined in PRISM_PROTOCOLS_CORE.md §Canonical Tolerance Table. Both gates must pass for each calculation:
-
-  GATE 1 — SAFETY:   S(x) >= 0.70 (is this cut safe for the operator?)
-  GATE 2 — ACCURACY: delta% within R2_TOLERANCES[category] (is the math correct?)
-
-A calc that passes S(x) but fails tolerance is a BUG (correct safety conclusion, wrong intermediate math). A calc that passes tolerance but fails S(x) is WORKING AS INTENDED (accurate math, unsafe parameters). Both are documented differently in R2_CALC_RESULTS.md.
-
----
-
-## R2-MS0: 50-Calc Test Matrix (Parallel Material Groups)
-
-**Effort:** ~25 calls (was ~40 in v12.2 — parallel groups) | **Tier:** RELEASE | **Context:** ~10KB
-**Response Budget:** ~25KB throughput, ~8KB peak (between flushes)
-**Entry:** R1 COMPLETE. All registries >95%.
+**Effort:** ~25 calls | **Tier:** DEEP
+**Entry:** R1 COMPLETE. All registries loaded, enriched, indexed.
 
 ```
-=== TEST MATRIX STRUCTURE ===
-10 Material Categories: Alloy Steel (4140), Carbon Steel (1045), Tool Steel (D2),
-  Stainless Steel (316SS), Titanium (Ti-6Al-4V), Aluminum (6061-T6), Cast Iron (GG25),
-  Copper (C360), Inconel (718), Duplex Stainless (2205)
+MATERIALS (10 â€” representative across ISO groups):
+  P Steels:    4140 (alloy), 1045 (medium carbon), D2 (tool steel)
+  M Stainless: 316SS (austenitic), 17-4PH (precipitation hardened)
+  K Cast Iron: Gray iron FC250
+  N Nonferrous: 6061-T6 (aluminum), C360 (brass)
+  S Superalloys: Inconel 718 (nickel), Ti-6Al-4V (titanium)
 
-5 Operation Types per material: Turning, Milling, Drilling, Threading, Grooving
+OPERATIONS (5):
+  Turning (roughing), Face milling (roughing), Drilling (through),
+  Slotting (full width), Thread tapping (M10x1.5)
 
-Total: 50 calculations. Each produces: Vc, fz, ap, n_rpm, Fc, tool_life_min, safety_score.
-ALL use effort=max. ALL enforce structured output schema from PRISM_PROTOCOLS_CORE.
+EXECUTION ORDER (parallel groups for Agent Teams):
+  Group 1 (parallel â€” 5 concurrent): 4140 all ops â†’ flush
+  Group 2 (parallel â€” 5 concurrent): 316SS all ops â†’ flush
+  Group 3 (parallel â€” 5 concurrent): Inconel 718 all ops â†’ flush
+  Group 4 (parallel â€” 5 concurrent): 6061-T6 all ops â†’ flush
+  Remaining 6 materials: 2 groups of 3 (parallel within group) â†’ flush each
 
-=== PARALLEL EXECUTION (Agent Teams) ===
-GROUP A — Common Metals (parallel): 4140, 1045, 6061-T6, C360, GG25
-  Execute all 25 calcs concurrently via prism_orchestrate action=swarm_execute pattern="parallel_batch"
+FOR EACH CALCULATION:
+  1. prism_data action=material_get material="[name]"  [effort=high]
+     VERIFY: tribology and composition are NOT null (from R1-MS6 enrichment)
+  2. prism_calc action=speed_feed material="[name]" operation="[op]"  [effort=max, structured output]
+     VERIFY against R2_TOLERANCES   tolerance
+  3. If S(x) < 0.70 â†’ record as SAFETY_BLOCK (expected for some material+op combos)
+  4. If S(x) >= 0.70 â†’ verify Vc, fz, ap against reference values
+  5. Record in R2_CALC_RESULTS.md:
+     "[material] [operation]: Vc=[value] fz=[value] S(x)=[value] [PASS/FAIL/BLOCK] delta=[%]"
 
-GROUP B — Exotic/Hard Metals (parallel): Ti-6Al-4V, 316SS, D2, 718, 2205
-  Execute all 25 calcs concurrently via parallel_batch
+  SORT RESULTS by material.localeCompare() then operation.localeCompare() before flush.
+  WHY: Unsorted parallel results make diff-based regression testing unreliable.
 
-WHY PARALLEL: Each material × operation calc is fully independent.
-No shared mutable state. Same results regardless of execution order.
-
-=== FLUSH + CHECKPOINT PROTOCOL (per group) ===
-→ SORT results by stable key before flushing (ORDERING RULE from §Parallel Execution):
-   Sort by material.localeCompare() then operation.localeCompare().
-   Use keyed entries: [4140:turning] Vc=180, fz=0.25, S(x)=0.82
-   WHY: Unsorted parallel results make diff-based regression testing unreliable.
-→ FLUSH Group A results: prism_doc action=append name=R2_CALC_RESULTS.md content="GROUP A: [sorted results]"
-   VERIFY FLUSH: Calc results are NON-REGENERABLE (multi-step: material_get → calc → validate).
+FLUSH + CHECKPOINT PROTOCOL (per group):
+â†’ FLUSH Group results: prism_doc action=append name=R2_CALC_RESULTS.md content="GROUP [A/B]: [sorted results]"
+   VERIFY FLUSH: Calc results are NON-REGENERABLE (multi-step: material_get â†’ calc â†’ validate).
    If flush fails, retry once. If retry fails, DO NOT shed from context.
    CONTENT VERIFY (MANDATORY): Read back last 100 chars, confirm match.
-→ MICRO-CHECKPOINT: prism_doc action=append name=ACTION_TRACKER.md
-   content="R2-MS0 GROUP-A complete [date] — 25 calcs, [N pass] / [N fail]"
-
-→ SORT + FLUSH Group B results: prism_doc action=append name=R2_CALC_RESULTS.md content="GROUP B: [sorted results]"
-   VERIFY FLUSH + CONTENT VERIFY (same protocol as Group A).
-→ MICRO-CHECKPOINT: "R2-MS0 GROUP-B complete [date] — 25 calcs, [N pass] / [N fail]"
+â†’ MICRO-CHECKPOINT: prism_doc action=append name=ACTION_TRACKER.md
+   content="R2-MS0 GROUP-[A/B] complete [date] â€” 25 calcs, [N pass] / [N fail]"
 
 WHY CHECKPOINT PER GROUP: If session ends after Group A, recovery restarts at Group B only.
   Without checkpoints: re-run all 50 calcs. With: re-run 25. Saves ~12 calls.
 
-=== VALIDATION (after both groups complete) ===
-For EACH of 50 results, apply BOTH gates:
-  GATE 1 — SAFETY:   safety_score >= 0.70 (S(x) hard block — Law 1)
-  GATE 2 — ACCURACY: delta% within R2_TOLERANCES[category] from §Canonical Tolerance Table
-    Import tolerance values from src/schemas/tolerances.ts (created in P0-MS0 step 12d).
-    DO NOT hardcode tolerance values in test code — single source of truth in tolerances.ts.
-    Speed/feed: |actual - reference| / reference <= 0.15
-    Cutting force: <= 0.20 | Tool life: <= 0.25 | Thread: <= 0.05
-    Alarm decode: exact match | Edge case: <= 0.30 | Multi-op: <= 0.15
-  ✓ All numeric fields are finite positive numbers (structured output guarantees this)
-  ✓ Vc within physical bounds for material (e.g., Ti-6Al-4V Vc < 120 m/min)
-  ✓ Fc within reasonable range (not 0, not 10x expected)
-  ✓ tool_life_min > 0 and < 10000 (sanity bounds)
+AFTER ALL 50 CALCULATIONS:
+  Summary statistics:
+    Total: 50 | PASS: [N] | FAIL: [N] | SAFETY_BLOCK: [N]
+    Worst delta: [material] [operation] at [%]
+    Best delta: [material] [operation] at [%]
+  Safety blocks are NOT failures â€” they mean the system correctly prevented a bad cut.
+  Expected safety blocks: Ti-6Al-4V tapping (usually too risky), maybe D2 slotting.
 
-IF ANY safety_score < 0.70:
-  → System correctly identified unsafe parameters. Document.
-  → Adjust parameters and re-run, or document as KNOWN UNSAFE COMBINATION.
+CONTEXT MANAGEMENT:
+  After each group flush â†’ prism_context action=context_compress
+  Clear completed group's tool results from context.
+  Keep only: summary stats, FAIL/BLOCK entries, CURRENT_POSITION.
 
-IF structured output validation rejects a result:
-  → Code failure. Trace to calc function. Fix. Rebuild. Re-run.
-
-=== DOCUMENT ===
-prism_doc action=append name=R2_CALC_RESULTS.md content="STANDARD MATRIX SUMMARY: [50 results]"
-Append ROADMAP_TRACKER.
+EXIT: R2_CALC_RESULTS.md has all 50 results. FAIL count documented for MS3 fix cycle.
 ```
-
-**Exit:** 50 calcs executed (parallel). All S(x) >= 0.70 or documented. All structured outputs valid.
 
 ---
 
-## R2-MS1: Manual Edge Cases (6 Defined)
+<!-- ANCHOR: r2_r2_ms1_safety_engine_activation_29_actions -->
+## R2-MS1: Safety Engine Activation (29 Actions)
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_safety_review_sonnet_activation_opus_gate_effort_xl_30_calls_sessions_2_3 -->
+### Role: Safety Engineer | Model: Opus (safety review) â†’ Sonnet (activation) â†’ Opus (gate) | Effort: XL (30 calls) | Sessions: 2-3
 
-**Effort:** ~8 calls | **Tier:** RELEASE | **Context:** ~5KB
-**Response Budget:** ~8KB throughput, ~4KB peak
-**Entry:** R2-MS0 COMPLETE.
+**Source:** SUPERPOWER_ROADMAP.md Phase 1, Steps 1.1-1.9
+**Effort:** ~30 calls | **Tier:** DEEP
+**Entry:** R2-MS0 COMPLETE (50-calc matrix provides baseline).
+
+**REFERENCE DOCUMENT:** Load SUPERPOWER_ROADMAP.md for this MS ONLY. It contains the EXACT
+input parameter values for each of the 29 safety actions. DO NOT invent parameters â€” use
+the specific values from the Superpower Roadmap to ensure reproducible test results.
+
+**WHY REAL MACHINE DATA MATTERS (v14.0):**
+  R1-MS7 populated the top 50 machines with spindle/power/envelope specs. This means:
+  - Spindle protection tests use REAL Haas VF-2 specs (8100 RPM, 22.4 kW, 122 Nm)
+  - Collision engine tests use REAL machine work envelopes (762Ã—406Ã—508 mm for VF-2)
+  - Not hardcoded test values that might not match real machines
+  When the Superpower Roadmap specifies a spindleSpec, PREFER using the actual VF-2 (or
+  equivalent) machine data from the registry. Note any discrepancies in test results.
 
 ```
-=== 6 MANUALLY DEFINED EDGE CASES ===
-Edge 1: Near-zero feed rate (fz = 0.001 mm/tooth) with 4140
-Edge 2: Maximum hardness material (62 HRC tool steel)
-Edge 3: Minimum diameter tool (0.5mm endmill)
-Edge 4: Exotic material (Waspaloy / Hastelloy X) — may lack full kc1_1 data
-Edge 5: Missing field simulation — material with kc1_1 = null
-Edge 6: Negative depth of cut (ap = -1.0) — must be rejected
+=== ENGINE 1: TOOL BREAKAGE (5 actions) ===
 
-=== EXECUTE (effort=max, structured output) ===
-1-6. Run each. Expected: valid result within edge_case tolerance (±30%) OR correct rejection.
-     NO crashes. NO NaN. NO unhandled exceptions.
-     For valid results: verify delta% <= R2_TOLERANCES.edge_case (0.30).
+ACTION 1: predict_tool_breakage
+  prism_validate action=predict_tool_breakage
+    tool: { diameter: 10, shankDiameter: 10, fluteLength: 22, overallLength: 72,
+            stickout: 40, numberOfFlutes: 4 }
+    forces: { Fc: 445, Ff: 178, Fp: 134 }
+    conditions: { feedPerTooth: 0.1, axialDepth: 3, radialDepth: 6,
+                  cuttingSpeed: 150, spindleSpeed: 4775 }
+    toolMaterial: "carbide"
+  EXPECTED: breakage probability %, risk level, recommendations
+  VERIFY: Probability is between 0-100. Risk level is LOW/MEDIUM/HIGH/CRITICAL.
+  RECORD: action=predict_tool_breakage, status=PASS/FAIL, output summary
 
-=== DOCUMENT ===
-7-8. Append R2_CALC_RESULTS.md. Append ROADMAP_TRACKER.
+ACTION 2: calculate_tool_stress
+  (Exact params from Superpower Roadmap Step 1.2)
+  EXPECTED: Von Mises stress, safety factor, max stress location
+
+ACTION 3: check_chip_load_limits
+  (Exact params from Superpower Roadmap Step 1.3)
+  EXPECTED: chip load value, within/exceeded limits, recommendation
+
+ACTION 4: estimate_tool_fatigue
+  (Exact params from Superpower Roadmap Step 1.4)
+  EXPECTED: cycles to failure, fatigue life estimate, confidence level
+
+ACTION 5: get_safe_cutting_limits
+  (Exact params from Superpower Roadmap Step 1.5)
+  EXPECTED: max safe Vc, max safe fz, max safe ap for given tool
+
+=== ENGINE 2: WORKHOLDING (5 actions) ===
+
+ACTION 6: calculate_clamp_force_required
+  (Exact params from Superpower Roadmap Step 1.6a)
+  EXPECTED: Required clamping force in N, safety factor
+
+ACTION 7: validate_workholding_setup
+  (Exact params from Superpower Roadmap Step 1.6b)
+  EXPECTED: PASS/FAIL status, reasoning, risk assessment
+
+ACTION 8: check_pullout_resistance
+  (Exact params from Superpower Roadmap Step 1.6c)
+  EXPECTED: Pullout force margin, PASS/FAIL
+
+ACTION 9: analyze_liftoff_moment
+  (Exact params from Superpower Roadmap Step 1.6d)
+  EXPECTED: Liftoff moment value, safety margin
+
+ACTION 10: calculate_part_deflection
+  (Exact params from Superpower Roadmap Step 1.6e)
+  EXPECTED: Deflection in mm, within tolerance PASS/FAIL
+
+=== ENGINE 3: SPINDLE PROTECTION (5 actions) ===
+
+ACTION 11: check_spindle_torque
+  Use REAL machine data: prism_data action=machine_get machine="VF-2" â†’ get spindle specs
+  Pass spindleSpec from registry data (not hardcoded):
+    { maxRpm: [from registry], power_kw: [from registry], maxTorque: [from registry] }
+  (Remaining params from Superpower Roadmap Step 1.7a)
+  EXPECTED: Torque %, within/exceeded spindle capacity
+
+ACTION 12: check_spindle_power
+  Same approach â€” real machine data for spindleSpec
+  EXPECTED: Power %, within/exceeded
+
+ACTION 13: validate_spindle_speed
+  Real machine data for spindleSpec
+  EXPECTED: Speed validity, thermal risk assessment
+
+ACTION 14: monitor_spindle_thermal
+  (Exact params from Superpower Roadmap Step 1.7d)
+  EXPECTED: Thermal status, temperature estimate, warning level
+
+ACTION 15: get_spindle_safe_envelope
+  Real machine data for spindleSpec
+  EXPECTED: Safe operating envelope { max_rpm, max_torque, max_power, safe_zone_plot_data }
+
+=== ENGINE 4: COOLANT VALIDATION (5 actions) ===
+
+ACTION 16: validate_coolant_flow
+  (Exact params from Superpower Roadmap Step 1.8a)
+  EXPECTED: Flow rate adequacy, cooling effectiveness
+
+ACTION 17: check_through_spindle_coolant
+  (Exact params from Superpower Roadmap Step 1.8b)
+  EXPECTED: TSC pressure check, nozzle clearance
+
+ACTION 18: calculate_chip_evacuation
+  (Exact params from Superpower Roadmap Step 1.8c)
+  EXPECTED: Chip volume rate, evacuation effectiveness, clogging risk
+
+ACTION 19: validate_mql_parameters
+  (Exact params from Superpower Roadmap Step 1.8d)
+  EXPECTED: MQL flow rate adequacy, droplet size suitability
+
+ACTION 20: get_coolant_recommendations
+  (Exact params from Superpower Roadmap Step 1.8e)
+  EXPECTED: Recommended coolant type, concentration, delivery method
+
+=== ENGINE 5: COLLISION (8 actions) ===
+
+ACTION 21: check_collision
+  Use REAL machine data for work envelope:
+    prism_data action=machine_get machine="VF-2" â†’ get travels
+  (Remaining params from Superpower Roadmap Step 1.9)
+  EXPECTED: Collision risk PASS/FAIL, clearance distances
+
+ACTION 22: check_tool_reach
+  EXPECTED: Tool can/cannot reach target position, minimum stickout required
+
+ACTION 23: validate_approach_path
+  EXPECTED: Approach path clear/obstructed, alternative paths if obstructed
+
+ACTION 24: check_fixture_clearance
+  EXPECTED: Fixture clearance adequate/inadequate, minimum clearance distances
+
+ACTION 25: validate_rapid_moves
+  EXPECTED: Rapid move path clear/obstructed, collision risk zones
+
+ACTION 26: check_tool_change_clearance
+  EXPECTED: Tool change position safe/unsafe, ATC clearance
+
+ACTION 27: validate_work_envelope
+  Real machine data for envelope limits
+  EXPECTED: Part fits/doesn't fit, clearance in each axis
+
+ACTION 28: get_safe_zone
+  EXPECTED: Safe zone boundaries for given setup
+
+=== VALIDATION PROTOCOL (for EACH action) ===
+
+For each of the 29 actions above:
+  1. Call with exact params from Superpower Roadmap (substituting real machine data where noted)
+  2. If PARAM MISMATCH ERROR:
+     a. prism_dev action=code_search pattern="[action_name]" path="src/"  [effort=high]
+     b. Identify: Is the action handler expecting different param names?
+     c. Fix: Either update the call to match the handler, or fix the handler if it's wrong
+     d. Rebuild + retest
+  3. If RESPONSE MISSING EXPECTED FIELDS:
+     a. Trace to engine method. Verify return type matches expectation.
+     b. Fix engine method or update expectations.
+  4. If PHYSICAL BOUNDS VIOLATED (e.g., negative force, infinite life):
+     a. This is a REAL BUG. Do not suppress.
+     b. Document in PHASE_FINDINGS.md as CRITICAL.
+     c. Fix in MS3 (fix cycle).
+  5. RECORD: { action, status: "PASS"|"PARAM_FIX"|"FAIL", output_summary, fix_applied? }
+
+After all 29:
+  Flush results to R2_SAFETY_ENGINE_RESULTS.md
+  Summary: 29 actions | PASS: [N] | PARAM_FIX: [N] | FAIL: [N]
+  PARAM_FIX count is not a failure â€” wiring mismatches are expected during first activation.
+  FAIL count goes to MS3 fix cycle.
+
+EXIT: All 29 safety actions verified operational with real/reference data inputs.
+  Results in R2_SAFETY_ENGINE_RESULTS.md.
 ```
-
-**Exit:** 6 manual edge cases pass. System handles boundary conditions correctly.
 
 ---
 
-## R2-MS1.5: AI-Generated Edge Cases (NEW in v13.0)
+<!-- ANCHOR: r2_r2_ms1_5_calculation_regression_suite_new_in_v14_2 -->
+## R2-MS1.5: CALCULATION REGRESSION SUITE â† NEW in v14.2
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_regression_criteria_sonnet_suite_impl_effort_m_8_calls_sessions_1 -->
+### Role: Safety Engineer | Model: Opus (regression criteria) â†’ Sonnet (suite impl) | Effort: M (8 calls) | Sessions: 1
 
-**Effort:** ~12 calls | **Tier:** RELEASE | **Context:** ~7KB
-**Response Budget:** ~12KB throughput, ~5KB peak
+**Source:** SYSTEMS_ARCHITECTURE_AUDIT.md Finding 7, Gap Analysis SA Audit
+**Effort:** ~8 calls | **Tier:** DEEP
+**Entry:** R2-MS0 + R2-MS1 COMPLETE. 50 benchmarks + 29 safety engines validated.
+
+**WHY THIS IS CRITICAL:**
+  R2-MS0 and MS1 validate that calculations are CURRENTLY correct. But any future
+  code change could silently break them. This MS locks the correct answers as a
+  REGRESSION SUITE that fails the build if any benchmark result changes. This is
+  the "golden dataset" â€” if it passes, calculations are trustworthy.
+
+```
+Step 1: Create src/__tests__/calcRegression.test.ts
+
+  CONTENT: Uses CALC_BENCHMARKS.json from R2-MS0 as golden dataset.
+  For each of the 50 benchmark entries:
+    { input, expected, tolerance_pct, source }
+  Run the actual calculation engine with input.
+  Compare output to expected within tolerance_pct.
+  ASSERT: |actual - expected| / expected < tolerance_pct / 100
+
+Step 2: Add critical safety formulas as unit tests:
+  Kienzle force: known inputs â†’ known Fc within  3%
+  Taylor tool life: known inputs â†’ known T within  5%
+  Johnson-Cook flow stress: known inputs â†’ known Ïƒ within  3%
+  Chip thinning: known inputs â†’ known hex within  2%
+  Scallop height: known inputs â†’ known h within  1%
+  Thread pitch diameter: known inputs â†’ known d2 within  0.5%
+  Stability lobe: known inputs â†’ known ap_crit within  5%
+
+Step 3: Wire into build pipeline
+  npm run build now includes: tsc --noEmit + esbuild + test:critical + calcRegression
+  BEHAVIOR: BUILD FAILS if any benchmark changes beyond tolerance.
+  This means NO code change can accidentally break force calculation.
+
+Step 4: Add regression hook
+  calc_regression_gate â€” blocking, post-build, runs golden dataset.
+  FAILS build if any result changes. Zero tolerance for calculation regression.
+
+Step 5: REGRESSION SUITE SELF-TEST (v14.5 QA-2)
+  a. Intentionally modify one golden benchmark value by 50%
+  b. Run npm run build — VERIFY build fails identifying broken benchmark
+  c. Restore original value — VERIFY build passes cleanly
+  Proves regression suite is not a paper tiger. DO NOT proceed to MS2 until passes.
+
+Step 6: Document
+  Append ROADMAP_TRACKER: "R2-MS1.5 COMPLETE â€” Regression suite locked with [N] benchmarks"
+  Update CURRENT_POSITION: "CURRENT: R2-MS2 | LAST_COMPLETE: R2-MS1.5"
+```
+
+**GOLDEN DATASET STORAGE:**
+```
+  File: src/data/goldenBenchmarks.json
+  Format: {
+    version: "R2-MS1.5",
+    locked_date: "YYYY-MM-DD",
+    benchmarks: [
+      {
+        id: "BM-001",
+        material: "4140",
+        operation: "turning",
+        inputs: { Vc: 200, fz: 0.25, ap: 2.0, ... },
+        expected: { Vc_out: 198, Fc: 1245, T: 42, safety_score: 0.82, ... },
+        tolerance_category: "speed_feed",
+        source: "R2-MS0 matrix result",
+        source_citation: "Machinery's Handbook, 30th Ed, Table 1a"
+      }
+    ]
+  }
+
+  This file is:
+    - Created once during R2-MS1.5
+    - NEVER modified after creation (golden = immutable)
+    - Referenced by calc_regression_gate hook (blocking, post-build)
+    - Referenced by R6-MS1 SL-5 safety-score-under-load comparison
+    - Versioned: if R7 coupled physics changes baselines, create goldenBenchmarks_v2.json
+      and update the hook to reference the new version
+    CLAUDE CODE: Batch execution of 50-calc matrix is ideal for Claude Code.
+```
+
+**EXIT:** Golden dataset locked. Build fails on any calculation regression.
+  Any future code change that breaks physics is caught immediately.
+
+---
+
+<!-- ANCHOR: r2_r2_ms2_ai_generated_edge_cases -->
+## R2-MS2: AI-Generated Edge Cases
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_adversarial_edge_case_generation_effort_m_10_calls_sessions_1 -->
+### Role: Safety Engineer | Model: Opus (adversarial edge case generation) | Effort: M (10 calls) | Sessions: 1
+
+**Effort:** ~10 calls | **Tier:** DEEP
 **Entry:** R2-MS1 COMPLETE.
-**v13.0 NEW: Leverages Opus 4.6 novel problem-solving (ARC-AGI-2: 68.8%, 2x Opus 4.5)**
 
 ```
-=== PURPOSE ===
-Human-defined edge cases cover obvious boundaries. Manufacturing has NON-OBVIOUS dangerous
-input combinations that only emerge from deep reasoning about cutting PHYSICS, not just
-formula MATH. Opus 4.6's novel reasoning can identify inputs that are mathematically valid
-but physically dangerous — the exact cases that cause real-world tool explosions.
+USE OPUS 4.6 NOVEL REASONING (effort=max) to generate adversarial edge cases.
 
-=== GENERATE EDGE CASES (effort=max — novel reasoning task) ===
+=== GENERATE EDGE CASES (effort=max â€” novel reasoning task) ===
 1. Collect inputs for the prompt:
    1a. prism_dev action=file_read path="src/formulas/" start_line=1 end_line=200  [effort=low]
-       → Extract Taylor, Kienzle, specific cutting force definitions.
+       â†’ Extract Taylor, Kienzle, specific cutting force definitions.
        SIZE TARGET: Extract ONLY function signatures and key constants (~50 lines, not full impl).
    1b. prism_dev action=file_read path="src/schemas/safetyCalcSchema.ts"  [effort=low]
-       → Extract the structured output schema (physical bounds, required fields).
-       SIZE TARGET: Paste the full schema (~30 lines — it IS the constraint set).
+       â†’ Extract the structured output schema (physical bounds, required fields).
+       SIZE TARGET: Paste the full schema (~30 lines â€” it IS the constraint set).
    1c. prism_doc action=read name=R2_CALC_RESULTS.md  [effort=low]
-       → Extract the 6 manual edge cases from MS1 (inputs + results).
+       â†’ Extract the 6 manual edge cases from MS3 (inputs + results).
        SIZE TARGET: Paste only inputs and results (~20 lines, not full diagnostic text).
-   TOTAL PROMPT TARGET: <100 lines combined. If larger → summarize formula defs further.
+   TOTAL PROMPT TARGET: <100 lines combined. If larger â†’ summarize formula defs further.
 
 2. prism_orchestrate action=agent_execute agent=opus  [effort=max]
    task="Given these formula definitions: [paste from 1a]
@@ -211,7 +568,7 @@ but physically dangerous — the exact cases that cause real-world tool explosio
    And these 6 existing edge cases: [paste from 1c]
    Identify 10-15 input combinations that are mathematically valid but would
    produce dangerous or deceptive results in real CNC machining. Focus on:
-   - Taylor curve inflection points (small input change → large output swing)
+   - Taylor curve inflection points (small input change â†’ large output swing)
    - Materials with identical kc1_1 but different mc (appears similar, cuts differently)
    - Calculated RPM at machine maximum (resonance risk)
    - Hardness unit mismatches (HRC vs HB lookup errors)
@@ -224,173 +581,305 @@ but physically dangerous — the exact cases that cause real-world tool explosio
    Format: JSON array of { material, operation, params: {Vc, fz, ap, ...}, danger_type, explanation }"
 
    WHY agent_execute with opus: This is a NOVEL REASONING task, not a structured calculation.
-   The agent needs full Opus 4.6 adaptive thinking at effort=max to identify non-obvious dangers.
-   Output is unstructured analysis — classify results in step 3.
-   TIMEOUT: Use apiCallWithTimeout with 120s (not default 30s — this is a max-effort novel task).
-   RESPONSE HANDLING: The agent may return JSON mixed with reasoning text.
-     Look for [ ... ] JSON array block in response → parse with JSON.parse().
-     If parse fails → extract entries manually from prose. If no parseable structure → re-prompt:
+   TIMEOUT: Use apiCallWithTimeout with 120s (not default 30s â€” max-effort novel task).
+   RESPONSE HANDLING: Look for [...] JSON array in response â†’ parse with JSON.parse().
+     If parse fails â†’ extract entries manually from prose. If no parseable structure â†’ re-prompt:
      "Respond ONLY with a JSON array. No explanations outside the array."
 
-3. Classify each generated case  [effort=high — requires metallurgical judgment]:
-   VALID-DANGEROUS: Input is real/plausible AND the danger is physically meaningful → TEST IT (steps 4-8)
-   THEORETICAL: Danger is real but input requires impossible machine setup → DOCUMENT only
-   ALREADY-COVERED: Similar to one of the 6 manual edge cases → SKIP
+3. Classify each generated case  [effort=high â€” requires metallurgical judgment]:
+   VALID-DANGEROUS: Input is real/plausible AND the danger is physically meaningful â†’ TEST IT
+   THEORETICAL: Danger is real but input requires impossible machine setup â†’ DOCUMENT only
+   ALREADY-COVERED: Similar to one of the 6 manual edge cases â†’ SKIP
 
-   MINIMUM: At least 5 VALID-DANGEROUS cases must be tested.
+   
+  BOUNDARY MATERIALS (v14.5 QA-1 — test at model extrapolation edges):
+    Pure copper, Tungsten, Lead-free brass, Hardened A2 60HRC, Hastelloy X.
+    Also test: speed_feed for material NOT in registry (e.g. Waspaloy).
+    Verify S(x) blocks or returns with high uncertainty flag.
+MINIMUM: At least 5 VALID-DANGEROUS cases must be tested.
    If classification yields <5 VALID-DANGEROUS:
-     Re-prompt the agent: "Focus specifically on [area with fewest edge cases from MS1]."
-     OR: Promote 1-2 THEORETICAL cases to VALID-DANGEROUS if they can be simulated with available data.
+     Re-prompt the agent: "Focus specifically on [area with fewest edge cases from MS3]."
+     OR: Promote 1-2 THEORETICAL cases to VALID-DANGEROUS if they can be simulated.
 
 === EXECUTE VALID-DANGEROUS CASES (effort=max, structured output) ===
-3-8. Run each through calc chain. Document input, expected, actual, pass/fail.
+4-8. Run each through calc chain. Document input, expected, actual, pass/fail.
 
 === ANALYZE ===
-9. INCORRECT/DANGEROUS output → CRITICAL finding → propose fix for MS2.
-10. Correctly identified danger → PASS. Document safety_score and warning.
+9. INCORRECT/DANGEROUS output â†’ CRITICAL finding â†’ propose fix for MS3.
+10. Correctly identified danger â†’ PASS. Document safety_score and warning.
 
 === DOCUMENT ===
 11. Append R2_CALC_RESULTS.md. Add edge case definitions to regression test suite.
 12. Append ROADMAP_TRACKER.
 ```
 
-**Exit:** 10-15 AI edge cases identified. VALID-DANGEROUS cases tested. Failures → CRITICAL findings.
-
 ---
 
-## R2-MS2: Fix Cycle
+<!-- ANCHOR: r2_r2_ms3_manual_edge_cases_fix_cycle -->
+## R2-MS3: Manual Edge Cases + Fix Cycle
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_fix_review_sonnet_fix_impl_effort_l_15_calls_sessions_1_2 -->
+### Role: Safety Engineer | Model: Opus (fix review) â†’ Sonnet (fix impl) | Effort: L (15 calls) | Sessions: 1-2
 
-**Effort:** ~12 calls | **Tier:** DEEP | **Context:** ~6KB
-**Entry:** R2-MS1.5 COMPLETE.
+**Effort:** ~15 calls | **Tier:** DEEP
+**Entry:** R2-MS2 COMPLETE.
 
 ```
-=== TRIAGE all failures from MS0 + MS1 + MS1.5  [effort=high — reasoning over failure patterns] ===
-Read R2_CALC_RESULTS.md: prism_doc action=read name=R2_CALC_RESULTS.md  [effort=low]
-Extract all FAIL entries. Classify each into exactly one category:
+=== MANUAL EDGE CASES (6 predefined) ===
 
-  FORMULA FIX:     Calc produces wrong numbers (Vc off by >tolerance, Fc negative). Root cause: math.
-  VALIDATION FIX:  Calc produces right numbers but structured output rejects them. Root cause: schema.
-  DATA FIX:        Calc uses wrong input data (material params missing/wrong). Root cause: registry.
-  PARAM FIX:       Input parameters are valid but produce unsafe result. Root cause: parameter selection.
-  LIMITATION:      Formula is mathematically correct but physically inadequate for these conditions (OB-1).
-                   Examples: Taylor breaks down at very low speeds. Kienzle doesn't model built-up edge.
-                   NOT a bug — the mathematical model has a boundary. Cannot be fixed with code changes.
-                   Tag as CRITICAL in PHASE_FINDINGS.md: "MODEL-BOUNDARY: [formula] does not account
-                   for [phenomenon] at [conditions]." These become future formula improvement requirements.
+EDGE 1: Micro-tool (0.5mm endmill in hardened steel)
+  material="D2", operation="milling", tool_diameter=0.5, depth=0.1
+  Expected: Very low Vc (~20 m/min), very low fz (~0.005), high RPM (~12,000+)
+  Safety risk: Tool deflection at L/D > 4, runout sensitivity
 
-  CROSS-FIELD PHYSICS FAIL (SK-1): If crossFieldPhysics.ts flagged a result that passed schema:
-    This is a mismatch between the formula output and physical reality.
-    Classify as FORMULA FIX (if the formula produced impossible numbers) or
-    LIMITATION (if the formula is correct but physics validation reveals a model boundary).
+EDGE 2: Heavy roughing (large DOC in mild steel)
+  material="1045", operation="turning", ap=10, ae=full
+  Expected: High forces (Fc > 5000N), power check critical, moderate Vc (~180 m/min)
+  Safety risk: Machine power limit, chuck grip force
 
-Priority order: FORMULA FIX first (wrong math is most dangerous), then VALIDATION, then DATA, then PARAM.
-LIMITATION: document but do NOT attempt to fix — these are architectural, not bugs.
+EDGE 3: Superalloy finishing (light DOC in Inconel)
+  material="Inconel 718", operation="milling", ap=0.2, ae=0.5
+  Expected: High Vc (~40 m/min), low forces, but very short tool life
+  Safety risk: Work hardening layer, notch wear at DOC line
 
-=== FIX (safety-critical first, one fix at a time) ===
+EDGE 4: Aluminum HSM (very high speed machining)
+  material="6061-T6", operation="milling", Vc=800, fz=0.15
+  Expected: Very high RPM (~25,000+), low forces, excellent tool life
+  Safety risk: Chip evacuation at high MRR, spindle thermal limits
+
+EDGE 5: Interrupted cut (4140 with keyway, face milling)
+  material="4140", operation="face_milling", interrupted=true
+  Expected: Impact loading, reduced tool life, potential chipping
+  Safety risk: Insert grade must handle interruptions (tough grade, not cermet)
+
+EDGE 6: Thread milling in titanium (blind hole M8x1.25)
+  material="Ti-6Al-4V", operation="thread_milling", thread="M8x1.25", depth=15
+  Expected: Low Vc (~25 m/min), single-pass preferred, HSC coolant required
+  Safety risk: Galling, tap breakage if tapping instead
+
+=== FIX CYCLE (for all failures from MS0 + MS1 + MS2 + manual edges) ===
+
+Categorize each failure into EXACTLY ONE of five categories (OB-1):
+  1. FORMULA: The math equation is wrong (Vc off by >tolerance, Fc negative).
+     Root cause: implementation doesn't match Kienzle/Taylor/etc.
+     Example: h^(1-mc) coded as h^(mc-1) â€” inverts the entire force curve.
+  2. VALIDATION: Calc produces right numbers but structured output/safety gate rejects.
+     Root cause: schema too strict or threshold miscalibrated.
+     Example: exclusiveMinimum:0 rejects Vc=0.001 which is physically valid for micro-tools.
+  3. DATA: Calc uses wrong input data (material kc1_1, Taylor C/n incorrect).
+     Root cause: registry data value is wrong.
+     Example: kc1_1 for Inconel 718 is 2800, but data file has 1800 (missing a digit).
+  4. PARAM: Input parameters are valid but produce unsafe result.
+     Root cause: parameter selection logic, not math.
+     Example: Recommended ap=5mm for 0.5mm endmill â€” valid per formula but physically absurd.
+  5. LIMITATION: Formula is mathematically correct but physically inadequate for these conditions.
+     NOT a bug â€” the mathematical model has a boundary. Cannot be fixed with code changes.
+     Example: Taylor breaks down at very low speeds (diffusion wear dominates, not flank wear).
+     Example: Kienzle doesn't model built-up edge formation at low speed+high feed in aluminum.
+     Tag as CRITICAL in PHASE_FINDINGS.md: "MODEL-BOUNDARY: [formula] does not account
+     for [phenomenon] at [conditions]." These become future formula improvement requirements.
+
+Priority order: FORMULA first (wrong math is most dangerous), then VALIDATION, DATA, PARAM.
+LIMITATION: document but do NOT attempt to fix â€” these are architectural, not bugs.
+
 For each FORMULA and VALIDATION fix:
   a. Locate the function:
      prism_dev action=code_search pattern="[formula_name]\|[function_name]" path="src/"  [effort=high]
   b. Read BOUNDED section:
-     prism_dev action=file_read path="[file from step a]" start_line=[match_line-10] end_line=[match_line+50]  [effort=low]
+     prism_dev action=file_read path="[file]" start_line=[match-10] end_line=[match+50]  [effort=low]
 
-  FORMULA FIX DIAGNOSTIC (distinguish formula bug from data bug):
+  FORMULA FIX DIAGNOSTIC â€” hand-calculate to distinguish formula bug from data bug:
      i.   Record: input params, expected output, actual output, delta%.
      ii.  HAND-CALCULATE the formula with the same inputs (calculator / mental math):
-          Taylor: T = C / (Vc^n) → plug in material's C and n constants from material_get.
-          Kienzle: Fc = kc1_1 * b * h^(1-mc) → plug in material's kc1_1 and mc.
-     iii. If your hand-calc matches ACTUAL → formula is RIGHT, reference data is WRONG → reclassify as DATA FIX.
-          If your hand-calc matches EXPECTED → formula implementation has a BUG → find it in code.
-          If your hand-calc matches NEITHER → constants (kc1_1, n, mc) may be wrong for this material.
+          Taylor: T = C / (Vc^n) â†’ plug in material's C and n constants from material_get.
+          Kienzle: Fc = kc1_1 * b * h^(1-mc) â†’ plug in material's kc1_1 and mc.
+     iii. If your hand-calc matches ACTUAL â†’ formula is RIGHT, reference data is WRONG â†’ reclassify as DATA FIX.
+          If your hand-calc matches EXPECTED â†’ formula implementation has a BUG â†’ find it in code.
+          If your hand-calc matches NEITHER â†’ constants (kc1_1, n, mc) may be wrong for this material.
      iv.  Common formula bugs:
-          - Exponent sign (h^(1-mc) vs h^(mc-1) → inverts the curve)
-          - Unit mismatch (mm vs m in Vc calculation → 1000x error)
-          - Missing conversion factor (Vc in m/min, formula expects m/s → divide by 60)
+          - Exponent sign (h^(1-mc) vs h^(mc-1) â†’ inverts the curve)
+          - Unit mismatch (mm vs m in Vc calculation â†’ 1000x error)
+          - Missing conversion factor (Vc in m/min, formula expects m/s â†’ divide by 60)
 
   c. Apply fix: str_replace on the specific calculation logic. ONE fix per str_replace.
   d. Build: prism_dev action=build target=mcp-server  [effort=medium]
-  e. Re-run the failing test at effort=max with structured output:
-     prism_calc action=[speed_feed|cutting_force|tool_life] material="[material]" operation="[op]"  [effort=max, structured output]
+  e. Re-run the failing test at effort=max with structured output.
   f. Verify fix: result now within R2_TOLERANCES[category] AND S(x) >= 0.70.
-  g. Regression check: re-run 3 SPECIFIC passing tests from MS0 (not random):
-     - 1 from Group A common metals (e.g., 4140 turning — baseline common case)
-     - 1 from Group B exotic metals (e.g., Ti-6Al-4V milling — different formula path)
-     - 1 from the MS1 edge case set (e.g., near-zero feed rate — boundary behavior)
+  g. REGRESSION CHECK â€” re-run 3 SPECIFIC passing tests (not random):
+     - 1 from Group A common metals (e.g., 4140 turning â€” baseline common case)
+     - 1 from Group B exotic metals (e.g., Ti-6Al-4V milling â€” different formula path)
+     - 1 from the manual edge case set (e.g., near-zero feed rate â€” boundary behavior)
      This ensures the fix didn't break common, exotic, OR boundary behavior.
-     If ANY regressed → REVERT the fix (git checkout HEAD~1 -- [file]) → try a different approach.
+     If ANY regressed â†’ REVERT the fix (git checkout HEAD~1 -- [file]) â†’ try a different approach.
 
 === AI VALIDATION ADDITIONS ===
-New validation rules from MS1.5 (RPM machine-max, coolant-required, depth vs flute length):
+New validation rules from MS2 AI-generated edge cases (RPM machine-max, coolant-required,
+depth vs flute length):
   For each new rule:
   a. prism_dev action=code_search pattern="validateInput\|inputValidation" path="src/"  [effort=high]
   b. Read the input validation module (BOUNDED).
-  c. Add new validation check via str_replace — fires BEFORE calc, not after.
+  c. Add new validation check via str_replace â€” fires BEFORE calc, not after.
      Example: if (ap > tool.flute_length) throw new SafetyBlockError("Depth exceeds flute length", 0.0);
-  d. Build → verify new validation catches the AI-generated edge case → verify existing tests still pass.
+  d. Build â†’ verify new validation catches the AI-generated edge case â†’ verify existing tests still pass.
 
-=== DOCUMENT ===
-prism_doc action=append name=R2_CALC_RESULTS.md content="FIX CYCLE: [N fixes applied, N regressions caught, N new validations]"  [effort=low]
-prism_doc action=append name=ROADMAP_TRACKER.md content="R2-MS2 COMPLETE [date]"  [effort=low]
+After fix cycle: RE-RUN all 50 calculations from MS0 + all 29 safety actions from MS1.
+  Verify no regressions. All previously-passing tests must still pass.
+
+EXIT: All fixable failures resolved. Known limitations documented. No regressions.
 ```
-
-**Exit:** All fixable failures resolved. New validation rules added. No regressions.
 
 ---
 
-## R2-MS3: Build Gate + Phase Completion
+<!-- ANCHOR: r2_r2_ms4_build_gate_phase_completion -->
+## R2-MS4: Build Gate + Phase Completion
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_mandatory_safety_phase_gate_effort_m_10_calls_sessions_1 -->
+### Role: Safety Engineer | Model: Opus (MANDATORY safety phase gate) | Effort: M (10 calls) | Sessions: 1
 
-**Effort:** ~12 calls | **Tier:** RELEASE | **Context:** ~6KB
-**Entry:** R2-MS2 COMPLETE.
+**Effort:** ~10 calls | **Tier:** RELEASE
+**Entry:** R2-MS3 COMPLETE.
 
 ```
-=== FULL RE-RUN ===
-1. npm run build → must pass.
-2. Re-run 5 critical calcs (mixed materials × operations) at effort=max.
-   Validate: S(x) >= 0.70 AND delta% within R2_TOLERANCES[category].
-   Import tolerances from src/schemas/tolerances.ts (not hardcoded).
-3. Re-run 3 most dangerous AI-generated edge cases at effort=max. All pass/reject correctly.
+=== GATE CRITERIA (ALL must pass) ===
 
-=== AUTOMATE TEST MATRIX (cross-cutting concern A) ===
-3b. Convert the 50-calc matrix + 6 manual edge cases + AI edge cases into vitest tests:
-    Create src/__tests__/safetyMatrix.test.ts:
-      import { R2_TOLERANCES } from '../schemas/tolerances';
-      for each material × operation: test that S(x) >= 0.70 AND delta <= tolerance.
-    Create src/__tests__/edgeCases.test.ts:
-      Test each edge case produces expected result or correct rejection.
-    npm test → ALL tests pass.
-    WHY: "npm test" is the R6 regression gate. By R6, every calc must run automatically in CI.
-    Building the test suite here (where the calcs are fresh) is 10x cheaper than retrofitting in R6.
+â–¡ 50-calc matrix: All non-LIMITATION calculations within R2_TOLERANCES
+â–¡ 50-calc matrix: All safe combinations have S(x) >= 0.70
+â–¡ 29 safety actions: All respond correctly (no FAIL, PARAM_FIX all resolved)
+â–¡ AI edge cases: All critical findings resolved or documented as limitations
+â–¡ Manual edge cases: All 6 tested, failures fixed or documented
+â–¡ No regressions: Full test suite passes
+â–¡ Fault injection: NaN test passed (from  FAULT INJECTION above)
+â–¡ Build: clean, no warnings
+â–¡ Test files created: safetyMatrix.test.ts, edgeCases.test.ts, safetyEngines.test.ts
 
-=== RALPH + OMEGA ===
-4. prism_ralph action=assess target="R2 Safety Test Matrix" (effort=max) → Ralph >= A-
-5. prism_omega action=compute target="R2 complete" (effort=max) → Omega >= 0.70
+=== AUTOMATE TEST MATRIX (create vitest tests) ===
 
-=== PHASE FINDINGS ===
-6. Append PHASE_FINDINGS.md (R2 section):
-   CRITICAL: AI edge cases revealing unknown dangerous inputs. Formula fixes changing S(x) >0.05.
-   IMPORTANT: New validation rules. Edge case patterns for R3 batch testing.
-   NOTE: Parallel execution timing. Sensitivity observations.
+Convert the 50-calc matrix + 6 manual edge cases + AI edge cases into vitest tests:
+  Create src/__tests__/safetyMatrix.test.ts:
+    import { R2_TOLERANCES } from '../schemas/tolerances';
+    for each material Ã— operation: test that S(x) >= 0.70 AND delta <= tolerance.
+  Create src/__tests__/edgeCases.test.ts:
+    Test each edge case produces expected result or correct rejection.
+  Create src/__tests__/safetyEngines.test.ts:
+    Test each of the 29 safety engine actions responds correctly.
+  npm test â†’ ALL tests pass.
+  WHY: "npm test" is the R6 regression gate. By R6, every calc must run automatically in CI.
+  Building the test suite here (where the calcs are fresh) is 10x cheaper than retrofitting in R6.
 
-=== COMPLETION ===
-7. Verify MASTER_INDEX.md counts match live.
-8. Append ROADMAP_TRACKER: "R2-MS3 COMPLETE — PHASE R2 COMPLETE"
-9. Update PRISM_MASTER_INDEX.md: R2 status → "complete"
-10. Write R2_CALC_RESULTS.md final summary.
-11. prism_session action=state_save
+=== QUALITY GATE ===
+
+â–¡ Ralph sanity check: prism_ralph action=assess target="health endpoint" â†’ A or A+
+â–¡ Ralph assessment: prism_ralph action=assess target="R2 Safety Validation" â†’ A- or better
+â–¡ Omega: prism_omega action=compute target="R2 complete" â†’ >= 0.70
+
+=== DOCUMENTATION ===
+
+â–¡ R2_CALC_RESULTS.md: All 50 matrix results
+â–¡ R2_SAFETY_ENGINE_RESULTS.md: All 29 safety action results
+â–¡ R2_EDGE_CASES.md: All AI + manual edge cases
+â–¡ PHASE_FINDINGS.md (R2 section): Failures found, fixes applied, limitations documented
+    CRITICAL: AI edge cases revealing unknown dangerous inputs. Formula fixes changing S(x) >0.05.
+    IMPORTANT: New validation rules. Edge case patterns for R3 batch testing.
+    NOTE: Parallel execution timing. Sensitivity observations.
+â–¡ ROADMAP_TRACKER.md: "R2-MS4 COMPLETE [date] â€” PHASE R2 COMPLETE"
+â–¡ CURRENT_POSITION.md: "CURRENT: R3-MS0 | LAST_COMPLETE: R2-MS4 | PHASE: R3 not-started"
+â–¡ PRISM_MASTER_INDEX.md: R2 status â†’ "complete"
+
+EXIT: PHASE R2 COMPLETE. All safety calculations validated. All safety engines operational.
+  Edge cases tested. Fix cycle complete. No regressions. Ralph >= A-. Omega >= 0.70.
 ```
-
-**Exit:** Build passes. Ralph >= A-. Omega >= 0.70. Safety baseline established. R2 COMPLETE.
 
 ---
 
-## R2-MS4: Uncertainty Quantification (Optional)
+<!-- ANCHOR: r2_r2_ms4_5_wiring_verification_audit -->
+## R2-MS4.5: WIRING VERIFICATION AUDIT (v15.0)
+### Role: Platform Engineer | Model: Sonnet | Effort: S (5-8 calls) | Sessions: 0.5
+# PURPOSE: R2 activates 29 safety actions and builds calculation suites.
+# Verify all safety hooks fire, calc pipelines are end-to-end, skills auto-load.
 
-**Effort:** ~8 calls | **Entry:** R2-MS3 COMPLETE. Only if budget >15K tokens.
+PROCEDURE (follow PHASE_TEMPLATE.md § WIRING VERIFICATION AUDIT):
+  1. INVENTORY all new safety engines, calc hooks, validation scripts from R2
+  2. CALLER CHECK: every safety action has at least 1 integration test caller
+  3. DOWNSTREAM CHECK: R3 campaign plans reference R2 safety validators
+  4. DISPOSITION for orphans
+  5. VERIFY wiring with smoke tests
+
+SPECIFIC R2 CHECKS:
+  - All 29 safety actions callable via prism_safety dispatcher
+  - S(x)>=0.70 gate fires on every prism_calc call (not just documented)
+  - Regression suite (MS1.5) scripts are in autoScriptRecommend for R2 phase
+  - Edge case library (MS2) entries are referenced by validation hooks
+  - Uncertainty bounds (CMD5) auto-inject on all calculation results
+
+GAP ASSESSMENT (Step 6 — what R3 will need):
+  - CADENCE: Does R3 need a cross_query_validator cadence for intelligence chain checks?
+  - ENGINES: Are safety engines returning data in the format R3 job planner expects?
+  - SCRIPTS: Does R3 need campaign automation scripts beyond R2's regression suite?
+  - NL HOOKS: Should R3 intelligence queries trigger safety-awareness NL hooks?
+  - SKILLS: Are safety skills updated with R2's actual threshold values and edge cases?
+  Output: append findings to R2_WIRING_AUDIT.md → feed as dependencies into R3-MS0
+
+GATE: <10% orphaned artifacts with documented disposition
+
+---
+
+<!-- ANCHOR: r2_r2_ms5_uncertainty_quantification_optional -->
+## R2-MS5: Uncertainty Quantification (Optional)
+<!-- ANCHOR: r2_role_safety_engineer_model_opus_uncertainty_design_sonnet_impl_effort_m_8_calls_sessions_1 -->
+### Role: Safety Engineer | Model: Opus (uncertainty design) â†’ Sonnet (impl) | Effort: M (8 calls) | Sessions: 1
+
+**Effort:** ~8 calls | **Entry:** R2-MS4 COMPLETE. Only if session budget >15K tokens.
 
 ```
-1. Run 5 critical calcs with ±5% input perturbation.
-2. safety_score varies >0.10 → HIGH SENSITIVITY → flag for R3.
-3. safety_score varies <0.02 → ROBUST.
-4. Document in R2_CALC_RESULTS.md.
+1. Run 5 critical calcs with  5% input perturbation on Vc and fz.
+2. safety_score varies >0.10 â†’ HIGH SENSITIVITY â†’ flag for R3 what_if feature calibration.
+3. safety_score varies <0.02 â†’ ROBUST.
+4. Document sensitivity map in R2_CALC_RESULTS.md.
+5. This data feeds R3-MS1 uncertainty_chain action â€” having sensitivity baselines
+   makes uncertainty propagation calibration more accurate.
 ```
 
-**Exit:** Sensitivity mapped. Optional MS — no gate required.
+**Exit:** Sensitivity mapped. Optional MS â€” no gate required.
+
+---
+
+<!-- ANCHOR: r2_r2_companion_assets_v14_5_built_per_ms_verified_at_r2_ms4_gate -->
+## R2 COMPANION ASSETS (v14.5 -- built per-MS, verified at R2-MS4 gate)
+
+<!-- ANCHOR: r2_per_ms_companion_schedule -->
+### PER-MS COMPANION SCHEDULE:
+``r
+MS0/MS1 PRODUCES:
+  SKILL: prism-safety-calculation-guide
+    How to invoke each safety calc, expected ranges, common failure modes
+    Built AS calcs are validated -- captures what works and what breaks
+
+MS1.5 PRODUCES:
+  SKILL: prism-golden-values-reference
+    The 50 benchmark golden values with sources for sanity-checking future results
+    Built AS regression suite locks values -- the skill IS the golden dataset
+  HOOK: calc_regression_gate (blocking, prevents tolerance widening)
+
+MS2/MS3 PRODUCES:
+  SKILL: prism-edge-case-catalog
+    Documented edge cases: what broke, why, how fixed, prevention rules
+    Built AS edge cases are discovered -- append each finding immediately
+
+MS4 GATE VERIFIES:
+  All 3 skills load and respond to queries
+  calc_regression_gate fires on tolerance widening attempt
+  calc_benchmark_drift hook fires on monthly schedule
+  calc_benchmark_runner script produces comparison output
+``r
+
+<!-- ANCHOR: r2_r2_companion_assets_detail_v14_2_build_after_r2_ms4_gate_passes -->
+## R2 COMPANION ASSETS DETAIL (v14.2 â€” build AFTER R2-MS4 gate passes)
+
+```
+HOOKS (1 new â€” plus calc_regression_gate from MS1.5):
+  calc_benchmark_drift â€” warning, runs monthly, checks if any benchmark tolerance
+                         has been widened since original lock. Prevents tolerance creep.
+
+SCRIPTS (1 new):
+  calc_benchmark_runner â€” Runs all 50 benchmarks with detailed comparison output.
+                          Shows: input, expected, actual, delta, source citation.
+                          Suitable for human review and audit trail.
+```

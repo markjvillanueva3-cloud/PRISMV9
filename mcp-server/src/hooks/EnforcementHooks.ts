@@ -948,6 +948,131 @@ const postAlarmBatchAntiRegression: HookDefinition = {
 };
 
 // ============================================================================
+// SKILL QUALITY GATE (Roadmap Audit 2026-02-17 Finding 8)
+// Prevents template-disease: skills that look valid but are hollow copies.
+// BLOCKING: Will not allow skill creation without v2.0 quality criteria.
+// ============================================================================
+
+const SKILL_REQUIRED_SECTIONS = [
+  "## When To Use",
+  "## How To Use", 
+  "## What It Returns",
+  "## Examples"
+];
+
+const SKILL_TEMPLATE_RED_FLAGS = [
+  "Use this skill when",
+  "This skill provides",
+  "Returns the relevant",
+  "See the skill for details",
+  "Provides information about",
+  "Use for general",
+  "Contains information on"
+];
+
+const preSkillWriteQualityGate: HookDefinition = {
+  id: "pre-skill-write-quality-gate",
+  name: "Skill Quality Gate v2.0",
+  description: "BLOCKS skill file writes that fail v2.0 quality criteria: must have 4 unique sections, 2+ real examples, no template text.",
+  
+  phase: "pre-file-write",
+  category: "enforcement",
+  mode: "blocking",
+  priority: "high",
+  enabled: true,
+  
+  tags: ["skill-quality", "anti-template", "enforcement", "v2.0"],
+  
+  handler: (context: HookContext): HookResult => {
+    const hook = preSkillWriteQualityGate;
+    const filePath = context.target?.path || "";
+    const newContent = context.content?.new;
+    
+    // Only fire for SKILL.md files in skills directories
+    if (!filePath.match(/skills[\\\/].*SKILL\.md$/i)) {
+      return hookSuccess(hook, "Not a skill file, skipping quality gate");
+    }
+    
+    if (!newContent || typeof newContent !== "string") {
+      return hookBlock(hook, "BLOCKED: Empty skill content", {
+        issues: ["Skill file cannot be empty"]
+      });
+    }
+    
+    const content = newContent;
+    const issues: string[] = [];
+    
+    // CHECK 1: All 4 required sections present
+    const missingSections: string[] = [];
+    for (const section of SKILL_REQUIRED_SECTIONS) {
+      if (!content.includes(section)) {
+        missingSections.push(section);
+      }
+    }
+    if (missingSections.length > 0) {
+      issues.push(`Missing required sections: ${missingSections.join(", ")}. All v2.0 skills need: When To Use, How To Use, What It Returns, Examples.`);
+    }
+    
+    // CHECK 2: Minimum 2 examples with real content
+    const examplePatterns = [
+      /- Input:/gi,
+      /- Edge[- ]case:/gi,
+      /- Example:/gi,
+      /- Output:/gi
+    ];
+    let exampleCount = 0;
+    for (const pattern of examplePatterns) {
+      const matches = content.match(pattern);
+      if (matches) exampleCount += matches.length;
+    }
+    // Each example has Input+Output, so count pairs
+    const inputMatches = (content.match(/- Input:/gi) || []).length;
+    const edgeCaseMatches = (content.match(/- Edge[- ]case:/gi) || []).length;
+    const realExamples = inputMatches + edgeCaseMatches;
+    
+    if (realExamples < 2) {
+      issues.push(`Only ${realExamples} example(s) found (need >= 2). Examples must have real numbers, materials, or formulas — not placeholders.`);
+    }
+    
+    // CHECK 3: Anti-template detection
+    const templateHits: string[] = [];
+    for (const flag of SKILL_TEMPLATE_RED_FLAGS) {
+      if (content.toLowerCase().includes(flag.toLowerCase())) {
+        templateHits.push(flag);
+      }
+    }
+    if (templateHits.length >= 2) {
+      issues.push(`Template-disease detected: ${templateHits.length} generic phrases found (${templateHits.slice(0, 3).join(", ")}). Rewrite operational sections to be specific to THIS skill.`);
+    }
+    
+    // CHECK 4: Size bounds (2-8KB)
+    const sizeKB = Buffer.byteLength(content, "utf8") / 1024;
+    if (sizeKB > 8) {
+      issues.push(`Skill is ${sizeKB.toFixed(1)}KB (max 8KB). Split into multiple atomic skills.`);
+    }
+    if (sizeKB < 0.3) {
+      issues.push(`Skill is only ${(sizeKB * 1024).toFixed(0)} bytes — too small to be useful. Minimum viable skill needs all 4 sections with real content.`);
+    }
+    
+    // CHECK 5: NOT operator (boundary check)
+    if (content.includes("## When To Use") && !content.match(/NOT\s+(for|when|if)/i)) {
+      issues.push(`When To Use section has no NOT boundary. Add "NOT for X — use Y instead" to prevent misrouting.`);
+    }
+    
+    if (issues.length > 0) {
+      return hookBlock(hook, 
+        `BLOCKED: Skill fails v2.0 quality gate (${issues.length} issue${issues.length > 1 ? "s" : ""}):\n${issues.map((i, idx) => `  ${idx + 1}. ${i}`).join("\n")}`,
+        { issues }
+      );
+    }
+    
+    return hookSuccess(hook, `Skill passes v2.0 quality gate: ${SKILL_REQUIRED_SECTIONS.length} sections, ${realExamples} examples, ${sizeKB.toFixed(1)}KB, no template flags`, {
+      data: { sections: SKILL_REQUIRED_SECTIONS.length, examples: realExamples, sizeKB: sizeKB.toFixed(1) }
+    });
+  }
+};
+
+// ============================================================================
 // EXPORT ALL ENFORCEMENT HOOKS
 // ============================================================================
 
@@ -967,7 +1092,8 @@ export const enforcementHooks: HookDefinition[] = [
   preMaterialAddDuplicateCheck,
   preMachineAddCapability,
   preAlarmAddSchema,
-  postAlarmBatchAntiRegression
+  postAlarmBatchAntiRegression,
+  preSkillWriteQualityGate
 ];
 
 export {
@@ -986,5 +1112,6 @@ export {
   preMaterialAddDuplicateCheck,
   preMachineAddCapability,
   preAlarmAddSchema,
-  postAlarmBatchAntiRegression
+  postAlarmBatchAntiRegression,
+  preSkillWriteQualityGate
 };

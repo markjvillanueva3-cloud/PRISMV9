@@ -18,3 +18,74 @@
     - prism_compliance:list_templates → "listProvisioned is not a function" (engine method mismatch)
     - prism_thread:get_thread_specifications → "Could not find thread: M10x1.5" (data lookup, not dispatcher)
     - prism_data:material_get requires param name "identifier" not "material"
+
+
+[2026-02-17] SKILL-AUTHORING-CHECKLIST v2.0 DEPLOYED
+  - Rewrote C:\PRISM\skills-consolidated\skill-authoring-checklist\SKILL.md (v1→v2)
+  - v1 failure: 115 skills got identical template headers, passed regex but useless
+  - v2 adds: Rule 0 (single purpose), anti-template enforcement, token budgets,
+    banned phrases, batch limits (3-5/session), quality over presence checks
+  - Updated GSD_QUICK.md § SKILL CREATION GATE → v2.0
+  - Rewrote SKILL_ATOMIZATION_SPEC.md → v15.0 with remediation phases:
+    R-SKILL-1: Triage & Split Plan (1 session, Opus 4.6)
+    R-SKILL-2: Priority Splits (2-3 sessions, Opus 4.6 + Sonnet)
+    R-SKILL-3: Quality Pass (2-3 sessions, Opus 4.6)
+    R-SKILL-4: Verification & Index (1 session, Sonnet)
+  - Added prevention rules: no scripted operational sections, batch limits, spot checks
+  - Documented enforcement gap: no code-level hook exists yet, prompt-level only
+  - PENDING: Execute R-SKILL-1 through R-SKILL-4 (est. 7-10 sessions total)
+
+[2026-02-17] ROADMAP AUDIT COMPLETE — 14 findings (3 CRITICAL, 6 HIGH, 4 MEDIUM, 1 LOW)
+  Full report: C:\PRISM\mcp-server\data\docs\roadmap\ROADMAP_AUDIT_2026-02-17.md
+  Root pattern: "aspirational markdown masquerading as actionable tooling"
+  CRITICAL-3: DA-MS9/MS10 uses pre-v2.0 skill format (will produce 200 bad skills)
+  CRITICAL-7: Phase gates check counts not quality (same disease as skill templates)
+  HIGH-2: SYSTEM_CONTRACT marks invariants "tested at" phases that haven't run
+  HIGH-4: Companion assets are one-liner deliverable lists, no quality specs
+  HIGH-6: Boot protocol references phantom systems (knowledge, responseGuard)
+  HIGH-8: Zero enforcement hooks for skills/docs/gates (62 hooks, all on calcs)
+  HIGH-12: Change control tiers exist as text, no routing mechanism
+  DO NOW: Fix DA-MS9/MS10 format + Recovery Card + phase gate quality criteria (~15 calls)
+
+[2026-02-17] ROADMAP AUDIT REMEDIATION — 9 of 14 findings fixed
+  F3 DONE: DA-MS9/MS10 skill format updated to v2.0 (full example in PHASE_DA)
+  F3 DONE: DA-MS10 quality gate now checks count AND quality (swap test, anti-template)
+  F9 DONE: Recovery Card skill section updated to v15.0 (batch limits, anti-template)
+  F2 DONE: SYSTEM_CONTRACT invariant status summary added (ACTIVE/PLANNED/ASPIRATIONAL)
+  F6 DONE: SYSTEM_EXISTS_CHECKLIST added to Recovery Card (9 systems tracked)
+  F7 DONE: Phase gate quality rule added to PHASE_TEMPLATE (count+quality mandatory)
+  F4 DONE: Companion asset quality specs added to PHASE_TEMPLATE wiring protocol
+  F5 DONE: v2.0 anti-template checklist items added to PHASE_TEMPLATE
+  F10 DONE: R2 safety model requirement (Opus HARD) added to phase header
+  PENDING: F1+F14 (split PROTOCOLS_CORE), F8 (skill quality hook code),
+           F11 (script audit), F12 (change control hook), F13 (R5 deps)
+[2026-02-17] PROTOCOLS_CORE SPLIT + SCRIPT AUDIT
+  F1+F14 DONE: Split PRISM_PROTOCOLS_CORE.md (2,186 lines) into:
+    - PRISM_PROTOCOLS_BOOT.md (723 lines - laws, boot, recovery) - loaded EVERY session
+    - PRISM_PROTOCOLS_SAFETY.md (804 lines - opus config, tolerances, Ralph) - calc phases
+    - PRISM_PROTOCOLS_CODING.md (553 lines - code standards, build, hooks) - impl phases
+    - PRISM_PROTOCOLS_CHANGELOG.md (138 lines - version history, never loaded)
+    Original archived at _archived_PRISM_PROTOCOLS_CORE_pre_split.md
+    Critical refs updated: MASTER_INDEX, SYSTEM_CONTRACT, R1, R2, ROADMAP_INSTRUCTIONS
+    Token savings: ~67% reduction in per-session protocol load
+  F11 DONE: Script audit - 3/3 skill scripts exist and are real (192-230 lines each).
+    extract-course-skills.ps1 outputs proposals (not SKILL.md files) - correct behavior.
+    3 R1 companion scripts (registry_health_check, material_search_diagnostic, tool_coverage)
+    confirmed MISSING as expected - they're planned for R1-MS5+.
+  REMAINING: F8 (skill quality hook code), F12 (change control hook), F13 (R5 deps)
+
+[2026-02-17] ROADMAP AUDIT — ALL 14 FINDINGS COMPLETE
+  F8 DONE: SKILL-QUALITY-GATE blocking hook added to EnforcementHooks.ts
+    - 5 checks: required sections, 2+ real examples, anti-template detection, size bounds, NOT boundary
+    - Mode: BLOCKING (will reject skill files that fail v2.0 criteria)
+    - Auto-registers via hookRegistration.ts (130 hooks total, up from 129)
+    - Build passes: 3.9MB, no errors
+  F12 DONE: File-to-Tier NL hook deployed (nl-7a91097f)
+    - Warns on Tier 1 (safety-critical) and Tier 2 (operational) file writes
+    - Maps to SYSTEM_CONTRACT Change Control Tiers
+  F13 DONE: R5 action dependency check block added to PHASE_R5_VISUAL.md
+    - Lists all required actions from R3 (job_plan, strategy_for_job, etc.)
+    - Lists all required actions from R1/R2 (material_get, speed_feed, etc.)
+    - BLOCKS stub expansion if any required action is missing
+  
+  === ROADMAP AUDIT FULLY REMEDIATED: 14/14 findings fixed ===

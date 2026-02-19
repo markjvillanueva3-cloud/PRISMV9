@@ -698,3 +698,48 @@ export interface AuditEntry {
   result_status: string;
   safety_flags: string[];
 }
+
+
+// ============================================================================
+// DA-MS11: Phase-Aware Skill Loading & NL Hook Evaluation Types
+// ============================================================================
+
+export interface PhaseSkillLoadResult {
+  success: boolean;
+  call_number: number;
+  current_phase: string;
+  skills_matched: number;
+  skills_loaded: number;
+  skill_ids: string[];
+  excerpts: Array<{ skill_id: string; title: string; content: string }>;
+  pressure_mode: string;
+  cache_hit: boolean;
+}
+
+export interface SkillContextMatchResult {
+  success: boolean;
+  call_number: number;
+  matches: Array<{ skill_id: string; trigger: string; score: number }>;
+  total_matched: number;
+  context_key: string;
+}
+
+export interface NLHookEvalResult {
+  success: boolean;
+  call_number: number;
+  hooks_evaluated: number;
+  hooks_fired: number;
+  fired_hooks: Array<{ hook_id: string; name: string; result: string }>;
+  errors: number;
+}
+
+export interface HookActivationCheckResult {
+  success: boolean;
+  call_number: number;
+  current_phase: string;
+  expected_hooks: number;
+  active_hooks: number;
+  missing_hooks: string[];
+  extra_hooks: string[];
+  coverage_pct: number;
+}

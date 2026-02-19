@@ -15,9 +15,10 @@ const DataDispatcherSchema = z.object({
   action: z.enum([
     "material_get", "material_search", "material_compare",
     "machine_get", "machine_search", "machine_capabilities",
-    "tool_get", "tool_search", "tool_recommend",
+    "tool_get", "tool_search", "tool_recommend", "tool_facets",
     "alarm_decode", "alarm_search", "alarm_fix",
-    "formula_get", "formula_calculate"
+    "formula_get", "formula_calculate",
+    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -29,7 +30,7 @@ function jsonResponse(data: any) {
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
-    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend, alarm decode/search/fix, formula get/calculate. Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate",
+    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare",
     DataDispatcherSchema.shape,
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_data] action=${action}`, params);
@@ -95,7 +96,7 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
-          // === CUTTING TOOL (3) ===
+          // === CUTTING TOOL (4) ===
           case "tool_get": {
             const toolId = params.identifier || params.tool_id || params.id || params.catalog;
             if (!toolId) return jsonResponse({ error: "tool_get requires 'identifier', 'tool_id', 'id', or 'catalog' parameter" });
@@ -119,10 +120,40 @@ export function registerDataDispatcher(server: any): void {
             if (!recMatId) return jsonResponse({ error: "tool_recommend requires 'material_id' or 'material' parameter" });
             const mat = await registryManager.materials.getByIdOrName(recMatId);
             if (!mat) return jsonResponse({ error: `Material not found: ${params.material_id}` });
-            result = registryManager.tools.recommendTools({
-              material_group: mat.iso_group, operation: params.operation,
-              diameter: params.diameter, limit: params.limit ?? 5
+            const recTools = registryManager.tools.recommendTools({
+              material_iso_group: mat.iso_group, operation: params.operation || "milling",
+              diameter_target: params.diameter, max_results: params.limit ?? 5
             });
+            // Expand material-specific cutting params for the queried ISO group
+            const isoKey = `${mat.iso_group}_` ;
+            result = recTools.map((t: any) => {
+              const cpSrc = t.cutting_params?.materials || t.cutting_params || {};
+              let materialParams: any = null;
+              if (cpSrc) {
+                const matchKey = Object.keys(cpSrc).find(k => k.startsWith(mat.iso_group + '_'));
+                if (matchKey) materialParams = cpSrc[matchKey];
+              }
+              return {
+                ...t,
+                material_cutting_params: materialParams,
+                matched_material: { id: (mat as any).material_id || (mat as any).id, name: mat.name, iso_group: mat.iso_group }
+              };
+            });
+            break;
+          }
+          case "tool_facets": {
+            // R1-MS5: Return filterable facets (types, vendors, coatings, diameter ranges)
+            // Accepts optional filters to narrow results before aggregating
+            const facets = registryManager.tools.getFacets({
+              type: params.type,
+              vendor: params.vendor || params.manufacturer,
+              coating: params.coating,
+              category: params.category,
+              diameter_min: params.diameter_min,
+              diameter_max: params.diameter_max,
+              material_group: params.material_group
+            });
+            result = facets;
             break;
           }
 
@@ -185,6 +216,336 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === CROSS-REGISTRY LINKING (3) ===
+          case "cross_query": {
+            // Material + operation + machine → full cutting parameter recommendation
+            const cqMatId = params.material_id || params.material;
+            const cqOperation = params.operation || "milling";
+            const cqMachineId = params.machine_id || params.machine;
+            
+            if (!cqMatId) return jsonResponse({ error: "cross_query requires 'material_id' or 'material'" });
+            
+            // 1. Get material
+            const cqMat = await registryManager.materials.getByIdOrName(cqMatId);
+            if (!cqMat) return jsonResponse({ error: `Material not found: ${cqMatId}` });
+            
+            // 2. Get machine (optional - for power/speed limits)
+            let cqMachine: any = null;
+            let machineConstraints: any = {};
+            if (cqMachineId) {
+              cqMachine = registryManager.machines.getByIdOrModel(cqMachineId);
+              if (cqMachine) {
+                machineConstraints = {
+                  max_rpm: cqMachine.spindle?.max_rpm,
+                  max_power_kw: cqMachine.spindle?.power_continuous || cqMachine.spindle?.power_kw,
+                  spindle_interface: cqMachine.spindle?.spindle_nose || cqMachine.spindle?.interface || cqMachine.spindle_interface,
+                  controller: cqMachine.controller?.brand || cqMachine.controller?.manufacturer,
+                  turret_type: cqMachine.turret?.type || cqMachine.turret_type,
+                  max_x: cqMachine.travels?.x || cqMachine.work_envelope?.x_mm,
+                  max_y: cqMachine.travels?.y || cqMachine.work_envelope?.y_mm,
+                  max_z: cqMachine.travels?.z || cqMachine.work_envelope?.z_mm,
+                };
+              }
+            }
+            
+            // 3. Find recommended tools
+            const cqTools = registryManager.tools.recommendTools({
+              material_iso_group: cqMat.iso_group,
+              operation: cqOperation,
+              diameter_target: params.tool_diameter,
+              max_results: params.limit ?? 5
+            });
+            
+            // 4. Get cutting parameters from material
+            const isoGroup = (cqMat.iso_group || '').toUpperCase();
+            const matCutRec = (cqMat as any).cutting_recommendations;
+            const opRec = matCutRec?.[cqOperation] || matCutRec?.milling || {};
+            
+            // 5. Build Kienzle/Taylor params
+            const kienzle = (cqMat as any).kienzle;
+            const taylor = (cqMat as any).taylor;
+            
+            // 6. Safety check: if machine has max_power, flag if cutting might exceed
+            let safetyWarnings: string[] = [];
+            if (machineConstraints.max_power_kw && kienzle?.kc1_1) {
+              // Rough estimate: typical milling at full engagement
+              const estForce = kienzle.kc1_1 * 2; // very rough N
+              const estPower = (estForce * (opRec.speed_roughing || 150)) / 60000;
+              if (estPower > machineConstraints.max_power_kw * 0.9) {
+                safetyWarnings.push(`Estimated cutting power (${estPower.toFixed(1)}kW) may approach machine limit (${machineConstraints.max_power_kw}kW)`);
+              }
+            }
+            
+            // 7. Find compatible toolholders if machine spindle is known
+            let compatibleHolders: any[] = [];
+            if (machineConstraints.spindle_interface) {
+              const holderResult = registryManager.tools.search({
+                query: machineConstraints.spindle_interface,
+                limit: 5
+              });
+              compatibleHolders = holderResult?.tools || holderResult?.results || [];
+            }
+            
+            result = {
+              material: {
+                id: cqMat.material_id || cqMat.id,
+                name: cqMat.name,
+                iso_group: cqMat.iso_group,
+                hardness: (cqMat as any).mechanical?.hardness,
+                machinability: (cqMat as any).machinability
+              },
+              operation: cqOperation,
+              cutting_parameters: {
+                kienzle: kienzle ? { kc1_1: kienzle.kc1_1, mc: kienzle.mc } : null,
+                taylor: taylor ? { C: taylor.C, n: taylor.n } : null,
+                recommendations: opRec,
+                composition: (cqMat as any).composition ? "available" : "not_available",
+                tribology: (cqMat as any).tribology ? "available" : "not_available"
+              },
+              recommended_tools: cqTools,
+              machine: cqMachine ? {
+                id: cqMachine.id || cqMachine.machine_id,
+                model: cqMachine.model || cqMachine.name,
+                constraints: machineConstraints
+              } : null,
+              compatible_holders: compatibleHolders.length > 0 ? compatibleHolders.map((h: any) => ({
+                id: h.id, name: h.name, interface: h.spindle_interface || h.tool_interface
+              })) : null,
+              safety_warnings: safetyWarnings.length > 0 ? safetyWarnings : null,
+              _chain: "material → iso_group → cutting_params → tools → holders → machine"
+            };
+            break;
+          }
+          
+          case "machine_toolholder_match": {
+            // Machine spindle interface → compatible toolholders
+            const mthMachineId = params.machine_id || params.machine || params.identifier;
+            if (!mthMachineId) return jsonResponse({ error: "machine_toolholder_match requires 'machine_id' or 'machine'" });
+            
+            const mthMachine = registryManager.machines.getByIdOrModel(mthMachineId);
+            if (!mthMachine) return jsonResponse({ error: `Machine not found: ${mthMachineId}` });
+            
+            const spindleInterface = mthMachine.spindle?.spindle_nose || mthMachine.spindle?.interface || (mthMachine as any).spindle_interface;
+            const turretType = mthMachine.turret?.type || (mthMachine as any).turret_type;
+            const machineType = (mthMachine.type || mthMachine.machine_type || '').toLowerCase();
+            const isLathe = machineType.includes('lathe') || machineType.includes('turn');
+            
+            let holders: any[] = [];
+            
+            if (isLathe && turretType) {
+              // For lathes: search by turret type (VDI30, VDI40, BMT55, etc.)
+              const turretResult = registryManager.tools.search({
+                query: turretType,
+                limit: params.limit ?? 20
+              });
+              holders = turretResult?.tools || turretResult?.results || [];
+            }
+            
+            if (spindleInterface) {
+              // For mills: search by spindle interface (BT40, CAT40, HSK-A63, etc.)
+              const spindleResult = registryManager.tools.search({
+                query: spindleInterface,
+                limit: params.limit ?? 20
+              });
+              const spindleHolders = spindleResult?.tools || spindleResult?.results || [];
+              holders = holders.concat(spindleHolders);
+            }
+            
+            // Deduplicate
+            const seen = new Set();
+            holders = holders.filter(h => {
+              const id = h.id || h.tool_id;
+              if (seen.has(id)) return false;
+              seen.add(id);
+              return true;
+            });
+            
+            result = {
+              machine: {
+                id: mthMachine.id || mthMachine.machine_id,
+                model: mthMachine.model || mthMachine.name,
+                type: machineType,
+                spindle_interface: spindleInterface,
+                turret_type: turretType
+              },
+              compatible_holders: holders.map((h: any) => ({
+                id: h.id, name: h.name, type: h.subcategory || h.type,
+                interface: h.spindle_interface || h.tool_interface,
+                clamping: h.clamping_type, max_rpm: h.max_rpm
+              })),
+              total_compatible: holders.length,
+              search_criteria: isLathe
+                ? `turret: ${turretType || 'unknown'}, spindle: ${spindleInterface || 'unknown'}`
+                : `spindle: ${spindleInterface || 'unknown'}`
+            };
+            break;
+          }
+          
+          case "alarm_diagnose": {
+            // Machine + alarm code → controller-specific diagnosis + fix
+            const adMachineId = params.machine_id || params.machine;
+            const adCode = params.code || params.alarm_code;
+            
+            if (!adCode) return jsonResponse({ error: "alarm_diagnose requires 'code' or 'alarm_code'" });
+            
+            // Determine controller from machine or params
+            let controller = params.controller;
+            let machineInfo: any = null;
+            
+            if (adMachineId) {
+              const adMachine = registryManager.machines.getByIdOrModel(adMachineId);
+              if (adMachine) {
+                controller = controller || adMachine.controller?.brand || adMachine.controller?.manufacturer;
+                machineInfo = {
+                  id: adMachine.id || adMachine.machine_id,
+                  model: adMachine.model || adMachine.name,
+                  controller_brand: controller,
+                  controller_model: adMachine.controller?.model
+                };
+              }
+            }
+            
+            if (!controller) return jsonResponse({ error: "Cannot determine controller. Provide 'controller' or 'machine_id' with controller data." });
+            
+            // Decode alarm
+            const adAlarm = await registryManager.alarms.decode(String(controller), String(adCode));
+            
+            if (!adAlarm) {
+              // Try broader search
+              const searchResult = await registryManager.alarms.search({
+                query: String(adCode), controller: String(controller), limit: 5
+              });
+              const searchAlarms = searchResult?.alarms || searchResult?.results || [];
+              if (searchAlarms.length > 0) {
+                result = {
+                  exact_match: false,
+                  machine: machineInfo,
+                  possible_alarms: searchAlarms.map((a: any) => ({
+                    alarm_id: a.alarm_id, code: a.code, name: a.name,
+                    severity: a.severity, quick_fix: a.quick_fix
+                  })),
+                  note: `No exact match for code '${adCode}' on ${controller}. Showing related alarms.`
+                };
+              } else {
+                result = { error: `Alarm ${adCode} not found for controller ${controller}`, machine: machineInfo };
+              }
+            } else {
+              // Build comprehensive diagnosis
+              result = {
+                alarm: {
+                  alarm_id: adAlarm.alarm_id,
+                  code: adAlarm.code,
+                  name: adAlarm.name,
+                  severity: adAlarm.severity,
+                  category: adAlarm.category,
+                  description: adAlarm.description,
+                  causes: adAlarm.causes,
+                  requires_power_cycle: adAlarm.requires_power_cycle,
+                  requires_service: (adAlarm as any).requires_service
+                },
+                fix: {
+                  quick_fix: adAlarm.quick_fix,
+                  procedures: adAlarm.fix_procedures || [],
+                  common_parts: (adAlarm as any).common_parts || [],
+                  related_parameters: (adAlarm as any).related_parameters || []
+                },
+                machine: machineInfo,
+                related_alarms: adAlarm.related_alarms || [],
+                _chain: "machine → controller → alarm_code → diagnosis → fix_procedure"
+              };
+            }
+            break;
+          }
+
+          case "speed_feed_calc": {
+            const sfMat = params.material ? await registryManager.materials.getByIdOrName(params.material) : null;
+            if (!sfMat) return jsonResponse({ error: "speed_feed_calc requires 'material'" });
+            const sfToolDiam = params.tool_diameter || params.diameter || 10;
+            const sfFlutes = params.flutes || 4;
+            const sfOp = (params.operation || "milling").toLowerCase();
+            const sfAp = params.depth_of_cut || params.ap;
+            const sfAe = params.width_of_cut || params.ae;
+            const kienzle = (sfMat as any).kienzle;
+            const taylor = (sfMat as any).taylor;
+            const cutRec = (sfMat as any).cutting_recommendations;
+            const isRoughing = sfOp.includes("rough");
+            const recSection = cutRec?.[sfOp === 'turning' ? 'turning' : 'milling'] || {};
+            // Handle both nested (roughing: {speed, fz}) and flat (speed_roughing, speed_finishing) schemas
+            const recBlock = recSection[isRoughing ? 'roughing' : 'finishing'] || recSection || {};
+            let maxRPM = params.max_rpm || 12000;
+            let maxPower = params.max_power_kw || 15;
+            if (params.machine) {
+              const sfMach = registryManager.machines.getByIdOrModel(params.machine);
+              if (sfMach) {
+                maxRPM = sfMach.spindle?.max_rpm || (sfMach as any).spindle_rpm_max || maxRPM;
+                maxPower = sfMach.spindle?.power_kw || sfMach.spindle?.power_continuous || maxPower;
+              }
+            }
+            const vcRec = recBlock.speed || (isRoughing ? recSection.speed_roughing : recSection.speed_finishing) || (isRoughing ? 150 : 200);
+            const rpm = Math.min(Math.round((vcRec * 1000) / (Math.PI * sfToolDiam)), maxRPM);
+            const actualVc = Math.round((Math.PI * sfToolDiam * rpm) / 1000 * 10) / 10;
+            const fzRec = recBlock.fz_mm || (isRoughing ? recSection.feed_per_tooth_roughing || recSection.feed_roughing : recSection.feed_per_tooth_finishing || recSection.feed_finishing) || (isRoughing ? 0.12 : 0.06);
+            const feedRate = Math.round(rpm * sfFlutes * fzRec);
+            const ap = sfAp || recSection.doc_roughing || recSection.doc_finishing || (isRoughing ? sfToolDiam * 1.0 : sfToolDiam * 0.2);
+            const aeDefault = isRoughing ? (recSection.ae_roughing_pct ? sfToolDiam * recSection.ae_roughing_pct / 100 : sfToolDiam * 0.5) : (recSection.ae_finishing_pct ? sfToolDiam * recSection.ae_finishing_pct / 100 : sfToolDiam * 0.05);
+            const ae = sfAe || aeDefault;
+            const mrr = Math.round(ae * ap * feedRate / 1000 * 10) / 10;
+            const h = fzRec * Math.sin(Math.acos(Math.max(-1, Math.min(1, 1 - (2 * ae / sfToolDiam)))));
+            const hex = Math.max(h, 0.01);
+            const Fc = kienzle ? Math.round(kienzle.kc1_1 * Math.pow(hex, -kienzle.mc) * ap * ae / sfToolDiam) : null;
+            const Pc = Fc ? Math.round((Fc * actualVc / 60000) * 100) / 100 : null;
+            const powerPct = Pc && maxPower ? Math.round((Pc / maxPower) * 100) : null;
+            // Tool life — select best Taylor constants for the actual cutting speed
+            let tlC = taylor?.C, tlN = taylor?.n, tlGrade = "carbide";
+            if (taylor) {
+              // If speed exceeds carbide C, try ceramic/CBN which have higher C values
+              if (actualVc > (taylor.C || 0) && taylor.C_ceramic) { tlC = taylor.C_ceramic; tlN = taylor.n_ceramic; tlGrade = "ceramic"; }
+              if (actualVc > (taylor.C || 0) && taylor.C_cbn) { tlC = taylor.C_cbn; tlN = taylor.n_cbn; tlGrade = "cbn"; }
+              // If speed is below carbide C but very low, the formula still works
+            }
+            const toolLifeRaw = tlC && tlN ? Math.pow(tlC / actualVc, 1 / tlN) : null;
+            const toolLife = toolLifeRaw !== null ? Math.max(1, Math.round(toolLifeRaw)) : null;
+            const toolGrade = tlGrade;
+            const warnings: string[] = [];
+            if (rpm >= maxRPM) warnings.push(`RPM limited by machine max (${maxRPM})`);
+            if (powerPct && powerPct > 90) warnings.push(`Power usage ${powerPct}% — approaching machine limit`);
+            if (toolLife && toolLife < 5) warnings.push(`Very short tool life (${toolLife} min) — reduce speed`);
+            result = {
+              input: { material: { name: sfMat.name, iso_group: sfMat.iso_group, hardness_bhn: (sfMat as any).mechanical?.hardness?.brinell }, tool: { diameter_mm: sfToolDiam, flutes: sfFlutes }, operation: sfOp, machine_limits: { max_rpm: maxRPM, max_power_kw: maxPower } },
+              parameters: { cutting_speed_vc: actualVc, unit_vc: "m/min", rpm, feed_per_tooth_fz: fzRec, unit_fz: "mm", feed_rate_vf: feedRate, unit_vf: "mm/min", depth_of_cut_ap: ap, unit_ap: "mm", width_of_cut_ae: ae, unit_ae: "mm" },
+              performance: { mrr_cm3_min: mrr, cutting_force_N: Fc, cutting_power_kW: Pc, power_utilization_pct: powerPct, estimated_tool_life_min: toolLife, tool_grade_used: toolGrade },
+              safety: warnings.length > 0 ? warnings : ["All parameters within safe limits"],
+              source: { kienzle: !!kienzle, taylor: !!(taylor?.C), taylor_grade: toolGrade, recommendations: (recSection.speed_roughing || recSection.speed_finishing) ? "material-specific" : "iso-group-default" }
+            };
+            break;
+          }
+
+          case "tool_compare": {
+            const tc1 = params.tool_1 || params.tool1;
+            const tc2 = params.tool_2 || params.tool2;
+            if (!tc1 || !tc2) return jsonResponse({ error: "tool_compare requires 'tool_1' and 'tool_2'" });
+            const tool1 = registryManager.tools.get(tc1) || registryManager.tools.getByCatalogNumber(tc1);
+            const tool2 = registryManager.tools.get(tc2) || registryManager.tools.getByCatalogNumber(tc2);
+            if (!tool1) return jsonResponse({ error: `Tool not found: ${tc1}` });
+            if (!tool2) return jsonResponse({ error: `Tool not found: ${tc2}` });
+            const tcMat = params.material ? await registryManager.materials.getByIdOrName(params.material) : null;
+            const tcIsoGroup = tcMat?.iso_group || params.iso_group || 'P';
+            const cp1 = (tool1 as any).cutting_params || {};
+            const cp2 = (tool2 as any).cutting_params || {};
+            // Handle both nested (.materials.P_STEELS) and flat (.P_STEELS) schemas
+            const cp1src = cp1.materials || cp1;
+            const cp2src = cp2.materials || cp2;
+            const isoKey = Object.keys(cp1src).find(k => k.startsWith(tcIsoGroup + '_'));
+            const t1cp = isoKey ? cp1src[isoKey] : null;
+            const t2cp = isoKey ? cp2src[isoKey] : null;
+            result = {
+              tool_1: { id: (tool1 as any).id, name: tool1.name, vendor: (tool1 as any).vendor, diameter: (tool1 as any).cutting_diameter_mm, flutes: (tool1 as any).flute_count, coating: (tool1 as any).coating || (tool1 as any).coating_type, coolant_through: (tool1 as any).coolant_through, price: (tool1 as any).price_usd, taylor_C: (tool1 as any).taylor_C, cutting_params: t1cp },
+              tool_2: { id: (tool2 as any).id, name: tool2.name, vendor: (tool2 as any).vendor, diameter: (tool2 as any).cutting_diameter_mm, flutes: (tool2 as any).flute_count, coating: (tool2 as any).coating || (tool2 as any).coating_type, coolant_through: (tool2 as any).coolant_through, price: (tool2 as any).price_usd, taylor_C: (tool2 as any).taylor_C, cutting_params: t2cp },
+              comparison: { for_material: tcMat ? { name: tcMat.name, iso_group: tcIsoGroup } : { iso_group: tcIsoGroup }, diameter_match: (tool1 as any).cutting_diameter_mm === (tool2 as any).cutting_diameter_mm, price_diff_pct: (tool1 as any).price_usd && (tool2 as any).price_usd ? Math.round(((tool2 as any).price_usd - (tool1 as any).price_usd) / (tool1 as any).price_usd * 100) : null, tool_life_ratio: (tool1 as any).taylor_C && (tool2 as any).taylor_C ? Math.round((tool2 as any).taylor_C / (tool1 as any).taylor_C * 100) / 100 : null }
+            };
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -196,5 +557,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (14 actions)");
+  log.info("[dataDispatcher] Registered prism_data (17 actions)");
 }

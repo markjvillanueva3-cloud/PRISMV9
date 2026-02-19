@@ -134,7 +134,7 @@ export interface PFPConfig {
 
 export const DEFAULT_PFP_CONFIG: PFPConfig = {
   enabled: true,
-  preFilterEnabled: false,
+  preFilterEnabled: true,
   historySize: 5000,
   patternExtractionInterval: 50,
   minOccurrences: 3,

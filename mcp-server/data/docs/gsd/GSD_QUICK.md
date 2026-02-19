@@ -88,6 +88,17 @@ Release readiness → prism_omega action=compute (Ω score, all components)
 @build-success: gsd_sync_v2.py (auto-updates tools.md and GSD_QUICK.md)
 @file-write: autoDocAntiRegression (warn >30%, BLOCK >60% content loss)
 
+## SKILL CREATION GATE v2.0 (HARD — always_apply)
+Read C:\PRISM\skills-consolidated\skill-authoring-checklist\SKILL.md BEFORE writing any skill.
+Key rules (v2.0 — anti-template enforcement):
+- **Rule 0**: Single purpose. One function per skill. >8KB = probably split.
+- **4 sections**: When/How/Returns/Examples — must be UNIQUE per skill, not templated.
+- **Anti-template**: If operational sections could be swapped between skills, rewrite.
+- **Real examples**: Actual numbers, materials, calculated outputs. Never "provide recommendation."
+- **Batch limit**: 3-5 skills per session. Never auto-generate operational sections.
+- **No enforcement hook exists yet** — this gate is prompt-level only (see roadmap R-SKILL).
+Violation history: v1.0 checklist led to 115 identical template headers. v2.0 prevents this.
+
 ## BUFFER ZONES (ADVISORY ONLY — pressure governs, not call counts)
 🟢0-20: Normal operation. Full 20KB responses.
 🟡21-30: Plan upcoming checkpoint. Consider prism_session→auto_checkpoint.
@@ -110,6 +121,7 @@ Plan first for >50 lines. Ask when ambiguous.
 >30% doc reduction → warning. >60% doc reduction → BLOCKED.
 
 ## Changelog
+- 2026-02-17: v22.1 — Added SKILL_CREATION_GATE (hard gate, always_apply). Audit: 1/116 skills pass checklist. Remediation planned.
 - 2026-02-13: v22.0 — F1-F8 complete. 31 dispatchers, 368 actions, 37 engines. Added nl_hook, compliance, tenant, bridge to decision tree. Synergy cadence (compliance@25, crossHealth@15).
 - 2026-02-11: v21.2 — Verified audit: 324 actions (was ~279), 29 engines (was 26), 30 session actions (was 26). Added guard+autopilot to decision tree. MASTER_INDEX.md now truth source.
 - 2026-02-10: v21.1 — Compaction recovery section added (3-layer system).

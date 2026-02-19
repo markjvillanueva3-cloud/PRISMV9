@@ -1,7 +1,7 @@
 # PRISM ULTIMATE MCP ROADMAP — ACTIVATION & USAGE INSTRUCTIONS
 # This file tells Claude how to find, load, and execute the modular roadmap system.
-# Place this file at: C:\PRISM\mcp-server\data\docs\roadmap\ROADMAP_INSTRUCTIONS.md
-# Version: 1.0 (aligned with ROADMAP_MODULES v13.8)
+# Place this file at: C:\PRISM\mcp-server\data\docs\ROADMAP_INSTRUCTIONS.md
+# Version: 1.1 (aligned with ROADMAP_MODULES v13.9)
 
 ---
 
@@ -40,7 +40,9 @@ roadmap/
 ├── PHASE_R5_VISUAL.md             ← Stub → expand at R5 start (~1K)
 ├── PHASE_R6_PRODUCTION.md         ← Stub → expand at R6 start (~1K)
 ├── PHASE_TEMPLATE.md              ← Template for expanding stubs
+├── SYSTEM_CONTRACT.md             ← Safety/correctness/operational invariants (gate artifact)
 ├── DEPLOYMENT_GUIDE.md            ← First-time setup + migration guide
+├── PRISM_Cross_Audit_Assessment.md← Reference: external audit analysis + reasoning trail
 ├── TOOL_UTILIZATION_AUDIT_v13_2.md← Reference: tool gap analysis
 ├── PRISM_INFRASTRUCTURE_AUDIT_v13_7_IA3.md ← Reference: latest audit
 └── reference/
@@ -162,7 +164,7 @@ The ROOT PROBLEM being solved: 4 duplicate registry pairs cause subsystems to re
 data files. P0 fixes wiring + configures Opus 4.6, R1 loads data, R2 tests calculations,
 R3-R6 hardens for production.
 
-Current phase status is tracked in CURRENT_POSITION.md and PRISM_MASTER_INDEX.md Phase Registry.
+Current phase status is tracked in CURRENT_POSITION.md and PRISM_MASTER_INDEX.md §Phase Registry.
 
 ---
 

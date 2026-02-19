@@ -157,8 +157,8 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     await this.loadLayer("ENHANCED", PATHS.MACHINES_ENHANCED);
     await this.loadLayer("LEVEL5", PATHS.MACHINES_LEVEL5);
     
-    // Load from converted JSON data directory
-    await this.loadLayer("ENHANCED", path.join(PATHS.MACHINES || "C:\\PRISM\\data\\machines", "ENHANCED", "json"));
+    // Load from converted JSON data directory (C:\PRISM\data\machines)
+    await this.loadLayer("ENHANCED", "C:\\PRISM\\data\\machines\\ENHANCED\\json");
     
     this.buildIndexes();
     
@@ -187,14 +187,28 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       for (const file of jsonFiles) {
         try {
           const filePath = file.path;
-          const data = await readJsonFile<Machine | Machine[]>(filePath);
+          const data = await readJsonFile<any>(filePath);
           
-          const machines = Array.isArray(data) ? data : [data];
+          // R1-MS2: Handle multiple formats:
+          // - Direct array: [machine, machine, ...]
+          // - Wrapper with .machines: { metadata: {...}, machines: [...] }
+          // - Single object: { id, manufacturer, ... }
+          let machines: any[];
+          if (Array.isArray(data)) {
+            machines = data;
+          } else if (data.machines && Array.isArray(data.machines)) {
+            machines = data.machines;
+          } else {
+            machines = [data];
+          }
           
           for (let i = 0; i < machines.length; i++) {
             const machine = machines[i];
-            // W5: Generate ID from manufacturer+model if no explicit id
-            const id = machine.id || machine.machine_id || 
+            // W5/R1-MS2: Generate ID from manufacturer+model if no valid id
+            // Treat "unknown", empty string, or missing as invalid
+            const rawId = machine.id || machine.machine_id;
+            const hasValidId = rawId && rawId !== "unknown" && rawId.trim() !== "";
+            const id = hasValidId ? rawId :
               (machine.manufacturer && machine.model 
                 ? `${machine.manufacturer}-${machine.model}`.replace(/[\s\/]+/g, '_').toUpperCase()
                 : machine.name 
@@ -355,8 +369,8 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       results = this.all();
     }
     
-    // Apply additional filters
-    if (options.query) {
+    // Apply additional filters — treat "*" or empty as "return all"
+    if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(m => {
         try {

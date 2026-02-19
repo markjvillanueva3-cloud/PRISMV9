@@ -72,12 +72,22 @@ export async function loadMaterials(): Promise<Map<string, Material>> {
   
   for (const file of files) {
     try {
-      const content = await readJsonFile<Material | Material[]>(file);
-      const materials = Array.isArray(content) ? content : [content];
+      const content = await readJsonFile<any>(file);
+      // Handle both formats: {materials: [...]} wrapper and direct array/object
+      let materials: Material[];
+      if (content.materials && Array.isArray(content.materials)) {
+        materials = content.materials;
+      } else if (Array.isArray(content)) {
+        materials = content;
+      } else {
+        materials = [content];
+      }
       
       for (const material of materials) {
-        if (material.id) {
-          caches.materials.data.set(material.id, material);
+        const id = material.id || material.material_id;
+        if (id) {
+          material.id = id;  // Normalize to .id
+          caches.materials.data.set(id, material);
           // Also index by common name for lookup
           if (material.name) {
             caches.materials.data.set(material.name.toLowerCase(), material);
@@ -127,8 +137,8 @@ export async function searchMaterials(criteria: {
   const results: Material[] = [];
   
   for (const material of materials.values()) {
-    // Skip duplicate entries (name-indexed)
-    if (!material.id?.match(/^[A-Z]{2,3}-/)) continue;
+    // Skip duplicate entries (name-indexed) — accept 1-3 letter prefixes for gen_v5 IDs
+    if (!material.id?.match(/^[A-Z]{1,3}-/)) continue;
     
     // Apply filters
     if (criteria.iso_group && material.iso_group !== criteria.iso_group) continue;

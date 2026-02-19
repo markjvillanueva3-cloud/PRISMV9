@@ -26,6 +26,7 @@ Every expanded phase doc MUST include ALL of these sections:
 ```
 # PHASE [ID]: [TITLE] — v13.0
 # Status: not-started | Sessions: [N] | MS: [N] (MS0-MSN) | Role: [from §Role Protocol]
+# ENV: [Code N% + MCP N%] | Model: [Haiku→Sonnet→Opus] | CC Subagents: [list or none]
 # Pattern: [AUDIT/LOAD/SETUP] → [FIX/EXECUTE/BUILD] → [VERIFY/VALIDATE] → DOCUMENT
 # v13.0: [List Opus 4.6 features used in this phase]
 ```
@@ -64,6 +65,11 @@ Each MS MUST include:
 
 **Effort:** ~[N] calls | **Tier:** [STANDARD/DEEP/RELEASE] | **Context:** ~[N]KB
 **Response Budget:** ~[N]KB throughput, ~[N]KB peak
+**Execution:** [CC | MCP | Hybrid] — [which steps run where and why]
+  CC steps: [list step numbers that run in Claude Code, e.g. "Steps 2-4: bulk file processing"]
+  MCP steps: [list step numbers that run in MCP, e.g. "Step 1: safety calc, Step 5: Ralph gate"]
+  Subagents: [which subagent(s) if any, e.g. "registry-expert for schema, Haiku×3 for parallel scan"]
+  WHY this split: [one line, e.g. "bulk file ops = CC, safety validation = MCP server-side"]
 **Entry:** [prerequisite MS] COMPLETE.
 
 [numbered steps in code block]
@@ -123,15 +129,186 @@ Draw the dependency graph.
 ```
 Ralph >= [grade] | Omega >= [threshold] | Build passes
 [Phase-specific requirements]
+
+MANDATORY QUALITY RULE (Roadmap Audit 2026-02-17 Finding 7):
+  Every gate that checks a COUNT must also check QUALITY.
+  Minimum: 3 random items from the counted set reviewed against quality criteria.
+  Examples:
+    "Skill count >= 300" → also: "3 random skills pass v2.0 anti-template test"
+    "Registry coverage >= 95%" → also: "3 random records have physically reasonable values"
+    "Action exists and runs" → also: "Sample output reviewed against reference, not just no-error"
+  WHY: Count-only gates caused the skill template disaster (116/116 pass, 0/116 useful).
+  A gate that checks existence without checking quality is not a gate.
 ```
 
 ---
+
+
+---
+
+## WIRING PROTOCOL (v14.5 -- MANDATORY for every MS that creates a capability)
+
+After completing ANY milestone that adds a new action, engine, or capability:
+
+```
+1. COMPANION SKILL: Create or update the skill that teaches Claude how to use it
+   Location: skills-consolidated/prism-[name]/SKILL.md (MCP) + .claude/skills/[name].md (CC)
+   Contains: WHEN TO USE, HOW TO USE, WHAT IT RETURNS, EXAMPLES (v2.0 format - all UNIQUE)
+   Quality: Must pass v2.0 anti-template test. Read skill-authoring-checklist v2.0 first.
+   
+2. COMPANION HOOK: Register validation hook if the capability has safety/quality implications
+   Location: hookRegistration.ts + .claude/settings.json
+   Types: blocking (prevents bad input), warning (alerts on quality), telemetry (tracks usage)
+   Quality (Audit F4): Each hook MUST specify:
+     - 1 positive test case (hook allows good input)
+     - 1 negative test case (hook blocks bad input)
+     - 1 edge case (boundary condition)
+   One-liner descriptions are NOT sufficient. If you can't define test cases, the hook is too vague.
+
+3. UPDATE INDEXES:
+   SKILL_PHASE_MAP.json: Add skill to current phase's auto-load list
+   SKILL_INDEX.json: Add entry with triggers, tags, relationships
+   CODEBASE_INDEX.json: Add entry for new engine/action/chain
+
+4. SMOKE TEST: Execute 1-3 realistic queries that USE the new capability end-to-end
+   The query must exercise the real code path, not just unit tests
+   Document the smoke test query + expected result in the MS gate criteria
+   Example: "Calculate speed/feed for 4140 turning" -> verify S(x)>=0.70, structured output valid
+
+5. VERIFY COMPANION FIRES: Run a scenario that triggers the hook and loads the skill
+   If hook doesn't fire -> fix registration. If skill doesn't load -> fix triggers.
+
+GATE CHECK: All 5 wiring steps complete for every MS that created a capability.
+If a MS doesn't create a new capability (e.g., pure data loading), steps 1-2 are optional.
+```
+
+## WIRING VERIFICATION AUDIT (v15.0 — REQUIRED after infrastructure phases)
+
+After phases that build significant infrastructure (DA, R1, R3, R6), insert one audit
+session BEFORE the phase gate passes. Purpose: catch orphaned artifacts — things built
+but never called, referenced, or consumed downstream.
+
+```
+AUDIT PROCEDURE (1 session, Sonnet, 5-8 calls):
+
+STEP 1 — INVENTORY WHAT THIS PHASE BUILT:
+  Run automated scan:
+    - Cadence functions: grep 'export.*function auto' cadenceExecutor.ts → list
+    - Engines: ls src/engines/*.ts → list
+    - Scripts: ls scripts/**/*.{ps1,js,py} → list
+    - Skills: count skills-consolidated/*/SKILL.md → list new ones
+    - NL hooks: check nl_hook registry → list
+    - State docs: ls state/*.{md,json} → list
+  Output: PHASE_ARTIFACTS.md with category → item → date created
+
+STEP 2 — CALLER CHECK (the core test):
+  For EACH artifact in the inventory:
+    - grep the codebase for import/require/reference to this artifact
+    - Count callers outside the artifact's own file
+    - If callers = 0: ORPHANED — flag for wiring or removal
+  Output: caller count per artifact. Flag orphans.
+
+STEP 3 — DOWNSTREAM REFERENCE CHECK:
+  For each artifact, check if future phase docs reference it:
+    - Is it in any phase's RECOMMENDED_SKILLS?
+    - Is it listed in any MS dependency?
+    - Is it in SKILL_INDEX.json with triggers?
+    - Is it in any hook registration?
+  If future phases SHOULD use it but DON'T reference it: flag for insertion.
+
+STEP 4 — DISPOSITION:
+  For each orphaned artifact, decide:
+    A) WIRE IT: add import/call to the correct consumer (most common)
+    B) DEFER IT: add to downstream phase as explicit dependency
+    C) DEPRECATE IT: mark as superseded, document why
+    D) DELETE IT: remove if truly unused and won't be needed
+  Document each decision with rationale.
+
+STEP 5 — VERIFY WIRING:
+  For items in category A: confirm the new caller works (build passes, smoke test)
+  For items in category B: confirm downstream phase doc updated
+  Output: updated PHASE_ARTIFACTS.md with disposition column
+
+STEP 6 — GAP & IMPROVEMENT ASSESSMENT (v15.0):
+  Beyond "is it wired?" — ask "is it complete? could it be better?"
+  For each CATEGORY of artifact this phase touched, answer 3 questions:
+
+  CADENCE FUNCTIONS:
+    a) MISSING: Are there cadence functions the NEXT phase will need that don't exist yet?
+       (e.g., R1 adds registries → does R2 need a "registry_freshness_check" cadence?)
+    b) REDUNDANT: Are any cadence functions doing overlapping work? Could they merge?
+    c) IMPROVE: Do any existing functions need parameter changes for next phase's workload?
+
+  ENGINES:
+    a) MISSING: What capabilities does the next phase expect that no engine provides?
+    b) OVERLAP: Are two engines serving the same dispatcher? Document which is canonical.
+    c) IMPROVE: Are any engines hitting performance limits that next phase will stress?
+
+  SCRIPTS:
+    a) MISSING: What automation does the next phase need that no script handles?
+    b) DEAD: Are any scripts from previous phases now superseded? Mark for deprecation.
+    c) IMPROVE: Which scripts would benefit from new data/capabilities built this phase?
+
+  NL HOOKS:
+    a) MISSING: What runtime conditions should the next phase monitor?
+    b) COVERAGE: Do existing NL hooks cover new artifacts built this phase?
+    c) IMPROVE: Are any hook conditions too broad (false positives) or too narrow (missed)?
+
+  SKILLS:
+    a) MISSING: What new skills does the next phase need that weren't created this phase?
+    b) STALE: Are any existing skills referencing outdated procedures after this phase's changes?
+    c) IMPROVE: Do any skills need updated examples based on new capabilities?
+
+  Output: GAP_ASSESSMENT section appended to PHASE_ARTIFACTS.md
+  Format per item: [CATEGORY] [MISSING|REDUNDANT|IMPROVE] — description → assigned to [PHASE-MS]
+  Items tagged MISSING become explicit dependencies in the next phase doc.
+  Items tagged IMPROVE become TODOs in the next phase's first milestone.
+
+GATE ADDITION: Phase gate cannot pass if >10% of artifacts are orphaned without
+documented disposition. This is a SOFT gate — dispositions B/C/D are acceptable
+as long as they're documented. Only truly forgotten items (no disposition) block.
+```
+
+WHEN TO INSERT AUDIT MILESTONES:
+  - After DA (dev infrastructure): catches unwired cadence functions, engines, scripts
+  - After R1 (data loading): catches unqueried registries, unused data pipelines
+  - After R3 (intelligence): catches unconnected proof chains, unused agent configs
+  - After R6 (rendering): catches unbound UI components, unused templates
+  - Optional after any phase that builds 5+ new artifacts
+
+The audit milestone is always the LAST milestone before the phase gate.
+It adds 1 session, 5-8 calls. Cost is low. Value is preventing the
+"we built it but nobody calls it" pattern that compounds across phases.
+
+## SMOKE TEST EXAMPLES (v14.5 -- per-phase guidance)
+
+```
+DA:  Start new session -> boot protocol completes in <60s, skills auto-load
+R1:  "Query material 4140 properties" -> returns complete record with 127 params
+R1:  "Find tool T-123 insert geometry" -> returns holder + insert + coating
+R2:  "Calculate speed/feed for 4140 turning, HSS tool" -> S(x)>=0.70, structured output
+R2:  "What is the safe depth of cut for Ti-6Al-4V at 60 m/min?" -> bounded result with uncertainty
+R3:  "Plan a job for aluminum 6061 bracket, 3-axis" -> complete plan with all parameters
+R3:  "Convert 500 SFM to m/min" -> unit-consistent result
+R4:  "Create tenant for Shop_A" -> isolated tenant, no data leakage
+R5:  "Show dashboard for current job" -> renders with correct data binding
+R6:  "Run load test at 2x" -> S(x) stays >=0.70 under load
+R7:  "Predict surface finish for 304SS face milling" -> coupled physics result
+R8:  "I need to machine this part" -> intent engine routes to correct workflow
+R9:  "Connect to machine M-001 via MTConnect" -> live data stream established
+R10: "Generate process plan for this part geometry" -> multi-operation plan with trade-offs
+R11: "Package PRISM for delivery" -> installable artifact with docs
+```
 
 ## BRAINSTORM QUALITY CHECKLIST
 
 Before finalizing any expanded phase doc, verify:
 
 □ Every MS has Effort + Tier + Context + Response Budget headers
+□ Every MS has Execution field declaring CC/MCP split with specific step allocation
+□ CC steps identify which subagent(s) to use and why CC over MCP for those steps
+□ MCP steps identify which prism_ dispatchers are needed (safety calcs MUST be MCP)
+□ Parallel CC opportunities identified (independent data targets → spawn subagents)
 □ MEDIUM/HIGH effort MS have flush points, micro-checkpoints, and risk classification
 □ Every safety-relevant step specifies effort=max
 □ Every calc output specifies structured output schema (physically-bounded, all params required)
@@ -173,6 +350,11 @@ Before finalizing any expanded phase doc, verify:
   more thorough MS definitions, better parallelism identification, and fewer gaps.
 □ Framework load measured at phase gate: prism_context action=context_monitor_check (IA-12.1)
   Record in PHASE_FINDINGS.md: "Framework load at [phase] gate: [N]K tokens."
+□ Every gate with a count check also has a quality sample check (Audit F7 - MANDATORY)
+□ Companion assets (hooks/scripts/skills) have verification criteria, not just one-liners (Audit F4)
+□ CC smoke test: if phase ENV includes Code, verify at least 1 CC-allocated step executes in CC
+□ Subagent smoke test: if MS uses subagents, verify subagent responds and persists memory
+□ When expanding stub phases, apply v2.0 anti-template thinking to all outputs (Audit F5)
 □ Parallel result contract used for all agent results (JSON schema — IA-6.1)
 □ Hook output response protocol followed when hooks fire during execution (IA-5.1)
 

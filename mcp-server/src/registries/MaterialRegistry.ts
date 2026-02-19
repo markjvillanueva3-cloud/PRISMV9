@@ -313,7 +313,8 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     // Apply additional filters
-    if (options.query) {
+    // Treat "*" or empty query as "return all" — skip text filter
+    if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(m => 
         m.name?.toLowerCase().includes(query) ||

@@ -101,7 +101,12 @@ async function runBrainstorm(config: BrainstormConfig): Promise<BrainstormResult
     }));
 
     // Find relevant formulas
-    const formulaResults = formulaRegistry.search(problem, 5);
+    const formulaListResult = await formulaRegistry.list({ limit: 5 });
+    const formulaResults = formulaListResult.formulas.filter((f: any) => 
+      f.name?.toLowerCase().includes(problem.toLowerCase()) ||
+      f.description?.toLowerCase().includes(problem.toLowerCase()) ||
+      f.category?.toLowerCase().includes(problem.toLowerCase())
+    );
     result.domain_context.relevant_formulas = formulaResults.map((f: any) => ({
       id: f.id || f.formula_id || "unknown",
       name: f.name || f.title || "unknown",

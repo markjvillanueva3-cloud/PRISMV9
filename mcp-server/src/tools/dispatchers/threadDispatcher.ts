@@ -32,8 +32,14 @@ export function registerThreadDispatcher(server: any): void {
       ]),
       params: z.record(z.any()).optional()
     },
-    async ({ action, params = {} }) => {
+    async ({ action, params: rawParams = {} }) => {
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         const isCalc = CALC_ACTIONS.has(action);
         const isCode = CODE_ACTIONS.has(action);
         const hookCtx = {

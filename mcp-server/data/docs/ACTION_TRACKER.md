@@ -1,42 +1,47 @@
-# ACTION TRACKER — 2026-02-10 Session 5 (Compaction Fix + Context Retention)
 
 ## COMPLETED THIS SESSION:
 
-### Compaction Recovery Overhaul (autoHookWrapper.ts + cadenceExecutor.ts)
-1. ✅ Always-on `_context` in EVERY MCP response (~300 bytes: task, resume, next action, transcript hint)
-2. ✅ Lowered compaction gap detection: 300s → 30s
-3. ✅ Added session_boot-mid-session as compaction signal
-4. ✅ Increased recovery reminders: 3 → 5 calls
-5. ✅ Aggressive response hijack: on compaction detect, REPLACES entire response with recovery payload
-   - Includes: survival context, ACTION_TRACKER next items, recent tool calls, transcript pointer
-   - Original response preserved in `original_response` field
-6. ✅ First-call recon recovery: if fresh survival data exists on server start AND action != session_boot, triggers full recovery mode
-7. ✅ Fixed `_COMPACTION_RECOVERY` instruction: forces transcript + RECENT_ACTIONS read before continuing
-8. ✅ Fixed `deriveNextAction`: ACTION_TRACKER pending items first (was: last tool call which was useless)
-9. ✅ Fixed `autoCompactionSurvival` current_task: reads ACTION_TRACKER when todo says "unknown"
-10. ✅ Fixed transcript path: points to /mnt/transcripts/ (Claude container) not Windows path
+### R1-MS5: Tool Schema Normalization (2026-02-19) — COMPLETE
+1. ✅ Schema audit: all 14 tool JSON files use 'vendor' — code fixed with manufacturer fallback
+2. ✅ buildIndexes() enhanced: manufacturer, coating, category Map indexes (O(1) lookup)
+3. ✅ getFacets() method: filtered aggregation of types/vendors/coatings/diameters
+4. ✅ tool_facets action: wired in dataDispatcher + 8 indexing systems (9 locations)
+5. ✅ Multi-term AND search: "sandvik milling" → 202 results (was 0)
+6. ✅ EXECUTION_CHAIN.json: 382 actions (tool_facets added)
+7. ✅ Steps 2-4 reassessed: separate ToolIndex.ts NOT needed — Map indexes ARE the index
 
-### W2.1 Partial
-11. ✅ Wired next_session_prep.py call into session_end (sessionDispatcher.ts)
+### Dev Infrastructure Activation (2026-02-19) — IN PROGRESS
+8. ✅ Task 1: SKILL_INDEX.json triggers populated for 168 skills (unblocks autoSkillContextMatch)
+9. ⏳ Task 2: Create persistent NL hooks on disk (unblocks autoNLHookEvaluator)
+10. ✅ Task 3: Fix stale ACTION_TRACKER.md (THIS update — stops W2.1 haunting recovery)
+11. ⏳ Task 4: Verify W2.1-W2.4 code scaffolding is functional
+12. ⏳ Task 5: Verify phase skill loading works with CURRENT_POSITION.md
 
-### System Audit
-12. ✅ Full audit: cadence(95%), hooks(70%), skills(30%), scripts(18%), agents(60%), ralph(100%), compaction(→now fixed)
-13. ✅ Found: agent model string stale (claude-haiku-4-5-20241022 → 404)
+### Previous Sessions (archived)
+- DA-MS0 through DA-MS11: COMPLETE (168 skills, 48 atomic, 5 cadence functions)
+- Compaction recovery overhaul, always-on _context, W2.1 partial
+- autoHookWrapper.ts recovery from destruction (1907 lines restored)
 
-## BUILD STATUS: Clean (3.5mb, 120ms). Server starts clean. ⚠️ NEEDS RESTART to load.
+## BUILD STATUS: Clean (3.9MB). R1-MS5 changes LIVE. ✅
 
-## NEXT SESSION: W2 (Wire Big Wins) — continued
-1. ⏳ W2.1: Finish — wire boot-side consumption of next_session_prep.json
-2. ⏳ W2.2: Wire resume_detector.py + resume_validator.py into session boot
-3. ⏳ W2.3: Audit phase0_hooks.py, dedup vs existing 112, register compatible
-4. ⏳ W2.4: Selective script registration (core/, validation/, state/, batch/)
+## NEXT SESSION: Dev Infrastructure Activation — continued
+1. ⏳ Create 5-10 persistent NL hooks on disk (registry warnings, safety alerts)
+2. ⏳ Verify autoSkillContextMatch fires with populated triggers
+3. ⏳ Verify autoPhaseSkillLoader loads skills for R1 phase
+4. ⏳ W2.1-W2.4 code scaffolding validation
 5. ⏳ Fix agent model strings (stale claude-haiku-4-5-20241022)
+6. ⏳ Begin R1-MS6 (Material Enrichment) or R1-MS7 (Machine Field Population)
 
 ## FILES MODIFIED:
-- autoHookWrapper.ts (always-on _context, 30s gap, session_boot detection, 5 reminders, aggressive hijack, first-call recon recovery)
-- cadenceExecutor.ts (deriveNextAction priority fix, survival current_task fix from ACTION_TRACKER)
-- sessionDispatcher.ts (W2.1: wired next_session_prep.py into session_end)
-- ACTION_TRACKER.md (this file)
+- ACTION_TRACKER.md (this file — updated to current state, removed stale W2.1 references)
+- ToolRegistry.ts (vendor fix, indexes, getFacets, multi-term search)
+- dataDispatcher.ts (tool_facets action)
+- EXECUTION_CHAIN.json (382 actions)
+- SKILL_INDEX.json (168 skills with triggers populated)
+- ROADMAP_TRACKER.md (R1-MS5 complete, DA complete)
+- CURRENT_POSITION.md (R1-MS5 complete)
 
 ## Changelog
-- 2026-02-10: Session 5 — compaction recovery overhaul, context retention always-on, W2.1 partial
+- 2026-02-19: R1-MS5 complete, dev infrastructure activation started
+- 2026-02-18: DA-MS11 complete, autoHookWrapper.ts recovered
+- 2026-02-10: Session 5 — compaction recovery overhaul, W2.1 partial

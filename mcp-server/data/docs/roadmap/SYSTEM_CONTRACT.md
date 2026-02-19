@@ -12,6 +12,26 @@
 
 ---
 
+## INVARIANT STATUS SUMMARY (added 2026-02-17 per Roadmap Audit Finding 2)
+```
+ACTIVE (code enforces NOW):    INV-S1 (safety score), INV-S1b (classification),
+                               INV-S2 (no undefined), INV-S3 (schema validation),
+                               INV-O1 (health endpoint), INV-O3 (boot completion),
+                               INV-O5 (position persistence)
+PARTIALLY ACTIVE:              INV-S4 (cross-field physics - exists, not all paths tested),
+                               INV-O2 (compaction recovery - works, not stress-tested),
+                               INV-O4 (degradation tiers - tier 1-2 work, 3-5 untested)
+PLANNED (designed, not built):  INV-C1 (calc accuracy - needs R2 test matrix),
+                               INV-C2 (registry completeness - needs R1 audit),
+                               INV-C3 (system coherence - phase gate smoke test)
+ASPIRATIONAL (no mechanism):   INV-S5 (safety under load - needs R6),
+                               INV-C4 (reproducibility - needs R6),
+                               INV-P1-P3 (all performance SLAs - need R6)
+```
+NOTE: Tested at in invariant descriptions below means WILL BE tested at that phase.
+Do not assume an invariant is verified because a phase is listed. Check STATUS above.
+
+
 ## SAFETY INVARIANTS (Violations = Deployment Block)
 
 These invariants protect human life. Violations are hard stops — no override without
@@ -25,6 +45,12 @@ INV-S1: SAFETY SCORE THRESHOLD
   Violation: BLOCK operation. Log safety_block record. Do NOT return parameters to operator.
   Recovery: Recalculate with different parameters or escalate to manufacturing engineer.
   Tested at: R2-MS0 (50-calc matrix), R2-MS1.5 (AI edge cases), R6-MS1 (under load)
+
+INV-S1b: SAFETY CLASSIFICATION OUTPUT (v14.5 CP-1)
+  All structured output with safety score MUST also include:
+    safety_classification: "SAFE" (>0.85) | "CAUTION" (0.70-0.85) | "BLOCKED" (<0.70)
+    safety_message: human-readable explanation
+  Traffic-light system for novice operators. CAUTION = marginal safety margin.
 
 INV-S2: NO UNDEFINED NUMERICAL OUTPUT
   Guarantee: No NaN, null, undefined, or Infinity in any numerical output to operators.
@@ -80,7 +106,7 @@ INV-C1: CALCULATION ACCURACY
                src/data/referenceValues.ts (sourced from Machinery's Handbook + manufacturer data).
   Violation: Log tolerance_violation. Add to R2_CALC_RESULTS.md. Enter R2-MS2 fix cycle.
   Recovery: Hand-calculate expected value → compare → classify (formula bug vs data bug vs
-            formula limitation). Fix and rerun. See PRISM_PROTOCOLS_CORE.md §R2 Fix Cycle.
+            formula limitation). Fix and rerun. See PRISM_PROTOCOLS_SAFETY.md §R2 Fix Cycle.
   Tested at: R2-MS0 (50-calc matrix), R3 (batch campaigns), R6-MS0 (full regression)
 
 INV-C2: REGISTRY COMPLETENESS
@@ -131,7 +157,7 @@ INV-O2: COMPACTION RECOVERY
              Layer 1: CURRENT_POSITION.md + active phase doc section.
              Layer 2: ROADMAP_TRACKER.md + COMPACTION_SURVIVAL.json (deep recovery).
              Layer 3: Restart from last complete MS (always works).
-  Enforcement: 3-layer recovery cascade in PRISM_PROTOCOLS_CORE.md §Compaction Recovery.
+  Enforcement: 3-layer recovery cascade in PRISM_PROTOCOLS_BOOT.md §Compaction Recovery.
   Violation: Log compaction_recovery_failure at Layer 1/2 → escalate to next layer.
   Recovery: Automatic cascade. If Layer 3 required → note wasted work in ROADMAP_TRACKER.
   Tested at: P0-MS8 (recovery drill), continuous (compaction telemetry in ROADMAP_TRACKER)
@@ -148,7 +174,7 @@ INV-O4: GRACEFUL DEGRADATION
              Tier 1: Full operation | Tier 2: Reduced data (registries partial)
              Tier 2.1: Suspect data quarantine | Tier 2.5: Partial dispatcher failure
              Tier 3: No API (offline cache) | Tier 4: MCP server down | Tier 5: DC down
-  Enforcement: Degradation hierarchy in PRISM_PROTOCOLS_CORE.md §Graceful Degradation.
+  Enforcement: Degradation hierarchy in PRISM_PROTOCOLS_BOOT.md §Graceful Degradation.
   Violation: System should never be in an unlabeled state. If behavior doesn't match any
              tier → debug. The tier system IS the diagnostic framework.
   Recovery: Diagnose which tier is active → fix the root cause → re-verify health.
@@ -162,6 +188,37 @@ INV-O5: POSITION PERSISTENCE
   Violation: All three files missing or stale → restart from last known phase gate.
   Recovery: Phase gates are natural recovery points. Maximum lost work: 1 MS.
   Tested at: Continuous (every session exercises position recovery)
+```
+
+---
+
+## PERFORMANCE SLAs (Targets for R6 Production Gate)
+
+```
+INV-P1: CALCULATION LATENCY
+  Guarantee: Safety-critical calcs return within SLA under normal load.
+  Targets:
+    speed_feed:           P50 < 3s, P95 < 8s, P99 < 15s
+    cutting_force:        P50 < 2s, P95 < 5s, P99 < 10s
+    tool_life:            P50 < 3s, P95 < 8s, P99 < 15s
+    job_plan:             P50 < 10s, P95 < 25s, P99 < 45s
+    surface_integrity:    P50 < 8s, P95 < 20s, P99 < 35s
+    alarm_decode:         P50 < 1s, P95 < 3s, P99 < 5s
+  Enforcement: R6-MS3 performance baseline records actuals against these targets.
+  Violation: Log latency_violation. If P95 exceeds target → investigate before deploy.
+  Recovery: Profile → identify bottleneck → optimize (caching, query optimization, etc.)
+
+INV-P2: AVAILABILITY
+  Guarantee: System responds to health check within 5s, 99.5% of the time over 24h.
+  Enforcement: R6-MS1 stress test monitors health endpoint during sustained load.
+  Violation: If availability < 99.5% under test load → not production-ready.
+  Recovery: Investigate failure patterns. Fix resource leaks or contention issues.
+
+INV-P3: ERROR RATE
+  Guarantee: < 1% of requests return errors under normal load (excludes invalid input).
+  Enforcement: R6-MS1 stress test counts 5xx errors / total requests.
+  Violation: Error rate > 1% → investigate error categories → fix top contributors.
+  Recovery: Classify errors (timeout, OOM, logic, data) → fix highest-frequency category first.
 ```
 
 ---
@@ -211,7 +268,7 @@ TIER 1 — SAFETY-CRITICAL (requires code change + rationale + manual verificati
 
 TIER 2 — OPERATIONAL (requires code change + build pass + health check):
   Files: Dispatcher logic, registry loaders, boot protocol, engine implementations,
-         PRISM_PROTOCOLS_CORE.md, phase docs
+         PRISM_PROTOCOLS_BOOT.md (see also SAFETY/CODING), phase docs
   Process: Code change → npm run build → health check → deploy
 
 TIER 3 — DOCUMENTATION/COSMETIC (requires code change only):
@@ -407,4 +464,63 @@ VALIDATION RULE:
   At phase entry (Boot Step 2.5), check ALL REQUIRES artifacts exist + are non-empty.
   If ANY missing → STOP. The prior phase did not complete correctly.
   Log: "[PHASE] ARTIFACT MISSING: [file]. Prior phase completion is suspect."
+
+R7      PHASE_FINDINGS.md (R1+R3 sections)              PHASE_FINDINGS.md (R7 section)
+        R2_CALC_RESULTS.md (baselines for coupled        src/__tests__/physicsPrediction.test.ts
+          physics validation)                             src/__tests__/optimization.test.ts
+                                                          COUPLED_PHYSICS_VALIDATION.md
+
+R8      PHASE_FINDINGS.md (R3+R7 sections)               PHASE_FINDINGS.md (R8 section)
+        COUPLED_PHYSICS_VALIDATION.md                     src/__tests__/intentEngine.test.ts
+                                                          src/__tests__/personaRouting.test.ts
+                                                          INTENT_ENGINE_ACCURACY.md
+
+R9      PHASE_FINDINGS.md (R7+R8 sections)               PHASE_FINDINGS.md (R9 section)
+        INTENT_ENGINE_ACCURACY.md                         src/__tests__/mtconnect.test.ts
+                                                          src/__tests__/camIntegration.test.ts
+                                                          INTEGRATION_PROTOCOL_REPORT.md
+
+R10     PHASE_FINDINGS.md (R7+R8+R9 sections)            (vision outputs — defined at entry)
+        INTEGRATION_PROTOCOL_REPORT.md
+
+R11     PHASE_FINDINGS.md (R8+R9 sections)               PRODUCT_DELIVERY_REPORT.md
+        INTENT_ENGINE_ACCURACY.md                         SFC_VALIDATION.md
+        INTEGRATION_PROTOCOL_REPORT.md                    src/__tests__/productE2E.test.ts
 ```
+
+
+---
+
+## TOOL ENVIRONMENT INVARIANTS
+
+NOTE: Phase ordering dependencies are in ROADMAP_INSTRUCTIONS.md §Phase Overview table.
+This section defines WHAT tools to use; ROADMAP_INSTRUCTIONS defines WHEN phases execute.
+
+### Safety-Critical Operations — MCP ONLY
+The following operations MUST execute through Claude.ai MCP server-side validation.
+Claude Code hooks are supplementary, not replacement:
+- All S(x) safety score calculations
+- Force/power/torque predictions with operator safety implications
+- Tool breakage risk assessment
+- Workholding validation
+- Spindle protection checks
+- Any calculation where S(x) < 0.70 triggers a HARD BLOCK
+
+### Build Verification — Claude Code Hooks ONLY
+The following operations MUST execute through deterministic Claude Code hooks:
+- Post-edit build verification (npm run build)
+- Anti-regression file backup before overwrites
+- Safety score context validation before bash execution
+
+### Registry Operations — Environment Preference
+- Batch loading (>500 files): Prefer Claude Code for parallelism
+- Schema validation: Either environment, prefer Code for speed
+- Cross-registry integrity checks: Prefer MCP for dispatcher access
+- Data quality quarantine: Either environment, log to shared location
+
+### Model Tier Enforcement
+- Safety calculations: Opus ONLY (never Haiku/Sonnet for S(x) computation)
+- Phase gate reviews: Opus ONLY
+- File exploration/grep: Haiku preferred (cost optimization)
+- Implementation/normalization: Sonnet standard
+- Architecture/physics design: Opus required

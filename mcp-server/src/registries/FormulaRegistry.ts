@@ -385,10 +385,28 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         if (!await fileExists(registryPath)) continue;
         
         const data = await readJsonFile<any>(registryPath);
-        const formulas = data.formulas || (Array.isArray(data) ? data : []);
+        
+        // R1: Handle multiple JSON structures:
+        // 1. { formulaRegistry: { formulas: { "ID": {...}, ... } } } (actual file format)
+        // 2. { formulas: [...] } (array format)
+        // 3. [...] (direct array)
+        let formulaEntries: any[] = [];
+        
+        const rawFormulas = data?.formulaRegistry?.formulas || data?.formulas;
+        if (rawFormulas) {
+          if (Array.isArray(rawFormulas)) {
+            formulaEntries = rawFormulas;
+          } else if (typeof rawFormulas === "object") {
+            // Object with formula IDs as keys
+            formulaEntries = Object.values(rawFormulas);
+          }
+        } else if (Array.isArray(data)) {
+          formulaEntries = data;
+        }
+        
         let loaded = 0;
         
-        for (const formula of formulas) {
+        for (const formula of formulaEntries) {
           // Map schema: registry uses "id", built-in uses "formula_id"
           const formulaId = formula.formula_id || formula.id;
           if (!formulaId) continue;
@@ -403,24 +421,15 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
               formula_id: formulaId,
               domain: (formula.domain || formula.category || "unknown").toLowerCase(),
               category: (formula.category || "unknown").toLowerCase(),
-              equation: formula.equation || "",
-              equation_plain: formula.equation || "",
-              parameters: formula.inputs ? [
-                ...formula.inputs.map((inp: any) => ({
-                  name: inp.name,
-                  symbol: inp.name,
-                  unit: inp.unit || "-",
-                  description: inp.description || inp.name,
-                  type: "input" as const
-                })),
-                ...(formula.outputs || []).map((out: any) => ({
-                  name: out.name,
-                  symbol: out.name,
-                  unit: out.unit || "-",
-                  description: out.description || out.name,
-                  type: "output" as const
-                }))
-              ] : formula.parameters || [],
+              equation: formula.equation || formula.definition?.form || "",
+              equation_plain: formula.equation_plain || formula.definition?.expanded || formula.definition?.form || "",
+              parameters: formula.parameters || (formula.variables || formula.inputs || []).map((v: any) => ({
+                name: v.name || v.symbol,
+                symbol: v.symbol || v.name,
+                unit: v.unit || "-",
+                description: v.description || v.name || v.symbol,
+                type: v.type === "float" || v.type === "integer" || v.type === "binary" ? "input" as const : (v.type || "input") as any
+              })),
               validation: formula.validation || {
                 required_inputs: (formula.inputs || []).map((i: any) => i.name)
               },
@@ -686,8 +695,37 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         }
         break;
         
-      default:
-        throw new Error(`No implementation for formula ${formulaId}`);
+      // === CALCULATOR FORMULAS (R1-MS8) ===
+      case "F-CALC-001": result = (inputs.Vc * 1000) / (Math.PI * inputs.D); break;
+      case "F-CALC-002": result = inputs.n_rpm * inputs.fz * inputs.z; break;
+      case "F-CALC-003": result = (Math.PI * inputs.D * inputs.n_rpm) / 1000; break;
+      case "F-CALC-004": result = inputs.fz * inputs.D / (2 * Math.sqrt(inputs.D * inputs.ae - inputs.ae * inputs.ae)); break;
+      case "F-CALC-005": result = (inputs.P_kw * 30000) / (Math.PI * inputs.n_rpm); break;
+      case "F-CALC-006": result = 25.4 / inputs.pitch_mm; break;
+      case "F-CALC-007": result = inputs.D_major - inputs.pitch_mm; break;
+      case "F-CALC-008": result = inputs.L_mm / inputs.Vf; break;
+      case "F-CALC-009": result = (Math.PI * inputs.D_mm * inputs.n_rpm) / 1000; break;
+
+      default: {
+        // R1-MS8: formula_js fallback for registry formulas
+        const formulaJs = (formula as any).formula_js;
+        if (formulaJs && typeof formulaJs === "string") {
+          try {
+            const fn = new Function("return " + formulaJs)();
+            const evalResult = fn(inputs);
+            if (typeof evalResult === "number") { result = evalResult; }
+            else if (typeof evalResult === "object") {
+              const vals = Object.values(evalResult).filter(v => typeof v === "number");
+              result = vals.length > 0 ? vals[0] as number : NaN;
+            } else { result = NaN; }
+          } catch (evalErr: any) {
+            throw new Error("Formula " + formulaId + " evaluation failed: " + evalErr.message);
+          }
+        } else {
+          throw new Error("No implementation for formula " + formulaId);
+        }
+        break;
+      }
     }
     
     // Check output range

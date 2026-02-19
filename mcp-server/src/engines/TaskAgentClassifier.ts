@@ -64,6 +64,7 @@ const DOMAIN_MAP: Record<string, string[]> = {
   "prism_data:tool_get": ["tooling"],
   "prism_data:tool_search": ["tooling"],
   "prism_data:tool_recommend": ["tooling", "optimization"],
+  "prism_data:tool_facets": ["tooling"],
   // Calculation domain
   "prism_calc:cutting_force": ["calculations", "physics"],
   "prism_calc:tool_life": ["calculations", "tooling"],

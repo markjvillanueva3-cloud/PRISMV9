@@ -38,7 +38,7 @@ import { log } from '../utils/Logger.js';
 // STATE DIRECTORY
 // ============================================================================
 
-const STATE_DIR = path.join(process.cwd(), 'state', 'memory_graph');
+const STATE_DIR = path.join('C:', 'PRISM', 'mcp-server', 'state', 'memory_graph');
 
 function ensureStateDir(): void {
   try {
@@ -69,6 +69,7 @@ export class MemoryGraphEngine {
   private walBuffer: WALEntry[] = [];
   private walSeq: number = 0;
   private walFlushTimer: ReturnType<typeof setInterval> | null = null;
+  private checkpointTimer: ReturnType<typeof setInterval> | null = null;
   private writeQueue: Array<() => void> = [];
   private isProcessingQueue: boolean = false;
   private operationsSinceCheckpoint: number = 0;
@@ -78,6 +79,8 @@ export class MemoryGraphEngine {
   constructor(configOverrides?: Partial<MemoryGraphConfig>) {
     this.config = { ...DEFAULT_GRAPH_CONFIG, ...configOverrides };
     ensureStateDir();
+    // Auto-init on construction — ensures loadCheckpoint + WAL timer start
+    this.init();
   }
 
   // ==========================================================================
@@ -97,12 +100,33 @@ export class MemoryGraphEngine {
       }
     }, this.config.walFlushIntervalMs);
 
+    // Periodic checkpoint save (every 60s) — survives kill without shutdown()
+    this.checkpointTimer = setInterval(() => {
+      try {
+        if (this.nodes.size > 0) {
+          this.flushWAL();
+          this.saveCheckpoint();
+        }
+      } catch (e) {
+        log.warn(`[GRAPH] Periodic checkpoint error: ${(e as Error).message}`);
+      }
+    }, 60_000);
+
+    // Process signal handlers — save on kill
+    const gracefulShutdown = () => {
+      try { this.shutdown(); } catch { /* best effort */ }
+    };
+    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('beforeExit', gracefulShutdown);
+
     this.initialized = true;
     log.info(`[GRAPH] Engine initialized (${this.nodes.size} nodes, ${this.edges.size} edges)`);
   }
 
   shutdown(): void {
     if (this.walFlushTimer) clearInterval(this.walFlushTimer);
+    if (this.checkpointTimer) clearInterval(this.checkpointTimer);
     this.flushWAL();
     this.saveCheckpoint();
     this.initialized = false;

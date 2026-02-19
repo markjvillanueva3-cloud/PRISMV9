@@ -109,6 +109,7 @@ const TIER_MAP: Record<string, CacheTier> = {
   "prism_data:machine_search": "STABLE",
   "prism_data:tool_get": "STABLE",
   "prism_data:tool_search": "STABLE",
+  "prism_data:tool_facets": "STABLE",
   "prism_data:formula_get": "STABLE",
   "prism_data:alarm_decode": "STABLE",
   "prism_thread:get_thread_specifications": "STABLE",

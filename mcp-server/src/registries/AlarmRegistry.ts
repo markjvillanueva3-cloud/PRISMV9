@@ -332,8 +332,8 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       results = this.all();
     }
     
-    // Apply additional filters
-    if (options.query) {
+    // Apply additional filters — treat "*" or empty as "return all"
+    if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(a =>
         a.name?.toLowerCase().includes(query) ||

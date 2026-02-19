@@ -36,6 +36,10 @@ import type {
   ValidationWarning,
   InputValidationResult,
   ScriptRecommendResult,
+  PhaseSkillLoadResult,
+  SkillContextMatchResult,
+  NLHookEvalResult,
+  HookActivationCheckResult,
 } from "../types/prism-schema.js";
 import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
 
@@ -155,6 +159,58 @@ export function autoCheckpoint(callNumber: number): CheckpointResult {
 
     fs.writeFileSync(CURRENT_STATE_FILE, JSON.stringify(state, null, 2));
     appendEventLine("cadence_checkpoint", { checkpoint_id: checkpointId, zone, call_number: callNumber });
+
+    // H1-MS5: Write actual checkpoint file for compaction recovery
+    try {
+      const cpDir = path.join(path.dirname(CURRENT_STATE_FILE), "checkpoints");
+      if (!fs.existsSync(cpDir)) fs.mkdirSync(cpDir, { recursive: true });
+      
+      // Read recent actions for context
+      let recentActions: any[] = [];
+      try {
+        const raPath = path.join(path.dirname(CURRENT_STATE_FILE), "RECENT_ACTIONS.json");
+        if (fs.existsSync(raPath)) {
+          const ra = JSON.parse(fs.readFileSync(raPath, "utf-8"));
+          recentActions = (ra.actions || []).slice(-10).map((a: any) => ({
+            tool: a.tool, action: a.action, success: a.success, ts: a.ts
+          }));
+        }
+      } catch { /* non-fatal */ }
+
+      // Read pending todos
+      let pendingTodos: string[] = [];
+      try {
+        const atPath = path.join(path.dirname(CURRENT_STATE_FILE), "..", "mcp-server", "data", "docs", "ACTION_TRACKER.md");
+        const atPathAlt = path.join(path.dirname(CURRENT_STATE_FILE), "ACTION_TRACKER.md");
+        const atFile = fs.existsSync(atPath) ? atPath : fs.existsSync(atPathAlt) ? atPathAlt : null;
+        if (atFile) {
+          const at = fs.readFileSync(atFile, "utf-8");
+          pendingTodos = at.split("\n").filter(l => l.trim().startsWith("- [ ]")).map(l => l.trim().replace("- [ ] ", "")).slice(0, 5);
+        }
+      } catch { /* non-fatal */ }
+
+      const checkpoint = {
+        id: checkpointId,
+        timestamp: new Date().toISOString(),
+        call_number: callNumber,
+        zone,
+        phase: state.currentSession?.phase || state.phase || "unknown",
+        task: state.currentSession?.task || "unknown",
+        recent_actions: recentActions,
+        pending_todos: pendingTodos,
+        quick_resume: state.quickResume || state.quick_resume || "",
+      };
+      
+      // Keep max 10 checkpoint files
+      const cpFiles = fs.readdirSync(cpDir).filter(f => f.startsWith("CP-")).sort();
+      if (cpFiles.length >= 10) {
+        for (const old of cpFiles.slice(0, cpFiles.length - 9)) {
+          try { fs.unlinkSync(path.join(cpDir, old)); } catch { /* non-fatal */ }
+        }
+      }
+      
+      fs.writeFileSync(path.join(cpDir, `${checkpointId}.json`), JSON.stringify(checkpoint, null, 2));
+    } catch { /* checkpoint file write non-fatal */ }
 
     return {
       success: true,
@@ -821,35 +877,64 @@ export function autoWarmStartData(): WarmStartResult {
   };
 
   try {
-    // 1. Registry status from data dirs (W5: recurse into ISO group subdirs for materials)
+    // 1. Registry status — scan BOTH data/ and extracted/ paths (R1: fix dual-path disconnect)
+    // The registries actually load from extracted/, but warm_start was only scanning data/
+    const EXTRACTED_DIR = "C:\\PRISM\\extracted";
     const dataRoot = path.join(DATA_DIR);
-    const registryDirs = ["materials", "machines", "alarms", "formulas", "tools"];
-    for (const dir of registryDirs) {
-      const dirPath = path.join(dataRoot, dir);
-      if (fs.existsSync(dirPath)) {
-        // Collect all JSON files including subdirectories (materials uses ISO group subdirs)
-        const allJsonFiles: string[] = [];
-        const topEntries = fs.readdirSync(dirPath, { withFileTypes: true });
-        for (const entry of topEntries) {
-          if (entry.isFile() && entry.name.endsWith(".json") && entry.name !== "index.json" && entry.name !== "MASTER_INDEX.json") {
-            allJsonFiles.push(path.join(dirPath, entry.name));
-          } else if (entry.isDirectory()) {
-            try {
-              const subFiles = fs.readdirSync(path.join(dirPath, entry.name)).filter(f => f.endsWith(".json") && f !== "index.json");
-              for (const sf of subFiles) allJsonFiles.push(path.join(dirPath, entry.name, sf));
-            } catch {}
+    
+    // Map each registry to ALL paths where its data lives
+    const registryPaths: Record<string, string[]> = {
+      materials: [
+        path.join(dataRoot, "materials"),
+        path.join(dataRoot, "materials_consolidated"),
+      ],
+      machines: [
+        path.join(dataRoot, "machines"),
+        path.join(EXTRACTED_DIR, "machines", "BASIC"),
+        path.join(EXTRACTED_DIR, "machines", "CORE"),
+        path.join(EXTRACTED_DIR, "machines", "ENHANCED"),
+        path.join(EXTRACTED_DIR, "machines", "LEVEL5"),
+      ],
+      alarms: [
+        path.join(dataRoot, "alarms"),
+        path.join(EXTRACTED_DIR, "controllers", "alarms"),
+      ],
+      formulas: [
+        path.join(dataRoot, "formulas"),
+        path.join("C:\\PRISM\\registries"),  // R1: FORMULA_REGISTRY.json lives here
+      ],
+      tools: [
+        path.join(dataRoot, "tools"),
+      ],
+    };
+    
+    for (const [dir, paths] of Object.entries(registryPaths)) {
+      const allJsonFiles: string[] = [];
+      for (const searchPath of paths) {
+        if (!fs.existsSync(searchPath)) continue;
+        try {
+          const topEntries = fs.readdirSync(searchPath, { withFileTypes: true });
+          for (const entry of topEntries) {
+            if (entry.isFile() && entry.name.endsWith(".json") && entry.name !== "index.json" && entry.name !== "MASTER_INDEX.json") {
+              allJsonFiles.push(path.join(searchPath, entry.name));
+            } else if (entry.isDirectory()) {
+              try {
+                const subFiles = fs.readdirSync(path.join(searchPath, entry.name)).filter(f => f.endsWith(".json") && f !== "index.json");
+                for (const sf of subFiles) allJsonFiles.push(path.join(searchPath, entry.name, sf));
+              } catch {}
+            }
           }
-        }
-        let count = 0;
-        for (const fp of allJsonFiles.slice(0, 8)) { // Sample first 8 files
-          try {
-            const d = JSON.parse(fs.readFileSync(fp, "utf-8"));
-            count += d.materials?.length || (Array.isArray(d) ? d.length : 1);
-          } catch {}
-        }
-        if (allJsonFiles.length > 8) count = Math.round(count / 8 * allJsonFiles.length); // Estimate
-        result.registry_status[dir] = count;
-      } else { result.registry_status[dir] = 0; }
+        } catch {}
+      }
+      let count = 0;
+      for (const fp of allJsonFiles.slice(0, 8)) { // Sample first 8 files
+        try {
+          const d = JSON.parse(fs.readFileSync(fp, "utf-8"));
+          count += d.materials?.length || d.alarms?.length || d.tools?.length || d.count || (Array.isArray(d) ? d.length : 1);
+        } catch {}
+      }
+      if (allJsonFiles.length > 8) count = Math.round(count / 8 * allJsonFiles.length); // Estimate
+      result.registry_status[dir] = count;
     }
 
     // 2. Last 3 errors
@@ -3100,6 +3185,121 @@ export function autoD4PerfSummary(callNumber: number): D4PerfSummaryResult {
 
 
 // ============================================================================
+// W4-2: PRE-COMPACTION AUTO-DUMP (fires when pressure >= 55%)
+// Proactively saves position + snapshot BEFORE compaction hits.
+// ============================================================================
+
+export interface PreCompactionDumpResult {
+  success: boolean;
+  call_number: number;
+  pressure_pct: number;
+  position_saved: boolean;
+  snapshot_saved: boolean;
+  error?: string;
+}
+
+export function autoPreCompactionDump(
+  callNumber: number,
+  pressurePct: number,
+  recentActions: string[] = [],
+  currentTask: string = "unknown"
+): PreCompactionDumpResult {
+  const ROADMAP_DIR = path.join("C:\\PRISM\\mcp-server\\data\\docs\\roadmap");
+  const POSITION_FILE = path.join(ROADMAP_DIR, "CURRENT_POSITION.md");
+  const SNAPSHOT_FILE = path.join("C:\\PRISM\\mcp-server\\data\\docs", "COMPACTION_SNAPSHOT.md");
+
+  let positionSaved = false;
+  let snapshotSaved = false;
+
+  try {
+    // 1. Read current position to preserve it (don't overwrite human-written fields)
+    let existingPosition = "";
+    try {
+      if (fs.existsSync(POSITION_FILE)) {
+        existingPosition = fs.readFileSync(POSITION_FILE, "utf-8");
+      }
+    } catch { /* */ }
+
+    // 2. Update position with latest call count and pressure
+    if (existingPosition) {
+      // Append or update CONTEXT_NOTES with pressure warning
+      const pressureNote = `Auto-dump at call ${callNumber}, pressure ${pressurePct}%. Task: ${currentTask.slice(0, 200)}`;
+      const updatedPosition = existingPosition.includes("CONTEXT_NOTES:")
+        ? existingPosition.replace(
+            /CONTEXT_NOTES:.*/,
+            `CONTEXT_NOTES: ${pressureNote}`
+          )
+        : existingPosition + `\nCONTEXT_NOTES: ${pressureNote}`;
+      fs.writeFileSync(POSITION_FILE, updatedPosition, "utf-8");
+      positionSaved = true;
+    }
+
+    // 3. Write COMPACTION_SNAPSHOT.md — captures reasoning state for three-source recovery
+    let quickResume = "";
+    let phase = "unknown";
+    let sessionId = "unknown";
+    try {
+      if (fs.existsSync(CURRENT_STATE_FILE)) {
+        const state = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8"));
+        quickResume = (state.quickResume || state.quick_resume || "").slice(0, 2000);
+        phase = state.currentSession?.phase || state.phase || "unknown";
+        sessionId = state.currentSession?.id || "unknown";
+      }
+    } catch { /* */ }
+
+    let todoPreview = "";
+    try {
+      if (fs.existsSync(TODO_FILE)) {
+        todoPreview = fs.readFileSync(TODO_FILE, "utf-8").slice(0, 1500);
+      }
+    } catch { /* */ }
+
+    const snapshot = [
+      `# COMPACTION SNAPSHOT — Auto-generated at ${new Date().toISOString()}`,
+      `# Three-source recovery: CURRENT_POSITION (where) + SESSION_HANDOFF (what) + this file (why)`,
+      ``,
+      `CALL_NUMBER: ${callNumber}`,
+      `PRESSURE_PCT: ${pressurePct}`,
+      `PHASE: ${phase}`,
+      `SESSION_ID: ${sessionId}`,
+      `CURRENT_TASK: ${currentTask.slice(0, 300)}`,
+      ``,
+      `RECENT_ACTIONS:`,
+      ...recentActions.slice(-10).map(a => `  - ${a.slice(0, 150)}`),
+      ``,
+      `QUICK_RESUME: ${quickResume.slice(0, 500)}`,
+      ``,
+      `TODO_PREVIEW:`,
+      todoPreview.split("\n").slice(0, 15).map(l => `  ${l}`).join("\n"),
+      ``,
+      `REASONING_STATE: Active work in progress. Pressure triggered auto-dump.`,
+      `PARTIAL_RESULTS: See RECENT_ACTIONS above for completed steps.`,
+      `DECISION_PENDING: Resume from CURRENT_POSITION.md after recovery.`,
+    ].join("\n");
+
+    fs.writeFileSync(SNAPSHOT_FILE, snapshot, "utf-8");
+    snapshotSaved = true;
+
+    return {
+      success: true,
+      call_number: callNumber,
+      pressure_pct: pressurePct,
+      position_saved: positionSaved,
+      snapshot_saved: snapshotSaved,
+    };
+  } catch (e: any) {
+    return {
+      success: false,
+      call_number: callNumber,
+      pressure_pct: pressurePct,
+      position_saved: positionSaved,
+      snapshot_saved: snapshotSaved,
+      error: e.message?.slice(0, 200),
+    };
+  }
+}
+
+// ============================================================================
 // F3: TELEMETRY SNAPSHOT CADENCE (every ~15 calls)
 // ============================================================================
 
@@ -3136,6 +3336,705 @@ export function autoTelemetrySnapshot(callNumber: number): TelemetrySnapshotResu
       anomalies: 0,
       unacknowledged_critical: 0,
       memory_kb: 0,
+    };
+  }
+}
+
+
+// ============================================================================
+// DA-MS11 STEP 1: PHASE-BASED SKILL AUTO-LOADER
+// Cadence: every 10 calls. Loads skills matching current development phase.
+// Unlike autoSkillHint (domain-based), this is PHASE-based.
+// ============================================================================
+
+const SKILL_INDEX_PATH = "C:\\PRISM\\skills-consolidated\\SKILL_INDEX.json";
+const POSITION_PATH = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+
+// Cache: avoid re-reading index every call
+let _phaseSkillCache: { phase: string; skills: Array<{id: string; name: string; description: string; size_bytes: number}>; ts: number } | null = null;
+const PHASE_SKILL_CACHE_TTL = 120_000; // 2 minutes
+
+function getCurrentPhase(): string {
+  try {
+    if (!fs.existsSync(POSITION_PATH)) return "DA";
+    const content = fs.readFileSync(POSITION_PATH, "utf-8");
+    // CURRENT: DA-MS11 | ... | PHASE: DA in-progress
+    const phaseMatch = content.match(/PHASE:\s*(\w+)/);
+    if (phaseMatch) return phaseMatch[1].toUpperCase();
+    // Fallback: extract from CURRENT: line
+    const currentMatch = content.match(/CURRENT:\s*(\w+)/);
+    if (currentMatch) return currentMatch[1].replace(/-.*/, "").toUpperCase();
+    return "DA";
+  } catch { return "DA"; }
+}
+
+function getPhaseSkills(phase: string): Array<{id: string; name: string; description: string; size_bytes: number}> {
+  const now = Date.now();
+  if (_phaseSkillCache && _phaseSkillCache.phase === phase && (now - _phaseSkillCache.ts) < PHASE_SKILL_CACHE_TTL) {
+    return _phaseSkillCache.skills;
+  }
+  try {
+    if (!fs.existsSync(SKILL_INDEX_PATH)) return [];
+    const index = JSON.parse(fs.readFileSync(SKILL_INDEX_PATH, "utf-8"));
+    const skills = index.skills || {};
+    const matched: Array<{id: string; name: string; description: string; size_bytes: number}> = [];
+    for (const [id, meta] of Object.entries(skills) as Array<[string, any]>) {
+      const phases: string[] = meta.phases || [];
+      if (phases.some((p: string) => p.toUpperCase() === phase)) {
+        matched.push({ id, name: meta.name || id, description: (meta.description || "").slice(0, 200), size_bytes: meta.size_bytes || 0 });
+      }
+    }
+    _phaseSkillCache = { phase, skills: matched, ts: now };
+    return matched;
+  } catch { return []; }
+}
+
+export function autoPhaseSkillLoader(callNumber: number): PhaseSkillLoadResult {
+  try {
+    const pressureFile = path.join(STATE_DIR, "context_pressure.json");
+    let pressurePct = 0;
+    try {
+      if (fs.existsSync(pressureFile)) {
+        pressurePct = JSON.parse(fs.readFileSync(pressureFile, "utf-8")).pressure_pct || 0;
+      }
+    } catch {}
+
+    if (pressurePct > 85) {
+      return { success: true, call_number: callNumber, current_phase: "?", skills_matched: 0, skills_loaded: 0, skill_ids: [], excerpts: [], pressure_mode: "suppressed", cache_hit: false };
+    }
+
+    const phase = getCurrentPhase();
+    const allPhaseSkills = getPhaseSkills(phase);
+    const cacheHit = _phaseSkillCache !== null && _phaseSkillCache.phase === phase;
+
+    // Limit based on pressure
+    const maxLoad = pressurePct > 60 ? 3 : pressurePct > 40 ? 5 : 8;
+    const maxExcerptLen = pressurePct > 60 ? 100 : 250;
+    const toLoad = allPhaseSkills.slice(0, maxLoad);
+
+    const excerpts: Array<{ skill_id: string; title: string; content: string }> = [];
+    const skillIds: string[] = [];
+    const SKILLS_BASE = "C:\\PRISM\\skills-consolidated";
+
+    for (const skill of toLoad) {
+      skillIds.push(skill.id);
+      // Load SKILL.md for real content
+      const skillFile = path.join(SKILLS_BASE, skill.id, "SKILL.md");
+      if (fs.existsSync(skillFile)) {
+        try {
+          const content = fs.readFileSync(skillFile, "utf-8");
+          const lines = content.split("\n");
+          let title = skill.name;
+          const keyLines: string[] = [];
+          for (const line of lines.slice(0, 30)) {
+            if (line.startsWith("# ") && title === skill.name) { title = line.replace("# ", ""); continue; }
+            if (line.startsWith("## ") && keyLines.length > 0) break;
+            if (line.trim() && !line.startsWith("#") && !line.startsWith("---") && !line.startsWith("```")) {
+              keyLines.push(line.trim());
+            }
+            if (keyLines.length >= 3) break;
+          }
+          excerpts.push({ skill_id: skill.id, title, content: keyLines.join(" ").slice(0, maxExcerptLen) });
+        } catch { excerpts.push({ skill_id: skill.id, title: skill.name, content: skill.description.slice(0, maxExcerptLen) }); }
+      }
+    }
+
+    appendEventLine("phase_skill_load", { phase, matched: allPhaseSkills.length, loaded: toLoad.length, call: callNumber });
+
+    return {
+      success: true,
+      call_number: callNumber,
+      current_phase: phase,
+      skills_matched: allPhaseSkills.length,
+      skills_loaded: toLoad.length,
+      skill_ids: skillIds,
+      excerpts,
+      pressure_mode: pressurePct > 60 ? "minimal" : pressurePct > 40 ? "reduced" : "full",
+      cache_hit: cacheHit,
+    };
+  } catch (e: any) {
+    return { success: false, call_number: callNumber, current_phase: "?", skills_matched: 0, skills_loaded: 0, skill_ids: [], excerpts: [], pressure_mode: "error", cache_hit: false };
+  }
+}
+
+
+// ============================================================================
+// DA-MS11 STEP 2: SKILL CONTEXT MATCHER
+// Cadence: every call (lightweight). Matches SKILL_INDEX.json trigger keywords
+// against current tool+action+params. Catches skills missed by domain mapping.
+// ============================================================================
+
+// Cache trigger index (inverted: keyword → skill_id[])
+let _triggerIndex: Map<string, string[]> | null = null;
+let _triggerIndexTs = 0;
+const TRIGGER_INDEX_TTL = 180_000; // 3 minutes
+
+function buildTriggerIndex(): Map<string, string[]> {
+  const now = Date.now();
+  if (_triggerIndex && (now - _triggerIndexTs) < TRIGGER_INDEX_TTL) return _triggerIndex;
+  
+  const idx = new Map<string, string[]>();
+  try {
+    if (!fs.existsSync(SKILL_INDEX_PATH)) return idx;
+    const index = JSON.parse(fs.readFileSync(SKILL_INDEX_PATH, "utf-8"));
+    const skills = index.skills || {};
+    for (const [id, meta] of Object.entries(skills) as Array<[string, any]>) {
+      const triggers: string[] = meta.triggers || [];
+      for (const trigger of triggers) {
+        // Tokenize trigger into individual words for matching
+        const words = trigger.toLowerCase().replace(/[^a-z0-9 ]/g, "").split(/\s+/).filter(w => w.length > 2);
+        for (const word of words) {
+          const existing = idx.get(word) || [];
+          if (!existing.includes(id)) {
+            existing.push(id);
+            idx.set(word, existing);
+          }
+        }
+      }
+    }
+  } catch {}
+  _triggerIndex = idx;
+  _triggerIndexTs = now;
+  return idx;
+}
+
+export function autoSkillContextMatch(
+  callNumber: number,
+  toolName: string,
+  action: string,
+  params: Record<string, any>
+): SkillContextMatchResult {
+  try {
+    // Build context string from tool call
+    const contextParts: string[] = [toolName, action];
+    // Extract meaningful param values (strings and short numbers)
+    for (const [k, v] of Object.entries(params)) {
+      if (typeof v === "string" && v.length > 0 && v.length < 100) contextParts.push(v);
+      else if (typeof v === "number") contextParts.push(String(v));
+      contextParts.push(k); // param keys often meaningful (e.g., "material", "machine")
+    }
+    const contextStr = contextParts.join(" ").toLowerCase();
+    const contextWords = contextStr.replace(/[^a-z0-9 ]/g, "").split(/\s+/).filter(w => w.length > 2);
+    
+    const triggerIdx = buildTriggerIndex();
+    if (triggerIdx.size === 0) {
+      return { success: true, call_number: callNumber, matches: [], total_matched: 0, context_key: `${toolName}:${action}` };
+    }
+
+    // Score each skill by how many trigger words match context
+    const skillScores = new Map<string, number>();
+    for (const word of contextWords) {
+      const matchedSkills = triggerIdx.get(word);
+      if (matchedSkills) {
+        for (const sid of matchedSkills) {
+          skillScores.set(sid, (skillScores.get(sid) || 0) + 1);
+        }
+      }
+    }
+
+    // Only return skills with score >= 2 (at least 2 word matches)
+    const matches: Array<{ skill_id: string; trigger: string; score: number }> = [];
+    for (const [sid, score] of skillScores.entries()) {
+      if (score >= 2) {
+        matches.push({ skill_id: sid, trigger: `${score} keyword matches`, score });
+      }
+    }
+    matches.sort((a, b) => b.score - a.score);
+
+    return {
+      success: true,
+      call_number: callNumber,
+      matches: matches.slice(0, 5), // top 5
+      total_matched: matches.length,
+      context_key: `${toolName}:${action}`,
+    };
+  } catch {
+    return { success: false, call_number: callNumber, matches: [], total_matched: 0, context_key: `${toolName}:${action}` };
+  }
+}
+
+
+// ============================================================================
+// DA-MS11 STEP 3: NL HOOK EVALUATOR
+// Cadence: every 8 calls. Loads deployed NL hooks from registry, evaluates
+// their conditions against current session context, fires any that match.
+// This is the RUNTIME BRIDGE between NLHookEngine (creation) and execution.
+// ============================================================================
+
+const NL_HOOK_REGISTRY = path.join(STATE_DIR, "nl_hooks", "registry.json");
+let _nlHookCache: { hooks: any[]; ts: number } | null = null;
+const NL_HOOK_CACHE_TTL = 60_000; // 1 minute
+
+function getDeployedNLHooks(): any[] {
+  const now = Date.now();
+  if (_nlHookCache && (now - _nlHookCache.ts) < NL_HOOK_CACHE_TTL) return _nlHookCache.hooks;
+  
+  try {
+    if (!fs.existsSync(NL_HOOK_REGISTRY)) {
+      // Create directory + empty registry if missing
+      const dir = path.dirname(NL_HOOK_REGISTRY);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(NL_HOOK_REGISTRY, JSON.stringify({ hooks: [], created: new Date().toISOString() }, null, 2));
+      _nlHookCache = { hooks: [], ts: now };
+      return [];
+    }
+    const registry = JSON.parse(fs.readFileSync(NL_HOOK_REGISTRY, "utf-8"));
+    const hooks: any[] = Array.isArray(registry) ? registry : 
+      Array.isArray(registry.hooks) ? registry.hooks :
+      Object.values(registry).filter((v: any) => v && typeof v === "object" && v.deploy_status);
+    
+    const deployed = hooks.filter((h: any) => 
+      h.deploy_status === "deployed" || h.deploy_status === "active" || h.status === "active"
+    );
+    _nlHookCache = { hooks: deployed, ts: now };
+    return deployed;
+  } catch {
+    _nlHookCache = { hooks: [], ts: Date.now() };
+    return [];
+  }
+}
+
+interface NLHookContext {
+  call_number: number;
+  pressure_pct: number;
+  current_phase: string;
+  recent_actions: string[];
+  tool_name?: string;
+  action?: string;
+}
+
+function evaluateNLHookCondition(hook: any, ctx: NLHookContext): boolean {
+  try {
+    const condition = hook.condition || hook.condition_code || hook.trigger || "";
+    
+    // STRUCTURED CONDITION: "type:param1:param2" format
+    if (condition && typeof condition === "string" && condition.includes(":")) {
+      const parts = condition.split(":");
+      if (parts.length >= 2) {
+        const condType = parts[0].toLowerCase().trim();
+        switch (condType) {
+          case "pressure_above": {
+            const threshold = parseFloat(parts[1]);
+            return !isNaN(threshold) && ctx.pressure_pct > threshold;
+          }
+          case "pressure_below": {
+            const threshold = parseFloat(parts[1]);
+            return !isNaN(threshold) && ctx.pressure_pct < threshold;
+          }
+          case "call_count_above": {
+            const threshold = parseInt(parts[1]);
+            return !isNaN(threshold) && ctx.call_number > threshold;
+          }
+          case "call_count_modulo": {
+            const mod = parseInt(parts[1]);
+            return !isNaN(mod) && mod > 0 && ctx.call_number % mod === 0;
+          }
+          case "phase_is": {
+            return ctx.current_phase.toLowerCase().includes(parts[1].toLowerCase());
+          }
+          case "phase_not": {
+            return !ctx.current_phase.toLowerCase().includes(parts[1].toLowerCase());
+          }
+          case "action_contains": {
+            const target = parts[1].toLowerCase();
+            return ctx.recent_actions.some(a => a.toLowerCase().includes(target)) || (ctx.tool_name + ":" + ctx.action).toLowerCase().includes(target);
+          }
+          case "tool_is": {
+            return ctx.tool_name?.toLowerCase() === parts[1].toLowerCase();
+          }
+          case "always": {
+            return true;
+          }
+          case "tool_action_is": {
+            return (ctx.tool_name + ":" + ctx.action).toLowerCase() === parts.slice(1).join(":").toLowerCase();
+          }
+          default:
+            break; // Fall through to NL-based matching
+        }
+      }
+    }
+    
+    // NL HOOK FALLBACK: Tag + keyword-based matching for hooks created via prism_nl_hook
+    // These hooks have tags, description, and category but no structured condition.
+    const tags: string[] = Array.isArray(hook.tags) ? hook.tags : [];
+    const desc = (hook.description || hook.natural_language || "").toLowerCase();
+    const category = (hook.category || "").toLowerCase();
+    const actionKey = (ctx.action || "").toLowerCase();
+    const toolKey = (ctx.tool_name || "").toLowerCase();
+    const contextStr = `${toolKey}:${actionKey} ${ctx.recent_actions.join(" ")}`.toLowerCase();
+    
+    // Tag-based matching: check if any hook tag matches current context
+    const contextKeywords = new Set([
+      ...actionKey.split(/[_:.\s]+/),
+      ...toolKey.split(/[_:.\s]+/),
+      ...ctx.recent_actions.flatMap(a => a.toLowerCase().split(/[_:.\s]+/)),
+    ].filter(k => k.length > 2));
+    
+    // Safety/manufacturing hooks: match on specific domain keywords in context
+    const SAFETY_TRIGGERS: Record<string, string[]> = {
+      "titanium": ["titanium", "ti-6al-4v", "ti-6-4", "grade_5"],
+      "hard-machining": ["hardened", "hrc", "hard_machining", "hard-machining", "cbn", "ceramic"],
+      "spindle": ["spindle_speed", "rpm", "spindle", "speed_feed"],
+      "deflection": ["depth_of_cut", "deflection", "doc", "cutting_force", "chip_load"],
+      "build": ["file_write", "file_create", "write_file"],
+    };
+    
+    for (const tag of tags) {
+      if (tag === "nl-authored") continue; // Skip meta-tag
+      const triggers = SAFETY_TRIGGERS[tag] || [tag.split("-")].flat();
+      for (const trigger of triggers) {
+        if (contextStr.includes(trigger) || contextKeywords.has(trigger)) {
+          return true;
+        }
+      }
+    }
+    
+    // Description keyword matching: check for key nouns in description vs context
+    if (desc) {
+      const descWords = desc.split(/\s+/).filter(w => w.length > 4);
+      const matchCount = descWords.filter(w => contextStr.includes(w)).length;
+      if (matchCount >= 2 && descWords.length > 0) {
+        return true; // At least 2 description keywords match context
+      }
+    }
+    
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function executeNLHookAction(hook: any, ctx: NLHookContext): string {
+  try {
+    // Handle array-format actions from NL hook registry: actions: [{type: "warn", message: "..."}]
+    const actionsArr = Array.isArray(hook.actions) ? hook.actions : [];
+    if (actionsArr.length > 0) {
+      const firstAction = actionsArr[0];
+      const actionType = firstAction.type || "warn";
+      const actionPayload = firstAction.message || firstAction.content || firstAction.payload || "";
+      
+      switch (actionType) {
+        case "warn":
+          appendEventLine("nl_hook_warning", { hook_id: hook.id, name: hook.name, warning: actionPayload });
+          return `warning: ${actionPayload}`;
+        case "block":
+          appendEventLine("nl_hook_block", { hook_id: hook.id, name: hook.name, reason: actionPayload });
+          return `BLOCKED: ${actionPayload}`;
+        case "log":
+          appendEventLine("nl_hook_fired", { hook_id: hook.id, name: hook.name, message: actionPayload });
+          return `logged: ${actionPayload}`;
+        default:
+          appendEventLine("nl_hook_fired", { hook_id: hook.id, name: hook.name, message: actionPayload });
+          return `${actionType}: ${actionPayload}`;
+      }
+    }
+    
+    // Fallback: legacy single-field format
+    const actionType = hook.action_type || hook.action || "log";
+    const actionPayload = hook.action_payload || hook.payload || hook.message || "";
+    
+    switch (actionType) {
+      case "log":
+        appendEventLine("nl_hook_fired", { hook_id: hook.id, name: hook.name, message: actionPayload });
+        return `logged: ${actionPayload}`;
+      case "warn":
+        appendEventLine("nl_hook_warning", { hook_id: hook.id, name: hook.name, warning: actionPayload });
+        return `warning: ${actionPayload}`;
+      case "inject_context": {
+        // Write to a context injection file that autoHookWrapper reads
+        const injectFile = path.join(STATE_DIR, "nl_hook_injections.json");
+        const existing = fs.existsSync(injectFile) ? JSON.parse(fs.readFileSync(injectFile, "utf-8")) : [];
+        existing.push({ hook_id: hook.id, name: hook.name, content: actionPayload, ts: Date.now() });
+        // Keep only last 10 injections
+        const trimmed = existing.slice(-10);
+        fs.writeFileSync(injectFile, JSON.stringify(trimmed, null, 2));
+        return `injected: ${actionPayload.slice(0, 80)}`;
+      }
+      case "set_todo": {
+        // Write a todo item to the cadence todo queue
+        const todoFile = path.join(STATE_DIR, "nl_hook_todos.json");
+        const todos = fs.existsSync(todoFile) ? JSON.parse(fs.readFileSync(todoFile, "utf-8")) : [];
+        todos.push({ hook_id: hook.id, todo: actionPayload, ts: Date.now(), done: false });
+        fs.writeFileSync(todoFile, JSON.stringify(todos.slice(-20), null, 2));
+        return `todo added: ${actionPayload.slice(0, 80)}`;
+      }
+      case "block": {
+        appendEventLine("nl_hook_block", { hook_id: hook.id, name: hook.name, reason: actionPayload });
+        return `BLOCKED: ${actionPayload}`;
+      }
+      default:
+        appendEventLine("nl_hook_unknown_action", { hook_id: hook.id, action: actionType });
+        return `unknown action: ${actionType}`;
+    }
+  } catch (e: any) {
+    return `error: ${e.message || "unknown"}`;
+  }
+}
+
+export function autoNLHookEvaluator(
+  callNumber: number,
+  toolName: string,
+  action: string
+): NLHookEvalResult {
+  try {
+    const hooks = getDeployedNLHooks();
+    // DEBUG NL HOOKS (temporary - remove after verification)
+    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] call=${callNumber} hooks=${hooks.length} tool=${toolName}:${action}\n`); } catch {}
+    if (hooks.length === 0) {
+      return { success: true, call_number: callNumber, hooks_evaluated: 0, hooks_fired: 0, fired_hooks: [], errors: 0 };
+    }
+
+    // Build context for evaluation
+    const pressureFile = path.join(STATE_DIR, "context_pressure.json");
+    let pressurePct = 0;
+    try {
+      if (fs.existsSync(pressureFile)) {
+        pressurePct = JSON.parse(fs.readFileSync(pressureFile, "utf-8")).pressure_pct || 0;
+      }
+    } catch {}
+
+    // Read recent actions from flight recorder
+    let recentActions: string[] = [];
+    try {
+      const recentFile = path.join(STATE_DIR, "RECENT_ACTIONS.json");
+      if (fs.existsSync(recentFile)) {
+        const data = JSON.parse(fs.readFileSync(recentFile, "utf-8"));
+        const actions = Array.isArray(data) ? data : data.actions || [];
+        recentActions = actions.slice(-10).map((a: any) => `${a.tool || ""}:${a.action || ""}`);
+      }
+    } catch {}
+
+    const ctx: NLHookContext = {
+      call_number: callNumber,
+      pressure_pct: pressurePct,
+      current_phase: getCurrentPhase(),
+      recent_actions: recentActions,
+      tool_name: toolName,
+      action,
+    };
+
+    const fired: Array<{ hook_id: string; name: string; result: string }> = [];
+    let errors = 0;
+
+    for (const hook of hooks) {
+      try {
+        if (evaluateNLHookCondition(hook, ctx)) {
+          const result = executeNLHookAction(hook, ctx);
+          fired.push({ hook_id: hook.id || "?", name: hook.name || "unnamed", result });
+        }
+      } catch {
+        errors++;
+      }
+    }
+
+    // DEBUG: trace evaluation results
+    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `  -> evaluated=${hooks.length} fired=${fired.length} errors=${errors} firedIds=${fired.map(f=>f.hook_id).join(",")}\n`); } catch {}
+    // Update execution_count in registry for fired hooks
+    if (fired.length > 0) {
+      try {
+        const regData = JSON.parse(fs.readFileSync(NL_HOOK_REGISTRY, "utf-8"));
+        const firedIds = new Set(fired.map(f => f.hook_id));
+        for (const h of regData.hooks || []) {
+          if (firedIds.has(h.id)) {
+            h.execution_count = (h.execution_count || 0) + 1;
+            h.last_fired = new Date().toISOString();
+          }
+        }
+        regData.last_updated = new Date().toISOString();
+        fs.writeFileSync(NL_HOOK_REGISTRY, JSON.stringify(regData, null, 2));
+      } catch { /* non-critical — don't fail the cadence for registry write issues */ }
+    }
+
+    return {
+      success: true,
+      call_number: callNumber,
+      hooks_evaluated: hooks.length,
+      hooks_fired: fired.length,
+      fired_hooks: fired,
+      errors,
+    };
+  } catch {
+    return { success: false, call_number: callNumber, hooks_evaluated: 0, hooks_fired: 0, fired_hooks: [], errors: 1 };
+  }
+}
+
+
+// ============================================================================
+// DA-MS11 STEP 5: HOOK ACTIVATION PHASE CHECK
+// Cadence: every 25 calls. Reads HOOK_ACTIVATION_MATRIX.md to verify that
+// hooks expected for the current phase are actually active, and flags any
+// that are missing or unexpectedly present.
+// ============================================================================
+
+const HOOK_ACTIVATION_MATRIX_PATH = path.join(
+  __dirname, "..", "data", "docs", "roadmap", "HOOK_ACTIVATION_MATRIX.md"
+);
+
+interface PhaseHookExpectation {
+  phase: string;
+  expected: string[];
+  optional: string[];
+}
+
+let _hookMatrixCache: { matrix: PhaseHookExpectation[]; ts: number } | null = null;
+const HOOK_MATRIX_TTL = 300_000; // 5 minutes
+
+function parseHookActivationMatrix(): PhaseHookExpectation[] {
+  const now = Date.now();
+  if (_hookMatrixCache && (now - _hookMatrixCache.ts) < HOOK_MATRIX_TTL) return _hookMatrixCache.matrix;
+  
+  const result: PhaseHookExpectation[] = [];
+  try {
+    if (!fs.existsSync(HOOK_ACTIVATION_MATRIX_PATH)) {
+      _hookMatrixCache = { matrix: [], ts: now };
+      return [];
+    }
+    const content = fs.readFileSync(HOOK_ACTIVATION_MATRIX_PATH, "utf-8");
+    const lines = content.split("\n");
+    
+    // Parse table format: | Phase | Expected Hooks | Optional Hooks |
+    let inTable = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("| Phase") || trimmed.startsWith("| ---")) {
+        inTable = true;
+        continue;
+      }
+      if (inTable && trimmed.startsWith("|")) {
+        const cells = trimmed.split("|").map(c => c.trim()).filter(c => c.length > 0);
+        if (cells.length >= 2) {
+          const phase = cells[0];
+          const expected = cells[1] ? cells[1].split(",").map(h => h.trim()).filter(h => h.length > 0) : [];
+          const optional = cells[2] ? cells[2].split(",").map(h => h.trim()).filter(h => h.length > 0) : [];
+          result.push({ phase, expected, optional });
+        }
+      } else if (inTable && !trimmed.startsWith("|")) {
+        inTable = false;
+      }
+    }
+  } catch {}
+  
+  _hookMatrixCache = { matrix: result, ts: now };
+  return result;
+}
+
+function getActiveHookNames(): string[] {
+  try {
+    // Read from hook registry state
+    const hookStateFile = path.join(STATE_DIR, "hook_registry.json");
+    if (fs.existsSync(hookStateFile)) {
+      const data = JSON.parse(fs.readFileSync(hookStateFile, "utf-8"));
+      const hooks = Array.isArray(data) ? data : data.hooks || Object.keys(data);
+      return hooks
+        .filter((h: any) => typeof h === "string" || (h && h.enabled !== false))
+        .map((h: any) => typeof h === "string" ? h : h.name || h.id || "");
+    }
+    
+    // Fallback: scan cadence function names that are known to be active
+    // These are the hardcoded names from autoHookWrapper cadence schedule
+    return [
+      "autoTodoRefresh", "autoContextPressure", "autoAttentionScore",
+      "autoCheckpoint", "autoCompactionDetect", "autoSkillHint",
+      "autoKnowledgeCrossQuery", "autoDocAntiRegression", "autoAgentRecommend",
+      "autoContextCompress", "autoScriptRecommend", "autoContextPullBack",
+      "autoRecoveryManifest", "autoHandoffPackage", "autoResponseTemplate",
+      "autoPhaseSkillLoader", "autoSkillContextMatch", "autoNLHookEvaluator",
+      "autoHookActivationPhaseCheck", "autoPreCompactionDump"
+    ];
+  } catch {
+    return [];
+  }
+}
+
+export function autoHookActivationPhaseCheck(callNumber: number): HookActivationCheckResult {
+  try {
+    const matrix = parseHookActivationMatrix();
+    const currentPhase = getCurrentPhase();
+    const activeHooks = getActiveHookNames();
+    
+    if (matrix.length === 0) {
+      return {
+        success: true,
+        call_number: callNumber,
+        current_phase: currentPhase,
+        expected_hooks: 0,
+        active_hooks: activeHooks.length,
+        missing_hooks: [],
+        extra_hooks: [],
+        coverage_pct: 100,
+      };
+    }
+
+    // Find the matching phase entry (fuzzy match)
+    const phaseEntry = matrix.find(m => 
+      currentPhase.toLowerCase().includes(m.phase.toLowerCase()) ||
+      m.phase.toLowerCase().includes(currentPhase.toLowerCase())
+    );
+
+    if (!phaseEntry) {
+      return {
+        success: true,
+        call_number: callNumber,
+        current_phase: currentPhase,
+        expected_hooks: 0,
+        active_hooks: activeHooks.length,
+        missing_hooks: [],
+        extra_hooks: [],
+        coverage_pct: 100,
+      };
+    }
+
+    const activeSet = new Set(activeHooks.map(h => h.toLowerCase()));
+    const expectedSet = new Set(phaseEntry.expected.map(h => h.toLowerCase()));
+    const optionalSet = new Set(phaseEntry.optional.map(h => h.toLowerCase()));
+
+    const missing: string[] = [];
+    for (const exp of phaseEntry.expected) {
+      if (!activeSet.has(exp.toLowerCase())) {
+        missing.push(exp);
+      }
+    }
+
+    const allExpected = new Set([...expectedSet, ...optionalSet]);
+    const extra: string[] = [];
+    for (const act of activeHooks) {
+      if (!allExpected.has(act.toLowerCase()) && !expectedSet.has(act.toLowerCase())) {
+        // Only flag as "extra" if it's truly unexpected (not in any known list)
+        // Skip common infrastructure hooks
+        const infra = ["autotodorefresh", "autocontextpressure", "autoattentionscore", "autocheckpoint", "autocompactiondetect"];
+        if (!infra.includes(act.toLowerCase())) {
+          extra.push(act);
+        }
+      }
+    }
+
+    const coveragePct = phaseEntry.expected.length === 0 ? 100 :
+      Math.round(((phaseEntry.expected.length - missing.length) / phaseEntry.expected.length) * 100);
+
+    if (missing.length > 0) {
+      appendEventLine("hook_phase_gap", { phase: currentPhase, missing, call: callNumber });
+    }
+
+    return {
+      success: true,
+      call_number: callNumber,
+      current_phase: currentPhase,
+      expected_hooks: phaseEntry.expected.length,
+      active_hooks: activeHooks.length,
+      missing_hooks: missing,
+      extra_hooks: extra,
+      coverage_pct: coveragePct,
+    };
+  } catch {
+    return {
+      success: false,
+      call_number: callNumber,
+      current_phase: "?",
+      expected_hooks: 0,
+      active_hooks: 0,
+      missing_hooks: [],
+      extra_hooks: [],
+      coverage_pct: 0,
     };
   }
 }

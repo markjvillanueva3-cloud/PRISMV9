@@ -59,7 +59,7 @@ const COMPLEXITY_TOKENS: Record<string, number> = {
 /** Actions that are inherently simple lookups */
 const SIMPLE_ACTIONS = new Set([
   "material_get", "material_search", "machine_get", "machine_search",
-  "tool_get", "tool_search", "alarm_decode", "alarm_search",
+  "tool_get", "tool_search", "tool_facets", "alarm_decode", "alarm_search",
   "formula_get", "skill_get", "script_get", "skill_list", "script_list"
 ]);
 

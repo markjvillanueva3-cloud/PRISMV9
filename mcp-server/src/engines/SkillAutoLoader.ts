@@ -145,6 +145,7 @@ const ACTION_PRIMARY_SKILL: Record<string, string> = {
   "alarm_decode": "prism-controller-quick-ref",
   "alarm_fix": "prism-error-recovery",
   "tool_recommend": "prism-tool-selector",
+  "tool_facets": "prism-cutting-tools",
 };
 
 // ============================================================================

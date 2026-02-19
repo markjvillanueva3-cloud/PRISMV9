@@ -46,6 +46,48 @@ export function registerSafetyDispatcher(server: any): void {
     },
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          const normalized = normalizeParams(params);
+          if (normalized._param_remaps) {
+            params = normalized;
+            log.info(`[PARAM-NORM] safety:${action} remapped ${normalized._param_remaps} params`);
+          }
+        } catch { /* normalizer not available — proceed with original params */ }
+        // Normalize common params for usability
+        if (params.toolMaterial && typeof params.toolMaterial === 'string') {
+          params.toolMaterial = params.toolMaterial.toUpperCase();
+        }
+        if (params.workpieceMaterial && typeof params.workpieceMaterial === 'string') {
+          params.workpieceMaterial = params.workpieceMaterial.toUpperCase();
+        }
+        if (params.operationType && typeof params.operationType === 'string') {
+          params.operationType = params.operationType.toUpperCase();
+        }
+        // Auto-populate tool geometry defaults
+        if (params.tool) {
+          if (!params.tool.shankDiameter) params.tool.shankDiameter = params.tool.diameter;
+          if (!params.tool.fluteLength) params.tool.fluteLength = params.tool.diameter * 2.5;
+          if (!params.tool.overallLength) params.tool.overallLength = (params.tool.stickout || params.tool.diameter * 4) * 1.5;
+          if (!params.tool.stickout) params.tool.stickout = params.tool.fluteLength * 1.5;
+          if (!params.tool.numberOfFlutes) params.tool.numberOfFlutes = 4;
+          if (!params.tool.coreRatio) params.tool.coreRatio = 0.6;
+        }
+        // Auto-populate forces from cutting params if not provided
+        if (!params.forces && params.cutting_force) {
+          params.forces = { Fc: params.cutting_force, Ff: params.cutting_force * 0.4, Fp: params.cutting_force * 0.3 };
+        }
+        // Auto-populate conditions from aliases
+        if (!params.conditions && (params.feed_per_tooth || params.fz)) {
+          params.conditions = {
+            feedPerTooth: params.feed_per_tooth || params.fz || 0.1,
+            axialDepth: params.depth_of_cut || params.ap || params.axial_depth || 3,
+            radialDepth: params.width_of_cut || params.ae || params.radial_depth || params.tool?.diameter * 0.5 || 5,
+            cuttingSpeed: params.cutting_speed || params.vc || 150,
+            spindleSpeed: params.rpm || 5000
+          };
+        }
         let result: any;
 
         if (COLLISION_ACTIONS.has(action)) {

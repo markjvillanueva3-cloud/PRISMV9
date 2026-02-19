@@ -5,7 +5,7 @@
  * Central export point for ALL hook modules.
  * 
  * HOOK INVENTORY:
- * - EnforcementHooks: 17 hooks (anti-regression, safety, quality gates)
+ * - EnforcementHooks: 18 hooks (anti-regression, safety, quality gates, skill quality)
  * - LifecycleHooks: 14 hooks (session, checkpoint, context pressure)
  * - ManufacturingHooks: 9 hooks (force, thermal, deflection, MRR)
  * - CognitiveHooks: 10 hooks (Bayesian, patterns, learning)
@@ -19,7 +19,7 @@
  * - AgentHooks: 7 hooks (tier selection, cost, escalation, safety)
  * - OrchestrationHooks: 7 hooks (swarm patterns, pipeline, consensus, ATCS bridge)
  * 
- * TOTAL: 129 hooks across 13 categories
+ * TOTAL: 130 hooks across 13 categories
  * 
  * @version 3.0.0
  * @author PRISM Development Team

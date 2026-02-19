@@ -163,25 +163,54 @@ export function slimJsonResponse(jsonStr: string, level?: SlimLevel): string {
 }
 
 /**
- * Slim cadence metadata under pressure.
- * At MODERATE: keep call_number + actions only.
- * At AGGRESSIVE: keep call_number + first action only.
+ * Slim cadence metadata based on CADENCE_VERBOSITY env + pressure.
+ * 
+ * CADENCE_VERBOSITY levels:
+ *   "silent"   → nothing in response (cadence still fires internally)
+ *   "critical"  → only COMPACTION, PFP_BLOCKED/WARNING, SAFETY_BLOCK, INPUT_BLOCKED (default)
+ *   "normal"    → current behavior (all actions, pressure-slimmed)
  */
+const CRITICAL_PATTERNS = [
+  "COMPACTION_DETECTED", "RECOVERY_TRIGGERED", "CONTEXT_REHYDRATED",
+  "PFP_BLOCKED", "PFP_WARNING", "SAFETY_BLOCK", "INPUT_BLOCKED",
+  "SAFETY BLOCK", "INPUT_VALIDATION_BLOCKED"
+];
+
+function getCadenceVerbosity(): string {
+  return (process.env.CADENCE_VERBOSITY || "critical").toLowerCase();
+}
+
 export function slimCadence(cadence: Record<string, any>, pressurePct: number): Record<string, any> {
+  const verbosity = getCadenceVerbosity();
+  
+  // SILENT: return bare minimum — just call number for tracking
+  if (verbosity === "silent") {
+    return { call_number: cadence.call_number };
+  }
+  
+  // CRITICAL: only safety/compaction/blocking messages
+  if (verbosity === "critical") {
+    const criticalActions = (cadence.actions || []).filter((a: string) =>
+      typeof a === "string" && CRITICAL_PATTERNS.some(p => a.includes(p))
+    );
+    if (criticalActions.length === 0) {
+      return { call_number: cadence.call_number };
+    }
+    return { call_number: cadence.call_number, actions: criticalActions };
+  }
+  
+  // NORMAL: original behavior with pressure-based slimming
   if (pressurePct < 50) {
-    // NORMAL: strip empty fields (already done), but also cap actions
     const slim: Record<string, any> = { call_number: cadence.call_number, actions: cadence.actions?.slice(0, 5) };
     if (cadence.pressure) slim.pressure_zone = cadence.pressure.zone;
     return slim;
   }
   if (pressurePct < 70) {
-    // MODERATE: call_number + actions summary
     return {
       call_number: cadence.call_number,
       actions: cadence.actions?.slice(0, 3),
     };
   }
-  // AGGRESSIVE: bare minimum
   return {
     call_number: cadence.call_number,
     actions: cadence.actions?.length ? [cadence.actions[cadence.actions.length - 1]] : [],

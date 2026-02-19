@@ -314,7 +314,9 @@ async function registerTools(): Promise<void> {
  * Run server with stdio transport (for local MCP clients)
  */
 async function runStdio(): Promise<void> {
-  log.info(`Starting ${SERVER_NAME} v${SERVER_VERSION} (stdio mode)`);
+  // H1-MS4: Generate unique session ID for MemGraph tracking
+  process.env.SESSION_ID = `S-${Date.now()}`;
+  log.info(`Starting ${SERVER_NAME} v${SERVER_VERSION} (stdio mode) [${process.env.SESSION_ID}]`);
   log.info(SERVER_DESCRIPTION);
   
   await registerTools();
@@ -323,6 +325,12 @@ async function runStdio(): Promise<void> {
   await server.connect(transport);
   
   log.info("Server running on stdio");
+
+  // H1-MS3: Boot smoke tests (non-blocking)
+  try {
+    const { runSmokeTests } = await import("./utils/smokeTest.js");
+    runSmokeTests().catch(e => log.warn(`[SMOKE] Failed: ${e.message}`));
+  } catch { /* smoke test module not available */ }
 }
 
 /**
@@ -388,13 +396,33 @@ async function main(): Promise<void> {
 // Handle uncaught errors
 process.on("uncaughtException", (error) => {
   log.error("Uncaught exception", error);
-  process.exit(1);
+  gracefulShutdown("uncaughtException");
 });
 
 process.on("unhandledRejection", (reason) => {
   log.error("Unhandled rejection", reason as Error);
-  process.exit(1);
 });
+
+// H1-1: Graceful shutdown — persist MemGraph + telemetry on exit
+let shuttingDown = false;
+function gracefulShutdown(signal: string): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  log.info(`[SHUTDOWN] ${signal} received — persisting state...`);
+  try {
+    const { memoryGraphEngine } = require("./engines/MemoryGraphEngine.js");
+    memoryGraphEngine?.shutdown();
+    log.info("[SHUTDOWN] MemGraph checkpoint saved");
+  } catch (e) { log.warn(`[SHUTDOWN] MemGraph save failed: ${(e as Error).message}`); }
+  try {
+    const { telemetryEngine } = require("./engines/TelemetryEngine.js");
+    telemetryEngine?.shutdown?.();
+  } catch {}
+  if (signal === "uncaughtException") process.exit(1);
+}
+process.on("SIGINT", () => { gracefulShutdown("SIGINT"); process.exit(0); });
+process.on("SIGTERM", () => { gracefulShutdown("SIGTERM"); process.exit(0); });
+process.on("beforeExit", () => { gracefulShutdown("beforeExit"); });
 
 // Start server
 main();

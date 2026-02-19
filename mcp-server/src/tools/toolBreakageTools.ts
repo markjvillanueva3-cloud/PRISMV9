@@ -409,28 +409,34 @@ export async function handleCalculateStress(params: any): Promise<StressResult> 
  * Handle check_chip_load_limits tool calls
  */
 export async function handleCheckChipLoad(params: any): Promise<ChipLoadResult> {
+  const diam = params.toolDiameter || params.tool_diameter || params.diameter || 12;
+  const fpt = params.feedPerTooth || params.feed_per_tooth || 0.1;
+  const nFlutes = params.numberOfFlutes || params.num_flutes || params.flutes || 4;
+  const rd = params.radialDepth || params.radial_depth || diam * 0.5;
+  const so = params.stickout || params.stick_out || diam * 3;
+
   const tool: ToolGeometry = {
-    diameter: params.toolDiameter,
-    shankDiameter: params.toolDiameter,
-    fluteLength: params.toolDiameter * 2,
-    overallLength: (params.stickout || params.toolDiameter * 3) * 1.5,
-    stickout: params.stickout || params.toolDiameter * 3,
-    numberOfFlutes: 4
+    diameter: diam,
+    shankDiameter: diam,
+    fluteLength: diam * 2,
+    overallLength: so * 1.5,
+    stickout: so,
+    numberOfFlutes: nFlutes
   };
 
   const conditions: CuttingConditions = {
-    cuttingSpeed: 100,
-    feedPerTooth: params.feedPerTooth,
-    axialDepth: params.toolDiameter,
-    radialDepth: params.radialDepth,
-    spindleSpeed: 5000
+    cuttingSpeed: params.cutting_speed || params.cuttingSpeed || 100,
+    feedPerTooth: fpt,
+    axialDepth: params.axial_depth || params.axialDepth || diam,
+    radialDepth: rd,
+    spindleSpeed: params.spindle_speed || params.spindleSpeed || 5000
   };
 
   return toolBreakageEngine.checkChipLoadLimits(
     tool,
     conditions,
-    (params.toolMaterial || 'CARBIDE') as ToolMaterial,
-    params.workpieceMaterial || 'STEEL'
+    (params.toolMaterial || params.tool_material || 'CARBIDE') as ToolMaterial,
+    params.workpieceMaterial || params.material || 'STEEL'
   );
 }
 

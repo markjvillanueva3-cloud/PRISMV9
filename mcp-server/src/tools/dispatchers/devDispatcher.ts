@@ -435,6 +435,74 @@ export function registerDevDispatcher(server: any): void {
                 result.key_memories = memSummary;
               }
             } catch { result.key_memories = { status: "not_loaded" }; }
+            // DA-MS11 UTILIZATION: Run enhanced startup script for readiness scoring
+            try {
+              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+              const startupScript = "C:\\PRISM\\scripts\\session_enhanced_startup.py";
+              if (fs.existsSync(startupScript)) {
+                const phase = result.phase || "DA";
+                const startupOutput = execSync(
+                  `"${PYTHON_PATH}" "${startupScript}" --phase ${phase} --json`,
+                  { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
+                );
+                try {
+                  const startupResult = JSON.parse(startupOutput);
+                  result.enhanced_startup = {
+                    readiness_score: startupResult.readiness_score,
+                    grade: startupResult.grade,
+                    phase: startupResult.phase,
+                    skills_matched: startupResult.skills_matched,
+                    skills_total: startupResult.skills_total,
+                    hooks_expected: startupResult.hooks_expected,
+                    nl_hook_status: startupResult.nl_hook_status,
+                    deductions: startupResult.deductions,
+                    _hint: `Readiness: ${startupResult.readiness_score}/100 (${startupResult.grade}) — ${startupResult.skills_matched}/${startupResult.skills_total} skills, NL: ${startupResult.nl_hook_status}`
+                  };
+                } catch { 
+                  result.enhanced_startup = { status: "ran_but_parse_failed", raw: startupOutput.slice(0, 200) }; 
+                }
+              }
+            } catch (e: any) { 
+              result.enhanced_startup = { status: "failed", error: e.message?.slice(0, 100) }; 
+            }
+            // Reset CADENCE_FIRES.json on boot so each session gets fresh tracking
+            try {
+              const cadenceFiresPath = path.join("C:\\PRISM\\state", "CADENCE_FIRES.json");
+              fs.writeFileSync(cadenceFiresPath, JSON.stringify({ _session_start: new Date().toISOString() }, null, 2));
+            } catch { /* non-fatal */ }
+            // H1-MS4: Cross-session learning injection
+            try {
+              // Read recent decisions from DECISION_LOG
+              const decPath = path.join(STATE_DIR, "DECISION_LOG.jsonl");
+              if (fs.existsSync(decPath)) {
+                const decLines = fs.readFileSync(decPath, "utf-8").split("\n").filter(l => l.trim()).slice(-5);
+                if (decLines.length > 0) {
+                  result.recent_decisions = decLines.map(l => {
+                    try { const d = JSON.parse(l); return `${d.action}: ${d.chosen?.slice(0, 60)}`; } catch { return null; }
+                  }).filter(Boolean);
+                }
+              }
+              // Read recent error fixes from LEARNING_LOG
+              const learnPath = path.join(STATE_DIR, "LEARNING_LOG.jsonl");
+              if (fs.existsSync(learnPath)) {
+                const learnLines = fs.readFileSync(learnPath, "utf-8").split("\n").filter(l => l.includes("error_fix")).slice(-3);
+                if (learnLines.length > 0) {
+                  result.recent_fixes = learnLines.map(l => {
+                    try { const f = JSON.parse(l); return `${f.dispatcher}:${f.action} → ${f.fix?.slice(0, 60)}`; } catch { return null; }
+                  }).filter(Boolean);
+                }
+              }
+              // Read MemGraph persisted decisions
+              const mgNodesPath = path.join(MCP_ROOT, "state", "memory_graph", "nodes.jsonl");
+              if (fs.existsSync(mgNodesPath)) {
+                const mgLines = fs.readFileSync(mgNodesPath, "utf-8").split("\n").filter(l => l.trim()).slice(-10);
+                const decisions = mgLines.map(l => { try { return JSON.parse(l); } catch { return null; } })
+                  .filter(n => n && n.type === "DECISION")
+                  .slice(-3)
+                  .map(n => `${n.dispatcher}:${n.action}`);
+                if (decisions.length > 0) result.memgraph_recent = decisions;
+              }
+            } catch { /* learning injection non-fatal */ }
             break;
           }
           case "build": {

@@ -1,26 +1,128 @@
-# PHASE R1: REGISTRY RESURRECTION — v13.9
-# Status: not-started | Sessions: 1-2 | MS: 7 (MS0-MS6) | Role: Data Quality Analyst
-# Pattern: Every MS follows LOAD → VALIDATE → FIX → VERIFY → DOCUMENT
-# v13.9: Cross-Audit Governance Hardening — artifact manifest, fault injection, test levels (XA-1,13,7).
-# v13.5: Material sanity checks (cross-parameter validation per material class — SK-5).
-#         Reference values validation integrated with R2 tolerance system (SK-3).
-#         Material verification method (how to check 127 params without memorizing them).
-#         Per-registry normalizer complexity guidance (machines easy, alarms hard).
-# v13.3: Pipeline tests have effort per sub-call. MS4 coverage audit fully annotated.
-# v13.2: MS1 adds loader/normalizer separation architecture + schema migration path.
-# v13.0: Structured outputs on all formula validation returns. Effort=high on material_get.
-#         Effort=low on list/stats operations. Fine-grained streaming on bulk data loads.
-#         Session estimate reduced from 2 to 1-2 (Compaction API eliminates dead sessions).
+# PHASE R1: REGISTRY + DATA FOUNDATION â€” v14.3
+### RECOMMENDED_SKILLS: prism-material-physics, prism-cutting-mechanics, prism-cutting-tools
+### HOOKS_EXPECTED: DISPATCH, FILE, STATE, DATA
+### DATA_PATHS: C:\PRISM\data\materials, C:\PRISM\extracted\machines, C:\PRISM\extracted\tools
+
+# Status: in-progress | Sessions: 2-3 more | MS: 12 (MS0-MS10, MS10 optional) | Role: Data Architect
+# DEPENDS ON: DA complete (dev infrastructure optimized), P0 complete (dispatchers wired)
+<!-- LOADER: SKIP TO LINE 170 for active milestones. MS0-MS4 complete (lines 1-169 are reference). -->
+# v14.3: Audit fixes â€” clarified tool counts, added parallel worktree merge protocol
+# v14.2: Added MS4.5 (Data Validation Pipeline â€” SA Audit Finding 5),
+#   expanded MS5 (85-param tool holder upgrade â€” Gap 7, TOOL_HOLDER_DATABASE_ROADMAP_v4),
+#   expanded MS8 (formula registry wiring â€” Gap 12, wiring registry protocol),
+#   added companion assets section (skills/scripts/hooks built after features)
+# Pattern: Every MS follows LOAD â†’ VALIDATE â†’ FIX â†’ VERIFY â†’ DOCUMENT
+# v14.0: Unified Roadmap â€” extends R1 from 7 MS to 11 MS.
+#         MS0-MS4 COMPLETE (registry loading + pipeline integration + tool expansion).
+#         MS5-MS9 NEW: Data foundation work merged from Superpower Audit, Database Audit,
+#           Tool Expansion Roadmap, and Superpower Roadmap gap analysis.
+#         MS5 = Tool Schema Normalization (T-0 from Database Audit GAP 2)
+#         MS6 = Material Enrichment Completion (M-0 from Database Audit GAP 1)
+#         MS7 = Machine Field Population (MCH-0 from Database Audit GAP 3)
+#         MS8 = Formula Registry + Dispatcher Wiring (GAPs 4, 6, 7, 10)
+#         MS9 = Quality Metrics + Phase Gate (was original R1-MS5, renumbered)
+#
+#         WHY THESE MILESTONES EXIST: The original R1 got registry COUNTS to >95%. But >95%
+#         loaded does not mean the data is USABLE. Tools have no index (every search is linear
+#         scan). Materials have 127 params but 95% lack tribology/composition. Machines have
+#         zero power/envelope specs. The engines are sophisticated but the data feeding them
+#         is sparse. These 5 new MS make the data APP-READY, not just COUNT-READY.
+#
+#         SOURCE DOCUMENTS for MS5-MS9:
+#           TOOL_EXPANSION_ROADMAP.md â€” detailed tool schema spec (load during R1-MS5 ONLY)
+#           PRISM_DATABASE_AUDIT_AND_ROADMAP.md â€” registry gap analysis (load during R1-MS6/MS7)
+#           SUPERPOWER_ROADMAP_AUDIT.md â€” 10 data gaps, utilization analysis (reference)
+#
+# v13.9: Cross-Audit Governance Hardening (XA-1,13,7) â€” retained unchanged.
+# v13.5-v13.8: All prior hardening retained unchanged. See v13.9 header for full changelog.
 
 ---
 
+<!-- ANCHOR: r1_quick_reference_standalone_after_compaction_no_other_doc_needed -->
+## QUICK REFERENCE (standalone after compaction â€” no other doc needed)
+```
+BUILD:      npm run build (NEVER standalone tsc â€” OOM at current scale)
+SAFETY:     S(x) >= 0.70 is HARD BLOCK
+POSITION:   Update CURRENT_POSITION.md every 3 calls
+FLUSH:      Write results to disk after each logical unit of work
+ERROR:      Fix ONE build error, rebuild, repeat. >5 from one edit â†’ git revert
+IDEMPOTENT: Read-only = safe to re-run. Write = check if already done first.
+STUCK:      3 same-approach fails â†’ try different approach. 6 total â†’ skip if non-blocking.
+TRANSITION: Update CURRENT_POSITION first, ROADMAP_TRACKER second.
+RECOVERY:   Read PRISM_RECOVERY_CARD.md for full recovery steps.
+ENV:        R1 = Claude Code 80% + MCP 20%. Haikuâ†’Sonnetâ†’Opus. Parallel: MS5+MS6+MS7.
+```
+
+<!-- ANCHOR: r1_knowledge_contributions_what_this_phase_feeds_into_the_hierarchical_index -->
+## KNOWLEDGE CONTRIBUTIONS (what this phase feeds into the hierarchical index)
+```
+BRANCH 2 (Data Taxonomy): MS5 builds tool taxonomy, MS6 material taxonomy, MS7 machine taxonomy.
+  â†’ Output: DATA_TAXONOMY.json sections for tools, materials, machines at MS9 gate.
+BRANCH 4 (Session Knowledge): Every session captures data quality findings, schema decisions,
+  registry quirks (e.g., "23 materials have spaces in ISO codes â€” need trim()").
+  â†’ Extract at session end per PRISM_PROTOCOLS_CODING.md  Session Knowledge Extraction.
+AT MS9 GATE: Verify DATA_TAXONOMY.json has entries for all enriched registries.
+```
+
+---
+
+<!-- ANCHOR: r1_execution_model -->
+### EXECUTION MODEL
+```
+Environment: Claude Code 80% + Claude.ai MCP 20%
+Model: Haiku (file exploration, grep) â†’ Sonnet (normalization scripts) â†’ Opus (schema design decisions only)
+
+PARALLEL EXECUTION:
+- MS5 (tool normalization), MS6 (material enrichment), MS7 (machine population)
+  are independent data targets â†’ spawn 3 parallel subagents, one per registry
+- MS8 (formula classification of 162 zero-coverage formulas) â†’ fan across 5 subagents
+  at ~32 formulas each
+- Use registry-expert subagent for all schema decisions
+- Background agents handle batch loads > 500 files while main session reviews results
+- Haiku subagents for file exploration/grep (cheap, fast)
+- Sonnet for normalization script writing and execution
+- Opus ONLY for the 85-param tool holder schema design decision (R1-MS5)
+
+PARALLEL WORKTREE MERGE PROTOCOL (for MS5+MS6+MS7 concurrent execution):
+  Each parallel MS runs in its own Git worktree:
+    git worktree add ../feature/r1-ms5-tool-schema
+    git worktree add ../feature/r1-ms6-material-enrichment
+    git worktree add ../feature/r1-ms7-machine-population
+  MERGE ORDER: MS5 first (touches ToolRegistry.ts), then MS6 (MaterialRegistry.ts),
+    then MS7 (MachineRegistry.ts). These are independent file sets â€” no conflicts expected.
+  IF CONFLICT: The worktree that touched the conflicting file WINS. The other worktree
+    rebases onto the merged result and re-applies its changes.
+  MERGE VERIFICATION: After each merge â†’ npm run build â†’ prism_dev action=health.
+    If build fails â†’ the merge introduced an incompatibility. Debug before next merge.
+  CLEANUP: After all 3 merged â†’ remove worktrees:
+    git worktree remove ../feature/r1-ms5-tool-schema
+    (repeat for ms6, ms7)
+  FINAL: Run full integration check â€” all 3 registries load, health shows expected counts.
+```
+
+
+<!-- ANCHOR: r1_context_bridge -->
 ## CONTEXT BRIDGE
 
-WHAT CAME BEFORE: P0 fixed all WIRING + configured Opus 4.6. 31 dispatchers verified operational. 4 duplicate registry pairs resolved to single sources. Opus 4.6 Compaction API, Adaptive Thinking, Structured Outputs, and Agent Teams all wired. PHASE_FINDINGS.md has P0 section. SYSTEM_ACTIVATION_REPORT.md, P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md exist.
+WHAT CAME BEFORE: P0 fixed all WIRING + configured Opus 4.6. 31 dispatchers verified operational.
+4 duplicate registry pairs resolved to single sources. Opus 4.6 Compaction API, Adaptive Thinking,
+Structured Outputs, and Agent Teams all wired. PHASE_FINDINGS.md has P0 section.
+SYSTEM_ACTIVATION_REPORT.md, P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md exist.
 
-WHAT THIS PHASE DOES: Load DATA into the wiring P0 fixed. Materials 3518+ (127 params each), Machines 824+, Tools 1944+, Alarms 9200+. Formula definitions (Taylor, Kienzle, specific cutting force) must parse into calculation engine. Target: >95% load rate for all registries.
+WHAT THIS PHASE DOES (v14.0 EXPANDED):
+  PART 1 (MS0-MS4 âœ…): Load DATA into the wiring P0 fixed. Materials 3518+ (127 params each),
+    Machines 824+, Tools 1944+, Alarms 9200+. Formula definitions parsed and validated.
+    Target: >95% load rate for all registries. ACHIEVED.
+  PART 2 (MS5-MS9 NEW): Make data APP-READY. Normalize tool schema + build ToolIndex.
+    Enrich materials with tribology/composition/designation. Populate machine power/envelope
+    for top 50. Add 9 calculator formulas. Wire remaining dispatcher actions for toolpath,
+    thread, and unified search.
 
-WHAT COMES AFTER: R2 (Safety Test Matrix) runs 50 calculations + AI-generated edge cases against loaded data. R2 expects: all registries >95% loaded, formula definitions parsed and validated, REGISTRY_AUDIT.md with load counts and failure analysis.
+WHAT COMES AFTER: R2 (Safety + Engine Validation) runs 50 calculations + 29 safety engine
+action tests + AI-generated edge cases against the enriched, indexed, normalized data.
+R2 expects: all registries >95% loaded AND data quality sufficient for cross-registry queries
+(tool search returns indexed results, material cross_query has enrichment data, machine
+constraints are non-null for top 50, new dispatcher actions respond correctly).
 
 ARTIFACT MANIFEST (XA-1):
   REQUIRES: PHASE_FINDINGS.md (P0 section), P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md
@@ -28,368 +130,1484 @@ ARTIFACT MANIFEST (XA-1):
 
 ---
 
+<!-- ANCHOR: r1_objectives -->
 ## OBJECTIVES
 
-1. Material registry: >95% of 3518+ materials loaded with valid parameters
-2. Machine registry: >95% of 824+ machines loaded with valid specs
-3. Tool registry: >95% of 1944+ tools loaded with valid geometry
-4. Alarm registry: >95% of 9200+ alarms loaded across 12 controller families
-5. Formula definitions: Taylor, Kienzle, specific cutting force — all parsed, validated, structured-output verified
-6. Data pipelines: warm_start → knowledge → calc engine produces consistent results
-7. REGISTRY_AUDIT.md created with per-registry load counts, failure rates, known gaps
-8. TEST LEVELS: L1-L3 required (unit + contract + integration tests pass)
+1. Material registry: >95% of 3518+ materials loaded with valid parameters âœ… (3,392 = 96.4%)
+2. Machine registry: >95% loaded with valid specs âœ… (1,016 machines, 44 manufacturers)
+3. Tool registry: >95% loaded with valid geometry âœ… (15,912 raw entries across 14 files
+   â†’ 5,238 deduplicated unique tools on disk â†’ 1,944 currently loaded in registry.
+   Gap: restart required to pick up files added since last boot.)
+4. Alarm registry: >95% loaded across 12 controller families âœ… (10,033 = 100%)
+5. Formula definitions: Taylor, Kienzle, specific cutting force validated âœ… (500 formulas)
+6. Data pipelines: warm_start â†’ knowledge â†’ calc engine consistent results âœ…
+7. REGISTRY_AUDIT.md created âœ…
+8. Tool schema normalized + ToolIndex with O(1) lookup + tool_facets action (NEW)
+9. Material enrichment: >80% tribology, >80% composition, >90% designation (NEW)
+10. Machine field population: Top 50 machines with spindle + power + envelope data (NEW)
+11. Formula registry: 9 calculator formulas added (F-CALC-001 through F-CALC-009) (NEW)
+12. Dispatcher wiring: toolpath strategies fully exposed, thread calcs wired, unified search (NEW)
+13. TEST LEVELS: L1-L3 required (unit + contract + integration tests pass)
 
-## FAULT INJECTION TEST (XA-13 — one test per phase)
+<!-- ANCHOR: r1_fault_injection_test_xa_13_one_test_per_phase -->
+## FAULT INJECTION TEST (XA-13 â€” one test per phase)
 
 ```
-R1 FAULT TEST: Kill material registry mid-load → verify Tier 2 degradation activates.
-  WHEN: After R1-MS1 material loading is working (need a baseline to break).
+R1 FAULT TEST: Kill material registry mid-load â†’ verify Tier 2 degradation activates.
+  WHEN: After R1-MS1 material loading is working (need a baseline to break). âœ… BASELINE EXISTS
   HOW:  During a material_get call, simulate registry file being unavailable:
-        Temporarily rename the material registry file → call prism_data action=material_get material="4140"
+        Temporarily rename the material registry file â†’ call prism_data action=material_get material="4140"
         EXPECTED: System enters Tier 2 (Reduced Data) degradation, NOT crash/hang.
         VERIFY: Health endpoint reports degraded status. Error is logged with correlationId.
         RESTORE: Rename file back. Verify system recovers to Tier 1 automatically.
   PASS: Graceful degradation activates. No crash. Recovery is automatic.
   FAIL: System crashes, hangs, or returns corrupt data silently.
-  EFFORT: ~5 calls. Run once during R1-MS4 (coverage audit — natural place for stress testing).
+  EFFORT: ~5 calls. Run during R1-MS9 (phase gate â€” natural place for stress testing).
 ```
 
 ---
 
-## R1-MS0: Registry Audit (Current State)
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
+<!-- ANCHOR: r1_completed_milestones_ms0_ms4_reference_only -->
+## COMPLETED MILESTONES (MS0-MS4) â€” Reference Only
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
 
-**Effort:** ~10 calls | **Tier:** STANDARD | **Context:** ~5KB
-**Response Budget:** ~8KB throughput, ~4KB peak
-**Entry:** P0 COMPLETE. All wiring verified.
+<!-- ANCHOR: r1_r1_ms0_registry_audit_complete_2026_02_14 -->
+### R1-MS0: Registry Audit âœ… COMPLETE (2026-02-14)
+P0 finding fixes applied: alarm_decode param order, safety validator flat params, compliance
+method name, thread coarse notation documented as known limitation.
 
-```
-=== AUDIT CURRENT COUNTS ===
-1. prism_session action=state_load → warm_start counts (effort=low)
-2. prism_knowledge action=stats → knowledge counts (effort=low)
-3. prism_data action=material_search query="*" limit=1 → total count (effort=high)
-4. prism_data action=machine_search query="*" limit=1 → total count (effort=high)
+<!-- ANCHOR: r1_r1_ms1_material_loading_complete_2026_02_15 -->
+### R1-MS1: Material Loading âœ… COMPLETE (2026-02-15)
+Materials 2,942 â†’ 3,392 (96.4%). Root cause of gap: BOM encoding in data files.
+Fixes: readJsonFile BOM strip in src/utils/files.ts + 8 BOM data files cleaned.
+Remaining 126 gap = target materials not yet created on disk.
 
-=== COMPARE ===
-5. For each registry type: warm_start count vs knowledge count vs expected count.
-   Expected: Materials 3518+, Machines 824+, Tools 1944+, Alarms 9200+
-   Record discrepancies.
+<!-- ANCHOR: r1_r1_ms1_5_formula_validation_complete -->
+### R1-MS1.5: Formula Validation âœ… COMPLETE
+500 formulas validated. All parse correctly. Taylor, Kienzle, Johnson-Cook verified.
 
-=== DOCUMENT ===
-6. Write REGISTRY_AUDIT.md:
-   | Registry | Expected | warm_start | knowledge | Gap | Status |
-7. Append ROADMAP_TRACKER.
-```
+<!-- ANCHOR: r1_r1_ms2_machine_tool_alarm_loading_complete_2026_02_15 -->
+### R1-MS2: Machine/Tool/Alarm Loading âœ… COMPLETE (2026-02-15)
+Tools: 1,944/1,944 (100%). Alarms: 10,033 (100%). Machines: 402â†’469â†’639.
+"Dual-path" concern was misdiagnosis â€” all registries load from correct paths.
+R1-MS2b: V3 3D model database (225 machines in .js format) converted to JSON.
+Fixed MachineRegistry wrapper format handling. Machines: 639â†’1,016.
 
-**Exit:** Current state documented. Gaps identified. Path to >95% clear.
+<!-- ANCHOR: r1_r1_ms3_data_pipeline_integration_complete -->
+### R1-MS3: Data Pipeline Integration âœ… COMPLETE
+End-to-end flow verified: material_get â†’ speed_feed_calc â†’ cutting_force â†’ tool_life.
 
----
+<!-- ANCHOR: r1_r1_ms4_coverage_audit_tool_expansion_complete_2026_02_15 -->
+### R1-MS4: Coverage Audit + Tool Expansion âœ… COMPLETE (2026-02-15)
+Tool database expanded: 1,944 â†’ 5,238 (on disk, pending restart).
+New files: TURNING_INSERTS.json (1,710), TURNING_HOLDERS_EXPANDED.json (600),
+INDEXABLE_MILLING_TOOLHOLDING.json (984).
 
-## R1-MS1: Material Registry Loading
-
-**Effort:** ~15 calls | **Tier:** DEEP | **Context:** ~8KB
-**Response Budget:** ~15KB throughput, ~6KB peak
-**Entry:** R1-MS0 COMPLETE.
-
-```
-=== DIAGNOSE GAPS ===
-1. prism_dev action=code_search pattern="materialRegistry\|MaterialRegistry" path="src/"
-   → Find loader, parser, validator paths.
-2. Read loader (BOUNDED: parse + validate sections, ~100 lines). Identify:
-   - Missing fields causing parse failures?
-   - Type coercion issues (string "0.25" vs number 0.25)?
-   - File encoding issues?
-   - Schema version mismatch?
-
-=== FIX LOADER ===
-3-6. Apply fixes. Each fix: str_replace → build → verify count increases.
-     NEVER modify source data files. Fix the LOADER to handle data as-is.
-     Schema additions: ALWAYS include SCHEMA_VERSION field.
-
-     FIX PATTERNS (apply the one matching your diagnosis from steps 1-2):
-       TYPE COERCION: Loader reads string where number expected.
-         Pattern: function normalize(raw: any) { return { ...raw, density: Number(raw.density) || 0 } }
-         Find: where loader/validator rejects the field → add Number() or parseFloat() in normalizer.
-       NULL-FILLING: Validator rejects null/undefined optional fields.
-         Pattern: return { ...raw, coolant_required: raw.coolant_required ?? false }
-         Find: where validator throws on null → add ?? default_value in normalizer.
-       ENCODING: File read produces garbled characters (BOM, non-UTF8).
-         Pattern: const data = await readFile(path, { encoding: 'utf-8' }); const clean = data.replace(/^\uFEFF/, '');
-         Find: file read call → ensure encoding parameter is set + strip BOM.
-       SCHEMA MISMATCH: SCHEMA_VERSION in data doesn't match expected.
-         Pattern: run migration chain from §Code Standards §Schema Migration.
-         Walk: data_version → data_version+1 → ... → current_version. Each step adds/transforms one field.
-       BUILD AFTER EACH FIX CATEGORY, not after all fixes. Verify count increases monotonically.
-
-     ARCHITECTURE NOTE — Loader vs Normalizer (Finding 10):
-       Loader fixes in R1 will include type coercion (string→number), null-filling, and
-       encoding fixes. Structure coercion logic as a SEPARATE normalizer function, not
-       inline in the loader. Pattern: Source JSON → Normalizer (coerce) → Validator (schema) → Registry.
-       This keeps the loader testable and prevents it from becoming an ETL pipeline by R3.
-       The normalizer MUST be extractable to its own module by R3 phase start.
-
-     SCHEMA MIGRATION (Finding 7):
-       If SCHEMA_VERSION in data file doesn't match current expected version:
-       DO NOT reject the data. Run migration chain from PRISM_PROTOCOLS_CORE §Code Standards:
-         Walk: data_version → data_version+1 → ... → current_version
-         Each step applies one transformation (e.g., add coolant_required field with default).
-         If no migration path exists → throw PrismError(category='schema', severity='block').
-       For R1: migration chain will likely be trivial (1.0 → 1.0, no-op).
-       For R3+: migrations will accumulate as batch campaigns add fields.
-       Create migration registries alongside each loader: src/registries/materialMigrations.ts
-
-=== VALIDATE CRITICAL MATERIALS (effort=high, structured output) ===
-7. prism_data action=material_get material="4140"    → verify 127 params (effort=high)
-
-   VERIFICATION METHOD (you do NOT need to memorize all 127 params):
-     Count: Object.keys(response).length >= 127 (or count top-level JSON keys).
-     Spot-check these CRITICAL fields (used by every safety calculation):
-       response.kc1_1 → positive number (specific cutting force constant — EVERY formula uses this)
-       response.mc → number between 0 and 1 (Kienzle exponent)
-       response.density → positive number (sanity: steel ~7.85 g/cm³, aluminum ~2.70)
-       response.hardness → positive number (sanity: mild steel ~200 HB, tool steel ~60 HRC)
-       response.tensile_strength → positive number (sanity: 4140 ~655 MPa)
-     If kc1_1 is missing, zero, or NaN → this material CANNOT be used for calculations. CRITICAL gap.
-     If density/hardness missing → material record is incomplete. Fix loader.
-
-   MATERIAL SANITY CHECK (SK-5 — run on EVERY material_get response):
-     Import validateMaterialSanity from src/validation/materialSanity.ts (created in P0-MS0a).
-     This checks cross-parameter consistency per material class:
-       4140 (alloy steel): density must be 7.5-8.1, hardness > 120 HB
-       Ti-6Al-4V (titanium): density must be 4.3-4.8, hardness > 250 HB
-       316SS (stainless): density must be 7.5-8.1, hardness > 120 HB
-     If sanity check FAILS → DATA SWAP: material name doesn't match parameters. CRITICAL finding.
-     This catches the scenario where the database says "Ti-6Al-4V" but the parameters describe mild steel.
-     An operator selecting titanium gets steel recommendations. Tool explosion risk.
-
-8. prism_data action=material_get material="Ti-6Al-4V" → verify (effort=high)
-9. prism_data action=material_get material="316SS"   → verify (effort=high)
-10. prism_data action=material_get material="1045"    → verify (effort=high)
-11. prism_data action=material_get material="D2"      → verify (effort=high)
-
-   Each material_get uses structured output validation:
-   Response MUST conform to material schema (all 127 params typed, no NaN).
-   If structured output validation fails → material data is malformed → fix loader.
-
-=== COUNT GATE ===
-12. prism_data action=material_search query="*" limit=1 → loaded count
-    MUST be >= 95% of 3518 (>= 3342).
-    If <95%: diagnose remaining failures. Fix. Recount.
-13. Append REGISTRY_AUDIT.md with material results.
-14. Append ROADMAP_TRACKER.
-```
-
-**Rollback:** Revert loader changes. Rebuild.
-**Exit:** Materials >95% loaded. 5 critical materials verified with structured outputs. Count documented.
+REGISTRY TOTALS POST-MS4:
+  Materials: 3,392 (96.4%) | Machines: 1,016 (44 mfrs) | Tools: 5,238 (disk) / 1,944 (registry)
+  Alarms: 10,033 (100%) | Formulas: 500 (100%) | Build: clean 3.9MB
 
 ---
 
-## R1-MS1.5: Formula Definition Validation
+<!-- LOADER: SKIP TO HERE â€” MS0-MS4 complete. Content above is reference only. -->
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
+<!-- ANCHOR: r1_new_milestones_ms4_5_ms9_data_foundation -->
+## NEW MILESTONES (MS4.5-MS9) â€” Data Foundation
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
 
-**Effort:** ~12 calls | **Tier:** DEEP | **Context:** ~7KB
-**Response Budget:** ~10KB throughput, ~5KB peak
-**Entry:** R1-MS1 COMPLETE (materials loaded — formulas reference material params).
+<!-- ANCHOR: r1_r1_ms4_5_data_validation_pipeline_new_in_v14_2 -->
+## R1-MS4.5: DATA VALIDATION PIPELINE â† NEW in v14.2
+<!-- ANCHOR: r1_role_data_architect_model_sonnet_validation_scripts_test_harness_effort_m_12_calls_sessions_1 -->
+### Role: Data Architect | Model: Sonnet (validation scripts + test harness) | Effort: M (12 calls) | Sessions: 1
+
+**Source:** SYSTEMS_ARCHITECTURE_AUDIT.md Finding 5, Gap Analysis Gap 12
+**Effort:** ~12 calls | **Tier:** DEEP | **Context:** ~4KB
+**Response Budget:** ~10KB throughput, ~4KB peak
+**Entry:** R1-MS4 COMPLETE. All registries loaded but data quality unverified.
+
+**DATA PATHS (from src/constants.ts — verified 2026-02-17 dry-run):**
+  MATERIALS_DB: C:\PRISM\data\materials (7 ISO group dirs: P_STEELS, M_STAINLESS, K_CAST_IRON, N_NONFERROUS, S_SUPERALLOYS, H_HARDENED, X_SPECIALTY)
+  MACHINES_DB: C:\PRISM\extracted\machines (52 JSON files)
+  TOOLS: C:\PRISM\extracted\tools (NOTE: .js files, not .json — requires conversion or JS import)
+  REGISTRIES: src/registries/ (MaterialRegistry.ts, MachineRegistry.ts, ToolRegistry.ts)
+  CONSTANTS: src/constants.ts (all PATHS defined here)
+
+**WHY THIS IS CRITICAL:**
+  Safety-critical system needs VALIDATED data before building intelligence on it.
+  Current state: registries loaded by count, but no physical bounds checking,
+  no cross-reference validation, no consistency checking. A material with
+  hardness=50000 HB or density=0.001 g/cm  would pass silently. This catches
+  data quality issues BEFORE R2 trusts the data for safety calculations.
+
+**IMPLEMENTATION:**
 
 ```
-=== AUDIT FORMULA DEFINITIONS ===
-1. prism_dev action=code_search pattern="taylor\|Taylor\|TAYLOR" path="src/" → Taylor tool life
-2. prism_dev action=code_search pattern="kienzle\|Kienzle\|KIENZLE" path="src/" → Kienzle cutting force
-3. prism_dev action=code_search pattern="kc1_1\|specificCuttingForce" path="src/" → specific cutting force
-4. Read each formula implementation (BOUNDED: calculation functions, ~80 lines each).
+Step 1: Create DataValidationEngine.ts (~300 lines)
 
-=== VALIDATE WITH STRUCTURED OUTPUTS ===
-5. For each formula, run a known-input test via prism_calc with structured output schema:
-   Taylor: T = C / (Vc^n * fz^m * ap^p) — input known 4140 params, verify output structure
-   Kienzle: Fc = kc1_1 * b * h^(1-mc) — input known params, verify output structure
-   Specific cutting force: kc = kc1_1 * h^(-mc) — verify output structure
+  PHYSICAL BOUNDS CHECKING:
+    Hardness: 0 < HB < 800
+    Density: 1.0 < g/cm  < 23.0 (osmium = 22.59)
+    Tensile strength: 10 < MPa < 3000
+    Thermal conductivity: 0.1 < W/mK < 430 (silver = 429)
+    Melting point: 150 C < Tm < 3500 C (tungsten = 3422)
+    Tool diameter: 0 < D < 500mm
+    Machine RPM: 0 < RPM_min < RPM_max < 100,000
+    Machine power: 0 < kW < 500
 
-   Structured output schema ensures:
-   - All numeric outputs are numbers (not strings, not NaN, not undefined)
-   - Required fields present (Fc, T, kc, safety_score)
-   - Ranges valid (Fc > 0, T > 0, safety_score 0-1)
+  CROSS-REFERENCE VALIDATION:
+    AISI designation â†’ correct UNS mapping (lookup table)
+    Composition elements â†’ sum to 95-105% (allow minor rounding)
+    Machine RPM max   RPM min | Power > 0 | Travels > 0
+    Spindle taper is valid enum (BT30, BT40, BT50, HSK-A63, etc.)
 
-6. If formula returns malformed structure → fix implementation → rebuild → retest.
+  CONSISTENCY CHECKING:
+    Same material in multiple files â†’ properties agree within 5%
+    Flag contradictions, quarantine suspect entries to QUARANTINE.json
+    Suspect but plausible â†’ Tier 2.1 degradation (from IA3-7.1)
 
-=== CROSS-VALIDATE ===
-7. Run same material through speed_feed AND cutting_force → verify consistent kc values.
-8. Run Taylor with known data → verify tool life within expected range (industry reference).
+  COMPLETENESS SCORING:
+    Per-entry score 0-100 based on field population
+    Materials: weight hardness(20), density(15), tensile(15), conductivity(10), other(40)
+    Machines: weight power(25), RPM(20), travels(20), spindle(15), other(20)
+    Tools: weight diameter(20), flutes(15), material(15), geometry(15), other(35)
 
-=== DOCUMENT ===
-9. Append REGISTRY_AUDIT.md: formula validation results.
-10. Append ROADMAP_TRACKER.
+  STALENESS DETECTION:
+    Flag entries without manufacturer catalog source
+    Flag materials without standards reference (AISI, DIN, JIS, EN)
+
+Step 2: Wire to build pipeline
+  npm run build includes: validate_all_registries
+  Output: VALIDATION_REPORT.json
+    { materials: { total, valid, quarantined, avg_completeness },
+      machines: { total, valid, quarantined, avg_completeness },
+      tools: { total, valid, quarantined, avg_completeness },
+      critical_failures: [], warnings: [] }
+
+Step 3: New actions
+  validate_registry(registry_name) â€” run validation on one registry
+  validation_report() â€” return latest VALIDATION_REPORT.json
+
+Step 4: Run initial validation, fix critical failures
+  Expected: some materials will have out-of-bounds values
+  Fix: correct data or quarantine with documentation
 ```
 
-**Rollback:** Revert formula fixes. Rebuild.
-**Exit:** All formula definitions parsed. Structured outputs validate all calc returns. Cross-validation passes.
+**CHECKPOINT:**
+```
+ACTION_TRACKER.md:
+  "R1-MS4.5 DATA VALIDATION PIPELINE COMPLETE [date]
+   DataValidationEngine.ts created. VALIDATION_REPORT.json generated.
+   Materials: X valid, Y quarantined. Machines: X valid, Y quarantined.
+   Critical failures: [count] fixed."
+```
 
 ---
 
-## R1-MS2: Machine + Tool + Alarm Loading
+<!-- ANCHOR: r1_r1_ms5_tool_schema_normalization_toolindex_t_0_expanded_in_v14_2 -->
+## R1-MS5: Tool Schema Normalization + ToolIndex (T-0) â€” EXPANDED in v14.2
+<!-- ANCHOR: r1_role_data_architect_model_opus_85_param_schema_haiku_bulk_scan_sonnet_normalization_effort_l_18_calls_sessions_2 -->
+### Role: Data Architect | Model: Opus (85-param schema) â†’ Haiku (bulk scan) â†’ Sonnet (normalization) | Effort: L (18 calls) | Sessions: 2
+  CLAUDE CODE PARALLEL: This MS can run as an independent agent in its own Git worktree.
+  Worktree: feature/r1-ms5-tool-schema | Focus: src/engines/ToolIndex.ts, src/data/tools/
 
+**Source:** TOOL_EXPANSION_ROADMAP.md Phase 0 + SUPERPOWER_ROADMAP_AUDIT.md GAP 2
 **Effort:** ~18 calls | **Tier:** DEEP | **Context:** ~8KB
 **Response Budget:** ~15KB throughput, ~6KB peak
-**Entry:** R1-MS1.5 COMPLETE.
+**Entry:** R1-MS4 COMPLETE. 5,238 tools on disk across 14 JSON files.
+
+**WHY THIS IS CRITICAL:**
+  15,912 tool entries across 14 files with NO index, NO schema consistency.
+  9,170 entries use "vendor" field, 6,741 use "manufacturer" â€” same concept, different key.
+  11 of 14 canonical category files MISSING (only TURNING_INSERTS, TOOLHOLDERS, SPECIALTY exist).
+  Every tool_search is a LINEAR SCAN. App cannot build filter dropdowns without tool_facets.
+  tool_recommend returns essentially random results without category indexing.
+
+**REFERENCE DOCUMENT:** Load TOOL_EXPANSION_ROADMAP.md during this MS ONLY for detailed
+  schema specifications. DO NOT load in other MS. Cost: ~8K tokens. Contains: canonical
+  category definitions, field mapping table, vendor normalization rules, diameter ranges.
 
 ```
-=== MACHINES ===
-1. Diagnose machine loader (same ARCHITECTURE as R1-MS1: loader→normalizer→validator→registry).
-   The NORMALIZER logic differs per data type:
-     Machines: normalize specs fields (power_kw, max_rpm, travel_x/y/z, spindle_taper).
-     Expect: straightforward — machine specs are mostly numeric with consistent schema.
-     Budget: ~3-4 calls for diagnosis + fix + verify.
-2-4. Fix loader → build → verify count >= 95% of 824 (>= 783).
-5. Spot check: prism_data action=machine_get machine="HAAS VF-2" (effort=high)
-6. Spot check: prism_data action=machine_get machine="DMG MORI DMU 50" (effort=high)
+=== STEP 1: SCHEMA AUDIT ===
+Effort: ~3 calls
 
-=== TOOLS ===
-7. Diagnose tool loader.
-   Tools: normalize geometry fields (diameter, flute_length, helix_angle, coating, substrate).
-   Expect: moderate — tool geometry is well-structured but coating/substrate may have string variants.
-8-10. Fix loader → build → verify count >= 95% of 1944 (>= 1847).
-11. Spot check: prism_data action=tool_get tool="carbide endmill 12mm" (effort=high)
+1a. Read first 50 lines of each tool JSON file to identify field variants:
+    prism_dev action=file_read path="data/tools/MILLING.json" start_line=1 end_line=50  [effort=low]
+    prism_dev action=file_read path="data/tools/TOOLHOLDERS.json" start_line=1 end_line=50  [effort=low]
+    prism_dev action=file_read path="data/tools/TURNING_INSERTS.json" start_line=1 end_line=50  [effort=low]
 
-=== ALARMS ===
-12. Diagnose alarm loader.
-    Alarms: normalize across 12 controller families (FANUC, HAAS, Siemens, Okuma, Mazak, etc.).
-    Expect: HARDEST registry — 12 different field naming conventions per manufacturer.
-    Each controller family may use different field names for the same concept.
-    Budget: ~5-6 calls. May need per-family normalization branches in the normalizer.
-13-15. Fix loader → build → verify count >= 95% of 9200 (>= 8740).
-16. Spot check: prism_data action=alarm_decode controller="FANUC" alarm="414" (effort=high)
-17. Spot check: prism_data action=alarm_decode controller="HAAS" alarm="108" (effort=high)
-     Use structured output schema for alarm_decode (see PRISM_PROTOCOLS_CORE §Structured Outputs).
+1b. Document the FIELD MAPPING TABLE (these are the known inconsistencies from audit):
 
-=== DOCUMENT ===
-18. Update REGISTRY_AUDIT.md with all counts.
-19. Append ROADMAP_TRACKER.
+    | Source Field           | Canonical Field        | Affected Files              |
+    |------------------------|------------------------|-----------------------------|
+    | vendor                 | vendor                 | MILLING, DRILLING, SPECIALTY |
+    | manufacturer           | vendor                 | TOOLHOLDERS, TURNING_*      |
+    | cutting_diameter_mm    | cutting_diameter_mm    | MILLING, DRILLING           |
+    | diameter               | cutting_diameter_mm    | TOOLHOLDERS, HOLE_FINISHING |
+    | diameter_mm            | cutting_diameter_mm    | TURNING_HOLDERS             |
+    | coating                | coating                | MILLING, DRILLING           |
+    | coating_type           | coating                | SPECIALTY, TURNING_INSERTS  |
+    | flute_count            | flute_count            | MILLING                     |
+    | number_of_flutes       | flute_count            | DRILLING                    |
+    | num_flutes             | flute_count            | ENDMILL_CATALOGS            |
+    | category               | category               | Some files                  |
+    | (missing)              | category               | Files without category      |
+    | tool_type              | category               | MANUFACTURER_CATALOGS       |
+
+    If actual audit reveals MORE variants â†’ add them to the table.
+    If actual audit reveals FEWER variants â†’ simplify the normalizer.
+    VERIFY the mapping by reading at least 3 different files.
+
+=== STEP 2: BUILD NORMALIZATION LAYER ===
+Effort: ~4 calls
+
+2a. Read current ToolRegistry.ts to understand the load path:
+    prism_dev action=file_read path="src/registries/ToolRegistry.ts" start_line=1 end_line=100  [effort=low]
+    Identify: Where entries are parsed. Where they're validated. Where they're stored.
+
+2b. Create normalizeToolEntry() function (add to ToolRegistry.ts or new file):
+    str_replace on ToolRegistry.ts to add normalization function.
+
+    NORMALIZATION FUNCTION SPECIFICATION:
+    ```typescript
+    function normalizeToolEntry(raw: Record<string, unknown>, sourceFile: string): NormalizedTool {
+      return {
+        // Identity
+        id: String(raw.id || raw.tool_id || generateId(raw, sourceFile)),
+        name: String(raw.name || raw.tool_name || raw.description || 'unknown'),
+
+        // Vendor â€” "manufacturer" and "vendor" mean the same thing
+        vendor: String(raw.vendor || raw.manufacturer || 'unknown'),
+
+        // Category â€” derive from source file if not present
+        category: String(raw.category || raw.tool_type || deriveCategoryFromFile(sourceFile)),
+
+        // Geometry â€” normalize diameter field names
+        cutting_diameter_mm: Number(raw.cutting_diameter_mm || raw.diameter || raw.diameter_mm || 0),
+        overall_length_mm: Number(raw.overall_length_mm || raw.overall_length || raw.length || 0),
+        flute_length_mm: Number(raw.flute_length_mm || raw.flute_length || raw.cutting_length || 0),
+        flute_count: Number(raw.flute_count || raw.number_of_flutes || raw.num_flutes || 0),
+        shank_diameter_mm: Number(raw.shank_diameter_mm || raw.shank_diameter || raw.shank || 0),
+
+        // Cutting properties
+        coating: String(raw.coating || raw.coating_type || 'uncoated'),
+        substrate: String(raw.substrate || raw.tool_material || raw.material || 'unknown'),
+        helix_angle_deg: Number(raw.helix_angle_deg || raw.helix_angle || 0),
+        rake_angle_deg: Number(raw.rake_angle_deg || raw.rake_angle || 0),
+
+        // Insert-specific (nullable â€” only for indexable tools)
+        insert_shape: raw.insert_shape || raw.shape || null,
+        insert_size: raw.insert_size || raw.size || null,
+        chipbreaker: raw.chipbreaker || raw.chip_breaker || null,
+        grade: raw.grade || raw.carbide_grade || null,
+
+        // Toolholder-specific (nullable)
+        interface_type: raw.interface_type || raw.holder_interface || raw.taper || null,
+        clamping_system: raw.clamping_system || raw.clamp_type || null,
+
+        // Metadata
+        source_file: sourceFile,
+        normalized_at: new Date().toISOString()
+      };
+    }
+
+    function deriveCategoryFromFile(filename: string): string {
+      const map: Record<string, string> = {
+        'MILLING.json': 'MILLING', 'DRILLING.json': 'DRILLING',
+        'TURNING_INSERTS.json': 'TURNING_INSERTS', 'TURNING.json': 'TURNING',
+        'TURNING_HOLDERS_EXPANDED.json': 'TURNING_HOLDERS',
+        'TOOLHOLDERS.json': 'TOOLHOLDERS', 'HOLE_FINISHING.json': 'HOLE_FINISHING',
+        'THREADING.json': 'THREADING', 'SPECIALTY.json': 'SPECIALTY',
+        'ENDMILL_CATALOGS.json': 'ENDMILLS',
+        'MANUFACTURER_CATALOGS.json': 'GENERAL',
+        'INDEXABLE_MILLING_TOOLHOLDING.json': 'INDEXABLE_MILLING',
+        'CUTTING_TOOLS_INDEX.json': 'INDEX'
+      };
+      return map[filename] || 'UNCATEGORIZED';
+    }
+    ```
+
+    Apply normalizeToolEntry() during registry load â€” NOT by modifying source files.
+    Pattern: Source JSON â†’ normalizeToolEntry() â†’ Validator â†’ Registry.
+
+2c. Build after adding normalization:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    VERIFY: Build passes. 3.9MB output.
+    IF BUILD FAILS: Read error â†’ fix type issues â†’ rebuild. One fix at a time.
+
+=== STEP 3: BUILD TOOLINDEX ===
+Effort: ~4 calls
+
+3a. Create ToolIndex.ts in src/registries/ (or add to ToolRegistry.ts if small enough):
+
+    TOOLINDEX SPECIFICATION:
+    ```typescript
+    export class ToolIndex {
+      private byCategory: Map<string, Set<string>> = new Map();
+      private byVendor: Map<string, Set<string>> = new Map();
+      private byCoating: Map<string, Set<string>> = new Map();
+      private byDiameterRange: { diameter: number; id: string }[] = [];  // sorted
+      private byMaterialGroup: Map<string, Set<string>> = new Map();
+
+      buildIndex(tools: Map<string, NormalizedTool>): void {
+        for (const [id, tool] of tools) {
+          // Category index
+          if (!this.byCategory.has(tool.category)) this.byCategory.set(tool.category, new Set());
+          this.byCategory.get(tool.category)!.add(id);
+
+          // Vendor index
+          const vendor = tool.vendor.toLowerCase();
+          if (!this.byVendor.has(vendor)) this.byVendor.set(vendor, new Set());
+          this.byVendor.get(vendor)!.add(id);
+
+          // Coating index
+          const coating = tool.coating.toLowerCase();
+          if (!this.byCoating.has(coating)) this.byCoating.set(coating, new Set());
+          this.byCoating.get(coating)!.add(id);
+
+          // Diameter index (for range queries)
+          if (tool.cutting_diameter_mm > 0) {
+            this.byDiameterRange.push({ diameter: tool.cutting_diameter_mm, id });
+          }
+        }
+        // Sort diameter index for binary search
+        this.byDiameterRange.sort((a, b) => a.diameter - b.diameter);
+      }
+
+      // O(1) lookups
+      getByCategory(category: string): string[] { ... }
+      getByVendor(vendor: string): string[] { ... }
+      getByCoating(coating: string): string[] { ... }
+      // O(log n) range query
+      getByDiameterRange(min: number, max: number): string[] { ... }
+
+      // Faceted counts for app filter dropdowns
+      getFacets(filters?: Partial<ToolFilters>): ToolFacets {
+        // Apply filters progressively, return counts for remaining facets
+        return {
+          categories: Array.from(this.byCategory.entries()).map(([name, ids]) => ({
+            name, count: ids.size
+          })),
+          vendors: Array.from(this.byVendor.entries()).map(([name, ids]) => ({
+            name, count: ids.size
+          })).sort((a, b) => b.count - a.count).slice(0, 50),
+          coatings: Array.from(this.byCoating.entries()).map(([name, ids]) => ({
+            name, count: ids.size
+          })),
+          diameter_range: {
+            min: this.byDiameterRange[0]?.diameter || 0,
+            max: this.byDiameterRange[this.byDiameterRange.length - 1]?.diameter || 0
+          }
+        };
+      }
+    }
+    ```
+
+3b. Integrate ToolIndex into ToolRegistry â€” build index after all tools are loaded.
+    str_replace on ToolRegistry.ts: after load completes, call this.index.buildIndex(this.tools).
+
+3c. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+
+=== STEP 4: ADD tool_facets ACTION TO DISPATCHER ===
+Effort: ~3 calls
+
+4a. Read current dataDispatcher.ts tool-related actions:
+    prism_dev action=code_search pattern="tool_search\|tool_get\|tool_compare" path="src/tools/dispatchers/dataDispatcher.ts"  [effort=high]
+
+4b. Add tool_facets action to dataDispatcher.ts:
+    str_replace to add new action handler:
+
+    ACTION: tool_facets
+    INPUT: { filters?: { category?: string, vendor?: string, diameter_min?: number,
+             diameter_max?: number, coating?: string } }
+    LOGIC: Call toolRegistry.index.getFacets(filters)
+    OUTPUT: { facets: { categories: [{name, count}], vendors: [{name, count}],
+              coatings: [{name, count}], diameter_range: {min, max} },
+              total_tools: number, filtered_tools: number }
+
+    This action enables the app to populate filter dropdown menus with live counts.
+    When user selects "TURNING_INSERTS" â†’ categories show updated counts for vendors
+    that have turning inserts, not all vendors globally.
+
+4c. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop (new action added).
+    Test: prism_data action=tool_facets  [effort=low]
+    EXPECTED: Returns category list with counts summing to total tool count.
+    Test: prism_data action=tool_facets filters='{"category":"TURNING_INSERTS"}'  [effort=low]
+    EXPECTED: Returns vendors/coatings/diameters filtered to turning inserts only.
+
+=== STEP 5: VERIFY TOOL SEARCH USES INDEX ===
+Effort: ~2 calls
+
+5a. Test tool_search with normalized results:
+    prism_data action=tool_search query="CNMG 120408"  [effort=high]
+    EXPECTED: Returns matching turning inserts with normalized schema (vendor, not manufacturer).
+    prism_data action=tool_search query="carbide endmill 12mm"  [effort=high]
+    EXPECTED: Returns endmills filtered by diameter range near 12mm.
+
+5b. If tool_search does NOT use ToolIndex:
+    Read tool_search handler in dataDispatcher.ts.
+    Wire it to use ToolIndex for category/diameter filtering before text matching.
+    Build + verify.
+
+=== STEP 5b: 85-PARAMETER TOOL HOLDER UPGRADE (v14.2 â€” Gap 7) ===
+Effort: ~6 calls
+Source: TOOL_HOLDER_DATABASE_ROADMAP_v4.md
+
+5b-1. Upgrade tool holder schema from 65â†’85 simulation-grade parameters:
+      NEW PARAMETERS (20 additions):
+        Collision: envelope_profile_points [[z,r]...], max_protrusion_mm
+        Dynamics: moment_of_inertia, center_of_mass, critical_rpm_bands, chatter_susceptibility
+        Quality: balance_grade, runout_typical_um, grip_force_kn
+        Performance: derating_speed, derating_feed, derating_doc, derating_woc,
+                     derating_tool_life, derating_surface_finish
+        Thermal: thermal_growth_um_per_c, max_operating_temp_c
+        Compatibility: spindle_interface_variants[], tool_diameter_range_mm
+      Derive envelope_profile_points from existing geometry data.
+      Calculate derating factors from holder type + rigidity classification.
+
+5b-2. Type expansion: Add 34 new holder types
+      (precision, anti-vibration, boring bar, tapping, live tooling, shrink-fit, etc.)
+      Source: TOOL_HOLDER_DATABASE_ROADMAP_v4.md Phase 2C type expansion list.
+
+5b-3. Brand expansion: Add 20 priority brands (~1,140 additional holders)
+      (Kennametal, Sandvik, Walter, Seco, Iscar, etc.)
+      Source: TOOL_HOLDER_DATABASE_ROADMAP_v4.md Phase 2D brand list.
+
+5b-4. Wire expanded holder data through tool_get, tool_recommend, tool_search.
+      Build + validate 85-param schema with DataValidationEngine from MS4.5.
+      Target: 12,000+ holders at 85 params, fully indexed.
+
+=== STEP 6: DOCUMENT ===
+Effort: ~2 calls
+
+6a. Append REGISTRY_AUDIT.md:
+    "R1-MS5 TOOL NORMALIZATION COMPLETE [date]
+     Schema variants normalized: [N] field mappings applied
+     ToolIndex built: [N] tools indexed across [N] categories, [N] vendors
+     tool_facets action operational
+     Total tools: [count] (all files, deduplicated)"
+
+6b. Append ROADMAP_TRACKER.md:
+    "R1-MS5 COMPLETE [date] â€” Tool schema normalization + ToolIndex + tool_facets"
+
+6c. Update CURRENT_POSITION.md:
+    "CURRENT: R1-MS6 | LAST_COMPLETE: R1-MS5 [date] | PHASE: R1 in-progress"
 ```
 
-**Rollback:** Revert loader changes per registry type. Rebuild.
-**Exit:** All 4 registries >95%. Spot checks pass with structured outputs. Counts documented.
+**Rollback:** Revert ToolRegistry.ts and dataDispatcher.ts changes. Rebuild.
+  Tools continue to work as before (linear scan, no index). App loses filter dropdowns.
+**Exit:** All tools normalized. ToolIndex provides O(1) lookup. tool_facets action live.
+  15,912 â†’ 14 canonical categories indexed. App filter layer ready.
 
 ---
 
-## R1-MS3: Data Pipeline Integration
+<!-- ANCHOR: r1_r1_ms6_material_enrichment_completion_m_0 -->
+## R1-MS6: Material Enrichment Completion (M-0)
+<!-- ANCHOR: r1_role_data_architect_model_haiku_bulk_scan_3518_materials_sonnet_enrichment_scripts_effort_l_14_calls_sessions_1_2 -->
+### Role: Data Architect | Model: Haiku (bulk scan 3518 materials) â†’ Sonnet (enrichment scripts) | Effort: L (14 calls) | Sessions: 1-2
+  CLAUDE CODE PARALLEL: This MS can run as an independent agent in its own Git worktree.
+  Worktree: feature/r1-ms6-material-enrichment | Focus: src/data/materials/, MaterialRegistry.ts
 
-**Effort:** ~10 calls | **Tier:** STANDARD | **Context:** ~5KB
-**Response Budget:** ~8KB throughput, ~4KB peak
-**Entry:** R1-MS2 COMPLETE.
+**Source:** PRISM_DATABASE_AUDIT_AND_ROADMAP.md  2.5 + SUPERPOWER_ROADMAP_AUDIT.md GAP 1
+**Effort:** ~14 calls | **Tier:** DEEP | **Context:** ~7KB
+**Response Budget:** ~12KB throughput, ~5KB peak
+**Entry:** R1-MS5 COMPLETE.
+
+**WHY THIS IS CRITICAL:**
+  3,392 materials loaded but 95% lack tribology, composition, and designation cross-references.
+  materials_complete/ directory (52.2 MB) has RICH data: 17-element composition, tribology
+  (sliding_friction, adhesion, galling), surface_integrity, thermal_machining, statistics
+  (standardDeviation for uncertainty calculations). This data EXISTS but isn't reaching engines.
+  When speed_feed_calc calls getByIdOrName("4140"), it gets material but composition/tribology
+  fields return null. uncertainty_chain action needs statistics.standardDeviation which only
+  exists in materials_complete schema.
+
+**REFERENCE DOCUMENT:** Load PRISM_DATABASE_AUDIT_AND_ROADMAP.md  2 during this MS ONLY.
 
 ```
-=== END-TO-END PIPELINE TESTS ===
-1. Cold boot: restart MCP server → prism_dev action=health  [effort=low]
-   → warm_start counts. ALL counts must match R1-MS2 documented counts (±1% for race conditions).
-   If counts DON'T match → registry loading regressed. STOP. Debug before proceeding.
-2. Pipeline: prism_data action=material_get material="4140"  [effort=high]
-   → prism_calc action=speed_feed material="4140" operation="turning"  [effort=max, structured output]
-   → Check: safety_score field exists and is >= 0.70.
-   Must produce valid S(x) from real data. Structured output enforced on safety calc.
-   FAIL: S(x) missing, NaN, < 0.70, or structured output validation rejects response.
-3. Pipeline: prism_data action=alarm_decode controller="FANUC" alarm="414"  [effort=high, structured output]
-   → prism_knowledge action=search query="[alarm description from decode]"  [effort=high]
-   Must return meaningful resolution steps (not empty, not placeholder).
-4. Pipeline: prism_data action=material_get material="Ti-6Al-4V"  [effort=high]
-   → prism_calc action=cutting_force material="Ti-6Al-4V" operation="turning"  [effort=max, structured output]
-   → prism_calc action=tool_life material="Ti-6Al-4V" operation="turning"  [effort=max, structured output]
-   Full Taylor chain with structured output validation on both steps.
+=== STEP 1: AUDIT CURRENT ENRICHMENT STATE ===
+Effort: ~3 calls
 
-=== CONSISTENCY ===
-5. Run pipeline test 1 three times → results must be deterministic (same inputs → same outputs).
-6. If inconsistent → debug source of non-determinism (floating point? cache? race condition?).
+1a. Count materials with enrichment in canonical files:
+    Write a script (prism_dev action=file_write) that scans all JSON files in data/materials/
+    EXCLUDING merged_from_complete.json files, and counts:
+      - Total canonical materials
+      - Materials with tribology != null
+      - Materials with composition != null
+      - Materials with designation != null (or designation object with UNS/DIN/JIS fields)
 
-=== DOCUMENT ===
-7. Append REGISTRY_AUDIT.md: pipeline test results.
-8. Append ROADMAP_TRACKER.
+1b. Count materials in merged_from_complete.json files:
+    Same script counts entries in merged_from_complete.json per ISO group:
+      - P_STEELS/merged_from_complete.json
+      - M_STAINLESS/merged_from_complete.json
+      - K_CAST_IRON/merged_from_complete.json
+      - N_NONFERROUS/merged_from_complete.json
+      - S_SUPERALLOYS/merged_from_complete.json
+      - H_HARDENED/merged_from_complete.json
+      - X_SPECIALTY/merged_from_complete.json
+
+1c. Run the script, record results:
+    EXPECTED STATE: ~3,392 canonical materials with ~5% tribology (from prior M-0 partial work)
+    and ~0% composition. merged_from_complete.json files have the enrichment data.
+
+=== STEP 2: ENRICHMENT MERGE SCRIPT ===
+Effort: ~5 calls
+
+2a. Read a sample merged_from_complete.json to understand the schema:
+    prism_dev action=file_read path="data/materials/P_STEELS/merged_from_complete.json"
+      start_line=1 end_line=80  [effort=low]
+    Identify: How materials are keyed (by name? by ID? by designation?).
+    Identify: Which fields need to be merged (tribology, composition, surface_integrity,
+      thermal_machining, statistics, designation).
+
+2b. Write enrichment merge script (prism_dev action=file_write):
+    The script operates per ISO group directory:
+
+    ENRICHMENT MERGE ALGORITHM:
+    ```
+    For each ISO group directory (P_STEELS, M_STAINLESS, etc.):
+      1. Load merged_from_complete.json â†’ build lookup by material name (lowercase, stripped)
+      2. Load each canonical JSON file (bearing_steel_verified.json, alloy_steel_gen.json, etc.)
+      3. For each canonical material entry:
+         a. Find matching entry in merged data (match by name, or by designation if available)
+            MATCHING RULES (in order of confidence):
+              i.   Exact name match (case-insensitive, trim whitespace)
+              ii.  AISI designation match (e.g., "4140" matches "AISI 4140")
+              iii. UNS designation match (e.g., "G41400" matches "UNS G41400")
+              iv.  Fuzzy match: name contains the other name (e.g., "4140 Annealed" contains "4140")
+            If NO match found: skip this material. Log as "NO_MATCH: [name]".
+            If MULTIPLE matches found: use the one with highest data completeness.
+
+         b. Merge enrichment fields INTO canonical entry (additive â€” never overwrite existing):
+            if (!canonical.tribology && merged.tribology) canonical.tribology = merged.tribology;
+            if (!canonical.composition && merged.composition) canonical.composition = merged.composition;
+            if (!canonical.surface_integrity && merged.surface_integrity) canonical.surface_integrity = merged.surface_integrity;
+            if (!canonical.thermal_machining && merged.thermal_machining) canonical.thermal_machining = merged.thermal_machining;
+            if (!canonical.statistics && merged.statistics) canonical.statistics = merged.statistics;
+            if (!canonical.designation && merged.designation) canonical.designation = merged.designation;
+
+            CRITICAL: NEVER overwrite existing fields. If canonical already has tribology, keep it.
+            The canonical data was verified â€” merged data is supplementary.
+
+         c. Write updated canonical file (preserve ALL existing fields, add new ones)
+      4. Log: "[group] enriched [N] of [M] materials. [K] had no match in merged data."
+    ```
+
+2c. Execute the enrichment script:
+    Run via prism_dev action=build or node execution.
+    Monitor output: How many materials were enriched? How many had no match?
+
+2d. Handle edge cases:
+    IF many NO_MATCH entries: The naming convention differs between canonical and merged.
+      Try designation-based matching (canonical uses AISI names, merged uses ISO/UNS/DIN).
+      Check if merged data uses a different ID format (e.g., "P-CS-0014" vs "CS-1018-ANNEALED").
+    IF few matches: The merged data may use completely different material keys.
+      Fall back to property-based matching: match by (hardness   10%) AND (density   0.5).
+      This is less precise but catches materials with different naming conventions.
+
+=== STEP 3: ADD DESIGNATION INDEX TO MATERIALREGISTRY ===
+Effort: ~2 calls
+
+3a. Read MaterialRegistry.ts:
+    prism_dev action=code_search pattern="getByIdOrName\|getById" path="src/registries/MaterialRegistry.ts"  [effort=high]
+
+3b. Add designation lookup:
+    str_replace to add a byDesignation Map<string, string> built during load:
+
+    DESIGNATION INDEX SPECIFICATION:
+    ```typescript
+    private byDesignation: Map<string, string> = new Map();  // designation â†’ material_id
+
+    // During load, after normalization:
+    if (material.designation) {
+      const desig = material.designation;
+      // Map ALL designation variants to the same material_id
+      if (desig.aisi) this.byDesignation.set(desig.aisi.toLowerCase(), material.id);
+      if (desig.uns) this.byDesignation.set(desig.uns.toLowerCase(), material.id);
+      if (desig.din) this.byDesignation.set(desig.din.toLowerCase(), material.id);
+      if (desig.jis) this.byDesignation.set(desig.jis.toLowerCase(), material.id);
+      if (desig.en) this.byDesignation.set(desig.en.toLowerCase(), material.id);
+      // Also map common shorthand: "4140", "1018", "316" etc.
+      if (desig.aisi) {
+        const short = desig.aisi.replace(/^AISI\s*/i, '').trim();
+        this.byDesignation.set(short.toLowerCase(), material.id);
+      }
+    }
+
+    // Enhance getByIdOrName to check designation index:
+    getByIdOrName(query: string): Material | null {
+      // 1. Try exact ID match
+      const byId = this.getById(query);
+      if (byId) return byId;
+      // 2. Try designation index
+      const fromDesig = this.byDesignation.get(query.toLowerCase());
+      if (fromDesig) return this.getById(fromDesig);
+      // 3. Try name search (existing logic)
+      return this.searchByName(query);
+    }
+    ```
+
+    This means machinists can type "4140", "1.7225" (DIN), "SCM440" (JIS), or "UNS G41400"
+    and all resolve to the same material. This is how real machinists think â€” by designation,
+    not by internal IDs like "CS-4140-ANNEALED".
+
+=== STEP 3b: ENRICHMENT SPOT-CHECK (v14.5 REL-1) ===
+Spot-check 10 materials against Machinery's Handbook (hardness, density, tensile).
+If ANY deviation > 20%: STOP. Enrichment source has systematic error.
+
+=== STEP 3c: RUNTIME BOUNDS CHECK (v14.5 S-2) ===
+Add runtime bounds to material_get: hardness 10-800 HB, density 1.0-23.0, tensile 50-3500 MPa.
+3 comparisons per lookup. Catches catastrophic data corruption at query time.
+=== STEP 4: VERIFY ENRICHMENT ===
+Effort: ~3 calls
+
+4a. Build:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+
+4b. Verify enrichment on critical materials:
+    prism_data action=material_get material="4140"  [effort=high]
+    CHECK: response.tribology is NOT null (should have sliding_friction, adhesion, etc.)
+    CHECK: response.composition is NOT null (should have C, Mn, Cr, Mo, etc.)
+    CHECK: response.designation is NOT null (should have aisi, uns, din)
+
+    prism_data action=material_get material="Ti-6Al-4V"  [effort=high]
+    CHECK: same enrichment fields present
+
+    prism_data action=material_get material="316SS"  [effort=high]
+    CHECK: same enrichment fields present
+
+    MATERIAL SANITY CHECK (SK-5 â€” run on EVERY material_get response):
+    Verify cross-parameter consistency:
+      4140 (alloy steel): density 7.5-8.1, hardness > 120 HB
+      Ti-6Al-4V (titanium): density 4.3-4.8, hardness > 250 HB
+      316SS (stainless): density 7.5-8.1, hardness > 120 HB
+    IF sanity check FAILS â†’ DATA SWAP. Material name doesn't match parameters. CRITICAL.
+
+4c. Verify designation lookup:
+    prism_data action=material_get material="1.7225"  [effort=high]
+    EXPECTED: Returns 4140 (1.7225 is the DIN designation for 4140)
+    IF NOT FOUND: Designation index didn't build. Debug MaterialRegistry.ts.
+
+=== STEP 5: COVERAGE METRICS ===
+Effort: ~1 call
+
+5a. Run enrichment count script again (same as Step 1a):
+    Record: tribology coverage %, composition coverage %, designation coverage %
+    TARGETS: >80% tribology, >80% composition, >90% designation
+    IF below targets: Identify which ISO groups have low coverage. Focus enrichment there.
+    The most important groups are P_STEELS (most commonly machined) and S_SUPERALLOYS
+    (most dangerous to machine wrong).
+
+=== STEP 6: DOCUMENT ===
+Effort: ~2 calls
+
+6a. Append REGISTRY_AUDIT.md with enrichment results.
+6b. Append ROADMAP_TRACKER + update CURRENT_POSITION.
 ```
 
-**Exit:** Data flows end-to-end. Structured outputs validate all calc returns. Results deterministic.
+**Rollback:** Revert MaterialRegistry.ts changes. Keep enriched data files (enrichment is additive
+  and doesn't break anything â€” the loader simply has more fields available).
+**Exit:** Canonical materials enriched in-place. Designation cross-references live.
+  cross_query returns real tribology/composition data. Machinists can query by any designation.
 
 ---
 
-## R1-MS4: Coverage Audit + Gap Analysis
+<!-- ANCHOR: r1_r1_ms7_machine_field_population_mch_0 -->
+## R1-MS7: Machine Field Population (MCH-0)
+<!-- ANCHOR: r1_role_data_architect_model_haiku_bulk_scan_sonnet_controller_family_mapping_effort_l_14_calls_sessions_1_2 -->
+### Role: Data Architect | Model: Haiku (bulk scan) â†’ Sonnet (controller family mapping) | Effort: L (14 calls) | Sessions: 1-2
+  CLAUDE CODE PARALLEL: This MS can run as an independent agent in its own Git worktree.
+  Worktree: feature/r1-ms7-machine-population | Focus: src/data/machines/, MachineRegistry.ts
 
-**Effort:** ~8 calls | **Tier:** STANDARD | **Context:** ~4KB
-**Response Budget:** ~6KB throughput, ~3KB peak
-**Entry:** R1-MS3 COMPLETE.
+**Source:** PRISM_DATABASE_AUDIT_AND_ROADMAP.md  3 + SUPERPOWER_ROADMAP_AUDIT.md GAP 3
+**Effort:** ~14 calls | **Tier:** DEEP | **Context:** ~7KB
+**Response Budget:** ~12KB throughput, ~5KB peak
+**Entry:** R1-MS6 COMPLETE (or can run PARALLEL with MS6 â€” independent data targets)
+
+**WHY THIS IS CRITICAL:**
+  1,016 machines in registry but 0% have power/torque curves, 0% have work envelope data.
+  cross_query chains materialâ†’toolâ†’machine but machine link is broken (no power for safety
+  checks, no envelope for part fit). machine_recommend literally CANNOT work without power
+  data to filter on. Spindle protection engine (1 of 5 safety engines) needs spindleSpec
+  with max_rpm, power_kw, max_torque_nm â€” all currently zero/null.
+
+**NOTE:** This MS can run in the same session as MS6 if context budget allows.
+  MS6 modifies material data, MS7 modifies machine data â€” zero overlap.
 
 ```
-1. For each registry: (loaded count / expected count) * 100 = coverage %  [effort=high — analytical reasoning]
-   prism_data action=material_search query="*" limit=1  [effort=high] → material count
-   prism_data action=machine_search query="*" limit=1  [effort=high] → machine count
-   prism_data action=tool_search query="*" limit=1  [effort=high] → tool count (if action exists)
-   prism_knowledge action=stats  [effort=low] → alarm count (from knowledge stats)
-   Calculate: count / expected × 100 for each.
-2. For <100% registries: categorize gaps  [effort=high — requires reasoning about failure patterns]:
-   - PARSE FAILURE: data exists but loader rejects it (fixable — loader code change)
-   - MISSING DATA: data file doesn't contain entry (document for R3 data campaigns)
-   - SCHEMA MISMATCH: data structure changed (fixable with migration chain from §Code Standards)
-   HOW to categorize: prism_dev action=code_search pattern="parse.*error\|skip.*invalid" path="src/"  [effort=high]
-   → Read loader error logs or error handling → determine which category each gap falls into.
-3. PARSE FAILUREs with count >50: escalate to fix NOW  [effort=high]
-   (one more loader fix cycle: diagnose → str_replace → build → recount)
-4. All others: prism_doc action=append name=PHASE_FINDINGS.md  [effort=low]
-   content="[R1] IMPORTANT: R3 backlog — [N] MISSING DATA gaps, [N] SCHEMA MISMATCH gaps"
-5. prism_doc action=append name=REGISTRY_AUDIT.md  [effort=low]
-   content="COVERAGE AUDIT: Materials [N]%, Machines [N]%, Tools [N]%, Alarms [N]% | Gaps: [categorized]"
-6. prism_doc action=append name=ROADMAP_TRACKER.md content="R1-MS4 COMPLETE [date]"  [effort=low]
+=== STEP 1: IDENTIFY TOP 50 MACHINES ===
+Effort: ~2 calls
+
+1a. List machines currently in registry:
+    prism_data action=machine_search query="*" limit=50  [effort=high]
+    From results, identify the most commonly used machines in manufacturing shops.
+
+1b. Compile the TOP 50 list (these cover ~80% of real-world machinist queries):
+
+    VERTICAL MACHINING CENTERS (VMC):
+      Haas VF-2, VF-3, VF-4, VF-6SS, VM-3
+      DMG MORI DMU 50, DMU 65, CMX 600V
+      Mazak VCN-530C, VTC-300C, Variaxis i-700
+      Okuma MB-5000H, MU-5000V
+      Doosan DNM 500, DVF 5000
+      Hurco VMX 42i, VMX 60i
+      Fanuc Robodrill  -D21MiB5
+      Makino PS95, a51nx
+      Brother Speedio S700X1
+
+    TURNING CENTERS / LATHES:
+      Haas ST-20, ST-30, DS-30Y
+      Mazak QT-250, QTN-250M, Integrex i-200S
+      Okuma LB3000 EX II, LU3000 EX
+      Doosan Puma GT-2600, Lynx 2100
+      DMG MORI NLX 2500, CLX 450
+
+    HORIZONTAL MACHINING CENTERS (HMC):
+      Haas EC-400
+      Mazak HCN-5000, FH-6800
+      Okuma MA-500HII
+      Makino a61nx, a81nx
+      DMG MORI NHX 5000, NHX 6300
+
+    5-AXIS:
+      Hermle C 42 U, C 22 U
+      Grob G350, G550
+      Matsuura MAM72-35V
+
+=== STEP 2: POPULATE CRITICAL FIELDS FOR TOP 50 ===
+Effort: ~6 calls
+
+2a. For each machine in the top 50, populate these fields using manufacturer datasheets.
+    The data comes from publicly available manufacturer spec sheets and catalogs.
+
+    REQUIRED FIELDS (these feed safety calculations):
+    ```
+    spindle: {
+      max_rpm: number,           // Maximum spindle speed (always available on spec sheet)
+      power_kw: number,          // Continuous power rating at spindle (not motor rating)
+      max_torque_nm: number,     // Maximum torque (usually at base speed)
+      interface: string,         // BT40 | CAT40 | CAT50 | HSK-A63 | HSK-A100 | BT50
+      drive_type: string         // belt | direct | gear | built-in
+    }
+
+    travels: {
+      x_mm: number,             // X-axis travel
+      y_mm: number,             // Y-axis travel
+      z_mm: number,             // Z-axis travel
+      a_deg?: number,           // A-axis rotation (if applicable)
+      c_deg?: number            // C-axis rotation (if applicable)
+    }
+
+    table: {
+      size_mm: string,          // "762x356" or "500x500" or "250 dia"
+      max_load_kg: number,      // Maximum workpiece weight
+      t_slots?: string          // T-slot pattern description
+    }
+
+    // Lathes only:
+    turret?: {
+      type: string,             // VDI30 | VDI40 | VDI50 | BMT55 | BMT65
+      stations: number,         // Number of tool stations
+      live_tools: boolean       // Has live (driven) tool capability
+    }
+
+    // General:
+    controller: {
+      brand: string,            // Fanuc | Siemens | Mazak | Haas | Okuma
+      model: string             // 0i-MF | 840D | MAZATROL | NGC | OSP-P300
+    }
+
+    axes: number                // 3 | 4 | 5
+    type: string                // VMC | HMC | Lathe | 5-axis | Mill-Turn
+    year_range: string          // "2015-present" or "2018-2023"
+    ```
+
+2b. Create enrichment data file:
+    prism_dev action=file_write path="data/machines/ENHANCED/top50_specs.json"
+    content='{ "metadata": { "source": "manufacturer_datasheets", "date": "[today]" },
+               "machines": [ { "name": "Haas VF-2", "manufacturer": "Haas",
+                 "spindle": { "max_rpm": 8100, "power_kw": 22.4, "max_torque_nm": 122,
+                   "interface": "BT40", "drive_type": "belt" },
+                 "travels": { "x_mm": 762, "y_mm": 406, "z_mm": 508 },
+                 "table": { "size_mm": "914x356", "max_load_kg": 1588 },
+                 "controller": { "brand": "Haas", "model": "NGC" },
+                 "axes": 3, "type": "VMC" }, ... ] }'
+
+    CRITICAL: USE REAL MANUFACTURER SPEC DATA. Do NOT fabricate numbers.
+    If exact spec is unavailable for a machine â†’ leave field null, do NOT guess.
+    A wrong max_rpm causes the system to recommend spindle speeds above machine capability.
+    A wrong power_kw causes the system to approve cuts that exceed machine power.
+    Both result in tool breakage and potential operator injury.
+
+    SOURCING PRIORITY (use highest-confidence source available):
+      1. Manufacturer's published spec sheets (PDF datasheets from haascnc.com, dmgmori.com, etc.)
+      2. Manufacturer's online machine configurator/spec page
+      3. Industry databases (MachineTools.com, Grainger industrial specs)
+      4. If NO source â†’ leave null and document as "NEEDS VERIFICATION" in PHASE_FINDINGS.md
+
+2c. If the machine already exists in registry with SOME data:
+    MERGE strategy: Only ADD missing fields. NEVER overwrite existing non-null values.
+    The existing registry data was loaded from V3 3D model database which has collision models.
+    The new data adds spindle/power/envelope â€” complementary, not conflicting.
+
+=== STEP 3: VERIFY MACHINEREGISTRY LOADS NEW DATA ===
+Effort: ~3 calls
+
+3a. Verify MachineRegistry.loadLayer handles the file format:
+    prism_dev action=code_search pattern="loadLayer\|loadEnhanced" path="src/registries/MachineRegistry.ts"  [effort=high]
+    KNOWN ISSUE FROM R1-MS2b: MachineRegistry needed a fix for {metadata, machines:[...]} wrapper.
+    Verify that fix is still in place and handles top50_specs.json.
+
+3b. Build + restart:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+
+3c. Verify populated data:
+    prism_data action=machine_get machine="VF-2"  [effort=high]
+    CHECK: spindle.power_kw is NOT null/zero
+    CHECK: travels.x_mm, y_mm, z_mm are populated
+    CHECK: controller.brand is populated
+
+    prism_data action=machine_get machine="DMU 50"  [effort=high]
+    CHECK: same fields populated
+
+    prism_data action=machine_get machine="QT-250"  [effort=high]
+    CHECK: turret.type is populated (should be BMT55 or similar)
+
+=== STEP 4: VERIFY CROSS-QUERY WITH MACHINE DATA ===
+Effort: ~2 calls
+
+4a. Test cross_query now that machines have specs:
+    prism_data action=cross_query material="4140" operation="turning" machine="QT-250"  [effort=high]
+    EXPECTED: Machine constraints are non-null. Power check returns meaningful result.
+    Should include: max_rpm from machine, power available, turret interface for tool matching.
+
+4b. If cross_query still returns null machine constraints:
+    Read cross_query handler â†’ trace where machine data is accessed â†’ verify field names match.
+
+=== STEP 5: DOCUMENT ===
+Effort: ~1 call
+
+5a. Append REGISTRY_AUDIT.md, ROADMAP_TRACKER, update CURRENT_POSITION.
 ```
 
-**Exit:** Coverage audited. Gaps categorized. R3 backlog populated.
+**Rollback:** Delete top50_specs.json. Rebuild. Machines revert to prior state (loaded but no specs).
+**Exit:** Top 50 machines have complete specs. cross_query chain works end-to-end.
+  machine_recommend has power/envelope data to filter on. Spindle protection engine has real data.
 
 ---
 
-## R1-MS5: Data Quality Metrics + Phase Gate
+<!-- ANCHOR: r1_r1_ms8_formula_registry_dispatcher_wiring -->
+## R1-MS8: Formula Registry + Dispatcher Wiring
+<!-- ANCHOR: r1_role_systems_architect_model_opus_wiring_architecture_sonnet_impl_tests_effort_l_18_calls_sessions_2 -->
+### Role: Systems Architect | Model: Opus (wiring architecture) â†’ Sonnet (impl + tests) | Effort: L (18 calls) | Sessions: 2
 
-**Effort:** ~10 calls | **Tier:** DEEP | **Context:** ~5KB
-**Response Budget:** ~8KB throughput, ~4KB peak
-**Entry:** R1-MS4 COMPLETE.
+**Source:** SUPERPOWER_ROADMAP_AUDIT.md GAPs 4, 6, 7, 10
+**Effort:** ~18 calls | **Tier:** DEEP | **Context:** ~8KB
+**Response Budget:** ~15KB throughput, ~6KB peak
+**Entry:** R1-MS5 COMPLETE (ToolIndex exists â€” needed for tool_recommend in unified search).
+  MS6 and MS7 can be in-progress or complete â€” this MS is independent of enrichment data.
+
+**WHY THIS IS CRITICAL:**
+  GAP 4: 9 calculator formulas hardcoded in calcDispatcher but NOT in FormulaRegistry.
+    App needs a "Calculator" page where machinists pick a formula, enter values, get results.
+    Without formulas in the registry, they're undiscoverable.
+  GAP 6: ToolpathStrategyRegistry has 697 strategies in 4,449 lines but toolpathDispatcher
+    exposes only 8 actions. Massive domain knowledge (trochoidal vs HEM vs conventional vs
+    adaptive clearing) is locked behind unexposed methods.
+  GAP 7: ThreadCalculationEngine has 658 lines of math (tap drill, thread milling, depth,
+    engagement, specs, Go/NoGo) but threadDispatcher has minimal wiring.
+  GAP 10: No unified search across registries. Each registry has different search signature.
+
+```
+=== PART A: CALCULATOR FORMULAS (FRM-0) ===
+Effort: ~5 calls
+
+A1. Read FormulaRegistry to understand formula data format:
+    prism_dev action=file_read path="src/registries/FormulaRegistry.ts" start_line=1 end_line=80  [effort=low]
+    Identify: JSON schema for formula entries. How formulas are stored and retrieved.
+
+A2. Read existing formula data files:
+    prism_dev action=file_read path="data/formulas/" start_line=1 end_line=50  [effort=low]
+    Understand the structure to add new entries consistently.
+
+A3. Create 9 calculator formula entries in formula data file:
+    prism_dev action=file_write (append to existing formula data, or new file):
+
+    FORMULA DEFINITIONS:
+    ```json
+    [
+      {
+        "id": "F-CALC-001",
+        "name": "RPM Calculator",
+        "domain": "PHYSICS",
+        "category": "basic_calculation",
+        "equation_latex": "n = \\frac{V_c \\times 1000}{\\pi \\times D}",
+        "description": "Calculate spindle RPM from cutting speed and tool diameter",
+        "inputs": [
+          { "name": "Vc", "unit": "m/min", "description": "Cutting speed", "min": 1, "max": 2000 },
+          { "name": "D", "unit": "mm", "description": "Tool diameter", "min": 0.1, "max": 500 }
+        ],
+        "outputs": [
+          { "name": "n_rpm", "unit": "rpm", "description": "Spindle speed" }
+        ],
+        "formula_js": "({ Vc, D }) => ({ n_rpm: (Vc * 1000) / (Math.PI * D) })"
+      },
+      {
+        "id": "F-CALC-002",
+        "name": "Feed Rate Calculator",
+        "domain": "PHYSICS",
+        "category": "basic_calculation",
+        "equation_latex": "V_f = n \\times f_z \\times z",
+        "description": "Calculate table feed rate from RPM, feed per tooth, and number of flutes",
+        "inputs": [
+          { "name": "n_rpm", "unit": "rpm", "description": "Spindle speed", "min": 1, "max": 100000 },
+          { "name": "fz", "unit": "mm/tooth", "description": "Feed per tooth", "min": 0.001, "max": 10 },
+          { "name": "z", "unit": "", "description": "Number of flutes/teeth", "min": 1, "max": 20 }
+        ],
+        "outputs": [
+          { "name": "Vf", "unit": "mm/min", "description": "Table feed rate" }
+        ],
+        "formula_js": "({ n_rpm, fz, z }) => ({ Vf: n_rpm * fz * z })"
+      },
+      {
+        "id": "F-CALC-003",
+        "name": "Material Removal Rate (MRR)",
+        "domain": "PHYSICS",
+        "category": "productivity",
+        "equation_latex": "Q = \\frac{a_e \\times a_p \\times V_f}{1000}",
+        "description": "Calculate volume of material removed per minute",
+        "inputs": [
+          { "name": "ae", "unit": "mm", "description": "Radial depth of cut (width)", "min": 0.01, "max": 500 },
+          { "name": "ap", "unit": "mm", "description": "Axial depth of cut", "min": 0.01, "max": 100 },
+          { "name": "Vf", "unit": "mm/min", "description": "Table feed rate", "min": 1, "max": 50000 }
+        ],
+        "outputs": [
+          { "name": "Q", "unit": "cm /min", "description": "Material removal rate" }
+        ],
+        "formula_js": "({ ae, ap, Vf }) => ({ Q: (ae * ap * Vf) / 1000 })"
+      },
+      {
+        "id": "F-CALC-004",
+        "name": "Cutting Power",
+        "domain": "PHYSICS",
+        "category": "machine_loading",
+        "equation_latex": "P_c = \\frac{F_c \\times V_c}{60000 \\times \\eta}",
+        "description": "Calculate net cutting power from cutting force and speed",
+        "inputs": [
+          { "name": "Fc", "unit": "N", "description": "Main cutting force", "min": 1, "max": 100000 },
+          { "name": "Vc", "unit": "m/min", "description": "Cutting speed", "min": 1, "max": 2000 },
+          { "name": "eta", "unit": "", "description": "Machine efficiency (typically 0.75-0.90)", "min": 0.5, "max": 1.0 }
+        ],
+        "outputs": [
+          { "name": "Pc", "unit": "kW", "description": "Net cutting power" }
+        ],
+        "formula_js": "({ Fc, Vc, eta }) => ({ Pc: (Fc * Vc) / (60000 * eta) })"
+      },
+      {
+        "id": "F-CALC-005",
+        "name": "Cutting Torque",
+        "domain": "PHYSICS",
+        "category": "machine_loading",
+        "equation_latex": "M_c = \\frac{F_c \\times D}{2000}",
+        "description": "Calculate torque at the spindle from cutting force and diameter",
+        "inputs": [
+          { "name": "Fc", "unit": "N", "description": "Main cutting force", "min": 1, "max": 100000 },
+          { "name": "D", "unit": "mm", "description": "Tool diameter", "min": 0.1, "max": 500 }
+        ],
+        "outputs": [
+          { "name": "Mc", "unit": "Nm", "description": "Cutting torque" }
+        ],
+        "formula_js": "({ Fc, D }) => ({ Mc: (Fc * D) / 2000 })"
+      },
+      {
+        "id": "F-CALC-006",
+        "name": "Surface Finish (Turning)",
+        "domain": "PHYSICS",
+        "category": "surface_quality",
+        "equation_latex": "R_a = \\frac{f_n^2}{8 \\times r_\\varepsilon} \\times 1000",
+        "description": "Theoretical surface roughness in turning from feed per revolution and nose radius",
+        "inputs": [
+          { "name": "fn", "unit": "mm/rev", "description": "Feed per revolution", "min": 0.01, "max": 2.0 },
+          { "name": "re", "unit": "mm", "description": "Tool nose radius", "min": 0.1, "max": 6.0 }
+        ],
+        "outputs": [
+          { "name": "Ra", "unit": " m", "description": "Theoretical surface roughness (Ra)" }
+        ],
+        "formula_js": "({ fn, re }) => ({ Ra: (fn * fn) / (8 * re) * 1000 })"
+      },
+      {
+        "id": "F-CALC-007",
+        "name": "Surface Finish (Milling)",
+        "domain": "PHYSICS",
+        "category": "surface_quality",
+        "equation_latex": "R_a = \\frac{f_z^2}{4 \\times D} \\times 1000",
+        "description": "Theoretical surface roughness in face milling from feed per tooth and cutter diameter",
+        "inputs": [
+          { "name": "fz", "unit": "mm/tooth", "description": "Feed per tooth", "min": 0.01, "max": 2.0 },
+          { "name": "D", "unit": "mm", "description": "Cutter diameter", "min": 1, "max": 500 }
+        ],
+        "outputs": [
+          { "name": "Ra", "unit": " m", "description": "Theoretical surface roughness (Ra)" }
+        ],
+        "formula_js": "({ fz, D }) => ({ Ra: (fz * fz) / (4 * D) * 1000 })"
+      },
+      {
+        "id": "F-CALC-008",
+        "name": "Cost Per Part",
+        "domain": "ECONOMICS",
+        "category": "cost_analysis",
+        "equation_latex": "C_p = T_m \\times M_r + \\frac{T_c \\times C_t}{T_l} + \\frac{T_s \\times M_r}{N}",
+        "description": "Total cost per part including machining, tooling, and setup",
+        "inputs": [
+          { "name": "Tm", "unit": "min", "description": "Machining time per part", "min": 0.1, "max": 10000 },
+          { "name": "Mr", "unit": "$/min", "description": "Machine rate (cost per minute)", "min": 0.1, "max": 50 },
+          { "name": "Tc", "unit": "min", "description": "Tool change time", "min": 0.1, "max": 30 },
+          { "name": "Ct", "unit": "$", "description": "Tool/insert cost", "min": 0.5, "max": 500 },
+          { "name": "Tl", "unit": "min", "description": "Tool life", "min": 1, "max": 10000 },
+          { "name": "Ts", "unit": "min", "description": "Setup time", "min": 1, "max": 1000 },
+          { "name": "N", "unit": "", "description": "Batch size", "min": 1, "max": 1000000 }
+        ],
+        "outputs": [
+          { "name": "Cp", "unit": "$", "description": "Cost per part" }
+        ],
+        "formula_js": "({ Tm, Mr, Tc, Ct, Tl, Ts, N }) => ({ Cp: (Tm * Mr) + ((Tc * Ct) / Tl) + ((Ts * Mr) / N) })"
+      },
+      {
+        "id": "F-CALC-009",
+        "name": "Extended Taylor Tool Life",
+        "domain": "PHYSICS",
+        "category": "tool_life",
+        "equation_latex": "T = \\frac{C}{V_c^n \\times f_z^a \\times a_p^b}",
+        "description": "Multi-factor Taylor tool life including feed and depth of cut",
+        "inputs": [
+          { "name": "C", "unit": "", "description": "Taylor constant (material-specific)", "min": 1, "max": 10000 },
+          { "name": "Vc", "unit": "m/min", "description": "Cutting speed", "min": 1, "max": 2000 },
+          { "name": "n", "unit": "", "description": "Speed exponent (typically 0.15-0.40)", "min": 0.05, "max": 1.0 },
+          { "name": "fz", "unit": "mm/tooth", "description": "Feed per tooth", "min": 0.001, "max": 10 },
+          { "name": "a_exp", "unit": "", "description": "Feed exponent (typically 0.10-0.30)", "min": 0.01, "max": 1.0 },
+          { "name": "ap", "unit": "mm", "description": "Depth of cut", "min": 0.01, "max": 100 },
+          { "name": "b_exp", "unit": "", "description": "Depth exponent (typically 0.05-0.15)", "min": 0.01, "max": 1.0 }
+        ],
+        "outputs": [
+          { "name": "T", "unit": "min", "description": "Tool life" }
+        ],
+        "formula_js": "({ C, Vc, n, fz, a_exp, ap, b_exp }) => ({ T: C / (Math.pow(Vc, n) * Math.pow(fz, a_exp) * Math.pow(ap, b_exp)) })"
+      }
+    ]
+    ```
+
+A4. Wire formula_calculate action in calcDispatcher or dataDispatcher:
+    ACTION: formula_calculate
+    INPUT: { formula_id: string, inputs: Record<string, number> }
+    LOGIC: Look up formula by ID â†’ validate inputs against input schema â†’ evaluate formula_js â†’ return outputs
+    OUTPUT: { formula_id, formula_name, inputs, outputs, equation_latex }
+
+A5. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+    Test: formula_calculate("F-CALC-001", { Vc: 150, D: 10 })
+    EXPECTED: { n_rpm: 4775 } (150 * 1000 / Ï€ / 10   4775)
+    Test: formula_calculate("F-CALC-008", { Tm: 5, Mr: 1.5, Tc: 2, Ct: 15, Tl: 45, Ts: 30, N: 100 })
+    EXPECTED: Cp = (5Ã—1.5) + (2Ã—15/45) + (30Ã—1.5/100) = 7.5 + 0.667 + 0.45 = $8.617
+
+=== PART B: TOOLPATH DISPATCHER WIRING ===
+Effort: ~4 calls
+
+B1. Read ToolpathStrategyRegistry to identify available methods:
+    prism_dev action=code_search pattern="getStrategies\|getBest\|getByCategory\|getPrismNovel\|getById" path="src/registries/ToolpathStrategyRegistry.ts"  [effort=high]
+    List ALL public methods that are NOT exposed through toolpathDispatcher.
+
+B2. Read current toolpathDispatcher.ts:
+    prism_dev action=file_read path="src/tools/dispatchers/toolpathDispatcher.ts"  [effort=low]
+    Identify the 8 existing actions and what's missing.
+
+B3. Add new actions to toolpathDispatcher.ts:
+    str_replace to add handlers for:
+
+    ACTION: strategy_for_job
+    INPUT: { feature: string, material: string, machine_axes?: number,
+             tool_diameter?: number, depth?: number }
+    LOGIC:
+      1. getStrategiesForFeature(feature) â†’ filter by feature type (pocket, slot, contour, etc.)
+      2. getStrategiesForMaterial(material) â†’ filter by material suitability
+      3. If machine_axes: filter strategies requiring more axes than available
+      4. getBestStrategy(filtered, { material, depth, tool_diameter }) â†’ rank by suitability
+      5. Get cutting parameter presets for top 3 strategies
+    OUTPUT: { recommendations: [{ strategy_name, description, reasoning, params: {Vc, fz, ae, ap},
+              advantages: string[], limitations: string[] }], feature, material }
+
+    ACTION: category_browse
+    INPUT: { category?: string }
+    LOGIC: getStrategiesByCategory(category) or list all categories with counts
+    OUTPUT: { categories: [{name, count, description}] } or { strategies: [{name, description}] }
+
+    ACTION: novel_strategies
+    INPUT: {}
+    LOGIC: getPrismNovelStrategies() â†’ return PRISM-original strategies not in standard CAM
+    OUTPUT: { novel_strategies: [{name, description, use_case, advantages}] }
+
+    ACTION: strategy_detail
+    INPUT: { strategy_id: string }
+    LOGIC: getStrategyById(strategy_id) â†’ full strategy details
+    OUTPUT: Full strategy object with parameters, use cases, limitations
+
+    ACTION: strategy_compare
+    INPUT: { strategy_a: string, strategy_b: string, feature?: string, material?: string }
+    LOGIC: Compare two strategies side-by-side for given conditions
+    OUTPUT: { comparison: { mrr_advantage, tool_life_advantage, surface_finish,
+              recommended: string, reasoning: string } }
+
+B4. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+    Test: strategy_for_job { feature: "pocket", material: "Inconel 718", machine_axes: 3 }
+    EXPECTED: Trochoidal or HEM recommended, NOT conventional (wrong for superalloys)
+
+=== PART C: THREAD DISPATCHER WIRING ===
+Effort: ~3 calls
+
+C1. Read ThreadCalculationEngine.ts public methods:
+    prism_dev action=code_search pattern="public\|export" path="src/engines/ThreadCalculationEngine.ts"  [effort=high]
+    List ALL public methods not exposed through threadDispatcher.
+
+C2. Add new actions to threadDispatcher.ts:
+    str_replace to add handlers:
+
+    ACTION: thread_recommend
+    INPUT: { thread_spec: string, material: string, hole_type: "blind" | "through",
+             machine_type?: "lathe" | "mill" }
+    LOGIC:
+      1. Parse thread spec (M10x1.5, M10, 3/8-16 UNC, etc.)
+      2. Get material properties for thread machining
+      3. Calculate: tap drill size, thread mill option, Go/NoGo gauge limits
+      4. Generate cutting parameters for both tapping and thread milling
+    OUTPUT: { thread_spec, tap_drill: { diameter_mm, standard_drill_size },
+              thread_mill: { available: boolean, params: {Vc, fz, ae} },
+              go_nogo: { go_limit, nogo_limit, class },
+              recommendation: "tap" | "thread_mill", reasoning: string }
+
+    ACTION: tap_drill_calc
+    INPUT: { thread_spec: string, engagement_pct?: number }
+    LOGIC: Calculate tap drill diameter for given thread engagement percentage
+    OUTPUT: { drill_diameter_mm, engagement_pct, thread_minor_dia, thread_pitch }
+
+    ACTION: thread_mill_params
+    INPUT: { thread_spec: string, material: string }
+    LOGIC: Calculate thread milling parameters (single-point or multi-form)
+    OUTPUT: { Vc, fz, helical_pitch, number_of_passes, approach_angle }
+
+    ACTION: go_nogo_limits
+    INPUT: { thread_spec: string, class?: string }
+    LOGIC: Return Go/NoGo gauge limits for given thread spec and tolerance class
+    OUTPUT: { go_gauge: { min, max }, nogo_gauge: { min, max }, class, tolerance }
+
+C3. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+    Test: thread_recommend { thread_spec: "M10x1.5", material: "4140", hole_type: "blind" }
+    EXPECTED: Tap drill ~8.5mm, tapping recommended for blind holes, Go/NoGo limits returned
+
+=== PART D: UNIFIED SEARCH ===
+Effort: ~3 calls
+
+D1. Add unified_search action to dataDispatcher.ts:
+
+    ACTION: unified_search
+    INPUT: { query: string }
+    LOGIC: Auto-detect query type based on pattern matching, then route to appropriate registry:
+
+    DETECTION PATTERNS:
+    ```typescript
+    function detectQueryType(query: string): 'material' | 'tool' | 'alarm' | 'strategy' | 'formula' | 'machine' {
+      const q = query.toLowerCase().trim();
+
+      // Alarm patterns: number + controller name, or "alarm" keyword
+      if (/alarm|fault|error/i.test(q) || /^\d{1,5}\s*(fanuc|haas|siemens|mazak|okuma)/i.test(q))
+        return 'alarm';
+
+      // Machine patterns: manufacturer + model number
+      if (/^(haas|dmg|mazak|okuma|doosan|hurco|makino|fanuc|hermle|grob)\s/i.test(q))
+        return 'machine';
+
+      // Tool patterns: ISO insert notation, tool type keywords
+      if (/^[A-Z]{4}\s*\d{6}/i.test(q) || /endmill|drill|tap|ream|bore|insert|holder/i.test(q))
+        return 'tool';
+
+      // Strategy patterns: machining operation keywords
+      if (/trochoidal|hem|adaptive|pocket|slot|contour|face\s*mill|roughing|finishing/i.test(q))
+        return 'strategy';
+
+      // Formula patterns
+      if (/formula|calc|equation|rpm|mrr|taylor|kienzle/i.test(q))
+        return 'formula';
+
+      // Default: material (most common query type)
+      return 'material';
+    }
+    ```
+
+    After detection, route to appropriate search:
+    - material â†’ material_search
+    - tool â†’ tool_search (using ToolIndex)
+    - alarm â†’ alarm_decode or alarm_search
+    - strategy â†’ strategy_for_job or category_browse
+    - formula â†’ formula list/search
+    - machine â†’ machine_search
+
+    OUTPUT: { query, detected_type, results: [...], cross_registry_counts: {
+      materials: number, tools: number, machines: number, strategies: number } }
+
+D2. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+    Test: unified_search { query: "CNMG 120408" }
+    EXPECTED: Detects as tool, returns matching turning inserts
+    Test: unified_search { query: "4140" }
+    EXPECTED: Detects as material, returns 4140 steel with enrichment data
+    Test: unified_search { query: "alarm 414 fanuc" }
+    EXPECTED: Detects as alarm, returns Fanuc alarm 414 decode
+    Test: unified_search { query: "trochoidal milling" }
+    EXPECTED: Detects as strategy, returns trochoidal strategies
+
+D3. Document all new actions:
+    Append ROADMAP_TRACKER + update CURRENT_POSITION.
+```
+
+**Rollback:** Revert dispatcher changes per part. Rebuild.
+  Part A: Remove formula data + formula_calculate handler.
+  Part B: Remove toolpath actions.
+  Part C: Remove thread actions.
+  Part D: Remove unified_search handler.
+  Each part is independent â€” a failure in Part C doesn't require reverting Part A.
+
+**Exit:** 9 calculator formulas in registry. Toolpath strategies fully exposed (697 via 5 new actions).
+  Thread calculations complete (4 new actions). Unified search enables single-query access.
+  All 162 zero-coverage formulas classified.
+
+**FORMULA COVERAGE CLASSIFICATION (mandatory, part of R1-MS8):**
+```
+  162 formulas have zero roadmap coverage. Classify each as:
+    ACTIVE:     Formula is used by an existing engine but not tested by R2
+                â†’ Add to R2 regression suite backlog for next R2 pass
+    DORMANT:    Formula exists but no engine references it
+                â†’ Tag as dormant in FormulaRegistry. Available for future use.
+    DEPRECATED: Formula superseded by a better model (e.g., basic Taylor when Extended Taylor exists)
+                â†’ Tag as deprecated. Do NOT remove (anti-regression). Log in PHASE_FINDINGS.md.
+    SAFETY:     Formula could produce safety-critical outputs if invoked
+                â†’ MUST be tested before R6 production gate. Add to R2 supplement list.
+
+  Record classification in FORMULA_COVERAGE_AUDIT.md:
+    { formula_id, name, classification, referenced_by_engines[], tested_in_R2: bool }
+
+  EXIT: All 162 formulas classified. Any SAFETY-classified formulas have test plans.
+    CLAUDE CODE: Bulk classification of 162 formulas is ideal for Claude Code batch processing.
+```
+
+---
+
+<!-- ANCHOR: r1_r1_ms9_quality_metrics_phase_gate -->
+## R1-MS9: Quality Metrics + Phase Gate
+<!-- ANCHOR: r1_role_safety_engineer_model_sonnet_metrics_opus_gate_review_quality_effort_m_12_calls_sessions_1 -->
+### Role: Safety Engineer | Model: Sonnet (metrics) â†’ Opus (gate review + quality) | Effort: M (12 calls) | Sessions: 1
+
+**Source:** Original R1-MS5 (renumbered) + fault injection test
+**Effort:** ~12 calls | **Tier:** RELEASE | **Context:** ~6KB
+**Response Budget:** ~10KB throughput, ~4KB peak
+**Entry:** R1-MS5 through R1-MS8 ALL COMPLETE.
 
 ```
 === DATA QUALITY METRICS ===
-1. Completeness: % of fields non-null across 5 critical materials (4140, Ti-6Al-4V, 316SS, 1045, D2)
-2. Consistency: Same material queried via 3 paths (warm_start, knowledge, direct) → same params?
-3. Validity: All numeric params within physical bounds (density > 0, hardness > 0, kc1_1 > 0)?
-   Use structured output validation to enforce bounds on spot checks.
+1. Tool normalization metrics:
+   prism_data action=tool_facets  [effort=low]
+   VERIFY: All entries have canonical schema. Index coverage = 100% of loaded tools.
+   Record: total tools indexed, categories, vendors, diameter range.
 
-=== RALPH ASSESSMENT ===
-4. prism_ralph action=assess target="R1 Registry Resurrection" (effort=max)
-   Expected: Ralph >= B+ (data quality, not algorithmic quality — that's R2).
-5. prism_omega action=compute target="R1 complete" (effort=max)
-   Expected: Omega >= 0.70 (hard block).
-   If Omega < 0.70 → identify weakest dimension → fix → recompute.
+2. Material enrichment metrics:
+   Run enrichment count: tribology %, composition %, designation %
+   TARGETS: >80% tribology, >80% composition, >90% designation
+   If below: identify worst-coverage ISO groups. Document for R3 gap fill.
+
+3. Machine completeness:
+   Count machines with power_kw > 0 AND travels.x_mm > 0
+   TARGET: Top 50 machines have both fields. (50/1016 = 4.9% minimum)
+   Document remaining 966 machines as "basic data only" for R3.
+
+4. Formula coverage:
+   prism_data action=formula_list  [effort=low]  (or equivalent)
+   VERIFY: 509 formulas (500 original + 9 F-CALC)
+   Test formula_calculate for each F-CALC formula with known inputs.
+
+5. Dispatcher coverage check:
+   Test each new action:
+   - tool_facets â†’ returns categories
+   - strategy_for_job â†’ returns recommendations
+   - thread_recommend â†’ returns tap drill + Go/NoGo
+   - unified_search â†’ routes correctly
+   All must return valid responses (not errors, not empty).
+
+=== FAULT INJECTION TEST (from  FAULT INJECTION above) ===
+6. Run the R1 fault test:
+   Rename a material registry file â†’ call material_get â†’ verify Tier 2 degradation
+   Restore â†’ verify recovery. Record PASS/FAIL.
+
+=== CONSISTENCY CHECK ===
+7. Verify end-to-end pipeline with enriched data:
+   prism_data action=material_get material="4140"  [effort=high]
+   â†’ prism_calc action=speed_feed material="4140" operation="turning"  [effort=max]
+   â†’ Safety score must be >= 0.70. Structured output must validate.
+   â†’ Material tribology data should be accessible (non-null).
+
+8. Verify cross-registry query:
+   prism_data action=cross_query material="4140" operation="turning" machine="VF-2"  [effort=high]
+   â†’ Machine constraints must be non-null (power, RPM from MS7).
+   â†’ Tool recommendations should use indexed tools (from MS5).
+
+=== RALPH + OMEGA ===
+9. prism_ralph action=assess target="R1 Registry + Data Foundation"  [effort=max]
+   EXPECTED: Ralph >= B+
+
+10. prism_omega action=compute target="R1 complete"  [effort=max]
+    EXPECTED: Omega >= 0.70 (hard block)
+    IF Omega < 0.70 â†’ identify weakest dimension â†’ fix â†’ recompute.
 
 === PHASE FINDINGS ===
-6. Append PHASE_FINDINGS.md (R1 section):
-   CRITICAL: Any registry <95% with known fix. Any formula validation failure.
-   IMPORTANT: Gaps categorized for R3. Quality metric results.
-   NOTE: Minor loader optimizations. Schema version observations.
+11. Append PHASE_FINDINGS.md (R1 section):
+    CRITICAL: Any data quality metric below target. Any fault injection failure.
+              Any new action that returns errors.
+    IMPORTANT: Enrichment coverage gaps for R3 fill. Machine coverage limitations.
+    NOTE: Performance observations. Schema version observations.
 
 === MASTER_INDEX COHERENCE ===
-7. Read MASTER_INDEX.md → verify counts still match live.
-   If R1 changed any structure (unlikely but possible) → update.
+12. Read MASTER_INDEX.md â†’ verify counts still match live.
+    Update if R1 changed counts (new formulas, etc.)
+    Update PRISM_MASTER_INDEX.md: R1 status â†’ "complete"
 
-8. Append ROADMAP_TRACKER: "R1-MS5 COMPLETE [date] — PHASE R1 COMPLETE"
-9. Update PRISM_MASTER_INDEX.md: R1 status → "complete"
-10. prism_session action=state_save
+=== COMPLETION ===
+13. Append ROADMAP_TRACKER: "R1-MS9 COMPLETE [date] â€” PHASE R1 COMPLETE"
+14. Update CURRENT_POSITION.md:
+    "CURRENT: R2-MS0 | LAST_COMPLETE: R1-MS9 [date] | PHASE: R2 not-started"
+    "vars: mat=3392(96.4%,enriched), mach=1016(50 specs), tools=5238(indexed),
+     alarms=10033, formulas=509, strategies=697(exposed), build=clean"
+15. prism_session action=state_save
 ```
 
-**Rollback:** Standard. Identify weakest metric → fix → reassess.
-**Exit:** All registries >95%. Formulas validated with structured outputs. Ralph >= B+. Omega >= 0.70. R1 COMPLETE.
+**Rollback:** Standard. Identify weakest metric â†’ fix â†’ reassess.
+**Exit:** All registries >95% loaded AND data quality verified. Tools normalized + indexed.
+  Materials enriched. Top 50 machines populated. 9 calculator formulas. Toolpath/thread/unified
+  search wired. Fault injection passed. Ralph >= B+. Omega >= 0.70. R1 COMPLETE.
+
+**WHAT R2 CAN NOW DO THAT IT COULDN'T BEFORE v14.0:**
+  - Test safety engines with REAL machine specs (spindle limits, work envelope)
+  - 50-calc matrix uses ENRICHED material data (tribology informs friction calculations)
+  - Cross-query returns meaningful results (not null machine constraints)
+  - AI edge cases can reference specific toolpath strategies (697 exposed)
+  - Thread calculations are testable (fully wired)
 
 ---
 
-## R1-MS6: Registry Optimization (Optional — if session budget allows)
+<!-- ANCHOR: r1_r1_ms9_5_wiring_verification_audit -->
+## R1-MS9.5: WIRING VERIFICATION AUDIT (v15.0)
+### Role: Platform Engineer | Model: Sonnet | Effort: S (5-8 calls) | Sessions: 0.5
+# PURPOSE: Catch orphaned artifacts from R1 before phase gate passes.
+# R1 builds registries, pipelines, and data loaders — verify all are consumed downstream.
+
+PROCEDURE (follow PHASE_TEMPLATE.md § WIRING VERIFICATION AUDIT):
+  1. INVENTORY: List all new engines, dispatchers, scripts, skills created during R1
+  2. CALLER CHECK: grep codebase for each — flag anything with 0 callers
+  3. DOWNSTREAM CHECK: verify R2/R3 phase docs reference R1 artifacts they'll need
+  4. DISPOSITION: for each orphan — WIRE / DEFER / DEPRECATE / DELETE
+  5. VERIFY: build passes, smoke test on any newly wired items
+
+SPECIFIC R1 CHECKS:
+  - Every registry (materials, machines, tools) has at least 1 query consumer
+  - Data validation pipeline (MS4.5) is called by material_get/machine_get actions
+  - Formula registry entries are callable via prism_calc actions
+  - SKILL_INDEX.json entries for R1 skills have triggers that match real queries
+  - Scripts created for R1 are referenced in SCRIPT_INDEX or autoScriptRecommend
+
+GAP ASSESSMENT (Step 6 — what R2 will need):
+  - CADENCE: Does R2 need a calc_regression_runner cadence for auto-testing safety calcs?
+  - ENGINES: Are registry query engines fast enough for R2's 50-calc test matrix?
+  - SCRIPTS: Does R2 need new validation scripts beyond what R1 created?
+  - NL HOOKS: Should R2 safety thresholds trigger NL hook warnings at registry load time?
+  - SKILLS: Are material/machine skills updated with R1's actual data schemas?
+  Output: append findings to R1_WIRING_AUDIT.md → feed as dependencies into R2-MS0
+
+GATE: <10% orphaned artifacts (with documented disposition for any that remain)
+
+---
+
+<!-- ANCHOR: r1_r1_ms10_registry_optimization_optional_if_session_budget_allows -->
+## R1-MS10: Registry Optimization (Optional â€” if session budget allows)
+<!-- ANCHOR: r1_role_data_architect_model_sonnet_optimization_benchmarks_effort_s_6_calls_sessions_0_5 -->
+### Role: Data Architect | Model: Sonnet (optimization + benchmarks) | Effort: S (6 calls) | Sessions: 0.5
 
 **Effort:** ~6 calls | **Tier:** STANDARD | **Context:** ~3KB
-**Response Budget:** ~4KB throughput, ~2KB peak
-**Entry:** R1-MS5 COMPLETE. Only if remaining session budget >15K tokens.
+**Entry:** R1-MS9 COMPLETE. Only if remaining session budget >15K tokens.
 
 ```
 1. Profile registry load time: measure warm_start duration.
-2. If >5s: identify bottleneck (file I/O? parsing? validation?).
+   prism_dev action=health  [effort=low] â†’ note response time.
+2. If >5s: identify bottleneck (file I/O? parsing? validation? ToolIndex build?).
+   prism_dev action=code_search pattern="warm_start\|registry.*load" path="src/"  [effort=high]
 3. Apply responseSlimmer to material_get if not already active.
 4. Consider: lazy loading for rarely-accessed registries (alarm subcategories?).
-5. If improvements made: build → verify counts unchanged → verify load time reduced.
-6. Document optimizations in PHASE_FINDINGS.md.
+5. Profile ToolIndex construction time â€” O(1) lookups are fast but index BUILD may be slow
+   on 15,912 entries. Consider: build index lazily on first query, not at startup.
+6. If improvements made: build â†’ verify counts unchanged â†’ verify load time reduced.
+7. Document optimizations in PHASE_FINDINGS.md.
 ```
 
-**Exit:** Registry performance baselined. Optimizations documented if applied. Optional MS — no gate required.
+**Exit:** Registry performance baselined. Optimizations documented if applied. Optional MS â€” no gate required.
+
+---
+
+<!-- ANCHOR: r1_r1_companion_assets_v14_5_built_per_ms_verified_at_r1_ms9_gate -->
+## R1 COMPANION ASSETS (v14.5 -- built per-MS, verified at R1-MS9 gate)
+
+<!-- ANCHOR: r1_per_ms_companion_schedule -->
+### PER-MS COMPANION SCHEDULE:
+``r
+MS4.5 PRODUCES: data_validation_gate hook (build during MS4.5)
+MS5 PRODUCES: tool_schema_completeness hook + prism-data-diagnostics skill
+MS6 PRODUCES: material_enrichment_validate hook
+MS7 PRODUCES: (none -- data loading only)
+MS8 PRODUCES: formula_registry_consistency hook
+MS9 GATE VERIFIES:
+  PARALLEL TRACK CHECK: SKILL_INDEX.json count >= 300 (65 existing + T1/T2 course skills)
+  If count < 300: T1/T2 extraction is behind schedule, allocate next session to catch up All hooks fire, skill loads, scripts run
+``r
+
+<!-- ANCHOR: r1_r1_companion_assets_detail_v14_2_build_after_r1_ms9_gate_passes -->
+## R1 COMPANION ASSETS DETAIL (v14.2 â€” build AFTER R1-MS9 gate passes)
+
+```
+HOOKS (3 new):
+  data_validation_gate       â€” blocking, post-load on all registries, runs bounds checks
+                               from DataValidationEngine. FAILS load if critical bounds violated.
+  tool_schema_completeness   â€” warning, post-load, checks 85-param population % per holder.
+                               Alerts if avg completeness < 60%.
+  material_enrichment_validate â€” blocking, post-merge during MS6. Blocks if enrichment
+                                 changes hardness by >20% or density by >5%.
+
+SCRIPTS (3 new):
+  registry_health_check      â€” Run post-build. Reports all registry counts and completeness
+                               scores from DataValidationEngine. Output: JSON summary.
+  material_search_diagnostic â€” Debug "why can't PRISM find this material?". Shows what
+                               MaterialRegistry tried, what almost matched, suggests alternatives.
+  tool_coverage_report       â€” Per-category counts and gaps. Shows which tool categories
+                               have good data vs need manufacturer catalogs.
+
+SKILLS (1 new):
+  prism-data-diagnostics     â€” Teaches Claude to debug registry search failures, interpret
+                               VALIDATION_REPORT.json, and guide users through data quality issues.
+```
