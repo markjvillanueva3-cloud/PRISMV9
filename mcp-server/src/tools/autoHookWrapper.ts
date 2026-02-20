@@ -1752,94 +1752,72 @@ export function wrapWithUniversalHooks(toolName, handler) {
           if (callNum % 5 === 0) fs.writeFileSync(cadenceFiresPath, JSON.stringify(fires, null, 2));
         } catch {
         }
+        // === HYBRID CONTEXT SYSTEM v3 ===
+        // _context ONLY when active workflow (zero overhead otherwise)
         try {
-          const survivalPath = path.join("C:\\PRISM\\state", "COMPACTION_SURVIVAL.json");
-          const actionsPath = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
-          const trackerPath = path.join("C:\\PRISM\\mcp-server\\data\\docs", "ACTION_TRACKER.md");
-          let ctx = { call: callNum };
-          // SURVIVAL_READ REMOVED v2
-          // TRACKER_CTX REMOVED v2
-          // transcripts_hint REMOVED ? static waste
+          const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
+          if (fs.existsSync(wfPath)) {
+            const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
+            if (wf.status === "active" && wf.current_step && wf.steps) {
+              const cur = wf.steps[wf.current_step - 1];
+              const done = wf.steps.filter((s: any) => s.status === "done").length;
+              const next = wf.current_step < wf.total_steps ? wf.steps[wf.current_step] : null;
+              parsed._context = {
+                wf: `${wf.workflow_type}:${done}/${wf.total_steps}`,
+                step: `${cur?.name || "?"}: ${cur?.intent || "?"}`,
+                next: next ? `${next.name}: ${next.intent}` : "FINAL STEP"
+              };
+            }
+          }
+        } catch {}
+        // === SINGLE-SHOT COMPACTION RECOVERY v3 ===
+        // One hijack with lean workflow state, then done. No multi-call injection.
+        if (compactionDetectedThisCall) {
+          let recoveryLine = "";
+          // 1. Try workflow state (most precise)
           try {
             const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
             if (fs.existsSync(wfPath)) {
               const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
               if (wf.status === "active" && wf.current_step && wf.steps) {
                 const cur = wf.steps[wf.current_step - 1];
-                const done = wf.steps.filter((s) => s.status === "done").length;
-                ctx.workflow = `${wf.workflow_type}:${wf.current_step}/${wf.total_steps} ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
-                ctx.task = `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}: ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
-                ctx.next = wf.current_step < wf.total_steps ? `Step ${wf.current_step + 1}: ${wf.steps[wf.current_step]?.name} \u2014 ${wf.steps[wf.current_step]?.intent}` : "Final step \u2014 complete workflow after this";
+                const done = wf.steps.filter((s: any) => s.status === "done").length;
+                recoveryLine = `WORKFLOW ACTIVE: ${wf.workflow_type} step ${wf.current_step}/${wf.total_steps} (${done} done). Current: ${cur?.name} — ${cur?.intent}. Next: step ${wf.current_step + 1}.`;
               }
             }
-          } catch {
-          }
-          if (ctx.resume || ctx.task || ctx.next || ctx.workflow) {
-            // _hint REMOVED ? static waste, points stale
-            if (cadence.agent_recommend?.classification) {
-              const c = cadence.agent_recommend.classification;
-              if (c.recommended_agents?.length > 0 || c.recommended_swarm) {
-                ctx.agent_hint = cadence.agent_recommend.hint;
-              }
-            }
-            if (cadence.skill_hints?.bundle_name) {
-              const sh = cadence.skill_hints;
-              ctx.skill_bundle = `\u{1F4E6} ${sh.bundle_name} (${sh.loaded_excerpts} skills, ${sh.pressure_mode || "full"})${sh.chain_suggestion ? ` | chain: ${sh.chain_suggestion}` : ""}`;
-            }
-            if (cadence.agent_recommend?.atcs_recommendation?.suggested) {
-              const atcs = cadence.agent_recommend.atcs_recommendation;
-              ctx.atcs_hint = `\u{1F504} ATCS RECOMMENDED: ${atcs.reason} (~${atcs.estimated_units} units). Consider: prism_atcs\u2192task_init to manage this as autonomous multi-unit task.`;
-            }
-            try {
-              const bridge = getBridgeStatus();
-              if (bridge.active_delegations > 0) {
-                ctx.manus_bridge = `\u{1F916} ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
-              }
-            } catch {
-            }
-            // _wip_reminder REMOVED v2
-            parsed._context = ctx;
-          }
-        } catch {
-        }
-        const recoveryData = cadence.rehydrated || compactionRecoverySurvival;
-        if (recoveryData && compactionRecoveryCallsRemaining > 0) {
-          const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
-          parsed._COMPACTION_RECOVERY = { _read: "C:\\PRISM\\state\\HOT_RESUME.md", rule: "Read HOT_RESUME.md via Shell then continue." };
-          compactionRecoveryCallsRemaining--;
-          if (compactionRecoveryCallsRemaining <= 0) compactionRecoverySurvival = null;
-        }
-        if (compactionDetectedThisCall) {
-          // TOKEN OPT v2: Lean compaction recovery
-          // Read CURRENT_POSITION.md (always fresh, ~1KB) instead of 5 stale state files
-          let hotResume = "";
+          } catch {}
+          // 2. Try session digest (concise summary)
+          let digest = "";
+          try {
+            const digestPath = path.join(STATE_DIR12, "SESSION_DIGEST.md");
+            if (fs.existsSync(digestPath)) digest = fs.readFileSync(digestPath, "utf-8").slice(0, 800);
+          } catch {}
+          // 3. Try survival data (always fresh from every-call write)
+          let survival: any = {};
+          try {
+            const survPath = path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json");
+            if (fs.existsSync(survPath)) survival = JSON.parse(fs.readFileSync(survPath, "utf-8"));
+          } catch {}
+          // 4. CURRENT_POSITION.md as fallback
+          let position = "";
           try {
             const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
-            if (fs.existsSync(cpPath)) {
-              hotResume = fs.readFileSync(cpPath, "utf-8").slice(0, 2000);
-            }
+            if (fs.existsSync(cpPath)) position = fs.readFileSync(cpPath, "utf-8").slice(0, 1500);
           } catch {}
-          
-          // Also read HOT_RESUME.md if it exists (auto-maintained by cadence)
-          let hotResumeExtra = "";
-          try {
-            const hrPath = "C:\\PRISM\\state\\HOT_RESUME.md";
-            if (fs.existsSync(hrPath)) {
-              hotResumeExtra = fs.readFileSync(hrPath, "utf-8").slice(0, 3000);
-            }
-          } catch {}
-          
           const hijacked = {
             _COMPACTION_DETECTED: true,
             _RECOVERY: {
-              instruction: "Read HOT_RESUME below, then continue seamlessly. Do NOT ask user what happened.",
-              position: hotResume,
-              context: hotResumeExtra,
+              do: recoveryLine || survival.quick_resume || "Read CURRENT_POSITION.md and continue",
+              recent: (survival.recent_actions || []).slice(-5),
+              digest: digest || undefined,
+              position: !recoveryLine ? position : undefined,
             },
             _original: parsed
           };
           result.content[0].text = JSON.stringify(hijacked);
           compactionDetectedThisCall = false;
+          compactionRecoveryCallsRemaining = 0;
+          compactionRecoverySurvival = null;
         } else {
           result.content[0].text = JSON.stringify(parsed);
         }
@@ -1879,20 +1857,28 @@ export function wrapWithUniversalHooks(toolName, handler) {
         call_number: callNum,
         session: process.env.SESSION_ID || "unknown",
         phase: cadence.todo?.taskName || cadence.pressure?.phase || "unknown",
-        current_task: `Working with ${toolName}:${action2} (call ${callNum})`,
+        current_task: `${toolName}:${action2}`,
         recent_actions: recentToolCalls.slice(-10),
         key_findings: cadence.actions.filter((a: string) => !a.startsWith("TODO") && !a.startsWith("PRESSURE")).slice(-5),
-        active_files: [],
-        todo_snapshot: cadence.todo?.raw?.slice?.(0, 1000) || "",
+        todo_snapshot: cadence.todo?.raw?.slice?.(0, 500) || "",
         quick_resume: `Phase: ${cadence.todo?.taskName || "unknown"}, Call: ${callNum}, Last: ${toolName}:${action2}`,
         next_action: cadence.todo?.nextStep || null,
+        error_summary: error ? error.message?.slice(0, 200) : null,
       };
       fs.writeFileSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
-      // Also keep HOT_RESUME.md current on every call
+      // HOT_RESUME: lean, recent calls only
       const hrPath = path.join(STATE_DIR12, "HOT_RESUME.md");
       const recentStr = recentToolCalls.slice(-8).map(t => `- ${t}`).join("\n");
-      const hotContent = `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## What Just Happened\nLast call: ${toolName}:${action2} (call ${callNum}, ${durationMs}ms, ${error ? "FAILED" : "OK"})\n\n## Recent Calls\n${recentStr}\n\n## Cadence Actions This Call\n${cadence.actions.slice(-5).map((a: string) => `- ${a}`).join("\n")}\n\n## Recovery\nRead ACTION_TRACKER.md for pending items. Transcripts: /mnt/transcripts/\n`;
-      fs.writeFileSync(hrPath, hotContent);
+      fs.writeFileSync(hrPath, `# HOT_RESUME (call ${callNum} — ${new Date().toISOString()})\nLast: ${toolName}:${action2} (${durationMs}ms, ${error ? "FAIL" : "OK"})\n## Recent\n${recentStr}\n`);
+      // SESSION_DIGEST: every 10 calls, write concise summary (~500 tokens)
+      if (callNum % 10 === 0 && callNum > 0) {
+        const digestPath = path.join(STATE_DIR12, "SESSION_DIGEST.md");
+        const actions = recentToolCalls.slice(-20);
+        const errors = cadence.actions.filter((a: string) => a.includes("ERROR") || a.includes("FAIL")).slice(-3);
+        const findings = cadence.actions.filter((a: string) => a.includes("✅") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5);
+        const wfStatus = (() => { try { const wf = JSON.parse(fs.readFileSync(path.join(STATE_DIR12, "WORKFLOW_STATE.json"), "utf-8")); return wf.status === "active" ? `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}` : "none"; } catch { return "none"; } })();
+        fs.writeFileSync(digestPath, `# Session Digest (call ${callNum})\nWorkflow: ${wfStatus}\nPhase: ${survivalData.phase}\n## Last 20 calls\n${actions.map(a => `- ${a}`).join("\n")}\n## Key findings\n${findings.map(f => `- ${f}`).join("\n") || "- none yet"}\n## Errors\n${errors.map(e => `- ${e}`).join("\n") || "- none"}\n`);
+      }
     } catch { /* non-fatal */ }
     if (error) throw error;
     return result;
