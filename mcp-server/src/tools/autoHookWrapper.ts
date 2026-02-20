@@ -598,8 +598,9 @@ export function wrapWithUniversalHooks(toolName, handler) {
     const now = Date.now();
     if (lastCallTimestamp > 0 && compactionRecoveryCallsRemaining <= 0) {
       const gapSeconds = (now - lastCallTimestamp) / 1000;
-      const isSessionReboot = action2 === "session_boot" && firstCallReconDone;
-      if (gapSeconds > 120 && firstCallReconDone || isSessionReboot) {
+      // Only detect compaction if gap > 120s AND we're past the first few calls
+      // (fresh sessions always have a large gap from previous session's last call)
+      if (gapSeconds > 120 && firstCallReconDone && callNum > 3) {
         compactionDetectedThisCall = true;
         try {
           const rehydrateResult = autoContextRehydrate(callNum);
@@ -680,7 +681,9 @@ export function wrapWithUniversalHooks(toolName, handler) {
               age_minutes: rehydrateResult.age_minutes
             };
             const isLegitBoot = action2 === "session_boot";
-            if (rehydrateResult.age_minutes < 240 && !isLegitBoot) {
+            // Only trigger compaction if survival data is fresh AND we're past call 3
+            // (calls 1-3 of any new session always see "fresh" survival from last session)
+            if (rehydrateResult.age_minutes < 30 && !isLegitBoot && callNum > 3) {
               compactionRecoveryCallsRemaining = 1;
               compactionRecoverySurvival = cadence.rehydrated;
               compactionDetectedThisCall = true;
