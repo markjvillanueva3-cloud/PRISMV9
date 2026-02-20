@@ -1,0 +1,198 @@
+MS8: lines 22 to 219
+#         MS8 = Formula Registry + Dispatcher Wiring (GAPs 4, 6, 7, 10)
+#         MS9 = Quality Metrics + Phase Gate (was original R1-MS5, renumbered)
+#
+#         WHY THESE MILESTONES EXIST: The original R1 got registry COUNTS to >95%. But >95%
+#         loaded does not mean the data is USABLE. Tools have no index (every search is linear
+#         scan). Materials have 127 params but 95% lack tribology/composition. Machines have
+#         zero power/envelope specs. The engines are sophisticated but the data feeding them
+#         is sparse. These 5 new MS make the data APP-READY, not just COUNT-READY.
+#
+#         SOURCE DOCUMENTS for MS5-MS9:
+#           TOOL_EXPANSION_ROADMAP.md â€” detailed tool schema spec (load during R1-MS5 ONLY)
+#           PRISM_DATABASE_AUDIT_AND_ROADMAP.md â€” registry gap analysis (load during R1-MS6/MS7)
+#           SUPERPOWER_ROADMAP_AUDIT.md â€” 10 data gaps, utilization analysis (reference)
+#
+# v13.9: Cross-Audit Governance Hardening (XA-1,13,7) â€” retained unchanged.
+# v13.5-v13.8: All prior hardening retained unchanged. See v13.9 header for full changelog.
+
+---
+
+<!-- ANCHOR: r1_quick_reference_standalone_after_compaction_no_other_doc_needed -->
+## QUICK REFERENCE (standalone after compaction â€” no other doc needed)
+```
+BUILD:      npm run build (NEVER standalone tsc â€” OOM at current scale)
+SAFETY:     S(x) >= 0.70 is HARD BLOCK
+POSITION:   Update CURRENT_POSITION.md every 3 calls
+FLUSH:      Write results to disk after each logical unit of work
+ERROR:      Fix ONE build error, rebuild, repeat. >5 from one edit â†’ git revert
+IDEMPOTENT: Read-only = safe to re-run. Write = check if already done first.
+STUCK:      3 same-approach fails â†’ try different approach. 6 total â†’ skip if non-blocking.
+TRANSITION: Update CURRENT_POSITION first, ROADMAP_TRACKER second.
+RECOVERY:   Read PRISM_RECOVERY_CARD.md for full recovery steps.
+ENV:        R1 = Claude Code 80% + MCP 20%. Haikuâ†’Sonnetâ†’Opus. Parallel: MS5+MS6+MS7.
+```
+
+<!-- ANCHOR: r1_knowledge_contributions_what_this_phase_feeds_into_the_hierarchical_index -->
+## KNOWLEDGE CONTRIBUTIONS (what this phase feeds into the hierarchical index)
+```
+BRANCH 2 (Data Taxonomy): MS5 builds tool taxonomy, MS6 material taxonomy, MS7 machine taxonomy.
+  â†’ Output: DATA_TAXONOMY.json sections for tools, materials, machines at MS9 gate.
+BRANCH 4 (Session Knowledge): Every session captures data quality findings, schema decisions,
+  registry quirks (e.g., "23 materials have spaces in ISO codes â€” need trim()").
+  â†’ Extract at session end per PRISM_PROTOCOLS_CODING.md  Session Knowledge Extraction.
+AT MS9 GATE: Verify DATA_TAXONOMY.json has entries for all enriched registries.
+```
+
+---
+
+<!-- ANCHOR: r1_execution_model -->
+### EXECUTION MODEL
+```
+Environment: Claude Code 80% + Claude.ai MCP 20%
+Model: Haiku (file exploration, grep) â†’ Sonnet (normalization scripts) â†’ Opus (schema design decisions only)
+
+PARALLEL EXECUTION:
+- MS5 (tool normalization), MS6 (material enrichment), MS7 (machine population)
+  are independent data targets â†’ spawn 3 parallel subagents, one per registry
+- MS8 (formula classification of 162 zero-coverage formulas) â†’ fan across 5 subagents
+  at ~32 formulas each
+- Use registry-expert subagent for all schema decisions
+- Background agents handle batch loads > 500 files while main session reviews results
+- Haiku subagents for file exploration/grep (cheap, fast)
+- Sonnet for normalization script writing and execution
+- Opus ONLY for the 85-param tool holder schema design decision (R1-MS5)
+
+PARALLEL WORKTREE MERGE PROTOCOL (for MS5+MS6+MS7 concurrent execution):
+  Each parallel MS runs in its own Git worktree:
+    git worktree add ../feature/r1-ms5-tool-schema
+    git worktree add ../feature/r1-ms6-material-enrichment
+    git worktree add ../feature/r1-ms7-machine-population
+  MERGE ORDER: MS5 first (touches ToolRegistry.ts), then MS6 (MaterialRegistry.ts),
+    then MS7 (MachineRegistry.ts). These are independent file sets â€” no conflicts expected.
+  IF CONFLICT: The worktree that touched the conflicting file WINS. The other worktree
+    rebases onto the merged result and re-applies its changes.
+  MERGE VERIFICATION: After each merge â†’ npm run build â†’ prism_dev action=health.
+    If build fails â†’ the merge introduced an incompatibility. Debug before next merge.
+  CLEANUP: After all 3 merged â†’ remove worktrees:
+    git worktree remove ../feature/r1-ms5-tool-schema
+    (repeat for ms6, ms7)
+  FINAL: Run full integration check â€” all 3 registries load, health shows expected counts.
+```
+
+
+<!-- ANCHOR: r1_context_bridge -->
+## CONTEXT BRIDGE
+
+WHAT CAME BEFORE: P0 fixed all WIRING + configured Opus 4.6. 31 dispatchers verified operational.
+4 duplicate registry pairs resolved to single sources. Opus 4.6 Compaction API, Adaptive Thinking,
+Structured Outputs, and Agent Teams all wired. PHASE_FINDINGS.md has P0 section.
+SYSTEM_ACTIVATION_REPORT.md, P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md exist.
+
+WHAT THIS PHASE DOES (v14.0 EXPANDED):
+  PART 1 (MS0-MS4 âœ…): Load DATA into the wiring P0 fixed. Materials 3518+ (127 params each),
+    Machines 824+, Tools 1944+, Alarms 9200+. Formula definitions parsed and validated.
+    Target: >95% load rate for all registries. ACHIEVED.
+  PART 2 (MS5-MS9 NEW): Make data APP-READY. Normalize tool schema + build ToolIndex.
+    Enrich materials with tribology/composition/designation. Populate machine power/envelope
+    for top 50. Add 9 calculator formulas. Wire remaining dispatcher actions for toolpath,
+    thread, and unified search.
+
+WHAT COMES AFTER: R2 (Safety + Engine Validation) runs 50 calculations + 29 safety engine
+action tests + AI-generated edge cases against the enriched, indexed, normalized data.
+R2 expects: all registries >95% loaded AND data quality sufficient for cross-registry queries
+(tool search returns indexed results, material cross_query has enrichment data, machine
+constraints are non-null for top 50, new dispatcher actions respond correctly).
+
+ARTIFACT MANIFEST (XA-1):
+  REQUIRES: PHASE_FINDINGS.md (P0 section), P0_DISPATCHER_BASELINE.md, OPUS_CONFIG_BASELINE.md
+  PRODUCES: REGISTRY_AUDIT.md, PHASE_FINDINGS.md (R1 section)
+
+---
+
+<!-- ANCHOR: r1_objectives -->
+## OBJECTIVES
+
+1. Material registry: >95% of 3518+ materials loaded with valid parameters âœ… (3,392 = 96.4%)
+2. Machine registry: >95% loaded with valid specs âœ… (1,016 machines, 44 manufacturers)
+3. Tool registry: >95% loaded with valid geometry âœ… (15,912 raw entries across 14 files
+   â†’ 5,238 deduplicated unique tools on disk â†’ 1,944 currently loaded in registry.
+   Gap: restart required to pick up files added since last boot.)
+4. Alarm registry: >95% loaded across 12 controller families âœ… (10,033 = 100%)
+5. Formula definitions: Taylor, Kienzle, specific cutting force validated âœ… (500 formulas)
+6. Data pipelines: warm_start â†’ knowledge â†’ calc engine consistent results âœ…
+7. REGISTRY_AUDIT.md created âœ…
+8. Tool schema normalized + ToolIndex with O(1) lookup + tool_facets action (NEW)
+9. Material enrichment: >80% tribology, >80% composition, >90% designation (NEW)
+10. Machine field population: Top 50 machines with spindle + power + envelope data (NEW)
+11. Formula registry: 9 calculator formulas added (F-CALC-001 through F-CALC-009) (NEW)
+12. Dispatcher wiring: toolpath strategies fully exposed, thread calcs wired, unified search (NEW)
+13. TEST LEVELS: L1-L3 required (unit + contract + integration tests pass)
+
+<!-- ANCHOR: r1_fault_injection_test_xa_13_one_test_per_phase -->
+## FAULT INJECTION TEST (XA-13 â€” one test per phase)
+
+```
+R1 FAULT TEST: Kill material registry mid-load â†’ verify Tier 2 degradation activates.
+  WHEN: After R1-MS1 material loading is working (need a baseline to break). âœ… BASELINE EXISTS
+  HOW:  During a material_get call, simulate registry file being unavailable:
+        Temporarily rename the material registry file â†’ call prism_data action=material_get material="4140"
+        EXPECTED: System enters Tier 2 (Reduced Data) degradation, NOT crash/hang.
+        VERIFY: Health endpoint reports degraded status. Error is logged with correlationId.
+        RESTORE: Rename file back. Verify system recovers to Tier 1 automatically.
+  PASS: Graceful degradation activates. No crash. Recovery is automatic.
+  FAIL: System crashes, hangs, or returns corrupt data silently.
+  EFFORT: ~5 calls. Run during R1-MS9 (phase gate â€” natural place for stress testing).
+```
+
+---
+
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
+<!-- ANCHOR: r1_completed_milestones_ms0_ms4_reference_only -->
+## COMPLETED MILESTONES (MS0-MS4) â€” Reference Only
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
+
+<!-- ANCHOR: r1_r1_ms0_registry_audit_complete_2026_02_14 -->
+### R1-MS0: Registry Audit âœ… COMPLETE (2026-02-14)
+P0 finding fixes applied: alarm_decode param order, safety validator flat params, compliance
+method name, thread coarse notation documented as known limitation.
+
+<!-- ANCHOR: r1_r1_ms1_material_loading_complete_2026_02_15 -->
+### R1-MS1: Material Loading âœ… COMPLETE (2026-02-15)
+Materials 2,942 â†’ 3,392 (96.4%). Root cause of gap: BOM encoding in data files.
+Fixes: readJsonFile BOM strip in src/utils/files.ts + 8 BOM data files cleaned.
+Remaining 126 gap = target materials not yet created on disk.
+
+<!-- ANCHOR: r1_r1_ms1_5_formula_validation_complete -->
+### R1-MS1.5: Formula Validation âœ… COMPLETE
+500 formulas validated. All parse correctly. Taylor, Kienzle, Johnson-Cook verified.
+
+<!-- ANCHOR: r1_r1_ms2_machine_tool_alarm_loading_complete_2026_02_15 -->
+### R1-MS2: Machine/Tool/Alarm Loading âœ… COMPLETE (2026-02-15)
+Tools: 1,944/1,944 (100%). Alarms: 10,033 (100%). Machines: 402â†’469â†’639.
+"Dual-path" concern was misdiagnosis â€” all registries load from correct paths.
+R1-MS2b: V3 3D model database (225 machines in .js format) converted to JSON.
+Fixed MachineRegistry wrapper format handling. Machines: 639â†’1,016.
+
+<!-- ANCHOR: r1_r1_ms3_data_pipeline_integration_complete -->
+### R1-MS3: Data Pipeline Integration âœ… COMPLETE
+End-to-end flow verified: material_get â†’ speed_feed_calc â†’ cutting_force â†’ tool_life.
+
+<!-- ANCHOR: r1_r1_ms4_coverage_audit_tool_expansion_complete_2026_02_15 -->
+### R1-MS4: Coverage Audit + Tool Expansion âœ… COMPLETE (2026-02-15)
+Tool database expanded: 1,944 â†’ 5,238 (on disk, pending restart).
+New files: TURNING_INSERTS.json (1,710), TURNING_HOLDERS_EXPANDED.json (600),
+INDEXABLE_MILLING_TOOLHOLDING.json (984).
+
+REGISTRY TOTALS POST-MS4:
+  Materials: 3,392 (96.4%) | Machines: 1,016 (44 mfrs) | Tools: 5,238 (disk) / 1,944 (registry)
+  Alarms: 10,033 (100%) | Formulas: 500 (100%) | Build: clean 3.9MB
+
+---
+
+<!-- LOADER: SKIP TO HERE â€” MS0-MS4 complete. Content above is reference only. -->
+<!-- ANCHOR: r1_ -->
+##                                                                                                       
+<!-- ANCHOR: r1_new_milestones_ms4_5_ms9_data_foundation -->

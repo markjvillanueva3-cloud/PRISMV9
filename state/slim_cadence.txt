@@ -1,0 +1,105 @@
+L47:   autoHookActivationPhaseCheck, autoD4PerfSummary
+L48: } from "./cadenceExecutor.js";
+L49: import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
+L50: import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
+L51: import { TelemetryEngine } from "../engines/TelemetryEngine.js";
+L52: import { MemoryGraphEngine } from "../engines/MemoryGraphEngine.js";
+L53: import { PredictiveFailureEngine } from "../engines/PredictiveFailureEngine.js";
+L54: import { computationCache } from "../engines/ComputationCache.js";
+L55: import {
+L56:   recordSessionToolCall, recordSessionHook, recordSessionSkillInjection,
+L57:   recordSessionTemplateMatch, recordSessionPressure, recordSessionCheckpoint,
+L58:   recordSessionCompactionRecovery, recordSessionError,
+L59:   writeSessionIncrementalPrep, getSessionQualityScore, getSessionMetrics
+L60: } from "../engines/SessionLifecycleEngine.js";
+L61: import { autoManusATCSPoll, getBridgeStatus } from "../engines/ManusATCSBridge.js";
+L62: 
+L63: // ============================================================================
+L64: // CONFIGURATION
+L65: // ============================================================================
+L66: 
+L67: let telemetryEngine: any = null;
+L68: 
+L69: 
+L70: 
+L71: export var AUTO_HOOK_CONFIG = {
+L72:   enabled: true,
+L73:   // Tools that trigger safety calculation hooks
+L74:   calcTools: [
+L75:     "calc_cutting_force",
+L76:     "calc_tool_life",
+L77:     "calc_mrr",
+L78:     "calc_surface_finish",
+L79:     "calc_power",
+L80:     "calc_deflection",
+L81:     "calc_stability",
+L82:     "calc_thermal",
+L83:     "calc_speed_feed",
+L84:     "calc_chip_load",
+L85:     "calc_engagement",
+L86:     "calc_trochoidal",
+L87:     "calc_hsm",
+L88:     "calc_scallop",
+L89:     "calc_stepover",
+L90:     "calc_cycle_time",
+L91:     "calc_arc_fit",
+L92:     "calc_cost_optimize",
+L93:     "calc_multi_optimize",
+L94:     "calc_productivity",
+L95:     "prism_cutting_force",
+L96:     "prism_tool_life",
+L97:     "prism_speed_feed",
+L98:     "prism_formula_calc"
+
+--- _context end ---
+L1650:           if (!ctx.task && fs.existsSync(trackerPath)) {
+L1651:             try {
+L1652:               const tracker = fs.readFileSync(trackerPath, "utf-8");
+L1653:               const nextMatch = tracker.match(/## NEXT SESSION[:\s]*([^\n]*)\n([\s\S]*?)(?=\n##|\n$)/);
+L1654:               if (nextMatch) {
+L1655:                 const items = nextMatch[2].match(/⏳[^⏳✅]*/g);
+L1656:                 if (items && items.length > 0) {
+L1657:                   ctx.task = items[0].replace(/⏳\s*/, "").trim().slice(0, 100);
+L1658:                 }
+L1659:               }
+L1660:             } catch {
+L1661:             }
+L1662:           }
+L1663:           ctx.transcripts_hint = "/mnt/transcripts/ (on Claude container)";
+L1664:           try {
+L1665:             const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
+L1666:             if (fs.existsSync(wfPath)) {
+L1667:               const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
+L1668:               if (wf.status === "active" && wf.current_step && wf.steps) {
+L1669:                 const cur = wf.steps[wf.current_step - 1];
+L1670:                 const done = wf.steps.filter((s) => s.status === "done").length;
+L1671:                 ctx.workflow = `${wf.workflow_type}:${wf.current_step}/${wf.total_steps} ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+L1672:                 ctx.task = `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}: ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+L1673:                 ctx.next = wf.current_step < wf.total_steps ? `Step ${wf.current_step + 1}: ${wf.steps[wf.current_step]?.name} \u2014 ${wf.steps[wf.current_step]?.intent}` : "Final step \u2014 complete workflow after this";
+L1674:               }
+L1675:             }
+L1676:           } catch {
+L1677:           }
+L1678:           if (ctx.resume || ctx.task || ctx.next || ctx.workflow) {
+L1679:             ctx._hint = "If you lost context (compaction), read /mnt/transcripts/ and C:\\PRISM\\state\\RECENT_ACTIONS.json BEFORE responding to user.";
+L1680:             if (cadence.agent_recommend?.classification) {
+L1681:               const c = cadence.agent_recommend.classification;
+L1682:               if (c.recommended_agents?.length > 0 || c.recommended_swarm) {
+L1683:                 ctx.agent_hint = cadence.agent_recommend.hint;
+L1684:               }
+L1685:             }
+L1686:             if (cadence.skill_hints?.bundle_name) {
+L1687:               const sh = cadence.skill_hints;
+L1688:               ctx.skill_bundle = `\u{1F4E6} ${sh.bundle_name} (${sh.loaded_excerpts} skills, ${sh.pressure_mode || "full"})${sh.chain_suggestion ? ` | chain: ${sh.chain_suggestion}` : ""}`;
+L1689:             }
+L1690:             if (cadence.agent_recommend?.atcs_recommendation?.suggested) {
+L1691:               const atcs = cadence.agent_recommend.atcs_recommendation;
+L1692:               ctx.atcs_hint = `\u{1F504} ATCS RECOMMENDED: ${atcs.reason} (~${atcs.estimated_units} units). Consider: prism_atcs\u2192task_init to manage this as autonomous multi-unit task.`;
+L1693:             }
+L1694:             try {
+L1695:               const bridge = getBridgeStatus();
+L1696:               if (bridge.active_delegations > 0) {
+L1697:                 ctx.manus_bridge = `\u{1F916} ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
+L1698:               }
+L1699:             } catch {
+L1700:             }

@@ -1,0 +1,1 @@
+const fs=require("fs");const c=fs.readFileSync("C:\\PRISM\\mcp-server\\src\\tools\\autoHookWrapper.ts","utf-8");const lines=c.split("\n");let r=[];for(let i=1475;i<1492;i++){r.push("L"+(i+1)+": "+lines[i]);}fs.writeFileSync("C:\\PRISM\\state\\action_debug.txt",r.join("\n"));

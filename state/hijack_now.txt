@@ -1,0 +1,120 @@
+L1693:         if (compactionDetectedThisCall) {
+L1694:           let recoveryManifest = null;
+L1695:           try {
+L1696:             const manifestPath = path.join("C:\\PRISM\\state", "RECOVERY_MANIFEST.json");
+L1697:             if (fs.existsSync(manifestPath)) {
+L1698:               recoveryManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+L1699:               const ageMs = Date.now() - new Date(recoveryManifest.captured_at).getTime();
+L1700:               if (ageMs > 4 * 60 * 60 * 1000) recoveryManifest = null;
+L1701:             }
+L1702:           } catch {
+L1703:           }
+L1704:           let survivalInfo = {};
+L1705:           try {
+L1706:             const survPath = path.join("C:\\PRISM\\state", "COMPACTION_SURVIVAL.json");
+L1707:             if (fs.existsSync(survPath)) {
+L1708:               survivalInfo = JSON.parse(fs.readFileSync(survPath, "utf-8"));
+L1709:             }
+L1710:           } catch {
+L1711:           }
+L1712:           let recentActionsInfo = {};
+L1713:           try {
+L1714:             const raPath = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
+L1715:             if (fs.existsSync(raPath)) {
+L1716:               recentActionsInfo = JSON.parse(fs.readFileSync(raPath, "utf-8"));
+L1717:             }
+L1718:           } catch {
+L1719:           }
+L1720:           let trackerNext = "";
+L1721:           try {
+L1722:             const tkPath = "C:\\PRISM\\mcp-server\\data\\docs\\ACTION_TRACKER.md";
+L1723:             if (fs.existsSync(tkPath)) {
+L1724:               const tk = fs.readFileSync(tkPath, "utf-8");
+L1725:               const nm = tk.match(/## NEXT SESSION[^\n]*\n([\s\S]*?)(?=\n## |$)/);
+L1726:               if (nm) trackerNext = nm[1].trim().slice(0, 500);
+L1727:             }
+L1728:           } catch {
+L1729:           }
+L1730:           let transcriptHint = "/mnt/transcripts/ (read latest .txt file on Claude container)";
+L1731:           let reasoningTrail = [];
+L1732:           try {
+L1733:             const jPath = path.join(STATE_DIR12, "SESSION_JOURNAL.jsonl");
+L1734:             if (fs.existsSync(jPath)) {
+L1735:               const lines = fs.readFileSync(jPath, "utf-8").trim().split("\n").filter(Boolean);
+L1736:               reasoningTrail = lines.slice(-15).map((l) => {
+L1737:                 try {
+L1738:                   return JSON.parse(l);
+L1739:                 } catch {
+L1740:                   return null;
+L1741:                 }
+L1742:               }).filter(Boolean);
+L1743:             }
+L1744:           } catch {
+L1745:           }
+L1746:           const notesEntries = reasoningTrail.filter((e) => e.notes);
+L1747:           const hijacked = {
+L1748:             _COMPACTION_DETECTED: true,
+L1749:             _MANDATORY_RECOVERY: {
+L1750:               step_1: "Read CURRENT_POSITION.md ? has phase, task, next steps.",
+L1751:               step_2: "Continue seamlessly. Do NOT re-audit or ask user what to do."
+L1752:             },
+L1753:             // F2.2: Single-file recovery — everything in one place
+L1754:             recovery_manifest: recoveryManifest ? {
+L1755:               _priority: "\u26A1 THIS IS YOUR PRIMARY RECOVERY SOURCE. Read this first, skip other sections if this is sufficient.",
+L1756:               next_action: recoveryManifest.next_action,
+L1757:               current_task: recoveryManifest.current_task,
+L1758:               phase: recoveryManifest.phase,
+L1759:               workflow_step: recoveryManifest.workflow_step,
+L1760:               active_files: recoveryManifest.active_files,
+L1761:               pending_todos: recoveryManifest.pending_todos,
+L1762:               reasoning_notes: recoveryManifest.reasoning_notes,
+L1763:               recent_calls: recoveryManifest.recent_calls,
+L1764:               recent_decisions: recoveryManifest.recent_decisions,
+L1765:               atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
+L1766:               age_seconds: Math.round((Date.now() - new Date(recoveryManifest.captured_at).getTime()) / 1000)
+L1767:             } : null,
+L1768:             reasoning_trail: notesEntries.length > 0 ? { notes: notesEntries.slice(-3).map((e) => "[" + e.call + "] " + e.notes) } : null,
+L1769:             workflow_recovery: (() => {
+L1770:               try {
+L1771:                 const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
+L1772:                 if (fs.existsSync(wfPath)) {
+L1773:                   const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
+L1774:                   if (wf.status === "active") {
+L1775:                     const cur = wf.steps[wf.current_step - 1];
+L1776:                     const done = wf.steps.filter((s) => s.status === "done").map((s) => `${s.name} \u2705`);
+L1777:                     const remaining = wf.steps.filter((s) => s.status !== "done").map((s) => `Step ${s.id}: ${s.name} \u2014 ${s.intent}`);
+L1778:                     return {
+L1779:                       active: true,
+L1780:                       type: wf.workflow_type,
+L1781:                       name: wf.name,
+L1782:                       progress: `Step ${wf.current_step} of ${wf.total_steps}`,
+L1783:                       current_step: cur ? { name: cur.name, intent: cur.intent } : null,
+L1784:                       instruction: `RESUME step ${wf.current_step}/${wf.total_steps} (${cur?.name}): ${cur?.intent}. Steps done: ${done.join(", ")}. Do NOT redo.`,
+L1785:                       remaining,
+L1786:                       files_touched: [...new Set(wf.steps.flatMap((s) => s.files_touched || []))]
+L1787:                     };
+L1788:                   }
+L1789:                 }
+L1790:               } catch {
+L1791:               }
+L1792:               return { active: false, instruction: "No active workflow. Use recovery_context below." };
+L1793:             })(),
+L1794:             recovery_context: { _read: "CURRENT_POSITION.md in data/docs/roadmap/" },
+L1795:             action_tracker_next: trackerNext,
+L1796:             // recent_tool_calls REMOVED ? duplicates SESSION_JOURNAL 60)}`
+L1797:             ),
+L1798:             // transcripts hint REMOVED ? static string
+L1799:             // original_response REMOVED ? was doubling token cost by re-injecting full response
+L1800:             // Include the actual tool response too
+L1801:             protocol: "6 LAWS: S(x)\u22650.70|No placeholders|New\u2265Old|MCP First|No dupes|100% util."
+L1802:           };
+L1803:           result.content[0].text = JSON.stringify(hijacked);
+L1804:           compactionDetectedThisCall = false;
+L1805:         } else {
+L1806:           result.content[0].text = JSON.stringify(parsed);
+L1807:         }
+L1808:       } catch {
+L1809:       }
+L1810:     }
+L1811:     if (!error && result?.content?.[0]?.text) {
+L1812:       try {

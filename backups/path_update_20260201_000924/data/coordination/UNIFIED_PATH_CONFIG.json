@@ -1,0 +1,81 @@
+{
+  "unifiedPathConfig": {
+    "metadata": {
+      "version": "1.0.0",
+      "created": "2026-01-30T11:10:00Z",
+      "description": "Master path configuration for PRISM system across all locations"
+    },
+    "locations": {
+      "PRISM_ROOT": {
+        "path": "C:\\PRISM",
+        "description": "Active development and orchestration",
+        "contains": ["scripts", "data", "skills-consolidated", "state"]
+      },
+      "PRISM_REBUILD": {
+        "path": "C:\\PRISM",
+        "description": "Skills development and Box backup",
+        "contains": ["_SKILLS", "EXTRACTED", "_BUILD", "CURRENT_STATE.json"]
+      },
+      "CLAUDE_CONTAINER": {
+        "path": "/mnt/skills/user",
+        "description": "50 priority skills uploaded to Claude's skill container",
+        "access_method": "view tool (read-only, fast)"
+      }
+    },
+    "skills": {
+      "primary_source": "C:\\PRISM\\skills-consolidated",
+      "development_source": "C:\\PRISM\\_SKILLS",
+      "container_source": "/mnt/skills/user",
+      "total_count": 134,
+      "container_count": 71,
+      "filesystem_only_count": 63,
+      "access_priority": [
+        "1. Claude container (/mnt/skills/user/) - view tool",
+        "2. C:\\PRISM\\skills-consolidated - Filesystem:read_file",
+        "3. C:\\PRISM REBUILD...\\_SKILLS - Filesystem:read_file"
+      ]
+    },
+    "coordination": {
+      "directory": "C:\\PRISM\\data\\coordination",
+      "files": {
+        "RESOURCE_REGISTRY": "C:\\PRISM\\data\\coordination\\RESOURCE_REGISTRY.json",
+        "CAPABILITY_MATRIX": "C:\\PRISM\\data\\coordination\\CAPABILITY_MATRIX.json",
+        "SYNERGY_MATRIX": "C:\\PRISM\\data\\coordination\\SYNERGY_MATRIX.json",
+        "SKILL_ACCESS_MAP": "C:\\PRISM\\data\\coordination\\SKILL_ACCESS_MAP.json",
+        "AGENT_REGISTRY": "C:\\PRISM\\data\\coordination\\AGENT_REGISTRY.json",
+        "SKILL_TREE_REGISTRY": "C:\\PRISM\\data\\coordination\\SKILL_TREE_REGISTRY.json",
+        "SKILL_TRIGGER_MAP": "C:\\PRISM\\data\\coordination\\SKILL_TRIGGER_MAP.json"
+      }
+    },
+    "scripts": {
+      "directory": "C:\\PRISM\\scripts",
+      "orchestrator": "C:\\PRISM\\scripts\\prism_unified_system_v6.py",
+      "session_manager": "C:\\PRISM\\scripts\\session_manager.py",
+      "regression_checker": "C:\\PRISM\\scripts\\regression_checker.py",
+      "skill_sync": "C:\\PRISM\\scripts\\sync_all_skills.py",
+      "testing": "C:\\PRISM\\scripts\\testing"
+    },
+    "state": {
+      "primary": "C:\\PRISM\\CURRENT_STATE.json",
+      "alternate": "C:\\PRISM\\state\\CURRENT_STATE.json",
+      "session_logs": "C:\\PRISM\\SESSION_LOGS",
+      "learning": "C:\\PRISM\\state\\learning"
+    },
+    "data": {
+      "formulas": "C:\\PRISM\\data\\FORMULA_REGISTRY.json",
+      "materials": "C:\\PRISM\\data\\materials",
+      "machines": "C:\\PRISM\\data\\machines",
+      "tools": "C:\\PRISM\\data\\tools",
+      "knowledge": "C:\\PRISM\\data\\knowledge"
+    },
+    "extracted": {
+      "directory": "C:\\PRISM\\EXTRACTED",
+      "controllers": "C:\\PRISM\\EXTRACTED\\controllers",
+      "materials": "C:\\PRISM\\EXTRACTED\\materials"
+    },
+    "monolith": {
+      "directory": "C:\\PRISM\\_BUILD",
+      "main_file": "C:\\PRISM\\_BUILD\\PRISM_v8_89_002_TRUE_100_PERCENT"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "template_id": "SWARM-HIERARCHICAL-001",
+  "pattern": "HIERARCHICAL_REVIEW",
+  "description": "Higher-tier agents review lower-tier work in a management structure. Best for quality assurance, critical outputs, and progressive validation chains.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Safety-critical outputs requiring senior review",
+    "Multi-tier quality assurance",
+    "Escalation workflows",
+    "Training/mentorship patterns"
+  ],
+  
+  "config": {
+    "min_layers": 2,
+    "max_layers": 4,
+    "timeout_ms": 60000,
+    "escalation_threshold": 0.7,
+    "layer_hierarchy": ["HAIKU", "SONNET", "OPUS"]
+  },
+  
+  "agent_selection": {
+    "strategy": "tier_based",
+    "layers": {
+      "execution": "HAIKU",
+      "review": "SONNET", 
+      "approval": "OPUS"
+    }
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["task", "layers"],
+    "properties": {
+      "task": {"type": "object"},
+      "layers": {
+        "type": "array",
+        "items": {
+          "tier": {"type": "string"},
+          "agents": {"type": "array"},
+          "review_criteria": {"type": "array"}
+        }
+      },
+      "escalation_rules": {"type": "object"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "final_output": {"type": "object"},
+      "approval_chain": {
+        "type": "array",
+        "items": {
+          "layer": {"type": "number"},
+          "agent_id": {"type": "string"},
+          "tier": {"type": "string"},
+          "status": {"enum": ["approved", "rejected", "escalated"]},
+          "feedback": {"type": "string"},
+          "score": {"type": "number"}
+        }
+      },
+      "final_approval": {"type": "boolean"},
+      "approval_tier": {"type": "string"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_execute",
+  "mcp_pattern_param": "hierarchical",
+  
+  "example_usage": {
+    "name": "safety_critical_code_review",
+    "input": {
+      "task": {"type": "code_review", "code": "def calculate_cutting_force()..."},
+      "layers": [
+        {"tier": "HAIKU", "agents": ["AGT-HAIKU-SYNTAX"], "review_criteria": ["syntax", "formatting"]},
+        {"tier": "SONNET", "agents": ["AGT-SONNET-LOGIC"], "review_criteria": ["logic", "edge_cases"]},
+        {"tier": "OPUS", "agents": ["AGT-OPUS-SAFETY"], "review_criteria": ["safety", "physics_validity"]}
+      ]
+    }
+  },
+  
+  "hooks_triggered": ["AGENT-START-001", "REVIEW-LAYER-001", "ESCALATION-001", "APPROVAL-001"],
+  
+  "performance_notes": {
+    "optimal_layers": "2-3 layers",
+    "early_termination": "If OPUS approves at any layer, can skip remaining",
+    "cost_consideration": "OPUS reviews are 10x more expensive - use sparingly"
+  }
+}

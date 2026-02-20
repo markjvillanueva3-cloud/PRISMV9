@@ -1,0 +1,187 @@
+{
+  "hooks": [
+    {
+      "id": "nl-pressure-warning",
+      "name": "Context Pressure Warning",
+      "description": "Warns when context pressure exceeds 60%",
+      "condition": "pressure_above:60",
+      "action": "PRESSURE >60% - checkpoint recommended. Save state or wrap up current task.",
+      "severity": "warning",
+      "category": "context_management",
+      "tags": [
+        "pressure",
+        "context",
+        "checkpoint"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "PRESSURE >60% - checkpoint recommended. Save state or wrap up current task.",
+      "message": "PRESSURE >60% - checkpoint recommended. Save state or wrap up current task."
+    },
+    {
+      "id": "nl-pressure-critical",
+      "name": "Context Pressure Critical",
+      "description": "Critical alert when pressure exceeds 80%",
+      "condition": "pressure_above:80",
+      "action": "PRESSURE >80% - COMPACTION IMMINENT. Save state NOW via state_save + todo_update.",
+      "severity": "critical",
+      "category": "context_management",
+      "tags": [
+        "pressure",
+        "critical",
+        "compaction"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "PRESSURE >80% - COMPACTION IMMINENT. Save state NOW via state_save + todo_update.",
+      "message": "PRESSURE >80% - COMPACTION IMMINENT. Save state NOW via state_save + todo_update."
+    },
+    {
+      "id": "nl-high-call-count",
+      "name": "High Call Count Advisory",
+      "description": "Advisory when calls exceed 35",
+      "condition": "call_count_above:35",
+      "action": "35+ tool calls - approaching context limits. Finish current task and save.",
+      "severity": "advisory",
+      "category": "session_management",
+      "tags": [
+        "calls",
+        "session",
+        "limit"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "35+ tool calls - approaching context limits. Finish current task and save.",
+      "message": "35+ tool calls - approaching context limits. Finish current task and save.",
+      "execution_count": 2,
+      "last_fired": "2026-02-19T17:27:13.823Z"
+    },
+    {
+      "id": "nl-safety-calc",
+      "name": "Safety Validation Reminder",
+      "description": "Reminds to validate safety for cutting calcs",
+      "condition": "action_contains:cutting_force",
+      "action": "SAFETY: Validate S(x)>=0.70 for cutting force results. Use prism_validate -> safety.",
+      "severity": "info",
+      "category": "safety",
+      "tags": [
+        "safety",
+        "cutting",
+        "force",
+        "validation"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "SAFETY: Validate S(x)>=0.70 for cutting force results. Use prism_validate -> safety.",
+      "message": "SAFETY: Validate S(x)>=0.70 for cutting force results. Use prism_validate -> safety.",
+      "execution_count": 1,
+      "last_fired": "2026-02-19T18:00:42.892Z"
+    },
+    {
+      "id": "nl-safety-speed-feed",
+      "name": "Speed/Feed Safety Check",
+      "description": "Cross-check spindle limits for speed/feed",
+      "condition": "action_contains:speed_feed",
+      "action": "SPEED/FEED: Cross-check against machine spindle limits and tool max RPM.",
+      "severity": "info",
+      "category": "safety",
+      "tags": [
+        "speed",
+        "feed",
+        "spindle",
+        "rpm"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "SPEED/FEED: Cross-check against machine spindle limits and tool max RPM.",
+      "message": "SPEED/FEED: Cross-check against machine spindle limits and tool max RPM.",
+      "execution_count": 3,
+      "last_fired": "2026-02-19T18:43:49.829Z"
+    },
+    {
+      "id": "nl-build-reminder",
+      "name": "Build After Code Changes",
+      "description": "Reminds to build after source edits",
+      "condition": "action_contains:file_write",
+      "action": "CODE CHANGED - run npm run build before testing. Not live until rebuild + restart.",
+      "severity": "info",
+      "category": "development",
+      "tags": [
+        "build",
+        "code",
+        "compile"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "CODE CHANGED - run npm run build before testing. Not live until rebuild + restart.",
+      "message": "CODE CHANGED - run npm run build before testing. Not live until rebuild + restart."
+    },
+    {
+      "id": "nl-backup-critical",
+      "name": "Backup Critical Files",
+      "description": "Backup before editing autoHookWrapper or cadenceExecutor",
+      "condition": "action_contains:autoHookWrapper",
+      "action": "BACKUP FIRST: Run backup-before-edit.ps1 before editing autoHookWrapper. Previous destruction 2026-02-18.",
+      "severity": "warning",
+      "category": "development",
+      "tags": [
+        "backup",
+        "autoHookWrapper",
+        "critical"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "BACKUP FIRST: Run backup-before-edit.ps1 before editing autoHookWrapper. Previous destruction 2026-02-18.",
+      "message": "BACKUP FIRST: Run backup-before-edit.ps1 before editing autoHookWrapper. Previous destruction 2026-02-18."
+    },
+    {
+      "id": "nl-anti-regression",
+      "name": "Anti-Regression Gate",
+      "description": "Verify new >= old before file replacements",
+      "condition": "action_contains:file_write",
+      "action": "ANTI-REGRESSION: Verify new version >= old functionality. Use prism_validate -> anti_regression.",
+      "severity": "warning",
+      "category": "quality",
+      "tags": [
+        "regression",
+        "validation",
+        "quality"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:15:00Z",
+      "action_type": "warn",
+      "action_payload": "ANTI-REGRESSION: Verify new version >= old functionality. Use prism_validate -> anti_regression.",
+      "message": "ANTI-REGRESSION: Verify new version >= old functionality. Use prism_validate -> anti_regression."
+    },
+    {
+      "id": "nl-always-test",
+      "name": "Always Fire Test",
+      "description": "Test hook that always fires",
+      "condition": "always:true",
+      "action_type": "warn",
+      "action_payload": "NL_HOOK_SYSTEM_ACTIVE - always-fire test hook working",
+      "message": "NL_HOOK_SYSTEM_ACTIVE - always-fire test hook working",
+      "severity": "info",
+      "category": "test",
+      "tags": [
+        "test",
+        "always"
+      ],
+      "deploy_status": "deployed",
+      "created": "2026-02-19T02:30:00Z",
+      "execution_count": 14,
+      "last_fired": "2026-02-19T18:43:49.829Z"
+    }
+  ],
+  "created": "2026-02-19T02:15:00Z",
+  "version": "1.0",
+  "total_hooks": 8,
+  "last_updated": "2026-02-19T18:43:49.829Z"
+}

@@ -1,0 +1,68 @@
+# PRISM Project Instructions
+## Copy this ENTIRE content into Claude Project Settings
+
+PRISM is safety-critical CNC software. Wrong calculations = explosions/injuries/death. Mathematical certainty required.
+
+## WHAT ACTUALLY WORKS (Verified 2026-02-03)
+
+**WORKING CALCULATIONS:**
+- prism:calc_cutting_force (Kienzle)
+- prism:calc_tool_life (Taylor)
+- prism:calc_mrr, calc_surface_finish, calc_power, calc_deflection, calc_stability
+
+**WORKING SESSION:**
+- prism:prism_gsd_core (get instructions)
+- prism:prism_gsd_quick (quick reference)
+- prism:prism_todo_update (anchor attention)
+- prism:prism_sp_brainstorm (MANDATORY before implementation)
+- prism:prism_cognitive_check (compute Ω quality)
+
+**WORKING DATA (Partial):**
+- prism:skill_list (49 skills loaded)
+- prism:agent_list (9 agents loaded)
+- prism:hook_list (25 hooks loaded)
+
+**BROKEN - DON'T USE:**
+- material_search/get → Returns empty
+- alarm_search/decode → Error
+
+## SESSION START
+1. prism:prism_gsd_core
+2. Read C:\PRISM\state\CURRENT_STATE.json
+3. prism:prism_todo_update
+
+## 4 LAWS
+1. S(x) ≥ 0.70 (Safety HARD BLOCK)
+2. No placeholders (Complete or don't start)
+3. New ≥ Old (Anti-regression)
+4. Use working tools only
+
+## QUALITY
+Ω(x) = 0.25R + 0.20C + 0.15P + 0.30S + 0.10L
+S(x) ≥ 0.70 = HARD BLOCK
+Ω(x) ≥ 0.70 = Release quality
+
+## BUFFER ZONES
+🟢 0-8 calls: Normal
+🟡 9-14: Plan checkpoint
+🔴 15-18: IMMEDIATE checkpoint
+⚫ 19+: STOP
+
+## KEY PATHS
+- State: C:\PRISM\state\CURRENT_STATE.json
+- MCP: C:\PRISM\mcp-server\
+- Skills: C:\PRISM\skills-consolidated\
+
+## COMPACTION RECOVERY
+view /mnt/transcripts/[latest].txt
+
+## MARK'S SYSTEM
+- PC: DIGITALSTORM-PC
+- Python: py or C:\Users\Admin.DIGITALSTORM-PC\AppData\Local\Programs\Python\Python312\python.exe
+
+## FIX PRIORITIES
+1. Debug registryManager.initialize() to load materials/alarms
+2. Fix alarm f.endsWith bug
+3. Register ralphLoopTools.ts
+
+prism_sp_brainstorm MANDATORY before any implementation.

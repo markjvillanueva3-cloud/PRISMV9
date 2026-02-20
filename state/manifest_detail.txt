@@ -1,0 +1,47 @@
+L1090:       cadence.todo = todoResult;
+L1091:       await fireHook("STATE-SESSION-BOUNDARY-001", {
+L1092:         event: "cadence_todo_executed",
+L1093:         call_number: callNum,
+L1094:         success: todoResult.success,
+L1095:         preview: todoResult.todo_preview
+L1096:       });
+L1097:       try {
+L1098:         const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
+L1099:         const pct = cadence.pressure?.pressure_pct || 0;
+L1100:         const manifestResult = autoRecoveryManifest(callNum, pct, cadence.actions, currentTask);
+L1101:         if (manifestResult.success) cadence.actions.push("\u{1F4CB} RECOVERY_MANIFEST_SAVED");
+L1102:       } catch {
+L1103:       }
+L1104:     }
+L1105:     if (callNum - lastCheckpointReminder >= 10) {
+L1106:       lastCheckpointReminder = callNum;
+L1107:       const cpResult = autoCheckpoint(callNum);
+L1108:       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
+L1109:       cadence.checkpoint = cpResult;
+L1110:       await fireHook("STATE-CHECKPOINT-CREATE-001", {
+L1111:         event: "cadence_checkpoint_executed",
+L1112:         call_number: callNum,
+L1113:         success: cpResult.success,
+L1114:         checkpoint_id: cpResult.checkpoint_id,
+L1115:         zone: cpResult.zone
+
+--- cadenceExecutor autoRecoveryManifest ---
+CE-L2455: export function autoRecoveryManifest(
+CE-L2456:   callNumber: number,
+CE-L2457:   pressurePct: number,
+CE-L2458:   recentCadenceActions: string[] = [],
+CE-L2459:   currentTaskOverride?: string
+CE-L2460: ): { success: boolean; call_number: number; file: string; error?: string } {
+CE-L2461:   try {
+CE-L2462:     // 1. Current task
+CE-L2463:     let currentTask = currentTaskOverride || "unknown";
+CE-L2464:     let quickResume = "";
+CE-L2465:     let phase = "unknown";
+CE-L2466:     try {
+CE-L2467:       if (fs.existsSync(CURRENT_STATE_FILE)) {
+CE-L2468:         const state = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8"));
+CE-L2469:         quickResume = (state.quickResume || state.quick_resume || "").slice(0, 2000);
+CE-L2470:         phase = state.currentSession?.phase || state.phase || "unknown";
+CE-L2471:         if (currentTask === "unknown") {
+CE-L2472:           currentTask = state.currentSession?.task || state.currentTask || "unknown";
+CE-L2473:         }

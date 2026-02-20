@@ -6,20 +6,68 @@
       "env": {
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
         "CADENCE_VERBOSITY": "critical",
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
       }
     }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\pre-edit-safety-gate.ps1"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\post-build-verify.ps1"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\teammate-quality-gate.ps1"
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\teammate-reassign.ps1"
+          }
+        ]
+      }
+    ]
   },
   "permissions": {
     "allow": [
       "Bash(npm run build)",
-      "Bash(npm run build:fast)", 
+      "Bash(npm run build:fast)",
+      "Bash(npm run test:*)",
       "Bash(powershell*verify-build*)",
+      "Bash(powershell*scripts/hooks*)",
       "Bash(git *)",
       "Read(C:\\PRISM\\**)",
       "Write(C:\\PRISM\\mcp-server\\src\\**)",
       "Write(C:\\PRISM\\mcp-server\\data\\**)",
       "Write(C:\\PRISM\\mcp-server\\scripts\\**)",
+      "Write(C:\\PRISM\\mcp-server\\tests\\**)",
       "Write(C:\\PRISM\\state\\**)"
     ],
     "deny": [

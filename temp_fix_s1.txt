@@ -1,0 +1,19 @@
+
+**CONVERGENCE HOOK:**
+```
+coupled_physics_convergence — blocking, post-calculation
+  Checks: did the iterative solver converge?
+  If iterations > 20 or residual > threshold → BLOCK result
+  WALL-CLOCK TIMEOUT (v14.5 — S-1 safety fix):
+    30-second hard timeout on ALL coupled physics iterations.
+    If not converged in 30s → return SAFETY_BLOCK with message:
+      "Physics model did not converge within 30s. Use conservative handbook values."
+    WHY: Without timeout, numerical instability could hang indefinitely.
+    During hang, operator might use manual parameters (could be wrong).
+    Timeout ensures system ALWAYS returns a definitive answer.
+    Implementation: wrap iterative solver in Promise.race([solver, timeout(30000)])
+  Log: convergence_iterations, residual, which coupling was slowest, wall_clock_ms
+coupled_physics_divergence_alert — warning
+  If sensitivity analysis shows >50% output change for <5% input change → ALERT
+  Indicates numerically unstable regime — recommend different parameters
+```

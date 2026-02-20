@@ -1,0 +1,61 @@
+{
+  "gsdBundles": {
+    "version": "2.0.0",
+    "description": "Skill bundles are SUGGESTIONS only - use intelligent_skill_selector.py for dynamic selection",
+    "philosophy": "NO FIXED LIMITS - pure relevance-based selection",
+    "preferredMethod": {
+      "script": "C:\\PRISM\\scripts\\intelligent_skill_selector.py",
+      "usage": "py -3 intelligent_skill_selector.py \"Your task description\"",
+      "notes": [
+        "Dynamically selects 3-20+ skills based on task complexity",
+        "Uses keyword matching, name matching, and capability scoring",
+        "Threshold parameter (--threshold) controls sensitivity",
+        "No artificial limits on skill count"
+      ]
+    },
+    "bundles": {
+      "_NOTE": "These bundles are QUICK REFERENCE only, not enforced limits",
+      "EXTRACTION": {
+        "coreSkills": ["prism-monolith-extractor", "prism-monolith-index", "prism-monolith-navigator"],
+        "relatedSkills": ["prism-module-builder", "prism-extraction-orchestrator"],
+        "triggers": ["extract", "monolith", "module", "migrate"]
+      },
+      "MATERIALS": {
+        "coreSkills": ["prism-material-schema", "prism-material-physics", "prism-material-enhancer"],
+        "relatedSkills": ["prism-material-lookup", "prism-material-validator", "prism-expert-materials-scientist"],
+        "triggers": ["material", "steel", "aluminum", "Kienzle", "Johnson-Cook"]
+      },
+      "ALARMS": {
+        "coreSkills": ["prism-controller-quick-ref", "prism-error-catalog"],
+        "relatedSkills": ["prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+        "triggers": ["alarm", "error", "fault", "FANUC", "HAAS", "SIEMENS"]
+      },
+      "CODE": {
+        "coreSkills": ["prism-code-master", "prism-tdd-enhanced", "prism-sp-debugging"],
+        "relatedSkills": ["prism-debugging", "prism-code-perfection", "prism-validator"],
+        "triggers": ["code", "debug", "test", "function", "class"]
+      },
+      "WORKFLOW": {
+        "coreSkills": ["prism-sp-planning", "prism-sp-execution", "prism-sp-review-quality"],
+        "relatedSkills": ["prism-sp-brainstorm", "prism-sp-verification", "prism-sp-handoff"],
+        "triggers": ["plan", "review", "brainstorm", "design"]
+      },
+      "COGNITIVE": {
+        "coreSkills": ["prism-master-equation", "prism-safety-framework", "prism-reasoning-engine"],
+        "relatedSkills": ["prism-cognitive-core", "prism-quality-master"],
+        "triggers": ["quality", "Omega", "safety", "validate"]
+      }
+    },
+    "intelligentSelection": {
+      "algorithm": "Multi-signal relevance scoring",
+      "signals": [
+        "Keyword matches (40% weight)",
+        "Skill name matches (30% weight)",
+        "Domain relevance (20% weight)",
+        "Synergy with other selected skills (10% weight)"
+      ],
+      "defaultThreshold": 0.20,
+      "noLimit": true
+    }
+  }
+}

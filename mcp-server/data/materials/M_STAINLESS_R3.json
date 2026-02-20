@@ -1,0 +1,67 @@
+{
+  "materials": [
+    {
+      "material_id": "MD-2205-ANNEALED",
+      "name": "Duplex 2205 Solution Annealed",
+      "iso_group": "M",
+      "material_type": "stainless_steel",
+      "subcategory": "duplex",
+      "condition": "solution_annealed",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook", "Outokumpu_Technical_Data", "Sandvik_Technical_Guide"],
+      "physical": {
+        "density": 7800, "melting_point": 1385, "specific_heat": 475,
+        "thermal_conductivity": 19, "thermal_expansion": 13.7,
+        "elastic_modulus": 200, "poisson_ratio": 0.30, "shear_modulus": 77, "bulk_modulus": 167
+      },
+      "mechanical": {
+        "hardness": { "brinell": 256, "vickers": 270, "rockwell_c": 26, "rockwell_b": null },
+        "tensile_strength": { "typical": 655, "min": 620, "max": 700 },
+        "yield_strength": { "typical": 450, "min": 420, "max": 480 },
+        "elongation": 25, "reduction_of_area": 50,
+        "impact_strength": 120, "fatigue_strength": 290, "fracture_toughness": 120,
+        "work_hardening_exponent": 0.35
+      },
+      "kienzle": {
+        "kc1_1": 2350, "mc": 0.26,
+        "kc1_1_milling": 2115, "mc_milling": 0.24,
+        "kc1_1_drilling": 2585, "mc_drilling": 0.28
+      },
+      "johnson_cook": {
+        "A": 450, "B": 1050, "n": 0.50, "C": 0.04, "m": 1,
+        "T_melt": 1385, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 130, "n": 0.18,
+        "C_carbide": 104, "n_carbide": 0.14,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null
+      },
+      "chip_formation": {
+        "chip_type": "continuous_stringy", "chip_breaking": "poor",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "high", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 80, "speed_finishing": 120,
+          "feed_roughing": 0.25, "feed_finishing": 0.10,
+          "doc_roughing": 2.5, "doc_finishing": 0.5
+        },
+        "milling": {
+          "speed_roughing": 70, "speed_finishing": 110,
+          "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.06,
+          "doc_roughing": 2.0, "doc_finishing": 0.3
+        },
+        "tool_material": {
+          "recommended_grade": "Carbide P25/M25",
+          "coating_recommendation": "TiAlN or AlTiN multi-layer",
+          "geometry_recommendation": "Positive rake, sharp edge for work-hardening control"
+        },
+        "coolant": { "type": "flood", "recommendation": "High-pressure coolant recommended for chip evacuation" }
+      },
+      "machinability": { "aisi_rating": 35, "relative_to_1212": 0.28 },
+      "_verified": { "session": 60, "date": "2026-02-14", "method": "handbook_reference", "params": 127 }
+    }
+  ]
+}

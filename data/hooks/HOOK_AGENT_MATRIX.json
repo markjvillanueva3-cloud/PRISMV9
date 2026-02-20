@@ -1,0 +1,262 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-02",
+  "description": "Complete Hook×Agent Matrix - Maps all hooks to appropriate agent tiers",
+  "phase": "Phase 0 - Hook Maximization",
+  "session": "18",
+  "matrix_dimensions": {
+    "total_hooks": 7114,
+    "total_agents": 64,
+    "total_mappings": 7114
+  },
+  "mapping_principles": {
+    "description": "Agent tier selection based on task complexity and safety criticality",
+    "rules": [
+      {
+        "tier": "OPUS",
+        "criteria": "Complex reasoning, safety-critical decisions, anti-regression",
+        "hook_types": ["safety_violation", "anti_regression", "quality_scoring", "complex_validation", "physics_check", "uncertainty_exceed"],
+        "agent_count": 18,
+        "model": "claude-opus-4-5-20251101"
+      },
+      {
+        "tier": "SONNET",
+        "criteria": "Data processing, calculations, extraction, standard validation",
+        "hook_types": ["before_*", "after_*", "validation", "data_processing", "calculation", "extraction"],
+        "agent_count": 37,
+        "model": "claude-sonnet-4-5-20250929"
+      },
+      {
+        "tier": "HAIKU",
+        "criteria": "Formatting, counting, logging, simple operations",
+        "hook_types": ["logging", "formatting", "counting", "registry_update", "cache_*", "progress"],
+        "agent_count": 9,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ]
+  },
+  "domain_mappings": {
+    "CALCULATION": {
+      "total_hooks": 32,
+      "mappings": [
+        {"hook_pattern": "calculation:before*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Input validation"},
+        {"hook_pattern": "calculation:after*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Output validation"},
+        {"hook_pattern": "calculation:safety*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "Safety critical"},
+        {"hook_pattern": "calculation:physics*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Physics validation"},
+        {"hook_pattern": "calculation:uncertainty*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Complex uncertainty handling"},
+        {"hook_pattern": "calculation:cache*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Simple cache ops"},
+        {"hook_pattern": "calculation:log*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Logging only"}
+      ]
+    },
+    "FORMULA": {
+      "total_hooks": 670,
+      "mappings": [
+        {"hook_pattern": "formula:before_apply", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Physics validation"},
+        {"hook_pattern": "formula:after_apply", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Result validation"},
+        {"hook_pattern": "formula:mape_exceeded", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Accuracy critical"},
+        {"hook_pattern": "formula:select", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "ILP selection"},
+        {"hook_pattern": "formula:execute", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Standard execution"},
+        {"hook_pattern": "formula:validate", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Standard validation"}
+      ]
+    },
+    "MATERIAL": {
+      "total_hooks": 602,
+      "mappings": [
+        {"hook_pattern": "material:before_query", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Data retrieval"},
+        {"hook_pattern": "material:after_query", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Simple logging"},
+        {"hook_pattern": "material:validation_fail", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Data validation"},
+        {"hook_pattern": "material:coefficient_check", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Physics coefficient validation"}
+      ]
+    },
+    "FILE": {
+      "total_hooks": 48,
+      "mappings": [
+        {"hook_pattern": "file:before_create", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-001", "reason": "Path/content validation"},
+        {"hook_pattern": "file:after_create", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Logging"},
+        {"hook_pattern": "file:validation_fail", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-001", "reason": "Error handling"},
+        {"hook_pattern": "file:anti_regression", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Anti-regression critical"},
+        {"hook_pattern": "file:path_validate", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Simple check"},
+        {"hook_pattern": "file:content_validate", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-001", "reason": "Content analysis"},
+        {"hook_pattern": "file:backup", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Simple copy"},
+        {"hook_pattern": "file:registry_update", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Registry update"}
+      ]
+    },
+    "STATE": {
+      "total_hooks": 38,
+      "mappings": [
+        {"hook_pattern": "state:before_mutate", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "State capture"},
+        {"hook_pattern": "state:after_mutate", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Logging"},
+        {"hook_pattern": "state:rollback", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Recovery critical"},
+        {"hook_pattern": "state:validate", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Schema validation"},
+        {"hook_pattern": "state:checkpoint", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Simple save"},
+        {"hook_pattern": "state:sync", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "File sync"}
+      ]
+    },
+    "AGENT": {
+      "total_hooks": 340,
+      "mappings": [
+        {"hook_pattern": "agent:before_spawn", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-001", "reason": "Resource validation"},
+        {"hook_pattern": "agent:after_spawn", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Registration"},
+        {"hook_pattern": "agent:error", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Error recovery critical"},
+        {"hook_pattern": "agent:heartbeat", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Simple check"},
+        {"hook_pattern": "agent:terminate", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Cleanup"}
+      ]
+    },
+    "BATCH": {
+      "total_hooks": 26,
+      "mappings": [
+        {"hook_pattern": "batch:before", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Batch validation"},
+        {"hook_pattern": "batch:after", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Aggregation"},
+        {"hook_pattern": "batch:partial_failure", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Recovery decision"},
+        {"hook_pattern": "batch:progress", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "Progress report"},
+        {"hook_pattern": "batch:checkpoint", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Save point"},
+        {"hook_pattern": "batch:parallel", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Coordination"}
+      ]
+    },
+    "SAFETY": {
+      "total_hooks": 43,
+      "mappings": [
+        {"hook_pattern": "safety:*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "ALL safety hooks go to OPUS Safety Validator"}
+      ]
+    },
+    "QUALITY": {
+      "total_hooks": 39,
+      "mappings": [
+        {"hook_pattern": "quality:omega*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "Master equation computation"},
+        {"hook_pattern": "quality:safety*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "Safety scoring"},
+        {"hook_pattern": "quality:code*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-001", "reason": "Code analysis"},
+        {"hook_pattern": "quality:reasoning*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Reasoning evaluation"}
+      ]
+    },
+    "PHYSICS": {
+      "total_hooks": 54,
+      "mappings": [
+        {"hook_pattern": "physics:kienzle*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Cutting force critical"},
+        {"hook_pattern": "physics:taylor*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Tool life critical"},
+        {"hook_pattern": "physics:johnson_cook*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Material flow critical"},
+        {"hook_pattern": "physics:deflection*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Deflection critical"},
+        {"hook_pattern": "physics:stability*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Chatter critical"},
+        {"hook_pattern": "physics:thermal*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Thermal analysis"}
+      ]
+    },
+    "VALIDATION": {
+      "total_hooks": 68,
+      "mappings": [
+        {"hook_pattern": "validation:gates*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "9-gate critical"},
+        {"hook_pattern": "validation:mathplan*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-001", "reason": "Math proof critical"},
+        {"hook_pattern": "validation:anti_regression*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Anti-regression critical"},
+        {"hook_pattern": "validation:input*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Input validation"},
+        {"hook_pattern": "validation:output*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Output validation"}
+      ]
+    },
+    "COGNITIVE": {
+      "total_hooks": 35,
+      "mappings": [
+        {"hook_pattern": "cognitive:bayes*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Bayesian reasoning"},
+        {"hook_pattern": "cognitive:rl*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "RL policy"},
+        {"hook_pattern": "cognitive:opt*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Optimization"},
+        {"hook_pattern": "cognitive:init*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Initialization"}
+      ]
+    },
+    "SESSION": {
+      "total_hooks": 28,
+      "mappings": [
+        {"hook_pattern": "session:start*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Session init"},
+        {"hook_pattern": "session:end*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Session cleanup"},
+        {"hook_pattern": "session:checkpoint*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Checkpoint save"},
+        {"hook_pattern": "session:gsd*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-001", "reason": "GSD load"}
+      ]
+    },
+    "ERROR": {
+      "total_hooks": 187,
+      "mappings": [
+        {"hook_pattern": "error:critical*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-002", "reason": "Critical error handling"},
+        {"hook_pattern": "error:recover*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Recovery strategy"},
+        {"hook_pattern": "error:log*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Error logging"},
+        {"hook_pattern": "error:pattern*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Pattern extraction"}
+      ]
+    },
+    "LEARNING": {
+      "total_hooks": 215,
+      "mappings": [
+        {"hook_pattern": "learning:extract*", "agent_tier": "OPUS", "agent_id": "AGT-OPUS-003", "reason": "Pattern extraction"},
+        {"hook_pattern": "learning:store*", "agent_tier": "HAIKU", "agent_id": "AGT-HAIKU-002", "reason": "Storage"},
+        {"hook_pattern": "learning:apply*", "agent_tier": "SONNET", "agent_id": "AGT-SONNET-003", "reason": "Application"}
+      ]
+    }
+  },
+  "tier_distribution": {
+    "OPUS": {
+      "count": 1847,
+      "percentage": "26.0%",
+      "agents": ["AGT-OPUS-001", "AGT-OPUS-002", "AGT-OPUS-003"],
+      "domains": ["SAFETY", "PHYSICS", "QUALITY", "COGNITIVE", "VALIDATION"],
+      "justification": "Safety-critical, complex reasoning, physics validation"
+    },
+    "SONNET": {
+      "count": 3204,
+      "percentage": "45.0%",
+      "agents": ["AGT-SONNET-001", "AGT-SONNET-002", "AGT-SONNET-003"],
+      "domains": ["CALCULATION", "MATERIAL", "FILE", "STATE", "BATCH"],
+      "justification": "Data processing, standard validation, calculations"
+    },
+    "HAIKU": {
+      "count": 2063,
+      "percentage": "29.0%",
+      "agents": ["AGT-HAIKU-001", "AGT-HAIKU-002"],
+      "domains": ["LOGGING", "CACHE", "PROGRESS", "REGISTRY"],
+      "justification": "Simple operations, formatting, counting"
+    }
+  },
+  "escalation_rules": {
+    "description": "Rules for escalating hook execution to higher tier",
+    "rules": [
+      {
+        "trigger": "HAIKU hook fails 3 times consecutively",
+        "action": "Escalate to SONNET",
+        "reason": "Pattern suggests complexity beyond HAIKU"
+      },
+      {
+        "trigger": "SONNET hook encounters safety violation",
+        "action": "Escalate to OPUS immediately",
+        "reason": "Safety must be handled by OPUS"
+      },
+      {
+        "trigger": "Any hook S(x) < 0.70",
+        "action": "OPUS AGT-OPUS-002 review required",
+        "reason": "Safety gate enforcement"
+      },
+      {
+        "trigger": "Uncertainty > threshold",
+        "action": "Escalate to OPUS AGT-OPUS-001",
+        "reason": "Complex uncertainty handling"
+      }
+    ]
+  },
+  "performance_targets": {
+    "OPUS": {
+      "max_duration_ms": 5000,
+      "expected_avg_ms": 1500,
+      "acceptable_failure_rate": 0.01
+    },
+    "SONNET": {
+      "max_duration_ms": 2000,
+      "expected_avg_ms": 500,
+      "acceptable_failure_rate": 0.02
+    },
+    "HAIKU": {
+      "max_duration_ms": 500,
+      "expected_avg_ms": 50,
+      "acceptable_failure_rate": 0.05
+    }
+  },
+  "summary": {
+    "total_mappings": 7114,
+    "opus_percentage": 26.0,
+    "sonnet_percentage": 45.0,
+    "haiku_percentage": 29.0,
+    "safety_critical_hooks": 290,
+    "all_safety_hooks_on_opus": true,
+    "coverage": "100%"
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "project": "PRISM Manufacturing Intelligence",
+    "database": "Controller Alarm Fix Procedures",
+    "version": "1.0.0",
+    "created": "2026-01-28T08:29:23.901291",
+    "total_procedures": 9399
+  },
+  "procedures_by_category": {
+    "SERVO": {
+      "CRITICAL": {
+        "immediate_actions": [
+          "1. E-STOP if machine moving",
+          "2. Do NOT reset immediately",
+          "3. Record alarm details and axis"
+        ],
+        "diagnostic_steps": [
+          "1. Check servo amp fault LEDs",
+          "2. Measure motor resistance (phase-to-phase)",
+          "3. Check encoder cable continuity",
+          "4. Verify DC bus voltage"
+        ],
+        "resolution_steps": [
+          "1. If overload: reduce rapid/feed rates, check mechanical binding",
+          "2. If encoder error: replace cable or encoder",
+          "3. If amp fault: check cooling, replace if needed",
+          "4. If following error: tune servo gains"
+        ],
+        "verification": [
+          "1. Jog axis slowly in both directions",
+          "2. Run test program at reduced feed",
+          "3. Monitor servo load during operation"
+        ]
+      },
+      "HIGH": {
+        "immediate_actions": [
+          "1. Stop current operation",
+          "2. Note alarm axis and conditions"
+        ],
+        "diagnostic_steps": [
+          "1. Check servo parameters",
+          "2. Review error history",
+          "3. Check for mechanical issues"
+        ],
+        "resolution_steps": [
+          "1. Adjust parameters if needed",
+          "2. Check lubrication",
+          "3. Verify ballscrew condition"
+        ],
+        "verification": [
+          "1. Jog test",
+          "2. Run part program"
+        ]
+      }
+    },
+    "SPINDLE": {
+      "CRITICAL": {
+        "immediate_actions": [
+          "1. Stop spindle immediately",
+          "2. Do NOT attempt restart",
+          "3. Check for smoke/burning smell"
+        ],
+        "diagnostic_steps": [
+          "1. Check spindle motor temperature",
+          "2. Measure motor insulation resistance",
+          "3. Check drive fault codes",
+          "4. Verify encoder signals"
+        ],
+        "resolution_steps": [
+          "1. If overtemp: allow cooling, check coolant flow",
+          "2. If drive fault: check power supply",
+          "3. If vibration: check bearings",
+          "4. If orientation fail: adjust sensor"
+        ],
+        "verification": [
+          "1. Run spindle at low RPM first",
+          "2. Gradually increase to working speed",
+          "3. Monitor vibration and temperature"
+        ]
+      }
+    },
+    "ATC": {
+      "CRITICAL": {
+        "immediate_actions": [
+          "1. STOP all motion",
+          "2. Do NOT manually force magazine",
+          "3. Check tool in spindle"
+        ],
+        "diagnostic_steps": [
+          "1. Check magazine position sensors",
+          "2. Verify air pressure (>5 bar)",
+          "3. Check arm position",
+          "4. Verify tool in gripper"
+        ],
+        "resolution_steps": [
+          "1. Reset ATC to home position",
+          "2. Verify tool pocket assignments",
+          "3. Check for tool interference",
+          "4. Clean and lubricate mechanism"
+        ],
+        "verification": [
+          "1. Cycle ATC empty",
+          "2. Test tool change sequence",
+          "3. Verify tool seating in spindle"
+        ]
+      }
+    },
+    "OVERTRAVEL": {
+      "CRITICAL": {
+        "immediate_actions": [
+          "1. Release E-stop carefully",
+          "2. Use override to jog off limit",
+          "3. Move slowly in opposite direction"
+        ],
+        "diagnostic_steps": [
+          "1. Check limit switch status",
+          "2. Verify machine position display",
+          "3. Check soft limit settings"
+        ],
+        "resolution_steps": [
+          "1. Jog axis away from limit",
+          "2. Re-home axis if needed",
+          "3. Check work offsets",
+          "4. Review program coordinates"
+        ],
+        "verification": [
+          "1. Verify position matches actual",
+          "2. Test program in single block",
+          "3. Check entire travel range"
+        ]
+      }
+    },
+    "SAFETY": {
+      "CRITICAL": {
+        "immediate_actions": [
+          "1. Ensure personnel safety first",
+          "2. Do NOT bypass safety systems",
+          "3. Identify triggered safety device"
+        ],
+        "diagnostic_steps": [
+          "1. Check E-stop chain",
+          "2. Verify door interlock status",
+          "3. Check safety relay contacts",
+          "4. Review safety PLC status"
+        ],
+        "resolution_steps": [
+          "1. Clear safety condition",
+          "2. Reset safety relay if needed",
+          "3. Verify all guards in place",
+          "4. Check for damaged sensors"
+        ],
+        "verification": [
+          "1. Test each safety device",
+          "2. Verify proper function before production",
+          "3. Document any repairs"
+        ]
+      }
+    }
+  },
+  "default_procedure": {
+    "immediate_actions": [
+      "1. Stop operation",
+      "2. Record alarm details",
+      "3. Check obvious causes"
+    ],
+    "diagnostic_steps": [
+      "1. Review alarm description",
+      "2. Check related systems",
+      "3. Consult machine manual"
+    ],
+    "resolution_steps": [
+      "1. Address identified cause",
+      "2. Reset alarm",
+      "3. Test operation"
+    ],
+    "verification": [
+      "1. Monitor for recurrence",
+      "2. Document fix applied"
+    ]
+  }
+}

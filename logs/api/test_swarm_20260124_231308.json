@@ -1,0 +1,40 @@
+{
+  "session_id": "session-1769317981",
+  "timestamp": "2026-01-24T23:13:08.186401",
+  "task_count": 3,
+  "results": [
+    {
+      "agent_id": "coder-test-1",
+      "role": "coder",
+      "status": "success",
+      "content": "```python\ndef cutting_speed(diameter_mm: float, rpm: float) -> float:\n    \"\"\"\n    Calculate cutting speed in meters per minute.\n    \n    Args:\n        diameter_mm: Diameter in millimeters\n        rpm: Revolutions per minute\n        \n    Returns:\n        Cutting speed in meters per minute\n        \n    Raises:\n        ValueError: If diameter_mm or rpm is negative\n    \"\"\"\n    if diameter_mm < 0:\n        raise ValueError(\"Diameter cannot be negative\")\n    if rpm < 0:\n        raise ValueError(\"RPM cannot be negative\")\n    \n    # Formula: Cutting Speed (m/min) = \u03c0 \u00d7 diameter (mm) \u00d7 RPM / 1000\n    return 3.14159 * diameter_mm * rpm / 1000\n```",
+      "input_tokens": 105,
+      "output_tokens": 191,
+      "elapsed_seconds": 3.95,
+      "timestamp": "2026-01-24T23:13:05.901139",
+      "task_id": "test-1"
+    },
+    {
+      "agent_id": "coder-test-2",
+      "role": "coder",
+      "status": "success",
+      "content": "```python\ndef feed_rate(fpt: float, teeth: int, rpm: float) -> float:\n    \"\"\"\n    Calculate the feed rate in mm/min based on feed per tooth, number of teeth, and spindle speed.\n    \n    Args:\n        fpt: Feed per tooth in mm/tooth\n        teeth: Number of cutting teeth on the tool\n        rpm: Spindle speed in revolutions per minute\n    \n    Returns:\n        Feed rate in mm/min\n    \n    Raises:\n        ValueError: If any parameter is negative or if teeth is zero\n    \"\"\"\n    if fpt < 0:\n        raise ValueError(\"Feed per tooth must be non-negative\")\n    if teeth <= 0:\n        raise ValueError(\"Number of teeth must be positive\")\n    if rpm < 0:\n        raise ValueError(\"RPM must be non-negative\")\n    \n    return fpt * teeth * rpm\n```",
+      "input_tokens": 108,
+      "output_tokens": 212,
+      "elapsed_seconds": 4.25,
+      "timestamp": "2026-01-24T23:13:06.606456",
+      "task_id": "test-2"
+    },
+    {
+      "agent_id": "coder-test-3",
+      "role": "coder",
+      "status": "success",
+      "content": "```python\ndef mrr(width_mm: float, depth_mm: float, feed_mm_min: float) -> float:\n    \"\"\"\n    Calculate material removal rate (MRR) for machining operations.\n    \n    Args:\n        width_mm: Width of cut in millimeters\n        depth_mm: Depth of cut in millimeters  \n        feed_mm_min: Feed rate in millimeters per minute\n        \n    Returns:\n        Material removal rate in cubic millimeters per minute (mm\u00b3/min)\n        \n    Raises:\n        ValueError: If any input parameter is negative\n    \"\"\"\n    if width_mm < 0 or depth_mm < 0 or feed_mm_min < 0:\n        raise ValueError(\"All parameters must be non-negative\")\n    \n    return width_mm * depth_mm * feed_mm_min\n```",
+      "input_tokens": 116,
+      "output_tokens": 207,
+      "elapsed_seconds": 5.42,
+      "timestamp": "2026-01-24T23:13:08.182510",
+      "task_id": "test-3"
+    }
+  ]
+}

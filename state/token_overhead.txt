@@ -1,0 +1,13 @@
+Recovery manifest injection: 1311 chars (~328 tokens)
+Recent actions: 4634 chars (~1159 tokens)
+Context pressure: 1607 chars (~402 tokens)
+
+--- ESTIMATED PER-CALL OVERHEAD ---
+Normal call: ~600 chars (~150 tokens) for _cadence + _context
+Compaction recovery: ~5000 chars (~1250 tokens) for full recovery payload
+With 40-call session: ~6000 tokens overhead from cadence injection
+That's ~0.6% of 1M token window
+
+--- SESSION CONTINUITY ---
+Journal entries: 314
+Journal size: 41028 chars

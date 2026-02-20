@@ -1,0 +1,22 @@
+L1699:                 ctx.manus_bridge = `\u{1F916} ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
+L1700:               }
+L1701:             } catch {
+L1702:             }
+L1703:             // _wip_reminder REMOVED v2}. Notes auto-save to SESSION_JOURNAL.jsonl and survive compaction.";
+L1704:             }
+L1705:             parsed._context = ctx;
+L1706:           }
+L1707:         } catch {
+L1708:         }
+L1709:         const recoveryData = cadence.rehydrated || compactionRecoverySurvival;
+L1710:         if (recoveryData && compactionRecoveryCallsRemaining > 0) {
+L1711:           const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
+L1712:           parsed._COMPACTION_RECOVERY = { _read: "C:\\PRISM\\state\\HOT_RESUME.md", rule: "Read HOT_RESUME.md via Shell then continue." };
+L1713:           compactionRecoveryCallsRemaining--;
+L1714:           if (compactionRecoveryCallsRemaining <= 0) compactionRecoverySurvival = null;
+L1715:         }
+L1716:         if (compactionDetectedThisCall) {
+L1717:           // TOKEN OPT v2: Lean compaction recovery
+L1718:           // Read CURRENT_POSITION.md (always fresh, ~1KB) instead of 5 stale state files
+L1719:           let hotResume = "";
+L1720:           try {

@@ -1,0 +1,3300 @@
+{
+  "metadata": {
+    "source": "DN Solutions published specs",
+    "created": "2026-02-15T04:45:54.915Z",
+    "count": 25
+  },
+  "machines": [
+    {
+      "id": "DN_PUMA_2100Y",
+      "name": "DN Solutions Puma 2100Y",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 200,
+        "y": 52,
+        "z": 540
+      },
+      "spindle": {
+        "rpm": 4000,
+        "power_kW": 18.5,
+        "torque_Nm": 287,
+        "taper": "A2-6",
+        "bore_mm": 61
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI40",
+        "indexTime": 0.15
+      },
+      "barCapacity_mm": 61,
+      "maxTurningDia": 360,
+      "liveTools": true,
+      "yAxis": true,
+      "weight_kg": 4800,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 200,
+          "y": 52,
+          "z": 540,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 230,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 210,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 180,
+            "length": 540,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 250,
+              "y": 0,
+              "z": 270
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 840
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 270
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 560,
+              "z": 940
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 270
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_PUMA_2600SY_II",
+      "name": "DN Solutions Puma 2600SY II",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 250,
+        "y": 55,
+        "z": 625
+      },
+      "spindle": {
+        "rpm": 3500,
+        "power_kW": 22,
+        "torque_Nm": 400,
+        "taper": "A2-8",
+        "bore_mm": 76
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI40",
+        "indexTime": 0.16
+      },
+      "barCapacity_mm": 76,
+      "maxTurningDia": 460,
+      "liveTools": true,
+      "yAxis": true,
+      "subSpindle": true,
+      "weight_kg": 6500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 250,
+          "y": 55,
+          "z": 625,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 280,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 260,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 230,
+            "length": 625,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 300,
+              "y": 0,
+              "z": 312.5
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 450,
+              "y": 400,
+              "z": 925
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 312.5
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 660,
+              "z": 1025
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 312.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_PUMA_3100ULY",
+      "name": "DN Solutions Puma 3100ULY",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 310,
+        "y": 80,
+        "z": 1550
+      },
+      "spindle": {
+        "rpm": 2500,
+        "power_kW": 30,
+        "torque_Nm": 600,
+        "taper": "A2-11",
+        "bore_mm": 102
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI50",
+        "indexTime": 0.2
+      },
+      "barCapacity_mm": 102,
+      "maxTurningDia": 550,
+      "liveTools": true,
+      "yAxis": true,
+      "weight_kg": 9800,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 310,
+          "y": 80,
+          "z": 1550,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 325,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 305,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 275,
+            "length": 1550,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 360,
+              "y": 0,
+              "z": 775
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 510,
+              "y": 400,
+              "z": 1850
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 775
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 710,
+              "y": 750,
+              "z": 1950
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 775
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_PUMA_4100LM",
+      "name": "DN Solutions Puma 4100LM",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 370,
+        "z": 2000
+      },
+      "spindle": {
+        "rpm": 1800,
+        "power_kW": 37,
+        "torque_Nm": 900,
+        "taper": "A2-11"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI60",
+        "indexTime": 0.25
+      },
+      "maxSwing": 680,
+      "maxTurningDia": 620,
+      "liveTools": true,
+      "weight_kg": 14000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 370,
+          "y": 0,
+          "z": 2000,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 390,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 370,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 340,
+            "length": 2000,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 420,
+              "y": 0,
+              "z": 1000
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 570,
+              "y": 400,
+              "z": 2300
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 1000
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 770,
+              "y": 880,
+              "z": 2400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1000
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_PUMA_5100LM",
+      "name": "DN Solutions Puma 5100LM",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 500,
+        "z": 3000
+      },
+      "spindle": {
+        "rpm": 1200,
+        "power_kW": 45,
+        "torque_Nm": 1400,
+        "taper": "A2-15"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI60"
+      },
+      "maxSwing": 900,
+      "maxTurningDia": 800,
+      "liveTools": true,
+      "weight_kg": 22000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 500,
+          "y": 0,
+          "z": 3000,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 500,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 480,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 450,
+            "length": 3000,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 550,
+              "y": 0,
+              "z": 1500
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 400,
+              "z": 3300
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 1500
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 1100,
+              "z": 3400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1500
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_PUMA_700LM",
+      "name": "DN Solutions Puma 700LM",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 650,
+        "z": 4000
+      },
+      "spindle": {
+        "rpm": 800,
+        "power_kW": 55,
+        "torque_Nm": 2200,
+        "taper": "A2-20"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B",
+        "type": "Fanuc 31i-B"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI80"
+      },
+      "maxSwing": 1180,
+      "maxTurningDia": 1050,
+      "liveTools": true,
+      "weight_kg": 42000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 650,
+          "y": 0,
+          "z": 4000,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 640,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 620,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 590,
+            "length": 4000,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 700,
+              "y": 0,
+              "z": 2000
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 850,
+              "y": 400,
+              "z": 4300
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 2000
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 1380,
+              "z": 4400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 2000
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_LYNX_2100A",
+      "name": "DN Solutions Lynx 2100A",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 170,
+        "z": 320
+      },
+      "spindle": {
+        "rpm": 6000,
+        "power_kW": 11,
+        "torque_Nm": 75,
+        "taper": "A2-5",
+        "bore_mm": 46
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI30",
+        "indexTime": 0.1
+      },
+      "barCapacity_mm": 46,
+      "maxTurningDia": 300,
+      "weight_kg": 2800,
+      "coolant": {
+        "pressure_bar": 10,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 170,
+          "y": 0,
+          "z": 320,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 200,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 180,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 320,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 220,
+              "y": 0,
+              "z": 160
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 370,
+              "y": 400,
+              "z": 620
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 160
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 570,
+              "y": 500,
+              "z": 720
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 160
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_LYNX_2100LYA",
+      "name": "DN Solutions Lynx 2100LYA",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 170,
+        "y": 52,
+        "z": 550
+      },
+      "spindle": {
+        "rpm": 6000,
+        "power_kW": 15,
+        "torque_Nm": 100,
+        "taper": "A2-6",
+        "bore_mm": 52
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI30",
+        "indexTime": 0.12
+      },
+      "barCapacity_mm": 52,
+      "maxTurningDia": 300,
+      "liveTools": true,
+      "yAxis": true,
+      "weight_kg": 3500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 170,
+          "y": 52,
+          "z": 550,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 200,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 180,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 550,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 220,
+              "y": 0,
+              "z": 275
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 370,
+              "y": 400,
+              "z": 850
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 275
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 570,
+              "y": 500,
+              "z": 950
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 275
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_LYNX_2600SY",
+      "name": "DN Solutions Lynx 2600SY",
+      "manufacturer": "DN Solutions",
+      "type": "turning_center",
+      "travels": {
+        "x": 200,
+        "y": 52,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 4500,
+        "power_kW": 18.5,
+        "torque_Nm": 220,
+        "taper": "A2-6",
+        "bore_mm": 65
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-TF Plus",
+        "type": "Fanuc 0i-TF Plus"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI40",
+        "indexTime": 0.14
+      },
+      "barCapacity_mm": 65,
+      "maxTurningDia": 380,
+      "liveTools": true,
+      "yAxis": true,
+      "subSpindle": true,
+      "weight_kg": 5200,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 200,
+          "y": 52,
+          "z": 510,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 240,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 220,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 190,
+            "length": 510,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 250,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 810
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 255
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 580,
+              "z": 910
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DNM_4500",
+      "name": "DN Solutions DNM 4500",
+      "manufacturer": "DN Solutions",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 800,
+        "y": 450,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 18.5,
+        "torque_Nm": 119
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF Plus",
+        "type": "Fanuc 0i-MF Plus"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 1.6
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1000,
+        "width": 450,
+        "load_kg": 600
+      },
+      "weight_kg": 5500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 800,
+          "y": 450,
+          "z": 510,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 685
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": -475,
+              "z": 255
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 450,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 450,
+              "z": 510
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -225,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 850,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DNM_5700",
+      "name": "DN Solutions DNM 5700",
+      "manufacturer": "DN Solutions",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1050,
+        "y": 570,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 22,
+        "torque_Nm": 175
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF Plus",
+        "type": "Fanuc 0i-MF Plus"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 1.8
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1300,
+        "width": 570,
+        "load_kg": 1000
+      },
+      "weight_kg": 7200,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1050,
+          "y": 570,
+          "z": 510,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 685
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": -535,
+              "z": 255
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 570,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 570,
+              "z": 510
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1250,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -285,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1550,
+              "y": 970,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DNM_6700",
+      "name": "DN Solutions DNM 6700",
+      "manufacturer": "DN Solutions",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1300,
+        "y": 670,
+        "z": 625
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "CAT50",
+        "power_kW": 30,
+        "torque_Nm": 350
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF Plus",
+        "type": "Fanuc 0i-MF Plus"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2.2
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1600,
+        "width": 670,
+        "load_kg": 1800
+      },
+      "weight_kg": 10000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1300,
+          "y": 670,
+          "z": 625,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 800
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 825
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1325
+            },
+            "position": {
+              "x": 0,
+              "y": -585,
+              "z": 312.5
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1600,
+              "y": 670,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 670,
+              "z": 625
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 312.5
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1500,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -335,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1800,
+              "y": 1070,
+              "z": 1325
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 312.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DNM_750L_II",
+      "name": "DN Solutions DNM 750L II",
+      "manufacturer": "DN Solutions",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1500,
+        "y": 750,
+        "z": 625
+      },
+      "spindle": {
+        "rpm": 8000,
+        "taper": "CAT50",
+        "power_kW": 30,
+        "torque_Nm": 430
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF Plus",
+        "type": "Fanuc 0i-MF Plus"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1800,
+        "width": 750,
+        "load_kg": 2500
+      },
+      "weight_kg": 12000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1500,
+          "y": 750,
+          "z": 625,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 800
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 825
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1325
+            },
+            "position": {
+              "x": 0,
+              "y": -625,
+              "z": 312.5
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1800,
+              "y": 750,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1500,
+              "y": 750,
+              "z": 625
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 312.5
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1700,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -375,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 2000,
+              "y": 1150,
+              "z": 1325
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 312.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DVF_4000",
+      "name": "DN Solutions DVF 4000",
+      "manufacturer": "DN Solutions",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 400,
+        "y": 350,
+        "z": 350
+      },
+      "spindle": {
+        "rpm": 15000,
+        "taper": "BT40",
+        "power_kW": 18.5,
+        "torque_Nm": 87
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 400,
+        "width": 350,
+        "load_kg": 200
+      },
+      "weight_kg": 7000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 400,
+          "y": 350,
+          "z": 350,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 525
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 600
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": -475,
+              "z": 175
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 250,
+            "length": 450,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 350,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 350,
+              "z": 350
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 950,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DVF_5000T",
+      "name": "DN Solutions DVF 5000T",
+      "manufacturer": "DN Solutions",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 625,
+        "y": 520,
+        "z": 460
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 22,
+        "torque_Nm": 175
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 500,
+        "width": 500,
+        "load_kg": 300
+      },
+      "weight_kg": 9500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 625,
+          "y": 520,
+          "z": 460,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 635
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": -560,
+              "z": 230
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 300,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 625,
+              "y": 520,
+              "z": 460
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1225,
+              "y": 1120,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DVF_6500",
+      "name": "DN Solutions DVF 6500",
+      "manufacturer": "DN Solutions",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 850,
+        "y": 650,
+        "z": 560
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A63",
+        "power_kW": 30,
+        "torque_Nm": 200
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 40,
+        "type": "chain",
+        "changeTime_sec": 3
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 650,
+        "width": 500,
+        "load_kg": 500
+      },
+      "weight_kg": 13000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 850,
+          "y": 650,
+          "z": 560,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 735
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 810
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1360
+            },
+            "position": {
+              "x": 0,
+              "y": -625,
+              "z": 280
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 375,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 850,
+              "y": 650,
+              "z": 560
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1450,
+              "y": 1250,
+              "z": 1360
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_DVF_8000",
+      "name": "DN Solutions DVF 8000",
+      "manufacturer": "DN Solutions",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 1050,
+        "y": 850,
+        "z": 750
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "HSK-A100",
+        "power_kW": 37,
+        "torque_Nm": 350
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 60,
+        "type": "chain",
+        "changeTime_sec": 4
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 800,
+        "width": 630,
+        "load_kg": 800
+      },
+      "weight_kg": 18000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1050,
+          "y": 850,
+          "z": 750,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 925
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1000
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1550
+            },
+            "position": {
+              "x": 0,
+              "y": -725,
+              "z": 375
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 450,
+            "length": 730,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 630,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 850,
+              "z": 750
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 375
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1650,
+              "y": 1450,
+              "z": 1550
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 375
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_NHP_4000",
+      "name": "DN Solutions NHP 4000",
+      "manufacturer": "DN Solutions",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 560,
+        "y": 560,
+        "z": 625
+      },
+      "spindle": {
+        "rpm": 15000,
+        "taper": "BT40",
+        "power_kW": 22,
+        "torque_Nm": 119
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 40,
+        "type": "chain",
+        "changeTime_sec": 1.7
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 400,
+        "width": 400,
+        "load_kg": 400
+      },
+      "weight_kg": 9500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 560,
+          "y": 560,
+          "z": 625,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 480,
+              "z": 312.5
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 960,
+              "z": 1225
+            },
+            "position": {
+              "x": -530,
+              "y": 0,
+              "z": 312.5
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 560,
+              "y": 560,
+              "z": 625
+            },
+            "position": {
+              "x": 0,
+              "y": 280,
+              "z": 312.5
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 600,
+              "z": 300
+            },
+            "position": {
+              "x": 500,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1360,
+              "y": 1160,
+              "z": 1425
+            },
+            "position": {
+              "x": 0,
+              "y": 280,
+              "z": 312.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_NHP_5000",
+      "name": "DN Solutions NHP 5000",
+      "manufacturer": "DN Solutions",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 730,
+        "y": 730,
+        "z": 800
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 30,
+        "torque_Nm": 200
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 60,
+        "type": "chain",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 500,
+        "width": 500,
+        "load_kg": 700
+      },
+      "weight_kg": 14000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 730,
+          "y": 730,
+          "z": 800,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 565,
+              "z": 400
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1130,
+              "z": 1400
+            },
+            "position": {
+              "x": -615,
+              "y": 0,
+              "z": 400
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 500,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 730,
+              "y": 730,
+              "z": 800
+            },
+            "position": {
+              "x": 0,
+              "y": 365,
+              "z": 400
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 700,
+              "z": 300
+            },
+            "position": {
+              "x": 600,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1530,
+              "y": 1330,
+              "z": 1600
+            },
+            "position": {
+              "x": 0,
+              "y": 365,
+              "z": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_NHP_5500",
+      "name": "DN Solutions NHP 5500",
+      "manufacturer": "DN Solutions",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 730,
+        "y": 730,
+        "z": 800
+      },
+      "spindle": {
+        "rpm": 8000,
+        "taper": "CAT50",
+        "power_kW": 37,
+        "torque_Nm": 500
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 60,
+        "type": "chain",
+        "changeTime_sec": 3
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 500,
+        "width": 500,
+        "load_kg": 1000
+      },
+      "weight_kg": 16000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 730,
+          "y": 730,
+          "z": 800,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 565,
+              "z": 400
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1130,
+              "z": 1400
+            },
+            "position": {
+              "x": -615,
+              "y": 0,
+              "z": 400
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 500,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 730,
+              "y": 730,
+              "z": 800
+            },
+            "position": {
+              "x": 0,
+              "y": 365,
+              "z": 400
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 700,
+              "z": 300
+            },
+            "position": {
+              "x": 600,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1530,
+              "y": 1330,
+              "z": 1600
+            },
+            "position": {
+              "x": 0,
+              "y": 365,
+              "z": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_NHP_6300",
+      "name": "DN Solutions NHP 6300",
+      "manufacturer": "DN Solutions",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 900,
+        "y": 850,
+        "z": 1000
+      },
+      "spindle": {
+        "rpm": 6000,
+        "taper": "CAT50",
+        "power_kW": 45,
+        "torque_Nm": 700
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 80,
+        "type": "chain",
+        "changeTime_sec": 4
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 630,
+        "width": 630,
+        "load_kg": 1500
+      },
+      "weight_kg": 22000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 900,
+          "y": 850,
+          "z": 1000,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 625,
+              "z": 500
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1250,
+              "z": 1600
+            },
+            "position": {
+              "x": -700,
+              "y": 0,
+              "z": 500
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 630,
+              "y": 630,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 850,
+              "z": 1000
+            },
+            "position": {
+              "x": 0,
+              "y": 425,
+              "z": 500
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 830,
+              "y": 830,
+              "z": 300
+            },
+            "position": {
+              "x": 730,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1700,
+              "y": 1450,
+              "z": 1800
+            },
+            "position": {
+              "x": 0,
+              "y": 425,
+              "z": 500
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_NHP_8000",
+      "name": "DN Solutions NHP 8000",
+      "manufacturer": "DN Solutions",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 1200,
+        "y": 1050,
+        "z": 1250
+      },
+      "spindle": {
+        "rpm": 6000,
+        "taper": "CAT50",
+        "power_kW": 55,
+        "torque_Nm": 1100
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 120,
+        "type": "chain",
+        "changeTime_sec": 5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 800,
+        "width": 800,
+        "load_kg": 2500
+      },
+      "weight_kg": 35000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1200,
+          "y": 1050,
+          "z": 1250,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 725,
+              "z": 625
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1450,
+              "z": 1850
+            },
+            "position": {
+              "x": -850,
+              "y": 0,
+              "z": 625
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 800,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1050,
+              "z": 1250
+            },
+            "position": {
+              "x": 0,
+              "y": 525,
+              "z": 625
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 1000,
+              "z": 300
+            },
+            "position": {
+              "x": 900,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 2000,
+              "y": 1650,
+              "z": 2050
+            },
+            "position": {
+              "x": 0,
+              "y": 525,
+              "z": 625
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_SMX_2100ST",
+      "name": "DN Solutions SMX 2100ST",
+      "manufacturer": "DN Solutions",
+      "type": "mill_turn_center",
+      "travels": {
+        "x": 300,
+        "y": 160,
+        "z": 780
+      },
+      "spindle": {
+        "rpm": 4000,
+        "power_kW": 18.5,
+        "torque_Nm": 287
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "millingSpindle": {
+        "rpm": 12000,
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "taper": "HSK-A63"
+      },
+      "turret": {
+        "stations": 24,
+        "type": "BMT"
+      },
+      "maxTurningDia": 350,
+      "subSpindle": true,
+      "weight_kg": 12000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 300,
+          "y": 160,
+          "z": 780,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 955
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1030
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1580
+            },
+            "position": {
+              "x": 0,
+              "y": -380,
+              "z": 390
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 245,
+            "length": 276,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 390,
+              "y": 176,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 160,
+              "z": 780
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 390
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 760,
+              "z": 1580
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 390
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_SMX_2600ST",
+      "name": "DN Solutions SMX 2600ST",
+      "manufacturer": "DN Solutions",
+      "type": "mill_turn_center",
+      "travels": {
+        "x": 380,
+        "y": 200,
+        "z": 1100
+      },
+      "spindle": {
+        "rpm": 3500,
+        "power_kW": 26,
+        "torque_Nm": 430
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "millingSpindle": {
+        "rpm": 12000,
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "taper": "HSK-A63"
+      },
+      "turret": {
+        "stations": 24,
+        "type": "BMT"
+      },
+      "maxTurningDia": 460,
+      "subSpindle": true,
+      "weight_kg": 16000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 380,
+          "y": 200,
+          "z": 1100,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1275
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1350
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1900
+            },
+            "position": {
+              "x": 0,
+              "y": -400,
+              "z": 550
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 297,
+            "length": 320,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 494,
+              "y": 220,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 380,
+              "y": 200,
+              "z": 1100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 550
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 980,
+              "y": 800,
+              "z": 1900
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 550
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DN_SMX_3100ST",
+      "name": "DN Solutions SMX 3100ST",
+      "manufacturer": "DN Solutions",
+      "type": "mill_turn_center",
+      "travels": {
+        "x": 460,
+        "y": 250,
+        "z": 1550
+      },
+      "spindle": {
+        "rpm": 3000,
+        "power_kW": 30,
+        "torque_Nm": 600
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "millingSpindle": {
+        "rpm": 12000,
+        "power_kW": 30,
+        "torque_Nm": 200,
+        "taper": "HSK-A63"
+      },
+      "maxTurningDia": 600,
+      "subSpindle": true,
+      "weight_kg": 22000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 460,
+          "y": 250,
+          "z": 1550,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1725
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1800
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 2350
+            },
+            "position": {
+              "x": 0,
+              "y": -425,
+              "z": 775
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 349,
+            "length": 375,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 598,
+              "y": 275,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 460,
+              "y": 250,
+              "z": 1550
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 775
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1060,
+              "y": 850,
+              "z": 2350
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 775
+            }
+          }
+        }
+      }
+    }
+  ]
+}

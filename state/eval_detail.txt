@@ -1,0 +1,42 @@
+CE-L3554: function evaluateNLHookCondition(hook: any, ctx: NLHookContext): boolean {
+CE-L3555:   try {
+CE-L3556:     const condition = hook.condition || hook.condition_code || hook.trigger || "";
+CE-L3557:     
+CE-L3558:     // STRUCTURED CONDITION: "type:param1:param2" format
+CE-L3559:     if (condition && typeof condition === "string" && condition.includes(":")) {
+CE-L3560:       const parts = condition.split(":");
+CE-L3561:       if (parts.length >= 2) {
+CE-L3562:         const condType = parts[0].toLowerCase().trim();
+CE-L3563:         switch (condType) {
+CE-L3564:           case "pressure_above": {
+CE-L3565:             const threshold = parseFloat(parts[1]);
+CE-L3566:             return !isNaN(threshold) && ctx.pressure_pct > threshold;
+CE-L3567:           }
+CE-L3568:           case "pressure_below": {
+CE-L3569:             const threshold = parseFloat(parts[1]);
+CE-L3570:             return !isNaN(threshold) && ctx.pressure_pct < threshold;
+CE-L3571:           }
+CE-L3572:           case "call_count_above": {
+CE-L3573:             const threshold = parseInt(parts[1]);
+CE-L3574:             return !isNaN(threshold) && ctx.call_number > threshold;
+CE-L3575:           }
+CE-L3576:           case "call_count_modulo": {
+CE-L3577:             const mod = parseInt(parts[1]);
+CE-L3578:             return !isNaN(mod) && mod > 0 && ctx.call_number % mod === 0;
+CE-L3579:           }
+CE-L3580:           case "phase_is": {
+CE-L3581:             return ctx.current_phase.toLowerCase().includes(parts[1].toLowerCase());
+CE-L3582:           }
+CE-L3583:           case "phase_not": {
+CE-L3584:             return !ctx.current_phase.toLowerCase().includes(parts[1].toLowerCase());
+CE-L3585:           }
+CE-L3586:           case "action_contains": {
+CE-L3587:             const target = parts[1].toLowerCase();
+CE-L3588:             return ctx.recent_actions.some(a => a.toLowerCase().includes(target));
+CE-L3589:           }
+CE-L3590:           case "tool_is": {
+CE-L3591:             return ctx.tool_name?.toLowerCase() === parts[1].toLowerCase();
+CE-L3592:           }
+CE-L3593:           case "always": {
+CE-L3594:             return true;
+CE-L3595:           }

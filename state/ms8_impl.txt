@@ -1,0 +1,80 @@
+L1009: ## R1-MS8: Formula Registry + Dispatcher Wiring
+L1010: <!-- ANCHOR: r1_role_systems_architect_model_opus_wiring_architecture_sonnet_impl_tests_effort_l_18_calls_sessions_2 -->
+L1011: ### Role: Systems Architect | Model: Opus (wiring architecture) â†’ Sonnet (impl + tests) | Effort: L (18 calls) | Sessions: 2
+L1012: 
+L1013: **Source:** SUPERPOWER_ROADMAP_AUDIT.md GAPs 4, 6, 7, 10
+L1014: **Effort:** ~18 calls | **Tier:** DEEP | **Context:** ~8KB
+L1015: **Response Budget:** ~15KB throughput, ~6KB peak
+L1016: **Entry:** R1-MS5 COMPLETE (ToolIndex exists â€” needed for tool_recommend in unified search).
+L1017:   MS6 and MS7 can be in-progress or complete â€” this MS is independent of enrichment data.
+L1018: 
+L1019: **WHY THIS IS CRITICAL:**
+L1020:   GAP 4: 9 calculator formulas hardcoded in calcDispatcher but NOT in FormulaRegistry.
+L1021:     App needs a "Calculator" page where machinists pick a formula, enter values, get results.
+L1022:     Without formulas in the registry, they're undiscoverable.
+L1023:   GAP 6: ToolpathStrategyRegistry has 697 strategies in 4,449 lines but toolpathDispatcher
+L1024:     exposes only 8 actions. Massive domain knowledge (trochoidal vs HEM vs conventional vs
+L1025:     adaptive clearing) is locked behind unexposed methods.
+L1026:   GAP 7: ThreadCalculationEngine has 658 lines of math (tap drill, thread milling, depth,
+L1027:     engagement, specs, Go/NoGo) but threadDispatcher has minimal wiring.
+L1028:   GAP 10: No unified search across registries. Each registry has different search signature.
+L1029: 
+L1030: ```
+L1031: === PART A: CALCULATOR FORMULAS (FRM-0) ===
+L1032: Effort: ~5 calls
+L1033: 
+L1034: A1. Read FormulaRegistry to understand formula data format:
+L1035:     prism_dev action=file_read path="src/registries/FormulaRegistry.ts" start_line=1 end_line=80  [effort=low]
+L1036:     Identify: JSON schema for formula entries. How formulas are stored and retrieved.
+L1037: 
+L1038: A2. Read existing formula data files:
+L1039:     prism_dev action=file_read path="data/formulas/" start_line=1 end_line=50  [effort=low]
+L1040:     Understand the structure to add new entries consistently.
+L1041: 
+L1042: A3. Create 9 calculator formula entries in formula data file:
+L1043:     prism_dev action=file_write (append to existing formula data, or new file):
+L1044: 
+L1045:     FORMULA DEFINITIONS:
+L1046:     ```json
+L1047:     [
+L1048:       {
+L1049:         "id": "F-CALC-001",
+L1050:         "name": "RPM Calculator",
+L1051:         "domain": "PHYSICS",
+L1052:         "category": "basic_calculation",
+L1053:         "equation_latex": "n = \\frac{V_c \\times 1000}{\\pi \\times D}",
+L1054:         "description": "Calculate spindle RPM from cutting speed and tool diameter",
+L1055:         "inputs": [
+L1056:           { "name": "Vc", "unit": "m/min", "description": "Cutting speed", "min": 1, "max": 2000 },
+L1057:           { "name": "D", "unit": "mm", "description": "Tool diameter", "min": 0.1, "max": 500 }
+L1058:         ],
+L1059:         "outputs": [
+L1060:           { "name": "n_rpm", "unit": "rpm", "description": "Spindle speed" }
+L1061:         ],
+L1062:         "formula_js": "({ Vc, D }) => ({ n_rpm: (Vc * 1000) / (Math.PI * D) })"
+L1063:       },
+L1064:       {
+L1065:         "id": "F-CALC-002",
+L1066:         "name": "Feed Rate Calculator",
+L1067:         "domain": "PHYSICS",
+L1068:         "category": "basic_calculation",
+L1069:         "equation_latex": "V_f = n \\times f_z \\times z",
+L1070:         "description": "Calculate table feed rate from RPM, feed per tooth, and number of flutes",
+L1071:         "inputs": [
+L1072:           { "name": "n_rpm", "unit": "rpm", "description": "Spindle speed", "min": 1, "max": 100000 },
+L1073:           { "name": "fz", "unit": "mm/tooth", "description": "Feed per tooth", "min": 0.001, "max": 10 },
+L1074:           { "name": "z", "unit": "", "description": "Number of flutes/teeth", "min": 1, "max": 20 }
+L1075:         ],
+L1076:         "outputs": [
+L1077:           { "name": "Vf", "unit": "mm/min", "description": "Table feed rate" }
+L1078:         ],
+L1079:         "formula_js": "({ n_rpm, fz, z }) => ({ Vf: n_rpm * fz * z })"
+L1080:       },
+L1081:       {
+L1082:         "id": "F-CALC-003",
+L1083:         "name": "Material Removal Rate (MRR)",
+L1084:         "domain": "PHYSICS",
+L1085:         "category": "productivity",
+L1086:         "equation_latex": "Q = \\frac{a_e \\times a_p \\times V_f}{1000}",
+L1087:         "description": "Calculate volume of material removed per minute",
+L1088:         "inputs": [

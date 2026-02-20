@@ -1,0 +1,170 @@
+/**
+ * PRISM Spinner Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Spinner Werkzeugmaschinenfabrik GmbH Official Specifications 2024
+ * 
+ * Coverage:
+ * - VC Series (Vertical Machining)
+ * - U Series (5-Axis Universal)
+ * - TTS Series (Turning Centers)
+ * 
+ * Note: Spinner is a German manufacturer known for compact, high-precision machines
+ */
+
+const PRISM_SPINNER_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "spinner",
+    manufacturerFull: "Spinner Werkzeugmaschinenfabrik GmbH",
+    country: "Germany",
+    headquarters: "Sauerlach, Germany",
+    website: "https://www.spinner.eu",
+    controlSystem: "Siemens 840D sl / FANUC 31i-B",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // VC SERIES - VERTICAL MACHINING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "spinner_vc560": {
+            id: "spinner_vc560", manufacturer: "spinner", model: "VC 560", series: "VC", type: "VMC", subtype: "3-axis-compact", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 15000, peakHp: 22, continuousHp: 18, maxTorque_Nm: 90, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 160, headLength_mm: 340 } },
+            travels: { x: { min: 0, max: 560, rapid_mm_min: 40000 }, y: { min: 0, max: 450, rapid_mm_min: 40000 }, z: { min: 0, max: 400, rapid_mm_min: 40000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 280, y: 225, z: 400 }, tableSurface: { x: 280, y: 225, z: 0 } }, spindleToTable_mm: 400 },
+            table: { type: "fixed", length_mm: 710, width_mm: 450, thickness_mm: 60, tSlots: { count: 5, width_mm: 14, spacing_mm: 80 }, maxLoad_kg: 400 },
+            geometry: { footprint: { length_mm: 2100, width_mm: 2000, height_mm: 2600 }, workEnvelope: { x_mm: 560, y_mm: 450, z_mm: 400 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 160, length_mm: 340, offset: { x: 0, y: 0, z: -170 } },
+                table: { type: "box", dimensions: { x: 710, y: 450, z: 60 }, position: { x: 0, y: 0, z: -60 } } },
+            atc: { type: "arm", capacity: 24, maxToolDiameter_mm: 80, maxToolLength_mm: 250, changeTime_sec: 2.2 },
+            accuracy: { positioning_mm: 0.005, repeatability_mm: 0.003 },
+            physical: { weight_kg: 4800 }, sources: ["Spinner VC 560 Specifications 2024"]
+        },
+
+        "spinner_vc850": {
+            id: "spinner_vc850", manufacturer: "spinner", model: "VC 850", series: "VC", type: "VMC", subtype: "3-axis", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 12000, peakHp: 28, continuousHp: 22, maxTorque_Nm: 140, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 180, headLength_mm: 380 } },
+            travels: { x: { min: 0, max: 850, rapid_mm_min: 36000 }, y: { min: 0, max: 600, rapid_mm_min: 36000 }, z: { min: 0, max: 500, rapid_mm_min: 30000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 425, y: 300, z: 500 }, tableSurface: { x: 425, y: 300, z: 0 } }, spindleToTable_mm: 500 },
+            table: { type: "fixed", length_mm: 1000, width_mm: 600, thickness_mm: 70, maxLoad_kg: 800 },
+            geometry: { footprint: { length_mm: 2700, width_mm: 2500, height_mm: 2850 }, workEnvelope: { x_mm: 850, y_mm: 600, z_mm: 500 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 180, length_mm: 380, offset: { x: 0, y: 0, z: -190 } },
+                table: { type: "box", dimensions: { x: 1000, y: 600, z: 70 }, position: { x: 0, y: 0, z: -70 } } },
+            atc: { type: "arm", capacity: 32, maxToolDiameter_mm: 90, maxToolLength_mm: 300, changeTime_sec: 2.5 },
+            physical: { weight_kg: 7500 }, sources: ["Spinner VC 850 Specifications 2024"]
+        },
+
+        "spinner_vc1200": {
+            id: "spinner_vc1200", manufacturer: "spinner", model: "VC 1200", series: "VC", type: "VMC", subtype: "3-axis-large", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 10000, peakHp: 35, continuousHp: 28, maxTorque_Nm: 200, taper: "HSK-A100",
+                geometry: { noseToGageLine_mm: 127.0, headDiameter_mm: 210, headLength_mm: 420 } },
+            travels: { x: { min: 0, max: 1200, rapid_mm_min: 30000 }, y: { min: 0, max: 700, rapid_mm_min: 30000 }, z: { min: 0, max: 600, rapid_mm_min: 24000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 600, y: 350, z: 600 }, tableSurface: { x: 600, y: 350, z: 0 } }, spindleToTable_mm: 600 },
+            table: { type: "fixed", length_mm: 1400, width_mm: 700, thickness_mm: 85, maxLoad_kg: 1500 },
+            geometry: { footprint: { length_mm: 3500, width_mm: 3100, height_mm: 3100 }, workEnvelope: { x_mm: 1200, y_mm: 700, z_mm: 600 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 210, length_mm: 420, offset: { x: 0, y: 0, z: -210 } },
+                table: { type: "box", dimensions: { x: 1400, y: 700, z: 85 }, position: { x: 0, y: 0, z: -85 } } },
+            atc: { type: "arm", capacity: 40, maxToolDiameter_mm: 100, maxToolLength_mm: 400, changeTime_sec: 3.0 },
+            physical: { weight_kg: 12000 }, sources: ["Spinner VC 1200 Specifications 2024"]
+        },
+
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // U SERIES - 5-AXIS UNIVERSAL
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "spinner_u620": {
+            id: "spinner_u620", manufacturer: "spinner", model: "U 620", series: "U", type: "5AXIS", subtype: "trunnion-compact", axes: 5, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 18000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 85, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 160, headLength_mm: 350 } },
+            travels: { x: { min: 0, max: 620, rapid_mm_min: 40000 }, y: { min: 0, max: 520, rapid_mm_min: 40000 }, z: { min: 0, max: 460, rapid_mm_min: 40000 },
+                a: { min: -120, max: 30, rapid_deg_sec: 35 }, c: { min: -360, max: 360, rapid_deg_sec: 100, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", rotationVector: { i: 1, j: 0, k: 0 }, minAngle_deg: -120, maxAngle_deg: 30, pivotPoint_mm: { x: 310, y: 260, z: 150 }, pivotToTable_mm: 110, torque_Nm: 500, directDrive: true },
+                    c: { type: "rotary", rotationVector: { i: 0, j: 0, k: 1 }, continuous: true, torque_Nm: 350, directDrive: true }
+                },
+                referencePoints: { spindleGageLine: { x: 310, y: 260, z: 460 }, tableSurface: { x: 310, y: 260, z: 150 }, aPivotPoint: { x: 310, y: 260, z: 150 } },
+                tcpcSupported: true, rtcpSupported: true },
+            table: { type: "trunnion_rotary", diameter_mm: 450, tSlots: { count: 4, width_mm: 14, pattern: "radial" }, maxLoad_kg: 200,
+                trunnion: { width_mm: 620, supportHeight_mm: 300, clearanceUnder_mm: 100 } },
+            geometry: { footprint: { length_mm: 2800, width_mm: 2900, height_mm: 2700 }, workEnvelope: { x_mm: 620, y_mm: 520, z_mm: 460 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 160, length_mm: 350, offset: { x: 0, y: 0, z: -175 } },
+                trunnionLeft: { type: "cylinder", diameter_mm: 220, length_mm: 140, position: { x: -310, y: 260, z: 150 } },
+                trunnionRight: { type: "cylinder", diameter_mm: 220, length_mm: 140, position: { x: 310, y: 260, z: 150 } },
+                rotaryTable: { type: "cylinder", diameter_mm: 450, height_mm: 80, rotatesWith: ["a", "c"] } },
+            atc: { type: "arm", capacity: 40, maxToolDiameter_mm: 80, maxToolLength_mm: 280, changeTime_sec: 2.5 },
+            accuracy: { positioning_mm: 0.004, repeatability_mm: 0.002, aAxisAccuracy_deg: 0.002, cAxisAccuracy_deg: 0.002 },
+            physical: { weight_kg: 9500 }, sources: ["Spinner U 620 Specifications 2024"]
+        },
+
+        "spinner_u1520": {
+            id: "spinner_u1520", manufacturer: "spinner", model: "U 1520", series: "U", type: "5AXIS", subtype: "trunnion-large", axes: 5, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 12000, peakHp: 40, continuousHp: 32, maxTorque_Nm: 200, taper: "HSK-A100",
+                geometry: { noseToGageLine_mm: 127.0, headDiameter_mm: 200, headLength_mm: 420 } },
+            travels: { x: { min: 0, max: 1520, rapid_mm_min: 35000 }, y: { min: 0, max: 700, rapid_mm_min: 35000 }, z: { min: 0, max: 700, rapid_mm_min: 35000 },
+                a: { min: -120, max: 30, rapid_deg_sec: 25 }, c: { min: -360, max: 360, rapid_deg_sec: 60, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", minAngle_deg: -120, maxAngle_deg: 30, pivotPoint_mm: { x: 760, y: 350, z: 250 }, torque_Nm: 1500, directDrive: true },
+                    c: { type: "rotary", continuous: true, torque_Nm: 900, directDrive: true }
+                },
+                referencePoints: { spindleGageLine: { x: 760, y: 350, z: 700 }, tableSurface: { x: 760, y: 350, z: 250 } },
+                tcpcSupported: true },
+            table: { type: "trunnion_rotary", diameter_mm: 800, maxLoad_kg: 800,
+                trunnion: { width_mm: 1100 } },
+            geometry: { footprint: { length_mm: 4500, width_mm: 4000, height_mm: 3400 }, workEnvelope: { x_mm: 1520, y_mm: 700, z_mm: 700 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 200, length_mm: 420, offset: { x: 0, y: 0, z: -210 } },
+                rotaryTable: { type: "cylinder", diameter_mm: 800, height_mm: 130, rotatesWith: ["a", "c"] } },
+            atc: { type: "chain", capacity: 80, maxToolDiameter_mm: 100, maxToolLength_mm: 400, changeTime_sec: 3.5 },
+            physical: { weight_kg: 22000 }, sources: ["Spinner U 1520 Specifications 2024"]
+        },
+
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // TTS SERIES - TURNING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "spinner_tts300": {
+            id: "spinner_tts300", manufacturer: "spinner", model: "TTS 300", series: "TTS", type: "LATHE", subtype: "2-axis-compact", axes: 2, control: "Siemens 840D sl",
+            spindle: { type: "built_in", maxRpm: 6000, peakHp: 18, continuousHp: 15, maxTorque_Nm: 180, spindleNose: "A2-5", chuckSize_mm: 165, barCapacity_mm: 52,
+                geometry: { spindleBore_mm: 56 } },
+            travels: { x: { min: 0, max: 175, rapid_mm_min: 30000 }, z: { min: 0, max: 350, rapid_mm_min: 40000 }, a: null, b: null, c: null, y: null },
+            kinematics: { type: "LATHE_2AXIS", chain: ["SPINDLE", "CHUCK", "PART", "Z", "X", "TURRET", "TOOL"],
+                referencePoints: { spindleCenterline: { x: 0, z: 0 }, turretCenter: { x: 175, z: 175 } } },
+            turret: { type: "disc", stations: 12, toolPattern: "VDI", vdiSize: 30, indexTime_sec: 0.15, liveTooling: true, liveToolRpm: 6000, liveToolHp: 5 },
+            geometry: { swingOverBed_mm: 350, maxTurningDiameter_mm: 220, maxTurningLength_mm: 320, footprint: { length_mm: 2000, width_mm: 1600, height_mm: 1850 } },
+            collisionZones: { chuck: { type: "cylinder", diameter_mm: 165, length_mm: 80, position: { x: 0, z: 0 } },
+                turret: { type: "cylinder", diameter_mm: 310, height_mm: 140, position: { x: 175, z: 175 } } },
+            physical: { weight_kg: 3200 }, sources: ["Spinner TTS 300 Specifications 2024"]
+        },
+
+        "spinner_tc600_65smcy": {
+            id: "spinner_tc600_65smcy", manufacturer: "spinner", model: "TC 600-65 SMCY", series: "TC", type: "LATHE", subtype: "4-axis-sub-y", axes: 4, control: "Siemens 840D sl",
+            mainSpindle: { type: "built_in", maxRpm: 5000, peakHp: 28, continuousHp: 22, maxTorque_Nm: 400, spindleNose: "A2-6", chuckSize_mm: 210, barCapacity_mm: 65 },
+            subSpindle: { type: "built_in", maxRpm: 6000, peakHp: 18, continuousHp: 15, maxTorque_Nm: 180, spindleNose: "A2-5", chuckSize_mm: 165 },
+            travels: { x: { min: 0, max: 230, rapid_mm_min: 30000 }, y: { min: -65, max: 65, rapid_mm_min: 15000 }, z: { min: 0, max: 600, rapid_mm_min: 40000 },
+                c: { min: -360, max: 360, rapid_deg_sec: 350, continuous: true }, w: { min: 0, max: 520, rapid_mm_min: 30000 } },
+            kinematics: { type: "LATHE_4AXIS_SY", chain: ["MAIN_SPINDLE", "C", "PART", "Z", "X", "Y", "TURRET", "TOOL"],
+                hasSubSpindle: true, yAxisCapability: "milling",
+                rotaryAxes: { c: { type: "rotary", isMainSpindle: true, contouringCapable: true } } },
+            turret: { type: "disc", stations: 12, toolPattern: "VDI", vdiSize: 40, liveTooling: true, liveToolRpm: 6000, liveToolHp: 8 },
+            geometry: { swingOverBed_mm: 460, maxTurningDiameter_mm: 300, maxTurningLength_mm: 550, footprint: { length_mm: 4200, width_mm: 2100, height_mm: 2100 } },
+            collisionZones: { mainChuck: { type: "cylinder", diameter_mm: 210, length_mm: 100, position: { x: 0, y: 0, z: 0 } },
+                subChuck: { type: "cylinder", diameter_mm: 165, length_mm: 80, position: { x: 0, y: 0, z: 600 } },
+                turret: { type: "cylinder", diameter_mm: 380, height_mm: 170, position: { x: 230, y: 0, z: 300 } } },
+            physical: { weight_kg: 8500 }, sources: ["Spinner TC 600-65 SMCY Specifications 2024"]
+        }
+    }
+};
+
+PRISM_SPINNER_MACHINE_DATABASE_ENHANCED.totalMachines = Object.keys(PRISM_SPINNER_MACHINE_DATABASE_ENHANCED.machines).length;
+if (typeof module !== "undefined") module.exports = PRISM_SPINNER_MACHINE_DATABASE_ENHANCED;
+if (typeof window !== "undefined") window.PRISM_SPINNER_MACHINE_DATABASE_ENHANCED = PRISM_SPINNER_MACHINE_DATABASE_ENHANCED;
+console.log(`[SPINNER_DATABASE] Enhanced database loaded with ${PRISM_SPINNER_MACHINE_DATABASE_ENHANCED.totalMachines} machines`);

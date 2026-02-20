@@ -1,0 +1,97 @@
+{
+  "generated": "2026-02-17T15:45:00Z",
+  "branch": "2_data_taxonomy",
+  "version": "1.0.0",
+  "data_architecture": {
+    "primary_source": "KnowledgeQueryEngine.ts (inline data)",
+    "secondary_source": "Registry JSON files in C:\\PRISM\\state\\",
+    "note": "Most data lives inline in the knowledge engine, not as separate files. API queries are authoritative."
+  },
+  "materials": {
+    "total": 3533,
+    "organization": "ISO_group > material_type > grade",
+    "parameter_count": 127,
+    "iso_groups": {
+      "P": { "count": 1400, "description": "Steel (carbon, alloy, stainless)" },
+      "M": { "count": 259, "description": "Stainless steel (austenitic, duplex, PH)" },
+      "K": { "count": 27, "description": "Cast iron (grey, ductile, CGI)" },
+      "N": { "count": 252, "description": "Non-ferrous (aluminum, copper, brass)" },
+      "S": { "count": 92, "description": "Superalloys (Inconel, titanium, cobalt)" },
+      "H": { "count": 40, "description": "Hardened steel (>45 HRC)" },
+      "X": { "count": 602, "description": "Special/composites/polymers" }
+    },
+    "material_types": ["steel", "stainless_steel", "cast_iron", "aluminum", "copper", "titanium", "nickel_alloy", "cobalt_alloy", "tool_steel", "bearing_steel", "case_hardening", "spring_steel"],
+    "data_quality_levels": ["verified", "estimated", "gen_v5"],
+    "physics_models": {
+      "kienzle": "kc1_1, mc per operation (turning/milling/drilling/boring/reaming)",
+      "johnson_cook": "A, B, n, C, m (constitutive model)",
+      "taylor": "C, n per tool material (carbide/ceramic/CBN/HSS)"
+    }
+  },
+  "machines": {
+    "total": 1016,
+    "organization": "manufacturer > model > machine_type",
+    "manufacturers_count": 43,
+    "top_manufacturers": ["DMG Mori", "Mazak", "Okuma", "Haas", "Makino", "Doosan", "Hurco", "Fanuc", "Mitsubishi", "Brother"],
+    "machine_types": ["vertical_machining_center", "horizontal_machining_center", "turning_center", "mill_turn", "5_axis", "swiss_type", "boring_mill", "grinder"],
+    "parameters": ["spindle_speed_max", "spindle_power", "spindle_torque", "axis_travel_xyz", "rapid_traverse", "tool_capacity", "pallet_changer", "controller_type"]
+  },
+  "tools": {
+    "total": 13967,
+    "organization": "category > type > subtype",
+    "categories": {
+      "turning_inserts": { "description": "Indexable turning inserts (ISO designations)" },
+      "milling_inserts": { "description": "Indexable milling inserts" },
+      "solid_endmills": { "description": "Solid carbide end mills" },
+      "drills": { "description": "Twist drills, indexable drills, gun drills" },
+      "taps": { "description": "Thread cutting/forming taps" },
+      "thread_mills": { "description": "Thread milling tools" },
+      "boring_tools": { "description": "Boring bars, fine boring heads" },
+      "reamers": { "description": "Machine reamers" },
+      "toolholders": { "description": "BT, HSK, CAT, Capto toolholders" },
+      "grooving": { "description": "Grooving and parting tools" }
+    }
+  },
+  "alarms": {
+    "total": 10033,
+    "organization": "controller > code_range > severity",
+    "controller_families": {
+      "Fanuc": { "description": "Fanuc 0i, 30i, 31i series" },
+      "Siemens": { "description": "Sinumerik 828D, 840D sl" },
+      "Haas": { "description": "Haas NGC controller" },
+      "Mazak": { "description": "Mazatrol SmoothX, SmoothG" },
+      "Okuma": { "description": "OSP-P300, OSP-P500" },
+      "Mitsubishi": { "description": "M80, M800 series" },
+      "Heidenhain": { "description": "TNC 640, TNC 620" },
+      "Brother": { "description": "CNC-C00 series" },
+      "Hurco": { "description": "WinMax controller" },
+      "Doosan": { "description": "Fanuc-based/proprietary" },
+      "DMG_Mori": { "description": "CELOS/Fanuc/Siemens" },
+      "Makino": { "description": "Professional series" }
+    },
+    "severity_levels": ["info", "warning", "alarm", "emergency_stop"]
+  },
+  "formulas": {
+    "total": 500,
+    "organization": "domain > formula_name",
+    "domains": {
+      "cutting_forces": "Kienzle, specific cutting force, resultant force",
+      "tool_life": "Taylor equation, extended Taylor, cost optimization",
+      "speed_feed": "Surface speed, RPM, feed rate, chip load",
+      "surface_finish": "Ra/Rz prediction, scallop height, cusps",
+      "power_torque": "Spindle power, cutting torque, efficiency",
+      "thermal": "Cutting temperature, heat partition, thermal expansion",
+      "chip_formation": "Chip thickness, compression ratio, shear angle",
+      "stability": "Chatter frequency, stability lobe, critical depth",
+      "cost": "Cost per part, tool cost, machine hour rate",
+      "threading": "Tap drill size, thread engagement, pitch diameter",
+      "MRR": "Material removal rate, volumetric rate",
+      "deflection": "Tool deflection, workpiece deflection"
+    }
+  },
+  "strategies": {
+    "total": 697,
+    "organization": "feature > operation > strategy",
+    "source": "ToolpathStrategyEngine.ts"
+  }
+}

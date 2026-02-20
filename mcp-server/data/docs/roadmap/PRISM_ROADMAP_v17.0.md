@@ -383,15 +383,44 @@ node scripts/setup-claude-hooks.js
 
 ## 4. MODEL & EFFORT ROUTING MATRIX
 
-### 4.1 Binary Effort Model (from brainstorm SIMPLIFY lens)
+### 4.0 Model Version Mapping (as of 2026-02-20)
+
+| Code Alias | Resolves To | Strengths | Cost Tier |
+|-----------|-------------|-----------|-----------|
+| `opus` | Claude Opus 4.6 | Strongest reasoning, safety-critical physics, multi-domain coupling, architecture | $$$$$ |
+| `sonnet` | Claude Sonnet 4.5 | Excellent implementation, strong code gen, good reasoning for known domains | $$$ |
+| `haiku` | Claude Haiku 4.5 | Fastest, cheapest, adequate for verification/reporting/simple tasks | $ |
+
+**Optimization: Sonnet 4.5 is highly capable.** Reserve Opus 4.6 for:
+- Safety-critical calculations where physics accuracy is life-or-death
+- Architecture decisions requiring multi-domain reasoning
+- Edge cases with out-of-distribution inputs
+- Quality gate scoring (Omega, Ralph) where assessment accuracy matters
+
+**Sonnet 4.5 handles well:**
+- All TypeScript implementation (engines, dispatchers, wiring)
+- Standard physics calculations where formulas are known and validated
+- Test creation, data processing, refactoring
+- Agent team teammates for parallel work
+- Code review and pattern matching
+
+**Haiku 4.5 handles well:**
+- Running test suites and reporting pass/fail
+- Build verification (script execution, symbol checks)
+- Line counting, diff analysis, anti-regression audits
+- Documentation checks, index verification
+
+### 4.1 Ternary Effort Model (optimized from brainstorm)
 
 | Level | Name | Model | When | Max Time | Token Budget |
 |-------|------|-------|------|----------|-------------|
-| **STANDARD** | Routine implementation | sonnet | Known patterns, documented APIs, wiring, data processing, docs | 30 min | 50K tokens |
-| **NOVEL** | Complex/safety-critical | opus | New physics, multi-domain coupling, architecture decisions, safety validation, edge cases | 2 hr | 200K tokens |
+| **LIGHT** | Verification & reporting | haiku | Tests, audits, checks, simple lookups | 5 min | 10K tokens |
+| **STANDARD** | Implementation & known patterns | sonnet | Code changes, wiring, data processing, standard calcs | 30 min | 50K tokens |
+| **NOVEL** | Safety-critical & architecture | opus | New physics, multi-domain coupling, safety validation, edge cases | 2 hr | 200K tokens |
 
 **Auto-escalation rule:** If a STANDARD task exceeds 30 min or 50K tokens, auto-escalate to opus.
 **Auto-downgrade rule:** If lead agent determines task is pure boilerplate, use haiku via verifier.
+**Effort-match rule:** Always use the LIGHTEST model that can handle the task correctly.
 
 ### 4.2 Model Assignment by Task Type
 

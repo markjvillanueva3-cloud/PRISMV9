@@ -1,0 +1,3018 @@
+[
+  {
+    "id": "HERMLE_C_32_U",
+    "manufacturer": "Hermle",
+    "model": "C 32 U",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_trunnion",
+    "description": "High-performance 5-axis machining center with swivel rotary table",
+    "series": "C",
+    "generation": "U",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -130,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "unit": "deg",
+        "continuous": true
+      },
+      "table_diameter": 320,
+      "max_workpiece_diameter": 450,
+      "max_workpiece_height": 355,
+      "table_load_capacity": 450,
+      "table_load_unit": "kg",
+      "interference_diameter": 600
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 18000,
+      "power_rating": 29,
+      "power_s1": 20,
+      "power_unit": "kW",
+      "torque_max": 145,
+      "torque_s1": 87,
+      "torque_unit": "Nm",
+      "bearing_type": "hybrid_ceramic_angular_contact",
+      "bearing_diameter": 70,
+      "bearing_lubrication": "oil_air",
+      "cooling": "spindle_core_cooling",
+      "runout_TIR": 0.001,
+      "growth_Z": 0.005,
+      "thermal_stability": "excellent"
+    },
+    "spindle_options": [
+      {
+        "name": "SK40/HSK-A63 18000",
+        "max_rpm": 18000,
+        "power": 29,
+        "torque": 145
+      },
+      {
+        "name": "SK40/HSK-A63 15000",
+        "max_rpm": 15000,
+        "power": 35,
+        "torque": 200
+      },
+      {
+        "name": "HSK-E50 42000",
+        "max_rpm": 42000,
+        "power": 16,
+        "torque": 8
+      }
+    ],
+    "axis_specs": {
+      "x": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "max_feed": 45000,
+        "acceleration": 6,
+        "acceleration_unit": "m/s²",
+        "jerk": 50,
+        "jerk_unit": "m/s³",
+        "motor_type": "servo_direct",
+        "motor_torque": 22,
+        "guideway_type": "linear_roller",
+        "guideway_brand": "INA",
+        "guideway_size": 45,
+        "ballscrew_diameter": 40,
+        "ballscrew_pitch": 16,
+        "ballscrew_grade": "C3",
+        "ballscrew_cooling": true,
+        "encoder_type": "direct_absolute_linear_scale",
+        "encoder_brand": "Heidenhain",
+        "encoder_resolution": 0.0001,
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      },
+      "y": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "max_feed": 45000,
+        "acceleration": 6,
+        "motor_type": "servo_direct",
+        "guideway_type": "linear_roller",
+        "guideway_size": 45,
+        "ballscrew_diameter": 40,
+        "ballscrew_pitch": 16,
+        "ballscrew_cooling": true,
+        "encoder_type": "direct_absolute_linear_scale",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      },
+      "z": {
+        "travel": 500,
+        "rapid_rate": 45000,
+        "max_feed": 45000,
+        "acceleration": 5,
+        "motor_type": "servo_direct",
+        "guideway_type": "linear_roller",
+        "guideway_size": 55,
+        "ballscrew_diameter": 40,
+        "ballscrew_pitch": 16,
+        "counterbalance": "hydraulic_cylinder",
+        "encoder_type": "direct_absolute_linear_scale",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      },
+      "a": {
+        "axis_type": "swivel_axis",
+        "travel": {
+          "min": -130,
+          "max": 110
+        },
+        "travel_unit": "deg",
+        "rapid_rate": 50,
+        "rapid_rate_unit": "rpm",
+        "max_feed_rate": 50,
+        "acceleration": 50,
+        "acceleration_unit": "rad/s²",
+        "motor_type": "torque_motor_direct_drive",
+        "motor_brand": "Hermle",
+        "max_torque": 700,
+        "continuous_torque": 480,
+        "torque_unit": "Nm",
+        "clamping_torque": 1500,
+        "clamping_type": "hydraulic",
+        "encoder_type": "absolute_rotary",
+        "encoder_brand": "Heidenhain",
+        "encoder_resolution": 0.00001,
+        "positioning_accuracy": 3,
+        "positioning_unit": "arc_seconds",
+        "repeatability": 2,
+        "rotation_center": [
+          0,
+          0,
+          175
+        ]
+      },
+      "c": {
+        "axis_type": "rotary_table",
+        "travel": {
+          "min": -360,
+          "max": 360
+        },
+        "continuous": true,
+        "travel_unit": "deg",
+        "rapid_rate": 70,
+        "rapid_rate_unit": "rpm",
+        "max_feed_rate": 70,
+        "acceleration": 60,
+        "motor_type": "torque_motor_direct_drive",
+        "max_torque": 450,
+        "continuous_torque": 310,
+        "torque_unit": "Nm",
+        "clamping_torque": 900,
+        "encoder_type": "absolute_rotary",
+        "encoder_resolution": 0.00001,
+        "positioning_accuracy": 3,
+        "positioning_unit": "arc_seconds",
+        "repeatability": 2
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 38,
+      "capacity_options": [
+        38,
+        52,
+        88,
+        130,
+        192,
+        265
+      ],
+      "max_tool_diameter": 80,
+      "max_tool_diameter_adjacent_empty": 130,
+      "max_tool_length": 350,
+      "max_tool_weight": 8,
+      "tool_change_time": 4.5,
+      "chip_to_chip_time": 9,
+      "double_gripper": false,
+      "additional_magazine_option": true
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "variant": "HSCI",
+      "axes_count": 5,
+      "simultaneous_axes": 5,
+      "tcpc": true,
+      "tcpc_name": "TCPM",
+      "rtcp": true,
+      "rtcp_name": "M128",
+      "tilted_working_plane": true,
+      "heidenhain_features": {
+        "dynamic_collision_monitoring": true,
+        "adaptive_feed_control": true,
+        "active_chatter_control": true,
+        "cross_talk_compensation": true,
+        "kinematic_opt": true
+      },
+      "look_ahead_blocks": 10000,
+      "block_processing_time": 0.5,
+      "memory_capacity": "30GB"
+    },
+    "bed_construction": {
+      "type": "mineral_cast",
+      "brand": "HERMLE_Mineralit",
+      "damping_factor": 6,
+      "damping_comparison": "6x_better_than_cast_iron",
+      "thermal_stability": "symmetrical_design",
+      "vibration_damping": "excellent"
+    },
+    "coolant": {
+      "tank_capacity": 550,
+      "tank_unit": "liters",
+      "through_spindle": true,
+      "tsc_pressure": 40,
+      "tsc_pressure_options": [
+        40,
+        80
+      ],
+      "tsc_unit": "bar",
+      "flood_coolant": true,
+      "mql_ready": true,
+      "chip_conveyor": "scraper_conveyor",
+      "coolant_chiller": true
+    },
+    "machine_dimensions": {
+      "length": 4135,
+      "width": 2850,
+      "height": 3200,
+      "weight": 12300,
+      "weight_unit": "kg",
+      "floor_space": 11.8,
+      "floor_space_unit": "m²"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "three_point_support_gantry",
+      "topology": "parallel_serial_hybrid",
+      "dof": 5,
+      "chain": [
+        "mineral_cast_base",
+        "gantry_column_left",
+        "gantry_column_right",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a_axis",
+        "rotary_c_table"
+      ],
+      "dh_parameters": {
+        "y": {
+          "a": 0,
+          "alpha": 0,
+          "d": "variable",
+          "theta": 0,
+          "type": "P",
+          "axis": [
+            0,
+            1,
+            0
+          ]
+        },
+        "z": {
+          "a": 0,
+          "alpha": 90,
+          "d": "variable",
+          "theta": 0,
+          "type": "P",
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        "x": {
+          "a": 0,
+          "alpha": 0,
+          "d": "variable",
+          "theta": 0,
+          "type": "P",
+          "axis": [
+            1,
+            0,
+            0
+          ]
+        },
+        "a": {
+          "a": 0,
+          "alpha": 0,
+          "d": 175,
+          "theta": "variable",
+          "type": "R",
+          "axis": [
+            1,
+            0,
+            0
+          ]
+        },
+        "c": {
+          "a": 0,
+          "alpha": 0,
+          "d": 0,
+          "theta": "variable",
+          "type": "R",
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "home_position": {
+        "x": 325,
+        "y": 325,
+        "z": 500,
+        "a": 0,
+        "c": 0
+      },
+      "machine_zero": [
+        0,
+        0,
+        0
+      ],
+      "spindle_gauge_point": [
+        0,
+        0,
+        -200
+      ],
+      "table_center": [
+        0,
+        0,
+        175
+      ],
+      "moving_masses": {
+        "crossbeam_y": {
+          "mass": 1200,
+          "cog": [
+            0,
+            325,
+            800
+          ]
+        },
+        "z_ram": {
+          "mass": 600,
+          "cog": [
+            0,
+            0,
+            250
+          ]
+        },
+        "table_x": {
+          "mass": 800,
+          "cog": [
+            0,
+            0,
+            100
+          ]
+        },
+        "swivel_a": {
+          "mass": 400,
+          "cog": [
+            0,
+            0,
+            88
+          ]
+        },
+        "rotary_c": {
+          "mass": 150,
+          "cog": [
+            0,
+            0,
+            30
+          ]
+        }
+      },
+      "hermle_design_features": {
+        "three_point_support": true,
+        "symmetrical_thermal_expansion": true,
+        "mineral_cast_damping": true,
+        "optimized_chip_fall": true
+      }
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base",
+        "positive_direction": "table_right"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam",
+        "positive_direction": "crossbeam_back"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram",
+        "positive_direction": "ram_up"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          175
+        ],
+        "component": "swivel_axis",
+        "positive_direction": "workpiece_tilts_toward_spindle"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "component": "rotary_table",
+        "positive_direction": "CCW_from_above"
+      }
+    },
+    "geometry_reference": {
+      "base_path": "HERMLE/C_32_U",
+      "assembly": {
+        "file": "ASSEMBLY/C_32_U_COMPLETE.step",
+        "format": "STEP_AP214",
+        "units": "mm"
+      },
+      "components": {
+        "base": {
+          "step_file": "COMPONENTS/MINERAL_CAST_BASE.step",
+          "collision_file": "COLLISION/BASE.stl",
+          "mass": 6000,
+          "is_fixed": true,
+          "material": "mineral_cast"
+        },
+        "gantry_left": {
+          "step_file": "COMPONENTS/GANTRY_LEFT.step",
+          "parent": "base",
+          "joint_type": "fixed"
+        },
+        "gantry_right": {
+          "step_file": "COMPONENTS/GANTRY_RIGHT.step",
+          "parent": "base",
+          "joint_type": "fixed"
+        },
+        "crossbeam": {
+          "step_file": "COMPONENTS/CROSSBEAM.step",
+          "collision_file": "COLLISION/CROSSBEAM.stl",
+          "mass": 1200,
+          "parent": "gantry",
+          "joint_type": "prismatic",
+          "joint_axis": "Y"
+        },
+        "z_ram": {
+          "step_file": "COMPONENTS/Z_RAM.step",
+          "collision_file": "COLLISION/Z_RAM.stl",
+          "mass": 600,
+          "parent": "crossbeam",
+          "joint_type": "prismatic",
+          "joint_axis": "Z"
+        },
+        "spindle": {
+          "step_file": "COMPONENTS/SPINDLE.step",
+          "collision_file": "COLLISION/SPINDLE.stl",
+          "mass": 80,
+          "parent": "z_ram",
+          "tool_interface": "HSK-A63"
+        },
+        "table_x": {
+          "step_file": "COMPONENTS/TABLE_X.step",
+          "collision_file": "COLLISION/TABLE_X.stl",
+          "mass": 800,
+          "parent": "base",
+          "joint_type": "prismatic",
+          "joint_axis": "X"
+        },
+        "swivel_a": {
+          "step_file": "COMPONENTS/SWIVEL_A.step",
+          "collision_file": "COLLISION/SWIVEL_A.stl",
+          "mass": 400,
+          "parent": "table_x",
+          "joint_type": "revolute",
+          "joint_axis": "A"
+        },
+        "rotary_c": {
+          "step_file": "COMPONENTS/ROTARY_C.step",
+          "collision_file": "COLLISION/ROTARY_C.stl",
+          "mass": 150,
+          "parent": "swivel_a",
+          "joint_type": "revolute",
+          "joint_axis": "C"
+        }
+      },
+      "collision_config": {
+        "check_pairs": [
+          [
+            "spindle",
+            "rotary_c"
+          ],
+          [
+            "spindle",
+            "swivel_a"
+          ],
+          [
+            "z_ram",
+            "rotary_c"
+          ],
+          [
+            "z_ram",
+            "swivel_a"
+          ],
+          [
+            "crossbeam",
+            "table_x"
+          ],
+          [
+            "tool",
+            "workpiece"
+          ],
+          [
+            "tool_holder",
+            "fixture"
+          ]
+        ],
+        "safety_margin": 2,
+        "check_frequency": 100,
+        "heidenhain_dcm_compatible": true
+      },
+      "bounding_boxes": {
+        "base": {
+          "min": [
+            -1500,
+            -1100,
+            -600
+          ],
+          "max": [
+            1500,
+            1100,
+            0
+          ]
+        },
+        "crossbeam": {
+          "min": [
+            -500,
+            -200,
+            600
+          ],
+          "max": [
+            500,
+            200,
+            1000
+          ]
+        },
+        "z_ram": {
+          "min": [
+            -200,
+            -200,
+            0
+          ],
+          "max": [
+            200,
+            200,
+            500
+          ]
+        },
+        "spindle": {
+          "min": [
+            -65,
+            -65,
+            -250
+          ],
+          "max": [
+            65,
+            65,
+            0
+          ]
+        },
+        "rotary_c": {
+          "min": [
+            -160,
+            -160,
+            0
+          ],
+          "max": [
+            160,
+            160,
+            60
+          ]
+        }
+      }
+    },
+    "collision_zones": {
+      "spindle_danger_zone": {
+        "type": "cylinder",
+        "radius": 120,
+        "height": 400,
+        "origin": [
+          0,
+          0,
+          -400
+        ],
+        "reference": "spindle_face"
+      },
+      "swivel_clearance": {
+        "type": "sphere",
+        "radius": 350,
+        "origin": [
+          0,
+          0,
+          175
+        ],
+        "reference": "swivel_center"
+      },
+      "table_rotation_envelope": {
+        "type": "cylinder",
+        "radius": 300,
+        "height": 400,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "reference": "table_center"
+      }
+    },
+    "options": [
+      "Additional magazine (up to 265 tools)",
+      "Pallet changer PW 150/250/320/480",
+      "Rotary storage RS 05",
+      "Robot loading system",
+      "High-pressure coolant 40/80 bar",
+      "Chip conveyor variations",
+      "Probing system"
+    ],
+    "applications": [
+      "Precision mold making",
+      "Medical implants",
+      "Aerospace components",
+      "Tool and die",
+      "Turbine blades",
+      "Complex 5-axis parts"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 650,
+        "y": 650,
+        "z": 500,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 675
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 700
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": -575,
+            "z": 250
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 845,
+            "y": 715,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 650,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -325,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1150,
+            "y": 1050,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_42_U",
+    "manufacturer": "Hermle",
+    "model": "C 42 U",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_trunnion",
+    "description": "Large 5-axis machining center with swivel rotary table",
+    "series": "C",
+    "generation": "U",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 800,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 800,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 550,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -130,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 420,
+      "max_workpiece_diameter": 600,
+      "max_workpiece_height": 450,
+      "table_load_capacity": 700,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 18000,
+      "power_rating": 35,
+      "power_s1": 25,
+      "torque_max": 175,
+      "torque_s1": 105
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 800,
+        "rapid_rate": 45000,
+        "acceleration": 5,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      },
+      "y": {
+        "travel": 800,
+        "rapid_rate": 45000,
+        "acceleration": 5,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      },
+      "z": {
+        "travel": 550,
+        "rapid_rate": 45000,
+        "acceleration": 4,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      },
+      "a": {
+        "travel": {
+          "min": -130,
+          "max": 110
+        },
+        "rapid_rate": 40,
+        "max_torque": 1000,
+        "clamping_torque": 2500,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 60,
+        "max_torque": 650,
+        "clamping_torque": 1300,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 50,
+      "capacity_options": [
+        50,
+        87,
+        130,
+        192
+      ],
+      "max_tool_diameter": 80,
+      "max_tool_length": 350,
+      "tool_change_time": 5
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true,
+      "rtcp": true
+    },
+    "bed_construction": {
+      "type": "mineral_cast",
+      "damping_factor": 6
+    },
+    "machine_dimensions": {
+      "length": 4685,
+      "width": 3010,
+      "height": 3400,
+      "weight": 16500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "three_point_support",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ],
+      "moving_masses": {
+        "crossbeam_y": {
+          "mass": 1600,
+          "cog": [
+            0,
+            400,
+            900
+          ]
+        },
+        "z_ram": {
+          "mass": 750,
+          "cog": [
+            0,
+            0,
+            275
+          ]
+        },
+        "table_x": {
+          "mass": 1100,
+          "cog": [
+            0,
+            0,
+            120
+          ]
+        }
+      }
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          200
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "geometry_reference": {
+      "base_path": "HERMLE/C_42_U",
+      "assembly": {
+        "file": "ASSEMBLY/C_42_U_COMPLETE.step"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 800,
+        "y": 800,
+        "z": 550,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 725
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 750
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1250
+          },
+          "position": {
+            "x": 0,
+            "y": -650,
+            "z": 275
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 1040,
+            "y": 880,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 800,
+            "y": 800,
+            "z": 550
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 1000,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -400,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1300,
+            "y": 1200,
+            "z": 1250
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_52_U",
+    "manufacturer": "Hermle",
+    "model": "C 52 U",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_trunnion_large",
+    "description": "Large 5-axis machining center for heavy workpieces",
+    "series": "C",
+    "generation": "U",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 1000,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 1100,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 750,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -130,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 630,
+      "max_workpiece_diameter": 900,
+      "max_workpiece_height": 600,
+      "table_load_capacity": 2000,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A100",
+      "max_rpm": 12000,
+      "power_rating": 45,
+      "power_s1": 35,
+      "torque_max": 400,
+      "torque_s1": 280
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 1000,
+        "rapid_rate": 40000,
+        "acceleration": 4,
+        "positioning_accuracy": 0.005,
+        "repeatability": 0.003
+      },
+      "y": {
+        "travel": 1100,
+        "rapid_rate": 40000,
+        "acceleration": 4,
+        "positioning_accuracy": 0.005,
+        "repeatability": 0.003
+      },
+      "z": {
+        "travel": 750,
+        "rapid_rate": 35000,
+        "acceleration": 3,
+        "positioning_accuracy": 0.005,
+        "repeatability": 0.003
+      },
+      "a": {
+        "travel": {
+          "min": -130,
+          "max": 110
+        },
+        "rapid_rate": 25,
+        "max_torque": 2500,
+        "clamping_torque": 6000,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 35,
+        "max_torque": 1600,
+        "clamping_torque": 3200,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 60,
+      "capacity_options": [
+        60,
+        100,
+        192
+      ],
+      "max_tool_diameter": 160,
+      "max_tool_length": 450,
+      "max_tool_weight": 25,
+      "tool_change_time": 8
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true
+    },
+    "bed_construction": {
+      "type": "mineral_cast"
+    },
+    "machine_dimensions": {
+      "length": 6000,
+      "width": 4500,
+      "height": 4200,
+      "weight": 32000,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "three_point_support_heavy",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          280
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 1000,
+        "y": 1100,
+        "z": 750,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 925
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 950
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1450
+          },
+          "position": {
+            "x": 0,
+            "y": -800,
+            "z": 375
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 1300,
+            "y": 1210,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 1000,
+            "y": 1100,
+            "z": 750
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 375
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 1200,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -550,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1500,
+            "y": 1500,
+            "z": 1450
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 375
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_22_U",
+    "manufacturer": "Hermle",
+    "model": "C 22 U",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_trunnion_compact",
+    "description": "Compact 5-axis machining center",
+    "series": "C",
+    "generation": "U",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 450,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 600,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 330,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -115,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 320,
+      "max_workpiece_diameter": 350,
+      "table_load_capacity": 300,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 18000,
+      "power_rating": 22,
+      "torque_max": 110
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 450,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "y": {
+        "travel": 600,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "z": {
+        "travel": 330,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "a": {
+        "travel": {
+          "min": -115,
+          "max": 110
+        },
+        "rapid_rate": 50,
+        "max_torque": 430,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 70,
+        "max_torque": 280,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 30,
+      "max_tool_diameter": 80,
+      "tool_change_time": 4
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true
+    },
+    "machine_dimensions": {
+      "length": 3250,
+      "width": 2280,
+      "height": 2650,
+      "weight": 6500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "compact_three_point",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          140
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 450,
+        "y": 600,
+        "z": 330,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 505
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 530
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1030
+          },
+          "position": {
+            "x": 0,
+            "y": -550,
+            "z": 165
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 585,
+            "y": 660,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 450,
+            "y": 600,
+            "z": 330
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -300,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 950,
+            "y": 1000,
+            "z": 1030
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_12_U",
+    "manufacturer": "Hermle",
+    "model": "C 12 U",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_micro",
+    "description": "Ultra-compact 5-axis machining center for small precision parts",
+    "series": "C",
+    "generation": "U",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 350,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 440,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 330,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -105,
+        "max": 130,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 150,
+      "max_workpiece_diameter": 200,
+      "table_load_capacity": 100
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E40",
+      "max_rpm": 42000,
+      "power_rating": 10,
+      "torque_max": 9
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 350,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.002
+      },
+      "y": {
+        "travel": 440,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.002
+      },
+      "z": {
+        "travel": 330,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.002
+      },
+      "a": {
+        "travel": {
+          "min": -105,
+          "max": 130
+        },
+        "rapid_rate": 80,
+        "max_torque": 75,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 120,
+        "max_torque": 45,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 20,
+      "max_tool_diameter": 50,
+      "max_tool_length": 150,
+      "tool_change_time": 3
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true
+    },
+    "machine_dimensions": {
+      "length": 2600,
+      "width": 2000,
+      "height": 2300,
+      "weight": 4500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "micro_precision",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          100
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 350,
+        "y": 440,
+        "z": 330,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 505
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 530
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1030
+          },
+          "position": {
+            "x": 0,
+            "y": -470,
+            "z": 165
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 455,
+            "y": 484,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 440,
+            "z": 330
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 550,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -220,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 840,
+            "z": 1030
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_32",
+    "manufacturer": "Hermle",
+    "model": "C 32",
+    "type": "vertical_machining_center",
+    "subtype": "3_axis_vmc",
+    "description": "3-axis vertical machining center (5-axis ready)",
+    "series": "C",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "table_length": 700,
+      "table_width": 600,
+      "table_load_capacity": 1500,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 18000,
+      "power_rating": 29,
+      "torque_max": 145
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      },
+      "y": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      },
+      "z": {
+        "travel": 500,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.002
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 38,
+      "tool_change_time": 4.5
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 3
+    },
+    "machine_dimensions": {
+      "length": 3600,
+      "width": 2500,
+      "height": 3100,
+      "weight": 10500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "three_point_3axis",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_X"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 650,
+        "y": 650,
+        "z": 500,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 675
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 700
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": -575,
+            "z": 250
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 845,
+            "y": 715,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 650,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -325,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1150,
+            "y": 1050,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_42_U_MT",
+    "manufacturer": "Hermle",
+    "model": "C 42 U MT",
+    "type": "mill_turn_center",
+    "subtype": "5_axis_mill_turn",
+    "description": "Mill-turn machining center with integrated turning capability",
+    "series": "C MT",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 800,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 800,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 550,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -110,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true,
+        "turning_mode": true,
+        "turning_rpm": 800
+      },
+      "table_diameter": 420,
+      "max_turning_diameter": 650,
+      "table_load_capacity": 600,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-T100",
+      "max_rpm": 12000,
+      "power_rating": 45,
+      "torque_max": 353,
+      "turning_spindle": true
+    },
+    "turning_table": {
+      "max_rpm": 800,
+      "continuous_torque": 800,
+      "max_torque": 1200,
+      "torque_unit": "Nm",
+      "turning_capability": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 800,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.004
+      },
+      "y": {
+        "travel": 800,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.004
+      },
+      "z": {
+        "travel": 550,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.004
+      },
+      "a": {
+        "travel": {
+          "min": -110,
+          "max": 110
+        },
+        "rapid_rate": 40,
+        "max_torque": 1000,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 60,
+        "max_torque": 650,
+        "turning_rpm_max": 800,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 87,
+      "max_tool_diameter": 80,
+      "max_tool_length": 350,
+      "tool_change_time": 5
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true,
+      "turning_mode": true
+    },
+    "machine_dimensions": {
+      "length": 4685,
+      "width": 3010,
+      "height": 3400,
+      "weight": 17500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry_mill_turn",
+      "structure": "mill_turn_with_turning_table",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "turning_table_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          200
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "turning_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 800,
+        "y": 800,
+        "z": 550,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 725
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 800
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": 1350
+          },
+          "position": {
+            "x": 0,
+            "y": -700,
+            "z": 275
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": 570,
+          "length": 980,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 1040,
+            "y": 880,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 800,
+            "y": 800,
+            "z": 550
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1400,
+            "y": 1400,
+            "z": 1350
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_32_U_HS",
+    "manufacturer": "Hermle",
+    "model": "C 32 U HS",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_high_speed",
+    "description": "High-speed 5-axis machining center for HSM applications",
+    "series": "C HS",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -130,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 320,
+      "table_load_capacity": 450,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E50",
+      "max_rpm": 42000,
+      "power_rating": 16,
+      "torque_max": 8,
+      "high_speed": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 650,
+        "rapid_rate": 60000,
+        "acceleration": 10,
+        "motor_type": "linear_motor_option",
+        "positioning_accuracy": 0.002
+      },
+      "y": {
+        "travel": 650,
+        "rapid_rate": 60000,
+        "acceleration": 10,
+        "positioning_accuracy": 0.002
+      },
+      "z": {
+        "travel": 500,
+        "rapid_rate": 50000,
+        "acceleration": 8,
+        "positioning_accuracy": 0.002
+      },
+      "a": {
+        "travel": {
+          "min": -130,
+          "max": 110
+        },
+        "rapid_rate": 70,
+        "max_torque": 700,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 100,
+        "max_torque": 450,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 52,
+      "tool_change_time": 3.5
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true,
+      "hsm_cycles": true
+    },
+    "machine_dimensions": {
+      "length": 4135,
+      "width": 2850,
+      "height": 3200,
+      "weight": 12500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "high_speed_variant",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          175
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 650,
+        "y": 650,
+        "z": 500,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 675
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 700
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": -575,
+            "z": 250
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 845,
+            "y": 715,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 650,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -325,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1150,
+            "y": 1050,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "HERMLE_C_32_U_RS_05",
+    "manufacturer": "Hermle",
+    "model": "C 32 U with RS 05",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_with_robot",
+    "description": "5-axis machining center with integrated robot handling",
+    "series": "C RS",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "a_axis": {
+        "min": -130,
+        "max": 110,
+        "unit": "deg"
+      },
+      "c_axis": {
+        "min": -360,
+        "max": 360,
+        "continuous": true
+      },
+      "table_diameter": 320,
+      "table_load_capacity": 450
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 18000,
+      "power_rating": 29,
+      "torque_max": 145
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "y": {
+        "travel": 650,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "z": {
+        "travel": 500,
+        "rapid_rate": 45000,
+        "positioning_accuracy": 0.003
+      },
+      "a": {
+        "travel": {
+          "min": -130,
+          "max": 110
+        },
+        "rapid_rate": 50,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      },
+      "c": {
+        "continuous": true,
+        "rapid_rate": 70,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.001
+      }
+    },
+    "automation": {
+      "type": "RS_05",
+      "robot_brand": "FANUC",
+      "payload": 12,
+      "payload_unit": "kg",
+      "pallet_storage": 20,
+      "pallet_size": 320,
+      "workpiece_max_diameter": 250,
+      "workpiece_max_height": 200,
+      "workpiece_max_weight": 10
+    },
+    "atc": {
+      "type": "chain_magazine",
+      "capacity": 88,
+      "tool_change_time": 4.5
+    },
+    "controller": {
+      "brand": "HEIDENHAIN",
+      "model": "TNC 640",
+      "axes_count": 5,
+      "tcpc": true,
+      "automation_integration": true
+    },
+    "machine_dimensions": {
+      "length": 6500,
+      "width": 3200,
+      "height": 3200,
+      "weight": 16000,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "modified_gantry",
+      "structure": "with_automation_cell",
+      "chain": [
+        "mineral_cast_base",
+        "gantry",
+        "crossbeam_Y",
+        "z_ram",
+        "spindle",
+        "table_base_X",
+        "swivel_a",
+        "rotary_c"
+      ]
+    },
+    "transformations": {
+      "x": {
+        "type": "translation",
+        "vector": [
+          1,
+          0,
+          0
+        ],
+        "component": "table_base"
+      },
+      "y": {
+        "type": "translation",
+        "vector": [
+          0,
+          1,
+          0
+        ],
+        "component": "crossbeam"
+      },
+      "z": {
+        "type": "translation",
+        "vector": [
+          0,
+          0,
+          1
+        ],
+        "component": "z_ram"
+      },
+      "a": {
+        "type": "rotation",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "center": [
+          0,
+          0,
+          175
+        ],
+        "component": "swivel_axis"
+      },
+      "c": {
+        "type": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "component": "rotary_table"
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 650,
+        "y": 650,
+        "z": 500,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 675
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 700
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": -575,
+            "z": 250
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 845,
+            "y": 715,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 650,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -325,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1150,
+            "y": 1050,
+            "z": 1200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 250
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  }
+]
