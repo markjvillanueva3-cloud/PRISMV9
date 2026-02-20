@@ -29,9 +29,16 @@ Skills: 196 | Scripts: 215 | Agents: 75 | Hooks: 62 (100% coverage)
 **Total: 29,569 indexed entries across 9 registries**
 
 ## Current Position
-- **Phase:** H1 Hardening COMPLETE → R2 Safety next
+- **Phase:** Roadmap v17.0 COMPLETE → R2 Safety next
+- **Roadmap:** v17.0 (Claude Code Maximized) — 3 subagent archetypes, agent teams, hooks, task DAGs
 - Read `data/docs/roadmap/CURRENT_POSITION.md` for exact milestone
+- Read `data/docs/roadmap/PRISM_ROADMAP_v17.0.md` for full execution plan
 - Read `C:\PRISM\state\ACTION_TRACKER.md` for pending items
+
+## Subagents (.claude/agents/)
+- **safety-physics** (opus, red): ALL safety + physics validation. S(x) ≥ 0.70 HARD BLOCK.
+- **implementer** (sonnet, blue): Code changes, wiring, data processing. Follows Safety Laws.
+- **verifier** (haiku, green): Tests, audits, regression checks. Reports only, never fixes.
 
 ## Key Architecture
 ### Dispatchers (31 total)
@@ -93,25 +100,23 @@ C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoint
 
 ## Mode Switching (Code ↔ Chat)
 This codebase has an MCP server with 31 dispatchers for manufacturing physics,
-safety validation, and quality scoring. These are ONLY available in Chat mode.
+safety validation, and quality scoring. These are available in BOTH Code and Chat modes.
 
-**Code MUST tell the user to switch to Chat when:**
-- Physics validation needed (cutting force, speed/feed, thermal calcs)
-- Safety scoring needed (S(x) ≥ 0.70 checks)
-- Quality gates (Omega Ω compute, Ralph validation)
-- Registry lookups for golden benchmark values
-- Any manufacturing calculation that needs verified physics
+**Code handles 90% of work** via 3 subagent archetypes + agent teams.
+**Chat handles 10%** — only when confidence-based escalation triggers:
 
-**Code MUST tell the user to switch by writing to SWITCH_SIGNAL.md:**
+**Switch to Chat ONLY when:**
+- safety-physics reports confidence < 85% (out-of-distribution input)
+- Architecture decision with multiple valid approaches needing human judgment
+- Gate failure after 2 retries despite fixes
+- MCP server debugging (restart, config changes)
+
+**When switching, write to C:\PRISM\state\SWITCH_SIGNAL.md:**
 ```
-echo "SWITCH TO CHAT: [reason]" > C:\PRISM\state\SWITCH_SIGNAL.md
+SWITCH TO CHAT: [reason + context]
 ```
-Then tell the user: "Switch to Chat mode — I need MCP validation for [X]."
-
-**Chat tells user to switch to Code when:**
-- Implementation work needed (file editing, refactors)
-- Build + test cycles
-- Multi-file changes
-- Data processing scripts
+Then tell the user: "Switch to Chat mode — [reason]."
+Chat reads SWITCH_SIGNAL.md, resolves, writes CHAT_RESOLUTION.md.
+Code reads resolution and continues.
 
 **After switching, the receiving mode reads CURRENT_POSITION.md for context.**
