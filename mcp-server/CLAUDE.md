@@ -90,3 +90,28 @@ C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoint
 3. Flush results to disk after each logical unit
 4. After build: run `scripts/verify-build.ps1`
 5. Before file replacement: run anti-regression validation
+
+## Mode Switching (Code ↔ Chat)
+This codebase has an MCP server with 31 dispatchers for manufacturing physics,
+safety validation, and quality scoring. These are ONLY available in Chat mode.
+
+**Code MUST tell the user to switch to Chat when:**
+- Physics validation needed (cutting force, speed/feed, thermal calcs)
+- Safety scoring needed (S(x) ≥ 0.70 checks)
+- Quality gates (Omega Ω compute, Ralph validation)
+- Registry lookups for golden benchmark values
+- Any manufacturing calculation that needs verified physics
+
+**Code MUST tell the user to switch by writing to SWITCH_SIGNAL.md:**
+```
+echo "SWITCH TO CHAT: [reason]" > C:\PRISM\state\SWITCH_SIGNAL.md
+```
+Then tell the user: "Switch to Chat mode — I need MCP validation for [X]."
+
+**Chat tells user to switch to Code when:**
+- Implementation work needed (file editing, refactors)
+- Build + test cycles
+- Multi-file changes
+- Data processing scripts
+
+**After switching, the receiving mode reads CURRENT_POSITION.md for context.**
