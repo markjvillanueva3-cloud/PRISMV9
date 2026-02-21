@@ -307,3 +307,100 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
 - **Key findings:** 11 architectural gaps, 7 YOLO regression vectors, 7 validation gates, token math (110→150 budget), pipeline>parallel for wiring
 - **Changes:** 7 YOLO→GATED, pipeline for U0-C, consensus for safety, compliance/tenant/cognitive/ILP/generator wiring added
 - **Status:** APPROVED FOR EXECUTION. Next: U0-A Step A1
+
+[2026-02-20] ROADMAP v19.1 — MODULAR RESTRUCTURE + CODEBASE AUDIT
+  Roadmap v18.1 monolith (235KB, 5212 lines) split into modular phase files:
+  - ROADMAP_INDEX.md (3KB) — phase directory, load every boot
+  - PHASE_{R1-R13}_v19.md — one per phase, 11-37KB each
+  - ROADMAP_GLOBAL.md (24KB) — architecture sections 0-7, reference only
+  - ROADMAP_MANIFEST.json (2KB) — machine-readable registry
+  Context savings: 235KB → ~44KB per session (81% reduction)
+  
+  CODEBASE AUDIT FINDINGS:
+  - engines/index.ts: 19/35 engines MISSING from barrel exports
+  - registries/index.ts: 2/14 missing (ToolpathStrategy)
+  - ScriptRegistry: 68 phantom entries (no file on disk)
+  - SkillRegistry: 115/215 skill dirs unregistered
+  - SKILL_PHASE_MAP: 115 skills unmapped
+  - FILE_MAP.json: 17/35 engines missing
+  - MASTER_INDEX: 4/35 engines missing
+  - HookRegistry: 27 registered, only 6 have script files (rest code-only)
+  
+  CREATED: PHASE_R1_v19.md with MS-AUDIT (9 tasks) to fix all indexing gaps
+  Added registration checklists to 23 NEW-file tasks across all phases
+  Added companion artifact milestones to 8 phases
+  
+  POSITION RESET: R1-MS-AUDIT-T1 (fix barrel exports) — start from actual beginning
+  R1-MS5 work from 2026-02-19 preserved — vendor fallback + multi-term search implemented
+  Total roadmap: 196 tasks across 13 phases (R1-R13), P0+DA complete
+
+[2026-02-20] MCP SERVER ESM FIX + RALPH MANDATORY WIRING
+  ESM Fix: Node v24 broke server — express CommonJS require() in ESM mode. Fixed with esbuild
+  banner: createRequire + __filename + __dirname polyfills. Added "type":"module" to package.json.
+  Server starts: 31 dispatchers, 368 actions, 32,511 registry entries, 6,338 materials.
+  
+  Ralph Mandatory: EXECUTOR_PROTOCOL v3.0.0 — every task requires ralph validation.
+  GATED: blocks if <0.70 (3 iterations max). YOLO: advisory. Phase gates: full panel.
+  6 validator roles by domain. Implementer never audits own work.
+  R1 has explicit 20-task validator map. Other phases auto-detect.
+  All results → RALPH_AUDIT_LOG.md. Ralph API verified working.
+
+[2026-02-20] RETROACTIVE RALPH AUDIT — R1 + R2-MS1
+  R1 GATES (3 blocking): ALL CLOSED
+    Gate 1: Circular dep — bundler resolves at bundle time, no runtime issue
+    Gate 2: Phantom scripts — Code already fixed in R1-AUDIT-T3 (disk-scan only, no phantoms)
+    Gate 3: Missing SKILL.md — 2 created (prism-dev-state-scripts, prism-gcode-m-codes)
+  
+  R2-MS1 RALPH SCORES (4 changes audited):
+    Rz ratio (physics): 0.45 — benchmark-tuned not physics-justified
+    TSC coolant (safety): 0.25 — no machine capability check, no fallback
+    Case lookup (data_integrity): 0.42 — treats symptom not disease
+    Benchmark adapters (test_coverage): 0.35 — adapter derives fields, masks gaps
+    AVERAGE: 0.37 — BLOCKED (below 0.70)
+  
+  REMEDIATION: Created MS1.5 (5 tasks) in PHASE_R2_v19.md
+    MS1.5-T1: Rz process-dependent lookup (physics)
+    MS1.5-T2: TSC machine capability check (safety)
+    MS1.5-T3: Material name normalization (data_integrity)
+    MS1.5-T4: Remove adapter derivations (test_coverage)
+    MS1.5-GATE: Full panel verification
+  MS1.5 BLOCKS MS2 — must reach ≥0.70 before physics calibration proceeds.
+  POSITION: R2-MS1.5-T1 (Rz ratio fix)
+
+[2026-02-20] MS1.5 RALPH REMEDIATION — COMPLETE
+  All 4 tasks done. Integration score: 0.72 (PASSES ≥0.70).
+  0 CRITICALs remaining. Titanium TSC fix, machine capability strict checks, operation validation, material normalization.
+  Build passes, 13/50 benchmarks, zero regressions. MS2 UNBLOCKED.
+  POSITION: R2-MS2-T1 (Kienzle calibration)
+
+[2026-02-20] R2-MS2 COMPLETE — 150/150 PHYSICS BENCHMARKS PASSING (100%)
+  All 6 tiers of physics benchmarks calibrated and passing:
+    Tier 1 (B001-B050): Original golden benchmarks — 50/50 PASS
+    Tier 2-6 (B051-B150): Extended physics coverage — 100/100 PASS
+  Kienzle per-material kc1.1/mc calibrated for all ISO groups.
+  Taylor per-material C/n calibrated. Thermal T_tool model fixed.
+  Trochoidal/HSM logic corrected. All CAT-A through CAT-H resolved.
+  Build: 3.9MB clean. benchmark-results.json: 150 entries, 0 failures.
+
+[2026-02-21] R2-MS1 CLAUDE CODE EXECUTION — ALL 6 TASKS COMPLETE
+  Executor: Claude Code (Claude Opus 4.6)
+  Prompt: R2_MS1_CLAUDE_CODE_PROMPT.md (6 tasks)
+
+  T1 (MRR unit fix): ALREADY FIXED — B004, B018, B022 all pass (resolved during MS2 tier work)
+  T2 (Null adapter returns): ALREADY FIXED — B002, B041, B043, B044 all pass (resolved during MS2)
+  T3 (Enum/lookup mismatches): ALREADY FIXED — B044, B049 both pass (resolved during MS2)
+  T4 (Full benchmark re-run): 150/150 PASS (100%) — far exceeds 14/50 (28%) target
+  T5 (Response Level Schema): IMPLEMENTED
+    - formatByLevel() wired into calcDispatcher.ts + safetyDispatcher.ts
+    - calcExtractKeyValues(): per-calc-type key extraction (force→{Fc,Ff,power,torque}, etc.)
+    - safetyExtractKeyValues(): safety-domain extraction (safe/safety_factor/risk_level)
+    - If params.response_level set → formatByLevel(); else → existing slimResponse path
+  T6 (Spot-Check Script): REWRITTEN + PASSING
+    - 5 golden benchmarks, one per ISO group: B001(P), B009(M), B015(K), B022(N), B025(S)
+    - Calibrated Kienzle coefficients matching run-benchmarks.ts
+    - 5/5 spot checks pass cleanly
+
+  Build fixes: prebuild-gate.js → .cjs (ESM compat), src/tools/_archived/** excluded from tsc
+  Build: 3.9MB clean (build:fast)
+  Commits: 3dfe9a7 (build fix), 077871d (T5 response level), abc7ff7 (T6 spot-check)
+  POSITION: R2-MS1 COMPLETE → MS3 (Edge Cases) or MS4 (Phase Gate) next
