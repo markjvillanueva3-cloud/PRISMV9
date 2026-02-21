@@ -17,11 +17,11 @@
  *   material_recommend    - Material recommendation (IMPLEMENTED R3-MS0)
  *   tool_recommend        - Tool recommendation (IMPLEMENTED R3-MS0)
  *   machine_recommend     - Machine recommendation (IMPLEMENTED R3-MS0)
- *   what_if               - What-if scenario analysis (R3-MS1 stub)
- *   failure_diagnose      - Failure root cause analysis (R3-MS1 stub)
- *   parameter_optimize    - Multi-objective parameter optimization (R3-MS1 stub)
- *   cycle_time_estimate   - Cycle time estimation (R3-MS1 stub)
- *   quality_predict       - Quality prediction (R3-MS1 stub)
+ *   what_if               - What-if scenario analysis (IMPLEMENTED R3-MS0)
+ *   failure_diagnose      - Failure root cause analysis (IMPLEMENTED R3-MS0)
+ *   parameter_optimize    - Multi-objective parameter optimization (IMPLEMENTED R3-MS0)
+ *   cycle_time_estimate   - Cycle time estimation (IMPLEMENTED R3-MS0)
+ *   quality_predict       - Quality prediction (IMPLEMENTED R3-MS0)
  *
  * SAFETY CRITICAL: All cutting parameters are validated against SAFETY_LIMITS.
  * Power is checked against machine rating when machine_id is provided.
@@ -563,7 +563,7 @@ function mapIsoToTaylorGroup(isoGroup: string): string {
 }
 
 // ============================================================================
-// STUB ACTIONS (R3-MS1)
+// VALIDATION HELPERS
 // ============================================================================
 
 /**
@@ -1282,47 +1282,664 @@ async function machineRecommend(params: Record<string, any>): Promise<any> {
 
 /**
  * Run what-if scenario analysis on cutting parameters.
- * @stub R3-MS1
+ *
+ * Compares baseline cutting parameters against a modified set to show the
+ * impact on force, power, tool life, surface finish, and MRR. Useful for
+ * quick "what happens if I bump speed by 20%?" exploration without building
+ * a full job plan.
+ *
+ * @param params.baseline - Base cutting parameters (material, cutting_speed, feed_per_tooth, etc.)
+ * @param params.changes  - Object with parameters to override in the scenario
+ * @param params.material - Optional material name for Kienzle/Taylor lookup
+ * IMPLEMENTED R3-MS0
  */
-async function whatIf(params: Record<string, any>): Promise<never> {
+async function whatIf(params: Record<string, any>): Promise<any> {
   validateRequiredFields("what_if", params, ["baseline", "changes"]);
-  throwNotImplemented("what_if");
+
+  const baseline = params.baseline as Record<string, any>;
+  const changes = params.changes as Record<string, any>;
+
+  // Merge: scenario = baseline overridden by changes
+  const scenario = { ...baseline, ...changes };
+
+  // Resolve material coefficients
+  let kienzle: KienzleCoefficients;
+  let taylor: TaylorCoefficients;
+  let materialName = params.material || baseline.material || "Unknown";
+
+  if (params.material || baseline.material) {
+    const matName = params.material || baseline.material;
+    let mat: any;
+    try { mat = await registryManager.materials.getByIdOrName(matName); } catch { /* skip */ }
+    if (mat) {
+      materialName = mat.name;
+      const isoGroup = mat.iso_group || mat.classification?.iso_group || "P";
+      kienzle = mat.kienzle?.kc1_1 ? { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc } : getDefaultKienzle(mapIsoToKienzleGroup(isoGroup));
+      taylor = mat.taylor?.C ? { C: mat.taylor.C, n: mat.taylor.n } : getDefaultTaylor(mapIsoToTaylorGroup(isoGroup));
+    } else {
+      kienzle = getDefaultKienzle("steel_medium_carbon");
+      taylor = getDefaultTaylor("steel");
+    }
+  } else {
+    kienzle = getDefaultKienzle("steel_medium_carbon");
+    taylor = getDefaultTaylor("steel");
+  }
+
+  // Helper to compute metrics for a parameter set
+  function computeMetrics(p: Record<string, any>) {
+    const Vc = p.cutting_speed ?? 150;
+    const fz = p.feed_per_tooth ?? 0.1;
+    const ap = p.axial_depth ?? 3;
+    const ae = p.radial_depth ?? 6;
+    const D = p.tool_diameter ?? DEFAULT_TOOL.diameter;
+    const z = p.number_of_teeth ?? DEFAULT_TOOL.number_of_teeth;
+    const noseR = p.nose_radius ?? DEFAULT_TOOL.nose_radius;
+
+    const conditions: CuttingConditions = {
+      cutting_speed: Vc, feed_per_tooth: fz, axial_depth: ap,
+      radial_depth: ae, tool_diameter: D, number_of_teeth: z,
+    };
+
+    const force = calculateKienzleCuttingForce(conditions, kienzle);
+    const toolLife = calculateTaylorToolLife(Vc, taylor, fz, ap);
+    const sf = calculateSurfaceFinish(fz, noseR, true, ae, D);
+    const mrr = calculateMRR(conditions);
+    const power = calculateSpindlePower(force.Fc, Vc, D);
+
+    return {
+      cutting_speed: Vc,
+      feed_per_tooth: fz,
+      axial_depth: ap,
+      radial_depth: ae,
+      tool_diameter: D,
+      cutting_force_N: force.Fc,
+      tool_life_min: toolLife.tool_life_minutes,
+      surface_finish_Ra: sf.Ra,
+      surface_finish_Rz: sf.Rz,
+      mrr_cm3_min: mrr.mrr,
+      power_kW: power.power_spindle_kw,
+      warnings: [...force.warnings, ...toolLife.warnings, ...sf.warnings, ...mrr.warnings],
+    };
+  }
+
+  const baseMetrics = computeMetrics(baseline);
+  const scenarioMetrics = computeMetrics(scenario);
+
+  // Calculate deltas (scenario - baseline) with percentage
+  function delta(base: number, scen: number) {
+    const diff = scen - base;
+    const pct = base !== 0 ? (diff / base) * 100 : 0;
+    return { value: Math.round(diff * 100) / 100, percent: Math.round(pct * 10) / 10 };
+  }
+
+  const deltas = {
+    cutting_force_N: delta(baseMetrics.cutting_force_N, scenarioMetrics.cutting_force_N),
+    tool_life_min: delta(baseMetrics.tool_life_min, scenarioMetrics.tool_life_min),
+    surface_finish_Ra: delta(baseMetrics.surface_finish_Ra, scenarioMetrics.surface_finish_Ra),
+    mrr_cm3_min: delta(baseMetrics.mrr_cm3_min, scenarioMetrics.mrr_cm3_min),
+    power_kW: delta(baseMetrics.power_kW, scenarioMetrics.power_kW),
+  };
+
+  // Generate insight summary
+  const insights: string[] = [];
+  if (deltas.tool_life_min.percent < -30) insights.push("Significant tool life reduction — consider cost impact");
+  if (deltas.cutting_force_N.percent > 25) insights.push("Force increase may cause chatter or deflection");
+  if (deltas.surface_finish_Ra.percent > 20) insights.push("Surface finish degradation — verify against tolerance");
+  if (deltas.mrr_cm3_min.percent > 15) insights.push("Productivity gain from higher MRR");
+  if (deltas.power_kW.percent > 40) insights.push("Power spike — verify machine capacity");
+  if (scenarioMetrics.tool_life_min < 5) insights.push("CRITICAL: Tool life below 5 min — Taylor cliff zone");
+
+  log.info(`[IntelligenceEngine] what_if: Vc ${baseMetrics.cutting_speed}→${scenarioMetrics.cutting_speed}, ` +
+    `force Δ${deltas.cutting_force_N.percent}%, life Δ${deltas.tool_life_min.percent}%`);
+
+  return {
+    material: materialName,
+    changes_applied: changes,
+    baseline: baseMetrics,
+    scenario: scenarioMetrics,
+    deltas,
+    insights,
+  };
 }
 
 /**
  * Diagnose root cause of a machining failure from symptoms.
- * @stub R3-MS1
+ *
+ * Uses a knowledge base of common CNC machining failure modes to match
+ * user-reported symptoms against known root causes, then ranks them by
+ * relevance and provides actionable remedies.
+ *
+ * @param params.symptoms     - Array of symptom strings or comma-separated string
+ * @param params.material     - Optional material name for context
+ * @param params.operation    - Optional operation type (roughing, finishing, etc.)
+ * @param params.parameters   - Optional current cutting parameters for physics cross-check
+ * IMPLEMENTED R3-MS0
  */
-async function failureDiagnose(params: Record<string, any>): Promise<never> {
+async function failureDiagnose(params: Record<string, any>): Promise<any> {
   validateRequiredFields("failure_diagnose", params, ["symptoms"]);
-  throwNotImplemented("failure_diagnose");
+
+  // Normalize symptoms to string array
+  let symptoms: string[] = Array.isArray(params.symptoms)
+    ? params.symptoms
+    : String(params.symptoms).split(",").map((s: string) => s.trim());
+  symptoms = symptoms.map((s: string) => s.toLowerCase());
+
+  // -- Failure knowledge base --
+  const FAILURE_MODES: Array<{
+    id: string;
+    name: string;
+    keywords: string[];
+    root_causes: string[];
+    remedies: string[];
+    severity: "low" | "medium" | "high" | "critical";
+  }> = [
+    {
+      id: "chatter",
+      name: "Regenerative Chatter",
+      keywords: ["chatter", "vibration", "noise", "waviness", "marks", "surface marks", "harmonics"],
+      root_causes: [
+        "Spindle speed in unstable lobe region",
+        "Excessive axial or radial depth of cut",
+        "Low system rigidity (long overhang, weak workholding)",
+        "Incorrect number of flutes for engagement",
+      ],
+      remedies: [
+        "Adjust spindle speed to stable lobe (use stability lobe diagram)",
+        "Reduce axial depth of cut by 30-50%",
+        "Reduce tool overhang or use shrink-fit holder",
+        "Switch to variable-pitch or variable-helix cutter",
+        "Increase radial engagement to dampen (trochoidal not always better)",
+      ],
+      severity: "high",
+    },
+    {
+      id: "premature_wear",
+      name: "Premature Tool Wear",
+      keywords: ["tool wear", "short life", "premature", "wear", "flank wear", "crater", "edge breakdown"],
+      root_causes: [
+        "Cutting speed too high (operating past Taylor knee)",
+        "Insufficient coolant flow or wrong coolant type",
+        "Wrong tool coating for material group",
+        "Built-up edge due to low speed on sticky material",
+      ],
+      remedies: [
+        "Reduce cutting speed by 15-25%",
+        "Verify coolant concentration and flow rate",
+        "Switch to AlTiN coating for high-temp alloys, TiAlN for steels",
+        "For BUE: increase cutting speed or use positive rake geometry",
+      ],
+      severity: "high",
+    },
+    {
+      id: "tool_breakage",
+      name: "Tool Breakage",
+      keywords: ["breakage", "broken", "snap", "catastrophic", "fracture", "shatter"],
+      root_causes: [
+        "Chip load too high for tool geometry",
+        "Interrupted cut shock on brittle substrate",
+        "Chip packing in deep slot or pocket",
+        "Incorrect tool path — full-width slotting at excessive feed",
+      ],
+      remedies: [
+        "Reduce feed per tooth to stay within chip load limits",
+        "Use tougher substrate (micro-grain carbide) for interrupted cuts",
+        "Ensure chip evacuation via air blast or through-spindle coolant",
+        "Use trochoidal or peel milling instead of full-width slotting",
+      ],
+      severity: "critical",
+    },
+    {
+      id: "poor_surface_finish",
+      name: "Poor Surface Finish",
+      keywords: ["surface", "rough", "finish", "Ra", "roughness", "scratches", "scallop"],
+      root_causes: [
+        "Feed per tooth too high for finishing pass",
+        "Worn or chipped cutting edge",
+        "Tool runout exceeding tolerance",
+        "Nose radius too small for required Ra",
+      ],
+      remedies: [
+        "Reduce feed per tooth for finishing (typically fz < 0.05 mm)",
+        "Inspect and replace tool insert",
+        "Measure runout with DTI — should be < 5 μm for finishing",
+        "Use wiper insert or larger nose radius (Ra ∝ fz²/(32×r))",
+      ],
+      severity: "medium",
+    },
+    {
+      id: "dimensional_error",
+      name: "Dimensional Inaccuracy",
+      keywords: ["dimension", "tolerance", "oversize", "undersize", "inaccurate", "drift", "deviation"],
+      root_causes: [
+        "Tool deflection under cutting force",
+        "Thermal growth of spindle or workpiece",
+        "Backlash in machine axes",
+        "Incorrect tool offset or worn tool geometry",
+      ],
+      remedies: [
+        "Reduce radial depth or use shorter tool assembly",
+        "Allow machine warm-up cycle; use coolant to control temperature",
+        "Calibrate axis backlash compensation",
+        "Re-measure tool with presetter; update offset in controller",
+      ],
+      severity: "high",
+    },
+    {
+      id: "chip_issues",
+      name: "Poor Chip Control",
+      keywords: ["chip", "birds nest", "stringy", "clogging", "packing", "evacuation", "long chips"],
+      root_causes: [
+        "Feed too low for material (thin chips curl poorly)",
+        "Wrong chipbreaker geometry for material ductility",
+        "Insufficient coolant pressure for chip evacuation",
+        "Deep pocket with no chip exit path",
+      ],
+      remedies: [
+        "Increase feed per tooth to produce thicker, breakable chips",
+        "Use insert with aggressive chipbreaker for ductile materials",
+        "Switch to through-spindle coolant (TSC) at ≥40 bar",
+        "Program peck cycles or helical ramp entry for deep features",
+      ],
+      severity: "medium",
+    },
+    {
+      id: "thermal_damage",
+      name: "Thermal Damage / Burns",
+      keywords: ["burn", "heat", "thermal", "discoloration", "white layer", "heat affected", "blue"],
+      root_causes: [
+        "Cutting speed too high for material thermal conductivity",
+        "Dwell at bottom of hole or pocket corner",
+        "Dry machining of heat-sensitive material",
+        "Re-cutting chips that carry heat back into cut zone",
+      ],
+      remedies: [
+        "Reduce cutting speed by 20-30%",
+        "Eliminate dwell: use constant feed through corners",
+        "Apply flood or MQL coolant — never dry-cut titanium/Inconel",
+        "Improve chip evacuation to prevent re-cutting",
+      ],
+      severity: "high",
+    },
+  ];
+
+  // Score each failure mode against symptoms
+  const scored = FAILURE_MODES.map((mode) => {
+    let matchCount = 0;
+    const matchedKeywords: string[] = [];
+    for (const symptom of symptoms) {
+      for (const kw of mode.keywords) {
+        if (symptom.includes(kw) || kw.includes(symptom)) {
+          matchCount++;
+          matchedKeywords.push(kw);
+          break; // one match per symptom
+        }
+      }
+    }
+    const relevance = symptoms.length > 0 ? matchCount / symptoms.length : 0;
+    return { ...mode, matchCount, matchedKeywords, relevance };
+  });
+
+  // Filter and sort by relevance
+  const matches = scored
+    .filter((m) => m.relevance > 0)
+    .sort((a, b) => b.relevance - a.relevance || (b.severity === "critical" ? 1 : 0) - (a.severity === "critical" ? 1 : 0));
+
+  // Optional physics cross-check if parameters are provided
+  let physicsCheck: any = undefined;
+  if (params.parameters && params.material) {
+    try {
+      const p = params.parameters;
+      let mat: any;
+      try { mat = await registryManager.materials.getByIdOrName(params.material); } catch { /* skip */ }
+      const isoGroup = mat?.iso_group || mat?.classification?.iso_group || "P";
+      const taylorCoeffs = mat?.taylor?.C
+        ? { C: mat.taylor.C, n: mat.taylor.n }
+        : getDefaultTaylor(mapIsoToTaylorGroup(isoGroup));
+
+      if (p.cutting_speed) {
+        const tl = calculateTaylorToolLife(p.cutting_speed, taylorCoeffs, p.feed_per_tooth, p.axial_depth);
+        physicsCheck = {
+          estimated_tool_life_min: tl.tool_life_minutes,
+          taylor_warnings: tl.warnings,
+        };
+        if (p.cutting_speed > taylorCoeffs.C * 0.85) {
+          physicsCheck.speed_warning = `Cutting speed ${p.cutting_speed} is within 15% of Taylor C=${taylorCoeffs.C} — operating near cliff edge`;
+        }
+      }
+    } catch (err: any) {
+      log.warn(`[IntelligenceEngine] failure_diagnose: physics cross-check failed: ${err.message}`);
+    }
+  }
+
+  log.info(`[IntelligenceEngine] failure_diagnose: ${symptoms.length} symptoms → ${matches.length} mode matches`);
+
+  return {
+    symptoms_analyzed: symptoms,
+    diagnoses: matches.map((m) => ({
+      id: m.id,
+      name: m.name,
+      relevance: Math.round(m.relevance * 100) / 100,
+      severity: m.severity,
+      matched_keywords: m.matchedKeywords,
+      root_causes: m.root_causes,
+      remedies: m.remedies,
+    })),
+    physics_cross_check: physicsCheck,
+    total_modes_checked: FAILURE_MODES.length,
+  };
 }
 
 /**
  * Multi-objective parameter optimization (cost, quality, productivity).
- * @stub R3-MS1
+ *
+ * Resolves material physics data, then delegates to optimizeCuttingParameters()
+ * from AdvancedCalculations with user-specified objectives and constraints.
+ *
+ * @param params.material       - Material name for Kienzle/Taylor lookup
+ * @param params.objectives     - Weights: { productivity, cost, quality, tool_life } (0-1 each)
+ * @param params.constraints    - Optional: { max_power, max_force, max_surface_finish, min_tool_life }
+ * @param params.tool_diameter  - Optional tool diameter (default 12 mm)
+ * @param params.number_of_teeth - Optional (default 4)
+ * IMPLEMENTED R3-MS0
  */
-async function parameterOptimize(params: Record<string, any>): Promise<never> {
+async function parameterOptimize(params: Record<string, any>): Promise<any> {
   validateRequiredFields("parameter_optimize", params, ["material", "objectives"]);
-  throwNotImplemented("parameter_optimize");
+
+  const objectives = params.objectives as Record<string, number>;
+  const weights: OptimizationWeights = {
+    productivity: objectives.productivity ?? 0.25,
+    cost: objectives.cost ?? 0.25,
+    quality: objectives.quality ?? 0.25,
+    tool_life: objectives.tool_life ?? 0.25,
+  };
+
+  const constraints: OptimizationConstraints = params.constraints ?? {};
+
+  // Resolve material
+  let mat: any;
+  try { mat = await registryManager.materials.getByIdOrName(params.material); } catch { /* skip */ }
+  const isoGroup = mat?.iso_group || mat?.classification?.iso_group || "P";
+
+  const kienzle = mat?.kienzle?.kc1_1
+    ? { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc }
+    : getDefaultKienzle(mapIsoToKienzleGroup(isoGroup));
+
+  const taylor = mat?.taylor?.C
+    ? { C: mat.taylor.C, n: mat.taylor.n }
+    : getDefaultTaylor(mapIsoToTaylorGroup(isoGroup));
+
+  const toolDiameter = params.tool_diameter ?? DEFAULT_TOOL.diameter;
+  const numTeeth = params.number_of_teeth ?? DEFAULT_TOOL.number_of_teeth;
+
+  // Run multi-objective optimizer
+  const result = optimizeCuttingParameters(
+    constraints,
+    weights,
+    kienzle.kc1_1,
+    taylor.C,
+    taylor.n,
+    toolDiameter,
+    numTeeth,
+  );
+
+  // Also compute the minimum-cost speed as a reference
+  const minCost = calculateMinimumCostSpeed(
+    taylor.C,
+    taylor.n,
+    { machine_rate: 75 / 60, tool_cost: 45, tool_change_time: 1 },
+  );
+
+  log.info(
+    `[IntelligenceEngine] parameter_optimize: ${params.material} → ` +
+    `Vc=${result.optimal_speed}, fz=${result.optimal_feed}, ap=${result.optimal_depth}`
+  );
+
+  return {
+    material: mat?.name || params.material,
+    iso_group: isoGroup,
+    objectives_used: weights,
+    constraints_applied: constraints,
+    optimal_parameters: {
+      cutting_speed: result.optimal_speed,
+      feed_per_tooth: result.optimal_feed,
+      axial_depth: result.optimal_depth,
+      spindle_speed: Math.round((1000 * result.optimal_speed) / (Math.PI * toolDiameter)),
+      feed_rate: Math.round(result.optimal_feed * numTeeth *
+        ((1000 * result.optimal_speed) / (Math.PI * toolDiameter))),
+    },
+    predicted_outcomes: result.objective_values,
+    pareto_optimal: result.pareto_optimal,
+    minimum_cost_speed: minCost.optimal_speed,
+    iterations: result.iterations,
+    warnings: result.warnings,
+  };
 }
 
 /**
  * Estimate cycle time for a set of operations without full job planning.
- * @stub R3-MS1
+ *
+ * For each operation, derives feed rate from speed/feed calculation, then
+ * estimates cutting distance from feature dimensions. Sums up cutting time,
+ * rapid time, and tool change time across all operations.
+ *
+ * @param params.operations       - Array of { feature, depth, width, length, material? }
+ * @param params.material         - Default material for all operations
+ * @param params.tool_change_time - Seconds per tool change (default 8)
+ * @param params.rapid_rate       - Rapid traverse mm/min (default 30000)
+ * IMPLEMENTED R3-MS0
  */
-async function cycleTimeEstimate(params: Record<string, any>): Promise<never> {
+async function cycleTimeEstimate(params: Record<string, any>): Promise<any> {
   validateRequiredFields("cycle_time_estimate", params, ["operations"]);
-  throwNotImplemented("cycle_time_estimate");
+
+  const operations = params.operations as Array<Record<string, any>>;
+  const toolChangeTimeSec = params.tool_change_time ?? 8;
+  const toolChangeTimeMin = toolChangeTimeSec / 60;
+  const rapidRate = params.rapid_rate ?? 30000;
+
+  // Resolve default material
+  const materialName = params.material || operations[0]?.material || "4140 Steel";
+  let mat: any;
+  try { mat = await registryManager.materials.getByIdOrName(materialName); } catch { /* skip */ }
+  const isoGroup = mat?.iso_group || mat?.classification?.iso_group || "P";
+  const hardness = mat?.mechanical?.hardness?.brinell ?? 200;
+
+  let totalCuttingTime = 0;
+  let totalRapidTime = 0;
+  let totalToolChanges = 0;
+  const operationDetails: any[] = [];
+
+  for (let i = 0; i < operations.length; i++) {
+    const op = operations[i];
+    const depth = op.depth ?? 10;
+    const width = op.width ?? 50;
+    const length = op.length ?? 100;
+    const D = op.tool_diameter ?? DEFAULT_TOOL.diameter;
+    const z = op.number_of_teeth ?? DEFAULT_TOOL.number_of_teeth;
+    const operation = op.operation || "roughing";
+
+    // Get speed/feed for this operation
+    const sf = calculateSpeedFeed({
+      material_hardness: hardness,
+      tool_material: "Carbide",
+      operation,
+      tool_diameter: D,
+      number_of_teeth: z,
+    });
+
+    // Estimate number of passes based on depth and axial depth
+    const ap = sf.axial_depth;
+    const ae = sf.radial_depth;
+    const numAxialPasses = Math.ceil(depth / ap);
+    const numRadialPasses = Math.ceil(width / ae);
+
+    // Cutting distance: passes × length, roughly
+    const cuttingDistance = numAxialPasses * numRadialPasses * length; // mm
+    // Rapid distance: approach + retract per pass + moves between passes
+    const rapidDistance = numAxialPasses * numRadialPasses * (50 + D * 2) + 100; // mm estimate
+
+    const cuttingTime = cuttingDistance / sf.feed_rate; // minutes
+    const rapidTime = rapidDistance / rapidRate; // minutes
+
+    totalCuttingTime += cuttingTime;
+    totalRapidTime += rapidTime;
+    if (i > 0) totalToolChanges++;
+
+    operationDetails.push({
+      index: i + 1,
+      feature: op.feature || "unknown",
+      operation,
+      cutting_speed: sf.cutting_speed,
+      feed_rate: sf.feed_rate,
+      axial_depth: ap,
+      radial_depth: ae,
+      passes: numAxialPasses * numRadialPasses,
+      cutting_time_min: Math.round(cuttingTime * 100) / 100,
+      rapid_time_min: Math.round(rapidTime * 100) / 100,
+    });
+  }
+
+  const toolChangeTotal = totalToolChanges * toolChangeTimeMin;
+  const totalTime = totalCuttingTime + totalRapidTime + toolChangeTotal;
+  const utilization = totalTime > 0 ? (totalCuttingTime / totalTime) * 100 : 0;
+
+  const warnings: string[] = [];
+  if (utilization < 50) warnings.push("Low spindle utilization — consider consolidating tool paths");
+  if (totalTime > 120) warnings.push("Cycle time exceeds 2 hours — consider batch splitting or parallel fixturing");
+
+  log.info(
+    `[IntelligenceEngine] cycle_time_estimate: ${operations.length} ops, ` +
+    `total=${totalTime.toFixed(1)} min (cutting=${totalCuttingTime.toFixed(1)}, ` +
+    `rapid=${totalRapidTime.toFixed(1)}, tool_change=${toolChangeTotal.toFixed(1)})`
+  );
+
+  return {
+    material: mat?.name || materialName,
+    total_time_min: Math.round(totalTime * 10) / 10,
+    cutting_time_min: Math.round(totalCuttingTime * 10) / 10,
+    rapid_time_min: Math.round(totalRapidTime * 10) / 10,
+    tool_change_time_min: Math.round(toolChangeTotal * 10) / 10,
+    tool_changes: totalToolChanges,
+    utilization_percent: Math.round(utilization * 10) / 10,
+    operations: operationDetails,
+    warnings,
+  };
 }
 
 /**
  * Predict achievable quality metrics (Ra, Rz, tolerances) for given parameters.
- * @stub R3-MS1
+ *
+ * Combines surface finish prediction with deflection analysis and thermal effects
+ * to give a complete quality picture for the specified cutting parameters.
+ *
+ * @param params.material        - Material name for registry lookup
+ * @param params.parameters      - Cutting parameters: { cutting_speed, feed_per_tooth, axial_depth, radial_depth, tool_diameter, number_of_teeth }
+ * @param params.nose_radius     - Tool nose radius mm (default 0.8)
+ * @param params.overhang_length - Tool overhang mm (default 40)
+ * @param params.operation       - Operation type for Rz/Ra ratio (milling, turning, etc.)
+ * IMPLEMENTED R3-MS0
  */
-async function qualityPredict(params: Record<string, any>): Promise<never> {
+async function qualityPredict(params: Record<string, any>): Promise<any> {
   validateRequiredFields("quality_predict", params, ["material", "parameters"]);
-  throwNotImplemented("quality_predict");
+
+  const p = params.parameters as Record<string, any>;
+  const Vc = p.cutting_speed ?? 150;
+  const fz = p.feed_per_tooth ?? 0.1;
+  const ap = p.axial_depth ?? 3;
+  const ae = p.radial_depth ?? 6;
+  const D = p.tool_diameter ?? DEFAULT_TOOL.diameter;
+  const z = p.number_of_teeth ?? DEFAULT_TOOL.number_of_teeth;
+  const noseR = params.nose_radius ?? DEFAULT_TOOL.nose_radius;
+  const overhang = params.overhang_length ?? DEFAULT_TOOL.overhang_length;
+  const operation = params.operation || "milling";
+
+  // Resolve material
+  let mat: any;
+  try { mat = await registryManager.materials.getByIdOrName(params.material); } catch { /* skip */ }
+  const isoGroup = mat?.iso_group || mat?.classification?.iso_group || "P";
+  const materialName = mat?.name || params.material;
+  const hardness = mat?.mechanical?.hardness?.brinell ?? 200;
+
+  // 1. Surface finish prediction
+  const surfaceFinish = calculateSurfaceFinish(fz, noseR, operation !== "turning", ae, D, operation);
+
+  // 2. Cutting force for deflection analysis
+  const kienzle = mat?.kienzle?.kc1_1
+    ? { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc }
+    : getDefaultKienzle(mapIsoToKienzleGroup(isoGroup));
+
+  const conditions: CuttingConditions = {
+    cutting_speed: Vc, feed_per_tooth: fz, axial_depth: ap,
+    radial_depth: ae, tool_diameter: D, number_of_teeth: z,
+  };
+  const force = calculateKienzleCuttingForce(conditions, kienzle);
+  const Fc = force.Fc;
+
+  // 3. Tool deflection estimate
+  let deflection: any;
+  try {
+    deflection = calculateToolDeflection(
+      Fc, overhang, D, D * 0.7, // assume solid core ~70% of D
+    );
+  } catch {
+    deflection = { max_deflection: 0, warnings: ["Deflection calc skipped"] };
+  }
+
+  // 4. Thermal effects
+  let thermal: any;
+  try {
+    const thermalCond = mat?.thermal?.thermal_conductivity ?? 50;
+    thermal = calculateCuttingTemperature(
+      Vc, fz * z * ((1000 * Vc) / (Math.PI * D)), // feed_rate
+      ap, D, thermalCond,
+    );
+  } catch {
+    thermal = { max_temperature: 0, warnings: ["Thermal calc skipped"] };
+  }
+
+  // 5. Quality assessment
+  const qualityWarnings: string[] = [...surfaceFinish.warnings];
+  let toleranceEstimate = "IT8-IT9"; // default achievable tolerance
+  if (deflection.max_deflection > 0.05) {
+    qualityWarnings.push(`Tool deflection ${deflection.max_deflection.toFixed(3)} mm may affect dimensional accuracy`);
+    toleranceEstimate = "IT10-IT11";
+  }
+  if (deflection.max_deflection > 0.02 && deflection.max_deflection <= 0.05) {
+    toleranceEstimate = "IT9-IT10";
+  }
+  if (deflection.max_deflection <= 0.01) {
+    toleranceEstimate = "IT7-IT8";
+  }
+  if (thermal.max_temperature > 500) {
+    qualityWarnings.push("High cutting temperature may cause thermal distortion and affect surface integrity");
+  }
+
+  log.info(
+    `[IntelligenceEngine] quality_predict: ${materialName} → Ra=${surfaceFinish.Ra}, ` +
+    `deflection=${deflection.max_deflection?.toFixed(3) ?? "?"}mm, temp=${thermal.max_temperature?.toFixed(0) ?? "?"}°C`
+  );
+
+  return {
+    material: materialName,
+    iso_group: isoGroup,
+    parameters_used: { cutting_speed: Vc, feed_per_tooth: fz, axial_depth: ap, radial_depth: ae, tool_diameter: D },
+    surface_finish: {
+      Ra: surfaceFinish.Ra,
+      Rz: surfaceFinish.Rz,
+      Rt: surfaceFinish.Rt,
+      theoretical_Ra: surfaceFinish.theoretical_Ra,
+    },
+    deflection: {
+      max_deflection_mm: deflection.max_deflection ?? 0,
+      stiffness_ratio: deflection.stiffness_ratio,
+    },
+    thermal: {
+      max_temperature_C: thermal.max_temperature ?? 0,
+      chip_temperature_C: thermal.chip_temperature,
+    },
+    achievable_tolerance: toleranceEstimate,
+    cutting_force_N: Fc,
+    warnings: qualityWarnings,
+  };
 }
 
 // ============================================================================

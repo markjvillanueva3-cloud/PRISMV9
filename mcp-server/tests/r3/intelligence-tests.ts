@@ -1,14 +1,18 @@
 /**
  * R3-MS0 Intelligence Engine Integration Tests
  *
- * Tests the intelligence dispatcher wiring and implemented actions:
- *   1. job_plan (existing implementation)
- *   2. setup_sheet
- *   3. process_cost
- *   4. material_recommend
- *   5. tool_recommend
- *   6. machine_recommend
- *   7. Stub actions return structured "not implemented" errors
+ * Tests all 11 intelligence actions:
+ *   1-3.  job_plan (P-group, N-group, S-group variants)
+ *   4-5.  setup_sheet (json + markdown formats)
+ *   6.    process_cost (batch costing)
+ *   7.    material_recommend
+ *   8.    tool_recommend
+ *   9.    machine_recommend
+ *  10.    what_if (scenario comparison)
+ *  11-12. failure_diagnose (chatter + tool wear with physics cross-check)
+ *  13.    parameter_optimize (multi-objective)
+ *  14.    cycle_time_estimate (multi-operation)
+ *  15.    quality_predict (surface + deflection + thermal)
  */
 
 import { registryManager } from "../../src/registries/manager.js";
@@ -226,15 +230,158 @@ const TESTS: TestCase[] = [
   },
 
   // =====================================================
-  // 7. Stub actions return proper error
+  // 7. what_if — scenario comparison
   // =====================================================
   {
-    name: "what_if: returns stub error",
+    name: "what_if: speed increase scenario (4140 Steel)",
     action: "what_if",
-    params: { baseline: { cutting_speed: 200 }, changes: { cutting_speed: 250 } },
-    validate: (_r) => {
-      // This should have thrown -- validated in the runner
-      return ["what_if should have thrown not-implemented"];
+    params: {
+      material: "4140 Steel",
+      baseline: { cutting_speed: 150, feed_per_tooth: 0.1, axial_depth: 3, radial_depth: 6 },
+      changes: { cutting_speed: 200 },
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (!r.baseline) errs.push("Missing baseline metrics");
+      if (!r.scenario) errs.push("Missing scenario metrics");
+      if (!r.deltas) errs.push("Missing deltas");
+      if (r.scenario?.cutting_speed !== 200) errs.push(`Scenario speed should be 200, got ${r.scenario?.cutting_speed}`);
+      if (r.deltas?.tool_life_min?.percent === undefined) errs.push("Missing tool life delta");
+      if (r.deltas?.mrr_cm3_min?.percent === undefined) errs.push("Missing MRR delta");
+      // Higher speed should reduce tool life
+      if (r.deltas?.tool_life_min?.percent >= 0) errs.push("Tool life should decrease with higher speed");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 8. failure_diagnose — symptom matching
+  // =====================================================
+  {
+    name: "failure_diagnose: chatter symptoms",
+    action: "failure_diagnose",
+    params: {
+      symptoms: ["vibration", "surface marks", "noise"],
+      material: "4140 Steel",
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (!r.diagnoses || !Array.isArray(r.diagnoses)) errs.push("Missing diagnoses array");
+      if (r.diagnoses && r.diagnoses.length === 0) errs.push("No diagnoses matched");
+      if (r.diagnoses?.[0]) {
+        if (r.diagnoses[0].id !== "chatter") errs.push(`Top diagnosis should be chatter, got ${r.diagnoses[0].id}`);
+        if (!r.diagnoses[0].root_causes || r.diagnoses[0].root_causes.length === 0) errs.push("Missing root causes");
+        if (!r.diagnoses[0].remedies || r.diagnoses[0].remedies.length === 0) errs.push("Missing remedies");
+      }
+      if (r.symptoms_analyzed?.length !== 3) errs.push(`Expected 3 symptoms analyzed, got ${r.symptoms_analyzed?.length}`);
+      return errs;
+    },
+  },
+  {
+    name: "failure_diagnose: tool wear with physics cross-check",
+    action: "failure_diagnose",
+    params: {
+      symptoms: ["premature tool wear", "short life"],
+      material: "Inconel 718",
+      parameters: { cutting_speed: 60, feed_per_tooth: 0.08, axial_depth: 2 },
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (!r.diagnoses || r.diagnoses.length === 0) errs.push("No diagnoses matched");
+      // Should match premature_wear
+      const hasWear = r.diagnoses?.some((d: any) => d.id === "premature_wear");
+      if (!hasWear) errs.push("Should diagnose premature_wear");
+      // Physics cross-check should be present
+      if (!r.physics_cross_check) errs.push("Missing physics cross-check (parameters were provided)");
+      if (r.physics_cross_check && !r.physics_cross_check.estimated_tool_life_min)
+        errs.push("Cross-check missing tool life estimate");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 9. parameter_optimize — multi-objective optimization
+  // =====================================================
+  {
+    name: "parameter_optimize: 4140 Steel, balanced objectives",
+    action: "parameter_optimize",
+    params: {
+      material: "4140 Steel",
+      objectives: { productivity: 0.3, cost: 0.3, quality: 0.2, tool_life: 0.2 },
+      constraints: { max_power: 15 },
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (!r.optimal_parameters) errs.push("Missing optimal_parameters");
+      if (r.optimal_parameters) {
+        if (!r.optimal_parameters.cutting_speed || r.optimal_parameters.cutting_speed <= 0)
+          errs.push("Invalid optimal cutting speed");
+        if (!r.optimal_parameters.feed_per_tooth || r.optimal_parameters.feed_per_tooth <= 0)
+          errs.push("Invalid optimal feed");
+      }
+      if (!r.predicted_outcomes) errs.push("Missing predicted outcomes");
+      if (r.iterations === undefined || r.iterations <= 0) errs.push("No optimization iterations");
+      if (!r.minimum_cost_speed) errs.push("Missing minimum cost speed");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 10. cycle_time_estimate — multi-operation estimation
+  // =====================================================
+  {
+    name: "cycle_time_estimate: 3-op pocket + face + slot",
+    action: "cycle_time_estimate",
+    params: {
+      material: "4140 Steel",
+      operations: [
+        { feature: "pocket", depth: 15, width: 50, length: 100, operation: "roughing" },
+        { feature: "pocket", depth: 15, width: 50, length: 100, operation: "finishing" },
+        { feature: "face", depth: 3, width: 80, length: 200, operation: "roughing" },
+      ],
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (r.total_time_min === undefined || r.total_time_min <= 0) errs.push("Invalid total time");
+      if (r.cutting_time_min === undefined || r.cutting_time_min <= 0) errs.push("Invalid cutting time");
+      if (!r.operations || r.operations.length !== 3) errs.push(`Expected 3 operation details, got ${r.operations?.length}`);
+      if (r.utilization_percent === undefined) errs.push("Missing utilization");
+      if (r.tool_changes !== 2) errs.push(`Expected 2 tool changes, got ${r.tool_changes}`);
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 11. quality_predict — surface + deflection + thermal
+  // =====================================================
+  {
+    name: "quality_predict: 4140 Steel finishing parameters",
+    action: "quality_predict",
+    params: {
+      material: "4140 Steel",
+      parameters: {
+        cutting_speed: 200,
+        feed_per_tooth: 0.05,
+        axial_depth: 1,
+        radial_depth: 1.2,
+        tool_diameter: 12,
+        number_of_teeth: 4,
+      },
+      nose_radius: 0.8,
+      operation: "milling",
+    },
+    validate: (r) => {
+      const errs: string[] = [];
+      if (!r.surface_finish) errs.push("Missing surface_finish");
+      if (r.surface_finish && (r.surface_finish.Ra === undefined || r.surface_finish.Ra <= 0))
+        errs.push("Invalid Ra value");
+      if (r.surface_finish && (r.surface_finish.Rz === undefined || r.surface_finish.Rz <= 0))
+        errs.push("Invalid Rz value");
+      if (r.deflection?.max_deflection_mm === undefined) errs.push("Missing deflection data");
+      if (r.thermal?.max_temperature_C === undefined) errs.push("Missing thermal data");
+      if (!r.achievable_tolerance) errs.push("Missing tolerance estimate");
+      if (r.cutting_force_N === undefined || r.cutting_force_N <= 0) errs.push("Missing cutting force");
+      return errs;
     },
   },
 ];
