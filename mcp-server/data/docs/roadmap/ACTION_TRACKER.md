@@ -89,3 +89,32 @@
     - BLOCKS stub expansion if any required action is missing
   
   === ROADMAP AUDIT FULLY REMEDIATED: 14/14 findings fixed ===
+
+[2026-02-21] R2-MS4 PHASE GATE PASSED — Ω=0.77, S(x)=0.85, 150/150 benchmarks
+  - Build: 3.93MB, 7 symbols OK, 0 bad patterns
+  - Tag: r2-complete
+  - See R2_QUALITY_REPORT.json for full breakdown
+
+[2026-02-21] R2-MS5 COMPLETE — Skill & plugin audit (no modifications, audit only)
+  - 6/6 spot checks passed across all ISO groups
+  - Skill overlap audit: no conflicts found
+  - Ralph audit: scoring stable
+
+[2026-02-21] R3-MS0 IN PROGRESS — Intelligence Engine wiring + first 6 actions
+  ARCHITECTURE:
+    - New IntelligenceEngine.ts (compound action engine, 6/11 actions implemented)
+    - New intelligenceDispatcher.ts (dispatcher #32, prism_intelligence)
+    - Barrel export added to src/engines/index.ts
+    - Registration added to src/index.ts (32 dispatchers, 379 actions)
+  ACTIONS IMPLEMENTED (6/11):
+    - job_plan: Full machining job plan (pre-existing, wired into dispatcher)
+    - setup_sheet: Calls jobPlan internally, formats as structured sheet (json/markdown)
+    - process_cost: Cost model: machine_rate + tool_cost/parts_per_edge + setup/batch
+    - material_recommend: MaterialRegistry.search → composite scoring (machinability, physics data, hardness fit)
+    - tool_recommend: ToolRegistry.search → suitability ranking (material group, type, diameter, coating)
+    - machine_recommend: MachineRegistry.search → utilization scoring (envelope, spindle, capacity)
+  STUBS REMAINING (5/11): what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict
+  TESTS:
+    - tests/r3/intelligence-tests.ts: 10/10 PASS (6 action tests + 3 job_plan variants + 1 stub confirm)
+    - R2 regression: 150/150 benchmarks (no regressions)
+  BUILD: 4.0MB clean, esbuild only

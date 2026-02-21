@@ -434,3 +434,28 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
   Build: 3.9MB clean (build:fast)
   Commits: 3dfe9a7 (build fix), 077871d (T5 response level), abc7ff7 (T6 spot-check)
   POSITION: R2-MS1 COMPLETE → MS3 (Edge Cases) or MS4 (Phase Gate) next
+
+## R3 PHASE (IN PROGRESS)
+
+[2026-02-21] R3-MS0 IN PROGRESS — Intelligence Engine Wiring + First 6 Actions
+  Entry criteria: R2 complete (Ω=0.77 ≥ 0.70, 150/150 benchmarks ≥ 80%)
+
+  ARCHITECTURE:
+    - IntelligenceEngine.ts: Compound action engine composing physics + registries
+    - intelligenceDispatcher.ts: Dispatcher #32 (prism_intelligence, 11 actions)
+    - Barrel export added to src/engines/index.ts
+    - Registration in src/index.ts (32 dispatchers, 379 actions)
+
+  ACTIONS IMPLEMENTED (6/11):
+    1. job_plan — Full machining job plan (pre-existing, now wired)
+    2. setup_sheet — Calls jobPlan, formats as structured sheet (json/markdown)
+    3. process_cost — Cost model: machine + tool/parts_per_edge + setup/batch
+    4. material_recommend — MaterialRegistry search + composite scoring
+    5. tool_recommend — ToolRegistry search + suitability ranking
+    6. machine_recommend — MachineRegistry search + utilization scoring
+
+  STUBS (5/11): what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict
+
+  TESTS: 10/10 pass (intelligence-tests.ts). R2 regression: 150/150 (no regressions).
+  BUILD: 4.0MB clean.
+  POSITION: R3-MS0 partial → remaining 5 actions next session

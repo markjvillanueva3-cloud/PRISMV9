@@ -87,6 +87,9 @@ import { registerTenantDispatcher } from "./tools/dispatchers/tenantDispatcher.j
 // PROTOCOL BRIDGE: Multi-protocol Gateway (Dispatcher #31) — F7
 import { registerBridgeDispatcher } from "./tools/dispatchers/bridgeDispatcher.js";
 
+// R3: Intelligence Engine — Compound Actions (Dispatcher #32)
+import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -289,8 +292,11 @@ async function registerTools(): Promise<void> {
 
   // F7: Protocol Bridge — Multi-protocol Gateway (13 actions)
   registerBridgeDispatcher(server);
-  
-  log.info(`All PRISM tools registered: 31 dispatchers (368 verified actions)`);
+
+  // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
+  registerIntelligenceDispatcher(server);
+
+  log.info(`All PRISM tools registered: 32 dispatchers (379 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {

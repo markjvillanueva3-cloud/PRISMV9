@@ -1,7 +1,7 @@
 /**
- * PRISM MCP Server - Engines Index v9
- * Re-exports all calculation and orchestration engines
- * Updated: Session 5.3 - Added KnowledgeQueryEngine
+ * PRISM MCP Server - Engines Index v10
+ * Re-exports all 35 calculation, orchestration, and infrastructure engines
+ * Updated: R1-AUDIT-T1 — Added 19 missing barrel exports
  */
 
 // Manufacturing Calculations (Kienzle, Taylor, Johnson-Cook, etc.)
@@ -298,3 +298,115 @@ export {
   type MQLValidationResult,
   type CoolantValidationResult
 } from "./CoolantValidationEngine.js";
+
+// ============================================================================
+// R1-AUDIT-T1: Previously missing barrel exports (19 engines)
+// ============================================================================
+
+// Batch Processor (class not exported — singleton only)
+export { batchProcessor } from "./BatchProcessor.js";
+
+// Certificate Engine — F4 Formal Verification
+export { certificateEngine, CertificateEngine } from "./CertificateEngine.js";
+
+// Compliance Engine — F8 Regulatory Templates
+export { complianceEngine, ComplianceEngine } from "./ComplianceEngine.js";
+
+// Computation Cache (class not exported — singleton only)
+export { computationCache } from "./ComputationCache.js";
+
+// Diff Engine (class not exported — singleton only)
+export { diffEngine } from "./DiffEngine.js";
+
+// Hook Executor — executes registered hooks
+export {
+  hookExecutor,
+  HookExecutor,
+  type HookContext as HookExecutorContext,
+  type HookResult as HookExecutorResult,
+} from "./HookExecutor.js";
+
+// Manus ATCS Bridge — functional module (no class)
+export {
+  delegateUnits,
+  pollResults,
+  getDelegationStatus,
+  getActiveDelegations,
+  clearCompletedDelegations,
+  getBridgeStatus,
+} from "./ManusATCSBridge.js";
+
+// Memory Graph Engine — F2 Cross-Session Memory
+export { memoryGraphEngine, MemoryGraphEngine } from "./MemoryGraphEngine.js";
+
+// Multi-Tenant Engine — F5 Tenant Isolation
+export { multiTenantEngine, MultiTenantEngine } from "./MultiTenantEngine.js";
+
+// NL Hook Engine — F6 Natural Language Hook Authoring
+export { nlHookEngine, NLHookEngine } from "./NLHookEngine.js";
+
+// PFP Engine — F1 Predictive Failure Prevention
+export { pfpEngine, PFPEngine } from "./PFPEngine.js";
+
+// Predictive Failure Engine (legacy PFP variant — aliased to avoid name collision)
+export {
+  PredictiveFailureEngine,
+  pfpEngine as predictiveFailureEngineInstance,
+} from "./PredictiveFailureEngine.js";
+
+// Protocol Bridge Engine — F7 Multi-protocol Gateway
+export { protocolBridgeEngine, ProtocolBridgeEngine } from "./ProtocolBridgeEngine.js";
+
+// Response Template Engine (no singleton export — class + functions)
+export {
+  ResponseTemplateEngine,
+  autoResponseTemplate,
+  getResponseTemplateStats,
+} from "./ResponseTemplateEngine.js";
+
+// Session Lifecycle Engine — session quality tracking (functions, no singleton)
+export {
+  SessionLifecycleEngine,
+  recordSessionToolCall,
+  recordSessionHook,
+  recordSessionSkillInjection,
+  recordSessionTemplateMatch,
+  recordSessionPressure,
+  recordSessionCheckpoint,
+  recordSessionCompactionRecovery,
+  recordSessionError,
+  getSessionQualityScore,
+  writeSessionIncrementalPrep,
+  getSessionMetrics,
+} from "./SessionLifecycleEngine.js";
+
+// Skill Auto Loader — phase-based skill loading (functions, no class)
+export {
+  autoLoadForTask,
+  getLoadedExcerptsBlock,
+  clearSkillCache,
+} from "./SkillAutoLoader.js";
+
+// Skill Bundle Engine — bundle type definition only
+export { type SkillBundle } from "./SkillBundleEngine.js";
+
+// Task Agent Classifier — task routing (functions, no class)
+export {
+  classifyTask,
+  quickClassify,
+} from "./TaskAgentClassifier.js";
+
+// Telemetry Engine — F3 Dispatcher Telemetry
+export { telemetryEngine, TelemetryEngine } from "./TelemetryEngine.js";
+
+// Intelligence Engine — R3 Compound Actions (11 intelligence actions)
+export {
+  intelligenceEngine,
+  executeIntelligenceAction,
+  INTELLIGENCE_ACTIONS,
+  type IntelligenceAction,
+  type JobPlanInput,
+  type JobPlanResult,
+  type JobPlanOperation,
+  type FeatureType,
+} from "./IntelligenceEngine.js";
