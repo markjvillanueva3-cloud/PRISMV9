@@ -1,7 +1,7 @@
 ---
 name: prism-sp-brainstorm
 description: |
-  Socratic design methodology with chunked approval for PRISM development.
+  Chunked approval methodology for PRISM manufacturing development.
   Use when: brainstorm, design, plan feature, think through, explore options.
   7-step process: PAUSE, UNDERSTAND, SCOPE(approval), APPROACH(approval),
   DETAILS(approval), ALTERNATIVES, CONFIRM. Prevents premature implementation.
@@ -10,8 +10,8 @@ description: |
 ---
 
 # PRISM-SP-BRAINSTORM
-## Socratic Design Methodology with Chunked Approval
-### Version 1.0 | Development Workflow | ~35KB
+## Chunked Approval for Manufacturing Design Decisions
+### Version 1.1 | Development Workflow
 
 ---
 
@@ -19,931 +19,290 @@ description: |
 
 ## 1.1 Purpose
 
-This skill provides a systematic methodology for exploring and validating design decisions BEFORE implementation begins. It uses Socratic questioning to uncover requirements, chunked approval to prevent scope creep, and mandatory alternative exploration to ensure the best solution is selected. The goal is to prevent costly rework by getting alignment early.
+Systematic methodology for validating PRISM design decisions BEFORE implementation.
+Uses chunked approval to prevent scope creep, with mandatory alternative exploration
+to ensure the best manufacturing solution is selected. Prevents costly rework by
+getting alignment on material strategies, calculation approaches, and tool selection
+before writing code.
 
 ## 1.2 When to Use
 
-**Explicit Triggers:**
-- When user says "brainstorm this"
-- When user says "let's design..."
-- When user says "plan this feature"
-- When user says "think through..."
-- When task involves creating something new
-
-**Contextual Triggers:**
-- At the start of any complex task (>30 min estimated)
-- When requirements are ambiguous
-- When multiple approaches are possible
-- Before any irreversible action
-- When user seems uncertain about what they want
+**Triggers:**
+- "brainstorm this", "let's design...", "plan this feature", "think through..."
+- Creating new PRISM registries, calculators, or material databases
+- Complex tasks (>30 min estimated) with ambiguous requirements
+- Before any irreversible change to PRISM data structures
 
 **NOT for:**
-- Simple factual questions
-- Tasks with clear, unambiguous requirements
+- Simple factual questions or clear unambiguous tasks
 - Continuing already-approved work
 - Emergency fixes (use prism-sp-debugging instead)
-- Tasks user explicitly wants done without discussion
 
-## 1.3 Prerequisites
+## 1.3 Outputs
 
-**Required State:**
-- [ ] Task or feature has been identified
-- [ ] User is available for interactive discussion
-- [ ] No implementation has started yet
-
-**NOT Required:**
-- Detailed specifications (we'll develop those)
-- Technical decisions made (we'll explore options)
-
-## 1.4 Outputs
-
-**Primary Outputs:**
 - Approved Scope Definition
 - Approved Technical Approach
 - Approved Implementation Details
 - List of Alternatives Considered
-
-**Secondary Outputs:**
-- Clarified requirements
-- Identified risks/constraints
-- Dependencies mapped
-
-**State Changes:**
-- currentTask updated with approved design
 - Ready for prism-sp-planning handoff
 
 ---
 
-# SECTION 2: THE PROCESS
+# SECTION 2: THE 7-STEP PROCESS
 
 ## 2.1 Quick Reference Checklist
 
 ```
-☐ STEP 1: PAUSE - Do NOT implement anything yet
-☐ STEP 2: UNDERSTAND - Clarify the actual goal
-☐ STEP 3: CHUNK 1 (SCOPE) - Present what will/won't be done → Get approval
-☐ STEP 4: CHUNK 2 (APPROACH) - Present how it will be done → Get approval
-☐ STEP 5: CHUNK 3 (DETAILS) - Present specifics → Get approval
-☐ STEP 6: ALTERNATIVES - Explore at least 2 other options
-☐ STEP 7: CONFIRM - Get final go-ahead
-☐ VERIFY: All 3 chunks approved, alternatives documented
+Step 1: PAUSE      - Do NOT implement anything yet
+Step 2: UNDERSTAND - Clarify the actual manufacturing goal
+Step 3: SCOPE      - Present what will/won't be done -> Get approval
+Step 4: APPROACH   - Present how it will be done -> Get approval
+Step 5: DETAILS    - Present specifics -> Get approval
+Step 6: ALTERNATIVES - Explore at least 2 other options
+Step 7: CONFIRM    - Get final go-ahead, hand off to prism-sp-planning
 ```
 
-## 2.2 Detailed Process
+## 2.2 Step Details
 
 ### Step 1: PAUSE
 
-**Purpose:** Prevent premature implementation
-
-**Duration:** 0 minutes (instant mindset shift)
-
-**Actions:**
-1. STOP before writing any code
-2. STOP before creating any files
-3. STOP before making any changes
-4. Shift into exploration mode
-
-**Mental Checklist:**
-- [ ] Am I about to implement something?
-- [ ] Have I confirmed what the user actually wants?
-- [ ] Have I explored alternatives?
-- [ ] Has the user approved my approach?
-
-If ANY answer is "no" → Continue with brainstorm process
-
-**Verification:**
-- [ ] No code written yet
-- [ ] No files created yet
-- [ ] In discussion mode
-
----
+Stop before writing code, creating files, or making changes.
+If you haven't confirmed what the user wants, explored alternatives,
+and received approval -- continue with brainstorm process.
 
 ### Step 2: UNDERSTAND
 
-**Purpose:** Clarify the actual goal before designing solutions
+Restate the request. Identify the REAL goal. Uncover constraints.
 
-**Duration:** 2-5 minutes
+- IF goal is clear -> Proceed to Chunk 1
+- IF goal is unclear -> Ask 1-2 focused questions, then summarize
+- IF user wants to skip -> Compress to single quick confirmation
 
-**Actions:**
-1. Restate the request in your own words
-2. Ask clarifying questions using Socratic method
-3. Identify the REAL goal (not just the stated task)
-4. Uncover constraints and requirements
+### Step 3: CHUNK 1 - SCOPE (requires approval)
 
-**Socratic Questions to Ask:**
-```
-GOAL CLARIFICATION:
-• "What problem are we trying to solve?"
-• "What does success look like?"
-• "Who will use this and how?"
+Present WHAT will be done. Explicitly state inclusions AND exclusions.
+Provide estimated size/effort.
 
-CONSTRAINT DISCOVERY:
-• "Are there any limitations I should know about?"
-• "What's the timeline/urgency?"
-• "What resources are available?"
+**CRITICAL: Do NOT proceed to Chunk 2 without Chunk 1 approval.**
 
-SCOPE BOUNDARIES:
-• "What should this definitely include?"
-• "What should this definitely NOT include?"
-• "Are there related things we should consider?"
-```
+### Step 4: CHUNK 2 - APPROACH (requires approval)
 
-**Decision Point:**
-- IF user's goal is clear → Proceed to Chunk 1
-- IF user's goal is unclear → Ask more questions
-- IF user wants to skip brainstorming → Confirm, then proceed to execution
+Present HOW it will be done. Explain key decisions, trade-offs,
+and which PRISM engines/registries are involved.
 
-**Verification:**
-- [ ] Can articulate the goal in one sentence
-- [ ] Know the key constraints
-- [ ] Understand success criteria
+**CRITICAL: Do NOT proceed to Chunk 3 without Chunk 2 approval.**
 
-**Common Issues:**
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| User frustrated by questions | Too many questions at once | Ask 1-2 questions, then summarize |
-| Goal keeps shifting | User discovering requirements | That's good! Document the evolution |
-| User says "just do it" | Impatience | Acknowledge, offer quick brainstorm or skip |
+### Step 5: CHUNK 3 - DETAILS (requires approval)
 
----
+Present specific files, structures, implementation order.
 
-### Step 3: CHUNK 1 - SCOPE
-
-**Purpose:** Define and get approval for WHAT will be done
-
-**Duration:** 3-5 minutes
-
-**Actions:**
-1. Present scope as a clear, bounded statement
-2. Explicitly state what IS included
-3. Explicitly state what is NOT included
-4. Wait for user approval
-
-**Scope Presentation Template:**
-```markdown
-## CHUNK 1: SCOPE
-
-### What I'll Create/Change:
-- [Deliverable 1]: [Brief description]
-- [Deliverable 2]: [Brief description]
-- [Deliverable 3]: [Brief description]
-
-### What's NOT Included:
-- [Exclusion 1]: [Why excluded]
-- [Exclusion 2]: [Why excluded]
-
-### Estimated Size/Effort:
-- [X] files, approximately [Y] lines/KB
-- Estimated time: [Z] minutes
-
-**Ready to proceed with this scope?**
-```
-
-**Approval Keywords to Listen For:**
-- "yes", "approved", "go ahead", "sounds good"
-- "proceed", "continue", "that works"
-- 👍 or similar affirmative signals
-
-**If User Modifies Scope:**
-1. Acknowledge the change
-2. Restate the modified scope
-3. Ask for approval again
-
-**Verification:**
-- [ ] Scope clearly stated
-- [ ] Inclusions explicit
-- [ ] Exclusions explicit
-- [ ] User said "yes" or equivalent
-
-**CRITICAL: Do NOT proceed to Chunk 2 without Chunk 1 approval**
-
----
-
-### Step 4: CHUNK 2 - APPROACH
-
-**Purpose:** Define and get approval for HOW it will be done
-
-**Duration:** 3-5 minutes
-
-**Actions:**
-1. Present high-level technical approach
-2. Explain key decisions and trade-offs
-3. Mention major technologies/patterns
-4. Wait for user approval
-
-**Approach Presentation Template:**
-```markdown
-## CHUNK 2: APPROACH
-
-### Strategy:
-[1-2 sentence summary of overall approach]
-
-### Key Decisions:
-1. **[Decision 1]:** [Choice] because [reason]
-2. **[Decision 2]:** [Choice] because [reason]
-3. **[Decision 3]:** [Choice] because [reason]
-
-### Technologies/Patterns:
-- [Technology 1]: Used for [purpose]
-- [Pattern 1]: Applied because [reason]
-
-### Trade-offs Accepted:
-- [Trade-off]: [What we gain] vs [What we lose]
-
-**Does this approach make sense?**
-```
-
-**If User Questions Approach:**
-1. Explain reasoning in more detail
-2. Offer alternative approaches (see Step 6)
-3. Let user choose
-4. Document the decision
-
-**Verification:**
-- [ ] Approach clearly stated
-- [ ] Key decisions explained
-- [ ] Trade-offs acknowledged
-- [ ] User said "yes" or equivalent
-
-**CRITICAL: Do NOT proceed to Chunk 3 without Chunk 2 approval**
-
----
-
-### Step 5: CHUNK 3 - DETAILS
-
-**Purpose:** Define and get approval for specific implementation
-
-**Duration:** 3-5 minutes
-
-**Actions:**
-1. Present specific implementation details
-2. Show file paths, function names, structures
-3. Provide size estimates
-4. Wait for user approval
-
-**Details Presentation Template:**
-```markdown
-## CHUNK 3: DETAILS
-
-### Files to Create/Modify:
-1. `[path/file1]`: [What it contains]
-2. `[path/file2]`: [What it contains]
-
-### Key Structures:
-```
-[Show actual structure, schema, or code outline]
-```
-
-### Implementation Order:
-1. First: [action]
-2. Then: [action]
-3. Finally: [action]
-
-### Estimated Output:
-- Total files: [X]
-- Total lines: ~[Y]
-- Total size: ~[Z]KB
-
-**Ready for me to implement this?**
-```
-
-**If User Wants Changes:**
-1. Acknowledge the feedback
-2. Modify the details
-3. Re-present for approval
-
-**Verification:**
-- [ ] Specific paths/names provided
-- [ ] Structure/schema shown
-- [ ] Implementation order clear
-- [ ] User said "yes" or equivalent
-
-**CRITICAL: Do NOT start implementation without Chunk 3 approval**
-
----
+**CRITICAL: Do NOT start implementation without Chunk 3 approval.**
 
 ### Step 6: ALTERNATIVES
 
-**Purpose:** Ensure best solution by exploring options
-
-**Duration:** 2-3 minutes
-
-**Actions:**
-1. Identify at least 2 alternative approaches
-2. Briefly explain each alternative
-3. Explain why the chosen approach is preferred
-4. Document for future reference
-
-**When to Present Alternatives:**
-- ALWAYS before final confirmation
-- When user seems uncertain
-- When multiple valid approaches exist
-- When trade-offs are significant
-
-**Alternatives Template:**
-```markdown
-## ALTERNATIVES CONSIDERED
-
-### Option A (Chosen): [Name]
-- Pros: [advantages]
-- Cons: [disadvantages]
-- Why chosen: [reason]
-
-### Option B: [Name]
-- Pros: [advantages]
-- Cons: [disadvantages]
-- Why not chosen: [reason]
-
-### Option C: [Name]
-- Pros: [advantages]
-- Cons: [disadvantages]
-- Why not chosen: [reason]
-
-**Proceeding with Option A unless you prefer another?**
-```
-
-**Verification:**
-- [ ] At least 2 alternatives identified
-- [ ] Pros/cons documented
-- [ ] Rationale for choice explained
-
----
+Identify at least 2 alternative approaches with pros/cons.
+Explain why the chosen approach is preferred.
 
 ### Step 7: CONFIRM
 
-**Purpose:** Get final go-ahead before implementation
-
-**Duration:** 1 minute
-
-**Actions:**
-1. Summarize the approved design
-2. Ask for final confirmation
-3. Transition to execution mode
-
-**Final Confirmation Template:**
-```markdown
-## READY TO IMPLEMENT
-
-**Scope:** [1-line summary]
-**Approach:** [1-line summary]
-**First Step:** [What I'll do first]
-
-**Starting implementation now. I'll checkpoint after [milestone].**
-```
-
-**Verification:**
-- [ ] All 3 chunks approved
-- [ ] Alternatives documented
-- [ ] User gave final go-ahead
-- [ ] Ready for prism-sp-execution
+Summarize the approved design. Get final go-ahead.
+Transition to prism-sp-planning for task breakdown.
 
 ---
 
-## 2.3 Process Flow Diagram
+# SECTION 3: MANUFACTURING EXAMPLES
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        BRAINSTORM WORKFLOW                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────┐                                                                │
-│  │ REQUEST │                                                                │
-│  └────┬────┘                                                                │
-│       │                                                                     │
-│       ▼                                                                     │
-│  ╔═════════════════════════════════════════════════════════════════════╗   │
-│  ║ STEP 1: PAUSE - No implementation yet!                              ║   │
-│  ╚════════════════════════════════╤════════════════════════════════════╝   │
-│                                   │                                        │
-│                                   ▼                                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ STEP 2: UNDERSTAND - Socratic questioning                           │   │
-│  │ "What's the real goal?" "What are the constraints?"                 │   │
-│  └────────────────────────────────┬────────────────────────────────────┘   │
-│                                   │                                        │
-│       ┌───────────────────────────┼───────────────────────────┐           │
-│       │                           │                           │           │
-│       ▼                           ▼                           ▼           │
-│  ╔═════════════╗           ╔═════════════╗           ╔═════════════╗      │
-│  ║  CHUNK 1    ║           ║  CHUNK 2    ║           ║  CHUNK 3    ║      │
-│  ║   SCOPE     ║──────────▶║  APPROACH   ║──────────▶║  DETAILS    ║      │
-│  ║  (What)     ║  Approved ║  (How)      ║  Approved ║  (Specifics)║      │
-│  ╚══════╤══════╝           ╚══════╤══════╝           ╚══════╤══════╝      │
-│         │                         │                         │             │
-│         │ Not approved            │ Not approved            │ Not approved│
-│         ▼                         ▼                         ▼             │
-│    [Revise]                  [Revise]                  [Revise]           │
-│                                                                             │
-│                                   │ All approved                           │
-│                                   ▼                                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ STEP 6: ALTERNATIVES - Document 2+ options considered               │   │
-│  └────────────────────────────────┬────────────────────────────────────┘   │
-│                                   │                                        │
-│                                   ▼                                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ STEP 7: CONFIRM - Final go-ahead                                    │   │
-│  └────────────────────────────────┬────────────────────────────────────┘   │
-│                                   │                                        │
-│                                   ▼                                        │
-│                          ┌───────────────┐                                 │
-│                          │   IMPLEMENT   │                                 │
-│                          │ (sp-execution)│                                 │
-│                          └───────────────┘                                 │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+## 3.1 Materials Database Enhancement (Full Happy Path)
 
+**Context:** User wants to add thermal properties to existing PRISM materials database.
 
+**UNDERSTAND:** "What specific properties? Any constraints?" -> User wants thermal
+properties on all 100 materials, flexible timeline.
+
+**CHUNK 1 - SCOPE** (user approved: "Yes, that looks right"):
+- Create: Enhanced material schema with thermal section, update 100 materials, validation
+- NOT included: New materials, UI changes, historical migration
+- Effort: 1 schema file + 100 material updates, ~45-60 min
+
+**CHUNK 2 - APPROACH** (user approved: "Makes sense, go ahead"):
+- Strategy: Extend 127-parameter template with thermal subsection
+- Sources: ASM Handbook, MatWeb for literature values
+- Batch processing: Groups of 10 for checkpointing
+- Trade-off: Thoroughness over speed
+
+**CHUNK 3 - DETAILS** (user approved: "Yes, start with the template"):
+- Files: `PRISM_MATERIAL_TEMPLATE.js` (schema), `materials/enhanced/*.json` (data)
+- Properties: thermal conductivity (W/m-K), specific heat (J/kg-K),
+  thermal expansion (um/m-K), melting point (C), max service temp (C)
+- Order: template schema -> batch material updates -> validate all
+
+**ALTERNATIVES:**
+- Option A (Chosen): Extend existing template -- backward compatible with PRISM calculators
+- Option B: Separate thermal database -- rejected, adds cross_query complexity
+
+**CONFIRM:** "Scope: thermal properties on 100 materials. First step: update template."
 
 ---
 
-# SECTION 3: EXAMPLES
+## 3.2 Ambiguous Manufacturing Request (Clarification Needed)
 
-## 3.1 Example 1: New Feature Design (Happy Path)
+**Context:** User says "Fix the calculation problem" -- vague, needs clarification.
 
-**Context:**
-- User: "Create a materials database enhancement"
-- Situation: Complex task requiring design discussion
-- Goal: Add new material properties to existing database
+**UNDERSTAND (narrowing):**
+1. "Which calculation?" -> speed/feed calculator
+2. "What's wrong?" -> too aggressive for aluminum, causing tool breakage
+3. "Which alloys?" -> mainly 6xxx and 7xxx series
 
-**Process Applied:**
+**Outcome:** "Fix the calculation problem" -> "Reduce speed/feed aggressiveness
+for 6xxx/7xxx aluminum alloys in prism_calc speed_feed action"
 
-### Step 1: PAUSE
-- Stopped before writing any code
-- Entered discussion mode
+**SCOPE derived from clarification:**
+- Change: Safety factors for 6xxx Al (6061, 6082) and 7xxx Al (7050, 7075)
+- Add: Material-group-specific derating in speed_feed action
+- NOT included: Other material groups, tool life calc, cutting force calc
+- PRISM components: prism_calc speed_feed, prism_data material_get for Al properties
 
-### Step 2: UNDERSTAND
-```
-Claude: "Before I start, let me make sure I understand. You want to enhance 
-the materials database - what specific properties or improvements are you 
-looking for? And are there any constraints I should know about?"
+---
 
-User: "I want to add thermal properties to all materials. We have about 
-100 materials currently. Timeline is flexible but I'd like it done well."
-```
+## 3.3 Mazak Post Processor (Preventing Wrong Assumptions)
 
-### Step 3: CHUNK 1 - SCOPE
-```
-Claude: "## CHUNK 1: SCOPE
+**Context:** User says "Create a post processor for Mazak"
 
-### What I'll Create/Change:
-- Enhanced material schema with thermal properties section
-- Update all 100 existing materials with thermal data
-- Create validation for new properties
+WRONG: Immediately creates 500 lines for wrong machine model. All work wasted.
 
-### What's NOT Included:
-- New materials (just enhancing existing)
-- UI changes (backend only)
-- Historical data migration
+RIGHT: "Before I create the Mazak post processor, let me confirm:
+Which model (Integrex, Quick Turn, VCN)? Which controller (Mazatrol, FANUC)?
+What operations (turning, milling, multi-axis)? This determines which
+`prism_data machine_get` entry we reference and which `prism_calc gcode_snippet`
+templates apply."
 
-### Estimated Size/Effort:
-- 1 schema file update
-- 100 material updates
-- Estimated time: 45-60 minutes
+**Why this matters:** Mazatrol vs FANUC = completely different G-code dialects.
+Integrex (multi-tasking) vs Quick Turn (lathe) = different toolpath strategies.
+Wrong assumptions = entire post processor is useless.
 
-**Ready to proceed with this scope?**"
+---
 
-User: "Yes, that looks right."
-```
+## 3.4 Cutting Strategy Trade-off (Manufacturing Alternatives)
 
-### Step 4: CHUNK 2 - APPROACH
-```
-Claude: "## CHUNK 2: APPROACH
+**Context:** User needs to machine a deep pocket in Inconel 718.
 
-### Strategy:
-Enhance the existing 127-parameter template with a thermal properties 
-subsection, then systematically update each material with literature values.
-
-### Key Decisions:
-1. **Add to existing schema:** Extend rather than replace
-2. **Use established sources:** ASM Handbook, MatWeb for thermal data
-3. **Batch processing:** Update materials in groups of 10 for checkpointing
-
-### Trade-offs:
-- Thoroughness over speed: Complete data preferred over quick partial
-
-**Does this approach make sense?**"
-
-User: "Makes sense, go ahead."
-```
-
-### Step 5: CHUNK 3 - DETAILS
-```
-Claude: "## CHUNK 3: DETAILS
-
-### Files to Modify:
-1. `PRISM_MATERIAL_TEMPLATE.js`: Add thermal section
-2. `materials/enhanced/*.json`: Update each material
-
-### Thermal Properties to Add:
-- Thermal conductivity (W/m·K)
-- Specific heat capacity (J/kg·K)
-- Thermal expansion coefficient (µm/m·K)
-- Melting point (°C)
-- Max service temperature (°C)
-
-### Implementation Order:
-1. First: Update template schema
-2. Then: Update materials in batches of 10
-3. Finally: Validate all entries
-
-**Ready for me to implement this?**"
-
-User: "Yes, start with the template."
-```
-
-### Step 6: ALTERNATIVES
 ```
 Claude: "## ALTERNATIVES CONSIDERED
 
-### Option A (Chosen): Extend existing template
-- Pros: Backward compatible, minimal disruption
-- Cons: Slightly larger file size
-- Why chosen: Maintains compatibility
+### Option A (Chosen): Trochoidal milling with chip thinning compensation
+- Uses prism_calc trochoidal + chip_thinning actions
+- Pros: Constant tool engagement, manageable heat, longer tool life
+- Cons: Longer cycle time (~20% more than conventional)
+- Why chosen: Inconel work-hardens; constant engagement prevents
+  alternating loads that accelerate tool failure
 
-### Option B: Separate thermal database
-- Pros: Cleaner separation
-- Cons: Requires joins, more complex queries
-- Why not chosen: Adds unnecessary complexity
+### Option B: Adaptive clearing (HSM)
+- Uses prism_calc hsm action
+- Pros: Faster material removal, good chip evacuation
+- Cons: Variable engagement angles stress tool at corners
+- Why not: Corner engagement spikes in deep pockets cause
+  premature tool failure in Inconel
 
-Proceeding with Option A."
+### Option C: Conventional step-down roughing
+- Uses prism_calc multi_pass action
+- Pros: Simple programming, predictable
+- Cons: High radial forces, excessive heat in Inconel
+- Why not: Fails the prism_safety check_chip_load_limits
+  and predict_tool_breakage thresholds
+
+### PRISM Validation:
+- prism_safety get_safe_cutting_limits confirms Option A parameters
+- prism_calc tool_life predicts 45 min tool life (vs 12 min for Option C)
+- prism_calc coolant_strategy recommends through-spindle coolant at 70 bar
 ```
-
-### Step 7: CONFIRM
-```
-Claude: "## READY TO IMPLEMENT
-
-**Scope:** Add thermal properties to 100 materials
-**Approach:** Extend template, batch update
-**First Step:** Update PRISM_MATERIAL_TEMPLATE.js
-
-Starting implementation now. I'll checkpoint after template update."
-```
-
-**Evidence Captured:**
-- E1: User approved scope ("Yes, that looks right")
-- E2: User approved approach ("Makes sense, go ahead")
-- E3: User approved details ("Yes, start with the template")
-- E4: Alternatives documented (Option A vs B)
-
-**Time Taken:** 8 minutes brainstorming → clean implementation
 
 ---
 
-## 3.2 Example 2: Ambiguous Request (Clarification Needed)
+## 3.5 Tool Selection with PRISM Data (Registry-Driven Alternatives)
 
-**Context:**
-- User: "Fix the calculation problem"
-- Situation: Vague request, needs clarification
-- Challenge: Multiple possible interpretations
-
-**Process Applied:**
-
-### Step 2: UNDERSTAND (Extended)
-```
-Claude: "I want to make sure I address the right issue. When you say 
-'calculation problem,' could you tell me:
-1. Which calculation is affected? (speed/feed, forces, tool life?)
-2. What's happening vs what should happen?
-3. Is this affecting specific materials or all materials?"
-
-User: "Oh, the speed/feed calculator is giving values that are too 
-aggressive for aluminum. Users are getting tool breakage."
-
-Claude: "Got it - so the issue is specifically aluminum materials in 
-the speed/feed calculator producing aggressive values that cause tool 
-breakage. Is this all aluminum alloys or specific ones?"
-
-User: "Mainly the 6000 and 7000 series."
-```
-
-**Outcome:** Vague "fix the calculation problem" → Specific "reduce speed/feed aggressiveness for 6xxx and 7xxx aluminum alloys"
-
----
-
-## 3.3 Example 3: User Wants to Skip Brainstorming
-
-**Context:**
-- User: "Just create the file, I know what I need"
-- Situation: User impatient with process
-- Challenge: Balance process with user preference
-
-**Process Applied:**
+**Context:** User needs to select end mills for titanium Ti-6Al-4V roughing.
 
 ```
-Claude: "Understood - you have a clear vision. Let me just confirm the 
-basics to make sure I deliver exactly what you want:
-
-Quick version:
-- Creating: [What]
-- At: [Path]  
-- Size: ~[X]KB
-
-If that's right, I'll start immediately. Sound good?"
-
-User: "Yes, exactly that."
-
-Claude: "Perfect, starting now."
-```
-
-**Key Principle:** Respect user's time while getting minimum necessary confirmation. Compress 3 chunks into 1 quick confirmation when user signals they want to skip.
-
----
-
-# SECTION 4: ANTI-PATTERNS
-
-## 4.1 Overview of Mistakes
-
-```
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                    TOP 5 BRAINSTORMING MISTAKES                                ║
-╠═══════════════════════════════════════════════════════════════════════════════╣
-║                                                                               ║
-║  ❌ MISTAKE 1: Implementing Before Approval                                    ║
-║     Impact: HIGH - Wasted work, rework required                               ║
-║     Frequency: COMMON                                                         ║
-║                                                                               ║
-║  ❌ MISTAKE 2: Skipping Chunks                                                 ║
-║     Impact: MEDIUM - Scope creep, misalignment                                ║
-║     Frequency: COMMON                                                         ║
-║                                                                               ║
-║  ❌ MISTAKE 3: Not Exploring Alternatives                                      ║
-║     Impact: MEDIUM - Suboptimal solutions                                     ║
-║     Frequency: VERY COMMON                                                    ║
-║                                                                               ║
-║  ❌ MISTAKE 4: Asking Too Many Questions                                       ║
-║     Impact: LOW - User frustration                                            ║
-║     Frequency: OCCASIONAL                                                     ║
-║                                                                               ║
-║  ❌ MISTAKE 5: Vague Scope Definitions                                         ║
-║     Impact: HIGH - Scope creep, endless changes                               ║
-║     Frequency: COMMON                                                         ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-```
-
-## 4.2 Detailed Anti-Patterns
-
-### ❌ Mistake 1: Implementing Before Approval
-
-**What Happens:**
-Claude receives a request and immediately starts coding/creating files without confirming scope, approach, or details with the user.
-
-**Why It's Wrong:**
-- Assumptions may be incorrect
-- User may have different expectations
-- Work may need to be completely redone
-- Wastes time and context
-
-**Real Example:**
-```
-User: "Create a post processor for Mazak"
-
-WRONG:
-Claude: "Creating MAZAK_POST_PROCESSOR.js now..."
-[Creates 500 lines of code]
-[User wanted a different machine model]
-[All work wasted]
-
-RIGHT:
-Claude: "Before I create the Mazak post processor, let me confirm:
-- Which Mazak model? (Integrex, Quick Turn, VCN?)
-- Which controller? (Mazatrol, FANUC?)
-- Any special options or cycles needed?"
-```
-
-**Consequences:**
-- Wasted implementation time
-- User frustration
-- Potential data loss if overwriting
-- Context wasted on wrong path
-
-**Detection Signs:**
-- Writing code before asking questions
-- Creating files without showing plan first
-- Assuming requirements without confirming
-
-**Correct Approach:**
-1. PAUSE before any implementation
-2. Ask clarifying questions
-3. Present chunked design
-4. Get approval at each stage
-5. THEN implement
-
-**Prevention:**
-- [ ] Always start with UNDERSTAND step
-- [ ] Present SCOPE chunk before writing code
-- [ ] Wait for explicit "yes" before implementing
-
----
-
-### ❌ Mistake 2: Skipping Chunks
-
-**What Happens:**
-Claude presents scope directly, then jumps to implementation without covering approach or details.
-
-**Why It's Wrong:**
-- User doesn't know HOW it will be done
-- Technical decisions made without input
-- May use wrong patterns/tools
-- Harder to modify mid-implementation
-
-**Real Example:**
-```
-WRONG:
-Claude: "I'll create a materials database with 100 entries."
-User: "OK"
-Claude: [Creates using wrong format]
-User: "Wait, I wanted JSON not JavaScript"
-Claude: [Has to redo everything]
-
-RIGHT:
-Claude: [Chunk 1: Scope] "I'll create 100 material entries"
-User: "OK"
-Claude: [Chunk 2: Approach] "I'll use JSON format with 127 parameters each"
-User: "Actually, can we use YAML?"
-Claude: "Sure, updating approach to use YAML format..."
-[Change caught early, minimal rework]
-```
-
-**Detection Signs:**
-- Going from scope directly to implementation
-- Not discussing technical approach
-- User surprised by technical choices
-
-**Prevention:**
-- [ ] Always present all 3 chunks
-- [ ] Get explicit approval at each chunk
-- [ ] Don't combine chunks without user permission
-
----
-
-### ❌ Mistake 3: Not Exploring Alternatives
-
-**What Happens:**
-Claude picks the first viable solution without considering other options.
-
-**Why It's Wrong:**
-- May miss better solutions
-- User doesn't know trade-offs
-- Can't make informed decision
-- May regret choice later
-
-**Real Example:**
-```
-WRONG:
-Claude: "I'll implement this using a recursive algorithm."
-[Implements recursive solution]
-[Turns out iterative would be 10x faster for this use case]
-
-RIGHT:
 Claude: "## ALTERNATIVES CONSIDERED
 
-Option A: Recursive algorithm
-- Pros: Elegant code, natural for tree structures
-- Cons: Stack overflow risk for deep structures
+### Option A (Chosen): 4-flute variable helix carbide end mill
+- prism_data tool_search: VHM end mills for titanium, 4-flute
+- prism_calc speed_feed: Vc=45 m/min, fz=0.08 mm/tooth
+- Pros: Variable helix reduces chatter in Ti-6Al-4V
+- Cons: Higher tool cost
 
-Option B: Iterative algorithm  
-- Pros: Better performance, no stack limits
-- Cons: More verbose code
+### Option B: 5-flute high-feed end mill
+- prism_data tool_recommend: high-feed geometry for titanium
+- prism_calc chip_load: Thin chip at high feed, low ap
+- Pros: Higher MRR potential
+- Cons: Requires rigid setup; prism_calc stability analysis
+  shows marginal stability at 3xD stick-out
 
-For this case with potentially 10,000+ nodes, I recommend 
-Option B. Thoughts?"
+### Option C: Indexable insert cutter
+- prism_data tool_search: indexable, titanium grade inserts
+- Pros: Lower cost per edge, handles interrupted cuts
+- Cons: Minimum diameter 25mm, won't fit smaller pockets
+
+### PRISM Validation:
+- prism_calc deflection: Option A at 0.012mm (within 0.02mm limit)
+- prism_calc stability: Option A stable, Option B marginal
+- prism_safety calculate_tool_stress: All options within limits
+- prism_data tool_compare: Option A vs B head-to-head confirms A
 ```
-
-**Detection Signs:**
-- Presenting only one solution
-- Not mentioning trade-offs
-- User asks "why not X?" after implementation
-
-**Prevention:**
-- [ ] Always identify 2+ alternatives
-- [ ] Document pros/cons of each
-- [ ] Explain why chosen option is preferred
 
 ---
 
-### ❌ Mistake 4: Asking Too Many Questions
+# SECTION 4: MANUFACTURING-SPECIFIC ANTI-PATTERN
 
-**What Happens:**
-Claude asks exhaustive questions before making any progress, frustrating the user.
+## Implementing Before Understanding the Machine/Material Context
 
-**Why It's Wrong:**
-- Wastes user's time
-- Shows lack of initiative
-- Some questions can be answered during design
-- User may abandon task
+Manufacturing brainstorms MUST clarify the physical context before proposing
+solutions. Unlike pure software, wrong assumptions about materials, machines,
+or cutting conditions can mean:
 
-**Real Example:**
-```
-WRONG:
-Claude: "Before I start, I need to know:
-1. What's the exact file format?
-2. What encoding should I use?
-3. Should there be comments?
-4. What's the naming convention?
-5. Should I include tests?
-6. What's the error handling strategy?
-7. Should there be logging?
-8. What's the performance requirement?
-9. ..." [20 more questions]
+- **Tool breakage** (wrong speeds for material hardness)
+- **Part scrap** (wrong strategy for material behavior)
+- **Machine damage** (exceeding spindle/axis limits)
+- **Useless output** (post processor for wrong controller)
 
-User: "Just... make something reasonable"
+### Key Manufacturing Questions Before Any PRISM Implementation:
 
-RIGHT:
-Claude: "Let me understand the key requirements:
-1. What problem are we solving?
-2. Any hard constraints I should know about?
+**For Material-Related Work:**
+- Which material group? (ISO P/M/K/N/S/H)
+- Specific alloy and condition? (e.g., 7075-T6 vs 7075-O)
+- What properties matter? (machinability, thermal, mechanical?)
+- Source registry: `prism_data material_get` or `material_search`
 
-For everything else, I'll use sensible defaults and show 
-you my plan before implementing."
-```
+**For Machine-Related Work:**
+- Which machine type? (3-axis, 5-axis, lathe, multi-tasking?)
+- Which controller? (FANUC, Siemens, Mazatrol, Heidenhain?)
+- Spindle specs? (max RPM, power curve, torque curve?)
+- Source registry: `prism_data machine_get` or `machine_capabilities`
 
-**Detection Signs:**
-- User seems frustrated by questions
-- Questions could be answered with reasonable defaults
-- Asking about minor details before major direction
+**For Tooling-Related Work:**
+- What operation? (roughing, finishing, drilling, threading?)
+- What constraints? (reach, diameter, holder clearance?)
+- Source registry: `prism_data tool_search` or `tool_recommend`
 
-**Prevention:**
-- [ ] Prioritize questions - ask most important first
-- [ ] Use reasonable defaults for minor decisions
-- [ ] Batch related questions together
-- [ ] Offer to proceed with assumptions user can modify
+**For Calculation Work:**
+- Which physics model? (Kienzle, Taylor, Johnson-Cook?)
+- What validation? (`prism_validate` actions for model params)
+- Safety checks? (`prism_safety` actions for limits)
 
 ---
 
-### ❌ Mistake 5: Vague Scope Definitions
-
-**What Happens:**
-Claude presents scope in unclear terms that could mean multiple things.
-
-**Why It's Wrong:**
-- User and Claude may have different interpretations
-- No clear completion criteria
-- Scope can expand indefinitely
-- Arguments about what was agreed
-
-**Real Example:**
-```
-WRONG:
-Claude: "I'll improve the database."
-User: "OK"
-[Claude adds 3 fields]
-[User expected complete restructuring]
-[Misalignment discovered after work done]
-
-RIGHT:
-Claude: "## CHUNK 1: SCOPE
-
-### What I'll Change:
-- Add 5 specific fields: thermal_conductivity, specific_heat,
-  thermal_expansion, melting_point, service_temp
-- Update 100 existing materials with these values
-- Add validation for new fields
-
-### What's NOT Included:
-- Schema restructuring
-- New materials
-- UI changes
-
-This is bounded to ~500 lines of changes across 101 files."
-```
-
-**Detection Signs:**
-- Scope uses vague words like "improve", "enhance", "fix"
-- No specific deliverables listed
-- No explicit exclusions stated
-- No size/effort estimate
-
-**Prevention:**
-- [ ] List specific deliverables
-- [ ] State explicit exclusions
-- [ ] Provide size/effort estimates
-- [ ] Use concrete, measurable terms
-
----
-
-# SECTION 5: EDGE CASES
+# SECTION 5: SCOPE MANAGEMENT FOR PRISM
 
 ## 5.1 User Changes Mind Mid-Brainstorm
 
-**Scenario:** User approves Chunk 1, then during Chunk 2 decides the scope should change.
+**Scenario:** User approves materials scope, then during approach wants to
+also include the tool database.
 
-**Challenge:** Need to handle gracefully without losing progress.
-
-**Solution:**
-1. Acknowledge the change positively
-2. Return to Chunk 1 with updated scope
-3. Get re-approval before continuing
-4. Document the evolution
-
-**Example:**
 ```
 Claude: [Presents Chunk 2: Approach]
 User: "Actually, can we also include the tool database?"
 
-Claude: "Good thinking - that would make this more comprehensive. 
+Claude: "Good thinking - that would make this more comprehensive.
 Let me update the scope:
 
 ## UPDATED CHUNK 1: SCOPE (v2)
@@ -952,6 +311,11 @@ Let me update the scope:
 - Materials database thermal properties [original]
 - Tool database thermal ratings [new]
 
+### PRISM Components Now Affected:
+- Material registry (prism_data material_get/search)
+- Tool registry (prism_data tool_get/search)
+- Cross-query action (prism_data cross_query) needs thermal awareness
+
 ### Estimated Impact:
 - Additional 50 tool entries to update
 - Adds ~30 minutes to timeline
@@ -959,124 +323,37 @@ Let me update the scope:
 Does this updated scope work?"
 ```
 
----
+## 5.2 Urgent Manufacturing Request
 
-## 5.2 User Rejects All Alternatives
-
-**Scenario:** User doesn't like any of the proposed approaches.
-
-**Challenge:** Need to find a path forward.
-
-**Solution:**
-1. Ask what they would prefer
-2. Explore their suggested approach
-3. If their approach has issues, explain diplomatically
-4. Find middle ground
-
-**Example:**
-```
-Claude: [Presents 3 alternatives]
-User: "None of these work for me."
-
-Claude: "I appreciate the feedback. What approach did you have in mind?
-Or what aspects of these options don't work for your situation?
-Understanding your constraints will help me propose something better."
-```
-
----
-
-## 5.3 Urgent Request - No Time for Full Brainstorm
-
-**Scenario:** User needs something done immediately.
-
-**Challenge:** Balance process with urgency.
-
-**Solution:**
-1. Acknowledge urgency
-2. Compress to single quick confirmation
-3. Note that full design review can happen later
-4. Proceed with implementation
-
-**Example:**
 ```
 User: "I need this in 5 minutes for a demo!"
 
 Claude: "Understood - urgent. Quick confirm:
 - Creating: [X]
 - Approach: [fastest reliable method]
+- PRISM safety checks: [will run post-hoc]
 - Ready in: ~3 minutes
 
 Go?"
-
-User: "Go!"
-
-Claude: [Implements immediately]
 ```
+
+Even under urgency, never skip `prism_safety` checks for cutting parameters.
+Run them post-hoc if needed, but always run them.
 
 ---
 
-## 5.4 Technical User vs Non-Technical User
+# SECTION 6: EVIDENCE & HANDOFF
 
-**Scenario:** Need to adjust chunk detail level based on user expertise.
+## 6.1 Evidence Requirements
 
-**Solution:**
+This skill requires **Level 5 Evidence** (User Acceptance):
+- Chunk 1 (Scope) approved by user
+- Chunk 2 (Approach) approved by user
+- Chunk 3 (Details) approved by user
+- At least 2 alternatives documented with pros/cons
+- Final confirmation received
 
-**For Technical Users:**
-- Include code snippets in Chunk 3
-- Use technical terminology
-- Discuss implementation trade-offs
-- Shorter explanations
-
-**For Non-Technical Users:**
-- Focus on outcomes, not implementation
-- Use analogies and plain language
-- Longer explanations of why
-- Visual representations when helpful
-
----
-
-# SECTION 6: EVIDENCE REQUIREMENTS
-
-## 6.1 Evidence Levels for This Skill
-
-```
-THIS SKILL REQUIRES: Level 5 Evidence (User Acceptance)
-
-Level 1 (Existence):     ☐ Not applicable
-Level 2 (Content):       ☐ Not applicable
-Level 3 (Validation):    ☐ Not applicable
-Level 4 (Execution):     ☐ Not applicable
-Level 5 (User):          ☑ REQUIRED - User approval at each chunk
-```
-
-## 6.2 Specific Evidence Checklist
-
-**Chunk 1 Approval:**
-- [ ] Scope presented with inclusions/exclusions
-- [ ] User gave affirmative response
-- [ ] Response documented
-
-**Chunk 2 Approval:**
-- [ ] Approach presented with decisions/trade-offs
-- [ ] User gave affirmative response
-- [ ] Response documented
-
-**Chunk 3 Approval:**
-- [ ] Details presented with specifics
-- [ ] User gave affirmative response
-- [ ] Response documented
-
-**Alternatives:**
-- [ ] At least 2 alternatives identified
-- [ ] Pros/cons documented
-- [ ] Rationale for choice explained
-
-**Final Confirmation:**
-- [ ] Summary presented
-- [ ] User gave go-ahead
-- [ ] Ready to transition to execution
-
-## 6.3 Evidence Documentation
+## 6.2 Evidence Documentation
 
 ```markdown
 ## BRAINSTORM EVIDENCE: [Task Name]
@@ -1084,253 +361,145 @@ Level 5 (User):          ☑ REQUIRED - User approval at each chunk
 ### Chunk Approvals
 | Chunk | Presented | User Response | Approved |
 |-------|-----------|---------------|----------|
-| 1. Scope | ✓ | "[exact response]" | ✓ |
-| 2. Approach | ✓ | "[exact response]" | ✓ |
-| 3. Details | ✓ | "[exact response]" | ✓ |
+| 1. Scope | Y | "[exact response]" | Y |
+| 2. Approach | Y | "[exact response]" | Y |
+| 3. Details | Y | "[exact response]" | Y |
 
 ### Alternatives Documented
 - Option A (chosen): [name] - [reason]
 - Option B: [name] - [why not]
+
+### PRISM Components Validated
+- Calculators used: [prism_calc actions]
+- Safety checks: [prism_safety actions]
+- Data sources: [prism_data actions]
 
 ### Final Go-Ahead
 User: "[exact response]"
 Status: APPROVED FOR IMPLEMENTATION
 ```
 
-
-
 ---
 
 # SECTION 7: SKILL INTEGRATION
 
-## 7.1 Works Well With
-
-| Skill | Integration Pattern | When to Combine |
-|-------|---------------------|-----------------|
-| prism-sp-planning | Brainstorm → Planning handoff | After approval, before execution |
-| prism-sp-execution | Planning → Execution handoff | When starting implementation |
-| prism-expert-* | Domain expertise for alternatives | When technical options exist |
-| prism-debugging | If brainstorm reveals issue | When problem-solving mode needed |
-
-### Primary Integration: prism-sp-brainstorm → prism-sp-planning
-
-```
-BRAINSTORM                    PLANNING
-    │                             │
-    ▼                             ▼
-┌─────────────────┐         ┌─────────────────┐
-│ Approved Design │────────▶│ Detailed Tasks  │
-│ - Scope ✓       │         │ - Exact steps   │
-│ - Approach ✓    │         │ - Time estimates│
-│ - Details ✓     │         │ - Dependencies  │
-└─────────────────┘         └─────────────────┘
-
-HANDOFF DATA:
-- Approved scope definition
-- Approved technical approach
-- Approved implementation details
-- Alternatives considered
-- User preferences noted
-```
-
-### Integration: Using Expert Skills During Brainstorm
-
-When exploring alternatives, domain experts provide options:
-
-```
-BRAINSTORM PROCESS
-       │
-       │ "What are the options for thermal calculation?"
-       ▼
-┌─────────────────────────────────────────────────────────┐
-│ prism-expert-thermodynamics                             │
-│ ─────────────────────────────────────────────────────── │
-│ Option A: Analytical solution (fast, approximate)       │
-│ Option B: FEA-based (accurate, slow)                    │
-│ Option C: Empirical correlation (fast, good accuracy)   │
-└─────────────────────────────────────────────────────────┘
-       │
-       │ Options fed back to brainstorm
-       ▼
-PRESENT ALTERNATIVES TO USER
-```
-
-## 7.2 Conflicts With
-
-| Skill | Conflict Reason | Resolution |
-|-------|-----------------|------------|
-| prism-sp-execution | Can't brainstorm AND execute simultaneously | Complete brainstorm first |
-| prism-sp-debugging | Different modes (design vs fix) | Choose based on user need |
-
-## 7.3 Prerequisite Chain
+## 7.1 PRISM Skill Chain
 
 ```
 [No prerequisites]
-        │
-        ▼
+        |
+        v
    BRAINSTORM (this skill)
-        │
-        ▼
-  prism-sp-planning
-        │
-        ▼
-  prism-sp-execution
-        │
-        ▼
-  prism-sp-verification
+        |
+        v
+  prism-sp-planning (task breakdown)
+        |
+        v
+  prism-sp-execution (implementation)
+        |
+        v
+  prism-sp-verification (quality gates)
+```
+
+## 7.2 Integration with PRISM Engines
+
+| PRISM Engine | Use During Brainstorm | Example |
+|---|---|---|
+| prism_calc | Validate feasibility of cutting approaches | speed_feed, tool_life, stability |
+| prism_data | Look up material/machine/tool constraints | material_get, machine_capabilities |
+| prism_safety | Check proposed parameters against limits | check_chip_load_limits, predict_tool_breakage |
+| prism_validate | Verify model parameters are valid | kienzle, taylor, johnson_cook |
+| prism_toolpath | Select strategy for machining features | strategy_select, material_strategies |
+| prism_thread | Validate threading approach | get_thread_specifications, calculate_tap_drill |
+
+## 7.3 Expert Skill Consultation During Alternatives
+
+When exploring manufacturing alternatives, consult domain-specific PRISM capabilities:
+
+```
+BRAINSTORM PROCESS
+       |
+       | "What are the options for machining this feature?"
+       v
++-----------------------------------------------------------+
+| PRISM Engines provide grounded alternatives:               |
+| - prism_toolpath strategy_select: ranked strategies        |
+| - prism_calc speed_feed: optimal parameters per strategy   |
+| - prism_safety: which strategies pass safety checks        |
+| - prism_data cross_query: material+operation+machine match |
++-----------------------------------------------------------+
+       |
+       | Options fed back to brainstorm with physics basis
+       v
+PRESENT ALTERNATIVES TO USER (with PRISM validation data)
 ```
 
 ## 7.4 Composition Examples
 
-### Composition 1: New Feature Development
-
-**Skills Combined:**
+### New PRISM Calculator Feature
 - Lead: prism-sp-brainstorm (design phase)
-- Support: prism-expert-cam-programmer (if CAM-related)
-- Reference: prism-coding-patterns (for approach options)
+- Data: prism_data (material/machine constraints)
+- Validation: prism_validate (model parameter ranges)
+- Safety: prism_safety (output limit checks)
+- Handoff: prism-sp-planning
 
-**Flow:**
-1. Brainstorm activates on "design new feature"
-2. During alternatives, consult expert skill for domain options
-3. Reference coding patterns for implementation approaches
-4. Complete brainstorm with all 3 chunks approved
-5. Hand off to planning
-
-### Composition 2: Architecture Decision
-
-**Skills Combined:**
+### Toolpath Strategy Decision
 - Lead: prism-sp-brainstorm
-- Support: prism-dependency-graph
-- Reference: prism-algorithm-selector
+- Strategy: prism_toolpath strategy_select
+- Physics: prism_calc (forces, deflection, stability)
+- Safety: prism_safety (collision, tool stress)
+- Handoff: prism-sp-planning
 
-**Flow:**
-1. Brainstorm the high-level design
-2. Use dependency-graph to understand impact
-3. Use algorithm-selector to choose best approach
-4. Document alternatives with technical justification
+### Material Database Enhancement
+- Lead: prism-sp-brainstorm
+- Data: prism_data material_search (existing entries)
+- Validation: prism_validate material (property ranges)
+- Cross-check: prism_data cross_query (impact on calculations)
+- Handoff: prism-sp-planning
 
 ---
 
 # SECTION 8: QUICK REFERENCE CARD
 
 ```
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                    PRISM-SP-BRAINSTORM - QUICK REFERENCE                       ║
-╠═══════════════════════════════════════════════════════════════════════════════╣
-║                                                                               ║
-║  TRIGGERS: brainstorm, design, plan feature, think through, explore           ║
-║                                                                               ║
-║  PROCESS:                                                                     ║
-║  ─────────                                                                    ║
-║  1. PAUSE ─────────────────────────────────▶ No code yet!                     ║
-║  2. UNDERSTAND ────────────────────────────▶ Clarify real goal                ║
-║  3. CHUNK 1: SCOPE ────────────────────────▶ What (get approval)              ║
-║  4. CHUNK 2: APPROACH ─────────────────────▶ How (get approval)               ║
-║  5. CHUNK 3: DETAILS ──────────────────────▶ Specifics (get approval)         ║
-║  6. ALTERNATIVES ──────────────────────────▶ Document 2+ options              ║
-║  7. CONFIRM ───────────────────────────────▶ Final go-ahead                   ║
-║                                                                               ║
-║  KEY QUESTIONS:                                                               ║
-║  ──────────────                                                               ║
-║  • "What problem are we solving?"                                             ║
-║  • "What does success look like?"                                             ║
-║  • "What should this NOT include?"                                            ║
-║                                                                               ║
-║  CHUNK TEMPLATES:                                                             ║
-║  ────────────────                                                             ║
-║  Scope:    "What I'll create: [X]. NOT included: [Y]. Ready?"                 ║
-║  Approach: "Strategy: [X]. Key decision: [Y]. Make sense?"                    ║
-║  Details:  "Files: [X]. Structure: [Y]. Ready to implement?"                  ║
-║                                                                               ║
-║  EVIDENCE REQUIRED: Level 5 (User Approval)                                   ║
-║  • Chunk 1 approved ✓                                                         ║
-║  • Chunk 2 approved ✓                                                         ║
-║  • Chunk 3 approved ✓                                                         ║
-║  • 2+ alternatives documented                                                 ║
-║                                                                               ║
-║  ❌ DON'T: Implement before approval, skip chunks, ignore alternatives        ║
-║  ✓ DO: Pause first, get approval at each chunk, document options              ║
-║                                                                               ║
-║  NEXT SKILL: prism-sp-planning (after approval)                               ║
-║  RESOURCES: Call F-PSI-001 to select optimal skills/agents/formulas           ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
+PRISM-SP-BRAINSTORM - QUICK REFERENCE
+
+TRIGGERS: brainstorm, design, plan feature, think through, explore
+
+PROCESS:
+  1. PAUSE        -> No code yet!
+  2. UNDERSTAND   -> Clarify real manufacturing goal
+  3. SCOPE        -> What (get approval)
+  4. APPROACH     -> How (get approval)
+  5. DETAILS      -> Specifics (get approval)
+  6. ALTERNATIVES -> Document 2+ options with PRISM validation
+  7. CONFIRM      -> Final go-ahead -> prism-sp-planning
+
+MANUFACTURING CONTEXT (always clarify):
+  - Material: group, alloy, condition
+  - Machine: type, controller, spindle specs
+  - Tooling: operation, constraints, holder
+  - Physics: which model, which safety checks
+
+PRISM ENGINES TO CONSULT:
+  - prism_calc:     Feasibility of cutting approaches
+  - prism_data:     Material/machine/tool constraints
+  - prism_safety:   Parameter limit checks
+  - prism_validate: Model parameter verification
+  - prism_toolpath: Strategy selection
+
+EVIDENCE: Level 5 (User Approval at each chunk)
+NEXT SKILL: prism-sp-planning (after approval)
+RESOURCE: F-PSI-001 selects optimal skills/agents/formulas
 ```
 
 ---
 
-# SECTION 9: CHANGELOG
-
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0.0 | 2026-01-24 | Initial creation | Claude (SP.1.1) |
-
----
-
-# SECTION 10: VALIDATION CHECKLIST
-
-## 10.1 Structure Validation
-
-- [x] YAML frontmatter complete and valid
-- [x] All 10 sections present
-- [x] Section numbering consistent
-- [x] No placeholder text remaining
-- [x] No instructional comments remaining
-
-## 10.2 Content Validation
-
-- [x] Purpose clearly stated (Section 1.1)
-- [x] At least 3 trigger keywords defined (brainstorm, design, plan feature)
-- [x] Process has 7 steps with verification points
-- [x] 3 complete examples (Section 3)
-- [x] 5 anti-patterns documented (Section 4)
-- [x] Evidence requirements specified (Section 6)
-- [x] Quick reference card is ≤30 lines (Section 8)
-
-## 10.3 Quality Validation
-
-- [x] Examples are realistic and complete
-- [x] Anti-patterns include real failure scenarios
-- [x] Edge cases cover boundary conditions (4 scenarios)
-- [x] Integration patterns documented
-- [x] Evidence checklist is actionable
-
-## 10.4 Size Validation
-
-- [x] File size within target range (~35KB target)
-- [x] No unnecessary repetition
-- [x] No missing critical content
-
-## 10.5 Integration Validation
-
-- [x] Triggers don't conflict with other skills
-- [x] Composition patterns documented
-- [x] Handoff to prism-sp-planning defined
-
----
-
-# DOCUMENT METADATA
-
-```
-Skill:        prism-sp-brainstorm
-Version:      1.0.0
-Created:      2026-01-24
-Session:      SP.1.1
-Author:       Claude (PRISM Development)
-Category:     Development Workflow (SP.1)
-
-Purpose:      Socratic design methodology with chunked
-              approval to prevent premature implementation
-
-Triggers:     brainstorm, design, plan feature, think through
-Evidence:     Level 5 (User approval at each chunk)
-
-Next Skill:   prism-sp-planning (SP.1.2)
-Resources:    F-PSI-001 selects optimal skills/agents/formulas
-Integrates:   prism-sp-planning, prism-sp-execution, prism-combination-engine, prism-expert-*
-```
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2026-01-24 | Initial creation |
+| 1.1.0 | 2026-02-21 | Trimmed generic content; focused on manufacturing patterns |
 
 ---
 
 **END OF SKILL DOCUMENT**
-
