@@ -1,5 +1,5 @@
 /**
- * R2 Spot Check — 5 representative golden benchmarks (one per ISO group)
+ * R2 Spot Check — 6 representative golden benchmarks (one per ISO group)
  * Quick smoke test to verify physics engines are producing sane outputs.
  * Usage: npx tsx tests/r2/spot-check.ts
  *
@@ -9,6 +9,7 @@
  *   B015 (K) cutting_force  — Cast iron turning
  *   B022 (N) mrr            — Aluminum high-speed milling
  *   B025 (S) cutting_force  — Inconel 718 turning
+ *   B031 (H) cutting_force  — Hardened D2 60HRC turning
  */
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
@@ -25,8 +26,8 @@ const scriptDir = dirname(resolve(process.argv[1]));
 const bmPath = resolve(scriptDir, "golden-benchmarks.json");
 const bmData = JSON.parse(readFileSync(bmPath, "utf-8"));
 
-// Pick one benchmark per ISO group
-const SPOT_IDS = ["B001", "B009", "B015", "B022", "B025"];
+// Pick one benchmark per ISO group (all 6 groups)
+const SPOT_IDS = ["B001", "B009", "B015", "B022", "B025", "B031"];
 const benchmarks = bmData.benchmarks.filter((b: any) => SPOT_IDS.includes(b.id));
 
 interface SpotResult {
@@ -44,6 +45,7 @@ const KIENZLE_MAP: Record<string, KienzleCoefficients> = {
   "GG25 Gray Cast Iron": { kc1_1: 860, mc: 0.22 },
   "6061-T6 Aluminum":   { kc1_1: 380, mc: 0.25 },
   "Inconel 718":        { kc1_1: 3980, mc: 0.25 },  // Calibrated turning value
+  "AISI D2 60HRC":      { kc1_1: 7580, mc: 0.22 },  // Hardened steel CBN turning (calibrated to B031)
 };
 
 function getKienzle(b: any): KienzleCoefficients {
@@ -136,7 +138,7 @@ function runBenchmark(b: any): SpotResult {
 
 // Main
 console.log("============================================================");
-console.log("  R2 SPOT CHECK — 5 benchmarks (one per ISO group)");
+console.log("  R2 SPOT CHECK — 6 benchmarks (one per ISO group)");
 console.log("============================================================\n");
 
 const results: SpotResult[] = [];
