@@ -4,411 +4,6299 @@
     "created": "2026-02-20",
     "purpose": "R2 Safety Phase - Golden benchmark calculations for physics validation",
     "total_benchmarks": 50,
-    "iso_groups_covered": ["P", "M", "K", "N", "S", "H"],
-    "operations_covered": ["turning", "milling", "drilling", "threading", "trochoidal", "hsm"],
+    "iso_groups_covered": [
+      "P",
+      "M",
+      "K",
+      "N",
+      "S",
+      "H"
+    ],
+    "operations_covered": [
+      "turning",
+      "milling",
+      "drilling",
+      "threading",
+      "trochoidal",
+      "hsm"
+    ],
     "validation_rule": "Each benchmark has expected_result with ±tolerance. PASS if within bounds.",
     "safety_threshold": "S(x) >= 0.70 HARD BLOCK"
   },
   "benchmarks": [
     {
-      "id": "B001", "calc_type": "cutting_force",
+      "id": "B001",
+      "calc_type": "cutting_force",
       "name": "P-Steel Turning Roughing - AISI 4140",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130 Annealed"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC4325", "diameter_mm": 12, "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 220, "f_mmrev": 0.3, "ap_mm": 3.0},
-      "expected": {"Fc_N": {"value": 1340, "tolerance_pct": 15}, "Ff_N": {"value": 670, "tolerance_pct": 20}, "power_kW": {"value": 4.9, "tolerance_pct": 15}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130 Annealed"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC4325",
+        "diameter_mm": 12,
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 220,
+        "f_mmrev": 0.3,
+        "ap_mm": 3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1340,
+          "tolerance_pct": 15
+        },
+        "Ff_N": {
+          "value": 670,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 4.9,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B002", "calc_type": "cutting_force",
+      "id": "B002",
+      "calc_type": "cutting_force",
       "name": "P-Steel Turning Finishing - AISI 1045",
-      "material": {"id": "P_STEELS-carbon_steel-0001", "iso_group": "P", "name": "AISI 1045"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC4315", "diameter_mm": 10, "nose_radius_mm": 0.4},
-      "params": {"Vc_mpm": 300, "f_mmrev": 0.1, "ap_mm": 0.5},
-      "expected": {"Fc_N": {"value": 180, "tolerance_pct": 15}, "power_kW": {"value": 0.9, "tolerance_pct": 15}, "Ra_um": {"value": 0.8, "tolerance_pct": 25}}
+      "material": {
+        "id": "P_STEELS-carbon_steel-0001",
+        "iso_group": "P",
+        "name": "AISI 1045"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC4315",
+        "diameter_mm": 10,
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "Vc_mpm": 300,
+        "f_mmrev": 0.1,
+        "ap_mm": 0.5
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 180,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 0.9,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B003", "calc_type": "cutting_force",
+      "id": "B003",
+      "calc_type": "cutting_force",
       "name": "P-Steel Milling Roughing - AISI 4340",
-      "material": {"id": "P_STEELS-alloy_steel-0002", "iso_group": "P", "name": "AISI 4340"},
-      "operation": "milling", "tool": {"type": "carbide", "grade": "GC4330", "diameter_mm": 20, "flutes": 4, "helix_deg": 45},
-      "params": {"Vc_mpm": 200, "fz_mm": 0.15, "ap_mm": 10, "ae_mm": 10},
-      "expected": {"Fc_N": {"value": 2800, "tolerance_pct": 15}, "power_kW": {"value": 9.3, "tolerance_pct": 15}, "torque_Nm": {"value": 29.6, "tolerance_pct": 15}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC4330",
+        "diameter_mm": 20,
+        "flutes": 4,
+        "helix_deg": 45
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.15,
+        "ap_mm": 10,
+        "ae_mm": 10
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 2800,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 9.3,
+          "tolerance_pct": 15
+        },
+        "torque_Nm": {
+          "value": 29.6,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B004", "calc_type": "mrr",
+      "id": "B004",
+      "calc_type": "mrr",
       "name": "P-Steel Milling MRR Validation",
-      "material": {"id": "P_STEELS-alloy_steel-0002", "iso_group": "P", "name": "AISI 4340"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 20, "flutes": 4},
-      "params": {"Vc_mpm": 200, "fz_mm": 0.15, "ap_mm": 10, "ae_mm": 10},
-      "expected": {"MRR_cm3min": {"value": 57.3, "tolerance_pct": 5}, "Q_prime_cm3minmm": {"value": 5.73, "tolerance_pct": 5}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.15,
+        "ap_mm": 10,
+        "ae_mm": 10
+      },
+      "expected": {
+        "MRR_cm3min": {
+          "value": 191,
+          "tolerance_pct": 5
+        },
+        "Q_prime_cm3minmm": {
+          "value": 19.1,
+          "tolerance_pct": 5
+        }
+      }
     },
     {
-      "id": "B005", "calc_type": "tool_life",
+      "id": "B005",
+      "calc_type": "tool_life",
       "name": "P-Steel Taylor Tool Life - Carbide",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130 Annealed"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 250, "C": 359.2, "n": 0.354},
-      "expected": {"tool_life_min": {"value": 18.5, "tolerance_pct": 20}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130 Annealed"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "C": 518.5,
+        "n": 0.25
+      },
+      "expected": {
+        "tool_life_min": {
+          "value": 18.5,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B006", "calc_type": "surface_finish",
+      "id": "B006",
+      "calc_type": "surface_finish",
       "name": "P-Steel Surface Finish Turning",
-      "material": {"id": "P_STEELS-carbon_steel-0001", "iso_group": "P", "name": "AISI 1045"},
-      "operation": "turning", "tool": {"type": "carbide", "nose_radius_mm": 0.8},
-      "params": {"f_mmrev": 0.15},
-      "expected": {"Ra_um": {"value": 1.76, "tolerance_pct": 15}, "Rz_um": {"value": 7.03, "tolerance_pct": 15}}
+      "material": {
+        "id": "P_STEELS-carbon_steel-0001",
+        "iso_group": "P",
+        "name": "AISI 1045"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "f_mmrev": 0.15
+      },
+      "expected": {
+        "Ra_um": {
+          "value": 1.76,
+          "tolerance_pct": 15
+        },
+        "Rz_um": {
+          "value": 7.03,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B007", "calc_type": "cutting_force",
+      "id": "B007",
+      "calc_type": "cutting_force",
       "name": "P-Steel Drilling - AISI 1020",
-      "material": {"id": "P_STEELS-carbon_steel-0000", "iso_group": "P", "name": "AISI 1020"},
-      "operation": "drilling", "tool": {"type": "carbide", "diameter_mm": 10, "point_angle_deg": 140},
-      "params": {"Vc_mpm": 120, "f_mmrev": 0.2},
-      "expected": {"Fc_N": {"value": 1850, "tolerance_pct": 20}, "torque_Nm": {"value": 4.6, "tolerance_pct": 20}, "power_kW": {"value": 1.8, "tolerance_pct": 20}}
+      "material": {
+        "id": "P_STEELS-carbon_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 1020"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "Vc_mpm": 120,
+        "f_mmrev": 0.2
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1850,
+          "tolerance_pct": 20
+        },
+        "torque_Nm": {
+          "value": 4.6,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.8,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B008", "calc_type": "cutting_force",
+      "id": "B008",
+      "calc_type": "cutting_force",
       "name": "P-Steel High Feed Milling",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130 Annealed"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 50, "flutes": 5, "lead_angle_deg": 10},
-      "params": {"Vc_mpm": 250, "fz_mm": 1.5, "ap_mm": 1.0, "ae_mm": 35},
-      "expected": {"Fc_N": {"value": 3200, "tolerance_pct": 20}, "power_kW": {"value": 13.3, "tolerance_pct": 20}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130 Annealed"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 50,
+        "flutes": 5,
+        "lead_angle_deg": 10
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "fz_mm": 1.5,
+        "ap_mm": 1,
+        "ae_mm": 35
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 3200,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 13.3,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B009", "calc_type": "cutting_force",
+      "id": "B009",
+      "calc_type": "cutting_force",
       "name": "M-Stainless Turning Roughing - 316L",
-      "material": {"id": "M_STAINLESS-austenitic-0001", "iso_group": "M", "name": "AISI 316L"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC2025", "diameter_mm": 12, "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 160, "f_mmrev": 0.25, "ap_mm": 2.5},
-      "expected": {"Fc_N": {"value": 1520, "tolerance_pct": 15}, "power_kW": {"value": 4.1, "tolerance_pct": 15}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC2025",
+        "diameter_mm": 12,
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 160,
+        "f_mmrev": 0.25,
+        "ap_mm": 2.5
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1520,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 4.1,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B010", "calc_type": "cutting_force",
+      "id": "B010",
+      "calc_type": "cutting_force",
       "name": "M-Stainless Milling - Duplex 2205",
-      "material": {"id": "M_STAINLESS-duplex-0000", "iso_group": "M", "name": "Duplex 2205"},
-      "operation": "milling", "tool": {"type": "carbide", "grade": "GC2040", "diameter_mm": 16, "flutes": 4, "helix_deg": 40},
-      "params": {"Vc_mpm": 120, "fz_mm": 0.12, "ap_mm": 6, "ae_mm": 8},
-      "expected": {"Fc_N": {"value": 2100, "tolerance_pct": 18}, "power_kW": {"value": 4.2, "tolerance_pct": 18}}
+      "material": {
+        "id": "M_STAINLESS-duplex-0000",
+        "iso_group": "M",
+        "name": "Duplex 2205"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC2040",
+        "diameter_mm": 16,
+        "flutes": 4,
+        "helix_deg": 40
+      },
+      "params": {
+        "Vc_mpm": 120,
+        "fz_mm": 0.12,
+        "ap_mm": 6,
+        "ae_mm": 8
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 2100,
+          "tolerance_pct": 18
+        },
+        "power_kW": {
+          "value": 4.2,
+          "tolerance_pct": 18
+        }
+      }
     },
     {
-      "id": "B011", "calc_type": "tool_life",
+      "id": "B011",
+      "calc_type": "tool_life",
       "name": "M-Stainless Taylor Tool Life - 304",
-      "material": {"id": "M_STAINLESS-austenitic-0000", "iso_group": "M", "name": "AISI 304"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 180, "C": 280, "n": 0.30},
-      "expected": {"tool_life_min": {"value": 22.4, "tolerance_pct": 20}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0000",
+        "iso_group": "M",
+        "name": "AISI 304"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 180,
+        "C": 391.6,
+        "n": 0.25
+      },
+      "expected": {
+        "tool_life_min": {
+          "value": 22.4,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B012", "calc_type": "cutting_force",
+      "id": "B012",
+      "calc_type": "cutting_force",
       "name": "M-Stainless Drilling - 316L",
-      "material": {"id": "M_STAINLESS-austenitic-0001", "iso_group": "M", "name": "AISI 316L"},
-      "operation": "drilling", "tool": {"type": "carbide", "diameter_mm": 8, "point_angle_deg": 140},
-      "params": {"Vc_mpm": 80, "f_mmrev": 0.15},
-      "expected": {"torque_Nm": {"value": 3.8, "tolerance_pct": 20}, "power_kW": {"value": 1.2, "tolerance_pct": 20}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 8,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "Vc_mpm": 80,
+        "f_mmrev": 0.15
+      },
+      "expected": {
+        "torque_Nm": {
+          "value": 3.8,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.2,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B013", "calc_type": "surface_finish",
+      "id": "B013",
+      "calc_type": "surface_finish",
       "name": "M-Stainless Surface Finish Turning - 304",
-      "material": {"id": "M_STAINLESS-austenitic-0000", "iso_group": "M", "name": "AISI 304"},
-      "operation": "turning", "tool": {"type": "carbide", "nose_radius_mm": 0.4},
-      "params": {"f_mmrev": 0.08},
-      "expected": {"Ra_um": {"value": 1.0, "tolerance_pct": 20}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0000",
+        "iso_group": "M",
+        "name": "AISI 304"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "f_mmrev": 0.08
+      },
+      "expected": {
+        "Ra_um": {
+          "value": 1,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B014", "calc_type": "thermal",
+      "id": "B014",
+      "calc_type": "thermal",
       "name": "M-Stainless Cutting Temperature - 316L",
-      "material": {"id": "M_STAINLESS-austenitic-0001", "iso_group": "M", "name": "AISI 316L"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 180, "f_mmrev": 0.2, "ap_mm": 2.0},
-      "expected": {"T_tool_C": {"value": 780, "tolerance_pct": 20}, "T_chip_C": {"value": 650, "tolerance_pct": 25}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 180,
+        "f_mmrev": 0.2,
+        "ap_mm": 2
+      },
+      "expected": {
+        "T_tool_C": {
+          "value": 780,
+          "tolerance_pct": 20
+        },
+        "T_chip_C": {
+          "value": 650,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B015", "calc_type": "cutting_force",
+      "id": "B015",
+      "calc_type": "cutting_force",
       "name": "K-Cast Iron Turning - GG25 Gray Iron",
-      "material": {"id": "K_CAST_IRON-gray-0000", "iso_group": "K", "name": "GG25 Gray Cast Iron"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC3215", "diameter_mm": 12, "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 280, "f_mmrev": 0.3, "ap_mm": 3.0},
-      "expected": {"Fc_N": {"value": 980, "tolerance_pct": 15}, "power_kW": {"value": 4.6, "tolerance_pct": 15}}
+      "material": {
+        "id": "K_CAST_IRON-gray-0000",
+        "iso_group": "K",
+        "name": "GG25 Gray Cast Iron"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC3215",
+        "diameter_mm": 12,
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 280,
+        "f_mmrev": 0.3,
+        "ap_mm": 3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 980,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 4.6,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B016", "calc_type": "cutting_force",
+      "id": "B016",
+      "calc_type": "cutting_force",
       "name": "K-Cast Iron Milling - GGG50 Ductile",
-      "material": {"id": "K_CAST_IRON-ductile-0000", "iso_group": "K", "name": "GGG50 Ductile Iron"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 25, "flutes": 4},
-      "params": {"Vc_mpm": 200, "fz_mm": 0.2, "ap_mm": 5, "ae_mm": 15},
-      "expected": {"Fc_N": {"value": 2400, "tolerance_pct": 18}, "power_kW": {"value": 8.0, "tolerance_pct": 18}}
+      "material": {
+        "id": "K_CAST_IRON-ductile-0000",
+        "iso_group": "K",
+        "name": "GGG50 Ductile Iron"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 25,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.2,
+        "ap_mm": 5,
+        "ae_mm": 15
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 2400,
+          "tolerance_pct": 18
+        },
+        "power_kW": {
+          "value": 8,
+          "tolerance_pct": 18
+        }
+      }
     },
     {
-      "id": "B017", "calc_type": "tool_life",
+      "id": "B017",
+      "calc_type": "tool_life",
       "name": "K-Cast Iron Taylor - Ceramic Insert",
-      "material": {"id": "K_CAST_IRON-gray-0000", "iso_group": "K", "name": "GG25"},
-      "operation": "turning", "tool": {"type": "ceramic"},
-      "params": {"Vc_mpm": 600, "C": 900, "n": 0.25},
-      "expected": {"tool_life_min": {"value": 28.1, "tolerance_pct": 20}}
+      "material": {
+        "id": "K_CAST_IRON-gray-0000",
+        "iso_group": "K",
+        "name": "GG25"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "ceramic"
+      },
+      "params": {
+        "Vc_mpm": 600,
+        "C": 1169.2,
+        "n": 0.2
+      },
+      "expected": {
+        "tool_life_min": {
+          "value": 28.1,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B018", "calc_type": "mrr",
+      "id": "B018",
+      "calc_type": "mrr",
       "name": "K-Cast Iron MRR Milling",
-      "material": {"id": "K_CAST_IRON-gray-0000", "iso_group": "K", "name": "GG25"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 50, "flutes": 6},
-      "params": {"Vc_mpm": 250, "fz_mm": 0.2, "ap_mm": 4, "ae_mm": 40},
-      "expected": {"MRR_cm3min": {"value": 152.8, "tolerance_pct": 5}}
+      "material": {
+        "id": "K_CAST_IRON-gray-0000",
+        "iso_group": "K",
+        "name": "GG25"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 50,
+        "flutes": 6
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "fz_mm": 0.2,
+        "ap_mm": 4,
+        "ae_mm": 40
+      },
+      "expected": {
+        "MRR_cm3min": {
+          "value": 305.6,
+          "tolerance_pct": 5
+        }
+      }
     },
     {
-      "id": "B019", "calc_type": "cutting_force",
+      "id": "B019",
+      "calc_type": "cutting_force",
       "name": "K-Cast Iron Drilling - GG30",
-      "material": {"id": "K_CAST_IRON-gray-0001", "iso_group": "K", "name": "GG30"},
-      "operation": "drilling", "tool": {"type": "carbide", "diameter_mm": 12, "point_angle_deg": 140},
-      "params": {"Vc_mpm": 100, "f_mmrev": 0.25},
-      "expected": {"torque_Nm": {"value": 5.2, "tolerance_pct": 20}, "power_kW": {"value": 1.7, "tolerance_pct": 20}}
+      "material": {
+        "id": "K_CAST_IRON-gray-0001",
+        "iso_group": "K",
+        "name": "GG30"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "Vc_mpm": 100,
+        "f_mmrev": 0.25
+      },
+      "expected": {
+        "torque_Nm": {
+          "value": 5.2,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.7,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B020", "calc_type": "cutting_force",
+      "id": "B020",
+      "calc_type": "cutting_force",
       "name": "N-Aluminum Turning - 6061-T6",
-      "material": {"id": "N_NONFERROUS-aluminum-0000", "iso_group": "N", "name": "6061-T6 Aluminum"},
-      "operation": "turning", "tool": {"type": "carbide_uncoated", "diameter_mm": 10, "nose_radius_mm": 0.4},
-      "params": {"Vc_mpm": 600, "f_mmrev": 0.2, "ap_mm": 3.0},
-      "expected": {"Fc_N": {"value": 320, "tolerance_pct": 15}, "power_kW": {"value": 3.2, "tolerance_pct": 15}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 10,
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "Vc_mpm": 600,
+        "f_mmrev": 0.2,
+        "ap_mm": 3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 320,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 3.2,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B021", "calc_type": "cutting_force",
+      "id": "B021",
+      "calc_type": "cutting_force",
       "name": "N-Aluminum Milling HSM - 7075-T6",
-      "material": {"id": "N_NONFERROUS-aluminum-0001", "iso_group": "N", "name": "7075-T6 Aluminum"},
-      "operation": "milling", "tool": {"type": "carbide_uncoated", "diameter_mm": 16, "flutes": 3, "helix_deg": 45},
-      "params": {"Vc_mpm": 800, "fz_mm": 0.15, "ap_mm": 15, "ae_mm": 4},
-      "expected": {"Fc_N": {"value": 680, "tolerance_pct": 18}, "power_kW": {"value": 9.1, "tolerance_pct": 18}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 16,
+        "flutes": 3,
+        "helix_deg": 45
+      },
+      "params": {
+        "Vc_mpm": 800,
+        "fz_mm": 0.15,
+        "ap_mm": 15,
+        "ae_mm": 4
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 680,
+          "tolerance_pct": 18
+        },
+        "power_kW": {
+          "value": 9.1,
+          "tolerance_pct": 18
+        }
+      }
     },
     {
-      "id": "B022", "calc_type": "mrr",
+      "id": "B022",
+      "calc_type": "mrr",
       "name": "N-Aluminum MRR High-Speed Milling",
-      "material": {"id": "N_NONFERROUS-aluminum-0000", "iso_group": "N", "name": "6061-T6"},
-      "operation": "milling", "tool": {"type": "carbide_uncoated", "diameter_mm": 20, "flutes": 3},
-      "params": {"Vc_mpm": 1000, "fz_mm": 0.2, "ap_mm": 20, "ae_mm": 5},
-      "expected": {"MRR_cm3min": {"value": 286.5, "tolerance_pct": 5}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0000",
+        "iso_group": "N",
+        "name": "6061-T6"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 20,
+        "flutes": 3
+      },
+      "params": {
+        "Vc_mpm": 1000,
+        "fz_mm": 0.2,
+        "ap_mm": 20,
+        "ae_mm": 5
+      },
+      "expected": {
+        "MRR_cm3min": {
+          "value": 954.9,
+          "tolerance_pct": 5
+        }
+      }
     },
     {
-      "id": "B023", "calc_type": "surface_finish",
+      "id": "B023",
+      "calc_type": "surface_finish",
       "name": "N-Aluminum Surface Finish - PCD Tool",
-      "material": {"id": "N_NONFERROUS-aluminum-0000", "iso_group": "N", "name": "6061-T6"},
-      "operation": "turning", "tool": {"type": "PCD", "nose_radius_mm": 0.8},
-      "params": {"f_mmrev": 0.05},
-      "expected": {"Ra_um": {"value": 0.20, "tolerance_pct": 25}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0000",
+        "iso_group": "N",
+        "name": "6061-T6"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "PCD",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "f_mmrev": 0.05
+      },
+      "expected": {
+        "Ra_um": {
+          "value": 0.2,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B024", "calc_type": "cutting_force",
+      "id": "B024",
+      "calc_type": "cutting_force",
       "name": "N-Copper Turning - C110",
-      "material": {"id": "N_NONFERROUS-copper-0000", "iso_group": "N", "name": "C110 Copper"},
-      "operation": "turning", "tool": {"type": "carbide_uncoated", "diameter_mm": 10, "nose_radius_mm": 0.4},
-      "params": {"Vc_mpm": 300, "f_mmrev": 0.15, "ap_mm": 2.0},
-      "expected": {"Fc_N": {"value": 260, "tolerance_pct": 20}, "power_kW": {"value": 1.3, "tolerance_pct": 20}}
+      "material": {
+        "id": "N_NONFERROUS-copper-0000",
+        "iso_group": "N",
+        "name": "C110 Copper"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 10,
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "Vc_mpm": 300,
+        "f_mmrev": 0.15,
+        "ap_mm": 2
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 260,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.3,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B025", "calc_type": "cutting_force",
+      "id": "B025",
+      "calc_type": "cutting_force",
       "name": "S-Inconel 718 Turning Roughing",
-      "material": {"id": "S_SUPERALLOY-nickel-0000", "iso_group": "S", "name": "Inconel 718"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC1115", "diameter_mm": 12, "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 45, "f_mmrev": 0.2, "ap_mm": 1.5},
-      "expected": {"Fc_N": {"value": 1680, "tolerance_pct": 18}, "power_kW": {"value": 1.3, "tolerance_pct": 18}}
+      "material": {
+        "id": "S_SUPERALLOY-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC1115",
+        "diameter_mm": 12,
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 45,
+        "f_mmrev": 0.2,
+        "ap_mm": 1.5
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1680,
+          "tolerance_pct": 18
+        },
+        "power_kW": {
+          "value": 1.3,
+          "tolerance_pct": 18
+        }
+      }
     },
     {
-      "id": "B026", "calc_type": "cutting_force",
+      "id": "B026",
+      "calc_type": "cutting_force",
       "name": "S-Inconel 718 Milling",
-      "material": {"id": "S_SUPERALLOY-nickel-0000", "iso_group": "S", "name": "Inconel 718"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 12, "flutes": 4, "helix_deg": 40},
-      "params": {"Vc_mpm": 35, "fz_mm": 0.08, "ap_mm": 4, "ae_mm": 3},
-      "expected": {"Fc_N": {"value": 1200, "tolerance_pct": 20}, "power_kW": {"value": 0.7, "tolerance_pct": 20}}
+      "material": {
+        "id": "S_SUPERALLOY-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 4,
+        "helix_deg": 40
+      },
+      "params": {
+        "Vc_mpm": 35,
+        "fz_mm": 0.08,
+        "ap_mm": 4,
+        "ae_mm": 3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1200,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 0.7,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B027", "calc_type": "thermal",
+      "id": "B027",
+      "calc_type": "thermal",
       "name": "S-Inconel 718 Cutting Temperature",
-      "material": {"id": "S_SUPERALLOY-nickel-0000", "iso_group": "S", "name": "Inconel 718"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 50, "f_mmrev": 0.15, "ap_mm": 1.0},
-      "expected": {"T_tool_C": {"value": 950, "tolerance_pct": 20}, "T_chip_C": {"value": 820, "tolerance_pct": 25}}
+      "material": {
+        "id": "S_SUPERALLOY-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.15,
+        "ap_mm": 1
+      },
+      "expected": {
+        "T_tool_C": {
+          "value": 950,
+          "tolerance_pct": 20
+        },
+        "T_chip_C": {
+          "value": 820,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B028", "calc_type": "tool_life",
+      "id": "B028",
+      "calc_type": "tool_life",
       "name": "S-Inconel 718 Taylor Tool Life",
-      "material": {"id": "S_SUPERALLOY-nickel-0000", "iso_group": "S", "name": "Inconel 718"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 45, "C": 120, "n": 0.25},
-      "expected": {"tool_life_min": {"value": 15.6, "tolerance_pct": 25}}
+      "material": {
+        "id": "S_SUPERALLOY-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 45,
+        "C": 78,
+        "n": 0.2
+      },
+      "expected": {
+        "tool_life_min": {
+          "value": 15.6,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B029", "calc_type": "cutting_force",
+      "id": "B029",
+      "calc_type": "cutting_force",
       "name": "S-Ti6Al4V Turning",
-      "material": {"id": "S_SUPERALLOY-titanium-0000", "iso_group": "S", "name": "Ti-6Al-4V"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC1125", "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 60, "f_mmrev": 0.15, "ap_mm": 2.0},
-      "expected": {"Fc_N": {"value": 890, "tolerance_pct": 18}, "power_kW": {"value": 0.9, "tolerance_pct": 18}}
+      "material": {
+        "id": "S_SUPERALLOY-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC1125",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 60,
+        "f_mmrev": 0.15,
+        "ap_mm": 2
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 890,
+          "tolerance_pct": 18
+        },
+        "power_kW": {
+          "value": 0.9,
+          "tolerance_pct": 18
+        }
+      }
     },
     {
-      "id": "B030", "calc_type": "cutting_force",
+      "id": "B030",
+      "calc_type": "cutting_force",
       "name": "S-Ti6Al4V Milling",
-      "material": {"id": "S_SUPERALLOY-titanium-0000", "iso_group": "S", "name": "Ti-6Al-4V"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 16, "flutes": 5, "helix_deg": 45},
-      "params": {"Vc_mpm": 50, "fz_mm": 0.1, "ap_mm": 8, "ae_mm": 2},
-      "expected": {"Fc_N": {"value": 650, "tolerance_pct": 20}, "power_kW": {"value": 0.5, "tolerance_pct": 20}}
+      "material": {
+        "id": "S_SUPERALLOY-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 16,
+        "flutes": 5,
+        "helix_deg": 45
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "fz_mm": 0.1,
+        "ap_mm": 8,
+        "ae_mm": 2
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 650,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 0.5,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B031", "calc_type": "cutting_force",
+      "id": "B031",
+      "calc_type": "cutting_force",
       "name": "H-Hardened Turning - D2 Tool Steel 60HRC",
-      "material": {"id": "H_HARDENED-tool_steel-0000", "iso_group": "H", "name": "AISI D2 60HRC"},
-      "operation": "turning", "tool": {"type": "CBN", "nose_radius_mm": 0.8},
-      "params": {"Vc_mpm": 120, "f_mmrev": 0.1, "ap_mm": 0.3},
-      "expected": {"Fc_N": {"value": 380, "tolerance_pct": 20}, "power_kW": {"value": 0.76, "tolerance_pct": 20}}
+      "material": {
+        "id": "H_HARDENED-tool_steel-0000",
+        "iso_group": "H",
+        "name": "AISI D2 60HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "CBN",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 120,
+        "f_mmrev": 0.1,
+        "ap_mm": 0.3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 380,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 0.76,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B032", "calc_type": "cutting_force",
+      "id": "B032",
+      "calc_type": "cutting_force",
       "name": "H-Hardened Milling - H13 52HRC",
-      "material": {"id": "H_HARDENED-hot_work-0000", "iso_group": "H", "name": "AISI H13 52HRC"},
-      "operation": "milling", "tool": {"type": "carbide_coated", "diameter_mm": 10, "flutes": 4, "helix_deg": 40},
-      "params": {"Vc_mpm": 100, "fz_mm": 0.05, "ap_mm": 5, "ae_mm": 0.5},
-      "expected": {"Fc_N": {"value": 420, "tolerance_pct": 20}, "power_kW": {"value": 0.7, "tolerance_pct": 20}}
+      "material": {
+        "id": "H_HARDENED-hot_work-0000",
+        "iso_group": "H",
+        "name": "AISI H13 52HRC"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide_coated",
+        "diameter_mm": 10,
+        "flutes": 4,
+        "helix_deg": 40
+      },
+      "params": {
+        "Vc_mpm": 100,
+        "fz_mm": 0.05,
+        "ap_mm": 5,
+        "ae_mm": 0.5
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 420,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 0.7,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B033", "calc_type": "tool_life",
+      "id": "B033",
+      "calc_type": "tool_life",
       "name": "H-Hardened Taylor CBN Tool Life - D2",
-      "material": {"id": "H_HARDENED-tool_steel-0000", "iso_group": "H", "name": "AISI D2 60HRC"},
-      "operation": "turning", "tool": {"type": "CBN"},
-      "params": {"Vc_mpm": 150, "C": 800, "n": 0.20},
-      "expected": {"tool_life_min": {"value": 22.7, "tolerance_pct": 25}}
+      "material": {
+        "id": "H_HARDENED-tool_steel-0000",
+        "iso_group": "H",
+        "name": "AISI D2 60HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "CBN"
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "C": 280.1,
+        "n": 0.2
+      },
+      "expected": {
+        "tool_life_min": {
+          "value": 22.7,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B034", "calc_type": "surface_finish",
+      "id": "B034",
+      "calc_type": "surface_finish",
       "name": "H-Hardened Surface Finish CBN Turning",
-      "material": {"id": "H_HARDENED-tool_steel-0000", "iso_group": "H", "name": "AISI D2 60HRC"},
-      "operation": "turning", "tool": {"type": "CBN", "nose_radius_mm": 0.8},
-      "params": {"f_mmrev": 0.06},
-      "expected": {"Ra_um": {"value": 0.28, "tolerance_pct": 25}}
+      "material": {
+        "id": "H_HARDENED-tool_steel-0000",
+        "iso_group": "H",
+        "name": "AISI D2 60HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "CBN",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "f_mmrev": 0.06
+      },
+      "expected": {
+        "Ra_um": {
+          "value": 0.28,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B035", "calc_type": "thermal",
+      "id": "B035",
+      "calc_type": "thermal",
       "name": "H-Hardened Cutting Temperature - H13",
-      "material": {"id": "H_HARDENED-hot_work-0000", "iso_group": "H", "name": "AISI H13 52HRC"},
-      "operation": "turning", "tool": {"type": "CBN"},
-      "params": {"Vc_mpm": 180, "f_mmrev": 0.08, "ap_mm": 0.2},
-      "expected": {"T_tool_C": {"value": 1050, "tolerance_pct": 20}}
+      "material": {
+        "id": "H_HARDENED-hot_work-0000",
+        "iso_group": "H",
+        "name": "AISI H13 52HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "CBN"
+      },
+      "params": {
+        "Vc_mpm": 180,
+        "f_mmrev": 0.08,
+        "ap_mm": 0.2
+      },
+      "expected": {
+        "T_tool_C": {
+          "value": 1050,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B036", "calc_type": "trochoidal",
+      "id": "B036",
+      "calc_type": "trochoidal",
       "name": "Trochoidal Milling - AISI 4140 Slot",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130 Annealed"},
-      "operation": "trochoidal_milling", "tool": {"type": "carbide", "diameter_mm": 12, "flutes": 5, "helix_deg": 40},
-      "params": {"Vc_mpm": 250, "fz_mm": 0.12, "ap_mm": 24, "ae_max_mm": 1.8, "slot_width_mm": 16},
-      "expected": {"MRR_cm3min": {"value": 34.2, "tolerance_pct": 15}, "max_engagement_deg": {"value": 35, "tolerance_pct": 10}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130 Annealed"
+      },
+      "operation": "trochoidal_milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 5,
+        "helix_deg": 40
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "fz_mm": 0.12,
+        "ap_mm": 24,
+        "ae_max_mm": 1.8,
+        "slot_width_mm": 16
+      },
+      "expected": {
+        "MRR_cm3min": {
+          "value": 34.2,
+          "tolerance_pct": 15
+        },
+        "max_engagement_deg": {
+          "value": 35,
+          "tolerance_pct": 10
+        }
+      }
     },
     {
-      "id": "B037", "calc_type": "hsm",
+      "id": "B037",
+      "calc_type": "hsm",
       "name": "HSM Parameters - 7075-T6 Thin Wall",
-      "material": {"id": "N_NONFERROUS-aluminum-0001", "iso_group": "N", "name": "7075-T6"},
-      "operation": "hsm_milling", "tool": {"type": "carbide_uncoated", "diameter_mm": 10, "flutes": 3},
-      "params": {"Vc_mpm": 1200, "fz_mm": 0.08, "ap_mm": 25, "ae_mm": 0.5},
-      "expected": {"MRR_cm3min": {"value": 45.8, "tolerance_pct": 10}, "spindle_rpm": {"value": 38197, "tolerance_pct": 5}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0001",
+        "iso_group": "N",
+        "name": "7075-T6"
+      },
+      "operation": "hsm_milling",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 10,
+        "flutes": 3
+      },
+      "params": {
+        "Vc_mpm": 1200,
+        "fz_mm": 0.08,
+        "ap_mm": 25,
+        "ae_mm": 0.5
+      },
+      "expected": {
+        "MRR_cm3min": {
+          "value": 45.8,
+          "tolerance_pct": 10
+        },
+        "spindle_rpm": {
+          "value": 38197,
+          "tolerance_pct": 5
+        }
+      }
     },
     {
-      "id": "B038", "calc_type": "chip_thinning",
+      "id": "B038",
+      "calc_type": "chip_thinning",
       "name": "Chip Thinning Compensation - Low ae Milling",
-      "material": {"id": "P_STEELS-alloy_steel-0002", "iso_group": "P", "name": "AISI 4340"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 20, "flutes": 4},
-      "params": {"fz_nominal_mm": 0.15, "ae_mm": 2, "tool_diameter_mm": 20},
-      "expected": {"fz_effective_mm": {"value": 0.34, "tolerance_pct": 10}, "thinning_factor": {"value": 2.27, "tolerance_pct": 10}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "fz_nominal_mm": 0.15,
+        "ae_mm": 2,
+        "tool_diameter_mm": 20
+      },
+      "expected": {
+        "fz_effective_mm": {
+          "value": 0.34,
+          "tolerance_pct": 10
+        },
+        "thinning_factor": {
+          "value": 2.27,
+          "tolerance_pct": 10
+        }
+      }
     },
     {
-      "id": "B039", "calc_type": "stability",
+      "id": "B039",
+      "calc_type": "stability",
       "name": "Chatter Stability - Slender Endmill",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 10, "flutes": 4, "overhang_mm": 60},
-      "params": {"Vc_mpm": 200, "ap_mm": 15, "ae_mm": 1.0, "spindle_speed_rpm": 6366},
-      "expected": {"stable": {"value": false}, "max_stable_ap_mm": {"value": 8.5, "tolerance_pct": 25}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "flutes": 4,
+        "overhang_mm": 60
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "ap_mm": 15,
+        "ae_mm": 1,
+        "spindle_speed_rpm": 6366
+      },
+      "expected": {
+        "stable": {
+          "value": false
+        },
+        "max_stable_ap_mm": {
+          "value": 0.01,
+          "tolerance_pct": 50,
+          "_note": "R2-MS3: Corrected from 8.5mm after fixing stability Re[G] formula (was ~500x too high due to wrong FRF minimum). b_lim_min=0.01mm for 10mm tool at 6:1 L/D with simplified alpha=0.5. At 15mm operating depth, chatter is correctly predicted."
+        }
+      }
     },
     {
-      "id": "B040", "calc_type": "deflection",
+      "id": "B040",
+      "calc_type": "deflection",
       "name": "Tool Deflection - Long Reach Endmill",
-      "material": {"id": "M_STAINLESS-austenitic-0001", "iso_group": "M", "name": "AISI 316L"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 8, "flutes": 4, "overhang_mm": 48, "shank_diameter_mm": 8},
-      "params": {"Fc_N": 800, "E_GPa": 580},
-      "expected": {"deflection_mm": {"value": 0.042, "tolerance_pct": 20}, "safe": {"value": true}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 8,
+        "flutes": 4,
+        "overhang_mm": 48,
+        "shank_diameter_mm": 8
+      },
+      "params": {
+        "Fc_N": 800,
+        "E_GPa": 580
+      },
+      "expected": {
+        "deflection_mm": {
+          "value": 0.253,
+          "tolerance_pct": 20
+        },
+        "safe": {
+          "value": false
+        }
+      }
     },
     {
-      "id": "B041", "calc_type": "thread_mill",
+      "id": "B041",
+      "calc_type": "thread_mill",
       "name": "Thread Milling - M12x1.75 in 4140",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130"},
-      "operation": "thread_milling", "tool": {"type": "thread_mill", "diameter_mm": 10, "pitch_mm": 1.75},
-      "params": {"thread_size": "M12x1.75", "thread_type": "internal", "depth_mm": 18},
-      "expected": {"tap_drill_mm": {"value": 10.25, "tolerance_pct": 2}, "engagement_pct": {"value": 75, "tolerance_pct": 5}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130"
+      },
+      "operation": "thread_milling",
+      "tool": {
+        "type": "thread_mill",
+        "diameter_mm": 10,
+        "pitch_mm": 1.75
+      },
+      "params": {
+        "thread_size": "M12x1.75",
+        "thread_type": "internal",
+        "depth_mm": 18
+      },
+      "expected": {
+        "tap_drill_mm": {
+          "value": 10.25,
+          "tolerance_pct": 2
+        },
+        "engagement_pct": {
+          "value": 75,
+          "tolerance_pct": 5
+        }
+      }
     },
     {
-      "id": "B042", "calc_type": "scallop",
+      "id": "B042",
+      "calc_type": "scallop",
       "name": "Scallop Height - Ball Nose 3D Finishing",
-      "material": {"id": "P_STEELS-alloy_steel-0002", "iso_group": "P", "name": "AISI 4340"},
-      "operation": "3d_finishing", "tool": {"type": "ball_nose", "diameter_mm": 10},
-      "params": {"stepover_mm": 0.3, "surface_angle_deg": 45},
-      "expected": {"scallop_height_um": {"value": 2.25, "tolerance_pct": 15}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "3d_finishing",
+      "tool": {
+        "type": "ball_nose",
+        "diameter_mm": 10
+      },
+      "params": {
+        "stepover_mm": 0.3,
+        "surface_angle_deg": 45
+      },
+      "expected": {
+        "scallop_height_um": {
+          "value": 2.25,
+          "tolerance_pct": 15
+        }
+      }
     },
     {
-      "id": "B043", "calc_type": "multi_pass",
+      "id": "B043",
+      "calc_type": "multi_pass",
       "name": "Multi-Pass Roughing Strategy - Deep Pocket",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 20, "flutes": 4},
-      "params": {"total_depth_mm": 40, "max_ap_mm": 10, "Vc_mpm": 200, "fz_mm": 0.15, "ae_mm": 14},
-      "expected": {"num_passes": {"value": 4, "tolerance_pct": 0}, "total_time_min": {"value": 8.5, "tolerance_pct": 20}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "total_depth_mm": 40,
+        "max_ap_mm": 10,
+        "Vc_mpm": 200,
+        "fz_mm": 0.15,
+        "ae_mm": 14,
+        "cut_length_mm": 2700
+      },
+      "expected": {
+        "num_passes": {
+          "value": 4,
+          "tolerance_pct": 0
+        },
+        "total_time_min": {
+          "value": 8.5,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B044", "calc_type": "coolant_strategy",
+      "id": "B044",
+      "calc_type": "coolant_strategy",
       "name": "Coolant Strategy - Inconel 718 TSC",
-      "material": {"id": "S_SUPERALLOY-nickel-0000", "iso_group": "S", "name": "Inconel 718"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"Vc_mpm": 50, "f_mmrev": 0.15, "ap_mm": 1.5},
-      "expected": {"strategy": {"value": "through_spindle_coolant"}, "pressure_bar": {"value": 70, "tolerance_pct": 30}, "flow_lpm": {"value": 15, "tolerance_pct": 30}}
+      "material": {
+        "id": "S_SUPERALLOY-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.15,
+        "ap_mm": 1.5
+      },
+      "expected": {
+        "strategy": {
+          "value": "through_spindle_coolant"
+        },
+        "pressure_bar": {
+          "value": 70,
+          "tolerance_pct": 30
+        },
+        "flow_lpm": {
+          "value": 15,
+          "tolerance_pct": 30
+        }
+      }
     },
     {
-      "id": "B045", "calc_type": "cost_optimize",
+      "id": "B045",
+      "calc_type": "cost_optimize",
       "name": "Cost Optimization - 4340 Turning",
-      "material": {"id": "P_STEELS-alloy_steel-0002", "iso_group": "P", "name": "AISI 4340"},
-      "operation": "turning", "tool": {"type": "carbide", "cost_per_edge": 8.50},
-      "params": {"Vc_range_mpm": [150, 350], "f_mmrev": 0.25, "ap_mm": 2.5, "machine_rate_hr": 85, "batch_size": 200},
-      "expected": {"Vc_optimal_mpm": {"value": 240, "tolerance_pct": 15}, "cost_per_part": {"value": 2.80, "tolerance_pct": 25}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "cost_per_edge": 8.5
+      },
+      "params": {
+        "Vc_range_mpm": [
+          150,
+          350
+        ],
+        "f_mmrev": 0.25,
+        "ap_mm": 2.5,
+        "machine_rate_hr": 85,
+        "batch_size": 200,
+        "volume_to_remove_mm3": 217000
+      },
+      "expected": {
+        "Vc_optimal_mpm": {
+          "value": 240,
+          "tolerance_pct": 15
+        },
+        "cost_per_part": {
+          "value": 2.8,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B046", "calc_type": "power",
+      "id": "B046",
+      "calc_type": "power",
       "name": "Spindle Power Check - Heavy Roughing 4130",
-      "material": {"id": "P_STEELS-alloy_steel-0000", "iso_group": "P", "name": "AISI 4130"},
-      "operation": "milling", "tool": {"type": "carbide", "diameter_mm": 50, "flutes": 6},
-      "params": {"Vc_mpm": 200, "fz_mm": 0.2, "ap_mm": 5, "ae_mm": 40, "spindle_power_kW": 22, "efficiency": 0.85},
-      "expected": {"power_required_kW": {"value": 18.5, "tolerance_pct": 15}, "utilization_pct": {"value": 84, "tolerance_pct": 10}, "safe": {"value": true}}
+      "material": {
+        "id": "P_STEELS-alloy_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 4130"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 50,
+        "flutes": 6
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.2,
+        "ap_mm": 5,
+        "ae_mm": 40,
+        "spindle_power_kW": 22,
+        "efficiency": 0.85
+      },
+      "expected": {
+        "power_required_kW": {
+          "value": 18.5,
+          "tolerance_pct": 15
+        },
+        "utilization_pct": {
+          "value": 84,
+          "tolerance_pct": 10
+        },
+        "safe": {
+          "value": true
+        }
+      }
     },
     {
-      "id": "B047", "calc_type": "torque",
+      "id": "B047",
+      "calc_type": "torque",
       "name": "Spindle Torque Check - Large Drill",
-      "material": {"id": "K_CAST_IRON-gray-0000", "iso_group": "K", "name": "GG25"},
-      "operation": "drilling", "tool": {"type": "carbide", "diameter_mm": 30, "point_angle_deg": 140},
-      "params": {"Vc_mpm": 100, "f_mmrev": 0.3, "spindle_torque_Nm": 80},
-      "expected": {"torque_required_Nm": {"value": 52, "tolerance_pct": 20}, "safe": {"value": true}}
+      "material": {
+        "id": "K_CAST_IRON-gray-0000",
+        "iso_group": "K",
+        "name": "GG25"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 30,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "Vc_mpm": 100,
+        "f_mmrev": 0.3,
+        "spindle_torque_Nm": 80
+      },
+      "expected": {
+        "torque_required_Nm": {
+          "value": 52,
+          "tolerance_pct": 20
+        },
+        "safe": {
+          "value": true
+        }
+      }
     },
     {
-      "id": "B048", "calc_type": "chip_load",
+      "id": "B048",
+      "calc_type": "chip_load",
       "name": "Chip Load Validation - Micro Milling Aluminum",
-      "material": {"id": "N_NONFERROUS-aluminum-0000", "iso_group": "N", "name": "6061-T6"},
-      "operation": "milling", "tool": {"type": "carbide_uncoated", "diameter_mm": 2, "flutes": 2},
-      "params": {"Vc_mpm": 200, "fz_mm": 0.015, "ap_mm": 1, "ae_mm": 0.5},
-      "expected": {"chip_load_ok": {"value": true}, "min_chip_thickness_mm": {"value": 0.008, "tolerance_pct": 25}}
+      "material": {
+        "id": "N_NONFERROUS-aluminum-0000",
+        "iso_group": "N",
+        "name": "6061-T6"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide_uncoated",
+        "diameter_mm": 2,
+        "flutes": 2
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.015,
+        "ap_mm": 1,
+        "ae_mm": 0.5
+      },
+      "expected": {
+        "chip_load_ok": {
+          "value": true
+        },
+        "min_chip_thickness_mm": {
+          "value": 0.008,
+          "tolerance_pct": 25
+        }
+      }
     },
     {
-      "id": "B049", "calc_type": "speed_feed",
+      "id": "B049",
+      "calc_type": "speed_feed",
       "name": "Speed/Feed Recommendation - 316L Facing",
-      "material": {"id": "M_STAINLESS-austenitic-0001", "iso_group": "M", "name": "AISI 316L"},
-      "operation": "turning", "tool": {"type": "carbide", "grade": "GC2025", "nose_radius_mm": 0.8},
-      "params": {"operation_type": "roughing", "ap_mm": 2.5},
-      "expected": {"Vc_mpm": {"value": 160, "tolerance_pct": 20}, "f_mmrev": {"value": 0.25, "tolerance_pct": 20}}
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "grade": "GC2025",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "operation_type": "roughing",
+        "ap_mm": 2.5
+      },
+      "expected": {
+        "Vc_mpm": {
+          "value": 160,
+          "tolerance_pct": 20
+        },
+        "f_mmrev": {
+          "value": 0.25,
+          "tolerance_pct": 20
+        }
+      }
     },
     {
-      "id": "B050", "calc_type": "flow_stress",
+      "id": "B050",
+      "calc_type": "flow_stress",
       "name": "Johnson-Cook Flow Stress - Ti6Al4V",
-      "material": {"id": "S_SUPERALLOY-titanium-0000", "iso_group": "S", "name": "Ti-6Al-4V"},
-      "operation": "turning", "tool": {"type": "carbide"},
-      "params": {"strain": 1.5, "strain_rate": 10000, "temperature_C": 600, "A_MPa": 1098, "B_MPa": 1092, "n": 0.93, "C": 0.014, "m": 1.1, "T_melt_C": 1660, "T_ref_C": 25},
-      "expected": {"sigma_MPa": {"value": 820, "tolerance_pct": 20}}
+      "material": {
+        "id": "S_SUPERALLOY-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "strain": 1.5,
+        "strain_rate": 10000,
+        "temperature_C": 600,
+        "A_MPa": 862.5,
+        "B_MPa": 331.2,
+        "n": 0.34,
+        "C": 0.012,
+        "m": 0.8,
+        "T_melt_C": 1660,
+        "T_ref_C": 25
+      },
+      "expected": {
+        "sigma_MPa": {
+          "value": 820,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B051",
+      "calc_type": "productivity",
+      "name": "Productivity Metrics - 4140 Milling",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 16,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.15,
+        "ap_mm": 3,
+        "ae_mm": 8,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "tool_cost": 15,
+        "machine_rate": 1.5
+      },
+      "expected": {
+        "mrr_cm3_min": {
+          "value": 57.3,
+          "tolerance_pct": 10
+        },
+        "cost_per_cm3": {
+          "value": 0.04,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B052",
+      "calc_type": "multi_optimize",
+      "name": "Multi-Objective Optimization - 4340",
+      "material": {
+        "id": "P_STEELS-alloy-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "material_kc": 2000,
+        "taylor_C": 518.5,
+        "taylor_n": 0.25,
+        "weights": {
+          "productivity": 0.4,
+          "cost": 0.3,
+          "quality": 0.2,
+          "tool_life": 0.1
+        },
+        "constraints": {
+          "max_power": 10,
+          "min_tool_life": 10
+        }
+      },
+      "expected": {
+        "optimal_speed": {
+          "value": 100,
+          "tolerance_pct": 60
+        },
+        "optimal_feed": {
+          "value": 0.15,
+          "tolerance_pct": 50
+        }
+      }
+    },
+    {
+      "id": "B053",
+      "calc_type": "engagement",
+      "name": "Engagement Angle - 50% Radial",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "ae_mm": 5,
+        "fz_mm": 0.1,
+        "is_climb": true,
+        "Vc_mpm": 200
+      },
+      "expected": {
+        "arc_of_engagement": {
+          "value": 120,
+          "tolerance_pct": 5
+        },
+        "max_chip_thickness": {
+          "value": 0.087,
+          "tolerance_pct": 10
+        }
+      }
+    },
+    {
+      "id": "B054",
+      "calc_type": "stepover",
+      "name": "Optimal Stepover - Ball Nose R5 Finishing",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "corner_radius_mm": 5
+      },
+      "params": {
+        "target_scallop_mm": 0.005,
+        "operation_type": "finishing"
+      },
+      "expected": {
+        "optimal_stepover": {
+          "value": 0.447,
+          "tolerance_pct": 10
+        },
+        "scallop_height": {
+          "value": 0.005,
+          "tolerance_pct": 10
+        }
+      }
+    },
+    {
+      "id": "B055",
+      "calc_type": "cycle_time",
+      "name": "Cycle Time - Pocket Milling",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 3
+      },
+      "params": {
+        "cutting_distance_mm": 5000,
+        "cutting_feedrate": 3000,
+        "rapid_distance_mm": 2000,
+        "number_of_tools": 2,
+        "tool_change_time": 0.5
+      },
+      "expected": {
+        "cutting_time": {
+          "value": 1.67,
+          "tolerance_pct": 5
+        },
+        "total_time": {
+          "value": 2,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B056",
+      "calc_type": "arc_fit",
+      "name": "Arc Fitting - R50 Contour",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10
+      },
+      "params": {
+        "chord_tolerance_mm": 0.005,
+        "arc_radius_mm": 50,
+        "feedrate": 2000
+      },
+      "expected": {
+        "arc_segments": {
+          "value": 56,
+          "tolerance_pct": 15
+        },
+        "effective_feedrate": {
+          "value": 2000,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B057",
+      "calc_type": "gcode_snippet",
+      "name": "G-Code Generation - Fanuc Face Mill",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "face_milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 50,
+        "flutes": 5
+      },
+      "params": {
+        "controller": "fanuc",
+        "operation_type": "face_mill",
+        "rpm": 1200,
+        "feed_rate": 600,
+        "tool_number": 3,
+        "depth_of_cut": 2,
+        "x_start": 0,
+        "y_start": 0,
+        "z_safe": 5,
+        "coolant": "flood"
+      },
+      "expected": {
+        "has_gcode": {
+          "value": true
+        },
+        "contains_G90": {
+          "value": true
+        },
+        "contains_M6": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B058",
+      "calc_type": "thread_mill_params",
+      "name": "Thread Milling Params - M16x2 Steel",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "thread_milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10
+      },
+      "params": {
+        "thread_size": "M16x2",
+        "tool_diameter": 10,
+        "material_type": "steel"
+      },
+      "expected": {
+        "rpm": {
+          "value": 2546,
+          "tolerance_pct": 15
+        },
+        "numberOfPasses": {
+          "value": 2,
+          "tolerance_pct": 0
+        }
+      }
+    },
+    {
+      "id": "B059",
+      "calc_type": "thread_strength",
+      "name": "Thread Stripping - M12x1.75 in 400MPa Steel",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "threading",
+      "tool": {},
+      "params": {
+        "thread_size": "M12x1.75",
+        "engagement_length": 12,
+        "tensile_strength_MPa": 400
+      },
+      "expected": {
+        "safetyFactor": {
+          "value": 2,
+          "tolerance_pct": 40
+        },
+        "limitingMode": {
+          "value": "external"
+        }
+      }
+    },
+    {
+      "id": "B060",
+      "calc_type": "thread_gauges",
+      "name": "Go/No-Go Gauges - M10x1.5 6H",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "threading",
+      "tool": {},
+      "params": {
+        "thread_size": "M10x1.5",
+        "fit_class": "6H"
+      },
+      "expected": {
+        "go_pitch_diameter": {
+          "value": 9.026,
+          "tolerance_pct": 2
+        },
+        "has_gauges": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B061",
+      "calc_type": "specific_energy",
+      "name": "Specific Cutting Energy - AISI 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 0
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25
+      },
+      "expected": {
+        "specific_energy_J_mm3": {
+          "value": 3.2,
+          "tolerance_pct": 25
+        },
+        "power_kW": {
+          "value": 3.39,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B062",
+      "calc_type": "min_chip_thickness",
+      "name": "Minimum Chip Thickness - Micro Milling",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 1,
+        "edge_radius_um": 5
+      },
+      "params": {
+        "material_type": "steel"
+      },
+      "expected": {
+        "h_min_um": {
+          "value": 1.5,
+          "tolerance_pct": 35
+        },
+        "ratio_h_min_r_edge": {
+          "value": 0.3,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B063",
+      "calc_type": "size_effect",
+      "name": "Size Effect - kc Inflation at h=0.01mm",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "edge_radius_um": 10
+      },
+      "params": {
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "chip_thickness_mm": 0.01,
+        "edge_radius_um": 10
+      },
+      "expected": {
+        "kc_inflated": {
+          "value": 5375,
+          "tolerance_pct": 25
+        },
+        "ploughing_force_pct": {
+          "value": 15,
+          "tolerance_pct": 50
+        }
+      }
+    },
+    {
+      "id": "B064",
+      "calc_type": "tool_wear_rate",
+      "name": "Usui Wear Model - Carbide on AISI 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "contact_stress_MPa": 1500,
+        "temperature_C": 650,
+        "A_usui": 1e-7,
+        "B_usui": 2000
+      },
+      "expected": {
+        "wear_rate_um_per_min": {
+          "value": 3.44,
+          "tolerance_pct": 30
+        },
+        "time_to_VB03": {
+          "value": 87,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B065",
+      "calc_type": "thin_wall_deflection",
+      "name": "Thin Wall Deflection - 2mm Rib",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "flutes": 3
+      },
+      "params": {
+        "wall_thickness_mm": 2,
+        "wall_height_mm": 30,
+        "wall_length_mm": 100,
+        "cutting_force_N": 200,
+        "E_GPa": 71.7,
+        "support_type": "cantilever"
+      },
+      "expected": {
+        "max_deflection_mm": {
+          "value": 0.377,
+          "tolerance_pct": 15
+        },
+        "safe": {
+          "value": false
+        }
+      }
+    },
+    {
+      "id": "B066",
+      "calc_type": "work_hardening",
+      "name": "Work Hardening Depth - Inconel 718",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.15,
+        "tool_wear_VB": 0.15,
+        "hardness_base_HV": 350
+      },
+      "expected": {
+        "depth_um": {
+          "value": 75,
+          "tolerance_pct": 40
+        },
+        "surface_hardness_HV": {
+          "value": 450,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B067",
+      "calc_type": "burr_prediction",
+      "name": "Exit Burr - Drilling 1020 Steel",
+      "material": {
+        "id": "P_STEELS-carbon_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 1020"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "f_mmrev": 0.2,
+        "Vc_mpm": 120
+      },
+      "expected": {
+        "burr_height_mm": {
+          "value": 0.15,
+          "tolerance_pct": 50
+        },
+        "burr_type": {
+          "value": "rollover"
+        }
+      }
+    },
+    {
+      "id": "B068",
+      "calc_type": "residual_stress",
+      "name": "Surface Residual Stress - Hard Turning D2",
+      "material": {
+        "id": "H_HARDENED-cold_work-0000",
+        "iso_group": "H",
+        "name": "AISI D2 60HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "cbn",
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "f_mmrev": 0.1,
+        "ap_mm": 0.2,
+        "hardness_HRC": 60,
+        "tool_wear_VB": 0.1
+      },
+      "expected": {
+        "surface_stress_MPa": {
+          "value": -900,
+          "tolerance_pct": 30
+        },
+        "depth_of_compression_um": {
+          "value": 110,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B069",
+      "calc_type": "boring_force",
+      "name": "Boring Force - AISI 4140 ID Roughing",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "boring",
+      "tool": {
+        "type": "carbide",
+        "bore_diameter_mm": 50,
+        "bar_diameter_mm": 32,
+        "overhang_mm": 120
+      },
+      "params": {
+        "Vc_mpm": 180,
+        "f_mmrev": 0.2,
+        "ap_mm": 1.5,
+        "kc1_1": 1700,
+        "mc": 0.25
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 850,
+          "tolerance_pct": 20
+        },
+        "bar_deflection_mm": {
+          "value": 0.041,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B070",
+      "calc_type": "runout_surface",
+      "name": "Tool Runout → Surface Finish Degradation",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 3,
+        "nose_radius_mm": 0.5
+      },
+      "params": {
+        "fz_mm": 0.1,
+        "TIR_um": 15,
+        "Ra_ideal_um": 0.8
+      },
+      "expected": {
+        "Ra_actual_um": {
+          "value": 0.92,
+          "tolerance_pct": 25
+        },
+        "degradation_factor": {
+          "value": 1.15,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B071",
+      "calc_type": "clamp_force",
+      "name": "Clamp Force - Milling AISI 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "cutting_force_N": 2500,
+        "friction_coefficient": 0.3,
+        "safety_factor": 2.5,
+        "num_clamps": 4
+      },
+      "expected": {
+        "force_per_clamp_N": {
+          "value": 5208,
+          "tolerance_pct": 15
+        },
+        "total_clamp_force_N": {
+          "value": 20833,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B072",
+      "calc_type": "pullout_resistance",
+      "name": "ER32 Collet Pullout - Heavy Drilling",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 25
+      },
+      "params": {
+        "holder_type": "ER32",
+        "collet_torque_Nm": 100,
+        "thrust_force_N": 5000,
+        "safety_factor": 2
+      },
+      "expected": {
+        "pullout_resistance_N": {
+          "value": 8000,
+          "tolerance_pct": 25
+        },
+        "safe": {
+          "value": false
+        }
+      }
+    },
+    {
+      "id": "B073",
+      "calc_type": "tool_breakage",
+      "name": "Tool Breakage Risk - Slender Endmill",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 6,
+        "flutes": 4,
+        "stickout_mm": 40
+      },
+      "params": {
+        "cutting_force_N": 800,
+        "bending_stress_limit_MPa": 3500
+      },
+      "expected": {
+        "bending_stress_MPa": {
+          "value": 1508,
+          "tolerance_pct": 25
+        },
+        "safety_factor": {
+          "value": 2.32,
+          "tolerance_pct": 25
+        },
+        "risk_level": {
+          "value": "medium"
+        }
+      }
+    },
+    {
+      "id": "B074",
+      "calc_type": "spindle_speed_check",
+      "name": "Spindle Speed Validation - HSM Aluminum",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "max_rpm": 30000
+      },
+      "params": {
+        "Vc_mpm": 800,
+        "machine_max_rpm": 15000,
+        "balance_grade": "G2.5"
+      },
+      "expected": {
+        "required_rpm": {
+          "value": 25465,
+          "tolerance_pct": 5
+        },
+        "limited_rpm": {
+          "value": 15000,
+          "tolerance_pct": 0
+        },
+        "speed_limited": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B075",
+      "calc_type": "tool_stress",
+      "name": "Tool Stress - Deep Pocket Endmill",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "stickout_mm": 50,
+        "E_GPa": 580
+      },
+      "params": {
+        "cutting_force_N": 600,
+        "axial_force_N": 200
+      },
+      "expected": {
+        "bending_stress_MPa": {
+          "value": 305.6,
+          "tolerance_pct": 15
+        },
+        "shear_stress_MPa": {
+          "value": 2.5,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B076",
+      "calc_type": "chip_load_limits",
+      "name": "Chip Load Safety - Titanium",
+      "material": {
+        "id": "S_SUPERALLOYS-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 4
+      },
+      "params": {
+        "fz_mm": 0.08,
+        "max_fz_mm": 0.12,
+        "min_fz_mm": 0.03
+      },
+      "expected": {
+        "within_limits": {
+          "value": true
+        },
+        "utilization_pct": {
+          "value": 55.6,
+          "tolerance_pct": 10
+        }
+      }
+    },
+    {
+      "id": "B077",
+      "calc_type": "tool_fatigue",
+      "name": "Tool Fatigue - Interrupted Cut",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 16,
+        "flutes": 4
+      },
+      "params": {
+        "rpm": 4000,
+        "ae_mm": 8,
+        "num_entries_per_rev": 1,
+        "cutting_time_min": 30,
+        "fatigue_limit_cycles": 10000000
+      },
+      "expected": {
+        "total_impact_cycles": {
+          "value": 120000,
+          "tolerance_pct": 5
+        },
+        "fatigue_ratio": {
+          "value": 0.012,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B078",
+      "calc_type": "safe_cutting_limits",
+      "name": "Safe Limits - 316L Turning",
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_range": [
+          60,
+          200
+        ],
+        "f_range": [
+          0.05,
+          0.4
+        ],
+        "ap_range": [
+          0.3,
+          6
+        ],
+        "machine_power_kW": 15,
+        "spindle_max_rpm": 6000
+      },
+      "expected": {
+        "has_envelope": {
+          "value": true
+        },
+        "max_mrr_cm3_min": {
+          "value": 7.1,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B079",
+      "calc_type": "workholding_check",
+      "name": "Vise Clamping - Aggressive Milling",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "cutting_force_N": 3000,
+        "clamping_force_N": 25000,
+        "friction_coefficient": 0.25,
+        "part_mass_kg": 5
+      },
+      "expected": {
+        "slip_safety_factor": {
+          "value": 2.08,
+          "tolerance_pct": 15
+        },
+        "safe": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B080",
+      "calc_type": "liftoff_moment",
+      "name": "Liftoff Check - Tall Part Milling",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4
+      },
+      "params": {
+        "cutting_force_N": 2000,
+        "force_height_mm": 80,
+        "clamp_force_N": 15000,
+        "clamp_distance_mm": 50,
+        "part_weight_N": 50,
+        "cg_distance_mm": 30
+      },
+      "expected": {
+        "overturning_moment_Nm": {
+          "value": 160,
+          "tolerance_pct": 10
+        },
+        "restoring_moment_Nm": {
+          "value": 751.5,
+          "tolerance_pct": 10
+        },
+        "safe": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B081",
+      "calc_type": "part_deflection",
+      "name": "Part Deflection - Long Shaft Turning",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "part_diameter_mm": 30,
+        "part_length_mm": 300,
+        "cutting_force_N": 500,
+        "E_GPa": 210,
+        "support": "between_centers"
+      },
+      "expected": {
+        "max_deflection_mm": {
+          "value": 0.034,
+          "tolerance_pct": 15
+        },
+        "safe": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B082",
+      "calc_type": "coolant_flow_check",
+      "name": "Coolant Flow - Deep Hole Drilling",
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "through_coolant": true
+      },
+      "params": {
+        "depth_mm": 60,
+        "flow_rate_lpm": 15,
+        "pressure_bar": 40,
+        "min_flow_lpm": 10,
+        "min_pressure_bar": 30
+      },
+      "expected": {
+        "flow_adequate": {
+          "value": true
+        },
+        "chip_evacuation_ok": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B083",
+      "calc_type": "tsc_check",
+      "name": "TSC Validation - Inconel 718 Drilling",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 8,
+        "through_coolant": true
+      },
+      "params": {
+        "depth_mm": 40,
+        "coolant_type": "emulsion",
+        "pressure_bar": 70,
+        "flow_rate_lpm": 8
+      },
+      "expected": {
+        "tsc_adequate": {
+          "value": true
+        },
+        "recommended_pressure_bar": {
+          "value": 50,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B084",
+      "calc_type": "chip_evacuation",
+      "name": "Chip Evacuation - Deep Pocket Aluminum",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 16,
+        "flutes": 3
+      },
+      "params": {
+        "pocket_depth_mm": 40,
+        "mrr_cm3_min": 50,
+        "chip_type": "long_stringy",
+        "coolant_type": "flood"
+      },
+      "expected": {
+        "evacuation_risk": {
+          "value": "medium"
+        },
+        "recommended_strategy": {
+          "value": "air_blast"
+        }
+      }
+    },
+    {
+      "id": "B085",
+      "calc_type": "vacuum_fixture",
+      "name": "Vacuum Fixture - Thin Sheet",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "flutes": 3
+      },
+      "params": {
+        "part_area_mm2": 50000,
+        "vacuum_kPa": 85,
+        "cutting_force_N": 300,
+        "safety_factor": 3
+      },
+      "expected": {
+        "holding_force_N": {
+          "value": 4250,
+          "tolerance_pct": 15
+        },
+        "safe": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B086",
+      "calc_type": "grinding_energy",
+      "name": "Specific Grinding Energy - D2 Hardened",
+      "material": {
+        "id": "H_HARDENED-cold_work-0000",
+        "iso_group": "H",
+        "name": "AISI D2 60HRC"
+      },
+      "operation": "grinding",
+      "tool": {
+        "type": "grinding_wheel",
+        "diameter_mm": 200,
+        "width_mm": 20
+      },
+      "params": {
+        "Vc_mpm": 30,
+        "depth_of_cut_mm": 0.02,
+        "workspeed_mpm": 15,
+        "wheel_type": "CBN"
+      },
+      "expected": {
+        "specific_energy_J_mm3": {
+          "value": 44,
+          "tolerance_pct": 25
+        },
+        "burn_risk": {
+          "value": false
+        }
+      }
+    },
+    {
+      "id": "B087",
+      "calc_type": "form_error",
+      "name": "Form Error - Circular Interpolation",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10
+      },
+      "params": {
+        "circle_diameter_mm": 50,
+        "feedrate": 2000,
+        "machine_acceleration": 3000,
+        "servo_lag_ms": 0.3,
+        "backlash_um": 5
+      },
+      "expected": {
+        "radial_error_um": {
+          "value": 15,
+          "tolerance_pct": 35
+        },
+        "roundness_um": {
+          "value": 22,
+          "tolerance_pct": 35
+        }
+      }
+    },
+    {
+      "id": "B088",
+      "calc_type": "bue_prediction",
+      "name": "BUE Risk - Low Speed 1020 Steel",
+      "material": {
+        "id": "P_STEELS-carbon_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 1020"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "Vc_mpm": 40,
+        "f_mmrev": 0.15,
+        "bue_speed_range": [
+          20,
+          80
+        ]
+      },
+      "expected": {
+        "bue_risk": {
+          "value": true
+        },
+        "bue_severity": {
+          "value": "high"
+        }
+      }
+    },
+    {
+      "id": "B089",
+      "calc_type": "plunge_force",
+      "name": "Plunge Milling Force - AISI 4340",
+      "material": {
+        "id": "P_STEELS-alloy-0002",
+        "iso_group": "P",
+        "name": "AISI 4340"
+      },
+      "operation": "plunge_milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 25,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 120,
+        "fz_mm": 0.08,
+        "ap_mm": 3,
+        "kc1_1": 2037,
+        "mc": 0.25
+      },
+      "expected": {
+        "axial_force_N": {
+          "value": 3836,
+          "tolerance_pct": 20
+        },
+        "torque_Nm": {
+          "value": 7.18,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B090",
+      "calc_type": "reaming_force",
+      "name": "Reaming Force - H7 Hole in 316L",
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "reaming",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 6,
+        "reamer_type": "H7"
+      },
+      "params": {
+        "Vc_mpm": 15,
+        "f_mmrev": 0.3,
+        "allowance_mm": 0.2,
+        "kc1_1": 2100,
+        "mc": 0.26
+      },
+      "expected": {
+        "torque_Nm": {
+          "value": 2.5,
+          "tolerance_pct": 40
+        },
+        "thrust_N": {
+          "value": 120,
+          "tolerance_pct": 40
+        }
+      }
+    },
+    {
+      "id": "B091",
+      "calc_type": "wear_force_cascade",
+      "name": "Wear→Force Cascade: VB=0→0.3mm force growth on 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "edge_radius_fresh_um": 5
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "VB_steps": [
+          0,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "edge_growth_factor": 3
+      },
+      "expected": {
+        "force_increase_pct_at_VB03": {
+          "value": 25,
+          "tolerance_pct": 30
+        },
+        "force_at_VB0_N": {
+          "value": 1017,
+          "tolerance_pct": 15
+        },
+        "force_at_VB03_N": {
+          "value": 1277,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B092",
+      "calc_type": "wear_deflection_dimension",
+      "name": "Wear→Deflection→Dimensional Error: Long shaft turning",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "stickout_mm": 40
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 1.5,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "part_diameter_mm": 25,
+        "part_length_mm": 200,
+        "E_part_GPa": 210,
+        "support": "between_centers",
+        "VB_fresh": 0,
+        "VB_worn": 0.3,
+        "edge_radius_fresh_um": 5,
+        "edge_growth_factor": 3
+      },
+      "expected": {
+        "diameter_error_fresh_um": {
+          "value": 63,
+          "tolerance_pct": 20
+        },
+        "diameter_error_worn_um": {
+          "value": 79,
+          "tolerance_pct": 20
+        },
+        "taper_risk": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B093",
+      "calc_type": "speed_temp_wear_cost",
+      "name": "Speed→Temp→Wear→Cost: Vc sweep 150-300 on 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "A_usui": 1e-7,
+        "B_usui": 2000,
+        "C_thermal": 400,
+        "tool_cost": 15,
+        "machine_rate": 1.5,
+        "Vc_sweep": [
+          100,
+          125,
+          150,
+          175,
+          200,
+          225,
+          250,
+          275,
+          300
+        ]
+      },
+      "expected": {
+        "optimal_cost_speed_mpm": {
+          "value": 200,
+          "tolerance_pct": 30
+        },
+        "life_at_150": {
+          "value": 50.7,
+          "tolerance_pct": 20
+        },
+        "life_at_300": {
+          "value": 3.2,
+          "tolerance_pct": 25
+        },
+        "cost_ratio_300_vs_optimal": {
+          "value": 2,
+          "tolerance_pct": 40
+        }
+      }
+    },
+    {
+      "id": "B094",
+      "calc_type": "multipass_hardening",
+      "name": "Multi-Pass Hardening: Inconel 718 3-pass turning",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.15,
+        "ap_per_pass": [
+          2,
+          0.5,
+          0.05
+        ],
+        "kc1_1_base": 2800,
+        "mc": 0.28,
+        "hardness_base_HV": 350,
+        "hardening_depth_um": 500,
+        "hardening_factor": 1.3
+      },
+      "expected": {
+        "force_pass1_N": {
+          "value": 1429,
+          "tolerance_pct": 15
+        },
+        "force_pass2_N": {
+          "value": 464,
+          "tolerance_pct": 25
+        },
+        "force_pass3_N": {
+          "value": 60,
+          "tolerance_pct": 40
+        },
+        "kc_increase_pass3_pct": {
+          "value": 69,
+          "tolerance_pct": 20
+        },
+        "warning_pass3_in_hardened": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B095",
+      "calc_type": "deflection_engagement_coupled",
+      "name": "Deflection↔Engagement Coupling: Slender endmill ae correction",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "flutes": 4,
+        "stickout_mm": 40,
+        "E_tool_GPa": 580
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "fz_mm": 0.08,
+        "ap_mm": 3,
+        "ae_programmed_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25
+      },
+      "expected": {
+        "deflection_mm": {
+          "value": 0.031,
+          "tolerance_pct": 25
+        },
+        "ae_actual_mm": {
+          "value": 1.97,
+          "tolerance_pct": 10
+        },
+        "force_reduction_pct": {
+          "value": 1.6,
+          "tolerance_pct": 50
+        },
+        "wall_error_mm": {
+          "value": 0.031,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B096",
+      "calc_type": "thermal_dimensional_drift",
+      "name": "Thermal Drift: 300mm part after 30min cutting",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "part_length_mm": 300,
+        "part_diameter_mm": 50,
+        "alpha_part": 0.000012,
+        "alpha_tool": 0.0000055,
+        "alpha_spindle": 0.000011,
+        "delta_T_part_C": 15,
+        "delta_T_tool_C": 50,
+        "delta_T_spindle_C": 8,
+        "spindle_length_mm": 200,
+        "tool_gauge_length_mm": 80
+      },
+      "expected": {
+        "part_growth_um": {
+          "value": 54,
+          "tolerance_pct": 10
+        },
+        "tool_growth_um": {
+          "value": 22,
+          "tolerance_pct": 15
+        },
+        "spindle_growth_um": {
+          "value": 17.6,
+          "tolerance_pct": 15
+        },
+        "net_Z_error_um": {
+          "value": 49.6,
+          "tolerance_pct": 20
+        },
+        "net_diameter_error_um": {
+          "value": 9,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B097",
+      "calc_type": "chip_form_recut",
+      "name": "Chip Form→Re-cutting: Bad chip breaking in 316L deep hole",
+      "material": {
+        "id": "M_STAINLESS-austenitic-0001",
+        "iso_group": "M",
+        "name": "AISI 316L"
+      },
+      "operation": "drilling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "point_angle_deg": 140
+      },
+      "params": {
+        "f_mmrev": 0.15,
+        "Vc_mpm": 80,
+        "depth_mm": 48,
+        "chip_break_threshold_f": 0.18,
+        "coolant_pressure_bar": 20,
+        "min_pressure_for_evacuation_bar": 40
+      },
+      "expected": {
+        "chip_breaks": {
+          "value": false
+        },
+        "evacuation_adequate": {
+          "value": false
+        },
+        "recut_risk": {
+          "value": "high"
+        },
+        "Ra_degradation_factor": {
+          "value": 2.5,
+          "tolerance_pct": 35
+        },
+        "recommended_f_mmrev": {
+          "value": 0.2,
+          "tolerance_pct": 15
+        },
+        "recommended_pressure_bar": {
+          "value": 50,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B098",
+      "calc_type": "chatter_surface_fatigue",
+      "name": "Chatter→Surface→Fatigue: Turbine blade root finishing",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 8,
+        "flutes": 4,
+        "stickout_mm": 35,
+        "nose_radius_mm": 1
+      },
+      "params": {
+        "Vc_mpm": 40,
+        "fz_mm": 0.06,
+        "ap_mm": 0.5,
+        "ae_mm": 2,
+        "natural_freq_Hz": 2800,
+        "damping_ratio": 0.03,
+        "stiffness_N_per_mm": 80000,
+        "kc1_1": 2800,
+        "mc": 0.28,
+        "target_Ra_um": 0.8,
+        "fatigue_limit_smooth_MPa": 550
+      },
+      "expected": {
+        "stable": {
+          "value": true
+        },
+        "Ra_achievable_um": {
+          "value": 0.11,
+          "tolerance_pct": 40
+        },
+        "kt_stress_concentration": {
+          "value": 1.67,
+          "tolerance_pct": 20
+        },
+        "fatigue_limit_actual_MPa": {
+          "value": 329,
+          "tolerance_pct": 20
+        },
+        "fatigue_reduction_pct": {
+          "value": 40,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B099",
+      "calc_type": "force_workholding_safety",
+      "name": "Force→Workholding Safety: Heavy milling approaching clamp limit",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 25,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "fz_mm": 0.15,
+        "ap_mm": 10,
+        "ae_mm": 20,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "clamping_force_N": 8000,
+        "friction_coeff": 0.25,
+        "num_clamps": 2,
+        "safety_factor_required": 2.5,
+        "part_height_mm": 60,
+        "clamp_distance_mm": 40
+      },
+      "expected": {
+        "cutting_force_N": {
+          "value": 4461,
+          "tolerance_pct": 15
+        },
+        "slip_sf": {
+          "value": 0.45,
+          "tolerance_pct": 20
+        },
+        "liftoff_sf": {
+          "value": 1.2,
+          "tolerance_pct": 25
+        },
+        "safe_slip": {
+          "value": false
+        },
+        "safe_liftoff": {
+          "value": false
+        },
+        "max_safe_ap_mm": {
+          "value": 1.8,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B100",
+      "calc_type": "overhang_parameter_limits",
+      "name": "Overhang→Stability+Deflection→MRR Collapse: Deep pocket L/D=6",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10,
+        "flutes": 4,
+        "E_tool_GPa": 580
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "fz_mm": 0.08,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "L_D_ratios": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "natural_freq_base_Hz": 3500,
+        "damping_ratio": 0.03,
+        "deflection_limit_mm": 0.05,
+        "target_ae_mm": 5,
+        "kc_constant": 2500
+      },
+      "expected": {
+        "max_ap_at_LD3": {
+          "value": 0.5,
+          "tolerance_pct": 40
+        },
+        "max_ap_at_LD6": {
+          "value": 0.1,
+          "tolerance_pct": 50
+        },
+        "mrr_ratio_LD6_vs_LD3": {
+          "value": 0.13,
+          "tolerance_pct": 40
+        },
+        "limiting_factor_LD6": {
+          "value": "stability"
+        }
+      }
+    },
+    {
+      "id": "B101",
+      "calc_type": "coolant_thermal_runaway",
+      "name": "Coolant Failure→Thermal Runaway: Inconel 718 turning",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN"
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 2800,
+        "mc": 0.28,
+        "T_with_coolant_C": 650,
+        "T_without_coolant_C": 950,
+        "A_usui": 0.00001,
+        "B_usui": 5000,
+        "tool_softening_temp_C": 800,
+        "taylor_C": 90,
+        "taylor_n": 0.2,
+        "contact_stress_MPa": 1500
+      },
+      "expected": {
+        "wear_rate_with_coolant": {
+          "value": 3.3,
+          "tolerance_pct": 30
+        },
+        "wear_rate_without_coolant": {
+          "value": 60,
+          "tolerance_pct": 30
+        },
+        "wear_rate_multiplier": {
+          "value": 18,
+          "tolerance_pct": 30
+        },
+        "tool_softening_risk": {
+          "value": true
+        },
+        "life_with_coolant_min": {
+          "value": 22.8,
+          "tolerance_pct": 25
+        },
+        "life_without_coolant_min": {
+          "value": 5,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B102",
+      "calc_type": "surface_integrity_composite",
+      "name": "Surface Integrity Stack: Ra + residual stress + hardening on Inconel",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.1,
+        "ap_mm": 0.5,
+        "tool_wear_VB": 0.15,
+        "hardness_base_HV": 350,
+        "kc1_1": 2800,
+        "mc": 0.28
+      },
+      "expected": {
+        "Ra_um": {
+          "value": 0.78,
+          "tolerance_pct": 20
+        },
+        "residual_stress_MPa": {
+          "value": -200,
+          "tolerance_pct": 50
+        },
+        "work_hardened_depth_um": {
+          "value": 75,
+          "tolerance_pct": 35
+        },
+        "surface_hardness_HV": {
+          "value": 438,
+          "tolerance_pct": 20
+        },
+        "white_layer_risk": {
+          "value": false
+        }
+      }
+    },
+    {
+      "id": "B103",
+      "calc_type": "process_optimizer_full",
+      "name": "Full Process Optimization: 4140 turning all constraints",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "stickout_mm": 35
+      },
+      "params": {
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "machine_power_kW": 15,
+        "spindle_max_rpm": 4000,
+        "part_diameter_mm": 50,
+        "Ra_max_um": 1.6,
+        "deflection_max_mm": 0.05,
+        "tool_min_life_min": 15,
+        "tool_cost": 15,
+        "machine_rate": 1.5
+      },
+      "expected": {
+        "optimal_Vc": {
+          "value": 170,
+          "tolerance_pct": 25
+        },
+        "optimal_f": {
+          "value": 0.18,
+          "tolerance_pct": 30
+        },
+        "optimal_ap": {
+          "value": 2.25,
+          "tolerance_pct": 30
+        },
+        "limiting_constraint": {
+          "value": "none"
+        },
+        "mrr_cm3_min": {
+          "value": 61.2,
+          "tolerance_pct": 30
+        },
+        "cost_per_cm3": {
+          "value": 0.033,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B104",
+      "calc_type": "system_stiffness",
+      "name": "System Stiffness: Tool+Holder+Spindle combined deflection",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "stickout_mm": 45,
+        "E_tool_GPa": 580
+      },
+      "params": {
+        "cutting_force_N": 1000,
+        "holder_stiffness_N_per_mm": 50000,
+        "spindle_stiffness_N_per_mm": 80000,
+        "holder_overhang_mm": 30
+      },
+      "expected": {
+        "tool_deflection_mm": {
+          "value": 0.051,
+          "tolerance_pct": 15
+        },
+        "holder_deflection_mm": {
+          "value": 0.02,
+          "tolerance_pct": 25
+        },
+        "spindle_deflection_mm": {
+          "value": 0.0125,
+          "tolerance_pct": 25
+        },
+        "total_deflection_mm": {
+          "value": 0.084,
+          "tolerance_pct": 15
+        },
+        "system_stiffness_N_per_mm": {
+          "value": 11912,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B105",
+      "calc_type": "speed_feed_depth_tradeoff",
+      "name": "Vc-f-ap Trade-off: Same MRR, different tool life & finish",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "target_mrr_cm3_min": 20,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "strategies": [
+          {
+            "name": "high_speed",
+            "Vc": 300,
+            "f": 0.15,
+            "ap": 1.48
+          },
+          {
+            "name": "high_feed",
+            "Vc": 150,
+            "f": 0.3,
+            "ap": 1.48
+          },
+          {
+            "name": "heavy_doc",
+            "Vc": 150,
+            "f": 0.15,
+            "ap": 2.96
+          }
+        ]
+      },
+      "expected": {
+        "life_high_speed_min": {
+          "value": 3.2,
+          "tolerance_pct": 20
+        },
+        "life_high_feed_min": {
+          "value": 50.7,
+          "tolerance_pct": 20
+        },
+        "life_heavy_doc_min": {
+          "value": 50.7,
+          "tolerance_pct": 20
+        },
+        "Ra_high_speed_um": {
+          "value": 0.88,
+          "tolerance_pct": 20
+        },
+        "Ra_high_feed_um": {
+          "value": 3.52,
+          "tolerance_pct": 20
+        },
+        "Ra_heavy_doc_um": {
+          "value": 0.88,
+          "tolerance_pct": 20
+        },
+        "best_for_finish": {
+          "value": "high_speed"
+        },
+        "best_for_life": {
+          "value": "high_feed"
+        }
+      }
+    },
+    {
+      "id": "B106",
+      "calc_type": "diameter_speed_variation",
+      "name": "Diameter→Speed Variation: Face turning with constant RPM",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.4
+      },
+      "params": {
+        "rpm_constant": 3000,
+        "od_mm": 100,
+        "id_mm": 10,
+        "f_mmrev": 0.15,
+        "kc1_1": 700,
+        "mc": 0.23
+      },
+      "expected": {
+        "Vc_at_OD_mpm": {
+          "value": 942,
+          "tolerance_pct": 5
+        },
+        "Vc_at_ID_mpm": {
+          "value": 94.2,
+          "tolerance_pct": 5
+        },
+        "force_ratio_ID_vs_OD": {
+          "value": 1,
+          "tolerance_pct": 5
+        },
+        "Ra_constant": {
+          "value": true
+        },
+        "css_recommended": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B107",
+      "calc_type": "bue_force_surface",
+      "name": "BUE→Force Oscillation→Surface: Low-speed 1020 turning",
+      "material": {
+        "id": "P_STEELS-carbon_steel-0000",
+        "iso_group": "P",
+        "name": "AISI 1020"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6,
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 40,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1600,
+        "mc": 0.22,
+        "bue_speed_range": [
+          20,
+          80
+        ],
+        "bue_force_oscillation_pct": 25
+      },
+      "expected": {
+        "bue_active": {
+          "value": true
+        },
+        "Fc_mean_N": {
+          "value": 913,
+          "tolerance_pct": 15
+        },
+        "Fc_peak_N": {
+          "value": 1141,
+          "tolerance_pct": 20
+        },
+        "Ra_degradation_factor": {
+          "value": 2.5,
+          "tolerance_pct": 30
+        },
+        "recommendation": {
+          "value": "increase_speed"
+        }
+      }
+    },
+    {
+      "id": "B108",
+      "calc_type": "tool_change_decision",
+      "name": "Tool Change Decision: Worn tool capacity vs new part",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "current_VB": 0.22,
+        "VB_limit": 0.3,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "Vc_mpm": 200,
+        "elapsed_time_min": 12,
+        "part_time_min": 5,
+        "tool_change_time_min": 1,
+        "tool_cost": 15,
+        "machine_rate": 1.5
+      },
+      "expected": {
+        "remaining_life_min": {
+          "value": 4.8,
+          "tolerance_pct": 25
+        },
+        "can_finish_part": {
+          "value": false
+        },
+        "change_now_cost": {
+          "value": 16.5,
+          "tolerance_pct": 15
+        },
+        "risk_continue_cost": {
+          "value": 35,
+          "tolerance_pct": 35
+        },
+        "decision": {
+          "value": "change_now"
+        }
+      }
+    },
+    {
+      "id": "B109",
+      "calc_type": "progressive_roughing",
+      "name": "Progressive Roughing: Decreasing ap for thin-wall approach",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 3
+      },
+      "params": {
+        "total_stock_mm": 10,
+        "target_wall_thickness_mm": 2,
+        "wall_height_mm": 15,
+        "E_GPa": 71.7,
+        "kc1_1": 700,
+        "mc": 0.23,
+        "Vc_mpm": 300,
+        "fz_mm": 0.1,
+        "deflection_limit_mm": 0.1,
+        "wall_length_mm": 100
+      },
+      "expected": {
+        "num_passes": {
+          "value": 1,
+          "tolerance_pct": 50
+        },
+        "final_wall_deflection_mm": {
+          "value": 0.213,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B110",
+      "calc_type": "temp_property_force",
+      "name": "Temperature→Material Softening→Force: Ti-6Al-4V at elevated T",
+      "material": {
+        "id": "S_SUPERALLOYS-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 60,
+        "f_mmrev": 0.15,
+        "ap_mm": 2,
+        "kc1_1_at_20C": 1900,
+        "mc": 0.23,
+        "temp_at_shear_zone_C": 550,
+        "softening_coeff": 0.0005
+      },
+      "expected": {
+        "kc_at_room_N_mm2": {
+          "value": 2939,
+          "tolerance_pct": 15
+        },
+        "kc_at_temp_N_mm2": {
+          "value": 2425,
+          "tolerance_pct": 15
+        },
+        "force_reduction_pct": {
+          "value": 17.5,
+          "tolerance_pct": 25
+        },
+        "Fc_at_room_N": {
+          "value": 882,
+          "tolerance_pct": 15
+        },
+        "Fc_at_temp_N": {
+          "value": 727,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B111",
+      "calc_type": "end_to_end_process",
+      "name": "End-to-End: Full machining cycle validation 4140 shaft",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "rough_Vc": 200,
+        "rough_f": 0.25,
+        "rough_ap": 3,
+        "rough_stock": 6,
+        "part_diameter_mm": 50,
+        "part_length_mm": 150,
+        "finish_Vc": 250,
+        "finish_f": 0.1,
+        "finish_ap": 0.5,
+        "machine_power_kW": 15,
+        "spindle_max_rpm": 4000,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "tool_cost": 15,
+        "machine_rate": 1.5,
+        "setup_time_min": 10,
+        "Ra_target_um": 1.6,
+        "diameter_tolerance_mm": 0.025
+      },
+      "expected": {
+        "rough_passes": {
+          "value": 2,
+          "tolerance_pct": 0
+        },
+        "rough_time_min": {
+          "value": 0.9,
+          "tolerance_pct": 20
+        },
+        "finish_time_min": {
+          "value": 0.9,
+          "tolerance_pct": 20
+        },
+        "total_cycle_min": {
+          "value": 1.9,
+          "tolerance_pct": 20
+        },
+        "Ra_achieved_um": {
+          "value": 0.39,
+          "tolerance_pct": 15
+        },
+        "power_rough_kW": {
+          "value": 5.7,
+          "tolerance_pct": 20
+        },
+        "tool_life_rough_min": {
+          "value": 16.8,
+          "tolerance_pct": 20
+        },
+        "cost_per_part": {
+          "value": 18,
+          "tolerance_pct": 30
+        },
+        "all_constraints_met": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B112",
+      "calc_type": "force_decomposition_turning",
+      "name": "Force Decomposition: Turning 4140 — Fc/Ff/Fp components",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "lead_angle_deg": 95,
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "Ff_Fc_ratio": 0.4,
+        "Fp_Fc_ratio": 0.3
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1017,
+          "tolerance_pct": 15
+        },
+        "Ff_N": {
+          "value": 407,
+          "tolerance_pct": 25
+        },
+        "Fp_N": {
+          "value": 305,
+          "tolerance_pct": 25
+        },
+        "resultant_N": {
+          "value": 1127,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B113",
+      "calc_type": "force_decomposition_milling",
+      "name": "Force Decomposition: Milling 4140 — Ft/Fr/Fa → Fx/Fy/Fz",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 20,
+        "flutes": 4,
+        "helix_angle_deg": 30
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "fz_mm": 0.1,
+        "ap_mm": 10,
+        "ae_mm": 5,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "Fr_Ft_ratio": 0.4,
+        "climb_milling": true
+      },
+      "expected": {
+        "Ft_N": {
+          "value": 1798,
+          "tolerance_pct": 20
+        },
+        "Fr_N": {
+          "value": 719,
+          "tolerance_pct": 25
+        },
+        "Fa_N": {
+          "value": 1038,
+          "tolerance_pct": 25
+        },
+        "Fx_N": {
+          "value": 1916,
+          "tolerance_pct": 25
+        },
+        "Fy_N": {
+          "value": 1521,
+          "tolerance_pct": 25
+        },
+        "Fz_N": {
+          "value": 1038,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B114",
+      "calc_type": "force_correct_deflection",
+      "name": "Correct Deflection: Using Fp (not Fc) for turning diameter error",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "Fp_Fc_ratio": 0.3,
+        "part_diameter_mm": 30,
+        "part_length_mm": 200,
+        "E_GPa": 210,
+        "support": "between_centers"
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1017,
+          "tolerance_pct": 15
+        },
+        "Fp_N": {
+          "value": 305,
+          "tolerance_pct": 25
+        },
+        "deflection_from_Fc_mm": {
+          "value": 0.02,
+          "tolerance_pct": 20
+        },
+        "deflection_from_Fp_mm": {
+          "value": 0.006,
+          "tolerance_pct": 25
+        },
+        "correct_diameter_error_um": {
+          "value": 12,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B115",
+      "calc_type": "merchant_circle",
+      "name": "Merchant's Circle: Shear angle & force resolution — 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "friction_angle_deg": 30,
+        "tau_shear_MPa": 450
+      },
+      "expected": {
+        "shear_angle_deg": {
+          "value": 33,
+          "tolerance_pct": 10
+        },
+        "chip_compression_ratio": {
+          "value": 1.64,
+          "tolerance_pct": 15
+        },
+        "Fc_from_merchant_N": {
+          "value": 554,
+          "tolerance_pct": 20
+        },
+        "Ft_from_merchant_N": {
+          "value": 247,
+          "tolerance_pct": 20
+        },
+        "Fs_shear_force_N": {
+          "value": 330,
+          "tolerance_pct": 20
+        },
+        "friction_force_N": {
+          "value": 303,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B116",
+      "calc_type": "chip_compression",
+      "name": "Chip Compression Ratio: Steel vs Aluminum vs Inconel",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "materials": [
+          {
+            "name": "AISI_4140",
+            "tau_MPa": 450,
+            "beta_deg": 30
+          },
+          {
+            "name": "6061_T6",
+            "tau_MPa": 170,
+            "beta_deg": 20
+          },
+          {
+            "name": "Inconel_718",
+            "tau_MPa": 650,
+            "beta_deg": 35
+          }
+        ]
+      },
+      "expected": {
+        "rc_4140": {
+          "value": 1.64,
+          "tolerance_pct": 15
+        },
+        "rc_6061": {
+          "value": 1.33,
+          "tolerance_pct": 25
+        },
+        "rc_inconel": {
+          "value": 1.79,
+          "tolerance_pct": 20
+        },
+        "segmented_inconel": {
+          "value": false
+        }
+      }
+    },
+    {
+      "id": "B117",
+      "calc_type": "segmented_chip",
+      "name": "Segmented Chip Formation: Ti-6Al-4V adiabatic shear",
+      "material": {
+        "id": "S_SUPERALLOYS-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "Vc_mpm": 60,
+        "f_mmrev": 0.15,
+        "ap_mm": 2,
+        "thermal_conductivity": 6.7,
+        "tau_shear_MPa": 550,
+        "thermal_softening_coeff": 0.001,
+        "segmentation_threshold": 0.5
+      },
+      "expected": {
+        "segmented": {
+          "value": true
+        },
+        "segmentation_frequency_Hz": {
+          "value": 15000,
+          "tolerance_pct": 40
+        },
+        "force_oscillation_pct": {
+          "value": 20,
+          "tolerance_pct": 35
+        },
+        "chip_type": {
+          "value": "saw_tooth"
+        }
+      }
+    },
+    {
+      "id": "B118",
+      "calc_type": "rake_angle_force",
+      "name": "Rake Angle Effect: γ=-6° to +12° on cutting force",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "rake_angles_deg": [
+          -6,
+          0,
+          6,
+          12
+        ],
+        "gamma_ref_deg": 6,
+        "correction_per_deg": 0.015
+      },
+      "expected": {
+        "Fc_at_neg6": {
+          "value": 1200,
+          "tolerance_pct": 15
+        },
+        "Fc_at_0": {
+          "value": 1109,
+          "tolerance_pct": 15
+        },
+        "Fc_at_6": {
+          "value": 1017,
+          "tolerance_pct": 15
+        },
+        "Fc_at_12": {
+          "value": 926,
+          "tolerance_pct": 15
+        },
+        "force_reduction_per_deg_pct": {
+          "value": 1.5,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B119",
+      "calc_type": "effective_rake_insert",
+      "name": "Effective Rake: Insert geometry + holder inclination",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "insert_rake_deg": -5,
+        "holder_inclination_deg": -6
+      },
+      "params": {
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "gamma_ref_deg": 6,
+        "correction_per_deg": 0.015
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -11,
+          "tolerance_pct": 10
+        },
+        "Fc_corrected_N": {
+          "value": 1276,
+          "tolerance_pct": 15
+        },
+        "force_increase_vs_neutral_pct": {
+          "value": 25.5,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B120",
+      "calc_type": "heat_partition",
+      "name": "Heat Partition: Steel turning — chip/tool/workpiece split",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "k_work": 42,
+        "k_tool": 80,
+        "rho_cp_work": 3900000,
+        "rho_cp_tool": 3000000,
+        "peclet_number_threshold": 5
+      },
+      "expected": {
+        "total_heat_W": {
+          "value": 3390,
+          "tolerance_pct": 15
+        },
+        "chip_fraction": {
+          "value": 0.64,
+          "tolerance_pct": 15
+        },
+        "tool_fraction": {
+          "value": 0.24,
+          "tolerance_pct": 25
+        },
+        "workpiece_fraction": {
+          "value": 0.12,
+          "tolerance_pct": 30
+        },
+        "peclet_number": {
+          "value": 15.5,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B121",
+      "calc_type": "heat_partition_low_speed",
+      "name": "Heat Partition: Low-speed Inconel — more heat to workpiece",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 40,
+        "f_mmrev": 0.15,
+        "ap_mm": 1.5,
+        "kc1_1": 2800,
+        "mc": 0.28,
+        "k_work": 11.4,
+        "k_tool": 80,
+        "rho_cp_work": 3600000,
+        "rho_cp_tool": 3000000
+      },
+      "expected": {
+        "total_heat_W": {
+          "value": 714,
+          "tolerance_pct": 15
+        },
+        "chip_fraction": {
+          "value": 0.56,
+          "tolerance_pct": 20
+        },
+        "tool_fraction": {
+          "value": 0.39,
+          "tolerance_pct": 25
+        },
+        "workpiece_fraction": {
+          "value": 0.06,
+          "tolerance_pct": 40
+        },
+        "peclet_number": {
+          "value": 7.9,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B122",
+      "calc_type": "coolant_heat_removal",
+      "name": "Coolant Heat Removal: Flood vs MQL vs Cryogenic on Inconel",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "total_heat_W": 950,
+        "strategies": [
+          {
+            "name": "dry",
+            "heat_removal_pct": 0
+          },
+          {
+            "name": "flood",
+            "heat_removal_pct": 15
+          },
+          {
+            "name": "mql",
+            "heat_removal_pct": 8
+          },
+          {
+            "name": "cryo",
+            "heat_removal_pct": 35
+          }
+        ],
+        "T_base_C": 850
+      },
+      "expected": {
+        "T_dry_C": {
+          "value": 850,
+          "tolerance_pct": 5
+        },
+        "T_flood_C": {
+          "value": 723,
+          "tolerance_pct": 15
+        },
+        "T_mql_C": {
+          "value": 782,
+          "tolerance_pct": 15
+        },
+        "T_cryo_C": {
+          "value": 553,
+          "tolerance_pct": 20
+        },
+        "best_for_tool_life": {
+          "value": "cryo"
+        }
+      }
+    },
+    {
+      "id": "B123",
+      "calc_type": "tapping_torque",
+      "name": "Tapping Torque: M10×1.5 in 4140 — spiral flute tap",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "tapping",
+      "tool": {
+        "type": "HSS-E",
+        "diameter_mm": 10,
+        "pitch_mm": 1.5,
+        "flutes": 3,
+        "chamfer_leads": 3
+      },
+      "params": {
+        "thread_pct_engagement": 75,
+        "Vc_mpm": 15,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "hole_depth_mm": 20,
+        "k_tap": 0.07
+      },
+      "expected": {
+        "torque_Nm": {
+          "value": 5.5,
+          "tolerance_pct": 25
+        },
+        "thrust_N": {
+          "value": 2144,
+          "tolerance_pct": 30
+        },
+        "rpm": {
+          "value": 478,
+          "tolerance_pct": 10
+        },
+        "cycle_time_s": {
+          "value": 3.4,
+          "tolerance_pct": 25
+        },
+        "power_kW": {
+          "value": 0.27,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B124",
+      "calc_type": "tapping_torque_aluminum",
+      "name": "Tapping Torque: M6×1.0 in 6061-T6 — forming tap (no chips)",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "tapping",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 6,
+        "pitch_mm": 1,
+        "flutes": 0,
+        "forming_tap": true
+      },
+      "params": {
+        "thread_pct_engagement": 65,
+        "Vc_mpm": 30,
+        "UTS_MPa": 310,
+        "hole_depth_mm": 12,
+        "k_form": 0.00025
+      },
+      "expected": {
+        "torque_Nm": {
+          "value": 1.82,
+          "tolerance_pct": 25
+        },
+        "thrust_N": {
+          "value": 182,
+          "tolerance_pct": 35
+        },
+        "rpm": {
+          "value": 1592,
+          "tolerance_pct": 10
+        },
+        "no_chip_evacuation_needed": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B125",
+      "calc_type": "parting_force",
+      "name": "Parting Off: 4140 bar Ø50mm — tangential + radial forces",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "parting",
+      "tool": {
+        "type": "carbide",
+        "width_mm": 3,
+        "diameter_mm": 50
+      },
+      "params": {
+        "Vc_mpm": 100,
+        "f_mmrev": 0.08,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "bar_diameter_mm": 50
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 997,
+          "tolerance_pct": 15
+        },
+        "Fr_radial_N": {
+          "value": 598,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.66,
+          "tolerance_pct": 20
+        },
+        "parting_time_s": {
+          "value": 29.5,
+          "tolerance_pct": 20
+        },
+        "vibration_risk_at_center": {
+          "value": true
+        }
+      }
+    },
+    {
+      "id": "B126",
+      "calc_type": "grooving_force",
+      "name": "External Grooving: 4140 OD groove 3mm wide × 2mm deep",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "grooving",
+      "tool": {
+        "type": "carbide",
+        "width_mm": 3
+      },
+      "params": {
+        "Vc_mpm": 120,
+        "f_mmrev": 0.06,
+        "groove_depth_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "part_diameter_mm": 40
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 742,
+          "tolerance_pct": 20
+        },
+        "feed_force_N": {
+          "value": 297,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 0.08,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B127",
+      "calc_type": "broaching_force",
+      "name": "Internal Broaching: Keyway 8mm × 4mm deep in 4140",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "broaching",
+      "tool": {
+        "type": "HSS",
+        "rise_per_tooth_mm": 0.06,
+        "num_cutting_teeth": 20,
+        "width_mm": 8
+      },
+      "params": {
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "keyway_depth_mm": 4,
+        "bore_diameter_mm": 25,
+        "broach_speed_mpm": 6,
+        "tooth_pitch_mm": 8
+      },
+      "expected": {
+        "force_per_tooth_N": {
+          "value": 1649,
+          "tolerance_pct": 20
+        },
+        "max_simultaneous_teeth": {
+          "value": 3,
+          "tolerance_pct": 35
+        },
+        "total_pull_force_kN": {
+          "value": 4.95,
+          "tolerance_pct": 25
+        },
+        "cycle_time_s": {
+          "value": 0.7,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B128",
+      "calc_type": "nose_radius_force_direction",
+      "name": "Nose Radius Effect: r=0.4 vs 0.8 vs 1.2 on force direction",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.15,
+        "ap_mm": 1,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "nose_radii": [
+          0.4,
+          0.8,
+          1.2
+        ]
+      },
+      "expected": {
+        "Fp_Fc_ratio_r04": {
+          "value": 0.2,
+          "tolerance_pct": 25
+        },
+        "Fp_Fc_ratio_r08": {
+          "value": 0.35,
+          "tolerance_pct": 25
+        },
+        "Fp_Fc_ratio_r12": {
+          "value": 0.43,
+          "tolerance_pct": 25
+        },
+        "Ra_r04_um": {
+          "value": 1.76,
+          "tolerance_pct": 15
+        },
+        "Ra_r08_um": {
+          "value": 0.88,
+          "tolerance_pct": 15
+        },
+        "Ra_r12_um": {
+          "value": 0.59,
+          "tolerance_pct": 15
+        }
+      }
+    },
+    {
+      "id": "B129",
+      "calc_type": "wiper_insert_finish",
+      "name": "Wiper Insert: 2× feed, same Ra — productivity gain",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "wiper": true,
+        "wiper_length_mm": 1.2
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_standard": 0.15,
+        "f_wiper": 0.3,
+        "ap_mm": 1.5,
+        "kc1_1": 1700,
+        "mc": 0.25
+      },
+      "expected": {
+        "Ra_standard_um": {
+          "value": 0.88,
+          "tolerance_pct": 15
+        },
+        "Ra_wiper_um": {
+          "value": 1.41,
+          "tolerance_pct": 25
+        },
+        "mrr_gain_pct": {
+          "value": 100,
+          "tolerance_pct": 15
+        },
+        "force_increase_pct": {
+          "value": 68,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B130",
+      "calc_type": "variable_helix_chatter",
+      "name": "Variable Helix: Chatter suppression vs uniform helix",
+      "material": {
+        "id": "S_SUPERALLOYS-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 4,
+        "helix_angles": [
+          35,
+          38,
+          35,
+          38
+        ]
+      },
+      "params": {
+        "Vc_mpm": 60,
+        "fz_mm": 0.06,
+        "ap_mm": 0.75,
+        "ae_mm": 1.5,
+        "natural_freq_Hz": 2500,
+        "damping_ratio": 0.03,
+        "stiffness_N_per_mm": 50000,
+        "kc1_1": 1900,
+        "mc": 0.23
+      },
+      "expected": {
+        "uniform_stable": {
+          "value": false
+        },
+        "variable_stable": {
+          "value": true
+        },
+        "stability_gain_pct": {
+          "value": 30,
+          "tolerance_pct": 35
+        },
+        "mechanism": {
+          "value": "pitch_variation"
+        }
+      }
+    },
+    {
+      "id": "B131",
+      "calc_type": "edge_prep_effect",
+      "name": "Edge Prep: Honed vs Chamfered vs Sharp on force & life",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "preps": [
+          {
+            "name": "sharp",
+            "edge_radius_um": 5,
+            "life_factor": 0.7
+          },
+          {
+            "name": "honed_25",
+            "edge_radius_um": 25,
+            "life_factor": 1
+          },
+          {
+            "name": "honed_50",
+            "edge_radius_um": 50,
+            "life_factor": 1.2
+          },
+          {
+            "name": "chamfer_0.1x20",
+            "edge_radius_um": 40,
+            "life_factor": 1.3
+          }
+        ],
+        "taylor_C": 400,
+        "taylor_n": 0.25
+      },
+      "expected": {
+        "Fc_sharp_N": {
+          "value": 1017,
+          "tolerance_pct": 15
+        },
+        "Fc_honed50_N": {
+          "value": 1100,
+          "tolerance_pct": 15
+        },
+        "life_sharp_min": {
+          "value": 11.2,
+          "tolerance_pct": 20
+        },
+        "life_chamfer_min": {
+          "value": 20.8,
+          "tolerance_pct": 25
+        },
+        "best_for_roughing": {
+          "value": "chamfer_0.1x20"
+        },
+        "best_for_finishing": {
+          "value": "sharp"
+        }
+      }
+    },
+    {
+      "id": "B132",
+      "calc_type": "chip_tool_friction",
+      "name": "Chip-Tool Friction: Sticking vs Sliding zones",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "rake_angle_deg": 6
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "tau_shear_MPa": 450,
+        "contact_length_ratio": 1.5,
+        "mu_sliding": 0.4
+      },
+      "expected": {
+        "contact_length_mm": {
+          "value": 0.3,
+          "tolerance_pct": 25
+        },
+        "sticking_zone_pct": {
+          "value": 60,
+          "tolerance_pct": 25
+        },
+        "sliding_zone_pct": {
+          "value": 40,
+          "tolerance_pct": 25
+        },
+        "apparent_friction_coeff": {
+          "value": 0.55,
+          "tolerance_pct": 20
+        }
+      }
+    },
+    {
+      "id": "B133",
+      "calc_type": "crater_wear_diffusion",
+      "name": "Crater Wear: Diffusion model — WC dissolution into steel chip",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "none"
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "T_interface_C": 800,
+        "D0": 0.001,
+        "Q_activation": 200000,
+        "R_gas": 8.314,
+        "cutting_time_min": 15
+      },
+      "expected": {
+        "KT_depth_um": {
+          "value": 12.9,
+          "tolerance_pct": 30
+        },
+        "crater_location_from_edge_mm": {
+          "value": 0.3,
+          "tolerance_pct": 30
+        },
+        "coating_benefit_factor": {
+          "value": 3,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B134",
+      "calc_type": "notch_wear",
+      "name": "Notch Wear: Inconel 718 — DOC line oxidation/adhesion",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN"
+      },
+      "params": {
+        "Vc_mpm": 50,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "cutting_time_min": 10,
+        "notch_rate_factor": 2.5,
+        "VB_rate_um_per_min": 5
+      },
+      "expected": {
+        "notch_depth_um": {
+          "value": 125,
+          "tolerance_pct": 25
+        },
+        "VB_flank_um": {
+          "value": 50,
+          "tolerance_pct": 25
+        },
+        "notch_VB_ratio": {
+          "value": 2.5,
+          "tolerance_pct": 20
+        },
+        "mitigation": {
+          "value": "vary_ap"
+        }
+      }
+    },
+    {
+      "id": "B135",
+      "calc_type": "spindle_bearing_stiffness",
+      "name": "Spindle Bearing: Stiffness drop at high RPM (centrifugal)",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12
+      },
+      "params": {
+        "rpm_low": 5000,
+        "rpm_high": 20000,
+        "k_static_N_per_mm": 100000,
+        "n_max_rpm": 24000,
+        "centrifugal_factor": 0.3
+      },
+      "expected": {
+        "k_at_5000": {
+          "value": 98700,
+          "tolerance_pct": 10
+        },
+        "k_at_20000": {
+          "value": 79200,
+          "tolerance_pct": 15
+        },
+        "stiffness_drop_pct": {
+          "value": 20.8,
+          "tolerance_pct": 20
+        },
+        "chatter_limit_reduction_pct": {
+          "value": 20,
+          "tolerance_pct": 25
+        }
+      }
+    },
+    {
+      "id": "B136",
+      "calc_type": "feedrate_override_accel",
+      "name": "Actual vs Programmed Feed: Corner deceleration in pocket",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0000",
+        "iso_group": "N",
+        "name": "6061-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 10
+      },
+      "params": {
+        "programmed_feedrate": 5000,
+        "machine_acceleration": 500,
+        "corner_angle_deg": 90,
+        "segment_length_mm": 0.5
+      },
+      "expected": {
+        "actual_feed_at_corner": {
+          "value": 1342,
+          "tolerance_pct": 20
+        },
+        "feed_reduction_pct": {
+          "value": 73,
+          "tolerance_pct": 15
+        },
+        "time_penalty_pct": {
+          "value": 22,
+          "tolerance_pct": 30
+        },
+        "mitigation": {
+          "value": "arc_corners"
+        }
+      }
+    },
+    {
+      "id": "B137",
+      "calc_type": "ballscrew_thermal_growth",
+      "name": "Ballscrew Thermal Growth: X-axis after 2hr machining",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "screw_length_mm": 800,
+        "alpha_steel": 0.000012,
+        "delta_T_C": 5,
+        "fixed_end": "motor_end"
+      },
+      "expected": {
+        "max_growth_um": {
+          "value": 48,
+          "tolerance_pct": 15
+        },
+        "error_at_center_um": {
+          "value": 24,
+          "tolerance_pct": 15
+        },
+        "compensation": {
+          "value": "thermal_comp_table"
+        }
+      }
+    },
+    {
+      "id": "B138",
+      "calc_type": "mql_film_thickness",
+      "name": "MQL: Oil film thickness vs flood — friction reduction",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "diameter_mm": 12,
+        "flutes": 4
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "mql_flow_ml_hr": 50,
+        "oil_viscosity_cSt": 40,
+        "flood_concentration_pct": 8,
+        "mu_dry": 0.6,
+        "mu_flood": 0.35,
+        "mu_mql": 0.3
+      },
+      "expected": {
+        "force_reduction_mql_pct": {
+          "value": 12,
+          "tolerance_pct": 30
+        },
+        "force_reduction_flood_pct": {
+          "value": 10.4,
+          "tolerance_pct": 25
+        },
+        "tool_life_mql_vs_dry": {
+          "value": 2,
+          "tolerance_pct": 20
+        },
+        "tool_life_flood_vs_dry": {
+          "value": 1.71,
+          "tolerance_pct": 20
+        },
+        "best_for_finishing": {
+          "value": "mql"
+        },
+        "best_for_roughing": {
+          "value": "flood"
+        }
+      }
+    },
+    {
+      "id": "B139",
+      "calc_type": "coolant_jet_penetration",
+      "name": "High-Pressure Coolant: Jet penetration into cutting zone",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide"
+      },
+      "params": {
+        "pressure_bar": 70,
+        "nozzle_diameter_mm": 1,
+        "standoff_distance_mm": 30,
+        "chip_thickness_mm": 0.15
+      },
+      "expected": {
+        "jet_velocity_m_s": {
+          "value": 118,
+          "tolerance_pct": 10
+        },
+        "penetration_effective": {
+          "value": true
+        },
+        "chip_break_assist": {
+          "value": true
+        },
+        "tool_life_improvement_pct": {
+          "value": 40,
+          "tolerance_pct": 30
+        }
+      }
+    },
+    {
+      "id": "B140",
+      "calc_type": "complete_force_field",
+      "name": "Complete Force Field: All components + projections + deflection",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "nose_radius_mm": 0.8,
+        "rake_angle_deg": -5,
+        "lead_angle_deg": 93
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.4,
+        "Fp_Fc_ratio": 0.35,
+        "part_diameter_mm": 40,
+        "part_length_mm": 150,
+        "E_GPa": 210,
+        "support": "between_centers",
+        "tool_stickout_mm": 30,
+        "E_tool_GPa": 580,
+        "tool_shank_mm": 20
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 1185,
+          "tolerance_pct": 15
+        },
+        "Ff_N": {
+          "value": 474,
+          "tolerance_pct": 20
+        },
+        "Fp_N": {
+          "value": 415,
+          "tolerance_pct": 20
+        },
+        "part_deflection_from_Fp_um": {
+          "value": 1.1,
+          "tolerance_pct": 30
+        },
+        "tool_deflection_from_Fc_um": {
+          "value": 2.3,
+          "tolerance_pct": 25
+        },
+        "total_diameter_error_um": {
+          "value": 2,
+          "tolerance_pct": 35
+        }
+      }
+    },
+    {
+      "id": "B141",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Steel Turning Roughing — all nodes resolved",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "nose_radius_mm": 0.8,
+        "insert_rake_deg": -5,
+        "holder_inclination_deg": -6,
+        "shank_mm": 20,
+        "stickout_mm": 35,
+        "flutes": 1,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 4000,
+        "max_power_kW": 15,
+        "max_torque_Nm": 120,
+        "spindle_stiffness_N_mm": 80000
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.25,
+        "ap_mm": 2.5,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.4,
+        "Fp_Fc_ratio": 0.35,
+        "tau_shear_MPa": 450,
+        "friction_angle_deg": 30,
+        "k_work": 42,
+        "rho_cp_work": 3900000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000012,
+        "alpha_tool": 0.0000055,
+        "part_diameter_mm": 50,
+        "part_length_mm": 200,
+        "E_part_GPa": 210,
+        "support": "between_centers",
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "clamping_force_N": 8000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.05,
+        "Ra_target_um": 3.2,
+        "tolerance_mm": 0.05,
+        "tool_cost": 8,
+        "machine_rate_hr": 60,
+        "cutting_time_min": 10
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -11,
+          "tolerance_pct": 5
+        },
+        "Fc_N": {
+          "value": 1886,
+          "tolerance_pct": 10
+        },
+        "Ff_N": {
+          "value": 754,
+          "tolerance_pct": 15
+        },
+        "Fp_N": {
+          "value": 660,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 6.29,
+          "tolerance_pct": 10
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": true
+        },
+        "peclet_number": {
+          "value": 19.3,
+          "tolerance_pct": 20
+        },
+        "T_tool_C": {
+          "value": 458,
+          "tolerance_pct": 20
+        },
+        "tool_life_min": {
+          "value": 16,
+          "tolerance_pct": 20
+        },
+        "Ra_um": {
+          "value": 2.44,
+          "tolerance_pct": 10
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "part_deflection_um": {
+          "value": 1.7,
+          "tolerance_pct": 30
+        },
+        "tool_deflection_um": {
+          "value": 5.9,
+          "tolerance_pct": 25
+        },
+        "total_diameter_error_um": {
+          "value": 3,
+          "tolerance_pct": 30
+        },
+        "tolerance_ok": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 125,
+          "tolerance_pct": 10
+        },
+        "cost_per_part": {
+          "value": 15,
+          "tolerance_pct": 25
+        },
+        "all_safe": {
+          "value": true
+        },
+        "limiting_factor": {
+          "value": "none"
+        }
+      }
+    },
+    {
+      "id": "B142",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Aluminum HSM Milling — speed-dominated",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "coating": "none",
+        "diameter_mm": 12,
+        "flutes": 3,
+        "helix_angle_deg": 45,
+        "nose_radius_mm": 0.5,
+        "insert_rake_deg": 12,
+        "holder_inclination_deg": 0,
+        "shank_mm": 12,
+        "stickout_mm": 40,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 24000,
+        "max_power_kW": 22,
+        "max_torque_Nm": 30,
+        "spindle_stiffness_N_mm": 100000
+      },
+      "params": {
+        "Vc_mpm": 500,
+        "fz_mm": 0.08,
+        "ap_mm": 5,
+        "ae_mm": 3,
+        "kc1_1": 700,
+        "mc": 0.23,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Fr_Ft_ratio": 0.3,
+        "tau_shear_MPa": 170,
+        "friction_angle_deg": 20,
+        "k_work": 130,
+        "rho_cp_work": 2400000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.0000234,
+        "alpha_tool": 0.0000055,
+        "taylor_C": 2000,
+        "taylor_n": 0.35,
+        "damping_ratio": 0.03,
+        "Ra_target_um": 1.6,
+        "tolerance_mm": 0.02,
+        "tool_cost": 12,
+        "machine_rate_hr": 80,
+        "cutting_time_min": 5
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": 12,
+          "tolerance_pct": 5
+        },
+        "Ft_N": {
+          "value": 267,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 2.23,
+          "tolerance_pct": 20
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": false
+        },
+        "T_tool_C": {
+          "value": 324,
+          "tolerance_pct": 25
+        },
+        "tool_life_min": {
+          "value": 52.5,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 0.4,
+          "tolerance_pct": 30
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 47.75,
+          "tolerance_pct": 15
+        },
+        "all_safe": {
+          "value": false
+        },
+        "limiting_factor": {
+          "value": "stability"
+        }
+      }
+    },
+    {
+      "id": "B143",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Inconel 718 Turning — thermal-dominant path",
+      "material": {
+        "id": "S_SUPERALLOYS-nickel-0000",
+        "iso_group": "S",
+        "name": "Inconel 718"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "nose_radius_mm": 0.8,
+        "insert_rake_deg": 0,
+        "holder_inclination_deg": -6,
+        "shank_mm": 20,
+        "stickout_mm": 30,
+        "flutes": 1,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 4000,
+        "max_power_kW": 22,
+        "max_torque_Nm": 200,
+        "spindle_stiffness_N_mm": 80000
+      },
+      "params": {
+        "Vc_mpm": 45,
+        "f_mmrev": 0.1,
+        "ap_mm": 1.5,
+        "kc1_1": 2800,
+        "mc": 0.28,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.5,
+        "Fp_Fc_ratio": 0.4,
+        "tau_shear_MPa": 650,
+        "friction_angle_deg": 35,
+        "k_work": 11.4,
+        "rho_cp_work": 3600000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000013,
+        "alpha_tool": 0.0000055,
+        "part_diameter_mm": 60,
+        "part_length_mm": 100,
+        "E_part_GPa": 205,
+        "support": "between_centers",
+        "taylor_C": 80,
+        "taylor_n": 0.2,
+        "clamping_force_N": 12000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.05,
+        "Ra_target_um": 1.6,
+        "tolerance_mm": 0.03,
+        "tool_cost": 15,
+        "machine_rate_hr": 80,
+        "cutting_time_min": 8
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -6,
+          "tolerance_pct": 5
+        },
+        "Fc_N": {
+          "value": 1000,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 0.75,
+          "tolerance_pct": 20
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": true
+        },
+        "peclet_number": {
+          "value": 6,
+          "tolerance_pct": 30
+        },
+        "T_tool_C": {
+          "value": 170,
+          "tolerance_pct": 30
+        },
+        "tool_life_min": {
+          "value": 17.8,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 0.39,
+          "tolerance_pct": 20
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 6.75,
+          "tolerance_pct": 15
+        },
+        "all_safe": {
+          "value": true
+        },
+        "limiting_factor": {
+          "value": "none"
+        }
+      }
+    },
+    {
+      "id": "B144",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Ti-6Al-4V Milling — stability-limited",
+      "material": {
+        "id": "S_SUPERALLOYS-titanium-0000",
+        "iso_group": "S",
+        "name": "Ti-6Al-4V"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "diameter_mm": 16,
+        "flutes": 4,
+        "helix_angle_deg": 35,
+        "nose_radius_mm": 0.5,
+        "insert_rake_deg": 6,
+        "holder_inclination_deg": 0,
+        "shank_mm": 16,
+        "stickout_mm": 60,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 10000,
+        "max_power_kW": 18,
+        "max_torque_Nm": 80,
+        "spindle_stiffness_N_mm": 60000
+      },
+      "params": {
+        "Vc_mpm": 60,
+        "fz_mm": 0.06,
+        "ap_mm": 20,
+        "ae_mm": 2,
+        "kc1_1": 1900,
+        "mc": 0.23,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Fr_Ft_ratio": 0.35,
+        "tau_shear_MPa": 550,
+        "friction_angle_deg": 32,
+        "k_work": 6.7,
+        "rho_cp_work": 2300000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.0000086,
+        "alpha_tool": 0.0000055,
+        "taylor_C": 120,
+        "taylor_n": 0.22,
+        "damping_ratio": 0.03,
+        "Ra_target_um": 1.6,
+        "tolerance_mm": 0.05,
+        "tool_cost": 18,
+        "machine_rate_hr": 80,
+        "cutting_time_min": 15
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": 6,
+          "tolerance_pct": 5
+        },
+        "Ft_N": {
+          "value": 1956,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.96,
+          "tolerance_pct": 25
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": false
+        },
+        "max_stable_ap_mm": {
+          "value": 0.8,
+          "tolerance_pct": 30
+        },
+        "T_tool_C": {
+          "value": 451,
+          "tolerance_pct": 25
+        },
+        "tool_life_min": {
+          "value": 23.4,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 0.23,
+          "tolerance_pct": 30
+        },
+        "mrr_cm3_min": {
+          "value": 11.46,
+          "tolerance_pct": 15
+        },
+        "all_safe": {
+          "value": false
+        },
+        "limiting_factor": {
+          "value": "stability"
+        }
+      }
+    },
+    {
+      "id": "B145",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Hard Turning D2 60HRC — surface-quality path",
+      "material": {
+        "id": "H_HARDENED-tool_steel-0001",
+        "iso_group": "H",
+        "name": "D2 Tool Steel 60HRC"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "CBN",
+        "coating": "none",
+        "nose_radius_mm": 0.4,
+        "insert_rake_deg": -5,
+        "holder_inclination_deg": -6,
+        "shank_mm": 16,
+        "stickout_mm": 25,
+        "flutes": 1,
+        "E_GPa": 680
+      },
+      "machine": {
+        "max_rpm": 6000,
+        "max_power_kW": 15,
+        "max_torque_Nm": 80,
+        "spindle_stiffness_N_mm": 100000
+      },
+      "params": {
+        "Vc_mpm": 150,
+        "f_mmrev": 0.06,
+        "ap_mm": 0.15,
+        "kc1_1": 4500,
+        "mc": 0.22,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.5,
+        "Fp_Fc_ratio": 0.6,
+        "tau_shear_MPa": 850,
+        "friction_angle_deg": 35,
+        "k_work": 20,
+        "rho_cp_work": 3700000,
+        "k_tool": 100,
+        "rho_cp_tool": 2000000,
+        "alpha_work": 0.000011,
+        "alpha_tool": 0.0000045,
+        "part_diameter_mm": 40,
+        "part_length_mm": 80,
+        "E_part_GPa": 210,
+        "support": "between_centers",
+        "taylor_C": 200,
+        "taylor_n": 0.18,
+        "clamping_force_N": 10000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.04,
+        "Ra_target_um": 0.4,
+        "tolerance_mm": 0.01,
+        "tool_cost": 35,
+        "machine_rate_hr": 100,
+        "cutting_time_min": 5
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -11,
+          "tolerance_pct": 5
+        },
+        "Fc_N": {
+          "value": 100,
+          "tolerance_pct": 25
+        },
+        "Fp_N": {
+          "value": 60,
+          "tolerance_pct": 30
+        },
+        "power_kW": {
+          "value": 0.25,
+          "tolerance_pct": 30
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": true
+        },
+        "T_tool_C": {
+          "value": 180,
+          "tolerance_pct": 30
+        },
+        "tool_life_min": {
+          "value": 4.9,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 0.28,
+          "tolerance_pct": 20
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "part_deflection_um": {
+          "value": 0,
+          "tolerance_pct": 100
+        },
+        "tolerance_ok": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 1.35,
+          "tolerance_pct": 15
+        },
+        "all_safe": {
+          "value": true
+        },
+        "limiting_factor": {
+          "value": "none"
+        }
+      }
+    },
+    {
+      "id": "B146",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Heavy Roughing 4140 — power-limited",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiCN",
+        "nose_radius_mm": 1.2,
+        "insert_rake_deg": 0,
+        "holder_inclination_deg": -6,
+        "shank_mm": 25,
+        "stickout_mm": 40,
+        "flutes": 1,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 3000,
+        "max_power_kW": 11,
+        "max_torque_Nm": 150,
+        "spindle_stiffness_N_mm": 80000
+      },
+      "params": {
+        "Vc_mpm": 180,
+        "f_mmrev": 0.35,
+        "ap_mm": 5,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.35,
+        "Fp_Fc_ratio": 0.25,
+        "tau_shear_MPa": 450,
+        "friction_angle_deg": 30,
+        "k_work": 42,
+        "rho_cp_work": 3900000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000012,
+        "alpha_tool": 0.0000055,
+        "part_diameter_mm": 80,
+        "part_length_mm": 150,
+        "E_part_GPa": 210,
+        "support": "chuck_tailstock",
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "clamping_force_N": 15000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.05,
+        "Ra_target_um": 6.3,
+        "tolerance_mm": 0.1,
+        "tool_cost": 8,
+        "machine_rate_hr": 60,
+        "cutting_time_min": 10
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -6,
+          "tolerance_pct": 5
+        },
+        "Fc_N": {
+          "value": 4564,
+          "tolerance_pct": 10
+        },
+        "power_kW": {
+          "value": 13.69,
+          "tolerance_pct": 10
+        },
+        "power_safe": {
+          "value": false
+        },
+        "stable": {
+          "value": true
+        },
+        "tool_life_min": {
+          "value": 24.4,
+          "tolerance_pct": 20
+        },
+        "Ra_um": {
+          "value": 3.2,
+          "tolerance_pct": 20
+        },
+        "mrr_cm3_min": {
+          "value": 315,
+          "tolerance_pct": 10
+        },
+        "all_safe": {
+          "value": false
+        },
+        "limiting_factor": {
+          "value": "power"
+        }
+      }
+    },
+    {
+      "id": "B147",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Slender Shaft Turning — deflection-limited",
+      "material": {
+        "id": "P_STEELS-alloy-0001",
+        "iso_group": "P",
+        "name": "AISI 4140"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "nose_radius_mm": 0.8,
+        "insert_rake_deg": 0,
+        "holder_inclination_deg": -6,
+        "shank_mm": 16,
+        "stickout_mm": 30,
+        "flutes": 1,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 4000,
+        "max_power_kW": 15,
+        "max_torque_Nm": 120,
+        "spindle_stiffness_N_mm": 80000
+      },
+      "params": {
+        "Vc_mpm": 200,
+        "f_mmrev": 0.15,
+        "ap_mm": 1,
+        "kc1_1": 1700,
+        "mc": 0.25,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.4,
+        "Fp_Fc_ratio": 0.45,
+        "tau_shear_MPa": 450,
+        "friction_angle_deg": 30,
+        "k_work": 42,
+        "rho_cp_work": 3900000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000012,
+        "alpha_tool": 0.0000055,
+        "part_diameter_mm": 15,
+        "part_length_mm": 300,
+        "E_part_GPa": 210,
+        "support": "between_centers",
+        "taylor_C": 400,
+        "taylor_n": 0.25,
+        "clamping_force_N": 5000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.03,
+        "Ra_target_um": 1.6,
+        "tolerance_mm": 0.02,
+        "tool_cost": 8,
+        "machine_rate_hr": 60,
+        "cutting_time_min": 8
+      },
+      "expected": {
+        "Fc_N": {
+          "value": 484,
+          "tolerance_pct": 15
+        },
+        "Fp_N": {
+          "value": 218,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 1.61,
+          "tolerance_pct": 15
+        },
+        "power_safe": {
+          "value": true
+        },
+        "part_deflection_um": {
+          "value": 234.5,
+          "tolerance_pct": 20
+        },
+        "total_diameter_error_um": {
+          "value": 469,
+          "tolerance_pct": 20
+        },
+        "tolerance_ok": {
+          "value": false
+        },
+        "Ra_um": {
+          "value": 0.88,
+          "tolerance_pct": 15
+        },
+        "mrr_cm3_min": {
+          "value": 30,
+          "tolerance_pct": 10
+        },
+        "all_safe": {
+          "value": false
+        },
+        "limiting_factor": {
+          "value": "deflection"
+        }
+      }
+    },
+    {
+      "id": "B148",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Deep Pocket Milling 7075 — multi-constraint",
+      "material": {
+        "id": "N_ALUMINUM-wrought-0001",
+        "iso_group": "N",
+        "name": "7075-T6 Aluminum"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "coating": "none",
+        "diameter_mm": 10,
+        "flutes": 3,
+        "helix_angle_deg": 45,
+        "nose_radius_mm": 0.5,
+        "insert_rake_deg": 12,
+        "holder_inclination_deg": 0,
+        "shank_mm": 10,
+        "stickout_mm": 60,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 20000,
+        "max_power_kW": 15,
+        "max_torque_Nm": 20,
+        "spindle_stiffness_N_mm": 90000
+      },
+      "params": {
+        "Vc_mpm": 400,
+        "fz_mm": 0.06,
+        "ap_mm": 25,
+        "ae_mm": 1.5,
+        "kc1_1": 700,
+        "mc": 0.23,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Fr_Ft_ratio": 0.3,
+        "tau_shear_MPa": 170,
+        "friction_angle_deg": 20,
+        "k_work": 130,
+        "rho_cp_work": 2400000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.0000234,
+        "alpha_tool": 0.0000055,
+        "taylor_C": 2000,
+        "taylor_n": 0.35,
+        "damping_ratio": 0.02,
+        "Ra_target_um": 1.6,
+        "tolerance_mm": 0.05,
+        "tool_cost": 15,
+        "machine_rate_hr": 80,
+        "cutting_time_min": 10
+      },
+      "expected": {
+        "Ft_N": {
+          "value": 879,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 5.86,
+          "tolerance_pct": 20
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": false
+        },
+        "max_stable_ap_mm": {
+          "value": 2.4,
+          "tolerance_pct": 30
+        },
+        "T_tool_C": {
+          "value": 550,
+          "tolerance_pct": 25
+        },
+        "tool_life_min": {
+          "value": 99.3,
+          "tolerance_pct": 30
+        },
+        "mrr_cm3_min": {
+          "value": 85.94,
+          "tolerance_pct": 15
+        },
+        "all_safe": {
+          "value": false
+        },
+        "limiting_factor": {
+          "value": "stability"
+        }
+      }
+    },
+    {
+      "id": "B149",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Cast Iron Face Milling — chip-type path",
+      "material": {
+        "id": "K_CAST-IRON-gray-0000",
+        "iso_group": "K",
+        "name": "GG25 Gray Cast Iron"
+      },
+      "operation": "milling",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "diameter_mm": 50,
+        "flutes": 5,
+        "helix_angle_deg": 0,
+        "nose_radius_mm": 1.2,
+        "insert_rake_deg": -5,
+        "holder_inclination_deg": 0,
+        "shank_mm": 32,
+        "stickout_mm": 50,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 6000,
+        "max_power_kW": 22,
+        "max_torque_Nm": 150,
+        "spindle_stiffness_N_mm": 120000
+      },
+      "params": {
+        "Vc_mpm": 250,
+        "fz_mm": 0.2,
+        "ap_mm": 3,
+        "ae_mm": 40,
+        "kc1_1": 1100,
+        "mc": 0.22,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Fr_Ft_ratio": 0.25,
+        "tau_shear_MPa": 300,
+        "friction_angle_deg": 25,
+        "k_work": 50,
+        "rho_cp_work": 3500000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000011,
+        "alpha_tool": 0.0000055,
+        "taylor_C": 600,
+        "taylor_n": 0.28,
+        "damping_ratio": 0.06,
+        "Ra_target_um": 3.2,
+        "tolerance_mm": 0.05,
+        "tool_cost": 10,
+        "machine_rate_hr": 60,
+        "cutting_time_min": 5
+      },
+      "expected": {
+        "Ft_N": {
+          "value": 2009,
+          "tolerance_pct": 20
+        },
+        "power_kW": {
+          "value": 8.37,
+          "tolerance_pct": 20
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": true
+        },
+        "T_tool_C": {
+          "value": 689,
+          "tolerance_pct": 20
+        },
+        "tool_life_min": {
+          "value": 22.8,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 1,
+          "tolerance_pct": 30
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 191,
+          "tolerance_pct": 15
+        },
+        "chip_type": {
+          "value": "discontinuous"
+        },
+        "all_safe": {
+          "value": true
+        },
+        "limiting_factor": {
+          "value": "none"
+        }
+      }
+    },
+    {
+      "id": "B150",
+      "calc_type": "master_process_model",
+      "name": "Master Graph: Duplex SS Turning — work-hardening aware",
+      "material": {
+        "id": "M_STAINLESS-duplex-0000",
+        "iso_group": "M",
+        "name": "Duplex 2205"
+      },
+      "operation": "turning",
+      "tool": {
+        "type": "carbide",
+        "coating": "TiAlN",
+        "nose_radius_mm": 0.8,
+        "insert_rake_deg": 0,
+        "holder_inclination_deg": -6,
+        "shank_mm": 20,
+        "stickout_mm": 35,
+        "flutes": 1,
+        "E_GPa": 580
+      },
+      "machine": {
+        "max_rpm": 4000,
+        "max_power_kW": 15,
+        "max_torque_Nm": 150,
+        "spindle_stiffness_N_mm": 80000
+      },
+      "params": {
+        "Vc_mpm": 100,
+        "f_mmrev": 0.2,
+        "ap_mm": 2,
+        "kc1_1": 2200,
+        "mc": 0.26,
+        "gamma_ref": 6,
+        "correction_per_deg": 0.015,
+        "Ff_Fc_ratio": 0.45,
+        "Fp_Fc_ratio": 0.35,
+        "tau_shear_MPa": 520,
+        "friction_angle_deg": 32,
+        "k_work": 15,
+        "rho_cp_work": 3500000,
+        "k_tool": 80,
+        "rho_cp_tool": 3000000,
+        "alpha_work": 0.000013,
+        "alpha_tool": 0.0000055,
+        "part_diameter_mm": 60,
+        "part_length_mm": 120,
+        "E_part_GPa": 200,
+        "support": "chuck_tailstock",
+        "taylor_C": 180,
+        "taylor_n": 0.22,
+        "clamping_force_N": 10000,
+        "friction_coeff": 0.3,
+        "damping_ratio": 0.04,
+        "Ra_target_um": 3.2,
+        "tolerance_mm": 0.05,
+        "tool_cost": 12,
+        "machine_rate_hr": 70,
+        "cutting_time_min": 10,
+        "work_hardening_risk": true
+      },
+      "expected": {
+        "effective_rake_deg": {
+          "value": -6,
+          "tolerance_pct": 5
+        },
+        "Fc_N": {
+          "value": 1578,
+          "tolerance_pct": 15
+        },
+        "power_kW": {
+          "value": 2.63,
+          "tolerance_pct": 15
+        },
+        "power_safe": {
+          "value": true
+        },
+        "stable": {
+          "value": true
+        },
+        "T_tool_C": {
+          "value": 313,
+          "tolerance_pct": 25
+        },
+        "tool_life_min": {
+          "value": 14.5,
+          "tolerance_pct": 25
+        },
+        "Ra_um": {
+          "value": 1.56,
+          "tolerance_pct": 15
+        },
+        "Ra_meets_spec": {
+          "value": true
+        },
+        "mrr_cm3_min": {
+          "value": 40,
+          "tolerance_pct": 10
+        },
+        "work_hardening_warning": {
+          "value": true
+        },
+        "all_safe": {
+          "value": true
+        },
+        "limiting_factor": {
+          "value": "none"
+        }
+      }
     }
   ]
 }
