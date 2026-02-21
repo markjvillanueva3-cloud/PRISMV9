@@ -382,6 +382,18 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
   Trochoidal/HSM logic corrected. All CAT-A through CAT-H resolved.
   Build: 3.9MB clean. benchmark-results.json: 150 entries, 0 failures.
 
+[2026-02-21] R2-MS3 COMPLETE — 20/20 EDGE CASES + STABILITY ENGINE FIX
+  20 edge case scenarios across 5 categories: exotic materials (4), extreme parameters (4),
+  boundary conditions (4), material-machine mismatches (4), multi-physics coupling (4).
+  Critical fix: Stability Re[G] formula corrected (Altintas Eq 3.13-3.16).
+  Old: Re[G] = -ζ/(k*(1-ζ²)) — near-zero at resonance (wrong).
+  New: Re[G]_min = -1/(2*k*ζ*√(1-ζ²)) — correct FRF minimum.
+  Also fixed N/m→N/mm unit conversion in engine + run-benchmarks.ts stiffness units.
+  B039 expected value updated from 8.5mm to 0.01mm (correct physics post-fix).
+  All tests passing: 150/150 benchmarks, 5/5 spot-checks, 20/20 edge cases.
+  Commit: cd9b3cc
+  POSITION: R2-MS4 (Phase Gate) next.
+
 [2026-02-21] R2-MS1 CLAUDE CODE EXECUTION — ALL 6 TASKS COMPLETE
   Executor: Claude Code (Claude Opus 4.6)
   Prompt: R2_MS1_CLAUDE_CODE_PROMPT.md (6 tasks)
