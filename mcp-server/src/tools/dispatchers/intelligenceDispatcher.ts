@@ -34,7 +34,11 @@ const ACTIONS = [
 ] as const;
 
 /**
- * Extract key values from intelligence action results for summary responses.
+ * Extract key values from intelligence action results for summary/slim responses.
+ *
+ * IMPORTANT: Field paths here MUST match the actual return shapes from
+ * IntelligenceEngine.ts. If you change engine output shapes, update this too.
+ * Last verified: 2026-02-22 (all 11 actions).
  */
 function intelligenceExtractKeyValues(action: string, result: any): Record<string, any> {
   if (!result || typeof result !== "object") return { value: result };
@@ -45,14 +49,16 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         iso_group: result.material?.iso_group,
         operations: result.operations?.length,
         cycle_time_min: result.cycle_time?.total_min,
+        stable: result.stability?.is_stable,
+        critical_depth_mm: result.stability?.critical_depth_mm,
         confidence: result.confidence,
         safety_passed: result.safety?.all_checks_passed,
       };
     case "setup_sheet":
       return {
-        material: result.material,
-        operations: result.operations_count,
-        tools: result.tool_count,
+        material: result.header?.material,
+        operations: result.operations?.length,
+        tools: result.tools?.length,
         format: result.format,
       };
     case "process_cost":
@@ -71,45 +77,64 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
     case "tool_recommend":
       return {
         candidates: result.candidates?.length,
-        top_pick: result.candidates?.[0]?.name,
+        top_pick: result.candidates?.[0]?.name ?? result.candidates?.[0]?.id,
         top_score: result.candidates?.[0]?.score,
       };
     case "machine_recommend":
       return {
         candidates: result.candidates?.length,
-        top_pick: result.candidates?.[0]?.name,
+        top_pick: result.candidates?.[0]?.name ?? result.candidates?.[0]?.model,
         utilization: result.candidates?.[0]?.utilization_pct,
       };
     case "what_if":
       return {
-        baseline_metric: result.baseline,
-        changed_metric: result.changed,
-        delta_pct: result.delta_pct,
+        material: result.material,
+        baseline_Vc: result.baseline?.cutting_speed,
+        scenario_Vc: result.scenario?.cutting_speed,
+        force_delta_pct: result.deltas?.cutting_force_N?.percent,
+        life_delta_pct: result.deltas?.tool_life_min?.percent,
+        mrr_delta_pct: result.deltas?.mrr_cm3_min?.percent,
+        insights: result.insights?.length,
       };
     case "failure_diagnose":
       return {
-        root_cause: result.root_cause,
-        confidence: result.confidence,
-        fix_count: result.fixes?.length,
+        symptoms: result.symptoms_analyzed?.length,
+        top_diagnosis: result.diagnoses?.[0]?.name,
+        top_relevance: result.diagnoses?.[0]?.relevance,
+        severity: result.diagnoses?.[0]?.severity,
+        diagnoses_count: result.diagnoses?.length,
+        has_alarm: !!result.alarm,
+        alarm_code: result.alarm?.code,
+        alarm_name: result.alarm?.name,
+        has_physics_check: !!result.physics_cross_check,
       };
     case "parameter_optimize":
       return {
-        objective: result.objective,
-        optimal_Vc: result.optimal?.cutting_speed,
-        optimal_fz: result.optimal?.feed_per_tooth,
-        improvement_pct: result.improvement_pct,
+        material: result.material,
+        optimal_Vc: result.optimal_parameters?.cutting_speed,
+        optimal_fz: result.optimal_parameters?.feed_per_tooth,
+        optimal_ap: result.optimal_parameters?.axial_depth,
+        mrr: result.predicted_outcomes?.mrr,
+        surface_finish: result.predicted_outcomes?.surface_finish,
+        tool_life: result.predicted_outcomes?.tool_life,
+        min_cost_speed: result.minimum_cost_speed,
       };
     case "cycle_time_estimate":
       return {
-        cutting_min: result.cutting_time,
-        total_min: result.total_time,
-        operations: result.operation_count,
+        total_min: result.total_time_min,
+        cutting_min: result.cutting_time_min,
+        rapid_min: result.rapid_time_min,
+        operations: result.operations?.length,
+        utilization_pct: result.utilization_percent,
       };
     case "quality_predict":
       return {
-        predicted_Ra: result.Ra,
-        predicted_Rz: result.Rz,
-        tolerance_met: result.tolerance_met,
+        Ra: result.surface_finish?.Ra,
+        Rz: result.surface_finish?.Rz,
+        deflection_mm: result.deflection?.max_deflection_mm,
+        temperature_C: result.thermal?.max_temperature_C,
+        tolerance: result.achievable_tolerance,
+        force_N: result.cutting_force_N,
       };
     default:
       return result;
@@ -219,7 +244,7 @@ export function registerIntelligenceDispatcher(server: any): void {
               message: err.message,
               stub: isStub,
               hint: isStub
-                ? `Action "${action}" is scheduled for R3-MS0 implementation`
+                ? `Action "${action}" is not yet implemented`
                 : undefined,
             }),
           }],

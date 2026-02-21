@@ -115,6 +115,7 @@ interface JobPlanResult {
   operations: JobPlanOperation[];
   coolant: { strategy: string; pressure_bar: number };
   cycle_time: { cutting_min: number; total_min: number };
+  stability?: { is_stable: boolean; critical_depth_mm: number; margin_percent: number; recommended_speeds?: number[] };
   safety: { all_checks_passed: boolean; warnings: string[] };
   confidence: number;
 }
@@ -418,12 +419,21 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     });
   }
 
-  // -- 8. Stability check (optional -- only if we have modal parameters) --
-  // In a full implementation, modal data comes from the machine registry or
-  // user input. For now, skip but structure the call site.
-  // Uncomment when modal data is available:
-  // const modal: ModalParameters = { natural_frequency: 1500, damping_ratio: 0.03, stiffness: 5e7 };
-  // const stability = calculateStabilityLobes(modal, kienzle.kc1_1, numTeeth, operations[0].params.axial_depth, operations[0].params.spindle_speed);
+  // -- 8. Stability check --
+  // Use user-provided modal parameters or typical VMC defaults.
+  // Defaults: fn=1500 Hz, zeta=0.03, k=50 MN/m (representative vertical machining center).
+  const modal: ModalParameters = {
+    natural_frequency: params.modal?.natural_frequency ?? 1500,
+    damping_ratio: params.modal?.damping_ratio ?? 0.03,
+    stiffness: params.modal?.stiffness ?? 5e7,
+  };
+  const stability = calculateStabilityLobes(
+    modal,
+    kienzle.kc1_1,
+    numTeeth,
+    operations[0].params.axial_depth,
+    operations[0].params.spindle_speed
+  );
 
   // -- 9. Cycle time --
   const avgFeedRate = operations.reduce((s, o) => s + o.params.feed_rate, 0) / operations.length;
@@ -487,7 +497,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
   confidence = Math.max(0.10, Math.min(1.0, confidence));
   confidence = Math.round(confidence * 100) / 100;
 
-  const allChecksPassed = !safetyWarnings.some(
+  let allChecksPassed = !safetyWarnings.some(
     (w) => w.includes("CRITICAL") || w.includes("SAFETY BLOCK")
   );
 
@@ -497,6 +507,19 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     `${operations.length} operations, confidence=${confidence}, ` +
     `warnings=${safetyWarnings.length}`
   );
+
+  // Merge stability warnings into safety warnings
+  if (stability.warnings?.length) {
+    safetyWarnings.push(...stability.warnings);
+  }
+  if (!stability.is_stable) {
+    safetyWarnings.push(
+      `Chatter risk: current axial depth exceeds stability limit ` +
+      `(${stability.critical_depth} mm). ` +
+      `Consider recommended speeds: ${stability.spindle_speeds?.slice(0, 3).join(", ")} RPM`
+    );
+    allChecksPassed = false;
+  }
 
   const result: JobPlanResult = {
     material: { id: materialId, name: materialName, iso_group: isoGroup },
@@ -508,6 +531,12 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     cycle_time: {
       cutting_min: Math.round(cycleTimeResult.cutting_time * 10) / 10,
       total_min: Math.round(cycleTimeResult.total_time * 10) / 10,
+    },
+    stability: {
+      is_stable: stability.is_stable,
+      critical_depth_mm: stability.critical_depth,
+      margin_percent: stability.margin_percent,
+      recommended_speeds: stability.spindle_speeds?.slice(0, 5),
     },
     safety: { all_checks_passed: allChecksPassed, warnings: safetyWarnings },
     confidence,
@@ -1403,26 +1432,104 @@ async function whatIf(params: Record<string, any>): Promise<any> {
 }
 
 /**
- * Diagnose root cause of a machining failure from symptoms.
+ * Diagnose root cause of a machining failure from symptoms and/or alarm codes.
  *
- * Uses a knowledge base of common CNC machining failure modes to match
- * user-reported symptoms against known root causes, then ranks them by
- * relevance and provides actionable remedies.
+ * Two input modes:
+ *   1. Symptom-based: pass `symptoms` array — matches against 7 failure mode KB
+ *   2. Alarm-based: pass `alarm_code` + `controller` — decodes via AlarmRegistry (9,200+ codes)
+ *   3. Combined: both inputs are merged into a unified diagnosis
  *
  * @param params.symptoms     - Array of symptom strings or comma-separated string
+ * @param params.alarm_code   - Alarm code (e.g. "445", "SV0401", "2024")
+ * @param params.controller   - Controller family (e.g. "FANUC", "SIEMENS", "HAAS")
  * @param params.material     - Optional material name for context
  * @param params.operation    - Optional operation type (roughing, finishing, etc.)
  * @param params.parameters   - Optional current cutting parameters for physics cross-check
- * IMPLEMENTED R3-MS0
+ * IMPLEMENTED R3-MS0 (alarm integration added R3-MS0 hardening)
  */
 async function failureDiagnose(params: Record<string, any>): Promise<any> {
-  validateRequiredFields("failure_diagnose", params, ["symptoms"]);
+  // At least one of symptoms or alarm_code must be provided
+  if (!params.symptoms && !params.alarm_code) {
+    throw new Error(
+      '[IntelligenceEngine] failure_diagnose: at least one of "symptoms" or "alarm_code" is required'
+    );
+  }
 
   // Normalize symptoms to string array
-  let symptoms: string[] = Array.isArray(params.symptoms)
-    ? params.symptoms
-    : String(params.symptoms).split(",").map((s: string) => s.trim());
+  let symptoms: string[] = [];
+  if (params.symptoms) {
+    symptoms = Array.isArray(params.symptoms)
+      ? params.symptoms
+      : String(params.symptoms).split(",").map((s: string) => s.trim());
+  }
   symptoms = symptoms.map((s: string) => s.toLowerCase());
+
+  // -- Alarm code lookup via AlarmRegistry --
+  let alarmResult: any = undefined;
+  if (params.alarm_code) {
+    const controller = params.controller || "FANUC"; // default to most common
+    try {
+      const alarm = await registryManager.alarms.decode(controller, String(params.alarm_code));
+      if (alarm) {
+        alarmResult = {
+          alarm_id: alarm.alarm_id,
+          code: alarm.code,
+          name: alarm.name,
+          controller_family: alarm.controller_family,
+          category: alarm.category,
+          severity: alarm.severity,
+          description: alarm.description,
+          causes: alarm.causes,
+          quick_fix: alarm.quick_fix,
+          requires_power_cycle: alarm.requires_power_cycle,
+          fix_procedures: alarm.fix_procedures?.map((fp: any) => ({
+            step: fp.step,
+            action: fp.action,
+            details: fp.details,
+            safety_warning: fp.safety_warning,
+            skill_level: fp.skill_level,
+          })),
+          related_alarms: alarm.related_alarms,
+        };
+
+        // Inject alarm causes as additional symptoms for failure mode matching
+        if (alarm.causes) {
+          for (const cause of alarm.causes) {
+            symptoms.push(cause.toLowerCase());
+          }
+        }
+        // Inject alarm category as a symptom keyword
+        if (alarm.category) {
+          symptoms.push(alarm.category.toLowerCase());
+        }
+      } else {
+        // Alarm not found — search by query as fallback
+        const searchResult = await registryManager.alarms.search({
+          query: String(params.alarm_code),
+          controller,
+          limit: 3,
+        });
+        if (searchResult.alarms.length > 0) {
+          alarmResult = {
+            note: "Exact code not found, showing closest matches",
+            matches: searchResult.alarms.map((a: any) => ({
+              code: a.code,
+              name: a.name,
+              category: a.category,
+              description: a.description,
+            })),
+          };
+        } else {
+          alarmResult = {
+            note: `Alarm code "${params.alarm_code}" not found for controller ${controller}`,
+          };
+        }
+      }
+    } catch (err: any) {
+      log.warn(`[IntelligenceEngine] failure_diagnose: alarm lookup failed: ${err.message}`);
+      alarmResult = { error: `Alarm lookup failed: ${err.message}` };
+    }
+  }
 
   // -- Failure knowledge base --
   const FAILURE_MODES: Array<{
@@ -1624,6 +1731,7 @@ async function failureDiagnose(params: Record<string, any>): Promise<any> {
       root_causes: m.root_causes,
       remedies: m.remedies,
     })),
+    alarm: alarmResult,
     physics_cross_check: physicsCheck,
     total_modes_checked: FAILURE_MODES.length,
   };

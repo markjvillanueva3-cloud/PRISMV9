@@ -1,8 +1,8 @@
 /**
  * R3-MS0 Intelligence Engine Integration Tests
  *
- * Tests all 11 intelligence actions:
- *   1-3.  job_plan (P-group, N-group, S-group variants)
+ * Tests all 11 intelligence actions (17 test cases):
+ *   1-3.  job_plan (P-group with stability, N-group, S-group)
  *   4-5.  setup_sheet (json + markdown formats)
  *   6.    process_cost (batch costing)
  *   7.    material_recommend
@@ -10,9 +10,10 @@
  *   9.    machine_recommend
  *  10.    what_if (scenario comparison)
  *  11-12. failure_diagnose (chatter + tool wear with physics cross-check)
- *  13.    parameter_optimize (multi-objective)
- *  14.    cycle_time_estimate (multi-operation)
- *  15.    quality_predict (surface + deflection + thermal)
+ *  13-14. failure_diagnose (alarm code lookup + alarm+symptoms combo)
+ *  15.    parameter_optimize (multi-objective)
+ *  16.    cycle_time_estimate (multi-operation)
+ *  17.    quality_predict (surface + deflection + thermal)
  */
 
 import { registryManager } from "../../src/registries/manager.js";
@@ -51,6 +52,10 @@ const TESTS: TestCase[] = [
       }
       if (r.confidence === undefined || r.confidence <= 0) errs.push("Bad confidence");
       if (!r.safety) errs.push("Missing safety object");
+      // Stability lobes should now be present
+      if (!r.stability) errs.push("Missing stability object");
+      if (r.stability && r.stability.critical_depth_mm === undefined) errs.push("Missing critical_depth_mm in stability");
+      if (r.stability && r.stability.is_stable === undefined) errs.push("Missing is_stable flag in stability");
       return errs;
     },
   },
@@ -300,7 +305,51 @@ const TESTS: TestCase[] = [
   },
 
   // =====================================================
-  // 9. parameter_optimize — multi-objective optimization
+  // 9a. failure_diagnose — alarm code lookup
+  // =====================================================
+  {
+    name: "failure_diagnose: FANUC alarm code lookup",
+    action: "failure_diagnose",
+    params: {
+      alarm_code: "1001",
+      controller: "FANUC",
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      if (!r.symptoms_analyzed || !Array.isArray(r.symptoms_analyzed))
+        errs.push("Missing symptoms_analyzed array");
+      if (!r.diagnoses || !Array.isArray(r.diagnoses))
+        errs.push("Missing diagnoses array");
+      // alarm field should be present (either a decoded alarm or a fallback note)
+      if (r.alarm === undefined) errs.push("Missing alarm field in response");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 9b. failure_diagnose — alarm code with symptoms combo
+  // =====================================================
+  {
+    name: "failure_diagnose: alarm code + symptoms combined",
+    action: "failure_diagnose",
+    params: {
+      symptoms: ["vibration", "noise"],
+      alarm_code: "410",
+      controller: "FANUC",
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      if (!r.symptoms_analyzed || r.symptoms_analyzed.length < 2)
+        errs.push("Should have at least 2 symptoms (user-provided + alarm-injected)");
+      if (!r.diagnoses || r.diagnoses.length === 0)
+        errs.push("Should have at least one diagnosis for vibration/noise");
+      if (r.alarm === undefined) errs.push("Missing alarm field in response");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 10. parameter_optimize — multi-objective optimization
   // =====================================================
   {
     name: "parameter_optimize: 4140 Steel, balanced objectives",
