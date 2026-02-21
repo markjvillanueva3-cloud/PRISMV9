@@ -136,3 +136,21 @@
     - R2 regression: 150/150 benchmarks (no regressions)
   COMMIT: 3d57272 R3-MS0: Complete all 11 intelligence actions
   BUILD: 4.0MB clean, esbuild only
+
+[2026-02-22] R3-MS0 HARDENING — 3 correctness/coverage fixes, 17/17 tests, 150/150 R2 benchmarks
+  FIXES:
+    1. intelligenceExtractKeyValues: Rewrote all 11 action key extractors to match actual engine
+       output shapes. Prior version had stale field names causing silent undefined under context
+       pressure (>50%) for 7/11 actions. Verified against every action's return object.
+    2. failure_diagnose + AlarmRegistry: Wired registryManager.alarms.decode() into failure_diagnose.
+       Now accepts alarm_code + controller as alternative/additional input (symptoms now optional).
+       Alarm causes are injected as symptoms for cross-reference with the 7-mode failure KB.
+       Fallback search via registryManager.alarms.search() if exact code not found.
+    3. job_plan + stability lobes: Enabled calculateStabilityLobes() in job_plan. Uses sensible
+       VMC defaults (fn=1500Hz, zeta=0.03, k=50MN/m), user-overridable via params.modal.
+       Stability warnings merged into safety gate. Result includes is_stable, critical_depth_mm,
+       margin_percent, recommended_speeds.
+  TESTS: 17/17 (added alarm code lookup, alarm+symptoms combo, stability check)
+  R2 REGRESSION: 150/150 (no regressions)
+  COMMIT: d21e13f R3-MS0 hardening
+  BUILD: 4.0MB clean
