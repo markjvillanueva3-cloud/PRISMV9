@@ -44,9 +44,9 @@ const SIZE_BANDS: Array<[number, number]> = [
 /** Find the ISO 286 size band index for a given nominal dimension. */
 function findSizeBand(nominal_mm: number): number {
   for (let i = 0; i < SIZE_BANDS.length; i++) {
-    if (nominal_mm > SIZE_BANDS[i][0] && nominal_mm <= SIZE_BANDS[i][1]) return i;
-    // Special case: exactly 1mm falls into first band
-    if (i === 0 && nominal_mm >= 1 && nominal_mm <= SIZE_BANDS[i][1]) return i;
+    const [lo, hi] = SIZE_BANDS[i];
+    // First band [1,3] is inclusive on both ends; subsequent bands are (lo, hi]
+    if ((i === 0 ? nominal_mm >= lo : nominal_mm > lo) && nominal_mm <= hi) return i;
   }
   return -1;
 }
@@ -169,6 +169,11 @@ const SHAFT_DEVIATIONS: Record<string, number[]> = {
  * Simplification: Hole deviations are the NEGATIVE of the corresponding shaft
  * deviations for the same letter. i.e., EI(A) = -es(a), ES(K) = -ei(k).
  * This holds for all common positions per ISO 286-1 Section 4.3.2.
+ *
+ * NOTE: ISO 286-1 defines delta correction factors (Δ) for hole positions
+ * K, M, N at IT grades > 8. The simple negation rule used here is accurate
+ * for the most common precision fits (IT6, IT7) but may deviate by a few
+ * microns at coarser grades. Acceptable for quality_predict and common fits.
  */
 function getHoleDeviation(position: string, bandIdx: number): { EI: number; ES_from_EI: boolean } | { ES: number; EI_from_ES: boolean } {
   const lower = position.toLowerCase();
@@ -275,7 +280,7 @@ export interface FitAnalysisResult {
  */
 export function analyzeShaftHoleFit(nominal_mm: number, fit_class: string): FitAnalysisResult {
   // Parse fit class: "H7/g6" → hole={position:'H', grade:7}, shaft={position:'g', grade:6}
-  const match = fit_class.match(/^([A-Z])(\d+)\s*\/\s*([a-z])(\d+)$/i);
+  const match = fit_class.match(/^([A-Z])(\d+)\s*\/\s*([a-z])(\d+)$/);
   if (!match) {
     throw new Error(
       `[ToleranceEngine] Invalid fit class format: "${fit_class}". ` +

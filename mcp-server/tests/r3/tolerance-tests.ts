@@ -166,6 +166,37 @@ const TESTS: TestCase[] = [
       return errs;
     },
   },
+
+  // =====================================================
+  // 9. Edge case: rejects malformed fit class
+  // =====================================================
+  {
+    name: "Fit analysis: rejects malformed fit class",
+    run: () => {
+      const errs: string[] = [];
+      try {
+        analyzeShaftHoleFit(25, "h7/G6");
+        errs.push("Should have thrown for malformed fit class (inverted case)");
+      } catch (e: any) {
+        if (!e.message.includes("Invalid fit class")) errs.push(`Wrong error: ${e.message}`);
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 10. Edge case: IT7 @ 1mm (lower boundary)
+  // =====================================================
+  {
+    name: "IT grade: IT7 @ 1mm (lower boundary)",
+    run: () => {
+      const errs: string[] = [];
+      const r = calculateITGrade(1, 7);
+      if (r.tolerance_um !== 10) errs.push(`Expected 10 μm, got ${r.tolerance_um}`);
+      if (r.size_band !== "1–3 mm") errs.push(`Expected 1–3 mm band, got ${r.size_band}`);
+      return errs;
+    },
+  },
 ];
 
 // ============================================================================
