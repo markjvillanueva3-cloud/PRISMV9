@@ -428,7 +428,8 @@ const TESTS: TestCase[] = [
         errs.push("Invalid Rz value");
       if (r.deflection?.max_deflection_mm === undefined) errs.push("Missing deflection data");
       if (r.thermal?.max_temperature_C === undefined) errs.push("Missing thermal data");
-      if (!r.achievable_tolerance) errs.push("Missing tolerance estimate");
+      if (!r.achievable_tolerance?.grade) errs.push("Missing tolerance grade");
+      if (r.achievable_tolerance?.tolerance_um === undefined) errs.push("Missing tolerance_um from ISO 286 lookup");
       if (r.cutting_force_N === undefined || r.cutting_force_N <= 0) errs.push("Missing cutting force");
       return errs;
     },

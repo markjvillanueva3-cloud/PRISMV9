@@ -410,3 +410,18 @@ export {
   type JobPlanOperation,
   type FeatureType,
 } from "./IntelligenceEngine.js";
+
+// Tolerance Engine — R3-P2 ISO 286 Tolerance Analysis
+export {
+  calculateITGrade,
+  analyzeShaftHoleFit,
+  toleranceStackUp,
+  calculateCpk,
+  findAchievableGrade,
+  type ITGradeResult,
+  type FitAnalysisResult,
+  type FitLimit,
+  type StackDimension,
+  type StackUpResult,
+  type CpkResult,
+} from "./ToleranceEngine.js";

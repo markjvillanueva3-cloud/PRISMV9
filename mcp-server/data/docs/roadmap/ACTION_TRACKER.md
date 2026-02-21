@@ -154,3 +154,20 @@
   R2 REGRESSION: 150/150 (no regressions)
   COMMIT: d21e13f R3-MS0 hardening
   BUILD: 4.0MB clean
+
+[2026-02-22] R3-P2: ToleranceEngine COMPLETE — ISO 286-1:2010 tolerance analysis
+  NEW ENGINE: src/engines/ToleranceEngine.ts (~537 lines)
+    - Full ISO 286 IT grade table: 13 size bands (1-500mm) × 20 IT grades (IT01-IT18)
+    - Shaft fundamental deviations: 18 positions (a through z)
+    - Hole deviations derived via ISO 286-1 Section 4.3.2 negation rule
+    - 5 exported functions: calculateITGrade, analyzeShaftHoleFit, toleranceStackUp, calculateCpk, findAchievableGrade
+  DISPATCHER: calcDispatcher.ts — added tolerance_analysis + fit_analysis (26→28 actions)
+    - tolerance_analysis: single IT grade lookup, stack-up, or Cpk (via analysis_type param)
+    - fit_analysis: shaft/hole fit analysis (e.g. "H7/g6" → clearance/transition/interference)
+  ENHANCEMENT: quality_predict in IntelligenceEngine.ts now uses findAchievableGrade()
+    - Replaces crude deflection-to-IT-grade heuristic with proper ISO 286 lookup
+    - Returns actual tolerance values in μm alongside grade label
+    - achievable_tolerance field is now {grade, tolerance_um, tolerance_mm, nominal_mm}
+  BARREL EXPORTS: src/engines/index.ts — 5 functions + 6 types from ToleranceEngine.ts
+  TESTS: 8/8 tolerance tests, 17/17 intelligence tests, 150/150 R2 benchmarks
+  BUILD: 4.0MB clean

@@ -41,6 +41,13 @@ import {
 } from "../../engines/AdvancedCalculations.js";
 
 import {
+  calculateITGrade,
+  analyzeShaftHoleFit,
+  toleranceStackUp,
+  calculateCpk,
+} from "../../engines/ToleranceEngine.js";
+
+import {
   calculateEngagementAngle,
   calculateTrochoidalParams,
   calculateHSMParams,
@@ -95,6 +102,10 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { mrr_cm3min: result.MRR_cm3min, spindle_rpm: result.spindle_rpm };
     case "coolant_strategy":
       return { strategy: result.recommendation?.strategy, pressure_bar: result.recommendation?.pressure_bar };
+    case "tolerance_analysis":
+      return { tolerance_um: result.tolerance_um, grade: result.grade_label, nominal_mm: result.nominal_mm };
+    case "fit_analysis":
+      return { fit_type: result.fit_type, min_clearance_mm: result.min_clearance_mm, max_clearance_mm: result.max_clearance_mm };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -125,13 +136,14 @@ const ACTIONS = [
   "mrr", "power", "torque", "chip_load", "stability", "deflection", "thermal", 
   "cost_optimize", "multi_optimize", "productivity", "engagement", 
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
-  "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet"
+  "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
+  "tolerance_analysis", "fit_analysis"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation.",
+    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis.",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
@@ -585,6 +597,23 @@ export function registerCalcDispatcher(server: any): void {
           case "gcode_snippet": {
             const gcRpm = params.rpm || Math.round(((params.cutting_speed || 150) * 1000) / (Math.PI * (params.tool_diameter || 12)));
             result = generateGCodeSnippet(params.controller || "fanuc", params.operation || "milling", { rpm: gcRpm, feed_rate: params.feed_rate || params.vf || 1000, tool_number: params.tool_number || 1, depth_of_cut: params.axial_depth || 3, x_start: params.x_start, y_start: params.y_start, z_safe: params.z_safe || 5, z_depth: params.z_depth, coolant: params.coolant });
+            break;
+          }
+
+          case "tolerance_analysis": {
+            const analysisType = params.analysis_type || "single";
+            if (analysisType === "stack" && Array.isArray(params.stack_dimensions)) {
+              result = toleranceStackUp(params.stack_dimensions);
+            } else if (analysisType === "cpk") {
+              result = calculateCpk(params.nominal_mm, params.tolerance_mm, params.process_sigma_mm);
+            } else {
+              result = calculateITGrade(params.nominal_mm, params.it_grade ?? 7);
+            }
+            break;
+          }
+
+          case "fit_analysis": {
+            result = analyzeShaftHoleFit(params.nominal_mm, params.fit_class);
             break;
           }
 

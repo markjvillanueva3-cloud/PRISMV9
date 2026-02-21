@@ -64,6 +64,7 @@ import {
   generateGCodeSnippet,
 } from "./ToolpathCalculations.js";
 
+import { findAchievableGrade } from "./ToleranceEngine.js";
 import { registryManager } from "../registries/manager.js";
 import { log } from "../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../types/ResponseLevel.js";
@@ -2004,18 +2005,26 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
     thermal = { max_temperature: 0, warnings: ["Thermal calc skipped"] };
   }
 
-  // 5. Quality assessment
+  // 5. Quality assessment — ISO 286 tolerance lookup via ToleranceEngine
   const qualityWarnings: string[] = [...surfaceFinish.warnings];
-  let toleranceEstimate = "IT8-IT9"; // default achievable tolerance
-  if (deflection.max_deflection > 0.05) {
-    qualityWarnings.push(`Tool deflection ${deflection.max_deflection.toFixed(3)} mm may affect dimensional accuracy`);
-    toleranceEstimate = "IT10-IT11";
+  const nominalForTolerance = params.nominal_mm ?? D; // use tool diameter as proxy if no nominal given
+  const deflMm = deflection.max_deflection ?? 0;
+
+  let toleranceEstimate: string;
+  let tolerance_um: number | undefined;
+  let tolerance_mm: number | undefined;
+
+  const achievable = findAchievableGrade(nominalForTolerance, deflMm);
+  if (achievable) {
+    toleranceEstimate = achievable.grade_label;
+    tolerance_um = achievable.tolerance_um;
+    tolerance_mm = achievable.tolerance_mm;
+  } else {
+    toleranceEstimate = "IT14+";
   }
-  if (deflection.max_deflection > 0.02 && deflection.max_deflection <= 0.05) {
-    toleranceEstimate = "IT9-IT10";
-  }
-  if (deflection.max_deflection <= 0.01) {
-    toleranceEstimate = "IT7-IT8";
+
+  if (deflMm > 0.05) {
+    qualityWarnings.push(`Tool deflection ${deflMm.toFixed(3)} mm may affect dimensional accuracy`);
   }
   if (thermal.max_temperature > 500) {
     qualityWarnings.push("High cutting temperature may cause thermal distortion and affect surface integrity");
@@ -2044,7 +2053,12 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
       max_temperature_C: thermal.max_temperature ?? 0,
       chip_temperature_C: thermal.chip_temperature,
     },
-    achievable_tolerance: toleranceEstimate,
+    achievable_tolerance: {
+      grade: toleranceEstimate,
+      tolerance_um: tolerance_um,
+      tolerance_mm: tolerance_mm,
+      nominal_mm: nominalForTolerance,
+    },
     cutting_force_N: Fc,
     warnings: qualityWarnings,
   };

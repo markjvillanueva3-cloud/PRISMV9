@@ -133,7 +133,8 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         Rz: result.surface_finish?.Rz,
         deflection_mm: result.deflection?.max_deflection_mm,
         temperature_C: result.thermal?.max_temperature_C,
-        tolerance: result.achievable_tolerance,
+        tolerance_grade: result.achievable_tolerance?.grade,
+        tolerance_um: result.achievable_tolerance?.tolerance_um,
         force_N: result.cutting_force_N,
       };
     default:
