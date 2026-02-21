@@ -6,6 +6,7 @@ import { registryManager } from "../../registries/manager.js";
 import { SafetyBlockError } from "../../errors/PrismError.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 import type { SafetyCalcResult } from "../../schemas/safetyCalcSchema.js";
+import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 // Import original handlers
 import {
@@ -52,6 +53,62 @@ import {
   recommendCoolantStrategy,
   generateGCodeSnippet
 } from "../../engines/ToolpathCalculations.js";
+
+/**
+ * Extract domain-specific key values per calc type for summary-level responses.
+ * Each calc type returns only the most critical metrics (~50-100 tokens).
+ */
+function calcExtractKeyValues(action: string, result: any): Record<string, any> {
+  if (!result || typeof result !== 'object') return { value: result };
+  switch (action) {
+    case "cutting_force":
+      return { Fc_N: result.Fc, Ff_N: result.Ff, power_kW: result.power, torque_Nm: result.torque };
+    case "tool_life":
+      return { tool_life_min: result.tool_life_minutes, wear_rate: result.wear_rate };
+    case "speed_feed":
+      return { Vc: result.cutting_speed, fz: result.feed_per_tooth, n: result.spindle_speed, vf: result.feed_rate };
+    case "flow_stress":
+      return { sigma_MPa: result.stress };
+    case "surface_finish":
+      return { Ra_um: result.Ra, Rz_um: result.Rz };
+    case "mrr":
+      return { mrr_cm3min: result.mrr, feed_rate: result.feed_rate, spindle_speed: result.spindle_speed };
+    case "power":
+      return { power_kW: result.power, torque_Nm: result.torque, safe: result.safe };
+    case "torque":
+      return { torque_Nm: result.torque, safe: result.safe };
+    case "chip_load":
+      return { hex_mm: result.hex_mm, chip_load_ok: result.chip_load_ok };
+    case "stability":
+      return { stable: result.is_stable, critical_depth_mm: result.critical_depth };
+    case "deflection":
+      return { deflection_mm: result.static_deflection, safe: result.safe };
+    case "thermal":
+      return { T_tool_C: result.tool_temperature, T_chip_C: result.chip_temperature };
+    case "cost_optimize":
+      return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
+    case "multi_optimize":
+      return { optimal_speed: result.optimal_speed, optimal_feed: result.optimal_feed };
+    case "trochoidal":
+      return { mrr_cm3min: result.mrr, max_engagement: result.max_engagement_deg };
+    case "hsm":
+      return { mrr_cm3min: result.MRR_cm3min, spindle_rpm: result.spindle_rpm };
+    case "coolant_strategy":
+      return { strategy: result.recommendation?.strategy, pressure_bar: result.recommendation?.pressure_bar };
+    default:
+      // Generic: pick first 5 numeric/string fields
+      const kv: Record<string, any> = {};
+      let count = 0;
+      for (const [k, v] of Object.entries(result)) {
+        if (k.startsWith('_') || k === 'warnings') continue;
+        if (typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean') {
+          kv[k] = v;
+          if (++count >= 5) break;
+        }
+      }
+      return kv;
+  }
+}
 
 /** XA-6: Basic input validation for material name parameters */
 function validateMaterialName(name: string | undefined): string | null {
@@ -191,7 +248,6 @@ export function registerCalcDispatcher(server: any): void {
                 } as any;
               } else {
                 coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");
-                result = { error: `Material ${matId} not found or no Kienzle data`, fallback: "using defaults" };
               }
             } else {
               coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");
@@ -546,6 +602,13 @@ export function registerCalcDispatcher(server: any): void {
           log.warn(`[prism_calc] Post-calculation hook error (non-blocking): ${postErr}`);
         }
         
+        // R2-MS1 T5: Apply response_level formatting if requested
+        const responseLevel = (params.response_level as ResponseLevel) || undefined;
+        if (responseLevel) {
+          const leveled = formatByLevel(result, responseLevel, (r: any) => calcExtractKeyValues(action, r));
+          return { content: [{ type: "text", text: JSON.stringify(leveled) }] };
+        }
+
         return {
           content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(getCurrentPressurePct()))) }]
         };

@@ -5,6 +5,47 @@ import { handleSpindleProtectionTool } from "../spindleProtectionTools.js";
 import { handleToolBreakageTool } from "../toolBreakageTools.js";
 import { handleWorkholdingTool } from "../workholdingTools.js";
 import { SafetyBlockError } from "../../errors/PrismError.js";
+import { log } from "../../utils/Logger.js";
+import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/**
+ * Extract domain-specific key values for safety dispatcher summary responses.
+ * Returns only the critical safety verdict + key metric (~50-100 tokens).
+ */
+function safetyExtractKeyValues(action: string, result: any): Record<string, any> {
+  if (!result || typeof result !== 'object') return { value: result };
+  // Unwrap MCP content envelope if present
+  const data = result.content?.[0]?.text ? JSON.parse(result.content[0].text) : result;
+
+  // Common safety fields
+  const kv: Record<string, any> = {};
+  if (data.safe !== undefined) kv.safe = data.safe;
+  if (data.is_safe !== undefined) kv.safe = data.is_safe;
+  if (data.safety_factor !== undefined) kv.safety_factor = data.safety_factor;
+  if (data.risk_level !== undefined) kv.risk_level = data.risk_level;
+
+  // Action-specific fields
+  if (action.includes('collision') || action.includes('clearance')) {
+    if (data.min_clearance_mm !== undefined) kv.min_clearance_mm = data.min_clearance_mm;
+    if (data.collision_detected !== undefined) kv.collision_detected = data.collision_detected;
+  }
+  if (action.includes('spindle') || action.includes('torque') || action.includes('power')) {
+    if (data.utilization_pct !== undefined) kv.utilization_pct = data.utilization_pct;
+    if (data.within_limits !== undefined) kv.within_limits = data.within_limits;
+  }
+  if (action.includes('coolant') || action.includes('tsc')) {
+    if (data.flow_adequate !== undefined) kv.flow_adequate = data.flow_adequate;
+    if (data.tsc_adequate !== undefined) kv.tsc_adequate = data.tsc_adequate;
+  }
+  if (action.includes('breakage') || action.includes('stress') || action.includes('fatigue')) {
+    if (data.bending_stress_MPa !== undefined) kv.bending_stress_MPa = data.bending_stress_MPa;
+  }
+  if (action.includes('workholding') || action.includes('clamp') || action.includes('liftoff')) {
+    if (data.slip_safety_factor !== undefined) kv.slip_safety_factor = data.slip_safety_factor;
+  }
+
+  return Object.keys(kv).length > 0 ? kv : data;
+}
 
 const COLLISION_ACTIONS = new Set([
   "check_toolpath_collision", "validate_rapid_moves", "check_fixture_clearance",
@@ -102,6 +143,15 @@ export function registerSafetyDispatcher(server: any): void {
           result = await handleWorkholdingTool(action, params);
         } else {
           return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown safety action: ${action}` }) }] };
+        }
+
+        // R2-MS1 T5: Apply response_level formatting if requested
+        const responseLevel = (params.response_level as ResponseLevel) || undefined;
+        if (responseLevel) {
+          // Unwrap MCP envelope if present
+          const raw = (result && result.content?.[0]?.text) ? JSON.parse(result.content[0].text) : result;
+          const leveled = formatByLevel(raw, responseLevel, (r: any) => safetyExtractKeyValues(action, r));
+          return { content: [{ type: "text" as const, text: JSON.stringify(leveled) }] };
         }
 
         // Wrap raw result in MCP format if needed
