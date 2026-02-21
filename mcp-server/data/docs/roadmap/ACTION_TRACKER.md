@@ -118,3 +118,21 @@
     - tests/r3/intelligence-tests.ts: 10/10 PASS (6 action tests + 3 job_plan variants + 1 stub confirm)
     - R2 regression: 150/150 benchmarks (no regressions)
   BUILD: 4.0MB clean, esbuild only
+
+[2026-02-22] R3-MS0 COMPLETE — All 11 intelligence actions implemented
+  SESSION: Implemented remaining 5 stub actions in IntelligenceEngine.ts
+  ACTIONS IMPLEMENTED (session 2):
+    - what_if: Baseline vs scenario comparison — runs full Kienzle/Taylor/SurfaceFinish/MRR for both parameter sets, computes deltas with percentage changes, generates insight summary
+    - failure_diagnose: Knowledge-based diagnostic — 7 failure modes (chatter, premature_wear, tool_breakage, poor_surface_finish, dimensional_error, chip_issues, thermal_damage) with 49 keywords, relevance scoring, optional physics cross-check via Taylor tool life
+    - parameter_optimize: Multi-objective optimization — wraps AdvancedCalculations.optimizeCuttingParameters() with material-resolved Kienzle/Taylor coefficients, also provides minimum cost speed reference
+    - cycle_time_estimate: Multi-operation estimation — derives pass counts from speed/feed axial/radial depth, sums cutting + rapid + tool change times across operations
+    - quality_predict: Combined quality prediction — surface finish (Ra/Rz/Rt) + tool deflection + cutting temperature + achievable tolerance grade (IT7-IT11)
+  BUGS FIXED:
+    - Kienzle return field: force.cutting_force → force.Fc (field name mismatch)
+    - SpindlePower return: power.power → power.power_spindle_kw
+  FINAL STATE: IntelligenceEngine.ts ~2100 lines, all 11 actions live, 0 stubs
+  TESTS:
+    - tests/r3/intelligence-tests.ts: 15/15 PASS (all 11 actions covered)
+    - R2 regression: 150/150 benchmarks (no regressions)
+  COMMIT: 3d57272 R3-MS0: Complete all 11 intelligence actions
+  BUILD: 4.0MB clean, esbuild only
