@@ -34,6 +34,7 @@ import { dncTransfer } from "../../engines/DNCTransferEngine.js";
 import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
 import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
 import { measurementIntegration } from "../../engines/MeasurementIntegrationEngine.js";
+import { inverseSolver } from "../../engines/InverseSolverEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -145,6 +146,14 @@ const ACTIONS = [
   "measure_probe_history",
   "measure_bias_detect",
   "measure_summary",
+  "inverse_solve",
+  "inverse_surface",
+  "inverse_tool_life",
+  "inverse_dimensional",
+  "inverse_chatter",
+  "inverse_troubleshoot",
+  "inverse_history",
+  "inverse_get",
 ] as const;
 
 /**
@@ -518,6 +527,17 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { biases: result.biases?.length, machine: result.machine };
     case "measure_summary":
       return { health: result.overall_health, cmm_reports: result.cmm?.reports, probe_features: result.probing?.features_tracked };
+    case "inverse_solve":
+    case "inverse_surface":
+    case "inverse_tool_life":
+    case "inverse_dimensional":
+    case "inverse_chatter":
+    case "inverse_troubleshoot":
+      return { id: result.problem_id, type: result.problem_type, primary_cause: result.primary_cause, fix: result.recommended_fix, confidence: result.confidence };
+    case "inverse_history":
+      return { total: result.total, by_type: result.by_type };
+    case "inverse_get":
+      return { id: result.problem_id, type: result.problem_type, primary_cause: result.primary_cause };
     default:
       return result;
   }
@@ -588,7 +608,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const MOBILE_ACTIONS = ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] as const;
         const ERP_ACTIONS = ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] as const;
         const MEASURE_ACTIONS = ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] as const;
-        const result = MEASURE_ACTIONS.includes(action as any)
+        const INVERSE_ACTIONS = ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] as const;
+        const result = INVERSE_ACTIONS.includes(action as any)
+          ? inverseSolver(action, params)
+          : MEASURE_ACTIONS.includes(action as any)
           ? measurementIntegration(action, params)
           : ERP_ACTIONS.includes(action as any)
           ? erpIntegration(action, params)

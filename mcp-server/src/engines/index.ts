@@ -790,3 +790,11 @@ export {
   type SurfaceFinishResult as MeasureSurfaceFinishResult,
   type ProbingData, type DriftAnalysis, type CalibrationBias,
 } from "./MeasurementIntegrationEngine.js";
+
+// Inverse Problem Solving (R10-Rev2)
+export {
+  inverseSolver,
+  type InverseProblemType, type Severity, type Confidence,
+  type InverseProblemInput, type RootCause, type Fix,
+  type InverseSolution,
+} from "./InverseSolverEngine.js";
