@@ -461,3 +461,12 @@ export {
   type StrategyDecision,
   type ApproachRetractDecision,
 } from "./DecisionTreeEngine.js";
+
+// Report Renderer — R3-P2 Manufacturing Report Templates (7 report types)
+export {
+  renderReport,
+  listReportTypes,
+  REPORT_TYPES,
+  type ReportType,
+  type ReportResult,
+} from "./ReportRenderer.js";
