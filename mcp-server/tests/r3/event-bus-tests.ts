@@ -394,7 +394,47 @@ const TESTS: TestCase[] = [
   },
 
   // =========================================================================
-  // 14. listActions returns registered action names
+  // 14. Missing action fallback — chain continues without throwing
+  // =========================================================================
+  {
+    name: "reactive chain: missing action skipped gracefully (no throw)",
+    async run() {
+      const bus = new EventBus();
+
+      // Register chain with a non-existent action — should warn, not throw
+      bus.registerReactiveChain({
+        name: "Chain with missing action",
+        trigger_event: "test_trigger",
+        steps: [
+          { action: "nonexistent_action_xyz", params: { x: 1 }, emit_event: "should_still_emit" }
+        ],
+        enabled: true
+      });
+
+      // Track if downstream event fires (it should, even though action wasn't found)
+      let downstreamFired = false;
+      bus.subscribeTyped({
+        event: "should_still_emit",
+        callback: () => { downstreamFired = true; }
+      });
+
+      // This should NOT throw — missing action is logged as warning and skipped
+      await bus.publishTyped({
+        event: "test_trigger",
+        source: "test",
+        payload: { val: 42 }
+      });
+
+      await sleep(50);
+
+      // Chain should have completed (action skipped) and emitted downstream event
+      assert(downstreamFired, "Downstream event should still fire even when action is missing");
+      bus.stop();
+    }
+  },
+
+  // =========================================================================
+  // 15. listActions returns registered action names
   // =========================================================================
   {
     name: "listActions: returns all registered action names",

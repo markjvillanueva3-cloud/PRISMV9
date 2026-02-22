@@ -477,6 +477,87 @@ const TESTS: TestCase[] = [
   },
 
   // =====================================================
+  // 11c. stability-adjusted speed — verify adjustment when unstable (Phase 7C)
+  // =====================================================
+  {
+    name: "job_plan: stability-adjusted speed when depth exceeds limit",
+    action: "job_plan",
+    params: {
+      material: "4140 Steel",
+      feature: "pocket",
+      dimensions: { depth: 50, width: 20, length: 60 },  // very deep pocket
+      // Use modal params that create a low critical depth so axial_depth exceeds it
+      modal: {
+        natural_frequency: 800,    // low fn → low critical depth
+        damping_ratio: 0.02,       // low damping → more chatter-prone
+        stiffness: 1e7,            // low stiffness → lower stability limit
+      },
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      if (!r.stability) { errs.push("Missing stability object"); return errs; }
+      // With very deep pocket + low stiffness, should be unstable
+      if (r.stability.is_stable !== false) {
+        errs.push(`Expected is_stable=false for deep pocket + low stiffness, got ${r.stability.is_stable}`);
+        return errs;
+      }
+      // Stability adjustment should be present
+      if (!r.stability.stability_adjustment) {
+        errs.push("Missing stability_adjustment object when is_stable=false");
+        return errs;
+      }
+      const adj = r.stability.stability_adjustment;
+      if (typeof adj.adjusted_speed_rpm !== "number" || adj.adjusted_speed_rpm <= 0) {
+        errs.push(`Invalid adjusted_speed_rpm: ${adj.adjusted_speed_rpm}`);
+      }
+      if (typeof adj.adjusted_cutting_speed_m_min !== "number" || adj.adjusted_cutting_speed_m_min <= 0) {
+        errs.push(`Invalid adjusted_cutting_speed_m_min: ${adj.adjusted_cutting_speed_m_min}`);
+      }
+      if (adj.adjusted_speed_rpm === adj.original_speed_rpm) {
+        errs.push("Adjusted speed should differ from original");
+      }
+      // Safety warnings should mention chatter
+      if (!r.safety?.warnings?.some((w: string) => w.toLowerCase().includes("chatter"))) {
+        errs.push("Safety warnings should mention chatter risk");
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 11d. confidence gating — deterministic <0.60 test (Phase 7B hardening)
+  // =====================================================
+  {
+    name: "job_plan: confidence gate INSUFFICIENT_DATA for unknown material",
+    action: "job_plan",
+    params: {
+      material: "FictionalAlloy99ZZZ",  // guaranteed not in registry
+      feature: "pocket",
+      dimensions: { depth: 5, width: 20, length: 40 },
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      if (r.confidence === undefined) { errs.push("Missing confidence field"); return errs; }
+      // Unknown material: confidence = 1.0 * 0.70 (not found) * 0.90 (default kienzle) * 0.90 (default taylor) * ~0.80 (force) = ~0.45
+      // Must be below 0.60
+      if (r.confidence >= 0.60) {
+        errs.push(`Expected confidence < 0.60 for unknown material, got ${r.confidence}`);
+      }
+      if (r._confidence_gate !== "INSUFFICIENT_DATA") {
+        errs.push(`Expected _confidence_gate="INSUFFICIENT_DATA", got "${r._confidence_gate}"`);
+      }
+      if (!r._confidence_warning) {
+        errs.push("Missing _confidence_warning");
+      }
+      // Should still return operations despite low confidence
+      if (!r.operations || r.operations.length === 0) {
+        errs.push("Should still return operations even with INSUFFICIENT_DATA gate");
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
   // 12. quality_predict — surface + deflection + thermal
   // =====================================================
   {
