@@ -44,7 +44,7 @@ import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
-import { productSFC, productPPG, productShop } from "../../engines/ProductEngine.js";
+import { productSFC, productPPG, productShop, productACNC } from "../../engines/ProductEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -286,6 +286,17 @@ const ACTIONS = [
   "shop_materials",
   "shop_history",
   "shop_get",
+  // ACNC (R11-MS3)
+  "acnc_program",
+  "acnc_feature",
+  "acnc_simulate",
+  "acnc_output",
+  "acnc_tools",
+  "acnc_strategy",
+  "acnc_validate",
+  "acnc_batch",
+  "acnc_history",
+  "acnc_get",
 ] as const;
 
 /**
@@ -907,6 +918,27 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { entries: result.history?.length };
     case "shop_get":
       return { product: result.product, version: result.version };
+    // ACNC extractors
+    case "acnc_program":
+      return { feature: result.feature?.feature, controller: result.gcode?.controller, safety: result.safety_score, ready: result.ready_to_run };
+    case "acnc_feature":
+      return { feature: result.feature, operations: result.operations?.length };
+    case "acnc_simulate":
+      return { safety: result.safety_status, cycle_time: result.estimated_cycle_time_min };
+    case "acnc_output":
+      return { controller: result.controller, operations: result.operations_count };
+    case "acnc_tools":
+      return { tool: result.tool_type, coating: result.coating };
+    case "acnc_strategy":
+      return { strategy: result.strategy, confidence: result.confidence };
+    case "acnc_validate":
+      return { valid: result.valid, score: result.score };
+    case "acnc_batch":
+      return { batch_size: result.batch_size, all_ready: result.all_ready };
+    case "acnc_history":
+      return { entries: result.history?.length };
+    case "acnc_get":
+      return { product: result.product, version: result.version };
     default:
       return result;
   }
@@ -990,12 +1022,15 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SFC_ACTIONS = ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] as const;
         const PPG_ACTIONS = ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] as const;
         const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
+        const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
         const result = SFC_ACTIONS.includes(action as any)
           ? productSFC(action, params)
           : PPG_ACTIONS.includes(action as any)
           ? productPPG(action, params)
           : SHOP_ACTIONS.includes(action as any)
           ? productShop(action, params)
+          : ACNC_ACTIONS.includes(action as any)
+          ? productACNC(action, params)
           : ADAPTIVE_ACTIONS.includes(action as any)
           ? adaptiveControl(action, params)
           : LEARN_ACTIONS.includes(action as any)
