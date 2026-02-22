@@ -1,7 +1,7 @@
 # CURRENT POSITION
 ## Updated: 2026-02-22T10:45:00Z
 
-**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ALL COMPLETE, MS2 PRE-COMPLETE, MS3 CampaignEngine COMPLETE
+**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ALL COMPLETE, MS2 PRE-COMPLETE, MS3 COMPLETE (T1+T2)
 **Build:** 4.1MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
 **Roadmap:** v19.1 (Modular Phase Files) — PHASE_R3_v19.md
 **Last Commit:** R3-MS3: CampaignEngine (4 campaign actions, 35 calcDispatcher actions)
@@ -19,6 +19,7 @@
 | T7: calcDispatcher wiring | ✅ COMPLETE | 4 campaign actions (35 total), single/list modes |
 | T8: Integration tests | ✅ COMPLETE | 15/15 campaign tests |
 | T9: Ralph validation (GATED) | ✅ PASSED | Assess: Ω=0.9225, Grade A |
+| T10: Safety validation (MS3-T2) | ✅ PASSED | Opus review: wear/thermal/spindle/constraints all verified |
 
 ## R3-MS2 Status — Material Enrichment PRE-COMPLETE
 | Task | Status | Notes |
@@ -154,9 +155,9 @@
 - **Quality Report:** state/results/R2_QUALITY_REPORT.json
 
 ## NEXT_3_STEPS
-1. R3-MS3-T2: Campaign Safety Validation (Chat/Opus — verify cumulative wear, thermal, workholding, S(x))
-2. R3-MS4-T1: Campaign Runner Infrastructure (Code/Sonnet — batch execution framework)
-3. R3-MS4-T2: Execute Material Campaigns (Code/Sonnet — batch run 6,346 materials)
+1. R3-MS4-T1: Campaign Runner Infrastructure (Code/Sonnet — batch execution framework)
+2. R3-MS4-T2: Execute Material Campaigns (Code/Sonnet — batch run 6,346 materials)
+3. R3-MS4-T3: Campaign Results Validation (Chat/Opus — verify batch results quality)
 
 ## Model Routing (Active)
 | Role | Model | Use For |

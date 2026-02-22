@@ -217,3 +217,18 @@
   Tests: 15/15 campaign, 11/11 report, 21/21 decision tree, 16/16 gcode, 10/10 tolerance, 17/17 intelligence = 90/90 total
   R2 regression: 150/150 benchmarks (no regressions)
   Iterations: 1 (assess passed directly)
+
+---
+
+## R3-MS3-T2: Campaign Safety Validation (2026-02-22)
+
+[2026-02-22] R3-MS3-T2-SafetyValidation | Validator: Opus direct review | Score: N/A (Chat task) | Pass: YES
+  Verification scope: Cumulative wear tracking, thermal accumulation, workholding delegation, S(x) composite score
+  Wear model: per-op ratio (cycle_time/tool_life × 100%), rawTotalWearPct accumulates without cap, tool changes at 100%
+  Thermal model: ISO-group-specific (base + Vc × slope), 30% carryover between ops — acceptable linear approximation
+  Workholding: Correctly delegated to IntelligenceEngine/WorkholdingEngine (not duplicated in campaign layer)
+  S(x): 4 weighted components (wear 0.30, spindle 0.20, thermal 0.25, constraints 0.25), thresholds documented
+  Edge cases verified: zero tool life, no machine spec, unknown ISO group, >2 violations → quarantine
+  Non-blocking recommendations: coolant-adjusted thermal factor (LOW priority), hardness already captured via Taylor C/n
+  Ralph assess: compaction recovery prevented API assessment — Opus direct review substituted
+  Status: MS3-T2 PASSED — CampaignEngine safety model verified for MS4 batch campaigns
