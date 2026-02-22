@@ -506,3 +506,26 @@ export {
   type AnalysisResult,
   type DiagnosisResult,
 } from "./InferenceChainEngine.js";
+
+// Physics Prediction Engine — R7-MS0 Surface Integrity, Chatter, Thermal, Coupled Models
+export {
+  physicsPrediction,
+  predictSurfaceIntegrity,
+  predictChatter,
+  predictThermalCompensation,
+  unifiedMachiningModel,
+  couplingSensitivity,
+  type SurfaceIntegrityInput,
+  type SurfaceIntegrityResult,
+  type ChatterInput,
+  type ChatterResult,
+  type ThermalCompInput,
+  type ThermalCompResult,
+  type UnifiedMachiningInput,
+  type UnifiedMachiningResult,
+  type SensitivityInput,
+  type SensitivityResult,
+  type OperationType,
+  type ToolMaterial,
+  type CoolantType,
+} from "./PhysicsPredictionEngine.js";

@@ -94,6 +94,10 @@ import {
   generateGCodeSnippet
 } from "../../engines/ToolpathCalculations.js";
 
+import {
+  physicsPrediction,
+} from "../../engines/PhysicsPredictionEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -163,6 +167,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { Fc_N: result.parameters?.Fc_N, T_min: result.parameters?.T_min, dominant_source: result.dominant_uncertainty_source, has_statistics: result.data_quality?.has_statistics };
     case "controller_optimize":
       return { controller: result.controller, mode: result.mode_selected, optimizations: result.optimizations_applied?.length, speed_pct: result.performance_impact?.speed_improvement_pct };
+    case "surface_integrity_predict":
+      return { Ra_um: result.surface_roughness?.ra_predicted_um, residual_stress_mpa: result.residual_stress?.surface_mpa, white_layer_risk: result.white_layer?.risk, safety: result.safety?.score };
+    case "chatter_predict":
+      return { stable: result.stable, critical_depth_mm: result.critical_depth_mm, margin: result.stability_margin, safety: result.safety?.score };
+    case "thermal_compensate":
+      return { z_um: result.offsets?.z_um, x_um: result.offsets?.x_um, y_um: result.offsets?.y_um, steady_state_min: result.steady_state_minutes };
+    case "unified_machining_model":
+      return { Fc_N: result.force?.tangential_n, tool_temp_c: result.temperature?.tool_c, life_min: result.wear_rate?.estimated_life_min, Ra_um: result.surface_finish?.ra_um, converged: result.convergence?.converged, safety: result.safety?.score };
+    case "coupling_sensitivity":
+      return { parameter: result.parameter, most_sensitive: result.most_sensitive_output, variation_pct: result.variation_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -198,7 +212,9 @@ const ACTIONS = [
   "render_report", "campaign_create", "campaign_validate", "campaign_optimize",
   "campaign_cycle_time", "inference_chain",
   "wear_prediction", "process_cost_calc", "uncertainty_chain",
-  "controller_optimize"
+  "controller_optimize",
+  "surface_integrity_predict", "chatter_predict", "thermal_compensate",
+  "unified_machining_model", "coupling_sensitivity"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1173,6 +1189,16 @@ export function registerCalcDispatcher(server: any): void {
               notes: features.notes,
               params_received: coParams
             };
+            break;
+          }
+
+          // === PHYSICS PREDICTION (R7-MS0) ===
+          case "surface_integrity_predict":
+          case "chatter_predict":
+          case "thermal_compensate":
+          case "unified_machining_model":
+          case "coupling_sensitivity": {
+            result = physicsPrediction(action, params);
             break;
           }
 
