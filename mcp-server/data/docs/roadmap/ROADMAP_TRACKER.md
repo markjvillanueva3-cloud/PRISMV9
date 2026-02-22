@@ -551,3 +551,22 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
     MS5: Phase Gate — PASS
 
   POSITION: R3 COMPLETE → R4-MS0 (Enterprise Phase Planning) next.
+
+## R4 PHASE (IN PROGRESS)
+
+[2026-02-22] R4-MS0 COMPLETE — Enterprise tenant isolation + bridge dispatch + tests.
+
+  Deliverables:
+    1. ProtocolBridgeEngine: DispatchHandler type + setDispatchHandler() for live MCP routing
+    2. routeRequest sync→async with actual dispatcher invocation + error handling
+    3. Enterprise test suite: 35/35 tests covering:
+       - F5 Multi-Tenant: create/get/list, frozen context, SLB anonymization (3 fields),
+         leakage prevention (hash detection), resource limits, default tenant protection,
+         suspend/reactivate, cross-tenant isolation (separate state dirs), 2-phase deletion
+       - F7 Protocol Bridge: API key lifecycle (create/validate/revoke), rate limiting (burst),
+         input validation (injection + traversal), scope authorization
+       - F8 Compliance: template listing (6 frameworks), gap analysis
+    4. R2 regression: 150/150 benchmarks PASS
+    5. Build: 4.2MB clean (121ms)
+
+  POSITION: R4-MS0 COMPLETE → R4-MS1 (Compliance Hardening) next.

@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-02-22T03:10:00Z
 
-**Phase:** R3-MS5 Phase Gate — PASS (R3 COMPLETE, all milestones MS0-MS5 delivered)
-**Build:** 4.9MB clean (esbuild only, tsc OOMs on Node v24)
-**Roadmap:** v19.1 (Modular Phase Files) — PHASE_R4_ENTERPRISE.md (next)
-**Last Commit:** R3-MS5: Phase gate PASS — R3 complete
-**Prev Phase:** R3-MS4 Data Enrichment — COMPLETE (workholding + alarms + batch validation + PFP)
-**Prev-Prev Phase:** R3-MS3 Cross-System Intelligence — COMPLETE (material_substitute + controller_optimize)
+**Phase:** R4-MS0 Tenant Isolation — COMPLETE (bridge dispatch wiring + 35 enterprise tests)
+**Build:** 4.2MB clean (esbuild only, tsc OOMs on Node v24)
+**Roadmap:** v19.1 (Modular Phase Files) — PHASE_R4_ENTERPRISE.md (active)
+**Last Commit:** R4-MS0: Enterprise tenant isolation + bridge dispatch wiring + 35 tests
+**Prev Phase:** R3-MS5 Phase Gate — PASS (R3 COMPLETE)
+**Prev-Prev Phase:** R3-MS4 Data Enrichment — COMPLETE
 
 ## R3 Engine Renovation — COMPLETE
 Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions.
@@ -220,10 +220,19 @@ Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions
 - **Omega:** 0.77 (RELEASE_READY), S(x)=0.85 (hard constraint passed)
 - **Quality Report:** state/results/R2_QUALITY_REPORT.json
 
+## R4 Enterprise — IN PROGRESS
+| Milestone | Status | Deliverables |
+|-----------|--------|-------------|
+| MS0: Tenant Isolation | COMPLETE | DispatchHandler wiring, 35/35 enterprise tests, bridge async routing |
+| MS1: Compliance Hardening | PENDING | Template expansion, hook provisioning tests |
+| MS2: Data Residency | PENDING | Structured logging, data locality |
+| MS3: External API | PENDING | REST endpoint layer |
+| MS4: Phase Gate | PENDING | Security audit, regression verification |
+
 ## NEXT_3_STEPS
-1. R4-MS0: Tenant Isolation architecture (Platform Engineer, Opus security arch, ~18 calls)
-2. R4-MS1: Compliance Templates (Platform Engineer, Sonnet, ~12 calls)
-3. R4-MS2: Data Residency + Auth (Platform Engineer, Opus security model, ~12 calls)
+1. R4-MS1: Compliance template hardening + integration tests (Sonnet, ~12 calls)
+2. R4-MS2: Data Residency + structured logging (Opus security model, ~12 calls)
+3. R4-MS3: External API layer / REST endpoints (Opus API design, ~15 calls)
 
 ## Model Routing (Active)
 | Role | Model | Use For |
