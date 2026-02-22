@@ -3,6 +3,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard' },
   { to: '/calculator', label: 'Calculator' },
+  { to: '/job-planner', label: 'Job Planner' },
+  { to: '/toolpath', label: 'Toolpath' },
   { to: '/alarms', label: 'Alarms' },
 ] as const;
 

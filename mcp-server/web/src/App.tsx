@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalculatorPage } from './pages/CalculatorPage';
+import { JobPlannerPage } from './pages/JobPlannerPage';
+import { ToolpathAdvisorPage } from './pages/ToolpathAdvisorPage';
 import { AlarmPage } from './pages/AlarmPage';
 
 export function App() {
@@ -10,6 +12,8 @@ export function App() {
       <Route element={<Layout />}>
         <Route index element={<DashboardPage />} />
         <Route path="calculator" element={<CalculatorPage />} />
+        <Route path="job-planner" element={<JobPlannerPage />} />
+        <Route path="toolpath" element={<ToolpathAdvisorPage />} />
         <Route path="alarms" element={<AlarmPage />} />
       </Route>
     </Routes>
