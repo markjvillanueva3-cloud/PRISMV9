@@ -631,3 +631,16 @@ export {
   type Persona,
   type IntentDecomposition,
 } from "./IntentDecompositionEngine.js";
+
+// Response Formatter Engine — R8-MS1 Persona-Adaptive Formatting
+export {
+  responseFormatter,
+  formatForPersona,
+  detectPersona as detectResponsePersona,
+  detectUnits,
+  type Persona as ResponsePersona,
+  type UnitSystem,
+  type FormatOptions,
+  type FormattedResponse,
+  type FormattedSection,
+} from "./ResponseFormatterEngine.js";
