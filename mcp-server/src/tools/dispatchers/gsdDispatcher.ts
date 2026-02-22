@@ -25,7 +25,7 @@ const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manu
 // These are safety nets, not the primary source. Edit the .md files instead.
 // ============================================================================
 
-const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 31 dispatchers | 368 verified actions | 37 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
+const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 32 dispatchers | 382+ verified actions | 73 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
 
 const FALLBACK_DEV_PROTOCOL = "# Dev Protocol\n## Files not found — edit data/docs/gsd/DEV_PROTOCOL.md";
 

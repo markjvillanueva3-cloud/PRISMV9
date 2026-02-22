@@ -324,7 +324,7 @@ export class AutoPilot {
   private async loadGSD(): Promise<GSDResult> {
     try {
       const content = fs.readFileSync(this.config.gsdPath, "utf-8");
-      // Parse version from header (e.g., "## 31 dispatchers | 368 verified actions" or "v22.0")
+      // Parse version from header (e.g., "## 32 dispatchers | 382+ verified actions" or "v22.0")
       const versionMatch = content.match(/v(\d+\.?\d*)/i);
       const version = versionMatch ? `v${versionMatch[1]}` : "unknown";
       // Parse laws — look for numbered list items after "LAWS" header

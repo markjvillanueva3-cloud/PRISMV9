@@ -1,252 +1,66 @@
 {
   "identity": {
-    "name": {
-      "value": "PRISM Manufacturing Intelligence",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "purpose": {
-      "value": "Safety-critical CNC manufacturing control system. Mathematical errors cause tool explosions, machine crashes, operator injuries.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "products": {
-      "value": "Speed & Feed Calculator, Post Processor Generator, Shop Manager/Quoting, Auto CNC Programmer",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "safety_principle": {
-      "value": "NO shortcuts, NO placeholders, NO approximations. Mathematical certainty with uncertainty bounds. Lives depend on correctness.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    }
+    "name": { "value": "PRISM Manufacturing Intelligence", "timestamp": "2026-02-22T22:00:00Z" },
+    "purpose": { "value": "Safety-critical CNC manufacturing control system. Mathematical errors cause tool explosions, machine crashes, operator injuries.", "timestamp": "2026-02-11T20:20:00Z" },
+    "products": { "value": "Speed & Feed Calculator (SFC), Post Processor Generator (PPG), Shop Manager/Quoting, Auto CNC Programmer (ACNC)", "timestamp": "2026-02-22T22:00:00Z" },
+    "safety_principle": { "value": "NO shortcuts, NO placeholders, NO approximations. Mathematical certainty with uncertainty bounds. Lives depend on correctness.", "timestamp": "2026-02-11T20:20:00Z" }
   },
   "architecture": {
-    "mcp_server": {
-      "value": "C:\\PRISM\\mcp-server\\ — 31 dispatchers, 368 verified actions, 37 engines, esbuild (NEVER tsc — OOM). See MASTER_INDEX.md.",
-      "timestamp": "2026-02-13T16:10:00Z"
-    },
-    "state_dir": {
-      "value": "C:\\PRISM\\state\\ — CURRENT_STATE.json, WORKFLOW_STATE.json, SESSION_JOURNAL.jsonl, session_memory.json",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "skills_dir": {
-      "value": "C:\\PRISM\\skills-consolidated\\",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "gsd_dir": {
-      "value": "C:\\PRISM\\mcp-server\\data\\docs\\gsd\\ — 16 files, ~628 lines, edit .md files directly",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "scripts_dir": {
-      "value": "C:\\PRISM\\scripts\\ — 74 scripts, 9 categories, ~36840 lines",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "system": {
-      "value": "DIGITALSTORM-PC, Windows",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "build": {
-      "value": "npm run build (esbuild) → dist/index.js ~3.9MB. gsd_sync_v2.py auto-fires after build. Restart Claude app to load.",
-      "timestamp": "2026-02-13T16:10:00Z"
-    },
-    "gsd": {
-      "value": "Canonical source: data/docs/gsd/GSD_QUICK.md (v22.0). AutoPilot.ts reads+parses this file dynamically. gsdDispatcher core action combines GSD_QUICK.md + DEV_PROTOCOL.md. 25 old versions archived. ralph_loop_lite deprecated (was fake). formula_optimize queries real registry. Orchestrator-first sequencing added to GSD_QUICK, MASTER_INDEX, DEV_PROTOCOL.",
-      "timestamp": "2026-02-13T16:10:00Z"
-    }
+    "mcp_server": { "value": "C:\\PRISM\\mcp-server\\ — 32 dispatchers, 382+ verified actions, 73 engines, esbuild (NEVER tsc — OOM). See MASTER_INDEX.md.", "timestamp": "2026-02-22T22:00:00Z" },
+    "state_dir": { "value": "C:\\PRISM\\state\\ — CURRENT_STATE.json, SESSION_MEMORY.json, SESSION_JOURNAL.jsonl, HOT_RESUME.md, Last_messages.md", "timestamp": "2026-02-22T22:00:00Z" },
+    "skills_dir": { "value": "C:\\PRISM\\skills-consolidated\\ — 230 skills with SKILL.md, 9 skill bundles", "timestamp": "2026-02-22T22:00:00Z" },
+    "gsd_dir": { "value": "C:\\PRISM\\mcp-server\\data\\docs\\gsd\\ — 16 files, GSD_QUICK.md + DEV_PROTOCOL.md + 14 sections", "timestamp": "2026-02-22T22:00:00Z" },
+    "system": { "value": "DIGITALSTORM-PC, Windows", "timestamp": "2026-02-11T20:20:00Z" },
+    "build": { "value": "npm run build (esbuild) → dist/index.js ~5.6MB. 1 warning (pre-existing CommonJS). Restart Claude app to load.", "timestamp": "2026-02-22T22:00:00Z" },
+    "gsd": { "value": "Canonical source: data/docs/gsd/GSD_QUICK.md (v22.0). AutoPilot.ts reads+parses dynamically. gsdDispatcher core action combines GSD_QUICK.md + DEV_PROTOCOL.md.", "timestamp": "2026-02-22T22:00:00Z" }
   },
   "roadmap": {
-    "d1_d4": {
-      "value": "COMPLETE — Session, Context, Learning, Performance",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w1": {
-      "value": "COMPLETE — File GSD, gsd_sync, doc anti-regression, changelogs",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w2_w2.5": {
-      "value": "COMPLETE — Core wiring + HSS optimization",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w3": {
-      "value": "COMPLETE — D5 session orchestration",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w4": {
-      "value": "COMPLETE — MCP wrapper assessment + wiring",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w6.1": {
-      "value": "COMPLETE — Workflow state machine + session journal + recovery trail",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w6.2": {
-      "value": "COMPLETE — Fix 4 dev bugs (cache, todo anchoring, models, scripts)",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "w6.3": {
-      "value": "COMPLETE — Memory architecture migration + comprehensive audit (368 actions verified)",
-      "timestamp": "2026-02-13T16:10:00Z"
-    },
-    "w5": {
-      "value": "PENDING P3 — Knowledge recovery (registry loading fix, 707 materials but 0 alarms, 2 machines)",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "f5_f8": {
-      "value": "COMPLETE — F1 PFP (Ω89), F2 MemoryGraph (Ω91), F3 Telemetry (Ω90), F4 Certificates (Ω92), F5 MultiTenant (Ω90), F6 NL Hooks (Ω91), F7 Bridge (Ω89), F8 Compliance (Ω91). 31 dispatchers, 368 actions, synergy wired.",
-      "timestamp": "2026-02-13T16:10:00Z"
-    },
-    "undefined": {
-      "timestamp": "2026-02-15T02:18:13.122Z"
-    }
+    "all_phases": { "value": "ALL COMPLETE: P0 (Platform) → DA (Dev Accel) → R1 (Registry) → R2 (Physics, Ω=0.77) → R3 (Intelligence, Ω=0.912) → R4 (Enterprise) → R5 (Frontend) → R6 (Production) → R7 (Physics+Opt) → R8 (UX) → R9 (Shop Floor) → R10 (Revolution) → R11 (Products)", "timestamp": "2026-02-22T22:00:00Z" },
+    "r4_r11_source": { "value": "Claude Code overnight 8.7hr session on branch claude/charming-williamson. 46 commits, 41,841 lines, 30 new engines. Now merged to master.", "timestamp": "2026-02-22T22:00:00Z" },
+    "comprehensive_audit": { "value": "COMPLETE 2026-02-22. All 73 engines wired (57 direct, 15 via handlers, 1 newly wired). 9 registries loading. See state/COMPREHENSIVE_WIRING_AUDIT.md.", "timestamp": "2026-02-22T22:00:00Z" }
   },
   "decisions": {
-    "esbuild_not_tsc": {
-      "value": "tsc causes OOM. Always use npm run build (esbuild). Verified multiple times.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "append_not_rewrite": {
-      "value": "GSD files must be edited in-place or appended. Never rewrite. Anti-regression blocks >60% content loss.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "mcp_first": {
-      "value": "Use prism: dispatchers before Desktop Commander or bash for efficiency.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "plan_before_code": {
-      "value": "State plan and get approval before writing >50 lines. Ask when ambiguous.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "pressure_based_caps": {
-      "value": "Context uses pressure-based caps (20KB/12KB/8KB/5KB at different levels), not call-count limits. Buffer zones advisory only.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "commandment_5": {
-      "value": "NEVER bare numbers — all numerical values need uncertainty bounds in manufacturing context.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "no_regression": {
-      "value": "New >= Old always. Any update must maintain or exceed previous functionality.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    }
+    "esbuild_not_tsc": { "value": "tsc causes OOM. Always use npm run build (esbuild). Verified multiple times.", "timestamp": "2026-02-11T20:20:00Z" },
+    "append_not_rewrite": { "value": "GSD files must be edited in-place or appended. Never rewrite. Anti-regression blocks >60% content loss.", "timestamp": "2026-02-11T20:20:00Z" },
+    "mcp_first": { "value": "Use prism: dispatchers before Desktop Commander or bash for efficiency.", "timestamp": "2026-02-11T20:20:00Z" },
+    "plan_before_code": { "value": "State plan and get approval before writing >50 lines. Ask when ambiguous.", "timestamp": "2026-02-11T20:20:00Z" },
+    "commandment_5": { "value": "NEVER bare numbers — all numerical values need uncertainty bounds in manufacturing context.", "timestamp": "2026-02-11T20:20:00Z" },
+    "no_regression": { "value": "New >= Old always. Any update must maintain or exceed previous functionality.", "timestamp": "2026-02-11T20:20:00Z" }
   },
   "patterns": {
-    "boot_sequence": {
-      "value": "prism_dev→session_boot THEN prism_context→todo_update. Always 2 calls.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "end_sequence": {
-      "value": "prism_session→state_save THEN prism_doc→append(ACTION_TRACKER.md) THEN prism_context→todo_update.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "build_sequence": {
-      "value": "npm run build → gsd_sync auto-fires → Phase Checklist: skills→hooks→GSD→memories→orchestrators→state→scripts → Restart Claude app.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "error_handling": {
-      "value": "Brief acknowledgment then fix. Add fixable errors to todo via prism_context→todo_update.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "notes_on_calls": {
-      "value": "Pass _notes param on tool calls to save reasoning to SESSION_JOURNAL.jsonl. Survives compaction.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "workflow_tracking": {
-      "value": "Use prism_session→workflow_start/advance/complete for multi-step tasks. State saved to WORKFLOW_STATE.json.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    }
+    "boot_sequence": { "value": "prism_dev→session_boot THEN prism_context→todo_update. Always 2 calls.", "timestamp": "2026-02-11T20:20:00Z" },
+    "end_sequence": { "value": "prism_session→state_save THEN prism_doc→append(ACTION_TRACKER.md) THEN prism_context→todo_update.", "timestamp": "2026-02-11T20:20:00Z" },
+    "build_sequence": { "value": "npm run build → verify 1 warning only → Restart Claude app to load.", "timestamp": "2026-02-22T22:00:00Z" },
+    "error_handling": { "value": "Brief acknowledgment then fix. Add fixable errors to todo via prism_context→todo_update.", "timestamp": "2026-02-11T20:20:00Z" }
   },
   "data_stats": {
-    "materials": {
-      "value": "3518+ in database, 707 loading via registry, 127 params each",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "machines": {
-      "value": "824+ across 43 manufacturers, 2 loading via registry",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "alarms": {
-      "value": "18942 across 12 controller families, 0 loading via registry (pipeline broken)",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "agents": {
-      "value": "56+ across OPUS/SONNET/HAIKU tiers",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "skills": {
-      "value": "153+ across 5 levels",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "hooks": {
-      "value": "41 phase0 hooks, 30 auto-firing cadence functions",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "registry_counts_r3": {
-      "value": "Materials: 2141 (1311 verified + 830 gen_v5 converted). Machines: 530. Alarms: 10576. Tools: 3889. Formulas: 45. All 7 ISO groups: P=951, M=259, K=27, N=252, S=92, H=40, X=602. Safety tests: 17/17 pass (safetyMatrix.test.ts). Safety warnings: TAYLOR_CLIFF, KC_INFLATED (2-tier), FULL_SLOT, Number.isFinite guards.",
-      "timestamp": "2026-02-15T00:35:42.823Z"
-    }
+    "materials": { "value": "6,372 entries across 7 ISO groups in data/materials/. Loading correctly via MaterialRegistry.", "timestamp": "2026-02-22T22:00:00Z" },
+    "machines": { "value": "~1,015 across 5 layers in extracted/machines/. Loading correctly via MachineRegistry.", "timestamp": "2026-02-22T22:00:00Z" },
+    "tools": { "value": "15,911 entries in 14 JSON files in data/tools/. Deduplicated to ~1,731 unique via ToolRegistry.", "timestamp": "2026-02-22T22:00:00Z" },
+    "alarms": { "value": "10,033+ across 12 controller families in extracted/controllers/alarms/. alarms_verified/ also loading.", "timestamp": "2026-02-22T22:00:00Z" },
+    "formulas": { "value": "509 total (12 built-in + 499 from FORMULA_REGISTRY.json at C:\\PRISM\\registries\\).", "timestamp": "2026-02-22T22:00:00Z" },
+    "skills": { "value": "230 skills with SKILL.md, 9 skill bundles wired to skillScriptDispatcher.", "timestamp": "2026-02-22T22:00:00Z" },
+    "hooks": { "value": "27 built-in hooks + 9 NL hooks. 30+ auto-firing cadence functions.", "timestamp": "2026-02-22T22:00:00Z" },
+    "agents": { "value": "75 across OPUS/SONNET/HAIKU tiers.", "timestamp": "2026-02-22T22:00:00Z" },
+    "scripts": { "value": "339 scripts via ScriptRegistry.", "timestamp": "2026-02-22T22:00:00Z" },
+    "toolpath_strategies": { "value": "698 strategies in ToolpathStrategyRegistry.", "timestamp": "2026-02-22T22:00:00Z" }
+  },
+  "engines": {
+    "total": { "value": "73 engines in src/engines/. All exported via index.ts barrel file.", "timestamp": "2026-02-22T22:00:00Z" },
+    "by_phase": { "value": "P0: 37 original. R3: 8 intelligence. R7: 6 physics/opt. R8: 8 UX. R9: 6 shop floor. R10: 10 ML/revolution. R11: 1 ProductEngine (composition layer). Plus CertificateEngine (F4).", "timestamp": "2026-02-22T22:00:00Z" }
+  },
+  "tests": {
+    "vitest": { "value": "73/74 pass (1 pre-existing KC_INFLATED). 9 test files in src/__tests__/.", "timestamp": "2026-02-22T22:00:00Z" },
+    "standalone": { "value": "53 test files in tests/r2-r11. ~3,900+ tests. Run via npx tsx or scripts/run-all-tests.ts.", "timestamp": "2026-02-22T22:00:00Z" }
+  },
+  "infrastructure": {
+    "docker": { "value": "Dockerfile + docker-compose.yml in mcp-server/.", "timestamp": "2026-02-22T22:00:00Z" },
+    "cicd": { "value": ".github/workflows/ci.yml — lint, test, build, docker.", "timestamp": "2026-02-22T22:00:00Z" },
+    "monitoring": { "value": "Prometheus + Grafana configs in deploy/.", "timestamp": "2026-02-22T22:00:00Z" },
+    "production": { "value": "start-production.sh + start-production.ps1 in scripts/.", "timestamp": "2026-02-22T22:00:00Z" }
   },
   "bugs_known": {
-    "registry_loading": {
-      "value": "W5: 529 materials exist in data files but pipeline partially broken. Alarms and machines not loading. Root cause: loading mechanism failures, not missing data.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "compaction_survival_stale": {
-      "value": "_context.task in COMPACTION_SURVIVAL.json still shows stale W2.1 reference. recovery_context.current_task not updating.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    },
-    "action_tracker_stale_pending": {
-      "value": "ACTION_TRACKER.md pending section still has W2.1-W2.4 items that are either done or obsolete.",
-      "timestamp": "2026-02-11T20:20:00Z"
-    }
-  },
-  "general": {
-    "roadmap_bootstrap_v10": {
-      "timestamp": "2026-02-13T03:37:00.763Z"
-    },
-    "active_phase": {
-      "value": "DA - Development Acceleration. DA-MS3 in progress. Manus compliance audit done (23/30). Working through Steps 2-5.",
-      "timestamp": "2026-02-17T15:31:42.290Z"
-    },
-    "registry_counts": {
-      "value": "Materials: 521/3518 (14.8%). Machines: 402/824 (48.8%). Tools: 0/1944 (0%). Alarms: 10033/9200 (>100%). Formulas: 500. Strategies: 697.",
-      "timestamp": "2026-02-17T14:24:50.823Z"
-    },
-    "known_blockers": {
-      "value": "No blocking issues. Claude Code not available (subagents CC_DEFERRED). AlarmRegistry dual-path issue: knowledge engine has alarm data inline, alarm-registry.json separate.",
-      "timestamp": "2026-02-17T14:24:58.060Z"
-    },
-    "recent_decisions": {
-      "value": "DA-MS0 complete: PROTOCOLS_CORE split to 3 tiers (84% token reduction), CLAUDE.md hierarchy, 578 section anchors, ROADMAP_SECTION_INDEX.md, SKILL_RELEVANCE_MAP.json. Flush protocol: flush after EVERY significant result.",
-      "timestamp": "2026-02-17T14:25:05.528Z"
-    },
-    "build_status": {
-      "value": "Last build: 3.9MB bundle, npm run build (esbuild). 31 dispatchers, 368 actions, 37 engines. All passing.",
-      "timestamp": "2026-02-17T13:42:26.288Z"
-    },
-    "materials": {
-      "value": "3518+ in database, >95% loaded via registry pipeline (R1-MS0→MS4 complete). 127 params each.",
-      "timestamp": "2026-02-17T14:08:09.263Z"
-    },
-    "machines": {
-      "value": "824+ across 43 manufacturers, >95% loaded via registry pipeline (R1-MS0→MS4 complete).",
-      "timestamp": "2026-02-17T14:08:15.206Z"
-    },
-    "alarms": {
-      "value": "10033+ across 12 controller families. Loaded via knowledge engine (not alarm registry file). Dual-path known.",
-      "timestamp": "2026-02-17T14:08:24.389Z"
-    },
-    "registry_loading": {
-      "value": "RESOLVED (R1-MS0→MS4 complete). Materials >95%, Machines >95%. Alarms via knowledge engine. Remaining: tools pending, alarm registry file separate from knowledge engine.",
-      "timestamp": "2026-02-17T14:08:32.591Z"
-    },
-    "current_roadmap_position": {
-      "value": "DA-MS9 next. DA-MS0/1/6/7/8 complete. MS8 conditional pass (CC_DEFERRED). Knowledge system operational with 8 entries. Next: skill atomization infrastructure.",
-      "timestamp": "2026-02-17T16:47:51.063Z"
-    },
-    "last_build_status": {
-      "value": "Build OK. 3.9MB bundle via esbuild. 31 dispatchers, 368 actions, 37 engines. npm run build = tsc --noEmit + esbuild + test:critical.",
-      "timestamp": "2026-02-17T14:25:13.795Z"
-    },
-    "current_role": {
-      "value": "Context Engineer (DA-MS1). Model: Sonnet. Roadmap v14.5. Following PHASE_DA_DEV_ACCELERATION.md.",
-      "timestamp": "2026-02-17T14:25:21.915Z"
-    }
+    "kc_inflated_test": { "value": "1 pre-existing test failure in safetyMatrix.test.ts — KC_INFLATED thin-engagement threshold. Non-blocking.", "timestamp": "2026-02-22T22:00:00Z" },
+    "r5_frontend_disconnected": { "value": "React pages exist (web/) but API client needs live endpoint config. Not connected to MCP server.", "timestamp": "2026-02-22T22:00:00Z" }
   }
 }

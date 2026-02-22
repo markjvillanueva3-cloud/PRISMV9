@@ -3,15 +3,16 @@
  * Manufacturing Intelligence MCP Server
  * 
  * Provides access to:
- * - 32 dispatchers, 372+ verified actions
- * - 37 engines, 19 registries
- * - Materials Database (3,518+ materials x 127 parameters)
- * - Machines Database (824+ machines x 4 layers)
- * - Controller Alarms (18,942+ alarms x 12 families)
+ * - 32 dispatchers, 382+ verified actions
+ * - 73 engines, 9 registries
+ * - Materials Database (6,372+ materials x 127 parameters)
+ * - Machines Database (1,015+ machines x 4 layers)
+ * - Controller Alarms (10,033+ alarms x 12 families)
  * - Manufacturing Calculations (Kienzle, Taylor, etc.)
- * - AI Agent Orchestration (56+ agents)
- * - Skills & Knowledge Base (119+ skills)
+ * - AI Agent Orchestration (75 agents)
+ * - Skills & Knowledge Base (230 skills, 9 bundles)
  * - F1-F8 Feature Suite (PFP, Memory, Telemetry, Certs, Multi-Tenant, NL Hooks, Bridge, Compliance)
+ * - R4-R11: Enterprise, Frontend, Production, Physics, UX, Shop Floor, ML, Products
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";

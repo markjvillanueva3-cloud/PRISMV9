@@ -1,7 +1,7 @@
 /**
  * PRISM Response Level Schema
  * 
- * Cross-cutting interface for all 31 dispatchers / 368 actions.
+ * Cross-cutting interface for all 32 dispatchers / 382+ actions.
  * Controls how much detail is returned in MCP tool responses
  * to optimize Claude Code's context window usage.
  * 
