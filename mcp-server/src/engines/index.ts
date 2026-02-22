@@ -761,3 +761,13 @@ export {
   type GCodeParameterBlock, type DNCTransferRequest, type DNCTransferResult,
   type ParameterMismatch, type QRCodeData,
 } from "./DNCTransferEngine.js";
+
+// Mobile Interface (R9-MS3)
+export {
+  mobileInterface, quickLookup, processVoiceQuery, decodeAlarm,
+  startToolTimer, checkToolTimer, resetToolTimer, listToolTimers,
+  generateOfflineCache,
+  type DisplaySize, type StatusColor, type TimerState,
+  type QuickLookupResult, type MobileDisplay, type VoiceQueryResult,
+  type AlarmQuickDecode, type ToolLifeTimer, type OfflineCacheBundle, type CacheEntry,
+} from "./MobileInterfaceEngine.js";

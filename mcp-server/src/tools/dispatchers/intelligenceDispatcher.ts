@@ -31,6 +31,7 @@ import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.j
 import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js";
 import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
 import { dncTransfer } from "../../engines/DNCTransferEngine.js";
+import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -114,6 +115,14 @@ const ACTIONS = [
   "dnc_systems",
   "dnc_history",
   "dnc_get",
+  "mobile_lookup",
+  "mobile_voice",
+  "mobile_alarm",
+  "mobile_timer_start",
+  "mobile_timer_check",
+  "mobile_timer_reset",
+  "mobile_timer_list",
+  "mobile_cache",
 ] as const;
 
 /**
@@ -433,6 +442,20 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total };
     case "dnc_get":
       return { id: result.transfer_id, status: result.status };
+    case "mobile_lookup":
+      return { rpm: result.rpm, feed_ipm: result.feed_ipm, status: result.display?.status_color };
+    case "mobile_voice":
+      return { interpreted: result.interpreted, confidence: result.confidence, rpm: result.parameters?.rpm };
+    case "mobile_alarm":
+      return { code: result.code, severity: result.severity, downtime_min: result.estimated_downtime_min };
+    case "mobile_timer_start":
+    case "mobile_timer_check":
+    case "mobile_timer_reset":
+      return { id: result.timer_id, state: result.state, remaining: result.remaining_min };
+    case "mobile_timer_list":
+      return { total: result.total };
+    case "mobile_cache":
+      return { entries: result.entries?.length, bytes: result.total_bytes };
     default:
       return result;
   }
@@ -500,7 +523,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
         const CAM_ACTIONS = ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] as const;
         const DNC_ACTIONS = ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] as const;
-        const result = DNC_ACTIONS.includes(action as any)
+        const MOBILE_ACTIONS = ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] as const;
+        const result = MOBILE_ACTIONS.includes(action as any)
+          ? mobileInterface(action, params)
+          : DNC_ACTIONS.includes(action as any)
           ? dncTransfer(action, params)
           : CAM_ACTIONS.includes(action as any)
           ? camIntegration(action, params)
