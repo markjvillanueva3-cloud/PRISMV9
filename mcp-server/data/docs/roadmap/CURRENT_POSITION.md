@@ -1,11 +1,21 @@
 # CURRENT POSITION
 ## Updated: 2026-02-22T10:45:00Z
 
-**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ALL COMPLETE, MS2 PRE-COMPLETE, MS3 COMPLETE (T1+T2)
+**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ALL COMPLETE, MS2 PRE-COMPLETE, MS3 COMPLETE, MS4 COMPLETE
 **Build:** 4.1MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
 **Roadmap:** v19.1 (Modular Phase Files) — PHASE_R3_v19.md
-**Last Commit:** R3-MS3: CampaignEngine (4 campaign actions, 35 calcDispatcher actions)
+**Last Commit:** R3-MS4: Batch campaigns (635 batches, 6,346 materials, 100% coverage)
 **Prev Phase:** R2 Safety — FULLY COMPLETE (Ω=0.77, S(x)=0.85, 150/150 benchmarks)
+
+## R3-MS4 Status — Batch Data Campaigns COMPLETE
+| Task | Status | Notes |
+|------|--------|-------|
+| T1: Campaign runner infra | ✅ COMPLETE | batch-campaign-runner.ts, 500 lines, resume support |
+| T2: Execute campaigns | ✅ COMPLETE | 635/635 batches, 6,346 materials, 0 errors |
+| T3: Results validation (GATED) | ✅ PASSED | 100% coverage, status distribution physically correct |
+| Pass/Warn/Fail/Quarantine | — | 1,756 / 4,051 / 539 / 0 |
+| Avg safety score | — | 0.627 (range 0.456-0.923) |
+| ISO group analysis | — | N=65.8% pass (best), S=0.8% pass (worst) — correct by physics |
 
 ## R3-MS3 Status — CampaignEngine COMPLETE
 | Task | Status | Notes |
@@ -114,7 +124,8 @@
 - tests/r3/tolerance-tests.ts: 10/10 passed (IT grade, fit analysis, stack-up, Cpk, achievable grade, edge cases)
 - tests/r3/intelligence-tests.ts: 17/17 passed (11 actions, alarm code tests, stability check, ISO 286 quality_predict)
 - R2 regression: 150/150 benchmarks (no regressions)
-- **Total R3: 90/90 tests (0 failures)**
+- tests/r3/batch-campaign-runner.ts: 635/635 batches (6,346 materials, 0 errors, 100% coverage)
+- **Total R3: 90/90 unit tests (0 failures) + 635 batch campaigns**
 
 ## Architecture Decisions (R3)
 - Separate intelligenceDispatcher.ts (#32) instead of extending calcDispatcher (already 29 actions/750 lines)
@@ -148,6 +159,9 @@
 - tests/r3/gcode-tests.ts (16 integration tests)
 - tests/r3/tolerance-tests.ts (10 integration tests)
 - tests/r3/intelligence-tests.ts (17 integration tests)
+- tests/r3/batch-campaign-runner.ts (batch runner, 500 lines, resume support)
+- tests/r3/CAMPAIGN_STATE.json (campaign state tracker)
+- tests/r3/campaign-results/ (635 batch result files)
 
 ## R2 Phase Summary (prev)
 - **Golden Benchmarks:** 150/150 (100%) across 6 ISO material groups (P, M, K, N, S, H)
@@ -155,9 +169,9 @@
 - **Quality Report:** state/results/R2_QUALITY_REPORT.json
 
 ## NEXT_3_STEPS
-1. R3-MS4-T1: Campaign Runner Infrastructure (Code/Sonnet — batch execution framework)
-2. R3-MS4-T2: Execute Material Campaigns (Code/Sonnet — batch run 6,346 materials)
-3. R3-MS4-T3: Campaign Results Validation (Chat/Opus — verify batch results quality)
+1. R3-MS4.5-T1: Design Session Dispatcher Action (Chat/Opus — spec for design_session)
+2. R3-MS4.5-T2: Implement Server-Side Inference Chains (Code/Sonnet — InferenceChainEngine)
+3. R3-MS5: Phase Gate (build+test, quality scoring, tag)
 
 ## Model Routing (Active)
 | Role | Model | Use For |

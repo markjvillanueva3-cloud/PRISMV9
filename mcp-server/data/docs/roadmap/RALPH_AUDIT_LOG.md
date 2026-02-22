@@ -232,3 +232,30 @@
   Non-blocking recommendations: coolant-adjusted thermal factor (LOW priority), hardness already captured via Taylor C/n
   Ralph assess: compaction recovery prevented API assessment — Opus direct review substituted
   Status: MS3-T2 PASSED — CampaignEngine safety model verified for MS4 batch campaigns
+
+---
+
+## R3-MS4: Batch Data Campaigns (2026-02-22)
+
+[2026-02-22] R3-MS4-T1 | Runner infrastructure | Gate: YOLO | Status: COMPLETE
+  batch-campaign-runner.ts: 500 lines, resume support, quarantine protocol
+  Simplified Kienzle/Taylor physics for batch data generation
+
+[2026-02-22] R3-MS4-T2 | Execute campaigns | Gate: YOLO | Status: COMPLETE
+  635/635 batches, 6,346 materials, 0 errors, 0 quarantined
+  Pass: 1,756 | Warning: 4,051 | Fail: 539 | Quarantine: 0
+  Average safety score: 0.627, range: 0.456-0.923
+
+[2026-02-22] R3-MS4-T3 | Results validation | Gate: GATED | Validator: Opus direct | Status: PASSED
+  Coverage: 100% (6,346/6,346) — exceeds 80% threshold
+  Status distribution by ISO group:
+    N (non-ferrous): 65.8% pass — highest, correct (low forces, high tool life)
+    P (steel): 27.1% pass — moderate, correct (tool life limited)
+    K (cast iron): 26.5% pass — stable, correct
+    H (hardened): 5.1% pass — difficult, correct (high kc, high temps)
+    M (stainless): 2.9% pass, 536 fail — correct (high kc, power overloads)
+    S (superalloy): 0.8% pass — worst, correct (highest thermal/force)
+  Physics spot-checks: cutting forces, power overloads, safety scores all physically consistent
+  Primary warning driver: Taylor tool life < 15 min target at standard Vc — physically correct
+  Quarantine list: empty (no materials failed catastrophically)
+  Verdict: PASSED — campaign data quality validated for downstream ML training
