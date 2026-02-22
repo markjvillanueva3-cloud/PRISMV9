@@ -30,6 +30,7 @@ import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
 import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.js";
 import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js";
 import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
+import { dncTransfer } from "../../engines/DNCTransferEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -105,6 +106,14 @@ const ACTIONS = [
   "cam_tool_library",
   "cam_tool_get",
   "cam_systems",
+  "dnc_generate",
+  "dnc_send",
+  "dnc_compare",
+  "dnc_verify",
+  "dnc_qr",
+  "dnc_systems",
+  "dnc_history",
+  "dnc_get",
 ] as const;
 
 /**
@@ -410,6 +419,20 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { id: result.id, type: result.type, diameter: result.diameter_mm };
     case "cam_systems":
       return { count: result.systems?.length };
+    case "dnc_generate":
+      return { program: result.program_number, rpm: result.parameters?.rpm, feed: result.parameters?.feed_mmmin };
+    case "dnc_send":
+    case "dnc_compare":
+    case "dnc_verify":
+      return { id: result.transfer_id, status: result.status, program: result.program_number };
+    case "dnc_qr":
+      return { bytes: result.byte_size, fits_qr: result.fits_standard_qr };
+    case "dnc_systems":
+      return { count: result.total };
+    case "dnc_history":
+      return { total: result.total };
+    case "dnc_get":
+      return { id: result.transfer_id, status: result.status };
     default:
       return result;
   }
@@ -476,7 +499,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const MACHINE_ACTIONS = ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect", "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live", "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status", "alert_acknowledge", "alert_history"] as const;
         const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
         const CAM_ACTIONS = ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] as const;
-        const result = CAM_ACTIONS.includes(action as any)
+        const DNC_ACTIONS = ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] as const;
+        const result = DNC_ACTIONS.includes(action as any)
+          ? dncTransfer(action, params)
+          : CAM_ACTIONS.includes(action as any)
           ? camIntegration(action, params)
           : MACHINE_ACTIONS.includes(action as any)
           ? machineConnectivity(action, params)

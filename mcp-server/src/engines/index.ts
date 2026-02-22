@@ -752,3 +752,12 @@ export {
   type CAMOperation, type CAMRecommendation, type CAMParameterExport,
   type ToolLibraryEntry,
 } from "./CAMIntegrationEngine.js";
+
+// DNC Transfer (R9-MS2)
+export {
+  dncTransfer, generateParameterBlock, executeDNCTransfer, generateQRData,
+  getTransferHistory, getTransferById,
+  type DNCSystem, type TransferAction, type TransferStatus, type ControllerType,
+  type GCodeParameterBlock, type DNCTransferRequest, type DNCTransferResult,
+  type ParameterMismatch, type QRCodeData,
+} from "./DNCTransferEngine.js";
