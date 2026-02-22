@@ -732,3 +732,15 @@ export {
   type AssistanceSkill, type PhysicsExplanation, type ConfidenceReport,
   type AlternativeOption, type SafetyReport, type CommonMistake,
 } from "./UserAssistanceSkillsEngine.js";
+
+// Machine Connectivity (R9-MS0)
+export {
+  machineConnectivity, registerMachine, unregisterMachine, listMachines, getMachine,
+  connectMachine, disconnectMachine, ingestLiveData, getLiveStatus, getAllMachineStatuses,
+  detectChatter, startToolWearMonitor, updateToolWear, getToolWear,
+  updateThermalState, getThermalState, acknowledgeAlert, getAlertHistory,
+  type MachineState, type ProtocolType, type AlertSeverity, type AlertType,
+  type MachineConfig, type MachinePosition, type MachineLiveData,
+  type MachineAlert, type MachineLiveStatus, type ChatterResult,
+  type ToolWearStatus, type ThermalDriftStatus,
+} from "./MachineConnectivityEngine.js";

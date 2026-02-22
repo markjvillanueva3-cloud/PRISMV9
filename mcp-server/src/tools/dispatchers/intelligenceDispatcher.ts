@@ -28,6 +28,7 @@ import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
 import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.js";
 import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
 import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.js";
+import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -81,6 +82,22 @@ const ACTIONS = [
   "assist_confidence",
   "assist_mistakes",
   "assist_safety",
+  "machine_register",
+  "machine_unregister",
+  "machine_list",
+  "machine_connect",
+  "machine_disconnect",
+  "machine_live_status",
+  "machine_all_status",
+  "machine_ingest",
+  "chatter_detect_live",
+  "tool_wear_start",
+  "tool_wear_update",
+  "tool_wear_status",
+  "thermal_update",
+  "thermal_status",
+  "alert_acknowledge",
+  "alert_history",
 ] as const;
 
 /**
@@ -358,6 +375,22 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { count: result.count };
     case "assist_safety":
       return { grade: result.grade, risk_count: result.risk_factors?.length };
+    case "machine_register":
+      return { id: result.id, name: result.name, protocol: result.protocol };
+    case "machine_list":
+      return { total: result.total };
+    case "machine_live_status":
+      return { id: result.machine?.id, state: result.current?.state, connected: result.connected };
+    case "machine_all_status":
+      return { count: result.machines?.length };
+    case "chatter_detect_live":
+      return { detected: result.chatter_detected, severity: result.severity, rpm: result.current_rpm };
+    case "tool_wear_status":
+    case "tool_wear_update":
+      return { tool: result.tool_id, remaining: result.predicted_remaining_life_min, rate: result.wear_rate };
+    case "thermal_status":
+    case "thermal_update":
+      return { drift_mm: result.estimated_z_drift_mm, stable: result.compensation_active };
     default:
       return result;
   }
@@ -421,8 +454,11 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
         const CONVERSATION_ACTIONS = ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] as const;
         const SKILL_ACTIONS = ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] as const;
+        const MACHINE_ACTIONS = ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect", "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live", "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status", "alert_acknowledge", "alert_history"] as const;
         const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
-        const result = ASSIST_ACTIONS.includes(action as any)
+        const result = MACHINE_ACTIONS.includes(action as any)
+          ? machineConnectivity(action, params)
+          : ASSIST_ACTIONS.includes(action as any)
           ? userAssistanceSkills(action, params)
           : SKILL_ACTIONS.includes(action as any)
           ? userWorkflowSkills(action, params)
