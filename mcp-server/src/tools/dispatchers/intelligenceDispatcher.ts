@@ -36,6 +36,7 @@ import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
 import { measurementIntegration } from "../../engines/MeasurementIntegrationEngine.js";
 import { inverseSolver } from "../../engines/InverseSolverEngine.js";
 import { failureForensics } from "../../engines/FailureForensicsEngine.js";
+import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -165,6 +166,16 @@ const ACTIONS = [
   "forensic_crash_types",
   "forensic_history",
   "forensic_get",
+  "apprentice_explain",
+  "apprentice_lesson",
+  "apprentice_lessons",
+  "apprentice_assess",
+  "apprentice_capture",
+  "apprentice_knowledge",
+  "apprentice_challenge",
+  "apprentice_materials",
+  "apprentice_history",
+  "apprentice_get",
 ] as const;
 
 /**
@@ -563,6 +574,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total, by_category: result.by_category };
     case "forensic_get":
       return { id: result.diagnosis_id, category: result.category, mode: result.failure_mode };
+    case "apprentice_explain":
+      return { parameter: result.parameter, value: result.value, depth: result.depth, factors: result.factors?.length };
+    case "apprentice_lesson":
+      return { id: result.id ?? result.total, title: result.title, track: result.track };
+    case "apprentice_lessons":
+      return { total: result.total };
+    case "apprentice_assess":
+      return { id: result.assessment_id, level: result.level, score: result.total_score, gaps: result.gaps?.length };
+    case "apprentice_capture":
+      return { id: result.knowledge_id, confidence: result.confidence, material: result.material };
+    case "apprentice_knowledge":
+      return { total: result.total, by_confidence: result.by_confidence };
+    case "apprentice_challenge":
+      return { id: result.challenge_id, total: result.total, difficulty: result.difficulty };
+    case "apprentice_materials":
+      return { name: result.name, total: result.total };
+    case "apprentice_history":
+      return { total: result.total, knowledge: result.knowledge_entries };
+    case "apprentice_get":
+      return { id: result.assessment_id, level: result.level, score: result.total_score };
     default:
       return result;
   }
@@ -635,7 +666,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const MEASURE_ACTIONS = ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] as const;
         const INVERSE_ACTIONS = ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] as const;
         const FORENSIC_ACTIONS = ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] as const;
-        const result = FORENSIC_ACTIONS.includes(action as any)
+        const APPRENTICE_ACTIONS = ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] as const;
+        const result = APPRENTICE_ACTIONS.includes(action as any)
+          ? apprenticeEngine(action, params)
+          : FORENSIC_ACTIONS.includes(action as any)
           ? failureForensics(action, params)
           : INVERSE_ACTIONS.includes(action as any)
           ? inverseSolver(action, params)

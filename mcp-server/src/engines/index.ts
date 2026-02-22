@@ -805,3 +805,11 @@ export {
   type ToolFailureMode, type ChipType, type SurfaceDefect, type CrashType,
   type ForensicDiagnosis, type CorrAction,
 } from "./FailureForensicsEngine.js";
+
+// Machinist's Apprentice (R10-Rev7)
+export {
+  apprenticeEngine,
+  type SkillLevel, type LessonTrack,
+  type Lesson, type SkillAssessment, type KnowledgeEntry,
+  type ExplainResult, type ExplainFactor, type ChallengeExercise,
+} from "./ApprenticeEngine.js";
