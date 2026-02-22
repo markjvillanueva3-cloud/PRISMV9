@@ -549,3 +549,13 @@ export {
   type EcoOptimizeInput,
   type EcoOptimizeResult,
 } from "./OptimizationEngine.js";
+
+// Workholding Intelligence Engine — R7-MS2 Fixture Selection & Clamping Analysis
+export {
+  workholdingIntelligence,
+  fixtureRecommend,
+  type PartShape,
+  type FixtureType as IntelFixtureType,
+  type FixtureInput,
+  type FixtureResult,
+} from "./WorkholdingIntelligenceEngine.js";

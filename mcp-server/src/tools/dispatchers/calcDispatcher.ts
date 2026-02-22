@@ -102,6 +102,10 @@ import {
   optimization,
 } from "../../engines/OptimizationEngine.js";
 
+import {
+  workholdingIntelligence,
+} from "../../engines/WorkholdingIntelligenceEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -189,6 +193,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_kwh: result.energy?.total_kwh, co2_kg: result.carbon?.total_co2_kg, eco_score: result.eco_efficiency_score, coolant_l: result.coolant?.consumption_liters };
     case "eco_optimize":
       return { vc_mpm: result.optimal?.vc_mpm, eco_weight: result.eco_weight_applied, improvement_pct: result.sustainability_improvement_pct, eco_score: result.optimal?.sustainability?.eco_efficiency_score };
+    case "fixture_recommend":
+      return { fixture: result.primary_recommendation?.fixture_type, model: result.primary_recommendation?.model, clamp_n: result.primary_recommendation?.clamp_force_n, deflection_mm: result.analysis?.max_deflection_mm, within_tol: result.analysis?.deflection_within_tolerance, safety: result.safety?.score };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -227,7 +233,8 @@ const ACTIONS = [
   "controller_optimize",
   "surface_integrity_predict", "chatter_predict", "thermal_compensate",
   "unified_machining_model", "coupling_sensitivity",
-  "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize"
+  "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
+  "fixture_recommend"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1220,6 +1227,11 @@ export function registerCalcDispatcher(server: any): void {
           case "sustainability_report":
           case "eco_optimize": {
             result = optimization(action, params);
+            break;
+          }
+
+          case "fixture_recommend": {
+            result = workholdingIntelligence(action, params);
             break;
           }
 
