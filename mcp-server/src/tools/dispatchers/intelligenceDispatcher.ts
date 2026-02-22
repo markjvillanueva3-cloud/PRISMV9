@@ -904,8 +904,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { cost_per_part: result.cost_per_part, price_per_part: result.price_per_part, batch_size: result.batch_size };
     case "shop_quote":
       return { quote_number: result.quote_number, unit_price: result.pricing?.unit_price, quantity: result.pricing?.quantity };
-    case "shop_schedule":
-      return { production_days: result.production_days, parts_per_day: result.parts_per_day };
+    // shop_schedule handled at L429 (detailed response) — removed duplicate
     case "shop_dashboard":
       return { total_machines: result.summary?.total_machines, utilization: result.summary?.average_utilization_pct };
     case "shop_report":

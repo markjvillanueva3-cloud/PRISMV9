@@ -388,7 +388,7 @@ export {
 } from "./SkillAutoLoader.js";
 
 // Skill Bundle Engine — bundle type definition only
-export { type SkillBundle } from "./SkillBundleEngine.js";
+export { type SkillBundle, getAllBundles, getBundle, getBundlesForAction, getBundlesForDomain, listBundles } from "./SkillBundleEngine.js";
 
 // Task Agent Classifier — task routing (functions, no class)
 export {

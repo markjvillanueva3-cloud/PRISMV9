@@ -5,12 +5,14 @@ import { skillExecutor, SkillLoadResult, SkillRecommendation, SkillChain, TaskAn
 import { scriptExecutor, ExecutionResult, QueuedExecution, ScriptRecommendation, ExecutionParams } from "../../engines/ScriptExecutor.js";
 import { skillRegistry, SkillCategory, Skill } from "../../registries/SkillRegistry.js";
 import { scriptRegistry, ScriptCategory, ScriptLanguage, Script } from "../../registries/ScriptRegistry.js";
+import { getAllBundles, getBundle, getBundlesForAction, getBundlesForDomain, listBundles } from "../../engines/SkillBundleEngine.js";
 
 const ACTIONS = [
   "skill_list", "skill_get", "skill_search", "skill_find_for_task", "skill_content", "skill_stats",
   "script_list", "script_get", "script_search", "script_command", "script_execute", "script_stats",
   "skill_load", "skill_recommend", "skill_analyze", "skill_chain", "skill_search_v2", "skill_stats_v2",
-  "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history"
+  "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history",
+  "bundle_list", "bundle_get", "bundle_for_action", "bundle_for_domain"
 ] as const;
 
 function ok(data: any) {
@@ -456,6 +458,25 @@ export function registerSkillScriptDispatcher(server: any): void {
             }
 
             return ok({ success: true, history, stats });
+          }
+
+          case "bundle_list":
+            return ok(listBundles());
+
+          case "bundle_get": {
+            const bundle = getBundle(params.id || params.bundle_id || "");
+            if (!bundle) return ok({ error: `Bundle not found: ${params.id}` });
+            return ok(bundle);
+          }
+
+          case "bundle_for_action": {
+            const bundles = getBundlesForAction(params.action || params.name || "");
+            return ok({ action: params.action || params.name, bundles: bundles.map(b => ({ id: b.id, name: b.name, digest: b.digest })) });
+          }
+
+          case "bundle_for_domain": {
+            const bundles = getBundlesForDomain(params.domain || "");
+            return ok({ domain: params.domain, bundles: bundles.map(b => ({ id: b.id, name: b.name, digest: b.digest })) });
           }
 
           default:
