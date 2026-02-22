@@ -744,3 +744,11 @@ export {
   type MachineAlert, type MachineLiveStatus, type ChatterResult,
   type ToolWearStatus, type ThermalDriftStatus,
 } from "./MachineConnectivityEngine.js";
+
+// CAM Integration (R9-MS1)
+export {
+  camIntegration, searchToolLibrary, getToolFromLibrary, getAllTools,
+  type CAMSystem, type OperationType, type UnitSystem,
+  type CAMOperation, type CAMRecommendation, type CAMParameterExport,
+  type ToolLibraryEntry,
+} from "./CAMIntegrationEngine.js";

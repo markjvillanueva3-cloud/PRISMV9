@@ -29,6 +29,7 @@ import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.j
 import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
 import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.js";
 import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js";
+import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -98,6 +99,12 @@ const ACTIONS = [
   "thermal_status",
   "alert_acknowledge",
   "alert_history",
+  "cam_recommend",
+  "cam_export",
+  "cam_analyze_op",
+  "cam_tool_library",
+  "cam_tool_get",
+  "cam_systems",
 ] as const;
 
 /**
@@ -391,6 +398,18 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
     case "thermal_status":
     case "thermal_update":
       return { drift_mm: result.estimated_z_drift_mm, stable: result.compensation_active };
+    case "cam_recommend":
+      return { operation: result.operation, rpm: result.recommended?.rpm, feed: result.recommended?.feed_mmmin };
+    case "cam_export":
+      return { format: result.format, system: result.target_system };
+    case "cam_analyze_op":
+      return { match: result.match_pct, issues: result.issues?.length };
+    case "cam_tool_library":
+      return { total: result.total };
+    case "cam_tool_get":
+      return { id: result.id, type: result.type, diameter: result.diameter_mm };
+    case "cam_systems":
+      return { count: result.systems?.length };
     default:
       return result;
   }
@@ -456,7 +475,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SKILL_ACTIONS = ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] as const;
         const MACHINE_ACTIONS = ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect", "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live", "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status", "alert_acknowledge", "alert_history"] as const;
         const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
-        const result = MACHINE_ACTIONS.includes(action as any)
+        const CAM_ACTIONS = ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] as const;
+        const result = CAM_ACTIONS.includes(action as any)
+          ? camIntegration(action, params)
+          : MACHINE_ACTIONS.includes(action as any)
           ? machineConnectivity(action, params)
           : ASSIST_ACTIONS.includes(action as any)
           ? userAssistanceSkills(action, params)
