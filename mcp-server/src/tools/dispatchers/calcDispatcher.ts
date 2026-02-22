@@ -73,6 +73,14 @@ import {
 } from "../../engines/CampaignEngine.js";
 
 import {
+  runInferenceChain,
+  analyzeAndRecommend,
+  deepDiagnose,
+  listChainTypes,
+  type InferenceChainConfig,
+} from "../../engines/InferenceChainEngine.js";
+
+import {
   calculateEngagementAngle,
   calculateTrochoidalParams,
   calculateHSMParams,
@@ -145,6 +153,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { improvement_pct: result.estimated_improvement_pct, adjustments: result.operation_adjustments?.length || 0 };
     case "campaign_cycle_time":
       return { total_min: result.estimated_total_time_min, per_material_min: result.time_per_material_min, materials: result.materials_count };
+    case "inference_chain":
+      return { chain_id: result.chain_id, status: result.status, steps_completed: result.steps_completed, total_steps: result.total_steps, tokens_in: result.total_tokens?.input, tokens_out: result.total_tokens?.output };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -171,14 +181,14 @@ function validateMaterialName(name: string | undefined): string | null {
 }
 
 const ACTIONS = [
-  "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish", 
-  "mrr", "power", "torque", "chip_load", "stability", "deflection", "thermal", 
-  "cost_optimize", "multi_optimize", "productivity", "engagement", 
+  "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish",
+  "mrr", "power", "torque", "chip_load", "stability", "deflection", "thermal",
+  "cost_optimize", "multi_optimize", "productivity", "engagement",
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
   "tolerance_analysis", "fit_analysis", "gcode_generate", "decision_tree",
   "render_report", "campaign_create", "campaign_validate", "campaign_optimize",
-  "campaign_cycle_time"
+  "campaign_cycle_time", "inference_chain"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -759,6 +769,41 @@ export function registerCalcDispatcher(server: any): void {
           case "campaign_cycle_time": {
             if (!params.config) throw new Error("campaign_cycle_time requires 'config' parameter");
             result = estimateCampaignTime(params.config);
+            break;
+          }
+
+          case "inference_chain": {
+            const mode = params.mode || "run_chain";
+            if (mode === "list_chains") {
+              result = { chain_types: listChainTypes(), actions: ["run_chain", "analyze", "diagnose", "list_chains"] };
+            } else if (mode === "analyze") {
+              if (!params.scenario) throw new Error("inference_chain analyze requires 'scenario' parameter");
+              result = await analyzeAndRecommend({
+                scenario: params.scenario,
+                material: params.material,
+                machine: params.machine,
+                constraints: params.constraints,
+                response_level: params.response_level,
+              });
+            } else if (mode === "diagnose") {
+              if (!params.symptoms) throw new Error("inference_chain diagnose requires 'symptoms' parameter");
+              result = await deepDiagnose({
+                alarm_code: params.alarm_code,
+                symptoms: params.symptoms,
+                machine_state: params.machine_state,
+                material: params.material,
+                operation: params.operation,
+                response_level: params.response_level,
+              });
+            } else {
+              // mode === "run_chain" (default)
+              if (!params.chain_config) throw new Error("inference_chain run_chain requires 'chain_config' parameter");
+              const chainConfig = params.chain_config as InferenceChainConfig;
+              if (params.response_level && !chainConfig.response_level) {
+                chainConfig.response_level = params.response_level;
+              }
+              result = await runInferenceChain(chainConfig);
+            }
             break;
           }
 

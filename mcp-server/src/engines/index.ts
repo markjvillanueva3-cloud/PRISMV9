@@ -490,3 +490,19 @@ export {
   type OptimizedCampaign,
   type CycleTimeEstimate as CampaignCycleTimeEstimate,
 } from "./CampaignEngine.js";
+
+// Inference Chain Engine — R3-MS4.5-T2 Server-Side Multi-Step Reasoning
+export {
+  runInferenceChain,
+  analyzeAndRecommend,
+  deepDiagnose,
+  listChainTypes,
+  CHAIN_ACTIONS,
+  type InferenceChainConfig,
+  type InferenceChainResult,
+  type ChainStep,
+  type ChainStepType,
+  type StepResult,
+  type AnalysisResult,
+  type DiagnosisResult,
+} from "./InferenceChainEngine.js";
