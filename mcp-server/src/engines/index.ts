@@ -864,3 +864,11 @@ export {
   type CorrectionFactor, type Contribution, type AnonymizationReport,
   type NetworkStats, type OptControl, type TransparencyEntry,
 } from "./FederatedLearningEngine.js";
+
+export {
+  adaptiveControl,
+  type ControllerType, type AdaptiveMode, type OverrideChannel, type AlertLevel,
+  type SensorReading, type OverrideCommand, type AdaptiveState,
+  type ChiploadResult, type ChatterResult, type WearResult, type ThermalResult,
+  type AdaptiveConfig,
+} from "./AdaptiveControlEngine.js";

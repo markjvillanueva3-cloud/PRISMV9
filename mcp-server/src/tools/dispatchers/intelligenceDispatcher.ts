@@ -43,6 +43,7 @@ import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
 import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
+import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -242,6 +243,16 @@ const ACTIONS = [
   "learn_transparency",
   "learn_history",
   "learn_get",
+  "adaptive_chipload",
+  "adaptive_chatter",
+  "adaptive_wear",
+  "adaptive_thermal",
+  "adaptive_override",
+  "adaptive_status",
+  "adaptive_config",
+  "adaptive_log",
+  "adaptive_history",
+  "adaptive_get",
 ] as const;
 
 /**
@@ -780,6 +791,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { queries: result.total_queries, contributions: result.total_contributions };
     case "learn_get":
       return { id: result.query_id ?? result.id };
+    case "adaptive_chipload":
+      return { target: result.target_chipload_mm, actual: result.actual_chipload_mm, override: result.feed_override_pct };
+    case "adaptive_chatter":
+      return { chatter: result.is_chatter, rpm: result.recommended_rpm, freq: result.dominant_frequency_hz };
+    case "adaptive_wear":
+      return { wear: result.estimated_wear_pct, life: result.remaining_life_min, replace: result.should_replace };
+    case "adaptive_thermal":
+      return { drift_z: result.z_drift_um, compensated: result.compensation_applied };
+    case "adaptive_override":
+      return { channel: result.override?.channel, value: result.override?.value_pct, status: result.status };
+    case "adaptive_status":
+      return { active: result.active, sessions: result.total_sessions ?? result.sessions };
+    case "adaptive_config":
+      return { status: result.status, updated: result.updated_keys };
+    case "adaptive_log":
+      return { total: result.total };
+    case "adaptive_history":
+      return { sessions: result.total_sessions, overrides: result.total_overrides };
+    case "adaptive_get":
+      return { id: result.query_id ?? result.id };
     default:
       return result;
   }
@@ -859,7 +890,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const GENPLAN_ACTIONS = ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] as const;
         const GRAPH_ACTIONS = ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] as const;
         const LEARN_ACTIONS = ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] as const;
-        const result = LEARN_ACTIONS.includes(action as any)
+        const ADAPTIVE_ACTIONS = ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] as const;
+        const result = ADAPTIVE_ACTIONS.includes(action as any)
+          ? adaptiveControl(action, params)
+          : LEARN_ACTIONS.includes(action as any)
           ? federatedLearning(action, params)
           : GRAPH_ACTIONS.includes(action as any)
           ? knowledgeGraph(action, params)
