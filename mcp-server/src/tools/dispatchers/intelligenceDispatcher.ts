@@ -20,6 +20,7 @@ import { executeIntelligenceAction, INTELLIGENCE_ACTIONS, type IntelligenceActio
 import { jobLearning } from "../../engines/JobLearningEngine.js";
 import { algorithmGateway } from "../../engines/AlgorithmGatewayEngine.js";
 import { shopScheduler } from "../../engines/ShopSchedulerEngine.js";
+import { intentEngine } from "../../engines/IntentDecompositionEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -39,6 +40,7 @@ const ACTIONS = [
   "algorithm_select",
   "shop_schedule",
   "machine_utilization",
+  "decompose_intent",
 ] as const;
 
 /**
@@ -189,6 +191,17 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         capability_gaps: result.capability_gaps?.length,
         safety_score: result.safety?.score,
       };
+    case "decompose_intent":
+      return {
+        material: result.entities?.material,
+        machine: result.entities?.machine,
+        operation: result.entities?.operation,
+        persona: result.persona,
+        confidence: result.confidence,
+        plan_steps: result.plan?.length,
+        ambiguities: result.ambiguities?.length,
+        safety_score: result.safety?.score,
+      };
     default:
       return result;
   }
@@ -197,7 +210,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",
-    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection, shop floor scheduling & machine utilization. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization",
+    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection, shop floor scheduling & machine utilization, natural language intent decomposition. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional(),
@@ -245,13 +258,16 @@ export function registerIntelligenceDispatcher(server: any): void {
         const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
         const ALGORITHM_ACTIONS = ["algorithm_select"] as const;
         const SCHEDULER_ACTIONS = ["shop_schedule", "machine_utilization"] as const;
+        const INTENT_ACTIONS = ["decompose_intent"] as const;
         const result = LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
             ? algorithmGateway(action, params)
             : SCHEDULER_ACTIONS.includes(action as any)
               ? shopScheduler(action, params)
-              : await executeIntelligenceAction(action as IntelligenceAction, params);
+              : INTENT_ACTIONS.includes(action as any)
+                ? intentEngine(action, params)
+                : await executeIntelligenceAction(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {

@@ -621,3 +621,13 @@ export {
   type MachineUtilizationInput,
   type MachineUtilizationResult,
 } from "./ShopSchedulerEngine.js";
+
+// Intent Decomposition Engine — R8-MS0 Natural Language → Execution Plan
+export {
+  intentEngine,
+  decomposeIntent,
+  type ExtractedEntities,
+  type ExecutionStep,
+  type Persona,
+  type IntentDecomposition,
+} from "./IntentDecompositionEngine.js";
