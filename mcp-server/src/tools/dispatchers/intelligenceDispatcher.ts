@@ -44,6 +44,7 @@ import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
+import { productSFC } from "../../engines/ProductEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -253,6 +254,16 @@ const ACTIONS = [
   "adaptive_log",
   "adaptive_history",
   "adaptive_get",
+  "sfc_calculate",
+  "sfc_compare",
+  "sfc_optimize",
+  "sfc_quick",
+  "sfc_materials",
+  "sfc_tools",
+  "sfc_formulas",
+  "sfc_safety",
+  "sfc_history",
+  "sfc_get",
 ] as const;
 
 /**
@@ -811,6 +822,27 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { sessions: result.total_sessions, overrides: result.total_overrides };
     case "adaptive_get":
       return { id: result.query_id ?? result.id };
+    // SFC Product (R11-MS0)
+    case "sfc_calculate":
+      return { vc: result.cutting_speed_m_min, rpm: result.spindle_rpm, fz: result.feed_per_tooth_mm, power: result.power_kW, tool_life: result.tool_life_min, safety: result.safety_status };
+    case "sfc_compare":
+      return { approaches: result.approaches?.length, recommended: result.recommended };
+    case "sfc_optimize":
+      return { objective: result.objective, improvement: result.improvement_pct };
+    case "sfc_quick":
+      return { vc: result.result?.cutting_speed_m_min, rpm: result.result?.spindle_rpm };
+    case "sfc_materials":
+      return { count: result.materials?.length };
+    case "sfc_tools":
+      return { count: result.tools?.length };
+    case "sfc_formulas":
+      return { count: result.formulas?.length };
+    case "sfc_safety":
+      return { score: result.score, status: result.status };
+    case "sfc_history":
+      return { entries: result.history?.length };
+    case "sfc_get":
+      return { product: result.product, version: result.version };
     default:
       return result;
   }
@@ -891,7 +923,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const GRAPH_ACTIONS = ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] as const;
         const LEARN_ACTIONS = ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] as const;
         const ADAPTIVE_ACTIONS = ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] as const;
-        const result = ADAPTIVE_ACTIONS.includes(action as any)
+        const SFC_ACTIONS = ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] as const;
+        const result = SFC_ACTIONS.includes(action as any)
+          ? productSFC(action, params)
+          : ADAPTIVE_ACTIONS.includes(action as any)
           ? adaptiveControl(action, params)
           : LEARN_ACTIONS.includes(action as any)
           ? federatedLearning(action, params)

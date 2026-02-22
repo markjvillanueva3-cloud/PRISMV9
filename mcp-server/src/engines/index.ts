@@ -872,3 +872,13 @@ export {
   type ChiploadResult, type ChatterResult, type WearResult, type ThermalResult,
   type AdaptiveConfig,
 } from "./AdaptiveControlEngine.js";
+
+// Product Engines — R11 Product Packaging
+export {
+  productSFC,
+  productPPG,
+  productShop,
+  productACNC,
+  type ProductTier, type SFCAction, type PPGAction, type ShopAction, type ACNCAction,
+  type ProductAction, type SFCInput, type SFCResult, type SFCCompareResult, type SFCOptimizeResult,
+} from "./ProductEngine.js";
