@@ -25,6 +25,7 @@ import { responseFormatter } from "../../engines/ResponseFormatterEngine.js";
 import { workflowChains } from "../../engines/WorkflowChainsEngine.js";
 import { onboardingEngine } from "../../engines/OnboardingEngine.js";
 import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
+import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -56,6 +57,14 @@ const ACTIONS = [
   "onboarding_reset",
   "setup_sheet_format",
   "setup_sheet_template",
+  "conversation_context",
+  "conversation_transition",
+  "job_start",
+  "job_update",
+  "job_find",
+  "job_resume",
+  "job_complete",
+  "job_list_recent",
 ] as const;
 
 /**
@@ -271,6 +280,40 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       };
     case "setup_sheet_template":
       return { format: result.format, has_template: !!result.template };
+    case "conversation_context":
+      return {
+        state: result.current_state,
+        has_active_job: !!result.active_job,
+        recent_jobs: result.recent_jobs?.length,
+        verbosity: result.response_style?.verbosity,
+      };
+    case "conversation_transition":
+      return {
+        state: result.current_state,
+        transition_detected: result.transition_detected,
+        from: result.from,
+        to: result.to,
+      };
+    case "job_start":
+    case "job_update":
+    case "job_resume":
+    case "job_complete":
+      return {
+        id: result.id,
+        state: result.state,
+        material: result.material,
+        machine: result.machine,
+        tools: result.tools?.length,
+        operations: result.operations?.length,
+      };
+    case "job_find":
+      return {
+        found: result.id !== undefined,
+        id: result.id,
+        material: result.material,
+      };
+    case "job_list_recent":
+      return { count: result.recent?.length };
     default:
       return result;
   }
@@ -332,9 +375,12 @@ export function registerIntelligenceDispatcher(server: any): void {
         const WORKFLOW_ACTIONS = ["workflow_match", "workflow_get", "workflow_list"] as const;
         const ONBOARDING_ACTIONS = ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] as const;
         const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
-        const result = SETUP_SHEET_ACTIONS.includes(action as any)
-          ? setupSheetEngine(action, params)
-          : LEARNING_ACTIONS.includes(action as any)
+        const CONVERSATION_ACTIONS = ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] as const;
+        const result = CONVERSATION_ACTIONS.includes(action as any)
+          ? conversationalMemory(action, params)
+          : SETUP_SHEET_ACTIONS.includes(action as any)
+            ? setupSheetEngine(action, params)
+            : LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
             ? algorithmGateway(action, params)

@@ -688,3 +688,23 @@ export {
   type SetupSheetSummary,
   type SetupSheet,
 } from "./SetupSheetEngine.js";
+
+// Conversational Memory & Context (R8-MS5)
+export {
+  conversationalMemory,
+  detectTransition,
+  transitionState,
+  startJob,
+  updateJob,
+  findJob,
+  resumeJob,
+  getActiveJob,
+  getConversationContext,
+  getRecentJobs,
+  completeJob,
+  resetConversation,
+  type ConversationState,
+  type JobContext,
+  type ConversationContext,
+  type ResponseStyle,
+} from "./ConversationalMemoryEngine.js";
