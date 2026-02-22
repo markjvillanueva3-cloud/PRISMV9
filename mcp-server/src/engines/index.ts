@@ -771,3 +771,12 @@ export {
   type QuickLookupResult, type MobileDisplay, type VoiceQueryResult,
   type AlarmQuickDecode, type ToolLifeTimer, type OfflineCacheBundle, type CacheEntry,
 } from "./MobileInterfaceEngine.js";
+
+// ERP Integration (R9-MS4)
+export {
+  erpIntegration, importWorkOrder, recordCostFeedback, importQualityData,
+  type ERPSystem, type WorkOrderStatus, type CostCategory,
+  type WorkOrder, type RoutingStep, type PRISMPlan, type PRISMRoutingStep,
+  type CostBreakdown, type CostFeedback, type CostVariance,
+  type ToolInventoryItem, type QualityRecord, type QualityMeasurement,
+} from "./ERPIntegrationEngine.js";

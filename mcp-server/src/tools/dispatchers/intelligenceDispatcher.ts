@@ -32,6 +32,7 @@ import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js"
 import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
 import { dncTransfer } from "../../engines/DNCTransferEngine.js";
 import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
+import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -123,6 +124,16 @@ const ACTIONS = [
   "mobile_timer_reset",
   "mobile_timer_list",
   "mobile_cache",
+  "erp_import_wo",
+  "erp_get_plan",
+  "erp_cost_feedback",
+  "erp_cost_history",
+  "erp_quality_import",
+  "erp_quality_history",
+  "erp_tool_inventory",
+  "erp_tool_update",
+  "erp_systems",
+  "erp_wo_list",
 ] as const;
 
 /**
@@ -456,6 +467,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total };
     case "mobile_cache":
       return { entries: result.entries?.length, bytes: result.total_bytes };
+    case "erp_import_wo":
+      return { wo: result.wo_number, cycle_min: result.total_cycle_time_min, cost: result.estimated_cost?.total };
+    case "erp_get_plan":
+      return { wo: result.wo_number, steps: result.routing?.length, cost: result.estimated_cost?.total };
+    case "erp_cost_feedback":
+      return { wo: result.wo_number, variance_pct: result.variance?.total_pct };
+    case "erp_cost_history":
+      return { total: result.total, avg_variance: result.avg_variance_pct };
+    case "erp_quality_import":
+      return { wo: result.wo_number, pass: result.pass, out_of_spec: result.analysis?.out_of_spec };
+    case "erp_quality_history":
+      return { total: result.total, pass_rate: result.pass_rate };
+    case "erp_tool_inventory":
+      return { total: result.total, need_reorder: result.need_reorder };
+    case "erp_tool_update":
+      return { id: result.tool_id, available: result.available };
+    case "erp_systems":
+      return { count: result.total };
+    case "erp_wo_list":
+      return { total: result.total };
     default:
       return result;
   }
@@ -524,7 +555,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const CAM_ACTIONS = ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] as const;
         const DNC_ACTIONS = ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] as const;
         const MOBILE_ACTIONS = ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] as const;
-        const result = MOBILE_ACTIONS.includes(action as any)
+        const ERP_ACTIONS = ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] as const;
+        const result = ERP_ACTIONS.includes(action as any)
+          ? erpIntegration(action, params)
+          : MOBILE_ACTIONS.includes(action as any)
           ? mobileInterface(action, params)
           : DNC_ACTIONS.includes(action as any)
           ? dncTransfer(action, params)
