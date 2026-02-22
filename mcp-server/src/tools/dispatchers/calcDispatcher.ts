@@ -48,6 +48,13 @@ import {
 } from "../../engines/ToleranceEngine.js";
 
 import {
+  generateGCode,
+  generateProgram,
+  listControllers as listGCodeControllers,
+  listOperations as listGCodeOperations,
+} from "../../engines/GCodeTemplateEngine.js";
+
+import {
   calculateEngagementAngle,
   calculateTrochoidalParams,
   calculateHSMParams,
@@ -106,6 +113,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { tolerance_um: result.tolerance_um, grade: result.grade_label, nominal_mm: result.nominal_mm };
     case "fit_analysis":
       return { fit_type: result.fit_type, min_clearance_mm: result.min_clearance_mm, max_clearance_mm: result.max_clearance_mm };
+    case "gcode_generate":
+      return { controller: result.controller, operation: result.operation, line_count: result.line_count, warnings: result.warnings?.length || 0 };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -137,13 +146,13 @@ const ACTIONS = [
   "cost_optimize", "multi_optimize", "productivity", "engagement", 
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
-  "tolerance_analysis", "fit_analysis"
+  "tolerance_analysis", "fit_analysis", "gcode_generate"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis.",
+    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations).",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
@@ -614,6 +623,58 @@ export function registerCalcDispatcher(server: any): void {
 
           case "fit_analysis": {
             result = analyzeShaftHoleFit(params.nominal_mm, params.fit_class);
+            break;
+          }
+
+          case "gcode_generate": {
+            if (params.operations && Array.isArray(params.operations)) {
+              // Multi-operation program
+              result = generateProgram(params.controller || "fanuc", params.operations);
+            } else if (params.list_controllers) {
+              result = { controllers: listGCodeControllers() };
+            } else if (params.list_operations) {
+              result = { operations: listGCodeOperations() };
+            } else {
+              // Single operation
+              const gcRpm = params.rpm || Math.round(((params.cutting_speed || 150) * 1000) / (Math.PI * (params.tool_diameter || 12)));
+              result = generateGCode(
+                params.controller || "fanuc",
+                params.operation || "facing",
+                {
+                  rpm: gcRpm,
+                  feed_rate: params.feed_rate || params.vf || 1000,
+                  tool_number: params.tool_number || 1,
+                  z_safe: params.z_safe || 5,
+                  z_depth: params.z_depth,
+                  coolant: params.coolant || "flood",
+                  x_start: params.x_start,
+                  y_start: params.y_start,
+                  x_end: params.x_end,
+                  y_end: params.y_end,
+                  tool_diameter: params.tool_diameter,
+                  peck_depth: params.peck_depth,
+                  pitch: params.pitch,
+                  thread_diameter: params.thread_diameter,
+                  thread_pitch: params.thread_pitch,
+                  thread_depth: params.thread_depth,
+                  thread_direction: params.thread_direction,
+                  pocket_diameter: params.pocket_diameter,
+                  pocket_depth: params.pocket_depth,
+                  stepover_percent: params.stepover_percent,
+                  profile_points: params.profile_points,
+                  comp_side: params.comp_side,
+                  approach_type: params.approach_type,
+                  program_number: params.program_number,
+                  program_name: params.program_name,
+                  sub_program_number: params.sub_program_number,
+                  sub_repeats: params.sub_repeats,
+                  work_offset: params.work_offset,
+                  dwell: params.dwell,
+                  orient_angle: params.orient_angle,
+                  shift_amount: params.shift_amount,
+                }
+              );
+            }
             break;
           }
 

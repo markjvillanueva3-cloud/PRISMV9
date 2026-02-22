@@ -425,3 +425,18 @@ export {
   type StackUpResult,
   type CpkResult,
 } from "./ToleranceEngine.js";
+
+// G-Code Template Engine — R3-P2 Parametric G-Code Generation
+export {
+  generateGCode,
+  generateProgram,
+  resolveController,
+  listControllers,
+  listOperations,
+  SUPPORTED_CONTROLLERS,
+  SUPPORTED_OPERATIONS,
+  type ControllerFamily,
+  type GCodeOperation,
+  type GCodeParams,
+  type GCodeResult,
+} from "./GCodeTemplateEngine.js";

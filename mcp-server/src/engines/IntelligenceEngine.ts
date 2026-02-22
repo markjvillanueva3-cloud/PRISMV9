@@ -61,7 +61,6 @@ import {
   calculateMultiPassStrategy,
   recommendCoolantStrategy,
   estimateCycleTime,
-  generateGCodeSnippet,
 } from "./ToolpathCalculations.js";
 
 import { findAchievableGrade } from "./ToleranceEngine.js";
