@@ -44,7 +44,7 @@ import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
-import { productSFC } from "../../engines/ProductEngine.js";
+import { productSFC, productPPG } from "../../engines/ProductEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -264,6 +264,17 @@ const ACTIONS = [
   "sfc_safety",
   "sfc_history",
   "sfc_get",
+  // PPG — R11-MS1 Post Processor Generator
+  "ppg_validate",
+  "ppg_translate",
+  "ppg_templates",
+  "ppg_generate",
+  "ppg_controllers",
+  "ppg_compare",
+  "ppg_syntax",
+  "ppg_batch",
+  "ppg_history",
+  "ppg_get",
 ] as const;
 
 /**
@@ -843,6 +854,27 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { entries: result.history?.length };
     case "sfc_get":
       return { product: result.product, version: result.version };
+    // PPG extractors
+    case "ppg_validate":
+      return { valid: result.valid, score: result.score, errors: result.errors?.length, warnings: result.warnings?.length };
+    case "ppg_translate":
+      return { source: result.original_controller, target: result.target_controller, changes: result.changes_made?.length };
+    case "ppg_templates":
+      return { total: result.total };
+    case "ppg_generate":
+      return { controller: result.controller, operation: result.operation, line_count: result.line_count };
+    case "ppg_controllers":
+      return { total: result.total };
+    case "ppg_compare":
+      return { operation: result.operation, controllers_compared: result.controllers_compared };
+    case "ppg_syntax":
+      return { controller: result.controller, family: result.controller_family };
+    case "ppg_batch":
+      return { source: result.source_controller, targets: result.total_targets };
+    case "ppg_history":
+      return { entries: result.history?.length };
+    case "ppg_get":
+      return { product: result.product, version: result.version };
     default:
       return result;
   }
@@ -924,8 +956,11 @@ export function registerIntelligenceDispatcher(server: any): void {
         const LEARN_ACTIONS = ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] as const;
         const ADAPTIVE_ACTIONS = ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] as const;
         const SFC_ACTIONS = ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] as const;
+        const PPG_ACTIONS = ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] as const;
         const result = SFC_ACTIONS.includes(action as any)
           ? productSFC(action, params)
+          : PPG_ACTIONS.includes(action as any)
+          ? productPPG(action, params)
           : ADAPTIVE_ACTIONS.includes(action as any)
           ? adaptiveControl(action, params)
           : LEARN_ACTIONS.includes(action as any)
