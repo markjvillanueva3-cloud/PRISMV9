@@ -570,3 +570,46 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
     5. Build: 4.2MB clean (121ms)
 
   POSITION: R4-MS0 COMPLETE → R4-MS1 (Compliance Hardening) next.
+
+[2026-02-22] R4-MS1 COMPLETE — Compliance template hardening + 29 new tests.
+
+  Deliverables:
+    1. 29 compliance tests (T16-T28) covering all 6 regulatory frameworks
+    2. Template listing with ID verification (ISO 13485, AS9100, ITAR, SOC2, HIPAA, FDA 21 CFR 11)
+    3. Disclaimer enforcement (apply without ack → fail)
+    4. Apply/duplicate rejection, audit scoring, multi-template conflict resolution
+    5. Gap analysis provisioned vs unprovisioned, template removal + hook cleanup
+    6. Strictness ordering, access control, stats, config update
+    7. Total: 64/64 enterprise tests PASS
+
+[2026-02-22] R4-MS2 COMPLETE — Data residency + structured audit logging.
+
+  Deliverables:
+    1. TenantConfig: inference_geo (us/eu/global), data_residency_region, zero_data_retention
+    2. TenantContext: inference_geo + ZDR frozen in context (immutable)
+    3. Winston structured JSON audit logging (state/logs/audit.jsonl + error.jsonl)
+    4. log.audit() method for compliance-grade event recording
+    5. 12 new tests (T29-T35) covering per-tenant residency, frozen context, audit file
+    6. Total: 76/76 enterprise tests PASS
+
+[2026-02-22] R4-MS3 COMPLETE — External API layer (REST endpoints).
+
+  Deliverables:
+    1. 5 production REST endpoints registered through F7 Bridge:
+       - POST /api/v1/speed-feed → prism_calc:speed_feed
+       - POST /api/v1/job-plan → prism_intelligence:job_plan
+       - GET /api/v1/material/:id → prism_data:material_get
+       - GET /api/v1/tool/:id → prism_data:tool_get
+       - POST /api/v1/alarm-decode → prism_data:alarm_decode
+    2. Live dispatch handler wiring with standard JSON response format:
+       { result: {...}, safety: { score, warnings }, meta: { formula_used, uncertainty } }
+    3. Auth enforcement: API key required, scope authorization, wrong scope → unauthorized
+    4. Correlation ID passthrough through dispatch handler to response metadata
+    5. Audit logging: request_log.jsonl with request_id, status, latency_ms
+    6. Endpoint lifecycle: disable/re-enable, latency tracking
+    7. Route map generation: 5 production routes, all auth-required
+    8. Error handling: dispatch failure → structured error with message propagation
+    9. 23 new tests (T36-T58) covering all API layer features
+   10. Total: 116/116 enterprise tests PASS, R2 regression: 150/150
+
+  POSITION: R4-MS3 COMPLETE → R4-MS4 (Phase Gate) next.
