@@ -660,3 +660,19 @@ export {
   type WorkflowMatch,
   type WorkflowListItem,
 } from "./WorkflowChainsEngine.js";
+
+// Onboarding Engine — R8-MS3 Progressive Disclosure & Welcome Flow
+export {
+  onboardingEngine,
+  generateWelcome,
+  getDisclosureSuggestion,
+  recordInteraction,
+  getOnboardingState,
+  resetSession,
+  getCommonMaterials,
+  type DisclosureLevel,
+  type UserProfile,
+  type OnboardingState,
+  type WelcomeMessage,
+  type DisclosureSuggestion,
+} from "./OnboardingEngine.js";

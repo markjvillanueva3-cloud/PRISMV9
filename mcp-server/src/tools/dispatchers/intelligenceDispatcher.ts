@@ -23,6 +23,7 @@ import { shopScheduler } from "../../engines/ShopSchedulerEngine.js";
 import { intentEngine } from "../../engines/IntentDecompositionEngine.js";
 import { responseFormatter } from "../../engines/ResponseFormatterEngine.js";
 import { workflowChains } from "../../engines/WorkflowChainsEngine.js";
+import { onboardingEngine } from "../../engines/OnboardingEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -47,6 +48,11 @@ const ACTIONS = [
   "workflow_match",
   "workflow_get",
   "workflow_list",
+  "onboarding_welcome",
+  "onboarding_state",
+  "onboarding_record",
+  "onboarding_suggestion",
+  "onboarding_reset",
 ] as const;
 
 /**
@@ -232,6 +238,25 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return {
         total: result.total,
       };
+    case "onboarding_welcome":
+      return {
+        has_greeting: !!result.greeting,
+        suggestions: result.suggestions?.length,
+      };
+    case "onboarding_state":
+    case "onboarding_record":
+      return {
+        interaction_count: result.interaction_count,
+        disclosure_level: result.disclosure_level,
+        has_suggestion: !!result.suggestion,
+      };
+    case "onboarding_suggestion":
+      return {
+        level: result.level,
+        has_message: !!result.message,
+      };
+    case "onboarding_reset":
+      return { reset: result.reset };
     default:
       return result;
   }
@@ -291,6 +316,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         const INTENT_ACTIONS = ["decompose_intent"] as const;
         const FORMATTER_ACTIONS = ["format_response"] as const;
         const WORKFLOW_ACTIONS = ["workflow_match", "workflow_get", "workflow_list"] as const;
+        const ONBOARDING_ACTIONS = ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] as const;
         const result = LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
@@ -303,7 +329,9 @@ export function registerIntelligenceDispatcher(server: any): void {
                   ? responseFormatter(action, params)
                   : WORKFLOW_ACTIONS.includes(action as any)
                     ? workflowChains(action, params)
-                    : await executeIntelligenceAction(action as IntelligenceAction, params);
+                    : ONBOARDING_ACTIONS.includes(action as any)
+                      ? onboardingEngine(action, params)
+                      : await executeIntelligenceAction(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {
