@@ -13,7 +13,8 @@ const ACTIONS = [
   "list", "get", "execute", "chain", "toggle",
   "emit", "event_list", "event_history",
   "fire", "chain_v2", "status", "history",
-  "enable", "disable", "coverage", "gaps", "performance", "failures"
+  "enable", "disable", "coverage", "gaps", "performance", "failures",
+  "subscribe", "reactive_chains"
 ] as const;
 
 function ok(data: any) {
@@ -23,7 +24,7 @@ function ok(data: any) {
 export function registerHookDispatcher(server: any): void {
   server.tool(
     "prism_hook",
-    `Hook & event management (18 actions, consolidates 28 tools). Actions: ${ACTIONS.join(", ")}`,
+    `Hook & event management (20 actions, consolidates 28 tools). Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_hook] ${action}`);
@@ -118,6 +119,33 @@ export function registerHookDispatcher(server: any): void {
           case "failures": {
             const failures = hookEngine.getFailures(params.hook_id, params.last_n || 100, params.include_stack || false);
             return ok(failures);
+          }
+          // === Pub/Sub Protocol Actions (R3-MS4.5) ===
+          case "subscribe": {
+            if (!params.event) return ok({ error: "Missing required param: event" });
+            if (typeof params.callback !== "function") {
+              // When called via MCP tool (not programmatic), store a no-op subscription and return id
+              const subId = eventBus.subscribeTyped({
+                event: params.event,
+                filter: params.filter,
+                callback: (_evt) => { /* no-op for MCP-registered subscriptions */ },
+                description: params.description,
+                active: params.active !== false
+              });
+              return ok({ subscription_id: subId, event: params.event, filter: params.filter });
+            }
+            const subId = eventBus.subscribeTyped({
+              event: params.event,
+              filter: params.filter,
+              callback: params.callback,
+              description: params.description,
+              active: params.active !== false
+            });
+            return ok({ subscription_id: subId, event: params.event });
+          }
+          case "reactive_chains": {
+            const chains = eventBus.getReactiveChains();
+            return ok({ count: chains.length, chains });
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
