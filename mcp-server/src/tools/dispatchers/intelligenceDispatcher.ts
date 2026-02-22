@@ -44,7 +44,7 @@ import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
-import { productSFC, productPPG } from "../../engines/ProductEngine.js";
+import { productSFC, productPPG, productShop } from "../../engines/ProductEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -275,6 +275,17 @@ const ACTIONS = [
   "ppg_batch",
   "ppg_history",
   "ppg_get",
+  // Shop Manager — R11-MS2
+  "shop_job",
+  "shop_cost",
+  "shop_quote",
+  "shop_schedule",
+  "shop_dashboard",
+  "shop_report",
+  "shop_compare",
+  "shop_materials",
+  "shop_history",
+  "shop_get",
 ] as const;
 
 /**
@@ -875,6 +886,27 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { entries: result.history?.length };
     case "ppg_get":
       return { product: result.product, version: result.version };
+    // Shop Manager extractors
+    case "shop_job":
+      return { material: result.material, operations: result.operations?.length, cycle_time_min: result.total_cycle_time_min };
+    case "shop_cost":
+      return { cost_per_part: result.cost_per_part, price_per_part: result.price_per_part, batch_size: result.batch_size };
+    case "shop_quote":
+      return { quote_number: result.quote_number, unit_price: result.pricing?.unit_price, quantity: result.pricing?.quantity };
+    case "shop_schedule":
+      return { production_days: result.production_days, parts_per_day: result.parts_per_day };
+    case "shop_dashboard":
+      return { total_machines: result.summary?.total_machines, utilization: result.summary?.average_utilization_pct };
+    case "shop_report":
+      return { cost_per_part: result.cost_summary?.cost_per_part, co2_kg: result.sustainability?.co2_kg_per_part };
+    case "shop_compare":
+      return { results: result.results?.length, recommendation: result.recommendation };
+    case "shop_materials":
+      return { total: result.total };
+    case "shop_history":
+      return { entries: result.history?.length };
+    case "shop_get":
+      return { product: result.product, version: result.version };
     default:
       return result;
   }
@@ -957,10 +989,13 @@ export function registerIntelligenceDispatcher(server: any): void {
         const ADAPTIVE_ACTIONS = ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] as const;
         const SFC_ACTIONS = ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] as const;
         const PPG_ACTIONS = ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] as const;
+        const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
         const result = SFC_ACTIONS.includes(action as any)
           ? productSFC(action, params)
           : PPG_ACTIONS.includes(action as any)
           ? productPPG(action, params)
+          : SHOP_ACTIONS.includes(action as any)
+          ? productShop(action, params)
           : ADAPTIVE_ACTIONS.includes(action as any)
           ? adaptiveControl(action, params)
           : LEARN_ACTIONS.includes(action as any)
