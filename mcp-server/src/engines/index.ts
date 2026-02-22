@@ -798,3 +798,10 @@ export {
   type InverseProblemInput, type RootCause, type Fix,
   type InverseSolution,
 } from "./InverseSolverEngine.js";
+
+// Failure Forensics (R10-Rev5)
+export {
+  failureForensics,
+  type ToolFailureMode, type ChipType, type SurfaceDefect, type CrashType,
+  type ForensicDiagnosis, type CorrAction,
+} from "./FailureForensicsEngine.js";

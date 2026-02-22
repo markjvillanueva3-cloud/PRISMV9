@@ -35,6 +35,7 @@ import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
 import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
 import { measurementIntegration } from "../../engines/MeasurementIntegrationEngine.js";
 import { inverseSolver } from "../../engines/InverseSolverEngine.js";
+import { failureForensics } from "../../engines/FailureForensicsEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -154,6 +155,16 @@ const ACTIONS = [
   "inverse_troubleshoot",
   "inverse_history",
   "inverse_get",
+  "forensic_tool_autopsy",
+  "forensic_chip_analysis",
+  "forensic_surface_defect",
+  "forensic_crash",
+  "forensic_failure_modes",
+  "forensic_chip_types",
+  "forensic_surface_types",
+  "forensic_crash_types",
+  "forensic_history",
+  "forensic_get",
 ] as const;
 
 /**
@@ -538,6 +549,20 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total, by_type: result.by_type };
     case "inverse_get":
       return { id: result.problem_id, type: result.problem_type, primary_cause: result.primary_cause };
+    case "forensic_tool_autopsy":
+    case "forensic_chip_analysis":
+    case "forensic_surface_defect":
+    case "forensic_crash":
+      return { id: result.diagnosis_id, category: result.category, mode: result.failure_mode, severity: result.severity, actions: result.corrective_actions?.length };
+    case "forensic_failure_modes":
+    case "forensic_chip_types":
+    case "forensic_surface_types":
+    case "forensic_crash_types":
+      return { total: result.total };
+    case "forensic_history":
+      return { total: result.total, by_category: result.by_category };
+    case "forensic_get":
+      return { id: result.diagnosis_id, category: result.category, mode: result.failure_mode };
     default:
       return result;
   }
@@ -609,7 +634,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const ERP_ACTIONS = ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] as const;
         const MEASURE_ACTIONS = ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] as const;
         const INVERSE_ACTIONS = ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] as const;
-        const result = INVERSE_ACTIONS.includes(action as any)
+        const FORENSIC_ACTIONS = ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] as const;
+        const result = FORENSIC_ACTIONS.includes(action as any)
+          ? failureForensics(action, params)
+          : INVERSE_ACTIONS.includes(action as any)
           ? inverseSolver(action, params)
           : MEASURE_ACTIONS.includes(action as any)
           ? measurementIntegration(action, params)
