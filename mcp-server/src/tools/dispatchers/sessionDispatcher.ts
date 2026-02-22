@@ -331,7 +331,7 @@ export function registerSessionDispatcher(server: any): void {
             let resumeDetection: any = null;
             try {
               const compactionArg = params.compaction_detected ? " --compaction-detected" : "";
-              const resumeOutput = runPythonScript("resume_detector.py", ["--json" + compactionArg]);
+              const resumeOutput = await runPythonScript("resume_detector.py", ["--json" + compactionArg]);
               resumeDetection = JSON.parse(resumeOutput);
             } catch { /* non-fatal — fall back to basic resume */ }
             

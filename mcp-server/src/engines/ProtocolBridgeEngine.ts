@@ -98,12 +98,16 @@ class RateLimiter {
 // PROTOCOL BRIDGE ENGINE — SINGLETON
 // ============================================================================
 
+/** Handler function type for routing bridge requests to actual dispatchers */
+export type DispatchHandler = (dispatcher: string, action: string, params: Record<string, unknown>) => Promise<Record<string, unknown>>;
+
 export class ProtocolBridgeEngine {
   private config: ProtocolBridgeConfig;
   private endpoints: Map<string, ProtocolEndpoint> = new Map();
   private apiKeys: Map<string, ApiKeyRecord> = new Map();
   private rateLimiter = new RateLimiter();
   private initialized: boolean = false;
+  private dispatchHandler: DispatchHandler | null = null;
 
   private metrics = {
     requests_total: 0, requests_success: 0, requests_error: 0,
@@ -115,6 +119,12 @@ export class ProtocolBridgeEngine {
 
   constructor(configOverrides?: Partial<ProtocolBridgeConfig>) {
     this.config = { ...DEFAULT_BRIDGE_CONFIG, ...configOverrides };
+  }
+
+  /** Register a dispatch handler for routing bridge requests to actual PRISM dispatchers */
+  setDispatchHandler(handler: DispatchHandler): void {
+    this.dispatchHandler = handler;
+    log.info('[BRIDGE] Dispatch handler registered — live routing enabled');
   }
 
   init(): void {
@@ -245,7 +255,7 @@ export class ProtocolBridgeEngine {
   // REQUEST ROUTING — Process incoming bridge requests
   // ==========================================================================
 
-  routeRequest(request: BridgeRequest): BridgeResponse {
+  async routeRequest(request: BridgeRequest): Promise<BridgeResponse> {
     this.init();
     const start = Date.now();
     this.metrics.requests_total++;
@@ -309,11 +319,25 @@ export class ProtocolBridgeEngine {
         return { request_id: request.request_id, status: 'rate_limited', error: rateCheck.reason, latency_ms: Date.now() - start, timestamp: Date.now() };
       }
 
-      // Route to dispatcher (simulated — actual routing would call MCP handler)
-      // In production, this would invoke the actual dispatcher
+      // Route to dispatcher — live routing via dispatchHandler, or simulated passthrough
+      let responseData: Record<string, unknown>;
+      if (this.dispatchHandler) {
+        try {
+          responseData = await this.dispatchHandler(endpoint.dispatcher, endpoint.action, request.params || {});
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          this.metrics.requests_error++;
+          endpoint.error_count = (endpoint.error_count || 0) + 1;
+          return this.errorResponse(request.request_id, `Dispatch failed: ${errMsg}`, start);
+        }
+      } else {
+        // Simulated passthrough (no handler registered)
+        responseData = { routed_to: `${endpoint.dispatcher}:${endpoint.action}`, params: request.params, protocol: endpoint.protocol, _simulated: true };
+      }
+
       const response: BridgeResponse = {
         request_id: request.request_id, status: 'success',
-        data: { routed_to: `${endpoint.dispatcher}:${endpoint.action}`, params: request.params, protocol: endpoint.protocol },
+        data: responseData,
         latency_ms: Date.now() - start, timestamp: Date.now(),
       };
 

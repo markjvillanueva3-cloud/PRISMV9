@@ -31,19 +31,13 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { fileURLToPath } from "url";
+// fileURLToPath removed — esbuild banner already declares it (duplicate causes crash)
 import { parallelAPICalls, hasValidApiKey, getModelForTier } from "../config/api-config.js";
 
-// __dirname shim: esbuild injects this via banner for the bundled dist file.
-// When running via tsx (source ESM), we derive it from import.meta.url instead.
-const _filename =
-  typeof __filename !== "undefined"
-    ? __filename
-    : fileURLToPath(import.meta.url);
-const _dirname =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : path.dirname(_filename);
+// __dirname shim: esbuild injects __dirname/__filename via banner for the bundled dist file.
+// tsx also provides them. Use directly.
+const _filename = __filename;
+const _dirname = __dirname;
 
 // ============================================================================
 // Types

@@ -18,7 +18,8 @@ const DataDispatcherSchema = z.object({
     "tool_get", "tool_search", "tool_recommend", "tool_facets",
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
-    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare"
+    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare",
+    "material_substitute"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -30,7 +31,7 @@ function jsonResponse(data: any) {
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
-    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare",
+    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head), material_substitute (find alternative materials by cost/availability/machinability/performance). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute",
     DataDispatcherSchema.shape,
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_data] action=${action}`, params);
@@ -125,7 +126,6 @@ export function registerDataDispatcher(server: any): void {
               diameter_target: params.diameter, max_results: params.limit ?? 5
             });
             // Expand material-specific cutting params for the queried ISO group
-            const isoKey = `${mat.iso_group}_` ;
             result = recTools.map((t: any) => {
               const cpSrc = t.cutting_params?.materials || t.cutting_params || {};
               let materialParams: any = null;
@@ -546,6 +546,84 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === CROSS-SYSTEM INTELLIGENCE (R3-MS3) ===
+          case "material_substitute": {
+            const subMat = params.material;
+            const subReason = params.reason || "machinability";
+            if (!subMat) return jsonResponse({ error: "material_substitute requires 'material' parameter" });
+            const validReasons = ["cost", "availability", "machinability", "performance"];
+            if (!validReasons.includes(subReason)) return jsonResponse({ error: `Invalid reason: ${subReason}. Use: ${validReasons.join(", ")}` });
+
+            // 1. Get source material
+            const source = await registryManager.materials.getByIdOrName(subMat);
+            if (!source) return jsonResponse({ error: `Source material not found: ${subMat}` });
+            const srcGroup = (source as any).iso_group || "P";
+            const srcHardness = (source as any).hardness_hb || (source as any).hardness || 200;
+            const srcTensile = (source as any).tensile_strength_mpa || (source as any).tensile_strength || 500;
+            const srcMachinability = (source as any).machinability_rating || (source as any).machinability || 50;
+
+            // 2. Find candidates in same ISO group
+            const candidates = await registryManager.materials.search({
+              iso_group: srcGroup, limit: 50, offset: 0
+            });
+            const candidateList = Array.isArray(candidates) ? candidates : (candidates as any)?.results || [];
+
+            // 3. Score and rank based on reason
+            const scored = candidateList
+              .filter((c: any) => c.name !== source.name && c.id !== (source as any).id)
+              .map((c: any) => {
+                const cHardness = c.hardness_hb || c.hardness || 200;
+                const cTensile = c.tensile_strength_mpa || c.tensile_strength || 500;
+                const cMachinability = c.machinability_rating || c.machinability || 50;
+                const hardnessDiff = Math.abs(cHardness - srcHardness) / srcHardness;
+                const tensileDiff = Math.abs(cTensile - srcTensile) / srcTensile;
+                const machinabilityImprovement = ((cMachinability - srcMachinability) / Math.max(srcMachinability, 1)) * 100;
+
+                let score = 0;
+                const tradeOffs: string[] = [];
+                if (subReason === "machinability") {
+                  score = cMachinability;
+                  if (hardnessDiff > 0.20) tradeOffs.push(`Hardness differs by ${Math.round(hardnessDiff * 100)}%`);
+                  if (tensileDiff > 0.20) tradeOffs.push(`Tensile strength differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "cost") {
+                  score = cMachinability * 0.5 + (1 - hardnessDiff) * 50;
+                  if (tensileDiff > 0.15) tradeOffs.push(`Tensile differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "availability") {
+                  const commonAlloys = ["1045", "4140", "4340", "6061", "7075", "304", "316"];
+                  const isCommon = commonAlloys.some(a => c.name?.includes(a));
+                  score = (isCommon ? 100 : 50) + cMachinability * 0.3;
+                  if (tensileDiff > 0.15) tradeOffs.push(`Tensile differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "performance") {
+                  score = cTensile * 0.5 + cHardness * 0.3 + cMachinability * 0.2;
+                  if (cMachinability < srcMachinability * 0.8) tradeOffs.push(`Lower machinability (${Math.round(cMachinability)} vs ${Math.round(srcMachinability)})`);
+                }
+
+                return {
+                  name: c.name,
+                  iso_group: c.iso_group || srcGroup,
+                  machinability_improvement_pct: Math.round(machinabilityImprovement),
+                  properties: {
+                    hardness: cHardness,
+                    tensile: cTensile,
+                    density: c.density || null,
+                    machinability: cMachinability
+                  },
+                  trade_offs: tradeOffs,
+                  score
+                };
+              })
+              .sort((a: any, b: any) => b.score - a.score)
+              .slice(0, 5);
+
+            result = {
+              source_material: { name: source.name, iso_group: srcGroup, hardness: srcHardness, tensile: srcTensile, machinability: srcMachinability },
+              reason: subReason,
+              substitutes: scored.map(({ score, ...rest }: any) => rest),
+              count: scored.length
+            };
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -557,5 +635,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (17 actions)");
+  log.info("[dataDispatcher] Registered prism_data (21 actions)");
 }

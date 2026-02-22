@@ -1,0 +1,136 @@
+﻿[ThreadDataISO] Loaded 149 ISO metric threads
+[ThreadDataUnified] Loaded 61 Unified threads
+[ThreadDataPipe] Loaded 48 pipe threads
+[ThreadDataAcme] Loaded 46 ACME + 35 Trapezoidal threads
+[ThreadCalculationEngine] Initialized
+
+============================================================
+  R2 Golden Benchmark Results ΓÇö WIRED (T2)
+============================================================
+Total: 50 | PASS: 16 | FAIL: 34 | ERROR: 0 | SKIP: 0
+ISO Groups: H, K, M, N, P, S
+Calc Types: chip_load, chip_thinning, coolant_strategy, cost_optimize, cutting_force, deflection, flow_stress, hsm, mrr, multi_pass, power, scallop, speed_feed, stability, surface_finish, thermal, thread_mill, tool_life, torque, trochoidal
+  H: 5 tests | 2 PASS | 3 FAIL | 0 ERROR
+  K: 6 tests | 2 PASS | 4 FAIL | 0 ERROR
+  M: 8 tests | 2 PASS | 6 FAIL | 0 ERROR
+  N: 7 tests | 2 PASS | 5 FAIL | 0 ERROR
+  P: 16 tests | 6 PASS | 10 FAIL | 0 ERROR
+  S: 8 tests | 2 PASS | 6 FAIL | 0 ERROR
+
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£ù B001 [cutting_force] FAIL ΓÇö P-Steel Turning Roughing - AISI 4140
+  Γ£ù Fc_N: expected=1340, actual=2067.3362368547623 (╬ö54.3% vs ┬▒15%)
+  Γ£ù Ff_N: expected=670, actual=826.9344947419049 (╬ö23.4% vs ┬▒20%)
+  Γ£ù power_kW: expected=4.9, actual=7.580232868467461 (╬ö54.7% vs ┬▒15%)
+Γ£ô B002 [cutting_force] PASS ΓÇö P-Steel Turning Finishing - AISI 1045
+Γ£ô B003 [cutting_force] PASS ΓÇö P-Steel Milling Roughing - AISI 4340
+Γ£ô B004 [mrr] PASS ΓÇö P-Steel Milling MRR Validation
+Γ£ù B005 [tool_life] FAIL ΓÇö P-Steel Taylor Tool Life - Carbide
+  Γ£ù tool_life_min: expected=18.5, actual=2.8 (╬ö84.9% vs ┬▒20%)
+Γ£ô B006 [surface_finish] PASS ΓÇö P-Steel Surface Finish Turning
+Γ£ù B007 [cutting_force] FAIL ΓÇö P-Steel Drilling - AISI 1020
+  Γ£ù Fc_N: expected=1850, actual=737.4686689115614 (╬ö60.1% vs ┬▒20%)
+  Γ£ô torque_Nm: expected=4.6, actual=3.687343344557807 (╬ö19.8% vs ┬▒20%)
+  Γ£ô power_kW: expected=1.8, actual=1.474937337823123 (╬ö18.1% vs ┬▒20%)
+Γ£ù B008 [cutting_force] FAIL ΓÇö P-Steel High Feed Milling
+  Γ£ù Fc_N: expected=3200, actual=1775.146466141305 (╬ö44.5% vs ┬▒20%)
+  Γ£ù power_kW: expected=13.3, actual=7.3964436089221035 (╬ö44.4% vs ┬▒20%)
+Γ£ù B009 [cutting_force] FAIL ΓÇö M-Stainless Turning Roughing - 316L
+  Γ£ù Fc_N: expected=1520, actual=1882.0662630207732 (╬ö23.8% vs ┬▒15%)
+  Γ£ù power_kW: expected=4.1, actual=5.0188433680553945 (╬ö22.4% vs ┬▒15%)
+Γ£ô B010 [cutting_force] PASS ΓÇö M-Stainless Milling - Duplex 2205
+Γ£ù B011 [tool_life] FAIL ΓÇö M-Stainless Taylor Tool Life - 304
+  Γ£ù tool_life_min: expected=22.4, actual=4.4 (╬ö80.4% vs ┬▒20%)
+Γ£ù B012 [cutting_force] FAIL ΓÇö M-Stainless Drilling - 316L
+  Γ£ù torque_Nm: expected=3.8, actual=2.795007609389244 (╬ö26.4% vs ┬▒20%)
+  Γ£ù power_kW: expected=1.2, actual=0.931669203129748 (╬ö22.4% vs ┬▒20%)
+Γ£ô B013 [surface_finish] PASS ΓÇö M-Stainless Surface Finish Turning - 304
+Γ£ù B014 [thermal] FAIL ΓÇö M-Stainless Cutting Temperature - 316L
+  Γ£ù T_tool_C: expected=780, actual=120 (╬ö84.6% vs ┬▒20%)
+  Γ£ô T_chip_C: expected=650, actual=660 (╬ö1.5% vs ┬▒25%)
+Γ£ù B015 [cutting_force] FAIL ΓÇö K-Cast Iron Turning - GG25 Gray Iron
+  Γ£ù Fc_N: expected=980, actual=1321.679316089624 (╬ö34.9% vs ┬▒15%)
+  Γ£ù power_kW: expected=4.6, actual=6.1678368084182456 (╬ö34.1% vs ┬▒15%)
+Γ£ù B016 [cutting_force] FAIL ΓÇö K-Cast Iron Milling - GGG50 Ductile
+  Γ£ù Fc_N: expected=2400, actual=1562.7169807259895 (╬ö34.9% vs ┬▒18%)
+  Γ£ù power_kW: expected=8, actual=5.209056602419965 (╬ö34.9% vs ┬▒18%)
+Γ£ù B017 [tool_life] FAIL ΓÇö K-Cast Iron Taylor - Ceramic Insert
+  Γ£ù tool_life_min: expected=28.1, actual=5.1 (╬ö81.9% vs ┬▒20%)
+Γ£ô B018 [mrr] PASS ΓÇö K-Cast Iron MRR Milling
+Γ£ô B019 [cutting_force] PASS ΓÇö K-Cast Iron Drilling - GG30
+Γ£ù B020 [cutting_force] FAIL ΓÇö N-Aluminum Turning - 6061-T6
+  Γ£ù Fc_N: expected=320, actual=608.1523529811824 (╬ö90% vs ┬▒15%)
+  Γ£ù power_kW: expected=3.2, actual=6.081523529811824 (╬ö90% vs ┬▒15%)
+Γ£ù B021 [cutting_force] FAIL ΓÇö N-Aluminum Milling HSM - 7075-T6
+  Γ£ù Fc_N: expected=680, actual=1245.0404869718843 (╬ö83.1% vs ┬▒18%)
+  Γ£ù power_kW: expected=9.1, actual=16.60053982629179 (╬ö82.4% vs ┬▒18%)
+Γ£ô B022 [mrr] PASS ΓÇö N-Aluminum MRR High-Speed Milling
+Γ£ô B023 [surface_finish] PASS ΓÇö N-Aluminum Surface Finish - PCD Tool
+Γ£ù B024 [cutting_force] FAIL ΓÇö N-Copper Turning - C110
+  Γ£ù Fc_N: expected=260, actual=341.54068185804294 (╬ö31.4% vs ┬▒20%)
+  Γ£ù power_kW: expected=1.3, actual=1.7077034092902148 (╬ö31.4% vs ┬▒20%)
+Γ£ù B025 [cutting_force] FAIL ΓÇö S-Inconel 718 Turning Roughing
+  Γ£ù Fc_N: expected=1680, actual=1256.0929762258254 (╬ö25.2% vs ┬▒18%)
+  Γ£ù power_kW: expected=1.3, actual=0.9420697321693691 (╬ö27.5% vs ┬▒18%)
+Γ£ù B026 [cutting_force] FAIL ΓÇö S-Inconel 718 Milling
+  Γ£ù Fc_N: expected=1200, actual=764.4844287124004 (╬ö36.3% vs ┬▒20%)
+  Γ£ù power_kW: expected=0.7, actual=0.4459492500822336 (╬ö36.3% vs ┬▒20%)
+Γ£ù B027 [thermal] FAIL ΓÇö S-Inconel 718 Cutting Temperature
+  Γ£ù T_tool_C: expected=950, actual=73 (╬ö92.3% vs ┬▒20%)
+  Γ£ù T_chip_C: expected=820, actual=402 (╬ö51% vs ┬▒25%)
+Γ£ù B028 [tool_life] FAIL ΓÇö S-Inconel 718 Taylor Tool Life
+  Γ£ù tool_life_min: expected=15.6, actual=50.6 (╬ö224.4% vs ┬▒25%)
+Γ£ù B029 [cutting_force] FAIL ΓÇö S-Ti6Al4V Turning
+  Γ£ù Fc_N: expected=890, actual=696.1639404965634 (╬ö21.8% vs ┬▒18%)
+  Γ£ù power_kW: expected=0.9, actual=0.6961639404965635 (╬ö22.6% vs ┬▒18%)
+Γ£ô B030 [cutting_force] PASS ΓÇö S-Ti6Al4V Milling
+Γ£ù B031 [cutting_force] FAIL ΓÇö H-Hardened Turning - D2 Tool Steel 60HRC
+  Γ£ù Fc_N: expected=380, actual=200.07337538614098 (╬ö47.3% vs ┬▒20%)
+  Γ£ù power_kW: expected=0.76, actual=0.40014675077228196 (╬ö47.3% vs ┬▒20%)
+Γ£ô B032 [cutting_force] PASS ΓÇö H-Hardened Milling - H13 52HRC
+Γ£ù B033 [tool_life] FAIL ΓÇö H-Hardened Taylor CBN Tool Life - D2
+  Γ£ù tool_life_min: expected=22.7, actual=4315.1 (╬ö18909.3% vs ┬▒25%)
+Γ£ô B034 [surface_finish] PASS ΓÇö H-Hardened Surface Finish CBN Turning
+Γ£ù B035 [thermal] FAIL ΓÇö H-Hardened Cutting Temperature - H13
+  Γ£ù T_tool_C: expected=1050, actual=61 (╬ö94.2% vs ┬▒20%)
+Γ£ù B036 [trochoidal] FAIL ΓÇö Trochoidal Milling - AISI 4140 Slot
+  Γ£ù MRR_cm3min: expected=34.2, actual=0.23 (╬ö99.3% vs ┬▒15%)
+  Γ£ù max_engagement_deg: expected=35, actual=28.8 (╬ö17.7% vs ┬▒10%)
+Γ£ù B037 [hsm] FAIL ΓÇö HSM Parameters - 7075-T6 Thin Wall
+  Γ£ù MRR_cm3min: expected=45.8, actual=114.59155902616465 (╬ö150.2% vs ┬▒10%)
+  Γ£ô spindle_rpm: expected=38197, actual=38197.18634205488 (╬ö0% vs ┬▒5%)
+Γ£ô B038 [chip_thinning] PASS ΓÇö Chip Thinning Compensation - Low ae Milling
+Γ£ù B039 [stability] FAIL ΓÇö Chatter Stability - Slender Endmill
+  Γ£ù stable: expected=false, actual=true
+  Γ£ù max_stable_ap_mm: expected=8.5, actual=NaN (╬öNaN% vs ┬▒25%)
+Γ£ù B040 [deflection] FAIL ΓÇö Tool Deflection - Long Reach Endmill
+  Γ£ù deflection_mm: expected=0.042, actual=0.2529 (╬ö502.1% vs ┬▒20%)
+  Γ£ù safe: expected=true, actual=false
+Γ£ù B041 [thread_mill] FAIL ΓÇö Thread Milling - M12x1.75 in 4140
+  Γ£ù tap_drill_mm: expected=10.25, actual=9.908 (╬ö3.3% vs ┬▒2%)
+  Γ£ù engagement_pct: expected=75, actual=97.4 (╬ö29.9% vs ┬▒5%)
+Γ£ô B042 [scallop] PASS ΓÇö Scallop Height - Ball Nose 3D Finishing
+Γ£ù B043 [multi_pass] FAIL ΓÇö Multi-Pass Roughing Strategy - Deep Pocket
+  Γ£ô num_passes: expected=4, actual=4 (╬ö0% vs ┬▒0%)
+  Γ£ù total_time_min: expected=8.5, actual=MISSING
+Γ£ô B044 [coolant_strategy] PASS ΓÇö Coolant Strategy - Inconel 718 TSC
+Γ£ù B045 [cost_optimize] FAIL ΓÇö Cost Optimization - 4340 Turning
+  Γ£ù Vc_optimal_mpm: expected=240, actual=664 (╬ö176.7% vs ┬▒15%)
+  Γ£ù cost_per_part: expected=2.8, actual=MISSING
+Γ£ù B046 [power] FAIL ΓÇö Spindle Power Check - Heavy Roughing 4130
+  Γ£ù power_required_kW: expected=18.5, actual=8.273 (╬ö55.3% vs ┬▒15%)
+  Γ£ù utilization_pct: expected=84, actual=37.60454545454545 (╬ö55.2% vs ┬▒10%)
+  Γ£ô safe: expected=true, actual=true
+Γ£ù B047 [torque] FAIL ΓÇö Spindle Torque Check - Large Drill
+  Γ£ù torque_required_Nm: expected=52, actual=32.81 (╬ö36.9% vs ┬▒20%)
+  Γ£ô safe: expected=true, actual=true
+Γ£ù B048 [chip_load] FAIL ΓÇö Chip Load Validation - Micro Milling Aluminum
+  Γ£ô chip_load_ok: expected=true, actual=true
+  Γ£ù min_chip_thickness_mm: expected=0.008, actual=0.013 (╬ö62.5% vs ┬▒25%)
+Γ£ù B049 [speed_feed] FAIL ΓÇö Speed/Feed Recommendation - 316L Facing
+  Γ£ù Vc_mpm: expected=160, actual=120 (╬ö25% vs ┬▒20%)
+  Γ£ô f_mmrev: expected=0.25, actual=0.288 (╬ö15.2% vs ┬▒20%)
+Γ£ù B050 [flow_stress] FAIL ΓÇö Johnson-Cook Flow Stress - Ti6Al4V
+  Γ£ù sigma_MPa: expected=820, actual=2074.95386784189 (╬ö153% vs ┬▒20%)
+
+Results written to: C:\PRISM\mcp-server\tests\r2\benchmark-results.json

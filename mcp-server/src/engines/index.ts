@@ -506,3 +506,379 @@ export {
   type AnalysisResult,
   type DiagnosisResult,
 } from "./InferenceChainEngine.js";
+
+// Physics Prediction Engine — R7-MS0 Surface Integrity, Chatter, Thermal, Coupled Models
+export {
+  physicsPrediction,
+  predictSurfaceIntegrity,
+  predictChatter,
+  predictThermalCompensation,
+  unifiedMachiningModel,
+  couplingSensitivity,
+  type SurfaceIntegrityInput,
+  type SurfaceIntegrityResult,
+  type ChatterInput,
+  type ChatterResult,
+  type ThermalCompInput,
+  type ThermalCompResult,
+  type UnifiedMachiningInput,
+  type UnifiedMachiningResult,
+  type SensitivityInput,
+  type SensitivityResult,
+  type OperationType,
+  type ToolMaterial,
+  type CoolantType,
+} from "./PhysicsPredictionEngine.js";
+
+// Optimization Engine — R7-MS1 Constrained Multi-Objective Optimization
+export {
+  optimization,
+  optimizeParameters,
+  optimizeSequence,
+  sustainabilityReport,
+  ecoOptimize,
+  type FeatureType as OptFeatureType,
+  type ObjectiveType,
+  type SequenceObjective,
+  type OptimizeInput,
+  type OptimizeResult,
+  type SequenceInput,
+  type SequenceResult,
+  type SustainabilityInput,
+  type SustainabilityResult,
+  type EcoOptimizeInput,
+  type EcoOptimizeResult,
+} from "./OptimizationEngine.js";
+
+// Workholding Intelligence Engine — R7-MS2 Fixture Selection & Clamping Analysis
+export {
+  workholdingIntelligence,
+  fixtureRecommend,
+  type PartShape,
+  type FixtureType as IntelFixtureType,
+  type FixtureInput,
+  type FixtureResult,
+} from "./WorkholdingIntelligenceEngine.js";
+
+// Job Learning Engine — R7-MS3 Adaptive Manufacturing Intelligence
+export {
+  jobLearning,
+  jobRecord,
+  jobInsights,
+  clearJobStore,
+  getJobStoreSize,
+  type ToolFailureMode,
+  type JobRecordInput,
+  type JobRecordResult,
+  type JobInsightsInput,
+  type JobInsightsResult,
+  type Pattern as LearningPattern,
+  type ParameterAdjustment,
+} from "./JobLearningEngine.js";
+
+// Algorithm Gateway Engine — R7-MS4 MIT/Stanford Course Integration
+export {
+  algorithmGateway,
+  algorithmSelect,
+  type ProblemType,
+  type DomainType,
+  type AlgorithmSelectInput,
+  type AlgorithmSelectResult,
+  type FFTInput,
+  type FFTResult,
+  type BayesianInput,
+  type BayesianResult,
+  type GradientDescentInput,
+  type GradientDescentResult,
+  type InterpolationInput,
+  type InterpolationResult,
+  type MonteCarloInput,
+  type MonteCarloResult,
+  type TopoSortInput,
+  type TopoSortResult,
+  type KalmanInput,
+  type KalmanResult,
+  type EigenInput,
+  type EigenResult,
+  type PIDInput,
+  type PIDResult,
+} from "./AlgorithmGatewayEngine.js";
+
+// Shop Scheduler Engine — R7-MS5 Shop Floor Optimization
+export {
+  shopScheduler,
+  shopSchedule,
+  machineUtilization,
+  type OperationInput,
+  type JobInput,
+  type MachineInput,
+  type OptimizeFor,
+  type ShopScheduleInput,
+  type ShopScheduleResult,
+  type Assignment,
+  type MachineSchedule,
+  type ScheduleMetrics,
+  type MachineUtilizationInput,
+  type MachineUtilizationResult,
+} from "./ShopSchedulerEngine.js";
+
+// Intent Decomposition Engine — R8-MS0 Natural Language → Execution Plan
+export {
+  intentEngine,
+  decomposeIntent,
+  type ExtractedEntities,
+  type ExecutionStep,
+  type Persona,
+  type IntentDecomposition,
+} from "./IntentDecompositionEngine.js";
+
+// Response Formatter Engine — R8-MS1 Persona-Adaptive Formatting
+export {
+  responseFormatter,
+  formatForPersona,
+  detectPersona as detectResponsePersona,
+  detectUnits,
+  type Persona as ResponsePersona,
+  type UnitSystem,
+  type FormatOptions,
+  type FormattedResponse,
+  type FormattedSection,
+} from "./ResponseFormatterEngine.js";
+
+// Workflow Chains Engine — R8-MS2 Pre-Built Manufacturing Workflows
+export {
+  workflowChains,
+  matchWorkflows,
+  findBestWorkflow,
+  getWorkflow,
+  listWorkflows,
+  getAllWorkflows,
+  type WorkflowId,
+  type WorkflowPersona,
+  type WorkflowStep,
+  type WorkflowDefinition,
+  type WorkflowMatch,
+  type WorkflowListItem,
+} from "./WorkflowChainsEngine.js";
+
+// Onboarding Engine — R8-MS3 Progressive Disclosure & Welcome Flow
+export {
+  onboardingEngine,
+  generateWelcome,
+  getDisclosureSuggestion,
+  recordInteraction,
+  getOnboardingState,
+  resetSession,
+  getCommonMaterials,
+  type DisclosureLevel,
+  type UserProfile,
+  type OnboardingState,
+  type WelcomeMessage,
+  type DisclosureSuggestion,
+} from "./OnboardingEngine.js";
+
+// Setup Sheet Generation (R8-MS4)
+export {
+  setupSheetEngine,
+  buildSetupSheet,
+  type SetupSheetFormat,
+  type SetupSheetHeader,
+  type SetupSheetOperation,
+  type SetupSheetTool,
+  type SetupSheetSummary,
+  type SetupSheet,
+} from "./SetupSheetEngine.js";
+
+// Conversational Memory & Context (R8-MS5)
+export {
+  conversationalMemory,
+  detectTransition,
+  transitionState,
+  startJob,
+  updateJob,
+  findJob,
+  resumeJob,
+  getActiveJob,
+  getConversationContext,
+  getRecentJobs,
+  completeJob,
+  resetConversation,
+  type ConversationState,
+  type JobContext,
+  type ConversationContext,
+  type ResponseStyle,
+} from "./ConversationalMemoryEngine.js";
+
+// User Workflow Skills (R8-MS6)
+export {
+  userWorkflowSkills,
+  getAllSkills,
+  getSkillById,
+  searchSkills,
+  matchSkill,
+  getSkillsByCategory,
+  getSkillSteps,
+  getSkillForPersona,
+  type WorkflowSkill,
+  type SkillStep,
+  type PersonaAdaptation,
+} from "./UserWorkflowSkillsEngine.js";
+
+// User Assistance Skills (R8-MS7)
+export {
+  userAssistanceSkills, getAllAssistanceSkills, getAssistanceSkillById,
+  searchAssistanceSkills, matchAssistanceSkill,
+  explainPhysics, assessConfidence, getCommonMistakes, generateSafetyReport,
+  type AssistanceSkill, type PhysicsExplanation, type ConfidenceReport,
+  type AlternativeOption, type SafetyReport, type CommonMistake,
+} from "./UserAssistanceSkillsEngine.js";
+
+// Machine Connectivity (R9-MS0)
+export {
+  machineConnectivity, registerMachine, unregisterMachine, listMachines, getMachine,
+  connectMachine, disconnectMachine, ingestLiveData, getLiveStatus, getAllMachineStatuses,
+  detectChatter, startToolWearMonitor, updateToolWear, getToolWear,
+  updateThermalState, getThermalState, acknowledgeAlert, getAlertHistory,
+  type MachineState, type ProtocolType, type AlertSeverity, type AlertType,
+  type MachineConfig, type MachinePosition, type MachineLiveData,
+  type MachineAlert, type MachineLiveStatus, type ChatterResult,
+  type ToolWearStatus, type ThermalDriftStatus,
+} from "./MachineConnectivityEngine.js";
+
+// CAM Integration (R9-MS1)
+export {
+  camIntegration, searchToolLibrary, getToolFromLibrary, getAllTools,
+  type CAMSystem, type OperationType, type UnitSystem,
+  type CAMOperation, type CAMRecommendation, type CAMParameterExport,
+  type ToolLibraryEntry,
+} from "./CAMIntegrationEngine.js";
+
+// DNC Transfer (R9-MS2)
+export {
+  dncTransfer, generateParameterBlock, executeDNCTransfer, generateQRData,
+  getTransferHistory, getTransferById,
+  type DNCSystem, type TransferAction, type TransferStatus, type ControllerType,
+  type GCodeParameterBlock, type DNCTransferRequest, type DNCTransferResult,
+  type ParameterMismatch, type QRCodeData,
+} from "./DNCTransferEngine.js";
+
+// Mobile Interface (R9-MS3)
+export {
+  mobileInterface, quickLookup, processVoiceQuery, decodeAlarm,
+  startToolTimer, checkToolTimer, resetToolTimer, listToolTimers,
+  generateOfflineCache,
+  type DisplaySize, type StatusColor, type TimerState,
+  type QuickLookupResult, type MobileDisplay, type VoiceQueryResult,
+  type AlarmQuickDecode, type ToolLifeTimer, type OfflineCacheBundle, type CacheEntry,
+} from "./MobileInterfaceEngine.js";
+
+// ERP Integration (R9-MS4)
+export {
+  erpIntegration, importWorkOrder, recordCostFeedback, importQualityData,
+  type ERPSystem, type WorkOrderStatus, type CostCategory,
+  type WorkOrder, type RoutingStep, type PRISMPlan, type PRISMRoutingStep,
+  type CostBreakdown, type CostFeedback, type CostVariance,
+  type ToolInventoryItem, type QualityRecord, type QualityMeasurement,
+} from "./ERPIntegrationEngine.js";
+
+// Measurement & Inspection Integration (R9-MS5)
+export {
+  measurementIntegration, importCMMData, compareSurfaceFinish,
+  recordProbeData, analyzeDrift, detectCalibrationBias,
+  type MeasurementSource, type DriftDirection,
+  type DimensionalMeasurement, type CMMReport, type CMMSummary,
+  type SurfaceFinishResult as MeasureSurfaceFinishResult,
+  type ProbingData, type DriftAnalysis, type CalibrationBias,
+} from "./MeasurementIntegrationEngine.js";
+
+// Inverse Problem Solving (R10-Rev2)
+export {
+  inverseSolver,
+  type InverseProblemType, type Severity, type Confidence,
+  type InverseProblemInput, type RootCause, type Fix,
+  type InverseSolution,
+} from "./InverseSolverEngine.js";
+
+// Failure Forensics (R10-Rev5)
+export {
+  failureForensics,
+  type ToolFailureMode, type ChipType, type SurfaceDefect, type CrashType,
+  type ForensicDiagnosis, type CorrAction,
+} from "./FailureForensicsEngine.js";
+
+// Machinist's Apprentice (R10-Rev7)
+export {
+  apprenticeEngine,
+  type SkillLevel, type LessonTrack,
+  type Lesson, type SkillAssessment, type KnowledgeEntry,
+  type ExplainResult, type ExplainFactor, type ChallengeExercise,
+} from "./ApprenticeEngine.js";
+
+// Manufacturing Genome (R10-Rev1)
+export {
+  manufacturingGenome,
+  type HeatTreatment, type ChipFormation,
+  type Composition, type MechanicalFingerprint, type ThermalFingerprint,
+  type MachinabilityFingerprint, type SurfaceIntegrityResponse, type BehavioralPattern,
+  type GenomeRecord, type GenomePrediction, type SimilarityResult,
+} from "./ManufacturingGenomeEngine.js";
+
+// Predictive Maintenance (R10-Rev6)
+export {
+  predictiveMaintenance,
+  type MaintenanceCategory, type SeverityLevel,
+  type DataPoint, type TrendResult, type PredictionResult,
+  type MaintenanceAlert, type MaintenanceModel,
+} from "./PredictiveMaintenanceEngine.js";
+
+// Sustainability Optimization (R10-Rev8)
+export {
+  sustainabilityEngine,
+  type OptimizationMode, type CoolantStrategy, type StockType,
+  type EnergyBreakdown, type CarbonBreakdown, type SustainabilityResult,
+  type OperationMetrics, type SavingsMetrics, type NearNetShapeResult,
+  type StockOption, type CoolantAnalysis,
+} from "./SustainabilityEngine.js";
+
+// Generative Process Planning (R10-Rev3)
+export {
+  generativeProcess,
+  type FeatureType, type AccessDirection, type OperationPhase, type ToolType,
+  type FeatureInput, type RecognizedFeature, type Setup, type PlannedOperation,
+  type ToolSelection as ProcessToolSelection, type CuttingParams,
+  type ProcessPlan, type CostBreakdown as ProcessCostBreakdown, type RiskSummary,
+} from "./GenerativeProcessEngine.js";
+
+// Manufacturing Knowledge Graph (R10-Rev10)
+export {
+  knowledgeGraph,
+  type NodeType, type EdgeType, type GraphNode, type GraphEdge,
+  type QueryResult as GraphQueryResult, type InferenceResult as GraphInferenceResult,
+  type DiscoveryResult as GraphDiscoveryResult, type PredictionResult as GraphPredictionResult,
+} from "./KnowledgeGraphEngine.js";
+
+export {
+  federatedLearning,
+  type FedMaterialClass, type FedMachineClass, type FedToolClass,
+  type FedOperationClass, type FedStrategyName,
+  type CorrectionFactor, type Contribution, type AnonymizationReport,
+  type NetworkStats, type OptControl, type TransparencyEntry,
+} from "./FederatedLearningEngine.js";
+
+export {
+  adaptiveControl,
+  type ControllerType, type AdaptiveMode, type OverrideChannel, type AlertLevel,
+  type SensorReading, type OverrideCommand, type AdaptiveState,
+  type ChiploadResult, type ChatterResult, type WearResult, type ThermalResult,
+  type AdaptiveConfig,
+} from "./AdaptiveControlEngine.js";
+
+// Product Engines — R11 Product Packaging
+export {
+  productSFC,
+  productPPG,
+  productShop,
+  productACNC,
+  type ProductTier, type SFCAction, type PPGAction, type ShopAction, type ACNCAction,
+  type ProductAction, type SFCInput, type SFCResult, type SFCCompareResult, type SFCOptimizeResult,
+} from "./ProductEngine.js";

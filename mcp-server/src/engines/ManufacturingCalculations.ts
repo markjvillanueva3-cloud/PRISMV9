@@ -106,7 +106,7 @@ export interface MRRResult {
 // CONSTANTS & LIMITS
 // ============================================================================
 
-const SAFETY_LIMITS = {
+export const SAFETY_LIMITS = {
   MAX_CUTTING_SPEED: 2000,      // m/min (HSM aluminum)
   MIN_CUTTING_SPEED: 1,         // m/min
   MAX_FEED_PER_TOOTH: 2.0,      // mm/tooth

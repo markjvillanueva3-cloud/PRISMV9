@@ -65,6 +65,7 @@ import {
 
 import { findAchievableGrade } from "./ToleranceEngine.js";
 import { registryManager } from "../registries/manager.js";
+import { toolpathRegistry } from "../registries/ToolpathStrategyRegistry.js";
 import { log } from "../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../types/ResponseLevel.js";
 
@@ -457,6 +458,26 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     thermalConductivity
   );
 
+  // -- 11. Toolpath strategy recommendation --
+  let toolpath: { strategy: string; reasoning: string; alternatives: string[] } | undefined;
+  try {
+    const tpResult = toolpathRegistry.getBestStrategy(
+      feature,
+      materialName,
+      "roughing",
+      { priority: "balanced" }
+    );
+    if (tpResult?.strategy) {
+      toolpath = {
+        strategy: `${tpResult.strategy.name} (${tpResult.strategy.id})`,
+        reasoning: tpResult.reasoning || tpResult.strategy.description || "",
+        alternatives: (tpResult.alternatives || []).slice(0, 3).map((a: any) => a.name || a.id),
+      };
+    }
+  } catch (err) {
+    log.warn(`[IntelligenceEngine] Toolpath strategy lookup failed: ${err}`);
+  }
+
   // -- Machine power check (if machine_id provided) --
   if (params.machine_id) {
     try {
@@ -584,6 +605,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     },
     safety: { all_checks_passed: allChecksPassed, warnings: safetyWarnings },
     confidence,
+    ...(toolpath ? { toolpath_recommendation: toolpath } : {}),
   };
 
   // Apply response level formatting if requested
