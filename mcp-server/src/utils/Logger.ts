@@ -36,6 +36,26 @@ export const logger = winston.createLogger({
   ]
 });
 
+// Structured JSON audit log — always active for enterprise compliance
+// Written to state/logs/ for append-only audit trail (R4-MS2)
+import * as fs from 'fs';
+import * as path from 'path';
+
+const AUDIT_LOG_DIR = path.join(process.cwd(), 'state', 'logs');
+try { if (!fs.existsSync(AUDIT_LOG_DIR)) fs.mkdirSync(AUDIT_LOG_DIR, { recursive: true }); } catch { /* non-fatal */ }
+
+logger.add(new winston.transports.File({
+  filename: path.join(AUDIT_LOG_DIR, 'audit.jsonl'),
+  format: combine(timestamp(), winston.format.json()),
+  level: 'info',
+}));
+
+logger.add(new winston.transports.File({
+  filename: path.join(AUDIT_LOG_DIR, 'error.jsonl'),
+  format: combine(timestamp(), winston.format.json()),
+  level: 'error',
+}));
+
 // Add file transport in production
 if (process.env.NODE_ENV === "production") {
   logger.add(new winston.transports.File({
@@ -63,7 +83,11 @@ export const log = {
   debug: (message: string, meta?: Record<string, unknown>) => logger.debug(message, meta),
   tool: (toolName: string, action: string, meta?: Record<string, unknown>) => {
     logger.info(`[${toolName}] ${action}`, meta);
-  }
+  },
+  /** Structured audit log entry for compliance (R4-MS2) */
+  audit: (event: string, meta: Record<string, unknown> = {}) => {
+    logger.info(`[AUDIT] ${event}`, { ...meta, _audit: true, _ts: Date.now() });
+  },
 };
 
 /**
