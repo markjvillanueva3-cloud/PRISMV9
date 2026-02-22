@@ -1,11 +1,26 @@
 # CURRENT POSITION
-## Updated: 2026-02-22T09:30:00Z
+## Updated: 2026-02-22T10:45:00Z
 
-**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ToleranceEngine COMPLETE, P2 GCodeTemplateEngine COMPLETE
-**Build:** 4.0MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
+**Phase:** R3 Intelligence Extraction — MS0 COMPLETE + HARDENED, P2 ToleranceEngine COMPLETE, P2 GCodeTemplateEngine COMPLETE, P2 DecisionTreeEngine COMPLETE
+**Build:** 4.1MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
 **Roadmap:** v19.1 (Modular Phase Files) — PHASE_R3_v19.md
-**Last Commit:** R3-P2: GCodeTemplateEngine (6 controllers, 13 operations, input validation)
+**Last Commit:** R3-P2: DecisionTreeEngine (6 decision trees, 30 calcDispatcher actions)
 **Prev Phase:** R2 Safety — FULLY COMPLETE (Ω=0.77, S(x)=0.85, 150/150 benchmarks)
+
+## R3-P2 Status — DecisionTreeEngine COMPLETE
+| Task | Status | Notes |
+|------|--------|-------|
+| T1: DecisionTreeEngine.ts | ✅ COMPLETE | 6 decision trees, pure computation, ~1,260 lines |
+| T2: selectToolType | ✅ COMPLETE | Material+operation→tool type, geometry, coating, holder |
+| T3: selectInsertGrade | ✅ COMPLETE | ISO 513 grade matrix (P/M/K/N/S/H × stable/interrupted/heavy) |
+| T4: selectCoolantStrategy | ✅ COMPLETE | Material+speed+operation→coolant method, pressure, flow |
+| T5: selectWorkholding | ✅ COMPLETE | Part geometry+force→fixture type, clamping method |
+| T6: selectStrategy | ✅ COMPLETE | Feature+constraints→toolpath strategy, entry method |
+| T7: selectApproachRetract | ✅ COMPLETE | Operation+context→approach/retract with G-code hints |
+| T8: Barrel exports | ✅ COMPLETE | 8 functions + 1 const + 7 types via index.ts |
+| T9: calcDispatcher wiring | ✅ COMPLETE | decision_tree action (30 total), single/list modes |
+| T10: Integration tests | ✅ COMPLETE | 21/21 decision tree tests |
+| T11: Ralph validation (GATED) | ✅ PASSED | Score: 0.82, Assess: Ω=0.857, Grade A- |
 
 ## R3-P2 Status — GCodeTemplateEngine COMPLETE
 | Task | Status | Notes |
@@ -16,7 +31,7 @@
 | T4: Input validation | ✅ COMPLETE | RPM/feed/pitch bounds, tool geometry checks, warning system |
 | T5: Multi-op program builder | ✅ COMPLETE | generateProgram() with all-or-nothing error propagation |
 | T6: Barrel exports | ✅ COMPLETE | 5 functions + 2 consts + 4 types via index.ts |
-| T7: calcDispatcher wiring | ✅ COMPLETE | gcode_generate action (29 total), single/multi/list modes |
+| T7: calcDispatcher wiring | ✅ COMPLETE | gcode_generate action, single/multi/list modes |
 | T8: Integration tests | ✅ COMPLETE | 16/16 gcode tests (12 functional + 4 validation) |
 | T9: Ralph validation (GATED) | ✅ PASSED | Score: 0.82 (iteration 2), Assess: Ω=0.917, Grade A |
 
@@ -55,6 +70,7 @@
 | T15: quality_predict | ✅ ENHANCED | Surface + deflection + thermal + ISO 286 tolerance lookup |
 
 ## R3 Integration Tests
+- tests/r3/decision-tree-tests.ts: 21/21 passed (6 trees, dispatcher, normalizer, validation)
 - tests/r3/gcode-tests.ts: 16/16 passed (6 controllers, 13 operations, validation)
 - tests/r3/tolerance-tests.ts: 10/10 passed (IT grade, fit analysis, stack-up, Cpk, achievable grade, edge cases)
 - tests/r3/intelligence-tests.ts: 17/17 passed (11 actions, alarm code tests, stability check, ISO 286 quality_predict)
@@ -68,15 +84,19 @@
 - Multi-op program generation: all-or-nothing error propagation (partial programs are dangerous)
 - ToleranceEngine is pure computation (no registry dependencies), wired into calcDispatcher as tolerance_analysis + fit_analysis
 - quality_predict uses ISO 286 lookup via findAchievableGrade() for actual tolerance values in μm
+- DecisionTreeEngine: zero imports, pure functions, ISO group normalization (name→letter), confidence scoring per branch
+- decision_tree action in calcDispatcher supports single tree + list_trees modes via decide() dispatcher
 - Dead import cleanup: removed unused generateGCodeSnippet from IntelligenceEngine
 
 ## Key Files This Phase
+- src/engines/DecisionTreeEngine.ts (6 decision trees, ~1,260 lines)
 - src/engines/GCodeTemplateEngine.ts (6 controllers, 13 operations, ~1,350 lines)
 - src/engines/ToleranceEngine.ts (ISO 286 tables + 5 functions, ~537 lines)
 - src/engines/IntelligenceEngine.ts (compound action engine, 11/11 implemented, ~2100 lines)
-- src/tools/dispatchers/calcDispatcher.ts (29 actions including gcode_generate, tolerance_analysis, fit_analysis)
+- src/tools/dispatchers/calcDispatcher.ts (30 actions including decision_tree, gcode_generate, tolerance_analysis, fit_analysis)
 - src/tools/dispatchers/intelligenceDispatcher.ts (dispatcher #32)
-- src/engines/index.ts (barrel exports: GCodeTemplateEngine + ToleranceEngine + IntelligenceEngine)
+- src/engines/index.ts (barrel exports: DecisionTreeEngine + GCodeTemplateEngine + ToleranceEngine + IntelligenceEngine)
+- tests/r3/decision-tree-tests.ts (21 integration tests)
 - tests/r3/gcode-tests.ts (16 integration tests)
 - tests/r3/tolerance-tests.ts (10 integration tests)
 - tests/r3/intelligence-tests.ts (17 integration tests)
@@ -87,9 +107,9 @@
 - **Quality Report:** state/results/R2_QUALITY_REPORT.json
 
 ## NEXT_3_STEPS
-1. R3-P2: DecisionTreeEngine (consolidate scattered decision logic)
-2. R3-P2: ReportRenderer (setup sheet, inspection plan formatting)
-3. R3-MS1: Material Enrichment (parallel batch enrichment of 3,518 materials)
+1. R3-P2: ReportRenderer (setup sheet, inspection plan formatting)
+2. R3-MS1: Material Enrichment (parallel batch enrichment of 3,518 materials)
+3. R3-P3: Knowledge graph connections between engines
 
 ## Model Routing (Active)
 | Role | Model | Use For |

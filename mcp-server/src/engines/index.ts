@@ -440,3 +440,24 @@ export {
   type GCodeParams,
   type GCodeResult,
 } from "./GCodeTemplateEngine.js";
+
+// Decision Tree Engine — R3-P2 Manufacturing Decision Logic (6 trees)
+export {
+  decide,
+  selectToolType,
+  selectInsertGrade,
+  selectCoolantStrategy,
+  selectWorkholding,
+  selectStrategy,
+  selectApproachRetract,
+  listDecisionTrees,
+  normalizeISOGroup,
+  DECISION_TREES,
+  type DecisionResult,
+  type ToolTypeDecision,
+  type InsertGradeDecision,
+  type CoolantDecision,
+  type WorkholdingDecision,
+  type StrategyDecision,
+  type ApproachRetractDecision,
+} from "./DecisionTreeEngine.js";

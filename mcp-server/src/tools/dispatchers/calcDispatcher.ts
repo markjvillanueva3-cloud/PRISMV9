@@ -55,6 +55,11 @@ import {
 } from "../../engines/GCodeTemplateEngine.js";
 
 import {
+  decide,
+  listDecisionTrees,
+} from "../../engines/DecisionTreeEngine.js";
+
+import {
   calculateEngagementAngle,
   calculateTrochoidalParams,
   calculateHSMParams,
@@ -115,6 +120,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { fit_type: result.fit_type, min_clearance_mm: result.min_clearance_mm, max_clearance_mm: result.max_clearance_mm };
     case "gcode_generate":
       return { controller: result.controller, operation: result.operation, line_count: result.line_count, warnings: result.warnings?.length || 0 };
+    case "decision_tree":
+      return { tree: result.tree || result.strategy || result.tool_type || result.grade, confidence: result.confidence, warnings: result.warnings?.length || 0 };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -146,13 +153,13 @@ const ACTIONS = [
   "cost_optimize", "multi_optimize", "productivity", "engagement", 
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
-  "tolerance_analysis", "fit_analysis", "gcode_generate"
+  "tolerance_analysis", "fit_analysis", "gcode_generate", "decision_tree"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations).",
+    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations), decision trees (tool/insert/coolant/workholding/strategy/approach selection).",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
@@ -674,6 +681,17 @@ export function registerCalcDispatcher(server: any): void {
                   shift_amount: params.shift_amount,
                 }
               );
+            }
+            break;
+          }
+
+          case "decision_tree": {
+            if (params.list_trees) {
+              result = { trees: listDecisionTrees() };
+            } else {
+              const treeName = params.tree;
+              if (!treeName) throw new Error("decision_tree requires 'tree' parameter (e.g., 'selectToolType')");
+              result = decide(treeName, params);
             }
             break;
           }
