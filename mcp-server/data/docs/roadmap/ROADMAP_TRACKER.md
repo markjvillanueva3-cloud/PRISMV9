@@ -470,3 +470,84 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
   IntelligenceEngine.ts: ~2100 lines (all 11 actions, 0 stubs)
   TESTS: 15/15 pass. R2 regression: 150/150 (no regressions). BUILD: 4.0MB clean.
   NEXT: R3-MS1 (data enrichment) → R3-MS2 (Campaign Engine)
+
+[2026-02-22] R3-MS1 COMPLETE — Advanced Calculations
+  Role: Implementer | Model: Sonnet 4.5 | Effort: M (~12 calls)
+
+  NEW ACTIONS (3/3 in calcDispatcher):
+    1. wear_prediction — Three-zone flank wear (break_in/steady/accelerated), Taylor tool life, ISO 3685 (VB=0.3mm)
+    2. process_cost_calc — Material→multi-pass→cycle time→Taylor→cost rollup, batch economics ($/part)
+    3. uncertainty_chain — GUM RSS propagation, Kienzle→power→Taylor→cost, 90%/95% confidence intervals
+
+  BUILD: 4.9MB clean. TESTS: 51/52 pass (1 pre-existing KC_INFLATED). REGRESSION: 150/150 PASS.
+
+[2026-02-22] R3-MS2 COMPLETE — Toolpath Intelligence Validation
+  Role: Verifier | Model: Opus 4.6 | Effort: S (~8 calls)
+
+  VALIDATION RESULTS:
+    strategy_select (Inconel 718 pocket): PASS — Adaptive Clearing (HEM) correctly recommended
+    strategy_select (6061-T6 slot): PASS — Dynamic Milling (HSM) correctly recommended
+    strategy_select (Ti-6Al-4V 5-axis): WEAK — 5D axes not influencing selection
+    strategy_search: PASS — Works with keyword param
+    prism_novel: PASS — 34 PRISM-original strategies
+    job_plan toolpath integration: FIXED — Added toolpath_recommendation via toolpathRegistry
+
+  BUILD: 4.9MB clean. TESTS: 51/52 pass. REGRESSION: 150/150 PASS.
+
+[2026-02-22] R3-MS3 COMPLETE — Cross-System Intelligence
+  Role: Implementer | Model: Sonnet 4.5 | Effort: M (~10 calls)
+
+  NEW ACTIONS (2 truly new, 2 confirmed existing):
+    1. material_substitute (dataDispatcher) — Cross-registry material alternative finder, 4 reasons, top 5 with trade-offs
+    2. controller_optimize (calcDispatcher) — 6 controllers, 3 modes (rough/finish/contour), controller-specific G-codes
+    3. what_if (existing) — Already in intelligenceDispatcher from R3-MS0
+    4. machine_recommend (existing) — Already in intelligenceDispatcher from R3-MS0
+
+  BUILD: 4.9MB clean. TESTS: 51/52 pass. REGRESSION: 150/150 PASS.
+
+[2026-02-22] R3-MS4 COMPLETE — Data Enrichment Campaigns
+  Role: Platform Engineer | Model: Sonnet 4.5 | Effort: M (~12 calls)
+
+  DATA ENRICHMENT:
+    1. WORKHOLDING.json created — 20 fixtures (5 vises, 4 chucks, 4 collets, 5 fixtures, 2 toolholders)
+       Real manufacturer specs from Kurt, Kitagawa, System 3R, etc. Safety-critical clamping forces.
+    2. Alarm severity standardization — 337/337 fixes classified: INFO(237), WARNING(29), ERROR(47), CRITICAL(24)
+       Top 50 procedures enriched with typical_cause, requires_service_tech, safety_warnings
+    3. Batch validation — 6/6 ISO groups validated via speed_feed_calc (P, M, K, N, S, H)
+    4. PFP calibration — 5-material baseline at GREEN/0% (clean state baseline)
+
+  BUILD: 4.9MB clean. TESTS: 51/52 pass. REGRESSION: 150/150 PASS.
+
+[2026-02-22] R3-MS4.5 COMPLETE — Wiring Verification Audit
+  Role: Platform Engineer | Model: Opus 4.6 | Effort: S (~5 calls)
+
+  VERIFICATION RESULTS (100% wired, 0% orphans):
+    Intelligence Actions: 11/11 wired (job_plan through quality_predict)
+    New Calc Actions: 4/4 wired (wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize)
+    Data Actions: 1/1 wired (material_substitute)
+    Toolpath Integration: 2/2 wired (toolpath_recommendation + getBestStrategy in job_plan)
+    Engine Barrel Exports: 7/7 wired
+    Data Files: 3/3 exist (WORKHOLDING.json, ALARM_FIX_PROCEDURES.json, golden-benchmarks.json)
+
+  GATE: 0% orphaned artifacts — PASSED.
+
+[2026-02-22] R3-MS5 COMPLETE — Phase Gate PASS
+  Role: Systems Architect | Model: Opus 4.6 | Effort: S (~5 calls)
+
+  GATE CRITERIA (19/20 PASS):
+    Intelligence Features: 11/11 in bundle
+    Data Campaigns: 3/3 pass (6 ISO groups validated, PFP baseline GREEN, 0 quarantines)
+    Data Enrichment: 3/3 pass (WORKHOLDING.json 20 fixtures, 337/337 severity, 50 alarms enriched)
+    Regression: 2/2 pass (51/52 unit tests, 150/150 benchmarks)
+    Quality: 2/2 pass (4.9MB clean build, all suites green)
+
+  R3 PHASE SUMMARY:
+    MS0: IntelligenceEngine — 11 compound actions
+    MS1: Advanced Calculations — wear_prediction, process_cost_calc, uncertainty_chain
+    MS2: Toolpath Intelligence — strategy validation, job_plan toolpath recommendation
+    MS3: Cross-System Intelligence — material_substitute, controller_optimize
+    MS4: Data Enrichment — WORKHOLDING.json, alarm severity, batch validation, PFP
+    MS4.5: Wiring Verification — 100% wired, 0% orphans
+    MS5: Phase Gate — PASS
+
+  POSITION: R3 COMPLETE → R4-MS0 (Enterprise Phase Planning) next.

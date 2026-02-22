@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-02-22T03:10:00Z
 
-**Phase:** R3 Engine Renovation — FULLY COMPLETE (Ω=0.912, S(x)=0.95, 127/127 R3 tests, 150/150 R2 benchmarks)
-**Build:** 4.2MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
-**Roadmap:** v19.1 (Modular Phase Files) — PHASE_R3_v19.md
-**Last Commit:** R3-Renovation: Full 8-engine renovation (Ω=0.912, 127/127 tests, 150/150 benchmarks)
-**Prev Phase:** R3 Phase Gate — COMPLETE (Ω=0.88, S(x)=0.92, 129/129 tests)
-**Prev-Prev Phase:** R2 Safety — FULLY COMPLETE (Ω=0.77, S(x)=0.85, 150/150 benchmarks)
+**Phase:** R3-MS5 Phase Gate — PASS (R3 COMPLETE, all milestones MS0-MS5 delivered)
+**Build:** 4.9MB clean (esbuild only, tsc OOMs on Node v24)
+**Roadmap:** v19.1 (Modular Phase Files) — PHASE_R4_ENTERPRISE.md (next)
+**Last Commit:** R3-MS5: Phase gate PASS — R3 complete
+**Prev Phase:** R3-MS4 Data Enrichment — COMPLETE (workholding + alarms + batch validation + PFP)
+**Prev-Prev Phase:** R3-MS3 Cross-System Intelligence — COMPLETE (material_substitute + controller_optimize)
 
 ## R3 Engine Renovation — COMPLETE
 Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions.
@@ -26,7 +26,18 @@ Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions
 
 **Quality Score:** Ω=0.912 (R=0.95, C=0.90, P=0.85, S=0.95, L=0.82) — up from 0.88 pre-renovation
 
-## R3-MS5 Status — Phase Gate COMPLETE
+## R3 Post-Renovation Milestones — ALL COMPLETE
+| Milestone | Status | Deliverables |
+|-----------|--------|-------------|
+| MS0: IntelligenceEngine | COMPLETE | 11 compound actions (job_plan through quality_predict) |
+| MS1: Advanced Calculations | COMPLETE | wear_prediction, process_cost_calc, uncertainty_chain |
+| MS2: Toolpath Intelligence | COMPLETE | strategy validation, job_plan toolpath_recommendation |
+| MS3: Cross-System Intelligence | COMPLETE | material_substitute, controller_optimize |
+| MS4: Data Enrichment | COMPLETE | WORKHOLDING.json, alarm severity, batch validation, PFP |
+| MS4.5: Wiring Audit | COMPLETE | 100% wired, 0% orphans |
+| MS5: Phase Gate | PASS | 19/20 criteria, all regressions green |
+
+## R3-MS5 Status — Engine Renovation Phase Gate COMPLETE
 | Task | Status | Notes |
 |------|--------|-------|
 | T1: Build + Test | ✅ PASSED | 4.2MB build, 129/129 R3, 150/150 R2 |
@@ -190,7 +201,8 @@ Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions
 - src/engines/InferenceChainEngine.ts (parallel fan-out, global timeout, ~950 lines)
 - src/engines/EventBus.ts (action registry, chain dispatch)
 - data/decision-trees/material_selection.json (20 material families, JSON-driven)
-- src/tools/dispatchers/calcDispatcher.ts (35 actions including campaign_*, render_report, decision_tree, gcode_generate, tolerance_analysis, fit_analysis)
+- src/tools/dispatchers/calcDispatcher.ts (39 actions including campaign_*, render_report, decision_tree, gcode_generate, tolerance_analysis, fit_analysis, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize)
+- src/tools/dispatchers/dataDispatcher.ts (21 actions including material_substitute)
 - src/tools/dispatchers/intelligenceDispatcher.ts (dispatcher #32)
 - src/engines/index.ts (barrel exports: CampaignEngine + ReportRenderer + DecisionTreeEngine + GCodeTemplateEngine + ToleranceEngine + IntelligenceEngine)
 - tests/r3/campaign-tests.ts (15 integration tests)
@@ -209,9 +221,9 @@ Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions
 - **Quality Report:** state/results/R2_QUALITY_REPORT.json
 
 ## NEXT_3_STEPS
-1. R4-MS0: Phase planning and architecture design (R3→R4 transition)
-2. R4-MS1: First R4 milestone (see PHASE_R4_v19.md)
-3. R4-MS2: Second R4 milestone
+1. R4-MS0: Tenant Isolation architecture (Platform Engineer, Opus security arch, ~18 calls)
+2. R4-MS1: Compliance Templates (Platform Engineer, Sonnet, ~12 calls)
+3. R4-MS2: Data Residency + Auth (Platform Engineer, Opus security model, ~12 calls)
 
 ## Model Routing (Active)
 | Role | Model | Use For |

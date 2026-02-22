@@ -1201,7 +1201,7 @@ export function selectApproachRetract(params: SelectApproachRetractParams): Appr
 
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+// fileURLToPath removed — esbuild banner already declares it (duplicate causes crash)
 
 export interface SelectMaterialParams {
   application: string;
@@ -1250,7 +1250,7 @@ function loadMaterialData(): MaterialEntry[] {
   try {
     // Resolve relative to this file's location (handles both ESM and bundled)
     const candidates = [
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../data/decision-trees/material_selection.json"),
+      resolve(dirname(__filename), "../../data/decision-trees/material_selection.json"),
       resolve(process.cwd(), "data/decision-trees/material_selection.json"),
     ];
     for (const p of candidates) {

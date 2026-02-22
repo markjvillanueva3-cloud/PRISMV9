@@ -24,7 +24,7 @@ import { fileExists, listDirectory } from "../utils/files.js";
 // ============================================================================
 
 export type ScriptLanguage = "python" | "powershell" | "bash" | "javascript" | "typescript";
-export type ScriptCategory = 
+export type ScriptCategory =
   | "session_management"
   | "skill_management"
   | "data_processing"
@@ -34,7 +34,8 @@ export type ScriptCategory =
   | "validation"
   | "utilities"
   | "testing"
-  | "deployment";
+  | "deployment"
+  | "dev_workflow";
 
 export interface ScriptParameter {
   name: string;
@@ -847,35 +848,12 @@ export class ScriptRegistry extends BaseRegistry<Script> {
     
     // Load from scripts directory
     await this.loadFromPath(PATHS.SCRIPTS);
-    
-    // Ensure built-ins are present
-    for (const [id, builtIn] of this.builtInScripts) {
-      if (!this.entries.has(id)) {
-        const script: Script = {
-          script_id: id,
-          name: builtIn.name || id,
-          filename: builtIn.filename || `${id}.py`,
-          category: builtIn.category || "utilities",
-          description: builtIn.description || "",
-          language: builtIn.language || "python",
-          interpreter: builtIn.interpreter || "py -3",
-          path: `${PATHS.SCRIPTS}/${builtIn.filename || id + ".py"}`,
-          lines: 0,
-          size_bytes: 0,
-          parameters: builtIn.parameters || [],
-          requires: builtIn.requires || [],
-          usage_examples: builtIn.usage_examples || [],
-          tags: builtIn.tags || [],
-          priority: builtIn.priority || 5,
-          status: builtIn.status || "active",
-          enabled: builtIn.enabled ?? true,
-          created: "2026-01-01",
-          updated: "2026-01-31"
-        };
-        this.set(id, script);
-      }
-    }
-    
+
+    // R1-AUDIT-T3: Built-in metadata is used ONLY for enrichment when matching
+    // files are found on disk (see loadFromPath → line 924). No phantom entries
+    // are created for non-existent scripts. All 42 built-ins verified to have
+    // matching files on disk (2026-02-20).
+
     this.buildIndexes();
     
     this.loaded = true;
