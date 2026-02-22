@@ -157,16 +157,40 @@ export function calculateKienzleCuttingForce(
   const { kc1_1, mc } = coefficients;
   
   // Calculate chip geometry
-  const engagement_ratio = radial_depth / tool_diameter;
-  const h_mean = feed_per_tooth * Math.sqrt(engagement_ratio) * (180 / Math.PI) * Math.asin(Math.sqrt(engagement_ratio)) / 90;
+  const engagement_ratio = Math.min(radial_depth / tool_diameter, 1.0);
+  let h_mean: number;
+  if (number_of_teeth === 1) {
+    // Single-point tool (turning/boring): h = feed per rev directly
+    h_mean = feed_per_tooth;
+  } else {
+    // Multi-tooth (milling/drilling): Martellotti mean chip thickness
+    // h_mean = fz × (1 - cos(φ_e)) / φ_e where φ_e = arccos(1 - 2·ae/D)
+    // At full engagement (ae=D): φ_e=π, h_mean = fz×2/π ≈ 0.637×fz
+    // Ref: Altintas "Manufacturing Automation" (2012), Ch.2; Martellotti (1941)
+    const phi_e = Math.acos(Math.max(-1, 1 - 2 * engagement_ratio));
+    h_mean = phi_e > 0.001 ? feed_per_tooth * (1 - Math.cos(phi_e)) / phi_e : feed_per_tooth;
+  }
   const b = axial_depth;
   const h = Math.max(h_mean, 0.001);
   
   // Specific cutting force with Kienzle equation
   const kc = kc1_1 * Math.pow(h, -mc);
   
-  // Rake angle correction
-  const rake_correction = 1 - 0.015 * (rake_angle - 6);
+  // Rake angle correction: Sandvik standard Kc = kc1.1 × h^(-mc) × (1 - 0.01×γ)
+  // Ref: Sandvik Coromant Technical Guide, specific cutting force section
+  // γ₀ = actual rake angle, correction referenced from 0° (neutral insert)
+  const rake_correction = 1 - 0.01 * rake_angle;
+  
+  // For milling (multi-tooth), compute simultaneously engaged teeth
+  // z_e = z × φ_e / (2π) — average teeth in cut at any instant
+  // Total average force = single-tooth force × z_e
+  // Ref: Altintas "Manufacturing Automation" (2012), Eq 2.27
+  let z_e = 1;
+  if (number_of_teeth > 1) {
+    const phi_e = Math.acos(Math.max(-1, 1 - 2 * engagement_ratio));
+    z_e = number_of_teeth * phi_e / (2 * Math.PI);
+    z_e = Math.max(z_e, 0.1); // At least some engagement
+  }
   
   // Forces — ratios vary by material group (Ref: Altintas "Manufacturing Automation" Table 2.2)
   // N-group (aluminum/nonferrous): Ff/Fc≈0.3, Fp/Fc≈0.2
@@ -180,7 +204,8 @@ export function calculateKienzleCuttingForce(
     "K": [0.35, 0.25], "S": [0.5, 0.4], "H": [0.35, 0.4], "X": [0.4, 0.3]
   };
   const [ffRatio, fpRatio] = forceRatios[isoGroup] || [0.4, 0.3];
-  const Fc_raw = kc * b * h * rake_correction;
+  const Fc_single = kc * b * h * rake_correction;
+  const Fc_raw = Fc_single * z_e;  // Total avg force = single-tooth × engaged teeth
   const Ff = Fc_raw * ffRatio;
   const Fp = Fc_raw * fpRatio;
   const F_resultant = Math.sqrt(Fc_raw * Fc_raw + Ff * Ff + Fp * Fp);
@@ -226,6 +251,87 @@ export function calculateKienzleCuttingForce(
     },
     force_ratios: { Ff_over_Fc: ffRatio, Fp_over_Fc: fpRatio, iso_group: isoGroup },
     calculation_method: "Kienzle (Fc = kc1.1 × h^(-mc) × b)"
+  };
+}
+
+// ============================================================================
+// DRILLING FORCE MODEL (Sandvik/Shaw)
+// Distinct from Kienzle milling: uses drill-specific chip geometry,
+// mean cutting radius D/4, and chisel edge correction factor.
+// Ref: Sandvik Coromant Technical Guide, Shaw "Metal Cutting Principles"
+// ============================================================================
+export interface DrillingConditions {
+  drill_diameter: number;      // mm
+  feed_per_rev: number;        // mm/rev
+  cutting_speed: number;       // m/min
+  point_angle_deg?: number;    // degrees (default 140)
+  chisel_edge_factor?: number; // thrust multiplier for chisel edge (default 1.07)
+}
+
+export function calculateDrillingForce(
+  conditions: DrillingConditions,
+  coefficients: KienzleCoefficients = DEFAULT_KIENZLE
+): CuttingForceResult {
+  const warnings: string[] = [];
+  const {
+    drill_diameter: D,
+    feed_per_rev: fn,
+    cutting_speed: Vc,
+    point_angle_deg = 140,
+    chisel_edge_factor = 1.07
+  } = conditions;
+  const { kc1_1, mc } = coefficients;
+
+  // Half-point angle (lip angle)
+  const kr = (point_angle_deg / 2) * Math.PI / 180;
+
+  // Mean chip thickness per lip (Sandvik formula)
+  const hex = (fn / 2) * Math.sin(kr);
+  const h = Math.max(hex, 0.001);
+
+  // Specific cutting force via Kienzle
+  const kc = kc1_1 * Math.pow(h, -mc);
+
+  // Torque: M = kc × D² × fn / 8000 [Nm]
+  // Derivation: 2 lips × (kc × D/2 × fn/2) force per lip × D/4 mean radius / 1000
+  const torque = kc * D * D * fn / 8000;
+
+  // Thrust force (axial feed force): Ff = 0.5 × kc × D × fn × sin(κr) × chisel_factor
+  // Chisel edge adds ~5-10% to thrust (not to torque)
+  const Ff_thrust = 0.5 * kc * D * fn * Math.sin(kr) * chisel_edge_factor;
+
+  // Tangential cutting force (what produces torque): Fc = M × 2000/D × 2
+  // Or equivalently: Fc_tangential = kc × D × fn / 2
+  const Fc_tangential = kc * D * fn / 2;
+
+  // Power: Pc = M × 2π × n / 60000 [kW]
+  const n = (Vc * 1000) / (Math.PI * D);
+  const power = torque * 2 * Math.PI * n / 60000;
+
+  // Validation
+  if (D < 1 || D > 100) warnings.push(`Drill diameter ${D}mm outside typical range 1-100mm`);
+  if (fn < 0.01 || fn > 1.0) warnings.push(`Feed ${fn}mm/rev outside typical drilling range`);
+  if (fn / D > 0.04) warnings.push(`Feed/diameter ratio ${(fn/D).toFixed(3)} is high — risk of drill breakage`);
+
+  return {
+    Fc: Ff_thrust,           // "Fc_N" in drilling = thrust force (axial)
+    Ff: Fc_tangential,       // tangential force (produces torque)
+    Fp: 0,                   // no passive force in drilling
+    F_resultant: Math.sqrt(Ff_thrust * Ff_thrust + Fc_tangential * Fc_tangential),
+    specific_force: kc,
+    chip_thickness: h,
+    chip_width: D / 2,
+    power,
+    torque,
+    warnings,
+    uncertainty: {
+      Fc_range: [Ff_thrust * 0.80, Ff_thrust * 1.20],
+      power_range: [power * 0.85, power * 1.15],
+      confidence: 0.75,
+      source: "drilling_model"
+    },
+    force_ratios: { Ff_over_Fc: Fc_tangential / Ff_thrust, Fp_over_Fc: 0, iso_group: "drilling" },
+    calculation_method: "Drilling (Sandvik/Shaw: M=kc×D²×fn/8000, Ff=0.5×kc×D×fn×sin(κr)×chisel)"
   };
 }
 
@@ -347,7 +453,8 @@ export function calculateSurfaceFinish(
   nose_radius: number,
   is_milling: boolean = false,
   radial_depth?: number,
-  tool_diameter?: number
+  tool_diameter?: number,
+  operation?: string
 ): SurfaceFinishResult {
   const warnings: string[] = [];
   
@@ -364,7 +471,27 @@ export function calculateSurfaceFinish(
   
   const process_factor = 2.0;
   const Ra_actual = Ra_theoretical * process_factor;
-  const Rz = Ra_actual * 5;
+
+  // Rz/Ra ratio per ISO 4287:1997 & Machining Data Handbook 3rd Ed.
+  // Turning: 4.0-4.5× (regular chip formation, single-point tool)
+  // Milling: 5.0-6.0× (interrupted cut, multiple edges → higher peak scatter)
+  // Grinding: 6.0-7.0× (abrasive, stochastic surface)
+  const RZ_RA_RATIOS: Record<string, number> = {
+    turning: 4.0,
+    milling: 5.5,
+    grinding: 6.5,
+    boring: 4.2,
+    reaming: 3.8,
+  };
+  const VALID_OPERATIONS = new Set(Object.keys(RZ_RA_RATIOS));
+  const normalizedOp = operation?.toLowerCase();
+  if (normalizedOp && !VALID_OPERATIONS.has(normalizedOp)) {
+    warnings.push(`Unknown operation "${operation}" for Rz/Ra ratio — falling back to ${is_milling ? 'milling' : 'turning'}`);
+  }
+  const rz_ratio = (normalizedOp && VALID_OPERATIONS.has(normalizedOp))
+    ? RZ_RA_RATIOS[normalizedOp]
+    : (is_milling ? RZ_RA_RATIOS.milling : RZ_RA_RATIOS.turning);
+  const Rz = Ra_actual * rz_ratio;
   const Rt = Rz * 1.3;
   
   if (Ra_actual > 12.5) warnings.push("Surface may be rough");
@@ -455,8 +582,13 @@ export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
   const base_speeds: Record<string, number> = {
     "HSS": 30, "Carbide": 150, "Ceramic": 300, "CBN": 200, "Diamond": 500
   };
-  
-  let cutting_speed = base_speeds[tool_material] || 100;
+
+  // Case-insensitive lookup — tool types may come in as "carbide", "Carbide", or "CARBIDE"
+  // Normalize to Title Case to match base_speeds keys (HSS, Carbide, Ceramic, CBN, Diamond)
+  const normalizedTool = tool_material?.trim()
+    ? tool_material.trim().charAt(0).toUpperCase() + tool_material.trim().slice(1).toLowerCase()
+    : "Carbide";
+  let cutting_speed = base_speeds[normalizedTool] || base_speeds[tool_material] || 100;
   cutting_speed *= Math.pow(200 / material_hardness, 0.3);
   
   const operation_factors: Record<string, number> = { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 };
@@ -618,12 +750,16 @@ export function calculateChipLoad(
   // Thin-chip adjustment: when ae < D, actual chip thickness is thinner
   let fz_effective = fz;
   let chip_thinning_factor = 1.0;
-  let hex = fz; // maximum chip thickness
+  let hex = fz; // effective chip thickness
 
   if (radial_depth && tool_diameter && radial_depth < tool_diameter) {
-    // hex = fz × sqrt(D/ae) for center cutting, simplified
-    chip_thinning_factor = Math.sqrt(tool_diameter / radial_depth);
-    hex = fz * Math.sqrt((radial_depth / tool_diameter) * (1 - radial_depth / tool_diameter)) * 2;
+    // Martellotti mean chip thickness (consistent with Kienzle force model)
+    // hex = fz × (1 - cos(φ_e)) / φ_e where φ_e = arccos(1 - 2·ae/D)
+    // Ref: Altintas "Manufacturing Automation" (2012), Ch.2
+    const engagement_ratio = radial_depth / tool_diameter;
+    const phi_e = Math.acos(Math.max(-1, 1 - 2 * engagement_ratio));
+    hex = phi_e > 0.001 ? fz * (1 - Math.cos(phi_e)) / phi_e : fz;
+    chip_thinning_factor = fz / hex;
     // If hex < fz, recommend compensated feed
     fz_effective = fz * chip_thinning_factor;
   }

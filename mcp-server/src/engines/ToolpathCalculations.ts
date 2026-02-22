@@ -240,13 +240,15 @@ export function calculateTrochoidalParams(
   axial_depth: number,
   cutting_speed: number,
   feed_per_tooth: number,
-  number_of_teeth: number
+  number_of_teeth: number,
+  ae_max_mm?: number
 ): TrochoidalParams {
   const warnings: string[] = [];
   
-  // Trochoidal width (stepover) - typically 5-15% of tool diameter
+  // Trochoidal width (stepover) - use ae_max if provided, else % of diameter
   const engagement_percent = CAM_CONSTANTS.TROCHOIDAL_ENGAGEMENT;
-  const trochoidal_width = tool_diameter * (engagement_percent / 100);
+  const trochoidal_width = ae_max_mm ?? tool_diameter * (engagement_percent / 100);
+  const actual_engagement_pct = (trochoidal_width / tool_diameter) * 100;
   
   // Arc radius - tool moves in circular arcs
   // Typically: arc_radius = (slot_width - tool_diameter) / 2 + small_offset
@@ -269,10 +271,20 @@ export function calculateTrochoidalParams(
   const compensated_feed = feed_per_tooth * chip_thinning_factor;
   const optimal_feed_rate = compensated_feed * number_of_teeth * spindle_speed;
   
-  // Calculate MRR
-  const effective_ae = trochoidal_width;
-  const feed_rate_linear = trochoidal_pitch * spindle_speed / (2 * Math.PI * arc_radius) * (optimal_feed_rate / spindle_speed);
-  const mrr = (axial_depth * effective_ae * optimal_feed_rate) / 1000 / 1000;
+  // Calculate MRR — in trochoidal, low ae means ~1 tooth engaged at a time
+  // Effective MRR = RPM × fz × ap × ae / 1000 [cm³/min]
+  // Ref: Sandvik Coromant "Modern Metal Cutting" Ch.9 — trochoidal strategies
+  const mrr = (spindle_speed * feed_per_tooth * axial_depth * trochoidal_width) / 1000;
+  
+  // Maximum engagement angle from ae — corrected for trochoidal path curvature
+  // In trochoidal milling, the tool follows a curved path which reduces effective engagement
+  // φ_troch = φ_conv × r/(r + R_arc) where R_arc = (slot_width - D)/2
+  // Ref: Rauch et al., "Dynamic toolpath for trochoidal milling" (2009)
+  const ae_ratio = Math.min(trochoidal_width / tool_diameter, 1.0);
+  const phi_conventional = Math.acos(Math.max(-1, 1 - 2 * ae_ratio)) * (180 / Math.PI);
+  const r_tool = tool_diameter / 2;
+  const curvature_correction = r_tool / (r_tool + arc_radius);
+  const max_engagement_deg = phi_conventional * curvature_correction;
   
   // Warnings
   if (slot_width < tool_diameter * 1.2) {
@@ -291,7 +303,8 @@ export function calculateTrochoidalParams(
     helix_angle,
     optimal_feed_rate: Math.round(optimal_feed_rate),
     optimal_spindle: Math.round(spindle_speed),
-    engagement_percent,
+    engagement_percent: Math.round(actual_engagement_pct * 10) / 10,
+    max_engagement_deg: Math.round(max_engagement_deg * 10) / 10,
     mrr: Math.round(mrr * 100) / 100,
     warnings
   };
@@ -747,7 +760,8 @@ export function calculateMultiPassStrategy(
   cutting_speed_finish: number,
   fz_rough: number,
   fz_finish: number,
-  target_Ra?: number          // target surface finish μm
+  target_Ra?: number,         // target surface finish μm
+  cut_length_mm?: number       // total cut distance per pass (for time estimation)
 ): any {
   const warnings: string[] = [];
   
@@ -806,7 +820,8 @@ export function calculateMultiPassStrategy(
           fz: fz_rough,
           rpm: Math.round(rough_rpm),
           vf: Math.round(rough_vf),
-          mrr_cm3_min: Math.round(rough_mrr * 10) / 10
+          mrr_cm3_min: Math.round(rough_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(rough_passes * cut_length_mm / rough_vf * 100) / 100 } : {})
         },
         {
           phase: "semi-finishing",
@@ -817,7 +832,8 @@ export function calculateMultiPassStrategy(
           fz: Math.round(semi_fz * 1000) / 1000,
           rpm: Math.round(semi_rpm),
           vf: Math.round(semi_vf),
-          mrr_cm3_min: Math.round(semi_mrr * 10) / 10
+          mrr_cm3_min: Math.round(semi_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(1 * cut_length_mm / semi_vf * 100) / 100 } : {})
         },
         {
           phase: "finishing",
@@ -828,7 +844,8 @@ export function calculateMultiPassStrategy(
           fz: fz_finish,
           rpm: Math.round(finish_rpm),
           vf: Math.round(finish_vf),
-          mrr_cm3_min: Math.round(finish_mrr * 10) / 10
+          mrr_cm3_min: Math.round(finish_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(1 * cut_length_mm / finish_vf * 100) / 100 } : {})
         }
       ]
     },
@@ -850,7 +867,9 @@ export function recommendCoolantStrategy(
   operation: string,
   cutting_speed: number,
   tool_has_coolant_through: boolean,
-  material_thermal_conductivity?: number
+  material_thermal_conductivity?: number,
+  machine_has_tsc?: boolean,
+  material_subtype?: string
 ): any {
   const op = operation.toLowerCase();
   const warnings: string[] = [];
@@ -859,6 +878,7 @@ export function recommendCoolantStrategy(
   let primary = "flood";
   let pressure_bar = 20;
   let concentration_pct = 8;
+  let mql_flow_rate = 0; // ml/hr — set later if MQL selected
   let reasoning: string[] = [];
   
   // High-speed → MQL or dry
@@ -871,14 +891,45 @@ export function recommendCoolantStrategy(
     }
   }
   
-  // Superalloys and titanium → high pressure
+  // Superalloys and titanium → high pressure / through-spindle coolant
   if (iso_group === "S" || (iso_group === "N" && (material_thermal_conductivity || 50) < 15)) {
-    primary = "high_pressure";
-    pressure_bar = 70;
-    reasoning.push("Low thermal conductivity material — high pressure coolant needed for chip breaking and heat removal");
-    if (tool_has_coolant_through) {
-      pressure_bar = 100;
-      reasoning.push("Through-tool coolant available — maximize pressure for chip evacuation");
+    const isTitanium = material_subtype?.toLowerCase().includes("titanium") || material_subtype?.toLowerCase().includes("ti-");
+    // Both titanium and nickel superalloys benefit from high-pressure coolant for chip breaking.
+    // Titanium has low thermal conductivity (6.7 W/m·K) — TSC preferred when available.
+    // Ref: Machining of Titanium Alloys (Davim, 2014), Ch.3: "High-pressure coolant delivery
+    // through the spindle is the most effective method for titanium machining."
+    if (isTitanium) {
+      // Titanium: TSC preferred for chip breaking + heat extraction. MQL only if TSC unavailable.
+      if (tool_has_coolant_through && machine_has_tsc === true) {
+        primary = "through_spindle_coolant";
+        pressure_bar = 70;
+        reasoning.push("Titanium alloy: TSC preferred — critical for chip breaking and heat removal in low thermal conductivity material (6.7 W/m·K)");
+      } else if (tool_has_coolant_through && machine_has_tsc === undefined) {
+        primary = "through_spindle_coolant";
+        pressure_bar = 70;
+        reasoning.push("Titanium alloy: TSC recommended — verify machine has through-spindle coolant capability");
+        warnings.push("UNVERIFIED: machine_has_tsc not specified — TSC recommended but machine capability must be confirmed before use");
+      } else {
+        primary = "high_pressure";
+        pressure_bar = 50;
+        reasoning.push("Titanium alloy: high-pressure external coolant as fallback — TSC unavailable");
+        if (machine_has_tsc === false) warnings.push("Machine lacks TSC — using external high-pressure nozzle. Consider upgrading for titanium work.");
+      }
+    } else if (tool_has_coolant_through && machine_has_tsc === true) {
+      primary = "through_spindle_coolant";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material with through-spindle coolant — optimal for chip breaking and heat removal");
+    } else if (tool_has_coolant_through && machine_has_tsc === undefined) {
+      primary = "through_spindle_coolant";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material — TSC recommended but machine capability not confirmed");
+      warnings.push("UNVERIFIED: machine_has_tsc not specified — TSC recommended but machine capability must be confirmed before use");
+    } else {
+      primary = "high_pressure";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material — high pressure coolant needed for chip breaking and heat removal");
+      if (!tool_has_coolant_through) warnings.push("Tool lacks coolant-through channels — external high-pressure nozzle required");
+      if (machine_has_tsc === false) warnings.push("Machine lacks TSC — using external high-pressure as fallback");
     }
   }
   
@@ -913,13 +964,28 @@ export function recommendCoolantStrategy(
   }
   
   // MQL specifics
-  let mql_flow_rate = primary === "mql" ? 50 : 0; // ml/hr
-  
+  if (primary === "mql" && mql_flow_rate === 0) mql_flow_rate = 50; // ml/hr default
+
+  // Flow rate estimation (L/min) based on strategy and pressure
+  const isHighPressure = primary === "high_pressure" || primary === "through_spindle_coolant";
+  const effective_pressure = isHighPressure ? pressure_bar : (primary === "flood" ? 20 : 0);
+  // Typical nozzle flow: Q ≈ k × √P, calibrated to ~15 LPM at 70 bar for TSC
+  const flow_lpm = effective_pressure > 0
+    ? Math.round(15 * Math.sqrt(effective_pressure / 70) * 10) / 10
+    : 0;
+
+  // Flow rate bounds validation for TSC (typical 10-20 L/min)
+  if (primary === "through_spindle_coolant" && flow_lpm > 0) {
+    if (flow_lpm < 10) warnings.push(`TSC flow rate ${flow_lpm} L/min below typical minimum (10 L/min) — may not provide adequate cooling`);
+    if (flow_lpm > 20) warnings.push(`TSC flow rate ${flow_lpm} L/min above typical maximum (20 L/min) — verify machine pump capacity`);
+  }
+
   return {
     recommendation: {
       strategy: primary,
-      pressure_bar: primary.includes("pressure") ? pressure_bar : (primary === "flood" ? 20 : 0),
-      concentration_pct: primary === "flood" || primary === "high_pressure" ? concentration_pct : 0,
+      pressure_bar: isHighPressure ? pressure_bar : (primary === "flood" ? 20 : 0),
+      flow_lpm: flow_lpm > 0 ? flow_lpm : undefined,
+      concentration_pct: primary === "flood" || isHighPressure ? concentration_pct : 0,
       mql_flow_rate_ml_hr: mql_flow_rate,
       coolant_type: primary === "dry" ? "none" : (primary === "mql" ? "vegetable_ester" : "semi_synthetic")
     },

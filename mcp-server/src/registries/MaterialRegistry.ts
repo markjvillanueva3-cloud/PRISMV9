@@ -214,9 +214,15 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     for (const [id, entry] of this.entries) {
       const material = entry.data;
       
-      // Index by name (lowercase for case-insensitive search)
+      // Index by name (normalized for case-insensitive search)
       if (material.name) {
-        this.indexByName.set(material.name.toLowerCase(), id);
+        const normalizedName = material.name.toLowerCase().trim().replace(/\s+/g, ' ');
+        const existing = this.indexByName.get(normalizedName);
+        if (existing && existing !== id) {
+          log.warn(`[MaterialRegistry] Name collision: "${material.name}" (${id}) normalizes to same key as existing entry (${existing}) — keeping first entry`);
+        } else {
+          this.indexByName.set(normalizedName, id);
+        }
       }
       
       // Index by ISO group — check both classification.iso_group AND top-level iso_group
@@ -253,8 +259,9 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     let material = this.get(identifier);
     if (material) return material;
     
-    // Try name lookup (case-insensitive)
-    const idFromName = this.indexByName.get(identifier.toLowerCase());
+    // Try name lookup (case-insensitive, whitespace-normalized)
+    const normalizedSearch = identifier.toLowerCase().trim().replace(/\s+/g, ' ');
+    const idFromName = this.indexByName.get(normalizedSearch);
     if (idFromName) {
       return this.get(idFromName);
     }

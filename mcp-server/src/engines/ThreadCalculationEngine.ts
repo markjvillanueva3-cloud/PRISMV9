@@ -187,13 +187,16 @@ export class ThreadCalculationEngine {
       warnings.push('WARNING: Engagement above 85% increases tap breakage risk');
     }
     
-    // Calculate tap drill
-    // Thread depth H = 0.6134 × P (for 60° thread)
-    // Engagement factor = Engagement% / 76.98 (for 60° threads)
-    const H = 0.6134 * thread.pitch;
+    // Calculate tap drill — Machinery's Handbook standard formula
+    // D_drill = D_major - (engagement% / 76.98) × P
+    // 76.98 is the constant for 60° thread forms (ISO/Unified)
+    // At engagement%=76.98: D = D_major - P (the common machinist shortcut)
     const engagementFactor = engagementPercent / 76.98;
-    const tapDrillMM = thread.majorDiameter - (2 * H * engagementFactor);
+    const tapDrillMM = thread.majorDiameter - (thread.pitch * engagementFactor);
     const tapDrillInch = tapDrillMM / 25.4;
+    
+    // Thread depth H for theoretical calculations
+    const H = 0.6134 * thread.pitch;
     
     // Find closest fractional/letter/number drill
     const fractional = this.findClosestFractionalDrill(tapDrillInch);
@@ -229,12 +232,10 @@ export class ThreadCalculationEngine {
     const thread = this.parseThreadDesignation(threadDesignation);
     if (!thread) return null;
     
-    const H = 0.6134 * thread.pitch;
-    const theoreticalMinor = thread.majorDiameter - (2 * H);
-    const actualDepth = holeDiameter - theoreticalMinor;
-    const fullDepth = 2 * H;
-    
-    const engagement = ((fullDepth - actualDepth) / fullDepth) * 100;
+    // Machinery's Handbook formula (inverse of calculateTapDrill)
+    // engagement% = 76.98 × (D_major - D_drill) / P
+    // 76.98 = 100 / 1.29904 where 1.29904 = 1.5 × H/P for 60° thread forms
+    const engagement = 76.98 * (thread.majorDiameter - holeDiameter) / thread.pitch;
     return Math.round(Math.max(0, Math.min(100, engagement)) * 10) / 10;
   }
   

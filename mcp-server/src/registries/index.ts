@@ -36,5 +36,21 @@ export { HookRegistry, hookRegistry, type Hook, type HookCategory, type HookPrio
 export { SkillRegistry, skillRegistry, type Skill, type SkillCategory } from "./SkillRegistry.js";
 export { ScriptRegistry, scriptRegistry, type Script, type ScriptCategory, type ScriptLanguage } from "./ScriptRegistry.js";
 
+// Toolpath strategy registries
+export {
+  toolpathRegistry,
+  type ToolpathStrategy,
+  type StrategySelectionResult,
+  type StrategyParams,
+  type AxisCapability,
+  type StrategyCategory,
+} from "./ToolpathStrategyRegistry.js";
+
+export {
+  FINISHING_3D_STRATEGIES,
+  ROUGHING_3D_STRATEGIES,
+  STRATEGY_COUNTS,
+} from "./ToolpathStrategyRegistry_Part1.js";
+
 // Registry manager
 export { RegistryManager, registryManager } from "./manager.js";
