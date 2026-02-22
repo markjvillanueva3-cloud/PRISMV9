@@ -9,6 +9,7 @@ import {
   selectWorkholding,
   selectStrategy,
   selectApproachRetract,
+  selectMaterial,
   decide,
   listDecisionTrees,
   normalizeISOGroup,
@@ -250,12 +251,12 @@ const tests: TestCase[] = [
     },
   },
   {
-    name: "listDecisionTrees returns 6 trees",
+    name: "listDecisionTrees returns 7 trees",
     run: () => {
       const errs: string[] = [];
       const trees = listDecisionTrees();
-      if (trees.length !== 6) errs.push(`Expected 6 trees, got ${trees.length}`);
-      if (DECISION_TREES.length !== 6) errs.push(`DECISION_TREES constant has ${DECISION_TREES.length}, expected 6`);
+      if (trees.length !== 7) errs.push(`Expected 7 trees, got ${trees.length}`);
+      if (DECISION_TREES.length !== 7) errs.push(`DECISION_TREES constant has ${DECISION_TREES.length}, expected 7`);
       return errs;
     },
   },
@@ -274,6 +275,80 @@ const tests: TestCase[] = [
         const got = normalizeISOGroup(input);
         if (got !== expected) errs.push(`normalizeISOGroup("${input}") = "${got}", expected "${expected}"`);
       }
+      return errs;
+    },
+  },
+
+  // === Tree 7: selectMaterial (JSON-driven) ===
+  {
+    name: "Material: aerospace application recommends Ti or Al",
+    run: () => {
+      const errs: string[] = [];
+      const r = selectMaterial({ application: "aerospace", weight_priority: "high" });
+      if (!r.material_family) errs.push("Missing material_family");
+      if (!r.iso_group) errs.push("Missing iso_group");
+      if (!r.recommended_alloys || r.recommended_alloys.length === 0) errs.push("Missing alloys");
+      // Aerospace + lightweight should recommend Ti or Al family
+      const fam = r.material_family.toLowerCase();
+      if (!fam.includes("titanium") && !fam.includes("aluminum") && !fam.includes("ti-") && !fam.includes("7xxx") && !fam.includes("2xxx")) {
+        errs.push(`Expected Ti or Al family for aerospace+lightweight, got: ${r.material_family}`);
+      }
+      if (r.confidence < 0.5) errs.push(`Confidence too low: ${r.confidence}`);
+      return errs;
+    },
+  },
+  {
+    name: "Material: corrosion-resistant chemical processing",
+    run: () => {
+      const errs: string[] = [];
+      const r = selectMaterial({ application: "chemical_processing", corrosion_resistance: "very_high" });
+      const corr = r.properties.corrosion_resistance;
+      if (corr !== "very_high" && corr !== "high") errs.push(`Expected high/very_high corrosion, got: ${corr}`);
+      if (r.alternatives.length < 1) errs.push("Should have alternatives");
+      return errs;
+    },
+  },
+  {
+    name: "Material: low-cost structural part",
+    run: () => {
+      const errs: string[] = [];
+      const r = selectMaterial({ application: "structural", max_cost_tier: 2, machinability_priority: "high" });
+      if (r.properties.cost_tier > 3) errs.push(`Cost tier too high: ${r.properties.cost_tier}`);
+      if (r.iso_group !== "P" && r.iso_group !== "N" && r.iso_group !== "K") {
+        errs.push(`Expected P/N/K for low-cost structural, got: ${r.iso_group}`);
+      }
+      return errs;
+    },
+  },
+  {
+    name: "Material: high-temperature turbine application",
+    run: () => {
+      const errs: string[] = [];
+      const r = selectMaterial({ application: "turbine_discs", temperature_c: 650 });
+      if (r.properties.max_service_temp_c < 650) {
+        errs.push(`Max temp ${r.properties.max_service_temp_c}°C < required 650°C`);
+      }
+      if (r.iso_group !== "S") errs.push(`Expected ISO S for superalloy, got: ${r.iso_group}`);
+      return errs;
+    },
+  },
+  {
+    name: "Material: dispatcher routes selectMaterial",
+    run: () => {
+      const errs: string[] = [];
+      const r = decide("selectMaterial", { application: "bearings" });
+      if (!r.reasoning || r.reasoning.length === 0) errs.push("Missing reasoning");
+      if (r.confidence <= 0) errs.push("Confidence should be > 0");
+      return errs;
+    },
+  },
+  {
+    name: "Material: listDecisionTrees includes selectMaterial",
+    run: () => {
+      const errs: string[] = [];
+      const trees = listDecisionTrees();
+      if (!trees.find(t => t.name === "selectMaterial")) errs.push("selectMaterial not in listDecisionTrees");
+      if (!DECISION_TREES.includes("selectMaterial")) errs.push("selectMaterial not in DECISION_TREES");
       return errs;
     },
   },

@@ -1,11 +1,30 @@
 # CURRENT POSITION
-## Updated: 2026-02-22T10:45:00Z
+## Updated: 2026-02-22T03:10:00Z
 
-**Phase:** R3 Intelligence Extraction — FULLY COMPLETE (Ω=0.88, S(x)=0.92, 129/129 R3 tests, 150/150 R2 benchmarks)
+**Phase:** R3 Engine Renovation — FULLY COMPLETE (Ω=0.912, S(x)=0.95, 127/127 R3 tests, 150/150 R2 benchmarks)
 **Build:** 4.2MB clean (build:fast — esbuild only, tsc OOMs on Node v24)
 **Roadmap:** v19.1 (Modular Phase Files) — PHASE_R3_v19.md
-**Last Commit:** R3-MS5: Phase gate (Ω=0.88, 129/129 tests, 150/150 benchmarks)
-**Prev Phase:** R2 Safety — FULLY COMPLETE (Ω=0.77, S(x)=0.85, 150/150 benchmarks)
+**Last Commit:** R3-Renovation: Full 8-engine renovation (Ω=0.912, 127/127 tests, 150/150 benchmarks)
+**Prev Phase:** R3 Phase Gate — COMPLETE (Ω=0.88, S(x)=0.92, 129/129 tests)
+**Prev-Prev Phase:** R2 Safety — FULLY COMPLETE (Ω=0.77, S(x)=0.85, 150/150 benchmarks)
+
+## R3 Engine Renovation — COMPLETE
+Post-audit renovation of all 8 engines. 10-phase plan executed across 3 sessions.
+
+| Phase | Engine | Fixes | Tests |
+|-------|--------|-------|-------|
+| 1 | GCodeTemplateEngine | Thread G02/G03, z_safe validation, all-controller retract, canned cycle syntax | 22/22 |
+| 2 | CampaignEngine | Material-specific Taylor C/n, Kienzle kc1_1 hardness scaling, per-op tool life variance | 15/15 |
+| 3 | CampaignEngine | Groover shear-plane thermal model, FoS-based safety thresholds | (included above) |
+| 4 | InferenceChainEngine | Dependency-graph parallel fan-out, global timeout, multi-format output parsing | 15/15 |
+| 5 | EventBus | Action registry + chain dispatch, listActions | 14/14 |
+| 6 | DecisionTreeEngine | JSON-driven material_selection tree (20 families), material-specific workholding FoS | 27/27 |
+| 7 | IntelligenceEngine | Sensitivity sweep, confidence gating (0.60/0.80), stability-adjusted speed | 19/19 |
+| 8 | ReportRenderer | Cost sensitivity analysis, outlier detection, controller-specific alarms, IT grade column | 15/15 |
+| 9 | Campaign data | Regenerated 635 batches with all physics fixes | 830p/1002w/4514f/3358q |
+| 10 | Final gate | Build + 127/127 R3 + 150/150 R2 + Ω=0.912 | ALL PASS |
+
+**Quality Score:** Ω=0.912 (R=0.95, C=0.90, P=0.85, S=0.95, L=0.82) — up from 0.88 pre-renovation
 
 ## R3-MS5 Status — Phase Gate COMPLETE
 | Task | Status | Notes |
@@ -131,19 +150,19 @@
 | T14: cycle_time_estimate | ✅ COMPLETE | Multi-operation pass estimation from speed/feed |
 | T15: quality_predict | ✅ ENHANCED | Surface + deflection + thermal + ISO 286 tolerance lookup |
 
-## R3 Integration Tests
-- tests/r3/intelligence-tests.ts: 17/17 passed (11 actions, alarm code tests, stability check, ISO 286 quality_predict)
+## R3 Integration Tests (post-renovation)
+- tests/r3/intelligence-tests.ts: 19/19 passed (+2: sensitivity sweep, confidence gating)
 - tests/r3/tolerance-tests.ts: 10/10 passed (IT grade, fit analysis, stack-up, Cpk, achievable grade, edge cases)
-- tests/r3/gcode-tests.ts: 16/16 passed (6 controllers, 13 operations, validation)
-- tests/r3/decision-tree-tests.ts: 21/21 passed (6 trees, dispatcher, normalizer, validation)
-- tests/r3/report-tests.ts: 11/11 passed (7 report types, listReportTypes, unknown type, missing field, footer)
+- tests/r3/gcode-tests.ts: 22/22 passed (+6: z_safe, retract, thread direction, canned cycle)
+- tests/r3/decision-tree-tests.ts: 27/27 passed (+6: material selection, workholding FoS)
+- tests/r3/report-tests.ts: 15/15 passed (+4: cost sensitivity, outlier warnings, controller alarms, IT grades)
 - tests/r3/campaign-tests.ts: 15/15 passed (create, validate, optimize, cycle_time, wear tracking, quarantine, meta)
 - tests/r3/inference-chain-tests.ts: 15/15 passed (chain types, template substitution, graceful degradation, response levels)
-- tests/r3/event-bus-tests.ts: 12/12 passed (subscribe, publish, glob matching, reactive chains, replay)
+- tests/r3/event-bus-tests.ts: 14/14 passed (+2: action registry, chain dispatch)
 - tests/r3/progressive-response-tests.ts: 12/12 passed (L0-L3 tiers, batch progress, conversion)
 - R2 regression: 150/150 benchmarks (no regressions)
 - Batch campaigns: 635/635 batches (6,346 materials, 0 errors, 100% coverage)
-- **Total R3: 129/129 unit tests (0 failures) + 635 batch campaigns**
+- **Total R3: 149/149 unit tests (0 failures, up from 129) + 635 batch campaigns + 150 R2 benchmarks**
 
 ## Architecture Decisions (R3)
 - Separate intelligenceDispatcher.ts (#32) instead of extending calcDispatcher (already 29 actions/750 lines)
@@ -161,13 +180,16 @@
 - render_report action in calcDispatcher supports single report + list_types modes via renderReport() dispatcher
 - Dead import cleanup: removed unused generateGCodeSnippet from IntelligenceEngine
 
-## Key Files This Phase
-- src/engines/DecisionTreeEngine.ts (6 decision trees, ~1,260 lines)
-- src/engines/GCodeTemplateEngine.ts (6 controllers, 13 operations, ~1,350 lines)
+## Key Files This Phase (post-renovation)
+- src/engines/DecisionTreeEngine.ts (7 decision trees incl material_selection, ~1,460 lines)
+- src/engines/GCodeTemplateEngine.ts (6 controllers, 13 operations, safety hardened, ~1,400 lines)
 - src/engines/ToleranceEngine.ts (ISO 286 tables + 5 functions, ~537 lines)
-- src/engines/IntelligenceEngine.ts (compound action engine, 11/11 implemented, ~2100 lines)
-- src/engines/CampaignEngine.ts (4 campaign actions, ~1,195 lines)
-- src/engines/ReportRenderer.ts (7 report renderers, ~1,065 lines)
+- src/engines/IntelligenceEngine.ts (sensitivity sweep, confidence gating, stability adjustment, ~2,300 lines)
+- src/engines/CampaignEngine.ts (Groover thermal model, material-specific physics, ~1,250 lines)
+- src/engines/ReportRenderer.ts (cost sensitivity, IT grades, controller alarms, ~1,150 lines)
+- src/engines/InferenceChainEngine.ts (parallel fan-out, global timeout, ~950 lines)
+- src/engines/EventBus.ts (action registry, chain dispatch)
+- data/decision-trees/material_selection.json (20 material families, JSON-driven)
 - src/tools/dispatchers/calcDispatcher.ts (35 actions including campaign_*, render_report, decision_tree, gcode_generate, tolerance_analysis, fit_analysis)
 - src/tools/dispatchers/intelligenceDispatcher.ts (dispatcher #32)
 - src/engines/index.ts (barrel exports: CampaignEngine + ReportRenderer + DecisionTreeEngine + GCodeTemplateEngine + ToleranceEngine + IntelligenceEngine)

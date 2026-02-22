@@ -512,11 +512,54 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
   if (stability.warnings?.length) {
     safetyWarnings.push(...stability.warnings);
   }
-  if (!stability.is_stable) {
+
+  // ── 7C: Stability-adjusted speed recommendation ──
+  // If unstable, find nearest stable lobe speed and provide adjusted parameters.
+  let stability_adjustment: {
+    adjusted_speed_rpm: number;
+    adjusted_cutting_speed_m_min: number;
+    original_speed_rpm: number;
+    nearest_lobe: number;
+  } | undefined;
+
+  if (!stability.is_stable && stability.spindle_speeds?.length) {
+    const currentRPM = operations[0].params.spindle_speed;
+    // Find nearest stable speed
+    let nearestSpeed = stability.spindle_speeds[0];
+    let nearestDist = Math.abs(currentRPM - nearestSpeed);
+    let nearestLobe = 0;
+
+    for (let i = 1; i < stability.spindle_speeds.length; i++) {
+      const dist = Math.abs(currentRPM - stability.spindle_speeds[i]);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestSpeed = stability.spindle_speeds[i];
+        nearestLobe = i;
+      }
+    }
+
+    // Convert RPM back to cutting speed: Vc = π × D × n / 1000
+    const D = operations[0].params.tool_diameter ?? DEFAULT_TOOL.diameter;
+    const adjustedVc = Math.round((Math.PI * D * nearestSpeed / 1000) * 10) / 10;
+
+    stability_adjustment = {
+      adjusted_speed_rpm: nearestSpeed,
+      adjusted_cutting_speed_m_min: adjustedVc,
+      original_speed_rpm: currentRPM,
+      nearest_lobe: nearestLobe,
+    };
+
     safetyWarnings.push(
       `Chatter risk: current axial depth exceeds stability limit ` +
       `(${stability.critical_depth} mm). ` +
-      `Consider recommended speeds: ${stability.spindle_speeds?.slice(0, 3).join(", ")} RPM`
+      `Adjusted speed recommendation: ${nearestSpeed} RPM (${adjustedVc} m/min) at stable lobe ${nearestLobe}. ` +
+      `Original: ${currentRPM} RPM`
+    );
+    allChecksPassed = false;
+  } else if (!stability.is_stable) {
+    safetyWarnings.push(
+      `Chatter risk: current axial depth exceeds stability limit ` +
+      `(${stability.critical_depth} mm). No stable lobes found in usable speed range.`
     );
     allChecksPassed = false;
   }
@@ -537,6 +580,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
       critical_depth_mm: stability.critical_depth,
       margin_percent: stability.margin_percent,
       recommended_speeds: stability.spindle_speeds?.slice(0, 5),
+      ...(stability_adjustment ? { stability_adjustment } : {}),
     },
     safety: { all_checks_passed: allChecksPassed, warnings: safetyWarnings },
     confidence,
@@ -1421,6 +1465,89 @@ async function whatIf(params: Record<string, any>): Promise<any> {
   log.info(`[IntelligenceEngine] what_if: Vc ${baseMetrics.cutting_speed}→${scenarioMetrics.cutting_speed}, ` +
     `force Δ${deltas.cutting_force_N.percent}%, life Δ${deltas.tool_life_min.percent}%`);
 
+  // ── 7A: Sensitivity sweep mode ──
+  // If params.sweep is provided, vary ONE parameter ±range% in N steps and return
+  // a response surface showing how all outputs respond.
+  let sensitivity: any = undefined;
+  if (params.sweep) {
+    const sweepParam = params.sweep.parameter as string;
+    const sweepRange = params.sweep.range_pct ?? 20;   // default ±20%
+    const sweepSteps = params.sweep.steps ?? 5;         // default 5 steps
+    const baseValue = baseline[sweepParam] ?? scenario[sweepParam];
+
+    if (baseValue !== undefined && typeof baseValue === "number" && baseValue > 0) {
+      const minVal = baseValue * (1 - sweepRange / 100);
+      const maxVal = baseValue * (1 + sweepRange / 100);
+      const step = (maxVal - minVal) / (sweepSteps - 1);
+
+      const sweepPoints: Array<{
+        [key: string]: number;
+        cutting_force_N: number;
+        tool_life_min: number;
+        surface_finish_Ra: number;
+        mrr_cm3_min: number;
+        power_kW: number;
+      }> = [];
+
+      for (let i = 0; i < sweepSteps; i++) {
+        const val = minVal + step * i;
+        const sweepScenario = { ...baseline, [sweepParam]: val };
+        const m = computeMetrics(sweepScenario);
+        sweepPoints.push({
+          [sweepParam]: Math.round(val * 1000) / 1000,
+          cutting_force_N: m.cutting_force_N,
+          tool_life_min: m.tool_life_min,
+          surface_finish_Ra: m.surface_finish_Ra,
+          mrr_cm3_min: m.mrr_cm3_min,
+          power_kW: m.power_kW,
+        });
+      }
+
+      // Calculate response gradients (elasticity: %Δoutput / %Δinput)
+      const first = sweepPoints[0];
+      const last = sweepPoints[sweepPoints.length - 1];
+      const inputRange = (last[sweepParam] - first[sweepParam]) / first[sweepParam];
+
+      const elasticity: Record<string, number> = {};
+      for (const key of ["cutting_force_N", "tool_life_min", "surface_finish_Ra", "mrr_cm3_min", "power_kW"]) {
+        const outRange = first[key] !== 0
+          ? ((last[key] as number) - (first[key] as number)) / (first[key] as number)
+          : 0;
+        elasticity[key] = inputRange !== 0
+          ? Math.round((outRange / inputRange) * 100) / 100
+          : 0;
+      }
+
+      // Machine constraint checking
+      const constraintViolations: string[] = [];
+      const machineMaxPower = params.machine_power_kw ?? INTELLIGENCE_SAFETY_LIMITS.MAX_SPINDLE_POWER_KW;
+      for (const pt of sweepPoints) {
+        if (pt.power_kW > machineMaxPower) {
+          constraintViolations.push(
+            `${sweepParam}=${pt[sweepParam]}: power ${pt.power_kW.toFixed(1)} kW exceeds machine limit ${machineMaxPower} kW`
+          );
+        }
+        if (pt.tool_life_min < 5) {
+          constraintViolations.push(
+            `${sweepParam}=${pt[sweepParam]}: tool life ${pt.tool_life_min.toFixed(1)} min below safe minimum`
+          );
+        }
+      }
+
+      sensitivity = {
+        parameter: sweepParam,
+        range_pct: sweepRange,
+        steps: sweepSteps,
+        points: sweepPoints,
+        elasticity,
+        constraint_violations: constraintViolations,
+      };
+
+      log.info(`[IntelligenceEngine] what_if sweep: ${sweepParam} ±${sweepRange}%, ${sweepSteps} steps, ` +
+        `${constraintViolations.length} constraint violations`);
+    }
+  }
+
   return {
     material: materialName,
     changes_applied: changes,
@@ -1428,6 +1555,7 @@ async function whatIf(params: Record<string, any>): Promise<any> {
     scenario: scenarioMetrics,
     deltas,
     insights,
+    ...(sensitivity ? { sensitivity } : {}),
   };
 }
 
@@ -2174,6 +2302,23 @@ export async function executeIntelligenceAction(
         // Exhaustiveness check -- TypeScript ensures all cases are handled
         const _exhaustive: never = action;
         throw new Error(`[IntelligenceEngine] Unhandled action: ${_exhaustive}`);
+      }
+    }
+
+    // ── 7B: Confidence gating ──
+    // If the result has a confidence field, apply gating logic:
+    //   confidence < 0.60 → status: INSUFFICIENT_DATA (numbers are unreliable)
+    //   confidence < 0.80 → append low-confidence warning
+    if (result && typeof result === "object" && typeof result.confidence === "number") {
+      if (result.confidence < 0.60) {
+        result._confidence_gate = "INSUFFICIENT_DATA";
+        result._confidence_warning = `Confidence ${result.confidence} is below threshold (0.60). ` +
+          `Numerical results are unreliable — verify with empirical testing or provide more specific input.`;
+        log.warn(`[IntelligenceEngine] ${action}: confidence ${result.confidence} < 0.60 — INSUFFICIENT_DATA gate`);
+      } else if (result.confidence < 0.80) {
+        result._confidence_warning = `Low confidence (${result.confidence}). ` +
+          `Results are approximate — verify critical parameters with empirical testing.`;
+        log.info(`[IntelligenceEngine] ${action}: confidence ${result.confidence} < 0.80 — low confidence warning`);
       }
     }
 

@@ -98,6 +98,8 @@ export interface InferenceChainConfig {
   response_level?: "pointer" | "summary" | "full";
   /** Write chain log to disk (default: true). */
   log_to_disk?: boolean;
+  /** Global timeout for the entire chain in milliseconds (default: 30000). */
+  timeout_ms?: number;
 }
 
 /** Result from a single step execution. */
@@ -358,24 +360,109 @@ function applyResponseLevel(
 }
 
 // ============================================================================
+// Dependency Graph & Wave Builder
+// ============================================================================
+
+/**
+ * Build execution waves from step dependency graph via topological sort.
+ * Steps with no dependencies go in wave 0. Steps depending only on wave-0
+ * steps go in wave 1, etc. Steps within the same wave can run in parallel.
+ *
+ * Falls back to sequential execution (one step per wave) if:
+ *   - No depends_on fields are present (preserves {{previous_output}} behavior)
+ *   - Circular dependencies are detected
+ */
+function buildExecutionWaves(steps: ChainStep[]): ChainStep[][] {
+  // Check if any step uses depends_on — if not, use sequential mode
+  const anyDependencies = steps.some(
+    (s) => s.depends_on && s.depends_on.length > 0,
+  );
+  if (!anyDependencies) {
+    // Sequential fallback: each step is its own wave
+    return steps.map((s) => [s]);
+  }
+
+  const stepMap = new Map<string, ChainStep>();
+  const inDegree = new Map<string, number>();
+  const dependents = new Map<string, string[]>(); // dep → [steps that depend on it]
+
+  for (const step of steps) {
+    stepMap.set(step.name, step);
+    inDegree.set(step.name, 0);
+    dependents.set(step.name, []);
+  }
+
+  // Build edges
+  for (const step of steps) {
+    if (step.depends_on) {
+      for (const dep of step.depends_on) {
+        if (stepMap.has(dep)) {
+          inDegree.set(step.name, (inDegree.get(step.name) ?? 0) + 1);
+          dependents.get(dep)!.push(step.name);
+        }
+      }
+    }
+  }
+
+  // Kahn's algorithm: topological sort into waves
+  const waves: ChainStep[][] = [];
+  const remaining = new Set(steps.map((s) => s.name));
+  let safety = 0;
+
+  while (remaining.size > 0 && safety++ < steps.length + 1) {
+    // Find all steps with in-degree 0 (no unmet dependencies)
+    const wave: ChainStep[] = [];
+    for (const name of remaining) {
+      if ((inDegree.get(name) ?? 0) === 0) {
+        wave.push(stepMap.get(name)!);
+      }
+    }
+
+    if (wave.length === 0) {
+      // Circular dependency detected — dump remaining as sequential
+      for (const name of remaining) {
+        waves.push([stepMap.get(name)!]);
+      }
+      break;
+    }
+
+    waves.push(wave);
+
+    // Remove completed steps and decrement in-degrees
+    for (const step of wave) {
+      remaining.delete(step.name);
+      for (const depName of dependents.get(step.name) ?? []) {
+        inDegree.set(depName, (inDegree.get(depName) ?? 0) - 1);
+      }
+    }
+  }
+
+  return waves;
+}
+
+// ============================================================================
 // Core Engine Function
 // ============================================================================
 
 /**
- * Orchestrate a multi-step reasoning chain.
+ * Orchestrate a multi-step reasoning chain with dependency-aware parallel execution.
  *
  * Execution model:
- *   1. Steps without depends_on entries run first (or concurrently via parallelAPICalls).
- *   2. Each sequential step receives the output of the immediately preceding step
- *      as {{previous_output}}.
- *   3. If a step has depends_on, its template receives the named step outputs
- *      as {{step_name_output}} tokens in addition to config.input variables.
- *   4. The final step's output is the chain's final_output.
+ *   1. Steps are sorted into execution waves via topological sort on depends_on.
+ *   2. Steps within the same wave run concurrently via parallelAPICalls().
+ *   3. Each step receives outputs from its dependencies as {{step_name_output}}.
+ *   4. If no depends_on fields exist, falls back to sequential execution with
+ *      {{previous_output}} chaining.
+ *   5. The last step's output (in execution order) is the chain's final_output.
+ *
+ * Timeout:
+ *   If config.timeout_ms is set, the chain returns a partial result with
+ *   status "partial" when the deadline is exceeded.
  *
  * Graceful degradation:
  *   - If hasValidApiKey() is false, returns a structured error without throwing.
  *   - If an individual step fails, it records the error and continues with an
- *     empty string for {{previous_output}}, setting status to "partial".
+ *     empty string output, setting status to "partial".
  *
  * @param config - Chain configuration including steps, input variables, and options
  * @returns InferenceChainResult (filtered by response_level if specified)
@@ -385,7 +472,8 @@ export async function runInferenceChain(
 ): Promise<InferenceChainResult> {
   const chainStart = Date.now();
   const chainId = config.chain_id ?? generateChainId();
-  const logToDisk = config.log_to_disk !== false; // default true
+  const logToDisk = config.log_to_disk !== false;
+  const timeoutMs = config.timeout_ms ?? 30000;
 
   // Guard: no API key
   if (!hasValidApiKey()) {
@@ -401,75 +489,160 @@ export async function runInferenceChain(
   let totalOutputTokens = 0;
   let overallStatus: "completed" | "partial" | "failed" = "completed";
   let previousOutput = "";
+  let timedOut = false;
 
-  for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
+  // Build execution waves from dependency graph
+  const waves = buildExecutionWaves(steps);
 
-    // Build variable map for this step: config.input + previous/named outputs
-    const vars: Record<string, any> = {
-      ...config.input,
-      previous_output: previousOutput,
-    };
-
-    // Inject outputs from explicit dependencies as {{step_name_output}}
-    if (step.depends_on && step.depends_on.length > 0) {
-      for (const dep of step.depends_on) {
-        if (dep in stepOutputMap) {
-          vars[`${dep}_output`] = stepOutputMap[dep];
-        }
-      }
+  for (const wave of waves) {
+    // Check timeout before each wave
+    if (Date.now() - chainStart > timeoutMs) {
+      timedOut = true;
+      overallStatus = "partial";
+      break;
     }
 
-    const prompt = substituteTemplate(step.prompt_template, vars);
-    const model = getModelForTier(step.model_tier);
-    const stepStart = Date.now();
+    if (wave.length === 1) {
+      // Single step in wave: run directly (most common case)
+      const step = wave[0];
+      const vars: Record<string, any> = {
+        ...config.input,
+        previous_output: previousOutput,
+      };
 
-    let stepOutput = "";
-    let stepError: string | undefined;
-    let inputTokens = 0;
-    let outputTokens = 0;
+      // Inject dependency outputs
+      if (step.depends_on) {
+        for (const dep of step.depends_on) {
+          if (dep in stepOutputMap) {
+            vars[`${dep}_output`] = stepOutputMap[dep];
+          }
+        }
+      }
 
-    try {
-      const responses = await parallelAPICalls([
-        {
+      const prompt = substituteTemplate(step.prompt_template, vars);
+      const model = getModelForTier(step.model_tier);
+      const stepStart = Date.now();
+
+      let stepOutput = "";
+      let stepError: string | undefined;
+      let inputTokens = 0;
+      let outputTokens = 0;
+
+      try {
+        const responses = await parallelAPICalls([
+          {
+            system: MANUFACTURING_SYSTEM_PROMPT,
+            user: prompt,
+            model,
+            maxTokens: step.max_tokens ?? 512,
+            temperature: step.temperature ?? 0.3,
+          },
+        ]);
+
+        const resp = responses[0];
+        if (resp.error) {
+          stepError = resp.error;
+          overallStatus = "partial";
+        } else {
+          stepOutput = resp.text;
+        }
+        inputTokens = resp.tokens.input;
+        outputTokens = resp.tokens.output;
+      } catch (err) {
+        stepError = err instanceof Error ? err.message : String(err);
+        overallStatus = "partial";
+      }
+
+      const stepDuration = Date.now() - stepStart;
+      totalInputTokens += inputTokens;
+      totalOutputTokens += outputTokens;
+
+      completedSteps.push({
+        step_name: step.name,
+        model,
+        tokens: { input: inputTokens, output: outputTokens },
+        duration_ms: stepDuration,
+        output: stepOutput,
+        ...(stepError !== undefined ? { error: stepError } : {}),
+      });
+
+      stepOutputMap[step.name] = stepOutput;
+      previousOutput = stepOutput;
+    } else {
+      // Multiple steps in wave: run in parallel via parallelAPICalls
+      const apiCalls = wave.map((step) => {
+        const vars: Record<string, any> = {
+          ...config.input,
+          previous_output: previousOutput,
+        };
+        if (step.depends_on) {
+          for (const dep of step.depends_on) {
+            if (dep in stepOutputMap) {
+              vars[`${dep}_output`] = stepOutputMap[dep];
+            }
+          }
+        }
+        const prompt = substituteTemplate(step.prompt_template, vars);
+        const model = getModelForTier(step.model_tier);
+        return {
           system: MANUFACTURING_SYSTEM_PROMPT,
           user: prompt,
           model,
           maxTokens: step.max_tokens ?? 512,
           temperature: step.temperature ?? 0.3,
-        },
-      ]);
+        };
+      });
 
-      const resp = responses[0];
-      if (resp.error) {
-        stepError = resp.error;
+      const waveStart = Date.now();
+
+      try {
+        const responses = await parallelAPICalls(apiCalls);
+
+        for (let i = 0; i < wave.length; i++) {
+          const step = wave[i];
+          const resp = responses[i];
+          const model = getModelForTier(step.model_tier);
+
+          let stepOutput = "";
+          let stepError: string | undefined;
+
+          if (resp.error) {
+            stepError = resp.error;
+            overallStatus = "partial";
+          } else {
+            stepOutput = resp.text;
+          }
+
+          completedSteps.push({
+            step_name: step.name,
+            model,
+            tokens: { input: resp.tokens.input, output: resp.tokens.output },
+            duration_ms: Date.now() - waveStart,
+            output: stepOutput,
+            ...(stepError !== undefined ? { error: stepError } : {}),
+          });
+
+          totalInputTokens += resp.tokens.input;
+          totalOutputTokens += resp.tokens.output;
+          stepOutputMap[step.name] = stepOutput;
+          previousOutput = stepOutput;
+        }
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
         overallStatus = "partial";
-      } else {
-        stepOutput = resp.text;
+        for (const step of wave) {
+          completedSteps.push({
+            step_name: step.name,
+            model: getModelForTier(step.model_tier),
+            tokens: { input: 0, output: 0 },
+            duration_ms: Date.now() - waveStart,
+            output: "",
+            error: errMsg,
+          });
+          stepOutputMap[step.name] = "";
+        }
       }
-      inputTokens = resp.tokens.input;
-      outputTokens = resp.tokens.output;
-    } catch (err) {
-      stepError = err instanceof Error ? err.message : String(err);
-      overallStatus = "partial";
     }
-
-    const stepDuration = Date.now() - stepStart;
-    totalInputTokens += inputTokens;
-    totalOutputTokens += outputTokens;
-
-    const stepResult: StepResult = {
-      step_name: step.name,
-      model,
-      tokens: { input: inputTokens, output: outputTokens },
-      duration_ms: stepDuration,
-      output: stepOutput,
-      ...(stepError !== undefined ? { error: stepError } : {}),
-    };
-
-    completedSteps.push(stepResult);
-    stepOutputMap[step.name] = stepOutput;
-    previousOutput = stepOutput;
   }
 
   const finalOutput =
@@ -488,7 +661,9 @@ export async function runInferenceChain(
     total_steps: steps.length,
     total_tokens: { input: totalInputTokens, output: totalOutputTokens },
     total_duration_ms: Date.now() - chainStart,
-    final_output: finalOutput,
+    final_output: timedOut
+      ? finalOutput || "[Chain timed out before completion]"
+      : finalOutput,
     step_results: completedSteps,
     status: overallStatus,
   };
@@ -501,9 +676,6 @@ export async function runInferenceChain(
   const level = config.response_level ?? "full";
   const filtered = applyResponseLevel(result, level);
 
-  // Cast: applyResponseLevel may return a partial, but callers type-expect the full shape.
-  // For pointer/summary levels, callers should use Partial<InferenceChainResult>.
-  // We cast here to maintain the declared return type for the common full case.
   return filtered as InferenceChainResult;
 }
 
@@ -655,7 +827,8 @@ End with: RECOMMENDED_ACTION: (the single most important next step)`,
 
 /**
  * Parse ranked recommendation text from rank_solutions step output.
- * Returns a best-effort array — gracefully handles unstructured output.
+ * Returns a best-effort array — gracefully handles multiple formatting variations:
+ *   "RANK [1]:", "RANK 1:", "Rank 1:", "**1.**", "1)", "1.", "#1"
  */
 function parseRankedRecommendations(
   rankedText: string,
@@ -664,13 +837,42 @@ function parseRankedRecommendations(
   const results: AnalysisResult["recommendations"] = [];
   if (!rankedText) return results;
 
-  // Split on RANK [N]: or RANK N: patterns
-  const rankBlocks = rankedText.split(/RANK\s*\[?\d+\]?:/i).slice(1);
+  // Try multiple split patterns in order of specificity
+  const splitPatterns = [
+    /RANK\s*\[?\d+\]?\s*:/i,          // RANK [1]: or RANK 1:
+    /\*\*\d+\.\*\*/,                   // **1.**
+    /(?:^|\n)#\d+\s*[:\-]/m,          // #1: or #1 -
+    /(?:^|\n)\d+\)\s*/m,              // 1) at line start
+  ];
 
-  rankBlocks.forEach((block, i) => {
-    const solutionMatch = block.match(/SOLUTION:\s*([^\n]+)/i);
-    const rationaleMatch = block.match(/RATIONALE:\s*([^\n]+(?:\n(?!CONFIDENCE|RECOMMENDATION)[^\n]+)*)/i);
-    const confidenceMatch = block.match(/CONFIDENCE:\s*([\d.]+)/i);
+  let rankBlocks: string[] = [];
+  for (const pattern of splitPatterns) {
+    rankBlocks = rankedText.split(pattern).slice(1);
+    if (rankBlocks.length > 0) break;
+  }
+
+  for (let i = 0; i < rankBlocks.length; i++) {
+    const block = rankBlocks[i];
+
+    // Solution: try multiple label patterns
+    const solutionMatch =
+      block.match(/SOLUTION:\s*([^\n]+)/i) ??
+      block.match(/TITLE:\s*([^\n]+)/i) ??
+      block.match(/^[\s\-]*([^\n]{5,80})/); // first meaningful line
+
+    // Rationale: try multiple patterns
+    const rationaleMatch =
+      block.match(/RATIONALE:\s*([^\n]+(?:\n(?!CONFIDENCE|RECOMMENDATION)[^\n]+)*)/i) ??
+      block.match(/REASON(?:ING)?:\s*([^\n]+)/i) ??
+      block.match(/WHY:\s*([^\n]+)/i);
+
+    // Confidence: try multiple patterns
+    const confidenceMatch =
+      block.match(/CONFIDENCE:\s*([\d.]+)/i) ??
+      block.match(/SCORE:\s*([\d.]+)/i) ??
+      block.match(/\((\d+(?:\.\d+)?)\s*(?:\/\s*1(?:\.0)?)?\)/); // (0.8) or (0.8/1.0)
+
+    // Recommendation
     const recMatch = block.match(/RECOMMENDATION:\s*([^\n]+)/i);
 
     results.push({
@@ -679,9 +881,24 @@ function parseRankedRecommendations(
       rationale: (rationaleMatch?.[1]?.trim() ?? recMatch?.[1]?.trim() ?? "").replace(/\n/g, " "),
       confidence: confidenceMatch ? Math.min(1.0, Math.max(0.0, parseFloat(confidenceMatch[1]))) : 0.5,
     });
-  });
+  }
 
-  // Fallback: if no RANK blocks found, return single entry with full text
+  // Fallback: if no blocks found, try numbered list parsing (1. Solution ...)
+  if (results.length === 0) {
+    const numberedLines = rankedText.match(/(?:^|\n)\d+[\.\)]\s*[^\n]+/g);
+    if (numberedLines && numberedLines.length > 0) {
+      numberedLines.slice(0, 5).forEach((line, i) => {
+        results.push({
+          rank: i + 1,
+          solution: line.replace(/^\s*\d+[\.\)]\s*/, "").trim().slice(0, 100),
+          rationale: "",
+          confidence: 0.5,
+        });
+      });
+    }
+  }
+
+  // Final fallback: single entry with full text
   if (results.length === 0 && rankedText.trim()) {
     results.push({
       rank: 1,

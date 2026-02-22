@@ -256,9 +256,64 @@ function validateParams(operation: string, p: GCodeParams, warnings: string[]): 
     }
   }
 
-  // Z_safe must be positive
+  // Z_safe must be non-negative — negative z_safe is a crash hazard on rapid approach
   if (p.z_safe !== undefined && p.z_safe < 0) {
-    warnings.push(`z_safe is negative (${p.z_safe}) — this may cause a collision on approach`);
+    throw new Error(
+      `[GCodeTemplateEngine] z_safe (${p.z_safe}) must be >= 0. ` +
+      `Negative z_safe causes collision on rapid approach move.`
+    );
+  }
+}
+
+// ============================================================================
+// CANNED CYCLE VALIDATION (Siemens / Heidenhain)
+// ============================================================================
+
+/**
+ * Validate Siemens canned cycle parameters.
+ * Checks: RTP > DP (return plane above depth), SDIS >= 0, peck > 0.
+ */
+function validateSiemensCycle(
+  cycleName: string,
+  rtp: number, rfp: number, sdis: number, dp: number,
+  warnings: string[],
+  peckDepth?: number
+): void {
+  if (rtp <= dp) {
+    warnings.push(`${cycleName}: RTP (${fmt(rtp)}) must be above DP (${fmt(dp)}) — tool cannot retract`);
+  }
+  if (sdis < 0) {
+    warnings.push(`${cycleName}: SDIS (${fmt(sdis)}) must be >= 0`);
+  }
+  if (rtp <= rfp) {
+    warnings.push(`${cycleName}: RTP (${fmt(rtp)}) should be above RFP (${fmt(rfp)})`);
+  }
+  if (peckDepth !== undefined && peckDepth <= 0) {
+    warnings.push(`${cycleName}: peck depth (${fmt(peckDepth)}) must be > 0`);
+  }
+}
+
+/**
+ * Validate Heidenhain CYCL DEF parameters.
+ * Checks: SET UP > 0, DEPTH > 0, PECKG > 0, F > 0.
+ */
+function validateHeidenhainCycle(
+  cycleName: string,
+  setup: number, depth: number, feed: number,
+  warnings: string[],
+  peckDepth?: number
+): void {
+  if (setup <= 0) {
+    warnings.push(`${cycleName}: SET UP (${fmt(setup)}) must be > 0`);
+  }
+  if (depth <= 0) {
+    warnings.push(`${cycleName}: DEPTH (${fmt(depth)}) must be > 0`);
+  }
+  if (feed <= 0) {
+    warnings.push(`${cycleName}: Feed (${fmt(feed)}) must be > 0`);
+  }
+  if (peckDepth !== undefined && peckDepth <= 0) {
+    warnings.push(`${cycleName}: PECKG (${fmt(peckDepth)}) must be > 0`);
   }
 }
 
@@ -292,10 +347,9 @@ function buildFanucBase(
     programEnd: () => ["M30", "%"],
     toolChange: (tool, rpm, coolant) => {
       const lines: string[] = [];
-      if (opts.toolChangeSafety) {
-        lines.push("G91 G28 Z0.");
-        lines.push("G90");
-      }
+      // Always retract Z to machine zero before tool change (safety-critical)
+      lines.push("G91 G28 Z0.");
+      lines.push("G90");
       lines.push(`T${tool} M6`);
       lines.push(`G43 H${tool}`);
       lines.push(`S${rpm} M3`);
@@ -333,10 +387,8 @@ const FANUC_CONFIG: ControllerConfig = buildFanucBase(
 );
 
 const HAAS_CONFIG: ControllerConfig = {
-  ...buildFanucBase("Haas", "haas", ["haas", "haas vf", "haas st"], {
-    toolChangeSafety: true,
-  }),
-  // Haas uses G28 G91 Z0 then G90, already set via toolChangeSafety
+  ...buildFanucBase("Haas", "haas", ["haas", "haas vf", "haas st"]),
+  // All Fanuc-family controllers now retract Z before tool change
   safetyLine: "G90 G94 G17 G21",
 };
 
@@ -371,6 +423,7 @@ const SIEMENS_CONFIG: ControllerConfig = {
   programEnd: () => ["M30", "%"],
   toolChange: (tool, rpm, coolant) => {
     const lines: string[] = [
+      "SUPA G0 Z0",     // Retract to machine Z0 before tool change (safety-critical)
       `T${tool} D1`,
       "M6",
       `S${rpm} M3`,
@@ -416,8 +469,9 @@ const HEIDENHAIN_CONFIG: ControllerConfig = {
   programEnd: () => ["END PGM MAIN MM"],
   toolChange: (tool, rpm, coolant) => {
     const lines: string[] = [
+      "L Z+100 R0 FMAX M5",  // Retract Z + stop spindle before tool change (safety-critical)
       `TOOL CALL ${tool} Z S${rpm}`,
-      "L Z+100 R0 FMAX",
+      "L Z+100 R0 FMAX",     // Position at safe Z after tool change
     ];
     if (coolant && coolant !== "off") {
       const m = coolant === "tsc" ? "M88" : coolant === "mist" ? "M7" : "M8";
@@ -579,9 +633,9 @@ function genDrilling(
   ];
 
   if (ctrl.family === "siemens") {
-    lines.push(...genSiemensDrillCycle(cycleType, zSafe, zDepth, p, notes));
+    lines.push(...genSiemensDrillCycle(cycleType, zSafe, zDepth, p, notes, warnings));
   } else if (ctrl.family === "heidenhain") {
-    lines.push(...genHeidenhainDrillCycle(cycleType, zSafe, zDepth, p, notes));
+    lines.push(...genHeidenhainDrillCycle(cycleType, zSafe, zDepth, p, notes, warnings));
   } else {
     // Fanuc-family
     lines.push(...genFanucDrillCycle(cycleType, xPos, yPos, zDepth, rPlane, p, warnings));
@@ -627,25 +681,29 @@ function genFanucDrillCycle(
 function genSiemensDrillCycle(
   type: DrillCycleType,
   zSafe: number, zDepth: number,
-  p: GCodeParams, notes: string[]
+  p: GCodeParams, notes: string[], warnings?: string[]
 ): string[] {
   // CYCLE81(RTP, RFP, SDIS, DP, [DPR], [DTB])
   // CYCLE83(RTP, RFP, SDIS, DP, DPR, DTB, FRF, VARI)
   const sdis = 0.5;  // safety distance above reference plane
   const rfp = 0;     // reference plane (Z0 at part surface)
   const dwell = p.dwell ?? 0;
+  const w = warnings ?? [];
 
   switch (type) {
     case "G81":
+      validateSiemensCycle("CYCLE81", zSafe, rfp, sdis, zDepth, w);
       notes.push("Siemens CYCLE81: standard drill");
       return [`CYCLE81(${fmt(zSafe)}, ${fmt(rfp)}, ${fmt(sdis)}, ${fmt(zDepth)})`];
     case "G83": {
       const q = p.peck_depth ?? Math.abs(zDepth) * 0.25;
+      validateSiemensCycle("CYCLE83", zSafe, rfp, sdis, zDepth, w, q);
       notes.push("Siemens CYCLE83: peck drill (VARI=0, full retract)");
       return [`CYCLE83(${fmt(zSafe)}, ${fmt(rfp)}, ${fmt(sdis)}, ${fmt(zDepth)}, , ${fmt(dwell)}, 1, 0, , ${fmt(q)})`];
     }
     case "G73": {
       const q = p.peck_depth ?? Math.abs(zDepth) * 0.25;
+      validateSiemensCycle("CYCLE83", zSafe, rfp, sdis, zDepth, w, q);
       notes.push("Siemens CYCLE83: chip-break (VARI=1, partial retract)");
       return [`CYCLE83(${fmt(zSafe)}, ${fmt(rfp)}, ${fmt(sdis)}, ${fmt(zDepth)}, , ${fmt(dwell)}, 1, 1, , ${fmt(q)})`];
     }
@@ -655,10 +713,12 @@ function genSiemensDrillCycle(
 function genHeidenhainDrillCycle(
   type: DrillCycleType,
   zSafe: number, zDepth: number,
-  p: GCodeParams, notes: string[]
+  p: GCodeParams, notes: string[], warnings?: string[]
 ): string[] {
   const peckDepth = p.peck_depth ?? Math.abs(zDepth) * 0.25;
   const dwell = p.dwell ?? 0;
+  const absDepth = Math.abs(zDepth);
+  const w = warnings ?? [];
 
   const cycleLabel: Record<DrillCycleType, string> = {
     G81: "DRILLING",
@@ -666,12 +726,13 @@ function genHeidenhainDrillCycle(
     G73: "CHIP BREAKING",
   };
 
+  validateHeidenhainCycle(`CYCL DEF 1.0 ${cycleLabel[type]}`, zSafe, absDepth, p.feed_rate, w, peckDepth);
   notes.push(`Heidenhain CYCL DEF 1.0: ${cycleLabel[type]}`);
 
   return [
     `CYCL DEF 1.0 ${cycleLabel[type]}`,
     `CYCL DEF 1.1 SET UP ${fmt(zSafe)}`,
-    `CYCL DEF 1.2 DEPTH ${fmt(Math.abs(zDepth))}`,
+    `CYCL DEF 1.2 DEPTH ${fmt(absDepth)}`,
     `CYCL DEF 1.3 PECKG ${fmt(peckDepth)}`,
     `CYCL DEF 1.4 DWELL ${fmt(dwell)}`,
     `CYCL DEF 1.5 F${fmt(p.feed_rate)}`,
@@ -710,11 +771,13 @@ function genTapping(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   ];
 
   if (ctrl.family === "siemens") {
+    validateSiemensCycle("CYCLE84", zSafe, 0, 0.5, zDepth, warnings);
     notes.push("Siemens CYCLE84: rigid tap");
     lines.push(
       `CYCLE84(${fmt(zSafe)}, 0, 0.5, ${fmt(zDepth)}, , 0, 3, , ${fmt(pitch)})`
     );
   } else if (ctrl.family === "heidenhain") {
+    validateHeidenhainCycle("CYCL DEF 2.0 TAPPING", zSafe, Math.abs(zDepth), tapFeed, warnings);
     notes.push("Heidenhain CYCL DEF 2.0: tapping");
     lines.push(
       "CYCL DEF 2.0 TAPPING",
@@ -772,11 +835,16 @@ function genBoring(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   ];
 
   if (ctrl.family === "siemens") {
+    validateSiemensCycle("CYCLE86", zSafe, 0, 0.5, zDepth, warnings);
+    if (orientAngle < 0 || orientAngle > 360) {
+      warnings.push(`CYCLE86: orient_angle (${fmt(orientAngle)}) should be 0-360°`);
+    }
     notes.push("Siemens CYCLE86: boring with oriented spindle stop");
     lines.push(
       `CYCLE86(${fmt(zSafe)}, 0, 0.5, ${fmt(zDepth)}, 0, 3, ${fmt(orientAngle)}, 1, ${fmt(shiftAmt)}, 0)`
     );
   } else if (ctrl.family === "heidenhain") {
+    validateHeidenhainCycle("CYCL DEF 4.0 BORING", zSafe, Math.abs(zDepth), p.feed_rate, warnings);
     notes.push("Heidenhain CYCL DEF 4.0: boring");
     lines.push(
       "CYCL DEF 4.0 BORING",
@@ -831,10 +899,11 @@ function genThreadMilling(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
     warnings.push("Tool diameter >= thread diameter — impossible cut, check parameters");
   }
 
-  // For right-hand thread: G02 (CW) produces right-hand thread when moving down
-  // For left-hand thread: G03 (CCW)
-  const helixCode = direction === "right" ? "G03" : "G02";
-  const approachCode = direction === "right" ? "G02" : "G03";
+  // Thread milling helix direction (standard CNC convention):
+  //   Right-hand thread descending: G02 (CW spiral viewed from +Z)
+  //   Left-hand thread descending:  G03 (CCW spiral viewed from +Z)
+  const helixCode = direction === "right" ? "G02" : "G03";
+  const approachCode = direction === "right" ? "G03" : "G02";
 
   // Z start: one pitch above bottom of thread
   const zThreadStart = -(threadDepth) + threadPitch;

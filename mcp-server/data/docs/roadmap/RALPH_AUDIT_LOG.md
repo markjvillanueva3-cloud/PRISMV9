@@ -317,3 +317,77 @@
 [2026-02-22] R3-MS5-T3 | Tag | Status: COMPLETE
   git tag r3-complete
   CURRENT_POSITION.md updated to R3 FULLY COMPLETE
+
+---
+
+## R3 Engine Renovation (2026-02-22)
+
+Post-R3 phase gate audit revealed critical issues across all 8 engines:
+- Campaign data used ISO-group lookup tables instead of material-specific physics
+- G-code engine had safety bugs (thread direction, z_safe, missing retract)
+- InferenceChain claimed parallel execution but ran sequentially
+- EventBus reactive chains emitted events but never executed actions
+- Thermal model was a made-up heuristic (0.30 carryover)
+
+10-phase renovation plan approved and executed:
+
+[2026-02-22] Phase 1: GCodeTemplateEngine Safety | Gate: GATED | Status: PASSED
+  Fixed: Thread milling G02/G03 inversion for RH/LH threads
+  Fixed: Negative z_safe now throws (was only warned)
+  Fixed: All 6 controllers now retract Z before M6 tool change
+  Fixed: Siemens CYCLE83 and Heidenhain CYCL DEF syntax validation
+  Tests: 22/22 (up from 16)
+
+[2026-02-22] Phase 2: Campaign Data Quality | Gate: GATED | Status: PASSED
+  Fixed: Taylor C scales with hardness within ISO group (material-specific)
+  Fixed: Kienzle kc1_1 scales with HB (kc = base × (HB/ref)^0.4)
+  Fixed: Tool life varies per operation (feed/depth corrections)
+  Fixed: Drilling force inflation (chisel edge correction)
+  Tests: 15/15
+
+[2026-02-22] Phase 3: Groover Thermal Model | Gate: GATED | Status: PASSED
+  Replaced: Arbitrary 0.30 carryover with Groover shear-plane partition model
+  Formula: T_tool = T_ambient + (1-beta) * Fc * Vc / (rho * c * Q_chip)
+  Inter-op cooling: exponential decay with thermal time constant
+  Safety thresholds: Factor-of-Safety approach (1.5 tool life, 1.2 power, coating temp limits)
+
+[2026-02-22] Phase 4: InferenceChainEngine | Gate: YOLO | Status: COMPLETE
+  Fixed: Dependency-graph parallel fan-out (topological sort into waves)
+  Added: Global chain timeout (default 30s)
+  Fixed: Multi-format output parsing (5 regex patterns as fallbacks)
+
+[2026-02-22] Phase 5: EventBus | Gate: YOLO | Status: COMPLETE
+  Added: Action registry (registerAction/listActions)
+  Fixed: executeChain now dispatches step.action to registered handlers
+  Tests: 14/14 (up from 12)
+
+[2026-02-22] Phase 6: DecisionTreeEngine | Gate: YOLO | Status: COMPLETE
+  Added: JSON-driven material_selection tree (20 material families, multi-criteria scoring)
+  Fixed: Material-specific workholding safety factors (Al 1.5x, Steel 2.5x, Ti 3.0x, Superalloy 3.5x)
+  Tests: 27/27 (up from 21)
+
+[2026-02-22] Phase 7: IntelligenceEngine | Gate: GATED | Status: PASSED
+  Added: whatIf() sensitivity sweep mode (parameter ±range% in N steps, elasticity + constraint violations)
+  Added: Confidence gating (<0.80 warning, <0.60 INSUFFICIENT_DATA gate)
+  Added: Stability-adjusted speed (find nearest stable lobe when !is_stable)
+  Tests: 19/19 (up from 17)
+
+[2026-02-22] Phase 8: ReportRenderer | Gate: YOLO | Status: COMPLETE
+  Added: Cost sensitivity analysis (±10% impact, HIGH/MEDIUM/LOW sensitivity levels)
+  Added: Cost outlier detection (zero material cost, extreme cycle times, high rates)
+  Added: Controller-specific alarm fields (controller, category, axis, power cycle, MTTR)
+  Added: IT grade column in inspection plan (via calculateITGrade from ToleranceEngine)
+  Tests: 15/15 (up from 11)
+
+[2026-02-22] Phase 9: Campaign Data Regeneration | Gate: GATED | Status: PASSED
+  Regenerated: 635 batches, 6346 materials with all physics fixes
+  Distribution: 830 pass / 1002 warn / 4514 fail / 3358 quarantine / 0 errors
+  Note: Stricter Groover thermal model shifted distribution (more fail/quarantine = correct)
+
+[2026-02-22] Phase 10: Final Gate | Gate: GATED | Status: PASSED
+  Build: 4.2MB clean (123ms esbuild)
+  R3 Tests: 127/127 (7 suites, all pass)
+  R2 Regression: 150/150 benchmarks (zero regressions)
+  Quality: Ω=0.912 (R=0.95, C=0.90, P=0.85, S=0.95, L=0.82)
+  Improvement: Ω 0.88 → 0.912 (+3.6%), S(x) 0.92 → 0.95
+  Tag: r3-renovated

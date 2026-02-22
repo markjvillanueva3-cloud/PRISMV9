@@ -3,19 +3,29 @@
  *
  * Tests parametric G-code generation across 6 controllers and 13 operations.
  *
- * Test cases (12):
+ * Test cases (22):
  *  1. Fanuc facing → contains G90, G54, tool change, bi-directional passes
  *  2. Fanuc peck drilling → G83 with Q peck depth
  *  3. Siemens drilling → CYCLE81 syntax
  *  4. Heidenhain drilling → CYCL DEF 1.0
  *  5. Fanuc tapping → G84 with M29 rigid tap
  *  6. Fanuc boring → G76 fine bore
- *  7. Thread milling → helical G02/G03 interpolation
+ *  7. Thread milling → G02 for RH, G03 for LH (direction verified)
  *  8. Circular pocket → spiral-out G02 arcs
  *  9. Profile with cutter comp → G41/G42 + G40 cancel
  * 10. Multi-operation program → header + operations + footer
  * 11. Controller alias resolution → "840d" → Siemens
  * 12. Unknown controller → throws error
+ * 13. Validation: rejects zero RPM
+ * 14. Validation: rejects negative feed rate
+ * 15. Validation: rejects tool_dia >= thread_dia
+ * 16. Validation: positive z_depth warning
+ * 17. Safety: negative z_safe throws error
+ * 18. Safety: Fanuc tool change Z retract
+ * 19. Safety: Siemens tool change SUPA G0 Z0
+ * 20. Safety: Heidenhain retract before TOOL CALL
+ * 21. Siemens CYCLE83 validation
+ * 22. All 6 controllers: tool change Z retract
  */
 
 import {
@@ -172,13 +182,14 @@ const TESTS: TestCase[] = [
   },
 
   // =====================================================
-  // 7. Thread milling — helical interpolation
+  // 7. Thread milling — helical interpolation (G02 for RH)
   // =====================================================
   {
-    name: "Thread milling: helical G02/G03 interpolation",
+    name: "Thread milling: G02 for right-hand, G03 for left-hand",
     run: () => {
       const errs: string[] = [];
-      const r = generateGCode("fanuc", "thread_milling", {
+      // Right-hand thread should use G02 (CW spiral descending)
+      const rh = generateGCode("fanuc", "thread_milling", {
         rpm: 2000,
         feed_rate: 200,
         thread_diameter: 20,
@@ -187,13 +198,30 @@ const TESTS: TestCase[] = [
         tool_diameter: 6,
         thread_direction: "right",
       });
-      // Should contain helical arc (G02 or G03)
-      if (!r.gcode.includes("G02") && !r.gcode.includes("G03")) {
-        errs.push("Missing helical interpolation (G02/G03)");
+      if (!rh.gcode.includes("G02")) {
+        errs.push("Right-hand thread missing G02 (CW helix)");
       }
-      if (r.operation !== "thread_milling") errs.push(`Wrong op: ${r.operation}`);
-      // Notes should mention thread specs
-      if (r.notes.length === 0) errs.push("Expected notes about thread specs");
+      if (rh.gcode.includes("G03")) {
+        errs.push("Right-hand thread should NOT use G03");
+      }
+      // Left-hand thread should use G03 (CCW spiral descending)
+      const lh = generateGCode("fanuc", "thread_milling", {
+        rpm: 2000,
+        feed_rate: 200,
+        thread_diameter: 20,
+        thread_pitch: 2.0,
+        thread_depth: 15,
+        tool_diameter: 6,
+        thread_direction: "left",
+      });
+      if (!lh.gcode.includes("G03")) {
+        errs.push("Left-hand thread missing G03 (CCW helix)");
+      }
+      if (lh.gcode.includes("G02")) {
+        errs.push("Left-hand thread should NOT use G02");
+      }
+      if (rh.operation !== "thread_milling") errs.push(`Wrong op: ${rh.operation}`);
+      if (rh.notes.length === 0) errs.push("Expected notes about thread specs");
       return errs;
     },
   },
@@ -379,6 +407,143 @@ const TESTS: TestCase[] = [
       return errs;
     },
   },
+
+  // =====================================================
+  // 17. Safety: negative z_safe throws error (not just warning)
+  // =====================================================
+  {
+    name: "Safety: negative z_safe throws error",
+    run: () => {
+      const errs: string[] = [];
+      try {
+        generateGCode("fanuc", "drilling", {
+          rpm: 1200,
+          feed_rate: 100,
+          z_depth: -20,
+          z_safe: -5, // NEGATIVE — must throw
+        });
+        errs.push("Should have thrown for negative z_safe");
+      } catch (e: any) {
+        if (!e.message.includes("z_safe") || !e.message.includes("must be >= 0")) {
+          errs.push(`Wrong error message: ${e.message}`);
+        }
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 18. Safety: Fanuc tool change includes Z retract
+  // =====================================================
+  {
+    name: "Safety: Fanuc tool change includes G91 G28 Z0 retract",
+    run: () => {
+      const errs: string[] = [];
+      const r = generateGCode("fanuc", "drilling", {
+        rpm: 1200,
+        feed_rate: 100,
+        z_depth: -20,
+        tool_number: 5,
+      });
+      if (!r.gcode.includes("G91 G28 Z0")) {
+        errs.push("Fanuc missing G91 G28 Z0 retract before tool change");
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 19. Safety: Siemens tool change includes SUPA G0 Z0
+  // =====================================================
+  {
+    name: "Safety: Siemens tool change includes SUPA G0 Z0 retract",
+    run: () => {
+      const errs: string[] = [];
+      const r = generateGCode("siemens", "drilling", {
+        rpm: 1200,
+        feed_rate: 100,
+        z_depth: -20,
+      });
+      if (!r.gcode.includes("SUPA G0 Z0")) {
+        errs.push("Siemens missing SUPA G0 Z0 retract before tool change");
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 20. Safety: Heidenhain tool change includes Z retract before TOOL CALL
+  // =====================================================
+  {
+    name: "Safety: Heidenhain retract before TOOL CALL",
+    run: () => {
+      const errs: string[] = [];
+      const r = generateGCode("heidenhain", "drilling", {
+        rpm: 1200,
+        feed_rate: 100,
+        z_depth: -20,
+      });
+      // Should have L Z+100 BEFORE TOOL CALL (retract + stop spindle)
+      const gcLines = r.gcode.split("\n");
+      const retractIdx = gcLines.findIndex(l => l.includes("L Z+100") && l.includes("M5"));
+      const toolCallIdx = gcLines.findIndex(l => l.includes("TOOL CALL"));
+      if (retractIdx < 0) {
+        errs.push("Missing L Z+100 M5 retract line");
+      } else if (toolCallIdx < 0) {
+        errs.push("Missing TOOL CALL");
+      } else if (retractIdx >= toolCallIdx) {
+        errs.push("Retract must come BEFORE TOOL CALL");
+      }
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 21. Siemens CYCLE83 peck drill validation
+  // =====================================================
+  {
+    name: "Siemens CYCLE83 peck drill: correct syntax + parameters",
+    run: () => {
+      const errs: string[] = [];
+      const r = generateGCode("siemens", "peck_drilling", {
+        rpm: 1200,
+        feed_rate: 100,
+        z_depth: -25,
+        peck_depth: 5,
+      });
+      if (!r.gcode.includes("CYCLE83")) errs.push("Missing CYCLE83");
+      // Verify SUPA G0 Z0 retract is present
+      if (!r.gcode.includes("SUPA G0 Z0")) errs.push("Missing Siemens retract before tool change");
+      if (r.controller_family !== "siemens") errs.push(`Expected siemens, got ${r.controller_family}`);
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 22. All 6 controllers produce valid tool change retract
+  // =====================================================
+  {
+    name: "All controllers: tool change includes Z retract",
+    run: () => {
+      const errs: string[] = [];
+      const controllers = ["fanuc", "haas", "mazak", "okuma", "siemens", "heidenhain"];
+      for (const ctrl of controllers) {
+        const r = generateGCode(ctrl, "tool_change", {
+          rpm: 1000,
+          feed_rate: 100,
+          tool_number: 1,
+        });
+        const hasRetract =
+          r.gcode.includes("G91 G28 Z0") ||   // Fanuc-family
+          r.gcode.includes("SUPA G0 Z0") ||     // Siemens
+          r.gcode.includes("L Z+100");           // Heidenhain
+        if (!hasRetract) {
+          errs.push(`${ctrl}: missing Z retract in tool change`);
+        }
+      }
+      return errs;
+    },
+  },
 ];
 
 // ============================================================================
@@ -386,11 +551,11 @@ const TESTS: TestCase[] = [
 // ============================================================================
 
 const COVERAGE_SUMMARY = {
-  controllers_tested: ["fanuc", "siemens", "heidenhain", "haas"],
+  controllers_tested: ["fanuc", "siemens", "heidenhain", "haas", "mazak", "okuma"],
   operations_tested: [
     "facing", "drilling", "peck_drilling", "tapping", "boring",
     "thread_milling", "circular_pocket", "profile",
-    "program_header", "program_footer",
+    "program_header", "program_footer", "tool_change",
   ],
   features_tested: [
     "controller alias resolution",
@@ -399,9 +564,12 @@ const COVERAGE_SUMMARY = {
     "multi-operation program generation",
     "controller-specific canned cycles",
     "cutter compensation",
-    "helical interpolation",
+    "helical interpolation (G02 RH / G03 LH thread direction)",
     "input validation (RPM, feed rate, tool geometry)",
-    "safety warnings (positive z_depth)",
+    "safety: negative z_safe rejection (throw, not warn)",
+    "safety: Z retract before tool change (all 6 controllers)",
+    "safety: Siemens CYCLE parameter validation",
+    "safety: Heidenhain CYCL DEF parameter validation",
   ],
 };
 

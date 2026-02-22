@@ -45,14 +45,29 @@ const ISO_GROUP_DIRS: Record<string, string> = {
 /** Default physics constants per ISO group (X falls back to P defaults) */
 const ISO_DEFAULTS: Record<string, {
   kc1_1: number; mc: number; taylorC: number; taylorN: number; vc: number;
+  /** Reference hardness HB for scaling kc1_1 and taylorC */
+  ref_hb: number;
+  /** Hardness exponent for Taylor C scaling: C_adj = C_base × (ref_hb/HB)^taylor_hb_exp */
+  taylor_hb_exp: number;
+  /** Hardness exponent for Kienzle kc scaling: kc_adj = kc_base × (HB/ref_hb)^kc_hb_exp */
+  kc_hb_exp: number;
 }> = {
-  P: { kc1_1: 1800, mc: 0.25, taylorC: 300, taylorN: 0.25, vc: 180 },
-  M: { kc1_1: 2200, mc: 0.26, taylorC: 200, taylorN: 0.22, vc: 120 },
-  K: { kc1_1: 1100, mc: 0.24, taylorC: 400, taylorN: 0.27, vc: 200 },
-  N: { kc1_1: 700,  mc: 0.23, taylorC: 800, taylorN: 0.30, vc: 300 },
-  S: { kc1_1: 2800, mc: 0.28, taylorC: 100, taylorN: 0.20, vc:  50 },
-  H: { kc1_1: 3200, mc: 0.30, taylorC: 150, taylorN: 0.22, vc:  80 },
-  X: { kc1_1: 1800, mc: 0.25, taylorC: 300, taylorN: 0.25, vc: 180 },
+  P: { kc1_1: 1800, mc: 0.25, taylorC: 300, taylorN: 0.25, vc: 180, ref_hb: 200, taylor_hb_exp: 0.50, kc_hb_exp: 0.40 },
+  M: { kc1_1: 2200, mc: 0.26, taylorC: 200, taylorN: 0.22, vc: 120, ref_hb: 200, taylor_hb_exp: 0.40, kc_hb_exp: 0.40 },
+  K: { kc1_1: 1100, mc: 0.24, taylorC: 400, taylorN: 0.27, vc: 200, ref_hb: 200, taylor_hb_exp: 0.30, kc_hb_exp: 0.35 },
+  N: { kc1_1: 700,  mc: 0.23, taylorC: 800, taylorN: 0.30, vc: 300, ref_hb: 80,  taylor_hb_exp: 0.30, kc_hb_exp: 0.30 },
+  S: { kc1_1: 2800, mc: 0.28, taylorC: 100, taylorN: 0.20, vc:  50, ref_hb: 300, taylor_hb_exp: 0.60, kc_hb_exp: 0.45 },
+  H: { kc1_1: 3200, mc: 0.30, taylorC: 150, taylorN: 0.22, vc:  80, ref_hb: 500, taylor_hb_exp: 0.70, kc_hb_exp: 0.50 },
+  X: { kc1_1: 1800, mc: 0.25, taylorC: 300, taylorN: 0.25, vc: 180, ref_hb: 200, taylor_hb_exp: 0.50, kc_hb_exp: 0.40 },
+};
+
+/** Per-operation tool life correction factors (relative to base Taylor tool life) */
+const OP_TOOL_LIFE_FACTOR: Record<string, number> = {
+  face: 1.00,         // Facing: baseline
+  pocket: 0.90,       // Pocketing: intermittent engagement
+  drill: 0.70,        // Drilling: confined chip evacuation, higher thermal load
+  thread: 0.80,       // Thread milling: light cuts but complex path
+  bore: 0.85,         // Boring: single-point, good chip control
 };
 
 /** Standard operations template (cutting_speed_m_min filled per ISO group at runtime) */
@@ -174,27 +189,44 @@ function loadMaterialsFromRegistry(): LoadedMaterial[] {
 // ============================================================
 
 /**
- * Generates OperationResult[] for a single material using simplified
- * Kienzle/Taylor models. No external imports — all computation inline.
+ * Generates OperationResult[] for a single material using material-specific
+ * Kienzle/Taylor models. Hardness scales both kc1_1 (cutting force) and
+ * Taylor C (tool life) within each ISO group. Per-operation corrections
+ * ensure tool life varies by feature type (e.g. drilling < facing).
+ *
+ * Key physics:
+ *   kc1_1 → scaled by (HB/ref_HB)^kc_hb_exp  (harder = higher force)
+ *   Taylor C → scaled by (ref_HB/HB)^taylor_hb_exp  (harder = shorter life)
+ *   Tool life → per-op factor × feed/depth correction
+ *   Drilling force → uses D/2 as chip width, not axial depth
  */
 function generateOperationResults(
   material: LoadedMaterial,
   ops: CampaignOperation[],
 ): OperationResult[] {
-  const defaults = ISO_DEFAULTS[material.iso_group] ?? ISO_DEFAULTS["P"];
-  // Material-specific Kienzle constants used when available; Taylor uses ISO group defaults
-  // for stable predictions (material Taylor C/n are calibrated for specific tool grades).
-  const kc1_1 = material.kc1_1 ?? defaults.kc1_1;
-  const mc = material.mc ?? defaults.mc;
-  const taylorC = defaults.taylorC;
-  const taylorN = defaults.taylorN;
-  const vc = defaults.vc;
+  const grp = ISO_DEFAULTS[material.iso_group] ?? ISO_DEFAULTS["P"];
+  const hb = material.hardness_hb ?? grp.ref_hb; // Fallback to ref if no hardness data
+  const hardnessRatio = hb / grp.ref_hb;
+
+  // Material-specific Kienzle: scale kc1_1 with hardness
+  // Harder material → higher specific cutting force
+  const kc1_1 = (material.kc1_1 ?? grp.kc1_1) * Math.pow(hardnessRatio, grp.kc_hb_exp);
+  const mc = material.mc ?? grp.mc;
+
+  // Material-specific Taylor: scale C with inverse hardness
+  // Harder material → lower C → shorter tool life
+  const taylorC_base = material.taylorC ?? grp.taylorC;
+  const taylorC = taylorC_base * Math.pow(1 / hardnessRatio, grp.taylor_hb_exp);
+  const taylorN = material.taylorN ?? grp.taylorN;
+  const vc = grp.vc;
 
   return ops.map((op): OperationResult => {
     const D = op.tool_diameter_mm;
     const fz = op.feed_per_tooth_mm ?? 0.1;
     const ap = op.axial_depth_mm ?? D * 0.5;
     const ae = op.radial_depth_mm ?? D * 0.3;
+    const isDrilling = op.tool_type === "drill" || op.feature === "drill";
+    const isBoring = op.tool_type === "boring_bar" || op.feature === "bore";
     // Drills and boring bars have 2 flutes; facemills/thread mills have more
     const z = op.tool_type === "facemill" ? 6 : op.tool_type === "thread_mill" ? 3 : 2;
     const re = op.tool_type === "endmill" ? 0.4 : 0.8;
@@ -208,17 +240,37 @@ function generateOperationResults(
     // MRR cm³/min = (feed_rate × ap × ae) / 1000
     const mrr = (feedRate * ap * ae) / 1000;
 
-    // Kienzle specific cutting force (N/mm²): kc = kc1_1 × h^(-mc), h = fz (undeformed chip thickness)
-    // Total tangential force (N): Fc = kc × ap × h  (ap = axial depth = chip width b)
+    // Kienzle cutting force — operation-type-specific chip geometry
     const h = Math.max(fz, 0.001);
     const kc = kc1_1 * Math.pow(h, -mc);
-    const fc = kc * ap * h; // = kc1_1 × h^(1-mc) × ap
+    let fc: number;
+
+    if (isDrilling) {
+      // Drilling: chip width = D/2 (not axial depth), chisel edge adds ~13%
+      const chipWidth = D / 2;
+      fc = kc * chipWidth * h * 1.13;
+    } else if (isBoring) {
+      // Boring: single-point, chip width ≈ ap (radial depth of cut)
+      const chipWidth = ae > 0 ? ae : 0.5;
+      fc = kc * chipWidth * h;
+    } else {
+      // Milling: chip width = ap (axial depth of cut)
+      fc = kc * ap * h;
+    }
 
     // Power kW = Fc × Vc / (60 × 1000)
     const power = (fc * vc) / (60 * 1000);
 
-    // Tool life min: T = (C / Vc)^(1/n)  [Taylor equation, ISO group defaults]
-    const toolLife = Math.pow(taylorC / vc, 1 / taylorN);
+    // Tool life: Taylor base × operation factor × feed/depth correction
+    // T_base = (C / Vc)^(1/n)
+    const toolLifeBase = Math.pow(taylorC / vc, 1 / taylorN);
+    // Feed correction: lighter feeds extend life: (0.2/fz)^0.35
+    const feedCorrection = Math.pow(0.2 / Math.max(fz, 0.01), 0.35);
+    // Depth correction: lighter cuts extend life: (2/ap)^0.2
+    const depthCorrection = Math.pow(2 / Math.max(ap, 0.1), 0.2);
+    // Operation-type correction factor
+    const opFactor = OP_TOOL_LIFE_FACTOR[op.feature] ?? 1.0;
+    const toolLife = toolLifeBase * opFactor * feedCorrection * depthCorrection;
 
     // Cycle time min = volume / (MRR cm³/min)  (convert MRR to mm³/min: ×1000)
     const volume = op.volume_mm3 ?? ap * (ae > 0 ? ae : D * 0.5) * D * 10;

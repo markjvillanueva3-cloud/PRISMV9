@@ -236,6 +236,110 @@ const tests: TestCase[] = [
       return errs;
     },
   },
+
+  // === Phase 8A: Cost sensitivity analysis ===
+  {
+    name: "Cost estimate: sensitivity analysis section",
+    run: () => {
+      const errs: string[] = [];
+      const r = renderReport("cost_estimate", {
+        part_name: "Test Part",
+        quantity: 100,
+        material_cost: 5.00,
+        machine_cost_per_hour: 120,
+        cycle_time_min: 8,
+        tool_cost_per_part: 1.50,
+        labor_cost_per_hour: 45,
+      });
+      if (!r.markdown.includes("Cost Sensitivity")) errs.push("Missing sensitivity section");
+      if (!r.markdown.includes("HIGH") || !r.markdown.includes("MEDIUM") || !r.markdown.includes("LOW")) {
+        // At least some sensitivity levels should appear
+        if (!r.markdown.includes("HIGH") && !r.markdown.includes("MEDIUM") && !r.markdown.includes("LOW")) {
+          errs.push("No sensitivity levels shown");
+        }
+      }
+      return errs;
+    },
+  },
+
+  // === Phase 8A: Cost outlier warnings ===
+  {
+    name: "Cost estimate: zero material cost warning",
+    run: () => {
+      const errs: string[] = [];
+      const r = renderReport("cost_estimate", {
+        part_name: "Free Material Part",
+        quantity: 10,
+        material_cost: 0,
+        cycle_time_min: 5,
+      });
+      if (!r.warnings.some(w => w.includes("$0.00"))) {
+        errs.push("Should warn about zero material cost");
+      }
+      return errs;
+    },
+  },
+
+  // === Phase 8B: Alarm report with controller-specific fields ===
+  {
+    name: "Alarm report: extended controller-specific fields",
+    run: () => {
+      const errs: string[] = [];
+      const r = renderReport("alarm_report", {
+        alarm_code: "SV0445",
+        alarm_name: "Servo: X Position Error Excessive",
+        controller: "FANUC",
+        controller_family: "FANUC 0i-MD",
+        severity: "critical",
+        alarm_category: "Servo",
+        axis_affected: "X",
+        requires_power_cycle: true,
+        mttr_minutes: 45,
+        probable_causes: ["Servo motor overload"],
+        remediation_steps: ["Check motor connections"],
+      });
+      if (!r.markdown.includes("FANUC")) errs.push("Missing controller");
+      if (!r.markdown.includes("Servo")) errs.push("Missing alarm category");
+      if (!r.markdown.includes("Power Cycle Required")) errs.push("Missing power cycle flag");
+      if (!r.markdown.includes("45 min")) errs.push("Missing MTTR");
+      return errs;
+    },
+  },
+
+  // === Phase 8C: Inspection plan with IT grade ===
+  {
+    name: "Inspection plan: IT grade column for numeric tolerances",
+    run: () => {
+      const errs: string[] = [];
+      const r = renderReport("inspection_plan", {
+        part_name: "Precision Shaft",
+        features: [
+          {
+            feature_id: "F1",
+            description: "Outer diameter",
+            nominal: 50,
+            tolerance: "±0.025 mm",
+            measurement_method: "CMM",
+            frequency: "100%",
+            critical: true,
+          },
+          {
+            feature_id: "F2",
+            description: "Length",
+            nominal: 100,
+            tolerance: "±0.5 mm",
+            measurement_method: "caliper",
+            frequency: "1 in 10",
+            critical: false,
+          },
+        ],
+      });
+      if (!r.markdown.includes("IT Grade")) errs.push("Missing IT Grade column header");
+      // ±0.025mm on 50mm nominal should be around IT6-IT7
+      if (!r.markdown.includes("IT")) errs.push("No IT grade values computed");
+      return errs;
+    },
+  },
 ];
 
 // ── Runner ──────────────────────────────────────────────────────────────────

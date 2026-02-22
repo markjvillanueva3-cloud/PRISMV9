@@ -2,15 +2,16 @@
  * PRISM Manufacturing Intelligence - Decision Tree Engine
  * Pure-computation manufacturing decision logic with no async or registry dependencies.
  *
- * Consolidates scattered decision logic into 6 structured decision trees:
+ * Consolidates scattered decision logic into 7 structured decision trees:
  *   1. selectToolType       — Material + Operation → Tool Type
  *   2. selectInsertGrade    — Material + Hardness + Condition → ISO Insert Grade
  *   3. selectCoolantStrategy — Material + Speed + Operation → Coolant Method
  *   4. selectWorkholding    — Part Geometry + Force → Fixture
  *   5. selectStrategy       — Feature + Constraints → Toolpath Strategy
  *   6. selectApproachRetract — Operation + Context → Entry/Exit Method
+ *   7. selectMaterial       — Requirements → Material + ISO Group (JSON-driven)
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @module DecisionTreeEngine
  */
 
@@ -86,6 +87,7 @@ export const DECISION_TREES: string[] = [
   "selectWorkholding",
   "selectStrategy",
   "selectApproachRetract",
+  "selectMaterial",
 ];
 
 // ============================================================================
@@ -710,11 +712,24 @@ export function selectWorkholding(params: SelectWorkholdingParams): WorkholdingD
     warnings.push(`Part weight ${weight} kg: crane/hoist required for loading. Ensure adequate clamp force.`);
   }
 
-  // Force adequacy check
+  // Force adequacy check with material-specific safety factor
+  // Al/Cu: 1.5× (ductile, low forces), Steel: 2.5× (standard), Ti: 3.0× (high vibration risk),
+  // Superalloy/Hardened: 3.5× (extreme forces + tool pressure)
   if (force > 5000) {
+    const matLower = (params.part_material ?? "").toLowerCase();
+    let sf = 2.5; // default for steel (P-group)
+    let sfNote = "steel (standard)";
+    if (matLower.match(/alum|al\d|6061|7075|2024|copper|brass|bronze/)) {
+      sf = 1.5; sfNote = "non-ferrous (ductile, low forces)";
+    } else if (matLower.match(/titan|ti-|ti\d|grade\s*[245]/)) {
+      sf = 3.0; sfNote = "titanium (vibration-prone)";
+    } else if (matLower.match(/inconel|waspaloy|hastelloy|nimonic|super|harden|hrc|cbn/)) {
+      sf = 3.5; sfNote = "superalloy/hardened (extreme conditions)";
+    }
+
     warnings.push(`Cutting force ${force} N is high: verify clamp force adequacy before machining.`);
-    estimated_clamp_force_n = Math.round(force * 2.5); // safety factor 2.5
-    reasoning.push(`Estimated minimum clamp force: ${estimated_clamp_force_n} N (SF 2.5).`);
+    estimated_clamp_force_n = Math.round(force * sf);
+    reasoning.push(`Estimated minimum clamp force: ${estimated_clamp_force_n} N (SF ${sf} for ${sfNote}).`);
   }
 
   switch (geom) {
@@ -1181,6 +1196,192 @@ export function selectApproachRetract(params: SelectApproachRetractParams): Appr
 }
 
 // ============================================================================
+// 7. selectMaterial  (JSON-driven)
+// ============================================================================
+
+import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+export interface SelectMaterialParams {
+  application: string;
+  hardness_required?: "low" | "medium" | "high" | "very_high";
+  corrosion_resistance?: "low" | "medium" | "high" | "very_high";
+  max_cost_tier?: number; // 1-5
+  machinability_priority?: "low" | "medium" | "high";
+  temperature_c?: number;
+  weight_priority?: "low" | "medium" | "high";
+}
+
+export interface MaterialDecision extends DecisionResult {
+  material_family: string;
+  recommended_alloys: string[];
+  iso_group: string;
+  properties: {
+    hardness_hb_range: [number, number];
+    corrosion_resistance: string;
+    cost_tier: number;
+    machinability_rating: number;
+    max_service_temp_c: number;
+    density_kg_m3: number;
+  };
+  machining_notes: string;
+  alternatives: Array<{ family: string; iso_group: string; note: string }>;
+}
+
+interface MaterialEntry {
+  family: string;
+  alloys: string[];
+  iso_group: string;
+  hardness_hb: [number, number];
+  corrosion_resistance: string;
+  cost_tier: number;
+  machinability_rating: number;
+  max_service_temp_c: number;
+  density_kg_m3: number;
+  applications: string[];
+  notes: string;
+}
+
+let _materialData: MaterialEntry[] | null = null;
+
+function loadMaterialData(): MaterialEntry[] {
+  if (_materialData) return _materialData;
+  try {
+    // Resolve relative to this file's location (handles both ESM and bundled)
+    const candidates = [
+      resolve(dirname(fileURLToPath(import.meta.url)), "../../data/decision-trees/material_selection.json"),
+      resolve(process.cwd(), "data/decision-trees/material_selection.json"),
+    ];
+    for (const p of candidates) {
+      try {
+        const raw = readFileSync(p, "utf-8");
+        const data = JSON.parse(raw);
+        _materialData = data.materials as MaterialEntry[];
+        return _materialData;
+      } catch { /* try next */ }
+    }
+    throw new Error("material_selection.json not found");
+  } catch (err: any) {
+    throw new Error(`[DecisionTreeEngine] Failed to load material_selection.json: ${err.message}`);
+  }
+}
+
+const HARDNESS_MAP: Record<string, [number, number]> = {
+  low:       [0, 200],
+  medium:    [150, 350],
+  high:      [300, 500],
+  very_high: [400, 700],
+};
+
+const CORROSION_RANK: Record<string, number> = {
+  low: 1, medium: 2, high: 3, very_high: 4,
+};
+
+export function selectMaterial(params: SelectMaterialParams): MaterialDecision {
+  requireParam(params.application, "application");
+
+  const materials = loadMaterialData();
+  const app = params.application.toLowerCase().trim();
+  const reasoning: string[] = [];
+  const warnings: string[] = [];
+
+  reasoning.push(`Application requirement: "${app}"`);
+
+  // Score each material
+  const scored = materials.map(m => {
+    let score = 0;
+
+    // Application match (highest weight)
+    const appMatch = m.applications.some(a =>
+      app.includes(a) || a.includes(app) || app.split(/[_\s]+/).some(w => a.includes(w))
+    );
+    if (appMatch) score += 40;
+
+    // Hardness match
+    if (params.hardness_required) {
+      const [reqMin, reqMax] = HARDNESS_MAP[params.hardness_required] ?? [0, 999];
+      const overlap = Math.min(m.hardness_hb[1], reqMax) - Math.max(m.hardness_hb[0], reqMin);
+      if (overlap > 0) score += 15;
+    }
+
+    // Corrosion resistance match
+    if (params.corrosion_resistance) {
+      const reqRank = CORROSION_RANK[params.corrosion_resistance] ?? 1;
+      const matRank = CORROSION_RANK[m.corrosion_resistance] ?? 1;
+      if (matRank >= reqRank) score += 15;
+      else score -= 10 * (reqRank - matRank);
+    }
+
+    // Cost constraint
+    if (params.max_cost_tier !== undefined) {
+      if (m.cost_tier <= params.max_cost_tier) score += 10;
+      else score -= 15 * (m.cost_tier - params.max_cost_tier);
+    }
+
+    // Machinability preference
+    if (params.machinability_priority === "high" && m.machinability_rating >= 0.70) score += 10;
+    if (params.machinability_priority === "high" && m.machinability_rating < 0.30) score -= 10;
+
+    // Temperature requirement
+    if (params.temperature_c !== undefined) {
+      if (m.max_service_temp_c >= params.temperature_c) score += 10;
+      else score -= 20; // hard fail for temperature
+    }
+
+    // Weight preference
+    if (params.weight_priority === "high") {
+      if (m.density_kg_m3 < 4000) score += 10;
+      else if (m.density_kg_m3 > 7000) score -= 5;
+    }
+
+    return { material: m, score };
+  });
+
+  // Sort by score descending
+  scored.sort((a, b) => b.score - a.score);
+
+  const best = scored[0];
+  if (!best || best.score < 0) {
+    warnings.push("No material strongly matches all requirements; showing best available.");
+  }
+
+  const m = best.material;
+  const confidence = clamp(0.50 + best.score / 100, 0.30, 0.98);
+
+  reasoning.push(`Best match: ${m.family} (score: ${best.score}, ISO group: ${m.iso_group})`);
+  if (params.hardness_required) reasoning.push(`Hardness requirement: ${params.hardness_required} → ${m.hardness_hb[0]}-${m.hardness_hb[1]} HB`);
+  if (params.corrosion_resistance) reasoning.push(`Corrosion resistance: ${params.corrosion_resistance} → material: ${m.corrosion_resistance}`);
+  if (params.temperature_c) reasoning.push(`Temperature requirement: ${params.temperature_c}°C → material max: ${m.max_service_temp_c}°C`);
+
+  // Build alternatives from top 3 runners-up
+  const alternatives = scored.slice(1, 4).map(s => ({
+    family: s.material.family,
+    iso_group: s.material.iso_group,
+    note: `Score: ${s.score} — ${s.material.notes.split(";")[0]}`,
+  }));
+
+  return {
+    material_family: m.family,
+    recommended_alloys: m.alloys,
+    iso_group: m.iso_group,
+    properties: {
+      hardness_hb_range: m.hardness_hb,
+      corrosion_resistance: m.corrosion_resistance,
+      cost_tier: m.cost_tier,
+      machinability_rating: m.machinability_rating,
+      max_service_temp_c: m.max_service_temp_c,
+      density_kg_m3: m.density_kg_m3,
+    },
+    machining_notes: m.notes,
+    reasoning,
+    confidence,
+    warnings,
+    alternatives,
+  };
+}
+
+// ============================================================================
 // REGISTRY & DISPATCHER
 // ============================================================================
 
@@ -1228,6 +1429,12 @@ export function listDecisionTrees(): Array<{
       required_params: ["operation", "material"],
       optional_params: ["wall_thickness_mm", "cutter_comp", "tool_type"],
     },
+    {
+      name: "selectMaterial",
+      description: "Recommends material family and alloys based on application requirements (JSON-driven)",
+      required_params: ["application"],
+      optional_params: ["hardness_required", "corrosion_resistance", "max_cost_tier", "machinability_priority", "temperature_c", "weight_priority"],
+    },
   ];
 }
 
@@ -1249,6 +1456,8 @@ export function decide(tree: string, params: Record<string, unknown>): DecisionR
       return selectStrategy(params as unknown as SelectStrategyParams);
     case "selectApproachRetract":
       return selectApproachRetract(params as unknown as SelectApproachRetractParams);
+    case "selectMaterial":
+      return selectMaterial(params as unknown as SelectMaterialParams);
     default:
       throw new Error(
         `[DecisionTreeEngine] Unknown decision tree: "${tree}". ` +

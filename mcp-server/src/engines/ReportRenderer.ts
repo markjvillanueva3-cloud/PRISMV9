@@ -14,9 +14,11 @@
  *   6. alarm_report    — Alarm diagnosis with severity badge and remediation steps
  *   7. speed_feed_card — Compact speed/feed reference card
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @date 2026-02-21
  */
+
+import { calculateITGrade, type ITGradeResult } from "./ToleranceEngine.js";
 
 // ─── Public Types ─────────────────────────────────────────────────────────────
 
@@ -420,6 +422,23 @@ function renderCostEstimate(data: Record<string, any>): string {
 
   if (d.quantity <= 0) warnings.push("Quantity is zero or negative — totals may be invalid.");
 
+  // ── 8A: Cost outlier detection ──
+  if (d.material_cost !== undefined && d.material_cost === 0) {
+    warnings.push("Material cost is $0.00 — verify this is intentional (scrap/sample?).");
+  }
+  if (d.cycle_time_min !== undefined && d.cycle_time_min > 1000) {
+    warnings.push(`Cycle time ${d.cycle_time_min} min (${(d.cycle_time_min / 60).toFixed(1)} hrs) is unusually long — verify operation count.`);
+  }
+  if (d.machine_cost_per_hour !== undefined && d.machine_cost_per_hour > 500) {
+    warnings.push(`Machine rate $${d.machine_cost_per_hour}/hr is high — confirm (specialty/5-axis/EDM?).`);
+  }
+  if (d.tool_cost_per_part !== undefined && d.material_cost !== undefined && d.material_cost > 0) {
+    const toolToMaterial = d.tool_cost_per_part / d.material_cost;
+    if (toolToMaterial > 2.0) {
+      warnings.push(`Tool cost per part (${fmtCost(d.tool_cost_per_part)}) exceeds 2× material cost — verify tooling assumptions.`);
+    }
+  }
+
   const lines: string[] = [];
   lines.push("# MANUFACTURING COST ESTIMATE");
   lines.push("");
@@ -558,6 +577,38 @@ function renderCostEstimate(data: Record<string, any>): string {
 
   lines.push(table(["Item", "Value", "Note"], batchRows));
 
+  // ── 8A: Per-variable cost sensitivity ──
+  // Show how ±10% change in key variables affects per-part cost.
+  if (totalPerPart > 0 && costRows.length >= 2) {
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+    lines.push("## Cost Sensitivity (±10% Input Change)");
+    lines.push("");
+
+    const sensHeaders = ["Variable", "+10% Impact", "-10% Impact", "Sensitivity"];
+    const sensRows: string[][] = [];
+
+    // For each non-zero cost component, calculate impact of ±10%
+    for (const row of costRows) {
+      if (row.perPart !== undefined && row.perPart > 0) {
+        const delta = row.perPart * 0.10;
+        const pctOfTotal = (delta / totalPerPart) * 100;
+        const sensitivity = pctOfTotal > 15 ? "HIGH" : pctOfTotal > 5 ? "MEDIUM" : "LOW";
+        sensRows.push([
+          row.label,
+          `+${fmtCost(delta)} (+${pctOfTotal.toFixed(1)}%)`,
+          `-${fmtCost(delta)} (-${pctOfTotal.toFixed(1)}%)`,
+          sensitivity,
+        ]);
+      }
+    }
+
+    if (sensRows.length > 0) {
+      lines.push(table(sensHeaders, sensRows));
+    }
+  }
+
   if (warnings.length > 0) {
     lines.push("");
     lines.push("> **Warnings:** " + warnings.join("; "));
@@ -680,16 +731,40 @@ function renderInspectionPlan(data: Record<string, any>): string {
   lines.push("## Inspection Features");
   lines.push("");
 
-  const headers = ["ID", "Description", "Nominal", "Tolerance", "Method", "Frequency", "Critical"];
-  const rows = d.features.map((f) => [
-    f.feature_id,
-    f.critical ? `**${f.description}**` : f.description,
-    fmt(f.nominal, 3),
-    f.tolerance,
-    na(f.measurement_method),
-    na(f.frequency),
-    f.critical ? "**YES**" : "no",
-  ]);
+  const headers = ["ID", "Description", "Nominal", "Tolerance", "IT Grade", "Method", "Frequency", "Critical"];
+  const rows = d.features.map((f) => {
+    // 8C: Compute IT grade from tolerance string if numeric
+    let itGradeStr = "—";
+    const tolMatch = f.tolerance.match(/[±]?\s*(\d+\.?\d*)\s*(mm|µm)?/);
+    if (tolMatch && f.nominal > 0) {
+      const tolValue = parseFloat(tolMatch[1]);
+      const unit = tolMatch[2] || "mm";
+      const tolMm = unit === "µm" ? tolValue / 1000 : tolValue;
+      try {
+        // Find which IT grade matches this tolerance
+        for (let g = 5; g <= 14; g++) {
+          const it = calculateITGrade(f.nominal, g);
+          if (it.tolerance_um >= tolMm * 1000) {
+            itGradeStr = `IT${g}`;
+            if (g <= 6) itGradeStr += " (precision)";
+            else if (g >= 12) itGradeStr += " (rough)";
+            break;
+          }
+        }
+      } catch { /* nominal out of ISO 286 range */ }
+    }
+
+    return [
+      f.feature_id,
+      f.critical ? `**${f.description}**` : f.description,
+      fmt(f.nominal, 3),
+      f.tolerance,
+      itGradeStr,
+      na(f.measurement_method),
+      na(f.frequency),
+      f.critical ? "**YES**" : "no",
+    ];
+  });
 
   lines.push(table(headers, rows));
 
@@ -735,6 +810,7 @@ interface AlarmReportData {
   alarm_code: string;
   alarm_name?: string;
   machine?: string;
+  controller?: string;
   severity?: string;
   description?: string;
   probable_causes?: string[];
@@ -742,6 +818,13 @@ interface AlarmReportData {
   prevention_tips?: string[];
   related_codes?: string[];
   timestamp?: string;
+  // 8B: Extended fields from AlarmRegistry lookup
+  controller_family?: string;
+  alarm_category?: string;
+  axis_affected?: string;
+  requires_power_cycle?: boolean;
+  requires_service?: boolean;
+  mttr_minutes?: number; // mean time to repair
 }
 
 function renderAlarmReport(data: Record<string, any>): string {
@@ -773,8 +856,14 @@ function renderAlarmReport(data: Record<string, any>): string {
   lines.push(`| **Alarm Code** | ${d.alarm_code} |`);
   lines.push(`| **Alarm Name** | ${na(d.alarm_name)} |`);
   lines.push(`| **Machine** | ${na(d.machine)} |`);
+  lines.push(`| **Controller** | ${na(d.controller ?? d.controller_family)} |`);
   lines.push(`| **Severity** | ${severityBadge} |`);
+  lines.push(`| **Category** | ${na(d.alarm_category)} |`);
+  if (d.axis_affected) lines.push(`| **Axis Affected** | ${d.axis_affected} |`);
   lines.push(`| **Timestamp** | ${na(d.timestamp)} |`);
+  if (d.requires_power_cycle) lines.push(`| **Power Cycle Required** | YES |`);
+  if (d.requires_service) lines.push(`| **Service Call Required** | YES |`);
+  if (d.mttr_minutes !== undefined) lines.push(`| **Est. Repair Time** | ${d.mttr_minutes} min |`);
 
   if (d.description) {
     lines.push("");
@@ -954,6 +1043,13 @@ function collectWarnings(type: ReportType, data: Record<string, any>): string[] 
     const anyDefined = allCostFields.some((f) => data[f] !== undefined);
     if (!anyDefined && (!data.breakdown || data.breakdown.length === 0)) {
       w.push("No cost data fields provided — estimate will show $0.");
+    }
+    // 8A: Outlier detection in collectWarnings
+    if (data.material_cost !== undefined && data.material_cost === 0) {
+      w.push("Material cost is $0.00 — verify this is intentional.");
+    }
+    if (data.cycle_time_min !== undefined && data.cycle_time_min > 1000) {
+      w.push(`Cycle time ${data.cycle_time_min} min is unusually long.`);
     }
   }
 

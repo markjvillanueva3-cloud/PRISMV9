@@ -221,6 +221,9 @@ export class EventBus {
   private chainDepth: number = 0;
   private static readonly MAX_CHAIN_DEPTH = 5;
 
+  // Action registry for reactive chain step execution
+  private actionRegistry: Map<string, (params: Record<string, any>, context: { trigger: TypedEvent; chain_id: string }) => Promise<Record<string, any>>> = new Map();
+
   constructor() {
     this.startCleanup();
     log.info("[EventBus] Initialized");
@@ -754,30 +757,91 @@ export class EventBus {
 
   /**
    * Execute the steps of a reactive chain sequentially.
+   * Each step looks up its action in the actionRegistry and calls the handler.
+   * If no handler is registered, logs a warning and continues.
+   * Step results are accumulated and passed to subsequent steps as context.
    * Stops on any step failure.
    */
   private async executeChain(chain: ReactiveChain, triggerEvent: TypedEvent): Promise<void> {
+    const stepResults: Record<string, Record<string, any>> = {};
+
     for (let i = 0; i < chain.steps.length; i++) {
       const step = chain.steps[i];
       log.info(`[EventBus] Chain "${chain.name}" step ${i + 1}/${chain.steps.length}: ${step.action}`);
 
       try {
+        // Execute the action handler if registered
+        const handler = this.actionRegistry.get(step.action);
+        let result: Record<string, any> = {};
+
+        if (handler) {
+          // Merge step params with trigger payload and previous step results
+          const mergedParams: Record<string, any> = {
+            ...triggerEvent.payload,
+            ...step.params,
+            _previous_results: stepResults,
+          };
+
+          result = await handler(mergedParams, {
+            trigger: triggerEvent,
+            chain_id: chain.id!,
+          });
+
+          stepResults[step.action] = result;
+          log.info(`[EventBus] Chain "${chain.name}" step "${step.action}" completed`);
+        } else {
+          log.warn(`[EventBus] Action "${step.action}" not registered — skipping execution`);
+        }
+
         // If the step emits an event, publish it (may trigger further chains)
         if (step.emit_event) {
           const stepEvent: TypedEvent = {
             event: step.emit_event,
             source: `chain:${chain.id}`,
-            payload: { chain_id: chain.id, step: step.action, trigger: triggerEvent.event, ...(step.params || {}) },
+            payload: {
+              chain_id: chain.id,
+              step: step.action,
+              trigger: triggerEvent.event,
+              ...(step.params || {}),
+              ...result,
+            },
             timestamp: new Date(),
-            chain_id: chain.id
+            chain_id: chain.id,
           };
           await this.publishTyped(stepEvent);
         }
       } catch (err) {
         log.error(`[EventBus] Chain "${chain.name}" step "${step.action}" failed: ${err}`);
-        break;  // Chain stops on failure
+        break; // Chain stops on failure
       }
     }
+  }
+
+  /**
+   * Register an action handler that reactive chain steps can invoke.
+   * The handler receives the step's params merged with trigger event payload,
+   * and returns a result object that is passed to subsequent steps.
+   */
+  registerAction(
+    name: string,
+    handler: (params: Record<string, any>, context: { trigger: TypedEvent; chain_id: string }) => Promise<Record<string, any>>,
+  ): void {
+    this.actionRegistry.set(name, handler);
+    log.debug(`[EventBus] Action registered: ${name}`);
+  }
+
+  /**
+   * Remove a registered action by name.
+   */
+  removeAction(name: string): boolean {
+    return this.actionRegistry.delete(name);
+  }
+
+  /**
+   * List all registered action names.
+   */
+  listActions(): string[] {
+    return Array.from(this.actionRegistry.keys());
   }
 
   /**

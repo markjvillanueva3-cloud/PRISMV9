@@ -1,6 +1,6 @@
 {
   "name": "batch_0078",
-  "created_at": "2026-02-22T01:30:58.838Z",
+  "created_at": "2026-02-22T03:01:14.744Z",
   "material_count": 10,
   "results": [
     {
@@ -18,13 +18,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3211,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5992,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 9.63,
+          "power_kw": 17.98,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -34,13 +34,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5138,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 9587,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 15.41,
+          "power_kw": 28.76,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 28.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -50,14 +51,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 34261,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12280,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 102.78,
+          "power_kw": 36.84,
           "warnings": [
-            "Power 102.8 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 36.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -67,14 +68,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11041,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 20600,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 33.12,
+          "power_kw": 61.8,
           "warnings": [
-            "Power 33.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 61.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -84,31 +85,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 36121,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1123,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 108.36,
+          "power_kw": 3.37,
           "warnings": [
-            "Power 108.4 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (108.4 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (61.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -125,13 +130,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3211,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5992,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 9.63,
+          "power_kw": 17.98,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -141,13 +146,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5138,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 9587,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 15.41,
+          "power_kw": 28.76,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 28.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -157,14 +163,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 34261,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12280,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 102.78,
+          "power_kw": 36.84,
           "warnings": [
-            "Power 102.8 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 36.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -174,14 +180,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11041,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 20600,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 33.12,
+          "power_kw": 61.8,
           "warnings": [
-            "Power 33.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 61.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -191,31 +197,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 36121,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1123,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 108.36,
+          "power_kw": 3.37,
           "warnings": [
-            "Power 108.4 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (108.4 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (61.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -232,13 +242,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3211,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5992,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 9.63,
+          "power_kw": 17.98,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -248,13 +258,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5138,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 9587,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 15.41,
+          "power_kw": 28.76,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 28.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -264,14 +275,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 34261,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12280,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 102.78,
+          "power_kw": 36.84,
           "warnings": [
-            "Power 102.8 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 36.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -281,14 +292,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11041,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 20600,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 33.12,
+          "power_kw": 61.8,
           "warnings": [
-            "Power 33.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 61.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -298,31 +309,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 36121,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1123,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 108.36,
+          "power_kw": 3.37,
           "warnings": [
-            "Power 108.4 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (108.4 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (61.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -339,13 +354,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3211,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5992,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 9.63,
+          "power_kw": 17.98,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -355,13 +370,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5138,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 9587,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 15.41,
+          "power_kw": 28.76,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 28.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -371,14 +387,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 34261,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12280,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 102.78,
+          "power_kw": 36.84,
           "warnings": [
-            "Power 102.8 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 36.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -388,14 +404,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11041,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 20600,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 33.12,
+          "power_kw": 61.8,
           "warnings": [
-            "Power 33.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 61.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -405,31 +421,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 36121,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1123,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 108.36,
+          "power_kw": 3.37,
           "warnings": [
-            "Power 108.4 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (108.4 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (61.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -446,13 +466,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3211,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5992,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 9.63,
+          "power_kw": 17.98,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -462,13 +482,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5138,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 9587,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 15.41,
+          "power_kw": 28.76,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 28.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -478,14 +499,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 34261,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12280,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 102.78,
+          "power_kw": 36.84,
           "warnings": [
-            "Power 102.8 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 36.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -495,14 +516,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11041,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 20600,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 33.12,
+          "power_kw": 61.8,
           "warnings": [
-            "Power 33.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 61.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -512,31 +533,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 36121,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1123,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 108.36,
+          "power_kw": 3.37,
           "warnings": [
-            "Power 108.4 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (108.4 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (61.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -553,14 +578,12 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 557,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 526,
+          "tool_life_min": 20.65,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 1.67,
-          "warnings": [
-            "Tool life 7.7 min below target 15 min"
-          ]
+          "power_kw": 1.58,
+          "warnings": []
         },
         {
           "sequence": 2,
@@ -569,14 +592,12 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 817,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 771,
+          "tool_life_min": 19.28,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 2.45,
-          "warnings": [
-            "Tool life 7.7 min below target 15 min"
-          ]
+          "power_kw": 2.31,
+          "warnings": []
         },
         {
           "sequence": 3,
@@ -585,13 +606,13 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 5764,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1045,
+          "tool_life_min": 9.43,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 17.29,
+          "power_kw": 3.13,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 9.4 min below target 15 min"
           ]
         },
         {
@@ -601,14 +622,12 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 1643,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1551,
+          "tool_life_min": 16.22,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 4.93,
-          "warnings": [
-            "Tool life 7.7 min below target 15 min"
-          ]
+          "power_kw": 4.65,
+          "warnings": []
         },
         {
           "sequence": 5,
@@ -617,26 +636,27 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 5924,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 93,
+          "tool_life_min": 11.77,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 17.77,
+          "power_kw": 0.28,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 11.8 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
-        "max_spindle_load_pct": 79.3,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
+        "total_tool_wear_pct": 8.4,
+        "max_spindle_load_pct": 20.8,
+        "max_cutting_temperature_c": 880,
+        "thermal_accumulation_c": 879.9,
         "tool_changes_required": 0,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)"
+          "Minimum tool life (9.4 min) below target (15 min)",
+          "Peak cutting temperature (880°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.65
+        "safety_score": 0.533
       },
       "total_cycle_time_min": 1.33,
       "status": "warning"
@@ -656,13 +676,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 2496,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 3858,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 7.49,
+          "power_kw": 11.57,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -672,13 +692,13 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 3994,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 6173,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 11.98,
+          "power_kw": 18.52,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -688,14 +708,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 26632,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 7907,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 79.9,
+          "power_kw": 23.72,
           "warnings": [
-            "Power 79.9 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 23.7 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -705,14 +725,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 8582,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 13265,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 25.75,
+          "power_kw": 39.79,
           "warnings": [
-            "Power 25.7 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 39.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -722,31 +742,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 28078,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 723,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 84.23,
+          "power_kw": 2.17,
           "warnings": [
-            "Power 84.2 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
-        "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "total_tool_wear_pct": 133.4,
+        "max_spindle_load_pct": 177.6,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (84.2 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (39.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -763,13 +787,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 1215,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1386,
+          "tool_life_min": 0.43,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 3.64,
+          "power_kw": 4.16,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.4 min below target 15 min"
           ]
         },
         {
@@ -779,13 +803,13 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 1895,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 2162,
+          "tool_life_min": 0.41,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 5.69,
+          "power_kw": 6.49,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.4 min below target 15 min"
           ]
         },
         {
@@ -795,14 +819,13 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 12845,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 2815,
+          "tool_life_min": 0.2,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 38.53,
+          "power_kw": 8.44,
           "warnings": [
-            "Power 38.5 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.2 min below target 15 min"
           ]
         },
         {
@@ -812,13 +835,13 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 3997,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 4560,
+          "tool_life_min": 0.34,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 11.99,
+          "power_kw": 13.68,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.3 min below target 15 min"
           ]
         },
         {
@@ -828,31 +851,33 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 13444,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 256,
+          "tool_life_min": 0.25,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 40.33,
+          "power_kw": 0.77,
           "warnings": [
-            "Power 40.3 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.2 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
-        "max_spindle_load_pct": 180,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "total_tool_wear_pct": 396.4,
+        "max_spindle_load_pct": 61.1,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 3,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (40.3 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.2 min) below target (15 min)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0.178
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.178 below quarantine threshold (0.30)"
+      ]
     },
     {
       "material": {
@@ -869,13 +894,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 3409,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 6607,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 10.23,
+          "power_kw": 19.82,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -885,13 +910,14 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 5454,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 10572,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 16.36,
+          "power_kw": 31.71,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Power 31.7 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -901,14 +927,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 36369,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 13541,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 109.11,
+          "power_kw": 40.62,
           "warnings": [
-            "Power 109.1 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 40.6 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -918,14 +944,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 11720,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 22716,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 35.16,
+          "power_kw": 68.15,
           "warnings": [
-            "Power 35.2 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 68.1 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -935,31 +961,35 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 38344,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 1239,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 115.03,
+          "power_kw": 3.72,
           "warnings": [
-            "Power 115.0 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
+        "total_tool_wear_pct": 133.4,
         "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (115.0 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (68.2 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     },
     {
       "material": {
@@ -976,13 +1006,13 @@
           "feed_rate_mm_min": 1031.3,
           "spindle_rpm": 1146,
           "mrr_cm3_min": 82.51,
-          "cutting_force_n": 2392,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 3662,
+          "tool_life_min": 0,
           "cycle_time_min": 0.485,
           "surface_finish_ra": 3.516,
-          "power_kw": 7.18,
+          "power_kw": 10.99,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -992,13 +1022,13 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 3581,
           "mrr_cm3_min": 22.92,
-          "cutting_force_n": 3828,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 5860,
+          "tool_life_min": 0,
           "cycle_time_min": 0.279,
           "surface_finish_ra": 2,
-          "power_kw": 11.48,
+          "power_kw": 17.58,
           "warnings": [
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -1008,14 +1038,14 @@
           "feed_rate_mm_min": 1617.8,
           "spindle_rpm": 6741,
           "mrr_cm3_min": 103.13,
-          "cutting_force_n": 25522,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 7506,
+          "tool_life_min": 0,
           "cycle_time_min": 0.053,
           "surface_finish_ra": 2.25,
-          "power_kw": 76.57,
+          "power_kw": 22.52,
           "warnings": [
-            "Power 76.6 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 22.5 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -1025,14 +1055,14 @@
           "feed_rate_mm_min": 716.2,
           "spindle_rpm": 4775,
           "mrr_cm3_min": 38.67,
-          "cutting_force_n": 8225,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 12591,
+          "tool_life_min": 0,
           "cycle_time_min": 0.168,
           "surface_finish_ra": 0.391,
-          "power_kw": 24.67,
+          "power_kw": 37.77,
           "warnings": [
-            "Power 24.7 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Power 37.8 kW exceeds machine rating 22.4 kW",
+            "Tool life 0.0 min below target 15 min"
           ]
         },
         {
@@ -1042,118 +1072,170 @@
           "feed_rate_mm_min": 573,
           "spindle_rpm": 2865,
           "mrr_cm3_min": 8.59,
-          "cutting_force_n": 26908,
-          "tool_life_min": 7.72,
+          "cutting_force_n": 687,
+          "tool_life_min": 0,
           "cycle_time_min": 0.349,
           "surface_finish_ra": 1.563,
-          "power_kw": 80.72,
+          "power_kw": 2.06,
           "warnings": [
-            "Power 80.7 kW exceeds machine rating 22.4 kW",
-            "Tool life 7.7 min below target 15 min"
+            "Tool life 0.0 min below target 15 min"
           ]
         }
       ],
       "cumulative_safety": {
-        "total_tool_wear_pct": 17.3,
-        "max_spindle_load_pct": 200,
-        "max_cutting_temperature_c": 620,
-        "thermal_accumulation_c": 257.7,
-        "tool_changes_required": 0,
+        "total_tool_wear_pct": 133.4,
+        "max_spindle_load_pct": 168.6,
+        "max_cutting_temperature_c": 1225,
+        "thermal_accumulation_c": 1225,
+        "tool_changes_required": 1,
         "constraint_violations": [
-          "Minimum tool life (7.7 min) below target (15 min)",
-          "Peak power (80.7 kW) exceeds machine rating (22.4 kW)"
+          "Minimum tool life (0.0 min) below target (15 min)",
+          "Peak power (37.8 kW) exceeds machine rating (22.4 kW)",
+          "Peak cutting temperature (1225°C) exceeds coating limit (800°C)"
         ],
-        "safety_score": 0.534
+        "safety_score": 0
       },
       "total_cycle_time_min": 1.33,
-      "status": "warning"
+      "status": "quarantine",
+      "quarantine_reasons": [
+        "Safety score 0.000 below quarantine threshold (0.30)",
+        "3 constraint violations exceed quarantine limit (2)"
+      ]
     }
   ],
   "summary": {
     "total_pass": 0,
-    "total_warning": 10,
+    "total_warning": 1,
     "total_fail": 0,
-    "total_quarantine": 0,
+    "total_quarantine": 9,
     "avg_cycle_time_min": 1.33,
-    "avg_safety_score": 0.546,
-    "quarantined_materials": []
+    "avg_safety_score": 0.071,
+    "quarantined_materials": [
+      "d4_extra_high_carbon_hardened_55_hrc_1",
+      "d4_extra_high_carbon_hardened_58_hrc_1",
+      "d4_extra_high_carbon_hardened_60_hrc_1",
+      "d4_extra_high_carbon_hardened_62_hrc_1",
+      "d4_extra_high_carbon_hardened_54_hrc_1",
+      "astm_a709_grade_50w_bridge",
+      "trip_590_automotive",
+      "22mnb5_hot_stamped_48_hrc",
+      "f6nm_13_4_valve_steel"
+    ]
   },
   "warnings": [
-    "[D4 Extra High Carbon Hardened 55 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 55 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 55 HRC op 3] Power 102.8 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 55 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 55 HRC op 4] Power 33.1 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 55 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 55 HRC op 5] Power 108.4 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 55 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 58 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 58 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 58 HRC op 3] Power 102.8 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 58 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 58 HRC op 4] Power 33.1 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 58 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 58 HRC op 5] Power 108.4 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 58 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 60 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 60 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 60 HRC op 3] Power 102.8 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 60 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 60 HRC op 4] Power 33.1 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 60 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 60 HRC op 5] Power 108.4 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 60 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 62 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 62 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 62 HRC op 3] Power 102.8 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 62 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 62 HRC op 4] Power 33.1 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 62 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 62 HRC op 5] Power 108.4 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 62 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 54 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 54 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 54 HRC op 3] Power 102.8 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 54 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 54 HRC op 4] Power 33.1 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 54 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[D4 Extra High Carbon Hardened 54 HRC op 5] Power 108.4 kW exceeds machine rating 22.4 kW",
-    "[D4 Extra High Carbon Hardened 54 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[AISI B1113 Cold Drawn op 1] Tool life 7.7 min below target 15 min",
-    "[AISI B1113 Cold Drawn op 2] Tool life 7.7 min below target 15 min",
-    "[AISI B1113 Cold Drawn op 3] Tool life 7.7 min below target 15 min",
-    "[AISI B1113 Cold Drawn op 4] Tool life 7.7 min below target 15 min",
-    "[AISI B1113 Cold Drawn op 5] Tool life 7.7 min below target 15 min",
-    "[ASTM A709 Grade 50W Bridge op 1] Tool life 7.7 min below target 15 min",
-    "[ASTM A709 Grade 50W Bridge op 2] Tool life 7.7 min below target 15 min",
-    "[ASTM A709 Grade 50W Bridge op 3] Power 79.9 kW exceeds machine rating 22.4 kW",
-    "[ASTM A709 Grade 50W Bridge op 3] Tool life 7.7 min below target 15 min",
-    "[ASTM A709 Grade 50W Bridge op 4] Power 25.7 kW exceeds machine rating 22.4 kW",
-    "[ASTM A709 Grade 50W Bridge op 4] Tool life 7.7 min below target 15 min",
-    "[ASTM A709 Grade 50W Bridge op 5] Power 84.2 kW exceeds machine rating 22.4 kW",
-    "[ASTM A709 Grade 50W Bridge op 5] Tool life 7.7 min below target 15 min",
-    "[TRIP 590 Automotive op 1] Tool life 7.7 min below target 15 min",
-    "[TRIP 590 Automotive op 2] Tool life 7.7 min below target 15 min",
-    "[TRIP 590 Automotive op 3] Power 38.5 kW exceeds machine rating 22.4 kW",
-    "[TRIP 590 Automotive op 3] Tool life 7.7 min below target 15 min",
-    "[TRIP 590 Automotive op 4] Tool life 7.7 min below target 15 min",
-    "[TRIP 590 Automotive op 5] Power 40.3 kW exceeds machine rating 22.4 kW",
-    "[TRIP 590 Automotive op 5] Tool life 7.7 min below target 15 min",
-    "[22MnB5 Hot Stamped 48 HRC op 1] Tool life 7.7 min below target 15 min",
-    "[22MnB5 Hot Stamped 48 HRC op 2] Tool life 7.7 min below target 15 min",
-    "[22MnB5 Hot Stamped 48 HRC op 3] Power 109.1 kW exceeds machine rating 22.4 kW",
-    "[22MnB5 Hot Stamped 48 HRC op 3] Tool life 7.7 min below target 15 min",
-    "[22MnB5 Hot Stamped 48 HRC op 4] Power 35.2 kW exceeds machine rating 22.4 kW",
-    "[22MnB5 Hot Stamped 48 HRC op 4] Tool life 7.7 min below target 15 min",
-    "[22MnB5 Hot Stamped 48 HRC op 5] Power 115.0 kW exceeds machine rating 22.4 kW",
-    "[22MnB5 Hot Stamped 48 HRC op 5] Tool life 7.7 min below target 15 min",
-    "[F6NM 13-4 Valve Steel op 1] Tool life 7.7 min below target 15 min",
-    "[F6NM 13-4 Valve Steel op 2] Tool life 7.7 min below target 15 min",
-    "[F6NM 13-4 Valve Steel op 3] Power 76.6 kW exceeds machine rating 22.4 kW",
-    "[F6NM 13-4 Valve Steel op 3] Tool life 7.7 min below target 15 min",
-    "[F6NM 13-4 Valve Steel op 4] Power 24.7 kW exceeds machine rating 22.4 kW",
-    "[F6NM 13-4 Valve Steel op 4] Tool life 7.7 min below target 15 min",
-    "[F6NM 13-4 Valve Steel op 5] Power 80.7 kW exceeds machine rating 22.4 kW",
-    "[F6NM 13-4 Valve Steel op 5] Tool life 7.7 min below target 15 min"
+    "[D4 Extra High Carbon Hardened 55 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 1] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 2] Power 28.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 55 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 2] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 3] Power 36.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 55 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 3] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 4] Power 61.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 55 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 4] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 55 HRC op 5] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 1] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 2] Power 28.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 58 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 2] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 3] Power 36.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 58 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 3] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 4] Power 61.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 58 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 4] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 58 HRC op 5] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 1] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 2] Power 28.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 60 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 2] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 3] Power 36.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 60 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 3] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 4] Power 61.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 60 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 4] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 60 HRC op 5] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 1] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 2] Power 28.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 62 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 2] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 3] Power 36.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 62 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 3] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 4] Power 61.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 62 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 4] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 62 HRC op 5] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 1] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 2] Power 28.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 54 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 2] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 3] Power 36.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 54 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 3] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 4] Power 61.8 kW exceeds machine rating 22.4 kW",
+    "[D4 Extra High Carbon Hardened 54 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 4] Tool life critically low: 0.0 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[D4 Extra High Carbon Hardened 54 HRC op 5] Tool life critically low: 0.0 min",
+    "[AISI B1113 Cold Drawn op 3] Tool life 9.4 min below target 15 min",
+    "[AISI B1113 Cold Drawn op 5] Tool life 11.8 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 1] Tool life 0.0 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 1] Tool life critically low: 0.0 min",
+    "[ASTM A709 Grade 50W Bridge op 2] Tool life 0.0 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 2] Tool life critically low: 0.0 min",
+    "[ASTM A709 Grade 50W Bridge op 3] Power 23.7 kW exceeds machine rating 22.4 kW",
+    "[ASTM A709 Grade 50W Bridge op 3] Tool life 0.0 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 3] Tool life critically low: 0.0 min",
+    "[ASTM A709 Grade 50W Bridge op 4] Power 39.8 kW exceeds machine rating 22.4 kW",
+    "[ASTM A709 Grade 50W Bridge op 4] Tool life 0.0 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 4] Tool life critically low: 0.0 min",
+    "[ASTM A709 Grade 50W Bridge op 5] Tool life 0.0 min below target 15 min",
+    "[ASTM A709 Grade 50W Bridge op 5] Tool life critically low: 0.0 min",
+    "[TRIP 590 Automotive op 1] Tool life 0.4 min below target 15 min",
+    "[TRIP 590 Automotive op 1] Tool life critically low: 0.4 min",
+    "[TRIP 590 Automotive op 2] Tool life 0.4 min below target 15 min",
+    "[TRIP 590 Automotive op 2] Tool life critically low: 0.4 min",
+    "[TRIP 590 Automotive op 3] Tool life 0.2 min below target 15 min",
+    "[TRIP 590 Automotive op 3] Tool life critically low: 0.2 min",
+    "[TRIP 590 Automotive op 4] Tool life 0.3 min below target 15 min",
+    "[TRIP 590 Automotive op 4] Tool life critically low: 0.3 min",
+    "[TRIP 590 Automotive op 5] Tool life 0.2 min below target 15 min",
+    "[TRIP 590 Automotive op 5] Tool life critically low: 0.3 min",
+    "[22MnB5 Hot Stamped 48 HRC op 1] Tool life 0.0 min below target 15 min",
+    "[22MnB5 Hot Stamped 48 HRC op 1] Tool life critically low: 0.0 min",
+    "[22MnB5 Hot Stamped 48 HRC op 2] Power 31.7 kW exceeds machine rating 22.4 kW",
+    "[22MnB5 Hot Stamped 48 HRC op 2] Tool life 0.0 min below target 15 min",
+    "[22MnB5 Hot Stamped 48 HRC op 2] Tool life critically low: 0.0 min",
+    "[22MnB5 Hot Stamped 48 HRC op 3] Power 40.6 kW exceeds machine rating 22.4 kW",
+    "[22MnB5 Hot Stamped 48 HRC op 3] Tool life 0.0 min below target 15 min",
+    "[22MnB5 Hot Stamped 48 HRC op 3] Tool life critically low: 0.0 min",
+    "[22MnB5 Hot Stamped 48 HRC op 4] Power 68.1 kW exceeds machine rating 22.4 kW",
+    "[22MnB5 Hot Stamped 48 HRC op 4] Tool life 0.0 min below target 15 min",
+    "[22MnB5 Hot Stamped 48 HRC op 4] Tool life critically low: 0.0 min",
+    "[22MnB5 Hot Stamped 48 HRC op 5] Tool life 0.0 min below target 15 min",
+    "[22MnB5 Hot Stamped 48 HRC op 5] Tool life critically low: 0.0 min",
+    "[F6NM 13-4 Valve Steel op 1] Tool life 0.0 min below target 15 min",
+    "[F6NM 13-4 Valve Steel op 1] Tool life critically low: 0.0 min",
+    "[F6NM 13-4 Valve Steel op 2] Tool life 0.0 min below target 15 min",
+    "[F6NM 13-4 Valve Steel op 2] Tool life critically low: 0.0 min",
+    "[F6NM 13-4 Valve Steel op 3] Power 22.5 kW exceeds machine rating 22.4 kW",
+    "[F6NM 13-4 Valve Steel op 3] Tool life 0.0 min below target 15 min",
+    "[F6NM 13-4 Valve Steel op 3] Tool life critically low: 0.0 min",
+    "[F6NM 13-4 Valve Steel op 4] Power 37.8 kW exceeds machine rating 22.4 kW",
+    "[F6NM 13-4 Valve Steel op 4] Tool life 0.0 min below target 15 min",
+    "[F6NM 13-4 Valve Steel op 4] Tool life critically low: 0.0 min",
+    "[F6NM 13-4 Valve Steel op 5] Tool life 0.0 min below target 15 min",
+    "[F6NM 13-4 Valve Steel op 5] Tool life critically low: 0.0 min"
   ]
 }

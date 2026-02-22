@@ -401,7 +401,83 @@ const TESTS: TestCase[] = [
   },
 
   // =====================================================
-  // 11. quality_predict — surface + deflection + thermal
+  // 11a. what_if — sensitivity sweep mode (Phase 7A)
+  // =====================================================
+  {
+    name: "what_if: sensitivity sweep on cutting_speed ±20%",
+    action: "what_if",
+    params: {
+      baseline: {
+        cutting_speed: 200,
+        feed_per_tooth: 0.1,
+        axial_depth: 3,
+        radial_depth: 6,
+        tool_diameter: 12,
+        number_of_teeth: 4,
+      },
+      changes: { cutting_speed: 240 },
+      material: "4140 Steel",
+      sweep: {
+        parameter: "cutting_speed",
+        range_pct: 20,
+        steps: 5,
+      },
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      if (!r.sensitivity) errs.push("Missing sensitivity object for sweep mode");
+      if (r.sensitivity) {
+        if (r.sensitivity.parameter !== "cutting_speed") errs.push(`Wrong sweep param: ${r.sensitivity.parameter}`);
+        if (!r.sensitivity.points || r.sensitivity.points.length !== 5) {
+          errs.push(`Expected 5 sweep points, got ${r.sensitivity?.points?.length}`);
+        }
+        if (!r.sensitivity.elasticity) errs.push("Missing elasticity analysis");
+        if (r.sensitivity.elasticity) {
+          // tool_life should have negative elasticity to speed (higher speed = shorter life)
+          if (r.sensitivity.elasticity.tool_life_min >= 0) {
+            errs.push(`Tool life elasticity should be negative (higher speed → shorter life), got ${r.sensitivity.elasticity.tool_life_min}`);
+          }
+        }
+        if (!Array.isArray(r.sensitivity.constraint_violations)) errs.push("Missing constraint_violations array");
+      }
+      // Standard what_if fields should still be present
+      if (!r.baseline) errs.push("Missing baseline metrics");
+      if (!r.scenario) errs.push("Missing scenario metrics");
+      if (!r.deltas) errs.push("Missing deltas");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 11b. confidence gating — low confidence warning (Phase 7B)
+  // =====================================================
+  {
+    name: "job_plan: confidence gating adds warning on low confidence",
+    action: "job_plan",
+    params: {
+      material: "SomeUnknownAlloyXYZ", // unknown material → low confidence
+      feature: "pocket",
+      dimensions: { depth: 5, width: 20, length: 40 },
+    },
+    validate: (r: any) => {
+      const errs: string[] = [];
+      // Unknown material should result in lower confidence
+      if (r.confidence === undefined) errs.push("Missing confidence field");
+      // Check that confidence gating fields exist when appropriate
+      if (r.confidence < 0.80 && !r._confidence_warning) {
+        errs.push("Confidence < 0.80 but no _confidence_warning added");
+      }
+      if (r.confidence < 0.60 && r._confidence_gate !== "INSUFFICIENT_DATA") {
+        errs.push("Confidence < 0.60 but no INSUFFICIENT_DATA gate");
+      }
+      // The result should still have operations (we don't block, just warn)
+      if (!r.operations || r.operations.length === 0) errs.push("Should still return operations even with low confidence");
+      return errs;
+    },
+  },
+
+  // =====================================================
+  // 12. quality_predict — surface + deflection + thermal
   // =====================================================
   {
     name: "quality_predict: 4140 Steel finishing parameters",

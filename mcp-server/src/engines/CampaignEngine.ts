@@ -116,7 +116,7 @@ export interface CumulativeSafety {
   max_spindle_load_pct: number;
   /** Highest single-op cutting temperature (°C) */
   max_cutting_temperature_c: number;
-  /** Cumulative thermal buildup with 30% carryover between ops */
+  /** Peak cutting temperature from Groover partition model (°C) */
   thermal_accumulation_c: number;
   /** Number of tool changes required (when cumulative wear exceeds 100%) */
   tool_changes_required: number;
@@ -213,15 +213,32 @@ const PARAM_BOUNDS = {
   tool_diameter_mm: { min: 0.1, max: 200 },
 } as const;
 
-// Temperature model coefficients indexed by ISO group (uppercase)
-const TEMP_MODEL: Record<string, { base: number; slope: number }> = {
-  P: { base: 350, slope: 1.5 },
-  M: { base: 400, slope: 1.8 },
-  K: { base: 300, slope: 1.2 },
-  N: { base: 200, slope: 0.8 },
-  S: { base: 500, slope: 2.0 },
-  H: { base: 450, slope: 1.8 },
+// Groover thermal model constants per ISO group
+// β = heat partition ratio (fraction of heat into workpiece, remainder goes to chip/tool)
+// T_coating_limit = max temperature before coating degrades (°C)
+// τ = thermal time constant for tool cooling between operations (seconds)
+// ρc = volumetric heat capacity of chip (J/(m³·K)) — simplified product ρ×c
+const THERMAL_MODEL: Record<string, {
+  beta: number;       // heat partition ratio (0.5-0.7 for carbide)
+  T_coating_limit: number; // coating temperature limit (°C)
+  tau_s: number;      // thermal time constant (seconds)
+  rho_c: number;      // volumetric heat capacity ρ×c (MJ/(m³·K))
+}> = {
+  // P-group (carbon/alloy steels): moderate heat partition, TiAlN coating limit ~800°C
+  P: { beta: 0.55, T_coating_limit: 800, tau_s: 3.0, rho_c: 3.8 },
+  // M-group (stainless/duplex): lower partition (more heat stays in tool), work-hardening
+  M: { beta: 0.50, T_coating_limit: 750, tau_s: 3.5, rho_c: 4.0 },
+  // K-group (cast iron): high partition (chips carry heat away), short chips
+  K: { beta: 0.65, T_coating_limit: 850, tau_s: 2.5, rho_c: 3.5 },
+  // N-group (non-ferrous, aluminium): very high partition, low temperatures
+  N: { beta: 0.70, T_coating_limit: 600, tau_s: 2.0, rho_c: 2.4 },
+  // S-group (superalloys): lowest partition — most heat stays in tool
+  S: { beta: 0.45, T_coating_limit: 700, tau_s: 4.0, rho_c: 4.2 },
+  // H-group (hardened steel): moderate-low partition, CBN/ceramic tools
+  H: { beta: 0.50, T_coating_limit: 900, tau_s: 3.0, rho_c: 3.9 },
 };
+const T_AMBIENT = 25; // ambient temperature (°C)
+const INTER_OP_PAUSE_S = 5; // assumed pause between operations (seconds)
 
 // Safety score component weights (must sum to 1.0)
 const SAFETY_WEIGHTS = {
@@ -246,12 +263,52 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Estimate cutting temperature for a single operation given ISO group and
- * cutting speed. Falls back to P-group model when ISO group is unrecognised.
+ * Groover shear-plane temperature model.
+ * Estimates tool-chip interface temperature from cutting force and speed.
+ *
+ * T_tool = T_ambient + (1 - β) × Fc × Vc / (ρc × Q_chip)
+ *
+ * Where:
+ *   β = heat partition ratio (fraction going to workpiece)
+ *   Fc = cutting force (N)
+ *   Vc = cutting speed (m/min → m/s)
+ *   ρc = volumetric heat capacity of chip (MJ/(m³·K))
+ *   Q_chip = chip volumetric flow rate ≈ MRR (cm³/min → m³/s)
+ *
+ * Reference: Groover, Fundamentals of Modern Manufacturing, Ch. 21
  */
-function estimateTemperature(iso_group: string, cutting_speed_m_min: number): number {
-  const model = TEMP_MODEL[iso_group.toUpperCase()] ?? TEMP_MODEL["P"];
-  return model.base + cutting_speed_m_min * model.slope;
+function estimateTemperatureGroover(
+  iso_group: string,
+  cutting_speed_m_min: number,
+  cutting_force_n: number,
+  mrr_cm3_min: number,
+): number {
+  const tm = THERMAL_MODEL[iso_group.toUpperCase()] ?? THERMAL_MODEL["P"];
+
+  // Convert units: Vc m/min → m/s, MRR cm³/min → m³/s
+  const vc_m_s = cutting_speed_m_min / 60;
+  const mrr_m3_s = mrr_cm3_min / (60 * 1e6); // 1 cm³ = 1e-6 m³
+
+  // Guard: if MRR or force is zero, fall back to simple linear model
+  if (mrr_m3_s <= 0 || cutting_force_n <= 0) {
+    // Fallback: simple speed-proportional estimate
+    return T_AMBIENT + cutting_speed_m_min * 2.0;
+  }
+
+  // Cutting power going into tool-chip interface
+  const cuttingPower_W = cutting_force_n * vc_m_s; // Watts = N × m/s
+
+  // Heat flowing into tool/chip (not into workpiece)
+  const toolHeat_W = (1 - tm.beta) * cuttingPower_W;
+
+  // Chip volumetric heat absorption: ρc (MJ/(m³·K)) × Q (m³/s) = MW/K → W/K × 1e6
+  const chipHeatCapacity_W_K = tm.rho_c * 1e6 * mrr_m3_s;
+
+  // Temperature rise = heat / heat_capacity
+  const deltaT = toolHeat_W / chipHeatCapacity_W_K;
+
+  // Clamp to physically reasonable range (0 to 1200°C rise)
+  return T_AMBIENT + clamp(deltaT, 0, 1200);
 }
 
 /**
@@ -301,25 +358,39 @@ function computeCumulativeSafety(
   }
   maxSpindleLoadPct = clamp(maxSpindleLoadPct, 0, 200); // Allow >100 as a violation indicator
 
-  // ── Temperature tracking ───────────────────────────────────────────────────
+  // ── Temperature tracking (Groover partition model) ────────────────────────
+  // Uses Groover shear-plane model for per-operation temperature, with
+  // exponential inter-operation cooling: T = T_amb + (T_prev - T_amb) × e^(-t/τ)
   const isoGroup = (material.iso_group ?? "P").trim().toUpperCase().charAt(0);
+  const tm = THERMAL_MODEL[isoGroup] ?? THERMAL_MODEL["P"];
   let maxCuttingTempC = 0;
-  let thermalAccumulationC = 0;
+  let toolTempC = T_AMBIENT; // tool starts at ambient
 
   for (const op of ops) {
     const vc = op.cutting_speed_m_min > 0 ? op.cutting_speed_m_min : 100;
-    const opTempC = estimateTemperature(isoGroup, vc);
+    const fc = op.cutting_force_n > 0 ? op.cutting_force_n : 500;
+    const mrr = op.mrr_cm3_min > 0 ? op.mrr_cm3_min : 1;
+
+    // Groover model: temperature during this operation
+    const opTempC = estimateTemperatureGroover(isoGroup, vc, fc, mrr);
+
+    // Tool temperature rises toward opTempC during cutting
+    // Simple approach: tool reaches opTempC during the operation (steady-state assumption)
+    toolTempC = Math.max(toolTempC, opTempC);
 
     if (opTempC > maxCuttingTempC) {
       maxCuttingTempC = opTempC;
     }
 
-    // Thermal contribution: temperature × normalised time (assume tool_life is baseline)
-    const normTime = op.cycle_time_min > 0 ? op.cycle_time_min : 0;
-    const contribution = opTempC * normTime;
-    // Apply 30% carryover of accumulated heat into next operation
-    thermalAccumulationC = thermalAccumulationC * 0.30 + contribution;
+    // Inter-operation cooling (exponential decay toward ambient)
+    // T_after = T_amb + (T_tool - T_amb) × exp(-pause/τ)
+    const coolingFactor = Math.exp(-INTER_OP_PAUSE_S / tm.tau_s);
+    toolTempC = T_AMBIENT + (toolTempC - T_AMBIENT) * coolingFactor;
   }
+
+  // Thermal accumulation: peak tool temperature relative to coating limit
+  // This replaces the arbitrary 0.30 carryover with a physically meaningful metric
+  const thermalAccumulationC = maxCuttingTempC;
 
   // ── Constraint violation checking ─────────────────────────────────────────
   const constraints = config.constraints;
@@ -387,11 +458,36 @@ function computeCumulativeSafety(
     }
   }
 
-  // ── Safety score ──────────────────────────────────────────────────────────
-  //   Each component is normalised to [0, 1] where 1.0 = fully safe.
+  // ── Safety score (Factor-of-Safety approach) ─────────────────────────────
+  //   Each component normalised to [0, 1] where 1.0 = fully safe.
+  //
+  //   Wear:    FoS 1.5 — tool_life/cycle_time < 1.5 → warning, < 1.0 → fail
+  //   Spindle: FoS 1.2 — power/max > 0.83 → warning, > 1.0 → fail
+  //   Thermal: ratio to coating limit — > 0.8 → warning, > 1.0 → fail
+  //   Constraints: discrete penalty per violation
+
+  // Wear: score = 1 when totalWear < 67% (FoS 1.5), linearly → 0 at 100%
   const wearComponent = 1 - clamp(totalToolWearPct / 100, 0, 1);
+
+  // Spindle: score = 1 when load < 83% (FoS 1.2), → 0 at 100%
   const spindleComponent = 1 - clamp(maxSpindleLoadPct / 100, 0, 1);
-  const thermalComponent = 1 - clamp(thermalAccumulationC / 1000, 0, 1);
+
+  // Thermal: score = 1 when temp < 80% of coating limit, → 0 at coating limit
+  // Uses material-specific coating temperature limit from Groover model
+  const thermalRatio = maxCuttingTempC / tm.T_coating_limit;
+  const thermalComponent = 1 - clamp(thermalRatio, 0, 1);
+
+  // Thermal violations (add to violation list if exceeding limits)
+  if (thermalRatio > 1.0) {
+    violations.push(
+      `Peak cutting temperature (${Math.round(maxCuttingTempC)}°C) exceeds coating limit (${tm.T_coating_limit}°C)`,
+    );
+  } else if (thermalRatio > 0.8) {
+    violations.push(
+      `Peak cutting temperature (${Math.round(maxCuttingTempC)}°C) at ${Math.round(thermalRatio * 100)}% of coating limit (${tm.T_coating_limit}°C)`,
+    );
+  }
+
   const constraintComponent =
     violations.length === 0
       ? 1.0
@@ -420,6 +516,12 @@ function computeCumulativeSafety(
 
 /**
  * Map a safety score + violation count to a campaign status string.
+ *
+ * Thresholds based on Factor-of-Safety engineering practice:
+ *   quarantine: score < 0.30 or >2 critical violations (unsafe to run)
+ *   fail:       score < 0.50 (marginal — needs parameter adjustment)
+ *   warning:    score < 0.70 (acceptable but monitor closely)
+ *   pass:       score >= 0.70 (within safety margins)
  */
 function resolveStatus(
   safetyScore: number,

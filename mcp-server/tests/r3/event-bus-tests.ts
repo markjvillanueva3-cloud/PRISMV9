@@ -336,6 +336,79 @@ const TESTS: TestCase[] = [
       assertEqual((downstreamReceived as TypedEvent).event, "audit_logged", "downstream event name");
       bus.stop();
     }
+  },
+
+  // =========================================================================
+  // 13. registerAction + reactive chain step dispatch
+  // =========================================================================
+  {
+    name: "registerAction: chain step calls registered action handler",
+    async run() {
+      const bus = new EventBus();
+
+      // Track action invocations
+      let actionCalled = false;
+      let receivedParams: any = null;
+
+      bus.registerAction("validate_data", async (params, context) => {
+        actionCalled = true;
+        receivedParams = params;
+        return { validated: true, records: 42 };
+      });
+
+      // Register chain: on "data_imported" → validate_data → emit "data_validated"
+      bus.registerReactiveChain({
+        name: "Import → Validate",
+        trigger_event: "data_imported",
+        steps: [
+          { action: "validate_data", params: { strict: true }, emit_event: "data_validated" }
+        ],
+        enabled: true
+      });
+
+      // Subscribe to the downstream event to check result payload
+      let validatedEvent: TypedEvent | null = null;
+      bus.subscribeTyped({
+        event: "data_validated",
+        callback: (evt) => { validatedEvent = evt; }
+      });
+
+      // Trigger
+      await bus.publishTyped({
+        event: "data_imported",
+        source: "batch_runner",
+        payload: { batch_id: "batch_0001", count: 10 }
+      });
+
+      await sleep(50);
+
+      assert(actionCalled, "validate_data action should have been called");
+      assert(receivedParams !== null, "action should receive params");
+      assertEqual(receivedParams.strict, true, "step params should be passed");
+      assertEqual(receivedParams.batch_id, "batch_0001", "trigger payload should be merged");
+
+      assert(validatedEvent !== null, "downstream event should fire after action");
+      assertEqual((validatedEvent as TypedEvent).payload.validated, true, "action result should be in emitted event payload");
+      bus.stop();
+    }
+  },
+
+  // =========================================================================
+  // 14. listActions returns registered action names
+  // =========================================================================
+  {
+    name: "listActions: returns all registered action names",
+    async run() {
+      const bus = new EventBus();
+      bus.registerAction("action_a", async () => ({}));
+      bus.registerAction("action_b", async () => ({}));
+
+      const actions = bus.listActions();
+      assertEqual(actions.length, 2, "should have 2 actions");
+      assert(actions.includes("action_a"), "should include action_a");
+      assert(actions.includes("action_b"), "should include action_b");
+      bus.stop();
+    }
   }
 ];
 
