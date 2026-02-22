@@ -65,6 +65,14 @@ import {
 } from "../../engines/ReportRenderer.js";
 
 import {
+  createCampaign,
+  validateCampaign,
+  optimizeCampaign,
+  estimateCycleTime as estimateCampaignTime,
+  listCampaignActions,
+} from "../../engines/CampaignEngine.js";
+
+import {
   calculateEngagementAngle,
   calculateTrochoidalParams,
   calculateHSMParams,
@@ -129,6 +137,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { tree: result.tree || result.strategy || result.tool_type || result.grade, confidence: result.confidence, warnings: result.warnings?.length || 0 };
     case "render_report":
       return { type: result.type, line_count: result.line_count, sections: result.sections?.length || 0 };
+    case "campaign_create":
+      return { material_count: result.material_count, pass: result.summary?.total_pass, fail: result.summary?.total_fail, quarantine: result.summary?.total_quarantine, avg_safety: result.summary?.avg_safety_score };
+    case "campaign_validate":
+      return { valid: result.valid, errors: result.errors?.length || 0, warnings: result.warnings?.length || 0 };
+    case "campaign_optimize":
+      return { improvement_pct: result.estimated_improvement_pct, adjustments: result.operation_adjustments?.length || 0 };
+    case "campaign_cycle_time":
+      return { total_min: result.estimated_total_time_min, per_material_min: result.time_per_material_min, materials: result.materials_count };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -161,13 +177,14 @@ const ACTIONS = [
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
   "tolerance_analysis", "fit_analysis", "gcode_generate", "decision_tree",
-  "render_report"
+  "render_report", "campaign_create", "campaign_validate", "campaign_optimize",
+  "campaign_cycle_time"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations), decision trees (tool/insert/coolant/workholding/strategy/approach selection), report rendering (setup sheet, process plan, cost estimate, tool list, inspection plan, alarm report, speed/feed card).",
+    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations), decision trees (tool/insert/coolant/workholding/strategy/approach selection), report rendering (setup sheet, process plan, cost estimate, tool list, inspection plan, alarm report, speed/feed card), campaign orchestration (create/validate/optimize/cycle_time for batch machining campaigns with cumulative safety tracking).",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
@@ -712,6 +729,36 @@ export function registerCalcDispatcher(server: any): void {
               if (!reportType) throw new Error("render_report requires 'report_type' parameter (e.g., 'setup_sheet')");
               result = renderReport(reportType, params);
             }
+            break;
+          }
+
+          case "campaign_create": {
+            if (params.list_actions) {
+              result = { actions: listCampaignActions() };
+            } else {
+              if (!params.config) throw new Error("campaign_create requires 'config' parameter");
+              if (!params.operation_results) throw new Error("campaign_create requires 'operation_results' (2D array of pre-computed results)");
+              result = createCampaign(params.config, params.operation_results);
+            }
+            break;
+          }
+
+          case "campaign_validate": {
+            if (!params.config) throw new Error("campaign_validate requires 'config' parameter");
+            result = validateCampaign(params.config);
+            break;
+          }
+
+          case "campaign_optimize": {
+            if (!params.config) throw new Error("campaign_optimize requires 'config' parameter");
+            const target = params.target || { objective: "balanced" };
+            result = optimizeCampaign(params.config, target);
+            break;
+          }
+
+          case "campaign_cycle_time": {
+            if (!params.config) throw new Error("campaign_cycle_time requires 'config' parameter");
+            result = estimateCampaignTime(params.config);
             break;
           }
 

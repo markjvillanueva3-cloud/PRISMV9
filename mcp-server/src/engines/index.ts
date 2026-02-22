@@ -470,3 +470,23 @@ export {
   type ReportType,
   type ReportResult,
 } from "./ReportRenderer.js";
+
+// Campaign Engine — R3-MS3 Batch Machining Campaign Orchestrator
+export {
+  createCampaign,
+  validateCampaign as validateCampaignConfig,
+  optimizeCampaign,
+  estimateCycleTime as estimateCampaignCycleTime,
+  listCampaignActions,
+  CAMPAIGN_ACTIONS,
+  type CampaignMaterial,
+  type CampaignOperation,
+  type CampaignConfig,
+  type OperationResult as CampaignOperationResult,
+  type CumulativeSafety,
+  type MaterialCampaignResult,
+  type CampaignResult,
+  type OptimizationTarget,
+  type OptimizedCampaign,
+  type CycleTimeEstimate as CampaignCycleTimeEstimate,
+} from "./CampaignEngine.js";
