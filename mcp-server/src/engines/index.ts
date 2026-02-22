@@ -676,3 +676,15 @@ export {
   type WelcomeMessage,
   type DisclosureSuggestion,
 } from "./OnboardingEngine.js";
+
+// Setup Sheet Generation (R8-MS4)
+export {
+  setupSheetEngine,
+  buildSetupSheet,
+  type SetupSheetFormat,
+  type SetupSheetHeader,
+  type SetupSheetOperation,
+  type SetupSheetTool,
+  type SetupSheetSummary,
+  type SetupSheet,
+} from "./SetupSheetEngine.js";

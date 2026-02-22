@@ -24,6 +24,7 @@ import { intentEngine } from "../../engines/IntentDecompositionEngine.js";
 import { responseFormatter } from "../../engines/ResponseFormatterEngine.js";
 import { workflowChains } from "../../engines/WorkflowChainsEngine.js";
 import { onboardingEngine } from "../../engines/OnboardingEngine.js";
+import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -53,6 +54,8 @@ const ACTIONS = [
   "onboarding_record",
   "onboarding_suggestion",
   "onboarding_reset",
+  "setup_sheet_format",
+  "setup_sheet_template",
 ] as const;
 
 /**
@@ -257,6 +260,17 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       };
     case "onboarding_reset":
       return { reset: result.reset };
+    case "setup_sheet_format":
+      return {
+        job_id: result.header?.job_id,
+        format: result.format,
+        operations: result.operations?.length,
+        tools: result.tools?.length,
+        cycle_time_min: result.summary?.total_cycle_time_min,
+        part_cost: result.summary?.estimated_part_cost_usd,
+      };
+    case "setup_sheet_template":
+      return { format: result.format, has_template: !!result.template };
     default:
       return result;
   }
@@ -317,7 +331,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const FORMATTER_ACTIONS = ["format_response"] as const;
         const WORKFLOW_ACTIONS = ["workflow_match", "workflow_get", "workflow_list"] as const;
         const ONBOARDING_ACTIONS = ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] as const;
-        const result = LEARNING_ACTIONS.includes(action as any)
+        const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
+        const result = SETUP_SHEET_ACTIONS.includes(action as any)
+          ? setupSheetEngine(action, params)
+          : LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
             ? algorithmGateway(action, params)
