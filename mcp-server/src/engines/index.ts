@@ -830,3 +830,12 @@ export {
   type DataPoint, type TrendResult, type PredictionResult,
   type MaintenanceAlert, type MaintenanceModel,
 } from "./PredictiveMaintenanceEngine.js";
+
+// Sustainability Optimization (R10-Rev8)
+export {
+  sustainabilityEngine,
+  type OptimizationMode, type CoolantStrategy, type StockType,
+  type EnergyBreakdown, type CarbonBreakdown, type SustainabilityResult,
+  type OperationMetrics, type SavingsMetrics, type NearNetShapeResult,
+  type StockOption, type CoolantAnalysis,
+} from "./SustainabilityEngine.js";

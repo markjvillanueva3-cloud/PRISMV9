@@ -39,6 +39,7 @@ import { failureForensics } from "../../engines/FailureForensicsEngine.js";
 import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
 import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js";
 import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine.js";
+import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -198,6 +199,16 @@ const ACTIONS = [
   "maint_status",
   "maint_history",
   "maint_get",
+  "sustain_optimize",
+  "sustain_compare",
+  "sustain_energy",
+  "sustain_carbon",
+  "sustain_coolant",
+  "sustain_nearnet",
+  "sustain_report",
+  "sustain_materials",
+  "sustain_history",
+  "sustain_get",
 ] as const;
 
 /**
@@ -656,6 +667,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total, by_severity: result.by_severity };
     case "maint_get":
       return { id: result.prediction_id, category: result.category, severity: result.severity, remaining: result.remaining_life_hours };
+    case "sustain_optimize":
+      return { id: result.optimization_id, material: result.material, mode: result.mode, cost_delta: result.savings?.cost_delta_pct, energy_saved: result.savings?.energy_saved_pct, carbon_saved: result.savings?.carbon_saved_pct };
+    case "sustain_compare":
+      return { total: result.total };
+    case "sustain_energy":
+      return { material: result.material, savings_kwh: result.savings_kwh, savings_pct: result.savings_pct };
+    case "sustain_carbon":
+      return { material: result.material, savings_kg: result.savings_kg_co2, savings_pct: result.savings_pct };
+    case "sustain_coolant":
+      return { current: result.current_type, recommended: result.recommended_type, savings_usd: result.annual_savings_usd };
+    case "sustain_nearnet":
+      return { id: result.analysis_id, material: result.material, best: result.best_option, options: result.stock_options?.length };
+    case "sustain_report":
+      return { material: result.material, batch: result.batch_size, energy_saved: result.batch_totals?.energy_saved_kwh, carbon_saved: result.batch_totals?.carbon_saved_kg };
+    case "sustain_materials":
+      return { name: result.name, total: result.total };
+    case "sustain_history":
+      return { total: result.total };
+    case "sustain_get":
+      return { id: result.optimization_id, material: result.material, mode: result.mode };
     default:
       return result;
   }
@@ -731,7 +762,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const APPRENTICE_ACTIONS = ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] as const;
         const GENOME_ACTIONS = ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] as const;
         const MAINT_ACTIONS = ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] as const;
-        const result = MAINT_ACTIONS.includes(action as any)
+        const SUSTAIN_ACTIONS = ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] as const;
+        const result = SUSTAIN_ACTIONS.includes(action as any)
+          ? sustainabilityEngine(action, params)
+          : MAINT_ACTIONS.includes(action as any)
           ? predictiveMaintenance(action, params)
           : GENOME_ACTIONS.includes(action as any)
           ? manufacturingGenome(action, params)
