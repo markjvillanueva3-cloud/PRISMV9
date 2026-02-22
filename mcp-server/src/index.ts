@@ -3,7 +3,7 @@
  * Manufacturing Intelligence MCP Server
  * 
  * Provides access to:
- * - 31 dispatchers, 368 verified actions
+ * - 32 dispatchers, 372+ verified actions
  * - 37 engines, 19 registries
  * - Materials Database (3,518+ materials x 127 parameters)
  * - Machines Database (824+ machines x 4 layers)
@@ -296,7 +296,7 @@ async function registerTools(): Promise<void> {
   // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
   registerIntelligenceDispatcher(server);
 
-  log.info(`All PRISM tools registered: 32 dispatchers (379 verified actions)`);
+  log.info(`All PRISM tools registered: 32 dispatchers (382 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {

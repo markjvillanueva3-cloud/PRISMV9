@@ -46,7 +46,7 @@ Build: 1 warning (down from 2). Tests: 73/74 pass (1 pre-existing KC_INFLATED).
 | Skills | 230/232 with SKILL.md | skills-consolidated/ | ✅ 99% (proposals/scripts dirs intentionally empty) |
 | Scripts | 339 | Via ScriptRegistry | ✅ |
 | Agents | 75 | Via AgentRegistry | ✅ |
-| Hooks | 25 built-in + 48 NL | HookRegistry + state/nl_hooks/ | ✅ |
+| Hooks | 27 built-in + 9 NL | HookRegistry + state/nl_hooks/ | ✅ |
 
 ### Index Coverage
 | Index | Count | Status |
@@ -68,8 +68,8 @@ Build: 1 warning (down from 2). Tests: 73/74 pass (1 pre-existing KC_INFLATED).
 | Monitoring | ✅ Prometheus + Grafana |
 | Production scripts | ✅ bash + PowerShell |
 | Test runner | ✅ vitest (74) + standalone runner (53 files) |
-| NL Hooks | ✅ 48 deployed |
-| Cadence functions | ✅ 30+ auto-firing |
+| NL Hooks | ✅ 9 deployed (+ 27 built-in) |
+| Cadence functions | ✅ 40+ auto-firing |
 
 ---
 
@@ -86,4 +86,4 @@ Build: 1 warning (down from 2). Tests: 73/74 pass (1 pre-existing KC_INFLATED).
 
 **System is fully wired.** All 73 engines connected, all 9 registries loading, all dispatchers registered. The 5 "critical" gaps from the initial audit were 4 false alarms + 1 real fix. The 4 medium gaps are all fixed. Build is clean (1 warning), tests pass (73/74).
 
-The architecture is sound: ProductEngine→IntelligenceEngine→individual engines, safety dispatchers→handler files→physics engines, knowledge engine cross-searches all 9 registries, 698 toolpath strategies indexed, 509 formulas active, 48 NL hooks deployed, 9 skill bundles wired.
+The architecture is sound: ProductEngine→IntelligenceEngine→individual engines, safety dispatchers→handler files→physics engines, knowledge engine cross-searches all 9 registries, 698 toolpath strategies indexed, 509 formulas active, 9 NL hooks + 27 built-in hooks deployed, 9 skill bundles wired.

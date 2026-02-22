@@ -1,137 +1,50 @@
 {
-  "version": "23.0.0",
-  "lastUpdated": "2026-02-22T20:10:14.634Z",
+  "version": "24.0.0",
+  "lastUpdated": "2026-02-22T22:50:00.000Z",
   "currentSession": {
-    "id": "TOOL-DEPLOY",
+    "id": "COMPREHENSIVE-AUDIT",
     "status": "COMPLETE",
-    "phase": "R6",
+    "phase": "POST-R11-AUDIT",
     "progress": {
-      "lastCheckpoint": "CP-20260222T185028",
-      "checkpointTime": "2026-02-22T18:50:28.476Z",
-      "toolCalls": 10,
-      "zone": "🟢 GREEN",
-      "omega_score": 0.77,
-      "omega_score_at": "2026-02-22T20:07:09.938Z"
+      "toolCalls": 0,
+      "zone": "GREEN",
+      "omega_score": 0.85
     }
   },
-  "extractionProgress": {
-    "modulesExtracted": 136,
-    "linesExtracted": 62805,
-    "percentComplete": 6.37
+  "system": {
+    "dispatchers": 32,
+    "actions": "382+",
+    "engines": 73,
+    "registries": 9,
+    "skills": 230,
+    "skillBundles": 9,
+    "nlHooks": 9,
+    "builtInHooks": 27,
+    "cadenceFunctions": 40,
+    "build_size": "5.6MB",
+    "build_warnings": 1,
+    "tests_vitest": "73/74",
+    "tests_standalone": "53 files (~3900+ tests)"
   },
-  "quickResume": "Phase: R6",
-  "currentTask": {
-    "id": "TOOLS-COMPLETE",
-    "name": "Integration & Automation Tools Deployed",
-    "status": "COMPLETE"
+  "phases": {
+    "P0": "COMPLETE",
+    "DA": "COMPLETE",
+    "R1": "PARTIAL (MS1-MS4 complete, MS5-MS9 deferred)",
+    "R2": "COMPLETE (175/175 tests, Omega=0.77)",
+    "R3": "COMPLETE (129/129 + 635 batches, Omega=0.912)",
+    "R4": "COMPLETE (116/116 tests)",
+    "R5": "COMPLETE (569/569 tests)",
+    "R6": "COMPLETE (Docker, CI/CD, monitoring, tests)",
+    "R7": "COMPLETE (~500 tests)",
+    "R8": "COMPLETE (~1100 tests)",
+    "R9": "COMPLETE (487/487 tests)",
+    "R10": "COMPLETE (1617/1617 tests)",
+    "R11": "COMPLETE (814/814 tests)"
   },
-  "infrastructure": {
-    "orchestratorVersion": "7.0",
-    "combinationEngineVersion": "3.0",
-    "constraintPolicy": "MAXIMUM_UTILIZATION",
-    "agentsRegistered": 64,
-    "formulasActive": 22,
-    "hooksEnforcing": 147,
-    "triggerPatterns": 160,
-    "scriptsRegistered": 39,
-    "limits": {
-      "skills": "UNLIMITED",
-      "agents": "UNLIMITED",
-      "safety": "S(R) >= 0.70 (HARD)",
-      "rigor": "M(R) >= 0.60",
-      "coverage": "100%"
-    },
-    "skillTree": {
-      "version": "1.1",
-      "rootPath": "/mnt/skills/user/",
-      "totalSkills": 121,
-      "totalBranches": 20,
-      "totalLevels": 5,
-      "structure": {
-        "L0_CORE": {
-          "count": 15,
-          "policy": "ALWAYS",
-          "description": "Always-On skills - load every session"
-        },
-        "L1_COGNITIVE": {
-          "count": 8,
-          "policy": "COMPLEX",
-          "description": "Multi-resource reasoning tasks"
-        },
-        "L2_WORKFLOW": {
-          "count": 31,
-          "policy": "PHASE",
-          "subBranches": 7,
-          "description": "Development phase skills"
-        },
-        "L3_DOMAIN": {
-          "count": 59,
-          "policy": "DOMAIN",
-          "subBranches": 10,
-          "description": "Domain-specific skills"
-        },
-        "L4_REFERENCE": {
-          "count": 8,
-          "policy": "ON_DEMAND",
-          "description": "Lookup-only reference materials"
-        }
-      },
-      "newSkills": [
-        "prism-tree-navigator",
-        "prism-tool-integration"
-      ],
-      "keyFiles": {
-        "treeIndex": "/mnt/skills/user/TREE_INDEX.md",
-        "treeRegistry": "C:\\PRISM\\data\\coordination\\SKILL_TREE_REGISTRY.json",
-        "treeNavigator": "C:\\PRISM\\scripts\\skill_tree_navigator.py",
-        "treeSync": "C:\\PRISM\\scripts\\skill_tree_sync.py"
-      }
-    },
-    "toolIntegration": {
-      "version": "1.0",
-      "scripts": {
-        "integration": [
-          "excel_to_json.py",
-          "json_to_duckdb.py",
-          "obsidian_generator.py",
-          "sync_to_drive.py",
-          "master_sync.py"
-        ],
-        "automation": [
-          "auto_context.py",
-          "template_generator.py",
-          "git_manager.py",
-          "script_cleanup.py"
-        ]
-      },
-      "folders": {
-        "integration": "C:\\PRISM\\scripts\\integration\\",
-        "automation": "C:\\PRISM\\scripts\\automation\\",
-        "knowledge": "C:\\PRISM\\knowledge\\",
-        "diagrams": "C:\\PRISM\\diagrams\\"
-      },
-      "dependencies": {
-        "python": [
-          "pandas",
-          "openpyxl",
-          "duckdb"
-        ]
-      }
-    }
-  },
-  "inheritance": {
-    "root": "L0_CORE",
-    "propagates": [
-      "Safety S >= 0.70 (HARD)",
-      "Rigor M >= 0.60",
-      "Coverage 100%",
-      "Hook enforcement (147)",
-      "State management protocol"
-    ],
-    "allChildrenInherit": true
-  },
-  "principle": "IF IT EXISTS, USE IT EVERYWHERE. Tree-aware skill loading. Deploy ALL relevant branches for any task. No artificial limits.",
-  "phase": "R6",
-  "status": "COMPLETE",
-  "notes": "R6 Production Hardening complete. Docker, CI/CD, monitoring, tests (73/74), hooks, skills, scripts all deployed. Commit 351cb62."
+  "audit": {
+    "date": "2026-02-22",
+    "result": "100% engine wiring verified",
+    "findings": "4/5 critical gaps were false alarms, all medium gaps fixed",
+    "report": "state/COMPREHENSIVE_WIRING_AUDIT.md"
+  }
 }

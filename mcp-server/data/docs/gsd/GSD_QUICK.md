@@ -1,6 +1,6 @@
 # PRISM Quick Reference v22.0
-## 31 dispatchers | 368 verified actions | 33 cadence auto-functions | 37 engines | 112+6 hooks
-## F1-F8 COMPLETE | W1-W7 COMPLETE | D1-D4 COMPLETE | See MASTER_INDEX.md for full reference
+## 32 dispatchers | 382+ verified actions | 40+ cadence auto-functions | 73 engines | 27+9 hooks
+## F1-F8 COMPLETE | W1-W7 COMPLETE | D1-D4 COMPLETE | P0→R11+R6 ALL COMPLETE | See MASTER_INDEX.md for full reference
 
 ## SESSION LIFECYCLE
 START: prism_dev→session_boot THEN prism_context→todo_update (2 calls, always)

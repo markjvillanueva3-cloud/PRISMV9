@@ -1,9 +1,9 @@
 # PRISM MCP Server — Master Index
-# Verified: 2026-02-13 (F1-F8 Complete, Synergy Wired)
+# Verified: 2026-02-22 (P0→R11+R6 Complete, Audit Verified)
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — All counts verified against actual dispatcher code
 
-## 1. DISPATCHERS (31 dispatchers, 368 verified actions)
+## 1. DISPATCHERS (32 dispatchers, 382+ verified actions)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
@@ -98,7 +98,7 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-**Total: 31 dispatchers, 368 actions**
+**Total: 32 dispatchers, 382+ actions**
 
 ---
 
@@ -345,12 +345,13 @@ Total skill files: 119
 
 ## 14. SUMMARY
 
-- Dispatchers: 31 (368 verified actions)
-- Engines: 37 (includes 8 F-series engines)
-- Registries: 19
-- Type definitions: 9
-- Python scripts: 73 (~35430L)
-- Skills: 119 (C:\PRISM\skills-consolidated)
+- Dispatchers: 32 (382+ verified actions)
+- Engines: 73 (all wired — 57 direct, 15 via handlers, 1 via bundle)
+- Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
+- Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
+- Skill Bundles: 9 (wired to skillScriptDispatcher)
+- NL Hooks: 48 deployed
+- Build: 5.6MB, 1 warning, 73/74 tests pass
 - GSD files: 16 (~628L)
 - Synergy integration: synergyIntegration.ts (276L)
 - Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~3.9MB

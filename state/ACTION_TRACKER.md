@@ -1,33 +1,32 @@
 # ACTION TRACKER
-> Last Updated: 2026-02-20T00:00:00Z
-> Session: Compaction Fix + Git Infrastructure
+> Last Updated: 2026-02-22T22:50:00Z
+> Session: Comprehensive Audit + Fixes
 
 ## COMPLETED
 
-### DA→R1→U0→H1 (COMPLETE 2026-02-19)
-- [x] All phases delivered. Omega=0.77, S=0.80, 31 dispatchers, 368 actions
-- [x] H1: MemGraph persistence, param normalization, boot smoke, cross-session learning, checkpoints
+### P0→R11+R6 (ALL PHASES COMPLETE 2026-02-22)
+- [x] All phases delivered. 32 dispatchers, 382+ actions, 73 engines
+- [x] R6: Docker, CI/CD, monitoring, stress/security/memory tests
+- [x] Comprehensive audit: 100% engine wiring verified
 
-### Git Infrastructure (COMPLETE 2026-02-19)
-- [x] Git commit 9f79044: U0+H1 milestone (164 files)
-- [x] CLAUDE.md updated (92 lines, current state)
-- [x] .claude/settings.json for Claude Code MCP integration
-- [x] Pre-commit hook (build + verify-build.ps1)
-- [x] .gitignore added
+### Audit Fixes (2026-02-22)
+- [x] Duplicate shop_schedule removed (build warnings 2→1)
+- [x] alarms_verified/alarms_accurate loading path added to AlarmRegistry
+- [x] 7 SKILL.md files created (campaign, decision-tree, event-bus, gcode-template, inference-chain, report-renderer, tolerance)
+- [x] SkillBundleEngine wired — 4 actions added to skillScriptDispatcher
+- [x] run-all-tests.ts comprehensive test runner created
+- [x] MASTER_INDEX.md updated (32 dispatchers, 382+ actions)
+- [x] CURRENT_STATE.json updated
+- [x] CURRENT_POSITION.md updated
 
-### Compaction Recovery Fix (COMPLETE 2026-02-20)
-- [x] COMPACTION_SURVIVAL.json written on EVERY call (was only at cadence intervals)
-- [x] HOT_RESUME.md written on EVERY call (was only at cadence intervals)
-- [x] Duplicate hijack line fixed (line 1841-1842)
-- [x] package.json: tsc --max-old-space-size=8192 (OOM fix)
-- [x] package.json: added missing --external flags
-- [x] Build: 3.87MB, verify-build PASS
-- [x] Git commit 95db133
+### False Alarms Debunked
+- [x] FORMULA_REGISTRY.json EXISTS at C:\PRISM\registries\ (499+12=509 formulas)
+- [x] MaterialRegistry loads correctly (6,372 entries, 3,022 was stale count)
+- [x] Tool data in 14 JSON files (15,911 entries), .js files are metadata
+- [x] Layer paths create dirs on demand via persistToLayer()
 
-## NEEDS CLAUDE RESTART
-Build has survival writes but running server is still old code.
-
-## BACKLOG
-- [ ] Fix tsc OOM root cause (too many files even with excludes)
-- [ ] Claude Code simultaneous operation testing (Electron lock issue)
-- [ ] R2 Safety phase
+## PENDING
+- [ ] R5 frontend API endpoint configuration
+- [ ] R1 MS5-MS9 deferred milestones
+- [ ] KC_INFLATED test fix (Kienzle thin-engagement threshold)
+- [ ] tests/ integration into CI pipeline
