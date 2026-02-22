@@ -26,6 +26,7 @@ import { workflowChains } from "../../engines/WorkflowChainsEngine.js";
 import { onboardingEngine } from "../../engines/OnboardingEngine.js";
 import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
 import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.js";
+import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -57,6 +58,12 @@ const ACTIONS = [
   "onboarding_reset",
   "setup_sheet_format",
   "setup_sheet_template",
+  "skill_list",
+  "skill_get",
+  "skill_search",
+  "skill_match",
+  "skill_steps",
+  "skill_for_persona",
   "conversation_context",
   "conversation_transition",
   "job_start",
@@ -314,6 +321,18 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       };
     case "job_list_recent":
       return { count: result.recent?.length };
+    case "skill_list":
+      return { total: result.total };
+    case "skill_get":
+      return { id: result.id, name: result.name, category: result.category, steps: result.estimated_steps };
+    case "skill_search":
+      return { query: result.query, total: result.total };
+    case "skill_match":
+      return { matched: result.matched, skill_id: result.skill_id, confidence: result.confidence };
+    case "skill_steps":
+      return { skill_id: result.skill_id, step_count: result.steps?.length };
+    case "skill_for_persona":
+      return { skill_id: result.skill_id, persona: result.persona, detail_level: result.detail_level };
     default:
       return result;
   }
@@ -376,9 +395,12 @@ export function registerIntelligenceDispatcher(server: any): void {
         const ONBOARDING_ACTIONS = ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] as const;
         const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
         const CONVERSATION_ACTIONS = ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] as const;
-        const result = CONVERSATION_ACTIONS.includes(action as any)
-          ? conversationalMemory(action, params)
-          : SETUP_SHEET_ACTIONS.includes(action as any)
+        const SKILL_ACTIONS = ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] as const;
+        const result = SKILL_ACTIONS.includes(action as any)
+          ? userWorkflowSkills(action, params)
+          : CONVERSATION_ACTIONS.includes(action as any)
+            ? conversationalMemory(action, params)
+            : SETUP_SHEET_ACTIONS.includes(action as any)
             ? setupSheetEngine(action, params)
             : LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)

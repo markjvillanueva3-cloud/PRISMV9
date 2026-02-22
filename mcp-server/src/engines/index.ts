@@ -708,3 +708,18 @@ export {
   type ConversationContext,
   type ResponseStyle,
 } from "./ConversationalMemoryEngine.js";
+
+// User Workflow Skills (R8-MS6)
+export {
+  userWorkflowSkills,
+  getAllSkills,
+  getSkillById,
+  searchSkills,
+  matchSkill,
+  getSkillsByCategory,
+  getSkillSteps,
+  getSkillForPersona,
+  type WorkflowSkill,
+  type SkillStep,
+  type PersonaAdaptation,
+} from "./UserWorkflowSkillsEngine.js";
