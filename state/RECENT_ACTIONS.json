@@ -1,26 +1,106 @@
 {
-  "updated": "2026-02-20T01:32:46.045Z",
-  "session_call_count": 2,
+  "updated": "2026-02-22T20:03:54.119Z",
+  "session_call_count": 4,
   "actions": [
     {
-      "seq": 1,
-      "ts": "2026-02-20T01:25:53.432Z",
+      "seq": 10,
+      "ts": "2026-02-22T18:50:28.491Z",
       "tool": "prism_dev",
       "action": "session_boot",
       "params_summary": "{}",
       "success": true,
-      "duration_ms": 1069,
-      "result_preview": "{\"timestamp\":\"2026-02-20T01:25:52.553Z\",\"quick_resume\":\"TOOL INTEGRATION + AUTOMATION COMPLETE. Created 9 new scripts: excel_to_json, json_to_duckdb, "
+      "duration_ms": 736,
+      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"TOOL INTEGRATION + AUTOMATION COMPLETE. Created 9 new scripts: excel_to_json, json_to_duckdb, obsidian"
+    },
+    {
+      "seq": 11,
+      "ts": "2026-02-22T18:53:50.117Z",
+      "tool": "prism_data",
+      "action": "material_search",
+      "params_summary": "query=steel, limit=3",
+      "success": true,
+      "duration_ms": 329,
+      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Phase: unknown, Call: 10, Last: prism_dev:session_boot\",\"recent\":[\"prism_dev:session_boot\",\"prism_know"
+    },
+    {
+      "seq": 12,
+      "ts": "2026-02-22T18:54:20.289Z",
+      "tool": "prism_knowledge",
+      "action": "stats",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 0,
+      "result_preview": "{\"registries\":{\"materials\":6338,\"machines\":1015,\"tools\":13967,\"alarms\":10033,\"formulas\":509,\"skills\":209,\"scripts\":338,\"agents\":75,\"hooks\":25},\"total_"
+    },
+    {
+      "seq": 13,
+      "ts": "2026-02-22T19:11:59.866Z",
+      "tool": "prism_data",
+      "action": "material_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 2,
+      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Phase: unknown, Call: 12, Last: prism_knowledge:stats\",\"recent\":[\"prism_data:material_search\",\"prism_s"
+    },
+    {
+      "seq": 14,
+      "ts": "2026-02-22T19:12:32.544Z",
+      "tool": "prism_data",
+      "action": "tool_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 3,
+      "result_preview": "{\"tools\":[{\"id\":\"EM-SQ-001.0-2F-0000\",\"vendor\":\"OSG\",\"catalog_number\":\"OSG-EM-1-2\",\"category\":\"MILLING\",\"subcategory\":\"END_MILLS\",\"type\":\"SQUARE\",\"nam"
+    },
+    {
+      "seq": 15,
+      "ts": "2026-02-22T19:13:13.020Z",
+      "tool": "prism_context",
+      "action": "todo_update",
+      "params_summary": "items=[{\"id\":\"r1-schism\",\"text\":\"R1 ",
+      "success": true,
+      "duration_ms": 1,
+      "result_preview": "{\"status\":\"TODO UPDATED - ATTENTION ANCHORED\",\"law\":\"Manus Law 4: Attention Manipulation via Recitation\",\"principle\":\"Goals at END of context = highes"
+    },
+    {
+      "seq": 1,
+      "ts": "2026-02-22T20:01:42.878Z",
+      "tool": "prism_nl_hook",
+      "action": "create",
+      "params_summary": "description=After any fault injection test, name=fault_recovery_verify, domain=production, type=blocking, event=after:fa",
+      "success": true,
+      "duration_ms": 418,
+      "result_preview": "{\"status\":\"deployed\",\"parse\":{\"success\":true,\"spec\":{\"name\":\"nl-after-any-fault-injection-test-verify-the-system-recovered\",\"description\":\"After any f"
     },
     {
       "seq": 2,
-      "ts": "2026-02-20T01:32:46.045Z",
-      "tool": "prism_sp",
-      "action": "brainstorm",
-      "params_summary": "problem=Rewrite PRISM Roadmap v17.0 to, context=PRISM is a safety-critical CNC, domain=manufacturing_intelligence, depth",
+      "ts": "2026-02-22T20:01:49.595Z",
+      "tool": "prism_nl_hook",
+      "action": "create",
+      "params_summary": "description=Monitor safety score S(x) duri, name=safety_degradation_alert, domain=safety, type=blocking, event=after:saf",
       "success": true,
-      "duration_ms": 59422,
-      "result_preview": "{\"status\":\"⛔ MANDATORY STOP — Review before proceeding | 8 API calls, 8981 tokens\",\"depth\":\"deep\",\"problem\":\"Rewrite PRISM Roadmap v17.0 to maximize C"
+      "duration_ms": 4,
+      "result_preview": "{\"status\":\"deployed\",\"parse\":{\"success\":true,\"spec\":{\"name\":\"nl-monitor-safety-score-sx-during-load-tests-if-sx-drops-b\",\"description\":\"Monitor safety"
+    },
+    {
+      "seq": 3,
+      "ts": "2026-02-22T20:02:14.066Z",
+      "tool": "prism_nl_hook",
+      "action": "create",
+      "params_summary": "description=After deployment, monitor erro, name=deployment_rollback_trigger, domain=production, type=blocking, event=af",
+      "success": true,
+      "duration_ms": 4,
+      "result_preview": "{\"status\":\"deployed\",\"parse\":{\"success\":true,\"spec\":{\"name\":\"nl-after-deployment-monitor-error-rate-for-5-minutes-if-error\",\"description\":\"After deplo"
+    },
+    {
+      "seq": 4,
+      "ts": "2026-02-22T20:03:54.119Z",
+      "tool": "prism_skill_script",
+      "action": "script_execute",
+      "params_summary": "script_id=performance_baseline, description=R6 companion: captures respons, create_if_missing=true, content=// performan",
+      "success": true,
+      "duration_ms": 2,
+      "result_preview": "{\"error\":\"Script not found: performance_baseline\"}"
     }
   ],
   "_hint": "READ THIS FIRST after compaction. Shows last 12 tool calls with results."

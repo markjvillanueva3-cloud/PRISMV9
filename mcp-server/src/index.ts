@@ -351,13 +351,72 @@ async function runHTTP(): Promise<void> {
   const app = express();
   app.use(express.json());
   
-  // Health check endpoint
-  app.get("/health", (_, res) => {
-    res.json({ 
-      status: "healthy", 
+  // R6: Enhanced health check endpoint with registry stats
+  app.get("/health", async (_, res) => {
+    const memUsage = process.memoryUsage();
+    const uptime = process.uptime();
+    const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+    const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+    const rssMB = Math.round(memUsage.rss / 1024 / 1024);
+    
+    // Registry health
+    const registryStats = {
+      materials: registryManager.materials.size,
+      machines: registryManager.machines.size,
+      tools: registryManager.tools.size,
+      alarms: registryManager.alarms.size,
+      formulas: registryManager.formulas.size,
+    };
+    const totalEntries = Object.values(registryStats).reduce((a, b) => a + b, 0);
+    const healthy = totalEntries > 0 && heapUsedMB < 3500;
+    
+    res.status(healthy ? 200 : 503).json({ 
+      status: healthy ? "healthy" : "degraded",
       server: SERVER_NAME, 
-      version: SERVER_VERSION 
+      version: SERVER_VERSION,
+      uptime_seconds: Math.round(uptime),
+      memory: { heap_used_mb: heapUsedMB, heap_total_mb: heapTotalMB, rss_mb: rssMB },
+      registries: registryStats,
+      total_entries: totalEntries,
+      timestamp: new Date().toISOString()
     });
+  });
+
+  // R6: Prometheus-compatible metrics endpoint
+  app.get("/metrics", async (_, res) => {
+    const mem = process.memoryUsage();
+    const up = process.uptime();
+    const rs = {
+      materials: registryManager.materials.size,
+      machines: registryManager.machines.size,
+      tools: registryManager.tools.size,
+      alarms: registryManager.alarms.size,
+      formulas: registryManager.formulas.size,
+    };
+    
+    const lines = [
+      '# HELP prism_up PRISM server up status',
+      '# TYPE prism_up gauge',
+      `prism_up 1`,
+      '# HELP prism_uptime_seconds Server uptime in seconds',
+      '# TYPE prism_uptime_seconds gauge',
+      `prism_uptime_seconds ${Math.round(up)}`,
+      '# HELP prism_heap_used_bytes Heap memory used',
+      '# TYPE prism_heap_used_bytes gauge',
+      `prism_heap_used_bytes ${mem.heapUsed}`,
+      '# HELP prism_rss_bytes Resident set size',
+      '# TYPE prism_rss_bytes gauge',
+      `prism_rss_bytes ${mem.rss}`,
+      '# HELP prism_registry_entries Total entries per registry',
+      '# TYPE prism_registry_entries gauge',
+      ...Object.entries(rs).map(([k, v]) => `prism_registry_entries{registry="${k}"} ${v}`),
+      '# HELP prism_registry_total Total registry entries',
+      '# TYPE prism_registry_total gauge',
+      `prism_registry_total ${Object.values(rs).reduce((a, b) => a + b, 0)}`,
+    ];
+    
+    res.set('Content-Type', 'text/plain; version=0.0.4');
+    res.send(lines.join('\n') + '\n');
   });
   
   // MCP endpoint
@@ -374,9 +433,10 @@ async function runHTTP(): Promise<void> {
   });
   
   const port = parseInt(process.env.PORT || "3000", 10);
-  // XA-6: Local-only transport during development (P0-R5)
-  app.listen(port, '127.0.0.1', () => {
-    log.info(`MCP server running on http://127.0.0.1:${port}/mcp`);
+  // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+  app.listen(port, host, () => {
+    log.info(`MCP server running on http://${host}:${port}/mcp`);
   });
 }
 

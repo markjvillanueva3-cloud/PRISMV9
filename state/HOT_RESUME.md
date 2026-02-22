@@ -1,5 +1,7 @@
-# HOT_RESUME (call 2 — 2026-02-20T01:32:46.046Z)
-Last: prism_sp:brainstorm (59422ms, OK)
+# HOT_RESUME (call 4 — 2026-02-22T20:03:54.120Z)
+Last: prism_skill_script:script_execute (2ms, OK)
 ## Recent
-- prism_dev:session_boot
-- prism_sp:brainstorm
+- prism_nl_hook:create
+- prism_nl_hook:create
+- prism_nl_hook:create
+- prism_skill_script:script_execute
