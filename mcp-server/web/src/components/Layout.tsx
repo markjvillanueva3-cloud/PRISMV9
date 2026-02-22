@@ -5,6 +5,8 @@ const NAV_ITEMS = [
   { to: '/calculator', label: 'Calculator' },
   { to: '/job-planner', label: 'Job Planner' },
   { to: '/toolpath', label: 'Toolpath' },
+  { to: '/safety', label: 'Safety' },
+  { to: '/what-if', label: 'What-If' },
   { to: '/alarms', label: 'Alarms' },
 ] as const;
 
