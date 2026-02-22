@@ -644,3 +644,19 @@ export {
   type FormattedResponse,
   type FormattedSection,
 } from "./ResponseFormatterEngine.js";
+
+// Workflow Chains Engine — R8-MS2 Pre-Built Manufacturing Workflows
+export {
+  workflowChains,
+  matchWorkflows,
+  findBestWorkflow,
+  getWorkflow,
+  listWorkflows,
+  getAllWorkflows,
+  type WorkflowId,
+  type WorkflowPersona,
+  type WorkflowStep,
+  type WorkflowDefinition,
+  type WorkflowMatch,
+  type WorkflowListItem,
+} from "./WorkflowChainsEngine.js";
