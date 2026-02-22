@@ -19,6 +19,7 @@ import { registryManager } from "../../registries/manager.js";
 import { executeIntelligenceAction, INTELLIGENCE_ACTIONS, type IntelligenceAction } from "../../engines/IntelligenceEngine.js";
 import { jobLearning } from "../../engines/JobLearningEngine.js";
 import { algorithmGateway } from "../../engines/AlgorithmGatewayEngine.js";
+import { shopScheduler } from "../../engines/ShopSchedulerEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -36,6 +37,8 @@ const ACTIONS = [
   "job_record",
   "job_insights",
   "algorithm_select",
+  "shop_schedule",
+  "machine_utilization",
 ] as const;
 
 /**
@@ -166,6 +169,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         alternatives: result.alternatives?.length,
         safety_score: result.safety?.score,
       };
+    case "shop_schedule":
+      return {
+        makespan_min: result.metrics?.total_makespan_min,
+        avg_utilization: result.metrics?.average_utilization_pct,
+        jobs_on_time: result.metrics?.jobs_on_time,
+        jobs_late: result.metrics?.jobs_late,
+        bottlenecks: result.bottlenecks?.length,
+        unscheduled: result.unscheduled?.length,
+        safety_score: result.safety?.score,
+      };
+    case "machine_utilization":
+      return {
+        total_machines: result.fleet_summary?.total_machines,
+        avg_utilization: result.fleet_summary?.avg_utilization_pct,
+        overloaded: result.fleet_summary?.overloaded_count,
+        underutilized: result.fleet_summary?.underutilized_count,
+        recommendations: result.recommendations?.length,
+        capability_gaps: result.capability_gaps?.length,
+        safety_score: result.safety?.score,
+      };
     default:
       return result;
   }
@@ -174,7 +197,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",
-    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select",
+    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection, shop floor scheduling & machine utilization. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional(),
@@ -221,11 +244,14 @@ export function registerIntelligenceDispatcher(server: any): void {
         // Route to specialized engines or IntelligenceEngine
         const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
         const ALGORITHM_ACTIONS = ["algorithm_select"] as const;
+        const SCHEDULER_ACTIONS = ["shop_schedule", "machine_utilization"] as const;
         const result = LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
             ? algorithmGateway(action, params)
-            : await executeIntelligenceAction(action as IntelligenceAction, params);
+            : SCHEDULER_ACTIONS.includes(action as any)
+              ? shopScheduler(action, params)
+              : await executeIntelligenceAction(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {

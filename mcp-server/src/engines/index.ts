@@ -603,3 +603,21 @@ export {
   type PIDInput,
   type PIDResult,
 } from "./AlgorithmGatewayEngine.js";
+
+// Shop Scheduler Engine — R7-MS5 Shop Floor Optimization
+export {
+  shopScheduler,
+  shopSchedule,
+  machineUtilization,
+  type OperationInput,
+  type JobInput,
+  type MachineInput,
+  type OptimizeFor,
+  type ShopScheduleInput,
+  type ShopScheduleResult,
+  type Assignment,
+  type MachineSchedule,
+  type ScheduleMetrics,
+  type MachineUtilizationInput,
+  type MachineUtilizationResult,
+} from "./ShopSchedulerEngine.js";
