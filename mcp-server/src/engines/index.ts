@@ -723,3 +723,12 @@ export {
   type SkillStep,
   type PersonaAdaptation,
 } from "./UserWorkflowSkillsEngine.js";
+
+// User Assistance Skills (R8-MS7)
+export {
+  userAssistanceSkills, getAllAssistanceSkills, getAssistanceSkillById,
+  searchAssistanceSkills, matchAssistanceSkill,
+  explainPhysics, assessConfidence, getCommonMistakes, generateSafetyReport,
+  type AssistanceSkill, type PhysicsExplanation, type ConfidenceReport,
+  type AlternativeOption, type SafetyReport, type CommonMistake,
+} from "./UserAssistanceSkillsEngine.js";

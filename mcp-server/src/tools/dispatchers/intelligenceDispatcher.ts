@@ -27,6 +27,7 @@ import { onboardingEngine } from "../../engines/OnboardingEngine.js";
 import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
 import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.js";
 import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
+import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -72,6 +73,14 @@ const ACTIONS = [
   "job_resume",
   "job_complete",
   "job_list_recent",
+  "assist_list",
+  "assist_get",
+  "assist_search",
+  "assist_match",
+  "assist_explain",
+  "assist_confidence",
+  "assist_mistakes",
+  "assist_safety",
 ] as const;
 
 /**
@@ -333,6 +342,22 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { skill_id: result.skill_id, step_count: result.steps?.length };
     case "skill_for_persona":
       return { skill_id: result.skill_id, persona: result.persona, detail_level: result.detail_level };
+    case "assist_list":
+      return { total: result.total };
+    case "assist_get":
+      return { id: result.id, name: result.name, category: result.category };
+    case "assist_search":
+      return { query: result.query, total: result.total };
+    case "assist_match":
+      return { matched: result.matched, skill_id: result.skill_id, confidence: result.confidence };
+    case "assist_explain":
+      return { parameter: result.parameter, simplified: result.simplified };
+    case "assist_confidence":
+      return { overall: result.overall_confidence, grade: result.data_quality };
+    case "assist_mistakes":
+      return { count: result.count };
+    case "assist_safety":
+      return { grade: result.grade, risk_count: result.risk_factors?.length };
     default:
       return result;
   }
@@ -396,7 +421,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
         const CONVERSATION_ACTIONS = ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] as const;
         const SKILL_ACTIONS = ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] as const;
-        const result = SKILL_ACTIONS.includes(action as any)
+        const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
+        const result = ASSIST_ACTIONS.includes(action as any)
+          ? userAssistanceSkills(action, params)
+          : SKILL_ACTIONS.includes(action as any)
           ? userWorkflowSkills(action, params)
           : CONVERSATION_ACTIONS.includes(action as any)
             ? conversationalMemory(action, params)
