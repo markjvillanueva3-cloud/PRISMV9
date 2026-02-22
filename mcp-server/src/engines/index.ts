@@ -822,3 +822,11 @@ export {
   type MachinabilityFingerprint, type SurfaceIntegrityResponse, type BehavioralPattern,
   type GenomeRecord, type GenomePrediction, type SimilarityResult,
 } from "./ManufacturingGenomeEngine.js";
+
+// Predictive Maintenance (R10-Rev6)
+export {
+  predictiveMaintenance,
+  type MaintenanceCategory, type SeverityLevel,
+  type DataPoint, type TrendResult, type PredictionResult,
+  type MaintenanceAlert, type MaintenanceModel,
+} from "./PredictiveMaintenanceEngine.js";

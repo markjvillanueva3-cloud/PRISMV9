@@ -38,6 +38,7 @@ import { inverseSolver } from "../../engines/InverseSolverEngine.js";
 import { failureForensics } from "../../engines/FailureForensicsEngine.js";
 import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
 import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js";
+import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -187,6 +188,16 @@ const ACTIONS = [
   "genome_search",
   "genome_history",
   "genome_get",
+  "maint_analyze",
+  "maint_trend",
+  "maint_predict",
+  "maint_schedule",
+  "maint_models",
+  "maint_thresholds",
+  "maint_alerts",
+  "maint_status",
+  "maint_history",
+  "maint_get",
 ] as const;
 
 /**
@@ -625,6 +636,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total };
     case "genome_get":
       return { id: result.prediction_id, material: result.material };
+    case "maint_analyze":
+      return { machine: result.machine_id, categories: result.analyzed_categories, alerts: result.alerts_generated };
+    case "maint_trend":
+      return { machine: result.machine_id, category: result.category, direction: result.trend?.direction, severity: result.severity, current: result.current_value };
+    case "maint_predict":
+      return { id: result.prediction_id, category: result.category, severity: result.severity, remaining_hours: result.remaining_life_hours, confidence: result.confidence_pct };
+    case "maint_schedule":
+      return { machines: result.total_machines, critical: result.summary?.critical, warning: result.summary?.warning, urgent: result.urgent?.length };
+    case "maint_models":
+      return { total: result.total };
+    case "maint_thresholds":
+      return { category: result.category, warning: result.warning, critical: result.critical };
+    case "maint_alerts":
+      return { total: result.total };
+    case "maint_status":
+      return { machine: result.machine_id, health: result.overall_health, severity: result.overall_severity, alerts: result.active_alerts?.length };
+    case "maint_history":
+      return { total: result.total, by_severity: result.by_severity };
+    case "maint_get":
+      return { id: result.prediction_id, category: result.category, severity: result.severity, remaining: result.remaining_life_hours };
     default:
       return result;
   }
@@ -699,7 +730,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const FORENSIC_ACTIONS = ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] as const;
         const APPRENTICE_ACTIONS = ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] as const;
         const GENOME_ACTIONS = ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] as const;
-        const result = GENOME_ACTIONS.includes(action as any)
+        const MAINT_ACTIONS = ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] as const;
+        const result = MAINT_ACTIONS.includes(action as any)
+          ? predictiveMaintenance(action, params)
+          : GENOME_ACTIONS.includes(action as any)
           ? manufacturingGenome(action, params)
           : APPRENTICE_ACTIONS.includes(action as any)
           ? apprenticeEngine(action, params)
