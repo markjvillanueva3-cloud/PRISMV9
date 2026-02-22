@@ -17,6 +17,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
 import { registryManager } from "../../registries/manager.js";
 import { executeIntelligenceAction, INTELLIGENCE_ACTIONS, type IntelligenceAction } from "../../engines/IntelligenceEngine.js";
+import { jobLearning } from "../../engines/JobLearningEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -31,6 +32,8 @@ const ACTIONS = [
   "parameter_optimize",
   "cycle_time_estimate",
   "quality_predict",
+  "job_record",
+  "job_insights",
 ] as const;
 
 /**
@@ -137,6 +140,23 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         tolerance_um: result.achievable_tolerance?.tolerance_um,
         force_N: result.cutting_force_N,
       };
+    case "job_record":
+      return {
+        id: result.id,
+        stored: result.stored,
+        total_jobs_for_key: result.total_jobs_for_key,
+        learning_available: result.learning_available,
+        safety_score: result.safety?.score,
+      };
+    case "job_insights":
+      return {
+        sample_size: result.sample_size,
+        patterns_count: result.patterns?.length,
+        adjustments_count: result.parameter_adjustments?.length,
+        top_finding: result.patterns?.[0]?.finding,
+        failures: result.failure_analysis?.total_failures,
+        safety_score: result.safety?.score,
+      };
     default:
       return result;
   }
@@ -145,7 +165,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",
-    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict",
+    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional(),
@@ -189,7 +209,11 @@ export function registerIntelligenceDispatcher(server: any): void {
         }
 
         // === EXECUTE INTELLIGENCE ACTION ===
-        const result = await executeIntelligenceAction(action as IntelligenceAction, params);
+        // Learning actions route to JobLearningEngine (stateful, in-memory store)
+        const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
+        const result = LEARNING_ACTIONS.includes(action as any)
+          ? jobLearning(action, params)
+          : await executeIntelligenceAction(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {

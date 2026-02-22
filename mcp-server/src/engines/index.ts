@@ -559,3 +559,19 @@ export {
   type FixtureInput,
   type FixtureResult,
 } from "./WorkholdingIntelligenceEngine.js";
+
+// Job Learning Engine — R7-MS3 Adaptive Manufacturing Intelligence
+export {
+  jobLearning,
+  jobRecord,
+  jobInsights,
+  clearJobStore,
+  getJobStoreSize,
+  type ToolFailureMode,
+  type JobRecordInput,
+  type JobRecordResult,
+  type JobInsightsInput,
+  type JobInsightsResult,
+  type Pattern as LearningPattern,
+  type ParameterAdjustment,
+} from "./JobLearningEngine.js";
