@@ -813,3 +813,12 @@ export {
   type Lesson, type SkillAssessment, type KnowledgeEntry,
   type ExplainResult, type ExplainFactor, type ChallengeExercise,
 } from "./ApprenticeEngine.js";
+
+// Manufacturing Genome (R10-Rev1)
+export {
+  manufacturingGenome,
+  type HeatTreatment, type ChipFormation,
+  type Composition, type MechanicalFingerprint, type ThermalFingerprint,
+  type MachinabilityFingerprint, type SurfaceIntegrityResponse, type BehavioralPattern,
+  type GenomeRecord, type GenomePrediction, type SimilarityResult,
+} from "./ManufacturingGenomeEngine.js";

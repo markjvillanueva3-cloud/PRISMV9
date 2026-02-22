@@ -37,6 +37,7 @@ import { measurementIntegration } from "../../engines/MeasurementIntegrationEngi
 import { inverseSolver } from "../../engines/InverseSolverEngine.js";
 import { failureForensics } from "../../engines/FailureForensicsEngine.js";
 import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
+import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -176,6 +177,16 @@ const ACTIONS = [
   "apprentice_materials",
   "apprentice_history",
   "apprentice_get",
+  "genome_lookup",
+  "genome_predict",
+  "genome_similar",
+  "genome_compare",
+  "genome_list",
+  "genome_fingerprint",
+  "genome_behavioral",
+  "genome_search",
+  "genome_history",
+  "genome_get",
 ] as const;
 
 /**
@@ -594,6 +605,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total, knowledge: result.knowledge_entries };
     case "apprentice_get":
       return { id: result.assessment_id, level: result.level, score: result.total_score };
+    case "genome_lookup":
+      return { id: result.genome_id, material: result.material_name, iso_group: result.iso_group, family: result.family };
+    case "genome_predict":
+      return { id: result.prediction_id, material: result.material, vc: result.recommended_vc, fz: result.recommended_fz, confidence: result.confidence_pct };
+    case "genome_similar":
+      return { query: result.query_material, total: result.total };
+    case "genome_compare":
+      return { a: result.a?.material, b: result.b?.material, easier: result.easier_to_machine };
+    case "genome_list":
+      return { total: result.total };
+    case "genome_fingerprint":
+      return { id: result.genome_id, material: result.material };
+    case "genome_behavioral":
+      return { id: result.genome_id, material: result.material, jobs: result.jobs_recorded };
+    case "genome_search":
+      return { total: result.total };
+    case "genome_history":
+      return { total: result.total };
+    case "genome_get":
+      return { id: result.prediction_id, material: result.material };
     default:
       return result;
   }
@@ -667,7 +698,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const INVERSE_ACTIONS = ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] as const;
         const FORENSIC_ACTIONS = ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] as const;
         const APPRENTICE_ACTIONS = ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] as const;
-        const result = APPRENTICE_ACTIONS.includes(action as any)
+        const GENOME_ACTIONS = ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] as const;
+        const result = GENOME_ACTIONS.includes(action as any)
+          ? manufacturingGenome(action, params)
+          : APPRENTICE_ACTIONS.includes(action as any)
           ? apprenticeEngine(action, params)
           : FORENSIC_ACTIONS.includes(action as any)
           ? failureForensics(action, params)
