@@ -40,6 +40,7 @@ import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
 import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js";
 import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine.js";
 import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
+import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -209,6 +210,16 @@ const ACTIONS = [
   "sustain_materials",
   "sustain_history",
   "sustain_get",
+  "genplan_plan",
+  "genplan_features",
+  "genplan_setups",
+  "genplan_operations",
+  "genplan_optimize",
+  "genplan_tools",
+  "genplan_cycle",
+  "genplan_cost",
+  "genplan_risk",
+  "genplan_get",
 ] as const;
 
 /**
@@ -687,6 +698,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total };
     case "sustain_get":
       return { id: result.optimization_id, material: result.material, mode: result.mode };
+    case "genplan_plan":
+      return { plan_id: result.plan_id, features: result.feature_count, setups: result.setup_count, ops: result.operation_count, tools: result.tool_count, cycle: result.total_cycle_time_min, cost: result.total_cost_usd };
+    case "genplan_features":
+      return { count: result.feature_count, simple: result.complexity_summary?.simple, moderate: result.complexity_summary?.moderate, complex: result.complexity_summary?.complex };
+    case "genplan_setups":
+      return { count: result.setup_count };
+    case "genplan_operations":
+      return { count: result.operation_count };
+    case "genplan_optimize":
+      return { total: result.optimization_summary?.total_operations, tools: result.optimization_summary?.unique_tools };
+    case "genplan_tools":
+      return { count: result.tool_count, changes: result.tool_change_count };
+    case "genplan_cycle":
+      return { cutting: result.cutting_time_min, tool_change: result.tool_change_time_min, total: result.total_cycle_time_min };
+    case "genplan_cost":
+      return { per_part: result.cost_breakdown?.total_per_part_usd, batch: result.cost_breakdown?.total_batch_usd };
+    case "genplan_risk":
+      return { overall: result.risk_summary?.overall_risk, high: result.risk_summary?.high_risk_operations, medium: result.risk_summary?.medium_risk_operations };
+    case "genplan_get":
+      return { plan_id: result.plan_id, material: result.material, features: result.features?.length };
     default:
       return result;
   }
@@ -763,7 +794,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const GENOME_ACTIONS = ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] as const;
         const MAINT_ACTIONS = ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] as const;
         const SUSTAIN_ACTIONS = ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] as const;
-        const result = SUSTAIN_ACTIONS.includes(action as any)
+        const GENPLAN_ACTIONS = ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] as const;
+        const result = GENPLAN_ACTIONS.includes(action as any)
+          ? generativeProcess(action, params)
+          : SUSTAIN_ACTIONS.includes(action as any)
           ? sustainabilityEngine(action, params)
           : MAINT_ACTIONS.includes(action as any)
           ? predictiveMaintenance(action, params)

@@ -839,3 +839,12 @@ export {
   type OperationMetrics, type SavingsMetrics, type NearNetShapeResult,
   type StockOption, type CoolantAnalysis,
 } from "./SustainabilityEngine.js";
+
+// Generative Process Planning (R10-Rev3)
+export {
+  generativeProcess,
+  type FeatureType, type AccessDirection, type OperationPhase, type ToolType,
+  type FeatureInput, type RecognizedFeature, type Setup, type PlannedOperation,
+  type ToolSelection as ProcessToolSelection, type CuttingParams,
+  type ProcessPlan, type CostBreakdown as ProcessCostBreakdown, type RiskSummary,
+} from "./GenerativeProcessEngine.js";
