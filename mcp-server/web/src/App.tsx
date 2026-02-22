@@ -7,6 +7,7 @@ import { ToolpathAdvisorPage } from './pages/ToolpathAdvisorPage';
 import { SafetyMonitorPage } from './pages/SafetyMonitorPage';
 import { WhatIfPage } from './pages/WhatIfPage';
 import { AlarmPage } from './pages/AlarmPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 export function App() {
   return (
@@ -19,6 +20,7 @@ export function App() {
         <Route path="safety" element={<SafetyMonitorPage />} />
         <Route path="what-if" element={<WhatIfPage />} />
         <Route path="alarms" element={<AlarmPage />} />
+        <Route path="reports" element={<ReportsPage />} />
       </Route>
     </Routes>
   );

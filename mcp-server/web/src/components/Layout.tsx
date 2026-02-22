@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/safety', label: 'Safety' },
   { to: '/what-if', label: 'What-If' },
   { to: '/alarms', label: 'Alarms' },
+  { to: '/reports', label: 'Reports' },
 ] as const;
 
 export function Layout() {
