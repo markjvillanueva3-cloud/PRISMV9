@@ -42,6 +42,7 @@ import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine
 import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
 import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
 import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
+import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -231,6 +232,16 @@ const ACTIONS = [
   "graph_stats",
   "graph_history",
   "graph_get",
+  "learn_contribute",
+  "learn_query",
+  "learn_aggregate",
+  "learn_anonymize",
+  "learn_network_stats",
+  "learn_opt_control",
+  "learn_correction",
+  "learn_transparency",
+  "learn_history",
+  "learn_get",
 ] as const;
 
 /**
@@ -749,6 +760,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { total: result.total };
     case "graph_get":
       return { id: result.query_id };
+    case "learn_contribute":
+      return { contribution_id: result.contribution_id, status: result.status };
+    case "learn_query":
+      return { total: result.total, top_correction: result.corrections?.[0]?.vc_correction };
+    case "learn_aggregate":
+      return { updated: result.correction_factors_updated, created: result.new_factors_created };
+    case "learn_anonymize":
+      return { privacy_score: result.report?.privacy_score, safe: result.report?.safe_to_share };
+    case "learn_network_stats":
+      return { nodes: result.total_nodes, factors: result.correction_factors, confidence: result.avg_confidence };
+    case "learn_opt_control":
+      return { shop_id: result.shop_id, status: result.status ?? (result.opted_in ? "opted_in" : "opted_out") };
+    case "learn_correction":
+      return { id: result.id, vc: result.vc_correction, confidence: result.confidence };
+    case "learn_transparency":
+      return { total: result.total };
+    case "learn_history":
+      return { queries: result.total_queries, contributions: result.total_contributions };
+    case "learn_get":
+      return { id: result.query_id ?? result.id };
     default:
       return result;
   }
@@ -827,7 +858,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SUSTAIN_ACTIONS = ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] as const;
         const GENPLAN_ACTIONS = ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] as const;
         const GRAPH_ACTIONS = ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] as const;
-        const result = GRAPH_ACTIONS.includes(action as any)
+        const LEARN_ACTIONS = ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] as const;
+        const result = LEARN_ACTIONS.includes(action as any)
+          ? federatedLearning(action, params)
+          : GRAPH_ACTIONS.includes(action as any)
           ? knowledgeGraph(action, params)
           : GENPLAN_ACTIONS.includes(action as any)
           ? generativeProcess(action, params)

@@ -856,3 +856,11 @@ export {
   type QueryResult as GraphQueryResult, type InferenceResult as GraphInferenceResult,
   type DiscoveryResult as GraphDiscoveryResult, type PredictionResult as GraphPredictionResult,
 } from "./KnowledgeGraphEngine.js";
+
+export {
+  federatedLearning,
+  type FedMaterialClass, type FedMachineClass, type FedToolClass,
+  type FedOperationClass, type FedStrategyName,
+  type CorrectionFactor, type Contribution, type AnonymizationReport,
+  type NetworkStats, type OptControl, type TransparencyEntry,
+} from "./FederatedLearningEngine.js";
