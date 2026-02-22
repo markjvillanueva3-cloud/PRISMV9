@@ -848,3 +848,11 @@ export {
   type ToolSelection as ProcessToolSelection, type CuttingParams,
   type ProcessPlan, type CostBreakdown as ProcessCostBreakdown, type RiskSummary,
 } from "./GenerativeProcessEngine.js";
+
+// Manufacturing Knowledge Graph (R10-Rev10)
+export {
+  knowledgeGraph,
+  type NodeType, type EdgeType, type GraphNode, type GraphEdge,
+  type QueryResult as GraphQueryResult, type InferenceResult as GraphInferenceResult,
+  type DiscoveryResult as GraphDiscoveryResult, type PredictionResult as GraphPredictionResult,
+} from "./KnowledgeGraphEngine.js";

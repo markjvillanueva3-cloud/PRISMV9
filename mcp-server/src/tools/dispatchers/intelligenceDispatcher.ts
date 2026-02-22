@@ -41,6 +41,7 @@ import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js"
 import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine.js";
 import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
 import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
+import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -220,6 +221,16 @@ const ACTIONS = [
   "genplan_cost",
   "genplan_risk",
   "genplan_get",
+  "graph_query",
+  "graph_infer",
+  "graph_discover",
+  "graph_predict",
+  "graph_traverse",
+  "graph_add",
+  "graph_search",
+  "graph_stats",
+  "graph_history",
+  "graph_get",
 ] as const;
 
 /**
@@ -718,6 +729,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { overall: result.risk_summary?.overall_risk, high: result.risk_summary?.high_risk_operations, medium: result.risk_summary?.medium_risk_operations };
     case "genplan_get":
       return { plan_id: result.plan_id, material: result.material, features: result.features?.length };
+    case "graph_query":
+      return { node: result.center_node?.name, connections: result.total_connections };
+    case "graph_infer":
+      return { entity: result.entity, confidence: result.confidence, strategies: result.recommended_strategies?.length };
+    case "graph_discover":
+      return { entity: result.entity, discoveries: result.discoveries?.length };
+    case "graph_predict":
+      return { material: result.combination?.material, success: result.success_rate_pct, confidence: result.confidence };
+    case "graph_traverse":
+      return { start: result.start, nodes: result.nodes_visited };
+    case "graph_add":
+      return { added: result.added, id: result.id ?? result.source };
+    case "graph_search":
+      return { query: result.query, total: result.total };
+    case "graph_stats":
+      return { nodes: result.total_nodes, edges: result.total_edges, jobs: result.total_job_evidence };
+    case "graph_history":
+      return { total: result.total };
+    case "graph_get":
+      return { id: result.query_id };
     default:
       return result;
   }
@@ -795,7 +826,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const MAINT_ACTIONS = ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] as const;
         const SUSTAIN_ACTIONS = ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] as const;
         const GENPLAN_ACTIONS = ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] as const;
-        const result = GENPLAN_ACTIONS.includes(action as any)
+        const GRAPH_ACTIONS = ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] as const;
+        const result = GRAPH_ACTIONS.includes(action as any)
+          ? knowledgeGraph(action, params)
+          : GENPLAN_ACTIONS.includes(action as any)
           ? generativeProcess(action, params)
           : SUSTAIN_ACTIONS.includes(action as any)
           ? sustainabilityEngine(action, params)
