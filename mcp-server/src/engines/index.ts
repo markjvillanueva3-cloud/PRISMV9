@@ -529,3 +529,23 @@ export {
   type ToolMaterial,
   type CoolantType,
 } from "./PhysicsPredictionEngine.js";
+
+// Optimization Engine — R7-MS1 Constrained Multi-Objective Optimization
+export {
+  optimization,
+  optimizeParameters,
+  optimizeSequence,
+  sustainabilityReport,
+  ecoOptimize,
+  type FeatureType as OptFeatureType,
+  type ObjectiveType,
+  type SequenceObjective,
+  type OptimizeInput,
+  type OptimizeResult,
+  type SequenceInput,
+  type SequenceResult,
+  type SustainabilityInput,
+  type SustainabilityResult,
+  type EcoOptimizeInput,
+  type EcoOptimizeResult,
+} from "./OptimizationEngine.js";

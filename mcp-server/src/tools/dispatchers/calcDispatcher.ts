@@ -98,6 +98,10 @@ import {
   physicsPrediction,
 } from "../../engines/PhysicsPredictionEngine.js";
 
+import {
+  optimization,
+} from "../../engines/OptimizationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -177,6 +181,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { Fc_N: result.force?.tangential_n, tool_temp_c: result.temperature?.tool_c, life_min: result.wear_rate?.estimated_life_min, Ra_um: result.surface_finish?.ra_um, converged: result.convergence?.converged, safety: result.safety?.score };
     case "coupling_sensitivity":
       return { parameter: result.parameter, most_sensitive: result.most_sensitive_output, variation_pct: result.variation_pct };
+    case "optimize_parameters":
+      return { vc_mpm: result.optimal?.vc_mpm, fz_mm: result.optimal?.fz_mm, ap_mm: result.optimal?.ap_mm, cost_usd: result.optimal?.estimated_cost_usd, cycle_min: result.optimal?.estimated_cycle_time_min, ra_um: result.optimal?.predicted_ra_um, safety: result.safety?.score };
+    case "optimize_sequence":
+      return { optimal_order: result.optimal_order, tool_changes: result.tool_changes, total_min: result.estimated_total_min, changes_saved: result.savings_vs_input_order?.tool_changes_saved };
+    case "sustainability_report":
+      return { total_kwh: result.energy?.total_kwh, co2_kg: result.carbon?.total_co2_kg, eco_score: result.eco_efficiency_score, coolant_l: result.coolant?.consumption_liters };
+    case "eco_optimize":
+      return { vc_mpm: result.optimal?.vc_mpm, eco_weight: result.eco_weight_applied, improvement_pct: result.sustainability_improvement_pct, eco_score: result.optimal?.sustainability?.eco_efficiency_score };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -214,7 +226,8 @@ const ACTIONS = [
   "wear_prediction", "process_cost_calc", "uncertainty_chain",
   "controller_optimize",
   "surface_integrity_predict", "chatter_predict", "thermal_compensate",
-  "unified_machining_model", "coupling_sensitivity"
+  "unified_machining_model", "coupling_sensitivity",
+  "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1199,6 +1212,14 @@ export function registerCalcDispatcher(server: any): void {
           case "unified_machining_model":
           case "coupling_sensitivity": {
             result = physicsPrediction(action, params);
+            break;
+          }
+
+          case "optimize_parameters":
+          case "optimize_sequence":
+          case "sustainability_report":
+          case "eco_optimize": {
+            result = optimization(action, params);
             break;
           }
 
