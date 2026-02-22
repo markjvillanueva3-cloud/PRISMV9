@@ -251,17 +251,121 @@ async function testProtocolBridge(): Promise<void> {
 async function testComplianceEngine(): Promise<void> {
   console.log("\n=== F8: Compliance-as-Code ===\n");
 
+  // Clear persisted compliance state for clean test
+  const complianceState = path.join(process.cwd(), 'state', 'compliance');
+  for (const f of ['registry.json', 'config.json']) {
+    const fp = path.join(complianceState, f);
+    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+  }
+
   const compliance = new ComplianceEngine();
 
-  // T16: List templates
+  // T16: List templates — 6 built-in frameworks
   const templates = compliance.listTemplates();
   assert(templates.available && templates.available.length >= 6,
     'Compliance: 6+ templates available (ISO 13485, AS9100, ITAR, SOC2, HIPAA, FDA)');
+  assert(templates.disclaimer.length > 0,
+    'Compliance: disclaimer attached to all responses');
 
-  // T17: Gap analysis
-  const gaps = compliance.gapAnalysis();
-  assert(gaps !== null && typeof gaps === 'object',
-    'Compliance: gap analysis returns structured result');
+  // Verify template IDs
+  const ids = templates.available.map(t => t.id);
+  assert(ids.includes('iso_13485_v2016'), 'Compliance: ISO 13485 template present');
+  assert(ids.includes('as9100_rev_d'), 'Compliance: AS9100 template present');
+  assert(ids.includes('itar_22cfr'), 'Compliance: ITAR template present');
+  assert(ids.includes('soc2_type2'), 'Compliance: SOC2 template present');
+  assert(ids.includes('hipaa_security'), 'Compliance: HIPAA template present');
+  assert(ids.includes('fda_21cfr11'), 'Compliance: FDA 21 CFR 11 template present');
+
+  // T17: Gap analysis per template (unprov'd)
+  const gaps = compliance.gapAnalysis('iso_13485_v2016');
+  assert('total_requirements' in gaps && 'gaps' in gaps,
+    'Compliance: gap analysis returns structured result with totals and gaps');
+  const gapResult = gaps as any;
+  assert(gapResult.total_requirements >= 3,
+    'Compliance: ISO 13485 has 3+ requirements');
+  assert(gapResult.not_assessed > 0,
+    'Compliance: unprovisioned template shows not_assessed gaps');
+
+  // T18: Template strictness ordering
+  const strictnessMap = new Map(templates.available.map(t => [t.id, t.strictness]));
+  assert((strictnessMap.get('itar_22cfr') || 99) <= (strictnessMap.get('soc2_type2') || 0),
+    'Compliance: ITAR stricter than SOC2 (lower rank = stricter)');
+
+  // T19: Apply template (with disclaimer acknowledgment)
+  const applyNoAck = compliance.applyTemplate('iso_13485_v2016', 'test', false);
+  assert(applyNoAck.success === false,
+    'Compliance: apply without disclaimer acknowledgment fails');
+
+  const applyResult = compliance.applyTemplate('iso_13485_v2016', 'test', true);
+  assert(applyResult.success === true,
+    'Compliance: apply with disclaimer succeeds');
+  assert(applyResult.provisioned !== undefined && applyResult.provisioned.status === 'active',
+    'Compliance: provisioned template is active');
+
+  // T20: Duplicate apply rejected
+  const dupeApply = compliance.applyTemplate('iso_13485_v2016', 'test', true);
+  assert(dupeApply.success === false,
+    'Compliance: duplicate apply rejected');
+
+  // T21: Run audit on provisioned template
+  const audit = compliance.runAudit('iso_13485_v2016');
+  assert(audit.results.length === 1 && audit.results[0].framework === 'ISO_13485',
+    'Compliance: audit returns result for ISO 13485');
+  assert(typeof audit.total_score === 'number' && audit.total_score >= 0 && audit.total_score <= 1,
+    'Compliance: audit score in [0,1] range');
+
+  // T22: Apply second template + conflict resolution
+  const apply2 = compliance.applyTemplate('as9100_rev_d', 'test', true);
+  assert(apply2.success === true,
+    'Compliance: second template (AS9100) provisioned');
+
+  const conflicts = compliance.resolveConflicts();
+  assert(conflicts.conflicts.length > 0,
+    'Compliance: multi-template conflicts detected');
+  // retain_days conflict: ISO 13485 (365) vs AS9100 (730) → MAX = 730
+  const retainConflict = conflicts.conflicts.find(c => c.field === 'retain_days');
+  assert(retainConflict !== undefined && retainConflict.resolved === 730,
+    'Compliance: retain_days resolved to MAX (730 from AS9100)');
+  assert(retainConflict?.strategy === 'MAX',
+    'Compliance: conflict resolution uses MAX strategy for retain_days');
+
+  // T23: Gap analysis on provisioned template
+  const gapsProvisioned = compliance.gapAnalysis('iso_13485_v2016');
+  assert('compliance_percentage' in gapsProvisioned,
+    'Compliance: provisioned gap analysis includes compliance percentage');
+
+  // T24: Remove template
+  const removeResult = compliance.removeTemplate('as9100_rev_d');
+  assert(removeResult.success === true,
+    'Compliance: template removal succeeds');
+  const afterRemove = compliance.listTemplates();
+  const as9100Status = afterRemove.provisioned.find(p => p.id === 'as9100_rev_d');
+  assert(as9100Status !== undefined && as9100Status.status === 'removed',
+    'Compliance: removed template shows removed status');
+
+  // T25: Invalid template ID
+  const invalidGap = compliance.gapAnalysis('nonexistent_template');
+  assert('error' in invalidGap,
+    'Compliance: invalid template ID returns error');
+
+  // T26: Template detail retrieval
+  const detail = compliance.getTemplate('itar_22cfr');
+  assert(detail !== null && detail.framework === 'ITAR',
+    'Compliance: getTemplate returns ITAR with correct framework');
+  assert(detail!.requirements.some(r => r.access_control !== undefined),
+    'Compliance: ITAR has access_control requirements');
+
+  // T27: Stats
+  const stats = compliance.getStats();
+  assert(stats.templates_available >= 6 && stats.templates_active >= 1,
+    'Compliance: stats show 6+ available, 1+ active');
+  assert(stats.metrics.templates_provisioned >= 2,
+    'Compliance: metrics track provisioning count');
+
+  // T28: Config update
+  const newConfig = compliance.updateConfig({ max_templates: 3 });
+  assert(newConfig.max_templates === 3,
+    'Compliance: config update applies');
 }
 
 // ============================================================================
