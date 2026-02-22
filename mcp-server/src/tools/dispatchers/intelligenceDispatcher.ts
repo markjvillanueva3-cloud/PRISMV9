@@ -33,6 +33,7 @@ import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
 import { dncTransfer } from "../../engines/DNCTransferEngine.js";
 import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
 import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
+import { measurementIntegration } from "../../engines/MeasurementIntegrationEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -134,6 +135,16 @@ const ACTIONS = [
   "erp_tool_update",
   "erp_systems",
   "erp_wo_list",
+  "measure_cmm_import",
+  "measure_cmm_history",
+  "measure_cmm_get",
+  "measure_surface",
+  "measure_surface_history",
+  "measure_probe_record",
+  "measure_probe_drift",
+  "measure_probe_history",
+  "measure_bias_detect",
+  "measure_summary",
 ] as const;
 
 /**
@@ -487,6 +498,26 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { count: result.total };
     case "erp_wo_list":
       return { total: result.total };
+    case "measure_cmm_import":
+      return { id: result.report_id, pass: result.summary?.pass, features: result.summary?.total_features, cpk: result.summary?.cpk_estimate };
+    case "measure_cmm_history":
+      return { total: result.total, pass_rate: result.pass_rate };
+    case "measure_cmm_get":
+      return { id: result.report_id, pass: result.summary?.pass };
+    case "measure_surface":
+      return { id: result.measurement_id, accuracy: result.model_accuracy, ra_error: result.ra_error_pct };
+    case "measure_surface_history":
+      return { total: result.total, avg_ra_error: result.avg_ra_error_pct };
+    case "measure_probe_record":
+      return { id: result.probe_id, deviation: result.deviation };
+    case "measure_probe_drift":
+      return { direction: result.direction, rate: result.rate_um_per_part, action: result.action };
+    case "measure_probe_history":
+      return { total: result.total, machine: result.machine, feature: result.feature };
+    case "measure_bias_detect":
+      return { biases: result.biases?.length, machine: result.machine };
+    case "measure_summary":
+      return { health: result.overall_health, cmm_reports: result.cmm?.reports, probe_features: result.probing?.features_tracked };
     default:
       return result;
   }
@@ -556,7 +587,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const DNC_ACTIONS = ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] as const;
         const MOBILE_ACTIONS = ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] as const;
         const ERP_ACTIONS = ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] as const;
-        const result = ERP_ACTIONS.includes(action as any)
+        const MEASURE_ACTIONS = ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] as const;
+        const result = MEASURE_ACTIONS.includes(action as any)
+          ? measurementIntegration(action, params)
+          : ERP_ACTIONS.includes(action as any)
           ? erpIntegration(action, params)
           : MOBILE_ACTIONS.includes(action as any)
           ? mobileInterface(action, params)

@@ -780,3 +780,13 @@ export {
   type CostBreakdown, type CostFeedback, type CostVariance,
   type ToolInventoryItem, type QualityRecord, type QualityMeasurement,
 } from "./ERPIntegrationEngine.js";
+
+// Measurement & Inspection Integration (R9-MS5)
+export {
+  measurementIntegration, importCMMData, compareSurfaceFinish,
+  recordProbeData, analyzeDrift, detectCalibrationBias,
+  type MeasurementSource, type DriftDirection,
+  type DimensionalMeasurement, type CMMReport, type CMMSummary,
+  type SurfaceFinishResult as MeasureSurfaceFinishResult,
+  type ProbingData, type DriftAnalysis, type CalibrationBias,
+} from "./MeasurementIntegrationEngine.js";
