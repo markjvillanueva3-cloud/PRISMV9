@@ -575,3 +575,31 @@ export {
   type Pattern as LearningPattern,
   type ParameterAdjustment,
 } from "./JobLearningEngine.js";
+
+// Algorithm Gateway Engine — R7-MS4 MIT/Stanford Course Integration
+export {
+  algorithmGateway,
+  algorithmSelect,
+  type ProblemType,
+  type DomainType,
+  type AlgorithmSelectInput,
+  type AlgorithmSelectResult,
+  type FFTInput,
+  type FFTResult,
+  type BayesianInput,
+  type BayesianResult,
+  type GradientDescentInput,
+  type GradientDescentResult,
+  type InterpolationInput,
+  type InterpolationResult,
+  type MonteCarloInput,
+  type MonteCarloResult,
+  type TopoSortInput,
+  type TopoSortResult,
+  type KalmanInput,
+  type KalmanResult,
+  type EigenInput,
+  type EigenResult,
+  type PIDInput,
+  type PIDResult,
+} from "./AlgorithmGatewayEngine.js";

@@ -18,6 +18,7 @@ import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/r
 import { registryManager } from "../../registries/manager.js";
 import { executeIntelligenceAction, INTELLIGENCE_ACTIONS, type IntelligenceAction } from "../../engines/IntelligenceEngine.js";
 import { jobLearning } from "../../engines/JobLearningEngine.js";
+import { algorithmGateway } from "../../engines/AlgorithmGatewayEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -34,6 +35,7 @@ const ACTIONS = [
   "quality_predict",
   "job_record",
   "job_insights",
+  "algorithm_select",
 ] as const;
 
 /**
@@ -157,6 +159,13 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         failures: result.failure_analysis?.total_failures,
         safety_score: result.safety?.score,
       };
+    case "algorithm_select":
+      return {
+        algorithm: result.selected_algorithm,
+        course: result.source_course,
+        alternatives: result.alternatives?.length,
+        safety_score: result.safety?.score,
+      };
     default:
       return result;
   }
@@ -165,7 +174,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",
-    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights",
+    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional(),
@@ -209,11 +218,14 @@ export function registerIntelligenceDispatcher(server: any): void {
         }
 
         // === EXECUTE INTELLIGENCE ACTION ===
-        // Learning actions route to JobLearningEngine (stateful, in-memory store)
+        // Route to specialized engines or IntelligenceEngine
         const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
+        const ALGORITHM_ACTIONS = ["algorithm_select"] as const;
         const result = LEARNING_ACTIONS.includes(action as any)
           ? jobLearning(action, params)
-          : await executeIntelligenceAction(action as IntelligenceAction, params);
+          : ALGORITHM_ACTIONS.includes(action as any)
+            ? algorithmGateway(action, params)
+            : await executeIntelligenceAction(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {
