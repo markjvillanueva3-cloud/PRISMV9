@@ -55,7 +55,7 @@ export function registerBridgeDispatcher(server: McpServer): void {
             result = protocolBridgeEngine.listApiKeys();
             break;
           case "route":
-            result = protocolBridgeEngine.routeRequest({
+            result = await protocolBridgeEngine.routeRequest({
               request_id: params.request_id || `req_${Date.now()}`,
               protocol: params.protocol || "rest",
               endpoint_id: params.endpoint_id || "",
