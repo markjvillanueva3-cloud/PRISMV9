@@ -50,6 +50,7 @@ import { executeBestPracticesAction } from "../../engines/BestPracticesEngine.js
 import { executeSequencerAction } from "../../engines/OperationSequencerEngine.js";
 import { executeToolSelectorAction } from "../../engines/ToolSelectorEngine.js";
 import { executeConstraintAction } from "../../engines/ConstraintEngine.js";
+import { executeGCodeAction } from "../../engines/GCodeGeneratorEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -321,6 +322,10 @@ const ACTIONS = [
   // Constraint Engine — R13-MS5
   "apply_constraints",
   "check_feasibility",
+  // G-Code Generator Engine — R13-MS6
+  "validate_gcode",
+  "backplot_gcode",
+  "generate_gcode",
 ] as const;
 
 /**
@@ -995,6 +1000,13 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { rpm_max: result.rpm?.max, feed_max: result.feed?.max, doc_max: result.doc?.max, woc_max: result.woc?.max, rigidity: result.compositeRigidity, sources: result.activeSources?.length, thinWall: result.thinWallMode };
     case "check_feasibility":
       return { feasible: result.feasible, violations: result.violations?.length, rigidity: result.compositeRigidity, sources: result.activeSources?.length, recommendations: result.recommendations?.length };
+    // G-Code Generator Engine — R13-MS6
+    case "validate_gcode":
+      return { valid: result.valid, errors: result.issues?.filter((i: any) => i.severity === "error")?.length, warnings: result.issues?.filter((i: any) => i.severity === "warning")?.length, lines: result.stats?.lineCount, toolChanges: result.stats?.toolChanges, rapidMoves: result.stats?.rapidMoves, feedMoves: result.stats?.feedMoves, arcMoves: result.stats?.arcMoves };
+    case "backplot_gcode":
+      return { totalMoves: result.statistics?.totalMoves, rapidDist: result.statistics?.rapidDistance, feedDist: result.statistics?.feedDistance, machiningTime: result.statistics?.machiningTime, boundingBox: result.statistics?.boundingBox };
+    case "generate_gcode":
+      return { found: result.found, total: result.total, gCodes: result.gCodes?.length ?? result.gCodes, mCodes: result.mCodes?.length ?? result.mCodes, addressCodes: result.addressCodes?.length ?? result.addressCodes };
     default:
       return result;
   }
@@ -1084,7 +1096,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SEQUENCER_ACTIONS = ["optimize_sequence_advanced", "schedule_operations"] as const;
         const TOOL_SELECTOR_ACTIONS = ["select_optimal_tool", "score_tool_candidates"] as const;
         const CONSTRAINT_ACTIONS = ["apply_constraints", "check_feasibility"] as const;
-        const result = CONSTRAINT_ACTIONS.includes(action as any)
+        const GCODE_ACTIONS = ["validate_gcode", "backplot_gcode", "generate_gcode"] as const;
+        const result = GCODE_ACTIONS.includes(action as any)
+          ? executeGCodeAction(action, params)
+          : CONSTRAINT_ACTIONS.includes(action as any)
           ? executeConstraintAction(action, params)
           : TOOL_SELECTOR_ACTIONS.includes(action as any)
           ? executeToolSelectorAction(action, params)
