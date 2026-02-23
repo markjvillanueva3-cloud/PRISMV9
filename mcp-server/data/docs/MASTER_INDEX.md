@@ -1,9 +1,9 @@
 # PRISM MCP Server — Master Index
-# Verified: 2026-02-22 (P0→R11+R6 Complete, Audit Verified)
+# Verified: 2026-02-23 (P0→R32 Complete, REORG Applied)
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — All counts verified against actual dispatcher code
 
-## 1. DISPATCHERS (32 dispatchers, 382+ verified actions)
+## 1. DISPATCHERS (33 dispatchers, 388+ verified actions)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
@@ -98,7 +98,13 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-**Total: 32 dispatchers, 382+ actions**
+### prism_intelligence (intelligenceDispatcher.ts, 1180L) — R12-R32
+Actions (299): job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, process_plan, catalog_parse, catalog_validate, catalog_enrich, catalog_stats, holder_lookup, holder_assembly, holder_select, holder_validate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format, setup_sheet_template, skill_list, skill_get, skill_search, skill_match, skill_steps, skill_for_persona, conversation_context, conversation_transition, job_start, job_update, job_find, job_resume, job_complete, job_list_recent, assist_list, assist_get, assist_search, assist_match, assist_explain, assist_confidence, assist_mistakes, assist_safety, machine_register, machine_unregister, machine_list, machine_connect, machine_disconnect, machine_live_status, machine_all_status, machine_ingest, chatter_detect_live, tool_wear_start, tool_wear_update, tool_wear_status, thermal_update, thermal_status, alert_acknowledge, alert_history, cam_recommend, cam_export, cam_analyze_op, cam_tool_library, cam_tool_get, cam_systems, dnc_generate, dnc_send, dnc_compare, dnc_verify, dnc_qr, dnc_systems, dnc_history, dnc_get, mobile_lookup, mobile_voice, mobile_alarm, mobile_timer_start, mobile_timer_check, mobile_timer_reset, mobile_timer_list, mobile_cache, erp_import_wo, erp_get_plan, erp_cost_feedback, erp_cost_history, erp_quality_import, erp_quality_history, erp_tool_inventory, erp_tool_update, erp_systems, erp_wo_list, measure_cmm_import, measure_cmm_history, measure_cmm_get, measure_surface, measure_surface_history, measure_probe_record, measure_probe_drift, measure_probe_history, measure_bias_detect, measure_summary, inverse_solve, inverse_surface, inverse_tool_life, inverse_dimensional, inverse_chatter, inverse_troubleshoot, inverse_history, inverse_get, forensic_tool_autopsy, forensic_chip_analysis, forensic_surface_defect, forensic_crash, forensic_failure_modes, forensic_chip_types, forensic_surface_types, forensic_crash_types, forensic_history, forensic_get, apprentice_explain, apprentice_lesson, apprentice_lessons, apprentice_assess, apprentice_capture, apprentice_knowledge, apprentice_challenge, apprentice_materials, apprentice_history, apprentice_get, genome_lookup, genome_predict, genome_similar, genome_compare, genome_list, genome_fingerprint, genome_behavioral, genome_search, genome_history, genome_get, maint_analyze, maint_trend, maint_predict, maint_schedule, maint_models, maint_thresholds, maint_alerts, maint_status, maint_history, maint_get, sustain_optimize, sustain_compare, sustain_energy, sustain_carbon, sustain_coolant, sustain_nearnet, sustain_report, sustain_materials, sustain_history, sustain_get, genplan_plan, genplan_features, genplan_setups, genplan_operations, genplan_optimize, genplan_tools, genplan_cycle, genplan_cost, genplan_risk, genplan_get, graph_query, graph_infer, graph_discover, graph_predict, graph_traverse, graph_add, graph_search, graph_stats, graph_history, graph_get, learn_contribute, learn_query, learn_aggregate, learn_anonymize, learn_network_stats, learn_opt_control, learn_correction, learn_transparency, learn_history, learn_get, adaptive_chipload, adaptive_chatter, adaptive_wear, adaptive_thermal, adaptive_override, adaptive_status, adaptive_config, adaptive_log, adaptive_history, adaptive_get, sfc_calculate, sfc_compare, sfc_optimize, sfc_quick, sfc_materials, sfc_tools, sfc_formulas, sfc_safety, sfc_history, sfc_get, ppg_validate, ppg_translate, ppg_templates, ppg_generate, ppg_controllers, ppg_compare, ppg_syntax, ppg_batch, ppg_history, ppg_get, shop_job, shop_cost, shop_quote, shop_schedule, shop_dashboard, shop_report, shop_compare, shop_materials, shop_history, shop_get, acnc_program, acnc_feature, acnc_simulate, acnc_output, acnc_tools, acnc_strategy, acnc_validate, acnc_batch, acnc_history, acnc_get, evaluate_rules, rule_search, evaluate_machining_rules, get_parameter_constraints, get_best_practices, spc_analysis, lean_analysis, troubleshoot, optimize_sequence_advanced, schedule_operations, select_optimal_tool, score_tool_candidates, apply_constraints, check_feasibility, validate_gcode, backplot_gcode, generate_gcode, pp_post, pp_validate, pp_translate, pp_uir, pp_controllers, pp_safety, quote_job, quote_compare, quote_batch, quote_breakdown, diagnose, diagnose_alarm, diagnose_tool, diagnose_surface
+
+### prism_chat_archive (chatArchiveDispatcher.ts, 40L) — REORG Phase 4
+Actions (6): chat_start, chat_save, chat_end, chat_list, chat_search, chat_stats
+
+**Total: 33 dispatchers, 388+ actions**
 
 ---
 
@@ -129,6 +135,8 @@ Natural language hooks → prism_nl_hook (8)
 Compliance templates → prism_compliance (8)
 Multi-tenant management → prism_tenant (15)
 Protocol bridge / API gateway → prism_bridge (13)
+Manufacturing intelligence (R12-R32) → prism_intelligence (299)
+Chat archive / session storage → prism_chat_archive (6)
 
 ---
 
@@ -345,16 +353,16 @@ Total skill files: 119
 
 ## 14. SUMMARY
 
-- Dispatchers: 32 (382+ verified actions)
-- Engines: 73 (all wired — 57 direct, 15 via handlers, 1 via bundle)
+- Dispatchers: 33 (388+ verified actions)
+- Engines: 76 (all wired — includes R12-R32 additions)
 - Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
 - Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
 - Skill Bundles: 9 (wired to skillScriptDispatcher)
 - NL Hooks: 48 deployed
-- Build: 5.6MB, 1 warning, 73/74 tests pass
+- Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~6.3MB, 0 warnings, 74/74 tests
 - GSD files: 16 (~628L)
 - Synergy integration: synergyIntegration.ts (276L)
-- Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~3.9MB
+- REORG: ~700 files archived to archives/ (root scripts, state temps, material/skill variants)
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

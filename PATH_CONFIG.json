@@ -1,20 +1,21 @@
 {
-  "version": "10.0.0",
+  "version": "11.0.0",
   "created": "2026-01-26",
-  "description": "PRISM Manufacturing Intelligence - Unified Path Configuration",
-  
+  "updated": "2026-02-23",
+  "description": "PRISM Manufacturing Intelligence - Unified Path Configuration (post-REORG)",
+
   "root": "C:\\PRISM",
-  
+
   "directories": {
     "state": "C:\\PRISM\\state",
-    "scripts": "C:\\PRISM\\scripts",
-    "skills": "C:\\PRISM\\skills",
+    "scripts": "C:\\PRISM\\archives\\scripts-old",
+    "skills": "C:\\PRISM\\skills-consolidated",
     "data": "C:\\PRISM\\data",
     "docs": "C:\\PRISM\\docs",
-    "build": "C:\\PRISM\\build",
     "extracted": "C:\\PRISM\\extracted",
     "projectKnowledge": "C:\\PRISM\\project-knowledge",
-    "resources": "C:\\PRISM\\resources"
+    "archives": "C:\\PRISM\\archives",
+    "mcpServer": "C:\\PRISM\\mcp-server"
   },
   
   "stateFiles": {
@@ -27,12 +28,12 @@
   },
   
   "skillLevels": {
-    "level0_alwaysOn": "C:\\PRISM\\skills\\level0-always-on",
-    "level1_cognitive": "C:\\PRISM\\skills\\level1-cognitive",
-    "level2_workflow": "C:\\PRISM\\skills\\level2-workflow",
-    "level3_domain": "C:\\PRISM\\skills\\level3-domain",
-    "level4_reference": "C:\\PRISM\\skills\\level4-reference",
-    "unclassified": "C:\\PRISM\\skills\\unclassified"
+    "level0_alwaysOn": "C:\\PRISM\\skills-consolidated\\level0-always-on",
+    "level1_cognitive": "C:\\PRISM\\skills-consolidated\\level1-cognitive",
+    "level2_workflow": "C:\\PRISM\\skills-consolidated\\level2-workflow",
+    "level3_domain": "C:\\PRISM\\skills-consolidated\\level3-domain",
+    "level4_reference": "C:\\PRISM\\skills-consolidated\\level4-reference",
+    "unclassified": "C:\\PRISM\\skills-consolidated\\unclassified"
   },
   
   "dataDirectories": {
@@ -60,12 +61,9 @@
   },
   
   "pythonScripts": {
-    "unifiedSystem": "C:\\PRISM\\scripts\\prism_unified_system_v4.py",
-    "orchestrator": "C:\\PRISM\\scripts\\prism_orchestrator_v2.py",
-    "apiWorker": "C:\\PRISM\\scripts\\prism_api_worker.py",
-    "toolkit": "C:\\PRISM\\scripts\\prism_toolkit.py",
-    "regressionChecker": "C:\\PRISM\\scripts\\regression_checker.py",
-    "skillValidator": "C:\\PRISM\\scripts\\skill_validator.py"
+    "note": "Python scripts archived to archives/scripts-old/ and archives/root-scripts/ during REORG",
+    "unifiedSystem": "C:\\PRISM\\archives\\scripts-old\\prism_unified_system_v4.py",
+    "orchestrator": "C:\\PRISM\\archives\\scripts-old\\prism_orchestrator_v2.py"
   },
   
   "documentation": {
@@ -90,18 +88,20 @@
   },
   
   "quickCommands": {
-    "intelligentSwarm": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v4.py --intelligent \"TASK\"",
-    "manufacturingAnalysis": "py -3 C:\\PRISM\\scripts\\prism_orchestrator_v2.py --manufacturing \"MATERIAL\" \"OPERATION\"",
-    "ralphLoop": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v4.py --ralph AGENT \"PROMPT\" ITERATIONS",
-    "listAgents": "py -3 C:\\PRISM\\scripts\\prism_unified_system_v4.py --list"
+    "note": "Primary interface is now MCP server (33 dispatchers). Legacy Python scripts in archives/.",
+    "build": "cd mcp-server && npm run build:fast",
+    "test": "cd mcp-server && npx vitest run",
+    "fullBuild": "cd mcp-server && npm run build"
   },
   
   "systemInfo": {
-    "version": "10.0.0",
-    "skills": 89,
-    "agents": 56,
-    "materials": 1512,
-    "materialParameters": 127,
+    "version": "11.0.0",
+    "dispatchers": 33,
+    "actions": "388+",
+    "engines": 76,
+    "skills": 230,
+    "agents": 75,
+    "materials": 6372,
     "commandments": 15,
     "alwaysOnLaws": 7,
     "masterEquation": "Ω(x) = w_R·R(x) + w_C·C(x) + w_P·P(x) + w_S·S(x) + w_L·L(x)",
