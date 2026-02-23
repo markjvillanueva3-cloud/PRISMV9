@@ -52,6 +52,7 @@ import { executeToolSelectorAction } from "../../engines/ToolSelectorEngine.js";
 import { executeConstraintAction } from "../../engines/ConstraintEngine.js";
 import { executeGCodeAction } from "../../engines/GCodeGeneratorEngine.js";
 import { executePostProcessorAction } from "../../engines/PostProcessorFramework.js";
+import { processPlan, type ProcessPlanInput } from "../../engines/ProcessPlanningEngine.js";
 import { executeQuotingAction } from "../../engines/QuotingEngine.js";
 import { executeTroubleshooterAction } from "../../engines/IntelligentTroubleshooterEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
@@ -67,6 +68,7 @@ const ACTIONS = [
   "failure_diagnose",
   "parameter_optimize",
   "cycle_time_estimate",
+  "process_plan",
   "quality_predict",
   "job_record",
   "job_insights",
@@ -441,6 +443,17 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         rapid_min: result.rapid_time_min,
         operations: result.operations?.length,
         utilization_pct: result.utilization_percent,
+      };
+    case "process_plan":
+      return {
+        features: result.features_recognized,
+        operations: result.operations?.length,
+        tool_changes: result.totals?.tool_changes,
+        cycle_time_min: result.totals?.cycle_time_min,
+        cost: result.totals?.estimated_cost,
+        feasible: result.constraints?.feasible,
+        confidence: result.confidence,
+        safety_passed: result.safety?.all_checks_passed,
       };
     case "quality_predict":
       return {
@@ -1135,7 +1148,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const PP_ACTIONS = ["pp_post", "pp_validate", "pp_translate", "pp_uir", "pp_controllers", "pp_safety"] as const;
         const QUOTE_ACTIONS = ["quote_job", "quote_compare", "quote_batch", "quote_breakdown"] as const;
         const TROUBLESHOOT_ACTIONS = ["diagnose", "diagnose_alarm", "diagnose_tool", "diagnose_surface"] as const;
-        const result = TROUBLESHOOT_ACTIONS.includes(action as any)
+        const PROCESS_PLAN_ACTIONS = ["process_plan"] as const;
+        const result = PROCESS_PLAN_ACTIONS.includes(action as any)
+          ? await processPlan(params as unknown as ProcessPlanInput)
+          : TROUBLESHOOT_ACTIONS.includes(action as any)
           ? executeTroubleshooterAction(action, params)
           : QUOTE_ACTIONS.includes(action as any)
           ? executeQuotingAction(action, params)

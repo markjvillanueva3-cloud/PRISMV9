@@ -9,6 +9,8 @@
  *   jobPlan()           - Full machining job plan
  *   setupSheet()        - Setup sheet generation
  *   cycleTimeEstimate() - Cycle time estimation
+ *   processPlan()       - R14-MS3: Full process plan composing feature recognition,
+ *                         tool selection, constraint checking, rules, and sequencing
  */
 
 import {
@@ -39,6 +41,12 @@ import { registryManager } from "../registries/manager.js";
 import { toolpathRegistry } from "../registries/ToolpathStrategyRegistry.js";
 import { log } from "../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../types/ResponseLevel.js";
+
+// R14-MS3: Compose R13 engines for full process planning
+import { toolSelector } from "./ToolSelectorEngine.js";
+import { constraintEngine } from "./ConstraintEngine.js";
+import { rulesEngine } from "./RulesEngine.js";
+import { optimizeSequence, type SequenceInput } from "./OptimizationEngine.js";
 
 // ============================================================================
 // TYPES
@@ -834,4 +842,319 @@ export async function cycleTimeEstimate(params: Record<string, any>): Promise<an
     operations: operationDetails,
     warnings,
   };
+}
+
+// ============================================================================
+// R14-MS3: FULL PROCESS PLAN (composes Feature Recognition + ToolSelector +
+//          ConstraintEngine + RulesEngine + OperationSequencer)
+// ============================================================================
+
+/** Feature → operation mapping. Maps each feature type to a sequence of operations. */
+const FEATURE_OPERATIONS: Record<string, Array<{ op: string; toolType: string; fraction: number }>> = {
+  pocket:  [{ op: "rough", toolType: "square_endmill", fraction: 0.70 }, { op: "finish", toolType: "ball_endmill", fraction: 0.30 }],
+  slot:    [{ op: "slot", toolType: "square_endmill", fraction: 0.80 }, { op: "finish", toolType: "square_endmill", fraction: 0.20 }],
+  face:    [{ op: "face", toolType: "face_mill", fraction: 1.0 }],
+  contour: [{ op: "rough", toolType: "square_endmill", fraction: 0.60 }, { op: "finish", toolType: "ball_endmill", fraction: 0.40 }],
+  hole:    [{ op: "drill", toolType: "twist_drill", fraction: 0.50 }, { op: "finish", toolType: "reamer", fraction: 0.50 }],
+  thread:  [{ op: "drill", toolType: "twist_drill", fraction: 0.35 }, { op: "thread", toolType: "thread_mill", fraction: 0.65 }],
+  bore:    [{ op: "drill", toolType: "twist_drill", fraction: 0.30 }, { op: "rough", toolType: "boring_bar", fraction: 0.40 }, { op: "finish", toolType: "boring_bar", fraction: 0.30 }],
+  chamfer: [{ op: "chamfer", toolType: "chamfer_mill", fraction: 1.0 }],
+};
+
+/** Input for full process plan. */
+export interface ProcessPlanInput {
+  material: string;
+  features: Array<{
+    type: string;
+    id?: string;
+    dimensions: { width?: number; length?: number; depth: number; diameter?: number };
+    tolerance?: number;
+    surface_finish?: number;
+    must_before?: string[];
+  }>;
+  machine_id?: string;
+  optimize_for?: "time" | "cost" | "tool_changes" | "balanced";
+  response_level?: ResponseLevel;
+}
+
+/** Output from full process plan. */
+export interface ProcessPlanResult {
+  material: { name: string; iso_group: string };
+  features_recognized: number;
+  operations: Array<{
+    id: string;
+    feature_id: string;
+    feature_type: string;
+    operation: string;
+    sequence: number;
+    tool: { type: string; diameter: number; flutes: number; coating: string; name: string };
+    parameters: { rpm: number; feed_rate: number; doc: number; woc: number; sfm: number };
+    cycle_time_min: number;
+    cost_estimate: number;
+  }>;
+  sequence_optimization: {
+    tool_changes: number;
+    time_saved_min: number;
+    tool_changes_saved: number;
+  };
+  constraints: {
+    sources_checked: string[];
+    feasible: boolean;
+    limiting_factors: string[];
+  };
+  rules: Array<{ rule: string; severity: string; message: string }>;
+  totals: {
+    cycle_time_min: number;
+    tool_changes: number;
+    estimated_cost: number;
+    utilization_percent: number;
+  };
+  confidence: number;
+  safety: { all_checks_passed: boolean; warnings: string[] };
+}
+
+/**
+ * Generate a full process plan by composing feature recognition, tool selection,
+ * constraint checking, rules evaluation, and operation sequencing.
+ *
+ * R14-MS3 composition DAG:
+ *   Features + material + machine
+ *     → FeatureRecognition (features → operations)
+ *     → ToolSelectorEngine (multi-factor scoring)
+ *     → ConstraintEngine (feasibility check)
+ *     → RulesEngine (machining rules)
+ *     → OperationSequencerEngine (ACO heuristic)
+ *     → ProcessPlan { operations, tooling, time, cost }
+ */
+export async function processPlan(params: ProcessPlanInput): Promise<ProcessPlanResult> {
+  const startMs = Date.now();
+  const warnings: string[] = [];
+  let confidence = 1.0;
+
+  // -- 1. Material resolution --
+  let mat: any;
+  try { mat = await registryManager.materials.getByIdOrName(params.material); } catch { /* skip */ }
+  const materialName = mat?.name || params.material;
+  const isoGroup = mat?.iso_group || mat?.classification?.iso_group || "P";
+  const hardness = mat?.mechanical?.hardness?.brinell ?? 200;
+  if (!mat) { confidence -= 0.15; warnings.push("Material not found in registry — using defaults"); }
+
+  // -- 2. Feature recognition: expand features → operations --
+  const rawOps: Array<{
+    id: string; featureId: string; featureType: string; op: string; toolType: string;
+    depth: number; width: number; length: number; diameter?: number;
+    tolerance?: number; surfaceFinish?: number;
+    mustBefore?: string[];
+  }> = [];
+
+  let opIndex = 0;
+  for (let fi = 0; fi < params.features.length; fi++) {
+    const feat = params.features[fi];
+    const featId = feat.id || `F${fi + 1}`;
+    const featType = (feat.type || "pocket").toLowerCase();
+    const mapping = FEATURE_OPERATIONS[featType] || FEATURE_OPERATIONS["pocket"];
+
+    for (const m of mapping) {
+      opIndex++;
+      rawOps.push({
+        id: `OP${opIndex}`,
+        featureId: featId,
+        featureType: featType,
+        op: m.op,
+        toolType: m.toolType,
+        depth: feat.dimensions.depth * m.fraction,
+        width: feat.dimensions.width ?? 50,
+        length: feat.dimensions.length ?? 100,
+        diameter: feat.dimensions.diameter,
+        tolerance: feat.tolerance,
+        surfaceFinish: feat.surface_finish,
+        mustBefore: feat.must_before,
+      });
+    }
+  }
+
+  // -- 3. Tool selection per operation (ToolSelectorEngine) --
+  const opsWithTools = rawOps.map((op) => {
+    const recommendation = toolSelector.selectOptimalTool(
+      { type: op.op, geometry: { width: op.width, length: op.length, depth: op.depth } },
+      materialName,
+      params.machine_id ? { maxRPM: 12000 } : undefined,
+    );
+    return { ...op, tool: recommendation.tool, params: recommendation.parameters, toolConfidence: recommendation.confidence };
+  });
+
+  // -- 4. Constraint checking (ConstraintEngine) --
+  let constraintResult: { sources: string[]; feasible: boolean; limiting: string[] } = {
+    sources: [], feasible: true, limiting: [],
+  };
+  try {
+    const machineSpec = params.machine_id
+      ? (() => { try { return registryManager.machines.getByIdOrModel(params.machine_id!); } catch { return undefined; } })()
+      : undefined;
+
+    const constraints = constraintEngine.applyAllConstraints({
+      machine: machineSpec as any,
+      material: { name: materialName, family: isoGroup, hardness } as any,
+    });
+
+    constraintResult.sources = constraints.activeSources || [];
+    // Check if any operation violates constraints
+    for (const op of opsWithTools) {
+      if (op.params.rpm > (constraints.rpm?.max ?? Infinity)) {
+        constraintResult.limiting.push(`${op.id}: RPM ${op.params.rpm} exceeds machine max ${constraints.rpm?.max}`);
+        constraintResult.feasible = false;
+      }
+      if (op.params.feedRate > (constraints.feed?.max ?? Infinity)) {
+        constraintResult.limiting.push(`${op.id}: Feed ${op.params.feedRate} exceeds limit ${constraints.feed?.max}`);
+        constraintResult.feasible = false;
+      }
+    }
+  } catch (err) {
+    warnings.push(`Constraint check failed: ${err}`);
+    confidence -= 0.10;
+  }
+  if (!constraintResult.feasible) {
+    warnings.push(`Constraint violations: ${constraintResult.limiting.join("; ")}`);
+    confidence -= 0.15;
+  }
+
+  // -- 5. Rules evaluation (RulesEngine) --
+  let rulesResults: Array<{ rule: string; severity: string; message: string }> = [];
+  try {
+    const ctx = {
+      material: { name: materialName, family: isoGroup, hardness },
+      operation: opsWithTools[0]?.op || "rough",
+      tool: opsWithTools[0]?.tool ? { diameter: opsWithTools[0].tool.diameter, flutes: opsWithTools[0].tool.flutes } : undefined,
+    };
+    rulesResults = rulesEngine.evaluateRules(ctx as any);
+    const criticalRules = rulesResults.filter((r) => r.severity === "critical");
+    if (criticalRules.length > 0) {
+      warnings.push(...criticalRules.map((r) => `CRITICAL RULE ${r.rule}: ${r.message}`));
+      confidence -= 0.20;
+    }
+  } catch (err) {
+    warnings.push(`Rules evaluation failed: ${err}`);
+  }
+
+  // -- 6. Operation sequencing (ACO from OptimizationEngine) --
+  const sequenceInput: SequenceInput = {
+    operations: opsWithTools.map((op) => ({
+      id: op.id,
+      feature: op.featureType,
+      tool_required: `${op.tool.type}_D${op.tool.diameter}`,
+      estimated_time_min: Math.max(0.1, (op.depth * op.width * op.length) / (op.params.feedRate * op.params.doc * 1000 + 1) + 0.5),
+      setup_constraints: op.mustBefore?.map((b) => `must be before ${b}`),
+    })),
+    machine: params.machine_id || "default",
+    optimize_for: params.optimize_for || "balanced",
+  };
+
+  let sequenceResult = { optimal_order: opsWithTools.map((o) => o.id), tool_changes: 0, estimated_total_min: 0, savings_vs_input_order: { time_saved_min: 0, tool_changes_saved: 0 } };
+  try {
+    if (opsWithTools.length > 1) {
+      const seqRes = optimizeSequence(sequenceInput);
+      sequenceResult = { ...seqRes };
+    }
+  } catch (err) {
+    warnings.push(`Sequence optimization failed: ${err}`);
+  }
+
+  // Reorder operations per optimized sequence
+  const orderMap = new Map(sequenceResult.optimal_order.map((id, i) => [id, i]));
+  const sortedOps = [...opsWithTools].sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+
+  // -- 7. Cost estimation per operation --
+  const MACHINE_RATE_PER_MIN = 1.50; // $/min default
+  const TOOL_COST_PER_CHANGE = 5.0; // $ amortized
+  let totalCycleTime = 0;
+  let totalCost = 0;
+
+  const finalOps = sortedOps.map((op, i) => {
+    // Estimate cycle time for this operation
+    const volume_mm3 = op.depth * op.width * op.length;
+    const mrr = op.params.feedRate * op.params.doc * (op.params.woc || op.tool.diameter * 0.4);
+    const cuttingTime = mrr > 0 ? volume_mm3 / mrr : 1.0;
+    const cycleTime = Math.round((cuttingTime + 0.3) * 100) / 100; // add rapids overhead
+    const cost = Math.round((cycleTime * MACHINE_RATE_PER_MIN + TOOL_COST_PER_CHANGE * 0.1) * 100) / 100;
+
+    totalCycleTime += cycleTime;
+    totalCost += cost;
+
+    return {
+      id: op.id,
+      feature_id: op.featureId,
+      feature_type: op.featureType,
+      operation: op.op,
+      sequence: i + 1,
+      tool: {
+        type: op.tool.type || op.toolType,
+        diameter: op.tool.diameter,
+        flutes: op.tool.flutes || 4,
+        coating: op.tool.coating || "uncoated",
+        name: op.tool.name || `${op.tool.type} D${op.tool.diameter}`,
+      },
+      parameters: op.params,
+      cycle_time_min: cycleTime,
+      cost_estimate: cost,
+    };
+  });
+
+  // Add tool change costs
+  totalCost += sequenceResult.tool_changes * TOOL_COST_PER_CHANGE;
+  const toolChangeTime = sequenceResult.tool_changes * (8 / 60); // 8s per change
+  totalCycleTime += toolChangeTime;
+
+  const utilization = totalCycleTime > 0 ? ((totalCycleTime - toolChangeTime) / totalCycleTime) * 100 : 0;
+
+  // -- Confidence floor --
+  const avgToolConf = opsWithTools.reduce((s, o) => s + o.toolConfidence, 0) / (opsWithTools.length || 1);
+  confidence = Math.max(0.15, Math.min(1.0, confidence * avgToolConf));
+  confidence = Math.round(confidence * 100) / 100;
+
+  const allChecksPassed = !warnings.some((w) => w.includes("CRITICAL"));
+
+  const elapsed = Date.now() - startMs;
+  log.info(
+    `[ProcessPlanningEngine] process_plan: ${params.features.length} features → ` +
+    `${finalOps.length} ops, ${sequenceResult.tool_changes} tool changes, ` +
+    `${totalCycleTime.toFixed(1)} min, confidence=${confidence}, ${elapsed}ms`
+  );
+
+  const result: ProcessPlanResult = {
+    material: { name: materialName, iso_group: isoGroup },
+    features_recognized: params.features.length,
+    operations: finalOps,
+    sequence_optimization: {
+      tool_changes: sequenceResult.tool_changes,
+      time_saved_min: Math.round(sequenceResult.savings_vs_input_order.time_saved_min * 10) / 10,
+      tool_changes_saved: sequenceResult.savings_vs_input_order.tool_changes_saved,
+    },
+    constraints: {
+      sources_checked: constraintResult.sources,
+      feasible: constraintResult.feasible,
+      limiting_factors: constraintResult.limiting,
+    },
+    rules: rulesResults.map((r) => ({ rule: r.rule, severity: r.severity, message: r.message })),
+    totals: {
+      cycle_time_min: Math.round(totalCycleTime * 10) / 10,
+      tool_changes: sequenceResult.tool_changes,
+      estimated_cost: Math.round(totalCost * 100) / 100,
+      utilization_percent: Math.round(utilization * 10) / 10,
+    },
+    confidence,
+    safety: { all_checks_passed: allChecksPassed, warnings },
+  };
+
+  if (params.response_level && params.response_level !== "full") {
+    return formatByLevel(result, params.response_level, (r) => ({
+      features: r.features_recognized,
+      operations: r.operations.length,
+      cycle_time_min: r.totals.cycle_time_min,
+      cost: r.totals.estimated_cost,
+      feasible: r.constraints.feasible,
+      confidence: r.confidence,
+    })).data as any;
+  }
+
+  return result;
 }
