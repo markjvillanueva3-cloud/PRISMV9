@@ -219,6 +219,9 @@ import {
 import {
   executeTraceabilityAction,
 } from "../../engines/TraceabilityEngine.js";
+import {
+  executeInventoryIntelligenceAction,
+} from "../../engines/InventoryIntelligenceEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -517,6 +520,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { part_id: result.part_id, total_steps: result.total_steps, lead_time_minutes: result.metrics?.lead_time_minutes, efficiency: result.metrics?.process_efficiency };
     case "tr_audit_trail":
       return { total_events: result.summary?.total_events, compliance_score: result.summary?.compliance_score, deviations: result.summary?.deviations_found, rating: result.summary?.compliance_rating };
+    case "inv_status":
+      return { total_items: result.total_items, alerts_count: result.alerts_count, total_value: result.total_inventory_value };
+    case "inv_forecast":
+      return { item_id: result.item_id, trend: result.forecast_summary?.trend, avg_daily: result.forecast_summary?.avg_daily, total: result.forecast_summary?.total_forecast };
+    case "inv_reorder":
+      return { total_items: result.total_items, needs_reorder: result.items_needing_reorder };
+    case "inv_optimize":
+      return { total_items: result.total_items, savings: result.total_savings_potential, abc_a: result.abc_summary?.A?.count, abc_b: result.abc_summary?.B?.count, abc_c: result.abc_summary?.C?.count };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -584,6 +595,7 @@ const ACTIONS = [
   "sf_oee", "sf_utilization", "sf_bottleneck", "sf_capacity",
   "rpt_generate", "rpt_summary", "rpt_trend", "rpt_export",
   "tr_record", "tr_genealogy", "tr_chain", "tr_audit_trail",
+  "inv_status", "inv_forecast", "inv_reorder", "inv_optimize",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1834,6 +1846,14 @@ export function registerCalcDispatcher(server: any): void {
           case "tr_chain":
           case "tr_audit_trail": {
             result = executeTraceabilityAction(action, params);
+            break;
+          }
+
+          case "inv_status":
+          case "inv_forecast":
+          case "inv_reorder":
+          case "inv_optimize": {
+            result = executeInventoryIntelligenceAction(action, params);
             break;
           }
 
