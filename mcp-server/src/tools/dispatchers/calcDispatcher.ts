@@ -289,6 +289,10 @@ import {
   executeProductionSequencingAction,
 } from "../../engines/ProductionSequencingEngine.js";
 
+import {
+  executeCapacityPlanningAction,
+} from "../../engines/CapacityPlanningEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -730,6 +734,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { orders: result.total_orders, efficiency_pct: result.summary?.avg_flow_efficiency_pct, wip_hrs: result.summary?.total_wip_hrs };
     case "seq_reorder":
       return { orders: result.total_orders, changes: result.summary?.changes_count, most_urgent: result.summary?.most_urgent };
+    case "cap_forecast":
+      return { resources: result.total_resources, overtime_hrs: result.summary?.total_overtime_hrs, shortfall_hrs: result.summary?.total_shortfall_hrs };
+    case "cap_demand":
+      return { periods: result.total_periods, deficit_periods: result.summary?.periods_with_deficit, avg_util: result.summary?.avg_utilization_pct };
+    case "cap_overtime":
+      return { resources_needing: result.total_resources_needing_overtime, total_cost: result.summary?.total_overtime_cost, within_budget: result.summary?.within_budget };
+    case "cap_report":
+      return { health_score: result.summary?.health_score, risks: result.summary?.risk_count, recommendation: result.summary?.recommendation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -815,6 +827,7 @@ const ACTIONS = [
   "job_schedule", "job_priority", "job_status", "job_reschedule",
   "alloc_assign", "alloc_balance", "alloc_setup", "alloc_conflict",
   "seq_optimize", "seq_bottleneck", "seq_flow", "seq_reorder",
+  "cap_forecast", "cap_demand", "cap_overtime", "cap_report",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2209,6 +2222,14 @@ export function registerCalcDispatcher(server: any): void {
           case "seq_flow":
           case "seq_reorder": {
             result = executeProductionSequencingAction(action, params);
+            break;
+          }
+
+          case "cap_forecast":
+          case "cap_demand":
+          case "cap_overtime":
+          case "cap_report": {
+            result = executeCapacityPlanningAction(action, params);
             break;
           }
 
