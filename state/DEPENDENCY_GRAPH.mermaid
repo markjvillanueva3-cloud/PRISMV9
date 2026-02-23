@@ -1,0 +1,389 @@
+%% PRISM MCP Server — High-Level Architecture Dependency Graph
+%% Generated 2026-02-23
+%% 32 Dispatchers | 73 Engines | 10 Registries | External Dirs
+%%
+%% Legend:
+%%   --> solid line  = internal dependency (within mcp-server/)
+%%   -.-> dashed red = cross-boundary (reads from dirs outside mcp-server/)
+
+graph TB
+
+  %% ========================================================================
+  %% ENTRY POINT
+  %% ========================================================================
+  INDEX["index.ts<br/><i>Entry Point</i><br/>32 dispatchers · 382 actions"]
+
+  %% ========================================================================
+  %% INFRASTRUCTURE (wired in index.ts before/after dispatcher registration)
+  %% ========================================================================
+  subgraph INFRA["Infrastructure"]
+    direction LR
+    AUTO_HOOK["autoHookWrapper<br/><i>Universal + Lambda/Phi hooks</i>"]
+    CADENCE["cadenceExecutor<br/><i>Cadence enforcement</i>"]
+    SYNERGY["synergyIntegration<br/><i>F1-F8 cross-feature wiring</i>"]
+    HOOK_REG["hookRegistration<br/><i>112 domain hooks</i>"]
+    REG_BOOT["registryBootstrapper<br/><i>490 formulas · 824 machines</i>"]
+  end
+
+  INDEX --> AUTO_HOOK
+  INDEX --> CADENCE
+  INDEX --> SYNERGY
+  INDEX --> HOOK_REG
+  INDEX --> REG_BOOT
+
+  %% ========================================================================
+  %% 32 DISPATCHERS
+  %% ========================================================================
+  subgraph DISPATCHERS["32 Dispatchers (tools/dispatchers/)"]
+    direction LR
+
+    subgraph DISP_CORE["Core Data & Session"]
+      D_DATA["dataDispatcher<br/><i>14 actions</i>"]
+      D_SESSION["sessionDispatcher<br/><i>20 actions</i>"]
+      D_CONTEXT["contextDispatcher<br/><i>14 actions</i>"]
+      D_MEMORY["memoryDispatcher<br/><i>6 actions</i>"]
+    end
+
+    subgraph DISP_MFG["Manufacturing & Safety"]
+      D_CALC["calcDispatcher<br/><i>21 actions</i>"]
+      D_SAFETY["safetyDispatcher<br/><i>29 actions</i>"]
+      D_THREAD["threadDispatcher<br/><i>12 actions</i>"]
+      D_TOOLPATH["toolpathDispatcher<br/><i>8 actions</i>"]
+    end
+
+    subgraph DISP_ORCH["Orchestration & Agents"]
+      D_ORCH["orchestrationDispatcher<br/><i>14 actions</i>"]
+      D_HOOK["hookDispatcher<br/><i>18 actions</i>"]
+      D_ATCS["atcsDispatcher<br/><i>10 actions</i>"]
+      D_AUTO["autonomousDispatcher<br/><i>8 actions</i>"]
+      D_PILOT["autoPilotDispatcher<br/><i>5 actions</i>"]
+    end
+
+    subgraph DISP_INTEL["Intelligence & Knowledge"]
+      D_INTEL["intelligenceDispatcher<br/><i>11 actions</i>"]
+      D_KNOW["knowledgeDispatcher<br/><i>5 actions</i>"]
+      D_SKILL["skillScriptDispatcher<br/><i>23 actions</i>"]
+      D_SP["spDispatcher<br/><i>17 actions</i>"]
+    end
+
+    subgraph DISP_FEAT["Features F1-F8"]
+      D_PFP["pfpDispatcher<br/><i>F1 · 6 actions</i>"]
+      D_TELEM["telemetryDispatcher<br/><i>F3 · 7 actions</i>"]
+      D_NLHOOK["nlHookDispatcher<br/><i>F6 · 8 actions</i>"]
+      D_COMPLY["complianceDispatcher<br/><i>F8 · 8 actions</i>"]
+      D_TENANT["tenantDispatcher<br/><i>F5 · 15 actions</i>"]
+      D_BRIDGE["bridgeDispatcher<br/><i>F7 · 13 actions</i>"]
+    end
+
+    subgraph DISP_OPS["Ops & Quality"]
+      D_VALID["validationDispatcher<br/><i>7 actions</i>"]
+      D_OMEGA["omegaDispatcher<br/><i>5 actions</i>"]
+      D_RALPH["ralphDispatcher<br/><i>3 actions</i>"]
+      D_GUARD["guardDispatcher<br/><i>8 actions</i>"]
+      D_DOC["documentDispatcher<br/><i>7 actions</i>"]
+      D_GEN["generatorDispatcher<br/><i>6 actions</i>"]
+    end
+
+    subgraph DISP_EXT["Integration & Dev"]
+      D_MANUS["manusDispatcher<br/><i>11 actions</i>"]
+      D_DEV["devDispatcher<br/><i>7 actions</i>"]
+      D_GSD["gsdDispatcher<br/><i>6 actions</i>"]
+    end
+  end
+
+  INDEX --> DISPATCHERS
+
+  %% ========================================================================
+  %% 73 ENGINES (grouped by category)
+  %% ========================================================================
+
+  %% --- Manufacturing Calculation Engines ---
+  subgraph ENG_MFG["Manufacturing Calc Engines"]
+    E_MFGCALC["ManufacturingCalculations"]
+    E_ADVCALC["AdvancedCalculations"]
+    E_TPCALC["ToolpathCalculations"]
+    E_THREADCALC["ThreadCalculationEngine"]
+    E_TOLERANCE["ToleranceEngine"]
+    E_GCODE["GCodeTemplateEngine"]
+    E_INVERSESOLVER["InverseSolverEngine"]
+  end
+
+  %% --- Safety Engines ---
+  subgraph ENG_SAFETY["Safety Engines"]
+    E_COLLISION["CollisionEngine"]
+    E_WORKHOLD["WorkholdingEngine"]
+    E_TOOLBREAK["ToolBreakageEngine"]
+    E_SPINDLE["SpindleProtectionEngine"]
+    E_COOLANT["CoolantValidationEngine"]
+    E_WORKHOLDINT["WorkholdingIntelligenceEngine"]
+  end
+
+  %% --- Orchestration Engines ---
+  subgraph ENG_ORCH["Orchestration Engines"]
+    E_AGENTEXEC["AgentExecutor"]
+    E_SWARMEXEC["SwarmExecutor"]
+    E_EVENTBUS["EventBus"]
+    E_HOOKENG["HookEngine"]
+    E_HOOKEXEC["HookExecutor"]
+    E_AUTOPILOT["AutoPilot / V2"]
+    E_TASKCLASS["TaskAgentClassifier"]
+    E_BATCHPROC["BatchProcessor"]
+  end
+
+  %% --- Intelligence Engines ---
+  subgraph ENG_INTEL["Intelligence Engines"]
+    E_INTELL["IntelligenceEngine"]
+    E_KNOWQUERY["KnowledgeQueryEngine"]
+    E_INFCHAIN["InferenceChainEngine"]
+    E_KNOWGRAPH["KnowledgeGraphEngine"]
+    E_DECTREE["DecisionTreeEngine"]
+    E_ADAPTCTRL["AdaptiveControlEngine"]
+    E_CONVMEM["ConversationalMemoryEngine"]
+  end
+
+  %% --- Session / State Engines ---
+  subgraph ENG_STATE["Session & State Engines"]
+    E_SESSION["SessionLifecycleEngine"]
+    E_DIFF["DiffEngine"]
+    E_CACHE["ComputationCache"]
+    E_MEMGRAPH["MemoryGraphEngine"]
+  end
+
+  %% --- Product Engines ---
+  subgraph ENG_PRODUCT["Product Engines"]
+    E_PRODUCT["ProductEngine"]
+    E_CAMPAIGN["CampaignEngine"]
+    E_SETUP["SetupSheetEngine"]
+    E_REPORT["ReportRenderer"]
+    E_RESPTEMPL["ResponseTemplateEngine"]
+  end
+
+  %% --- ML / AI Engines ---
+  subgraph ENG_ML["ML & AI Engines"]
+    E_PHYSICS["PhysicsPredictionEngine"]
+    E_OPTIM["OptimizationEngine"]
+    E_JOBLEARN["JobLearningEngine"]
+    E_ALGOGW["AlgorithmGatewayEngine"]
+    E_FEDLEARN["FederatedLearningEngine"]
+    E_PREDMAINT["PredictiveMaintenanceEngine"]
+    E_PREDFAIL["PredictiveFailureEngine"]
+    E_FAILFOR["FailureForensicsEngine"]
+    E_MFGGENOME["ManufacturingGenomeEngine"]
+    E_GENPROC["GenerativeProcessEngine"]
+    E_SUSTAIN["SustainabilityEngine"]
+  end
+
+  %% --- UX Engines ---
+  subgraph ENG_UX["UX Engines"]
+    E_INTENT["IntentDecompositionEngine"]
+    E_RESPFMT["ResponseFormatterEngine"]
+    E_ONBOARD["OnboardingEngine"]
+    E_MOBILE["MobileInterfaceEngine"]
+    E_APPRENTICE["ApprenticeEngine"]
+    E_USERASSIST["UserAssistanceSkillsEngine"]
+    E_USERWF["UserWorkflowSkillsEngine"]
+  end
+
+  %% --- Shop Floor Engines ---
+  subgraph ENG_SHOP["Shop Floor Engines"]
+    E_MACHCONN["MachineConnectivityEngine"]
+    E_CAMINT["CAMIntegrationEngine"]
+    E_DNC["DNCTransferEngine"]
+    E_MEASINT["MeasurementIntegrationEngine"]
+    E_ERP["ERPIntegrationEngine"]
+    E_SHOPSCHED["ShopSchedulerEngine"]
+    E_MANUS["ManusATCSBridge"]
+  end
+
+  %% --- Feature Engines (F1-F8) ---
+  subgraph ENG_FEAT["Feature Engines (F1-F8)"]
+    E_PFP["PFPEngine<br/><i>F1</i>"]
+    E_TELEM["TelemetryEngine<br/><i>F3</i>"]
+    E_CERT["CertificateEngine<br/><i>F4</i>"]
+    E_COMPLY["ComplianceEngine<br/><i>F8</i>"]
+    E_MULTITEN["MultiTenantEngine<br/><i>F5</i>"]
+    E_NLHOOK["NLHookEngine<br/><i>F6</i>"]
+    E_PROTBR["ProtocolBridgeEngine<br/><i>F7</i>"]
+  end
+
+  %% --- Skill Engines ---
+  subgraph ENG_SKILL["Skill Engines"]
+    E_SKILLEXEC["SkillExecutor"]
+    E_SCRIPTEXEC["ScriptExecutor"]
+    E_SKILLBUNDLE["SkillBundleEngine"]
+    E_SKILLAUTO["SkillAutoLoader"]
+    E_WFCHAINS["WorkflowChainsEngine"]
+  end
+
+  %% ========================================================================
+  %% 10 REGISTRIES
+  %% ========================================================================
+  subgraph REGISTRIES["10 Registries"]
+    direction LR
+    R_AGENT["AgentRegistry"]
+    R_ALARM["AlarmRegistry"]
+    R_FORMULA["FormulaRegistry"]
+    R_HOOK["HookRegistry"]
+    R_MACHINE["MachineRegistry"]
+    R_MATERIAL["MaterialRegistry"]
+    R_SCRIPT["ScriptRegistry"]
+    R_SKILL["SkillRegistry"]
+    R_TOOLPATH["ToolpathStrategyRegistry"]
+    R_TOOL["ToolRegistry"]
+  end
+
+  %% ========================================================================
+  %% EXTERNAL DIRECTORIES (outside mcp-server/)
+  %% ========================================================================
+  subgraph EXTERNAL["External Directories (outside mcp-server/)"]
+    direction LR
+    EXT_STATE["state/<br/><i>Session state, logs, events</i>"]
+    EXT_DATA["data/<br/><i>Materials, machines, alarms</i>"]
+    EXT_KNOWLEDGE["knowledge/<br/><i>Skills KB, guides</i>"]
+    EXT_EXTRACTED["extracted/<br/><i>Extracted catalog data</i>"]
+    EXT_SKILLS["skills-consolidated/<br/><i>230 skills, 9 bundles</i>"]
+    EXT_SCRIPTS["scripts/<br/><i>Automation scripts</i>"]
+    EXT_TEMPLATES["templates/<br/><i>GSD, doc templates</i>"]
+    EXT_CONFIG["config/<br/><i>PATH_CONFIG, env</i>"]
+  end
+
+  %% ========================================================================
+  %% KEY RELATIONSHIPS: Dispatchers --> Engines
+  %% ========================================================================
+
+  %% Core Data & Session
+  D_DATA --> R_MATERIAL & R_MACHINE & R_ALARM & R_TOOL
+  D_DATA --> E_HOOKEXEC
+  D_SESSION --> E_HOOKEXEC
+  D_SESSION --> E_SESSION
+  D_MEMORY --> E_MEMGRAPH
+
+  %% Manufacturing & Safety
+  D_CALC --> E_MFGCALC & E_ADVCALC
+  D_CALC --> E_HOOKEXEC
+  D_CALC --> R_FORMULA
+  D_SAFETY --> E_COLLISION & E_WORKHOLD & E_TOOLBREAK & E_SPINDLE & E_COOLANT
+  D_THREAD --> E_THREADCALC & E_HOOKEXEC
+  D_TOOLPATH --> E_TPCALC & E_HOOKEXEC
+
+  %% Orchestration & Agents
+  D_ORCH --> R_AGENT & E_HOOKEXEC
+  D_ORCH --> E_AGENTEXEC & E_SWARMEXEC
+  D_HOOK --> E_HOOKENG & E_EVENTBUS
+  D_ATCS --> E_MANUS
+  D_PILOT --> E_AUTOPILOT
+  D_GUARD --> E_HOOKEXEC
+
+  %% Intelligence & Knowledge
+  D_INTEL --> E_INTELL & E_JOBLEARN & E_ALGOGW & E_SHOPSCHED
+  D_INTEL --> E_INTENT & E_RESPFMT
+  D_INTEL --> E_HOOKEXEC
+  D_KNOW --> E_KNOWQUERY
+  D_SKILL --> E_SKILLEXEC & E_SCRIPTEXEC & E_SKILLBUNDLE
+  D_SKILL --> R_SKILL & R_SCRIPT
+  D_SP --> E_HOOKENG & E_KNOWQUERY
+  D_SP --> R_SKILL & R_FORMULA
+
+  %% Features F1-F8
+  D_PFP --> E_PFP
+  D_TELEM --> E_TELEM
+  D_NLHOOK --> E_NLHOOK
+  D_COMPLY --> E_COMPLY
+  D_TENANT --> E_MULTITEN
+  D_BRIDGE --> E_PROTBR
+
+  %% Ops
+  D_DOC --> E_HOOKEXEC
+
+  %% ========================================================================
+  %% CROSS-BOUNDARY: Registries --> External Dirs (dashed RED)
+  %% ========================================================================
+  R_MATERIAL -.-> EXT_DATA
+  R_MACHINE -.-> EXT_DATA
+  R_ALARM -.-> EXT_DATA
+  R_FORMULA -.-> EXT_DATA
+  R_TOOL -.-> EXT_DATA
+  R_TOOL -.-> EXT_EXTRACTED
+  R_SCRIPT -.-> EXT_SCRIPTS
+  R_SKILL -.-> EXT_SKILLS
+  R_TOOLPATH -.-> EXT_DATA
+
+  %% ========================================================================
+  %% CROSS-BOUNDARY: Engines --> External Dirs (dashed RED)
+  %% ========================================================================
+  E_INFCHAIN -.-> EXT_STATE
+  E_MULTITEN -.-> EXT_STATE
+  E_SKILLEXEC -.-> EXT_STATE
+  E_SKILLEXEC -.-> EXT_SKILLS
+  E_KNOWQUERY -.-> EXT_KNOWLEDGE
+  E_MEMGRAPH -.-> EXT_STATE
+  E_SESSION -.-> EXT_STATE
+  E_TELEM -.-> EXT_STATE
+
+  %% ========================================================================
+  %% CROSS-BOUNDARY: Infrastructure --> External Dirs (dashed RED)
+  %% ========================================================================
+  CADENCE -.-> EXT_STATE
+  REG_BOOT -.-> EXT_DATA
+  HOOK_REG -.-> EXT_STATE
+
+  %% ========================================================================
+  %% INTER-ENGINE RELATIONSHIPS (key internal wiring)
+  %% ========================================================================
+  E_HOOKEXEC --> E_EVENTBUS
+  E_HOOKENG --> E_HOOKEXEC
+  E_AGENTEXEC --> E_HOOKEXEC
+  E_SWARMEXEC --> E_AGENTEXEC
+  SYNERGY --> E_PFP & E_TELEM & E_CERT & E_NLHOOK & E_COMPLY & E_MULTITEN & E_PROTBR
+  E_INTELL --> E_KNOWQUERY & E_INFCHAIN
+  E_AUTOPILOT --> E_AGENTEXEC
+
+  %% ========================================================================
+  %% STYLING
+  %% ========================================================================
+  classDef entry fill:#1a1a2e,stroke:#e94560,stroke-width:3px,color:#fff,font-weight:bold
+  classDef dispatcher fill:#16213e,stroke:#0f3460,stroke-width:1px,color:#e0e0e0
+  classDef engine fill:#1b262c,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  classDef registry fill:#2d132c,stroke:#801336,stroke-width:1px,color:#ee4540
+  classDef external fill:#3d0000,stroke:#ff0000,stroke-width:2px,color:#ff6b6b,font-weight:bold
+  classDef infra fill:#0d1b2a,stroke:#415a77,stroke-width:1px,color:#778da9
+
+  class INDEX entry
+  class D_DATA,D_SESSION,D_CONTEXT,D_MEMORY,D_CALC,D_SAFETY,D_THREAD,D_TOOLPATH dispatcher
+  class D_ORCH,D_HOOK,D_ATCS,D_AUTO,D_PILOT,D_INTEL,D_KNOW,D_SKILL,D_SP dispatcher
+  class D_PFP,D_TELEM,D_NLHOOK,D_COMPLY,D_TENANT,D_BRIDGE dispatcher
+  class D_VALID,D_OMEGA,D_RALPH,D_GUARD,D_DOC,D_GEN,D_MANUS,D_DEV,D_GSD dispatcher
+  class E_MFGCALC,E_ADVCALC,E_TPCALC,E_THREADCALC,E_TOLERANCE,E_GCODE,E_INVERSESOLVER engine
+  class E_COLLISION,E_WORKHOLD,E_TOOLBREAK,E_SPINDLE,E_COOLANT,E_WORKHOLDINT engine
+  class E_AGENTEXEC,E_SWARMEXEC,E_EVENTBUS,E_HOOKENG,E_HOOKEXEC,E_AUTOPILOT,E_TASKCLASS,E_BATCHPROC engine
+  class E_INTELL,E_KNOWQUERY,E_INFCHAIN,E_KNOWGRAPH,E_DECTREE,E_ADAPTCTRL,E_CONVMEM engine
+  class E_SESSION,E_DIFF,E_CACHE,E_MEMGRAPH engine
+  class E_PRODUCT,E_CAMPAIGN,E_SETUP,E_REPORT,E_RESPTEMPL engine
+  class E_PHYSICS,E_OPTIM,E_JOBLEARN,E_ALGOGW,E_FEDLEARN,E_PREDMAINT,E_PREDFAIL,E_FAILFOR,E_MFGGENOME,E_GENPROC,E_SUSTAIN engine
+  class E_INTENT,E_RESPFMT,E_ONBOARD,E_MOBILE,E_APPRENTICE,E_USERASSIST,E_USERWF engine
+  class E_MACHCONN,E_CAMINT,E_DNC,E_MEASINT,E_ERP,E_SHOPSCHED,E_MANUS engine
+  class E_PFP,E_TELEM,E_CERT,E_COMPLY,E_MULTITEN,E_NLHOOK,E_PROTBR engine
+  class E_SKILLEXEC,E_SCRIPTEXEC,E_SKILLBUNDLE,E_SKILLAUTO,E_WFCHAINS engine
+  class R_AGENT,R_ALARM,R_FORMULA,R_HOOK,R_MACHINE,R_MATERIAL,R_SCRIPT,R_SKILL,R_TOOLPATH,R_TOOL registry
+  class EXT_STATE,EXT_DATA,EXT_KNOWLEDGE,EXT_EXTRACTED,EXT_SKILLS,EXT_SCRIPTS,EXT_TEMPLATES,EXT_CONFIG external
+  class AUTO_HOOK,CADENCE,SYNERGY,HOOK_REG,REG_BOOT infra
+
+  %% Subgraph styling (via style on subgraph IDs)
+  style DISPATCHERS fill:#0a1628,stroke:#0f3460,stroke-width:2px,color:#e0e0e0
+  style ENG_MFG fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_SAFETY fill:#1c0a0a,stroke:#c0392b,stroke-width:1px,color:#e74c3c
+  style ENG_ORCH fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_INTEL fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_STATE fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_PRODUCT fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_ML fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_UX fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_SHOP fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style ENG_FEAT fill:#0a1c1e,stroke:#27ae60,stroke-width:2px,color:#2ecc71
+  style ENG_SKILL fill:#0a1c1e,stroke:#0f4c75,stroke-width:1px,color:#bbe1fa
+  style REGISTRIES fill:#1a0a1a,stroke:#801336,stroke-width:2px,color:#ee4540
+  style EXTERNAL fill:#2a0000,stroke:#ff0000,stroke-width:3px,color:#ff6b6b
+  style INFRA fill:#0a0f1a,stroke:#415a77,stroke-width:2px,color:#778da9
+
+  %% Cross-boundary link styling (RED dashed) — edges 60-79
+  linkStyle 60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79 stroke:#ff0000,stroke-width:2px,stroke-dasharray:5
