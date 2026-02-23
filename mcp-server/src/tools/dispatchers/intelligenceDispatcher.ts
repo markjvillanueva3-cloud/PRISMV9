@@ -48,6 +48,7 @@ import { productSFC, productPPG, productShop, productACNC } from "../../engines/
 import { executeRulesAction } from "../../engines/RulesEngine.js";
 import { executeBestPracticesAction } from "../../engines/BestPracticesEngine.js";
 import { executeSequencerAction } from "../../engines/OperationSequencerEngine.js";
+import { executeToolSelectorAction } from "../../engines/ToolSelectorEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -313,6 +314,9 @@ const ACTIONS = [
   // Operation Sequencer Engine — R13-MS3
   "optimize_sequence_advanced",
   "schedule_operations",
+  // Tool Selector Engine — R13-MS4
+  "select_optimal_tool",
+  "score_tool_candidates",
 ] as const;
 
 /**
@@ -977,6 +981,11 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { features: result.featureCount, improvement: result.improvement, cost: result.cost, baseline: result.baselineCost, iterations: result.iterations, toolChanges: result.toolChanges, converged: result.convergence?.converged };
     case "schedule_operations":
       return { mode: result.mode, makespan: result.makespan, rule: result.rule, jobs: result.comparison?.length || result.schedule?.length, tardyJobs: result.numberOfTardyJobs };
+    // Tool Selector Engine — R13-MS4
+    case "select_optimal_tool":
+      return { tool: result.tool?.name || result.tool?.type, diameter: result.tool?.diameter, rpm: result.parameters?.rpm, feed: result.parameters?.feedRate, confidence: result.confidence, material: result.material?.category };
+    case "score_tool_candidates":
+      return { total: result.total, topTool: result.topTool, topScore: result.topScore, operation: result.operation, material: result.material };
     default:
       return result;
   }
@@ -1064,7 +1073,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const RULES_ACTIONS = ["evaluate_rules", "rule_search", "evaluate_machining_rules", "get_parameter_constraints"] as const;
         const BEST_PRACTICES_ACTIONS = ["get_best_practices", "spc_analysis", "lean_analysis", "troubleshoot"] as const;
         const SEQUENCER_ACTIONS = ["optimize_sequence_advanced", "schedule_operations"] as const;
-        const result = SEQUENCER_ACTIONS.includes(action as any)
+        const TOOL_SELECTOR_ACTIONS = ["select_optimal_tool", "score_tool_candidates"] as const;
+        const result = TOOL_SELECTOR_ACTIONS.includes(action as any)
+          ? executeToolSelectorAction(action, params)
+          : SEQUENCER_ACTIONS.includes(action as any)
           ? executeSequencerAction(action, params)
           : BEST_PRACTICES_ACTIONS.includes(action as any)
           ? executeBestPracticesAction(action, params)
