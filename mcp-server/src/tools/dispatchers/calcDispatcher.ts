@@ -207,6 +207,9 @@ import {
 import {
   executePredictiveMaintenanceAction,
 } from "../../engines/PredictiveMaintenanceEngine.js";
+import {
+  executeAssetHealthAction,
+} from "../../engines/AssetHealthEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -473,6 +476,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { tool_id: result.failure_risk?.tool_id, probability: result.failure_risk?.failure_probability, severity: result.failure_risk?.severity, mode: result.failure_risk?.failure_mode };
     case "pm_optimize_intervals":
       return { optimal_wear_pct: result.optimal?.replacement_at_wear_pct, cost_per_piece: result.optimal?.cost_per_piece, recommendation: result.recommendation };
+    case "ah_score":
+      return { machine_id: result.health?.machine_id, overall_score: result.health?.overall_score, status: result.health?.overall_status, critical: result.critical_subsystems };
+    case "ah_degradation":
+      return { machine_id: result.machine_id, rate: result.degradation_analysis?.degradation_rate_per_period, trend: result.degradation_analysis?.trend };
+    case "ah_maintenance_plan":
+      return { machine_id: result.machine_id, total_tasks: result.total_tasks, critical: result.summary?.critical_tasks, recommendation: result.scheduling_recommendation };
+    case "ah_compare":
+      return { total_machines: result.total_machines, fleet_status: result.fleet_status, avg_score: result.fleet_avg_score };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -536,6 +547,7 @@ const ACTIONS = [
   "al_learn", "al_recommend", "al_evaluate", "al_history",
   "ig_register", "ig_invoke", "ig_schema", "ig_health",
   "pm_predict_wear", "pm_schedule", "pm_failure_risk", "pm_optimize_intervals",
+  "ah_score", "ah_degradation", "ah_maintenance_plan", "ah_compare",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1754,6 +1766,14 @@ export function registerCalcDispatcher(server: any): void {
           case "pm_failure_risk":
           case "pm_optimize_intervals": {
             result = executePredictiveMaintenanceAction(action, params);
+            break;
+          }
+
+          case "ah_score":
+          case "ah_degradation":
+          case "ah_maintenance_plan":
+          case "ah_compare": {
+            result = executeAssetHealthAction(action, params);
             break;
           }
 
