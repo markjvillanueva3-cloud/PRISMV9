@@ -328,6 +328,9 @@ import {
 import {
   executeLeanMetricsAction,
 } from "../../engines/LeanMetricsEngine.js";
+import {
+  executeCalibrationAction,
+} from "../../engines/CalibrationEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -874,6 +877,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { annual_cost: result.summary?.total_annual_waste_usd, top_type: result.summary?.top_waste_type, high_severity: result.summary?.high_severity };
     case "lean_kpi":
       return { total_kpis: result.summary?.total_kpis, on_target: result.summary?.on_target, health: result.summary?.overall_health };
+    case "cal_schedule":
+      return { instruments: result.total_instruments, overdue: result.summary?.overdue, compliance: result.summary?.compliance_pct };
+    case "cal_cert":
+      return { certs: result.total_certificates, result: result.certificates?.[0]?.result, uncertainty: result.certificates?.[0]?.uncertainty };
+    case "cal_recall":
+      return { recalls: result.total_recalls, open: result.summary?.open_recalls, affected: result.summary?.total_affected_measurements };
+    case "cal_trace":
+      return { traceable: result.nist_traceable, chain_depth: result.traceability_chain?.length, expanded_uncertainty: result.uncertainty_budget?.expanded_uncertainty_k2 };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -972,6 +983,7 @@ const ACTIONS = [
   "kai_event", "kai_a3", "kai_track", "kai_sustain",
   "six_dmaic", "six_chart", "six_capability", "six_analyze",
   "lean_oee", "lean_fty", "lean_waste", "lean_kpi",
+  "cal_schedule", "cal_cert", "cal_recall", "cal_trace",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2470,6 +2482,14 @@ export function registerCalcDispatcher(server: any): void {
           case "lean_waste":
           case "lean_kpi": {
             result = executeLeanMetricsAction(action, params);
+            break;
+          }
+
+          case "cal_schedule":
+          case "cal_cert":
+          case "cal_recall":
+          case "cal_trace": {
+            result = executeCalibrationAction(action, params);
             break;
           }
 
