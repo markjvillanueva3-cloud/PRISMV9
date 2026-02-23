@@ -358,6 +358,9 @@ import {
 import {
   executeRegulatoryAction,
 } from "../../engines/RegulatoryEngine.js";
+import {
+  executeCAPAAction,
+} from "../../engines/CAPAEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -984,6 +987,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { permits: result.total_permits, at_risk: result.summary?.at_risk, expired: result.summary?.expired };
     case "reg_change":
       return { changes: result.total_changes, action_required: result.summary?.action_required, total_gaps: result.summary?.total_gaps };
+    case "capa_initiate":
+      return { capas: result.total_capas, open: result.summary?.open, overdue: result.summary?.overdue };
+    case "capa_rootcause":
+      return { analyses: result.total_analyses, avg_factors: result.summary?.avg_contributing_factors };
+    case "capa_action":
+      return { actions: result.total_actions, completion: result.summary?.completion_rate, overdue: result.summary?.overdue };
+    case "capa_verify":
+      return { verified: result.summary?.fully_verified, pending: result.summary?.pending_verification, avg_days: result.summary?.avg_days_open };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1092,6 +1103,7 @@ const ACTIONS = [
   "fin_margin", "fin_breakeven", "fin_costunit", "fin_dashboard",
   "aud_schedule", "aud_finding", "aud_evidence", "aud_close",
   "reg_require", "reg_submit", "reg_permit", "reg_change",
+  "capa_initiate", "capa_rootcause", "capa_action", "capa_verify",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2670,6 +2682,14 @@ export function registerCalcDispatcher(server: any): void {
           case "reg_permit":
           case "reg_change": {
             result = executeRegulatoryAction(action, params);
+            break;
+          }
+
+          case "capa_initiate":
+          case "capa_rootcause":
+          case "capa_action":
+          case "capa_verify": {
+            result = executeCAPAAction(action, params);
             break;
           }
 
