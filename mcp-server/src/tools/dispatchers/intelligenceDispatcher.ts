@@ -45,6 +45,7 @@ import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
 import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
 import { productSFC, productPPG, productShop, productACNC } from "../../engines/ProductEngine.js";
+import { executeRulesAction } from "../../engines/RulesEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -297,6 +298,11 @@ const ACTIONS = [
   "acnc_batch",
   "acnc_history",
   "acnc_get",
+  // Rules Engine — R13-MS1
+  "evaluate_rules",
+  "rule_search",
+  "evaluate_machining_rules",
+  "get_parameter_constraints",
 ] as const;
 
 /**
@@ -938,6 +944,15 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { entries: result.history?.length };
     case "acnc_get":
       return { product: result.product, version: result.version };
+    // Rules Engine — R13-MS1
+    case "evaluate_rules":
+      return { triggered: result.triggered, critical: result.critical, warnings: result.warnings, confidence_score: result.confidence?.score, confidence_level: result.confidence?.level };
+    case "rule_search":
+      return { total: result.total, search_type: result.search_type, keyword: result.keyword };
+    case "evaluate_machining_rules":
+      return { woc_mm: result.engagement?.woc?.value_mm, doc_mm: result.engagement?.doc?.value_mm, woc_pct: result.engagement?.woc?.percent_of_diameter, confidence: result.engagement?.confidence?.level, rules_triggered: result.rules_triggered?.length };
+    case "get_parameter_constraints":
+      return { rpm_range: `${result.constraints?.rpm?.min}-${result.constraints?.rpm?.max}`, feed_range: `${result.constraints?.feed?.min}-${result.constraints?.feed?.max}`, active_sources: result.active_sources?.length, feasible: result.feasible, composite_rigidity: result.composite_rigidity };
     default:
       return result;
   }
@@ -1022,7 +1037,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const PPG_ACTIONS = ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] as const;
         const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
         const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
-        const result = SFC_ACTIONS.includes(action as any)
+        const RULES_ACTIONS = ["evaluate_rules", "rule_search", "evaluate_machining_rules", "get_parameter_constraints"] as const;
+        const result = RULES_ACTIONS.includes(action as any)
+          ? executeRulesAction(action, params)
+          : SFC_ACTIONS.includes(action as any)
           ? productSFC(action, params)
           : PPG_ACTIONS.includes(action as any)
           ? productPPG(action, params)
