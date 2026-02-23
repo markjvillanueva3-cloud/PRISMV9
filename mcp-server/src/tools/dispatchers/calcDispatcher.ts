@@ -322,6 +322,9 @@ import {
 import {
   executeKaizenAction,
 } from "../../engines/KaizenEngine.js";
+import {
+  executeSixSigmaAction,
+} from "../../engines/SixSigmaEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -852,6 +855,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { tracked: result.total_tracked, hit_rate: result.summary?.hit_rate_pct, total_savings: result.summary?.total_savings_usd };
     case "kai_sustain":
       return { checks: result.total_checks, sustainment_pct: result.summary?.overall_sustainment_pct, at_risk: result.summary?.at_risk?.length };
+    case "six_dmaic":
+      return { projects: result.total_projects, savings: result.summary?.total_projected_savings, sigma_gain: result.summary?.avg_sigma_improvement };
+    case "six_chart":
+      return { charts: result.total_charts, in_control: result.summary?.in_control, alerts: result.summary?.out_of_control };
+    case "six_capability":
+      return { studies: result.total_studies, avg_cpk: result.summary?.avg_cpk, capable_pct: result.summary?.capability_rate_pct };
+    case "six_analyze":
+      return { type: result.analysis_type, projects: result.active_projects, avg_sigma: result.avg_sigma_level };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -948,6 +959,7 @@ const ACTIONS = [
   "yard_assign", "yard_trailer", "yard_appoint", "yard_move",
   "vsm_map", "vsm_takt", "vsm_cycle", "vsm_future",
   "kai_event", "kai_a3", "kai_track", "kai_sustain",
+  "six_dmaic", "six_chart", "six_capability", "six_analyze",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2430,6 +2442,14 @@ export function registerCalcDispatcher(server: any): void {
           case "kai_track":
           case "kai_sustain": {
             result = executeKaizenAction(action, params);
+            break;
+          }
+
+          case "six_dmaic":
+          case "six_chart":
+          case "six_capability":
+          case "six_analyze": {
+            result = executeSixSigmaAction(action, params);
             break;
           }
 
