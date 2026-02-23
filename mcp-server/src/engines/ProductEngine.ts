@@ -71,6 +71,207 @@ import {
 
 import { collisionEngine } from "./CollisionEngine.js";
 
+// ─── Business Source File Catalog ────────────────────────────────────────────
+// Maps all 18 extracted business JS files from the PRISM v8.89.002 monolith
+// to their target engines. Used for traceability, safety auditing, and wiring.
+
+export const BUSINESS_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  target_engine: string;
+  consumers: string[];
+}> = {
+  // ── extracted/engines/business/ (11 files) ─────────────────────────────────
+
+  PRISM_FINANCIAL_ENGINE: {
+    filename: "PRISM_FINANCIAL_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "financial",
+    lines: 183,
+    safety_class: "MEDIUM",
+    description: "NPV, IRR, and financial viability calculations for capital projects",
+    target_engine: "ProductEngine",
+    consumers: ["shop_quote", "shop_cost", "shop_dashboard"],
+  },
+  PRISM_INVENTORY_ENGINE: {
+    filename: "PRISM_INVENTORY_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "inventory",
+    lines: 159,
+    safety_class: "MEDIUM",
+    description: "EOQ, reorder points, and inventory optimization models",
+    target_engine: "ProductEngine",
+    consumers: ["shop_materials", "shop_dashboard"],
+  },
+  PRISM_JOB_COSTING_ENGINE: {
+    filename: "PRISM_JOB_COSTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "costing",
+    lines: 379,
+    safety_class: "MEDIUM",
+    description: "Job cost rollups: labor, machine, material, overhead, and setup rates",
+    target_engine: "ProductEngine",
+    consumers: ["shop_cost", "shop_quote", "shop_job"],
+  },
+  PRISM_JOB_SHOP_SCHEDULING_ENGINE: {
+    filename: "PRISM_JOB_SHOP_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 926,
+    safety_class: "MEDIUM",
+    description: "Dispatching rules (FIFO, SPT, EDD, CR, SLACK) and job-shop optimization",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["schedule_jobs", "optimize_schedule"],
+  },
+  PRISM_JOB_TRACKING_ENGINE: {
+    filename: "PRISM_JOB_TRACKING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "tracking",
+    lines: 246,
+    safety_class: "MEDIUM",
+    description: "Job lifecycle state machine: quoted through invoiced/closed",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["schedule_jobs", "shop_job", "shop_dashboard"],
+  },
+  PRISM_ORDER_MANAGER: {
+    filename: "PRISM_ORDER_MANAGER.js",
+    source_dir: "extracted/engines/business",
+    category: "orders",
+    lines: 330,
+    safety_class: "MEDIUM",
+    description: "Order creation, work order management, and order lifecycle tracking",
+    target_engine: "ProductEngine",
+    consumers: ["shop_job", "shop_quote", "shop_dashboard"],
+  },
+  PRISM_PURCHASING_SYSTEM: {
+    filename: "PRISM_PURCHASING_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "purchasing",
+    lines: 342,
+    safety_class: "MEDIUM",
+    description: "Supplier catalog (MSC, Grainger, etc.) and procurement workflows",
+    target_engine: "ProductEngine",
+    consumers: ["shop_materials", "shop_cost"],
+  },
+  PRISM_QUOTING_ENGINE: {
+    filename: "PRISM_QUOTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "quoting",
+    lines: 215,
+    safety_class: "MEDIUM",
+    description: "Quote generation with margin targets, volume discounts, and rush pricing",
+    target_engine: "ProductEngine",
+    consumers: ["shop_quote", "shop_cost"],
+  },
+  PRISM_REPORTING_ENGINE: {
+    filename: "PRISM_REPORTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "reporting",
+    lines: 412,
+    safety_class: "LOW",
+    description: "KPI dashboards, production summaries, and financial/quality reports",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["shop_dashboard", "shop_report"],
+  },
+  PRISM_SCHEDULING_ENGINE_CORE: {
+    filename: "PRISM_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 182,
+    safety_class: "MEDIUM",
+    description: "Johnson's algorithm for 2-machine flow shop makespan minimization",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["schedule_jobs", "optimize_schedule"],
+  },
+  PRISM_SUBSCRIPTION_SYSTEM: {
+    filename: "PRISM_SUBSCRIPTION_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "subscription",
+    lines: 270,
+    safety_class: "LOW",
+    description: "Tier definitions (Essentials through Enterprise) and billing configuration",
+    target_engine: "ProductEngine",
+    consumers: ["shop_get", "shop_dashboard"],
+  },
+
+  // ── extracted/business/ (7 files) ──────────────────────────────────────────
+
+  PRISM_BUSINESS_AI_SYSTEM: {
+    filename: "PRISM_BUSINESS_AI_SYSTEM.js",
+    source_dir: "extracted/business",
+    category: "ai-orchestrator",
+    lines: 211,
+    safety_class: "LOW",
+    description: "Business intelligence orchestrator: wires costing, quoting, analytics, and AI models",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["shop_dashboard", "shop_report", "optimize_schedule"],
+  },
+  PRISM_COST_DATABASE: {
+    filename: "PRISM_COST_DATABASE.js",
+    source_dir: "extracted/business",
+    category: "costing",
+    lines: 1026,
+    safety_class: "MEDIUM",
+    description: "Machine TCO hourly rates, material costs, and tooling cost factors",
+    target_engine: "ProductEngine",
+    consumers: ["shop_cost", "shop_quote", "shop_materials"],
+  },
+  PRISM_COST_ESTIMATION: {
+    filename: "PRISM_COST_ESTIMATION.js",
+    source_dir: "extracted/business",
+    category: "costing",
+    lines: 213,
+    safety_class: "MEDIUM",
+    description: "Parametric cost estimation: machine hourly, labor rates, and overhead multipliers",
+    target_engine: "ProductEngine",
+    consumers: ["shop_cost", "shop_quote"],
+  },
+  PRISM_SCHEDULING_ENGINE_BUSINESS: {
+    filename: "PRISM_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "scheduling",
+    lines: 175,
+    safety_class: "MEDIUM",
+    description: "Johnson's algorithm and flow-shop scheduling (business-layer duplicate)",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["schedule_jobs", "optimize_schedule"],
+  },
+  PRISM_SHOP_ANALYTICS_ENGINE: {
+    filename: "PRISM_SHOP_ANALYTICS_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "analytics",
+    lines: 183,
+    safety_class: "LOW",
+    description: "OEE calculation (Availability x Performance x Quality) and machine analytics",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["shop_dashboard", "shop_report"],
+  },
+  PRISM_SHOP_LEARNING_ENGINE: {
+    filename: "PRISM_SHOP_LEARNING_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "learning",
+    lines: 150,
+    safety_class: "LOW",
+    description: "Bayesian estimation factor updates from job outcomes and operator/machine performance",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["shop_dashboard", "optimize_schedule"],
+  },
+  PRISM_SHOP_OPTIMIZER: {
+    filename: "PRISM_SHOP_OPTIMIZER.js",
+    source_dir: "extracted/business",
+    category: "optimization",
+    lines: 228,
+    safety_class: "MEDIUM",
+    description: "Genetic algorithm schedule optimizer and operation sequence optimization",
+    target_engine: "ShopSchedulerEngine",
+    consumers: ["optimize_schedule", "schedule_jobs"],
+  },
+};
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type ProductTier = "free" | "pro" | "enterprise";
@@ -2301,4 +2502,70 @@ export function productACNC(action: string, params: Record<string, any>): any {
         "acnc_validate", "acnc_batch", "acnc_history", "acnc_get",
       ] };
   }
+}
+
+// ─── Business Source File Catalog Accessor ────────────────────────────────────
+
+/**
+ * Returns the full business source file catalog, optionally filtered by
+ * target engine or category.
+ *
+ * @param filter.target_engine - Filter to entries targeting a specific engine
+ * @param filter.category      - Filter to a specific category (e.g. "costing")
+ * @param filter.safety_class  - Filter by safety classification
+ * @returns Matching catalog entries with summary statistics
+ */
+export function getSourceFileCatalog(filter?: {
+  target_engine?: string;
+  category?: string;
+  safety_class?: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+}): {
+  entries: typeof BUSINESS_SOURCE_FILE_CATALOG;
+  summary: {
+    total_files: number;
+    total_lines: number;
+    by_engine: Record<string, number>;
+    by_category: Record<string, number>;
+    by_safety: Record<string, number>;
+  };
+} {
+  let entries = { ...BUSINESS_SOURCE_FILE_CATALOG };
+
+  if (filter?.target_engine) {
+    entries = Object.fromEntries(
+      Object.entries(entries).filter(([, v]) => v.target_engine === filter.target_engine)
+    ) as typeof BUSINESS_SOURCE_FILE_CATALOG;
+  }
+  if (filter?.category) {
+    entries = Object.fromEntries(
+      Object.entries(entries).filter(([, v]) => v.category === filter.category)
+    ) as typeof BUSINESS_SOURCE_FILE_CATALOG;
+  }
+  if (filter?.safety_class) {
+    entries = Object.fromEntries(
+      Object.entries(entries).filter(([, v]) => v.safety_class === filter.safety_class)
+    ) as typeof BUSINESS_SOURCE_FILE_CATALOG;
+  }
+
+  const vals = Object.values(entries);
+  const byEngine: Record<string, number> = {};
+  const byCat: Record<string, number> = {};
+  const bySafety: Record<string, number> = {};
+
+  for (const v of vals) {
+    byEngine[v.target_engine] = (byEngine[v.target_engine] ?? 0) + 1;
+    byCat[v.category] = (byCat[v.category] ?? 0) + 1;
+    bySafety[v.safety_class] = (bySafety[v.safety_class] ?? 0) + 1;
+  }
+
+  return {
+    entries,
+    summary: {
+      total_files: vals.length,
+      total_lines: vals.reduce((sum, v) => sum + v.lines, 0),
+      by_engine: byEngine,
+      by_category: byCat,
+      by_safety: bySafety,
+    },
+  };
 }

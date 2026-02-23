@@ -12,6 +12,248 @@
  */
 
 // ============================================================================
+// P-MS2 WAVE 2: OPTIMIZATION SOURCE FILE CATALOG
+// 25 extracted JS modules from C:\PRISM\extracted\engines\optimization\
+// Total: 14,625 lines of optimization algorithms
+// ============================================================================
+
+export const OPTIMIZATION_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  algorithm_type: string;
+  consumers: string[];
+}> = {
+  "PRISM_ACO_SEQUENCER": {
+    filename: "PRISM_ACO_SEQUENCER.js",
+    category: "sequencing",
+    lines: 758,
+    safety_class: "CRITICAL",
+    description: "Ant Colony Optimization for hole/operation sequencing with tool change and setup change penalties",
+    algorithm_type: "ACO",
+    consumers: ["OptimizationEngine", "optimizeSequence"]
+  },
+  "PRISM_ADVANCED_FEED_OPTIMIZER": {
+    filename: "PRISM_ADVANCED_FEED_OPTIMIZER.js",
+    category: "feed_optimization",
+    lines: 66,
+    safety_class: "HIGH",
+    description: "Chip thinning compensation and advanced feed rate calculations for radial engagement",
+    algorithm_type: "Chip Thinning",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_ADVANCED_OPTIMIZATION_ENGINE": {
+    filename: "PRISM_ADVANCED_OPTIMIZATION_ENGINE.js",
+    category: "constrained",
+    lines: 1018,
+    safety_class: "HIGH",
+    description: "Stability lobe diagram calculator and advanced machining parameter optimization for chatter avoidance",
+    algorithm_type: "Stability Lobe Analysis",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER": {
+    filename: "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER.js",
+    category: "unconstrained",
+    lines: 1825,
+    safety_class: "MEDIUM",
+    description: "Advanced unconstrained optimization with L-BFGS, trust region, and steepest descent variants",
+    algorithm_type: "L-BFGS / Trust Region / Steepest Descent",
+    consumers: ["OptimizationEngine"]
+  },
+  "PRISM_CALCULATOR_OPTIMIZER": {
+    filename: "PRISM_CALCULATOR_OPTIMIZER.js",
+    category: "metaheuristic",
+    lines: 147,
+    safety_class: "HIGH",
+    description: "PSO-based cutting parameter calculator with Pareto front support for material/tool/machine combos",
+    algorithm_type: "PSO",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_COMBINATORIAL_OPTIMIZER": {
+    filename: "PRISM_COMBINATORIAL_OPTIMIZER.js",
+    category: "constrained",
+    lines: 3938,
+    safety_class: "MEDIUM",
+    description: "Combinatorial optimization: branch and bound, cutting planes, and dynamic programming for integer programs",
+    algorithm_type: "Branch and Bound / Cutting Planes / DP",
+    consumers: ["OptimizationEngine", "optimizeSequence"]
+  },
+  "PRISM_CONSTRAINED_OPTIMIZER": {
+    filename: "PRISM_CONSTRAINED_OPTIMIZER.js",
+    category: "constrained",
+    lines: 484,
+    safety_class: "MEDIUM",
+    description: "Constrained optimization with penalty methods, barrier functions, and augmented Lagrangian",
+    algorithm_type: "Penalty / Barrier / Augmented Lagrangian",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_INTERIOR_POINT_ENGINE": {
+    filename: "PRISM_INTERIOR_POINT_ENGINE.js",
+    category: "constrained",
+    lines: 373,
+    safety_class: "MEDIUM",
+    description: "Primal-dual interior point method (Mehrotra predictor-corrector) for linear programming",
+    algorithm_type: "Interior Point (Mehrotra)",
+    consumers: ["OptimizationEngine"]
+  },
+  "PRISM_MFG_OPTIMIZATION": {
+    filename: "PRISM_MFG_OPTIMIZATION.js",
+    category: "path_optimization",
+    lines: 186,
+    safety_class: "CRITICAL",
+    description: "Rapid movement path optimization using Christofides algorithm + 2-Opt local search (30-50% reduction)",
+    algorithm_type: "Christofides / 2-Opt",
+    consumers: ["OptimizationEngine", "optimizeSequence"]
+  },
+  "PRISM_MFG_OPTIMIZATION_ADVANCED_B": {
+    filename: "PRISM_MFG_OPTIMIZATION_ADVANCED_B.js",
+    category: "multi_objective",
+    lines: 198,
+    safety_class: "HIGH",
+    description: "Multi-objective cutting parameter optimization with goal programming for MRR, surface finish, tool life",
+    algorithm_type: "Goal Programming",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_MOEAD_ENGINE": {
+    filename: "PRISM_MOEAD_ENGINE.js",
+    category: "multi_objective",
+    lines: 425,
+    safety_class: "MEDIUM",
+    description: "MOEA/D multi-objective evolutionary algorithm with Tchebycheff, weighted sum, and PBI scalarization",
+    algorithm_type: "MOEA/D",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_MONTE_CARLO_ENGINE": {
+    filename: "PRISM_MONTE_CARLO_ENGINE.js",
+    category: "metaheuristic",
+    lines: 348,
+    safety_class: "MEDIUM",
+    description: "Monte Carlo simulation for tool life prediction with Taylor equation uncertainty quantification",
+    algorithm_type: "Monte Carlo Simulation",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_MULTI_OBJECTIVE_ENGINE": {
+    filename: "PRISM_MULTI_OBJECTIVE_ENGINE.js",
+    category: "multi_objective",
+    lines: 377,
+    safety_class: "MEDIUM",
+    description: "Multi-objective optimization with NSGA-II, NSGA-III, and Pareto dominance methods",
+    algorithm_type: "NSGA-II / NSGA-III",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_MULTI_OBJECTIVE_OPTIMIZER": {
+    filename: "PRISM_MULTI_OBJECTIVE_OPTIMIZER.js",
+    category: "multi_objective",
+    lines: 300,
+    safety_class: "HIGH",
+    description: "Multi-objective optimizer with weighted profiles (production, prototype, finish-critical) for machining trade-offs",
+    algorithm_type: "Weighted Sum / Pareto",
+    consumers: ["OptimizationEngine", "optimizeParameters", "ecoOptimize"]
+  },
+  "PRISM_PHASE1_OPTIMIZERS": {
+    filename: "PRISM_PHASE1_OPTIMIZERS.js",
+    category: "metaheuristic",
+    lines: 808,
+    safety_class: "HIGH",
+    description: "Phase 1 PSO speed/feed multi-objective optimization with unit-safe metric internals",
+    algorithm_type: "PSO",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_POST_OPTIMIZER": {
+    filename: "PRISM_POST_OPTIMIZER.js",
+    category: "path_optimization",
+    lines: 122,
+    safety_class: "CRITICAL",
+    description: "Post-processor G-code optimization: redundant move removal, rapid optimization, and code compression",
+    algorithm_type: "G-code Motion Optimization",
+    consumers: ["OptimizationEngine"]
+  },
+  "PRISM_RAPID_PATH_OPTIMIZER": {
+    filename: "PRISM_RAPID_PATH_OPTIMIZER.js",
+    category: "path_optimization",
+    lines: 325,
+    safety_class: "CRITICAL",
+    description: "Rapid movement sequence optimization with retract strategies and linking move planning",
+    algorithm_type: "Nearest Neighbor / TSP Heuristic",
+    consumers: ["OptimizationEngine", "optimizeSequence"]
+  },
+  "PRISM_RAPIDS_OPTIMIZER": {
+    filename: "PRISM_RAPIDS_OPTIMIZER.js",
+    category: "path_optimization",
+    lines: 132,
+    safety_class: "CRITICAL",
+    description: "Rapid move optimization: redundancy removal, consecutive rapid combination, and distance savings",
+    algorithm_type: "Rapid Consolidation",
+    consumers: ["OptimizationEngine"]
+  },
+  "PRISM_ROBUST_OPTIMIZATION": {
+    filename: "PRISM_ROBUST_OPTIMIZATION.js",
+    category: "constrained",
+    lines: 256,
+    safety_class: "MEDIUM",
+    description: "Robust optimization under parameter uncertainty with worst-case, expected value, and CVaR methods",
+    algorithm_type: "Robust / Worst-Case / CVaR",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_SQP_INTERIOR_POINT_ENGINE": {
+    filename: "PRISM_SQP_INTERIOR_POINT_ENGINE.js",
+    category: "constrained",
+    lines: 897,
+    safety_class: "MEDIUM",
+    description: "Sequential quadratic programming and interior point methods for nonlinear constrained optimization",
+    algorithm_type: "SQP / Interior Point",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_SWARM_ALGORITHMS": {
+    filename: "PRISM_SWARM_ALGORITHMS.js",
+    category: "metaheuristic",
+    lines: 310,
+    safety_class: "HIGH",
+    description: "Particle swarm optimization for speed and feed parameter optimization with inertia decay",
+    algorithm_type: "PSO",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_SWARM_NEURAL_HYBRID": {
+    filename: "PRISM_SWARM_NEURAL_HYBRID.js",
+    category: "hybrid",
+    lines: 193,
+    safety_class: "HIGH",
+    description: "Neural network-guided particle swarm optimization for manufacturing parameter tuning",
+    algorithm_type: "PSO-Neural Network Hybrid",
+    consumers: ["OptimizationEngine", "optimizeParameters"]
+  },
+  "PRISM_SWARM_TOOLPATH": {
+    filename: "PRISM_SWARM_TOOLPATH.js",
+    category: "sequencing",
+    lines: 237,
+    safety_class: "CRITICAL",
+    description: "ACO-based CNC toolpath feature sequencing with adaptive pheromone updates",
+    algorithm_type: "ACO",
+    consumers: ["OptimizationEngine", "optimizeSequence"]
+  },
+  "PRISM_TRUST_REGION_OPTIMIZER": {
+    filename: "PRISM_TRUST_REGION_OPTIMIZER.js",
+    category: "constrained",
+    lines: 374,
+    safety_class: "MEDIUM",
+    description: "Trust region methods: Cauchy point, dogleg, and Steihaug-Toint conjugate gradient subproblem solver",
+    algorithm_type: "Trust Region (Cauchy / Dogleg / Steihaug-Toint)",
+    consumers: ["OptimizationEngine"]
+  },
+  "PRISM_UNCONSTRAINED_OPTIMIZATION": {
+    filename: "PRISM_UNCONSTRAINED_OPTIMIZATION.js",
+    category: "unconstrained",
+    lines: 528,
+    safety_class: "MEDIUM",
+    description: "Unconstrained optimization: gradient descent, conjugate gradient, and BFGS quasi-Newton methods",
+    algorithm_type: "Gradient Descent / Conjugate Gradient / BFGS",
+    consumers: ["OptimizationEngine"]
+  }
+};
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -757,6 +999,79 @@ export function ecoOptimize(input: EcoOptimizeInput): EcoOptimizeResult {
     eco_weight_applied: weight,
     sustainability_improvement_pct: +improvement.toFixed(1),
   };
+}
+
+// ============================================================================
+// SOURCE FILE CATALOG UTILITIES
+// ============================================================================
+
+/**
+ * Returns the full OPTIMIZATION_SOURCE_FILE_CATALOG for programmatic access.
+ * Includes summary statistics by category and safety class.
+ */
+export function getSourceFileCatalog(): {
+  catalog: typeof OPTIMIZATION_SOURCE_FILE_CATALOG;
+  summary: {
+    total_files: number;
+    total_lines: number;
+    by_category: Record<string, number>;
+    by_safety_class: Record<string, number>;
+  };
+} {
+  const entries = Object.values(OPTIMIZATION_SOURCE_FILE_CATALOG);
+  const totalLines = entries.reduce((sum, e) => sum + e.lines, 0);
+
+  const byCategory: Record<string, number> = {};
+  const bySafety: Record<string, number> = {};
+
+  for (const entry of entries) {
+    byCategory[entry.category] = (byCategory[entry.category] ?? 0) + 1;
+    bySafety[entry.safety_class] = (bySafety[entry.safety_class] ?? 0) + 1;
+  }
+
+  return {
+    catalog: OPTIMIZATION_SOURCE_FILE_CATALOG,
+    summary: {
+      total_files: entries.length,
+      total_lines: totalLines,
+      by_category: byCategory,
+      by_safety_class: bySafety,
+    },
+  };
+}
+
+/**
+ * Logs catalog status to console for diagnostics.
+ * Returns a structured status report suitable for health checks.
+ */
+export function catalogSourceFiles(): {
+  status: string;
+  cataloged: number;
+  total_lines: number;
+  critical_modules: string[];
+  categories: string[];
+} {
+  const entries = Object.entries(OPTIMIZATION_SOURCE_FILE_CATALOG);
+  const totalLines = entries.reduce((sum, [, e]) => sum + e.lines, 0);
+  const criticalModules = entries
+    .filter(([, e]) => e.safety_class === "CRITICAL")
+    .map(([name]) => name);
+  const categories = [...new Set(entries.map(([, e]) => e.category))].sort();
+
+  const report = {
+    status: "cataloged",
+    cataloged: entries.length,
+    total_lines: totalLines,
+    critical_modules: criticalModules,
+    categories,
+  };
+
+  console.log(
+    `[OptimizationEngine] Source catalog: ${report.cataloged} files, ` +
+    `${report.total_lines} lines, ${criticalModules.length} CRITICAL modules`
+  );
+
+  return report;
 }
 
 // ============================================================================

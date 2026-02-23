@@ -89,7 +89,15 @@ export const PATHS = {
   AUTONOMOUS_TASKS: "C:\\PRISM\\autonomous-tasks",
 
   // Hooks registry
-  HOOKS_REGISTRY: "C:\\PRISM\\data\\DEVELOPMENT_HOOKS_REGISTRY.json"
+  HOOKS_REGISTRY: "C:\\PRISM\\data\\DEVELOPMENT_HOOKS_REGISTRY.json",
+
+  // Extracted module directories (P-MS2 Wave 2)
+  FORMULAS: "C:\\PRISM\\extracted\\formulas",
+  OPTIMIZATION: "C:\\PRISM\\extracted\\engines\\optimization",
+  SIMULATION: "C:\\PRISM\\extracted\\engines\\simulation",
+  QUALITY: "C:\\PRISM\\extracted\\engines\\quality",
+  BUSINESS: "C:\\PRISM\\extracted\\engines\\business",
+  BUSINESS_MODULES: "C:\\PRISM\\extracted\\business"
 } as const;
 
 // Data Layers (4-layer hierarchy)

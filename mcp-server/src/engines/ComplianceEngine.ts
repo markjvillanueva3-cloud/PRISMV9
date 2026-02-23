@@ -29,6 +29,55 @@ import { certificateEngine } from './CertificateEngine.js';
 import { log } from '../utils/Logger.js';
 
 // ============================================================================
+// QUALITY SOURCE FILE CATALOG — extracted JS quality engines wired to this engine
+// ============================================================================
+
+/**
+ * Registry of legacy PRISM quality-engine JS files extracted from the v8.89.002
+ * monolith and mapped into the ComplianceEngine domain.
+ *
+ * SAFETY: All three files are classified HIGH because incorrect quality checks
+ * could allow non-conforming parts through inspection, SPC, or process control.
+ */
+export const QUALITY_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  target_engine: string;
+  consumers: string[];
+}> = {
+  PRISM_INSPECTION_ENGINE: {
+    filename: 'PRISM_INSPECTION_ENGINE.js',
+    category: 'inspection',
+    lines: 206,
+    safety_class: 'HIGH',
+    description: 'CMM inspection program generation, dimensional verification, and measurement routines extracted from PRISM v8.89.002',
+    target_engine: 'ComplianceEngine',
+    consumers: ['ComplianceEngine.runAudit', 'ComplianceEngine.provisionTemplate'],
+  },
+  PRISM_PHASE2_QUALITY_SYSTEM: {
+    filename: 'PRISM_PHASE2_QUALITY_SYSTEM.js',
+    category: 'quality-system',
+    lines: 404,
+    safety_class: 'HIGH',
+    description: 'Phase 2 quality system with SPC control-chart analysis, process capability metrics, and statistical compliance (MIT 2.830 / Georgia Tech sourced)',
+    target_engine: 'ComplianceEngine',
+    consumers: ['ComplianceEngine.runAudit', 'ComplianceEngine.gapAnalysis'],
+  },
+  PRISM_QUALITY_MANAGER: {
+    filename: 'PRISM_QUALITY_MANAGER.js',
+    category: 'quality-management',
+    lines: 378,
+    safety_class: 'HIGH',
+    description: 'Quality manager handling inspections, NCRs, CARs, SPC data, and disposition workflow for process control extracted from PRISM v8.89.002',
+    target_engine: 'ComplianceEngine',
+    consumers: ['ComplianceEngine.runAudit', 'ComplianceEngine.provisionTemplate', 'ComplianceEngine.gapAnalysis'],
+  },
+};
+
+// ============================================================================
 // STATE PATHS
 // ============================================================================
 
@@ -706,6 +755,20 @@ export class ComplianceEngine {
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(this.config, null, 2));
     } catch { /* non-fatal */ }
     return { ...this.config };
+  }
+
+  // ==========================================================================
+  // QUALITY SOURCE FILE CATALOG ACCESS
+  // ==========================================================================
+
+  /**
+   * Returns the catalog of extracted quality-engine JS source files that have
+   * been wired into this ComplianceEngine.  Useful for introspection, tooling
+   * dashboards, and audit trails that need to trace compliance logic back to
+   * the original PRISM v8.89.002 monolith extractions.
+   */
+  getSourceFileCatalog(): typeof QUALITY_SOURCE_FILE_CATALOG {
+    return QUALITY_SOURCE_FILE_CATALOG;
   }
 
   shutdown(): void {

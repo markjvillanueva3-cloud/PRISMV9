@@ -20,6 +20,26 @@
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
+// SOURCE FILE CROSS-REFERENCE (P-MS2: Links to FormulaRegistry source catalog)
+// ============================================================================
+// This engine implements calculations from these extracted formula modules:
+// - PRISM_FORCE_LOOKUP.js (51 lines) → Kienzle coefficients by material
+// - PRISM_MATERIAL_PHYSICS.js (54 lines) → Material deformation models
+// - PRISM_MFG_PHYSICS.js (197 lines) → Force, power, deflection, chatter
+// - PRISM_STANDALONE_CALCULATOR_API.js (304 lines) → RPM, feed, speed, torque
+// - PRISM_STRESS.js (138 lines) → Von Mises, safety factors
+// - PRISM_STRESS_ANALYSIS.js (254 lines) → FEA, fatigue, creep
+// - PRISM_THERMAL_COMPENSATION.js (205 lines) → Machine/tool/workpiece thermal
+// - PRISM_THERMAL_LOOKUP.js (41 lines) → Thermal property tables
+// - PRISM_THERMAL_PROPERTIES.js (112 lines) → Conductivity, expansion
+// - PRISM_TOOL_LIFE_ESTIMATOR.js (133 lines) → Taylor model implementations
+// - PRISM_TOOL_WEAR_MODELS.js (552 lines) → Usui, diffusion, adhesive wear
+// - PRISM_WEAR_LOOKUP.js (71 lines) → Wear rate lookup tables
+//
+// Full catalog available via: FormulaRegistry.getSourceFileCatalog()
+// Formula definitions available via: FormulaRegistry.getFormula(id)
+
+// ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 

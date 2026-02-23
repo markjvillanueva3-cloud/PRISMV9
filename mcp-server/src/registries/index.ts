@@ -29,7 +29,7 @@ export { MaterialRegistry, materialRegistry, type Material } from "./MaterialReg
 export { MachineRegistry, machineRegistry, type Machine } from "./MachineRegistry.js";
 export { ToolRegistry, toolRegistry, type CuttingTool } from "./ToolRegistry.js";
 export { AlarmRegistry, alarmRegistry, type Alarm } from "./AlarmRegistry.js";
-export { FormulaRegistry, formulaRegistry, type Formula } from "./FormulaRegistry.js";
+export { FormulaRegistry, formulaRegistry, type Formula, FORMULA_SOURCE_FILE_CATALOG } from "./FormulaRegistry.js";
 export { AlgorithmRegistry, algorithmRegistry, type AlgorithmEntry, type AlgorithmType, type AlgorithmSafetyClass, type MfgRelevance } from "./AlgorithmRegistry.js";
 export { PostProcessorRegistry, postProcessorRegistry, type PostProcessor, type ControllerFamily, type PostType, type PostCapability } from "./PostProcessorRegistry.js";
 export { KnowledgeBaseRegistry, knowledgeBaseRegistry, type KnowledgeBaseEntry, type KnowledgeBaseTopic, type KnowledgeBaseQueryType } from "./KnowledgeBaseRegistry.js";
