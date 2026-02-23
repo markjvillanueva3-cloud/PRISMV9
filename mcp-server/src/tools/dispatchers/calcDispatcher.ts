@@ -229,6 +229,10 @@ import {
   executeComplianceAuditAction,
 } from "../../engines/ComplianceAuditEngine.js";
 
+import {
+  executeEnergyMonitoringAction,
+} from "../../engines/EnergyMonitoringEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -550,6 +554,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { rating: result.overall_rating, avg_compliance: result.avg_compliance_pct, total_gaps: result.total_gaps };
     case "comp_standards":
       return { total_found: result.total_found, standards: result.standards?.map((s: any) => s.id) };
+    case "en_consumption":
+      return { machines: result.fleet_summary?.machines_monitored, total_kwh: result.fleet_summary?.total_kwh, total_cost: result.fleet_summary?.total_cost_usd };
+    case "en_profile":
+      return { power_kw: result.power_profile?.steady_state_power_kw, cycle_kwh: result.cycle?.total_energy_kwh, efficiency: result.efficiency?.energy_efficiency };
+    case "en_demand":
+      return { avg_kw: result.summary?.avg_demand_kw, peak_kw: result.summary?.max_peak_demand_kw, total_kwh: result.summary?.total_energy_kwh, bill_usd: result.summary?.total_bill_usd };
+    case "en_benchmark":
+      return { machines: result.fleet_summary?.machines_benchmarked, avg_efficiency: result.fleet_summary?.avg_efficiency_ratio, savings: result.fleet_summary?.potential_annual_savings_usd };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -620,6 +632,7 @@ const ACTIONS = [
   "inv_status", "inv_forecast", "inv_reorder", "inv_optimize",
   "cost_estimate", "cost_breakdown", "cost_compare", "cost_whatif",
   "comp_check", "comp_certify", "comp_report", "comp_standards",
+  "en_consumption", "en_profile", "en_demand", "en_benchmark",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1894,6 +1907,14 @@ export function registerCalcDispatcher(server: any): void {
           case "comp_report":
           case "comp_standards": {
             result = executeComplianceAuditAction(action, params);
+            break;
+          }
+
+          case "en_consumption":
+          case "en_profile":
+          case "en_demand":
+          case "en_benchmark": {
+            result = executeEnergyMonitoringAction(action, params);
             break;
           }
 
