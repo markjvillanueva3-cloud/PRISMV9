@@ -195,6 +195,10 @@ import {
   executeWorkflowOrchestratorAction,
 } from "../../engines/WorkflowOrchestratorEngine.js";
 
+import {
+  executeProcessKnowledgeAction,
+} from "../../engines/ProcessKnowledgeEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -428,6 +432,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { engines: result.total_engine_groups, actions: result.total_actions, categories: result.categories?.length, goals: result.available_goals?.length };
     case "wfo_optimize":
       return { goal: result.goal_type, steps: result.current_plan_steps, suggestions: result.optimization_suggestions?.length, recipe: result.recommended_recipe };
+    case "pk_capture":
+      return { id: result.id, status: result.status, type: result.type, title: result.title, total: result.total_entries };
+    case "pk_retrieve":
+      return { id: result.entry?.id, title: result.entry?.title, total: result.total_entries, matches: result.total_matches };
+    case "pk_search":
+      return { matches: result.total_matches, material: result.query?.material, operation: result.query?.operation };
+    case "pk_validate":
+      return { violations: result.total_violations, errors: result.errors, warnings: result.warnings, verdict: result.verdict };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -487,6 +499,7 @@ const ACTIONS = [
   "rca_diagnose", "rca_tree", "rca_correlate", "rca_action_plan",
   "cqt_pareto", "cqt_optimize", "cqt_sensitivity", "cqt_scenario",
   "wfo_plan", "wfo_execute", "wfo_status", "wfo_optimize",
+  "pk_capture", "pk_retrieve", "pk_search", "pk_validate",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1673,6 +1686,14 @@ export function registerCalcDispatcher(server: any): void {
           case "wfo_status":
           case "wfo_optimize": {
             result = executeWorkflowOrchestratorAction(action, params);
+            break;
+          }
+
+          case "pk_capture":
+          case "pk_retrieve":
+          case "pk_search":
+          case "pk_validate": {
+            result = executeProcessKnowledgeAction(action, params);
             break;
           }
 
