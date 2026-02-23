@@ -343,6 +343,9 @@ import {
 import {
   executeProductCostAction,
 } from "../../engines/ProductCostEngine.js";
+import {
+  executeVarianceAnalysisAction,
+} from "../../engines/VarianceAnalysisEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -929,6 +932,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { operations: result.total_operations, total_labor: result.summary?.total_labor_cost, total_hours: result.summary?.total_hours };
     case "cost_overhead":
       return { pools: result.total_pools, variance: result.summary?.total_variance, variance_pct: result.summary?.variance_pct };
+    case "var_ppv":
+      return { records: result.total_records, total_ppv: result.summary?.total_ppv, status: result.summary?.net_status };
+    case "var_labor":
+      return { rate_var: result.summary?.total_rate_variance, eff_var: result.summary?.total_efficiency_variance, total: result.summary?.total_labor_variance };
+    case "var_overhead":
+      return { spending: result.summary?.total_spending_variance, volume: result.summary?.total_volume_variance, total: result.summary?.total_overhead_variance };
+    case "var_summary":
+      return { grand_total: result.grand_total?.total_variance, status: result.grand_total?.overall_status };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1032,6 +1043,7 @@ const ACTIONS = [
   "insp_plan", "insp_sample", "insp_fai", "insp_dimension",
   "met_cmm", "met_spc", "met_drift", "met_correlate",
   "cost_standard", "cost_bom", "cost_labor", "cost_overhead",
+  "var_ppv", "var_labor", "var_overhead", "var_summary",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2570,6 +2582,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cost_labor":
           case "cost_overhead": {
             result = executeProductCostAction(action, params);
+            break;
+          }
+
+          case "var_ppv":
+          case "var_labor":
+          case "var_overhead":
+          case "var_summary": {
+            result = executeVarianceAnalysisAction(action, params);
             break;
           }
 
