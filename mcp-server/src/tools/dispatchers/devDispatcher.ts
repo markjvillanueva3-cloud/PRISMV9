@@ -1,13 +1,14 @@
 /**
- * Dev Workflow Dispatcher - Consolidates dev tools → 1
+ * Dev Workflow Dispatcher - Consolidates dev tools → 1 (14 actions)
  * Actions: session_boot, build, code_template, code_search, file_read, file_write,
- *          server_info, test_smoke, test_results, hook_stats, routing_trace
+ *          server_info, test_smoke, test_results, hook_stats, routing_trace,
+ *          pipeline_status, run_sync, query_db
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execSync, execFileSync } from "child_process";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
 import { resetReconFlag, getHookFireStats, getRoutingTrace } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
@@ -19,7 +20,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(PROJECT_ROOT, "data", "docs");
 const STATE_DIR = path.join(PROJECT_ROOT, "state");
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "hook_stats", "routing_trace"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "hook_stats", "routing_trace", "pipeline_status", "run_sync", "query_db"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -649,6 +650,73 @@ export function registerDevDispatcher(server: any): void {
               entries: trace,
               _hint: "Circular buffer of last 100 dispatch calls with timing, params, and hooks fired."
             };
+            break;
+          }
+          case "pipeline_status": {
+            // R12-MS6: Integration pipeline status
+            const syncLogPath = path.join(PROJECT_ROOT, "state", "logs", "master_sync.json");
+            const duckdbPath = path.join(PROJECT_ROOT, "data", "databases", "prism.duckdb");
+            const scriptsDir = path.join(PROJECT_ROOT, "scripts", "integration");
+            result = {
+              scripts_available: fs.existsSync(scriptsDir) ?
+                fs.readdirSync(scriptsDir).filter(f => f.endsWith(".py")).sort() : [],
+              duckdb_exists: fs.existsSync(duckdbPath),
+              duckdb_size_mb: fs.existsSync(duckdbPath) ?
+                parseFloat((fs.statSync(duckdbPath).size / (1024 * 1024)).toFixed(2)) : 0,
+              last_sync: null as any,
+            };
+            if (fs.existsSync(syncLogPath)) {
+              try {
+                const syncLog = JSON.parse(fs.readFileSync(syncLogPath, "utf-8"));
+                result.last_sync = {
+                  timestamp: syncLog.timestamp,
+                  successful: syncLog.summary?.successful || 0,
+                  failed: syncLog.summary?.failed || 0,
+                  duration: syncLog.summary?.total_duration || 0,
+                };
+              } catch { result.last_sync = "Error reading log"; }
+            }
+            break;
+          }
+          case "run_sync": {
+            // R12-MS6: Run integration pipeline (Excel→JSON→DuckDB)
+            const syncScript = path.join(PROJECT_ROOT, "scripts", "integration", "master_sync.py");
+            if (!fs.existsSync(syncScript)) { result = { error: "master_sync.py not found" }; break; }
+            const syncArgs = ["--skip-drive"];
+            if (params.only) syncArgs.push("--only", String(params.only));
+            if (params.dry_run) syncArgs.push("--dry-run");
+            try {
+              const output = execFileSync("python", [syncScript, ...syncArgs], {
+                cwd: PROJECT_ROOT,
+                encoding: "utf-8",
+                timeout: 300000,
+                stdio: ["pipe", "pipe", "pipe"],
+              });
+              result = { success: true, output: output.trim().slice(-3000) };
+            } catch (err: any) {
+              result = { success: false, error: (err.stderr || err.message || "").slice(-1000),
+                output: (err.stdout || "").slice(-1000) };
+            }
+            break;
+          }
+          case "query_db": {
+            // R12-MS6: SQL query against prism.duckdb
+            const sql = params.sql || params.query;
+            if (!sql) { result = { error: "Missing sql or query parameter" }; break; }
+            const dbPath = path.join(PROJECT_ROOT, "data", "databases", "prism.duckdb");
+            if (!fs.existsSync(dbPath)) { result = { error: "prism.duckdb not found" }; break; }
+            try {
+              const pyScript = `import duckdb,json,sys;db=duckdb.connect(r'${dbPath.replace(/'/g, "\\'")}',read_only=True);r=db.execute(sys.argv[1]).fetchall();c=[d[0] for d in db.description];db.close();print(json.dumps({"columns":c,"rows":[dict(zip(c,row)) for row in r[:500]]}))`;
+              const output = execFileSync("python", ["-c", pyScript, String(sql)], {
+                encoding: "utf-8",
+                timeout: 30000,
+                stdio: ["pipe", "pipe", "pipe"],
+              });
+              result = JSON.parse(output.trim());
+              result.row_count = result.rows?.length || 0;
+            } catch (err: any) {
+              result = { error: (err.stderr || err.message || "").slice(-500) };
+            }
             break;
           }
         }
