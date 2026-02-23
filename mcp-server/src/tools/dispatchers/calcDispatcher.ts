@@ -233,6 +233,7 @@ const ACTIONS = [
   "controller_optimize",
   "surface_integrity_predict", "chatter_predict", "thermal_compensate",
   "unified_machining_model", "coupling_sensitivity",
+  "rz_kinematic", "rz_milling", "surface_profile", "chip_form",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1217,7 +1218,11 @@ export function registerCalcDispatcher(server: any): void {
           case "chatter_predict":
           case "thermal_compensate":
           case "unified_machining_model":
-          case "coupling_sensitivity": {
+          case "coupling_sensitivity":
+          case "rz_kinematic":
+          case "rz_milling":
+          case "surface_profile":
+          case "chip_form": {
             result = physicsPrediction(action, params);
             break;
           }

@@ -717,6 +717,594 @@ export function couplingSensitivity(input: SensitivityInput): SensitivityResult 
 }
 
 // ============================================================================
+// R15-MS1: SURFACE FINISH PHYSICS — KINEMATIC Rz / Rt MODELS
+// ============================================================================
+
+/**
+ * First-principles kinematic Rz model for turning.
+ *
+ * Three regimes based on feed vs critical feed:
+ *   1. f < f_crit (low feed — pure nose radius arc):
+ *      Rz = rε − √(rε² − f²/4)
+ *   2. f ≈ f_crit (transition zone):
+ *      Rz = rε · (1 − cos(κr)) + f·sin(κr)·cos(κr)/(1+sin(κr))  (Brammertz approximation)
+ *   3. f > f_crit (high feed — straight edges contribute):
+ *      Rz combines nose arc and straight-edge geometry
+ *
+ * Corrections applied for:
+ *   - Minimum chip thickness / ploughing (material spring-back at low feed)
+ *   - Tool nose wear (flank wear increases Rz)
+ *   - BUE (built-up edge) for certain material/speed combos
+ *   - Vibration (adds stochastic component)
+ */
+
+export interface RzKinematicInput {
+  operation: 'turning' | 'face_turning' | 'boring';
+  feed_mmrev: number;
+  tool_nose_radius_mm: number;
+  side_cutting_edge_angle_deg?: number;   // κr — default 95°
+  end_cutting_edge_angle_deg?: number;    // κr' — default 5°
+  tool_flank_wear_mm?: number;            // VB — typical 0-0.3mm
+  material?: string;                      // For BUE/ploughing prediction
+  cutting_speed_mpm?: number;             // For BUE regime check
+  vibration_amplitude_um?: number;        // Peak vibration amplitude
+}
+
+export interface RzKinematicResult {
+  rz_ideal_um: number;        // Pure kinematic from geometry
+  rz_corrected_um: number;    // With all corrections
+  rt_um: number;              // Maximum peak-to-valley including vibration
+  ra_kinematic_um: number;    // Ra derived from kinematic Rz (Rz/4..6 depending on profile)
+  regime: 'low_feed_arc' | 'transition' | 'high_feed_edge';
+  feed_critical_mm: number;
+  corrections: {
+    ploughing_um: number;
+    wear_um: number;
+    bue_um: number;
+    vibration_um: number;
+  };
+  profile_description: string;
+  confidence: number;
+  model: string;
+}
+
+export function predictRzKinematic(input: RzKinematicInput): RzKinematicResult {
+  const f = input.feed_mmrev;
+  const re = input.tool_nose_radius_mm;
+  const kr = (input.side_cutting_edge_angle_deg ?? 95) * Math.PI / 180; // rad
+  const kr_prime = (input.end_cutting_edge_angle_deg ?? 5) * Math.PI / 180;
+  const VB = input.tool_flank_wear_mm ?? 0;
+
+  // Critical feed: transition from pure arc to edge-arc-edge profile
+  const f_crit = re * (Math.sin(kr) + Math.sin(kr_prime));
+
+  // ---------- REGIME 1: Low feed (pure nose radius arc) ----------
+  let rz_ideal: number;
+  let regime: 'low_feed_arc' | 'transition' | 'high_feed_edge';
+  let profile_description: string;
+
+  if (f <= f_crit * 0.8) {
+    // Exact circular-arc formula: Rz = rε − √(rε² − (f/2)²)
+    rz_ideal = re - Math.sqrt(Math.max(0, re * re - (f / 2) ** 2));
+    rz_ideal *= 1000; // mm → μm
+    regime = 'low_feed_arc';
+    profile_description = `Pure nose-radius arc profile. f=${f.toFixed(3)}mm < f_crit=${f_crit.toFixed(3)}mm`;
+
+  // ---------- REGIME 2: Transition (Brammertz approximation) ----------
+  } else if (f <= f_crit * 1.2) {
+    // Brammertz (1961): accounts for transition geometry
+    const C1 = re * (1 - Math.cos(kr));
+    const C2 = f * Math.sin(kr) * Math.cos(kr) / (1 + Math.sin(kr) + 1e-10);
+    rz_ideal = (C1 + C2) * 1000; // μm
+    regime = 'transition';
+    profile_description = `Transition regime (Brammertz). f≈f_crit=${f_crit.toFixed(3)}mm`;
+
+  // ---------- REGIME 3: High feed (straight edges + arc) ----------
+  } else {
+    // Combined: two straight cutting edges flanking the nose arc
+    // Rz = f / (cot(κr) + cot(κr')) for straight edges only
+    const cot_kr = Math.cos(kr) / (Math.sin(kr) + 1e-10);
+    const cot_kr_prime = Math.cos(kr_prime) / (Math.sin(kr_prime) + 1e-10);
+    const rz_straight = f / (cot_kr + cot_kr_prime); // mm
+    // Nose arc contributes a rounding at the bottom (reduces Rz slightly)
+    const nose_correction = re * (1 - Math.cos(Math.min(kr, kr_prime))) * 0.5;
+    rz_ideal = Math.max(rz_straight - nose_correction, rz_straight * 0.85) * 1000; // μm
+    regime = 'high_feed_edge';
+    profile_description = `High-feed regime. Straight edges dominate. f=${f.toFixed(3)}mm >> f_crit=${f_crit.toFixed(3)}mm`;
+  }
+
+  // ---------- CORRECTIONS ----------
+
+  // 1. Ploughing / minimum chip thickness (Albrecht 1960)
+  //    Below h_min ≈ rn_edge * (1 − cos(βn)), material springs back instead of cutting
+  //    Effective edge radius rn_edge ≈ 5-20μm for sharp carbide, up to 50μm when worn
+  const rn_edge_um = 8 + VB * 80; // μm edge radius grows with wear
+  const h_min_um = rn_edge_um * 0.3; // Minimum chip thickness
+  const ploughing_um = f * 1000 < h_min_um * 3 ? h_min_um * 0.5 : 0;
+
+  // 2. Flank wear adds a "nose flattening" effect
+  //    VB increases effective nose radius but also adds rubbing marks
+  const wear_um = VB > 0 ? VB * 1000 * 0.15 : 0; // ~15% of VB appears as Rz increase
+
+  // 3. BUE (Built-Up Edge) — forms at low speed on ductile materials
+  let bue_um = 0;
+  if (input.material && input.cutting_speed_mpm) {
+    const mat = getMaterialProps(input.material);
+    const Vc = input.cutting_speed_mpm;
+    // BUE forms when Vc is 20-60% of Taylor limit for steel/aluminum
+    const bueLow = mat.taylor_C * 0.15;
+    const bueHigh = mat.taylor_C * 0.50;
+    if (Vc > bueLow && Vc < bueHigh && mat.hardness_hrc < 35) {
+      const bueIntensity = 1 - Math.abs(Vc - (bueLow + bueHigh) / 2) / ((bueHigh - bueLow) / 2);
+      bue_um = bueIntensity * 3.0; // Up to 3μm from BUE fragments
+    }
+  }
+
+  // 4. Vibration adds stochastic peak-to-valley
+  const vibration_um = input.vibration_amplitude_um ?? 0;
+
+  const rz_corrected = rz_ideal + ploughing_um + wear_um + bue_um;
+  const rt_um = rz_corrected + vibration_um * 2; // Rt includes full vibration envelope
+
+  // Ra from kinematic Rz — ratio depends on profile shape
+  // For pure arc: Ra ≈ Rz/4. For triangular (high feed): Ra ≈ Rz/4.5. Add correction factors.
+  const ra_ratio = regime === 'low_feed_arc' ? 4.0 : regime === 'transition' ? 4.3 : 4.8;
+  const ra_kinematic = rz_corrected / ra_ratio;
+
+  // Confidence based on regime and corrections magnitude
+  let confidence = 0.92;
+  if (bue_um > 1) confidence -= 0.10;
+  if (vibration_um > 2) confidence -= 0.08;
+  if (VB > 0.2) confidence -= 0.05;
+  confidence = Math.max(0.55, confidence);
+
+  return {
+    rz_ideal_um: +rz_ideal.toFixed(3),
+    rz_corrected_um: +rz_corrected.toFixed(3),
+    rt_um: +rt_um.toFixed(3),
+    ra_kinematic_um: +ra_kinematic.toFixed(3),
+    regime,
+    feed_critical_mm: +f_crit.toFixed(4),
+    corrections: {
+      ploughing_um: +ploughing_um.toFixed(3),
+      wear_um: +wear_um.toFixed(3),
+      bue_um: +bue_um.toFixed(3),
+      vibration_um: +vibration_um.toFixed(3),
+    },
+    profile_description,
+    confidence,
+    model: 'kinematic_turning_v1 (R15-MS1)',
+  };
+}
+
+// ============================================================================
+// R15-MS1: MILLING SURFACE FINISH KINEMATIC MODEL
+// ============================================================================
+
+export interface RzMillingInput {
+  milling_type: 'ball_nose' | 'flat_endmill' | 'bull_nose' | 'face_mill';
+  tool_diameter_mm: number;
+  corner_radius_mm?: number;     // For bull_nose / face_mill insert radius
+  stepover_mm?: number;           // Radial stepover (ae) — for scallop height
+  feed_per_tooth_mm: number;
+  number_of_flutes: number;
+  tilt_angle_deg?: number;        // Tool tilt for ball nose (0 = vertical)
+  tool_flank_wear_mm?: number;
+  runout_um?: number;             // Tool/spindle runout
+  vibration_amplitude_um?: number;
+}
+
+export interface RzMillingResult {
+  rz_feed_um: number;            // Feed-direction Rz (cusp from fz)
+  rz_stepover_um: number;        // Stepover-direction Rz (scallop height)
+  rz_combined_um: number;        // Larger of the two
+  rt_um: number;                 // Maximum including runout + vibration
+  ra_estimated_um: number;
+  scallop_height_um: number;
+  cusp_height_um: number;
+  corrections: {
+    runout_um: number;
+    wear_um: number;
+    vibration_um: number;
+  };
+  confidence: number;
+  model: string;
+}
+
+export function predictRzMilling(input: RzMillingInput): RzMillingResult {
+  const D = input.tool_diameter_mm;
+  const R = D / 2;
+  const fz = input.feed_per_tooth_mm;
+  const z = input.number_of_flutes;
+  const ae = input.stepover_mm ?? D * 0.3;
+  const rc = input.corner_radius_mm ?? 0;
+  const tilt = (input.tilt_angle_deg ?? 0) * Math.PI / 180;
+  const VB = input.tool_flank_wear_mm ?? 0;
+  const runout = input.runout_um ?? 0;
+  const vibAmp = input.vibration_amplitude_um ?? 0;
+
+  let rz_feed_um: number;
+  let rz_stepover_um: number;
+  let scallop_um: number;
+  let cusp_um: number;
+  let model: string;
+
+  switch (input.milling_type) {
+    case 'ball_nose': {
+      // Effective radius at contact point depends on tilt angle
+      const R_eff = tilt > 0.01 ? R / Math.cos(tilt) : R;
+      // Scallop height (stepover direction): h = R_eff − √(R_eff² − (ae/2)²)
+      scallop_um = (R_eff - Math.sqrt(Math.max(0, R_eff * R_eff - (ae / 2) ** 2))) * 1000;
+      // Feed cusp height: h = R − √(R² − (fz/2)²)  per tooth
+      cusp_um = (R - Math.sqrt(Math.max(0, R * R - (fz / 2) ** 2))) * 1000;
+      rz_stepover_um = scallop_um;
+      rz_feed_um = cusp_um;
+      model = 'ball_nose_kinematic_v1';
+      break;
+    }
+
+    case 'flat_endmill': {
+      // Face: negligible stepover Rz (flat bottom)
+      // Feed cusp from fz (each tooth removes a scallop in feed direction)
+      // For peripheral milling: Rz ≈ fz² / (4·D) × 1000
+      cusp_um = (fz * fz / (4 * D + 1e-10)) * 1000;
+      scallop_um = 0; // Flat bottom = no scallop in stepover
+      rz_feed_um = cusp_um;
+      rz_stepover_um = scallop_um;
+      model = 'flat_endmill_kinematic_v1';
+      break;
+    }
+
+    case 'bull_nose': {
+      // Bull nose = flat endmill with corner radius rc
+      // Scallop height from stepover: h = rc − √(rc² − (ae/2)²) if ae < 2·rc, else flat
+      scallop_um = ae < 2 * rc
+        ? (rc - Math.sqrt(Math.max(0, rc * rc - (ae / 2) ** 2))) * 1000
+        : 0;
+      cusp_um = (fz * fz / (4 * D + 1e-10)) * 1000;
+      rz_feed_um = cusp_um;
+      rz_stepover_um = scallop_um;
+      model = 'bull_nose_kinematic_v1';
+      break;
+    }
+
+    case 'face_mill': {
+      // Face mill with insert nose radius
+      const r_insert = rc > 0 ? rc : 0.8; // Default insert nose radius
+      // Rz in feed direction: fz² / (8·r_insert) per tooth
+      cusp_um = (fz * fz / (8 * r_insert + 1e-10)) * 1000;
+      scallop_um = 0; // Face mill = flat surface in stepover direction
+      rz_feed_um = cusp_um;
+      rz_stepover_um = 0;
+      model = 'face_mill_kinematic_v1';
+      break;
+    }
+  }
+
+  // Corrections
+  const runout_correction = runout * 0.8; // Runout adds to Rz (one tooth cuts deeper)
+  const wear_correction = VB > 0 ? VB * 1000 * 0.12 : 0;
+  const vibration_correction = vibAmp;
+
+  const rz_combined = Math.max(rz_feed_um, rz_stepover_um) + wear_correction + runout_correction;
+  const rt_um = rz_combined + vibration_correction * 2;
+  const ra_estimated = rz_combined / 4.5; // Approximate Ra from Rz
+
+  let confidence = 0.88;
+  if (runout > 5) confidence -= 0.08;
+  if (VB > 0.15) confidence -= 0.05;
+  if (vibAmp > 3) confidence -= 0.10;
+  confidence = Math.max(0.50, confidence);
+
+  return {
+    rz_feed_um: +rz_feed_um.toFixed(3),
+    rz_stepover_um: +rz_stepover_um.toFixed(3),
+    rz_combined_um: +rz_combined.toFixed(3),
+    rt_um: +rt_um.toFixed(3),
+    ra_estimated_um: +ra_estimated.toFixed(3),
+    scallop_height_um: +scallop_um.toFixed(3),
+    cusp_height_um: +cusp_um.toFixed(3),
+    corrections: {
+      runout_um: +runout_correction.toFixed(3),
+      wear_um: +wear_correction.toFixed(3),
+      vibration_um: +vibration_correction.toFixed(3),
+    },
+    confidence,
+    model: `${model} (R15-MS1)`,
+  };
+}
+
+// ============================================================================
+// R15-MS1: SURFACE PROFILE GENERATOR (2D simulation)
+// ============================================================================
+
+export interface SurfaceProfileInput {
+  operation: 'turning' | 'milling_feed';
+  feed_mm: number;              // feed per rev (turning) or per tooth (milling)
+  tool_nose_radius_mm: number;
+  points?: number;              // Number of profile points (default 200)
+  length_mm?: number;           // Profile length (default 2 × feed)
+  tool_flank_wear_mm?: number;
+  vibration_amplitude_um?: number;
+  vibration_frequency_hz?: number; // If > 0, adds sinusoidal vibration
+  spindle_rpm?: number;
+}
+
+export interface SurfaceProfileResult {
+  x_mm: number[];              // Horizontal positions
+  z_um: number[];              // Surface height at each position
+  rz_measured_um: number;      // Rz measured from profile (max peak - min valley per evaluation length)
+  ra_measured_um: number;      // Ra measured from profile (arithmetic mean deviation)
+  rt_measured_um: number;      // Rt = total max peak to min valley
+  rsk: number;                 // Skewness
+  rku: number;                 // Kurtosis
+  profile_length_mm: number;
+  num_points: number;
+}
+
+export function generateSurfaceProfile(input: SurfaceProfileInput): SurfaceProfileResult {
+  const f = input.feed_mm;
+  const re = input.tool_nose_radius_mm;
+  const nPoints = input.points ?? 200;
+  const profileLen = input.length_mm ?? f * 3;
+  const VB = input.tool_flank_wear_mm ?? 0;
+  const vibAmp = (input.vibration_amplitude_um ?? 0) / 1000; // Convert to mm
+  const vibFreq = input.vibration_frequency_hz ?? 0;
+  const rpm = input.spindle_rpm ?? 1000;
+
+  const dx = profileLen / (nPoints - 1);
+  const x_mm: number[] = [];
+  const z_mm: number[] = [];
+
+  for (let i = 0; i < nPoints; i++) {
+    const x = i * dx;
+    x_mm.push(+x.toFixed(5));
+
+    // Position within one feed period
+    const xInFeed = ((x % f) + f) % f; // Modulo to get position within one revolution
+    const xFromCenter = xInFeed - f / 2; // Center the nose arc
+
+    // Ideal kinematic profile: circular arc of nose radius
+    let z: number;
+    if (Math.abs(xFromCenter) <= re) {
+      // Under the nose arc: z = re − √(re² − x²)  (measured from peak)
+      z = re - Math.sqrt(Math.max(0, re * re - xFromCenter * xFromCenter));
+    } else {
+      // Outside nose arc: straight cutting edge (simplified as linear rise)
+      z = re - Math.sqrt(Math.max(0, re * re - (f / 2) ** 2));
+    }
+
+    // Wear flattening: VB creates a flat at the profile peak
+    if (VB > 0) {
+      const wearFlat = VB * 0.15; // mm of wear-induced profile change
+      z = Math.max(z, z - wearFlat * Math.exp(-xFromCenter * xFromCenter / (VB * VB + 1e-10)));
+    }
+
+    // Vibration overlay (sinusoidal — forced vibration from spindle/workpiece)
+    if (vibAmp > 0 && vibFreq > 0) {
+      const time_at_x = x / (f * rpm / 60 + 1e-10); // seconds
+      z += vibAmp * Math.sin(2 * Math.PI * vibFreq * time_at_x);
+    } else if (vibAmp > 0) {
+      // Random vibration approximation (use deterministic noise from position)
+      z += vibAmp * Math.sin(x * 1000); // Pseudo-random from position
+    }
+
+    z_mm.push(z);
+  }
+
+  // Convert to μm for analysis
+  const z_um = z_mm.map(v => +(v * 1000).toFixed(3));
+
+  // Compute roughness parameters from generated profile
+  const meanZ = z_um.reduce((a, b) => a + b, 0) / z_um.length;
+  const deviations = z_um.map(v => v - meanZ);
+
+  const ra = deviations.reduce((a, b) => a + Math.abs(b), 0) / deviations.length;
+  const rz = Math.max(...z_um) - Math.min(...z_um);
+  const rt = rz; // For single evaluation length, Rt = Rz
+
+  // Higher-order statistics
+  const variance = deviations.reduce((a, b) => a + b * b, 0) / deviations.length;
+  const sigma = Math.sqrt(variance);
+  const rsk = sigma > 0 ? deviations.reduce((a, b) => a + b ** 3, 0) / (deviations.length * sigma ** 3) : 0;
+  const rku = sigma > 0 ? deviations.reduce((a, b) => a + b ** 4, 0) / (deviations.length * sigma ** 4) : 3;
+
+  return {
+    x_mm,
+    z_um,
+    rz_measured_um: +rz.toFixed(3),
+    ra_measured_um: +ra.toFixed(3),
+    rt_measured_um: +rt.toFixed(3),
+    rsk: +rsk.toFixed(4),
+    rku: +rku.toFixed(4),
+    profile_length_mm: profileLen,
+    num_points: nPoints,
+  };
+}
+
+// ============================================================================
+// R15-MS5: CHIP FORMATION & BREAKING MODEL
+// ============================================================================
+
+export type ChipType = 'continuous' | 'lamellar' | 'segmented' | 'discontinuous' | 'built_up_edge';
+
+export interface ChipFormationInput {
+  material: string;
+  operation: OperationType;
+  cutting_speed_mpm: number;
+  feed_mmrev: number;
+  depth_of_cut_mm: number;
+  tool_rake_angle_deg?: number;   // γ — default 6°
+  tool_material: ToolMaterial;
+  coolant: CoolantType;
+  chip_breaker?: boolean;         // Whether insert has chip breaker groove
+}
+
+export interface ChipFormationResult {
+  chip_type: ChipType;
+  chip_thickness_ratio: number;       // r_c = h/h_c (chip compression ratio)
+  chip_velocity_mps: number;          // Chip exit velocity
+  shear_plane_angle_deg: number;      // φ — from Merchant's theory
+  shear_strain: number;               // γ_s
+  chip_temperature_c: number;
+  chip_curl_radius_mm: number | null; // null if discontinuous
+  chip_breaking: {
+    will_break: boolean;
+    mechanism: string;
+    recommended_chipbreaker: string;
+  };
+  power_consumption: {
+    cutting_power_kw: number;
+    specific_energy_j_mm3: number;
+  };
+  recommendations: string[];
+  safety: { score: number; flags: string[] };
+}
+
+export function predictChipFormation(input: ChipFormationInput): ChipFormationResult {
+  const mat = getMaterialProps(input.material);
+  const rake = (input.tool_rake_angle_deg ?? 6) * Math.PI / 180;
+  const Vc = input.cutting_speed_mpm;
+  const f = input.feed_mmrev;
+  const ap = input.depth_of_cut_mm;
+  const coolFactor = COOLANT_FACTOR[input.coolant];
+
+  // Shear plane angle via Merchant's theory: φ = π/4 − β/2 + γ/2
+  // where β = friction angle ≈ atan(μ), μ depends on material/tool/coolant
+  const mu_base: Record<ToolMaterial, number> = {
+    hss: 0.6, carbide: 0.4, ceramic: 0.35, cbn: 0.3, diamond: 0.15
+  };
+  const mu = mu_base[input.tool_material] * (0.8 + coolFactor * 0.2); // Coolant reduces friction
+  const beta = Math.atan(mu); // Friction angle
+  const phi = Math.PI / 4 - beta / 2 + rake / 2; // Shear plane angle
+  const phi_deg = phi * 180 / Math.PI;
+
+  // Chip thickness ratio r_c = sin(φ) / cos(φ − γ)
+  const rc = Math.sin(phi) / Math.cos(phi - rake);
+  const chip_thickness = f / rc; // mm (thicker than uncut chip)
+
+  // Chip velocity: V_chip = V_c · r_c
+  const Vc_ms = Vc / 60;
+  const chip_velocity = Vc_ms * rc;
+
+  // Shear strain: γ_s = cos(γ) / (sin(φ)·cos(φ−γ))
+  const shear_strain = Math.cos(rake) / (Math.sin(phi) * Math.cos(phi - rake) + 1e-10);
+
+  // Cutting force (Kienzle) and power
+  const Fc = mat.kc1_1 * Math.pow(f, 1 - mat.mc) * ap;
+  const power_kw = Fc * Vc_ms / 1000;
+  const MRR = Vc * 1000 / 60 * f * ap; // mm³/s
+  const specific_energy = MRR > 0 ? (power_kw * 1000) / MRR : 0; // J/mm³
+
+  // Chip temperature (adiabatic shear zone + friction zone)
+  const shearHeat = 0.9 * Fc * Vc_ms; // 90% of cutting work → heat
+  const chipMassFlow = mat.density * (f * ap * 1e-6) * Vc_ms; // kg/s
+  const chipTemp = 20 + (shearHeat * 0.75 * coolFactor) / (chipMassFlow * mat.specific_heat + 1e-10);
+  const clampedChipTemp = Math.min(chipTemp, mat.melting_point_c * 0.85);
+
+  // Chip type classification
+  let chipType: ChipType;
+  const homologousTemp = clampedChipTemp / mat.melting_point_c;
+
+  if (mat.hardness_hrc > 45 || mat.jc_n > 0.5) {
+    // Hard/brittle material → segmented or discontinuous
+    chipType = Vc > mat.taylor_C * 0.5 ? 'segmented' : 'discontinuous';
+  } else if (Vc < mat.taylor_C * 0.2 && mat.hardness_hrc < 30) {
+    // Low speed + ductile → BUE zone
+    chipType = 'built_up_edge';
+  } else if (homologousTemp > 0.4 && shear_strain > 3) {
+    // High temp + high strain → adiabatic shear (lamellar/saw-tooth)
+    chipType = 'lamellar';
+  } else {
+    chipType = 'continuous';
+  }
+
+  // Chip curl radius (empirical: increases with rake angle, decreases with feed)
+  let curlRadius: number | null = null;
+  if (chipType !== 'discontinuous') {
+    curlRadius = +(chip_thickness * 5 * (1 + rake * 3) / (1 + f * 2)).toFixed(2);
+  }
+
+  // Chip breaking prediction
+  const hasChipbreaker = input.chip_breaker ?? false;
+  let willBreak: boolean;
+  let breakMechanism: string;
+  let recommendedBreaker: string;
+
+  if (chipType === 'discontinuous' || chipType === 'segmented') {
+    willBreak = true;
+    breakMechanism = 'Self-breaking (brittle fracture in shear zone)';
+    recommendedBreaker = 'None needed — material naturally breaks chips';
+  } else if (hasChipbreaker) {
+    // Chipbreaker effective for continuous chips with moderate feed
+    willBreak = f > 0.08 && f < 0.5;
+    breakMechanism = willBreak ? 'Chipbreaker groove curls and fractures chip' : 'Chipbreaker ineffective at this feed';
+    recommendedBreaker = willBreak ? 'Current chipbreaker adequate' : (f <= 0.08 ? 'Use light-cut chipbreaker (MF/GF)' : 'Use heavy-cut chipbreaker (MR/PR)');
+  } else {
+    // No chipbreaker
+    willBreak = chipType === 'lamellar'; // Lamellar may self-break
+    breakMechanism = willBreak ? 'Self-breaking (adiabatic shear bands)' : 'Long continuous chip — chip control needed';
+    if (f < 0.15) {
+      recommendedBreaker = 'Light-cut chipbreaker (MF/GF geometry)';
+    } else if (f < 0.35) {
+      recommendedBreaker = 'Medium-cut chipbreaker (MM/PM geometry)';
+    } else {
+      recommendedBreaker = 'Heavy-cut chipbreaker (MR/PR geometry)';
+    }
+  }
+
+  // Safety
+  const flags: string[] = [];
+  let safetyScore = 0.88;
+  if (!willBreak && chipType === 'continuous') {
+    safetyScore -= 0.15;
+    flags.push('Long continuous chips — entanglement hazard');
+  }
+  if (chipType === 'built_up_edge') {
+    safetyScore -= 0.08;
+    flags.push('BUE formation — surface finish degraded, tool life reduced');
+  }
+  if (clampedChipTemp > 800) {
+    safetyScore -= 0.05;
+    flags.push('High chip temperature — fire risk with certain materials');
+  }
+  safetyScore = Math.max(0.40, safetyScore);
+
+  const recommendations: string[] = [];
+  if (chipType === 'built_up_edge') {
+    recommendations.push(`Increase cutting speed above ${(mat.taylor_C * 0.25).toFixed(0)} m/min to exit BUE zone`);
+    recommendations.push('Consider coated insert (TiAlN/AlCrN) to reduce adhesion');
+  }
+  if (!willBreak) {
+    recommendations.push('Add chipbreaker geometry or increase feed rate for chip control');
+  }
+  if (chipType === 'continuous' && f > 0.3) {
+    recommendations.push('High feed with continuous chips — ensure chip conveyor is active');
+  }
+
+  return {
+    chip_type: chipType,
+    chip_thickness_ratio: +rc.toFixed(4),
+    chip_velocity_mps: +chip_velocity.toFixed(3),
+    shear_plane_angle_deg: +phi_deg.toFixed(2),
+    shear_strain: +shear_strain.toFixed(3),
+    chip_temperature_c: +clampedChipTemp.toFixed(1),
+    chip_curl_radius_mm: curlRadius,
+    chip_breaking: {
+      will_break: willBreak,
+      mechanism: breakMechanism,
+      recommended_chipbreaker: recommendedBreaker,
+    },
+    power_consumption: {
+      cutting_power_kw: +power_kw.toFixed(3),
+      specific_energy_j_mm3: +specific_energy.toFixed(2),
+    },
+    recommendations,
+    safety: { score: +safetyScore.toFixed(2), flags },
+  };
+}
+
+// ============================================================================
 // DISPATCHER FUNCTION
 // ============================================================================
 
@@ -738,6 +1326,20 @@ export function physicsPrediction(action: string, params: Record<string, unknown
 
     case 'coupling_sensitivity':
       return couplingSensitivity(params as unknown as SensitivityInput);
+
+    // R15-MS1: Surface finish kinematic models
+    case 'rz_kinematic':
+      return predictRzKinematic(params as unknown as RzKinematicInput);
+
+    case 'rz_milling':
+      return predictRzMilling(params as unknown as RzMillingInput);
+
+    case 'surface_profile':
+      return generateSurfaceProfile(params as unknown as SurfaceProfileInput);
+
+    // R15-MS5: Chip formation
+    case 'chip_form':
+      return predictChipFormation(params as unknown as ChipFormationInput);
 
     default:
       throw new Error(`Unknown physics prediction action: ${action}`);
