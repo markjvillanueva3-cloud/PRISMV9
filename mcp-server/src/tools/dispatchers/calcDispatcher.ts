@@ -167,6 +167,10 @@ import {
   executeMultiPassAction,
 } from "../../engines/MultiPassStrategyEngine.js";
 
+import {
+  executeCpkOptimizerAction,
+} from "../../engines/CpkOptimizerEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -344,6 +348,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { passes: result.summary?.total_passes, time_min: result.summary?.total_time_min, max_force: result.summary?.max_force_N, efficiency: result.summary?.cycle_efficiency_pct, tool_changes: result.summary?.estimated_tool_changes };
     case "mps_evaluate":
       return { time_min: result.total_time_min, max_force: result.max_force_N, avg_mrr: result.avg_mrr_cm3_per_min, tool_changes: result.tool_changes, bottleneck: result.bottleneck_pass };
+    case "cpk_analyze":
+      return { cp: result.cp, cpk: result.cpk, sigma: result.sigma_level, ppm: result.ppm_total, rating: result.capability_rating, off_center: result.off_center_pct };
+    case "cpk_improve":
+      return { current: result.current_cpk, target: result.target_cpk, gap: result.gap, feasible: result.feasible, combined: result.combined_expected_cpk };
+    case "cpk_center":
+      return { shift: result.shift_needed, direction: result.shift_direction, current_cpk: result.current_cpk, centered_cpk: result.centered_cpk, improvement_pct: result.improvement_pct };
+    case "cpk_reduce_spread":
+      return { current_std: result.current_std, required_std: result.required_std, reduction_pct: result.reduction_pct, current_cpk: result.current_cpk };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -396,6 +408,7 @@ const ACTIONS = [
   "batch_kpi", "batch_trend", "batch_compare", "batch_summary",
   "gdt_chain_montecarlo", "gdt_chain_allocate", "gdt_chain_sensitivity", "gdt_chain_2d",
   "mps_roughing_plan", "mps_finish_plan", "mps_full_strategy", "mps_evaluate",
+  "cpk_analyze", "cpk_improve", "cpk_center", "cpk_reduce_spread",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1526,6 +1539,14 @@ export function registerCalcDispatcher(server: any): void {
           case "mps_full_strategy":
           case "mps_evaluate": {
             result = executeMultiPassAction(action, params);
+            break;
+          }
+
+          case "cpk_analyze":
+          case "cpk_improve":
+          case "cpk_center":
+          case "cpk_reduce_spread": {
+            result = executeCpkOptimizerAction(action, params);
             break;
           }
 
