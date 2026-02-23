@@ -210,6 +210,9 @@ import {
 import {
   executeAssetHealthAction,
 } from "../../engines/AssetHealthEngine.js";
+import {
+  executeShopFloorAnalyticsAction,
+} from "../../engines/ShopFloorAnalyticsEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -484,6 +487,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { machine_id: result.machine_id, total_tasks: result.total_tasks, critical: result.summary?.critical_tasks, recommendation: result.scheduling_recommendation };
     case "ah_compare":
       return { total_machines: result.total_machines, fleet_status: result.fleet_status, avg_score: result.fleet_avg_score };
+    case "sf_oee":
+      return { machine_id: result.machine_id, oee: result.oee_pct, availability: result.availability, performance: result.performance, quality: result.quality, rating: result.rating };
+    case "sf_utilization":
+      return { total_machines: result.total_machines, fleet_avg: result.fleet_avg_utilization_pct, least_utilized: result.least_utilized, most_utilized: result.most_utilized };
+    case "sf_bottleneck":
+      return { bottleneck: result.bottleneck_station, throughput_per_hour: result.line_throughput_per_hour, balance_efficiency: result.balance_efficiency, exceeding_takt: result.stations_exceeding_takt };
+    case "sf_capacity":
+      return { total_machines: result.total_machines, fleet_load: result.fleet_load_ratio, spare_hours: result.fleet_spare_hours, weeks_until_full: result.weeks_until_full_capacity };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -548,6 +559,7 @@ const ACTIONS = [
   "ig_register", "ig_invoke", "ig_schema", "ig_health",
   "pm_predict_wear", "pm_schedule", "pm_failure_risk", "pm_optimize_intervals",
   "ah_score", "ah_degradation", "ah_maintenance_plan", "ah_compare",
+  "sf_oee", "sf_utilization", "sf_bottleneck", "sf_capacity",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1774,6 +1786,14 @@ export function registerCalcDispatcher(server: any): void {
           case "ah_maintenance_plan":
           case "ah_compare": {
             result = executeAssetHealthAction(action, params);
+            break;
+          }
+
+          case "sf_oee":
+          case "sf_utilization":
+          case "sf_bottleneck":
+          case "sf_capacity": {
+            result = executeShopFloorAnalyticsAction(action, params);
             break;
           }
 
