@@ -1,6 +1,7 @@
 /**
- * Dev Workflow Dispatcher - Consolidates 7 dev tools → 1
- * Actions: session_boot, build, code_template, code_search, file_read, file_write, server_info
+ * Dev Workflow Dispatcher - Consolidates dev tools → 1
+ * Actions: session_boot, build, code_template, code_search, file_read, file_write,
+ *          server_info, test_smoke, test_results, hook_stats, routing_trace
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -8,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
-import { resetReconFlag } from "../autoHookWrapper.js";
+import { resetReconFlag, getHookFireStats, getRoutingTrace } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
 
 // __dirname at runtime = C:\PRISM\mcp-server\dist (esbuild bundles to single file)
@@ -18,7 +19,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(PROJECT_ROOT, "data", "docs");
 const STATE_DIR = path.join(PROJECT_ROOT, "state");
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "hook_stats", "routing_trace"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -625,6 +626,29 @@ export function registerDevDispatcher(server: any): void {
               const files = fs.readdirSync(resultsDir).filter(f => f.startsWith("SMOKE-")).sort();
               result = { available_runs: files.length, latest: files[files.length - 1] || "none" };
             }
+            break;
+          }
+          case "hook_stats": {
+            // R12-MS5: Return hook fire rate statistics
+            const stats = getHookFireStats();
+            const limit = Number(params.limit) || 30;
+            result = {
+              total_hooks_fired: stats.reduce((sum, h) => sum + h.fires, 0),
+              unique_hooks: stats.length,
+              top_hooks: stats.slice(0, limit),
+              _hint: "Shows which hooks actually fire and how often. Zero-fire hooks may be dead code."
+            };
+            break;
+          }
+          case "routing_trace": {
+            // R12-MS5: Return recent dispatch routing decisions
+            const limit = Number(params.limit) || 50;
+            const trace = getRoutingTrace(limit);
+            result = {
+              total_entries: trace.length,
+              entries: trace,
+              _hint: "Circular buffer of last 100 dispatch calls with timing, params, and hooks fired."
+            };
             break;
           }
         }

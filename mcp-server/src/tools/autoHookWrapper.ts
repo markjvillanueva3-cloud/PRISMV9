@@ -167,6 +167,34 @@ export var AUTO_HOOK_CONFIG = {
 };
 var hookHistory = [];
 var MAX_HISTORY = 1000;
+
+// R12-MS5: Hook fire rate telemetry — tracks which hooks actually fire
+var hookFireStats: Map<string, { fires: number; lastFired: string }> = new Map();
+
+export function getHookFireStats(): Array<{ hookId: string; fires: number; lastFired: string }> {
+  return Array.from(hookFireStats.entries())
+    .map(([hookId, s]) => ({ hookId, fires: s.fires, lastFired: s.lastFired }))
+    .sort((a, b) => b.fires - a.fires);
+}
+
+// R12-MS5: Routing trace — circular buffer of last 100 dispatch decisions
+interface RoutingEntry {
+  ts: string;
+  callNum: number;
+  dispatcher: string;
+  action: string;
+  paramKeys: string[];
+  durationMs: number;
+  success: boolean;
+  hooksFired: string[];
+}
+var routingTrace: RoutingEntry[] = [];
+var MAX_ROUTING_TRACE = 100;
+
+export function getRoutingTrace(limit: number = 50): RoutingEntry[] {
+  return routingTrace.slice(0, Math.min(limit, MAX_ROUTING_TRACE));
+}
+
 function logHookExecution(execution) {
   hookHistory.unshift(execution);
   if (hookHistory.length > MAX_HISTORY) {
@@ -294,6 +322,9 @@ function verifyFactualClaims(content) {
 }
 async function fireHook(hookId, data) {
   const startTime = Date.now();
+  // R12-MS5: Increment hook fire stats
+  const prev = hookFireStats.get(hookId) || { fires: 0, lastFired: "" };
+  hookFireStats.set(hookId, { fires: prev.fires + 1, lastFired: new Date().toISOString() });
   try {
     const hookContext = {
       operation: data.tool_name || "unknown",
@@ -1853,6 +1884,21 @@ export function wrapWithUniversalHooks(toolName, handler) {
       }
     }
     recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, error?.message);
+    // R12-MS5: Record routing trace entry
+    try {
+      const traceEntry: RoutingEntry = {
+        ts: new Date().toISOString(),
+        callNum,
+        dispatcher: toolName,
+        action: action2,
+        paramKeys: Object.keys(args[0]?.params || {}).filter(k => k !== "_notes"),
+        durationMs: Math.round(durationMs),
+        success: !error,
+        hooksFired: cadence.actions.filter((a: string) => a.includes("HOOK") || a.includes("ENRICHED") || a.includes("CACHE")).slice(0, 5),
+      };
+      routingTrace.unshift(traceEntry);
+      if (routingTrace.length > MAX_ROUTING_TRACE) routingTrace.pop();
+    } catch { /* non-fatal */ }
     // CRITICAL: Write survival data on EVERY call so compaction recovery always has current state
     try {
       const survivalData = {
