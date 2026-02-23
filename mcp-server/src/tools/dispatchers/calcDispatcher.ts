@@ -175,6 +175,10 @@ import {
   executeToolWearAction,
 } from "../../engines/ToolWearCompensatorEngine.js";
 
+import {
+  executeDecisionSupportAction,
+} from "../../engines/DecisionSupportEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -368,6 +372,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { interval_min: result.optimal_change_interval_min, cost_per_part: result.total_cost_per_part_usd, quality: result.quality_factor, productivity: result.productivity_factor };
     case "twc_history":
       return { records: result.records, avg_life: result.avg_tool_life_min, wear_rate: result.wear_rate_mm_per_min, r_squared: result.wear_model?.r_squared, trend: result.trend };
+    case "ds_recommend":
+      return { material: result.material, priority: result.priority, vc: result.recommended?.cutting_speed_m_min, fz: result.recommended?.feed_per_tooth_mm, ap: result.recommended?.depth_of_cut_mm, confidence: result.confidence };
+    case "ds_validate":
+      return { valid: result.overall_valid, score: result.overall_score, violations: result.violations_count, warnings: result.warnings_count };
+    case "ds_compare":
+      return { best: result.best_scenario, scenarios: result.scenario_count, dimensions: result.dimensions_compared, scores: result.weighted_scores };
+    case "ds_explain":
+      return { decision: result.decision_type, factors: result.factor_count, primary_driver: result.primary_driver, trade_offs: result.trade_off_count };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -422,6 +434,7 @@ const ACTIONS = [
   "mps_roughing_plan", "mps_finish_plan", "mps_full_strategy", "mps_evaluate",
   "cpk_analyze", "cpk_improve", "cpk_center", "cpk_reduce_spread",
   "twc_predict", "twc_compensate", "twc_schedule", "twc_history",
+  "ds_recommend", "ds_validate", "ds_compare", "ds_explain",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1568,6 +1581,14 @@ export function registerCalcDispatcher(server: any): void {
           case "twc_schedule":
           case "twc_history": {
             result = executeToolWearAction(action, params);
+            break;
+          }
+
+          case "ds_recommend":
+          case "ds_validate":
+          case "ds_compare":
+          case "ds_explain": {
+            result = executeDecisionSupportAction(action, params);
             break;
           }
 
