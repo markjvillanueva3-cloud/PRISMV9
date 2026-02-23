@@ -1836,6 +1836,82 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  product_profitability: {
+    name: 'product_profitability',
+    description: 'Product profitability: standard cost → BOM rollup → margin analysis → break-even check',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'std_cost',
+        engine: 'product_cost',
+        action: 'cost_standard',
+        params: { part_number: '$input.part_number' },
+      },
+      {
+        id: 'bom_rollup',
+        engine: 'product_cost',
+        action: 'cost_bom',
+        params: { parent_part: '$input.part_number' },
+      },
+      {
+        id: 'margins',
+        engine: 'financial_metrics',
+        action: 'fin_margin',
+        params: { product: '$input.product', period: '$input.period' },
+      },
+      {
+        id: 'breakeven',
+        engine: 'financial_metrics',
+        action: 'fin_breakeven',
+        params: { product: '$input.product', period: '$input.period' },
+      },
+    ],
+    outputs: {
+      total_cost: '$std_cost.summary.avg_total_cost',
+      bom_cost: '$bom_rollup.rollup.total_material_cost',
+      gross_margin: '$margins.summary.overall_margin',
+      breakeven_status: '$breakeven.summary.all_above_breakeven',
+    },
+  },
+
+  cost_optimization: {
+    name: 'cost_optimization',
+    description: 'Cost optimization: variance analysis → ABC costing → cost trending → financial dashboard',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'variance_review',
+        engine: 'variance_analysis',
+        action: 'var_summary',
+        params: { period: '$input.period' },
+      },
+      {
+        id: 'abc_review',
+        engine: 'ab_costing',
+        action: 'abc_product',
+        params: { product: '$input.product' },
+      },
+      {
+        id: 'cost_trend',
+        engine: 'financial_metrics',
+        action: 'fin_costunit',
+        params: { product: '$input.product' },
+      },
+      {
+        id: 'dashboard',
+        engine: 'financial_metrics',
+        action: 'fin_dashboard',
+        params: { period: '$input.period' },
+      },
+    ],
+    outputs: {
+      total_variance: '$variance_review.grand_total.total_variance',
+      abc_distortion: '$abc_review.summary.max_distortion.cost_difference',
+      cost_trend: '$cost_trend.summary.avg_reduction',
+      current_margin: '$dashboard.margins.current_gross_margin',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
