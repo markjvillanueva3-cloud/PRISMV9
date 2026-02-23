@@ -249,6 +249,10 @@ import {
   executeOperatorSkillAction,
 } from "../../engines/OperatorSkillEngine.js";
 
+import {
+  executeTrainingManagementAction,
+} from "../../engines/TrainingManagementEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -610,6 +614,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { score: result.overall_score, rating: result.rating, gaps: result.summary?.has_gap };
     case "op_matrix":
       return { operators: result.summary?.operators_analyzed, skills: result.summary?.skills_tracked, coverage_pct: result.summary?.avg_skill_coverage_pct, risks: result.summary?.critical_skill_risks };
+    case "trn_program":
+      return { programs: result.total_programs, hours: result.catalog_summary?.total_hours, cost: result.catalog_summary?.total_cost };
+    case "trn_progress":
+      return { enrollments: result.summary?.total_enrollments, completed: result.summary?.completed, in_progress: result.summary?.in_progress, avg_progress: result.summary?.avg_progress_pct };
+    case "trn_gap":
+      return { operators: result.summary?.operators_analyzed, gaps: result.summary?.total_skill_gaps, avg_gaps: result.summary?.avg_gaps_per_operator, top_gap: result.summary?.most_common_gap };
+    case "trn_recommend":
+      return { programs: result.summary?.programs_recommended, cost: result.recommended_path?.total_cost_usd, hours: result.recommended_path?.total_hours, certs: result.summary?.certifications_achievable };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -685,6 +697,7 @@ const ACTIONS = [
   "sus_waste", "sus_recycle", "sus_water", "sus_kpi",
   "res_optimize", "res_allocate", "res_green", "res_comply",
   "op_skills", "op_certify", "op_assess", "op_matrix",
+  "trn_program", "trn_progress", "trn_gap", "trn_recommend",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1999,6 +2012,14 @@ export function registerCalcDispatcher(server: any): void {
           case "op_assess":
           case "op_matrix": {
             result = executeOperatorSkillAction(action, params);
+            break;
+          }
+
+          case "trn_program":
+          case "trn_progress":
+          case "trn_gap":
+          case "trn_recommend": {
+            result = executeTrainingManagementAction(action, params);
             break;
           }
 
