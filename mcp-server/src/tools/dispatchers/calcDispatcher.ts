@@ -201,6 +201,9 @@ import {
 import {
   executeAdaptiveLearningAction,
 } from "../../engines/AdaptiveLearningEngine.js";
+import {
+  executeIntegrationGatewayAction,
+} from "../../engines/IntegrationGatewayEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -451,6 +454,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { model_status: result.model_status, total_events: result.total_events, total_patterns: result.total_patterns };
     case "al_history":
       return { total_events: result.total_events, recent_events: result.recent_events?.length ?? 0, common_workflows: result.common_workflows?.length ?? 0 };
+    case "ig_register":
+      return { endpoint_id: result.endpoint_id, status: result.status, name: result.name, type: result.type, total_endpoints: result.total_endpoints };
+    case "ig_invoke":
+      return { invocation_id: result.invocation_id, endpoint_name: result.endpoint_name, status: result.status, latency_ms: result.latency_ms };
+    case "ig_schema":
+      return { total_endpoints: result.total_endpoints, schemas: result.schemas?.length ?? 0 };
+    case "ig_health":
+      return { overall_health: result.overall_health, total: result.endpoint_summary?.total, active: result.endpoint_summary?.active };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -512,6 +523,7 @@ const ACTIONS = [
   "wfo_plan", "wfo_execute", "wfo_status", "wfo_optimize",
   "pk_capture", "pk_retrieve", "pk_search", "pk_validate",
   "al_learn", "al_recommend", "al_evaluate", "al_history",
+  "ig_register", "ig_invoke", "ig_schema", "ig_health",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1714,6 +1726,14 @@ export function registerCalcDispatcher(server: any): void {
           case "al_evaluate":
           case "al_history": {
             result = executeAdaptiveLearningAction(action, params);
+            break;
+          }
+
+          case "ig_register":
+          case "ig_invoke":
+          case "ig_schema":
+          case "ig_health": {
+            result = executeIntegrationGatewayAction(action, params);
             break;
           }
 
