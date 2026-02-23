@@ -225,6 +225,9 @@ import {
 import {
   executeCostModelingAction,
 } from "../../engines/CostModelingEngine.js";
+import {
+  executeComplianceAuditAction,
+} from "../../engines/ComplianceAuditEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -539,6 +542,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { scenarios: result.total_scenarios, best: result.best_option, savings: result.savings_potential, savings_pct: result.savings_pct };
     case "cost_whatif":
       return { baseline_cost: result.baseline_cost, most_sensitive: result.most_sensitive };
+    case "comp_check":
+      return { standard: result.standard, compliance_pct: result.compliance_pct, status: result.overall_status, gaps: result.gaps_found };
+    case "comp_certify":
+      return { entity_id: result.entity_id, total: result.total_certifications, valid: result.valid_count, expired: result.expired_count, status: result.overall_status };
+    case "comp_report":
+      return { rating: result.overall_rating, avg_compliance: result.avg_compliance_pct, total_gaps: result.total_gaps };
+    case "comp_standards":
+      return { total_found: result.total_found, standards: result.standards?.map((s: any) => s.id) };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -608,6 +619,7 @@ const ACTIONS = [
   "tr_record", "tr_genealogy", "tr_chain", "tr_audit_trail",
   "inv_status", "inv_forecast", "inv_reorder", "inv_optimize",
   "cost_estimate", "cost_breakdown", "cost_compare", "cost_whatif",
+  "comp_check", "comp_certify", "comp_report", "comp_standards",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1874,6 +1886,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cost_compare":
           case "cost_whatif": {
             result = executeCostModelingAction(action, params);
+            break;
+          }
+
+          case "comp_check":
+          case "comp_certify":
+          case "comp_report":
+          case "comp_standards": {
+            result = executeComplianceAuditAction(action, params);
             break;
           }
 
