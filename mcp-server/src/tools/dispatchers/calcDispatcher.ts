@@ -361,6 +361,9 @@ import {
 import {
   executeCAPAAction,
 } from "../../engines/CAPAEngine.js";
+import {
+  executeComplianceMetricsAction,
+} from "../../engines/ComplianceMetricsEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -995,6 +998,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { actions: result.total_actions, completion: result.summary?.completion_rate, overdue: result.summary?.overdue };
     case "capa_verify":
       return { verified: result.summary?.fully_verified, pending: result.summary?.pending_verification, avg_days: result.summary?.avg_days_open };
+    case "comp_kpi":
+      return { kpis: result.total_kpis, meeting_target: result.summary?.meeting_target, achievement: result.summary?.target_achievement };
+    case "comp_score":
+      return { scores: result.total_scores, avg_score: result.summary?.avg_score, grade: result.summary?.overall_grade };
+    case "comp_overdue":
+      return { overdue: result.total_overdue, critical: result.summary?.critical, avg_days: result.summary?.avg_days_overdue };
+    case "comp_dashboard":
+      return { health: result.compliance_health?.overall_score, status: result.compliance_health?.status, overdue: result.overdue_summary?.total_overdue };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1104,6 +1115,7 @@ const ACTIONS = [
   "aud_schedule", "aud_finding", "aud_evidence", "aud_close",
   "reg_require", "reg_submit", "reg_permit", "reg_change",
   "capa_initiate", "capa_rootcause", "capa_action", "capa_verify",
+  "comp_kpi", "comp_score", "comp_overdue", "comp_dashboard",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2690,6 +2702,14 @@ export function registerCalcDispatcher(server: any): void {
           case "capa_action":
           case "capa_verify": {
             result = executeCAPAAction(action, params);
+            break;
+          }
+
+          case "comp_kpi":
+          case "comp_score":
+          case "comp_overdue":
+          case "comp_dashboard": {
+            result = executeComplianceMetricsAction(action, params);
             break;
           }
 
