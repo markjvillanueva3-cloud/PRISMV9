@@ -352,6 +352,9 @@ import {
 import {
   executeFinancialMetricsAction,
 } from "../../engines/FinancialMetricsEngine.js";
+import {
+  executeAuditAction,
+} from "../../engines/AuditEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -962,6 +965,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { products: result.total_products, all_improving: result.summary?.all_improving, avg_reduction: result.summary?.avg_reduction };
     case "fin_dashboard":
       return { revenue: result.revenue?.current, profit: result.gross_profit?.current, margin: result.margins?.current_gross_margin };
+    case "aud_schedule":
+      return { audits: result.total_audits, scheduled: result.summary?.scheduled, completed: result.summary?.completed };
+    case "aud_finding":
+      return { findings: result.total_findings, open: result.summary?.open, overdue: result.summary?.overdue };
+    case "aud_evidence":
+      return { evidence: result.total_evidence };
+    case "aud_close":
+      return { closed: result.total_closed, avg_closure: result.summary?.avg_closure_rate };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1068,6 +1079,7 @@ const ACTIONS = [
   "var_ppv", "var_labor", "var_overhead", "var_summary",
   "abc_activity", "abc_driver", "abc_allocate", "abc_product",
   "fin_margin", "fin_breakeven", "fin_costunit", "fin_dashboard",
+  "aud_schedule", "aud_finding", "aud_evidence", "aud_close",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2630,6 +2642,14 @@ export function registerCalcDispatcher(server: any): void {
           case "fin_costunit":
           case "fin_dashboard": {
             result = executeFinancialMetricsAction(action, params);
+            break;
+          }
+
+          case "aud_schedule":
+          case "aud_finding":
+          case "aud_evidence":
+          case "aud_close": {
+            result = executeAuditAction(action, params);
             break;
           }
 
