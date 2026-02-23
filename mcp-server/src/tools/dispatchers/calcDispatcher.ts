@@ -340,6 +340,9 @@ import {
 import {
   executeMetrologyDataAction,
 } from "../../engines/MetrologyDataEngine.js";
+import {
+  executeProductCostAction,
+} from "../../engines/ProductCostEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -918,6 +921,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_gages: result.total_gages, at_risk: result.summary?.at_risk, stable: result.summary?.stable };
     case "met_correlate":
       return { correlations: result.total_correlations, acceptable: result.summary?.acceptable, avg_r: result.summary?.avg_correlation };
+    case "cost_standard":
+      return { total_parts: result.total_parts, avg_cost: result.summary?.avg_total_cost };
+    case "cost_bom":
+      return { components: result.total_components, total_cost: result.rollup?.total_material_cost, make_pct: result.rollup?.make_pct };
+    case "cost_labor":
+      return { operations: result.total_operations, total_labor: result.summary?.total_labor_cost, total_hours: result.summary?.total_hours };
+    case "cost_overhead":
+      return { pools: result.total_pools, variance: result.summary?.total_variance, variance_pct: result.summary?.variance_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1020,6 +1031,7 @@ const ACTIONS = [
   "grr_study", "grr_msa", "grr_uncertainty", "grr_linearity",
   "insp_plan", "insp_sample", "insp_fai", "insp_dimension",
   "met_cmm", "met_spc", "met_drift", "met_correlate",
+  "cost_standard", "cost_bom", "cost_labor", "cost_overhead",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2550,6 +2562,14 @@ export function registerCalcDispatcher(server: any): void {
           case "met_drift":
           case "met_correlate": {
             result = executeMetrologyDataAction(action, params);
+            break;
+          }
+
+          case "cost_standard":
+          case "cost_bom":
+          case "cost_labor":
+          case "cost_overhead": {
+            result = executeProductCostAction(action, params);
             break;
           }
 
