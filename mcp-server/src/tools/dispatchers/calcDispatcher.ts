@@ -349,6 +349,9 @@ import {
 import {
   executeABCostingAction,
 } from "../../engines/ABCostingEngine.js";
+import {
+  executeFinancialMetricsAction,
+} from "../../engines/FinancialMetricsEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -951,6 +954,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { products: result.total_products, total_overhead: result.summary?.total_overhead_allocated };
     case "abc_product":
       return { products: result.total_products, undercosted: result.summary?.products_undercosted, overcosted: result.summary?.products_overcosted };
+    case "fin_margin":
+      return { products: result.total_products, overall_margin: result.summary?.overall_margin, total_profit: result.summary?.total_annual_profit };
+    case "fin_breakeven":
+      return { products: result.total_products, all_above: result.summary?.all_above_breakeven, at_risk: result.summary?.at_risk_products };
+    case "fin_costunit":
+      return { products: result.total_products, all_improving: result.summary?.all_improving, avg_reduction: result.summary?.avg_reduction };
+    case "fin_dashboard":
+      return { revenue: result.revenue?.current, profit: result.gross_profit?.current, margin: result.margins?.current_gross_margin };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1056,6 +1067,7 @@ const ACTIONS = [
   "cost_standard", "cost_bom", "cost_labor", "cost_overhead",
   "var_ppv", "var_labor", "var_overhead", "var_summary",
   "abc_activity", "abc_driver", "abc_allocate", "abc_product",
+  "fin_margin", "fin_breakeven", "fin_costunit", "fin_dashboard",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2610,6 +2622,14 @@ export function registerCalcDispatcher(server: any): void {
           case "abc_allocate":
           case "abc_product": {
             result = executeABCostingAction(action, params);
+            break;
+          }
+
+          case "fin_margin":
+          case "fin_breakeven":
+          case "fin_costunit":
+          case "fin_dashboard": {
+            result = executeFinancialMetricsAction(action, params);
             break;
           }
 
