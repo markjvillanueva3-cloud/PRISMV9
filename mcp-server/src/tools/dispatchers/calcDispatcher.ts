@@ -273,6 +273,10 @@ import {
   executeLeadTimeAction,
 } from "../../engines/LeadTimeEngine.js";
 
+import {
+  executeProcurementAnalyticsAction,
+} from "../../engines/ProcurementAnalyticsEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -682,6 +686,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { alerts: result.total_alerts, critical: result.summary?.critical_count, impacted_orders: result.summary?.impacted_orders_count };
     case "lt_expedite":
       return { evaluated: result.total_orders_evaluated, days_saved: result.summary?.total_potential_days_saved, critical: result.summary?.critical_orders };
+    case "proc_spend":
+      return { total_spend: result.total_spend, orders: result.total_orders, top_category: result.summary?.top_category };
+    case "proc_contract":
+      return { contracts: result.total_contracts, expiring: result.summary?.expiring_count, underperforming: result.summary?.underperforming_count };
+    case "proc_optimize":
+      return { opportunities: result.total_opportunities, savings_pct: result.summary?.savings_pct, quick_wins: result.summary?.quick_wins };
+    case "proc_report":
+      return { health_score: result.summary?.health_score, risks: result.summary?.risk_count, recommendation: result.summary?.recommendation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -763,6 +775,7 @@ const ACTIONS = [
   "sup_scorecard", "sup_risk", "sup_audit", "sup_compare",
   "src_price", "src_availability", "src_alternative", "src_optimize",
   "lt_forecast", "lt_track", "lt_disrupt", "lt_expedite",
+  "proc_spend", "proc_contract", "proc_optimize", "proc_report",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2125,6 +2138,14 @@ export function registerCalcDispatcher(server: any): void {
           case "lt_disrupt":
           case "lt_expedite": {
             result = executeLeadTimeAction(action, params);
+            break;
+          }
+
+          case "proc_spend":
+          case "proc_contract":
+          case "proc_optimize":
+          case "proc_report": {
+            result = executeProcurementAnalyticsAction(action, params);
             break;
           }
 
