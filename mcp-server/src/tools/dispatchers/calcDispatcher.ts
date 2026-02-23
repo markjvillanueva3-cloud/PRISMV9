@@ -316,6 +316,9 @@ import {
 import {
   executeYardManagementAction,
 } from "../../engines/YardManagementEngine.js";
+import {
+  executeValueStreamAction,
+} from "../../engines/ValueStreamEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -830,6 +833,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { appointments: result.total_appointments, today: result.summary?.today_count, on_time_pct: result.summary?.on_time_pct };
     case "yard_move":
       return { moves: result.total_moves, pending: result.summary?.pending, avg_time: result.summary?.avg_move_minutes };
+    case "vsm_map":
+      return { maps: result.total_maps, pce_ratio: result.value_streams?.[0]?.summary?.pce_ratio_pct, takt: result.value_streams?.[0]?.summary?.takt_time_sec };
+    case "vsm_takt":
+      return { takt_sec: result.takt_time_sec, bottleneck: result.summary?.bottleneck_step, demand_met: result.summary?.demand_met };
+    case "vsm_cycle":
+      return { total_cycle: result.summary?.total_cycle_time_sec, value_add_pct: result.summary?.value_add_ratio_pct, bottleneck: result.summary?.bottleneck?.step };
+    case "vsm_future":
+      return { cycle_reduction: result.summary?.cycle_reduction_pct, wip_reduction: result.summary?.wip_reduction_pct, improvements: result.summary?.improvement_count };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -924,6 +935,7 @@ const ACTIONS = [
   "kit_assemble", "kit_shortage", "kit_stage", "kit_track",
   "ship_receive", "ship_dispatch", "ship_dock", "ship_carrier",
   "yard_assign", "yard_trailer", "yard_appoint", "yard_move",
+  "vsm_map", "vsm_takt", "vsm_cycle", "vsm_future",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2390,6 +2402,14 @@ export function registerCalcDispatcher(server: any): void {
           case "yard_appoint":
           case "yard_move": {
             result = executeYardManagementAction(action, params);
+            break;
+          }
+
+          case "vsm_map":
+          case "vsm_takt":
+          case "vsm_cycle":
+          case "vsm_future": {
+            result = executeValueStreamAction(action, params);
             break;
           }
 
