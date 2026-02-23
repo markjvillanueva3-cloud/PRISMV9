@@ -346,6 +346,9 @@ import {
 import {
   executeVarianceAnalysisAction,
 } from "../../engines/VarianceAnalysisEngine.js";
+import {
+  executeABCostingAction,
+} from "../../engines/ABCostingEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -940,6 +943,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { spending: result.summary?.total_spending_variance, volume: result.summary?.total_volume_variance, total: result.summary?.total_overhead_variance };
     case "var_summary":
       return { grand_total: result.grand_total?.total_variance, status: result.grand_total?.overall_status };
+    case "abc_activity":
+      return { activities: result.total_activities, total_cost: result.summary?.total_annual_cost };
+    case "abc_driver":
+      return { drivers: result.total_drivers, total_volume: result.summary?.total_driver_volume };
+    case "abc_allocate":
+      return { products: result.total_products, total_overhead: result.summary?.total_overhead_allocated };
+    case "abc_product":
+      return { products: result.total_products, undercosted: result.summary?.products_undercosted, overcosted: result.summary?.products_overcosted };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1044,6 +1055,7 @@ const ACTIONS = [
   "met_cmm", "met_spc", "met_drift", "met_correlate",
   "cost_standard", "cost_bom", "cost_labor", "cost_overhead",
   "var_ppv", "var_labor", "var_overhead", "var_summary",
+  "abc_activity", "abc_driver", "abc_allocate", "abc_product",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2590,6 +2602,14 @@ export function registerCalcDispatcher(server: any): void {
           case "var_overhead":
           case "var_summary": {
             result = executeVarianceAnalysisAction(action, params);
+            break;
+          }
+
+          case "abc_activity":
+          case "abc_driver":
+          case "abc_allocate":
+          case "abc_product": {
+            result = executeABCostingAction(action, params);
             break;
           }
 
