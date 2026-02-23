@@ -135,6 +135,14 @@ import {
   executeDigitalTwinAction,
 } from "../../engines/DigitalTwinEngine.js";
 
+import {
+  executeVerificationAction,
+} from "../../engines/ProcessVerificationEngine.js";
+
+import {
+  executeSensitivityAction,
+} from "../../engines/SensitivityEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -248,6 +256,22 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { twin_id: result.twin_id, volume_mm3: result.current_volume_mm3, removed_pct: result.removal_percentage, ops: result.operations_count };
     case "twin_compare":
       return { target_met: result.target_met, worst_Ra: result.overall_Ra_worst_um, budget_remaining: result.tolerance_budget_remaining_pct };
+    case "verify_process":
+      return { pass: result.pass, surface_ok: result.surface?.pass, tolerance_ok: result.tolerance?.pass, stability_ok: result.stability?.pass, thermal_ok: result.thermal?.pass };
+    case "verify_tolerance":
+      return { pass: result.pass, predicted_um: result.predicted_tolerance_um, target_um: result.target_tolerance_um, it_grade: result.it_grade };
+    case "verify_surface":
+      return { pass: result.pass, predicted_Ra: result.predicted_Ra_um, target_Ra: result.target_Ra_um };
+    case "verify_stability":
+      return { pass: result.pass, depth_limit_mm: result.depth_limit_mm, requested_mm: result.requested_depth_mm, safety_factor: result.safety_factor };
+    case "sensitivity_1d":
+      return { parameter: result.parameter, points: result.values?.length, metric: result.metric, min: result.metric_min, max: result.metric_max };
+    case "sensitivity_2d":
+      return { param1: result.parameter_1, param2: result.parameter_2, grid: `${result.grid_rows}x${result.grid_cols}`, metric: result.metric };
+    case "sensitivity_pareto":
+      return { front_size: result.pareto_front?.length, objectives: result.objectives, dominated: result.dominated_count };
+    case "sensitivity_montecarlo":
+      return { samples: result.n_samples, metric: result.metric, mean: result.mean, std: result.std_dev, p95: result.p95 };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -292,6 +316,8 @@ const ACTIONS = [
   "cce_compose", "cce_list", "cce_cache_stats", "cce_cache_clear",
   "sim_cutting", "sim_force_profile", "sim_thermal_profile", "sim_vibration",
   "twin_create", "twin_remove_material", "twin_state", "twin_compare",
+  "verify_process", "verify_tolerance", "verify_surface", "verify_stability",
+  "sensitivity_1d", "sensitivity_2d", "sensitivity_pareto", "sensitivity_montecarlo",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1358,6 +1384,22 @@ export function registerCalcDispatcher(server: any): void {
           case "twin_state":
           case "twin_compare": {
             result = executeDigitalTwinAction(action, params);
+            break;
+          }
+
+          case "verify_process":
+          case "verify_tolerance":
+          case "verify_surface":
+          case "verify_stability": {
+            result = executeVerificationAction(action, params);
+            break;
+          }
+
+          case "sensitivity_1d":
+          case "sensitivity_2d":
+          case "sensitivity_pareto":
+          case "sensitivity_montecarlo": {
+            result = executeSensitivityAction(action, params);
             break;
           }
 
