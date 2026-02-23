@@ -1677,6 +1677,89 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  improvement_cycle: {
+    name: 'improvement_cycle',
+    description: 'Improvement cycle: value stream analysis → kaizen event → Six Sigma capability → sustainment check',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'vsm_analysis',
+        engine: 'value_stream',
+        action: 'vsm_cycle',
+        params: { value_stream_id: '$input.value_stream_id' },
+      },
+      {
+        id: 'kaizen_plan',
+        engine: 'kaizen',
+        action: 'kai_event',
+        params: { area: '$input.area', category: '$input.category' },
+        depends_on: ['vsm_analysis'],
+      },
+      {
+        id: 'capability_check',
+        engine: 'six_sigma',
+        action: 'six_capability',
+        params: { process: '$input.process' },
+        depends_on: ['kaizen_plan'],
+      },
+      {
+        id: 'sustain_check',
+        engine: 'kaizen',
+        action: 'kai_sustain',
+        params: { event_id: '$kaizen_plan.events[0].id' },
+        depends_on: ['capability_check'],
+      },
+    ],
+    output_map: {
+      bottleneck: '$vsm_analysis.summary.bottleneck',
+      waste_total: '$vsm_analysis.summary.total_waste_sec',
+      kaizen_savings: '$kaizen_plan.summary.total_savings_usd',
+      avg_cpk: '$capability_check.summary.avg_cpk',
+      sustainment_rate: '$sustain_check.summary.overall_sustainment_pct',
+    },
+  },
+
+  operational_excellence: {
+    name: 'operational_excellence',
+    description: 'Operational excellence: OEE analysis → waste mapping → DMAIC project → lean KPI dashboard',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'oee_check',
+        engine: 'lean_metrics',
+        action: 'lean_oee',
+        params: { cell: '$input.cell' },
+      },
+      {
+        id: 'waste_map',
+        engine: 'lean_metrics',
+        action: 'lean_waste',
+        params: { area: '$input.area' },
+      },
+      {
+        id: 'dmaic_status',
+        engine: 'six_sigma',
+        action: 'six_dmaic',
+        params: { process_area: '$input.process_area' },
+        depends_on: ['oee_check', 'waste_map'],
+      },
+      {
+        id: 'kpi_dashboard',
+        engine: 'lean_metrics',
+        action: 'lean_kpi',
+        params: { cell: '$input.cell' },
+        depends_on: ['dmaic_status'],
+      },
+    ],
+    output_map: {
+      overall_oee: '$oee_check.summary.overall_oee_pct',
+      annual_waste_cost: '$waste_map.summary.total_annual_waste_usd',
+      active_projects: '$dmaic_status.summary.active',
+      projected_savings: '$dmaic_status.summary.total_projected_savings',
+      kpi_health: '$kpi_dashboard.summary.overall_health',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
