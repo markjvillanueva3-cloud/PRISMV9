@@ -198,6 +198,9 @@ import {
 import {
   executeProcessKnowledgeAction,
 } from "../../engines/ProcessKnowledgeEngine.js";
+import {
+  executeAdaptiveLearningAction,
+} from "../../engines/AdaptiveLearningEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -440,6 +443,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { matches: result.total_matches, material: result.query?.material, operation: result.query?.operation };
     case "pk_validate":
       return { violations: result.total_violations, errors: result.errors, warnings: result.warnings, verdict: result.verdict };
+    case "al_learn":
+      return { event_id: result.event_id, status: result.status, action: result.action, material: result.material, outcome: result.outcome };
+    case "al_recommend":
+      return { material: result.material, total_recommendations: result.total_recommendations, learning_status: result.learning_status };
+    case "al_evaluate":
+      return { model_status: result.model_status, total_events: result.total_events, total_patterns: result.total_patterns };
+    case "al_history":
+      return { total_events: result.total_events, recent_events: result.recent_events?.length ?? 0, common_workflows: result.common_workflows?.length ?? 0 };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -500,6 +511,7 @@ const ACTIONS = [
   "cqt_pareto", "cqt_optimize", "cqt_sensitivity", "cqt_scenario",
   "wfo_plan", "wfo_execute", "wfo_status", "wfo_optimize",
   "pk_capture", "pk_retrieve", "pk_search", "pk_validate",
+  "al_learn", "al_recommend", "al_evaluate", "al_history",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1694,6 +1706,14 @@ export function registerCalcDispatcher(server: any): void {
           case "pk_search":
           case "pk_validate": {
             result = executeProcessKnowledgeAction(action, params);
+            break;
+          }
+
+          case "al_learn":
+          case "al_recommend":
+          case "al_evaluate":
+          case "al_history": {
+            result = executeAdaptiveLearningAction(action, params);
             break;
           }
 
