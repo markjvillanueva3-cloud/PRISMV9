@@ -307,6 +307,9 @@ import {
 import {
   executeWarehouseLocationAction,
 } from "../../engines/WarehouseLocationEngine.js";
+import {
+  executeKittingAction,
+} from "../../engines/KittingEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -797,6 +800,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { picks: result.summary?.total_picks, ready: result.summary?.ready, shortages: result.summary?.shortages };
     case "wh_putaway":
       return { suggestions: result.summary?.total_suggestions, strategy: result.summary?.strategy, recommended: result.recommended?.location_id };
+    case "kit_assemble":
+      return { kits: result.total_kits, complete: result.summary?.complete, shortages: result.summary?.with_shortages };
+    case "kit_shortage":
+      return { shortages: result.total_shortages, critical_at_risk: result.impact?.critical_kits_at_risk, on_order: result.impact?.parts_on_order };
+    case "kit_stage":
+      return { areas: result.summary?.total_areas, available_slots: result.summary?.available_slots, ready: result.ready_for_staging };
+    case "kit_track":
+      return { kits: result.total_kits, at_risk: result.summary?.at_risk, avg_completion: result.summary?.avg_completion };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -888,6 +899,7 @@ const ACTIONS = [
   "rev_track", "rev_effectivity", "rev_supersede", "rev_audit",
   "doc_route", "doc_sign", "doc_distribute", "doc_comply",
   "wh_locate", "wh_slot", "wh_pick", "wh_putaway",
+  "kit_assemble", "kit_shortage", "kit_stage", "kit_track",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2330,6 +2342,14 @@ export function registerCalcDispatcher(server: any): void {
           case "wh_pick":
           case "wh_putaway": {
             result = executeWarehouseLocationAction(action, params);
+            break;
+          }
+
+          case "kit_assemble":
+          case "kit_shortage":
+          case "kit_stage":
+          case "kit_track": {
+            result = executeKittingAction(action, params);
             break;
           }
 
