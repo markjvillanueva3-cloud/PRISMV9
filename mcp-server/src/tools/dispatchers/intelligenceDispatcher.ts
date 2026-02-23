@@ -54,6 +54,7 @@ import { executeGCodeAction } from "../../engines/GCodeGeneratorEngine.js";
 import { executePostProcessorAction } from "../../engines/PostProcessorFramework.js";
 import { processPlan, type ProcessPlanInput } from "../../engines/ProcessPlanningEngine.js";
 import { executeCatalogAction } from "../../engines/CatalogParserEngine.js";
+import { executeHolderAction } from "../../engines/ToolHolderSchemaV2.js";
 import { executeQuotingAction } from "../../engines/QuotingEngine.js";
 import { executeTroubleshooterAction } from "../../engines/IntelligentTroubleshooterEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
@@ -74,6 +75,10 @@ const ACTIONS = [
   "catalog_validate",
   "catalog_enrich",
   "catalog_stats",
+  "holder_lookup",
+  "holder_assembly",
+  "holder_select",
+  "holder_validate",
   "quality_predict",
   "job_record",
   "job_insights",
@@ -472,6 +477,14 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { tools: result.tools?.length, enrichments: result.enrichments };
     case "catalog_stats":
       return { total: result.total_tools, types: Object.keys(result.by_type || {}).length };
+    case "holder_lookup":
+      return { id: result.id, taper: result.taper?.full_designation, clamping: result.clamping?.type, max_rpm: result.dynamics?.max_rpm };
+    case "holder_assembly":
+      return { stickout: result.assembly?.total_stickout, deflection: result.assembly?.deflection_factor, warnings: result.assembly?.warnings?.length };
+    case "holder_select":
+      return { recommended: result.recommended?.name, alternatives: result.alternatives?.length, rationale: result.selection_rationale?.length };
+    case "holder_validate":
+      return { compatible: result.compatible, issues: result.issues?.length };
     case "quality_predict":
       return {
         Ra: result.surface_finish?.Ra,
@@ -1167,7 +1180,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const TROUBLESHOOT_ACTIONS = ["diagnose", "diagnose_alarm", "diagnose_tool", "diagnose_surface"] as const;
         const PROCESS_PLAN_ACTIONS = ["process_plan"] as const;
         const CATALOG_ACTIONS = ["catalog_parse", "catalog_validate", "catalog_enrich", "catalog_stats"] as const;
-        const result = CATALOG_ACTIONS.includes(action as any)
+        const HOLDER_ACTIONS = ["holder_lookup", "holder_assembly", "holder_select", "holder_validate"] as const;
+        const result = HOLDER_ACTIONS.includes(action as any)
+          ? executeHolderAction(action, params)
+          : CATALOG_ACTIONS.includes(action as any)
           ? executeCatalogAction(action, params)
           : PROCESS_PLAN_ACTIONS.includes(action as any)
           ? await processPlan(params as unknown as ProcessPlanInput)
