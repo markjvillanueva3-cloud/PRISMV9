@@ -265,6 +265,10 @@ import {
   executeSupplierManagementAction,
 } from "../../engines/SupplierManagementEngine.js";
 
+import {
+  executeMaterialSourcingAction,
+} from "../../engines/MaterialSourcingEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -658,6 +662,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { overdue: result.summary?.overdue, due_soon: result.summary?.due_soon, avg_score: result.summary?.avg_audit_score || result.audit_score };
     case "sup_compare":
       return { compared: result.total_compared, avg_score: result.summary?.avg_score, best: result.comparison_highlights?.best_overall?.name };
+    case "src_price":
+      return { material: result.material_name, quotes: result.total_quotes, best_price: result.best_price || result.summary?.lowest_unit_price };
+    case "src_availability":
+      return { material: result.material_name, in_stock: result.in_stock, total_available: result.total_available_qty || result.summary?.total_available };
+    case "src_alternative":
+      return { material: result.material_name, alternatives: result.total_alternatives, best_match: result.best_match?.name || result.summary?.top_alternative };
+    case "src_optimize":
+      return { materials: result.total_materials, savings_pct: result.potential_savings_pct, strategy: result.strategy || result.summary?.recommendation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -737,6 +749,7 @@ const ACTIONS = [
   "kc_capture", "kc_search", "kc_best_practice", "kc_lesson",
   "wf_schedule", "wf_assign", "wf_capacity", "wf_balance",
   "sup_scorecard", "sup_risk", "sup_audit", "sup_compare",
+  "src_price", "src_availability", "src_alternative", "src_optimize",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2083,6 +2096,14 @@ export function registerCalcDispatcher(server: any): void {
           case "sup_audit":
           case "sup_compare": {
             result = executeSupplierManagementAction(action, params);
+            break;
+          }
+
+          case "src_price":
+          case "src_availability":
+          case "src_alternative":
+          case "src_optimize": {
+            result = executeMaterialSourcingAction(action, params);
             break;
           }
 
