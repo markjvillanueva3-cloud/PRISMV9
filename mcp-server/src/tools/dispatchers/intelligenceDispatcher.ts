@@ -53,6 +53,7 @@ import { executeConstraintAction } from "../../engines/ConstraintEngine.js";
 import { executeGCodeAction } from "../../engines/GCodeGeneratorEngine.js";
 import { executePostProcessorAction } from "../../engines/PostProcessorFramework.js";
 import { processPlan, type ProcessPlanInput } from "../../engines/ProcessPlanningEngine.js";
+import { executeCatalogAction } from "../../engines/CatalogParserEngine.js";
 import { executeQuotingAction } from "../../engines/QuotingEngine.js";
 import { executeTroubleshooterAction } from "../../engines/IntelligentTroubleshooterEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
@@ -69,6 +70,10 @@ const ACTIONS = [
   "parameter_optimize",
   "cycle_time_estimate",
   "process_plan",
+  "catalog_parse",
+  "catalog_validate",
+  "catalog_enrich",
+  "catalog_stats",
   "quality_predict",
   "job_record",
   "job_insights",
@@ -455,6 +460,18 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         confidence: result.confidence,
         safety_passed: result.safety?.all_checks_passed,
       };
+    case "catalog_parse":
+      return {
+        tools_parsed: result.stats?.total_parsed,
+        enriched: result.stats?.enriched,
+        warnings: result.stats?.warnings?.length,
+      };
+    case "catalog_validate":
+      return { valid: result.valid, invalid: result.invalid, issues: result.issues?.length };
+    case "catalog_enrich":
+      return { tools: result.tools?.length, enrichments: result.enrichments };
+    case "catalog_stats":
+      return { total: result.total_tools, types: Object.keys(result.by_type || {}).length };
     case "quality_predict":
       return {
         Ra: result.surface_finish?.Ra,
@@ -1149,7 +1166,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const QUOTE_ACTIONS = ["quote_job", "quote_compare", "quote_batch", "quote_breakdown"] as const;
         const TROUBLESHOOT_ACTIONS = ["diagnose", "diagnose_alarm", "diagnose_tool", "diagnose_surface"] as const;
         const PROCESS_PLAN_ACTIONS = ["process_plan"] as const;
-        const result = PROCESS_PLAN_ACTIONS.includes(action as any)
+        const CATALOG_ACTIONS = ["catalog_parse", "catalog_validate", "catalog_enrich", "catalog_stats"] as const;
+        const result = CATALOG_ACTIONS.includes(action as any)
+          ? executeCatalogAction(action, params)
+          : PROCESS_PLAN_ACTIONS.includes(action as any)
           ? await processPlan(params as unknown as ProcessPlanInput)
           : TROUBLESHOOT_ACTIONS.includes(action as any)
           ? executeTroubleshooterAction(action, params)
