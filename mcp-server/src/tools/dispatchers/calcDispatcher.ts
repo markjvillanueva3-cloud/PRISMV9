@@ -213,6 +213,9 @@ import {
 import {
   executeShopFloorAnalyticsAction,
 } from "../../engines/ShopFloorAnalyticsEngine.js";
+import {
+  executeReportingAction,
+} from "../../engines/ReportingEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -495,6 +498,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { bottleneck: result.bottleneck_station, throughput_per_hour: result.line_throughput_per_hour, balance_efficiency: result.balance_efficiency, exceeding_takt: result.stations_exceeding_takt };
     case "sf_capacity":
       return { total_machines: result.total_machines, fleet_load: result.fleet_load_ratio, spare_hours: result.fleet_spare_hours, weeks_until_full: result.weeks_until_full_capacity };
+    case "rpt_generate":
+      return { report_type: result.report_type, overall_status: result.overall_status, total_sections: result.total_sections, machine_count: result.machine_count };
+    case "rpt_summary":
+      return { status: result.status, total_machines: result.total_machines, avg_oee: result.kpis?.avg_oee_pct, avg_health: result.kpis?.avg_health_score, alerts: result.alerts?.critical_count };
+    case "rpt_trend":
+      return { metric: result.metric, fleet_direction: result.fleet_summary?.direction, degrading_count: result.fleet_summary?.degrading_count, avg_current: result.fleet_summary?.avg_current_value };
+    case "rpt_export":
+      return { format: result.format, title: result.title, size_bytes: result.size_bytes };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -560,6 +571,7 @@ const ACTIONS = [
   "pm_predict_wear", "pm_schedule", "pm_failure_risk", "pm_optimize_intervals",
   "ah_score", "ah_degradation", "ah_maintenance_plan", "ah_compare",
   "sf_oee", "sf_utilization", "sf_bottleneck", "sf_capacity",
+  "rpt_generate", "rpt_summary", "rpt_trend", "rpt_export",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1794,6 +1806,14 @@ export function registerCalcDispatcher(server: any): void {
           case "sf_bottleneck":
           case "sf_capacity": {
             result = executeShopFloorAnalyticsAction(action, params);
+            break;
+          }
+
+          case "rpt_generate":
+          case "rpt_summary":
+          case "rpt_trend":
+          case "rpt_export": {
+            result = executeReportingAction(action, params);
             break;
           }
 
