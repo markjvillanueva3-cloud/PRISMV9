@@ -1760,6 +1760,82 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  measurement_validation: {
+    name: 'measurement_validation',
+    description: 'Measurement validation: CMM data analysis → SPC control → gage R&R check → inspection plan review',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'cmm_analysis',
+        engine: 'metrology_data',
+        action: 'met_cmm',
+        params: { part_number: '$input.part_number', feature: '$input.feature' },
+      },
+      {
+        id: 'spc_control',
+        engine: 'metrology_data',
+        action: 'met_spc',
+        params: { data_id: '$cmm_analysis.datasets[0].id' },
+      },
+      {
+        id: 'gage_check',
+        engine: 'gage_rr',
+        action: 'grr_msa',
+        params: { gage_id: '$input.gage_id' },
+      },
+      {
+        id: 'insp_review',
+        engine: 'inspection_plan',
+        action: 'insp_plan',
+        params: { part_number: '$input.part_number' },
+      },
+    ],
+    outputs: {
+      cpk: '$spc_control.capability.cpk',
+      in_control: '$spc_control.control_status.in_control',
+      gage_acceptable: '$gage_check.results[0].acceptable',
+      inspection_level: '$insp_review.plans[0].level',
+    },
+  },
+
+  calibration_compliance: {
+    name: 'calibration_compliance',
+    description: 'Calibration compliance: schedule review → drift analysis → cross-gage correlation → traceability verification',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'cal_review',
+        engine: 'calibration',
+        action: 'cal_schedule',
+        params: { status: '$input.status' },
+      },
+      {
+        id: 'drift_check',
+        engine: 'metrology_data',
+        action: 'met_drift',
+        params: { gage_id: '$input.gage_id' },
+      },
+      {
+        id: 'correlation',
+        engine: 'metrology_data',
+        action: 'met_correlate',
+        params: { feature: '$input.feature' },
+      },
+      {
+        id: 'traceability',
+        engine: 'calibration',
+        action: 'cal_trace',
+        params: { instrument_id: '$input.instrument_id' },
+      },
+    ],
+    outputs: {
+      overdue: '$cal_review.summary.overdue',
+      at_risk_gages: '$drift_check.summary.at_risk',
+      avg_correlation: '$correlation.summary.avg_correlation',
+      traceable: '$traceability.traceable',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
