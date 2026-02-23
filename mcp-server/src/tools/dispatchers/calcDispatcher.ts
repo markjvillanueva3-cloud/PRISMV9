@@ -127,6 +127,10 @@ import {
   type CCEComposeInput,
 } from "../../engines/CCELiteEngine.js";
 
+import {
+  executeCuttingSimAction,
+} from "../../engines/CuttingSimulationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -224,6 +228,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { size: result.size, max: result.max, status: result.hit_rate_estimate };
     case "cce_cache_clear":
       return { cleared: result.cleared };
+    case "sim_cutting":
+      return { peak_Ft_N: result.forces?.peak_Ft_N, avg_power_kW: result.forces?.avg_power_kW, peak_tool_temp_C: result.thermal?.peak_tool_temp_C, chatter: result.vibration?.is_chatter, safety: result.safety?.score };
+    case "sim_force_profile":
+      return { points: result.time_ms?.length, peak_Ft: Math.max(...(result.Ft_N ?? [0])) };
+    case "sim_thermal_profile":
+      return { points: result.time_ms?.length, peak_tool_C: Math.max(...(result.tool_temp_C ?? [0])) };
+    case "sim_vibration":
+      return { chatter: result.is_chatter, max_um: result.max_displacement_um, rms_um: result.rms_displacement_um };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -266,6 +278,7 @@ const ACTIONS = [
   "sld_generate", "sld_evaluate", "thermal_distort",
   "gdt_parse", "gdt_stack", "gdt_datum_ref", "gdt_zone", "gdt_report",
   "cce_compose", "cce_list", "cce_cache_stats", "cce_cache_clear",
+  "sim_cutting", "sim_force_profile", "sim_thermal_profile", "sim_vibration",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1314,6 +1327,15 @@ export function registerCalcDispatcher(server: any): void {
           case "cce_cache_stats":
           case "cce_cache_clear": {
             result = executeCCEAction(action, params);
+            break;
+          }
+
+          // ── Cutting Simulation (R16) ──────────────────────────────
+          case "sim_cutting":
+          case "sim_force_profile":
+          case "sim_thermal_profile":
+          case "sim_vibration": {
+            result = executeCuttingSimAction(action, params);
             break;
           }
 
