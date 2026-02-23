@@ -304,6 +304,9 @@ import {
 import {
   executeDocumentWorkflowAction,
 } from "../../engines/DocumentWorkflowEngine.js";
+import {
+  executeWarehouseLocationAction,
+} from "../../engines/WarehouseLocationEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -786,6 +789,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { distributions: result.total_distributions, ack_rate: result.summary?.acknowledgment_rate, pending_recalls: result.summary?.pending_recalls };
     case "doc_comply":
       return { score: result.summary?.compliance_score, status: result.summary?.overall_status, failures: result.summary?.fail };
+    case "wh_locate":
+      return { locations: result.locations_found, occupied: result.summary?.occupied, empty: result.summary?.empty };
+    case "wh_slot":
+      return { a_items: result.summary?.a_items, relocations: result.summary?.relocations_needed, savings_pct: result.summary?.estimated_pick_time_reduction_pct };
+    case "wh_pick":
+      return { picks: result.summary?.total_picks, ready: result.summary?.ready, shortages: result.summary?.shortages };
+    case "wh_putaway":
+      return { suggestions: result.summary?.total_suggestions, strategy: result.summary?.strategy, recommended: result.recommended?.location_id };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -876,6 +887,7 @@ const ACTIONS = [
   "bom_structure", "bom_compare", "bom_whereused", "bom_configure",
   "rev_track", "rev_effectivity", "rev_supersede", "rev_audit",
   "doc_route", "doc_sign", "doc_distribute", "doc_comply",
+  "wh_locate", "wh_slot", "wh_pick", "wh_putaway",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2310,6 +2322,14 @@ export function registerCalcDispatcher(server: any): void {
           case "doc_distribute":
           case "doc_comply": {
             result = executeDocumentWorkflowAction(action, params);
+            break;
+          }
+
+          case "wh_locate":
+          case "wh_slot":
+          case "wh_pick":
+          case "wh_putaway": {
+            result = executeWarehouseLocationAction(action, params);
             break;
           }
 
