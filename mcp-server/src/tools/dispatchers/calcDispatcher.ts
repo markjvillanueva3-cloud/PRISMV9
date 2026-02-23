@@ -285,6 +285,10 @@ import {
   executeMachineAllocationAction,
 } from "../../engines/MachineAllocationEngine.js";
 
+import {
+  executeProductionSequencingAction,
+} from "../../engines/ProductionSequencingEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -718,6 +722,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { machines: result.total_machines_analyzed, savings_hours: result.summary?.total_savings_hours, savings_pct: result.summary?.overall_savings_pct };
     case "alloc_conflict":
       return { conflicts: result.total_conflicts, critical: result.summary?.critical_count, risk: result.summary?.overall_risk };
+    case "seq_optimize":
+      return { orders: result.total_orders, savings_hrs: result.summary?.total_savings_hrs, opportunities: result.summary?.orders_with_opportunities };
+    case "seq_bottleneck":
+      return { centers: result.total_work_centers, bottlenecks: result.summary?.bottleneck_count, primary: result.summary?.primary_bottleneck };
+    case "seq_flow":
+      return { orders: result.total_orders, efficiency_pct: result.summary?.avg_flow_efficiency_pct, wip_hrs: result.summary?.total_wip_hrs };
+    case "seq_reorder":
+      return { orders: result.total_orders, changes: result.summary?.changes_count, most_urgent: result.summary?.most_urgent };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -802,6 +814,7 @@ const ACTIONS = [
   "proc_spend", "proc_contract", "proc_optimize", "proc_report",
   "job_schedule", "job_priority", "job_status", "job_reschedule",
   "alloc_assign", "alloc_balance", "alloc_setup", "alloc_conflict",
+  "seq_optimize", "seq_bottleneck", "seq_flow", "seq_reorder",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2188,6 +2201,14 @@ export function registerCalcDispatcher(server: any): void {
           case "alloc_setup":
           case "alloc_conflict": {
             result = executeMachineAllocationAction(action, params);
+            break;
+          }
+
+          case "seq_optimize":
+          case "seq_bottleneck":
+          case "seq_flow":
+          case "seq_reorder": {
+            result = executeProductionSequencingAction(action, params);
             break;
           }
 
