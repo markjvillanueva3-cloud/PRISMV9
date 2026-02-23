@@ -16,6 +16,192 @@
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
+// PHYSICS SOURCE FILE CATALOG
+// ============================================================================
+// Safety-critical traceability catalog for the 9 extracted JS physics files
+// from PRISM v8.89.002 monolith. Each entry documents origin, domain, and
+// downstream consumers. ALL entries are safety_class "CRITICAL" -- incorrect
+// physics calculations can cause machine crash, operator injury, or death.
+// ============================================================================
+
+export interface PhysicsSourceFileEntry {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL";
+  description: string;
+  physics_domain: string;
+  consumers: string[];
+}
+
+export const PHYSICS_SOURCE_FILE_CATALOG: Record<string, PhysicsSourceFileEntry> = {
+  "PRISM_AI_100_PHYSICS_GENERATOR": {
+    filename: "PRISM_AI_100_PHYSICS_GENERATOR.js",
+    category: "general",
+    lines: 3669,
+    safety_class: "CRITICAL",
+    description: "Generates physics-based AI training data including Merchant force, Oxley force, Taylor tool life, surface finish, chatter stability, thermal analysis, chip formation, power consumption, and deflection models",
+    physics_domain: "mechanics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_CALCULATOR_PHYSICS_ENGINE": {
+    filename: "PRISM_CALCULATOR_PHYSICS_ENGINE.js",
+    category: "general",
+    lines: 343,
+    safety_class: "CRITICAL",
+    description: "Mechanistic cutting force calculator using Altintas model with specific cutting pressure, radial/axial engagement, feed per tooth, and helix angle corrections for milling operations",
+    physics_domain: "mechanics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_CONTACT_CONSTRAINT_ENGINE": {
+    filename: "PRISM_CONTACT_CONSTRAINT_ENGINE.js",
+    category: "dynamics",
+    lines: 441,
+    safety_class: "CRITICAL",
+    description: "Contact and constraint solver for rigid body dynamics with penetration detection, Baumgarte stabilization, warm-starting, static/dynamic friction, and configurable contact stiffness and damping",
+    physics_domain: "dynamics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_INVERSE_KINEMATICS_SOLVER": {
+    filename: "PRISM_INVERSE_KINEMATICS_SOLVER.js",
+    category: "kinematics",
+    lines: 350,
+    safety_class: "CRITICAL",
+    description: "Newton-Raphson iterative inverse kinematics solver with configurable position/orientation tolerances, damping factor, and DH-parameter-based machine configuration support",
+    physics_domain: "kinematics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_JACOBIAN_ENGINE": {
+    filename: "PRISM_JACOBIAN_ENGINE.js",
+    category: "kinematics",
+    lines: 230,
+    safety_class: "CRITICAL",
+    description: "Geometric Jacobian matrix computation and singularity analysis engine mapping joint velocities to end-effector velocities via numerical differentiation of DH forward kinematics",
+    physics_domain: "kinematics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_KINEMATIC_SOLVER": {
+    filename: "PRISM_KINEMATIC_SOLVER.js",
+    category: "kinematics",
+    lines: 542,
+    safety_class: "CRITICAL",
+    description: "Multi-axis machine kinematic models (3-axis VMC, 5-axis, lathe) with forward/inverse kinematics, joint limits, TCP offset, and axis-specific travel constraints",
+    physics_domain: "kinematics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_LATHE_PARAM_ENGINE": {
+    filename: "PRISM_LATHE_PARAM_ENGINE.js",
+    category: "lathe",
+    lines: 643,
+    safety_class: "CRITICAL",
+    description: "Comprehensive lathe setup analysis engine covering machine/spindle/turret/tooling/material/workholding/workpiece factors, composite rigidity scoring, and centrifugal G-force calculations",
+    physics_domain: "mechanics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_PHYSICS_ENGINE": {
+    filename: "PRISM_PHYSICS_ENGINE.js",
+    category: "general",
+    lines: 2967,
+    safety_class: "CRITICAL",
+    description: "Core physics engine with tool deflection under cutting load, Young's modulus material properties for carbide/HSS/ceramic/CBN/diamond, and moment-of-inertia-based cantilever beam deflection models",
+    physics_domain: "mechanics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_UNIFIED_CUTTING_ENGINE": {
+    filename: "PRISM_UNIFIED_CUTTING_ENGINE.js",
+    category: "cutting_force",
+    lines: 327,
+    safety_class: "CRITICAL",
+    description: "Unified cutting parameter optimization engine integrating advanced roughing strategies with master feed optimization, radial engagement, and tool diameter-based parameter calculations",
+    physics_domain: "cutting",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+
+  // --- P-MS3 Advanced Physics (from extracted/engines/ root, 9 files, 5,347 lines) ---
+  "PRISM_ADVANCED_KINEMATICS_ENGINE": {
+    filename: "PRISM_ADVANCED_KINEMATICS_ENGINE.js",
+    category: "kinematics",
+    lines: 609,
+    safety_class: "CRITICAL",
+    description: "Homogeneous transformation matrices, forward/inverse kinematics, DH parameters, Jacobian computation (MIT 16.07, Stanford CS 223A)",
+    physics_domain: "kinematics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_CUTTING_MECHANICS_ENGINE": {
+    filename: "PRISM_CUTTING_MECHANICS_ENGINE.js",
+    category: "cutting_force",
+    lines: 277,
+    safety_class: "CRITICAL",
+    description: "Merchant orthogonal cutting model, force analysis, chip formation, and shear-plane mechanics (Merchant 1945, Shaw Metal Cutting)",
+    physics_domain: "cutting",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_CUTTING_PHYSICS": {
+    filename: "PRISM_CUTTING_PHYSICS.js",
+    category: "cutting_force",
+    lines: 214,
+    safety_class: "CRITICAL",
+    description: "Merchant's Circle force decomposition, shear-angle prediction, chip-thickness ratio, and specific cutting energy",
+    physics_domain: "cutting",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_CUTTING_THERMAL_ENGINE": {
+    filename: "PRISM_CUTTING_THERMAL_ENGINE.js",
+    category: "thermal",
+    lines: 2755,
+    safety_class: "CRITICAL",
+    description: "Shear-plane temperature (Trigger-Chao), tool-chip interface thermal model, transient heat partition, thermal damage prediction (Loewen-Shaw)",
+    physics_domain: "thermodynamics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_HEAT_TRANSFER_ENGINE": {
+    filename: "PRISM_HEAT_TRANSFER_ENGINE.js",
+    category: "thermal",
+    lines: 471,
+    safety_class: "CRITICAL",
+    description: "1D/2D steady-state and transient conduction, convection correlations, radiation models for machining thermal analysis",
+    physics_domain: "thermodynamics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE": {
+    filename: "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE.js",
+    category: "general",
+    lines: 705,
+    safety_class: "CRITICAL",
+    description: "Intelligent cutting parameter selection: WOC/DOC defaults by operation, adaptive roughing, HSM, trochoidal, finishing parameter envelopes",
+    physics_domain: "cutting",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_JOHNSON_COOK_DATABASE": {
+    filename: "PRISM_JOHNSON_COOK_DATABASE.js",
+    category: "general",
+    lines: 150,
+    safety_class: "CRITICAL",
+    description: "Johnson-Cook strain-rate sensitivity parameters (A, B, n, C, m, T_melt) for steels, aluminum, titanium, nickel alloys, copper",
+    physics_domain: "mechanics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_PHASE3_MANUFACTURING_PHYSICS": {
+    filename: "PRISM_PHASE3_MANUFACTURING_PHYSICS.js",
+    category: "thermal",
+    lines: 152,
+    safety_class: "CRITICAL",
+    description: "Phase 3 thermal model for cutting zones, power prediction, multi-source physics aggregation",
+    physics_domain: "thermodynamics",
+    consumers: ["PhysicsPredictionEngine", "ManufacturingCalculations"],
+  },
+  "PRISM_RIGID_BODY_DYNAMICS_ENGINE": {
+    filename: "PRISM_RIGID_BODY_DYNAMICS_ENGINE.js",
+    category: "dynamics",
+    lines: 14,
+    safety_class: "CRITICAL",
+    description: "Rigid body dynamics engine stub — registered to window.PRISM_RIGID_BODY_DYNAMICS_ENGINE",
+    physics_domain: "dynamics",
+    consumers: ["PhysicsPredictionEngine"],
+  },
+};
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -717,6 +903,76 @@ export function couplingSensitivity(input: SensitivityInput): SensitivityResult 
 }
 
 // ============================================================================
+// PHYSICS SOURCE FILE CATALOG ACCESSORS
+// ============================================================================
+
+/**
+ * Returns the full PHYSICS_SOURCE_FILE_CATALOG for inspection and traceability.
+ * Every entry is safety_class "CRITICAL" -- these files govern real machine motion.
+ */
+export function getSourceFileCatalog(): {
+  total_files: number;
+  total_lines: number;
+  safety_class: "CRITICAL";
+  categories: Record<string, string[]>;
+  catalog: Record<string, PhysicsSourceFileEntry>;
+} {
+  const categories: Record<string, string[]> = {};
+  let totalLines = 0;
+
+  for (const [key, entry] of Object.entries(PHYSICS_SOURCE_FILE_CATALOG)) {
+    totalLines += entry.lines;
+    if (!categories[entry.category]) {
+      categories[entry.category] = [];
+    }
+    categories[entry.category].push(key);
+  }
+
+  return {
+    total_files: Object.keys(PHYSICS_SOURCE_FILE_CATALOG).length,
+    total_lines: totalLines,
+    safety_class: "CRITICAL",
+    categories,
+    catalog: PHYSICS_SOURCE_FILE_CATALOG,
+  };
+}
+
+/**
+ * Filters and summarizes the source file catalog by category and/or physics domain.
+ * Useful for auditing which extracted JS files feed into a given physics subsystem.
+ */
+export function catalogSourceFiles(params: {
+  category?: string;
+  physics_domain?: string;
+}): {
+  matched_files: number;
+  matched_lines: number;
+  safety_class: "CRITICAL";
+  entries: Record<string, PhysicsSourceFileEntry>;
+} {
+  const { category, physics_domain } = params;
+  const entries: Record<string, PhysicsSourceFileEntry> = {};
+  let matchedLines = 0;
+
+  for (const [key, entry] of Object.entries(PHYSICS_SOURCE_FILE_CATALOG)) {
+    const matchCategory = !category || entry.category === category;
+    const matchDomain = !physics_domain || entry.physics_domain === physics_domain;
+
+    if (matchCategory && matchDomain) {
+      entries[key] = entry;
+      matchedLines += entry.lines;
+    }
+  }
+
+  return {
+    matched_files: Object.keys(entries).length,
+    matched_lines: matchedLines,
+    safety_class: "CRITICAL",
+    entries,
+  };
+}
+
+// ============================================================================
 // DISPATCHER FUNCTION
 // ============================================================================
 
@@ -738,6 +994,12 @@ export function physicsPrediction(action: string, params: Record<string, unknown
 
     case 'coupling_sensitivity':
       return couplingSensitivity(params as unknown as SensitivityInput);
+
+    case 'get_source_file_catalog':
+      return getSourceFileCatalog();
+
+    case 'catalog_source_files':
+      return catalogSourceFiles(params as unknown as { category?: string; physics_domain?: string });
 
     default:
       throw new Error(`Unknown physics prediction action: ${action}`);

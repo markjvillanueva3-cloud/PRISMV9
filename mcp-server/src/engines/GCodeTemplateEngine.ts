@@ -534,6 +534,143 @@ export const SUPPORTED_OPERATIONS: GCodeOperation[] = [
 ];
 
 // ============================================================================
+// POST-PROCESSOR SOURCE FILE CATALOG (SAFETY-CRITICAL)
+// ============================================================================
+//
+// CROSS-REFERENCE: PostProcessorRegistry.ts (src/registries/PostProcessorRegistry.ts)
+// maintains a basic SOURCE_FILE_CATALOG array (lines 305-318) listing the same 12
+// extracted JS files with { file, lines, description }.
+//
+// This enriched catalog adds safety classification, G-code role, category, and
+// consumer traceability required by the G-Code Template Engine for safe post-
+// processor wiring. Both catalogs MUST stay in sync when files are added or
+// removed.
+//
+// WARNING -- SAFETY CRITICAL: Incorrect G-code generation can cause machine
+// crashes, tool breakage, operator injury, or death. Every file listed below
+// produces or validates CNC machine instructions. Changes require review.
+// ============================================================================
+
+export const POST_PROCESSOR_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL";
+  description: string;
+  gcode_role: string;
+  consumers: string[];
+}> = {
+  POST_PROCESSOR_100_PERCENT: {
+    filename: "POST_PROCESSOR_100_PERCENT.js",
+    category: "post_processing",
+    lines: 1204,
+    safety_class: "CRITICAL",
+    description: "Complete post processor with G-code validator, multi-controller support, modal state tracking, and arc validation",
+    gcode_role: "Full G-code validation pipeline -- validates modal state, arc geometry, feed/speed limits, and block structure across all controller families",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "SafetyValidationPipeline"],
+  },
+  POST_PROCESSOR_ENGINE_V2: {
+    filename: "POST_PROCESSOR_ENGINE_V2.js",
+    category: "post_processing",
+    lines: 295,
+    safety_class: "CRITICAL",
+    description: "V2 post engine with controller-specific NC code generation for Fanuc, Siemens, Heidenhain, Mazak, Okuma",
+    gcode_role: "Controller-specific NC block generation -- program format, decimal precision, modal groups, 5-axis TCP handling",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry"],
+  },
+  PRISM_GCODE_BACKPLOT_ENGINE: {
+    filename: "PRISM_GCODE_BACKPLOT_ENGINE.js",
+    category: "backplotting",
+    lines: 862,
+    safety_class: "CRITICAL",
+    description: "G-code visualization/backplot engine for toolpath verification with material removal simulation",
+    gcode_role: "Toolpath backplot and visual verification -- parses G-code into move segments, simulates material removal, detects collisions before machine execution",
+    consumers: ["GCodeTemplateEngine", "ToolpathVerifier", "BackplotViewer"],
+  },
+  PRISM_GCODE_PROGRAMMING_ENGINE: {
+    filename: "PRISM_GCODE_PROGRAMMING_ENGINE.js",
+    category: "gcode_generation",
+    lines: 127,
+    safety_class: "CRITICAL",
+    description: "RS-274D G-code programming reference and generator with full address code definitions",
+    gcode_role: "G-code address code reference (A-Z) and RS-274D standard compliance -- defines precision, units, and semantics for every address letter",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "GCodeParser"],
+  },
+  PRISM_GUARANTEED_POST_PROCESSOR: {
+    filename: "PRISM_GUARANTEED_POST_PROCESSOR.js",
+    category: "post_processing",
+    lines: 307,
+    safety_class: "CRITICAL",
+    description: "Guaranteed-safe post processor with 47 controller configurations at 100% confidence",
+    gcode_role: "Conservative G-code generation with verified controller configs -- headers, footers, G/M-code mappings, and format strings for 47 controllers (12 Fanuc, 6 Haas, 8 Siemens, etc.)",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "SafetyValidationPipeline"],
+  },
+  PRISM_INTERNAL_POST_ENGINE: {
+    filename: "PRISM_INTERNAL_POST_ENGINE.js",
+    category: "post_processing",
+    lines: 930,
+    safety_class: "CRITICAL",
+    description: "Internal post engine with Siemens/Heidenhain support and user selection collection",
+    gcode_role: "End-to-end post processing pipeline -- collects machine/spindle/material selections, generates controller-specific NC programs with safety checks",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "MachineConfigUI"],
+  },
+  PRISM_POST_INTEGRATION_MODULE: {
+    filename: "PRISM_POST_INTEGRATION_MODULE.js",
+    category: "integration",
+    lines: 676,
+    safety_class: "CRITICAL",
+    description: "Post processor integration module for CAM system bridging with real-time cutting parameter engine",
+    gcode_role: "Real-time cutting parameter adjustment -- tracks radial/axial engagement, feed/speed history, and adapts G-code output to actual cutting conditions",
+    consumers: ["GCodeTemplateEngine", "CuttingParameterEngine", "CAMBridge"],
+  },
+  PRISM_POST_OPTIMIZER: {
+    filename: "PRISM_POST_OPTIMIZER.js",
+    category: "optimization",
+    lines: 121,
+    safety_class: "CRITICAL",
+    description: "G-code optimization engine for redundant move removal, rapid optimization, and arc fitting",
+    gcode_role: "Post-generation G-code optimization -- removes redundant moves, optimizes rapid positioning, compresses output while preserving machining intent",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry"],
+  },
+  PRISM_POST_PROCESSOR_DATABASE_V2: {
+    filename: "PRISM_POST_PROCESSOR_DATABASE_V2.js",
+    category: "database",
+    lines: 2717,
+    safety_class: "CRITICAL",
+    description: "Post processor database with 50+ controller configurations and G-Force physics engine for machine dynamics",
+    gcode_role: "Master controller database and physics engine -- machine acceleration specs, cutting force calculations, feed/speed limits, and controller-specific G-code dialect definitions",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "PhysicsEngine", "FeedSpeedCalculator"],
+  },
+  PRISM_POST_PROCESSOR_ENGINE: {
+    filename: "PRISM_POST_PROCESSOR_ENGINE.js",
+    category: "post_processing",
+    lines: 138,
+    safety_class: "CRITICAL",
+    description: "Core post processor engine base with CAM system database integration (HSMWorks, Mastercam, Fusion 360, SolidWorks)",
+    gcode_role: "Post processor system orchestration -- manages CAM-specific post databases and controller dialect routing for multi-CAM workflows",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "CAMIntegration"],
+  },
+  PRISM_POST_PROCESSOR_GENERATOR: {
+    filename: "PRISM_POST_PROCESSOR_GENERATOR.js",
+    category: "gcode_generation",
+    lines: 336,
+    safety_class: "CRITICAL",
+    description: "Post processor configuration generator with complete machine database (HAAS, DMG MORI, etc.)",
+    gcode_role: "Machine-specific post processor generation -- builds post configs from machine specs including travels, spindle limits, rapid rates, and controller quirks",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "MachineDatabase"],
+  },
+  PRISM_RL_POST_PROCESSOR: {
+    filename: "PRISM_RL_POST_PROCESSOR.js",
+    category: "ai_enhanced",
+    lines: 172,
+    safety_class: "CRITICAL",
+    description: "Reinforcement learning-based post optimization using Q-learning for adaptive G-code generation",
+    gcode_role: "AI-adaptive G-code optimization -- learns optimal code patterns per controller through Q-table reinforcement, adapts output based on historical machine performance",
+    consumers: ["GCodeTemplateEngine", "PostProcessorRegistry", "RLOptimizer"],
+  },
+};
+
+// ============================================================================
 // OPERATION GENERATORS
 // ============================================================================
 
@@ -1432,4 +1569,24 @@ export function listControllers(): Array<{
  */
 export function listOperations(): GCodeOperation[] {
   return [...SUPPORTED_OPERATIONS];
+}
+
+/**
+ * Return the enriched post-processor source file catalog.
+ *
+ * Each entry describes one of the 12 safety-critical extracted JS files that
+ * feed G-code generation, validation, optimization, and backplotting. The
+ * catalog includes safety classification, G-code role, category, and consumer
+ * traceability for audit and wiring verification.
+ *
+ * SAFETY NOTE: All entries carry safety_class "CRITICAL" because they produce
+ * or validate CNC machine instructions. Incorrect output can cause machine
+ * crashes, tool breakage, operator injury, or death.
+ *
+ * @returns The POST_PROCESSOR_SOURCE_FILE_CATALOG record keyed by module name
+ *
+ * @see PostProcessorRegistry.getSourceCatalog() for the basic file list
+ */
+export function getSourceFileCatalog(): typeof POST_PROCESSOR_SOURCE_FILE_CATALOG {
+  return POST_PROCESSOR_SOURCE_FILE_CATALOG;
 }

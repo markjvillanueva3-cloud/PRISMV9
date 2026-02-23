@@ -97,7 +97,13 @@ export const PATHS = {
   SIMULATION: "C:\\PRISM\\extracted\\engines\\simulation",
   QUALITY: "C:\\PRISM\\extracted\\engines\\quality",
   BUSINESS: "C:\\PRISM\\extracted\\engines\\business",
-  BUSINESS_MODULES: "C:\\PRISM\\extracted\\business"
+  BUSINESS_MODULES: "C:\\PRISM\\extracted\\business",
+
+  // Extracted module directories (P-MS3 Wave 1 CRITICAL)
+  PHYSICS: "C:\\PRISM\\extracted\\engines\\physics",
+  POST_PROCESSORS: "C:\\PRISM\\extracted\\engines\\post_processor",
+  VIBRATION: "C:\\PRISM\\extracted\\engines\\vibration",
+  ENGINES_ROOT: "C:\\PRISM\\extracted\\engines"
 } as const;
 
 // Data Layers (4-layer hierarchy)
