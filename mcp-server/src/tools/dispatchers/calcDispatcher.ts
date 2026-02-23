@@ -277,6 +277,10 @@ import {
   executeProcurementAnalyticsAction,
 } from "../../engines/ProcurementAnalyticsEngine.js";
 
+import {
+  executeJobSchedulingAction,
+} from "../../engines/JobSchedulingEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -694,6 +698,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { opportunities: result.total_opportunities, savings_pct: result.summary?.savings_pct, quick_wins: result.summary?.quick_wins };
     case "proc_report":
       return { health_score: result.summary?.health_score, risks: result.summary?.risk_count, recommendation: result.summary?.recommendation };
+    case "job_schedule":
+      return { jobs: result.total_jobs, on_track: result.summary?.jobs_on_track, at_risk: result.summary?.jobs_at_risk };
+    case "job_priority":
+      return { ranked: result.total_ranked, critical: result.summary?.critical_count, avg_score: result.summary?.avg_score };
+    case "job_status":
+      return { jobs: result.total_jobs, on_time_pct: result.summary?.on_time_pct, remaining_hours: result.summary?.total_remaining_hours };
+    case "job_reschedule":
+      return { affected: result.total_affected, will_be_late: result.summary?.jobs_will_be_late, critical_affected: result.summary?.critical_jobs_affected };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -776,6 +788,7 @@ const ACTIONS = [
   "src_price", "src_availability", "src_alternative", "src_optimize",
   "lt_forecast", "lt_track", "lt_disrupt", "lt_expedite",
   "proc_spend", "proc_contract", "proc_optimize", "proc_report",
+  "job_schedule", "job_priority", "job_status", "job_reschedule",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2146,6 +2159,14 @@ export function registerCalcDispatcher(server: any): void {
           case "proc_optimize":
           case "proc_report": {
             result = executeProcurementAnalyticsAction(action, params);
+            break;
+          }
+
+          case "job_schedule":
+          case "job_priority":
+          case "job_status":
+          case "job_reschedule": {
+            result = executeJobSchedulingAction(action, params);
             break;
           }
 
