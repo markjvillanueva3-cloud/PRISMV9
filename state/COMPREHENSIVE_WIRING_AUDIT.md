@@ -75,10 +75,10 @@ Build: 1 warning (down from 2). Tests: 73/74 pass (1 pre-existing KC_INFLATED).
 
 ## REMAINING ITEMS (Non-Critical)
 
-1. **R5 frontend not connected** — Pages exist, API client needs live endpoint config (1hr)
-2. **R1 MS5-MS9 deferred** — Tool schema normalization, material enrichment, machine population (future enhancement)
-3. **KC_INFLATED test** — Pre-existing, non-blocking, needs Kienzle thin-engagement threshold tuning
-4. **tests/ standalone format** — 53 files use custom assert(), not vitest. run-all-tests.ts bridges this but they're not in CI pipeline
+1. **R1 MS5-MS9 deferred** — Tool schema normalization, material enrichment, machine population (future enhancement)
+2. ~~R5 frontend not connected~~ — **FIXED**: 9 REST endpoints wired, Vite proxy port corrected
+3. ~~KC_INFLATED test~~ — **FIXED**: radial_depth 0.12→0.03mm, 74/74 pass
+4. ~~tests/ not in CI~~ — **FIXED**: R4-R11 standalone tests added to GitHub Actions workflow
 
 ---
 

@@ -60,7 +60,10 @@
     "production": { "value": "start-production.sh + start-production.ps1 in scripts/.", "timestamp": "2026-02-22T22:00:00Z" }
   },
   "bugs_known": {
-    "kc_inflated_test": { "value": "1 pre-existing test failure in safetyMatrix.test.ts — KC_INFLATED thin-engagement threshold. Non-blocking.", "timestamp": "2026-02-22T22:00:00Z" },
-    "r5_frontend_disconnected": { "value": "React pages exist (web/) but API client needs live endpoint config. Not connected to MCP server.", "timestamp": "2026-02-22T22:00:00Z" }
+    "none_critical": { "value": "No critical bugs. KC_INFLATED test fixed (74/74). R5 frontend wired (9 REST endpoints). R1 MS5-MS9 deferred (enhancement, not bug).", "timestamp": "2026-02-23T00:00:00Z" }
+  },
+  "tests": {
+    "vitest": { "value": "74/74 pass. 9 test files in src/__tests__/. KC_INFLATED fixed (radial_depth 0.12→0.03mm).", "timestamp": "2026-02-23T00:00:00Z" },
+    "standalone": { "value": "53 test files in tests/r2-r11. ~3,900+ tests. In CI pipeline via run-all-tests.ts.", "timestamp": "2026-02-23T00:00:00Z" }
   }
 }

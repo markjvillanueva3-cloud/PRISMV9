@@ -25,8 +25,10 @@
 - [x] Tool data in 14 JSON files (15,911 entries), .js files are metadata
 - [x] Layer paths create dirs on demand via persistToLayer()
 
+### Final Fixes (2026-02-22)
+- [x] R5 REST API routes — 9 endpoints wired to express app, Vite proxy port fixed (3099→3000)
+- [x] KC_INFLATED test fixed — radial_depth 0.12→0.03mm, 74/74 tests pass
+- [x] CI pipeline — R4-R11 standalone tests added to GitHub Actions workflow
+
 ## PENDING
-- [ ] R5 frontend API endpoint configuration
-- [ ] R1 MS5-MS9 deferred milestones
-- [ ] KC_INFLATED test fix (Kienzle thin-engagement threshold)
-- [ ] tests/ integration into CI pipeline
+- [ ] R1 MS5-MS9 deferred milestones (tool schema, material enrichment, machine population)
