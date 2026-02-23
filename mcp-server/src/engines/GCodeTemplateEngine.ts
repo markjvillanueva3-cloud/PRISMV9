@@ -34,7 +34,11 @@ export type ControllerFamily =
   | "siemens"
   | "heidenhain"
   | "mazak"
-  | "okuma";
+  | "okuma"
+  | "mazatrol"
+  | "osp"
+  | "brother"
+  | "conversational";
 
 export type GCodeOperation =
   | "facing"
@@ -499,6 +503,192 @@ const HEIDENHAIN_CONFIG: ControllerConfig = {
 };
 
 // ============================================================================
+// CONTROLLER CONFIGURATIONS — GROUP D (MAZATROL CONVERSATIONAL)
+// ============================================================================
+
+const MAZATROL_CONFIG: ControllerConfig = {
+  name: "Mazatrol",
+  family: "mazatrol",
+  aliases: ["mazatrol", "mazatrol smooth", "mazatrol matrix", "mazatrol smart"],
+  comment: (text) => `! ${text}`,
+  programStart: (num, name_) => {
+    const tag = name_ ?? (num ? `UNIT_${num}` : "MAIN");
+    return [`PNO ${num ?? 1}`, `PNAM ${tag}`, `MODE MAZATROL`, `UNIT COMMON`];
+  },
+  programEnd: () => ["UNIT END", "M30"],
+  toolChange: (tool, rpm, coolant) => {
+    const lines: string[] = [
+      `UNIT MACH`,
+      `TOOL T${tool}`,
+      `SPEED S${rpm}`,
+    ];
+    if (coolant && coolant !== "off") {
+      lines.push(`COOL ${coolant === "mist" ? "MIST" : coolant === "tsc" ? "THRU" : "ON"}`);
+    }
+    return lines;
+  },
+  spindleCW: (rpm) => `SPEED S${rpm} CW`,
+  spindleCCW: (rpm) => `SPEED S${rpm} CCW`,
+  spindleStop: "SPEED OFF",
+  coolantOn: (type) => `COOL ${type === "mist" ? "MIST" : type === "tsc" ? "THRU" : "ON"}`,
+  coolantOff: "COOL OFF",
+  safetyLine: "UNIT COMMON",
+  lengthComp: (tool) => `! TL ${tool} auto`,
+  cancelLengthComp: "! TL cancel auto",
+  rapidXY: (x, y) => `POS X${fmt(x)} Y${fmt(y)} RAPID`,
+  rapidZ: (z) => `POS Z${fmt(z)} RAPID`,
+  linearXY: (x, y, f) => `POS X${fmt(x)} Y${fmt(y)} F${fmt(f)}`,
+  linearZ: (z, f) => `POS Z${fmt(z)} F${fmt(f)}`,
+  cutterCompLeft: (offset) => `COMP LEFT D${offset}`,
+  cutterCompRight: (offset) => `COMP RIGHT D${offset}`,
+  cutterCompCancel: "COMP OFF",
+  subCall: (num, repeats) => `CALL UNIT ${num} REP ${repeats}`,
+};
+
+// ============================================================================
+// CONTROLLER CONFIGURATIONS — GROUP E (OKUMA OSP)
+// ============================================================================
+
+const OSP_CONFIG: ControllerConfig = {
+  name: "Okuma OSP",
+  family: "osp",
+  aliases: ["osp", "osp-p300", "osp-p200", "okuma osp", "osp-suite"],
+  comment: (text) => `( ${text} )`,
+  programStart: (num, name_) => {
+    const lines: string[] = [];
+    const oNum = num ?? 1;
+    lines.push(`O${String(oNum).padStart(4, "0")}`);
+    if (name_) lines.push(`( ${name_} )`);
+    lines.push("G15 H1");  // OSP machine coordinate selection
+    return lines;
+  },
+  programEnd: () => ["M2", "%"],
+  toolChange: (tool, rpm, coolant) => {
+    const lines: string[] = [
+      `G0 Z0 T${tool}`,   // OSP: simultaneous retract + next-tool prep
+      "M6",
+      `S${rpm} M3`,
+    ];
+    if (coolant && coolant !== "off") {
+      const m = coolant === "tsc" ? "M88" : coolant === "mist" ? "M7" : "M8";
+      lines.push(m);
+    }
+    return lines;
+  },
+  spindleCW: (rpm) => `S${rpm} M3`,
+  spindleCCW: (rpm) => `S${rpm} M4`,
+  spindleStop: "M5",
+  coolantOn: (type) => type === "tsc" ? "M88" : type === "mist" ? "M7" : "M8",
+  coolantOff: "M9",
+  safetyLine: "G90 G80 G40 G17",
+  lengthComp: (tool) => `G43 H${tool}`,
+  cancelLengthComp: "G49",
+  rapidXY: (x, y) => `G0 X${fmt(x)} Y${fmt(y)}`,
+  rapidZ: (z) => `G0 Z${fmt(z)}`,
+  linearXY: (x, y, f) => `G1 X${fmt(x)} Y${fmt(y)} F${fmt(f)}`,
+  linearZ: (z, f) => `G1 Z${fmt(z)} F${fmt(f)}`,
+  cutterCompLeft: (offset) => `G41 D${offset}`,
+  cutterCompRight: (offset) => `G42 D${offset}`,
+  cutterCompCancel: "G40",
+  subCall: (num, repeats) => `M98 P${String(num).padStart(4, "0")} L${repeats}`,
+};
+
+// ============================================================================
+// CONTROLLER CONFIGURATIONS — GROUP F (BROTHER SPEEDIO)
+// ============================================================================
+
+const BROTHER_CONFIG: ControllerConfig = {
+  name: "Brother",
+  family: "brother",
+  aliases: ["brother", "brother speedio", "brother c00", "brother s"],
+  comment: (text) => `( ${text} )`,
+  programStart: (num, name_) => {
+    const lines: string[] = ["%"];
+    const oNum = num ?? 1;
+    lines.push(`O${String(oNum).padStart(4, "0")}`);
+    if (name_) lines.push(`( ${name_} )`);
+    lines.push("G90 G80 G40 G21");
+    lines.push("G91 G30 Z0");  // Brother: Z home via incremental G30
+    lines.push("G90");
+    return lines;
+  },
+  programEnd: () => ["G91 G30 Z0", "G90", "M30", "%"],
+  toolChange: (tool, rpm, coolant) => {
+    const lines: string[] = [
+      "G91 G30 Z0",    // Brother: incremental Z home before TC
+      "G90",
+      `T${tool}`,
+      "M6",
+      `G43 H${tool}`,
+      `S${rpm} M3`,
+    ];
+    if (coolant && coolant !== "off") {
+      const m = coolant === "tsc" ? "M50" : coolant === "mist" ? "M7" : "M8";  // Brother: M50 = through-spindle
+      lines.push(m);
+    }
+    return lines;
+  },
+  spindleCW: (rpm) => `S${rpm} M3`,
+  spindleCCW: (rpm) => `S${rpm} M4`,
+  spindleStop: "M5",
+  coolantOn: (type) => type === "tsc" ? "M50" : type === "mist" ? "M7" : "M8",
+  coolantOff: "M9",
+  safetyLine: "G90 G80 G40 G21",
+  lengthComp: (tool) => `G43 H${tool}`,
+  cancelLengthComp: "G49",
+  rapidXY: (x, y) => `G0 X${fmt(x)} Y${fmt(y)}`,
+  rapidZ: (z) => `G0 Z${fmt(z)}`,
+  linearXY: (x, y, f) => `G1 X${fmt(x)} Y${fmt(y)} F${fmt(f)}`,
+  linearZ: (z, f) => `G1 Z${fmt(z)} F${fmt(f)}`,
+  cutterCompLeft: (offset) => `G41 D${offset}`,
+  cutterCompRight: (offset) => `G42 D${offset}`,
+  cutterCompCancel: "G40",
+  subCall: (num, repeats) => `M98 P${String(num).padStart(4, "0")} L${repeats}`,
+};
+
+// ============================================================================
+// CONTROLLER CONFIGURATIONS — GROUP G (CONVERSATIONAL / SHOP FLOOR)
+// ============================================================================
+
+const CONVERSATIONAL_CONFIG: ControllerConfig = {
+  name: "Conversational",
+  family: "conversational",
+  aliases: ["conversational", "shopfloor", "shop", "manual", "teach"],
+  comment: (text) => `NOTE: ${text}`,
+  programStart: (num, name_) => {
+    const tag = name_ ?? (num ? `JOB_${num}` : "MAIN_JOB");
+    return [`JOB: ${tag}`, `SETUP: METRIC, ABSOLUTE`, `---`];
+  },
+  programEnd: () => ["---", "END JOB", "RETURN HOME"],
+  toolChange: (tool, rpm, coolant) => {
+    const lines: string[] = [
+      `CHANGE TOOL #${tool}`,
+      `SET SPINDLE ${rpm} RPM CW`,
+    ];
+    if (coolant && coolant !== "off") {
+      lines.push(`COOLANT ${coolant === "mist" ? "MIST" : coolant === "tsc" ? "THROUGH" : "FLOOD"} ON`);
+    }
+    return lines;
+  },
+  spindleCW: (rpm) => `SET SPINDLE ${rpm} RPM CW`,
+  spindleCCW: (rpm) => `SET SPINDLE ${rpm} RPM CCW`,
+  spindleStop: "STOP SPINDLE",
+  coolantOn: (type) => `COOLANT ${type === "mist" ? "MIST" : type === "tsc" ? "THROUGH" : "FLOOD"} ON`,
+  coolantOff: "COOLANT OFF",
+  safetyLine: "SETUP: METRIC, ABSOLUTE",
+  lengthComp: (tool) => `NOTE: Tool ${tool} length comp active`,
+  cancelLengthComp: "NOTE: Tool length comp off",
+  rapidXY: (x, y) => `RAPID TO X=${fmt(x)} Y=${fmt(y)}`,
+  rapidZ: (z) => `RAPID TO Z=${fmt(z)}`,
+  linearXY: (x, y, f) => `MOVE TO X=${fmt(x)} Y=${fmt(y)} AT ${fmt(f)} MM/MIN`,
+  linearZ: (z, f) => `MOVE TO Z=${fmt(z)} AT ${fmt(f)} MM/MIN`,
+  cutterCompLeft: (offset) => `CUTTER COMP LEFT D${offset}`,
+  cutterCompRight: (offset) => `CUTTER COMP RIGHT D${offset}`,
+  cutterCompCancel: "CUTTER COMP OFF",
+  subCall: (num, repeats) => `CALL SUB ${num} REPEAT ${repeats}`,
+};
+
+// ============================================================================
 // CONTROLLER REGISTRY
 // ============================================================================
 
@@ -509,6 +699,10 @@ const CONTROLLER_REGISTRY: ControllerConfig[] = [
   OKUMA_CONFIG,
   SIEMENS_CONFIG,
   HEIDENHAIN_CONFIG,
+  MAZATROL_CONFIG,
+  OSP_CONFIG,
+  BROTHER_CONFIG,
+  CONVERSATIONAL_CONFIG,
 ];
 
 /** All supported controller aliases (lowercase). */

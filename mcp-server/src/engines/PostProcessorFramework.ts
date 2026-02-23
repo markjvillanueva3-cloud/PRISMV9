@@ -110,15 +110,24 @@ const DEFAULT_LIMITS: MachineLimits = {
 
 // ─── Controller Resolution ──────────────────────────────────────────────────
 
-type ControllerGroup = "iso" | "heidenhain";
+type ControllerGroup = "iso" | "heidenhain" | "mazatrol" | "osp" | "brother" | "conversational";
 
 function controllerGroup(family: ControllerFamily): ControllerGroup {
-  return family === "heidenhain" ? "heidenhain" : "iso";
+  if (family === "heidenhain") return "heidenhain";
+  if (family === "mazatrol") return "mazatrol";
+  if (family === "osp") return "osp";
+  if (family === "brother") return "brother";
+  if (family === "conversational") return "conversational";
+  return "iso";
 }
 
 function resolveFamily(controller: string): ControllerFamily {
   const c = controller.toLowerCase().trim();
   if (c.includes("heidenhain") || c.includes("tnc")) return "heidenhain";
+  if (c.includes("mazatrol") || c.includes("mazatrol smooth") || c.includes("mazatrol matrix")) return "mazatrol";
+  if (c.includes("osp") || c.includes("osp-p")) return "osp";
+  if (c.includes("brother") || c.includes("speedio")) return "brother";
+  if (c.includes("conversational") || c.includes("shopfloor") || c.includes("shop") || c.includes("teach")) return "conversational";
   if (c.includes("siemens") || c.includes("840d")) return "siemens";
   if (c.includes("haas")) return "haas";
   if (c.includes("mazak")) return "mazak";
@@ -366,6 +375,385 @@ function emitHeidenhain(uir: UIRProgram): string[] {
   return lines;
 }
 
+// ─── Mazatrol Conversational Emitter ────────────────────────────────────────
+
+function emitMazatrol(uir: UIRProgram): string[] {
+  const lines: string[] = [];
+  let unitNum = 0;
+  const u = () => `UNO ${unitNum++}`;
+
+  for (const op of uir.operations) {
+    switch (op.type) {
+      case "program_start":
+        lines.push(`PNO ${uir.programNumber ?? 1}`);
+        if (uir.programName) lines.push(`PNAM ${uir.programName}`);
+        if (uir.material) lines.push(`! MATERIAL: ${uir.material}`);
+        lines.push(`MODE MAZATROL`);
+        break;
+      case "program_end":
+        lines.push("UNIT END");
+        lines.push("M30");
+        break;
+      case "comment":
+        lines.push(`! ${op.comment ?? ""}`);
+        break;
+      case "tool_change":
+        lines.push(`${u()} UNIT MACH`);
+        lines.push(`  TOOL T${op.toolNumber ?? 1}`);
+        lines.push(`  SPEED S${op.spindleSpeed ?? 1000} ${op.spindleDirection === "ccw" ? "CCW" : "CW"}`);
+        if (op.coolantType && op.coolantType !== "off") {
+          lines.push(`  COOL ${op.coolantType === "mist" ? "MIST" : op.coolantType === "through" ? "THRU" : "ON"}`);
+        }
+        break;
+      case "spindle_on":
+        lines.push(`SPEED S${op.spindleSpeed ?? 1000} ${op.spindleDirection === "ccw" ? "CCW" : "CW"}`);
+        break;
+      case "spindle_off":
+        lines.push("SPEED OFF");
+        break;
+      case "coolant_on":
+        lines.push(`COOL ${op.coolantType === "mist" ? "MIST" : op.coolantType === "through" ? "THRU" : "ON"}`);
+        break;
+      case "coolant_off":
+        lines.push("COOL OFF");
+        break;
+      case "rapid":
+        lines.push(`${u()} POS ${[coord("X", op.x), coord("Y", op.y), coord("Z", op.z)].filter(Boolean).join(" ")} RAPID`);
+        break;
+      case "linear":
+        lines.push(`${u()} POS ${[coord("X", op.x), coord("Y", op.y), coord("Z", op.z)].filter(Boolean).join(" ")} F${Math.round(op.feedRate ?? 500)}`);
+        break;
+      case "arc_cw":
+      case "arc_ccw": {
+        const dir = op.type === "arc_cw" ? "CW" : "CCW";
+        lines.push(`${u()} ARC ${dir} ${[coord("X", op.x), coord("Y", op.y)].filter(Boolean).join(" ")} ${op.r !== undefined ? `R${fmt(op.r)}` : `I${fmt(op.i ?? 0)} J${fmt(op.j ?? 0)}`} F${Math.round(op.feedRate ?? 300)}`);
+        break;
+      }
+      case "drill":
+        lines.push(`${u()} UNIT DRILL`);
+        lines.push(`  DEPTH ${fmt(Math.abs(op.z ?? 10))}`);
+        if (op.peckDepth) lines.push(`  PECK ${fmt(op.peckDepth)}`);
+        lines.push(`  FEED F${Math.round(op.feedRate ?? 100)}`);
+        if (op.x !== undefined || op.y !== undefined) {
+          lines.push(`  POINT ${[coord("X", op.x), coord("Y", op.y)].filter(Boolean).join(" ")}`);
+        }
+        break;
+      case "tap":
+        lines.push(`${u()} UNIT TAP`);
+        lines.push(`  DEPTH ${fmt(Math.abs(op.z ?? 10))}`);
+        lines.push(`  PITCH ${fmt(op.pitch ?? 1.0)}`);
+        if (op.x !== undefined || op.y !== undefined) {
+          lines.push(`  POINT ${[coord("X", op.x), coord("Y", op.y)].filter(Boolean).join(" ")}`);
+        }
+        break;
+      case "bore":
+        lines.push(`${u()} UNIT BORE`);
+        lines.push(`  DEPTH ${fmt(Math.abs(op.z ?? 10))}`);
+        lines.push(`  FEED F${Math.round(op.feedRate ?? 50)}`);
+        if (op.x !== undefined || op.y !== undefined) {
+          lines.push(`  POINT ${[coord("X", op.x), coord("Y", op.y)].filter(Boolean).join(" ")}`);
+        }
+        break;
+      case "dwell":
+        lines.push(`${u()} DWELL ${fmt((op.dwellMs ?? 0) / 1000, 1)} SEC`);
+        break;
+      case "home":
+        lines.push(`${u()} POS Z0 RAPID ! HOME`);
+        break;
+    }
+  }
+  return lines;
+}
+
+// ─── Okuma OSP Emitter ──────────────────────────────────────────────────────
+
+function emitOSP(uir: UIRProgram, family: ControllerFamily): string[] {
+  const lines: string[] = [];
+  const unitG = uir.units === "mm" ? "G21" : "G20";
+  const wo = uir.workOffset ?? "G54";
+
+  for (const op of uir.operations) {
+    switch (op.type) {
+      case "program_start": {
+        if (uir.programNumber) lines.push(`O${String(uir.programNumber).padStart(4, "0")}`);
+        if (uir.programName) lines.push(`( ${uir.programName} )`);
+        if (uir.material) lines.push(`( MATERIAL: ${uir.material} )`);
+        lines.push("G15 H1");  // OSP: machine coordinate system
+        lines.push(`${unitG} ${wo} G90 G80 G40 G17`);
+        break;
+      }
+      case "program_end":
+        lines.push("M2");
+        lines.push("%");
+        break;
+      case "comment":
+        lines.push(`( ${op.comment ?? ""} )`);
+        break;
+      case "tool_change": {
+        const t = op.toolNumber ?? 1;
+        lines.push(`G0 Z0 T${t}`);  // OSP simultaneous retract + tool prep
+        lines.push("M6");
+        if (op.spindleSpeed) {
+          lines.push(`G43 H${t} S${op.spindleSpeed} M${op.spindleDirection === "ccw" ? 4 : 3}`);
+        }
+        break;
+      }
+      case "spindle_on":
+        lines.push(`S${op.spindleSpeed ?? 1000} M${op.spindleDirection === "ccw" ? 4 : 3}`);
+        break;
+      case "spindle_off":
+        lines.push("M5");
+        break;
+      case "coolant_on":
+        lines.push(op.coolantType === "mist" ? "M7" : op.coolantType === "through" ? "M88" : "M8");
+        break;
+      case "coolant_off":
+        lines.push("M9");
+        break;
+      case "rapid":
+        lines.push(
+          ["G0", coord("X", op.x), coord("Y", op.y), coord("Z", op.z)].filter(Boolean).join(" "),
+        );
+        break;
+      case "linear":
+        lines.push(
+          ["G1", coord("X", op.x), coord("Y", op.y), coord("Z", op.z),
+           op.feedRate ? `F${fmt(op.feedRate, 1)}` : ""].filter(Boolean).join(" "),
+        );
+        break;
+      case "arc_cw":
+      case "arc_ccw": {
+        const g = op.type === "arc_cw" ? "G2" : "G3";
+        const parts = [g, coord("X", op.x), coord("Y", op.y), coord("Z", op.z)];
+        if (op.r !== undefined) parts.push(coord("R", op.r));
+        else { parts.push(coord("I", op.i), coord("J", op.j), coord("K", op.k)); }
+        if (op.feedRate) parts.push(`F${fmt(op.feedRate, 1)}`);
+        lines.push(parts.filter(Boolean).join(" "));
+        break;
+      }
+      case "drill":
+        if (op.peckDepth) {
+          lines.push(["G83", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `Q${fmt(op.peckDepth)}`, `F${fmt(op.feedRate ?? 100, 1)}`].filter(Boolean).join(" "));
+        } else {
+          lines.push(["G81", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(op.feedRate ?? 100, 1)}`].filter(Boolean).join(" "));
+        }
+        break;
+      case "tap":
+        lines.push(["G84", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(op.feedRate ?? 500, 1)}`].filter(Boolean).join(" "));
+        break;
+      case "bore":
+        lines.push(["G85", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(op.feedRate ?? 50, 1)}`].filter(Boolean).join(" "));
+        break;
+      case "dwell":
+        lines.push(`G4 P${op.dwellMs ?? 0}`);
+        break;
+      case "home":
+        lines.push("G28 G91 Z0");
+        lines.push("G90");
+        break;
+    }
+  }
+  return lines;
+}
+
+// ─── Brother SPEEDIO Emitter ────────────────────────────────────────────────
+
+function emitBrother(uir: UIRProgram): string[] {
+  const lines: string[] = [];
+  const unitG = uir.units === "mm" ? "G21" : "G20";
+  const wo = uir.workOffset ?? "G54";
+
+  for (const op of uir.operations) {
+    switch (op.type) {
+      case "program_start": {
+        lines.push("%");
+        if (uir.programNumber) lines.push(`O${String(uir.programNumber).padStart(4, "0")}`);
+        if (uir.programName) lines.push(`(${uir.programName})`);
+        if (uir.material) lines.push(`(MATERIAL: ${uir.material})`);
+        lines.push(`${unitG} G90 G80 G40`);
+        lines.push("G91 G30 Z0");  // Brother: incremental Z home
+        lines.push(`G90 ${wo}`);
+        break;
+      }
+      case "program_end":
+        lines.push("G91 G30 Z0");
+        lines.push("G90");
+        lines.push("M30");
+        lines.push("%");
+        break;
+      case "comment":
+        lines.push(`(${op.comment ?? ""})`);
+        break;
+      case "tool_change": {
+        const t = op.toolNumber ?? 1;
+        lines.push("G91 G30 Z0");  // Brother: Z home before TC
+        lines.push("G90");
+        lines.push(`T${t}`);
+        lines.push("M6");
+        lines.push(`G43 H${t}`);
+        if (op.spindleSpeed) {
+          lines.push(`S${op.spindleSpeed} M${op.spindleDirection === "ccw" ? 4 : 3}`);
+        }
+        break;
+      }
+      case "spindle_on":
+        lines.push(`S${op.spindleSpeed ?? 1000} M${op.spindleDirection === "ccw" ? 4 : 3}`);
+        break;
+      case "spindle_off":
+        lines.push("M5");
+        break;
+      case "coolant_on":
+        lines.push(op.coolantType === "mist" ? "M7" : op.coolantType === "through" ? "M50" : "M8");
+        break;
+      case "coolant_off":
+        lines.push("M9");
+        break;
+      case "rapid":
+        lines.push(
+          ["G0", coord("X", op.x), coord("Y", op.y), coord("Z", op.z)].filter(Boolean).join(" "),
+        );
+        break;
+      case "linear":
+        lines.push(
+          ["G1", coord("X", op.x), coord("Y", op.y), coord("Z", op.z),
+           op.feedRate ? `F${fmt(op.feedRate, 1)}` : ""].filter(Boolean).join(" "),
+        );
+        break;
+      case "arc_cw":
+      case "arc_ccw": {
+        const g = op.type === "arc_cw" ? "G2" : "G3";
+        const parts = [g, coord("X", op.x), coord("Y", op.y), coord("Z", op.z)];
+        if (op.r !== undefined) parts.push(coord("R", op.r));
+        else { parts.push(coord("I", op.i), coord("J", op.j), coord("K", op.k)); }
+        if (op.feedRate) parts.push(`F${fmt(op.feedRate, 1)}`);
+        lines.push(parts.filter(Boolean).join(" "));
+        break;
+      }
+      case "drill":
+        if (op.peckDepth) {
+          lines.push(["G83", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `Q${fmt(op.peckDepth)}`, `F${fmt(op.feedRate ?? 100, 1)}`].filter(Boolean).join(" "));
+        } else {
+          lines.push(["G81", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(op.feedRate ?? 100, 1)}`].filter(Boolean).join(" "));
+        }
+        break;
+      case "tap": {
+        const pitch = op.pitch ?? 1.0;
+        const feedCalc = op.feedRate ?? (op.spindleSpeed ?? 500) * pitch;
+        lines.push(["G84", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(feedCalc, 1)}`].filter(Boolean).join(" "));
+        break;
+      }
+      case "bore":
+        lines.push(["G85", coord("X", op.x), coord("Y", op.y), `Z${fmt(op.z ?? 0)}`, `R${fmt(op.zSafe ?? 2)}`, `F${fmt(op.feedRate ?? 50, 1)}`].filter(Boolean).join(" "));
+        break;
+      case "dwell":
+        lines.push(`G4 P${op.dwellMs ?? 0}`);
+        break;
+      case "home":
+        lines.push("G91 G30 Z0");
+        lines.push("G90");
+        break;
+    }
+  }
+  return lines;
+}
+
+// ─── Conversational / Shop Floor Emitter ────────────────────────────────────
+
+function emitConversational(uir: UIRProgram): string[] {
+  const lines: string[] = [];
+  let stepNum = 0;
+  const s = () => `STEP ${++stepNum}:`;
+
+  for (const op of uir.operations) {
+    switch (op.type) {
+      case "program_start":
+        lines.push(`JOB: ${uir.programName ?? "MAIN"}`);
+        if (uir.material) lines.push(`MATERIAL: ${uir.material}`);
+        lines.push(`UNITS: ${uir.units === "mm" ? "METRIC (MM)" : "IMPERIAL (INCH)"}`);
+        lines.push(`WORK OFFSET: ${uir.workOffset ?? "G54"}`);
+        lines.push("---");
+        break;
+      case "program_end":
+        lines.push("---");
+        lines.push(`${s()} RETURN HOME`);
+        lines.push("END JOB");
+        break;
+      case "comment":
+        lines.push(`NOTE: ${op.comment ?? ""}`);
+        break;
+      case "tool_change": {
+        lines.push(`${s()} CHANGE TOOL #${op.toolNumber ?? 1}`);
+        if (op.spindleSpeed) {
+          lines.push(`       SET SPINDLE ${op.spindleSpeed} RPM ${op.spindleDirection === "ccw" ? "CCW" : "CW"}`);
+        }
+        if (op.coolantType && op.coolantType !== "off") {
+          lines.push(`       COOLANT ${op.coolantType === "mist" ? "MIST" : op.coolantType === "through" ? "THROUGH" : "FLOOD"} ON`);
+        }
+        break;
+      }
+      case "spindle_on":
+        lines.push(`${s()} SET SPINDLE ${op.spindleSpeed ?? 1000} RPM ${op.spindleDirection === "ccw" ? "CCW" : "CW"}`);
+        break;
+      case "spindle_off":
+        lines.push(`${s()} STOP SPINDLE`);
+        break;
+      case "coolant_on":
+        lines.push(`${s()} COOLANT ${op.coolantType === "mist" ? "MIST" : op.coolantType === "through" ? "THROUGH" : "FLOOD"} ON`);
+        break;
+      case "coolant_off":
+        lines.push(`${s()} COOLANT OFF`);
+        break;
+      case "rapid": {
+        const coords = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : "", op.z !== undefined ? `Z=${fmt(op.z)}` : ""].filter(Boolean).join(" ");
+        lines.push(`${s()} RAPID TO ${coords}`);
+        break;
+      }
+      case "linear": {
+        const coords = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : "", op.z !== undefined ? `Z=${fmt(op.z)}` : ""].filter(Boolean).join(" ");
+        lines.push(`${s()} MOVE TO ${coords} AT ${Math.round(op.feedRate ?? 500)} MM/MIN`);
+        break;
+      }
+      case "arc_cw":
+      case "arc_ccw": {
+        const dir = op.type === "arc_cw" ? "CLOCKWISE" : "COUNTER-CLOCKWISE";
+        const coords = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : ""].filter(Boolean).join(" ");
+        const rad = op.r !== undefined ? `RADIUS=${fmt(op.r)}` : `CENTER I=${fmt(op.i ?? 0)} J=${fmt(op.j ?? 0)}`;
+        lines.push(`${s()} ARC ${dir} TO ${coords} ${rad} AT ${Math.round(op.feedRate ?? 300)} MM/MIN`);
+        break;
+      }
+      case "drill": {
+        const pos = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : ""].filter(Boolean).join(" ");
+        lines.push(`${s()} DRILL AT ${pos}`);
+        lines.push(`       DEPTH: ${fmt(Math.abs(op.z ?? 10))} MM`);
+        if (op.peckDepth) lines.push(`       PECK: ${fmt(op.peckDepth)} MM`);
+        lines.push(`       FEED: ${Math.round(op.feedRate ?? 100)} MM/MIN`);
+        break;
+      }
+      case "tap": {
+        const pos = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : ""].filter(Boolean).join(" ");
+        lines.push(`${s()} TAP AT ${pos}`);
+        lines.push(`       DEPTH: ${fmt(Math.abs(op.z ?? 10))} MM`);
+        lines.push(`       PITCH: ${fmt(op.pitch ?? 1.0)} MM`);
+        break;
+      }
+      case "bore": {
+        const pos = [op.x !== undefined ? `X=${fmt(op.x)}` : "", op.y !== undefined ? `Y=${fmt(op.y)}` : ""].filter(Boolean).join(" ");
+        lines.push(`${s()} BORE AT ${pos}`);
+        lines.push(`       DEPTH: ${fmt(Math.abs(op.z ?? 10))} MM`);
+        lines.push(`       FEED: ${Math.round(op.feedRate ?? 50)} MM/MIN`);
+        break;
+      }
+      case "dwell":
+        lines.push(`${s()} WAIT ${fmt((op.dwellMs ?? 0) / 1000, 1)} SECONDS`);
+        break;
+      case "home":
+        lines.push(`${s()} RETURN HOME`);
+        break;
+    }
+  }
+  return lines;
+}
+
 // ─── Safety Validator ───────────────────────────────────────────────────────
 
 function validateSafety(gcode: string, limits: MachineLimits): SafetyReport {
@@ -569,12 +957,20 @@ class PostProcessorFrameworkEngine {
     }
 
     // Step 2: Emit controller-specific G-code
-    const gcodeLines = group === "heidenhain" ? emitHeidenhain(uir) : emitISO(uir, family);
+    let gcodeLines: string[];
+    switch (group) {
+      case "heidenhain":    gcodeLines = emitHeidenhain(uir); break;
+      case "mazatrol":      gcodeLines = emitMazatrol(uir); break;
+      case "osp":           gcodeLines = emitOSP(uir, family); break;
+      case "brother":       gcodeLines = emitBrother(uir); break;
+      case "conversational": gcodeLines = emitConversational(uir); break;
+      default:              gcodeLines = emitISO(uir, family); break;
+    }
     const gcode = gcodeLines.join("\n");
 
-    // Step 3: Validate output (ISO only — Heidenhain uses non-ISO syntax)
+    // Step 3: Validate output (ISO-like only — Heidenhain/Mazatrol/Conversational use non-ISO syntax)
     let toolChanges = 0, rapidMoves = 0, feedMoves = 0, arcMoves = 0;
-    if (group === "iso") {
+    if (group === "iso" || group === "osp" || group === "brother") {
       const v = gcodeGenerator.validateGCode(gcode);
       toolChanges = v.stats.toolChanges;
       rapidMoves = v.stats.rapidMoves;
@@ -661,8 +1057,12 @@ class PostProcessorFrameworkEngine {
     return {
       controllers: ctrls,
       groups: {
-        iso: ctrls.filter((c) => c.family !== "heidenhain").map((c) => c.name),
+        iso: ctrls.filter((c) => ["fanuc", "haas", "siemens", "mazak", "okuma"].includes(c.family)).map((c) => c.name),
         heidenhain: ctrls.filter((c) => c.family === "heidenhain").map((c) => c.name),
+        mazatrol: ctrls.filter((c) => c.family === "mazatrol").map((c) => c.name),
+        osp: ctrls.filter((c) => c.family === "osp").map((c) => c.name),
+        brother: ctrls.filter((c) => c.family === "brother").map((c) => c.name),
+        conversational: ctrls.filter((c) => c.family === "conversational").map((c) => c.name),
       },
       totalControllers: ctrls.length,
       uirTypes: [
