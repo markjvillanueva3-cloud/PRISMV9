@@ -347,3 +347,18 @@ MS5 GATE VERIFIES:
   Hook fires, both skills load, report script passes
   SCRIPT: screenshot_regression (captures dashboard state for visual regression baseline)
 ```
+
+---
+## COMPLETED — Actual Deliverables (2026-02-22)
+Status: COMPLETE | Commits: 3d17c9d → f8e7cb0
+
+### Milestones Delivered:
+- **R5-MS0**: Visual platform scaffold — React 19 + Vite + Tailwind (3d17c9d)
+- **R5-MS1**: Calculator page with 9 interactive formula cards (157/157 tests) (cfe32d5)
+- **R5-MS2**: Job Planner + Toolpath Advisor pages (109/109 tests) (55c99f3)
+- **R5-MS3**: Safety monitor + what-if analysis pages (33/33 tests) (f00bcbc)
+- **R5-MS4**: Report generation + text export — 3 report types (81/81 tests) (f8e7cb0)
+- **REST API**: 9 endpoints wired via express (speed-feed, job-plan, material, tool, alarm, toolpath, safety, knowledge) (8bfdfa2)
+
+### Test Count: 380 tests across 5 milestones
+### Build Impact: React frontend in web/ directory, REST endpoints in src/tools/bridge/

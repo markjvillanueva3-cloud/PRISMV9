@@ -711,3 +711,18 @@ MS6 GATE VERIFIES:
   Both hooks fire, all 5 skills load, both scripts pass
   End-to-end: query via mobile -> PRISM calculates -> CAM receives params -> DNC transfers
 ```
+
+---
+## COMPLETED — Actual Deliverables (2026-02-22)
+Status: COMPLETE | Commits: 2234044 → 952e1fc
+
+### Milestones Delivered:
+- **R9-MS0**: Machine connectivity engine — MTConnect/OPC-UA data ingestion (107/107 tests) (2234044)
+- **R9-MS1**: CAM integration engine — Fusion 360/Mastercam/CSV export (78/78 tests) (61a927e)
+- **R9-MS2**: DNC transfer engine — G-code blocks, QR bridge, 7 DNC systems (75/75 tests) (bdb7d09)
+- **R9-MS3**: Mobile interface data layer — voice query, alarm decode, tool timers (94/94 tests) (38ece1e)
+- **R9-MS4**: ERP/MES integration engine — work orders, cost tracking, quality feedback (58/58 tests) (e7a34ec)
+- **R9-MS5**: Measurement & inspection integration — CMM, surface finish, probing (75/75 tests) (952e1fc)
+
+### Test Count: 487 tests across 6 milestones
+### New Engines: MachineConnectivity, CAMIntegration, DNCTransfer, MobileInterface, ERPIntegration, MeasurementInspection

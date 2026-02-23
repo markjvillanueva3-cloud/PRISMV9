@@ -1019,3 +1019,20 @@ ADDITIONAL HOOKS (2 new):
 *R8 is where PRISM stops being a tool and starts being a colleague.
 The engine room is built. R8 puts a bridge on top of it with windows,
 a wheel, and a captain who speaks the crew's language.*
+
+---
+## COMPLETED — Actual Deliverables (2026-02-22)
+Status: COMPLETE | Commits: 56e9811 → cf05463
+
+### Milestones Delivered:
+- **R8-MS0**: Intent decomposition engine — NL query to execution plan (102/102 tests) (56e9811)
+- **R8-MS1**: Persona-adaptive response formatter — Dave/Sarah/Mike personas (90/90 tests) (039ecb3)
+- **R8-MS2**: Pre-built workflow chains — 10 manufacturing workflows (314/314 tests) (fa1765c)
+- **R8-MS3**: Progressive onboarding & first 5 minutes (64/64 tests) (8804cee)
+- **R8-MS4**: Professional setup sheet generation — 3 formats (73/73 tests) (9b4840f)
+- **R8-MS5**: Conversational memory & context state machine (81/81 tests) (a74f9c9)
+- **R8-MS6**: 12 user workflow skills with persona adaptation (200/200 tests) (5a03424)
+- **R8-MS7**: 10 user assistance skills with physics explanations (223/223 tests) (cf05463)
+
+### Test Count: 1,147 tests across 8 milestones
+### New Engines: IntentDecomposition, PersonaFormatter, WorkflowChain, Onboarding, SetupSheet, ConversationalMemory + 22 skills
