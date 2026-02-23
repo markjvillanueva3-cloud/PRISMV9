@@ -298,6 +298,9 @@ import {
 import {
   executeBOMAction,
 } from "../../engines/BOMEngine.js";
+import {
+  executeRevisionControlAction,
+} from "../../engines/RevisionControlEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -764,6 +767,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { usages: result.summary?.total_usages, assemblies: result.summary?.assemblies_containing?.length, common: result.summary?.is_common_part };
     case "bom_configure":
       return { configs: result.comparison?.config_count || 1, cost_range: result.comparison?.cost_range?.spread, lowest: result.comparison?.lowest_cost };
+    case "rev_track":
+      return { documents: result.summary?.unique_documents, released: result.summary?.active_released, pending: result.summary?.pending_review };
+    case "rev_effectivity":
+      return { effective: result.summary?.total_effective, pending_replacement: result.summary?.pending_replacements, upcoming: result.summary?.upcoming_30days };
+    case "rev_supersede":
+      return { chain_length: result.chain_length, current: result.analysis?.current_revision, avg_interval: result.analysis?.avg_revision_interval_days };
+    case "rev_audit":
+      return { entries: result.total_entries, compliance: result.compliance?.status, issues: result.compliance?.issues_found };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -852,6 +863,7 @@ const ACTIONS = [
   "cap_forecast", "cap_demand", "cap_overtime", "cap_report",
   "ecn_create", "ecn_impact", "ecn_approve", "ecn_implement",
   "bom_structure", "bom_compare", "bom_whereused", "bom_configure",
+  "rev_track", "rev_effectivity", "rev_supersede", "rev_audit",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2270,6 +2282,14 @@ export function registerCalcDispatcher(server: any): void {
           case "bom_whereused":
           case "bom_configure": {
             result = executeBOMAction(action, params);
+            break;
+          }
+
+          case "rev_track":
+          case "rev_effectivity":
+          case "rev_supersede":
+          case "rev_audit": {
+            result = executeRevisionControlAction(action, params);
             break;
           }
 
