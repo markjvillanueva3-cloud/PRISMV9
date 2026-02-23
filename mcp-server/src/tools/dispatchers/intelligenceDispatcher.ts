@@ -51,6 +51,9 @@ import { executeSequencerAction } from "../../engines/OperationSequencerEngine.j
 import { executeToolSelectorAction } from "../../engines/ToolSelectorEngine.js";
 import { executeConstraintAction } from "../../engines/ConstraintEngine.js";
 import { executeGCodeAction } from "../../engines/GCodeGeneratorEngine.js";
+import { executePostProcessorAction } from "../../engines/PostProcessorFramework.js";
+import { executeQuotingAction } from "../../engines/QuotingEngine.js";
+import { executeTroubleshooterAction } from "../../engines/IntelligentTroubleshooterEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -326,6 +329,23 @@ const ACTIONS = [
   "validate_gcode",
   "backplot_gcode",
   "generate_gcode",
+  // Post Processor Framework — R14-MS1
+  "pp_post",
+  "pp_validate",
+  "pp_translate",
+  "pp_uir",
+  "pp_controllers",
+  "pp_safety",
+  // Quoting Engine — R14-MS2
+  "quote_job",
+  "quote_compare",
+  "quote_batch",
+  "quote_breakdown",
+  // Intelligent Troubleshooter — R14-MS4
+  "diagnose",
+  "diagnose_alarm",
+  "diagnose_tool",
+  "diagnose_surface",
 ] as const;
 
 /**
@@ -1007,6 +1027,21 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { totalMoves: result.statistics?.totalMoves, rapidDist: result.statistics?.rapidDistance, feedDist: result.statistics?.feedDistance, machiningTime: result.statistics?.machiningTime, boundingBox: result.statistics?.boundingBox };
     case "generate_gcode":
       return { found: result.found, total: result.total, gCodes: result.gCodes?.length ?? result.gCodes, mCodes: result.mCodes?.length ?? result.mCodes, addressCodes: result.addressCodes?.length ?? result.addressCodes };
+    // Post Processor Framework — R14-MS1
+    case "pp_post":
+      return { controller: result.controller, lines: result.lineCount, safety_passed: result.safety?.passed, safety_score: result.safety?.score, warnings: result.warnings?.length, toolChanges: result.summary?.toolChanges, feedMoves: result.summary?.feedMoves };
+    case "pp_validate": case "pp_translate": case "pp_uir": case "pp_controllers": case "pp_safety":
+      return result;
+    // Quoting Engine — R14-MS2
+    case "quote_job":
+      return { perPart: result.quote?.perPart, perBatch: result.quote?.perBatch, batchSize: result.quote?.batchSize, operations: result.operations?.length, confidence: result.confidence, alternatives: result.alternatives?.length };
+    case "quote_compare": case "quote_batch": case "quote_breakdown":
+      return result;
+    // Intelligent Troubleshooter — R14-MS4
+    case "diagnose":
+      return { topDiagnosis: result.topDiagnosis, confidence: result.confidence, diagnoses: result.diagnoses?.length, symptoms: result.inputSymptoms?.length, questions: result.additionalQuestions?.length };
+    case "diagnose_alarm": case "diagnose_tool": case "diagnose_surface":
+      return result;
     default:
       return result;
   }
@@ -1097,7 +1132,16 @@ export function registerIntelligenceDispatcher(server: any): void {
         const TOOL_SELECTOR_ACTIONS = ["select_optimal_tool", "score_tool_candidates"] as const;
         const CONSTRAINT_ACTIONS = ["apply_constraints", "check_feasibility"] as const;
         const GCODE_ACTIONS = ["validate_gcode", "backplot_gcode", "generate_gcode"] as const;
-        const result = GCODE_ACTIONS.includes(action as any)
+        const PP_ACTIONS = ["pp_post", "pp_validate", "pp_translate", "pp_uir", "pp_controllers", "pp_safety"] as const;
+        const QUOTE_ACTIONS = ["quote_job", "quote_compare", "quote_batch", "quote_breakdown"] as const;
+        const TROUBLESHOOT_ACTIONS = ["diagnose", "diagnose_alarm", "diagnose_tool", "diagnose_surface"] as const;
+        const result = TROUBLESHOOT_ACTIONS.includes(action as any)
+          ? executeTroubleshooterAction(action, params)
+          : QUOTE_ACTIONS.includes(action as any)
+          ? executeQuotingAction(action, params)
+          : PP_ACTIONS.includes(action as any)
+          ? executePostProcessorAction(action, params)
+          : GCODE_ACTIONS.includes(action as any)
           ? executeGCodeAction(action, params)
           : CONSTRAINT_ACTIONS.includes(action as any)
           ? executeConstraintAction(action, params)
