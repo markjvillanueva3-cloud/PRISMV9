@@ -233,6 +233,10 @@ import {
   executeEnergyMonitoringAction,
 } from "../../engines/EnergyMonitoringEngine.js";
 
+import {
+  executeCarbonFootprintAction,
+} from "../../engines/CarbonFootprintEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -562,6 +566,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { avg_kw: result.summary?.avg_demand_kw, peak_kw: result.summary?.max_peak_demand_kw, total_kwh: result.summary?.total_energy_kwh, bill_usd: result.summary?.total_bill_usd };
     case "en_benchmark":
       return { machines: result.fleet_summary?.machines_benchmarked, avg_efficiency: result.fleet_summary?.avg_efficiency_ratio, savings: result.fleet_summary?.potential_annual_savings_usd };
+    case "co2_calculate":
+      return { total_kgco2: result.emissions?.total_kgco2, per_kg: result.emissions?.per_kg_product_kgco2, rating: result.carbon_intensity_rating };
+    case "co2_lifecycle":
+      return { total_kgco2: result.total_kgco2, per_year: result.per_year_kgco2, hotspot: result.hotspot?.phase, rating: result.comparison?.rating };
+    case "co2_reduce":
+      return { recommendations: result.plan_summary?.recommendations_count, reduction_pct: result.plan_summary?.reduction_achieved_pct, target_met: result.plan_summary?.target_met };
+    case "co2_report":
+      return { total_tco2: result.emissions_summary?.total_tco2, dominant: result.emissions_summary?.dominant_scope, kgco2_per_part: result.intensity_metrics?.kgco2_per_part };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -633,6 +645,7 @@ const ACTIONS = [
   "cost_estimate", "cost_breakdown", "cost_compare", "cost_whatif",
   "comp_check", "comp_certify", "comp_report", "comp_standards",
   "en_consumption", "en_profile", "en_demand", "en_benchmark",
+  "co2_calculate", "co2_lifecycle", "co2_reduce", "co2_report",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1915,6 +1928,14 @@ export function registerCalcDispatcher(server: any): void {
           case "en_demand":
           case "en_benchmark": {
             result = executeEnergyMonitoringAction(action, params);
+            break;
+          }
+
+          case "co2_calculate":
+          case "co2_lifecycle":
+          case "co2_reduce":
+          case "co2_report": {
+            result = executeCarbonFootprintAction(action, params);
             break;
           }
 
