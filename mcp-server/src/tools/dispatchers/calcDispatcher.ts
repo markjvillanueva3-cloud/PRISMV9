@@ -313,6 +313,9 @@ import {
 import {
   executeShippingReceivingAction,
 } from "../../engines/ShippingReceivingEngine.js";
+import {
+  executeYardManagementAction,
+} from "../../engines/YardManagementEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -819,6 +822,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { doors: result.total_doors, available: result.summary?.available, utilization: result.summary?.utilization_pct };
     case "ship_carrier":
       return { carriers: result.total_carriers, best_value: result.recommendations?.best_value?.name, avg_on_time: result.summary?.avg_on_time };
+    case "yard_assign":
+      return { spots: result.total_spots, available: result.summary?.available, utilization: result.summary?.utilization_pct };
+    case "yard_trailer":
+      return { trailers: result.total_trailers, on_site: result.summary?.on_site, avg_dwell: result.summary?.avg_dwell_hours };
+    case "yard_appoint":
+      return { appointments: result.total_appointments, today: result.summary?.today_count, on_time_pct: result.summary?.on_time_pct };
+    case "yard_move":
+      return { moves: result.total_moves, pending: result.summary?.pending, avg_time: result.summary?.avg_move_minutes };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -912,6 +923,7 @@ const ACTIONS = [
   "wh_locate", "wh_slot", "wh_pick", "wh_putaway",
   "kit_assemble", "kit_shortage", "kit_stage", "kit_track",
   "ship_receive", "ship_dispatch", "ship_dock", "ship_carrier",
+  "yard_assign", "yard_trailer", "yard_appoint", "yard_move",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2370,6 +2382,14 @@ export function registerCalcDispatcher(server: any): void {
           case "ship_dock":
           case "ship_carrier": {
             result = executeShippingReceivingAction(action, params);
+            break;
+          }
+
+          case "yard_assign":
+          case "yard_trailer":
+          case "yard_appoint":
+          case "yard_move": {
+            result = executeYardManagementAction(action, params);
             break;
           }
 
