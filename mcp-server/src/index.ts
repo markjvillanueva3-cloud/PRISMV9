@@ -503,7 +503,53 @@ async function runHTTP(): Promise<void> {
     const result = await callTool("prism_knowledge", "search", req.body);
     res.json({ result });
   });
-  
+
+  // ── R14-MS7: Product REST Endpoints ──────────────────────────────────────
+
+  // Post Processor (CRITICAL safety)
+  app.post("/api/v1/post-process", async (req, res) => {
+    const action = req.body.action || "pp_post";
+    const result = await callTool("prism_intelligence", action, req.body);
+    const isSafe = result?.safety_passed !== false;
+    res.status(isSafe ? 200 : 422).json({
+      result,
+      safety: { classification: "CRITICAL", passed: isSafe },
+      meta: { product: "post_processor", version: "R14" },
+    });
+  });
+
+  // Cost Estimation / Quoting
+  app.post("/api/v1/quote", async (req, res) => {
+    const action = req.body.action || "quote_job";
+    const result = await callTool("prism_intelligence", action, req.body);
+    res.json({
+      result,
+      meta: { product: "quoting_engine", version: "R14" },
+    });
+  });
+
+  // Process Planning (HIGH safety)
+  app.post("/api/v1/process-plan", async (req, res) => {
+    const action = req.body.action || "process_plan";
+    const result = await callTool("prism_intelligence", action, req.body);
+    const isSafe = result?.safety?.all_checks_passed !== false;
+    res.status(isSafe ? 200 : 422).json({
+      result,
+      safety: { classification: "HIGH", passed: isSafe, warnings: result?.safety?.warnings },
+      meta: { product: "process_planning", version: "R14" },
+    });
+  });
+
+  // Intelligent Troubleshooter
+  app.post("/api/v1/troubleshoot", async (req, res) => {
+    const action = req.body.action || "diagnose";
+    const result = await callTool("prism_intelligence", action, req.body);
+    res.json({
+      result,
+      meta: { product: "troubleshooter", version: "R14" },
+    });
+  });
+
   const port = parseInt(process.env.PORT || "3000", 10);
   // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
