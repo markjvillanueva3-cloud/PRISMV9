@@ -1376,6 +1376,76 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  // ─── R25: Supply Chain Recipes ───────────────────────────────────────────────
+
+  supplier_evaluation: {
+    name: 'supplier_evaluation',
+    description: 'Supplier evaluation: scorecard + risk assessment (parallel) → material sourcing alternatives → lead time forecast',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        actions: [
+          { action: 'sup_scorecard', params: {}, output_key: 'scorecard' },
+          { action: 'sup_risk', params: {}, output_key: 'risk' },
+        ],
+        parallel: true,
+      },
+      {
+        actions: [
+          { action: 'src_alternative', params: {}, output_key: 'alternatives' },
+        ],
+        parallel: false,
+      },
+      {
+        actions: [
+          { action: 'lt_forecast', params: {}, output_key: 'forecast' },
+        ],
+        parallel: false,
+      },
+    ],
+    output_template: {
+      supplier_scorecard: '$scorecard',
+      risk_assessment: '$risk',
+      material_alternatives: '$alternatives',
+      lead_time_forecast: '$forecast',
+      overall_safety: '$_min_safety',
+    },
+  },
+
+  procurement_optimization: {
+    name: 'procurement_optimization',
+    description: 'Procurement optimization: spend analysis + contract review (parallel) → procurement optimization → executive report',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        actions: [
+          { action: 'proc_spend', params: {}, output_key: 'spend' },
+          { action: 'proc_contract', params: {}, output_key: 'contracts' },
+        ],
+        parallel: true,
+      },
+      {
+        actions: [
+          { action: 'proc_optimize', params: {}, output_key: 'optimize' },
+        ],
+        parallel: false,
+      },
+      {
+        actions: [
+          { action: 'proc_report', params: {}, output_key: 'report' },
+        ],
+        parallel: false,
+      },
+    ],
+    output_template: {
+      spend_analysis: '$spend',
+      contract_review: '$contracts',
+      optimization_plan: '$optimize',
+      executive_report: '$report',
+      overall_safety: '$_min_safety',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
