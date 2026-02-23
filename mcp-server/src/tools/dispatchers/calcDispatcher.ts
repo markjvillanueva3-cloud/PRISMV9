@@ -261,6 +261,10 @@ import {
   executeWorkforceOptimizationAction,
 } from "../../engines/WorkforceOptimizationEngine.js";
 
+import {
+  executeSupplierManagementAction,
+} from "../../engines/SupplierManagementEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -646,6 +650,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { utilization_pct: result.current_state?.utilization_pct, status: result.current_state?.status, bottlenecks: result.summary?.skill_bottleneck_count, weeks_to_over: result.summary?.weeks_until_over_capacity };
     case "wf_balance":
       return { score: result.balance_score, rating: result.rating, suggestions: result.summary?.suggestions_count, cost: result.summary?.total_weekly_labor_cost };
+    case "sup_scorecard":
+      return { suppliers: result.total_suppliers || 1, score: result.overall_score || result.summary?.avg_score, rating: result.rating || undefined };
+    case "sup_risk":
+      return { risk: result.overall_risk, risks: result.risk_count || result.summary?.total_risk_items, critical: result.summary?.critical_risk };
+    case "sup_audit":
+      return { overdue: result.summary?.overdue, due_soon: result.summary?.due_soon, avg_score: result.summary?.avg_audit_score || result.audit_score };
+    case "sup_compare":
+      return { compared: result.total_compared, avg_score: result.summary?.avg_score, best: result.comparison_highlights?.best_overall?.name };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -724,6 +736,7 @@ const ACTIONS = [
   "trn_program", "trn_progress", "trn_gap", "trn_recommend",
   "kc_capture", "kc_search", "kc_best_practice", "kc_lesson",
   "wf_schedule", "wf_assign", "wf_capacity", "wf_balance",
+  "sup_scorecard", "sup_risk", "sup_audit", "sup_compare",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2062,6 +2075,14 @@ export function registerCalcDispatcher(server: any): void {
           case "wf_capacity":
           case "wf_balance": {
             result = executeWorkforceOptimizationAction(action, params);
+            break;
+          }
+
+          case "sup_scorecard":
+          case "sup_risk":
+          case "sup_audit":
+          case "sup_compare": {
+            result = executeSupplierManagementAction(action, params);
             break;
           }
 
