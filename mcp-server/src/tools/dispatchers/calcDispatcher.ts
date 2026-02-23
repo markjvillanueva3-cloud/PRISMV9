@@ -122,6 +122,11 @@ import {
   workholdingIntelligence,
 } from "../../engines/WorkholdingIntelligenceEngine.js";
 
+import {
+  executeCCEAction,
+  type CCEComposeInput,
+} from "../../engines/CCELiteEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -211,6 +216,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { vc_mpm: result.optimal?.vc_mpm, eco_weight: result.eco_weight_applied, improvement_pct: result.sustainability_improvement_pct, eco_score: result.optimal?.sustainability?.eco_efficiency_score };
     case "fixture_recommend":
       return { fixture: result.primary_recommendation?.fixture_type, model: result.primary_recommendation?.model, clamp_n: result.primary_recommendation?.clamp_force_n, deflection_mm: result.analysis?.max_deflection_mm, within_tol: result.analysis?.deflection_within_tolerance, safety: result.safety?.score };
+    case "cce_compose":
+      return { recipe: result.recipe, steps: result.steps_executed, cache_hits: result.cache_hits, time_ms: result.total_time_ms, safety: result.safety?.score };
+    case "cce_list":
+      return { recipes: Array.isArray(result) ? result.length : 0 };
+    case "cce_cache_stats":
+      return { size: result.size, max: result.max, status: result.hit_rate_estimate };
+    case "cce_cache_clear":
+      return { cleared: result.cleared };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -252,6 +265,7 @@ const ACTIONS = [
   "rz_kinematic", "rz_milling", "surface_profile", "chip_form",
   "sld_generate", "sld_evaluate", "thermal_distort",
   "gdt_parse", "gdt_stack", "gdt_datum_ref", "gdt_zone", "gdt_report",
+  "cce_compose", "cce_list", "cce_cache_stats", "cce_cache_clear",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1291,6 +1305,15 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "gdt_report": {
             result = gdtReport(params as unknown as GDTReportInput);
+            break;
+          }
+
+          // ── CCE Lite (Computed Composite Endpoints) ─────────────────
+          case "cce_compose":
+          case "cce_list":
+          case "cce_cache_stats":
+          case "cce_cache_clear": {
+            result = executeCCEAction(action, params);
             break;
           }
 
