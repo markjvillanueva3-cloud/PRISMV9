@@ -155,6 +155,10 @@ import {
   executeModelCalibrationAction,
 } from "../../engines/ModelCalibrationEngine.js";
 
+import {
+  executeBatchAnalyticsAction,
+} from "../../engines/BatchAnalyticsEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -308,6 +312,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { reset: result.reset ?? result.reset_all, count: result.parameters_reset };
     case "cal_validate":
       return { improvement_pct: result.improvement_pct, effective: result.effective, mae_before: result.before_calibration?.mae, mae_after: result.after_calibration?.mae };
+    case "batch_kpi":
+      return { oee: result.oee, yield_pct: result.yield_pct, scrap_rate: result.scrap_rate, cost_per_part: result.cost_per_part_usd, throughput: result.throughput_parts_per_hr };
+    case "batch_trend":
+      return { metric: result.metric, trend: result.trend_direction, r_squared: result.regression?.r_squared, forecast: result.forecast_next, change_points: result.change_points?.length };
+    case "batch_compare":
+      return { winner: result.overall_winner, batch_a: result.batch_a?.id, batch_b: result.batch_b?.id };
+    case "batch_summary":
+      return { count: result.count, avg_oee: result.averages?.oee, avg_yield: result.averages?.yield_pct, total_parts: result.totals?.parts_produced };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -357,6 +369,7 @@ const ACTIONS = [
   "mfb_record", "mfb_compare", "mfb_error_stats", "mfb_correction",
   "spc_xbar_r", "spc_cusum", "spc_ewma", "spc_capability",
   "cal_update", "cal_status", "cal_reset", "cal_validate",
+  "batch_kpi", "batch_trend", "batch_compare", "batch_summary",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1463,6 +1476,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cal_reset":
           case "cal_validate": {
             result = executeModelCalibrationAction(action, params);
+            break;
+          }
+
+          case "batch_kpi":
+          case "batch_trend":
+          case "batch_compare":
+          case "batch_summary": {
+            result = executeBatchAnalyticsAction(action, params);
             break;
           }
 
