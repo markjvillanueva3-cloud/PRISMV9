@@ -131,6 +131,10 @@ import {
   executeCuttingSimAction,
 } from "../../engines/CuttingSimulationEngine.js";
 
+import {
+  executeDigitalTwinAction,
+} from "../../engines/DigitalTwinEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -236,6 +240,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { points: result.time_ms?.length, peak_tool_C: Math.max(...(result.tool_temp_C ?? [0])) };
     case "sim_vibration":
       return { chatter: result.is_chatter, max_um: result.max_displacement_um, rms_um: result.rms_displacement_um };
+    case "twin_create":
+      return { twin_id: result.twin_id, material: result.material, volume_mm3: result.current_volume_mm3 };
+    case "twin_remove_material":
+      return { twin_id: result.twin_id, removed_pct: result.removal_percentage, ops: result.operations_count, safety: result.safety?.score };
+    case "twin_state":
+      return { twin_id: result.twin_id, volume_mm3: result.current_volume_mm3, removed_pct: result.removal_percentage, ops: result.operations_count };
+    case "twin_compare":
+      return { target_met: result.target_met, worst_Ra: result.overall_Ra_worst_um, budget_remaining: result.tolerance_budget_remaining_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -279,6 +291,7 @@ const ACTIONS = [
   "gdt_parse", "gdt_stack", "gdt_datum_ref", "gdt_zone", "gdt_report",
   "cce_compose", "cce_list", "cce_cache_stats", "cce_cache_clear",
   "sim_cutting", "sim_force_profile", "sim_thermal_profile", "sim_vibration",
+  "twin_create", "twin_remove_material", "twin_state", "twin_compare",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1336,6 +1349,15 @@ export function registerCalcDispatcher(server: any): void {
           case "sim_thermal_profile":
           case "sim_vibration": {
             result = executeCuttingSimAction(action, params);
+            break;
+          }
+
+          // ── Digital Twin (R16) ────────────────────────────────────
+          case "twin_create":
+          case "twin_remove_material":
+          case "twin_state":
+          case "twin_compare": {
+            result = executeDigitalTwinAction(action, params);
             break;
           }
 
