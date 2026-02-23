@@ -37,7 +37,13 @@ import {
   type ModalParameters,
   type OptimizationConstraints,
   type OptimizationWeights,
-  type CostParameters
+  type CostParameters,
+  generateSLD,
+  evaluateSLD,
+  predictThermalDistortion,
+  type SLDGenerateInput,
+  type SLDEvaluateInput,
+  type ThermalDistortionInput
 } from "../../engines/AdvancedCalculations.js";
 
 import {
@@ -234,6 +240,7 @@ const ACTIONS = [
   "surface_integrity_predict", "chatter_predict", "thermal_compensate",
   "unified_machining_model", "coupling_sensitivity",
   "rz_kinematic", "rz_milling", "surface_profile", "chip_form",
+  "sld_generate", "sld_evaluate", "thermal_distort",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1237,6 +1244,20 @@ export function registerCalcDispatcher(server: any): void {
 
           case "fixture_recommend": {
             result = workholdingIntelligence(action, params);
+            break;
+          }
+
+          // === R15: MODAL SLD + THERMAL DISTORTION ===
+          case "sld_generate": {
+            result = generateSLD(params as unknown as SLDGenerateInput);
+            break;
+          }
+          case "sld_evaluate": {
+            result = evaluateSLD(params as unknown as SLDEvaluateInput);
+            break;
+          }
+          case "thermal_distort": {
+            result = predictThermalDistortion(params as unknown as ThermalDistortionInput);
             break;
           }
 
