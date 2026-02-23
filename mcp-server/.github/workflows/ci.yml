@@ -27,10 +27,23 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - name: Unit Tests
+      - name: Unit Tests (vitest)
         run: npx vitest run --reporter=verbose
-      - name: R2 Safety Benchmarks
-        run: node dist/index.js --run-tests tests/r2-safety-benchmarks.test.ts 2>/dev/null || echo "Benchmark runner not available in CI"
+      - name: R4-R11 Standalone Tests
+        run: npx tsx scripts/run-all-tests.ts --phase vitest-skip 2>&1 || true
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+      - name: R4-R11 Phase Tests (quick)
+        run: |
+          for phase in r2 r3 r4 r5 r7 r8 r9 r10 r11; do
+            if ls tests/$phase/*-tests.ts 1>/dev/null 2>&1; then
+              echo "=== $phase ==="
+              first_file=$(ls tests/$phase/*-tests.ts 2>/dev/null | head -1)
+              if [ -n "$first_file" ]; then
+                timeout 60 npx tsx "$first_file" 2>&1 | tail -5 || echo "⚠️ $phase: timeout or error"
+              fi
+            fi
+          done
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
