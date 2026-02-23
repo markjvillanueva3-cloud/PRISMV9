@@ -331,6 +331,9 @@ import {
 import {
   executeCalibrationAction,
 } from "../../engines/CalibrationEngine.js";
+import {
+  executeGageRRAction,
+} from "../../engines/GageRREngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -885,6 +888,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { recalls: result.total_recalls, open: result.summary?.open_recalls, affected: result.summary?.total_affected_measurements };
     case "cal_trace":
       return { traceable: result.nist_traceable, chain_depth: result.traceability_chain?.length, expanded_uncertainty: result.uncertainty_budget?.expanded_uncertainty_k2 };
+    case "grr_study":
+      return { studies: result.total_studies, avg_grr_pct: result.summary?.avg_grr_pct, acceptable: result.summary?.acceptable };
+    case "grr_msa":
+      return { analyses: result.total_analyses, capable: result.summary?.capable_gages, avg_bias: result.summary?.avg_bias_pct };
+    case "grr_uncertainty":
+      return { expanded_u: result.expanded_uncertainty_k2, dominant: result.dominant_source, confidence: result.confidence_level };
+    case "grr_linearity":
+      return { r_squared: result.regression?.r_squared, acceptable: result.linearity_acceptable, max_bias: result.max_bias };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -984,6 +995,7 @@ const ACTIONS = [
   "six_dmaic", "six_chart", "six_capability", "six_analyze",
   "lean_oee", "lean_fty", "lean_waste", "lean_kpi",
   "cal_schedule", "cal_cert", "cal_recall", "cal_trace",
+  "grr_study", "grr_msa", "grr_uncertainty", "grr_linearity",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2490,6 +2502,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cal_recall":
           case "cal_trace": {
             result = executeCalibrationAction(action, params);
+            break;
+          }
+
+          case "grr_study":
+          case "grr_msa":
+          case "grr_uncertainty":
+          case "grr_linearity": {
+            result = executeGageRRAction(action, params);
             break;
           }
 
