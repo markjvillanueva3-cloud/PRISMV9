@@ -143,6 +143,10 @@ import {
   executeSensitivityAction,
 } from "../../engines/SensitivityEngine.js";
 
+import {
+  executeMeasurementFeedbackAction,
+} from "../../engines/MeasurementFeedbackEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -272,6 +276,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { front_size: result.pareto_front?.length, objectives: result.objectives, dominated: result.dominated_count };
     case "sensitivity_montecarlo":
       return { samples: result.n_samples, metric: result.metric, mean: result.mean, std: result.std_dev, p95: result.p95 };
+    case "mfb_record":
+      return { id: result.id, feature: result.feature, error: result.error, pct_error: result.pct_error, within_tolerance: result.within_tolerance };
+    case "mfb_compare":
+      return { count: result.count, bias: result.statistics?.bias, rmse: result.statistics?.rmse, correlation: result.statistics?.correlation };
+    case "mfb_error_stats":
+      return { count: result.overall?.count, bias: result.overall?.bias, rmse: result.overall?.rmse, within_tol_pct: result.overall?.within_tolerance_pct };
+    case "mfb_correction":
+      return { corrections: result.corrections?.length, sufficient_data: result.sufficient_data, total: result.total_measurements };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -318,6 +330,7 @@ const ACTIONS = [
   "twin_create", "twin_remove_material", "twin_state", "twin_compare",
   "verify_process", "verify_tolerance", "verify_surface", "verify_stability",
   "sensitivity_1d", "sensitivity_2d", "sensitivity_pareto", "sensitivity_montecarlo",
+  "mfb_record", "mfb_compare", "mfb_error_stats", "mfb_correction",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1400,6 +1413,14 @@ export function registerCalcDispatcher(server: any): void {
           case "sensitivity_pareto":
           case "sensitivity_montecarlo": {
             result = executeSensitivityAction(action, params);
+            break;
+          }
+
+          case "mfb_record":
+          case "mfb_compare":
+          case "mfb_error_stats":
+          case "mfb_correction": {
+            result = executeMeasurementFeedbackAction(action, params);
             break;
           }
 
