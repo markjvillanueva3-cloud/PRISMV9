@@ -1000,6 +1000,130 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  part_traceability: {
+    name: 'part_traceability',
+    description: 'Part traceability: build genealogy + trace process chain (parallel) → audit trail → compliance check',
+    safety_classification: 'HIGH',
+    steps: [
+      {
+        id: 'genealogy',
+        engine: 'calc',
+        action: 'tr_genealogy',
+        params_template: {},
+        param_bindings: {
+          part_id: '$input.part_id',
+          include_materials: true,
+          include_tools: true,
+        },
+        depends_on: [],
+      },
+      {
+        id: 'chain',
+        engine: 'calc',
+        action: 'tr_chain',
+        params_template: {},
+        param_bindings: {
+          part_id: '$input.part_id',
+          include_parameters: true,
+          include_measurements: true,
+        },
+        depends_on: [],
+      },
+      {
+        id: 'audit',
+        engine: 'calc',
+        action: 'tr_audit_trail',
+        params_template: {},
+        param_bindings: {
+          part_id: '$input.part_id',
+          include_deviations: true,
+        },
+        depends_on: ['genealogy', 'chain'],
+      },
+      {
+        id: 'compliance',
+        engine: 'calc',
+        action: 'comp_check',
+        params_template: {},
+        param_bindings: {
+          standard: '$input.standard',
+          scope: 'process',
+          part_id: '$input.part_id',
+          material: '$input.material',
+        },
+        depends_on: ['audit'],
+      },
+    ],
+    output_template: {
+      genealogy: '$genealogy',
+      process_chain: '$chain',
+      audit_trail: '$audit',
+      compliance_check: '$compliance',
+      overall_safety: '$_min_safety',
+    },
+  },
+
+  cost_compliance: {
+    name: 'cost_compliance',
+    description: 'Cost and compliance workflow: estimate cost + check compliance (parallel) → inventory status → generate report',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'cost',
+        engine: 'calc',
+        action: 'cost_estimate',
+        params_template: {},
+        param_bindings: {
+          material: '$input.material',
+          weight_kg: '$input.weight_kg',
+          operations: '$input.operations',
+          batch_size: '$input.batch_size',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'compliance',
+        engine: 'calc',
+        action: 'comp_check',
+        params_template: {},
+        param_bindings: {
+          standard: '$input.standard',
+          scope: '$input.scope',
+          material: '$input.material',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'inventory',
+        engine: 'calc',
+        action: 'inv_status',
+        params_template: {},
+        param_bindings: {
+          category_filter: '$input.inventory_category',
+        },
+        depends_on: ['cost'],
+      },
+      {
+        id: 'report',
+        engine: 'calc',
+        action: 'rpt_generate',
+        params_template: {},
+        param_bindings: {
+          report_type: 'executive',
+          include_recommendations: true,
+        },
+        depends_on: ['cost', 'compliance', 'inventory'],
+      },
+    ],
+    output_template: {
+      cost_estimate: '$cost',
+      compliance_status: '$compliance',
+      inventory_status: '$inventory',
+      executive_report: '$report',
+      overall_safety: '$_min_safety',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
