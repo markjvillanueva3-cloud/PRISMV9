@@ -269,6 +269,10 @@ import {
   executeMaterialSourcingAction,
 } from "../../engines/MaterialSourcingEngine.js";
 
+import {
+  executeLeadTimeAction,
+} from "../../engines/LeadTimeEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -670,6 +674,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { material: result.material_name, alternatives: result.total_alternatives, best_match: result.best_match?.name || result.summary?.top_alternative };
     case "src_optimize":
       return { materials: result.total_materials, savings_pct: result.potential_savings_pct, strategy: result.strategy || result.summary?.recommendation };
+    case "lt_forecast":
+      return { forecasts: result.total_forecasts, avg_p50: result.summary?.avg_p50_days, at_risk: result.summary?.at_risk_count };
+    case "lt_track":
+      return { orders: result.total_orders, delayed: result.summary?.delayed_count, high_risk: result.summary?.high_risk_count };
+    case "lt_disrupt":
+      return { alerts: result.total_alerts, critical: result.summary?.critical_count, impacted_orders: result.summary?.impacted_orders_count };
+    case "lt_expedite":
+      return { evaluated: result.total_orders_evaluated, days_saved: result.summary?.total_potential_days_saved, critical: result.summary?.critical_orders };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -750,6 +762,7 @@ const ACTIONS = [
   "wf_schedule", "wf_assign", "wf_capacity", "wf_balance",
   "sup_scorecard", "sup_risk", "sup_audit", "sup_compare",
   "src_price", "src_availability", "src_alternative", "src_optimize",
+  "lt_forecast", "lt_track", "lt_disrupt", "lt_expedite",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2104,6 +2117,14 @@ export function registerCalcDispatcher(server: any): void {
           case "src_alternative":
           case "src_optimize": {
             result = executeMaterialSourcingAction(action, params);
+            break;
+          }
+
+          case "lt_forecast":
+          case "lt_track":
+          case "lt_disrupt":
+          case "lt_expedite": {
+            result = executeLeadTimeAction(action, params);
             break;
           }
 
