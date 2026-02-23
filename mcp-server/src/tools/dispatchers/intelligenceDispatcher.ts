@@ -46,6 +46,7 @@ import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
 import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
 import { productSFC, productPPG, productShop, productACNC } from "../../engines/ProductEngine.js";
 import { executeRulesAction } from "../../engines/RulesEngine.js";
+import { executeBestPracticesAction } from "../../engines/BestPracticesEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -303,6 +304,11 @@ const ACTIONS = [
   "rule_search",
   "evaluate_machining_rules",
   "get_parameter_constraints",
+  // Best Practices Engine — R13-MS2
+  "get_best_practices",
+  "spc_analysis",
+  "lean_analysis",
+  "troubleshoot",
 ] as const;
 
 /**
@@ -953,6 +959,15 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { woc_mm: result.engagement?.woc?.value_mm, doc_mm: result.engagement?.doc?.value_mm, woc_pct: result.engagement?.woc?.percent_of_diameter, confidence: result.engagement?.confidence?.level, rules_triggered: result.rules_triggered?.length };
     case "get_parameter_constraints":
       return { rpm_range: `${result.constraints?.rpm?.min}-${result.constraints?.rpm?.max}`, feed_range: `${result.constraints?.feed?.min}-${result.constraints?.feed?.max}`, active_sources: result.active_sources?.length, feasible: result.feasible, composite_rigidity: result.composite_rigidity };
+    // Best Practices Engine — R13-MS2
+    case "get_best_practices":
+      return { total: result.total, category: result.category, topic: result.topic };
+    case "spc_analysis":
+      return { Cpk: result.capability?.Cpk, sigmaLevel: result.capability?.sigmaLevel, interpretation: result.capability?.interpretation, inControl: result.chart?.individuals?.inControl, sampleSize: result.sampleSize };
+    case "lean_analysis":
+      return { analysis_types: result.analysis_types, oee: result.oee?.oee, oee_interpretation: result.oee?.interpretation, wastes: result.wasteAnalysis?.wastesIdentified, leanScore: result.wasteAnalysis?.leanScore, sigmaLevel: result.sigmaLevel?.sigmaLevel };
+    case "troubleshoot":
+      return { code: result.code, message: result.message, severity: result.severity, total: result.total, keyword: result.keyword };
     default:
       return result;
   }
@@ -1038,7 +1053,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
         const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
         const RULES_ACTIONS = ["evaluate_rules", "rule_search", "evaluate_machining_rules", "get_parameter_constraints"] as const;
-        const result = RULES_ACTIONS.includes(action as any)
+        const BEST_PRACTICES_ACTIONS = ["get_best_practices", "spc_analysis", "lean_analysis", "troubleshoot"] as const;
+        const result = BEST_PRACTICES_ACTIONS.includes(action as any)
+          ? executeBestPracticesAction(action, params)
+          : RULES_ACTIONS.includes(action as any)
           ? executeRulesAction(action, params)
           : SFC_ACTIONS.includes(action as any)
           ? productSFC(action, params)
