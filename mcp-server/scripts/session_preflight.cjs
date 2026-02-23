@@ -28,6 +28,24 @@ check('Skills dir', () => {
   return { ok: exists && count > 0, detail: `${count} skill files` };
 });
 check('Pre-build snapshot', () => ({ ok: fs.existsSync('C:\\PRISM\\state\\pre_build_snapshot.json'), detail: 'anti-regression' }));
+check('Phantom skills', () => {
+  const indexFile = path.join('C:\\PRISM\\skills-consolidated', 'SKILL_INDEX.json');
+  if (!fs.existsSync(indexFile)) return { ok: false, detail: 'SKILL_INDEX.json missing' };
+  const idx = JSON.parse(fs.readFileSync(indexFile, 'utf-8'));
+  const indexedNames = Object.keys(idx.skills || {});
+  const phantoms = indexedNames.filter(n => !fs.existsSync(path.join('C:\\PRISM\\skills-consolidated', n, 'SKILL.md')));
+  return { ok: phantoms.length === 0, detail: phantoms.length === 0 ? `${indexedNames.length} skills OK` : `${phantoms.length} phantoms: ${phantoms.slice(0,3).join(', ')}` };
+});
+
+// Run log rotation
+check('Audit log rotation', () => {
+  const logDir = path.join('C:\\PRISM\\state', 'logs');
+  if (!fs.existsSync(logDir)) return { ok: true, detail: 'no logs yet' };
+  const auditLog = path.join(logDir, 'audit.jsonl');
+  if (!fs.existsSync(auditLog)) return { ok: true, detail: 'no audit.jsonl yet' };
+  const sizeMB = (fs.statSync(auditLog).size / (1024 * 1024)).toFixed(1);
+  return { ok: parseFloat(sizeMB) < 10, detail: `audit.jsonl: ${sizeMB}MB` };
+});
 
 const passed = checks.filter(c => c.ok).length;
 const total = checks.length;

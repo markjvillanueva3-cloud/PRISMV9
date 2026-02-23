@@ -9,6 +9,12 @@
             "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/helpers/pre-edit-safety-gate.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
           }
         ]
       },

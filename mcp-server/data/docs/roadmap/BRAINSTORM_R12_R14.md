@@ -1657,6 +1657,38 @@ they are either already partially addressed, low priority, or require external d
 | Parametric Recipe Generator | Becomes trivial once R14-MS3 (Process Planning) exists. |
 | Tribal Knowledge Capture | Partially addressed by R13 extraction. Ongoing refinement. |
 | Diagrams directory | Nice-to-have. Not blocking anything. |
+| SFC Enhancement Plan (36KB) | R11-MS0 SpeedFeedCalculatorProduct covers core. Advanced enhancements (multi-pass optimizer, batch mode) revisit post-R14. |
+| ATCS/Manus Merge (27KB) | AutoPilot + IntelligenceEngine partially covers autonomous task routing. Full ATCS revisit post-R14. |
+
+## 3.5.1 AUDIT GAP PATCHES (added 2026-02-23)
+
+Items from the unrealized features audit that were missing from R12-R14:
+
+| Gap | Resolution | Slotted Into |
+|-----|-----------|-------------|
+| D4: Hurco Post Enhancement (material-aware, tool-catalog-integrated) | Hurco is one of 6 controller dialects in R14-MS1. Material-aware + catalog features come from R13 RulesEngine + R14-MS5 catalog data. | R14-MS1 (Hurco dialect) |
+| E2: Machine Registry Population (402/824 = 49%) | Machine data completeness audit + enrichment campaign. | R12 companion task (IMP-R1-4) |
+| E3: R5 Frontend E2E Deployment | React frontend exists but never tested end-to-end in browser. | R12 companion task (stretch) — deploy + smoke test after R12-MS4 test infra |
+| TOOLS_DATABASE_BRAINSTORM.md (9,500+ tools, 52 params) | ToolRegistry has 15,912 tools but param completeness unknown. Catalog parsing (R14-MS5) expands with manufacturer data. | R14-MS5 companion validation |
+
+## 3.5.2 FILESYSTEM SCAN FINDINGS (added 2026-02-23)
+
+Full C:\PRISM filesystem scan — directories not previously inventoried:
+
+| Directory | Files | Size | Status / Action |
+|-----------|-------|------|-----------------|
+| extracted/ | 867 | 85MB | Organized monolith extractions (materials, engines, formulas, etc.). Post processor dir has 12 files. Does NOT contain C1-C4 high-value modules (rules_engine, machining_rules, etc.). R13 input. |
+| extracted_modules/ | 1,061 | 151MB | Second extraction wave. GIANT/ has 6-8MB files (PSO, POST_PROCESSOR_GENERATOR, AI connectors). MONOLITH_MODULE_INVENTORY.json (2,936 lines) = master index. R13 input. |
+| CATALOGS/ | 44 | 4.3GB | PDF catalogs (Sandvik, Kennametal, etc.). Overlaps MANUFACTURER_CATALOGS/ (116 files, 5.3GB). Consolidate to one dir. |
+| mcp-dev-tools/ | 4,202 | 61MB | Separate Node.js project. Appears to be old dev toolkit. LOW PRIORITY — archive or delete. |
+| deployment/ | 95 | 3.0MB | skills_bundle.json + skills_package_v4/. Ready deployment packages. Keep. |
+| Root scripts | 162 | ~2MB | One-time PowerShell scripts (apply_*, check_*, fix_*, audit_*, temp_*). CLEANUP: move to scripts/_completed_utilities/. |
+| 6 skill dirs | 1,739 | 17.4MB | skills/, skills-consolidated/, skills-archived/, skills-claude-capabilities/, skills-generated-v2/, skills-for-upload/. CONSOLIDATION needed — R12-MS1. |
+| devtools/ + toolkit/ | 9 | 50KB | Python dev tools (prism_devtools.py, quick_queries.py). Archive. |
+| SEAMLESS_MCP_ARCHITECTURE.py | 1 | 21KB | Root-level Python file. Review for unique content, then archive. |
+| data/ | 921 | 260MB | Main data directory (tool DBs, material DBs, course data, etc.). Already served by MCP server. |
+
+**Key takeaway:** The 1,928 already-extracted monolith files (236MB) confirm R13 has a massive head start — but the specific C1-C4 modules (rules_engine, machining_rules, best_practices, troubleshooting, operation_sequencer, tool_selector, constraint_engine, cost_optimizer, gcode_generator) remain unextracted from the original monolith. R13 must target these specifically.
 
 ## 3.6 IMPROVEMENT ITEMS — WHERE THEY SLOT
 

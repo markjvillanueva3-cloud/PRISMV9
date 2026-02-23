@@ -51,6 +51,21 @@ function main() {
   for (const f of CRITICAL_FILES) hashes[f] = hashFile(path.join(BASE, f));
   fs.mkdirSync(STATE_DIR, { recursive: true });
   fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify({ timestamp: new Date().toISOString(), hashes, count: CRITICAL_FILES.length }, null, 2));
+  // Build size check
+  const distFile = path.join(BASE, 'dist', 'index.js');
+  if (fs.existsSync(distFile)) {
+    const sizeMB = fs.statSync(distFile).size / (1024 * 1024);
+    const WARN_MB = 6.5;
+    const BLOCK_MB = 8.0;
+    if (sizeMB >= BLOCK_MB) {
+      errors.push(`BUILD SIZE BLOCKED: dist/index.js is ${sizeMB.toFixed(1)}MB (limit: ${BLOCK_MB}MB)`);
+    } else if (sizeMB >= WARN_MB) {
+      console.warn(`[PREBUILD] WARNING: dist/index.js is ${sizeMB.toFixed(1)}MB (warn threshold: ${WARN_MB}MB)`);
+    } else {
+      console.log(`[PREBUILD] Build size OK: ${sizeMB.toFixed(1)}MB (warn: ${WARN_MB}MB, block: ${BLOCK_MB}MB)`);
+    }
+  }
+
   if (errors.length > 0) { console.error('[PREBUILD] GATE FAILED:'); errors.forEach(e => console.error(`  - ${e}`)); process.exit(1); }
   console.log(`[PREBUILD] Gate passed. ${CRITICAL_FILES.length} critical files verified.`);
 }
