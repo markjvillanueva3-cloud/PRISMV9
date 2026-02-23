@@ -202,28 +202,17 @@ export {
   type ThreadMillingResult
 } from "./ThreadCalculationEngine.js";
 
-// Collision Detection Engine (Session 7.2)
-export {
-  collisionEngine,
-  CollisionEngine,
-  Vector3,
-  Matrix4,
-  Quaternion,
-  AABB,
-  OBB,
-  Capsule,
-  type ToolAssembly,
-  type ToolHolder,
-  type MachineEnvelope,
-  type Fixture,
-  type Workpiece,
-  type Toolpath,
-  type ToolpathMove,
-  type CollisionResult,
-  type CollisionReport,
-  type NearMissResult,
-  type CollisionGeometry
-} from "./CollisionEngine.js";
+// Collision Detection Engine (Session 7.2) — split into CollisionMath + CollisionTypes + CollisionEngine
+export { Vector3, Matrix4, Quaternion } from "./CollisionMath.js";
+export type {
+  AABB, OBB, BoundingBox,
+  Cylinder, Sphere, Capsule, TriangleMesh, CollisionGeometry,
+  CollisionResult, NearMissResult, CollisionReport,
+  ToolAssembly, ToolHolder, MachineEnvelope, Fixture, Workpiece,
+  MoveType, ToolpathMove, Toolpath,
+  SweptVolumeSegment, SweptVolume
+} from "./CollisionTypes.js";
+export { collisionEngine, CollisionEngine } from "./CollisionEngine.js";
 
 // Workholding Validation Engine (Session 7.3)
 export {
