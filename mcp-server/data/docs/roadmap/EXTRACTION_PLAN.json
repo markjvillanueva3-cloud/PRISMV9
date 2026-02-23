@@ -1,0 +1,197 @@
+{
+  "version": "1.0.0",
+  "phase": "R13",
+  "created": "2026-02-22",
+  "source": "C:\\PRISM\\extracted\\",
+  "monolith": "PRISM_v8_89_002_TRUE_100_PERCENT.html (986,622 lines — not directly accessible, extracted modules used)",
+  "summary": {
+    "target_modules": 7,
+    "total_source_files": 28,
+    "total_source_lines": 29347,
+    "estimated_useful_lines": 18950,
+    "estimated_discard_lines": 10397,
+    "existing_mcp_overlap_pct": 35,
+    "new_intelligence_lines": 12300,
+    "encoding": "UTF-8/ASCII (all files readable, avg 33 chars/line, no obfuscation)"
+  },
+  "modules": {
+    "rules_engine": {
+      "r13_milestone": "MS1",
+      "concept": "Rules framework — confidence scoring, decision logic, evaluation pipeline",
+      "sources": [
+        { "file": "engines/ai_ml/PRISM_INTELLIGENT_DECISION_ENGINE.js", "lines": 1612, "content_type": "DECISION_TREES", "useful_pct": 85 },
+        { "file": "engines/ai_ml/PRISM_DECISION_TREE_ENGINE.js", "lines": 3172, "content_type": "DECISION_TREES", "useful_pct": 90 },
+        { "file": "knowledge_bases/PRISM_KNOWLEDGE_BASE.js", "lines": 620, "content_type": "FORMULAS", "useful_pct": 95 },
+        { "file": "engines/ai_ml/PRISM_CSP_ENHANCED_ENGINE.js", "lines": 361, "content_type": "RULES", "useful_pct": 80 }
+      ],
+      "total_lines": 5765,
+      "useful_lines": 5100,
+      "overlap": {
+        "DecisionTreeEngine.ts": "7 decision trees already live (tool type, insert grade, coolant, workholding, strategy, approach/retract, material). PRISM_DECISION_TREE_ENGINE has ID3/C4.5 generic tree builder — COMPLEMENTARY, not duplicate.",
+        "IntelligenceEngine.ts": "High-level orchestration, no rule evaluation logic — no overlap."
+      },
+      "extraction_complexity": "MEDIUM",
+      "dependencies": [],
+      "output_engine": "RulesEngine.ts",
+      "output_actions": ["evaluate_rules", "rule_search"]
+    },
+    "machining_rules": {
+      "r13_milestone": "MS1",
+      "concept": "Specific machining rules — material constraints, tool limits, parameter boundaries",
+      "sources": [
+        { "file": "engines/ai_ml/PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", "lines": 215, "content_type": "RULES", "useful_pct": 95 },
+        { "file": "engines/PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE.js", "lines": 705, "content_type": "RULES", "useful_pct": 80 },
+        { "file": "engines/tools/PRISM_TOOL_PERFORMANCE_ENGINE.js", "lines": 1236, "content_type": "LOOKUP_TABLES", "useful_pct": 70 },
+        { "file": "engines/PRISM_SURFACE_FINISH_ENGINE.js", "lines": 299, "content_type": "FORMULAS", "useful_pct": 85 },
+        { "file": "formulas/PRISM_TOOL_LIFE_ESTIMATOR.js", "lines": 250, "content_type": "FORMULAS", "useful_pct": 90 },
+        { "file": "formulas/PRISM_TOOL_WEAR_MODELS.js", "lines": 200, "content_type": "FORMULAS", "useful_pct": 90 }
+      ],
+      "total_lines": 2905,
+      "useful_lines": 2350,
+      "overlap": {
+        "ManufacturingCalculations.ts": "Has Kienzle, Taylor, Johnson-Cook, surface finish, MRR, power. PRISM_CALCULATOR_CONSTRAINT_ENGINE adds parameter boundary logic (RPM/feed/DOC/WOC constraints from machine, tool, holder, workholding) — COMPLEMENTARY.",
+        "SpindleProtectionEngine.ts": "Spindle safety limits — may overlap with machine constraints."
+      },
+      "extraction_complexity": "MEDIUM",
+      "dependencies": ["rules_engine"],
+      "output_engine": "RulesEngine.ts (merged with rules_engine)",
+      "output_actions": ["evaluate_machining_rules", "get_parameter_constraints"]
+    },
+    "best_practices": {
+      "r13_milestone": "MS2",
+      "concept": "Manufacturing best practices — SPC, Lean, quality control, process guidelines",
+      "sources": [
+        { "file": "engines/ai_ml/PRISM_LEAN_SIX_SIGMA_KAIZEN.js", "lines": 1471, "content_type": "FORMULAS", "useful_pct": 90 },
+        { "file": "engines/quality/PRISM_PHASE2_QUALITY_SYSTEM.js", "lines": 404, "content_type": "RULES", "useful_pct": 75 },
+        { "file": "engines/quality/PRISM_QUALITY_MANAGER.js", "lines": 378, "content_type": "RULES", "useful_pct": 70 },
+        { "file": "engines/quality/PRISM_INSPECTION_ENGINE.js", "lines": 206, "content_type": "DECISION_TREES", "useful_pct": 80 }
+      ],
+      "total_lines": 2459,
+      "useful_lines": 2050,
+      "overlap": {
+        "ComplianceEngine.ts": "Regulatory compliance, not SPC/quality — minimal overlap.",
+        "ToleranceEngine.ts": "Tolerance analysis — may overlap with inspection logic."
+      },
+      "extraction_complexity": "LOW",
+      "dependencies": [],
+      "output_engine": "BestPracticesEngine.ts",
+      "output_actions": ["get_best_practices", "spc_analysis"]
+    },
+    "troubleshooting": {
+      "r13_milestone": "MS2",
+      "concept": "Diagnostic reasoning — alarm lookup, failure mode analysis, remediation",
+      "sources": [
+        { "file": "systems/PRISM_ERROR_LOOKUP.js", "lines": 300, "content_type": "LOOKUP_TABLES", "useful_pct": 85 },
+        { "file": "systems/PRISM_ERROR_HANDLER.js", "lines": 250, "content_type": "RULES", "useful_pct": 60 },
+        { "file": "core/PRISM_MASTER_ORCHESTRATOR.js", "lines": 500, "content_type": "DECISION_TREES", "useful_pct": 30 }
+      ],
+      "total_lines": 1050,
+      "useful_lines": 600,
+      "overlap": {
+        "DiagnosticsEngine.ts": "Already has 7 failure modes (chatter, tool wear, breakage, surface finish, dimensional error, chip control, thermal damage) with symptoms/causes/remedies. 30+ remedy strings. SIGNIFICANT overlap — extracted sources mostly ADD alarm code databases.",
+        "FailureForensicsEngine.ts": "Root cause analysis — may overlap with troubleshooting trees."
+      },
+      "extraction_complexity": "LOW",
+      "dependencies": [],
+      "note": "ALARM DATA (controllers/alarms/) is the primary new value — 30+ JSON files with 9,200+ controller alarm codes already wired to AlarmRegistry. The JS troubleshooting logic has high overlap with DiagnosticsEngine.",
+      "output_engine": "BestPracticesEngine.ts (merged with best_practices)",
+      "output_actions": ["troubleshoot", "alarm_lookup_enhanced"]
+    },
+    "operation_sequencer": {
+      "r13_milestone": "MS3",
+      "concept": "Operation ordering — ACO metaheuristic, tool change minimization, setup optimization",
+      "sources": [
+        { "file": "algorithms/PRISM_ACO_SEQUENCER.js", "lines": 5383, "content_type": "FORMULAS", "useful_pct": 75 },
+        { "file": "engines/optimization/PRISM_COMBINATORIAL_OPTIMIZER.js", "lines": 3938, "content_type": "FORMULAS", "useful_pct": 60 },
+        { "file": "engines/business/PRISM_JOB_SHOP_SCHEDULING_ENGINE.js", "lines": 926, "content_type": "DECISION_TREES", "useful_pct": 70 }
+      ],
+      "total_lines": 10247,
+      "useful_lines": 5800,
+      "overlap": {
+        "OptimizationEngine.ts": "Already has ACO sequencing (optimize_sequence) and Pareto optimization. The extracted ACO_SEQUENCER has MORE DETAILED ant colony parameters, convergence control, and elitist strategy — COMPLEMENTARY extension.",
+        "ProcessPlanningEngine.ts": "Has job planning with operation sequencing — may overlap with scheduling.",
+        "ShopSchedulerEngine.ts": "Job shop scheduling — overlap with JOB_SHOP_SCHEDULING_ENGINE."
+      },
+      "extraction_complexity": "HIGH",
+      "dependencies": ["rules_engine", "machining_rules"],
+      "output_engine": "OperationSequencerEngine.ts",
+      "output_actions": ["optimize_sequence_advanced", "schedule_operations"]
+    },
+    "tool_selector": {
+      "r13_milestone": "MS4",
+      "concept": "Intelligent tool selection — operation-material scoring, tool type recommendation",
+      "sources": [
+        { "file": "engines/ai_ml/PRISM_AI_AUTO_CAM.js", "lines": 560, "content_type": "DECISION_TREES", "useful_pct": 70 },
+        { "file": "engines/ai_ml/PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", "lines": 155, "content_type": "DECISION_TREES", "useful_pct": 85 },
+        { "file": "tools/PRISM_CUTTING_TOOL_DATABASE_V2.js", "lines": 1040, "content_type": "LOOKUP_TABLES", "useful_pct": 50 },
+        { "file": "engines/ai_ml/PRISM_INTELLIGENT_DECISION_ENGINE.js", "lines": 1612, "content_type": "DECISION_TREES", "useful_pct": 20, "note": "Only tool-selection portion (~320 lines)" }
+      ],
+      "total_lines": 3367,
+      "useful_lines": 1750,
+      "overlap": {
+        "DecisionTreeEngine.ts": "Already has selectToolType(), selectInsertGrade() with full decision logic. PRISM_AI_AUTO_CAM adds operation-to-tool-type suitability map and scoring — COMPLEMENTARY.",
+        "RecommendationEngine.ts": "Material/tool/machine scoring with registry lookups — SIGNIFICANT overlap with PRISM_CALCULATOR_RECOMMENDATION_ENGINE."
+      },
+      "extraction_complexity": "MEDIUM",
+      "dependencies": ["rules_engine", "machining_rules"],
+      "output_engine": "ToolSelectorEngine.ts",
+      "output_actions": ["select_optimal_tool", "score_tool_candidates"]
+    },
+    "constraint_engine": {
+      "r13_milestone": "MS5",
+      "concept": "Parameter constraint solver — machine/tool/holder/workholding limits, feasibility checking",
+      "sources": [
+        { "file": "engines/ai_ml/PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", "lines": 215, "content_type": "RULES", "useful_pct": 95 },
+        { "file": "engines/ai_ml/PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js", "lines": 636, "content_type": "FORMULAS", "useful_pct": 80 },
+        { "file": "engines/ai_ml/PRISM_CONTACT_CONSTRAINT_ENGINE.js", "lines": 448, "content_type": "FORMULAS", "useful_pct": 50, "note": "Physics contact constraints — less relevant to machining parameters" },
+        { "file": "engines/ai_ml/PRISM_CSP_ENHANCED_ENGINE.js", "lines": 361, "content_type": "FORMULAS", "useful_pct": 75, "note": "Shared with rules_engine" }
+      ],
+      "total_lines": 1660,
+      "useful_lines": 1100,
+      "overlap": {
+        "ManufacturingCalculations.ts": "Has physics models but NOT parameter constraint logic — no overlap.",
+        "CollisionEngine.ts": "Geometric collision detection, not parameter constraints — no overlap.",
+        "OptimizationEngine.ts": "Uses constraints during optimization but doesn't expose constraint API — COMPLEMENTARY."
+      },
+      "extraction_complexity": "MEDIUM",
+      "dependencies": ["rules_engine"],
+      "output_engine": "ConstraintEngine.ts",
+      "output_actions": ["apply_constraints", "check_feasibility"]
+    },
+    "gcode_generator": {
+      "r13_milestone": "MS6",
+      "concept": "G-code generation + validation + post processing pipeline",
+      "sources": [
+        { "file": "engines/post_processor/POST_PROCESSOR_100_PERCENT.js", "lines": 1204, "content_type": "FORMULAS", "useful_pct": 80 },
+        { "file": "engines/post_processor/PRISM_GCODE_BACKPLOT_ENGINE.js", "lines": 863, "content_type": "FORMULAS", "useful_pct": 70 },
+        { "file": "engines/post_processor/PRISM_POST_PROCESSOR_DATABASE_V2.js", "lines": 2717, "content_type": "LOOKUP_TABLES", "useful_pct": 65 },
+        { "file": "engines/post_processor/POST_PROCESSOR_ENGINE_V2.js", "lines": 296, "content_type": "FORMULAS", "useful_pct": 75 },
+        { "file": "engines/post_processor/PRISM_GCODE_PROGRAMMING_ENGINE.js", "lines": 128, "content_type": "FORMULAS", "useful_pct": 85 },
+        { "file": "engines/post_processor/PRISM_INTERNAL_POST_ENGINE.js", "lines": 930, "content_type": "FORMULAS", "useful_pct": 60 }
+      ],
+      "total_lines": 6138,
+      "useful_lines": 4500,
+      "overlap": {
+        "GCodeTemplateEngine.ts": "Already has 6 controller families, 11+ operations, parametric generation. POST_PROCESSOR_100_PERCENT adds comprehensive G-code VALIDATION (modal state tracking, arc validation, statistics). POST_PROCESSOR_DATABASE_V2 adds extensive controller-specific data. PRISM_GCODE_BACKPLOT_ENGINE adds visualization data — all COMPLEMENTARY."
+      },
+      "extraction_complexity": "HIGH",
+      "dependencies": ["constraint_engine"],
+      "output_engine": "GCodeGeneratorEngine.ts",
+      "output_actions": ["generate_gcode", "validate_gcode", "backplot_gcode"]
+    }
+  },
+  "dependency_graph": {
+    "level_0": ["rules_engine", "best_practices"],
+    "level_1": ["machining_rules", "troubleshooting"],
+    "level_2": ["operation_sequencer", "tool_selector", "constraint_engine"],
+    "level_3": ["gcode_generator"]
+  },
+  "extraction_order": [
+    { "ms": "MS1", "modules": ["rules_engine", "machining_rules"], "est_lines": 7450, "complexity": "MEDIUM" },
+    { "ms": "MS2", "modules": ["best_practices", "troubleshooting"], "est_lines": 2650, "complexity": "LOW" },
+    { "ms": "MS3", "modules": ["operation_sequencer"], "est_lines": 5800, "complexity": "HIGH" },
+    { "ms": "MS4", "modules": ["tool_selector"], "est_lines": 1750, "complexity": "MEDIUM" },
+    { "ms": "MS5", "modules": ["constraint_engine"], "est_lines": 1100, "complexity": "MEDIUM" },
+    { "ms": "MS6", "modules": ["gcode_generator"], "est_lines": 4500, "complexity": "HIGH" }
+  ]
+}
