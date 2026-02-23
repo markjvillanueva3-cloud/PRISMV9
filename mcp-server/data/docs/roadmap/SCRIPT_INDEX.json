@@ -133,13 +133,13 @@
       "frequency": "before-release"
     },
     {
-      "id": "run-all-tests",
-      "purpose": "Runs all test suites sequentially with unified reporting",
-      "trigger": "Before release, before phase gate, CI pipeline",
-      "location": "scripts/run-all-tests.ts",
-      "runtime": "tsx",
+      "id": "test-all",
+      "purpose": "Unified test runner — vitest, prebuild-gate, phantom-skills, session-preflight, build + size check",
+      "trigger": "npm run test:all, before release, CI pipeline",
+      "location": "scripts/test-all.cjs",
+      "runtime": "node",
       "parameters": "none",
-      "output": "Unified test results",
+      "output": "state/test-all-report.json (JSON report with per-suite results)",
       "phases": ["ALL"],
       "frequency": "every-session"
     },
