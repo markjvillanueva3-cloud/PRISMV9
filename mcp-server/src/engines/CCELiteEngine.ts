@@ -1516,6 +1516,86 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  engineering_change: {
+    name: 'engineering_change',
+    description: 'Engineering change workflow: ECN impact analysis → BOM where-used → revision tracking → compliance verification',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'impact_analysis',
+        action: 'ecn_impact',
+        params: { ecn_id: '$ecn_id' },
+        parallel: false,
+      },
+      {
+        id: 'bom_impact',
+        action: 'bom_whereused',
+        params: { part_number: '$part_number' },
+        parallel: true,
+      },
+      {
+        id: 'revision_check',
+        action: 'rev_track',
+        params: { part_number: '$part_number' },
+        parallel: true,
+      },
+      {
+        id: 'compliance',
+        action: 'doc_comply',
+        params: { standard: '$standard' },
+        parallel: false,
+      },
+    ],
+    output_map: {
+      risk_level: '$impact_analysis.impact_summary.risk_level',
+      parts_affected: '$impact_analysis.impact_summary.total_parts_affected',
+      bom_usages: '$bom_impact.summary.total_usages',
+      active_revisions: '$revision_check.summary.active_released',
+      compliance_score: '$compliance.summary.compliance_score',
+      compliance_status: '$compliance.summary.overall_status',
+    },
+  },
+
+  document_release: {
+    name: 'document_release',
+    description: 'Document release pipeline: approval routing status → signature verification → distribution tracking → audit trail',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'routing_status',
+        action: 'doc_route',
+        params: { workflow_id: '$workflow_id' },
+        parallel: false,
+      },
+      {
+        id: 'signature_check',
+        action: 'doc_sign',
+        params: { doc_id: '$doc_id' },
+        parallel: true,
+      },
+      {
+        id: 'distribution',
+        action: 'doc_distribute',
+        params: { doc_id: '$doc_id' },
+        parallel: true,
+      },
+      {
+        id: 'audit',
+        action: 'rev_audit',
+        params: { doc_id: '$doc_id' },
+        parallel: false,
+      },
+    ],
+    output_map: {
+      workflow_active: '$routing_status.summary.active',
+      workflow_overdue: '$routing_status.summary.overdue',
+      signatures_valid: '$signature_check.integrity.all_valid',
+      signature_count: '$signature_check.total_signatures',
+      distribution_ack_rate: '$distribution.summary.acknowledgment_rate',
+      audit_compliance: '$audit.compliance.status',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
