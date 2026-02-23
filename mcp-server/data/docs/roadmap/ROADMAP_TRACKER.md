@@ -642,3 +642,44 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
     Key commits: 6156e82 (MS0), 419e5f4 (MS1), 63166cc (MS2), f6dec37 (MS3)
 
   POSITION: R4 COMPLETE → R5 next.
+
+## R5-R11 PHASES (COMPLETE — see individual PHASE_R*_*.md files)
+
+[2026-02-22] R5-R11 COMPLETE — Delivered across multiple sessions:
+  R5:  Visual/Frontend foundations
+  R6:  Production hardening
+  R7:  Physics evolution
+  R8:  Experience features
+  R9:  Integration features
+  R10: Scale & performance
+  R11: Product engines (SFC, PPG, ShopManager, ACNC)
+
+## R12 PHASE (COMPLETE)
+
+[2026-02-22] R12 COMPLETE — Dev Infrastructure + Quality Hardening
+  MS0: Housekeeping + historical backfill
+  MS1: Skill trigger activation
+  MS2: Deferred backlog resolution
+  MS3: Engine decomposition — 3 large engines split into 16 modules
+  MS4: Unified test infrastructure (test:all, coverage baseline)
+  MS5: Hook fire rate telemetry + routing trace
+  MS6: Integration pipeline (DuckDB + sync actions)
+  MS7: Phase gate — 12/12 PASS
+  Commit: 6d264cc (R12-MS7 gate)
+
+## R13 PHASE (COMPLETE)
+
+[2026-02-22] R13 COMPLETE — Monolith Intelligence Extraction
+  6 new engines, 17 new MCP actions, ~2,605 lines of TypeScript
+  MS0: Scan + classification (7 modules, 28 source files) — d407d48
+  MS1: RulesEngine.ts (4 actions) — 83cd543
+  MS2: BestPracticesEngine.ts (4 actions) — 2a7596f
+  MS3: OperationSequencerEngine.ts (2 actions) — ef4d8f6
+  MS4: ToolSelectorEngine.ts (2 actions) — b61a690
+  MS5: ConstraintEngine.ts (2 actions) — c046ed2
+  MS6: GCodeGeneratorEngine.ts (3 actions) — 684a97f
+  Build: 5.7MB, 5/5 suites, 74/74 vitest
+  Engines: 79 total (73 + 6 from R13)
+  Actions: 399 total (382 + 17 from R13)
+
+  POSITION: R13 COMPLETE → R14 (Product Features) next.

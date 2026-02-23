@@ -1,32 +1,47 @@
 # CURRENT POSITION
-## Updated: 2026-02-23T12:00:00Z
+## Updated: 2026-02-22T22:00:00Z
 
-**Phase:** R12-MS0 COMPLETE — Housekeeping + Historical Backfill
-**Build:** 5.6MB server (esbuild clean, budget: WARN 6.5MB / BLOCK 8MB)
-**Roadmap:** BRAINSTORM_R12_R14.md — 3 new phases (R12/R13/R14), 24 milestones
-**Tests:** 74/74 vitest pass
-**Last Commit:** R12-MS0 housekeeping (pending)
-**Dispatchers:** 32 (382 verified actions)
-**Engines:** 73/73 wired (100%)
+**Phase:** R13 COMPLETE — Monolith Intelligence Extraction (all 7 milestones)
+**Build:** 5.7MB server (esbuild clean, budget: WARN 6.5MB / BLOCK 8MB)
+**Roadmap:** BRAINSTORM_R12_R14.md — R12 DONE, R13 DONE, R14 next (9 milestones)
+**Tests:** 74/74 vitest pass, 5/5 unified suites
+**Last Commit:** R13-MS6 GCodeGeneratorEngine (684a97f)
+**Dispatchers:** 32 (399 verified actions — +17 from R13)
+**Engines:** 79/79 wired (100%) — +6 from R13
 **Registries:** 9/9 loading
-**Skills:** 168 indexed / 230 on disk (4 phantoms, 66 orphans — R12-MS1 cleanup)
-**Scripts:** 27 active (SCRIPT_INDEX v2.0), 50+ archived in _completed_utilities/
+**Skills:** 168 indexed / 230 on disk
+**Scripts:** 27 active (SCRIPT_INDEX v2.0), 50+ archived
 **NL Hooks:** 9 deployed (+ 27 built-in hooks)
 **Skill Bundles:** 9 (wired to skillScriptDispatcher)
 **REST API:** 9 endpoints on express
 **CI/CD:** vitest + R4-R11 standalone tests + security + docker
 
-## R12-MS0 Deliverables
-1. Orphan script audit: 16 scripts archived, package.json cleaned (IMP-DA-2)
-2. Phase doc backfill: R5-R11 all have COMPLETED sections with actual deliverables (IMP-R5-1)
-3. Build size baseline: 5.6MB recorded, WARN/BLOCK budgets in prebuild-gate (IMP-XC-2)
-4. Phantom skill detector: script + session_preflight integration (IMP-P0-1)
-5. Audit log rotation: 5MB threshold, 5-file retention (IMP-R4-2)
-6. Full C:\PRISM filesystem scan: 1,928 extracted monolith files cataloged, findings in BRAINSTORM §3.5.2
-7. SCRIPT_INDEX.json v2.0: 27 active scripts fully documented
-8. Audit gap patches: D4/E2/E3/TOOLS_DB gaps patched in BRAINSTORM §3.5.1
+## R13 Deliverables (6 new engines, 17 new actions)
 
-## Next: R12-MS1 — Skill Trigger Activation
-- Populate trigger arrays in SKILL_INDEX.json
-- Resolve 4 phantom skills, index 66 orphan skills
-- Skill directory consolidation (6 dirs → 1)
+| MS | Engine | Actions | Lines | Commit |
+|----|--------|---------|-------|--------|
+| MS0 | (scan + classification) | — | — | d407d48 |
+| MS1 | RulesEngine.ts | evaluate_rules, rule_search, evaluate_machining_rules, get_parameter_constraints | 585 | 83cd543 |
+| MS2 | BestPracticesEngine.ts | get_best_practices, spc_analysis, lean_analysis, troubleshoot | 558 | 2a7596f |
+| MS3 | OperationSequencerEngine.ts | optimize_sequence_advanced, schedule_operations | 330 | ef4d8f6 |
+| MS4 | ToolSelectorEngine.ts | select_optimal_tool, score_tool_candidates | 280 | b61a690 |
+| MS5 | ConstraintEngine.ts | apply_constraints, check_feasibility | 320 | c046ed2 |
+| MS6 | GCodeGeneratorEngine.ts | validate_gcode, backplot_gcode, generate_gcode | 532 | 684a97f |
+
+**Total R13:** 6 engines, 17 actions, ~2,605 lines of new TypeScript
+
+## R12 Deliverables (summary)
+- MS0-MS7 complete (12/12 gate criteria PASS)
+- Dev infrastructure, testing, engine decomposition, hook telemetry, integration pipeline
+- Commit: 6d264cc (R12-MS7 phase gate)
+
+## Next: R14 — Product Features (MS0-MS8)
+- MS0: Product Architecture + API Design
+- MS1: Post Processor Framework (6 controller dialects)
+- MS2: Cost Estimation / Quoting Engine
+- MS3: Process Planning Engine
+- MS4: Intelligent Troubleshooter
+- MS5: Manufacturer Catalog Parsing Pipeline
+- MS6: Tool Holder Schema v2 Upgrade
+- MS7: REST API Expansion + Documentation
+- MS8: Phase Gate
