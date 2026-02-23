@@ -159,6 +159,10 @@ import {
   executeBatchAnalyticsAction,
 } from "../../engines/BatchAnalyticsEngine.js";
 
+import {
+  executeGDTChainAction,
+} from "../../engines/GDTChainEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -320,6 +324,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { winner: result.overall_winner, batch_a: result.batch_a?.id, batch_b: result.batch_b?.id };
     case "batch_summary":
       return { count: result.count, avg_oee: result.averages?.oee, avg_yield: result.averages?.yield_pct, total_parts: result.totals?.parts_produced };
+    case "gdt_chain_montecarlo":
+      return { mean_mm: result.closing_dimension?.mean_mm, std_mm: result.closing_dimension?.std_mm, pct_in_spec: result.conformance?.pct_in_spec, sigma: result.conformance?.sigma_level, n: result.n_samples };
+    case "gdt_chain_allocate":
+      return { method: result.method, target: result.target_assembly_tolerance_mm, achieved_rss: result.achieved_rss_mm, feasible: result.feasible };
+    case "gdt_chain_sensitivity":
+      return { top: result.top_contributor, pareto_80: result.pareto_80, rss: result.closing_rss_mm };
+    case "gdt_chain_2d":
+      return { resultant: result.resultant?.nominal_mm, rss: result.resultant?.rss_mm, angle: result.resultant?.angle_deg, pct_in_spec: result.combined_conformance?.pct_in_spec };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -370,6 +382,7 @@ const ACTIONS = [
   "spc_xbar_r", "spc_cusum", "spc_ewma", "spc_capability",
   "cal_update", "cal_status", "cal_reset", "cal_validate",
   "batch_kpi", "batch_trend", "batch_compare", "batch_summary",
+  "gdt_chain_montecarlo", "gdt_chain_allocate", "gdt_chain_sensitivity", "gdt_chain_2d",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1484,6 +1497,14 @@ export function registerCalcDispatcher(server: any): void {
           case "batch_compare":
           case "batch_summary": {
             result = executeBatchAnalyticsAction(action, params);
+            break;
+          }
+
+          case "gdt_chain_montecarlo":
+          case "gdt_chain_allocate":
+          case "gdt_chain_sensitivity":
+          case "gdt_chain_2d": {
+            result = executeGDTChainAction(action, params);
             break;
           }
 
