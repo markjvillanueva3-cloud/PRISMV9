@@ -191,6 +191,10 @@ import {
   executeCostQualityAction,
 } from "../../engines/CostQualityTradeoffEngine.js";
 
+import {
+  executeWorkflowOrchestratorAction,
+} from "../../engines/WorkflowOrchestratorEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -416,6 +420,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { cost_sensitive: result.most_cost_sensitive, quality_sensitive: result.most_quality_sensitive, base_cost: result.base_cost, base_quality: result.base_quality_score };
     case "cqt_scenario":
       return { scenarios: result.scenarios_evaluated, best_cost: result.best_cost_scenario, best_quality: result.best_quality_scenario, recommendation: result.recommendation };
+    case "wfo_plan":
+      return { goal: result.plan?.goal_type, steps: result.summary?.total_steps, parallel_groups: result.summary?.parallel_execution_groups, complexity: result.plan?.estimated_complexity };
+    case "wfo_execute":
+      return { goal: result.goal_type, phases: result.total_phases, actions: result.total_actions, dry_run: result.dry_run, recipe: result.recommended_cce_recipe };
+    case "wfo_status":
+      return { engines: result.total_engine_groups, actions: result.total_actions, categories: result.categories?.length, goals: result.available_goals?.length };
+    case "wfo_optimize":
+      return { goal: result.goal_type, steps: result.current_plan_steps, suggestions: result.optimization_suggestions?.length, recipe: result.recommended_recipe };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -474,6 +486,7 @@ const ACTIONS = [
   "pr_assess", "pr_checklist", "pr_risk", "pr_approve",
   "rca_diagnose", "rca_tree", "rca_correlate", "rca_action_plan",
   "cqt_pareto", "cqt_optimize", "cqt_sensitivity", "cqt_scenario",
+  "wfo_plan", "wfo_execute", "wfo_status", "wfo_optimize",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1652,6 +1665,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cqt_sensitivity":
           case "cqt_scenario": {
             result = executeCostQualityAction(action, params);
+            break;
+          }
+
+          case "wfo_plan":
+          case "wfo_execute":
+          case "wfo_status":
+          case "wfo_optimize": {
+            result = executeWorkflowOrchestratorAction(action, params);
             break;
           }
 
