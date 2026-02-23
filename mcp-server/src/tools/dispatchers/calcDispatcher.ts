@@ -163,6 +163,10 @@ import {
   executeGDTChainAction,
 } from "../../engines/GDTChainEngine.js";
 
+import {
+  executeMultiPassAction,
+} from "../../engines/MultiPassStrategyEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -332,6 +336,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { top: result.top_contributor, pareto_80: result.pareto_80, rss: result.closing_rss_mm };
     case "gdt_chain_2d":
       return { resultant: result.resultant?.nominal_mm, rss: result.resultant?.rss_mm, angle: result.resultant?.angle_deg, pct_in_spec: result.combined_conformance?.pct_in_spec };
+    case "mps_roughing_plan":
+      return { passes: result.total_roughing_passes, time_min: result.total_time_min, max_force: result.max_force_N, strategy: result.strategy };
+    case "mps_finish_plan":
+      return { passes: result.total_finish_passes, time_min: result.total_time_min, ra_um: result.predicted_ra_um, rz_um: result.predicted_rz_um };
+    case "mps_full_strategy":
+      return { passes: result.summary?.total_passes, time_min: result.summary?.total_time_min, max_force: result.summary?.max_force_N, efficiency: result.summary?.cycle_efficiency_pct, tool_changes: result.summary?.estimated_tool_changes };
+    case "mps_evaluate":
+      return { time_min: result.total_time_min, max_force: result.max_force_N, avg_mrr: result.avg_mrr_cm3_per_min, tool_changes: result.tool_changes, bottleneck: result.bottleneck_pass };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -383,6 +395,7 @@ const ACTIONS = [
   "cal_update", "cal_status", "cal_reset", "cal_validate",
   "batch_kpi", "batch_trend", "batch_compare", "batch_summary",
   "gdt_chain_montecarlo", "gdt_chain_allocate", "gdt_chain_sensitivity", "gdt_chain_2d",
+  "mps_roughing_plan", "mps_finish_plan", "mps_full_strategy", "mps_evaluate",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1505,6 +1518,14 @@ export function registerCalcDispatcher(server: any): void {
           case "gdt_chain_sensitivity":
           case "gdt_chain_2d": {
             result = executeGDTChainAction(action, params);
+            break;
+          }
+
+          case "mps_roughing_plan":
+          case "mps_finish_plan":
+          case "mps_full_strategy":
+          case "mps_evaluate": {
+            result = executeMultiPassAction(action, params);
             break;
           }
 
