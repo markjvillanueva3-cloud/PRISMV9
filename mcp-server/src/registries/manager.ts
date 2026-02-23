@@ -1,18 +1,21 @@
 /**
- * PRISM MCP Server - Registry Manager v3
+ * PRISM MCP Server - Registry Manager v4
  * Coordinates loading and lifecycle of all data registries
- * 
- * Data Registries (5):
+ *
+ * Data Registries (8):
  * - MaterialRegistry: 1,047+ materials × 127 parameters
  * - MachineRegistry: 824+ machines × 43 manufacturers
  * - ToolRegistry: 500+ cutting tools × 85 parameters
  * - AlarmRegistry: 2,500+ alarms × 12 controller families
  * - FormulaRegistry: 109 formulas × 20 domains
- * 
+ * - AlgorithmRegistry: 52+ algorithms × 14 types (P-MS1)
+ * - PostProcessorRegistry: 8+ post processors × 13 controller families (P-MS1) ⚠️ SAFETY CRITICAL
+ * - KnowledgeBaseRegistry: 12+ knowledge bases (P-MS1)
+ *
  * Orchestration Registries (2):
  * - AgentRegistry: 64+ agents × 8 categories
  * - HookRegistry: 162+ hooks × 9 categories
- * 
+ *
  * Knowledge Registries (2):
  * - SkillRegistry: 135+ skills × 14 categories
  * - ScriptRegistry: 163+ scripts × 10 categories
@@ -23,6 +26,9 @@ import { machineRegistry, MachineRegistry } from "./MachineRegistry.js";
 import { toolRegistry, ToolRegistry } from "./ToolRegistry.js";
 import { alarmRegistry, AlarmRegistry } from "./AlarmRegistry.js";
 import { formulaRegistry, FormulaRegistry } from "./FormulaRegistry.js";
+import { algorithmRegistry, AlgorithmRegistry } from "./AlgorithmRegistry.js";
+import { postProcessorRegistry, PostProcessorRegistry } from "./PostProcessorRegistry.js";
+import { knowledgeBaseRegistry, KnowledgeBaseRegistry } from "./KnowledgeBaseRegistry.js";
 import { agentRegistry, AgentRegistry } from "./AgentRegistry.js";
 import { hookRegistry, HookRegistry } from "./HookRegistry.js";
 import { skillRegistry, SkillRegistry } from "./SkillRegistry.js";
@@ -43,21 +49,27 @@ export class RegistryManager {
   readonly tools: ToolRegistry;
   readonly alarms: AlarmRegistry;
   readonly formulas: FormulaRegistry;
-  
+  readonly algorithms: AlgorithmRegistry;
+  readonly postProcessors: PostProcessorRegistry;
+  readonly knowledgeBases: KnowledgeBaseRegistry;
+
   // Orchestration registries
   readonly agents: AgentRegistry;
   readonly hooks: HookRegistry;
-  
+
   // Knowledge registries
   readonly skills: SkillRegistry;
   readonly scripts: ScriptRegistry;
-  
+
   constructor() {
     this.materials = materialRegistry;
     this.machines = machineRegistry;
     this.tools = toolRegistry;
     this.alarms = alarmRegistry;
     this.formulas = formulaRegistry;
+    this.algorithms = algorithmRegistry;
+    this.postProcessors = postProcessorRegistry;
+    this.knowledgeBases = knowledgeBaseRegistry;
     this.agents = agentRegistry;
     this.hooks = hookRegistry;
     this.skills = skillRegistry;
@@ -104,6 +116,15 @@ export class RegistryManager {
         this.formulas.load().catch(err => {
           log.error(`Failed to load formulas: ${err}`);
         }),
+        this.algorithms.load().catch(err => {
+          log.error(`Failed to load algorithms: ${err}`);
+        }),
+        this.postProcessors.load().catch(err => {
+          log.error(`Failed to load post processors: ${err}`);
+        }),
+        this.knowledgeBases.load().catch(err => {
+          log.error(`Failed to load knowledge bases: ${err}`);
+        }),
         this.agents.load().catch(err => {
           log.error(`Failed to load agents: ${err}`);
         }),
@@ -144,16 +165,19 @@ export class RegistryManager {
    */
   private logSummary(): void {
     log.info("Registry Summary:");
-    log.info(`  Materials: ${this.materials.size} entries`);
-    log.info(`  Machines:  ${this.machines.size} entries`);
-    log.info(`  Tools:     ${this.tools.size} entries`);
-    log.info(`  Alarms:    ${this.alarms.size} entries`);
-    log.info(`  Formulas:  ${this.formulas.size} entries`);
-    log.info(`  Agents:    ${this.agents.size} entries`);
-    log.info(`  Hooks:     ${this.hooks.size} entries`);
-    log.info(`  Skills:    ${this.skills.size} entries`);
-    log.info(`  Scripts:   ${this.scripts.size} entries`);
-    log.info(`  Total:     ${this.getTotalEntries()} entries`);
+    log.info(`  Materials:       ${this.materials.size} entries`);
+    log.info(`  Machines:        ${this.machines.size} entries`);
+    log.info(`  Tools:           ${this.tools.size} entries`);
+    log.info(`  Alarms:          ${this.alarms.size} entries`);
+    log.info(`  Formulas:        ${this.formulas.size} entries`);
+    log.info(`  Algorithms:      ${this.algorithms.size} entries`);
+    log.info(`  PostProcessors:  ${this.postProcessors.size} entries`);
+    log.info(`  KnowledgeBases:  ${this.knowledgeBases.size} entries`);
+    log.info(`  Agents:          ${this.agents.size} entries`);
+    log.info(`  Hooks:           ${this.hooks.size} entries`);
+    log.info(`  Skills:          ${this.skills.size} entries`);
+    log.info(`  Scripts:         ${this.scripts.size} entries`);
+    log.info(`  Total:           ${this.getTotalEntries()} entries`);
   }
 
   /**
@@ -166,6 +190,9 @@ export class RegistryManager {
       this.tools.size +
       this.alarms.size +
       this.formulas.size +
+      this.algorithms.size +
+      this.postProcessors.size +
+      this.knowledgeBases.size +
       this.agents.size +
       this.hooks.size +
       this.skills.size +
@@ -190,6 +217,9 @@ export class RegistryManager {
     tools: any;
     alarms: any;
     formulas: any;
+    algorithms: any;
+    postProcessors: any;
+    knowledgeBases: any;
     agents: any;
     hooks: any;
     skills: any;
@@ -197,7 +227,7 @@ export class RegistryManager {
     totalEntries: number;
   }> {
     await this.initialize();
-    
+
     return {
       initialized: this.initialized,
       materials: await this.materials.getStats(),
@@ -205,6 +235,9 @@ export class RegistryManager {
       tools: this.tools.getStats(),
       alarms: await this.alarms.getStats(),
       formulas: await this.formulas.getStats(),
+      algorithms: await this.algorithms.getStats(),
+      postProcessors: await this.postProcessors.getStats(),
+      knowledgeBases: await this.knowledgeBases.getStats(),
       agents: this.agents.getStats(),
       hooks: this.hooks.getStats(),
       skills: this.skills.getStats(),
@@ -229,6 +262,9 @@ export class RegistryManager {
     this.tools.clear();
     this.alarms.clear();
     this.formulas.clear();
+    this.algorithms.clear();
+    this.postProcessors.clear();
+    this.knowledgeBases.clear();
     this.agents.clear();
     this.hooks.clear();
     this.skills.clear();
@@ -258,6 +294,20 @@ export class RegistryManager {
       case "formulas":
       case "formula":
         return this.formulas;
+      case "algorithms":
+      case "algorithm":
+        return this.algorithms;
+      case "postprocessors":
+      case "postprocessor":
+      case "post_processors":
+      case "post_processor":
+        return this.postProcessors;
+      case "knowledgebases":
+      case "knowledgebase":
+      case "knowledge_bases":
+      case "knowledge_base":
+      case "kb":
+        return this.knowledgeBases;
       case "agents":
       case "agent":
         return this.agents;
@@ -286,6 +336,9 @@ export class RegistryManager {
       { name: "tools", size: this.tools.size, loaded: this.tools.isLoaded(), category: "data" },
       { name: "alarms", size: this.alarms.size, loaded: this.alarms.isLoaded(), category: "data" },
       { name: "formulas", size: this.formulas.size, loaded: this.formulas.isLoaded(), category: "data" },
+      { name: "algorithms", size: this.algorithms.size, loaded: this.algorithms.isLoaded(), category: "data" },
+      { name: "postProcessors", size: this.postProcessors.size, loaded: this.postProcessors.isLoaded(), category: "data" },
+      { name: "knowledgeBases", size: this.knowledgeBases.size, loaded: this.knowledgeBases.isLoaded(), category: "data" },
       // Orchestration registries
       { name: "agents", size: this.agents.size, loaded: this.agents.isLoaded(), category: "orchestration" },
       { name: "hooks", size: this.hooks.size, loaded: this.hooks.isLoaded(), category: "orchestration" },

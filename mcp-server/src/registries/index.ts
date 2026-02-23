@@ -1,18 +1,21 @@
 /**
  * PRISM MCP Server - Registries Index
  * Re-exports all registry classes and singletons
- * 
- * Data Registries (5):
+ *
+ * Data Registries (8):
  * - MaterialRegistry: 1,047+ materials × 127 parameters
  * - MachineRegistry: 824+ machines × 43 manufacturers
  * - ToolRegistry: 500+ cutting tools × 85 parameters
  * - AlarmRegistry: 2,500+ alarms × 12 controller families
  * - FormulaRegistry: 109 formulas × 20 domains
- * 
+ * - AlgorithmRegistry: 52+ algorithms × 14 types (NEW P-MS1)
+ * - PostProcessorRegistry: 8+ post processors × 13 controller families (NEW P-MS1) ⚠️ SAFETY CRITICAL
+ * - KnowledgeBaseRegistry: 12+ knowledge bases (NEW P-MS1)
+ *
  * Orchestration Registries (2):
  * - AgentRegistry: 64+ agents × 8 categories
  * - HookRegistry: 162+ hooks × 9 categories
- * 
+ *
  * Knowledge Registries (2):
  * - SkillRegistry: 135+ skills × 14 categories
  * - ScriptRegistry: 163+ scripts × 10 categories
@@ -27,6 +30,9 @@ export { MachineRegistry, machineRegistry, type Machine } from "./MachineRegistr
 export { ToolRegistry, toolRegistry, type CuttingTool } from "./ToolRegistry.js";
 export { AlarmRegistry, alarmRegistry, type Alarm } from "./AlarmRegistry.js";
 export { FormulaRegistry, formulaRegistry, type Formula } from "./FormulaRegistry.js";
+export { AlgorithmRegistry, algorithmRegistry, type AlgorithmEntry, type AlgorithmType, type AlgorithmSafetyClass, type MfgRelevance } from "./AlgorithmRegistry.js";
+export { PostProcessorRegistry, postProcessorRegistry, type PostProcessor, type ControllerFamily, type PostType, type PostCapability } from "./PostProcessorRegistry.js";
+export { KnowledgeBaseRegistry, knowledgeBaseRegistry, type KnowledgeBaseEntry, type KnowledgeBaseTopic, type KnowledgeBaseQueryType } from "./KnowledgeBaseRegistry.js";
 
 // Orchestration registries
 export { AgentRegistry, agentRegistry, type Agent, type AgentCapability, type AgentCategory } from "./AgentRegistry.js";
