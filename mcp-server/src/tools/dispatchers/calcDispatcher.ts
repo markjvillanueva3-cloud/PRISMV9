@@ -295,6 +295,9 @@ import {
 import {
   executeECNManagementAction,
 } from "../../engines/ECNManagementEngine.js";
+import {
+  executeBOMAction,
+} from "../../engines/BOMEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -753,6 +756,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { fully_approved: result.summary?.fully_approved, at_risk: result.summary?.at_risk_count, bottlenecks: result.bottlenecks?.length };
     case "ecn_implement":
       return { implemented: result.summary?.fully_implemented, on_track: result.summary?.on_track, at_risk: result.summary?.at_risk };
+    case "bom_structure":
+      return { total_items: result.summary?.total_items, rollup_cost: result.summary?.total_rollup_cost, depth: result.summary?.max_bom_depth };
+    case "bom_compare":
+      return { differences: result.summary?.total_differences, cost_delta: result.cost_comparison?.cost_delta, commonality: result.summary?.commonality_percent };
+    case "bom_whereused":
+      return { usages: result.summary?.total_usages, assemblies: result.summary?.assemblies_containing?.length, common: result.summary?.is_common_part };
+    case "bom_configure":
+      return { configs: result.comparison?.config_count || 1, cost_range: result.comparison?.cost_range?.spread, lowest: result.comparison?.lowest_cost };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -840,6 +851,7 @@ const ACTIONS = [
   "seq_optimize", "seq_bottleneck", "seq_flow", "seq_reorder",
   "cap_forecast", "cap_demand", "cap_overtime", "cap_report",
   "ecn_create", "ecn_impact", "ecn_approve", "ecn_implement",
+  "bom_structure", "bom_compare", "bom_whereused", "bom_configure",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2250,6 +2262,14 @@ export function registerCalcDispatcher(server: any): void {
           case "ecn_approve":
           case "ecn_implement": {
             result = executeECNManagementAction(action, params);
+            break;
+          }
+
+          case "bom_structure":
+          case "bom_compare":
+          case "bom_whereused":
+          case "bom_configure": {
+            result = executeBOMAction(action, params);
             break;
           }
 
