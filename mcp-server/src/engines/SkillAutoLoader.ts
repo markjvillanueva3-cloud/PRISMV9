@@ -18,9 +18,10 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
-const SKILLS_DIR = "C:\\PRISM\\skills-consolidated";
-const STATE_DIR = "C:\\PRISM\\state";
+const SKILLS_DIR = PATHS.SKILLS;
+const STATE_DIR = PATHS.STATE_DIR;
 
 // ============================================================================
 // TYPES

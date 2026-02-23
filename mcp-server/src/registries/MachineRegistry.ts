@@ -158,7 +158,7 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     await this.loadLayer("LEVEL5", PATHS.MACHINES_LEVEL5);
     
     // Load from converted JSON data directory (C:\PRISM\data\machines)
-    await this.loadLayer("ENHANCED", "C:\\PRISM\\data\\machines\\ENHANCED\\json");
+    await this.loadLayer("ENHANCED", path.join(PATHS.DATA_DIR, "machines", "ENHANCED", "json"));
     
     this.buildIndexes();
     

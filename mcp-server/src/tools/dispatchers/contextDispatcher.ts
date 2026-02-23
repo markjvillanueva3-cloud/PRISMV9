@@ -5,6 +5,7 @@ import * as path from "path";
 import * as crypto from "crypto";
 import { execSync } from "child_process";
 import { TodoState, TodoStep, isStepDone, getStepLabel } from "../../types/prism-schema.js";
+import { PATHS } from "../../constants.js";
 
 const ACTIONS = [
   "kv_sort_json",
@@ -28,15 +29,15 @@ const ACTIONS = [
   "context_monitor_check",
 ] as const;
 
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const EVENTS_DIR = path.join(STATE_DIR, "events");
 const ERRORS_DIR = path.join(STATE_DIR, "errors");
 const DECISIONS_DIR = path.join(STATE_DIR, "decisions");
 const SNAPSHOTS_DIR = path.join(STATE_DIR, "snapshots");
 const TODO_FILE = path.join(STATE_DIR, "todo.md");
 const TEAMS_DIR = path.join(STATE_DIR, "teams");
-const SCRIPTS_DIR = path.join("C:\\PRISM", "scripts", "core");
-const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
+const PYTHON = PATHS.PYTHON;
 
 function runPythonScript(scriptName: string, args: string[] = []): string {
   const scriptPath = path.join(SCRIPTS_DIR, scriptName);
@@ -390,7 +391,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             // W6.2 Bug 4: Enrich todoState from active workflow so it's never stale
             let effectiveState = { ...todoState };
             try {
-              const wfPath = path.join("C:\\PRISM\\state", "WORKFLOW_STATE.json");
+              const wfPath = path.join(PATHS.STATE_DIR, "WORKFLOW_STATE.json");
               if (fs.existsSync(wfPath)) {
                 const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
                 if (wf.status === "active" && wf.current_step) {

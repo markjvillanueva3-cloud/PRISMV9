@@ -13,9 +13,10 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../../constants.js";
 
-const STATE_DIR = "C:\\PRISM\\state";
-const GSD_DIR = "C:\\PRISM\\mcp-server\\data\\docs\\gsd";
+const STATE_DIR = PATHS.STATE_DIR;
+const GSD_DIR = PATHS.GSD_DIR;
 const GSD_SECTIONS_DIR = path.join(GSD_DIR, "sections");
 const ACTIONS = ["core", "quick", "get", "dev_protocol", "resources_summary", "quick_resume"] as const;
 const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manus", "evidence", "gates", "start", "end", "d1", "d2", "d3", "d4"] as const;

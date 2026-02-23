@@ -9,10 +9,11 @@
 import { config } from 'dotenv';
 import { join } from 'path';
 import Anthropic from "@anthropic-ai/sdk";
+import { PATHS } from "../constants.js";
 import { getEffort } from "./effortTiers.js";
 
 // Load .env file - override: true ensures .env wins over claude_desktop_config.json env section
-config({ path: 'C:\\PRISM\\mcp-server\\.env', override: true });
+config({ path: join(PATHS.MCP_SERVER, '.env'), override: true });
 config({ path: join(process.cwd(), '.env'), override: true });
 
 export interface APIConfig {

@@ -25,12 +25,13 @@ import * as path from "path";
 import type { TaskManifest, WorkUnit, StubScanResult, TaskStatus, UnitStatus } from "../../types/prism-schema.js";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
 import { delegateUnits, pollResults, clearCompletedDelegations } from "../../engines/ManusATCSBridge.js";
+import { PATHS } from "../../constants.js";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const ATCS_ROOT = "C:\\PRISM\\autonomous-tasks";
+const ATCS_ROOT = PATHS.AUTONOMOUS_TASKS;
 const DEFAULT_BATCH_SIZE = 20;
 const MAX_RALPH_ITERATIONS = 3;
 const REPLAN_FAILURE_THRESHOLD = 0.30; // 30% failure rate triggers replan

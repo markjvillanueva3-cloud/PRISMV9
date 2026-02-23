@@ -9,6 +9,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 import { hasValidApiKey, parallelAPICalls, getModelForTier } from "../config/api-config.js";
 import { registryManager } from "../registries/index.js";
 import { log } from "../utils/Logger.js";
@@ -214,7 +215,7 @@ export class AutoPilotV2 {
 
   constructor(config: Partial<AutoPilotV2Config> = {}) {
     this.config = {
-      statePath: config.statePath || "C:\\PRISM\\state\\CURRENT_STATE.json",
+      statePath: config.statePath || PATHS.STATE_FILE,
       enableParallel: config.enableParallel ?? true,
       ralphLoops: config.ralphLoops || 2,
       maxToolCalls: config.maxToolCalls || 15,

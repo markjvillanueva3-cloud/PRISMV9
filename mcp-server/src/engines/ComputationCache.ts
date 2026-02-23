@@ -20,6 +20,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // TYPES
@@ -134,7 +135,7 @@ const SAFETY_BYPASS_ACTIONS = new Set([
   "prism_dev:test_smoke",
 ]);
 
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const CACHE_STATS_FILE = path.join(STATE_DIR, "d4_cache_stats.json");
 const MAX_CACHE_SIZE = 500;
 

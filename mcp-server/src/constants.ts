@@ -83,7 +83,13 @@ export const PATHS = {
   PYTHON: "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
 
   // Knowledge
-  KNOWLEDGE_DIR: "C:\\PRISM\\knowledge"
+  KNOWLEDGE_DIR: "C:\\PRISM\\knowledge",
+
+  // Autonomous tasks
+  AUTONOMOUS_TASKS: "C:\\PRISM\\autonomous-tasks",
+
+  // Hooks registry
+  HOOKS_REGISTRY: "C:\\PRISM\\data\\DEVELOPMENT_HOOKS_REGISTRY.json"
 } as const;
 
 // Data Layers (4-layer hierarchy)

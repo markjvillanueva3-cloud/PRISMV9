@@ -150,7 +150,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     // R1: Load from both extracted/ and data/ paths (dual-path fix)
     await this.loadFromPath(PATHS.TOOLS_DB);
-    await this.loadFromPath("C:\\PRISM\\data\\tools");
+    await this.loadFromPath(path.join(PATHS.DATA_DIR, "tools"));
     this.buildIndexes();
     
     if (this.entries.size > 0) {

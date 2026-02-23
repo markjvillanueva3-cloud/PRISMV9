@@ -376,7 +376,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
    */
   private async loadFromRegistryFile(): Promise<void> {
     const registryPaths = [
-      path.join("C:\\PRISM\\registries", "FORMULA_REGISTRY.json"),
+      path.join(PATHS.PRISM_ROOT, "registries", "FORMULA_REGISTRY.json"),
       path.join(PATHS.DATA_DIR, "FORMULA_REGISTRY.json")
     ];
     

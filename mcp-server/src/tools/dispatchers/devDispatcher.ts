@@ -10,6 +10,7 @@ import { execSync } from "child_process";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
 import { resetReconFlag } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
+import { PATHS } from "../../constants.js";
 
 // __dirname at runtime = C:\PRISM\mcp-server\dist (esbuild bundles to single file)
 const MCP_ROOT = path.join(__dirname, "..");        // C:\PRISM\mcp-server (for build/src/dist)
@@ -313,9 +314,9 @@ export function registerDevDispatcher(server: any): void {
             } catch { /* non-fatal */ }
             // W2.2: Run resume_detector for intelligent scenario detection
             try {
-              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+              const PYTHON_PATH = PATHS.PYTHON;
               const resumeOutput = execSync(
-                `"${PYTHON_PATH}" "C:\\PRISM\\scripts\\core\\resume_detector.py" --json`,
+                `"${PYTHON_PATH}" "${path.join(PATHS.SCRIPTS_CORE, "resume_detector.py")}" --json`,
                 { encoding: 'utf-8', timeout: 10000 }
               );
               const resumeResult = JSON.parse(resumeOutput);
@@ -329,9 +330,9 @@ export function registerDevDispatcher(server: any): void {
             } catch { result.resume_detection = { scenario: "unknown", error: "resume_detector failed" }; }
             // W2.3: Phase 0 hooks — run pre-boot validation hooks from phase0_hooks.py
             try {
-              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+              const PYTHON_PATH = PATHS.PYTHON;
               const phase0Output = execSync(
-                `"${PYTHON_PATH}" "C:\\PRISM\\scripts\\core\\phase0_hooks.py" --action list --format json`,
+                `"${PYTHON_PATH}" "${path.join(PATHS.SCRIPTS_CORE, "phase0_hooks.py")}" --action list --format json`,
                 { encoding: 'utf-8', timeout: 10000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
               );
               try {
@@ -364,7 +365,7 @@ export function registerDevDispatcher(server: any): void {
             }
             // W2.4: Script auto-registration — scan scripts/core for available scripts
             try {
-              const scriptsDir = "C:\\PRISM\\scripts\\core";
+              const scriptsDir = PATHS.SCRIPTS_CORE;
               if (fs.existsSync(scriptsDir)) {
                 const allScripts = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.py') && !f.startsWith('__'));
                 const scriptMeta: { name: string; size: number; category: string }[] = [];
@@ -437,8 +438,8 @@ export function registerDevDispatcher(server: any): void {
             } catch { result.key_memories = { status: "not_loaded" }; }
             // DA-MS11 UTILIZATION: Run enhanced startup script for readiness scoring
             try {
-              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
-              const startupScript = "C:\\PRISM\\scripts\\session_enhanced_startup.py";
+              const PYTHON_PATH = PATHS.PYTHON;
+              const startupScript = path.join(PATHS.SCRIPTS, "session_enhanced_startup.py");
               if (fs.existsSync(startupScript)) {
                 const phase = result.phase || "DA";
                 const startupOutput = execSync(
@@ -467,7 +468,7 @@ export function registerDevDispatcher(server: any): void {
             }
             // Reset CADENCE_FIRES.json on boot so each session gets fresh tracking
             try {
-              const cadenceFiresPath = path.join("C:\\PRISM\\state", "CADENCE_FIRES.json");
+              const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
               fs.writeFileSync(cadenceFiresPath, JSON.stringify({ _session_start: new Date().toISOString() }, null, 2));
             } catch { /* non-fatal */ }
             // H1-MS4: Cross-session learning injection
@@ -510,7 +511,7 @@ export function registerDevDispatcher(server: any): void {
               // Pre-build validation
               let preBuildWarnings = "";
               try {
-                const preCheck = execSync("node C:\\PRISM\\scripts\\pre_build_check.js", { cwd: MCP_ROOT, timeout: 10000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+                const preCheck = execSync(`node "${path.join(PATHS.SCRIPTS, "pre_build_check.js")}"`, { cwd: MCP_ROOT, timeout: 10000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
                 const hasErrors = preCheck.includes("❌") && preCheck.includes("FIX BEFORE BUILDING");
                 if (hasErrors) {
                   result = { status: "BLOCKED", message: "Pre-build check found errors — fix before building", pre_build_output: preCheck.trim().split("\n").slice(-15).join("\n") };

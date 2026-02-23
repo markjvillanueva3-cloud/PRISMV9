@@ -17,8 +17,9 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
-const SKILLS_DIR = "C:\\PRISM\\skills-consolidated";
+const SKILLS_DIR = PATHS.SKILLS;
 
 // ============================================================================
 // BUNDLE DEFINITIONS (9 bundles)
