@@ -237,6 +237,10 @@ import {
   executeCarbonFootprintAction,
 } from "../../engines/CarbonFootprintEngine.js";
 
+import {
+  executeSustainabilityMetricsAction,
+} from "../../engines/SustainabilityMetricsEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -574,6 +578,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { recommendations: result.plan_summary?.recommendations_count, reduction_pct: result.plan_summary?.reduction_achieved_pct, target_met: result.plan_summary?.target_met };
     case "co2_report":
       return { total_tco2: result.emissions_summary?.total_tco2, dominant: result.emissions_summary?.dominant_scope, kgco2_per_part: result.intensity_metrics?.kgco2_per_part };
+    case "sus_waste":
+      return { streams: result.summary?.total_streams, waste_kg: result.summary?.total_waste_kg, recycle_pct: result.summary?.overall_recycle_rate_pct };
+    case "sus_recycle":
+      return { recycled_kg: result.summary?.total_recycled_kg, rate_pct: result.summary?.overall_recycle_rate_pct, revenue: result.summary?.monthly_revenue_usd };
+    case "sus_water":
+      return { total_m3: result.summary?.total_intake_m3, recycled_m3: result.summary?.recycled_recirculated_m3, cost: result.summary?.total_cost_usd };
+    case "sus_kpi":
+      return { score: result.overall?.sustainability_score, rating: result.overall?.rating, on_target: result.overall?.kpis_on_target, total: result.overall?.total_kpis };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -646,6 +658,7 @@ const ACTIONS = [
   "comp_check", "comp_certify", "comp_report", "comp_standards",
   "en_consumption", "en_profile", "en_demand", "en_benchmark",
   "co2_calculate", "co2_lifecycle", "co2_reduce", "co2_report",
+  "sus_waste", "sus_recycle", "sus_water", "sus_kpi",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1936,6 +1949,14 @@ export function registerCalcDispatcher(server: any): void {
           case "co2_reduce":
           case "co2_report": {
             result = executeCarbonFootprintAction(action, params);
+            break;
+          }
+
+          case "sus_waste":
+          case "sus_recycle":
+          case "sus_water":
+          case "sus_kpi": {
+            result = executeSustainabilityMetricsAction(action, params);
             break;
           }
 
