@@ -301,6 +301,9 @@ import {
 import {
   executeRevisionControlAction,
 } from "../../engines/RevisionControlEngine.js";
+import {
+  executeDocumentWorkflowAction,
+} from "../../engines/DocumentWorkflowEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -775,6 +778,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { chain_length: result.chain_length, current: result.analysis?.current_revision, avg_interval: result.analysis?.avg_revision_interval_days };
     case "rev_audit":
       return { entries: result.total_entries, compliance: result.compliance?.status, issues: result.compliance?.issues_found };
+    case "doc_route":
+      return { active: result.summary?.active, overdue: result.summary?.overdue, completion: result.summary?.avg_completion_pct };
+    case "doc_sign":
+      return { signatures: result.total_signatures, all_valid: result.integrity?.all_valid, signers: result.summary?.unique_signers };
+    case "doc_distribute":
+      return { distributions: result.total_distributions, ack_rate: result.summary?.acknowledgment_rate, pending_recalls: result.summary?.pending_recalls };
+    case "doc_comply":
+      return { score: result.summary?.compliance_score, status: result.summary?.overall_status, failures: result.summary?.fail };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -864,6 +875,7 @@ const ACTIONS = [
   "ecn_create", "ecn_impact", "ecn_approve", "ecn_implement",
   "bom_structure", "bom_compare", "bom_whereused", "bom_configure",
   "rev_track", "rev_effectivity", "rev_supersede", "rev_audit",
+  "doc_route", "doc_sign", "doc_distribute", "doc_comply",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2290,6 +2302,14 @@ export function registerCalcDispatcher(server: any): void {
           case "rev_supersede":
           case "rev_audit": {
             result = executeRevisionControlAction(action, params);
+            break;
+          }
+
+          case "doc_route":
+          case "doc_sign":
+          case "doc_distribute":
+          case "doc_comply": {
+            result = executeDocumentWorkflowAction(action, params);
             break;
           }
 
