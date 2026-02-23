@@ -1124,6 +1124,137 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  green_manufacturing: {
+    name: 'green_manufacturing',
+    description: 'Green manufacturing assessment: energy consumption + CO2 calculation (parallel) → sustainability KPIs → resource optimization',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'energy',
+        engine: 'calc',
+        action: 'en_consumption',
+        params_template: {},
+        param_bindings: {
+          machine_id: '$input.machine_id',
+          granularity: '$input.granularity',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'carbon',
+        engine: 'calc',
+        action: 'co2_calculate',
+        params_template: {},
+        param_bindings: {
+          part_id: '$input.part_id',
+          material: '$input.material',
+          weight_kg: '$input.weight_kg',
+          operations: '$input.operations',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'kpis',
+        engine: 'calc',
+        action: 'sus_kpi',
+        params_template: {},
+        param_bindings: {
+          facility: '$input.facility',
+          kpi_set: 'all',
+          include_targets: true,
+          include_scoring: true,
+        },
+        depends_on: ['energy', 'carbon'],
+      },
+      {
+        id: 'optimize',
+        engine: 'calc',
+        action: 'res_optimize',
+        params_template: {},
+        param_bindings: {
+          machine_id: '$input.machine_id',
+          operation: '$input.operation',
+          material: '$input.material',
+          objective: 'balanced',
+        },
+        depends_on: ['kpis'],
+      },
+    ],
+    output_template: {
+      energy_consumption: '$energy',
+      carbon_footprint: '$carbon',
+      sustainability_kpis: '$kpis',
+      optimization_plan: '$optimize',
+      overall_safety: '$_min_safety',
+    },
+  },
+
+  sustainability_report: {
+    name: 'sustainability_report',
+    description: 'Sustainability report: waste analysis + water tracking (parallel) → CO2 lifecycle assessment → emissions report',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'waste',
+        engine: 'calc',
+        action: 'sus_waste',
+        params_template: {},
+        param_bindings: {
+          facility: '$input.facility',
+          period: '$input.period',
+          include_trends: true,
+        },
+        depends_on: [],
+      },
+      {
+        id: 'water',
+        engine: 'calc',
+        action: 'sus_water',
+        params_template: {},
+        param_bindings: {
+          facility: '$input.facility',
+          period: '$input.period',
+          include_quality: true,
+        },
+        depends_on: [],
+      },
+      {
+        id: 'lifecycle',
+        engine: 'calc',
+        action: 'co2_lifecycle',
+        params_template: {},
+        param_bindings: {
+          part_id: '$input.part_id',
+          material: '$input.material',
+          weight_kg: '$input.weight_kg',
+          lifetime_years: '$input.lifetime_years',
+        },
+        depends_on: ['waste', 'water'],
+      },
+      {
+        id: 'report',
+        engine: 'calc',
+        action: 'co2_report',
+        params_template: {},
+        param_bindings: {
+          facility: '$input.facility',
+          period: '$input.period',
+          scope: ['scope1', 'scope2', 'scope3'],
+          standard: '$input.standard',
+          include_trends: true,
+        },
+        depends_on: ['lifecycle'],
+      },
+    ],
+    output_template: {
+      waste_analysis: '$waste',
+      water_tracking: '$water',
+      lifecycle_assessment: '$lifecycle',
+      emissions_report: '$report',
+      overall_safety: '$_min_safety',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
