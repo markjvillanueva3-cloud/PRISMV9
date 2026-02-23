@@ -216,6 +216,9 @@ import {
 import {
   executeReportingAction,
 } from "../../engines/ReportingEngine.js";
+import {
+  executeTraceabilityAction,
+} from "../../engines/TraceabilityEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -506,6 +509,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { metric: result.metric, fleet_direction: result.fleet_summary?.direction, degrading_count: result.fleet_summary?.degrading_count, avg_current: result.fleet_summary?.avg_current_value };
     case "rpt_export":
       return { format: result.format, title: result.title, size_bytes: result.size_bytes };
+    case "tr_record":
+      return { event_id: result.event_id, part_id: result.part_id, operation: result.operation, status: result.status };
+    case "tr_genealogy":
+      return { part_id: result.part_id, total_operations: result.bill_of_process?.total_operations, pass_rate: result.quality_summary?.pass_rate };
+    case "tr_chain":
+      return { part_id: result.part_id, total_steps: result.total_steps, lead_time_minutes: result.metrics?.lead_time_minutes, efficiency: result.metrics?.process_efficiency };
+    case "tr_audit_trail":
+      return { total_events: result.summary?.total_events, compliance_score: result.summary?.compliance_score, deviations: result.summary?.deviations_found, rating: result.summary?.compliance_rating };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -572,6 +583,7 @@ const ACTIONS = [
   "ah_score", "ah_degradation", "ah_maintenance_plan", "ah_compare",
   "sf_oee", "sf_utilization", "sf_bottleneck", "sf_capacity",
   "rpt_generate", "rpt_summary", "rpt_trend", "rpt_export",
+  "tr_record", "tr_genealogy", "tr_chain", "tr_audit_trail",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1814,6 +1826,14 @@ export function registerCalcDispatcher(server: any): void {
           case "rpt_trend":
           case "rpt_export": {
             result = executeReportingAction(action, params);
+            break;
+          }
+
+          case "tr_record":
+          case "tr_genealogy":
+          case "tr_chain":
+          case "tr_audit_trail": {
+            result = executeTraceabilityAction(action, params);
             break;
           }
 
