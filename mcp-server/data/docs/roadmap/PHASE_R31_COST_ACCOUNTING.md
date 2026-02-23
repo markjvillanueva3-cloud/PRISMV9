@@ -1,5 +1,5 @@
 # PHASE R31: COST ACCOUNTING & FINANCIAL INTELLIGENCE
-## Status: IN PROGRESS
+## Status: COMPLETE
 
 ### Phase Vision
 
@@ -30,12 +30,12 @@ R31 new engines:
 | MS | Title | Effort | Entry | Status |
 |----|-------|--------|-------|--------|
 | MS0 | Phase Architecture | S (10) | R30 COMPLETE | PASS |
-| MS1 | ProductCostEngine — Standard Costing & BOM Rollup | M (25) | MS0 COMPLETE | — |
-| MS2 | VarianceAnalysisEngine — PPV, Labor & Overhead Variance | M (25) | MS0 COMPLETE | — |
-| MS3 | ABCostingEngine — Activity-Based Costing & Cost Drivers | M (25) | MS0 COMPLETE | — |
-| MS4 | FinancialMetricsEngine — Margins, Break-Even & Cost KPIs | M (25) | MS0 COMPLETE | — |
-| MS5 | Cost Accounting CCE Recipes + Integration | S (15) | MS1-MS4 COMPLETE | — |
-| MS6 | Phase Gate | S (10) | MS0-MS5 COMPLETE | — |
+| MS1 | ProductCostEngine — Standard Costing & BOM Rollup | M (25) | MS0 COMPLETE | PASS |
+| MS2 | VarianceAnalysisEngine — PPV, Labor & Overhead Variance | M (25) | MS0 COMPLETE | PASS |
+| MS3 | ABCostingEngine — Activity-Based Costing & Cost Drivers | M (25) | MS0 COMPLETE | PASS |
+| MS4 | FinancialMetricsEngine — Margins, Break-Even & Cost KPIs | M (25) | MS0 COMPLETE | PASS |
+| MS5 | Cost Accounting CCE Recipes + Integration | S (15) | MS1-MS4 COMPLETE | PASS |
+| MS6 | Phase Gate | S (10) | MS0-MS5 COMPLETE | PASS |
 
 ### Action Projections (16 new actions)
 
@@ -46,3 +46,14 @@ R31 new engines:
 | ABCostingEngine (NEW) | abc_activity, abc_driver, abc_allocate, abc_product |
 | FinancialMetricsEngine (NEW) | fin_margin, fin_breakeven, fin_costunit, fin_dashboard |
 | CCELiteEngine (ext) | 2 new recipes: product_profitability, cost_optimization |
+
+### Phase Gate Results
+
+| Check | Result |
+|-------|--------|
+| Build | 6.3 MB — PASS |
+| Tests | 74/74 — PASS |
+| Engines | 4 new (1,027 lines total) |
+| Actions | 16 new actions wired |
+| CCE Recipes | 2 new (product_profitability, cost_optimization) |
+| Line counts | ProductCost: 233, VarianceAnalysis: 247, ABCosting: 259, FinancialMetrics: 288 |
