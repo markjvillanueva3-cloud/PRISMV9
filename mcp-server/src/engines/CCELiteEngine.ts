@@ -1596,6 +1596,87 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  order_fulfillment: {
+    name: 'order_fulfillment',
+    description: 'Order fulfillment: kit shortage check → pick optimization → staging → shipping dispatch',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'shortage_check',
+        engine: 'kitting',
+        action: 'kit_shortage',
+        params: { order_id: '$input.order_id' },
+      },
+      {
+        id: 'pick_path',
+        engine: 'warehouse_location',
+        action: 'wh_pick',
+        params: { order_id: '$input.order_id', zone: '$input.zone' },
+        depends_on: ['shortage_check'],
+      },
+      {
+        id: 'staging',
+        engine: 'kitting',
+        action: 'kit_stage',
+        params: { kit_id: '$shortage_check.kit_id', staging_area: '$input.staging_area' },
+        depends_on: ['pick_path'],
+      },
+      {
+        id: 'dispatch',
+        engine: 'shipping_receiving',
+        action: 'ship_dispatch',
+        params: { shipment_id: '$input.shipment_id', dock_door: '$input.dock_door' },
+        depends_on: ['staging'],
+      },
+    ],
+    output_map: {
+      shortages: '$shortage_check.shortages',
+      pick_sequence: '$pick_path.pick_sequence',
+      staging_location: '$staging.assigned_location',
+      dispatch_status: '$dispatch.status',
+    },
+  },
+
+  warehouse_optimization: {
+    name: 'warehouse_optimization',
+    description: 'Warehouse optimization: slotting analysis → yard assignment → dock scheduling → putaway optimization',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'slotting',
+        engine: 'warehouse_location',
+        action: 'wh_slot',
+        params: { zone: '$input.zone', strategy: '$input.strategy' },
+      },
+      {
+        id: 'yard_plan',
+        engine: 'yard_management',
+        action: 'yard_assign',
+        params: { trailer_id: '$input.trailer_id', priority: '$input.priority' },
+      },
+      {
+        id: 'dock_schedule',
+        engine: 'shipping_receiving',
+        action: 'ship_dock',
+        params: { dock_id: '$input.dock_id', date: '$input.date' },
+        depends_on: ['yard_plan'],
+      },
+      {
+        id: 'putaway_plan',
+        engine: 'warehouse_location',
+        action: 'wh_putaway',
+        params: { item_id: '$input.item_id', quantity: '$input.quantity' },
+        depends_on: ['slotting', 'dock_schedule'],
+      },
+    ],
+    output_map: {
+      slotting_recommendations: '$slotting.recommendations',
+      yard_assignment: '$yard_plan.assigned_spot',
+      dock_utilization: '$dock_schedule.summary.utilization_pct',
+      putaway_location: '$putaway_plan.assigned_location',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
