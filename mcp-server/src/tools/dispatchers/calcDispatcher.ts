@@ -147,6 +147,10 @@ import {
   executeMeasurementFeedbackAction,
 } from "../../engines/MeasurementFeedbackEngine.js";
 
+import {
+  executeProcessDriftAction,
+} from "../../engines/ProcessDriftEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -284,6 +288,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { count: result.overall?.count, bias: result.overall?.bias, rmse: result.overall?.rmse, within_tol_pct: result.overall?.within_tolerance_pct };
     case "mfb_correction":
       return { corrections: result.corrections?.length, sufficient_data: result.sufficient_data, total: result.total_measurements };
+    case "spc_xbar_r":
+      return { in_control: result.in_control, subgroups: result.subgroup_count, mean: result.overall_mean, violations: result.western_electric_violations?.length };
+    case "spc_cusum":
+      return { in_control: result.in_control, signals: result.signals?.length, target_mean: result.target_mean };
+    case "spc_ewma":
+      return { in_control: result.in_control, trend: result.trend, ooc_points: result.out_of_control?.length, lambda: result.lambda };
+    case "spc_capability":
+      return { cp: result.cp, cpk: result.cpk, pp: result.pp, ppk: result.ppk, rating: result.capability_rating, sigma: result.sigma_level, ppm: result.ppm_total };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -331,6 +343,7 @@ const ACTIONS = [
   "verify_process", "verify_tolerance", "verify_surface", "verify_stability",
   "sensitivity_1d", "sensitivity_2d", "sensitivity_pareto", "sensitivity_montecarlo",
   "mfb_record", "mfb_compare", "mfb_error_stats", "mfb_correction",
+  "spc_xbar_r", "spc_cusum", "spc_ewma", "spc_capability",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1421,6 +1434,14 @@ export function registerCalcDispatcher(server: any): void {
           case "mfb_error_stats":
           case "mfb_correction": {
             result = executeMeasurementFeedbackAction(action, params);
+            break;
+          }
+
+          case "spc_xbar_r":
+          case "spc_cusum":
+          case "spc_ewma":
+          case "spc_capability": {
+            result = executeProcessDriftAction(action, params);
             break;
           }
 
