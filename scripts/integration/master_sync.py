@@ -8,9 +8,9 @@ Orchestrates the complete data sync pipeline:
 4. Google Drive backup
 
 Usage:
-    py -3 C:\PRISM\scripts\integration\master_sync.py
-    py -3 C:\PRISM\scripts\integration\master_sync.py --skip-drive
-    py -3 C:\PRISM\scripts\integration\master_sync.py --only excel,duckdb
+    py -3 C:\\PRISM\\scripts\\integration\\master_sync.py
+    py -3 C:\\PRISM\\scripts\\integration\\master_sync.py --skip-drive
+    py -3 C:\\PRISM\\scripts\\integration\\master_sync.py --only excel,duckdb
 
 Requirements:
     pip install pandas openpyxl duckdb
