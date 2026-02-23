@@ -310,6 +310,9 @@ import {
 import {
   executeKittingAction,
 } from "../../engines/KittingEngine.js";
+import {
+  executeShippingReceivingAction,
+} from "../../engines/ShippingReceivingEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -808,6 +811,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { areas: result.summary?.total_areas, available_slots: result.summary?.available_slots, ready: result.ready_for_staging };
     case "kit_track":
       return { kits: result.total_kits, at_risk: result.summary?.at_risk, avg_completion: result.summary?.avg_completion };
+    case "ship_receive":
+      return { receipts: result.total_receipts, pending_inspection: result.summary?.pending_inspection, on_time: result.summary?.on_time_rate };
+    case "ship_dispatch":
+      return { shipments: result.total_shipments, ready: result.summary?.ready_to_ship, late: result.summary?.late };
+    case "ship_dock":
+      return { doors: result.total_doors, available: result.summary?.available, utilization: result.summary?.utilization_pct };
+    case "ship_carrier":
+      return { carriers: result.total_carriers, best_value: result.recommendations?.best_value?.name, avg_on_time: result.summary?.avg_on_time };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -900,6 +911,7 @@ const ACTIONS = [
   "doc_route", "doc_sign", "doc_distribute", "doc_comply",
   "wh_locate", "wh_slot", "wh_pick", "wh_putaway",
   "kit_assemble", "kit_shortage", "kit_stage", "kit_track",
+  "ship_receive", "ship_dispatch", "ship_dock", "ship_carrier",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2350,6 +2362,14 @@ export function registerCalcDispatcher(server: any): void {
           case "kit_stage":
           case "kit_track": {
             result = executeKittingAction(action, params);
+            break;
+          }
+
+          case "ship_receive":
+          case "ship_dispatch":
+          case "ship_dock":
+          case "ship_carrier": {
+            result = executeShippingReceivingAction(action, params);
             break;
           }
 
