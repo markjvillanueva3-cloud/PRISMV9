@@ -6,6 +6,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { PATHS } from "../constants.js";
 
 export interface ConfigOptions {
   dataPath: string;
@@ -20,11 +21,11 @@ export interface ConfigOptions {
 }
 
 const defaultConfig: ConfigOptions = {
-  dataPath: 'C:\\\\PRISM\\EXTRACTED',
-  userDataPath: 'C:\\PRISM\\data\\user',
-  learnedDataPath: 'C:\\PRISM\\data\\learned',
-  skillsPath: 'C:\\PRISM\\skills-consolidated',
-  scriptsPath: 'C:\\PRISM\\scripts',
+  dataPath: PATHS.EXTRACTED_DIR,
+  userDataPath: path.join(PATHS.DATA_DIR, 'user'),
+  learnedDataPath: path.join(PATHS.DATA_DIR, 'learned'),
+  skillsPath: PATHS.SKILLS,
+  scriptsPath: PATHS.SCRIPTS,
   logLevel: 'info',
   safetyThreshold: 0.70,
   qualityThreshold: 0.70,

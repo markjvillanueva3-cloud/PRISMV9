@@ -5,6 +5,7 @@ import * as path from "path";
 import { execSync } from "child_process";
 import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
 import { getHookHistory, getDispatchCount } from "../autoHookWrapper.js";
+import { PATHS } from "../../constants.js";
 import type { HookExecution } from "../../types/prism-schema.js";
 
 const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test",
@@ -17,7 +18,7 @@ function ok(data: any) {
 }
 
 // State and constants
-const STATE_DIR = process.env.PRISM_STATE_DIR || "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const DECISIONS_DIR = path.join(STATE_DIR, "decisions");
 const ERROR_LOG_PATH = path.join(STATE_DIR, "error_log.jsonl");
 const FAILURE_PATTERNS_PATH = path.join(STATE_DIR, "failure_patterns.jsonl");
@@ -26,8 +27,8 @@ const approvedPlans = new Map<string, { plan: string; lines: number; approved_at
 const filesReadThisSession = new Set<string>();
 
 // D3: Python module wiring
-const SCRIPTS_DIR = path.join("C:\\PRISM", "scripts", "core");
-const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
+const PYTHON = PATHS.PYTHON;
 
 function runPythonScript(scriptName: string, args: string[] = []): string {
   const scriptPath = path.join(SCRIPTS_DIR, scriptName);

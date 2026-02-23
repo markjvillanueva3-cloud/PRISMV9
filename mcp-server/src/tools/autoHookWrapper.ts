@@ -47,6 +47,7 @@ import {
   autoHookActivationPhaseCheck, autoD4PerfSummary
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
+import { PATHS } from "../constants.js";
 import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
 import { TelemetryEngine } from "../engines/TelemetryEngine.js";
 import { MemoryGraphEngine } from "../engines/MemoryGraphEngine.js";
@@ -477,8 +478,8 @@ var lastCallTimestamp = 0;
 var compactionRecoveryCallsRemaining = 0;
 var compactionRecoverySurvival = null;
 var recentToolCalls = [];
-var RECENT_ACTIONS_FILE = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
-var STATE_DIR12 = "C:\\PRISM\\state";
+var RECENT_ACTIONS_FILE = path.join(PATHS.STATE_DIR, "RECENT_ACTIONS.json");
+var STATE_DIR12 = PATHS.STATE_DIR;
 function buildCurrentTaskDescription(cadence, toolName, action2) {
   const todoFocus = cadence.todo?.currentFocus || cadence.todo?.taskName;
   if (todoFocus && todoFocus !== "Initialization" && todoFocus !== "Session startup") {
@@ -962,17 +963,17 @@ export function wrapWithUniversalHooks(toolName, handler) {
         if (typeof resultText === "string" && resultText.includes("SUCCESS")) {
           cadence.actions.push("\u2705 BUILD_SUCCESS \u2014 Phase checklist REQUIRED: skills\u2192hooks\u2192GSD\u2192memories\u2192orchestrators\u2192state\u2192scripts");
           cadence.actions.push("\u26A0\uFE0F RESTART REQUIRED: New build must be loaded. Restart Claude app or the changes won't take effect. Current session still runs OLD code.");
-          const checklistPath = path.join("C:\\PRISM\\state", "build_checklist.json");
+          const checklistPath = path.join(PATHS.STATE_DIR, "build_checklist.json");
           fs.writeFileSync(checklistPath, JSON.stringify({
             build_at: (/* @__PURE__ */ new Date()).toISOString(),
             build_call: callNum,
             completed: { skills: false, hooks: false, gsd: false, memories: false, orchestrators: false, state: false, scripts: false }
           }, null, 2));
           try {
-            const syncOut = execSync(`py -3 "${path.join("C:\\PRISM\\scripts\\core", "gsd_sync_v2.py")}" --apply --json`, {
+            const syncOut = execSync(`py -3 "${path.join(PATHS.SCRIPTS_CORE, "gsd_sync_v2.py")}" --apply --json`, {
               encoding: "utf-8",
               timeout: 15e3,
-              cwd: "C:\\PRISM\\scripts\\core"
+              cwd: PATHS.SCRIPTS_CORE
             }).trim();
             const syncResult = JSON.parse(syncOut);
             if (syncResult.changed) {
@@ -1019,7 +1020,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
             scoreValue = parsed.safety_score;
           }
           if (scoreField && scoreValue !== null) {
-            const stateFile = path.join("C:\\PRISM\\state", "CURRENT_STATE.json");
+            const stateFile = path.join(PATHS.STATE_DIR, "CURRENT_STATE.json");
             if (fs.existsSync(stateFile)) {
               const state = JSON.parse(fs.readFileSync(stateFile, "utf-8"));
               state.currentSession = state.currentSession || {};
@@ -1072,7 +1073,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     if (resultBytes > MAX_RESULT_BYTES && result?.content?.[0]?.text) {
       try {
         const fullText = result.content[0].text;
-        const extDir = path.join("C:\\PRISM\\state", "externalized");
+        const extDir = path.join(PATHS.STATE_DIR, "externalized");
         if (!fs.existsSync(extDir)) fs.mkdirSync(extDir, { recursive: true });
         const extFile = path.join(extDir, `result_${toolName}_${action2}_${Date.now()}.json`);
         fs.writeFileSync(extFile, fullText);
@@ -1172,10 +1173,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
       cadence.todo = todoResult;
       // H1: Also write HOT_RESUME at todo cadence (every 5 calls, more frequent than checkpoint@10)
       try {
-        const hrPath5 = "C:\\PRISM\\state\\HOT_RESUME.md";
-        const cpPath5 = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+        const hrPath5 = path.join(PATHS.STATE_DIR, "HOT_RESUME.md");
+        const cpPath5 = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
         let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
-        let errs5 = ""; try { const ep = "C:\\PRISM\\state\\ERROR_LOG.jsonl"; if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
+        let errs5 = ""; try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
         const ra5 = (() => { try { return JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions?.slice(-8)?.map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
         fs.writeFileSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
       } catch {}
@@ -1199,14 +1200,14 @@ export function wrapWithUniversalHooks(toolName, handler) {
       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
           // TOKEN OPT v2: Write HOT_RESUME.md at checkpoint cadence
           try {
-            const hrPath = "C:\\PRISM\\state\\HOT_RESUME.md";
-            const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+            const hrPath = path.join(PATHS.STATE_DIR, "HOT_RESUME.md");
+            const cpPath = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             let positionContent = "";
             try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch {}
             // Read recent errors for context
             let recentErrors = "";
             try {
-              const errPath = "C:\\PRISM\\state\\ERROR_LOG.jsonl";
+              const errPath = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl");
               if (fs.existsSync(errPath)) {
                 const errLines = fs.readFileSync(errPath, "utf-8").trim().split("\n").filter(Boolean).slice(-3);
                 const errs = errLines.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; } }).filter(Boolean);
@@ -1408,7 +1409,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         const txt = result?.content?.[0]?.text;
         const hasError = typeof txt === "string" && txt.includes('"error"') && JSON.parse(txt).error;
         if (!hasError) {
-          const fpPath = path.join("C:\\PRISM\\state", "failure_patterns.jsonl");
+          const fpPath = path.join(PATHS.STATE_DIR, "failure_patterns.jsonl");
           if (fs.existsSync(fpPath)) {
             const lines = fs.readFileSync(fpPath, "utf-8").trim().split("\n").filter(Boolean);
             const patterns = lines.map((l) => {
@@ -1454,7 +1455,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     const isFileWrite = toolName === "prism_dev" && action2 === "file_write" || toolName === "prism_doc" && (action2 === "write" || action2 === "append");
     if (isFileWrite && args[0]?.params?.content && (args[0]?.params?.path || args[0]?.params?.name)) {
       try {
-        const docPath = args[0].params.path || path.join("C:\\PRISM\\mcp-server\\data\\docs", args[0].params.name);
+        const docPath = args[0].params.path || path.join(path.join(PATHS.MCP_SERVER, "data", "docs"), args[0].params.name);
         const docResult = autoDocAntiRegression(docPath, args[0].params.content);
         if (docResult.severity === "BLOCK" && !args[0]?.params?.bypass_doc_regression) {
           cadence.actions.push(`\u{1F6D1} DOC_ANTI_REGRESSION_BLOCKED: ${docResult.file} (${docResult.old_lines}\u2192${docResult.new_lines}, -${docResult.reduction_pct}%)`);
@@ -1601,12 +1602,12 @@ export function wrapWithUniversalHooks(toolName, handler) {
     }
     if (callNum > 0 && callNum % 8 === 0) {
       try {
-        fs.appendFileSync(path.join("C:\\PRISM\\state", "nl_hook_debug.log"), `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
+        fs.appendFileSync(path.join(PATHS.STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
         const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
         if (nlResult.success && nlResult.hooks_fired > 0) {
           cadence.actions.push(`\u{1FA9D} NL_HOOKS: ${nlResult.hooks_fired}/${nlResult.hooks_evaluated} fired`);
           cadence.nl_hook_eval = nlResult;
-          fs.appendFileSync(path.join("C:\\PRISM\\state", "nl_hook_debug.log"), `  -> result: success=${nlResult.success} fired=${nlResult.hooks_fired} evaluated=${nlResult.hooks_evaluated}\n`);
+          fs.appendFileSync(path.join(PATHS.STATE_DIR, "nl_hook_debug.log"), `  -> result: success=${nlResult.success} fired=${nlResult.hooks_fired} evaluated=${nlResult.hooks_evaluated}\n`);
         }
       } catch {
       }
@@ -1636,7 +1637,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       cadence.actions.push("\u26AB ADVISORY: 41+ calls \u2014 consider checkpoint if pressure is rising");
       try {
         const autoSaveState = {};
-        const stateFile = path.join("C:\\PRISM\\state", "CURRENT_STATE.json");
+        const stateFile = path.join(PATHS.STATE_DIR, "CURRENT_STATE.json");
         if (fs.existsSync(stateFile)) {
           try {
             Object.assign(autoSaveState, JSON.parse(fs.readFileSync(stateFile, "utf-8")));
@@ -1661,7 +1662,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         } catch {
         }
         try {
-          const atcsDir = "C:\\PRISM\\autonomous-tasks";
+          const atcsDir = path.join(PATHS.PRISM_ROOT, "autonomous-tasks");
           if (fs.existsSync(atcsDir)) {
             const taskDirs = fs.readdirSync(atcsDir).filter((d) => {
               try {
@@ -1719,7 +1720,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         const pressurePct = cadence.pressure?.pressure_pct ?? 0;
         parsed._cadence = slimCadence(fullCadence, pressurePct);
         try {
-          const cadenceFiresPath = path.join("C:\\PRISM\\state", "CADENCE_FIRES.json");
+          const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
           let fires = {};
           if (fs.existsSync(cadenceFiresPath)) {
             try {
@@ -1804,7 +1805,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
           // 4. CURRENT_POSITION.md as fallback
           let position = "";
           try {
-            const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+            const cpPath = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             if (fs.existsSync(cpPath)) position = fs.readFileSync(cpPath, "utf-8").slice(0, 1500);
           } catch {}
           const hijacked = {

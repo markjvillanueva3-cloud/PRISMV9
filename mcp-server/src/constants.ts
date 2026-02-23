@@ -71,7 +71,19 @@ export const PATHS = {
   
   // MCP server
   MCP_SERVER: "C:\\PRISM\\mcp-server",
-  MCP_CACHE: "C:\\PRISM\\mcp-server\\cache"
+  MCP_CACHE: "C:\\PRISM\\mcp-server\\cache",
+
+  // Scripts subdirectories
+  SCRIPTS_CORE: "C:\\PRISM\\scripts\\core",
+
+  // GSD protocol
+  GSD_DIR: "C:\\PRISM\\mcp-server\\data\\docs\\gsd",
+
+  // Python runtime
+  PYTHON: "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+
+  // Knowledge
+  KNOWLEDGE_DIR: "C:\\PRISM\\knowledge"
 } as const;
 
 // Data Layers (4-layer hierarchy)

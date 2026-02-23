@@ -21,6 +21,7 @@ import { hasValidApiKey, getAnthropicClient, getModelForTier, parallelAPICalls }
 import { swarmExecutor } from "../engines/SwarmExecutor.js";
 import { agentExecutor } from "../engines/AgentExecutor.js";
 import { log } from "../utils/Logger.js";
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // TYPES
@@ -159,9 +160,9 @@ export interface TaskContext {
 // ============================================================================
 
 const DEFAULT_CONFIG: AutoPilotConfig = {
-  statePath: "C:\\PRISM\\state\\CURRENT_STATE.json",
-  gsdPath: "C:\\PRISM\\mcp-server\\data\\docs\\gsd\\GSD_QUICK.md",
-  skillsPath: "C:\\PRISM\\skills-consolidated",
+  statePath: PATHS.STATE_FILE,
+  gsdPath: path.join(PATHS.GSD_DIR, "GSD_QUICK.md"),
+  skillsPath: PATHS.SKILLS,
   enableSwarms: true,
   enableRalphLoops: 4,
   enableFormulaOptimization: true,
