@@ -319,6 +319,9 @@ import {
 import {
   executeValueStreamAction,
 } from "../../engines/ValueStreamEngine.js";
+import {
+  executeKaizenAction,
+} from "../../engines/KaizenEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -841,6 +844,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_cycle: result.summary?.total_cycle_time_sec, value_add_pct: result.summary?.value_add_ratio_pct, bottleneck: result.summary?.bottleneck?.step };
     case "vsm_future":
       return { cycle_reduction: result.summary?.cycle_reduction_pct, wip_reduction: result.summary?.wip_reduction_pct, improvements: result.summary?.improvement_count };
+    case "kai_event":
+      return { events: result.total_events, savings: result.summary?.total_savings_usd, avg_improvement: result.summary?.avg_improvement_pct };
+    case "kai_a3":
+      return { reports: result.total_reports, completion: result.reports?.[0]?.progress?.completion_pct, root_causes: result.reports?.[0]?.root_causes?.length };
+    case "kai_track":
+      return { tracked: result.total_tracked, hit_rate: result.summary?.hit_rate_pct, total_savings: result.summary?.total_savings_usd };
+    case "kai_sustain":
+      return { checks: result.total_checks, sustainment_pct: result.summary?.overall_sustainment_pct, at_risk: result.summary?.at_risk?.length };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -936,6 +947,7 @@ const ACTIONS = [
   "ship_receive", "ship_dispatch", "ship_dock", "ship_carrier",
   "yard_assign", "yard_trailer", "yard_appoint", "yard_move",
   "vsm_map", "vsm_takt", "vsm_cycle", "vsm_future",
+  "kai_event", "kai_a3", "kai_track", "kai_sustain",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2410,6 +2422,14 @@ export function registerCalcDispatcher(server: any): void {
           case "vsm_cycle":
           case "vsm_future": {
             result = executeValueStreamAction(action, params);
+            break;
+          }
+
+          case "kai_event":
+          case "kai_a3":
+          case "kai_track":
+          case "kai_sustain": {
+            result = executeKaizenAction(action, params);
             break;
           }
 
