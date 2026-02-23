@@ -183,6 +183,10 @@ import {
   executeProductionReadinessAction,
 } from "../../engines/ProductionReadinessEngine.js";
 
+import {
+  executeRootCauseAction,
+} from "../../engines/RootCauseAnalysisEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -392,6 +396,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total: result.total_risks, critical: result.risk_distribution?.critical, high: result.risk_distribution?.high, max_score: result.max_risk_score };
     case "pr_approve":
       return { decision: result.decision, score: result.overall_score, blockers: result.blockers?.length, sign_offs: result.required_sign_offs?.length, status: result.approval_status };
+    case "rca_diagnose":
+      return { defects: result.defect_types, causes: result.total_causes_identified, top_cause: result.top_cause?.description, probability: result.top_cause?.probability, confidence: result.confidence };
+    case "rca_tree":
+      return { defect: result.defect_type, causes: result.total_potential_causes, top_category: result.most_likely_category, categories: result.category_ranking?.length };
+    case "rca_correlate":
+      return { params_analyzed: result.total_parameters_analyzed, strong: result.strong_correlations, moderate: result.moderate_correlations, suspect: result.primary_suspect };
+    case "rca_action_plan":
+      return { actions: result.total_actions, immediate: result.action_breakdown?.immediate, corrective: result.action_breakdown?.corrective, preventive: result.action_breakdown?.preventive, effectiveness: result.estimated_overall_effectiveness };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -448,6 +460,7 @@ const ACTIONS = [
   "twc_predict", "twc_compensate", "twc_schedule", "twc_history",
   "ds_recommend", "ds_validate", "ds_compare", "ds_explain",
   "pr_assess", "pr_checklist", "pr_risk", "pr_approve",
+  "rca_diagnose", "rca_tree", "rca_correlate", "rca_action_plan",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1610,6 +1623,14 @@ export function registerCalcDispatcher(server: any): void {
           case "pr_risk":
           case "pr_approve": {
             result = executeProductionReadinessAction(action, params);
+            break;
+          }
+
+          case "rca_diagnose":
+          case "rca_tree":
+          case "rca_correlate":
+          case "rca_action_plan": {
+            result = executeRootCauseAction(action, params);
             break;
           }
 
