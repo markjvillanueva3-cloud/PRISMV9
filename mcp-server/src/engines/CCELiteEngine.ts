@@ -1912,6 +1912,82 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  audit_response: {
+    name: 'audit_response',
+    description: 'Audit response: finding review → CAPA initiation → root cause → corrective action plan',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'findings',
+        engine: 'audit',
+        action: 'aud_finding',
+        params: { audit_id: '$input.audit_id', status: 'open' },
+      },
+      {
+        id: 'capa_init',
+        engine: 'capa',
+        action: 'capa_initiate',
+        params: { type: 'corrective' },
+      },
+      {
+        id: 'root_cause',
+        engine: 'capa',
+        action: 'capa_rootcause',
+        params: { capa_id: '$input.capa_id' },
+      },
+      {
+        id: 'actions',
+        engine: 'capa',
+        action: 'capa_action',
+        params: { capa_id: '$input.capa_id' },
+      },
+    ],
+    outputs: {
+      open_findings: '$findings.summary.open',
+      overdue_findings: '$findings.summary.overdue',
+      open_capas: '$capa_init.summary.open',
+      action_completion: '$actions.summary.completion_rate',
+    },
+  },
+
+  regulatory_compliance: {
+    name: 'regulatory_compliance',
+    description: 'Regulatory compliance: requirement gap → submission status → permit review → compliance dashboard',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'req_gaps',
+        engine: 'regulatory',
+        action: 'reg_require',
+        params: { category: '$input.category' },
+      },
+      {
+        id: 'submissions',
+        engine: 'regulatory',
+        action: 'reg_submit',
+        params: {},
+      },
+      {
+        id: 'permits',
+        engine: 'regulatory',
+        action: 'reg_permit',
+        params: {},
+      },
+      {
+        id: 'dashboard',
+        engine: 'compliance_metrics',
+        action: 'comp_dashboard',
+        params: { period: '$input.period' },
+      },
+    ],
+    outputs: {
+      compliance_rate: '$req_gaps.summary.compliance_rate',
+      overdue_submissions: '$submissions.summary.overdue',
+      at_risk_permits: '$permits.summary.at_risk',
+      overall_health: '$dashboard.compliance_health.overall_score',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
