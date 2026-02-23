@@ -1446,6 +1446,76 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  // ─── R26: Production Planning Recipes ────────────────────────────────────────
+
+  production_schedule: {
+    name: 'production_schedule',
+    description: 'Production scheduling: job prioritization + machine allocation (parallel) → sequence optimization → bottleneck detection',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        actions: [
+          { action: 'job_priority', params: {}, output_key: 'priorities' },
+          { action: 'alloc_assign', params: {}, output_key: 'allocation' },
+        ],
+        parallel: true,
+      },
+      {
+        actions: [
+          { action: 'seq_optimize', params: {}, output_key: 'sequence' },
+        ],
+        parallel: false,
+      },
+      {
+        actions: [
+          { action: 'seq_bottleneck', params: {}, output_key: 'bottlenecks' },
+        ],
+        parallel: false,
+      },
+    ],
+    output_template: {
+      job_priorities: '$priorities',
+      machine_allocation: '$allocation',
+      optimized_sequence: '$sequence',
+      bottleneck_analysis: '$bottlenecks',
+      overall_safety: '$_min_safety',
+    },
+  },
+
+  capacity_analysis: {
+    name: 'capacity_analysis',
+    description: 'Capacity analysis: demand forecast + workload balance (parallel) → overtime planning → capacity report',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        actions: [
+          { action: 'cap_demand', params: {}, output_key: 'demand' },
+          { action: 'alloc_balance', params: {}, output_key: 'balance' },
+        ],
+        parallel: true,
+      },
+      {
+        actions: [
+          { action: 'cap_overtime', params: {}, output_key: 'overtime' },
+        ],
+        parallel: false,
+      },
+      {
+        actions: [
+          { action: 'cap_report', params: {}, output_key: 'report' },
+        ],
+        parallel: false,
+      },
+    ],
+    output_template: {
+      demand_matching: '$demand',
+      workload_balance: '$balance',
+      overtime_plan: '$overtime',
+      capacity_report: '$report',
+      overall_safety: '$_min_safety',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
