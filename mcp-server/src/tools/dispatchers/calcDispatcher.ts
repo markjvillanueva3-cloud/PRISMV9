@@ -171,6 +171,10 @@ import {
   executeCpkOptimizerAction,
 } from "../../engines/CpkOptimizerEngine.js";
 
+import {
+  executeToolWearAction,
+} from "../../engines/ToolWearCompensatorEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -356,6 +360,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { shift: result.shift_needed, direction: result.shift_direction, current_cpk: result.current_cpk, centered_cpk: result.centered_cpk, improvement_pct: result.improvement_pct };
     case "cpk_reduce_spread":
       return { current_std: result.current_std, required_std: result.required_std, reduction_pct: result.reduction_pct, current_cpk: result.current_cpk };
+    case "twc_predict":
+      return { life_min: result.tool_life_min, wear_ratio: result.wear_ratio, state: result.wear_state, vb_mm: result.flank_wear_mm, error_mm: result.dimensional_error_mm };
+    case "twc_compensate":
+      return { offset_mm: result.required_offset_mm, total_offset: result.total_offset_mm, in_tolerance: result.within_tolerance, tol_consumed: result.tolerance_consumed_pct };
+    case "twc_schedule":
+      return { interval_min: result.optimal_change_interval_min, cost_per_part: result.total_cost_per_part_usd, quality: result.quality_factor, productivity: result.productivity_factor };
+    case "twc_history":
+      return { records: result.records, avg_life: result.avg_tool_life_min, wear_rate: result.wear_rate_mm_per_min, r_squared: result.wear_model?.r_squared, trend: result.trend };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -409,6 +421,7 @@ const ACTIONS = [
   "gdt_chain_montecarlo", "gdt_chain_allocate", "gdt_chain_sensitivity", "gdt_chain_2d",
   "mps_roughing_plan", "mps_finish_plan", "mps_full_strategy", "mps_evaluate",
   "cpk_analyze", "cpk_improve", "cpk_center", "cpk_reduce_spread",
+  "twc_predict", "twc_compensate", "twc_schedule", "twc_history",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1547,6 +1560,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cpk_center":
           case "cpk_reduce_spread": {
             result = executeCpkOptimizerAction(action, params);
+            break;
+          }
+
+          case "twc_predict":
+          case "twc_compensate":
+          case "twc_schedule":
+          case "twc_history": {
+            result = executeToolWearAction(action, params);
             break;
           }
 
