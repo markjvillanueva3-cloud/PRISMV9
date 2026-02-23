@@ -337,6 +337,9 @@ import {
 import {
   executeInspectionPlanAction,
 } from "../../engines/InspectionPlanEngine.js";
+import {
+  executeMetrologyDataAction,
+} from "../../engines/MetrologyDataEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -907,6 +910,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { reports: result.total_reports, approved: result.summary?.approved, conditional: result.summary?.conditional };
     case "insp_dimension":
       return { dimensions: result.summary?.total_dimensions, critical: result.summary?.critical, all_pass: result.summary?.all_in_tolerance };
+    case "met_cmm":
+      return { datasets: result.total_datasets, out_of_spec: result.datasets?.[0]?.out_of_spec };
+    case "met_spc":
+      return { cpk: result.capability?.cpk, in_control: result.control_status?.in_control, mean: result.statistics?.mean };
+    case "met_drift":
+      return { total_gages: result.total_gages, at_risk: result.summary?.at_risk, stable: result.summary?.stable };
+    case "met_correlate":
+      return { correlations: result.total_correlations, acceptable: result.summary?.acceptable, avg_r: result.summary?.avg_correlation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1008,6 +1019,7 @@ const ACTIONS = [
   "cal_schedule", "cal_cert", "cal_recall", "cal_trace",
   "grr_study", "grr_msa", "grr_uncertainty", "grr_linearity",
   "insp_plan", "insp_sample", "insp_fai", "insp_dimension",
+  "met_cmm", "met_spc", "met_drift", "met_correlate",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2530,6 +2542,14 @@ export function registerCalcDispatcher(server: any): void {
           case "insp_fai":
           case "insp_dimension": {
             result = executeInspectionPlanAction(action, params);
+            break;
+          }
+
+          case "met_cmm":
+          case "met_spc":
+          case "met_drift":
+          case "met_correlate": {
+            result = executeMetrologyDataAction(action, params);
             break;
           }
 
