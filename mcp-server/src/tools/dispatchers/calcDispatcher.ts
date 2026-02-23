@@ -187,6 +187,10 @@ import {
   executeRootCauseAction,
 } from "../../engines/RootCauseAnalysisEngine.js";
 
+import {
+  executeCostQualityAction,
+} from "../../engines/CostQualityTradeoffEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -404,6 +408,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { params_analyzed: result.total_parameters_analyzed, strong: result.strong_correlations, moderate: result.moderate_correlations, suspect: result.primary_suspect };
     case "rca_action_plan":
       return { actions: result.total_actions, immediate: result.action_breakdown?.immediate, corrective: result.action_breakdown?.corrective, preventive: result.action_breakdown?.preventive, effectiveness: result.estimated_overall_effectiveness };
+    case "cqt_pareto":
+      return { points: result.total_points_evaluated, frontier: result.pareto_frontier_size, cost_min: result.cost_range?.min, cost_max: result.cost_range?.max, quality_min: result.quality_range?.min, quality_max: result.quality_range?.max };
+    case "cqt_optimize":
+      return { cost: result.optimal_point?.total_cost, quality: result.optimal_point?.quality_score, vc: result.optimal_point?.parameters?.cutting_speed_m_min, fz: result.optimal_point?.parameters?.feed_per_tooth_mm, score: result.weighted_score };
+    case "cqt_sensitivity":
+      return { cost_sensitive: result.most_cost_sensitive, quality_sensitive: result.most_quality_sensitive, base_cost: result.base_cost, base_quality: result.base_quality_score };
+    case "cqt_scenario":
+      return { scenarios: result.scenarios_evaluated, best_cost: result.best_cost_scenario, best_quality: result.best_quality_scenario, recommendation: result.recommendation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -461,6 +473,7 @@ const ACTIONS = [
   "ds_recommend", "ds_validate", "ds_compare", "ds_explain",
   "pr_assess", "pr_checklist", "pr_risk", "pr_approve",
   "rca_diagnose", "rca_tree", "rca_correlate", "rca_action_plan",
+  "cqt_pareto", "cqt_optimize", "cqt_sensitivity", "cqt_scenario",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1631,6 +1644,14 @@ export function registerCalcDispatcher(server: any): void {
           case "rca_correlate":
           case "rca_action_plan": {
             result = executeRootCauseAction(action, params);
+            break;
+          }
+
+          case "cqt_pareto":
+          case "cqt_optimize":
+          case "cqt_sensitivity":
+          case "cqt_scenario": {
+            result = executeCostQualityAction(action, params);
             break;
           }
 
