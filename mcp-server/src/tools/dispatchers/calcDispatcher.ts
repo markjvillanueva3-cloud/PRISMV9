@@ -245,6 +245,10 @@ import {
   executeResourceOptimizationAction,
 } from "../../engines/ResourceOptimizationEngine.js";
 
+import {
+  executeOperatorSkillAction,
+} from "../../engines/OperatorSkillEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -598,6 +602,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { recommendations: result.summary?.recommendations_count, co2_reduction_pct: result.summary?.total_co2_reduction_pct, quick_wins: result.summary?.quick_wins };
     case "res_comply":
       return { standards: result.summary?.standards_assessed, certified: result.summary?.certified, avg_compliance: result.summary?.avg_compliance_pct, gaps: result.summary?.total_gaps };
+    case "op_skills":
+      return { operators: result.total_operators || 1, avg_proficiency: result.summary?.avg_proficiency, quality: result.summary?.quality_score || result.fleet_summary?.avg_quality };
+    case "op_certify":
+      return { total: result.summary?.total_certifications || result.summary?.total_records, valid: result.summary?.valid, expiring: result.summary?.expiring_soon, expired: result.summary?.expired };
+    case "op_assess":
+      return { score: result.overall_score, rating: result.rating, gaps: result.summary?.has_gap };
+    case "op_matrix":
+      return { operators: result.summary?.operators_analyzed, skills: result.summary?.skills_tracked, coverage_pct: result.summary?.avg_skill_coverage_pct, risks: result.summary?.critical_skill_risks };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -672,6 +684,7 @@ const ACTIONS = [
   "co2_calculate", "co2_lifecycle", "co2_reduce", "co2_report",
   "sus_waste", "sus_recycle", "sus_water", "sus_kpi",
   "res_optimize", "res_allocate", "res_green", "res_comply",
+  "op_skills", "op_certify", "op_assess", "op_matrix",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1978,6 +1991,14 @@ export function registerCalcDispatcher(server: any): void {
           case "res_green":
           case "res_comply": {
             result = executeResourceOptimizationAction(action, params);
+            break;
+          }
+
+          case "op_skills":
+          case "op_certify":
+          case "op_assess":
+          case "op_matrix": {
+            result = executeOperatorSkillAction(action, params);
             break;
           }
 
