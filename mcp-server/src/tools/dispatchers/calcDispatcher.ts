@@ -325,6 +325,9 @@ import {
 import {
   executeSixSigmaAction,
 } from "../../engines/SixSigmaEngine.js";
+import {
+  executeLeanMetricsAction,
+} from "../../engines/LeanMetricsEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -863,6 +866,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { studies: result.total_studies, avg_cpk: result.summary?.avg_cpk, capable_pct: result.summary?.capability_rate_pct };
     case "six_analyze":
       return { type: result.analysis_type, projects: result.active_projects, avg_sigma: result.avg_sigma_level };
+    case "lean_oee":
+      return { overall_oee: result.summary?.overall_oee_pct, downtime: result.summary?.total_downtime_min, records: result.total_records };
+    case "lean_fty":
+      return { rty: result.summary?.rolled_throughput_yield_pct, scrap: result.summary?.total_scrap, worst: result.summary?.worst_step?.step };
+    case "lean_waste":
+      return { annual_cost: result.summary?.total_annual_waste_usd, top_type: result.summary?.top_waste_type, high_severity: result.summary?.high_severity };
+    case "lean_kpi":
+      return { total_kpis: result.summary?.total_kpis, on_target: result.summary?.on_target, health: result.summary?.overall_health };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -960,6 +971,7 @@ const ACTIONS = [
   "vsm_map", "vsm_takt", "vsm_cycle", "vsm_future",
   "kai_event", "kai_a3", "kai_track", "kai_sustain",
   "six_dmaic", "six_chart", "six_capability", "six_analyze",
+  "lean_oee", "lean_fty", "lean_waste", "lean_kpi",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2450,6 +2462,14 @@ export function registerCalcDispatcher(server: any): void {
           case "six_capability":
           case "six_analyze": {
             result = executeSixSigmaAction(action, params);
+            break;
+          }
+
+          case "lean_oee":
+          case "lean_fty":
+          case "lean_waste":
+          case "lean_kpi": {
+            result = executeLeanMetricsAction(action, params);
             break;
           }
 
