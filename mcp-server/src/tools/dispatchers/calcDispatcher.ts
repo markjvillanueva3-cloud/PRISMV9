@@ -292,6 +292,9 @@ import {
 import {
   executeCapacityPlanningAction,
 } from "../../engines/CapacityPlanningEngine.js";
+import {
+  executeECNManagementAction,
+} from "../../engines/ECNManagementEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -742,6 +745,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { resources_needing: result.total_resources_needing_overtime, total_cost: result.summary?.total_overtime_cost, within_budget: result.summary?.within_budget };
     case "cap_report":
       return { health_score: result.summary?.health_score, risks: result.summary?.risk_count, recommendation: result.summary?.recommendation };
+    case "ecn_create":
+      return { total_ecns: result.total_ecns, critical: result.summary?.critical_count, cost_impact: result.summary?.total_cost_impact };
+    case "ecn_impact":
+      return { parts_affected: result.impact_summary?.total_parts_affected, risk_level: result.impact_summary?.risk_level, scrap_cost: result.impact_summary?.total_scrap_cost };
+    case "ecn_approve":
+      return { fully_approved: result.summary?.fully_approved, at_risk: result.summary?.at_risk_count, bottlenecks: result.bottlenecks?.length };
+    case "ecn_implement":
+      return { implemented: result.summary?.fully_implemented, on_track: result.summary?.on_track, at_risk: result.summary?.at_risk };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -828,6 +839,7 @@ const ACTIONS = [
   "alloc_assign", "alloc_balance", "alloc_setup", "alloc_conflict",
   "seq_optimize", "seq_bottleneck", "seq_flow", "seq_reorder",
   "cap_forecast", "cap_demand", "cap_overtime", "cap_report",
+  "ecn_create", "ecn_impact", "ecn_approve", "ecn_implement",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2230,6 +2242,14 @@ export function registerCalcDispatcher(server: any): void {
           case "cap_overtime":
           case "cap_report": {
             result = executeCapacityPlanningAction(action, params);
+            break;
+          }
+
+          case "ecn_create":
+          case "ecn_impact":
+          case "ecn_approve":
+          case "ecn_implement": {
+            result = executeECNManagementAction(action, params);
             break;
           }
 
