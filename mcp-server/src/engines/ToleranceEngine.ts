@@ -514,6 +514,493 @@ export function calculateCpk(
   };
 }
 
+// ============================================================================
+// R15-MS3: GD&T TOLERANCE ANALYSIS (ASME Y14.5-2018 / ISO 1101)
+// ============================================================================
+
+/**
+ * GD&T Feature Control Frame types per ASME Y14.5-2018.
+ *
+ * Form:       Flatness, Straightness, Circularity, Cylindricity
+ * Orientation: Perpendicularity, Angularity, Parallelism
+ * Location:    Position, Concentricity, Symmetry
+ * Runout:      Circular Runout, Total Runout
+ * Profile:     Profile of a Line, Profile of a Surface
+ */
+
+export type GDTCharacteristic =
+  | 'flatness' | 'straightness' | 'circularity' | 'cylindricity'
+  | 'perpendicularity' | 'angularity' | 'parallelism'
+  | 'position' | 'concentricity' | 'symmetry'
+  | 'circular_runout' | 'total_runout'
+  | 'profile_line' | 'profile_surface';
+
+export type GDTCategory = 'form' | 'orientation' | 'location' | 'runout' | 'profile';
+
+export interface DatumReference {
+  label: string;           // 'A', 'B', 'C', etc.
+  feature: string;         // Description: "bottom face", "bore centerline", etc.
+  material_condition?: 'MMC' | 'LMC' | 'RFS';  // Modifier
+}
+
+export interface FeatureControlFrame {
+  characteristic: GDTCharacteristic;
+  tolerance_mm: number;
+  material_condition?: 'MMC' | 'LMC' | 'RFS';
+  datums?: DatumReference[];       // Empty for form tolerances
+  bonus_tolerance_mm?: number;     // From MMC/LMC departure
+  projected_tolerance_zone?: boolean;
+}
+
+export interface GDTParseInput {
+  frames: FeatureControlFrame[];
+  feature_size_mm?: number;         // Actual mating envelope
+  mmc_size_mm?: number;             // MMC (smallest hole / largest shaft)
+  lmc_size_mm?: number;             // LMC (largest hole / smallest shaft)
+}
+
+export interface GDTParseResult {
+  frames: Array<{
+    characteristic: GDTCharacteristic;
+    category: GDTCategory;
+    tolerance_mm: number;
+    bonus_mm: number;
+    total_tolerance_mm: number;
+    requires_datums: boolean;
+    datum_chain: string[];
+    zone_shape: string;
+  }>;
+  datum_reference_frames: string[][];
+  summary: string;
+}
+
+const GDT_CATEGORY: Record<GDTCharacteristic, GDTCategory> = {
+  flatness: 'form', straightness: 'form', circularity: 'form', cylindricity: 'form',
+  perpendicularity: 'orientation', angularity: 'orientation', parallelism: 'orientation',
+  position: 'location', concentricity: 'location', symmetry: 'location',
+  circular_runout: 'runout', total_runout: 'runout',
+  profile_line: 'profile', profile_surface: 'profile',
+};
+
+const ZONE_SHAPE: Record<GDTCharacteristic, string> = {
+  flatness: 'two parallel planes',
+  straightness: 'two parallel lines (or cylinder if applied to axis)',
+  circularity: 'annular ring (two concentric circles)',
+  cylindricity: 'two coaxial cylinders',
+  perpendicularity: 'two parallel planes perpendicular to datum',
+  angularity: 'two parallel planes at specified angle to datum',
+  parallelism: 'two parallel planes parallel to datum',
+  position: 'cylinder (for holes) or two parallel planes (for features)',
+  concentricity: 'cylinder centered on datum axis',
+  symmetry: 'two parallel planes centered on datum plane',
+  circular_runout: 'annular ring (FIM during single revolution)',
+  total_runout: 'annular ring (FIM during full traverse + rotation)',
+  profile_line: 'two curves equidistant from true profile',
+  profile_surface: 'two surfaces equidistant from true profile',
+};
+
+export function parseGDT(input: GDTParseInput): GDTParseResult {
+  const parsedFrames: GDTParseResult['frames'] = [];
+  const drfSets: string[][] = [];
+
+  for (const fcf of input.frames) {
+    const cat = GDT_CATEGORY[fcf.characteristic];
+    const requiresDatums = cat !== 'form'; // Form tolerances don't need datums
+
+    // Bonus tolerance calculation (MMC/LMC)
+    let bonus = fcf.bonus_tolerance_mm ?? 0;
+    if (fcf.material_condition === 'MMC' && input.feature_size_mm && input.mmc_size_mm) {
+      // Bonus = |actual - MMC|
+      bonus = Math.abs(input.feature_size_mm - input.mmc_size_mm);
+    } else if (fcf.material_condition === 'LMC' && input.feature_size_mm && input.lmc_size_mm) {
+      bonus = Math.abs(input.feature_size_mm - input.lmc_size_mm);
+    }
+
+    const datumChain = fcf.datums?.map(d => d.label) ?? [];
+    if (datumChain.length > 0 && !drfSets.some(s => s.join(',') === datumChain.join(','))) {
+      drfSets.push([...datumChain]);
+    }
+
+    parsedFrames.push({
+      characteristic: fcf.characteristic,
+      category: cat,
+      tolerance_mm: fcf.tolerance_mm,
+      bonus_mm: +bonus.toFixed(4),
+      total_tolerance_mm: +(fcf.tolerance_mm + bonus).toFixed(4),
+      requires_datums: requiresDatums,
+      datum_chain: datumChain,
+      zone_shape: ZONE_SHAPE[fcf.characteristic],
+    });
+  }
+
+  const summary = `${parsedFrames.length} FCF(s): ${
+    parsedFrames.map(f => `${f.characteristic}=${f.total_tolerance_mm}mm`).join(', ')
+  }. DRF count: ${drfSets.length}`;
+
+  return { frames: parsedFrames, datum_reference_frames: drfSets, summary };
+}
+
+// ============================================================================
+// R15-MS3: GD&T STACK-UP (1D chain with GD&T contributors)
+// ============================================================================
+
+export interface GDTStackDimension {
+  name: string;
+  nominal_mm: number;
+  tolerance_plus_mm: number;
+  tolerance_minus_mm: number;
+  direction: 1 | -1;            // +1 = adds to gap, -1 = subtracts
+  gdt_contributor_mm?: number;  // Additional GD&T tolerance contribution
+  gdt_type?: GDTCharacteristic; // Which GD&T type contributes
+}
+
+export interface GDTStackResult {
+  nominal_gap_mm: number;
+  worst_case: {
+    min_gap_mm: number;
+    max_gap_mm: number;
+    total_tolerance_mm: number;
+  };
+  statistical_rss: {
+    min_gap_mm: number;
+    max_gap_mm: number;
+    tolerance_3sigma_mm: number;
+    cpk_at_3sigma: number;
+  };
+  contributors: Array<{
+    name: string;
+    bilateral_tol_mm: number;
+    pct_of_total: number;
+    includes_gdt: boolean;
+  }>;
+  critical_contributor: string;
+  recommendations: string[];
+}
+
+export function gdtStackUp(dims: GDTStackDimension[]): GDTStackResult {
+  let nominal = 0;
+  let wcPlus = 0;  // Worst case + tolerance accumulation
+  let wcMinus = 0;
+  let rssSum = 0;
+  const contribs: GDTStackResult['contributors'] = [];
+  const recommendations: string[] = [];
+
+  for (const d of dims) {
+    nominal += d.direction * d.nominal_mm;
+
+    // Bilateral tolerance = (plus + |minus|) / 2 for RSS
+    const gdtAdd = d.gdt_contributor_mm ?? 0;
+    const totalPlus = d.tolerance_plus_mm + gdtAdd;
+    const totalMinus = Math.abs(d.tolerance_minus_mm) + gdtAdd;
+    const bilateral = (totalPlus + totalMinus) / 2;
+
+    if (d.direction > 0) {
+      wcPlus += totalPlus;
+      wcMinus += totalMinus;
+    } else {
+      wcPlus += totalMinus;
+      wcMinus += totalPlus;
+    }
+
+    rssSum += bilateral * bilateral;
+
+    contribs.push({
+      name: d.name,
+      bilateral_tol_mm: +bilateral.toFixed(4),
+      pct_of_total: 0, // Filled in below
+      includes_gdt: gdtAdd > 0,
+    });
+  }
+
+  const totalBilateral = contribs.reduce((s, c) => s + c.bilateral_tol_mm, 0);
+  for (const c of contribs) {
+    c.pct_of_total = totalBilateral > 0 ? +((c.bilateral_tol_mm / totalBilateral) * 100).toFixed(1) : 0;
+  }
+
+  const rss3sigma = Math.sqrt(rssSum) * 3;
+  const wcTotal = wcPlus + wcMinus;
+
+  // Critical contributor (largest % of total)
+  const critical = contribs.reduce((a, b) => a.pct_of_total > b.pct_of_total ? a : b, contribs[0]);
+
+  // Cpk estimation: assuming gap has spec of ±(wcTotal/2)
+  const halfSpec = wcTotal / 2;
+  const rssHalfTol = rss3sigma / 6; // 1 sigma
+  const cpk = halfSpec > 0 ? halfSpec / (3 * rssHalfTol + 1e-10) : 0;
+
+  if (critical.pct_of_total > 40) {
+    recommendations.push(`${critical.name} contributes ${critical.pct_of_total}% of total tolerance — tightening this dimension has the most impact`);
+  }
+  if (cpk < 1.33) {
+    recommendations.push(`RSS Cpk=${cpk.toFixed(2)} is below 1.33 — process may produce out-of-spec assemblies`);
+  }
+  if (contribs.some(c => c.includes_gdt)) {
+    recommendations.push('Stack-up includes GD&T contributors — verify datum reference frames are consistent');
+  }
+
+  return {
+    nominal_gap_mm: +nominal.toFixed(4),
+    worst_case: {
+      min_gap_mm: +(nominal - wcMinus).toFixed(4),
+      max_gap_mm: +(nominal + wcPlus).toFixed(4),
+      total_tolerance_mm: +wcTotal.toFixed(4),
+    },
+    statistical_rss: {
+      min_gap_mm: +(nominal - rss3sigma / 2).toFixed(4),
+      max_gap_mm: +(nominal + rss3sigma / 2).toFixed(4),
+      tolerance_3sigma_mm: +rss3sigma.toFixed(4),
+      cpk_at_3sigma: +cpk.toFixed(3),
+    },
+    contributors: contribs,
+    critical_contributor: critical.name,
+    recommendations,
+  };
+}
+
+// ============================================================================
+// R15-MS3: GD&T DATUM REFERENCE FRAME ANALYSIS
+// ============================================================================
+
+export interface GDTDatumInput {
+  datums: DatumReference[];
+  feature_type: 'hole' | 'slot' | 'plane' | 'cylinder' | 'cone';
+}
+
+export interface GDTDatumResult {
+  degrees_of_freedom_constrained: number;
+  dof_breakdown: Array<{ datum: string; constrains: string[]; dof_count: number }>;
+  remaining_dof: string[];
+  valid: boolean;
+  datum_order: string;
+  recommendations: string[];
+}
+
+export function analyzeDatumRef(input: GDTDatumInput): GDTDatumResult {
+  const breakdown: GDTDatumResult['dof_breakdown'] = [];
+  const allConstrained: string[] = [];
+  const allDOF = ['Tx', 'Ty', 'Tz', 'Rx', 'Ry', 'Rz']; // Translation and rotation
+
+  for (let i = 0; i < input.datums.length; i++) {
+    const d = input.datums[i];
+    const constrains: string[] = [];
+
+    if (i === 0) {
+      // Primary datum: plane = 3 DOF, cylinder = 4 DOF
+      switch (input.feature_type) {
+        case 'plane':
+          constrains.push('Tz', 'Rx', 'Ry'); // Normal + 2 rotations
+          break;
+        case 'cylinder':
+        case 'hole':
+          constrains.push('Tx', 'Ty', 'Rx', 'Ry'); // 2 translations + 2 rotations
+          break;
+        case 'slot':
+          constrains.push('Ty', 'Tz', 'Rx'); // 1T + 1T + 1R
+          break;
+        case 'cone':
+          constrains.push('Tx', 'Ty', 'Tz', 'Rx', 'Ry'); // 5 DOF (all but rotation about axis)
+          break;
+      }
+    } else if (i === 1) {
+      // Secondary datum: constrains 2 DOF (typically)
+      const remaining = allDOF.filter(d => !allConstrained.includes(d));
+      constrains.push(...remaining.slice(0, 2));
+    } else {
+      // Tertiary datum: constrains 1 DOF
+      const remaining = allDOF.filter(d => !allConstrained.includes(d));
+      if (remaining.length > 0) constrains.push(remaining[0]);
+    }
+
+    allConstrained.push(...constrains);
+    breakdown.push({ datum: d.label, constrains, dof_count: constrains.length });
+  }
+
+  const uniqueConstrained = [...new Set(allConstrained)];
+  const remaining = allDOF.filter(d => !uniqueConstrained.includes(d));
+  const valid = uniqueConstrained.length >= 3; // At least 3 DOF for a valid DRF
+
+  const recommendations: string[] = [];
+  if (remaining.length > 3) {
+    recommendations.push(`${remaining.length} unconstrained DOF — part is under-constrained. Add datum features.`);
+  }
+  if (remaining.length === 0 && input.datums.length < 3) {
+    recommendations.push('Fully constrained with fewer than 3 datums — verify datum feature type');
+  }
+  if (!valid) {
+    recommendations.push('Fewer than 3 DOF constrained — invalid datum reference frame per ASME Y14.5');
+  }
+
+  return {
+    degrees_of_freedom_constrained: uniqueConstrained.length,
+    dof_breakdown: breakdown,
+    remaining_dof: remaining,
+    valid,
+    datum_order: input.datums.map(d => d.label).join('-'),
+    recommendations,
+  };
+}
+
+// ============================================================================
+// R15-MS3: GD&T TOLERANCE ZONE VISUALIZATION DATA
+// ============================================================================
+
+export interface GDTZoneInput {
+  characteristic: GDTCharacteristic;
+  tolerance_mm: number;
+  feature_size_mm?: number;
+  material_condition?: 'MMC' | 'LMC' | 'RFS';
+  mmc_size_mm?: number;
+  lmc_size_mm?: number;
+}
+
+export interface GDTZoneResult {
+  zone_shape: string;
+  zone_width_mm: number;
+  zone_diameter_mm: number | null;  // For cylindrical zones (position of holes)
+  bonus_mm: number;
+  effective_zone_mm: number;
+  inner_boundary_mm: number | null;  // Virtual condition for MMC
+  outer_boundary_mm: number | null;
+  explanation: string;
+}
+
+export function computeGDTZone(input: GDTZoneInput): GDTZoneResult {
+  const cat = GDT_CATEGORY[input.characteristic];
+  const shape = ZONE_SHAPE[input.characteristic];
+  const tol = input.tolerance_mm;
+
+  let bonus = 0;
+  let innerBoundary: number | null = null;
+  let outerBoundary: number | null = null;
+  let zoneDia: number | null = null;
+
+  // Calculate bonus tolerance from material condition
+  if (input.material_condition === 'MMC' && input.feature_size_mm && input.mmc_size_mm) {
+    bonus = Math.abs(input.feature_size_mm - input.mmc_size_mm);
+    // Virtual condition: MMC size ± geometric tolerance
+    innerBoundary = input.mmc_size_mm - tol; // For internal features (holes)
+    outerBoundary = input.mmc_size_mm + tol; // For external features (pins)
+  } else if (input.material_condition === 'LMC' && input.feature_size_mm && input.lmc_size_mm) {
+    bonus = Math.abs(input.feature_size_mm - input.lmc_size_mm);
+    innerBoundary = input.lmc_size_mm - tol;
+    outerBoundary = input.lmc_size_mm + tol;
+  }
+
+  const effectiveZone = tol + bonus;
+
+  // For position of holes, zone is cylindrical (diameter)
+  if (input.characteristic === 'position' && input.feature_size_mm) {
+    zoneDia = effectiveZone;
+  }
+
+  let explanation: string;
+  if (cat === 'form') {
+    explanation = `Form tolerance: feature surface must lie within ${shape} separated by ${tol}mm.`;
+  } else if (cat === 'orientation') {
+    explanation = `Orientation tolerance: feature must lie within ${shape}, width ${effectiveZone}mm (${tol}mm${bonus > 0 ? ` + ${bonus.toFixed(3)}mm bonus` : ''}).`;
+  } else if (cat === 'location') {
+    explanation = `Location tolerance: feature axis/center must lie within ${zoneDia ? `⌀${effectiveZone}mm cylinder` : `${effectiveZone}mm zone`}${bonus > 0 ? ` (includes ${bonus.toFixed(3)}mm bonus from ${input.material_condition})` : ''}.`;
+  } else {
+    explanation = `${input.characteristic}: ${shape}, tolerance ${effectiveZone}mm.`;
+  }
+
+  return {
+    zone_shape: shape,
+    zone_width_mm: +effectiveZone.toFixed(4),
+    zone_diameter_mm: zoneDia ? +zoneDia.toFixed(4) : null,
+    bonus_mm: +bonus.toFixed(4),
+    effective_zone_mm: +effectiveZone.toFixed(4),
+    inner_boundary_mm: innerBoundary ? +innerBoundary.toFixed(4) : null,
+    outer_boundary_mm: outerBoundary ? +outerBoundary.toFixed(4) : null,
+    explanation,
+  };
+}
+
+// ============================================================================
+// R15-MS3: GD&T REPORT (combined analysis)
+// ============================================================================
+
+export interface GDTReportInput {
+  part_name: string;
+  frames: FeatureControlFrame[];
+  feature_size_mm?: number;
+  mmc_size_mm?: number;
+  lmc_size_mm?: number;
+  datums?: DatumReference[];
+}
+
+export interface GDTReportResult {
+  part_name: string;
+  total_fcf_count: number;
+  by_category: Record<GDTCategory, number>;
+  tightest_tolerance: { characteristic: string; tolerance_mm: number };
+  datum_reference_frames: string[];
+  has_material_condition_modifiers: boolean;
+  max_bonus_mm: number;
+  inspection_notes: string[];
+}
+
+export function gdtReport(input: GDTReportInput): GDTReportResult {
+  const byCategory: Record<GDTCategory, number> = { form: 0, orientation: 0, location: 0, runout: 0, profile: 0 };
+  let tightest = { characteristic: '', tolerance_mm: Infinity };
+  let maxBonus = 0;
+  let hasMC = false;
+  const drfLabels: string[] = [];
+  const inspectionNotes: string[] = [];
+
+  for (const fcf of input.frames) {
+    const cat = GDT_CATEGORY[fcf.characteristic];
+    byCategory[cat]++;
+
+    if (fcf.tolerance_mm < tightest.tolerance_mm) {
+      tightest = { characteristic: fcf.characteristic, tolerance_mm: fcf.tolerance_mm };
+    }
+
+    if (fcf.material_condition && fcf.material_condition !== 'RFS') {
+      hasMC = true;
+      // Calculate potential bonus
+      if (fcf.material_condition === 'MMC' && input.feature_size_mm && input.mmc_size_mm) {
+        const bonus = Math.abs(input.feature_size_mm - input.mmc_size_mm);
+        if (bonus > maxBonus) maxBonus = bonus;
+      }
+    }
+
+    if (fcf.datums) {
+      const drf = fcf.datums.map(d => d.label).join('-');
+      if (!drfLabels.includes(drf)) drfLabels.push(drf);
+    }
+
+    // Inspection notes per characteristic
+    if (fcf.characteristic === 'position' && fcf.material_condition === 'MMC') {
+      inspectionNotes.push(`Position ⌀${fcf.tolerance_mm}mm at MMC — use functional gauge or CMM with bonus calculation`);
+    }
+    if (fcf.characteristic === 'flatness' && fcf.tolerance_mm < 0.01) {
+      inspectionNotes.push(`Flatness ${fcf.tolerance_mm}mm — requires optical flat or interferometer`);
+    }
+    if (fcf.characteristic === 'total_runout') {
+      inspectionNotes.push(`Total runout ${fcf.tolerance_mm}mm — requires rotation about datum axis with indicator traversal`);
+    }
+    if (fcf.characteristic === 'profile_surface') {
+      inspectionNotes.push(`Profile of surface ${fcf.tolerance_mm}mm — requires CMM point cloud or optical scanner`);
+    }
+  }
+
+  if (tightest.tolerance_mm < 0.005) {
+    inspectionNotes.push(`Tightest tolerance is ${tightest.tolerance_mm}mm on ${tightest.characteristic} — verify measurement uncertainty < 10% of tolerance`);
+  }
+
+  return {
+    part_name: input.part_name,
+    total_fcf_count: input.frames.length,
+    by_category: byCategory,
+    tightest_tolerance: tightest.tolerance_mm === Infinity ? { characteristic: 'none', tolerance_mm: 0 } : tightest,
+    datum_reference_frames: drfLabels,
+    has_material_condition_modifiers: hasMC,
+    max_bonus_mm: +maxBonus.toFixed(4),
+    inspection_notes: inspectionNotes,
+  };
+}
+
 /**
  * Find the achievable IT grade for a given deflection.
  * Returns the tightest (lowest) IT grade where the tolerance band

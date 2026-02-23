@@ -51,6 +51,16 @@ import {
   analyzeShaftHoleFit,
   toleranceStackUp,
   calculateCpk,
+  parseGDT,
+  gdtStackUp,
+  analyzeDatumRef,
+  computeGDTZone,
+  gdtReport,
+  type GDTParseInput,
+  type GDTStackDimension,
+  type GDTDatumInput,
+  type GDTZoneInput,
+  type GDTReportInput,
 } from "../../engines/ToleranceEngine.js";
 
 import {
@@ -241,6 +251,7 @@ const ACTIONS = [
   "unified_machining_model", "coupling_sensitivity",
   "rz_kinematic", "rz_milling", "surface_profile", "chip_form",
   "sld_generate", "sld_evaluate", "thermal_distort",
+  "gdt_parse", "gdt_stack", "gdt_datum_ref", "gdt_zone", "gdt_report",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1258,6 +1269,28 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "thermal_distort": {
             result = predictThermalDistortion(params as unknown as ThermalDistortionInput);
+            break;
+          }
+
+          // === R15-MS3: GD&T TOLERANCE ANALYSIS ===
+          case "gdt_parse": {
+            result = parseGDT(params as unknown as GDTParseInput);
+            break;
+          }
+          case "gdt_stack": {
+            result = gdtStackUp(params.dimensions as GDTStackDimension[]);
+            break;
+          }
+          case "gdt_datum_ref": {
+            result = analyzeDatumRef(params as unknown as GDTDatumInput);
+            break;
+          }
+          case "gdt_zone": {
+            result = computeGDTZone(params as unknown as GDTZoneInput);
+            break;
+          }
+          case "gdt_report": {
+            result = gdtReport(params as unknown as GDTReportInput);
             break;
           }
 
