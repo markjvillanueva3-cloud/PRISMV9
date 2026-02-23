@@ -179,6 +179,10 @@ import {
   executeDecisionSupportAction,
 } from "../../engines/DecisionSupportEngine.js";
 
+import {
+  executeProductionReadinessAction,
+} from "../../engines/ProductionReadinessEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -380,6 +384,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { best: result.best_scenario, scenarios: result.scenario_count, dimensions: result.dimensions_compared, scores: result.weighted_scores };
     case "ds_explain":
       return { decision: result.decision_type, factors: result.factor_count, primary_driver: result.primary_driver, trade_offs: result.trade_off_count };
+    case "pr_assess":
+      return { score: result.overall_score, status: result.overall_status, passed: result.checklist_summary?.passed, failed: result.checklist_summary?.failed, decision: result.approval?.decision };
+    case "pr_checklist":
+      return { total: result.total_items, passed: result.passed, warnings: result.warnings, failed: result.failed, filter: result.filter_category };
+    case "pr_risk":
+      return { total: result.total_risks, critical: result.risk_distribution?.critical, high: result.risk_distribution?.high, max_score: result.max_risk_score };
+    case "pr_approve":
+      return { decision: result.decision, score: result.overall_score, blockers: result.blockers?.length, sign_offs: result.required_sign_offs?.length, status: result.approval_status };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -435,6 +447,7 @@ const ACTIONS = [
   "cpk_analyze", "cpk_improve", "cpk_center", "cpk_reduce_spread",
   "twc_predict", "twc_compensate", "twc_schedule", "twc_history",
   "ds_recommend", "ds_validate", "ds_compare", "ds_explain",
+  "pr_assess", "pr_checklist", "pr_risk", "pr_approve",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1589,6 +1602,14 @@ export function registerCalcDispatcher(server: any): void {
           case "ds_compare":
           case "ds_explain": {
             result = executeDecisionSupportAction(action, params);
+            break;
+          }
+
+          case "pr_assess":
+          case "pr_checklist":
+          case "pr_risk":
+          case "pr_approve": {
+            result = executeProductionReadinessAction(action, params);
             break;
           }
 
