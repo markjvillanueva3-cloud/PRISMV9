@@ -355,6 +355,9 @@ import {
 import {
   executeAuditAction,
 } from "../../engines/AuditEngine.js";
+import {
+  executeRegulatoryAction,
+} from "../../engines/RegulatoryEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -973,6 +976,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { evidence: result.total_evidence };
     case "aud_close":
       return { closed: result.total_closed, avg_closure: result.summary?.avg_closure_rate };
+    case "reg_require":
+      return { requirements: result.total_requirements, compliant: result.summary?.compliant, compliance_rate: result.summary?.compliance_rate };
+    case "reg_submit":
+      return { submissions: result.total_submissions, overdue: result.summary?.overdue, on_time: result.summary?.on_time_rate };
+    case "reg_permit":
+      return { permits: result.total_permits, at_risk: result.summary?.at_risk, expired: result.summary?.expired };
+    case "reg_change":
+      return { changes: result.total_changes, action_required: result.summary?.action_required, total_gaps: result.summary?.total_gaps };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -1080,6 +1091,7 @@ const ACTIONS = [
   "abc_activity", "abc_driver", "abc_allocate", "abc_product",
   "fin_margin", "fin_breakeven", "fin_costunit", "fin_dashboard",
   "aud_schedule", "aud_finding", "aud_evidence", "aud_close",
+  "reg_require", "reg_submit", "reg_permit", "reg_change",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2650,6 +2662,14 @@ export function registerCalcDispatcher(server: any): void {
           case "aud_evidence":
           case "aud_close": {
             result = executeAuditAction(action, params);
+            break;
+          }
+
+          case "reg_require":
+          case "reg_submit":
+          case "reg_permit":
+          case "reg_change": {
+            result = executeRegulatoryAction(action, params);
             break;
           }
 
