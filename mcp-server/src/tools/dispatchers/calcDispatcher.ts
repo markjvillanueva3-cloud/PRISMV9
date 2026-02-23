@@ -281,6 +281,10 @@ import {
   executeJobSchedulingAction,
 } from "../../engines/JobSchedulingEngine.js";
 
+import {
+  executeMachineAllocationAction,
+} from "../../engines/MachineAllocationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -706,6 +710,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { jobs: result.total_jobs, on_time_pct: result.summary?.on_time_pct, remaining_hours: result.summary?.total_remaining_hours };
     case "job_reschedule":
       return { affected: result.total_affected, will_be_late: result.summary?.jobs_will_be_late, critical_affected: result.summary?.critical_jobs_affected };
+    case "alloc_assign":
+      return { jobs: result.total_jobs, with_candidates: result.summary?.jobs_with_candidates, est_cost: result.summary?.total_estimated_cost };
+    case "alloc_balance":
+      return { machines: result.total_machines, balance_score: result.balance_metrics?.balance_score, rebalance: result.summary?.rebalance_opportunities };
+    case "alloc_setup":
+      return { machines: result.total_machines_analyzed, savings_hours: result.summary?.total_savings_hours, savings_pct: result.summary?.overall_savings_pct };
+    case "alloc_conflict":
+      return { conflicts: result.total_conflicts, critical: result.summary?.critical_count, risk: result.summary?.overall_risk };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -789,6 +801,7 @@ const ACTIONS = [
   "lt_forecast", "lt_track", "lt_disrupt", "lt_expedite",
   "proc_spend", "proc_contract", "proc_optimize", "proc_report",
   "job_schedule", "job_priority", "job_status", "job_reschedule",
+  "alloc_assign", "alloc_balance", "alloc_setup", "alloc_conflict",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2167,6 +2180,14 @@ export function registerCalcDispatcher(server: any): void {
           case "job_status":
           case "job_reschedule": {
             result = executeJobSchedulingAction(action, params);
+            break;
+          }
+
+          case "alloc_assign":
+          case "alloc_balance":
+          case "alloc_setup":
+          case "alloc_conflict": {
+            result = executeMachineAllocationAction(action, params);
             break;
           }
 
