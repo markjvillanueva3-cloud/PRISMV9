@@ -253,6 +253,10 @@ import {
   executeTrainingManagementAction,
 } from "../../engines/TrainingManagementEngine.js";
 
+import {
+  executeKnowledgeCaptureAction,
+} from "../../engines/KnowledgeCaptureEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -622,6 +626,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { operators: result.summary?.operators_analyzed, gaps: result.summary?.total_skill_gaps, avg_gaps: result.summary?.avg_gaps_per_operator, top_gap: result.summary?.most_common_gap };
     case "trn_recommend":
       return { programs: result.summary?.programs_recommended, cost: result.recommended_path?.total_cost_usd, hours: result.recommended_path?.total_hours, certs: result.summary?.certifications_achievable };
+    case "kc_capture":
+      return { entries: result.total_entries, verified_pct: result.knowledge_base_stats?.verified_pct, avg_rating: result.knowledge_base_stats?.avg_rating };
+    case "kc_search":
+      return { total_hits: result.summary?.total_hits, kb_hits: result.summary?.knowledge_base_hits, bp_hits: result.summary?.best_practice_hits, ll_hits: result.summary?.lesson_learned_hits };
+    case "kc_best_practice":
+      return { total: result.total, avg_adoption: result.summary?.avg_adoption_rate };
+    case "kc_lesson":
+      return { total: result.total || 1, cost_impact: result.summary?.total_cost_impact_usd, implementation_pct: result.summary?.implementation_rate_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -698,6 +710,7 @@ const ACTIONS = [
   "res_optimize", "res_allocate", "res_green", "res_comply",
   "op_skills", "op_certify", "op_assess", "op_matrix",
   "trn_program", "trn_progress", "trn_gap", "trn_recommend",
+  "kc_capture", "kc_search", "kc_best_practice", "kc_lesson",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2020,6 +2033,14 @@ export function registerCalcDispatcher(server: any): void {
           case "trn_gap":
           case "trn_recommend": {
             result = executeTrainingManagementAction(action, params);
+            break;
+          }
+
+          case "kc_capture":
+          case "kc_search":
+          case "kc_best_practice":
+          case "kc_lesson": {
+            result = executeKnowledgeCaptureAction(action, params);
             break;
           }
 
