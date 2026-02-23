@@ -71,7 +71,10 @@ export const PATHS = {
   
   // MCP server
   MCP_SERVER: "C:\\PRISM\\mcp-server",
-  MCP_CACHE: "C:\\PRISM\\mcp-server\\cache"
+  MCP_CACHE: "C:\\PRISM\\mcp-server\\cache",
+
+  // Chat archive
+  CHAT_ARCHIVE: "C:\\PRISM\\mcp-server\\data\\chats"
 } as const;
 
 // Data Layers (4-layer hierarchy)

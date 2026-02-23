@@ -91,6 +91,9 @@ import { registerBridgeDispatcher } from "./tools/dispatchers/bridgeDispatcher.j
 // R3: Intelligence Engine — Compound Actions (Dispatcher #32)
 import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
 
+// CHAT ARCHIVE: Session Chat Storage (Dispatcher #33) — REORG Phase 4
+import { registerChatArchiveDispatcher } from "./tools/dispatchers/chatArchiveDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -297,7 +300,10 @@ async function registerTools(): Promise<void> {
   // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
   registerIntelligenceDispatcher(server);
 
-  log.info(`All PRISM tools registered: 32 dispatchers (382 verified actions)`);
+  // CHAT ARCHIVE: Session Chat Storage (6 actions)
+  registerChatArchiveDispatcher(server);
+
+  log.info(`All PRISM tools registered: 33 dispatchers (388+ verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
