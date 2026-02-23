@@ -1255,6 +1255,127 @@ const RECIPES: Record<string, CompositionRecipe> = {
     },
   },
 
+  operator_development: {
+    name: 'operator_development',
+    description: 'Operator development: skill assessment + certification status (parallel) → gap analysis → training recommendation',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'assess',
+        engine: 'calc',
+        action: 'op_assess',
+        params_template: {},
+        param_bindings: {
+          operator_id: '$input.operator_id',
+          machine_type: '$input.machine_type',
+          target_role: '$input.target_role',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'certs',
+        engine: 'calc',
+        action: 'op_certify',
+        params_template: {},
+        param_bindings: {
+          operator_id: '$input.operator_id',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'gaps',
+        engine: 'calc',
+        action: 'trn_gap',
+        params_template: {},
+        param_bindings: {
+          operator_id: '$input.operator_id',
+          target_level: '$input.target_level',
+        },
+        depends_on: ['assess', 'certs'],
+      },
+      {
+        id: 'recommend',
+        engine: 'calc',
+        action: 'trn_recommend',
+        params_template: {},
+        param_bindings: {
+          operator_id: '$input.operator_id',
+          budget_usd: '$input.budget_usd',
+          max_hours: '$input.max_hours',
+          focus: '$input.focus_area',
+        },
+        depends_on: ['gaps'],
+      },
+    ],
+    output_template: {
+      skill_assessment: '$assess',
+      certification_status: '$certs',
+      gap_analysis: '$gaps',
+      training_plan: '$recommend',
+      overall_safety: '$_min_safety',
+    },
+  },
+
+  workforce_planning: {
+    name: 'workforce_planning',
+    description: 'Workforce planning: shift schedule + machine assignments (parallel) → capacity forecast → workload balance',
+    safety_classification: 'STANDARD',
+    steps: [
+      {
+        id: 'schedule',
+        engine: 'calc',
+        action: 'wf_schedule',
+        params_template: {},
+        param_bindings: {
+          department: '$input.department',
+          week_of: '$input.week_of',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'assign',
+        engine: 'calc',
+        action: 'wf_assign',
+        params_template: {},
+        param_bindings: {
+          shift: '$input.shift',
+          department: '$input.department',
+        },
+        depends_on: [],
+      },
+      {
+        id: 'capacity',
+        engine: 'calc',
+        action: 'wf_capacity',
+        params_template: {},
+        param_bindings: {
+          department: '$input.department',
+          weeks: '$input.forecast_weeks',
+          target_utilization_pct: '$input.target_utilization_pct',
+        },
+        depends_on: ['schedule', 'assign'],
+      },
+      {
+        id: 'balance',
+        engine: 'calc',
+        action: 'wf_balance',
+        params_template: {},
+        param_bindings: {
+          department: '$input.department',
+          optimize_for: '$input.optimize_for',
+        },
+        depends_on: ['capacity'],
+      },
+    ],
+    output_template: {
+      shift_schedule: '$schedule',
+      machine_assignments: '$assign',
+      capacity_forecast: '$capacity',
+      workload_balance: '$balance',
+      overall_safety: '$_min_safety',
+    },
+  },
+
   quality_prediction: {
     name: 'quality_prediction',
     description: 'Quality prediction: surface integrity → achievable tolerance → thermal distortion → overall capability',
