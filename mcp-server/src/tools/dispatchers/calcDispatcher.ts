@@ -222,6 +222,9 @@ import {
 import {
   executeInventoryIntelligenceAction,
 } from "../../engines/InventoryIntelligenceEngine.js";
+import {
+  executeCostModelingAction,
+} from "../../engines/CostModelingEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -528,6 +531,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_items: result.total_items, needs_reorder: result.items_needing_reorder };
     case "inv_optimize":
       return { total_items: result.total_items, savings: result.total_savings_potential, abc_a: result.abc_summary?.A?.count, abc_b: result.abc_summary?.B?.count, abc_c: result.abc_summary?.C?.count };
+    case "cost_estimate":
+      return { part_id: result.part_id, total: result.cost_summary?.total_cost_per_part, material: result.cost_summary?.material_cost, machining: result.cost_summary?.machining_cost };
+    case "cost_breakdown":
+      return { part_id: result.part_id, total: result.total_cost, direct: result.direct_cost, indirect: result.indirect_cost };
+    case "cost_compare":
+      return { scenarios: result.total_scenarios, best: result.best_option, savings: result.savings_potential, savings_pct: result.savings_pct };
+    case "cost_whatif":
+      return { baseline_cost: result.baseline_cost, most_sensitive: result.most_sensitive };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -596,6 +607,7 @@ const ACTIONS = [
   "rpt_generate", "rpt_summary", "rpt_trend", "rpt_export",
   "tr_record", "tr_genealogy", "tr_chain", "tr_audit_trail",
   "inv_status", "inv_forecast", "inv_reorder", "inv_optimize",
+  "cost_estimate", "cost_breakdown", "cost_compare", "cost_whatif",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1854,6 +1866,14 @@ export function registerCalcDispatcher(server: any): void {
           case "inv_reorder":
           case "inv_optimize": {
             result = executeInventoryIntelligenceAction(action, params);
+            break;
+          }
+
+          case "cost_estimate":
+          case "cost_breakdown":
+          case "cost_compare":
+          case "cost_whatif": {
+            result = executeCostModelingAction(action, params);
             break;
           }
 
