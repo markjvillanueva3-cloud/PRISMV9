@@ -47,6 +47,7 @@ import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
 import { productSFC, productPPG, productShop, productACNC } from "../../engines/ProductEngine.js";
 import { executeRulesAction } from "../../engines/RulesEngine.js";
 import { executeBestPracticesAction } from "../../engines/BestPracticesEngine.js";
+import { executeSequencerAction } from "../../engines/OperationSequencerEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -309,6 +310,9 @@ const ACTIONS = [
   "spc_analysis",
   "lean_analysis",
   "troubleshoot",
+  // Operation Sequencer Engine — R13-MS3
+  "optimize_sequence_advanced",
+  "schedule_operations",
 ] as const;
 
 /**
@@ -968,6 +972,11 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { analysis_types: result.analysis_types, oee: result.oee?.oee, oee_interpretation: result.oee?.interpretation, wastes: result.wasteAnalysis?.wastesIdentified, leanScore: result.wasteAnalysis?.leanScore, sigmaLevel: result.sigmaLevel?.sigmaLevel };
     case "troubleshoot":
       return { code: result.code, message: result.message, severity: result.severity, total: result.total, keyword: result.keyword };
+    // Operation Sequencer Engine — R13-MS3
+    case "optimize_sequence_advanced":
+      return { features: result.featureCount, improvement: result.improvement, cost: result.cost, baseline: result.baselineCost, iterations: result.iterations, toolChanges: result.toolChanges, converged: result.convergence?.converged };
+    case "schedule_operations":
+      return { mode: result.mode, makespan: result.makespan, rule: result.rule, jobs: result.comparison?.length || result.schedule?.length, tardyJobs: result.numberOfTardyJobs };
     default:
       return result;
   }
@@ -1054,7 +1063,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
         const RULES_ACTIONS = ["evaluate_rules", "rule_search", "evaluate_machining_rules", "get_parameter_constraints"] as const;
         const BEST_PRACTICES_ACTIONS = ["get_best_practices", "spc_analysis", "lean_analysis", "troubleshoot"] as const;
-        const result = BEST_PRACTICES_ACTIONS.includes(action as any)
+        const SEQUENCER_ACTIONS = ["optimize_sequence_advanced", "schedule_operations"] as const;
+        const result = SEQUENCER_ACTIONS.includes(action as any)
+          ? executeSequencerAction(action, params)
+          : BEST_PRACTICES_ACTIONS.includes(action as any)
           ? executeBestPracticesAction(action, params)
           : RULES_ACTIONS.includes(action as any)
           ? executeRulesAction(action, params)
