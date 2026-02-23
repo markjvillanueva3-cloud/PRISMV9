@@ -257,6 +257,10 @@ import {
   executeKnowledgeCaptureAction,
 } from "../../engines/KnowledgeCaptureEngine.js";
 
+import {
+  executeWorkforceOptimizationAction,
+} from "../../engines/WorkforceOptimizationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -634,6 +638,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total: result.total, avg_adoption: result.summary?.avg_adoption_rate };
     case "kc_lesson":
       return { total: result.total || 1, cost_impact: result.summary?.total_cost_impact_usd, implementation_pct: result.summary?.implementation_rate_pct };
+    case "wf_schedule":
+      return { shifts: result.total_shifts, operators: result.summary?.total_available, capacity_hrs: result.summary?.total_weekly_capacity_hours, cost: result.summary?.total_weekly_labor_cost_usd };
+    case "wf_assign":
+      return { machines: result.summary?.machines_evaluated, assigned: result.summary?.fully_assigned, unassignable: result.summary?.unassignable, avg_fit: result.summary?.avg_fit_score };
+    case "wf_capacity":
+      return { utilization_pct: result.current_state?.utilization_pct, status: result.current_state?.status, bottlenecks: result.summary?.skill_bottleneck_count, weeks_to_over: result.summary?.weeks_until_over_capacity };
+    case "wf_balance":
+      return { score: result.balance_score, rating: result.rating, suggestions: result.summary?.suggestions_count, cost: result.summary?.total_weekly_labor_cost };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -711,6 +723,7 @@ const ACTIONS = [
   "op_skills", "op_certify", "op_assess", "op_matrix",
   "trn_program", "trn_progress", "trn_gap", "trn_recommend",
   "kc_capture", "kc_search", "kc_best_practice", "kc_lesson",
+  "wf_schedule", "wf_assign", "wf_capacity", "wf_balance",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2041,6 +2054,14 @@ export function registerCalcDispatcher(server: any): void {
           case "kc_best_practice":
           case "kc_lesson": {
             result = executeKnowledgeCaptureAction(action, params);
+            break;
+          }
+
+          case "wf_schedule":
+          case "wf_assign":
+          case "wf_capacity":
+          case "wf_balance": {
+            result = executeWorkforceOptimizationAction(action, params);
             break;
           }
 
