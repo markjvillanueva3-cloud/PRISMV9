@@ -204,6 +204,9 @@ import {
 import {
   executeIntegrationGatewayAction,
 } from "../../engines/IntegrationGatewayEngine.js";
+import {
+  executePredictiveMaintenanceAction,
+} from "../../engines/PredictiveMaintenanceEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -462,6 +465,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_endpoints: result.total_endpoints, schemas: result.schemas?.length ?? 0 };
     case "ig_health":
       return { overall_health: result.overall_health, total: result.endpoint_summary?.total, active: result.endpoint_summary?.active };
+    case "pm_predict_wear":
+      return { tool_id: result.prediction?.tool_id, wear_pct: result.prediction?.current_wear_pct, remaining_min: result.prediction?.predicted_remaining_min, risk: result.prediction?.risk_level };
+    case "pm_schedule":
+      return { total_tools: result.total_tools, urgency: result.urgency, immediate: result.summary?.immediate_replacements };
+    case "pm_failure_risk":
+      return { tool_id: result.failure_risk?.tool_id, probability: result.failure_risk?.failure_probability, severity: result.failure_risk?.severity, mode: result.failure_risk?.failure_mode };
+    case "pm_optimize_intervals":
+      return { optimal_wear_pct: result.optimal?.replacement_at_wear_pct, cost_per_piece: result.optimal?.cost_per_piece, recommendation: result.recommendation };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -524,6 +535,7 @@ const ACTIONS = [
   "pk_capture", "pk_retrieve", "pk_search", "pk_validate",
   "al_learn", "al_recommend", "al_evaluate", "al_history",
   "ig_register", "ig_invoke", "ig_schema", "ig_health",
+  "pm_predict_wear", "pm_schedule", "pm_failure_risk", "pm_optimize_intervals",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1734,6 +1746,14 @@ export function registerCalcDispatcher(server: any): void {
           case "ig_schema":
           case "ig_health": {
             result = executeIntegrationGatewayAction(action, params);
+            break;
+          }
+
+          case "pm_predict_wear":
+          case "pm_schedule":
+          case "pm_failure_risk":
+          case "pm_optimize_intervals": {
+            result = executePredictiveMaintenanceAction(action, params);
             break;
           }
 

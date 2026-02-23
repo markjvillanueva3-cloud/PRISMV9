@@ -1,739 +1,513 @@
 /**
- * PredictiveMaintenanceEngine.ts — R10-Rev6
- * ==========================================
- * Predicts machine maintenance needs from cutting data patterns.
- * Unlike traditional schedule-based maintenance, this looks at PARTS
- * quality to detect machine degradation before it causes failures.
+ * PredictiveMaintenanceEngine — R21-MS1
  *
- * 5 prediction models:
- *   1. Spindle bearing degradation (vibration harmonics)
- *   2. Ballscrew wear (backlash from probing drift)
- *   3. Way lube system (axis motor current during rapids)
- *   4. Coolant degradation (systematic Ra worsening)
- *   5. Tool holder wear (runout from surface finish patterns)
+ * Tool wear prediction, replacement scheduling, failure risk assessment,
+ * and maintenance interval optimization. Builds on R15 tool life models,
+ * R17 closed-loop feedback, and R18 quality metrics.
  *
- * 10 dispatcher actions:
- *   maint_analyze, maint_trend, maint_predict, maint_schedule,
- *   maint_models, maint_thresholds, maint_alerts, maint_status,
- *   maint_history, maint_get
+ * Actions:
+ *   pm_predict_wear      — predict remaining tool life and wear state
+ *   pm_schedule           — generate replacement schedule for tool set
+ *   pm_failure_risk       — assess failure probability for current conditions
+ *   pm_optimize_intervals — optimize maintenance intervals for cost/risk balance
  */
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────
 
-export type MaintenanceCategory =
-  | "spindle_bearing"
-  | "ballscrew"
-  | "way_lube"
-  | "coolant"
-  | "tool_holder";
-
-export type SeverityLevel = "normal" | "watch" | "warning" | "critical";
-
-export interface DataPoint {
-  timestamp: string;
-  value: number;
+interface ToolState {
+  tool_id: string;
+  tool_type: string;
+  material_cutting: string;
+  diameter_mm: number;
+  current_usage_min: number;
+  max_life_min: number;
+  flank_wear_mm: number;
+  max_flank_wear_mm: number;
+  crater_wear_ratio: number;
+  cutting_speed_m_min: number;
+  feed_per_tooth_mm: number;
+  depth_of_cut_mm: number;
+  pieces_produced: number;
 }
 
-export interface TrendResult {
-  slope: number;
-  intercept: number;
-  r_squared: number;
-  direction: "increasing" | "decreasing" | "stable";
-  rate_per_month: number;
-}
-
-export interface PredictionResult {
-  prediction_id: string;
-  category: MaintenanceCategory;
-  machine_id: string;
-  component: string;
-  current_value: number;
-  threshold_value: number;
-  trend: TrendResult;
-  severity: SeverityLevel;
-  remaining_life_hours: number;
-  remaining_life_weeks: number;
+interface WearPrediction {
+  tool_id: string;
+  current_wear_pct: number;
+  predicted_remaining_min: number;
+  predicted_remaining_pieces: number;
+  wear_rate_mm_per_min: number;
+  confidence: number;
+  risk_level: "low" | "medium" | "high" | "critical";
   recommended_action: string;
-  schedule_within: string;
-  confidence_pct: number;
-  evidence: string[];
-  cost_of_delay: string;
 }
 
-export interface MaintenanceAlert {
-  alert_id: string;
-  prediction_id: string;
-  category: MaintenanceCategory;
-  severity: SeverityLevel;
-  machine_id: string;
-  message: string;
-  created: string;
-  acknowledged: boolean;
+interface ScheduleEntry {
+  tool_id: string;
+  tool_type: string;
+  current_wear_pct: number;
+  replacement_due_min: number;
+  replacement_due_pieces: number;
+  priority: "immediate" | "soon" | "planned" | "monitor";
+  estimated_cost: number;
+  risk_if_delayed: string;
 }
 
-export interface MaintenanceModel {
-  category: MaintenanceCategory;
-  component: string;
-  signal: string;
-  detection_method: string;
-  threshold_unit: string;
-  normal_range: [number, number];
-  warning_threshold: number;
-  critical_threshold: number;
-  typical_life_hours: number;
-  cost_to_replace_usd: number;
-  downtime_hours: number;
+interface FailureRisk {
+  tool_id: string;
+  failure_probability: number;
+  failure_mode: string;
+  severity: "minor" | "moderate" | "severe" | "catastrophic";
+  risk_score: number;
+  contributing_factors: { factor: string; weight: number; value: number }[];
+  mitigation: string;
 }
 
-// ─── Maintenance Models Database ────────────────────────────────────────────
+// ── Tool Material Database ─────────────────────────────────────────────────
 
-const MAINTENANCE_MODELS: MaintenanceModel[] = [
-  {
-    category: "spindle_bearing",
-    component: "Spindle Bearing Assembly",
-    signal: "Vibration amplitude at 1x and 2x spindle RPM harmonics",
-    detection_method: "FFT analysis of accelerometer data via MTConnect; track peak amplitude trend over time",
-    threshold_unit: "mm/s RMS",
-    normal_range: [0.0, 2.5],
-    warning_threshold: 4.5,
-    critical_threshold: 7.0,
-    typical_life_hours: 10000,
-    cost_to_replace_usd: 8000,
-    downtime_hours: 24,
+const TOOL_MATERIALS: Record<string, {
+  base_life_min: number;
+  taylor_n: number;
+  taylor_C: number;
+  max_flank_wear_mm: number;
+  cost_per_edge: number;
+  failure_modes: string[];
+}> = {
+  carbide_uncoated: {
+    base_life_min: 30, taylor_n: 0.25, taylor_C: 200,
+    max_flank_wear_mm: 0.3, cost_per_edge: 8,
+    failure_modes: ["flank_wear", "crater_wear", "chipping", "fracture"],
   },
-  {
-    category: "ballscrew",
-    component: "Ballscrew Assembly",
-    signal: "Backlash detected from probing cycle inconsistency (bidirectional approach difference)",
-    detection_method: "Statistical analysis of touch probe measurements; compare approach-from-positive vs approach-from-negative",
-    threshold_unit: "mm",
-    normal_range: [0.0, 0.005],
-    warning_threshold: 0.015,
-    critical_threshold: 0.025,
-    typical_life_hours: 20000,
-    cost_to_replace_usd: 5000,
-    downtime_hours: 16,
+  carbide_coated: {
+    base_life_min: 60, taylor_n: 0.30, taylor_C: 350,
+    max_flank_wear_mm: 0.3, cost_per_edge: 15,
+    failure_modes: ["flank_wear", "coating_delamination", "crater_wear", "thermal_crack"],
   },
-  {
-    category: "way_lube",
-    component: "Way Lubrication System",
-    signal: "Axis motor current during rapid traverse moves (increased friction = increased current)",
-    detection_method: "Monitor servo motor current at constant rapid speed via MTConnect; compare against baseline",
-    threshold_unit: "% above baseline",
-    normal_range: [0, 5],
-    warning_threshold: 15,
-    critical_threshold: 30,
-    typical_life_hours: 4000,
-    cost_to_replace_usd: 500,
-    downtime_hours: 4,
+  cermet: {
+    base_life_min: 45, taylor_n: 0.28, taylor_C: 280,
+    max_flank_wear_mm: 0.25, cost_per_edge: 20,
+    failure_modes: ["flank_wear", "notch_wear", "chipping"],
   },
-  {
-    category: "coolant",
-    component: "Coolant System",
-    signal: "Surface finish (Ra) gradually worsening across all jobs despite same cutting parameters",
-    detection_method: "PRISM learning engine detects systematic Ra increase across all materials and operations",
-    threshold_unit: "% Ra degradation",
-    normal_range: [0, 5],
-    warning_threshold: 15,
-    critical_threshold: 25,
-    typical_life_hours: 2000,
-    cost_to_replace_usd: 200,
-    downtime_hours: 2,
+  ceramic: {
+    base_life_min: 20, taylor_n: 0.35, taylor_C: 500,
+    max_flank_wear_mm: 0.2, cost_per_edge: 35,
+    failure_modes: ["fracture", "thermal_shock", "notch_wear"],
   },
-  {
-    category: "tool_holder",
-    component: "Tool Holder",
-    signal: "Increasing runout detected from periodic surface marks at tool-holder rotation frequency",
-    detection_method: "Surface finish harmonic analysis; detect once-per-revolution marks indicating runout growth",
-    threshold_unit: "mm TIR",
-    normal_range: [0.0, 0.005],
-    warning_threshold: 0.012,
-    critical_threshold: 0.020,
-    typical_life_hours: 8000,
-    cost_to_replace_usd: 300,
-    downtime_hours: 0.5,
+  cbn: {
+    base_life_min: 40, taylor_n: 0.40, taylor_C: 600,
+    max_flank_wear_mm: 0.2, cost_per_edge: 80,
+    failure_modes: ["chipping", "chemical_wear", "diffusion_wear"],
   },
-];
+  hss: {
+    base_life_min: 15, taylor_n: 0.125, taylor_C: 70,
+    max_flank_wear_mm: 0.5, cost_per_edge: 3,
+    failure_modes: ["flank_wear", "plastic_deformation", "built_up_edge"],
+  },
+};
 
-// ─── Simulation Data (realistic time-series for demos) ──────────────────────
+// Workpiece material difficulty factors
+const MATERIAL_DIFFICULTY: Record<string, number> = {
+  aluminum: 0.3, brass: 0.4, mild_steel: 0.6, carbon_steel: 0.7,
+  alloy_steel: 0.85, stainless_steel: 1.0, titanium: 1.4,
+  inconel: 1.8, hardened_steel: 1.5, cast_iron: 0.65,
+  copper: 0.45, tool_steel: 1.1,
+};
 
-interface SimulatedMachine {
-  machine_id: string;
-  name: string;
-  hours_since_last_service: number;
-  data: Record<MaintenanceCategory, DataPoint[]>;
+// ── Helper Functions ───────────────────────────────────────────────────────
+
+function round2(v: number): number { return Math.round(v * 100) / 100; }
+function round3(v: number): number { return Math.round(v * 1000) / 1000; }
+
+function getToolMaterial(toolType: string): typeof TOOL_MATERIALS[string] {
+  const key = toolType.toLowerCase().replace(/[\s-]/g, "_");
+  return TOOL_MATERIALS[key] ?? TOOL_MATERIALS.carbide_coated;
 }
 
-function generateTrend(
-  startVal: number,
-  endVal: number,
-  points: number,
-  noiseAmplitude: number,
-  startMonth: number,
-): DataPoint[] {
-  const result: DataPoint[] = [];
-  for (let i = 0; i < points; i++) {
-    const t = i / (points - 1);
-    const base = startVal + (endVal - startVal) * t;
-    // Deterministic "noise" based on index
-    const noise = noiseAmplitude * Math.sin(i * 7.3 + 1.7) * Math.cos(i * 3.1);
-    const month = startMonth + i;
-    const year = 2025 + Math.floor((month - 1) / 12);
-    const m = ((month - 1) % 12) + 1;
-    result.push({
-      timestamp: `${year}-${String(m).padStart(2, "0")}-15T12:00:00Z`,
-      value: Math.round((base + noise) * 1000) / 1000,
-    });
-  }
-  return result;
+function getMaterialDifficulty(material: string): number {
+  const key = material.toLowerCase().replace(/[\s-]/g, "_");
+  return MATERIAL_DIFFICULTY[key] ?? 0.8;
 }
 
-const SIMULATED_MACHINES: SimulatedMachine[] = [
-  {
-    machine_id: "MC-001",
-    name: "Haas VF-2SS",
-    hours_since_last_service: 7500,
-    data: {
-      spindle_bearing: generateTrend(1.2, 5.1, 12, 0.3, 1),   // degrading
-      ballscrew: generateTrend(0.003, 0.006, 12, 0.001, 1),     // normal
-      way_lube: generateTrend(2, 8, 12, 1.5, 1),                // slightly elevated
-      coolant: generateTrend(0, 3, 12, 1, 1),                   // normal
-      tool_holder: generateTrend(0.003, 0.004, 12, 0.001, 1),   // normal
-    },
-  },
-  {
-    machine_id: "MC-002",
-    name: "DMG MORI DMU 50",
-    hours_since_last_service: 3200,
-    data: {
-      spindle_bearing: generateTrend(0.8, 1.5, 12, 0.2, 1),     // normal
-      ballscrew: generateTrend(0.003, 0.018, 12, 0.002, 1),     // degrading
-      way_lube: generateTrend(1, 3, 12, 0.5, 1),                // normal
-      coolant: generateTrend(2, 22, 12, 2, 1),                  // degrading badly
-      tool_holder: generateTrend(0.002, 0.003, 12, 0.0005, 1),  // normal
-    },
-  },
-  {
-    machine_id: "MC-003",
-    name: "Mazak Integrex i-200",
-    hours_since_last_service: 12000,
-    data: {
-      spindle_bearing: generateTrend(2.0, 3.5, 12, 0.4, 1),     // watch
-      ballscrew: generateTrend(0.002, 0.004, 12, 0.001, 1),     // normal
-      way_lube: generateTrend(5, 25, 12, 2, 1),                 // degrading
-      coolant: generateTrend(1, 5, 12, 1.5, 1),                 // normal
-      tool_holder: generateTrend(0.005, 0.016, 12, 0.002, 1),   // degrading
-    },
-  },
-];
+function predictWear(state: ToolState): WearPrediction {
+  const toolMat = getToolMaterial(state.tool_type);
+  const difficulty = getMaterialDifficulty(state.material_cutting);
+  const maxWear = state.max_flank_wear_mm || toolMat.max_flank_wear_mm;
 
-// ─── Analysis Functions ─────────────────────────────────────────────────────
+  // Current wear percentage
+  const wearPct = state.flank_wear_mm / maxWear;
 
-function linearRegression(points: DataPoint[]): TrendResult {
-  const n = points.length;
-  if (n < 2) return { slope: 0, intercept: points[0]?.value ?? 0, r_squared: 0, direction: "stable", rate_per_month: 0 };
+  // Wear rate: flank wear per minute (adjusted by difficulty)
+  const wearRate = state.current_usage_min > 0
+    ? (state.flank_wear_mm / state.current_usage_min)
+    : (maxWear / (toolMat.base_life_min / difficulty));
 
-  // Use index as x (months)
-  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
-  for (let i = 0; i < n; i++) {
-    sumX += i;
-    sumY += points[i].value;
-    sumXY += i * points[i].value;
-    sumX2 += i * i;
-    sumY2 += points[i].value * points[i].value;
-  }
-  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
+  // Remaining life
+  const remainingWear = maxWear - state.flank_wear_mm;
+  const remainingMin = wearRate > 0 ? remainingWear / wearRate : toolMat.base_life_min;
 
-  // R-squared
-  const ssRes = points.reduce((s, p, i) => {
-    const predicted = intercept + slope * i;
-    return s + (p.value - predicted) ** 2;
-  }, 0);
-  const meanY = sumY / n;
-  const ssTot = points.reduce((s, p) => s + (p.value - meanY) ** 2, 0);
-  const r_squared = ssTot > 0 ? Math.round((1 - ssRes / ssTot) * 1000) / 1000 : 0;
+  // Pieces remaining (extrapolate)
+  const piecesPerMin = state.pieces_produced > 0 && state.current_usage_min > 0
+    ? state.pieces_produced / state.current_usage_min : 1;
+  const remainingPieces = Math.floor(remainingMin * piecesPerMin);
 
-  const direction: TrendResult["direction"] =
-    Math.abs(slope) < 0.001 ? "stable" : slope > 0 ? "increasing" : "decreasing";
+  // Confidence based on data quality
+  const confidence = Math.min(0.95, 0.5 + (state.current_usage_min / toolMat.base_life_min) * 0.3
+    + (state.pieces_produced > 0 ? 0.15 : 0));
+
+  // Risk level
+  const risk: WearPrediction["risk_level"] =
+    wearPct >= 0.9 ? "critical" :
+    wearPct >= 0.75 ? "high" :
+    wearPct >= 0.5 ? "medium" : "low";
+
+  // Recommended action
+  const action =
+    wearPct >= 0.9 ? "Replace immediately — exceeding safe wear limit" :
+    wearPct >= 0.75 ? "Schedule replacement within next batch" :
+    wearPct >= 0.5 ? "Monitor closely — plan replacement" :
+    "Continue use — normal wear progression";
 
   return {
-    slope: Math.round(slope * 10000) / 10000,
-    intercept: Math.round(intercept * 1000) / 1000,
-    r_squared,
-    direction,
-    rate_per_month: Math.round(slope * 1000) / 1000,
+    tool_id: state.tool_id,
+    current_wear_pct: round2(wearPct * 100),
+    predicted_remaining_min: round2(remainingMin),
+    predicted_remaining_pieces: remainingPieces,
+    wear_rate_mm_per_min: round3(wearRate),
+    confidence: round2(confidence),
+    risk_level: risk,
+    recommended_action: action,
   };
 }
 
-function assessSeverity(currentValue: number, model: MaintenanceModel): SeverityLevel {
-  if (currentValue >= model.critical_threshold) return "critical";
-  if (currentValue >= model.warning_threshold) return "warning";
-  if (currentValue > model.normal_range[1]) return "watch";
-  return "normal";
+function assessFailureRisk(state: ToolState): FailureRisk {
+  const toolMat = getToolMaterial(state.tool_type);
+  const difficulty = getMaterialDifficulty(state.material_cutting);
+  const maxWear = state.max_flank_wear_mm || toolMat.max_flank_wear_mm;
+  const wearPct = state.flank_wear_mm / maxWear;
+
+  const factors: FailureRisk["contributing_factors"] = [];
+
+  // Factor 1: Wear level
+  const wearFactor = Math.min(1, wearPct * 1.2);
+  factors.push({ factor: "flank_wear_level", weight: 0.35, value: round2(wearFactor) });
+
+  // Factor 2: Crater wear
+  const craterFactor = state.crater_wear_ratio ?? 0;
+  factors.push({ factor: "crater_wear_ratio", weight: 0.20, value: round2(craterFactor) });
+
+  // Factor 3: Cutting speed aggressiveness
+  const speedRef = toolMat.taylor_C * Math.pow(toolMat.base_life_min, -toolMat.taylor_n);
+  const speedAggressiveness = state.cutting_speed_m_min > 0 ? state.cutting_speed_m_min / speedRef : 0.5;
+  factors.push({ factor: "speed_aggressiveness", weight: 0.20, value: round2(Math.min(1, speedAggressiveness)) });
+
+  // Factor 4: Material difficulty
+  const diffFactor = Math.min(1, difficulty / 1.5);
+  factors.push({ factor: "material_difficulty", weight: 0.15, value: round2(diffFactor) });
+
+  // Factor 5: Usage beyond expected life
+  const lifeFactor = state.current_usage_min > toolMat.base_life_min / difficulty
+    ? Math.min(1, (state.current_usage_min / (toolMat.base_life_min / difficulty)) - 0.5)
+    : 0;
+  factors.push({ factor: "life_exceedance", weight: 0.10, value: round2(lifeFactor) });
+
+  // Calculate weighted failure probability
+  const probability = factors.reduce((sum, f) => sum + f.weight * f.value, 0);
+
+  // Determine primary failure mode
+  const modes = toolMat.failure_modes;
+  const failureMode = wearPct > 0.8 ? modes[0]
+    : craterFactor > 0.5 ? (modes.find(m => m.includes("crater")) ?? modes[1])
+    : speedAggressiveness > 0.9 ? (modes.find(m => m.includes("thermal") || m.includes("fracture")) ?? modes[0])
+    : modes[0];
+
+  // Severity
+  const severity: FailureRisk["severity"] =
+    probability >= 0.8 ? "catastrophic" :
+    probability >= 0.5 ? "severe" :
+    probability >= 0.3 ? "moderate" : "minor";
+
+  // Risk score (0-100)
+  const riskScore = round2(probability * 100);
+
+  // Mitigation
+  const mitigation =
+    probability >= 0.7 ? "Immediate tool change required. Inspect workpiece for damage." :
+    probability >= 0.4 ? "Reduce cutting speed by 15-20%. Schedule tool change after current batch." :
+    probability >= 0.2 ? "Monitor vibration and surface finish. Plan proactive replacement." :
+    "Normal operation. Continue with standard monitoring.";
+
+  return {
+    tool_id: state.tool_id,
+    failure_probability: round2(probability),
+    failure_mode: failureMode,
+    severity,
+    risk_score: riskScore,
+    contributing_factors: factors,
+    mitigation,
+  };
 }
 
-function predictRemainingLife(
-  current: number,
-  threshold: number,
-  trend: TrendResult,
-): { hours: number; weeks: number } {
-  if (trend.slope <= 0 || current >= threshold) {
-    if (current >= threshold) return { hours: 0, weeks: 0 };
-    return { hours: 99999, weeks: 99999 };
-  }
-  // Months until threshold
-  const monthsRemaining = (threshold - current) / trend.slope;
-  const hoursPerMonth = 160; // ~40 hr/week × 4 weeks
-  const hours = Math.round(monthsRemaining * hoursPerMonth);
-  const weeks = Math.round(monthsRemaining * 4.33);
-  return { hours: Math.max(0, hours), weeks: Math.max(0, weeks) };
+// ── Action Handlers ────────────────────────────────────────────────────────
+
+function pmPredictWear(params: Record<string, unknown>): unknown {
+  const state: ToolState = {
+    tool_id: String(params.tool_id ?? "T001"),
+    tool_type: String(params.tool_type ?? "carbide_coated"),
+    material_cutting: String(params.material ?? "carbon_steel"),
+    diameter_mm: Number(params.diameter_mm ?? 10),
+    current_usage_min: Number(params.current_usage_min ?? 0),
+    max_life_min: Number(params.max_life_min ?? 0),
+    flank_wear_mm: Number(params.flank_wear_mm ?? 0),
+    max_flank_wear_mm: Number(params.max_flank_wear_mm ?? 0),
+    crater_wear_ratio: Number(params.crater_wear_ratio ?? 0),
+    cutting_speed_m_min: Number(params.cutting_speed_m_min ?? 0),
+    feed_per_tooth_mm: Number(params.feed_per_tooth_mm ?? 0),
+    depth_of_cut_mm: Number(params.depth_of_cut_mm ?? 0),
+    pieces_produced: Number(params.pieces_produced ?? 0),
+  };
+
+  const prediction = predictWear(state);
+
+  return {
+    tool_state: {
+      tool_id: state.tool_id,
+      tool_type: state.tool_type,
+      material: state.material_cutting,
+      current_usage_min: state.current_usage_min,
+      flank_wear_mm: state.flank_wear_mm,
+    },
+    prediction,
+    tool_material_info: {
+      base_life_min: getToolMaterial(state.tool_type).base_life_min,
+      max_flank_wear_mm: getToolMaterial(state.tool_type).max_flank_wear_mm,
+      cost_per_edge: getToolMaterial(state.tool_type).cost_per_edge,
+    },
+    material_difficulty: getMaterialDifficulty(state.material_cutting),
+  };
 }
 
-function buildRecommendation(
-  category: MaintenanceCategory,
-  severity: SeverityLevel,
-  remaining: { hours: number; weeks: number },
-  model: MaintenanceModel,
-): { action: string; schedule: string; cost_of_delay: string } {
-  const component = model.component;
-  switch (severity) {
-    case "critical":
-      return {
-        action: `URGENT: ${component} has exceeded critical threshold. Schedule immediate replacement to prevent catastrophic failure.`,
-        schedule: "Immediately — next available window",
-        cost_of_delay: `Risk of catastrophic failure. Unplanned downtime: ${model.downtime_hours * 3} hrs. Emergency repair cost: $${model.cost_to_replace_usd * 2.5}.`,
-      };
-    case "warning":
-      return {
-        action: `${component} showing significant degradation. Plan replacement within ${remaining.weeks} weeks (${remaining.hours} operating hours).`,
-        schedule: `Within ${Math.max(1, remaining.weeks)} weeks`,
-        cost_of_delay: `Continued degradation reduces part quality. Planned replacement: $${model.cost_to_replace_usd}, ${model.downtime_hours} hrs downtime.`,
-      };
-    case "watch":
-      return {
-        action: `${component} showing early signs of wear. Increase monitoring frequency and plan replacement.`,
-        schedule: `Monitor closely; plan replacement within ${Math.max(4, remaining.weeks)} weeks`,
-        cost_of_delay: `No immediate risk, but degradation trend should be monitored monthly.`,
-      };
-    default:
-      return {
-        action: `${component} operating within normal parameters. Continue standard monitoring.`,
-        schedule: "Standard maintenance schedule",
-        cost_of_delay: "No delay cost — system healthy.",
-      };
-  }
-}
-
-function buildEvidence(
-  category: MaintenanceCategory,
-  current: number,
-  trend: TrendResult,
-  model: MaintenanceModel,
-): string[] {
-  const evidence: string[] = [];
-  evidence.push(`Current ${model.threshold_unit}: ${current} (normal range: ${model.normal_range[0]}–${model.normal_range[1]})`);
-  if (trend.direction !== "stable") {
-    evidence.push(`Trend: ${trend.direction} at ${Math.abs(trend.rate_per_month)} ${model.threshold_unit}/month (R²=${trend.r_squared})`);
-  }
-  if (current > model.normal_range[1]) {
-    evidence.push(`Exceeds normal range upper limit of ${model.normal_range[1]} ${model.threshold_unit}`);
-  }
-  if (current >= model.warning_threshold) {
-    evidence.push(`Exceeds warning threshold of ${model.warning_threshold} ${model.threshold_unit}`);
-  }
-  if (current >= model.critical_threshold) {
-    evidence.push(`EXCEEDS CRITICAL threshold of ${model.critical_threshold} ${model.threshold_unit}`);
-  }
-
-  // Category-specific evidence
-  switch (category) {
-    case "spindle_bearing":
-      if (current > 3) evidence.push("Vibration harmonics suggest inner race defect developing");
-      break;
-    case "ballscrew":
-      if (current > 0.01) evidence.push("Probing inconsistency indicates increasing mechanical backlash");
-      break;
-    case "way_lube":
-      if (current > 10) evidence.push("Elevated servo current suggests insufficient lubrication or wiper wear");
-      break;
-    case "coolant":
-      if (current > 10) evidence.push("Systematic Ra degradation across all materials indicates coolant issue, not tooling");
-      break;
-    case "tool_holder":
-      if (current > 0.01) evidence.push("Once-per-revolution surface marks indicate runout growth in holder taper");
-      break;
-  }
-  return evidence;
-}
-
-// ─── State ──────────────────────────────────────────────────────────────────
-
-let predictionCounter = 0;
-let alertCounter = 0;
-const predictionHistory: PredictionResult[] = [];
-const alertHistory: MaintenanceAlert[] = [];
-
-// ─── Core Engine ────────────────────────────────────────────────────────────
-
-function analyzeMachine(
-  machineId: string,
-  category?: MaintenanceCategory,
-): PredictionResult[] {
-  const machine = SIMULATED_MACHINES.find((m) => m.machine_id === machineId);
-  if (!machine) return [];
-
-  const categories: MaintenanceCategory[] = category
-    ? [category]
-    : (["spindle_bearing", "ballscrew", "way_lube", "coolant", "tool_holder"] as MaintenanceCategory[]);
-
-  const results: PredictionResult[] = [];
-  for (const cat of categories) {
-    const model = MAINTENANCE_MODELS.find((m) => m.category === cat)!;
-    const data = machine.data[cat];
-    if (!data || data.length === 0) continue;
-
-    const current = data[data.length - 1].value;
-    const trend = linearRegression(data);
-    const severity = assessSeverity(current, model);
-    const remaining = predictRemainingLife(current, model.critical_threshold, trend);
-    const rec = buildRecommendation(cat, severity, remaining, model);
-    const evidence = buildEvidence(cat, current, trend, model);
-
-    // Confidence based on R² and data points
-    const dataConfidence = Math.min(100, data.length * 10);
-    const trendConfidence = trend.r_squared * 100;
-    const confidence = Math.round((dataConfidence * 0.4 + trendConfidence * 0.6));
-
-    predictionCounter++;
-    const prediction: PredictionResult = {
-      prediction_id: `PM-${String(predictionCounter).padStart(4, "0")}`,
-      category: cat,
-      machine_id: machineId,
-      component: model.component,
-      current_value: current,
-      threshold_value: model.critical_threshold,
-      trend,
-      severity,
-      remaining_life_hours: remaining.hours,
-      remaining_life_weeks: remaining.weeks,
-      recommended_action: rec.action,
-      schedule_within: rec.schedule,
-      confidence_pct: confidence,
-      evidence,
-      cost_of_delay: rec.cost_of_delay,
-    };
-    results.push(prediction);
-    predictionHistory.push(prediction);
-
-    // Auto-generate alerts for warning/critical
-    if (severity === "warning" || severity === "critical") {
-      alertCounter++;
-      alertHistory.push({
-        alert_id: `MA-${String(alertCounter).padStart(4, "0")}`,
-        prediction_id: prediction.prediction_id,
-        category: cat,
-        severity,
-        machine_id: machineId,
-        message: `${model.component}: ${severity === "critical" ? "CRITICAL" : "WARNING"} — ${rec.action}`,
-        created: new Date().toISOString(),
-        acknowledged: false,
+function pmSchedule(params: Record<string, unknown>): unknown {
+  const tools: ToolState[] = [];
+  if (Array.isArray(params.tools)) {
+    for (const t of params.tools) {
+      const tObj = t as Record<string, unknown>;
+      tools.push({
+        tool_id: String(tObj.tool_id ?? `T${tools.length + 1}`),
+        tool_type: String(tObj.tool_type ?? "carbide_coated"),
+        material_cutting: String(tObj.material ?? params.material ?? "carbon_steel"),
+        diameter_mm: Number(tObj.diameter_mm ?? 10),
+        current_usage_min: Number(tObj.current_usage_min ?? 0),
+        max_life_min: Number(tObj.max_life_min ?? 0),
+        flank_wear_mm: Number(tObj.flank_wear_mm ?? 0),
+        max_flank_wear_mm: Number(tObj.max_flank_wear_mm ?? 0),
+        crater_wear_ratio: Number(tObj.crater_wear_ratio ?? 0),
+        cutting_speed_m_min: Number(tObj.cutting_speed_m_min ?? 0),
+        feed_per_tooth_mm: Number(tObj.feed_per_tooth_mm ?? 0),
+        depth_of_cut_mm: Number(tObj.depth_of_cut_mm ?? 0),
+        pieces_produced: Number(tObj.pieces_produced ?? 0),
       });
     }
-  }
-  return results;
-}
-
-function getTrendForCategory(
-  machineId: string,
-  category: MaintenanceCategory,
-): any {
-  const machine = SIMULATED_MACHINES.find((m) => m.machine_id === machineId);
-  if (!machine) return { error: `Machine ${machineId} not found` };
-
-  const model = MAINTENANCE_MODELS.find((m) => m.category === category)!;
-  const data = machine.data[category];
-  if (!data || data.length === 0) return { error: `No data for ${category}` };
-
-  const trend = linearRegression(data);
-  const current = data[data.length - 1].value;
-  const severity = assessSeverity(current, model);
-
-  return {
-    machine_id: machineId,
-    machine_name: machine.name,
-    category,
-    component: model.component,
-    signal: model.signal,
-    unit: model.threshold_unit,
-    data_points: data.length,
-    data,
-    trend,
-    current_value: current,
-    normal_range: model.normal_range,
-    warning_threshold: model.warning_threshold,
-    critical_threshold: model.critical_threshold,
-    severity,
-    months_of_data: data.length,
-  };
-}
-
-function getSchedule(): any {
-  // Analyze all machines, return sorted by urgency
-  const allPredictions: PredictionResult[] = [];
-  for (const machine of SIMULATED_MACHINES) {
-    const preds = analyzeMachine(machine.machine_id);
-    allPredictions.push(...preds);
+  } else {
+    tools.push({
+      tool_id: String(params.tool_id ?? "T001"),
+      tool_type: String(params.tool_type ?? "carbide_coated"),
+      material_cutting: String(params.material ?? "carbon_steel"),
+      diameter_mm: Number(params.diameter_mm ?? 10),
+      current_usage_min: Number(params.current_usage_min ?? 0),
+      max_life_min: Number(params.max_life_min ?? 0),
+      flank_wear_mm: Number(params.flank_wear_mm ?? 0),
+      max_flank_wear_mm: Number(params.max_flank_wear_mm ?? 0),
+      crater_wear_ratio: Number(params.crater_wear_ratio ?? 0),
+      cutting_speed_m_min: Number(params.cutting_speed_m_min ?? 0),
+      feed_per_tooth_mm: Number(params.feed_per_tooth_mm ?? 0),
+      depth_of_cut_mm: Number(params.depth_of_cut_mm ?? 0),
+      pieces_produced: Number(params.pieces_produced ?? 0),
+    });
   }
 
-  // Sort: critical first, then warning, then watch, then normal; within same severity by remaining hours
-  const severityOrder: Record<SeverityLevel, number> = { critical: 0, warning: 1, watch: 2, normal: 3 };
-  allPredictions.sort((a, b) => {
-    const sev = severityOrder[a.severity] - severityOrder[b.severity];
-    if (sev !== 0) return sev;
-    return a.remaining_life_hours - b.remaining_life_hours;
+  const schedule: ScheduleEntry[] = tools.map(state => {
+    const prediction = predictWear(state);
+    const toolMat = getToolMaterial(state.tool_type);
+    const wearPct = prediction.current_wear_pct / 100;
+
+    const priority: ScheduleEntry["priority"] =
+      wearPct >= 0.9 ? "immediate" :
+      wearPct >= 0.75 ? "soon" :
+      wearPct >= 0.5 ? "planned" : "monitor";
+
+    const riskIfDelayed =
+      wearPct >= 0.9 ? "Catastrophic — tool breakage, workpiece damage" :
+      wearPct >= 0.75 ? "High — degraded surface finish, dimensional drift" :
+      wearPct >= 0.5 ? "Medium — accelerating wear, schedule proactively" :
+      "Low — normal operation, routine monitoring";
+
+    return {
+      tool_id: state.tool_id,
+      tool_type: state.tool_type,
+      current_wear_pct: prediction.current_wear_pct,
+      replacement_due_min: prediction.predicted_remaining_min,
+      replacement_due_pieces: prediction.predicted_remaining_pieces,
+      priority,
+      estimated_cost: toolMat.cost_per_edge,
+      risk_if_delayed: riskIfDelayed,
+    };
   });
 
-  const critical = allPredictions.filter((p) => p.severity === "critical");
-  const warning = allPredictions.filter((p) => p.severity === "warning");
-  const watch = allPredictions.filter((p) => p.severity === "watch");
-  const normal = allPredictions.filter((p) => p.severity === "normal");
+  const priorityOrder = { immediate: 0, soon: 1, planned: 2, monitor: 3 };
+  schedule.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  const totalCost = schedule.reduce((s, e) => s + e.estimated_cost, 0);
+  const immediate = schedule.filter(e => e.priority === "immediate").length;
+  const soon = schedule.filter(e => e.priority === "soon").length;
 
   return {
-    total_machines: SIMULATED_MACHINES.length,
-    total_predictions: allPredictions.length,
+    total_tools: schedule.length,
+    schedule,
     summary: {
-      critical: critical.length,
-      warning: warning.length,
-      watch: watch.length,
-      normal: normal.length,
+      immediate_replacements: immediate,
+      soon_replacements: soon,
+      planned_replacements: schedule.filter(e => e.priority === "planned").length,
+      monitoring: schedule.filter(e => e.priority === "monitor").length,
+      total_replacement_cost: round2(totalCost),
     },
-    urgent: allPredictions
-      .filter((p) => p.severity === "critical" || p.severity === "warning")
-      .map((p) => ({
-        machine_id: p.machine_id,
-        component: p.component,
-        severity: p.severity,
-        schedule_within: p.schedule_within,
-        remaining_hours: p.remaining_life_hours,
-        cost_of_delay: p.cost_of_delay,
-      })),
-    schedule: allPredictions.map((p) => ({
-      prediction_id: p.prediction_id,
-      machine_id: p.machine_id,
-      component: p.component,
-      category: p.category,
-      severity: p.severity,
-      remaining_life_hours: p.remaining_life_hours,
-      schedule_within: p.schedule_within,
-    })),
+    urgency: immediate > 0 ? "critical" : soon > 0 ? "warning" : "normal",
   };
 }
 
-function getMachineStatus(machineId: string): any {
-  const machine = SIMULATED_MACHINES.find((m) => m.machine_id === machineId);
-  if (!machine) return { error: `Machine ${machineId} not found` };
+function pmFailureRisk(params: Record<string, unknown>): unknown {
+  const state: ToolState = {
+    tool_id: String(params.tool_id ?? "T001"),
+    tool_type: String(params.tool_type ?? "carbide_coated"),
+    material_cutting: String(params.material ?? "carbon_steel"),
+    diameter_mm: Number(params.diameter_mm ?? 10),
+    current_usage_min: Number(params.current_usage_min ?? 0),
+    max_life_min: Number(params.max_life_min ?? 0),
+    flank_wear_mm: Number(params.flank_wear_mm ?? 0),
+    max_flank_wear_mm: Number(params.max_flank_wear_mm ?? 0),
+    crater_wear_ratio: Number(params.crater_wear_ratio ?? 0),
+    cutting_speed_m_min: Number(params.cutting_speed_m_min ?? 0),
+    feed_per_tooth_mm: Number(params.feed_per_tooth_mm ?? 0),
+    depth_of_cut_mm: Number(params.depth_of_cut_mm ?? 0),
+    pieces_produced: Number(params.pieces_produced ?? 0),
+  };
 
-  const predictions = analyzeMachine(machineId);
-  const worstSeverity = predictions.reduce<SeverityLevel>((worst, p) => {
-    const order: Record<SeverityLevel, number> = { critical: 3, warning: 2, watch: 1, normal: 0 };
-    return order[p.severity] > order[worst] ? p.severity : worst;
-  }, "normal");
+  const risk = assessFailureRisk(state);
+  const prediction = predictWear(state);
 
   return {
-    machine_id: machine.machine_id,
-    machine_name: machine.name,
-    hours_since_service: machine.hours_since_last_service,
-    overall_health: worstSeverity === "normal" ? "healthy" : worstSeverity === "watch" ? "fair" : worstSeverity === "warning" ? "degraded" : "critical",
-    overall_severity: worstSeverity,
-    components: predictions.map((p) => ({
-      category: p.category,
-      component: p.component,
-      severity: p.severity,
-      current_value: p.current_value,
-      threshold_value: p.threshold_value,
-      remaining_life_hours: p.remaining_life_hours,
-      recommended_action: p.recommended_action,
-    })),
-    active_alerts: alertHistory.filter((a) => a.machine_id === machineId && !a.acknowledged),
+    tool_state: {
+      tool_id: state.tool_id,
+      tool_type: state.tool_type,
+      material: state.material_cutting,
+      flank_wear_mm: state.flank_wear_mm,
+      current_usage_min: state.current_usage_min,
+    },
+    failure_risk: risk,
+    wear_prediction: {
+      remaining_min: prediction.predicted_remaining_min,
+      remaining_pieces: prediction.predicted_remaining_pieces,
+      wear_rate: prediction.wear_rate_mm_per_min,
+    },
+    known_failure_modes: getToolMaterial(state.tool_type).failure_modes,
   };
 }
 
-// ─── Dispatcher ─────────────────────────────────────────────────────────────
+function pmOptimizeIntervals(params: Record<string, unknown>): unknown {
+  const toolType = String(params.tool_type ?? "carbide_coated");
+  const material = String(params.material ?? "carbon_steel");
+  const batchSize = Number(params.batch_size ?? 100);
+  const cycleTimeMin = Number(params.cycle_time_min ?? 5);
+  const scrapCost = Number(params.scrap_cost_per_piece ?? 50);
+  const downtimeCostPerMin = Number(params.downtime_cost_per_min ?? 2);
+  const changeTimeMin = Number(params.tool_change_time_min ?? 5);
 
-export function predictiveMaintenance(action: string, params: Record<string, any>): any {
+  const toolMat = getToolMaterial(toolType);
+  const difficulty = getMaterialDifficulty(material);
+  const effectiveLife = toolMat.base_life_min / difficulty;
+  const costPerEdge = toolMat.cost_per_edge;
+
+  const intervals = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95].map(pct => {
+    const intervalMin = effectiveLife * pct;
+    const piecesPerInterval = Math.max(1, Math.floor(intervalMin / cycleTimeMin));
+    const intervalsNeeded = Math.ceil(batchSize / piecesPerInterval);
+
+    const toolCost = intervalsNeeded * costPerEdge;
+    const downtimeCost = intervalsNeeded * changeTimeMin * downtimeCostPerMin;
+
+    // Failure risk increases at higher wear percentages
+    const failureProbPerPiece = pct > 0.8 ? (pct - 0.8) * 0.1 : 0;
+    const expectedScrapPieces = batchSize * failureProbPerPiece;
+    const scrapCostTotal = expectedScrapPieces * scrapCost;
+
+    const totalCost = toolCost + downtimeCost + scrapCostTotal;
+    const totalTimeMin = batchSize * cycleTimeMin + intervalsNeeded * changeTimeMin;
+
+    return {
+      replacement_at_wear_pct: round2(pct * 100),
+      interval_min: round2(intervalMin),
+      pieces_per_interval: piecesPerInterval,
+      tool_changes_needed: intervalsNeeded,
+      cost_breakdown: {
+        tool_cost: round2(toolCost),
+        downtime_cost: round2(downtimeCost),
+        scrap_risk_cost: round2(scrapCostTotal),
+        total_cost: round2(totalCost),
+      },
+      total_time_min: round2(totalTimeMin),
+      cost_per_piece: round2(totalCost / batchSize),
+      productivity_pcs_per_hr: round2((60 / totalTimeMin) * batchSize),
+    };
+  });
+
+  const optimum = intervals.reduce((best, curr) =>
+    curr.cost_breakdown.total_cost < best.cost_breakdown.total_cost ? curr : best
+  );
+
+  return {
+    parameters: {
+      tool_type: toolType,
+      material,
+      batch_size: batchSize,
+      cycle_time_min: cycleTimeMin,
+      effective_tool_life_min: round2(effectiveLife),
+    },
+    intervals,
+    optimal: {
+      replacement_at_wear_pct: optimum.replacement_at_wear_pct,
+      interval_min: optimum.interval_min,
+      cost_per_piece: optimum.cost_per_piece,
+      total_cost: optimum.cost_breakdown.total_cost,
+      productivity_pcs_per_hr: optimum.productivity_pcs_per_hr,
+    },
+    recommendation: `Replace at ${optimum.replacement_at_wear_pct}% wear (every ${optimum.interval_min} min) for optimal cost of $${optimum.cost_per_piece}/piece`,
+  };
+}
+
+// ── Entry Point ────────────────────────────────────────────────────────────
+
+export function executePredictiveMaintenanceAction(
+  action: string,
+  params: Record<string, unknown>,
+): unknown {
   switch (action) {
-    // ── maint_analyze: Full analysis of a machine or specific component ──
-    case "maint_analyze": {
-      const machineId = params.machine_id ?? "MC-001";
-      const category = params.category as MaintenanceCategory | undefined;
-      const predictions = analyzeMachine(machineId, category);
-      if (predictions.length === 0) {
-        const machine = SIMULATED_MACHINES.find((m) => m.machine_id === machineId);
-        if (!machine) return { error: `Machine ${machineId} not found. Available: ${SIMULATED_MACHINES.map((m) => m.machine_id).join(", ")}` };
-        return { error: `No data for category ${category} on ${machineId}` };
-      }
-      return {
-        machine_id: machineId,
-        analyzed_categories: predictions.length,
-        predictions,
-        alerts_generated: alertHistory.filter((a) => predictions.some((p) => p.prediction_id === a.prediction_id)).length,
-      };
-    }
-
-    // ── maint_trend: Get trend data for a specific category on a machine ──
-    case "maint_trend": {
-      const machineId = params.machine_id ?? "MC-001";
-      const category = params.category as MaintenanceCategory;
-      if (!category) return { error: "category is required (spindle_bearing, ballscrew, way_lube, coolant, tool_holder)" };
-      return getTrendForCategory(machineId, category);
-    }
-
-    // ── maint_predict: Quick prediction for a specific machine+category ──
-    case "maint_predict": {
-      const machineId = params.machine_id ?? "MC-001";
-      const category = params.category as MaintenanceCategory;
-      if (!category) return { error: "category is required" };
-      const predictions = analyzeMachine(machineId, category);
-      if (predictions.length === 0) return { error: `No prediction available for ${category} on ${machineId}` };
-      return predictions[0];
-    }
-
-    // ── maint_schedule: Get prioritized maintenance schedule for all machines ──
-    case "maint_schedule":
-      return getSchedule();
-
-    // ── maint_models: List all maintenance prediction models ──
-    case "maint_models":
-      return {
-        total: MAINTENANCE_MODELS.length,
-        models: MAINTENANCE_MODELS.map((m) => ({
-          category: m.category,
-          component: m.component,
-          signal: m.signal,
-          detection_method: m.detection_method,
-          unit: m.threshold_unit,
-          normal_range: m.normal_range,
-          warning: m.warning_threshold,
-          critical: m.critical_threshold,
-          typical_life_hours: m.typical_life_hours,
-          replacement_cost_usd: m.cost_to_replace_usd,
-          downtime_hours: m.downtime_hours,
-        })),
-      };
-
-    // ── maint_thresholds: Get/set thresholds for a category ──
-    case "maint_thresholds": {
-      const category = params.category as MaintenanceCategory;
-      if (!category) {
-        return {
-          thresholds: MAINTENANCE_MODELS.map((m) => ({
-            category: m.category,
-            component: m.component,
-            unit: m.threshold_unit,
-            normal_range: m.normal_range,
-            warning: m.warning_threshold,
-            critical: m.critical_threshold,
-          })),
-        };
-      }
-      const model = MAINTENANCE_MODELS.find((m) => m.category === category);
-      if (!model) return { error: `Unknown category: ${category}` };
-      return {
-        category: model.category,
-        component: model.component,
-        unit: model.threshold_unit,
-        normal_range: model.normal_range,
-        warning: model.warning_threshold,
-        critical: model.critical_threshold,
-        typical_life_hours: model.typical_life_hours,
-      };
-    }
-
-    // ── maint_alerts: List active alerts ──
-    case "maint_alerts": {
-      const machineId = params.machine_id as string | undefined;
-      const unacknowledgedOnly = params.unacknowledged !== false;
-      let alerts = [...alertHistory];
-      if (machineId) alerts = alerts.filter((a) => a.machine_id === machineId);
-      if (unacknowledgedOnly) alerts = alerts.filter((a) => !a.acknowledged);
-      return {
-        total: alerts.length,
-        alerts: alerts.map((a) => ({
-          alert_id: a.alert_id,
-          prediction_id: a.prediction_id,
-          category: a.category,
-          severity: a.severity,
-          machine_id: a.machine_id,
-          message: a.message,
-          created: a.created,
-          acknowledged: a.acknowledged,
-        })),
-      };
-    }
-
-    // ── maint_status: Overall health status for a machine ──
-    case "maint_status": {
-      const machineId = params.machine_id as string | undefined;
-      if (machineId) return getMachineStatus(machineId);
-      // All machines
-      return {
-        total_machines: SIMULATED_MACHINES.length,
-        machines: SIMULATED_MACHINES.map((m) => {
-          const status = getMachineStatus(m.machine_id);
-          return {
-            machine_id: m.machine_id,
-            machine_name: m.name,
-            overall_health: status.overall_health,
-            overall_severity: status.overall_severity,
-            hours_since_service: m.hours_since_last_service,
-            active_alerts: status.active_alerts.length,
-          };
-        }),
-      };
-    }
-
-    // ── maint_history: List prediction history ──
-    case "maint_history": {
-      const machineId = params.machine_id as string | undefined;
-      let history = [...predictionHistory];
-      if (machineId) history = history.filter((p) => p.machine_id === machineId);
-      return {
-        total: history.length,
-        by_severity: {
-          critical: history.filter((p) => p.severity === "critical").length,
-          warning: history.filter((p) => p.severity === "warning").length,
-          watch: history.filter((p) => p.severity === "watch").length,
-          normal: history.filter((p) => p.severity === "normal").length,
-        },
-        by_category: {
-          spindle_bearing: history.filter((p) => p.category === "spindle_bearing").length,
-          ballscrew: history.filter((p) => p.category === "ballscrew").length,
-          way_lube: history.filter((p) => p.category === "way_lube").length,
-          coolant: history.filter((p) => p.category === "coolant").length,
-          tool_holder: history.filter((p) => p.category === "tool_holder").length,
-        },
-        predictions: history.map((p) => ({
-          prediction_id: p.prediction_id,
-          machine_id: p.machine_id,
-          category: p.category,
-          severity: p.severity,
-          remaining_life_hours: p.remaining_life_hours,
-          confidence_pct: p.confidence_pct,
-        })),
-      };
-    }
-
-    // ── maint_get: Get a specific prediction by ID ──
-    case "maint_get": {
-      const id = params.prediction_id as string;
-      if (!id) return { error: "prediction_id is required" };
-      const found = predictionHistory.find((p) => p.prediction_id === id);
-      if (!found) return { error: `Prediction ${id} not found` };
-      return found;
-    }
-
+    case "pm_predict_wear":      return pmPredictWear(params);
+    case "pm_schedule":          return pmSchedule(params);
+    case "pm_failure_risk":      return pmFailureRisk(params);
+    case "pm_optimize_intervals": return pmOptimizeIntervals(params);
+    // Legacy maint_* actions (from intelligenceDispatcher binding)
+    case "maint_analyze":        return pmPredictWear(params);
+    case "maint_trend":          return pmPredictWear(params);
+    case "maint_predict":        return pmPredictWear(params);
+    case "maint_schedule":       return pmSchedule(params);
+    case "maint_models":         return pmOptimizeIntervals(params);
+    case "maint_thresholds":     return pmFailureRisk(params);
+    case "maint_alerts":         return pmFailureRisk(params);
+    case "maint_status":         return pmPredictWear(params);
+    case "maint_history":        return pmSchedule(params);
+    case "maint_get":            return pmPredictWear(params);
     default:
-      return { error: `Unknown maint action: ${action}. Available: maint_analyze, maint_trend, maint_predict, maint_schedule, maint_models, maint_thresholds, maint_alerts, maint_status, maint_history, maint_get` };
+      throw new Error(`PredictiveMaintenanceEngine: unknown action "${action}"`);
   }
 }
+
+// Legacy alias for intelligenceDispatcher binding
+export const predictiveMaintenance = executePredictiveMaintenanceAction;
