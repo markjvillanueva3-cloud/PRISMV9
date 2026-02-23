@@ -334,6 +334,9 @@ import {
 import {
   executeGageRRAction,
 } from "../../engines/GageRREngine.js";
+import {
+  executeInspectionPlanAction,
+} from "../../engines/InspectionPlanEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -896,6 +899,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { expanded_u: result.expanded_uncertainty_k2, dominant: result.dominant_source, confidence: result.confidence_level };
     case "grr_linearity":
       return { r_squared: result.regression?.r_squared, acceptable: result.linearity_acceptable, max_bias: result.max_bias };
+    case "insp_plan":
+      return { plans: result.total_plans, characteristics: result.plans?.[0]?.summary?.total_characteristics, critical: result.plans?.[0]?.summary?.critical };
+    case "insp_sample":
+      return { sample_size: result.sampling_plan?.sample_size, accept: result.sampling_plan?.accept_number, skip_eligible: result.skip_lot?.eligible };
+    case "insp_fai":
+      return { reports: result.total_reports, approved: result.summary?.approved, conditional: result.summary?.conditional };
+    case "insp_dimension":
+      return { dimensions: result.summary?.total_dimensions, critical: result.summary?.critical, all_pass: result.summary?.all_in_tolerance };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -996,6 +1007,7 @@ const ACTIONS = [
   "lean_oee", "lean_fty", "lean_waste", "lean_kpi",
   "cal_schedule", "cal_cert", "cal_recall", "cal_trace",
   "grr_study", "grr_msa", "grr_uncertainty", "grr_linearity",
+  "insp_plan", "insp_sample", "insp_fai", "insp_dimension",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -2510,6 +2522,14 @@ export function registerCalcDispatcher(server: any): void {
           case "grr_uncertainty":
           case "grr_linearity": {
             result = executeGageRRAction(action, params);
+            break;
+          }
+
+          case "insp_plan":
+          case "insp_sample":
+          case "insp_fai":
+          case "insp_dimension": {
+            result = executeInspectionPlanAction(action, params);
             break;
           }
 
