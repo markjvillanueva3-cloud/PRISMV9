@@ -151,6 +151,10 @@ import {
   executeProcessDriftAction,
 } from "../../engines/ProcessDriftEngine.js";
 
+import {
+  executeModelCalibrationAction,
+} from "../../engines/ModelCalibrationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -296,6 +300,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { in_control: result.in_control, trend: result.trend, ooc_points: result.out_of_control?.length, lambda: result.lambda };
     case "spc_capability":
       return { cp: result.cp, cpk: result.cpk, pp: result.pp, ppk: result.ppk, rating: result.capability_rating, sigma: result.sigma_level, ppm: result.ppm_total };
+    case "cal_update":
+      return { parameter: result.parameter, shift: result.shift, shift_pct: result.shift_pct, confidence_gain: result.confidence_improvement, updates: result.n_updates };
+    case "cal_status":
+      return { calibrated: result.calibrated, total: result.total_parameters, updates: result.total_updates };
+    case "cal_reset":
+      return { reset: result.reset ?? result.reset_all, count: result.parameters_reset };
+    case "cal_validate":
+      return { improvement_pct: result.improvement_pct, effective: result.effective, mae_before: result.before_calibration?.mae, mae_after: result.after_calibration?.mae };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -344,6 +356,7 @@ const ACTIONS = [
   "sensitivity_1d", "sensitivity_2d", "sensitivity_pareto", "sensitivity_montecarlo",
   "mfb_record", "mfb_compare", "mfb_error_stats", "mfb_correction",
   "spc_xbar_r", "spc_cusum", "spc_ewma", "spc_capability",
+  "cal_update", "cal_status", "cal_reset", "cal_validate",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1442,6 +1455,14 @@ export function registerCalcDispatcher(server: any): void {
           case "spc_ewma":
           case "spc_capability": {
             result = executeProcessDriftAction(action, params);
+            break;
+          }
+
+          case "cal_update":
+          case "cal_status":
+          case "cal_reset":
+          case "cal_validate": {
+            result = executeModelCalibrationAction(action, params);
             break;
           }
 
