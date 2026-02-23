@@ -1,5 +1,5 @@
 # PHASE R21: PREDICTIVE MAINTENANCE & ASSET INTELLIGENCE
-## Status: in-progress | MS0 IN PROGRESS
+## Status: COMPLETE | MS0-MS6 ALL PASS
 
 ### Phase Vision
 
@@ -48,7 +48,39 @@ R21 new engines:
 | ReportingEngine (NEW) | rpt_generate, rpt_summary, rpt_trend, rpt_export |
 | CCELiteEngine (ext) | 2 new recipes: predictive_maintenance, asset_health_report |
 
-### MS0 Deliverables
-1. Phase architecture defined (this document)
-2. Engine capabilities mapped to R15-R20 data sources
-3. Milestone dependencies mapped
+### Gate Pass Details
+
+| MS | Commit | Lines | Notes |
+|----|--------|-------|-------|
+| MS0 | `aab7425` | 55 | Phase architecture document |
+| MS1 | `ad32c60` | 513 | PredictiveMaintenanceEngine (513 lines) + dispatcher wiring + legacy compat |
+| MS2 | `6b78d77` | 482 | AssetHealthEngine (482 lines) + dispatcher wiring |
+| MS3 | `8090012` | 474 | ShopFloorAnalyticsEngine (474 lines) + dispatcher wiring |
+| MS4 | `a5e7ff7` | 614 | ReportingEngine (614 lines) + dispatcher wiring |
+| MS5 | `e094433` | 135 | 2 CCE recipes (predictive_maintenance, asset_health_report) |
+| MS6 | — | — | Phase gate verification (this update) |
+
+**Totals:** 4 new engines, 2,083 engine lines, 16 new actions, 2 CCE recipes
+**Diff:** ~2,400 insertions across 7 files
+**Build:** 5.5 MB / 144-165 ms | **Tests:** 9/9 suites, 74/74 assertions
+
+### Engine Summary
+
+| Engine | File | Lines | Actions |
+|--------|------|-------|---------|
+| PredictiveMaintenanceEngine | `engines/PredictiveMaintenanceEngine.ts` | 513 | pm_predict_wear, pm_schedule, pm_failure_risk, pm_optimize_intervals |
+| AssetHealthEngine | `engines/AssetHealthEngine.ts` | 482 | ah_score, ah_degradation, ah_maintenance_plan, ah_compare |
+| ShopFloorAnalyticsEngine | `engines/ShopFloorAnalyticsEngine.ts` | 474 | sf_oee, sf_utilization, sf_bottleneck, sf_capacity |
+| ReportingEngine | `engines/ReportingEngine.ts` | 614 | rpt_generate, rpt_summary, rpt_trend, rpt_export |
+
+### Key Technical Features
+
+- **Predictive Maintenance:** Taylor-based tool life prediction across 6 tool materials and 12 workpiece materials, multi-factor failure risk assessment (5 weighted factors), fleet scheduling with priority sorting, maintenance interval optimization with cost/scrap/downtime trade-off analysis
+- **Asset Health:** 5 machine type databases (cnc_3axis, cnc_5axis, cnc_lathe, cnc_grinder, cnc_edm), 6 subsystem evaluators (spindle, axes, coolant, electrical, hydraulic, enclosure) with weighted scoring, degradation trend simulation with remaining useful life prediction, fleet comparison
+- **Shop Floor Analytics:** OEE calculation (availability × performance × quality) with six big losses breakdown, machine utilization tracking with SMED recommendations, production line bottleneck detection with balance efficiency, capacity planning with demand forecasting and linear extrapolation
+- **Reporting:** Multi-section structured reports (maintenance, production, quality, executive), executive summary with KPIs and alerts, trend analysis with linear regression and 3-period forecast, multi-format export (JSON, CSV, Markdown, HTML)
+
+### CCE Recipes Added
+
+1. **predictive_maintenance** (HIGH priority): pm_predict_wear + pm_failure_risk (parallel) → pm_schedule → rpt_generate
+2. **asset_health_report** (STANDARD priority): ah_score + ah_degradation (parallel) → ah_maintenance_plan → rpt_export
