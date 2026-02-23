@@ -241,6 +241,10 @@ import {
   executeSustainabilityMetricsAction,
 } from "../../engines/SustainabilityMetricsEngine.js";
 
+import {
+  executeResourceOptimizationAction,
+} from "../../engines/ResourceOptimizationEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -586,6 +590,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { total_m3: result.summary?.total_intake_m3, recycled_m3: result.summary?.recycled_recirculated_m3, cost: result.summary?.total_cost_usd };
     case "sus_kpi":
       return { score: result.overall?.sustainability_score, rating: result.overall?.rating, on_target: result.overall?.kpis_on_target, total: result.overall?.total_kpis };
+    case "res_optimize":
+      return { energy_saving_pct: result.savings?.energy_pct, co2_saving_pct: result.savings?.co2_pct, cost_saving_pct: result.savings?.cost_pct };
+    case "res_allocate":
+      return { jobs: result.summary?.jobs_allocated, utilization: result.summary?.utilization_pct, energy_kwh: result.summary?.total_energy_kwh };
+    case "res_green":
+      return { recommendations: result.summary?.recommendations_count, co2_reduction_pct: result.summary?.total_co2_reduction_pct, quick_wins: result.summary?.quick_wins };
+    case "res_comply":
+      return { standards: result.summary?.standards_assessed, certified: result.summary?.certified, avg_compliance: result.summary?.avg_compliance_pct, gaps: result.summary?.total_gaps };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -659,6 +671,7 @@ const ACTIONS = [
   "en_consumption", "en_profile", "en_demand", "en_benchmark",
   "co2_calculate", "co2_lifecycle", "co2_reduce", "co2_report",
   "sus_waste", "sus_recycle", "sus_water", "sus_kpi",
+  "res_optimize", "res_allocate", "res_green", "res_comply",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend"
 ] as const;
@@ -1957,6 +1970,14 @@ export function registerCalcDispatcher(server: any): void {
           case "sus_water":
           case "sus_kpi": {
             result = executeSustainabilityMetricsAction(action, params);
+            break;
+          }
+
+          case "res_optimize":
+          case "res_allocate":
+          case "res_green":
+          case "res_comply": {
+            result = executeResourceOptimizationAction(action, params);
             break;
           }
 
