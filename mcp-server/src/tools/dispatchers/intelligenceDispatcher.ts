@@ -49,6 +49,7 @@ import { executeRulesAction } from "../../engines/RulesEngine.js";
 import { executeBestPracticesAction } from "../../engines/BestPracticesEngine.js";
 import { executeSequencerAction } from "../../engines/OperationSequencerEngine.js";
 import { executeToolSelectorAction } from "../../engines/ToolSelectorEngine.js";
+import { executeConstraintAction } from "../../engines/ConstraintEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 
 const ACTIONS = [
@@ -317,6 +318,9 @@ const ACTIONS = [
   // Tool Selector Engine — R13-MS4
   "select_optimal_tool",
   "score_tool_candidates",
+  // Constraint Engine — R13-MS5
+  "apply_constraints",
+  "check_feasibility",
 ] as const;
 
 /**
@@ -986,6 +990,11 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { tool: result.tool?.name || result.tool?.type, diameter: result.tool?.diameter, rpm: result.parameters?.rpm, feed: result.parameters?.feedRate, confidence: result.confidence, material: result.material?.category };
     case "score_tool_candidates":
       return { total: result.total, topTool: result.topTool, topScore: result.topScore, operation: result.operation, material: result.material };
+    // Constraint Engine — R13-MS5
+    case "apply_constraints":
+      return { rpm_max: result.rpm?.max, feed_max: result.feed?.max, doc_max: result.doc?.max, woc_max: result.woc?.max, rigidity: result.compositeRigidity, sources: result.activeSources?.length, thinWall: result.thinWallMode };
+    case "check_feasibility":
+      return { feasible: result.feasible, violations: result.violations?.length, rigidity: result.compositeRigidity, sources: result.activeSources?.length, recommendations: result.recommendations?.length };
     default:
       return result;
   }
@@ -1074,7 +1083,10 @@ export function registerIntelligenceDispatcher(server: any): void {
         const BEST_PRACTICES_ACTIONS = ["get_best_practices", "spc_analysis", "lean_analysis", "troubleshoot"] as const;
         const SEQUENCER_ACTIONS = ["optimize_sequence_advanced", "schedule_operations"] as const;
         const TOOL_SELECTOR_ACTIONS = ["select_optimal_tool", "score_tool_candidates"] as const;
-        const result = TOOL_SELECTOR_ACTIONS.includes(action as any)
+        const CONSTRAINT_ACTIONS = ["apply_constraints", "check_feasibility"] as const;
+        const result = CONSTRAINT_ACTIONS.includes(action as any)
+          ? executeConstraintAction(action, params)
+          : TOOL_SELECTOR_ACTIONS.includes(action as any)
           ? executeToolSelectorAction(action, params)
           : SEQUENCER_ACTIONS.includes(action as any)
           ? executeSequencerAction(action, params)
