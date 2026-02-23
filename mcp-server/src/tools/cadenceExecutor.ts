@@ -886,7 +886,6 @@ export function autoWarmStartData(): WarmStartResult {
     const registryPaths: Record<string, string[]> = {
       materials: [
         path.join(dataRoot, "materials"),
-        path.join(dataRoot, "materials_consolidated"),
       ],
       machines: [
         path.join(dataRoot, "machines"),

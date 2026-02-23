@@ -1,29 +1,29 @@
 {
-  "version": "24.0.0",
-  "lastUpdated": "2026-02-22T22:50:00.000Z",
+  "version": "25.0.0",
+  "lastUpdated": "2026-02-23T10:28:00.000Z",
   "currentSession": {
-    "id": "COMPREHENSIVE-AUDIT",
+    "id": "POST-R32-REORG",
     "status": "COMPLETE",
-    "phase": "POST-R11-AUDIT",
+    "phase": "POST-R32-REORG",
     "progress": {
       "toolCalls": 0,
       "zone": "GREEN",
-      "omega_score": 0.85
+      "omega_score": 0.90
     }
   },
   "system": {
-    "dispatchers": 32,
-    "actions": "382+",
-    "engines": 73,
+    "dispatchers": 33,
+    "actions": "388+",
+    "engines": 76,
     "registries": 9,
     "skills": 230,
     "skillBundles": 9,
     "nlHooks": 9,
     "builtInHooks": 27,
     "cadenceFunctions": 40,
-    "build_size": "5.6MB",
-    "build_warnings": 1,
-    "tests_vitest": "73/74",
+    "build_size": "6.3MB",
+    "build_warnings": 0,
+    "tests_vitest": "74/74",
     "tests_standalone": "53 files (~3900+ tests)"
   },
   "phases": {
@@ -39,12 +39,14 @@
     "R8": "COMPLETE (~1100 tests)",
     "R9": "COMPLETE (487/487 tests)",
     "R10": "COMPLETE (1617/1617 tests)",
-    "R11": "COMPLETE (814/814 tests)"
+    "R11": "COMPLETE (814/814 tests)",
+    "R12-R32": "COMPLETE (21 phases, 76 engines total)",
+    "REORG": "COMPLETE (7 batches, ~700 files archived)"
   },
   "audit": {
-    "date": "2026-02-22",
-    "result": "100% engine wiring verified",
-    "findings": "4/5 critical gaps were false alarms, all medium gaps fixed",
-    "report": "state/COMPREHENSIVE_WIRING_AUDIT.md"
+    "date": "2026-02-23",
+    "result": "Full restructure + constants validation",
+    "findings": "165 root files, 308 state temps, 7 material dirs, 5 skill dirs archived",
+    "report": "state/GAP_INDEX_REPORT.md"
   }
 }
