@@ -166,7 +166,7 @@ prism_data→material_get → prism_calc→[calculation] → prism_safety→[val
 ### 3.6 Thread Calculation
 prism_thread→get_thread_specifications → prism_thread→calculate_tap_drill → prism_thread→generate_thread_gcode → prism_safety→check_chip_load_limits
 
-### 3.7 Toolpath Strategy
+### 3.99 Toolpath Strategy
 prism_data→material_get → prism_toolpath→strategy_select → prism_toolpath→params_calculate → prism_calc→speed_feed → prism_safety→[validation]
 
 ### 3.8 Alarm Investigation
@@ -414,3 +414,76 @@ Total skill files: 119
 | F6 NL Hooks | NLHookEngine.ts | prism_nl_hook | ~0.91 |
 | F7 Protocol Bridge | ProtocolBridgeEngine.ts | prism_bridge | 0.892 |
 | F8 Compliance | ComplianceEngine.ts | prism_compliance | 0.912 |
+
+---
+
+## RGS — Roadmap Generation System Deliverables
+
+*Added: 2026-02-25 | Phase: R0-P5 Integration*
+
+### Schemas
+| File | Description | Lines |
+|------|-------------|-------|
+| `mcp-server/src/schemas/roadmapSchema.ts` | Zod schemas for RGS: Unit, Phase, Gate, Envelope, Step, Deliverable, ToolRef, ScrutinyConfig | 501 |
+
+### Skills (4 new)
+| Skill ID | Location | Description |
+|----------|----------|-------------|
+| `prism-roadmap-schema` | `skills-consolidated/prism-roadmap-schema/` | Canonical roadmap schema reference — field tables, anti-patterns |
+| `prism-roadmap-generator` | `skills-consolidated/prism-roadmap-generator/` | 7-stage roadmap generation pipeline — intake to output |
+| `prism-roadmap-scrutinizer` | `skills-consolidated/prism-roadmap-scrutinizer/` | 12-category gap analysis + adaptive improvement loops |
+| `prism-roadmap-atomizer` | `skills-consolidated/prism-roadmap-atomizer/` | Phase-to-unit decomposition rules + heuristics |
+| `prism-roadmap-runner` | `skills-consolidated/prism-roadmap-runner/` | v2.0 — RGS-aware multi-roadmap execution runner |
+
+### Scripts (3 new)
+| File | Description | Lines |
+|------|-------------|-------|
+| `mcp-server/src/scripts/generate-roadmap.ts` | Programmatic 7-stage pipeline with Kahn's topo sort | 1062 |
+| `mcp-server/src/scripts/scrutinize-roadmap.ts` | 12 checkers + scoring + adaptive convergence loop | ~530 |
+| `mcp-server/src/scripts/index-roadmap-outputs.ts` | Retroactive deliverable indexer — scan, group, find orphans | 201 |
+
+### Hooks (2 new)
+| File | Event | Description |
+|------|-------|-------------|
+| `mcp-server/src/hooks/pre-roadmap-execute.ts` | `roadmap.unit.pre_execute` | Entry validation — conditions, deps, tools, skills, status |
+| `mcp-server/src/hooks/post-roadmap-unit.ts` | `roadmap.unit.post_complete` | Position update, deliverable indexing, gate check, checkpoint |
+
+### Commands (3 new/upgraded)
+| Command | File | Description |
+|---------|------|-------------|
+| `/generate-roadmap` | `.claude/commands/generate-roadmap.md` | Generate RGS-format roadmap from brief |
+| `/scrutinize` | `.claude/commands/scrutinize.md` | Run 12-category scrutinization on a roadmap |
+| `/continue-roadmap` | `.claude/commands/continue-roadmap.md` | Execute next unit with pre/post hooks |
+
+### Templates
+| File | Description |
+|------|-------------|
+| `mcp-server/data/templates/roadmap-exemplar.md` | Golden exemplar roadmap (few-shot reference) |
+| `mcp-server/data/templates/roadmap-exemplar.json` | JSON exemplar for programmatic validation |
+| `mcp-server/data/templates/rgs-prompts/stage1-brief-analysis.md` | Stage 1 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage2-codebase-audit.md` | Stage 2 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage3-scope-estimation.md` | Stage 3 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage4-phase-decomposition.md` | Stage 4 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage5-unit-population.md` | Stage 5 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage6-dependency-resolution.md` | Stage 6 prompt template |
+| `mcp-server/data/templates/rgs-prompts/stage7-output-formatting.md` | Stage 7 prompt template |
+| `mcp-server/data/templates/rgs-prompts/master-generator.md` | Master orchestration prompt |
+
+### Tests
+| File | Tests | Description |
+|------|-------|-------------|
+| `mcp-server/src/__tests__/scrutinize-roadmap.test.ts` | 21 | 12 checkers, scoring, auto-fix, adaptive loop |
+| `mcp-server/src/__tests__/roadmap-hooks.test.ts` | 16 | Pre-execute (6), post-unit (8), chain integration (2) |
+
+### State Files
+| File | Description |
+|------|-------------|
+| `mcp-server/data/state/RGS/position.json` | RGS roadmap position tracker |
+| `mcp-server/data/state/RGS/scrutiny-log.json` | RGS scrutinization audit trail |
+
+### Architecture Documents
+| File | Description | Lines |
+|------|-------------|-------|
+| `mcp-server/data/docs/RGS_PIPELINE_ARCHITECTURE.md` | 7-stage pipeline design with typed contracts | 268 |
+
+**Totals: 5 skills, 3 scripts, 2 hooks, 3 commands, 10 templates, 2 tests (37 cases), 1 schema, 2 state files, 1 architecture doc = 29 deliverables**
