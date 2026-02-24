@@ -1,9 +1,9 @@
 # CURRENT POSITION
-## Updated: 2026-02-25T06:35:00Z
+## Updated: 2026-02-25T06:50:00Z
 
-**Phase:** R0-P1 Canonical Schema COMPLETE (3 units + gate, all deliverables verified)
+**Phase:** R0-P2 Generator Core COMPLETE (6 units + gate, all deliverables verified)
 **Build:** 5.1MB server (esbuild clean, 1 warning — CommonJS only)
-**Roadmap:** Master Roadmap — R0-P0 COMPLETE, R0-P1 COMPLETE, R0-P2 next
+**Roadmap:** Master Roadmap — R0-P0 COMPLETE, R0-P1 COMPLETE, R0-P2 COMPLETE, R0-P3 next
 **Tests:** 74/74 vitest pass
 **Dispatchers:** 32 (541 verified actions) — 100% wired, 100% hook-wrapped
 **Engines:** 73 total (74 files incl. index.ts), all barrel-exported, zero orphans
@@ -56,6 +56,18 @@
 - [x] P1-U01: roadmapSchema.ts — 501 lines, 11 Zod schemas, 5 enums, factory functions
 - [x] P1-U02: roadmap-exemplar.md (280 lines) + .json (validates against RoadmapEnvelope)
 - [x] P1-U03: prism-roadmap-schema skill (SKILL.md + metadata.json)
+- [x] Build passes (5.1MB, 1 warning)
+- [x] Tests pass (74/74, no regression)
+- [x] Omega = 1.0 (all components at 1.0)
+- [x] Anti-regression: all existing tests pass, no orphans introduced
+
+## P2 Gate Criteria (Generator Core)
+- [x] P2-U01: RGS_PIPELINE_ARCHITECTURE.md (268 lines, 7-stage design)
+- [x] P2-U02: 8 prompt templates in rgs-prompts/ (1,165 lines total)
+- [x] P2-U03: prism-roadmap-generator skill (308 lines SKILL.md + metadata.json)
+- [x] P2-U04: prism-roadmap-atomizer skill (211 lines SKILL.md + metadata.json)
+- [x] P2-U05: generate-roadmap.ts (1,062 lines, 7-stage pipeline + Kahn's topo sort)
+- [x] P2-U06: /generate-roadmap slash command (43 lines)
 - [x] Build passes (5.1MB, 1 warning)
 - [x] Tests pass (74/74, no regression)
 - [x] Omega = 1.0 (all components at 1.0)
