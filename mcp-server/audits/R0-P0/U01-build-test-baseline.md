@@ -47,10 +47,29 @@
 
 **Warning:** CommonJS `exports` variable in ESM context (`dist/tools/registryBootstrapper.js:12`). The file uses `exports.bootstrapRegistries` but `package.json` sets `"type": "module"`.
 
-### 2.3 tsc with 16GB Heap — PENDING
+### 2.3 tsc with 16GB Heap — COMPLETED WITH ERRORS
 
 **Command:** `node --max-old-space-size=16384 node_modules/typescript/bin/tsc --noEmit`
-**Result:** Running in background at time of initial report. Will be updated when complete.
+**Result:** Completed. **28 type errors across 11 files.** tsc does NOT pass clean.
+
+**Error Summary:**
+
+| File | Errors | Nature |
+|------|--------|--------|
+| skillScriptDispatcher.ts | 4 | Missing properties (cache, usage, top_used), type mismatch |
+| spDispatcher.ts | 3 | Wrong arg count, missing .map property, missing crossQuery method |
+| telemetryDispatcher.ts | 2 | Deep type instantiation, Zod schema overload mismatch |
+| tenantDispatcher.ts | 2 | Deep type instantiation, Zod schema overload mismatch |
+| threadDispatcher.ts | 1 | Missing shorthand property value |
+| toolpathDispatcher.ts | 6 | Record<string,any> not assignable to typed params |
+| validationDispatcher.ts | 1 | Wrong arg count |
+| synergyIntegration.ts | 2 | Missing .certify and .recordExecution methods |
+| formatters.ts | 1 | Spread types from non-object |
+| smokeTest.ts | 4 | Missing module imports (SpeedFeedEngine, ThreadEngine, ToolpathEngine), missing .total property |
+| validators.ts | 2 | number\|undefined not assignable to number |
+| **Total** | **28** | |
+
+**Implication:** esbuild silently ignores all type errors. The codebase has 28 known type safety issues that could cause runtime failures.
 
 ---
 
