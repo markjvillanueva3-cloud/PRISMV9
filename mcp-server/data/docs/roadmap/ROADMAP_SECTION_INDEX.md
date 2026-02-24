@@ -585,3 +585,43 @@
 | PHASE_R14_PRODUCTS.md | r14_effort_summary | 1010 | EFFORT SUMMARY |
 
 **Total entries: 576 (57 R12/R13/R14 entries — +2 from audit validation: T6 Doc Sync, T7 State Cleanup)**
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_enhance_integrate_wire_full_manufacturing_intelligence_to_app | 6 | Enhance MCP, Integrate ALL Monolith, Wire PRISM App |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_quick_reference | 15 | QUICK REFERENCE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_extraction_inventory | 31 | MONOLITH EXTRACTION INVENTORY |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_knowledge_contributions | 100 | KNOWLEDGE CONTRIBUTIONS |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_execution_model | 115 | EXECUTION MODEL |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_phase_objective | 148 | PHASE OBJECTIVE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_dependency_map | 185 | DEPENDENCY MAP |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_context_bridge | 200 | CONTEXT BRIDGE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_fault_injection_test | 228 | FAULT INJECTION TEST |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ralph_validator_map | 240 | Ralph Validator Map |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_task_dag | 256 | R15 Task DAG |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms0 | 272 | MS0: Full Extraction Inventory + Gap Matrix |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms1 | 320 | MS1: Wave 3+4 Classification + Registry Expansion |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms2 | 370 | MS2: Post Processor + Optimization + Business Wiring |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms3 | 400 | MS3: Physics + Thermal + Vibration Critical Wiring |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms4 | 430 | MS4: New Skills + Scripts + Hooks + Engines |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms5 | 460 | MS5: Cadence + Hook + Telemetry Enhancement |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms6 | 486 | MS6: GSD Enhancement → v23.0 |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms7 | 504 | MS7: Memory + Context + Token Optimization |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms8 | 520 | MS8: PRISM App — Bridge + REST + WebSocket + Pages |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms9 | 580 | MS9: Phase Gate |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_effort_summary | 610 | EFFORT SUMMARY |
+
+**Total entries: 598 (576 + 22 R15 entries)**
+
+---
+
+## Active Roadmaps
+
+| Roadmap ID | File | Units | Status | Position File |
+|------------|------|-------|--------|---------------|
+| RGS | RGS-roadmap-generation-system.md | 46 | P5 IN_PROGRESS | data/state/RGS/position.json |
+
+### RGS — Roadmap Generation System
+
+- **File:** `RGS-roadmap-generation-system.md`
+- **Source:** `C:\Users\Admin.DIGITALSTORM-PC\Downloads\RGS-roadmap-generation-system.md`
+- **Description:** META — Roadmap Generation System (schema, generator, scrutinizer, atomizer, hooks, runner)
+- **Status:** P5 IN_PROGRESS (P0-P4 complete, 34/46 units done)
+- **Position:** `data/state/RGS/position.json`
