@@ -134,7 +134,7 @@ export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
   source_dir: string;
   category: string;
   lines: number;
-  safety_class: "MEDIUM";
+  safety_class: "MEDIUM" | "LOW";
   description: string;
 }> = {
   PRISM_TOOL_LIFE_ENGINE: {
@@ -232,6 +232,56 @@ export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
     lines: 357,
     safety_class: "MEDIUM",
     description: "Complete tool type taxonomy — type definitions, classification hierarchy, and attribute schemas for all supported cutting tool families.",
+  },
+
+  // --- LOW priority: Manufacturer catalog data files (P-MS5 Wave 3) ---
+  PRISM_CATALOG_FINAL: {
+    filename: "PRISM_CATALOG_FINAL.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 911,
+    safety_class: "LOW",
+    description: "Final consolidated tool catalog — unified product listing across manufacturers with normalized attributes.",
+  },
+  PRISM_FINAL_CATALOG_GATEWAY: {
+    filename: "PRISM_FINAL_CATALOG_GATEWAY.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 424,
+    safety_class: "LOW",
+    description: "Catalog gateway — routing and adapter layer for multi-vendor tool catalog queries.",
+  },
+  PRISM_MAJOR_MANUFACTURERS_CATALOG: {
+    filename: "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1940,
+    safety_class: "LOW",
+    description: "Major manufacturers catalog — Sandvik, Kennametal, Walter, Iscar, Seco product data with geometry and cutting parameters.",
+  },
+  PRISM_MANUFACTURER_CATALOG_CONSOLIDATED: {
+    filename: "PRISM_MANUFACTURER_CATALOG_CONSOLIDATED.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1009,
+    safety_class: "LOW",
+    description: "Consolidated manufacturer catalog — deduplicated and merged product lines across vendor sources.",
+  },
+  PRISM_MANUFACTURER_CATALOG_DB: {
+    filename: "PRISM_MANUFACTURER_CATALOG_DB.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 178,
+    safety_class: "LOW",
+    description: "Manufacturer catalog database — structured vendor metadata, product families, and cross-reference tables.",
+  },
+  PRISM_ZENI_COMPLETE_CATALOG: {
+    filename: "PRISM_ZENI_COMPLETE_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1001,
+    safety_class: "LOW",
+    description: "Zeni complete catalog — full Zeni tool product line with geometry, coatings, and recommended parameters.",
   },
 };
 

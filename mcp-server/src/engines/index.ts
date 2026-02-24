@@ -399,12 +399,16 @@ export {
 // Telemetry Engine — F3 Dispatcher Telemetry
 export { telemetryEngine, TelemetryEngine } from "./TelemetryEngine.js";
 
-// Intelligence Engine — R3 Compound Actions (11 intelligence actions)
+// Intelligence Engine — R3 Compound Actions (11 intelligence actions) + AI/ML Source Catalog
 export {
   intelligenceEngine,
   executeIntelligenceAction,
   INTELLIGENCE_ACTIONS,
+  INTELLIGENCE_SOURCE_FILE_CATALOG,
+  getSourceFileCatalog,
+  catalogSourceFiles,
   type IntelligenceAction,
+  type IntelligenceSourceEntry,
   type JobPlanInput,
   type JobPlanResult,
   type JobPlanOperation,

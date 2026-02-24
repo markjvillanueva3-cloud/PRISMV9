@@ -40,6 +40,63 @@ import { log } from "../utils/Logger.js";
 // Formula definitions available via: FormulaRegistry.getFormula(id)
 
 // ============================================================================
+// UNITS SOURCE FILE CATALOG — 3 LOW-priority unit/conversion modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (P-MS5 Wave 4)
+// Total: 3 files, 1,350 lines of unit conversion source code
+// ============================================================================
+
+export const UNITS_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  'EXT-531': {
+    filename: "PRISM_UNITS.js",
+    source_dir: "extracted/units",
+    category: "units",
+    lines: 153,
+    safety_class: "LOW",
+    description: "Core unit definitions — SI/Imperial conversion factors for length, speed, force, temperature, and pressure.",
+  },
+  'EXT-532': {
+    filename: "PRISM_UNITS_ENHANCED.js",
+    source_dir: "extracted/units",
+    category: "units",
+    lines: 1189,
+    safety_class: "LOW",
+    description: "Enhanced unit system — compound unit algebra, dimensional analysis, and manufacturing-specific conversions (SFM↔m/min, IPT↔mm/tooth).",
+  },
+  'EXT-533': {
+    filename: "PRISM_UNIT_SYSTEM.js",
+    source_dir: "extracted/units",
+    category: "units",
+    lines: 8,
+    safety_class: "LOW",
+    description: "Unit system bootstrap — metric/imperial preference flag and system-wide default unit configuration.",
+  },
+};
+
+/**
+ * Returns the units source file catalog for this engine.
+ */
+export function getUnitSourceFileCatalog(): {
+  total_files: number;
+  total_lines: number;
+  entries: typeof UNITS_SOURCE_FILE_CATALOG;
+} {
+  const keys = Object.keys(UNITS_SOURCE_FILE_CATALOG) as (keyof typeof UNITS_SOURCE_FILE_CATALOG)[];
+  const totalLines = keys.reduce((sum, k) => sum + UNITS_SOURCE_FILE_CATALOG[k].lines, 0);
+  return {
+    total_files: keys.length,
+    total_lines: totalLines,
+    entries: UNITS_SOURCE_FILE_CATALOG,
+  };
+}
+
+// ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 

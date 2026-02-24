@@ -97,7 +97,7 @@ export interface SourceFileCatalogEntry {
   source_dir: string;
   category: string;
   lines: number;
-  safety_class: 'MEDIUM';
+  safety_class: 'MEDIUM' | 'LOW';
   description: string;
   algorithm_domain: AlgorithmDomain;
 }
@@ -570,6 +570,53 @@ export const ALGORITHM_SOURCE_FILE_CATALOG: Record<string, SourceFileCatalogEntr
     safety_class: 'MEDIUM' as const,
     description: 'Algorithm for tool-life: Taylor tool life equation with extended parameters',
     algorithm_domain: 'tool-life',
+  },
+
+  // --- LOW priority: MIT lecture implementations (P-MS5 Wave 4) ---
+  'EXT-517': {
+    filename: 'PRISM_CAD_KERNEL_MIT.js',
+    source_dir: 'extracted/mit',
+    category: 'mit',
+    lines: 294,
+    safety_class: 'LOW' as const,
+    description: 'MIT CAD kernel: parametric geometry primitives and boundary-rep operations from MIT lecture implementations',
+    algorithm_domain: 'surface',
+  },
+  'EXT-518': {
+    filename: 'PRISM_CAM_KERNEL_MIT.js',
+    source_dir: 'extracted/mit',
+    category: 'mit',
+    lines: 184,
+    safety_class: 'LOW' as const,
+    description: 'MIT CAM kernel: toolpath-from-geometry generation and machining strategy selection',
+    algorithm_domain: 'toolpath',
+  },
+  'EXT-519': {
+    filename: 'PRISM_COURSE_GATEWAY_GENERATOR.js',
+    source_dir: 'extracted/mit',
+    category: 'mit',
+    lines: 76,
+    safety_class: 'LOW' as const,
+    description: 'Course gateway generator: auto-scaffold algorithm adapters from MIT/Stanford course modules',
+    algorithm_domain: 'general',
+  },
+  'EXT-520': {
+    filename: 'PRISM_SURFACE_GEOMETRY_MIT.js',
+    source_dir: 'extracted/mit',
+    category: 'mit',
+    lines: 173,
+    safety_class: 'LOW' as const,
+    description: 'MIT surface geometry: differential geometry computations for surface analysis and curvature',
+    algorithm_domain: 'surface',
+  },
+  'EXT-521': {
+    filename: 'PRISM_UNIVERSITY_ALGORITHMS.js',
+    source_dir: 'extracted/mit',
+    category: 'mit',
+    lines: 4936,
+    safety_class: 'LOW' as const,
+    description: 'University algorithms: comprehensive collection of MIT/Stanford lecture algorithm implementations',
+    algorithm_domain: 'general',
   },
 };
 

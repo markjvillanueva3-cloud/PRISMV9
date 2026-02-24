@@ -70,6 +70,188 @@ import { log } from "../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../types/ResponseLevel.js";
 
 // ============================================================================
+// INTELLIGENCE SOURCE FILE CATALOG (87 LOW-priority AI/ML modules, 62,397 lines)
+// ============================================================================
+
+/** Descriptor for a single extracted AI/ML source file. */
+interface IntelligenceSourceEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+  ai_domain: string;
+}
+
+/**
+ * Catalog of 87 LOW-safety-class extracted JS source files targeting IntelligenceEngine.
+ * Covers engines/ai_complete (13), engines/ai_ml (74) -- total 62,397 lines of AI/ML code.
+ * Each entry maps extraction ID -> file metadata with ai_domain classification.
+ */
+export const INTELLIGENCE_SOURCE_FILE_CATALOG: Record<string, IntelligenceSourceEntry> = {
+  // --- engines/ai_complete (13 files) ---
+  "EXT-078": { filename: "PRISM_ACTIVE_LEARNING_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 206, safety_class: "LOW", description: "Active learning with query strategies for sample selection", ai_domain: "general-ai" },
+  "EXT-079": { filename: "PRISM_ATTENTION_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 300, safety_class: "LOW", description: "Complete attention mechanism with multi-head support", ai_domain: "deep-learning" },
+  "EXT-080": { filename: "PRISM_CLUSTERING_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 605, safety_class: "LOW", description: "Complete clustering algorithms: K-means, DBSCAN, hierarchical", ai_domain: "classification" },
+  "EXT-081": { filename: "PRISM_GNN_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 435, safety_class: "LOW", description: "Graph neural network with message passing and pooling", ai_domain: "deep-learning" },
+  "EXT-082": { filename: "PRISM_HYPEROPT_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 327, safety_class: "LOW", description: "Hyperparameter optimization: grid, random, Bayesian search", ai_domain: "general-ai" },
+  "EXT-083": { filename: "PRISM_LR_SCHEDULER_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 211, safety_class: "LOW", description: "Learning rate scheduling: step, cosine, warmup strategies", ai_domain: "general-ai" },
+  "EXT-084": { filename: "PRISM_NORMALIZATION_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 64, safety_class: "LOW", description: "Normalization layers: batch, layer, group, instance norm", ai_domain: "deep-learning" },
+  "EXT-085": { filename: "PRISM_ONLINE_LEARNING_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 460, safety_class: "LOW", description: "Online/incremental learning for streaming data", ai_domain: "general-ai" },
+  "EXT-086": { filename: "PRISM_OPTIMIZATION_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 199, safety_class: "LOW", description: "Complete optimization toolkit: gradient, evolutionary methods", ai_domain: "general-ai" },
+  "EXT-087": { filename: "PRISM_RL_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 719, safety_class: "LOW", description: "Complete RL framework: DQN, PPO, A2C, policy gradient", ai_domain: "reinforcement-learning" },
+  "EXT-088": { filename: "PRISM_TIME_SERIES_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 780, safety_class: "LOW", description: "Time series analysis: ARIMA, exponential smoothing, STL", ai_domain: "prediction" },
+  "EXT-089": { filename: "PRISM_UNCERTAINTY_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 222, safety_class: "LOW", description: "Uncertainty quantification: MC dropout, ensembles, calibration", ai_domain: "general-ai" },
+  "EXT-090": { filename: "PRISM_XAI_COMPLETE.js", source_dir: "engines/ai_complete", category: "engines", lines: 392, safety_class: "LOW", description: "Explainable AI: SHAP, LIME, feature importance, saliency", ai_domain: "general-ai" },
+
+  // --- engines/ai_ml (74 files) ---
+  "EXT-091": { filename: "PRISM_ACTIVATIONS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 163, safety_class: "LOW", description: "Activation functions: ReLU, GELU, Swish, Mish variants", ai_domain: "deep-learning" },
+  "EXT-092": { filename: "PRISM_ADVANCED_DQN.js", source_dir: "engines/ai_ml", category: "engines", lines: 725, safety_class: "LOW", description: "Advanced DQN with dueling, prioritized replay, double DQN", ai_domain: "reinforcement-learning" },
+  "EXT-093": { filename: "PRISM_AIRCUT_ELIMINATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 5228, safety_class: "LOW", description: "ML-based air-cut detection and elimination for toolpaths", ai_domain: "anomaly-detection" },
+  "EXT-094": { filename: "PRISM_AI_100_ENGINE_WRAPPER.js", source_dir: "engines/ai_ml", category: "engines", lines: 15, safety_class: "LOW", description: "Wrapper interface for AI-100 engine integration", ai_domain: "general-ai" },
+  "EXT-095": { filename: "PRISM_AI_100_PHYSICS_GENERATOR.js", source_dir: "engines/ai_ml", category: "engines", lines: 3676, safety_class: "LOW", description: "Physics-informed AI model generation for CNC processes", ai_domain: "general-ai" },
+  "EXT-096": { filename: "PRISM_AI_AUTO_CAM.js", source_dir: "engines/ai_ml", category: "engines", lines: 560, safety_class: "LOW", description: "AI-driven automatic CAM programming and strategy selection", ai_domain: "general-ai" },
+  "EXT-097": { filename: "PRISM_AI_COMPLETE_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 376, safety_class: "LOW", description: "Complete AI system orchestration and pipeline management", ai_domain: "general-ai" },
+  "EXT-098": { filename: "PRISM_AI_INTEGRATED_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 382, safety_class: "LOW", description: "Integrated AI system combining multiple ML subsystems", ai_domain: "general-ai" },
+  "EXT-099": { filename: "PRISM_AI_ORCHESTRATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 605, safety_class: "LOW", description: "AI model orchestration with routing and load balancing", ai_domain: "general-ai" },
+  "EXT-100": { filename: "PRISM_AI_PHYSICS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 356, safety_class: "LOW", description: "Physics-informed neural network for manufacturing models", ai_domain: "deep-learning" },
+  "EXT-101": { filename: "PRISM_AI_TRAINING_DATA.js", source_dir: "engines/ai_ml", category: "engines", lines: 200, safety_class: "LOW", description: "Training data generation and augmentation for AI models", ai_domain: "general-ai" },
+  "EXT-102": { filename: "PRISM_ATTENTION_COMPLETE.js", source_dir: "engines/ai_ml", category: "engines", lines: 8, safety_class: "LOW", description: "Attention mechanism re-export stub for ai_ml path", ai_domain: "deep-learning" },
+  "EXT-103": { filename: "PRISM_ATTENTION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 281, safety_class: "LOW", description: "Self-attention and cross-attention mechanism engine", ai_domain: "deep-learning" },
+  "EXT-104": { filename: "PRISM_AUTOENCODER.js", source_dir: "engines/ai_ml", category: "engines", lines: 146, safety_class: "LOW", description: "Autoencoder variants: VAE, sparse, denoising, contractive", ai_domain: "deep-learning" },
+  "EXT-105": { filename: "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 367, safety_class: "LOW", description: "ML model for CNC axis behavior and dynamics learning", ai_domain: "general-ai" },
+  "EXT-106": { filename: "PRISM_BAYESIAN_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 282, safety_class: "LOW", description: "Bayesian learning: posterior estimation, variational inference", ai_domain: "general-ai" },
+  "EXT-107": { filename: "PRISM_BAYESIAN_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 235, safety_class: "LOW", description: "Bayesian inference system for probabilistic reasoning", ai_domain: "general-ai" },
+  "EXT-108": { filename: "PRISM_BAYESIAN_TOOL_LIFE.js", source_dir: "engines/ai_ml", category: "engines", lines: 369, safety_class: "LOW", description: "Bayesian tool life prediction with uncertainty estimation", ai_domain: "prediction" },
+  "EXT-109": { filename: "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 215, safety_class: "LOW", description: "Constraint satisfaction for machining parameter calc", ai_domain: "general-ai" },
+  "EXT-110": { filename: "PRISM_CALCULATOR_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 281, safety_class: "LOW", description: "ML-enhanced calculator with adaptive parameter learning", ai_domain: "general-ai" },
+  "EXT-111": { filename: "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 155, safety_class: "LOW", description: "AI-driven machining parameter recommendation engine", ai_domain: "recommendation" },
+  "EXT-112": { filename: "PRISM_CAM_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 332, safety_class: "LOW", description: "Learning engine for CAM strategy optimization patterns", ai_domain: "general-ai" },
+  "EXT-113": { filename: "PRISM_CLUSTERING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 471, safety_class: "LOW", description: "Clustering algorithms for manufacturing data analysis", ai_domain: "classification" },
+  "EXT-114": { filename: "PRISM_CNN_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 6, safety_class: "LOW", description: "Convolutional neural network core engine stub", ai_domain: "deep-learning" },
+  "EXT-115": { filename: "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 326, safety_class: "LOW", description: "ML for complex CAD geometry feature recognition", ai_domain: "general-ai" },
+  "EXT-116": { filename: "PRISM_CONTACT_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 448, safety_class: "LOW", description: "Contact constraint solver for fixture and assembly", ai_domain: "general-ai" },
+  "EXT-117": { filename: "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 497, safety_class: "LOW", description: "ML-based contact constraint prediction engine", ai_domain: "general-ai" },
+  "EXT-118": { filename: "PRISM_CSP_ENHANCED_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 361, safety_class: "LOW", description: "Enhanced constraint satisfaction with arc consistency", ai_domain: "general-ai" },
+  "EXT-119": { filename: "PRISM_DECISION_TREE_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 3172, safety_class: "LOW", description: "Decision tree and random forest engine with pruning", ai_domain: "classification" },
+  "EXT-120": { filename: "PRISM_DEEP_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 19, safety_class: "LOW", description: "Deep learning framework core utilities and layers", ai_domain: "deep-learning" },
+  "EXT-121": { filename: "PRISM_DIFFERENTIAL_EVOLUTION.js", source_dir: "engines/ai_ml", category: "engines", lines: 601, safety_class: "LOW", description: "Differential evolution optimizer for parameter tuning", ai_domain: "general-ai" },
+  "EXT-122": { filename: "PRISM_DL.js", source_dir: "engines/ai_ml", category: "engines", lines: 600, safety_class: "LOW", description: "Deep learning primitives: layers, activations, backprop", ai_domain: "deep-learning" },
+  "EXT-123": { filename: "PRISM_DQN_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 136, safety_class: "LOW", description: "Deep Q-Network engine for discrete action spaces", ai_domain: "reinforcement-learning" },
+  "EXT-124": { filename: "PRISM_ENSEMBLE_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 260, safety_class: "LOW", description: "Ensemble methods: bagging, boosting, stacking, voting", ai_domain: "general-ai" },
+  "EXT-125": { filename: "PRISM_FAILSAFE_GENERATOR.js", source_dir: "engines/ai_ml", category: "engines", lines: 170, safety_class: "LOW", description: "Failsafe parameter generation with safety constraints", ai_domain: "general-ai" },
+  "EXT-126": { filename: "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 386, safety_class: "LOW", description: "Sketch constraint solver for Fusion-style CAD ops", ai_domain: "general-ai" },
+  "EXT-127": { filename: "PRISM_GA_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 631, safety_class: "LOW", description: "Genetic algorithm engine with crossover and mutation ops", ai_domain: "general-ai" },
+  "EXT-128": { filename: "PRISM_GRADIENT_BOOSTING.js", source_dir: "engines/ai_ml", category: "engines", lines: 205, safety_class: "LOW", description: "Gradient boosting machine for regression and classification", ai_domain: "classification" },
+  "EXT-129": { filename: "PRISM_GRAPH_ALGORITHMS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 441, safety_class: "LOW", description: "Graph algorithms: shortest path, flow, community detection", ai_domain: "general-ai" },
+  "EXT-130": { filename: "PRISM_INTELLIGENT_DECISION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 1612, safety_class: "LOW", description: "Intelligent decision support with multi-criteria analysis", ai_domain: "general-ai" },
+  "EXT-131": { filename: "PRISM_LEAN_SIX_SIGMA_KAIZEN.js", source_dir: "engines/ai_ml", category: "engines", lines: 1471, safety_class: "LOW", description: "Lean Six Sigma and Kaizen continuous improvement engine", ai_domain: "general-ai" },
+  "EXT-132": { filename: "PRISM_LOSS_FUNCTIONS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 145, safety_class: "LOW", description: "Loss function library: MSE, cross-entropy, focal, custom", ai_domain: "deep-learning" },
+  "EXT-133": { filename: "PRISM_LSTM_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 69, safety_class: "LOW", description: "LSTM recurrent network for sequential data processing", ai_domain: "deep-learning" },
+  "EXT-134": { filename: "PRISM_MACHINE_3D_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 382, safety_class: "LOW", description: "3D machine learning for volumetric feature analysis", ai_domain: "computer-vision" },
+  "EXT-135": { filename: "PRISM_MESH_REPAIR_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 567, safety_class: "LOW", description: "Mesh repair: hole filling, normal fixing, manifold checks", ai_domain: "computer-vision" },
+  "EXT-136": { filename: "PRISM_ML.js", source_dir: "engines/ai_ml", category: "engines", lines: 948, safety_class: "LOW", description: "Core ML framework: regression, classification, pipelines", ai_domain: "general-ai" },
+  "EXT-137": { filename: "PRISM_ML_ALGORITHMS.js", source_dir: "engines/ai_ml", category: "engines", lines: 747, safety_class: "LOW", description: "ML algorithm suite: SVM, KNN, naive Bayes, linear models", ai_domain: "general-ai" },
+  "EXT-138": { filename: "PRISM_ML_FEATURE_RECOGNITION.js", source_dir: "engines/ai_ml", category: "engines", lines: 286, safety_class: "LOW", description: "ML-based manufacturing feature recognition from geometry", ai_domain: "general-ai" },
+  "EXT-139": { filename: "PRISM_MODEL_COMPRESSION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 285, safety_class: "LOW", description: "Model compression: pruning, quantization, distillation", ai_domain: "deep-learning" },
+  "EXT-140": { filename: "PRISM_MONTE_CARLO_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 349, safety_class: "LOW", description: "Monte Carlo simulation for uncertainty and risk analysis", ai_domain: "general-ai" },
+  "EXT-141": { filename: "PRISM_NEURAL_ENGINE_ENHANCED.js", source_dir: "engines/ai_ml", category: "engines", lines: 331, safety_class: "LOW", description: "Enhanced neural engine with residual connections", ai_domain: "deep-learning" },
+  "EXT-142": { filename: "PRISM_NEURAL_NETWORK.js", source_dir: "engines/ai_ml", category: "engines", lines: 106, safety_class: "LOW", description: "Basic neural network with forward/backward propagation", ai_domain: "deep-learning" },
+  "EXT-143": { filename: "PRISM_NLP_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 181, safety_class: "LOW", description: "NLP engine: tokenization, embeddings, text classification", ai_domain: "nlp" },
+  "EXT-144": { filename: "PRISM_OCR_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 277, safety_class: "LOW", description: "Optical character recognition for drawing/document parsing", ai_domain: "computer-vision" },
+  "EXT-145": { filename: "PRISM_OPTIMIZERS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 314, safety_class: "LOW", description: "Optimizer suite: SGD, Adam, RMSprop, AdaGrad, LAMB", ai_domain: "general-ai" },
+  "EXT-146": { filename: "PRISM_OPTIMIZER_ADVANCED.js", source_dir: "engines/ai_ml", category: "engines", lines: 174, safety_class: "LOW", description: "Advanced optimizer with learning rate warmup and decay", ai_domain: "general-ai" },
+  "EXT-147": { filename: "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js", source_dir: "engines/ai_ml", category: "engines", lines: 636, safety_class: "LOW", description: "Parametric constraint solver for design optimization", ai_domain: "general-ai" },
+  "EXT-148": { filename: "PRISM_PHASE3_ADVANCED_RL.js", source_dir: "engines/ai_ml", category: "engines", lines: 838, safety_class: "LOW", description: "Phase 3 advanced RL: multi-agent, hierarchical policies", ai_domain: "reinforcement-learning" },
+  "EXT-149": { filename: "PRISM_PHASE3_DEEP_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 659, safety_class: "LOW", description: "Phase 3 deep learning: advanced architectures and training", ai_domain: "deep-learning" },
+  "EXT-150": { filename: "PRISM_PHASE6_DEEPLEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 315, safety_class: "LOW", description: "Phase 6 deep learning: production deployment utilities", ai_domain: "deep-learning" },
+  "EXT-151": { filename: "PRISM_PIML_CHATTER_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 860, safety_class: "LOW", description: "Physics-informed ML for chatter prediction and avoidance", ai_domain: "prediction" },
+  "EXT-152": { filename: "PRISM_PROBABILISTIC_REASONING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 419, safety_class: "LOW", description: "Probabilistic reasoning with Bayesian networks", ai_domain: "general-ai" },
+  "EXT-153": { filename: "PRISM_PSO_OPTIMIZER.js", source_dir: "engines/ai_ml", category: "engines", lines: 862, safety_class: "LOW", description: "Particle swarm optimization for multi-objective problems", ai_domain: "general-ai" },
+  "EXT-154": { filename: "PRISM_REGULARIZATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 12613, safety_class: "LOW", description: "Regularization methods: L1, L2, dropout, early stopping", ai_domain: "deep-learning" },
+  "EXT-155": { filename: "PRISM_RL_QLEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 719, safety_class: "LOW", description: "Q-learning RL engine with experience replay and epsilon", ai_domain: "reinforcement-learning" },
+  "EXT-156": { filename: "PRISM_RL_SARSA_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 84, safety_class: "LOW", description: "SARSA on-policy RL engine for sequential decisions", ai_domain: "reinforcement-learning" },
+  "EXT-157": { filename: "PRISM_SEARCH_ENHANCED_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 303, safety_class: "LOW", description: "Enhanced search: A*, beam, branch-and-bound algorithms", ai_domain: "general-ai" },
+  "EXT-158": { filename: "PRISM_SEQUENCE_MODEL_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 198, safety_class: "LOW", description: "Sequence modeling: RNN, GRU, attention-based models", ai_domain: "deep-learning" },
+  "EXT-159": { filename: "PRISM_SIMULATED_ANNEALING.js", source_dir: "engines/ai_ml", category: "engines", lines: 569, safety_class: "LOW", description: "Simulated annealing optimizer for combinatorial problems", ai_domain: "general-ai" },
+  "EXT-160": { filename: "PRISM_TRANSFORMER_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 267, safety_class: "LOW", description: "Transformer architecture with positional encoding", ai_domain: "deep-learning" },
+  "EXT-161": { filename: "PRISM_TRUE_AI_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 288, safety_class: "LOW", description: "True AI orchestration: multi-model inference pipeline", ai_domain: "general-ai" },
+  "EXT-162": { filename: "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 5389, safety_class: "LOW", description: "Unified CAD learning: geometry, topology, feature ML", ai_domain: "general-ai" },
+  "EXT-163": { filename: "PRISM_UNIFIED_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 193, safety_class: "LOW", description: "Unified learning engine combining supervised/unsupervised", ai_domain: "general-ai" },
+  "EXT-164": { filename: "PRISM_XAI_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 334, safety_class: "LOW", description: "Explainability engine: interpretability and model audit", ai_domain: "general-ai" },
+};
+
+/** Total lines across all cataloged intelligence source files. */
+const INTELLIGENCE_SOURCE_TOTAL_LINES = 62_397;
+
+/** Number of cataloged intelligence source files. */
+const INTELLIGENCE_SOURCE_FILE_COUNT = 87;
+
+// ============================================================================
+// INTELLIGENCE CATALOG METHODS
+// ============================================================================
+
+/**
+ * Returns the full source file catalog plus aggregate statistics.
+ * Use this from MCP tool handlers to expose AI/ML source inventory.
+ */
+export function getSourceFileCatalog(): {
+  files: Record<string, IntelligenceSourceEntry>;
+  stats: {
+    total_files: number;
+    total_lines: number;
+    by_domain: Record<string, number>;
+    by_source_dir: Record<string, number>;
+  };
+} {
+  const byDomain: Record<string, number> = {};
+  const byDir: Record<string, number> = {};
+
+  for (const entry of Object.values(INTELLIGENCE_SOURCE_FILE_CATALOG)) {
+    byDomain[entry.ai_domain] = (byDomain[entry.ai_domain] ?? 0) + 1;
+    byDir[entry.source_dir] = (byDir[entry.source_dir] ?? 0) + 1;
+  }
+
+  return {
+    files: INTELLIGENCE_SOURCE_FILE_CATALOG,
+    stats: {
+      total_files: INTELLIGENCE_SOURCE_FILE_COUNT,
+      total_lines: INTELLIGENCE_SOURCE_TOTAL_LINES,
+      by_domain: byDomain,
+      by_source_dir: byDir,
+    },
+  };
+}
+
+/**
+ * Filters and groups the catalog by ai_domain, source_dir, or arbitrary predicate.
+ * Returns matching entries as an array with their extraction IDs.
+ *
+ * @param filter - Optional filter: string matches ai_domain, function for custom logic
+ * @returns Array of catalog entries with their extraction IDs
+ */
+export function catalogSourceFiles(
+  filter?: string | ((entry: IntelligenceSourceEntry, id: string) => boolean)
+): Array<{ id: string } & IntelligenceSourceEntry> {
+  const results: Array<{ id: string } & IntelligenceSourceEntry> = [];
+
+  for (const [id, entry] of Object.entries(INTELLIGENCE_SOURCE_FILE_CATALOG)) {
+    if (filter === undefined) {
+      results.push({ id, ...entry });
+    } else if (typeof filter === "string") {
+      if (entry.ai_domain === filter || entry.source_dir === filter) {
+        results.push({ id, ...entry });
+      }
+    } else if (filter(entry, id)) {
+      results.push({ id, ...entry });
+    }
+  }
+
+  return results;
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -2360,10 +2542,13 @@ export async function executeIntelligenceAction(
 // EXPORTS
 // ============================================================================
 
-/** Singleton intelligence engine with action dispatcher and constants. */
+/** Singleton intelligence engine with action dispatcher, catalog, and constants. */
 export const intelligenceEngine = {
   executeAction: executeIntelligenceAction,
   ACTIONS: INTELLIGENCE_ACTIONS,
+  SOURCE_CATALOG: INTELLIGENCE_SOURCE_FILE_CATALOG,
+  getSourceFileCatalog,
+  catalogSourceFiles,
 };
 
-export type { JobPlanInput, JobPlanResult, JobPlanOperation, FeatureType };
+export type { JobPlanInput, JobPlanResult, JobPlanOperation, FeatureType, IntelligenceSourceEntry };

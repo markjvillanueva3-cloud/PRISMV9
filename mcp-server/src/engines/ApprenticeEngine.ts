@@ -593,3 +593,29 @@ export function apprenticeEngine(action: string, params: Record<string, any>): a
       return { error: `ApprenticeEngine: unknown action "${action}"` };
   }
 }
+
+// ── Source File Catalog ────────────────────────────────────────────────────
+// AUTO-GENERATED from MASTER_EXTRACTION_INDEX_V2.json — 6 LOW-priority extracted JS modules
+// that feed into this engine. Used for traceability, safety auditing, and wiring verification.
+
+export const APPRENTICE_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // ── extracted/learning/ (6 files) ──
+  "PRISM_LEARNING_ENGINE": { filename: "PRISM_LEARNING_ENGINE.js", source_dir: "learning", category: "learning", lines: 72, safety_class: "LOW", description: "Core learning engine framework" },
+  "PRISM_LEARNING_ENGINE_FEEDBACK": { filename: "PRISM_LEARNING_ENGINE_FEEDBACK.js", source_dir: "learning", category: "learning", lines: 399, safety_class: "LOW", description: "Learning engine feedback loop" },
+  "PRISM_LEARNING_FEEDBACK_CONNECTOR": { filename: "PRISM_LEARNING_FEEDBACK_CONNECTOR.js", source_dir: "learning", category: "learning", lines: 251, safety_class: "LOW", description: "Learning feedback connector bridge" },
+  "PRISM_LEARNING_INTEGRATION_BRIDGE": { filename: "PRISM_LEARNING_INTEGRATION_BRIDGE.js", source_dir: "learning", category: "learning", lines: 255, safety_class: "LOW", description: "Learning system integration bridge" },
+  "PRISM_LEARNING_PERSISTENCE_ENGINE": { filename: "PRISM_LEARNING_PERSISTENCE_ENGINE.js", source_dir: "learning", category: "learning", lines: 135, safety_class: "LOW", description: "Learning state persistence engine" },
+  "PRISM_LEARNING_RATE_SCHEDULER_ENGINE": { filename: "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js", source_dir: "learning", category: "learning", lines: 169, safety_class: "LOW", description: "Learning rate scheduling engine" },
+};
+
+/** Returns the apprentice source file catalog for introspection and audit. */
+export function getApprenticeSourceFileCatalog(): typeof APPRENTICE_SOURCE_FILE_CATALOG {
+  return APPRENTICE_SOURCE_FILE_CATALOG;
+}

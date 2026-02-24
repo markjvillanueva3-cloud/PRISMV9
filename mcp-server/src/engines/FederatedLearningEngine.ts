@@ -708,6 +708,107 @@ export function federatedLearning(action: string, params: Record<string, unknown
   }
 }
 
+// ── Source File Catalog ────────────────────────────────────────────────────
+// AUTO-GENERATED from MASTER_EXTRACTION_INDEX_V2.json — 80 LOW-priority extracted JS modules
+// that feed into this engine. Used for traceability, safety auditing, and wiring verification.
+
+export const FEDERATED_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // ── extracted/engines/ai_ml/ (74 files) ──
+  "PRISM_ACTIVATIONS_ENGINE": { filename: "PRISM_ACTIVATIONS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 163, safety_class: "LOW", description: "Neural activation functions for ML models" },
+  "PRISM_ADVANCED_DQN": { filename: "PRISM_ADVANCED_DQN.js", source_dir: "engines/ai_ml", category: "engines", lines: 725, safety_class: "LOW", description: "Advanced deep Q-network reinforcement learning" },
+  "PRISM_AIRCUT_ELIMINATION_ENGINE": { filename: "PRISM_AIRCUT_ELIMINATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 5228, safety_class: "LOW", description: "Air-cut detection and elimination optimization" },
+  "PRISM_AI_100_ENGINE_WRAPPER": { filename: "PRISM_AI_100_ENGINE_WRAPPER.js", source_dir: "engines/ai_ml", category: "engines", lines: 15, safety_class: "LOW", description: "AI-100 engine wrapper/bootstrap" },
+  "PRISM_AI_100_PHYSICS_GENERATOR": { filename: "PRISM_AI_100_PHYSICS_GENERATOR.js", source_dir: "engines/ai_ml", category: "engines", lines: 3676, safety_class: "LOW", description: "AI-100 physics-based data generator" },
+  "PRISM_AI_AUTO_CAM": { filename: "PRISM_AI_AUTO_CAM.js", source_dir: "engines/ai_ml", category: "engines", lines: 560, safety_class: "LOW", description: "AI-driven automatic CAM path generation" },
+  "PRISM_AI_COMPLETE_SYSTEM": { filename: "PRISM_AI_COMPLETE_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 376, safety_class: "LOW", description: "Complete AI system integration layer" },
+  "PRISM_AI_INTEGRATED_SYSTEM": { filename: "PRISM_AI_INTEGRATED_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 382, safety_class: "LOW", description: "Integrated AI subsystem orchestration" },
+  "PRISM_AI_ORCHESTRATION_ENGINE": { filename: "PRISM_AI_ORCHESTRATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 605, safety_class: "LOW", description: "AI model orchestration and routing" },
+  "PRISM_AI_PHYSICS_ENGINE": { filename: "PRISM_AI_PHYSICS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 356, safety_class: "LOW", description: "Physics-informed AI prediction engine" },
+  "PRISM_AI_TRAINING_DATA": { filename: "PRISM_AI_TRAINING_DATA.js", source_dir: "engines/ai_ml", category: "engines", lines: 200, safety_class: "LOW", description: "AI training dataset generation" },
+  "PRISM_ATTENTION_COMPLETE": { filename: "PRISM_ATTENTION_COMPLETE.js", source_dir: "engines/ai_ml", category: "engines", lines: 8, safety_class: "LOW", description: "Attention mechanism completion stub" },
+  "PRISM_ATTENTION_ENGINE": { filename: "PRISM_ATTENTION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 281, safety_class: "LOW", description: "Self-attention mechanism for sequence data" },
+  "PRISM_AUTOENCODER": { filename: "PRISM_AUTOENCODER.js", source_dir: "engines/ai_ml", category: "engines", lines: 146, safety_class: "LOW", description: "Autoencoder for feature compression" },
+  "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE": { filename: "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 367, safety_class: "LOW", description: "Machine axis behavior pattern learning" },
+  "PRISM_BAYESIAN_LEARNING": { filename: "PRISM_BAYESIAN_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 282, safety_class: "LOW", description: "Bayesian parameter learning framework" },
+  "PRISM_BAYESIAN_SYSTEM": { filename: "PRISM_BAYESIAN_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 235, safety_class: "LOW", description: "Bayesian inference system" },
+  "PRISM_BAYESIAN_TOOL_LIFE": { filename: "PRISM_BAYESIAN_TOOL_LIFE.js", source_dir: "engines/ai_ml", category: "engines", lines: 369, safety_class: "LOW", description: "Bayesian tool life prediction model" },
+  "PRISM_CALCULATOR_CONSTRAINT_ENGINE": { filename: "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 215, safety_class: "LOW", description: "Calculator parameter constraint solver" },
+  "PRISM_CALCULATOR_LEARNING_ENGINE": { filename: "PRISM_CALCULATOR_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 281, safety_class: "LOW", description: "Calculator adaptive learning engine" },
+  "PRISM_CALCULATOR_RECOMMENDATION_ENGINE": { filename: "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 155, safety_class: "LOW", description: "Calculator recommendation engine" },
+  "PRISM_CAM_LEARNING_ENGINE": { filename: "PRISM_CAM_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 332, safety_class: "LOW", description: "CAM strategy learning from outcomes" },
+  "PRISM_CLUSTERING_ENGINE": { filename: "PRISM_CLUSTERING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 471, safety_class: "LOW", description: "K-means/hierarchical clustering engine" },
+  "PRISM_CNN_ENGINE": { filename: "PRISM_CNN_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 6, safety_class: "LOW", description: "Convolutional neural network stub" },
+  "PRISM_COMPLEX_CAD_LEARNING_ENGINE": { filename: "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 326, safety_class: "LOW", description: "Complex CAD geometry learning engine" },
+  "PRISM_CONTACT_CONSTRAINT_ENGINE": { filename: "PRISM_CONTACT_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 448, safety_class: "LOW", description: "Tool-workpiece contact constraint solver" },
+  "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE": { filename: "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 497, safety_class: "LOW", description: "Contact constraint adaptive learning" },
+  "PRISM_CSP_ENHANCED_ENGINE": { filename: "PRISM_CSP_ENHANCED_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 361, safety_class: "LOW", description: "Enhanced constraint satisfaction solver" },
+  "PRISM_DECISION_TREE_ENGINE": { filename: "PRISM_DECISION_TREE_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 3172, safety_class: "LOW", description: "Decision tree classification engine" },
+  "PRISM_DEEP_LEARNING": { filename: "PRISM_DEEP_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 19, safety_class: "LOW", description: "Deep learning framework bootstrap" },
+  "PRISM_DIFFERENTIAL_EVOLUTION": { filename: "PRISM_DIFFERENTIAL_EVOLUTION.js", source_dir: "engines/ai_ml", category: "engines", lines: 601, safety_class: "LOW", description: "Differential evolution optimizer" },
+  "PRISM_DL": { filename: "PRISM_DL.js", source_dir: "engines/ai_ml", category: "engines", lines: 600, safety_class: "LOW", description: "Deep learning utilities library" },
+  "PRISM_DQN_ENGINE": { filename: "PRISM_DQN_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 136, safety_class: "LOW", description: "Deep Q-network engine core" },
+  "PRISM_ENSEMBLE_ENGINE": { filename: "PRISM_ENSEMBLE_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 260, safety_class: "LOW", description: "ML model ensemble/voting engine" },
+  "PRISM_FAILSAFE_GENERATOR": { filename: "PRISM_FAILSAFE_GENERATOR.js", source_dir: "engines/ai_ml", category: "engines", lines: 170, safety_class: "LOW", description: "Failsafe parameter generator" },
+  "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE": { filename: "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 386, safety_class: "LOW", description: "Fusion sketch constraint propagation" },
+  "PRISM_GA_ENGINE": { filename: "PRISM_GA_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 631, safety_class: "LOW", description: "Genetic algorithm optimization engine" },
+  "PRISM_GRADIENT_BOOSTING": { filename: "PRISM_GRADIENT_BOOSTING.js", source_dir: "engines/ai_ml", category: "engines", lines: 205, safety_class: "LOW", description: "Gradient boosting regression model" },
+  "PRISM_GRAPH_ALGORITHMS_ENGINE": { filename: "PRISM_GRAPH_ALGORITHMS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 441, safety_class: "LOW", description: "Graph algorithms for dependency analysis" },
+  "PRISM_INTELLIGENT_DECISION_ENGINE": { filename: "PRISM_INTELLIGENT_DECISION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 1612, safety_class: "LOW", description: "Multi-criteria intelligent decision engine" },
+  "PRISM_LEAN_SIX_SIGMA_KAIZEN": { filename: "PRISM_LEAN_SIX_SIGMA_KAIZEN.js", source_dir: "engines/ai_ml", category: "engines", lines: 1471, safety_class: "LOW", description: "Lean/Six Sigma continuous improvement" },
+  "PRISM_LOSS_FUNCTIONS_ENGINE": { filename: "PRISM_LOSS_FUNCTIONS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 145, safety_class: "LOW", description: "ML loss function library" },
+  "PRISM_LSTM_ENGINE": { filename: "PRISM_LSTM_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 69, safety_class: "LOW", description: "LSTM recurrent network engine" },
+  "PRISM_MACHINE_3D_LEARNING_ENGINE": { filename: "PRISM_MACHINE_3D_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 382, safety_class: "LOW", description: "Machine 3D envelope learning" },
+  "PRISM_MESH_REPAIR_ENGINE": { filename: "PRISM_MESH_REPAIR_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 567, safety_class: "LOW", description: "STL/mesh repair and healing engine" },
+  "PRISM_ML": { filename: "PRISM_ML.js", source_dir: "engines/ai_ml", category: "engines", lines: 948, safety_class: "LOW", description: "Core ML algorithm library" },
+  "PRISM_ML_ALGORITHMS": { filename: "PRISM_ML_ALGORITHMS.js", source_dir: "engines/ai_ml", category: "engines", lines: 747, safety_class: "LOW", description: "ML algorithm implementations" },
+  "PRISM_ML_FEATURE_RECOGNITION": { filename: "PRISM_ML_FEATURE_RECOGNITION.js", source_dir: "engines/ai_ml", category: "engines", lines: 286, safety_class: "LOW", description: "ML-based manufacturing feature recognition" },
+  "PRISM_MODEL_COMPRESSION_ENGINE": { filename: "PRISM_MODEL_COMPRESSION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 285, safety_class: "LOW", description: "ML model pruning and compression" },
+  "PRISM_MONTE_CARLO_ENGINE": { filename: "PRISM_MONTE_CARLO_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 349, safety_class: "LOW", description: "Monte Carlo simulation engine" },
+  "PRISM_NEURAL_ENGINE_ENHANCED": { filename: "PRISM_NEURAL_ENGINE_ENHANCED.js", source_dir: "engines/ai_ml", category: "engines", lines: 331, safety_class: "LOW", description: "Enhanced neural network engine" },
+  "PRISM_NEURAL_NETWORK": { filename: "PRISM_NEURAL_NETWORK.js", source_dir: "engines/ai_ml", category: "engines", lines: 106, safety_class: "LOW", description: "Neural network foundation module" },
+  "PRISM_NLP_ENGINE": { filename: "PRISM_NLP_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 181, safety_class: "LOW", description: "Natural language processing engine" },
+  "PRISM_OCR_ENGINE": { filename: "PRISM_OCR_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 277, safety_class: "LOW", description: "Optical character recognition engine" },
+  "PRISM_OPTIMIZERS_ENGINE": { filename: "PRISM_OPTIMIZERS_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 314, safety_class: "LOW", description: "Numerical optimization suite" },
+  "PRISM_OPTIMIZER_ADVANCED": { filename: "PRISM_OPTIMIZER_ADVANCED.js", source_dir: "engines/ai_ml", category: "engines", lines: 174, safety_class: "LOW", description: "Advanced multi-objective optimizer" },
+  "PRISM_PARAMETRIC_CONSTRAINT_SOLVER": { filename: "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js", source_dir: "engines/ai_ml", category: "engines", lines: 636, safety_class: "LOW", description: "Parametric constraint solver" },
+  "PRISM_PHASE3_ADVANCED_RL": { filename: "PRISM_PHASE3_ADVANCED_RL.js", source_dir: "engines/ai_ml", category: "engines", lines: 838, safety_class: "LOW", description: "Phase 3 advanced reinforcement learning" },
+  "PRISM_PHASE3_DEEP_LEARNING": { filename: "PRISM_PHASE3_DEEP_LEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 659, safety_class: "LOW", description: "Phase 3 deep learning models" },
+  "PRISM_PHASE6_DEEPLEARNING": { filename: "PRISM_PHASE6_DEEPLEARNING.js", source_dir: "engines/ai_ml", category: "engines", lines: 315, safety_class: "LOW", description: "Phase 6 deep learning extensions" },
+  "PRISM_PIML_CHATTER_ENGINE": { filename: "PRISM_PIML_CHATTER_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 860, safety_class: "LOW", description: "Physics-informed ML chatter predictor" },
+  "PRISM_PROBABILISTIC_REASONING_ENGINE": { filename: "PRISM_PROBABILISTIC_REASONING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 419, safety_class: "LOW", description: "Probabilistic reasoning engine" },
+  "PRISM_PSO_OPTIMIZER": { filename: "PRISM_PSO_OPTIMIZER.js", source_dir: "engines/ai_ml", category: "engines", lines: 862, safety_class: "LOW", description: "Particle swarm optimization engine" },
+  "PRISM_REGULARIZATION_ENGINE": { filename: "PRISM_REGULARIZATION_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 12613, safety_class: "LOW", description: "ML regularization techniques library" },
+  "PRISM_RL_QLEARNING_ENGINE": { filename: "PRISM_RL_QLEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 719, safety_class: "LOW", description: "Q-learning reinforcement learning engine" },
+  "PRISM_RL_SARSA_ENGINE": { filename: "PRISM_RL_SARSA_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 84, safety_class: "LOW", description: "SARSA reinforcement learning engine" },
+  "PRISM_SEARCH_ENHANCED_ENGINE": { filename: "PRISM_SEARCH_ENHANCED_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 303, safety_class: "LOW", description: "Enhanced search/lookup engine" },
+  "PRISM_SEQUENCE_MODEL_ENGINE": { filename: "PRISM_SEQUENCE_MODEL_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 198, safety_class: "LOW", description: "Sequence modeling for time-series" },
+  "PRISM_SIMULATED_ANNEALING": { filename: "PRISM_SIMULATED_ANNEALING.js", source_dir: "engines/ai_ml", category: "engines", lines: 569, safety_class: "LOW", description: "Simulated annealing optimizer" },
+  "PRISM_TRANSFORMER_ENGINE": { filename: "PRISM_TRANSFORMER_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 267, safety_class: "LOW", description: "Transformer architecture engine" },
+  "PRISM_TRUE_AI_SYSTEM": { filename: "PRISM_TRUE_AI_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 288, safety_class: "LOW", description: "True AI integrated system" },
+  "PRISM_UNIFIED_CAD_LEARNING_SYSTEM": { filename: "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js", source_dir: "engines/ai_ml", category: "engines", lines: 5389, safety_class: "LOW", description: "Unified CAD learning system" },
+  "PRISM_UNIFIED_LEARNING_ENGINE": { filename: "PRISM_UNIFIED_LEARNING_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 193, safety_class: "LOW", description: "Unified learning engine wrapper" },
+  "PRISM_XAI_ENGINE": { filename: "PRISM_XAI_ENGINE.js", source_dir: "engines/ai_ml", category: "engines", lines: 334, safety_class: "LOW", description: "Explainable AI (XAI) engine" },
+  // ── extracted/learning/ (6 files) ──
+  "PRISM_LEARNING_ENGINE": { filename: "PRISM_LEARNING_ENGINE.js", source_dir: "learning", category: "learning", lines: 72, safety_class: "LOW", description: "Core learning engine framework" },
+  "PRISM_LEARNING_ENGINE_FEEDBACK": { filename: "PRISM_LEARNING_ENGINE_FEEDBACK.js", source_dir: "learning", category: "learning", lines: 399, safety_class: "LOW", description: "Learning engine feedback loop" },
+  "PRISM_LEARNING_FEEDBACK_CONNECTOR": { filename: "PRISM_LEARNING_FEEDBACK_CONNECTOR.js", source_dir: "learning", category: "learning", lines: 251, safety_class: "LOW", description: "Learning feedback connector bridge" },
+  "PRISM_LEARNING_INTEGRATION_BRIDGE": { filename: "PRISM_LEARNING_INTEGRATION_BRIDGE.js", source_dir: "learning", category: "learning", lines: 255, safety_class: "LOW", description: "Learning system integration bridge" },
+  "PRISM_LEARNING_PERSISTENCE_ENGINE": { filename: "PRISM_LEARNING_PERSISTENCE_ENGINE.js", source_dir: "learning", category: "learning", lines: 135, safety_class: "LOW", description: "Learning state persistence engine" },
+  "PRISM_LEARNING_RATE_SCHEDULER_ENGINE": { filename: "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js", source_dir: "learning", category: "learning", lines: 169, safety_class: "LOW", description: "Learning rate scheduling engine" },
+};
+
+/** Returns the federated learning source file catalog for introspection and audit. */
+export function getFederatedSourceFileCatalog(): typeof FEDERATED_SOURCE_FILE_CATALOG {
+  return FEDERATED_SOURCE_FILE_CATALOG;
+}
+
 // ─── Type exports ────────────────────────────────────────────────────────────
 
 export type {

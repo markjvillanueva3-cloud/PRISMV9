@@ -511,3 +511,82 @@ export class ProtocolBridgeEngine {
 // ============================================================================
 
 export const protocolBridgeEngine = new ProtocolBridgeEngine();
+
+// ============================================================================
+// SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting ProtocolBridgeEngine
+// ============================================================================
+
+export const PROTOCOL_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // ── extracted/systems/ (7 files) ────────────────────────────────────────────
+
+  PRISM_ERROR_BOUNDARY: {
+    filename: "PRISM_ERROR_BOUNDARY.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 154,
+    safety_class: "LOW",
+    description: "Error boundary wrapper isolating subsystem failures from propagating upstream",
+  },
+  PRISM_ERROR_HANDLER: {
+    filename: "PRISM_ERROR_HANDLER.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 63,
+    safety_class: "LOW",
+    description: "Centralized error handler with severity classification and notification routing",
+  },
+  PRISM_ERROR_LOOKUP: {
+    filename: "PRISM_ERROR_LOOKUP.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 89,
+    safety_class: "LOW",
+    description: "Error code lookup table mapping numeric codes to human-readable messages and remedies",
+  },
+  PRISM_UI_ADAPTER: {
+    filename: "PRISM_UI_ADAPTER.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 262,
+    safety_class: "LOW",
+    description: "UI adapter layer translating internal data models to front-end display formats",
+  },
+  PRISM_UI_BACKEND_INTEGRATOR: {
+    filename: "PRISM_UI_BACKEND_INTEGRATOR.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 293,
+    safety_class: "LOW",
+    description: "Backend integration bridge connecting UI state management to server-side APIs",
+  },
+  PRISM_UI_INTEGRATION_ENGINE: {
+    filename: "PRISM_UI_INTEGRATION_ENGINE.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 208,
+    safety_class: "LOW",
+    description: "UI integration engine coordinating widget lifecycle, data binding, and event forwarding",
+  },
+  PRISM_UI_SYSTEM: {
+    filename: "PRISM_UI_SYSTEM.js",
+    source_dir: "extracted/systems",
+    category: "systems",
+    lines: 347,
+    safety_class: "LOW",
+    description: "Top-level UI system managing layout, theming, and component registration",
+  },
+};
+
+/**
+ * Return the ProtocolBridgeEngine source-file catalog for audit and traceability.
+ */
+export function getProtocolSourceFileCatalog(): typeof PROTOCOL_SOURCE_FILE_CATALOG {
+  return PROTOCOL_SOURCE_FILE_CATALOG;
+}

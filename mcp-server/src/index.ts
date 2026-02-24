@@ -107,6 +107,155 @@ import { registryManager } from "./registries/index.js";
 dotenv.config();
 
 // ============================================================================
+// CORE SOURCE FILE CATALOG — 16 LOW-priority core infrastructure modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (P-MS5 Wave 4)
+// These are foundational bootstrap, orchestration, and config modules
+// that the index.ts entry point orchestrates.
+// Total: 16 files, 6,237 lines
+// ============================================================================
+
+export const CORE_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // --- core/ category: bootstrap, config, orchestration, workflow ---
+  'EXT-067': {
+    filename: "PRISM_CAPABILITY_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 194,
+    safety_class: "LOW",
+    description: "Capability registry — dynamic feature/capability advertisement and discovery for engine self-registration.",
+  },
+  'EXT-068': {
+    filename: "PRISM_CONSTANTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 2461,
+    safety_class: "LOW",
+    description: "Core constants — ISO material groups, tool types, coatings, machine families, and lookup tables used across all engines.",
+  },
+  'EXT-069': {
+    filename: "PRISM_ENHANCED_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 355,
+    safety_class: "LOW",
+    description: "Enhanced master orchestrator — multi-step manufacturing workflow coordination with retry and checkpoint logic.",
+  },
+  'EXT-070': {
+    filename: "PRISM_ENHANCEMENTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 60,
+    safety_class: "LOW",
+    description: "Core enhancements — feature flag toggles and incremental improvement patches for the PRISM platform.",
+  },
+  'EXT-071': {
+    filename: "PRISM_MASTER.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 215,
+    safety_class: "LOW",
+    description: "Master module — top-level PRISM initialization, module wiring, and startup sequence coordinator.",
+  },
+  'EXT-072': {
+    filename: "PRISM_MASTER_DB.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 131,
+    safety_class: "LOW",
+    description: "Master database — central data-source registry connecting file-based and in-memory stores.",
+  },
+  'EXT-073': {
+    filename: "PRISM_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 696,
+    safety_class: "LOW",
+    description: "Master orchestrator — primary workflow engine coordinating multi-engine manufacturing pipelines.",
+  },
+  'EXT-074': {
+    filename: "PRISM_MASTER_TOOLPATH_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 612,
+    safety_class: "LOW",
+    description: "Master toolpath registry — central catalog of toolpath strategies with selection heuristics and constraints.",
+  },
+  'EXT-075': {
+    filename: "PRISM_PARAM_ENGINE.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 10,
+    safety_class: "LOW",
+    description: "Parameter engine stub — lightweight parameter resolution entry point for the core bootstrap chain.",
+  },
+  'EXT-076': {
+    filename: "PRISM_UNIFIED_WORKFLOW.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 145,
+    safety_class: "LOW",
+    description: "Unified workflow — single-entry-point workflow executor merging planning, calculation, and validation stages.",
+  },
+  'EXT-077': {
+    filename: "PRISM_WORKFLOW_ORCHESTRATOR_V2.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 223,
+    safety_class: "LOW",
+    description: "Workflow orchestrator V2 — DAG-based task scheduler with parallel execution and dependency resolution.",
+  },
+
+  // --- engines/core subcategory: core engine infrastructure ---
+  'EXT-235': {
+    filename: "PRISM_ENHANCED_ORCHESTRATION_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 452,
+    safety_class: "LOW",
+    description: "Enhanced orchestration engine — event-driven multi-engine coordination with health monitoring and fallback routing.",
+  },
+  'EXT-236': {
+    filename: "PRISM_FAILSAFE_GENERATOR.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 169,
+    safety_class: "LOW",
+    description: "Failsafe generator — automatic safe-default parameter generation when primary calculation engines fail.",
+  },
+  'EXT-237': {
+    filename: "PRISM_INTERVAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 847,
+    safety_class: "LOW",
+    description: "Interval engine — interval arithmetic for uncertainty propagation through manufacturing calculation chains.",
+  },
+  'EXT-238': {
+    filename: "PRISM_NUMERICAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 19,
+    safety_class: "LOW",
+    description: "Numerical engine stub — lightweight numerical computation entry point for the core engine chain.",
+  },
+  'EXT-239': {
+    filename: "PRISM_UNIFIED_OUTPUT_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 195,
+    safety_class: "LOW",
+    description: "Unified output engine — standardized result formatting, unit labeling, and safety annotation for all engine outputs.",
+  },
+};
+
+// ============================================================================
 // SERVER INITIALIZATION
 // ============================================================================
 

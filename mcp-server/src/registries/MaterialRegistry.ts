@@ -599,7 +599,7 @@ export class MaterialRegistry extends BaseRegistry<Material> {
   }
 
   /**
-   * Get the catalog of 65 MEDIUM-priority source files targeting MaterialRegistry.
+   * Get the catalog of 81 source files targeting MaterialRegistry (65 MEDIUM + 16 LOW).
    * Static access — no instance required.
    */
   static getSourceFileCatalog(): Record<string, MaterialSourceFileEntry> {
@@ -632,8 +632,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
 
 // ============================================================================
 // MATERIAL SOURCE FILE CATALOG
-// 65 MEDIUM-priority extracted JS source files targeting MaterialRegistry
-// Total: 285,019 lines of material database source code
+// 81 extracted JS source files targeting MaterialRegistry
+//   65 MEDIUM-priority (285,019 lines)  — extracted/
+//   16 LOW-priority    (347,390 lines)  — materials_complete + materials_enhanced
+// Total: 632,409 lines of material database source code
 // Generated: 2026-02-23 from MASTER_EXTRACTION_INDEX_V2.json
 // ============================================================================
 
@@ -644,23 +646,25 @@ export interface MaterialSourceFileEntry {
   category: string;
   subcategory: string;
   lines: number;
-  safety_class: "MEDIUM";
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
   description: string;
   iso_group?: string;
 }
 
 /**
- * Catalog of 65 extracted JS source files (MEDIUM safety_class)
- * targeting MaterialRegistry for integration.
+ * Catalog of 81 extracted JS source files targeting MaterialRegistry.
  *
- * Spans 5 ISO material groups:
+ * MEDIUM (65 files, 285,019 lines):
  *   P - Steels (15 files, carbon/alloy/tool/free-machining)
  *   M - Stainless steels (3 files)
  *   K - Cast irons (3 files, gray/ductile/special)
  *   N - Nonferrous metals (18 files, aluminum/copper/titanium/magnesium/zinc)
  *   S - Superalloys (3 + 17 V9 batch files)
+ *   Plus 4 top-level material files and 2 engine files.
  *
- * Plus 4 top-level material files and 2 engine files.
+ * LOW (16 files, 347,390 lines — P-MS5 Wave 4):
+ *   materials_complete/ — 2 complete profiles (P_STEELS, M_STAINLESS)
+ *   materials_enhanced/ — 14 enhanced profiles (12 P_STEELS, 2 M_STAINLESS)
  */
 export const MATERIAL_SOURCE_FILE_CATALOG: Record<string, MaterialSourceFileEntry> = {
   // --- engines/materials (2 files) ---
@@ -1327,6 +1331,174 @@ export const MATERIAL_SOURCE_FILE_CATALOG: Record<string, MaterialSourceFileEntr
     safety_class: "MEDIUM",
     description: "V9-enhanced superalloy profile batch with extended machining data",
     iso_group: "S"
+  },
+
+  // --- LOW priority: materials_complete + materials_enhanced (P-MS5 Wave 4) ---
+
+  // --- materials_complete/ (2 files, 218,727 lines) ---
+  "M_STAINLESS_complete": {
+    filename: "M_STAINLESS_complete.js",
+    source_dir: "extracted/materials_complete/M_STAINLESS",
+    category: "materials_complete",
+    subcategory: "M_STAINLESS",
+    lines: 61969,
+    safety_class: "LOW",
+    description: "Complete stainless steel profile with full machining data library",
+    iso_group: "M"
+  },
+  "P_STEELS_complete": {
+    filename: "P_STEELS_complete.js",
+    source_dir: "extracted/materials_complete/P_STEELS",
+    category: "materials_complete",
+    subcategory: "P_STEELS",
+    lines: 156758,
+    safety_class: "LOW",
+    description: "Complete steel profile with full machining data library",
+    iso_group: "P"
+  },
+
+  // --- materials_enhanced/M_STAINLESS (2 files, ISO group M) ---
+  "stainless_steels_001_050_enhanced": {
+    filename: "stainless_steels_001_050_enhanced.js",
+    source_dir: "extracted/materials_enhanced/M_STAINLESS",
+    category: "materials_enhanced",
+    subcategory: "M_STAINLESS",
+    lines: 15615,
+    safety_class: "LOW",
+    description: "Enhanced stainless steel 001-050 profile with extended cutting parameters",
+    iso_group: "M"
+  },
+  "stainless_steels_051_100_enhanced": {
+    filename: "stainless_steels_051_100_enhanced.js",
+    source_dir: "extracted/materials_enhanced/M_STAINLESS",
+    category: "materials_enhanced",
+    subcategory: "M_STAINLESS",
+    lines: 18594,
+    safety_class: "LOW",
+    description: "Enhanced stainless steel 051-100 profile with extended cutting parameters",
+    iso_group: "M"
+  },
+
+  // --- materials_enhanced/P_STEELS (12 files, ISO group P) ---
+  "alloy_steels_065_100_enhanced": {
+    filename: "alloy_steels_065_100_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 11549,
+    safety_class: "LOW",
+    description: "Enhanced alloy steel profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_011_020_enhanced": {
+    filename: "carbon_steels_011_020_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3148,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 011-020 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_021_030_enhanced": {
+    filename: "carbon_steels_021_030_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3149,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 021-030 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_031_040_enhanced": {
+    filename: "carbon_steels_031_040_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3144,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 031-040 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_041_050_enhanced": {
+    filename: "carbon_steels_041_050_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3149,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 041-050 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "free_machining_steels_051_064_enhanced": {
+    filename: "free_machining_steels_051_064_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4580,
+    safety_class: "LOW",
+    description: "Enhanced free machining steel profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_151_200_enhanced": {
+    filename: "steels_151_200_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 19735,
+    safety_class: "LOW",
+    description: "Enhanced steel 151-200 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_201_250_enhanced": {
+    filename: "steels_201_250_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 11801,
+    safety_class: "LOW",
+    description: "Enhanced steel 201-250 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_251_300_enhanced": {
+    filename: "steels_251_300_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 9654,
+    safety_class: "LOW",
+    description: "Enhanced steel 251-300 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_301_350_enhanced": {
+    filename: "steels_301_350_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4465,
+    safety_class: "LOW",
+    description: "Enhanced steel 301-350 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_351_400_enhanced": {
+    filename: "steels_351_400_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4765,
+    safety_class: "LOW",
+    description: "Enhanced steel 351-400 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "tool_steels_101_150_enhanced": {
+    filename: "tool_steels_101_150_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 15315,
+    safety_class: "LOW",
+    description: "Enhanced tool steel profile with extended cutting parameters",
+    iso_group: "P"
   }
 };
 

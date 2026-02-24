@@ -752,3 +752,85 @@ export type {
   QueuedExecution,
   ScriptRecommendation
 };
+
+// ============================================================================
+// SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting ScriptExecutor
+// ============================================================================
+
+export const SCRIPT_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // ── extracted/engines/infrastructure/ (2 files) ─────────────────────────────
+
+  PRISM_DB_MANAGER: {
+    filename: "PRISM_DB_MANAGER.js",
+    source_dir: "extracted/engines/infrastructure",
+    category: "engines",
+    lines: 258,
+    safety_class: "LOW",
+    description: "Database connection manager with pooling, migrations, and health checks",
+  },
+  PRISM_EVENT_MANAGER: {
+    filename: "PRISM_EVENT_MANAGER.js",
+    source_dir: "extracted/engines/infrastructure",
+    category: "engines",
+    lines: 106,
+    safety_class: "LOW",
+    description: "Event lifecycle manager: registration, dispatch, and handler cleanup",
+  },
+
+  // ── extracted/infrastructure/ (5 files) ─────────────────────────────────────
+
+  PRISM_COMPARE: {
+    filename: "PRISM_COMPARE.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 2198,
+    safety_class: "LOW",
+    description: "Deep comparison utilities for objects, arrays, and nested structures with diff output",
+  },
+  PRISM_EVENT_BUS: {
+    filename: "PRISM_EVENT_BUS.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 154,
+    safety_class: "LOW",
+    description: "Original event bus implementation with pub/sub, wildcards, and replay support",
+  },
+  PRISM_GATEWAY: {
+    filename: "PRISM_GATEWAY.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 111,
+    safety_class: "LOW",
+    description: "API gateway entry point for request routing and middleware chaining",
+  },
+  PRISM_STATE_STORE: {
+    filename: "PRISM_STATE_STORE.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 221,
+    safety_class: "LOW",
+    description: "Persistent state store with snapshot, restore, and change-notification support",
+  },
+  PRISM_VALIDATOR: {
+    filename: "PRISM_VALIDATOR.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 3369,
+    safety_class: "LOW",
+    description: "Comprehensive validation library for parameters, G-code, and configuration schemas",
+  },
+};
+
+/**
+ * Return the ScriptExecutor source-file catalog for audit and traceability.
+ */
+export function getScriptSourceFileCatalog(): typeof SCRIPT_SOURCE_FILE_CATALOG {
+  return SCRIPT_SOURCE_FILE_CATALOG;
+}

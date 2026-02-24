@@ -372,3 +372,147 @@ export function dncTransfer(action: string, params: Record<string, any>): any {
       return { error: `DNCTransferEngine: unknown action "${action}"` };
   }
 }
+
+// ─── Source File Catalog (14 LOW-priority integration extractions) ───────────
+
+export const DNC_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+  integration_type: string;
+}> = {
+  "EXT-350": {
+    filename: "PRISM_100_PERCENT_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 187,
+    safety_class: "LOW",
+    description: "Full-coverage integration module for PRISM system connectivity",
+    integration_type: "general",
+  },
+  "EXT-351": {
+    filename: "PRISM_AI_100_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 165,
+    safety_class: "LOW",
+    description: "AI-powered integration layer for PRISM analytics pipeline",
+    integration_type: "general",
+  },
+  "EXT-352": {
+    filename: "PRISM_AI_KNOWLEDGE_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 120,
+    safety_class: "LOW",
+    description: "AI knowledge base integration for machining intelligence",
+    integration_type: "general",
+  },
+  "EXT-353": {
+    filename: "PRISM_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 279,
+    safety_class: "LOW",
+    description: "Core bridge module connecting PRISM subsystems",
+    integration_type: "general",
+  },
+  "EXT-354": {
+    filename: "PRISM_CAD_LEARNING_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 304,
+    safety_class: "LOW",
+    description: "CAD-to-learning pipeline bridge for geometry-driven optimization",
+    integration_type: "general",
+  },
+  "EXT-355": {
+    filename: "PRISM_CALCULATOR_ENHANCEMENT_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 83,
+    safety_class: "LOW",
+    description: "Calculator enhancement bridge for parameter computation",
+    integration_type: "general",
+  },
+  "EXT-356": {
+    filename: "PRISM_DATABASE_HUB.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 77,
+    safety_class: "LOW",
+    description: "Central database hub for cross-module data access",
+    integration_type: "general",
+  },
+  "EXT-357": {
+    filename: "PRISM_ENHANCED_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 476,
+    safety_class: "LOW",
+    description: "Enhanced integration module with extended connectivity features",
+    integration_type: "general",
+  },
+  "EXT-358": {
+    filename: "PRISM_EVENT_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 74,
+    safety_class: "LOW",
+    description: "Event-driven bridge for real-time system notifications",
+    integration_type: "general",
+  },
+  "EXT-359": {
+    filename: "PRISM_FINAL_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 136,
+    safety_class: "LOW",
+    description: "Final integration assembly connecting all PRISM modules",
+    integration_type: "general",
+  },
+  "EXT-360": {
+    filename: "PRISM_HIGH_PRIORITY_INTEGRATION_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 59,
+    safety_class: "LOW",
+    description: "High-priority integration bridge for critical-path data flows",
+    integration_type: "general",
+  },
+  "EXT-361": {
+    filename: "PRISM_KERNEL_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 101,
+    safety_class: "LOW",
+    description: "Kernel-level integration for core PRISM computation engine",
+    integration_type: "general",
+  },
+  "EXT-362": {
+    filename: "PRISM_PRODUCTION_INTEGRATION.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 205,
+    safety_class: "LOW",
+    description: "Production workflow integration for shop-floor data exchange",
+    integration_type: "general",
+  },
+  "EXT-363": {
+    filename: "PRISM_SIMULATION_INTEGRATION_BRIDGE.js",
+    source_dir: "extracted/integration/",
+    category: "integration",
+    lines: 402,
+    safety_class: "LOW",
+    description: "Simulation integration bridge for virtual machining validation",
+    integration_type: "general",
+  },
+};
+
+/** Returns the source file catalog for DNC transfer engine traceability. */
+export function getSourceFileCatalog(): typeof DNC_SOURCE_FILE_CATALOG {
+  return DNC_SOURCE_FILE_CATALOG;
+}
