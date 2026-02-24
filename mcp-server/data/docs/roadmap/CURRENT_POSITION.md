@@ -1,10 +1,10 @@
 # CURRENT POSITION
-## Updated: 2026-02-25T07:02:00Z
+## Updated: 2026-02-25T21:20:00Z
 
-**Phase:** R0-P3 Scrutinizer COMPLETE (4 units + gate, all deliverables verified)
+**Phase:** R0-P4 Hooks & Wiring COMPLETE (5 units + gate, all deliverables verified)
 **Build:** 5.1MB server (esbuild clean, 1 warning — CommonJS only)
-**Roadmap:** Master Roadmap — R0-P0 COMPLETE, R0-P1 COMPLETE, R0-P2 COMPLETE, R0-P3 COMPLETE, R0-P4 next
-**Tests:** 95/95 vitest pass (74 baseline + 21 scrutinizer)
+**Roadmap:** Master Roadmap — R0-P0 COMPLETE, R0-P1 COMPLETE, R0-P2 COMPLETE, R0-P3 COMPLETE, R0-P4 COMPLETE, R0-P5 next
+**Tests:** 111/111 vitest pass (95 baseline + 16 hook tests)
 **Dispatchers:** 32 (541 verified actions) — 100% wired, 100% hook-wrapped
 **Engines:** 73 total (74 files incl. index.ts), all barrel-exported, zero orphans
 **Registries:** 14 registries across 18 files
@@ -70,6 +70,17 @@
 - [x] Tests pass (95/95 — 74 baseline + 21 new, no regression)
 - [x] Omega = 1.0 (all components at 1.0)
 - [x] Anti-regression: all baseline tests pass, test count increased 74->95
+
+## P4 Gate Criteria (Hooks, Indexer & Wiring)
+- [x] P4-U01: pre-roadmap-execute.ts (116 lines, entry validation gate)
+- [x] P4-U02: post-roadmap-unit.ts (324 lines, position update + indexing + gate check)
+- [x] P4-U03: index-roadmap-outputs.ts (201 lines, retroactive deliverable indexer)
+- [x] P4-U04: /continue-roadmap slash command (99 lines, full execution lifecycle)
+- [x] P4-U05: roadmap-hooks.test.ts (319 lines, 16 tests across 3 describe blocks)
+- [x] Build passes (5.1MB, 1 warning)
+- [x] Tests pass (111/111 — 95 baseline + 16 new, no regression)
+- [x] Omega = 1.0 (all components at 1.0)
+- [x] Anti-regression: all baseline tests pass, test count increased 95->111
 
 ## P2 Gate Criteria (Generator Core)
 - [x] P2-U01: RGS_PIPELINE_ARCHITECTURE.md (268 lines, 7-stage design)
