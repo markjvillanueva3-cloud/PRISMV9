@@ -273,6 +273,12 @@ interface JobPlanInput {
   machine_id?: string;
   tool_id?: string;
   response_level?: ResponseLevel;
+  modal?: {
+    natural_frequency?: number;
+    damping_ratio?: number;
+    stiffness?: number;
+  };
+  machine_power_kw?: number;
 }
 
 /** A single operation within a job plan. */
@@ -286,6 +292,7 @@ interface JobPlanOperation {
     radial_depth: number;
     spindle_speed: number;
     feed_rate: number;
+    tool_diameter?: number;
   };
   force: { Fc: number; power_kW: number; torque_Nm: number };
   tool_life_min: number;
@@ -1724,7 +1731,7 @@ async function whatIf(params: Record<string, any>): Promise<any> {
 
       // Machine constraint checking
       const constraintViolations: string[] = [];
-      const machineMaxPower = params.machine_power_kw ?? INTELLIGENCE_SAFETY_LIMITS.MAX_SPINDLE_POWER_KW;
+      const machineMaxPower = params.machine_power_kw ?? INTELLIGENCE_SAFETY_LIMITS.MAX_POWER_KW;
       for (const pt of sweepPoints) {
         if (pt.power_kW > machineMaxPower) {
           constraintViolations.push(

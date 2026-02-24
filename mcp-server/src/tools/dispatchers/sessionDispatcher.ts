@@ -471,7 +471,7 @@ export function registerSessionDispatcher(server: any): void {
             const state = loadJsonFile(CURRENT_STATE_FILE);
             let isCompacted = false;
             let confidence = 0;
-            const indicators = [];
+            const indicators: Array<{ name: string; detected: boolean }> = [];
             
             if (!state || !state.currentSession) {
               isCompacted = true;
@@ -479,7 +479,7 @@ export function registerSessionDispatcher(server: any): void {
             }
             indicators.push({ name: "state_file", detected: !!state });
             
-            let latestTranscript = null;
+            let latestTranscript: string | null = null;
             try {
               if (fs.existsSync(TRANSCRIPTS_DIR)) {
                 const files = fs.readdirSync(TRANSCRIPTS_DIR)
@@ -493,7 +493,7 @@ export function registerSessionDispatcher(server: any): void {
             } catch (e) {
               // Continue
             }
-            
+
             indicators.push({ name: "transcript", detected: !!latestTranscript });
             
             const compactionType = isCompacted ? (latestTranscript ? "soft" : "hard") : "none";
@@ -586,7 +586,7 @@ export function registerSessionDispatcher(server: any): void {
           }
           
           case "session_recover": {
-            let latestTranscript = null;
+            let latestTranscript: string | null = null;
             try {
               if (fs.existsSync(TRANSCRIPTS_DIR)) {
                 const files = fs.readdirSync(TRANSCRIPTS_DIR)

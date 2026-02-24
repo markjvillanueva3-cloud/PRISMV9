@@ -101,20 +101,21 @@ const preAgentTierRecommend: HookDefinition = {
   tags: ["agent", "cost-optimization", "tier-selection"],
   handler: (context: HookContext): HookResult => {
     const hook = preAgentTierRecommend;
-    const action = context.metadata?.action || context.operation || "";
-    const requestedTier = (context.metadata?.tier || context.metadata?.model || "").toLowerCase();
-    const taskComplexity = context.metadata?.complexity || "medium";
+    const meta = context.metadata as Record<string, any> | undefined;
+    const action = (meta?.action || context.operation || "") as string;
+    const requestedTier = ((meta?.tier || meta?.model || "") as string).toLowerCase();
+    const taskComplexity = (meta?.complexity || "medium") as string;
 
     let recommendedTier = "sonnet"; // Default
     let reason = "Standard complexity task";
 
     // Safety-critical → always OPUS
-    if (SAFETY_CRITICAL_ACTIONS.has(action) || context.metadata?.safety_critical === true) {
+    if (SAFETY_CRITICAL_ACTIONS.has(action) || meta?.safety_critical === true) {
       recommendedTier = "opus";
       reason = `Safety-critical action: ${action}`;
     }
     // Simple lookups → HAIKU
-    else if (SIMPLE_ACTIONS.has(action) || taskComplexity === "simple") {
+    else if (SIMPLE_ACTIONS.has(action as string) || taskComplexity === "simple") {
       recommendedTier = "haiku";
       reason = `Simple lookup: ${action}`;
     }
@@ -154,8 +155,9 @@ const preAgentCostEstimate: HookDefinition = {
   tags: ["agent", "cost-optimization"],
   handler: (context: HookContext): HookResult => {
     const hook = preAgentCostEstimate;
-    const tier = (context.metadata?.tier || "sonnet").toLowerCase();
-    const complexity = context.metadata?.complexity || "medium";
+    const meta = context.metadata as Record<string, any> | undefined;
+    const tier = ((meta?.tier || "sonnet") as string).toLowerCase();
+    const complexity = (meta?.complexity || "medium") as string;
     const tierKey = tier.includes("opus") ? "opus" : tier.includes("haiku") ? "haiku" : "sonnet";
     const estimatedTokens = COMPLEXITY_TOKENS[complexity] || COMPLEXITY_TOKENS.medium;
     const estimatedCost = (estimatedTokens / 1_000_000) * (TIER_COSTS[tierKey] || TIER_COSTS.sonnet);
@@ -188,10 +190,11 @@ const postAgentPerformanceTrack: HookDefinition = {
   tags: ["agent", "observability", "learning"],
   handler: (context: HookContext): HookResult => {
     const hook = postAgentPerformanceTrack;
-    const tier = (context.metadata?.tier || "sonnet").toLowerCase();
-    const action = context.metadata?.action || "unknown";
-    const success = context.metadata?.success !== false;
-    const duration = context.metadata?.duration_ms || 0;
+    const meta = context.metadata as Record<string, any> | undefined;
+    const tier = ((meta?.tier || "sonnet") as string).toLowerCase();
+    const action = (meta?.action || "unknown") as string;
+    const success = meta?.success !== false;
+    const duration = (meta?.duration_ms || 0) as number;
     const key = `${tier}:${action}`;
 
     const perf = agentPerformance.get(key) || { calls: 0, successes: 0, failures: 0, totalDuration: 0, lastCall: "" };
@@ -223,9 +226,10 @@ const onAgentTimeoutRecovery: HookDefinition = {
   tags: ["agent", "recovery", "resilience"],
   handler: (context: HookContext): HookResult => {
     const hook = onAgentTimeoutRecovery;
-    const tier = (context.metadata?.tier || "").toLowerCase();
-    const action = context.metadata?.action || "";
-    const timeoutMs = context.metadata?.timeout_ms || 30000;
+    const meta = context.metadata as Record<string, any> | undefined;
+    const tier = ((meta?.tier || "") as string).toLowerCase();
+    const action = (meta?.action || "") as string;
+    const timeoutMs = (meta?.timeout_ms || 30000) as number;
     
     let suggestion = "Retry with reduced prompt complexity";
     if (tier.includes("opus")) {
@@ -255,8 +259,9 @@ const preAgentDuplicateGuard: HookDefinition = {
   tags: ["agent", "cost-optimization", "dedup"],
   handler: (context: HookContext): HookResult => {
     const hook = preAgentDuplicateGuard;
-    const task = context.metadata?.task || context.metadata?.prompt || "";
-    const tier = (context.metadata?.tier || "sonnet").toLowerCase();
+    const meta = context.metadata as Record<string, any> | undefined;
+    const task = (meta?.task || meta?.prompt || "") as string;
+    const tier = ((meta?.tier || "sonnet") as string).toLowerCase();
     if (!task || task.length < 20) return hookSuccess(hook, "No task to dedup");
 
     const taskFingerprint = task.slice(0, 100).toLowerCase().replace(/\s+/g, " ");
@@ -296,11 +301,12 @@ const onAgentSafetyEscalate: HookDefinition = {
   tags: ["agent", "safety", "escalation", "critical"],
   handler: (context: HookContext): HookResult => {
     const hook = onAgentSafetyEscalate;
-    const action = context.metadata?.action || context.operation || "";
-    const tier = (context.metadata?.tier || context.metadata?.model || "").toLowerCase();
-    const isSafetyCritical = SAFETY_CRITICAL_ACTIONS.has(action) || 
-      context.metadata?.safety_critical === true ||
-      (context.metadata?.safety_score !== undefined && context.metadata.safety_score < 0.75);
+    const meta = context.metadata as Record<string, any> | undefined;
+    const action = (meta?.action || context.operation || "") as string;
+    const tier = ((meta?.tier || meta?.model || "") as string).toLowerCase();
+    const isSafetyCritical = SAFETY_CRITICAL_ACTIONS.has(action as string) ||
+      meta?.safety_critical === true ||
+      (meta?.safety_score !== undefined && meta?.safety_score !== null && (meta.safety_score as number) < 0.75);
 
     if (isSafetyCritical && !tier.includes("opus")) {
       return hookBlock(hook,
@@ -329,14 +335,15 @@ const postAgentLearningExtract: HookDefinition = {
   tags: ["agent", "learning", "patterns"],
   handler: (context: HookContext): HookResult => {
     const hook = postAgentLearningExtract;
-    const tier = (context.metadata?.tier || "sonnet").toLowerCase();
-    const action = context.metadata?.action || "unknown";
-    const success = context.metadata?.success !== false;
-    const duration = context.metadata?.duration_ms || 0;
-    const errorMsg = context.metadata?.error_message || "";
+    const meta = context.metadata as Record<string, any> | undefined;
+    const tier = ((meta?.tier || "sonnet") as string).toLowerCase();
+    const action = (meta?.action || "unknown") as string;
+    const success = meta?.success !== false;
+    const duration = (meta?.duration_ms || 0) as number;
+    const errorMsg = (meta?.error_message || "") as string;
 
     // Update recent tasks with result
-    const taskFingerprint = (context.metadata?.task || "").slice(0, 100).toLowerCase().replace(/\s+/g, " ");
+    const taskFingerprint = ((meta?.task || "") as string).slice(0, 100).toLowerCase().replace(/\s+/g, " ");
     const recent = recentAgentTasks.find(t => t.task === taskFingerprint && t.result === "pending");
     if (recent) recent.result = success ? "success" : "failed";
 

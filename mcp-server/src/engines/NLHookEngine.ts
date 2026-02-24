@@ -884,7 +884,7 @@ export class NLHookEngine {
     this.init();
     let records = Array.from(this.registry.values());
     if (filter?.status) records = records.filter(r => r.deploy_status === filter.status);
-    if (filter?.tag) records = records.filter(r => r.tags.includes(filter.tag));
+    if (filter?.tag) records = records.filter(r => r.tags.includes(filter.tag!));
     return records;
   }
 

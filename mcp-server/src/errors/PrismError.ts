@@ -55,7 +55,7 @@ export class SafetyBlockError extends PrismError {
     public readonly safetyScore: number,
   ) {
     super(message, 'safety', 'block');
-    this.name = 'SafetyBlockError';
+    (this as any).name = 'SafetyBlockError';
   }
 }
 
@@ -65,7 +65,7 @@ export class SafetyBlockError extends PrismError {
 export class DataError extends PrismError {
   constructor(message: string, severity: ErrorSeverity = 'retry') {
     super(message, 'data', severity);
-    this.name = 'DataError';
+    (this as any).name = 'DataError';
   }
 }
 
@@ -75,7 +75,7 @@ export class DataError extends PrismError {
 export class SchemaError extends PrismError {
   constructor(message: string) {
     super(message, 'schema', 'block');
-    this.name = 'SchemaError';
+    (this as any).name = 'SchemaError';
   }
 }
 
@@ -85,7 +85,7 @@ export class SchemaError extends PrismError {
 export class NetworkError extends PrismError {
   constructor(message: string) {
     super(message, 'network', 'retry');
-    this.name = 'NetworkError';
+    (this as any).name = 'NetworkError';
   }
 }
 
@@ -95,6 +95,6 @@ export class NetworkError extends PrismError {
 export class ValidationError extends PrismError {
   constructor(message: string, severity: ErrorSeverity = 'block') {
     super(message, 'validation', severity);
-    this.name = 'ValidationError';
+    (this as any).name = 'ValidationError';
   }
 }

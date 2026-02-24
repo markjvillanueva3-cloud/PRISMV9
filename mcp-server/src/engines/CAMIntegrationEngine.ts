@@ -1054,15 +1054,13 @@ export function camIntegration(action: string, params: Record<string, any>): any
         operation: typeof params.operation === "string" ? params.operation : rec0.operation_name,
         total_operations: recommendations.length,
         recommended: {
+          ...flat,
           rpm: flat.speed_rpm,
           sfm: flat.speed_sfm,
-          feed_mmmin: flat.feed_mmmin,
-          feed_ipm: flat.feed_ipm,
           fz_mm: flat.feed_per_tooth_mm,
           ap_mm: flat.axial_depth_mm,
           ae_mm: flat.radial_depth_mm,
-          ...flat,
-        },
+        } as any,
         strategy: rec0.strategy,
         chatter_risk: rec0.chatter_risk,
         recommendations,
@@ -1128,7 +1126,7 @@ export function camIntegration(action: string, params: Record<string, any>): any
         const p = op.parameters;
         const r = rec.recommended;
         // RPM comparison
-        const userRpm = p.rpm ?? p.speed_rpm ?? 0;
+        const userRpm = (p as any).rpm ?? p.speed_rpm ?? 0;
         if (userRpm > 0) {
           const diff = Math.abs((userRpm - r.speed_rpm) / r.speed_rpm) * 100;
           if (diff > 30) { issues.push(`RPM deviation ${Math.round(diff)}% — ${userRpm} vs recommended ${r.speed_rpm}`); matchScore -= 30; }
@@ -1142,14 +1140,14 @@ export function camIntegration(action: string, params: Record<string, any>): any
           else if (diff > 15) { matchScore -= Math.round(diff / 3); }
         }
         // Depth comparison
-        const userAp = p.ap_mm ?? p.axial_depth_mm ?? 0;
+        const userAp = (p as any).ap_mm ?? p.axial_depth_mm ?? 0;
         if (userAp > 0) {
           const diff = Math.abs((userAp - r.axial_depth_mm) / r.axial_depth_mm) * 100;
           if (diff > 50) { issues.push(`Axial depth deviation ${Math.round(diff)}% — ${userAp}mm vs recommended ${r.axial_depth_mm}mm`); matchScore -= 25; }
           else if (diff > 20) { matchScore -= Math.round(diff / 4); }
         }
         // Width comparison
-        const userAe = p.ae_mm ?? p.radial_depth_mm ?? 0;
+        const userAe = (p as any).ae_mm ?? p.radial_depth_mm ?? 0;
         if (userAe > 0) {
           const diff = Math.abs((userAe - r.radial_depth_mm) / r.radial_depth_mm) * 100;
           if (diff > 50) { issues.push(`Radial depth deviation ${Math.round(diff)}% — ${userAe}mm vs recommended ${r.radial_depth_mm}mm`); matchScore -= 20; }

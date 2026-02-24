@@ -358,7 +358,7 @@ async function fireTypescriptHook(hookId: string, data: Record<string, unknown>)
     }
     
     // Execute the hook handler
-    const result = hook.handler ? await hook.handler(data) : { executed: true };
+    const result = hook.handler ? await hook.handler(data as any) : { executed: true };
     
     return {
       success: true,
@@ -571,7 +571,7 @@ async function emulateInTypescript(hookId: string, data: Record<string, unknown>
  */
 export function getAllHooks(): { typescript: HookDefinition[]; cognitive: CognitiveHook[] } {
   return {
-    typescript: [...(hookEngine.getAllHooks?.() || []), ...PHASE0_HOOKS],
+    typescript: [...(hookEngine.listHooks?.() || []), ...PHASE0_HOOKS],
     cognitive: COGNITIVE_HOOKS
   };
 }
@@ -590,7 +590,7 @@ export function getHook(hookId: string): HookDefinition | CognitiveHook | null {
  * Gets hook counts by server
  */
 export function getHookCounts(): { typescript: number; python: number; total: number } {
-  const tsHooks = (hookEngine.getAllHooks?.()?.length || 0) + PHASE0_HOOKS.length;
+  const tsHooks = (hookEngine.listHooks?.()?.length || 0) + PHASE0_HOOKS.length;
   const pyHooks = COGNITIVE_HOOKS.length;
   return {
     typescript: tsHooks,

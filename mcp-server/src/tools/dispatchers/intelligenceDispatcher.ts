@@ -974,7 +974,7 @@ export function registerIntelligenceDispatcher(server: any): void {
           metadata: { dispatcher: "intelligenceDispatcher", action, params },
         };
 
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
         if (preResult.blocked) {
           return {
             content: [{
@@ -1091,7 +1091,7 @@ export function registerIntelligenceDispatcher(server: any): void {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
         };
-        await hookExecutor.execute("post-calculation", postCtx);
+        await hookExecutor.execute("post-calculation", postCtx as any);
 
         // === RESPONSE FORMATTING ===
         // Support response_level parameter
@@ -1115,9 +1115,8 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{
               type: "text" as const,
               text: JSON.stringify(slimResponse(
-                { action, ...result },
-                slimLevel,
-                keyValues
+                { action, ...result, _keyValues: keyValues },
+                slimLevel
               )),
             }],
           };

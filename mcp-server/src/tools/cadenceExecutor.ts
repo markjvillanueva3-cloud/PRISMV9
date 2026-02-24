@@ -2004,17 +2004,17 @@ export function autoInputValidation(
   params: Record<string, any>
 ): InputValidationResult {
   try {
-    const warnings: ValidationWarning[] = [];
+    const warnings: Array<{ param: string; value: any; issue: string; severity: string; safe_range?: string }> = [];
     let blocked = false;
     let blockReason: string | null = null;
 
     // Only validate calc, safety, and thread tools
     if (!["prism_calc", "prism_safety", "prism_thread"].includes(toolName)) {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
     }
 
     if (!params || typeof params !== "object") {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
     }
 
     // === Individual param range checks ===
@@ -2101,9 +2101,9 @@ export function autoInputValidation(
       } catch { /* log failed — non-fatal */ }
     }
 
-    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason };
+    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason } as any;
   } catch (err: any) {
-    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` };
+    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` } as any;
   }
 }
 
@@ -2226,9 +2226,9 @@ export function autoScriptRecommend(
       recommendations: recommendations.slice(0, 3),
       domain,
       scripts_scanned: scriptsScanned,
-    };
+    } as any;
   } catch (err: any) {
-    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 };
+    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 } as any;
   }
 }
 

@@ -41,6 +41,7 @@ export interface TrochoidalParams {
   optimal_feed_rate: number;    // mm/min
   optimal_spindle: number;      // rpm
   engagement_percent: number;   // %
+  max_engagement_deg: number;   // degrees — max cutter engagement angle
   mrr: number;                  // cm³/min
   warnings: string[];
 }

@@ -170,7 +170,7 @@ function buildResult(
     operation,
     gcode,
     line_count: lines.filter((l) => l.trim() !== "").length,
-    parameters_used: params as Record<string, unknown>,
+    parameters_used: params as unknown as Record<string, unknown>,
     notes,
     warnings,
     estimated_cycle_time_sec: cycle_time_sec,

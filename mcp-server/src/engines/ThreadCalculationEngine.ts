@@ -540,7 +540,7 @@ export class ThreadCalculationEngine {
   private pipeToSpec(t: PipeThread): ThreadSpec {
     return {
       designation: t.designation,
-      type: t.type,
+      type: t.type as ThreadType,
       nominalDiameter: t.majorDiameterMM,
       pitch: 25.4 / t.tpi,
       majorDiameter: t.majorDiameterMM,

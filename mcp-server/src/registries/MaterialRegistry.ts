@@ -343,16 +343,16 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     if (options.hardness_min !== undefined) {
-      results = results.filter(m => 
-        (m.mechanical?.hardness_hrc || 0) >= options.hardness_min! ||
-        (m.mechanical?.hardness_hb || 0) >= options.hardness_min!
+      results = results.filter(m =>
+        (m.mechanical?.hardness?.rockwell_c || 0) >= options.hardness_min! ||
+        (m.mechanical?.hardness?.brinell || 0) >= options.hardness_min!
       );
     }
-    
+
     if (options.hardness_max !== undefined) {
-      results = results.filter(m => 
-        (m.mechanical?.hardness_hrc || 999) <= options.hardness_max! ||
-        (m.mechanical?.hardness_hb || 999) <= options.hardness_max!
+      results = results.filter(m =>
+        (m.mechanical?.hardness?.rockwell_c || 999) <= options.hardness_max! ||
+        (m.mechanical?.hardness?.brinell || 999) <= options.hardness_max!
       );
     }
     

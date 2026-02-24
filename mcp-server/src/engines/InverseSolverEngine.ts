@@ -675,42 +675,42 @@ export function inverseSolver(action: string, params: Record<string, any>): any 
       const type = params.problem_type as InverseProblemType ?? "general";
       let solution: InverseSolution;
       switch (type) {
-        case "surface_finish": solution = solveSurfaceFinish(params); break;
-        case "tool_life": solution = solveToolLife(params); break;
-        case "dimensional": solution = solveDimensional(params); break;
-        case "chatter": solution = solveChatter(params); break;
-        default: solution = solveGeneral(params); break;
+        case "surface_finish": solution = solveSurfaceFinish(params as any); break;
+        case "tool_life": solution = solveToolLife(params as any); break;
+        case "dimensional": solution = solveDimensional(params as any); break;
+        case "chatter": solution = solveChatter(params as any); break;
+        default: solution = solveGeneral(params as any); break;
       }
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_surface": {
-      const solution = solveSurfaceFinish(params);
+      const solution = solveSurfaceFinish(params as any);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_tool_life": {
-      const solution = solveToolLife(params);
+      const solution = solveToolLife(params as any);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_dimensional": {
-      const solution = solveDimensional(params);
+      const solution = solveDimensional(params as any);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_chatter": {
-      const solution = solveChatter(params);
+      const solution = solveChatter(params as any);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_troubleshoot": {
-      const solution = solveGeneral(params);
+      const solution = solveGeneral(params as any);
       solutionHistory.push(solution);
       return solution;
     }

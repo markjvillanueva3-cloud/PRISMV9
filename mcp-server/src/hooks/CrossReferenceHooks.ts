@@ -605,7 +605,7 @@ const onCircularDependencyDetection: HookDefinition = {
       visited.add(node);
       recursionStack.add(node);
       
-      const deps = dependencyGraph[node] || [];
+      const deps = dependencyGraph![node] || [];
       for (const dep of deps) {
         dfs(dep, [...path, node]);
       }

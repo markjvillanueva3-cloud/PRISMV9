@@ -23,10 +23,13 @@ export function successResponse(
   text: string,
   structuredContent?: unknown
 ): ToolResponse {
-  return {
+  const response: ToolResponse = {
     content: [{ type: "text", text: truncateIfNeeded(text) }],
-    ...(structuredContent && { structuredContent })
   };
+  if (structuredContent) {
+    response.structuredContent = structuredContent;
+  }
+  return response;
 }
 
 /**

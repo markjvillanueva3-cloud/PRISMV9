@@ -574,7 +574,7 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
 
   if (kc1_1 !== undefined && mc !== undefined) {
     const kienzleResult = validateKienzle(kc1_1, mc, isoGroup);
-    components.force_safety.score = kienzleResult.score;
+    components.force_safety.score = kienzleResult.score ?? 0;
     components.force_safety.pass = kienzleResult.valid;
     if (!kienzleResult.valid) {
       issues.push(...kienzleResult.issues.map(i => i.message));
@@ -601,7 +601,7 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
 
   if (taylorC !== undefined && taylorN !== undefined) {
     const taylorResult = validateTaylor(taylorC, taylorN, isoGroup);
-    components.tool_life.score = taylorResult.score;
+    components.tool_life.score = taylorResult.score ?? 0;
     components.tool_life.pass = taylorResult.valid;
     if (!taylorResult.valid) {
       issues.push(...taylorResult.issues.map(i => i.message));

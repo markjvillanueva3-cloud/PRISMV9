@@ -470,9 +470,9 @@ const onSessionCompleteNotify: HookDefinition = {
   handler: (context: HookContext): HookResult => {
     const hook = onSessionCompleteNotify;
     
-    const sessionId = context.session?.sessionId || "unknown";
+    const sessionId = context.session?.id || "unknown";
     const status = context.metadata?.status || "completed";
-    
+
     const notification: NotificationEntry = {
       id: `notif-session-${Date.now()}`,
       type: status === "completed" ? "success" : "info",
@@ -594,11 +594,11 @@ const onStateAutoSave: HookDefinition = {
     const hook = onStateAutoSave;
     
     const sessionState = {
-      sessionId: context.session?.sessionId,
+      sessionId: context.session?.id,
       toolCalls: context.session?.toolCalls,
       checkpoints: context.session?.checkpoints,
       timestamp: new Date().toISOString(),
-      bufferZone: context.session?.bufferZone,
+      bufferZone: (context.session as any)?.bufferZone,
       indexes: {
         materials: automationState.indexes.materials.size,
         machines: automationState.indexes.machines.size,

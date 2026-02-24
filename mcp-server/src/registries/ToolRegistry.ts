@@ -521,7 +521,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     application?: string;
     limit?: number;
     offset?: number;
-  }): { tools: CuttingTool[]; total: number } {
+  }): { tools: CuttingTool[]; total: number; hasMore?: boolean } {
     let results: CuttingTool[] = [];
     
     // Start with most selective filter

@@ -196,7 +196,7 @@ export class PredictiveFailureEngine {
 
   constructor(configOverrides?: Partial<PFPConfig>) {
     this.config = validateConfig(configOverrides || {});
-    this.history = new Array(this.config.historyBufferSize);
+    this.history = new Array(this.config.historyBufferSize!!);
     this.loadConfig();
     ensureStateDir();
   }
@@ -205,7 +205,7 @@ export class PredictiveFailureEngine {
     if (this.initialized) return;
     this.loadPatterns();
     this.initialized = true;
-    log.info(`[PFP] Engine initialized (buffer=${this.config.historyBufferSize}, extraction_interval=${this.config.patternExtractionIntervalCalls}, confidence=${this.config.confidenceThreshold})`);
+    log.info(`[PFP] Engine initialized (buffer=${this.config.historyBufferSize!!}, extraction_interval=${this.config.patternExtractionIntervalCalls!!}, confidence=${this.config.confidenceThreshold})`);
   }
 
   // ==========================================================================
@@ -228,6 +228,7 @@ export class PredictiveFailureEngine {
         dispatcher,
         action,
         outcome,
+        durationMs: latencyMs,
         latencyMs,
         errorClass,
         paramSignature: computeParamSignature(params),
@@ -241,12 +242,12 @@ export class PredictiveFailureEngine {
       };
 
       this.history[this.historyWriteIndex] = record;
-      this.historyWriteIndex = (this.historyWriteIndex + 1) % this.config.historyBufferSize;
-      if (this.historySize < this.config.historyBufferSize) this.historySize++;
+      this.historyWriteIndex = (this.historyWriteIndex + 1) % this.config.historyBufferSize!;
+      if (this.historySize < this.config.historyBufferSize!) this.historySize++;
 
       // Trigger extraction when enough new records accumulated
       this.recordsSinceExtraction++;
-      if (this.recordsSinceExtraction >= this.config.patternExtractionIntervalCalls) {
+      if (this.recordsSinceExtraction >= this.config.patternExtractionIntervalCalls!) {
         this.extractPatterns();
         this.recordsSinceExtraction = 0;
       }
@@ -265,7 +266,7 @@ export class PredictiveFailureEngine {
     const assessStart = performance.now();
 
     try {
-      if (!this.config.enabled || this.historySize < this.config.minSamplesForPattern) {
+      if (!this.config.enabled || this.historySize < this.config.minSamplesForPattern!) {
         return this.greenAssessment(dispatcher, action, assessStart);
       }
 
@@ -285,7 +286,7 @@ export class PredictiveFailureEngine {
       for (const pattern of actionPatterns) {
         // Apply exponential decay
         const age = now - pattern.lastSeen;
-        const decayFactor = Math.exp(-0.693 * age / this.config.decayHalfLifeMs); // ln(2) = 0.693
+        const decayFactor = Math.exp(-0.693 * age / this.config.decayHalfLifeMs!); // ln(2) = 0.693
         const effectiveConfidence = pattern.confidence * decayFactor;
 
         if (effectiveConfidence < 0.1) continue; // decayed below relevance
@@ -293,41 +294,42 @@ export class PredictiveFailureEngine {
         let matched = false;
         let contribution = 0;
 
+        const det = pattern.details as any;
         switch (pattern.type) {
           case 'ACTION_ERROR_RATE':
             matched = true;
-            contribution = pattern.failureRate * effectiveConfidence;
+            contribution = (pattern.failureRate || 0) * effectiveConfidence;
             break;
 
           case 'PARAM_COMBO_FAILURE':
-            if (pattern.details.type === 'PARAM_COMBO_FAILURE' && pattern.details.paramSignature === paramSig) {
+            if (det && det.type === 'PARAM_COMBO_FAILURE' && det.paramSignature === paramSig) {
               matched = true;
-              contribution = pattern.failureRate * effectiveConfidence * 1.5; // boost for specific param match
+              contribution = (pattern.failureRate || 0) * effectiveConfidence * 1.5; // boost for specific param match
             }
             break;
 
           case 'CONTEXT_DEPTH_FAILURE':
-            if (pattern.details.type === 'CONTEXT_DEPTH_FAILURE' && contextDepthPercent > pattern.details.thresholdPercent) {
+            if (det && det.type === 'CONTEXT_DEPTH_FAILURE' && contextDepthPercent > det.thresholdPercent) {
               matched = true;
-              contribution = pattern.details.failureRateAbove * effectiveConfidence;
+              contribution = det.failureRateAbove * effectiveConfidence;
             }
             break;
 
           case 'SEQUENCE_FAILURE':
             // Check if preceding action matches (look at last history entry)
-            if (pattern.details.type === 'SEQUENCE_FAILURE') {
+            if (det && det.type === 'SEQUENCE_FAILURE') {
               const lastRecord = this.getLastRecord();
-              if (lastRecord && `${lastRecord.dispatcher}:${lastRecord.action}` === pattern.details.precedingAction) {
+              if (lastRecord && `${lastRecord.dispatcher}:${lastRecord.action}` === det.precedingAction) {
                 matched = true;
-                contribution = pattern.details.failureRateAfter * effectiveConfidence;
+                contribution = det.failureRateAfter * effectiveConfidence;
               }
             }
             break;
 
           case 'TEMPORAL_FAILURE':
-            if (pattern.details.type === 'TEMPORAL_FAILURE' && callNumber > pattern.details.callCountThreshold) {
+            if (det && det.type === 'TEMPORAL_FAILURE' && callNumber > det.callCountThreshold) {
               matched = true;
-              contribution = pattern.details.failureRateAbove * effectiveConfidence;
+              contribution = det.failureRateAbove * effectiveConfidence;
             }
             break;
         }
@@ -350,10 +352,10 @@ export class PredictiveFailureEngine {
       let riskLevel: RiskLevel = 'GREEN';
       let recommendation: 'PROCEED' | 'WARN' | 'CONSIDER_SKIP' = 'PROCEED';
 
-      if (riskScore >= this.config.riskThresholds.red) {
+      if (riskScore >= this.config.riskThresholds!.red) {
         riskLevel = 'RED';
         recommendation = 'CONSIDER_SKIP';
-      } else if (riskScore >= this.config.riskThresholds.yellow) {
+      } else if (riskScore >= this.config.riskThresholds!.yellow) {
         riskLevel = 'YELLOW';
         recommendation = 'WARN';
       }
@@ -400,15 +402,15 @@ export class PredictiveFailureEngine {
 
   private getLastRecord(): ActionRecord | null {
     if (this.historySize === 0) return null;
-    const idx = (this.historyWriteIndex - 1 + this.config.historyBufferSize) % this.config.historyBufferSize;
+    const idx = (this.historyWriteIndex - 1 + this.config.historyBufferSize!) % this.config.historyBufferSize!;
     return this.history[idx] || null;
   }
 
   private estimateLatency(dispatcher: string, action: string): number {
     let totalMs = 0, count = 0;
-    const startIdx = this.historySize < this.config.historyBufferSize ? 0 : this.historyWriteIndex;
+    const startIdx = this.historySize < this.config.historyBufferSize! ? 0 : this.historyWriteIndex;
     for (let i = 0; i < this.historySize && count < 100; i++) {
-      const idx = (startIdx + i) % this.config.historyBufferSize;
+      const idx = (startIdx + i) % this.config.historyBufferSize!;
       const r = this.history[idx];
       if (r && r.dispatcher === dispatcher && r.action === action && r.outcome === 'success') {
         totalMs += r.latencyMs;
@@ -430,14 +432,14 @@ export class PredictiveFailureEngine {
 
       // Gather valid records
       const records: ActionRecord[] = [];
-      const startIdx = this.historySize < this.config.historyBufferSize ? 0 : this.historyWriteIndex;
+      const startIdx = this.historySize < this.config.historyBufferSize! ? 0 : this.historyWriteIndex;
       for (let i = 0; i < this.historySize; i++) {
-        const idx = (startIdx + i) % this.config.historyBufferSize;
+        const idx = (startIdx + i) % this.config.historyBufferSize!;
         const r = this.history[idx];
         if (r && validateActionChecksum(r)) records.push(r);
       }
 
-      if (records.length < this.config.minSamplesForPattern) return;
+      if (records.length < this.config.minSamplesForPattern!) return;
 
       // Group by dispatcher:action
       const groups: Map<string, ActionRecord[]> = new Map();
@@ -452,7 +454,7 @@ export class PredictiveFailureEngine {
       const bonferroniCorrection = Math.max(1, groups.size * 5); // 5 pattern types per group
 
       for (const [key, groupRecords] of groups) {
-        if (groupRecords.length < this.config.minSamplesForPattern) continue;
+        if (groupRecords.length < this.config.minSamplesForPattern!) continue;
 
         const [dispatcher, action] = key.split(':');
         const failures = groupRecords.filter(r => r.outcome === 'failure');
@@ -462,7 +464,7 @@ export class PredictiveFailureEngine {
         // Pattern 1: ACTION_ERROR_RATE
         if (failures.length >= 3) {
           const pValue = chiSquared2x2(failures.length, groupRecords.length, overallFailures, records.length);
-          const adjustedAlpha = this.config.chiSquaredAlpha / bonferroniCorrection;
+          const adjustedAlpha = this.config.chiSquaredAlpha! / bonferroniCorrection;
 
           if (pValue < adjustedAlpha && failureRate > 0.05) {
             const errorClasses: Record<string, number> = {};
@@ -496,7 +498,7 @@ export class PredictiveFailureEngine {
         }
 
         for (const [sig, pg] of paramGroups) {
-          if (pg.total >= this.config.minSamplesForPattern && pg.failures >= 3) {
+          if (pg.total >= this.config.minSamplesForPattern! && pg.failures >= 3) {
             const paramFailRate = pg.failures / pg.total;
             if (paramFailRate > failureRate * 1.5) { // Significantly worse than overall
               const ci = this.wilsonCI(pg.failures, pg.total, 0.95);
@@ -522,7 +524,7 @@ export class PredictiveFailureEngine {
           const below = groupRecords.filter(r => r.contextDepthPercent <= threshold);
           const belowFailures = below.filter(r => r.outcome === 'failure');
 
-          if (above.length >= this.config.minSamplesForPattern && below.length >= this.config.minSamplesForPattern) {
+          if (above.length >= this.config.minSamplesForPattern! && below.length >= this.config.minSamplesForPattern!) {
             const aboveRate = aboveFailures.length / above.length;
             const belowRate = belowFailures.length / below.length;
 
@@ -548,7 +550,7 @@ export class PredictiveFailureEngine {
         for (const threshold of [15, 20, 25, 30]) {
           const above = groupRecords.filter(r => r.callNumber > threshold);
           const aboveFailures = above.filter(r => r.outcome === 'failure');
-          if (above.length >= this.config.minSamplesForPattern) {
+          if (above.length >= this.config.minSamplesForPattern!) {
             const aboveRate = aboveFailures.length / above.length;
             if (aboveRate > failureRate * 2 && aboveRate > 0.1) {
               const ci = this.wilsonCI(aboveFailures.length, above.length, 0.95);
@@ -569,9 +571,9 @@ export class PredictiveFailureEngine {
         }
 
         // Bound patterns per action
-        if (actionPatterns.length > this.config.maxPatternsPerAction) {
+        if (actionPatterns.length > this.config.maxPatternsPerAction!) {
           actionPatterns.sort((a, b) => b.confidence - a.confidence);
-          actionPatterns.length = this.config.maxPatternsPerAction;
+          actionPatterns.length = this.config.maxPatternsPerAction!;
         }
 
         if (actionPatterns.length > 0) {
@@ -590,10 +592,10 @@ export class PredictiveFailureEngine {
 
           // Check if this sequence pattern already exists
           const hasSequence = existing.some(p =>
-            p.type === 'SEQUENCE_FAILURE' && p.details.type === 'SEQUENCE_FAILURE' && p.details.precedingAction === precedingKey
+            p.type === 'SEQUENCE_FAILURE' && (p.details as any)?.type === 'SEQUENCE_FAILURE' && (p.details as any)?.precedingAction === precedingKey
           );
 
-          if (!hasSequence && existing.length < this.config.maxPatternsPerAction) {
+          if (!hasSequence && existing.length < this.config.maxPatternsPerAction!) {
             // Count occurrences of this sequence
             let seqTotal = 0, seqFailures = 0;
             for (let j = 1; j < records.length; j++) {
@@ -606,14 +608,17 @@ export class PredictiveFailureEngine {
               }
             }
 
-            if (seqTotal >= this.config.minSamplesForPattern && seqFailures >= 3) {
+            if (seqTotal >= this.config.minSamplesForPattern! && seqFailures >= 3) {
               const seqRate = seqFailures / seqTotal;
-              if (seqRate > failureRate * 2) {
+              // Compute local failure rate for this action from overall records
+              const actionRecords = records.filter(r => r.dispatcher === curr.dispatcher && r.action === curr.action);
+              const localFailureRate = actionRecords.length > 0 ? actionRecords.filter(r => r.outcome === 'failure').length / actionRecords.length : 0;
+              if (seqRate > localFailureRate * 2) {
                 const ci = this.wilsonCI(seqFailures, seqTotal, 0.95);
                 existing.push({
                   id: randomUUID(), type: 'SEQUENCE_FAILURE',
                   dispatcher: curr.dispatcher, action: curr.action,
-                  confidence: Math.min(0.99, (seqRate - failureRate) / seqRate),
+                  confidence: Math.min(0.99, (seqRate - localFailureRate) / seqRate),
                   confidenceInterval: ci,
                   sampleSize: seqTotal,
                   failureRate: seqRate,
@@ -671,7 +676,7 @@ export class PredictiveFailureEngine {
     const topRiskyActions: PFPDashboard['topRiskyActions'] = [];
     for (const [key, patterns] of this.patterns) {
       const [dispatcher, action] = key.split(':');
-      const maxRisk = Math.max(...patterns.map(p => p.failureRate * p.confidence), 0);
+      const maxRisk = Math.max(...patterns.map(p => (p.failureRate || 0) * p.confidence), 0);
       topRiskyActions.push({ dispatcher, action, riskScore: maxRisk, patternCount: patterns.length });
     }
     topRiskyActions.sort((a, b) => b.riskScore - a.riskScore);
@@ -707,7 +712,7 @@ export class PredictiveFailureEngine {
 
     return {
       assessmentP99Ms: p99,
-      historyUtilization: this.historySize / this.config.historyBufferSize,
+      historyUtilization: this.historySize / this.config.historyBufferSize!,
       patternMemoryBytes: patternMemory,
       extractionCycleTimes: this.assessmentTimes.slice(-10),
       totalAssessments: this.totalAssessments,

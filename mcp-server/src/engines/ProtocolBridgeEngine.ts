@@ -327,7 +327,7 @@ export class ProtocolBridgeEngine {
         } catch (err: unknown) {
           const errMsg = err instanceof Error ? err.message : String(err);
           this.metrics.requests_error++;
-          endpoint.error_count = (endpoint.error_count || 0) + 1;
+          (endpoint as any).error_count = ((endpoint as any).error_count || 0) + 1;
           return this.errorResponse(request.request_id, `Dispatch failed: ${errMsg}`, start);
         }
       } else {

@@ -338,7 +338,7 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
       metadata: { hookId, ...data },
     };
     
-    const executorResult = await hookExecutor.execute('before', hookContext).catch(() => null);
+    const executorResult = await hookExecutor.execute('before' as any, hookContext).catch(() => null);
     
     const result = {
       hook_id: hookId,
@@ -433,7 +433,7 @@ export function registerGuardDispatcher(server: any): void {
           case "failure_library": {
             const subAction = params.action;
             if (subAction === "record") {
-              const patterns = readJsonl(FAILURE_PATTERNS_PATH);
+              const patterns = readJsonl<any>(FAILURE_PATTERNS_PATH);
               const existing = patterns.find((p: any) => p.type === params.type && p.domain === (params.domain || "other"));
               if (existing) {
                 existing.occurrences++;
@@ -461,7 +461,7 @@ export function registerGuardDispatcher(server: any): void {
               appendJsonl(FAILURE_PATTERNS_PATH, pattern);
               return ok({ action: "recorded", pattern });
             } else if (subAction === "check" || subAction === "search") {
-              const patterns = readJsonl(FAILURE_PATTERNS_PATH);
+              const patterns = readJsonl<any>(FAILURE_PATTERNS_PATH);
               const queryLower = (params.query || "").toLowerCase();
               const matches = patterns.filter((p: any) => {
                 const text = `${p.type} ${p.context} ${p.error} ${p.root_cause} ${p.domain} ${p.prevention}`.toLowerCase();
@@ -470,14 +470,14 @@ export function registerGuardDispatcher(server: any): void {
               const warnings = matches.map((p: any) => `⚠️ [${p.severity.toUpperCase()}] "${p.type}" (${p.occurrences}x): ${p.prevention || p.root_cause || "No prevention recorded"}`);
               return ok({ action: subAction, query: params.query, warning_count: warnings.length, warnings, patterns: matches.slice(0, 5) });
             } else if (subAction === "stats") {
-              const patterns = readJsonl(FAILURE_PATTERNS_PATH);
+              const patterns = readJsonl<any>(FAILURE_PATTERNS_PATH);
               const by_domain: Record<string, number> = {};
               const by_severity: Record<string, number> = {};
               for (const p of patterns) {
                 by_domain[p.domain] = (by_domain[p.domain] || 0) + 1;
                 by_severity[p.severity] = (by_severity[p.severity] || 0) + 1;
               }
-              const top_recurring = [...patterns].sort((a, b) => b.occurrences - a.occurrences).slice(0, 10);
+              const top_recurring = [...patterns].sort((a: any, b: any) => b.occurrences - a.occurrences).slice(0, 10);
               return ok({ action: "stats", total: patterns.length, by_domain, by_severity, top_recurring });
             }
             return ok({ error: "Invalid failure_library action", available: ["record", "check", "stats", "search"] });
@@ -498,12 +498,12 @@ export function registerGuardDispatcher(server: any): void {
             };
             appendJsonl(ERROR_LOG_PATH, entry);
             
-            const patterns = readJsonl(FAILURE_PATTERNS_PATH);
-            const matchingPattern = patterns.find((p: any) => 
+            const patterns = readJsonl<any>(FAILURE_PATTERNS_PATH);
+            const matchingPattern = patterns.find((p: any) =>
               entry.error_message.toLowerCase().includes(p.type.toLowerCase()) ||
               p.type.toLowerCase().includes(entry.error_type)
             );
-            
+
             if (matchingPattern) {
               matchingPattern.occurrences++;
               matchingPattern.last_seen = entry.timestamp;

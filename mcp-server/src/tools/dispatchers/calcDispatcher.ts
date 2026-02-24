@@ -349,11 +349,11 @@ export function registerCalcDispatcher(server: any): void {
               const mat = await registryManager.materials.getByIdOrName(matId);
               if (mat?.kienzle) {
                 const k = mat.kienzle;
-                coefficients = { 
-                  kc1_1: k.kc1_1_milling || k.kc1_1, 
-                  mc: k.mc_milling || k.mc,
+                coefficients = {
+                  kc1_1: (k as any).kc1_1_milling || k.kc1_1,
+                  mc: (k as any).mc_milling || k.mc,
                   iso_group: mat.iso_group,
-                  data_quality: mat.data_quality
+                  data_quality: (mat as any).data_quality
                 } as any;
               } else {
                 coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");
@@ -376,8 +376,8 @@ export function registerCalcDispatcher(server: any): void {
               const toolMat = params.tool_material || "Carbide";
               if (mat?.taylor) {
                 const t = mat.taylor;
-                const useC = toolMat.toLowerCase().includes("carbide") ? (t.C_carbide || t.C) : t.C;
-                const useN = toolMat.toLowerCase().includes("carbide") ? (t.n_carbide || t.n) : t.n;
+                const useC = toolMat.toLowerCase().includes("carbide") ? ((t as any).C_carbide || t.C) : t.C;
+                const useN = toolMat.toLowerCase().includes("carbide") ? ((t as any).n_carbide || t.n) : t.n;
                 coefficients = { C: useC, n: useN, tool_material: toolMat };
               } else {
                 coefficients = getDefaultTaylor(params.material_group || "steel", toolMat);
@@ -538,14 +538,14 @@ export function registerCalcDispatcher(server: any): void {
           
           case "cost_optimize": {
             const costParams: CostParameters = {
-              taylor_C: params.taylor_C,
-              taylor_n: params.taylor_n,
               machine_rate: params.machine_rate,
               tool_cost: params.tool_cost,
               tool_change_time: params.tool_change_time
             };
-            
+
             result = calculateMinimumCostSpeed(
+              params.taylor_C,
+              params.taylor_n,
               costParams,
               params.volume_to_remove,
               params.mrr_at_ref
@@ -569,13 +569,13 @@ export function registerCalcDispatcher(server: any): void {
             };
             
             result = optimizeCuttingParameters(
+              constraints,
+              weights,
               params.material_kc,
               params.taylor_C,
               params.taylor_n,
               params.tool_diameter,
-              params.number_of_teeth,
-              constraints,
-              weights
+              params.number_of_teeth
             );
             break;
           }
@@ -872,8 +872,8 @@ export function registerCalcDispatcher(server: any): void {
             if ((!wpTaylorC || !wpTaylorN) && (params.material_id || params.material)) {
               const wpMat = await registryManager.materials.getByIdOrName(params.material_id || params.material);
               if (wpMat?.taylor) {
-                wpTaylorC = wpTaylorC || wpMat.taylor.C_carbide || wpMat.taylor.C;
-                wpTaylorN = wpTaylorN || wpMat.taylor.n_carbide || wpMat.taylor.n;
+                wpTaylorC = wpTaylorC || (wpMat.taylor as any).C_carbide || wpMat.taylor.C;
+                wpTaylorN = wpTaylorN || (wpMat.taylor as any).n_carbide || wpMat.taylor.n;
                 wpIsoGroup = wpMat.iso_group || wpIsoGroup;
               }
             }
@@ -984,7 +984,7 @@ export function registerCalcDispatcher(server: any): void {
               const pcMat = await registryManager.materials.getByIdOrName(pcMaterial);
               if (pcMat) {
                 if (pcMat.kienzle) { pcKc = pcMat.kienzle.kc1_1 || pcKc; pcMc = pcMat.kienzle.mc || pcMc; }
-                if (pcMat.taylor) { pcTaylorC = pcMat.taylor.C_carbide || pcMat.taylor.C || pcTaylorC; pcTaylorN = pcMat.taylor.n_carbide || pcMat.taylor.n || pcTaylorN; }
+                if (pcMat.taylor) { pcTaylorC = (pcMat.taylor as any).C_carbide || pcMat.taylor.C || pcTaylorC; pcTaylorN = (pcMat.taylor as any).n_carbide || pcMat.taylor.n || pcTaylorN; }
                 const cr = (pcMat as any).cutting_recommendations?.milling;
                 if (cr) { pcVcRough = cr.speed_roughing || pcVcRough; pcVcFinish = cr.speed_finishing || pcVcFinish; pcFzRough = cr.feed_per_tooth_roughing || pcFzRough; pcFzFinish = cr.feed_per_tooth_finishing || pcFzFinish; }
               }
@@ -1050,7 +1050,7 @@ export function registerCalcDispatcher(server: any): void {
               const ucMat = await registryManager.materials.getByIdOrName(ucMaterial);
               if (ucMat) {
                 if (ucMat.kienzle) { ucKc = ucMat.kienzle.kc1_1 || ucKc; ucMc = ucMat.kienzle.mc || ucMc; }
-                if (ucMat.taylor) { ucTaylorC = ucMat.taylor.C_carbide || ucMat.taylor.C || ucTaylorC; ucTaylorN = ucMat.taylor.n_carbide || ucMat.taylor.n || ucTaylorN; }
+                if (ucMat.taylor) { ucTaylorC = (ucMat.taylor as any).C_carbide || ucMat.taylor.C || ucTaylorC; ucTaylorN = (ucMat.taylor as any).n_carbide || ucMat.taylor.n || ucTaylorN; }
                 const stats = (ucMat as any).statistics;
                 if (stats?.standardDeviation) {
                   ucHasStats = true;

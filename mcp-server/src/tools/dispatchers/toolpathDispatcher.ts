@@ -50,23 +50,23 @@ export function registerToolpathDispatcher(server: any): void {
 
       switch (action) {
         case "strategy_select":
-          result = await toolpath_strategy_select(params);
+          result = await toolpath_strategy_select(params as any);
           break;
 
         case "params_calculate":
-          result = await toolpath_params_calculate(params);
+          result = await toolpath_params_calculate(params as any);
           break;
 
         case "strategy_search":
-          result = await toolpath_strategy_search(params);
+          result = await toolpath_strategy_search(params as any);
           break;
 
         case "strategy_list":
-          result = await toolpath_strategy_list(params);
+          result = await toolpath_strategy_list(params as any);
           break;
 
         case "strategy_info":
-          result = await toolpath_strategy_info(params);
+          result = await toolpath_strategy_info(params as any);
           break;
 
         case "stats":
@@ -74,7 +74,7 @@ export function registerToolpathDispatcher(server: any): void {
           break;
 
         case "material_strategies":
-          result = await toolpath_material_strategies(params);
+          result = await toolpath_material_strategies(params as any);
           break;
 
         case "prism_novel":

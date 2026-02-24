@@ -36,8 +36,6 @@ export {
   calculateCuttingTemperature,
   calculateMinimumCostSpeed,
   optimizeCuttingParameters,
-  STABILITY_CONSTANTS,
-  THERMAL_CONSTANTS,
   type ModalParameters,
   type StabilityResult,
   type StabilityLobe,
@@ -59,7 +57,6 @@ export {
   calculateOptimalStepover,
   estimateCycleTime,
   calculateArcFitting,
-  CAM_CONSTANTS,
   type EngagementResult,
   type TrochoidalParams,
   type HSMParams,
@@ -190,16 +187,12 @@ export {
 export {
   threadEngine,
   ThreadCalculationEngine,
-  type ThreadStandard,
   type ThreadType,
-  type ThreadClass,
-  type ThreadProfile,
-  type ThreadFormData,
-  type ThreadLimits,
-  type ThreadResult,
-  type TappingParams,
-  type TappingResult,
-  type ThreadMillingResult
+  type ThreadSpec,
+  type TapDrillResult,
+  type ThreadMillResult,
+  type StrippingResult,
+  type GaugeResult
 } from "./ThreadCalculationEngine.js";
 
 // Collision Detection Engine (Session 7.2)
@@ -412,7 +405,7 @@ export {
   type JobPlanInput,
   type JobPlanResult,
   type JobPlanOperation,
-  type FeatureType,
+  type FeatureType as IntelligenceFeatureType,
 } from "./IntelligenceEngine.js";
 
 // Tolerance Engine — R3-P2 ISO 286 Tolerance Analysis
@@ -522,16 +515,16 @@ export {
   type SurfaceIntegrityInput,
   type SurfaceIntegrityResult,
   type ChatterInput,
-  type ChatterResult,
+  type ChatterResult as PhysicsChatterResult,
   type ThermalCompInput,
   type ThermalCompResult,
   type UnifiedMachiningInput,
   type UnifiedMachiningResult,
   type SensitivityInput,
   type SensitivityResult,
-  type OperationType,
-  type ToolMaterial,
-  type CoolantType,
+  type OperationType as PhysicsOperationType,
+  type ToolMaterial as PhysicsToolMaterial,
+  type CoolantType as PhysicsCoolantType,
 } from "./PhysicsPredictionEngine.js";
 
 // Optimization Engine — R7-MS1 Constrained Multi-Objective Optimization
@@ -549,7 +542,7 @@ export {
   type SequenceInput,
   type SequenceResult,
   type SustainabilityInput,
-  type SustainabilityResult,
+  type SustainabilityResult as OptSustainabilityResult,
   type EcoOptimizeInput,
   type EcoOptimizeResult,
 } from "./OptimizationEngine.js";
@@ -573,6 +566,7 @@ export {
   getJobStoreSize,
   type ToolFailureMode,
   type JobRecordInput,
+
   type JobRecordResult,
   type JobInsightsInput,
   type JobInsightsResult,
@@ -643,7 +637,7 @@ export {
   detectPersona as detectResponsePersona,
   detectUnits,
   type Persona as ResponsePersona,
-  type UnitSystem,
+  type UnitSystem as FormatterUnitSystem,
   type FormatOptions,
   type FormattedResponse,
   type FormattedSection,
@@ -745,14 +739,14 @@ export {
   updateThermalState, getThermalState, acknowledgeAlert, getAlertHistory,
   type MachineState, type ProtocolType, type AlertSeverity, type AlertType,
   type MachineConfig, type MachinePosition, type MachineLiveData,
-  type MachineAlert, type MachineLiveStatus, type ChatterResult,
+  type MachineAlert, type MachineLiveStatus, type ChatterResult as MachineChatterResult,
   type ToolWearStatus, type ThermalDriftStatus,
 } from "./MachineConnectivityEngine.js";
 
 // CAM Integration (R9-MS1)
 export {
   camIntegration, searchToolLibrary, getToolFromLibrary, getAllTools,
-  type CAMSystem, type OperationType, type UnitSystem,
+  type CAMSystem, type OperationType as CAMOperationType, type UnitSystem as CAMUnitSystem,
   type CAMOperation, type CAMRecommendation, type CAMParameterExport,
   type ToolLibraryEntry,
 } from "./CAMIntegrationEngine.js";
@@ -761,7 +755,7 @@ export {
 export {
   dncTransfer, generateParameterBlock, executeDNCTransfer, generateQRData,
   getTransferHistory, getTransferById,
-  type DNCSystem, type TransferAction, type TransferStatus, type ControllerType,
+  type DNCSystem, type TransferAction, type TransferStatus, type ControllerType as DNCControllerType,
   type GCodeParameterBlock, type DNCTransferRequest, type DNCTransferResult,
   type ParameterMismatch, type QRCodeData,
 } from "./DNCTransferEngine.js";
@@ -806,7 +800,7 @@ export {
 // Failure Forensics (R10-Rev5)
 export {
   failureForensics,
-  type ToolFailureMode, type ChipType, type SurfaceDefect, type CrashType,
+  type ToolFailureMode as ForensicToolFailureMode, type ChipType, type SurfaceDefect, type CrashType,
   type ForensicDiagnosis, type CorrAction,
 } from "./FailureForensicsEngine.js";
 
@@ -839,7 +833,7 @@ export {
 export {
   sustainabilityEngine,
   type OptimizationMode, type CoolantStrategy, type StockType,
-  type EnergyBreakdown, type CarbonBreakdown, type SustainabilityResult,
+  type EnergyBreakdown, type CarbonBreakdown, type SustainabilityResult as GreenSustainabilityResult,
   type OperationMetrics, type SavingsMetrics, type NearNetShapeResult,
   type StockOption, type CoolantAnalysis,
 } from "./SustainabilityEngine.js";
@@ -847,7 +841,7 @@ export {
 // Generative Process Planning (R10-Rev3)
 export {
   generativeProcess,
-  type FeatureType, type AccessDirection, type OperationPhase, type ToolType,
+  type FeatureType as ProcessFeatureType, type AccessDirection, type OperationPhase, type ToolType,
   type FeatureInput, type RecognizedFeature, type Setup, type PlannedOperation,
   type ToolSelection as ProcessToolSelection, type CuttingParams,
   type ProcessPlan, type CostBreakdown as ProcessCostBreakdown, type RiskSummary,
@@ -871,9 +865,9 @@ export {
 
 export {
   adaptiveControl,
-  type ControllerType, type AdaptiveMode, type OverrideChannel, type AlertLevel,
+  type ControllerType as AdaptiveControllerType, type AdaptiveMode, type OverrideChannel, type AlertLevel,
   type SensorReading, type OverrideCommand, type AdaptiveState,
-  type ChiploadResult, type ChatterResult, type WearResult, type ThermalResult,
+  type ChiploadResult, type ChatterResult as AdaptiveChatterResult, type WearResult, type ThermalResult as AdaptiveThermalResult,
   type AdaptiveConfig,
 } from "./AdaptiveControlEngine.js";
 

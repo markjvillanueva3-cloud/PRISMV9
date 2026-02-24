@@ -21,6 +21,7 @@ export interface Composition {
   C?: number; Si?: number; Mn?: number; Cr?: number; Ni?: number; Mo?: number;
   V?: number; W?: number; Co?: number; Ti?: number; Al?: number; Cu?: number;
   Nb?: number; Fe?: number; S?: number; P?: number; N?: number;
+  Zn?: number; Mg?: number;
 }
 
 export interface MechanicalFingerprint {

@@ -283,7 +283,7 @@ export function registerDataDispatcher(server: any): void {
                 query: machineConstraints.spindle_interface,
                 limit: 5
               });
-              compatibleHolders = holderResult?.tools || holderResult?.results || [];
+              compatibleHolders = holderResult?.tools || (holderResult as any)?.results || [];
             }
             
             result = {
@@ -325,9 +325,9 @@ export function registerDataDispatcher(server: any): void {
             const mthMachine = registryManager.machines.getByIdOrModel(mthMachineId);
             if (!mthMachine) return jsonResponse({ error: `Machine not found: ${mthMachineId}` });
             
-            const spindleInterface = mthMachine.spindle?.spindle_nose || mthMachine.spindle?.interface || (mthMachine as any).spindle_interface;
-            const turretType = mthMachine.turret?.type || (mthMachine as any).turret_type;
-            const machineType = (mthMachine.type || mthMachine.machine_type || '').toLowerCase();
+            const spindleInterface = mthMachine.spindle?.spindle_nose || (mthMachine.spindle as any)?.interface || (mthMachine as any).spindle_interface;
+            const turretType = (mthMachine as any).turret?.type || (mthMachine as any).turret_type;
+            const machineType = (mthMachine.type || (mthMachine as any).machine_type || '').toLowerCase();
             const isLathe = machineType.includes('lathe') || machineType.includes('turn');
             
             let holders: any[] = [];
@@ -338,7 +338,7 @@ export function registerDataDispatcher(server: any): void {
                 query: turretType,
                 limit: params.limit ?? 20
               });
-              holders = turretResult?.tools || turretResult?.results || [];
+              holders = turretResult?.tools || (turretResult as any)?.results || [];
             }
             
             if (spindleInterface) {
@@ -347,7 +347,7 @@ export function registerDataDispatcher(server: any): void {
                 query: spindleInterface,
                 limit: params.limit ?? 20
               });
-              const spindleHolders = spindleResult?.tools || spindleResult?.results || [];
+              const spindleHolders = spindleResult?.tools || (spindleResult as any)?.results || [];
               holders = holders.concat(spindleHolders);
             }
             
@@ -362,7 +362,7 @@ export function registerDataDispatcher(server: any): void {
             
             result = {
               machine: {
-                id: mthMachine.id || mthMachine.machine_id,
+                id: mthMachine.id || (mthMachine as any).machine_id,
                 model: mthMachine.model || mthMachine.name,
                 type: machineType,
                 spindle_interface: spindleInterface,
@@ -395,9 +395,9 @@ export function registerDataDispatcher(server: any): void {
             if (adMachineId) {
               const adMachine = registryManager.machines.getByIdOrModel(adMachineId);
               if (adMachine) {
-                controller = controller || adMachine.controller?.brand || adMachine.controller?.manufacturer;
+                controller = controller || (adMachine.controller as any)?.brand || adMachine.controller?.manufacturer;
                 machineInfo = {
-                  id: adMachine.id || adMachine.machine_id,
+                  id: adMachine.id || (adMachine as any).machine_id,
                   model: adMachine.model || adMachine.name,
                   controller_brand: controller,
                   controller_model: adMachine.controller?.model
@@ -415,7 +415,7 @@ export function registerDataDispatcher(server: any): void {
               const searchResult = await registryManager.alarms.search({
                 query: String(adCode), controller: String(controller), limit: 5
               });
-              const searchAlarms = searchResult?.alarms || searchResult?.results || [];
+              const searchAlarms = searchResult?.alarms || (searchResult as any)?.results || [];
               if (searchAlarms.length > 0) {
                 result = {
                   exact_match: false,
@@ -478,7 +478,7 @@ export function registerDataDispatcher(server: any): void {
               const sfMach = registryManager.machines.getByIdOrModel(params.machine);
               if (sfMach) {
                 maxRPM = sfMach.spindle?.max_rpm || (sfMach as any).spindle_rpm_max || maxRPM;
-                maxPower = sfMach.spindle?.power_kw || sfMach.spindle?.power_continuous || maxPower;
+                maxPower = (sfMach.spindle as any)?.power_kw || sfMach.spindle?.power_continuous || maxPower;
               }
             }
             const vcRec = recBlock.speed || (isRoughing ? recSection.speed_roughing : recSection.speed_finishing) || (isRoughing ? 150 : 200);

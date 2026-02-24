@@ -972,7 +972,7 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     high_speed?: boolean;
     limit?: number;
     offset?: number;
-  }): { machines: Machine[]; total: number } {
+  }): { machines: Machine[]; total: number; hasMore?: boolean } {
     let results: Machine[] = [];
     
     // Start with manufacturer filter
