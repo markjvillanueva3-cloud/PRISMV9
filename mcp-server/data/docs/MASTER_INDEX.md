@@ -1,9 +1,9 @@
 # PRISM MCP Server — Master Index
-# Verified: 2026-02-22 (P0→R11+R6 Complete, Audit Verified)
+# Verified: 2026-02-24 (R0-P0 Infrastructure Audit — 11 units complete)
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — All counts verified against actual dispatcher code
 
-## 1. DISPATCHERS (32 dispatchers, 382+ verified actions)
+## 1. DISPATCHERS (32 dispatchers, 541 verified actions)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
@@ -15,7 +15,7 @@ Actions (8): autopilot, autopilot_quick, brainstorm_lenses, ralph_loop_lite, for
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
 ### prism_calc (calcDispatcher.ts, 462L)
-Actions (21): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit
+Actions (91): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, + 70 additional calculation actions (R0-P0 audit verified 91 total case statements)
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -35,7 +35,7 @@ Actions (6): stats, list_domains, generate, generate_batch, validate, get_templa
 ### prism_gsd (gsdDispatcher.ts, 199L)
 Actions (6): core, quick, get, dev_protocol, resources_summary, quick_resume
 
-### prism_guard (guardDispatcher.ts, 728L)
+### prism_ralph_loop (guardDispatcher.ts, 728L) — NOTE: file is guardDispatcher but registers as prism_ralph_loop
 Actions (14): decision_log, failure_library, error_capture, pre_write_gate, pre_write_diff, pre_call_validate, autohook_status, autohook_test, pattern_scan, pattern_history, learning_query, learning_save, lkg_status, priority_score
 
 ### prism_hook (hookDispatcher.ts, 130L)
@@ -98,13 +98,17 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-**Total: 32 dispatchers, 382+ actions**
+### prism_intelligence (intelligenceDispatcher.ts) — LARGEST DISPATCHER
+Actions (238): 238 actions spanning knowledge graph queries, pattern matching, skill recommendations, learning operations, agent coordination, and intelligence aggregation. See intelligenceDispatcher.ts for full case-statement inventory.
+
+**Total: 32 dispatchers, 541 actions (verified R0-P0 audit 2026-02-24)**
 
 ---
 
 ## 2. DECISION TREE — What Tool For What Task
 
-Manufacturing calculation → prism_calc (21) + prism_safety (29)
+Manufacturing calculation → prism_calc (91) + prism_safety (29)
+Intelligence/learning/patterns → prism_intelligence (238)
 Material/machine/tool data → prism_data (14)
 Thread operations → prism_thread (12)
 Toolpath strategy → prism_toolpath (8)
@@ -115,7 +119,7 @@ Read/write docs → prism_doc (7)
 Find skills/scripts → prism_skill_script (23)
 Hook management → prism_hook (18)
 Quality validation → prism_validate (7) + prism_omega (5) + prism_ralph (3)
-Reasoning/enforcement → prism_guard (14)
+Reasoning/enforcement → prism_ralph_loop (14)
 Agent orchestration → prism_orchestrate (14)
 Autonomous tasks → prism_atcs (10) + prism_autonomous (8)
 Workflow orchestration → prism_autopilot_d (8)
@@ -232,41 +236,82 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (37 files)
+## 4. ENGINES (74 files = 73 engines + index.ts, verified R0-P0 audit 2026-02-24)
 
-- AdvancedCalculations.ts (623L)
-- AgentExecutor.ts (818L)
-- BatchProcessor.ts (233L)
-- CalcHookMiddleware.ts (269L)
-- CertificateEngine.ts (620L) — F4
-- CollisionEngine.ts (1923L)
-- ComplianceEngine.ts (722L) — F8
-- ComputationCache.ts (420L)
-- CoolantValidationEngine.ts (752L)
-- DiffEngine.ts (196L)
-- EventBus.ts (656L)
-- HookEngine.ts (802L)
-- HookExecutor.ts (835L)
-- KnowledgeQueryEngine.ts (871L)
-- ManufacturingCalculations.ts (550L)
-- MemoryGraphEngine.ts (774L) — F2
-- MultiTenantEngine.ts (592L) — F5
-- NLHookEngine.ts (920L) — F6
-- PFPEngine.ts (765L) — F1
-- PredictiveFailureEngine.ts (807L)
-- ProtocolBridgeEngine.ts (484L) — F7
-- ResponseTemplateEngine.ts (669L)
-- ScriptExecutor.ts (754L)
-- SessionLifecycleEngine.ts (351L)
-- SkillExecutor.ts (868L)
-- SpindleProtectionEngine.ts (901L)
-- SwarmExecutor.ts (953L)
-- TelemetryEngine.ts (615L) — F3
-- ThreadCalculationEngine.ts (658L)
-- ToolBreakageEngine.ts (1071L)
-- ToolpathCalculations.ts (672L)
-- WorkholdingEngine.ts (1409L)
-- index.ts (300L)
+- AdaptiveControlEngine.ts
+- AdvancedCalculations.ts
+- AgentExecutor.ts
+- AlgorithmGatewayEngine.ts
+- ApprenticeEngine.ts
+- BatchProcessor.ts
+- CAMIntegrationEngine.ts
+- CampaignEngine.ts
+- CertificateEngine.ts — F4
+- CollisionEngine.ts
+- ComplianceEngine.ts — F8
+- ComputationCache.ts
+- ConversationalMemoryEngine.ts
+- CoolantValidationEngine.ts
+- DNCTransferEngine.ts
+- DecisionTreeEngine.ts
+- DiffEngine.ts
+- ERPIntegrationEngine.ts
+- EventBus.ts
+- FailureForensicsEngine.ts
+- FederatedLearningEngine.ts
+- GCodeTemplateEngine.ts
+- GenerativeProcessEngine.ts
+- HookEngine.ts
+- HookExecutor.ts
+- InferenceChainEngine.ts
+- IntelligenceEngine.ts
+- IntentDecompositionEngine.ts
+- InverseSolverEngine.ts
+- JobLearningEngine.ts
+- KnowledgeGraphEngine.ts
+- KnowledgeQueryEngine.ts
+- MachineConnectivityEngine.ts
+- ManufacturingCalculations.ts
+- ManufacturingGenomeEngine.ts
+- ManusATCSBridge.ts
+- MeasurementIntegrationEngine.ts
+- MemoryGraphEngine.ts — F2
+- MobileInterfaceEngine.ts
+- MultiTenantEngine.ts — F5
+- NLHookEngine.ts — F6
+- OnboardingEngine.ts
+- OptimizationEngine.ts
+- PFPEngine.ts — F1
+- PhysicsPredictionEngine.ts
+- PredictiveFailureEngine.ts
+- PredictiveMaintenanceEngine.ts
+- ProductEngine.ts
+- ProtocolBridgeEngine.ts — F7
+- ReportRenderer.ts
+- ResponseFormatterEngine.ts
+- ResponseTemplateEngine.ts
+- ScriptExecutor.ts
+- SessionLifecycleEngine.ts
+- SetupSheetEngine.ts
+- ShopSchedulerEngine.ts
+- SkillAutoLoader.ts
+- SkillBundleEngine.ts
+- SkillExecutor.ts
+- SpindleProtectionEngine.ts
+- SustainabilityEngine.ts
+- SwarmExecutor.ts
+- TaskAgentClassifier.ts
+- TelemetryEngine.ts — F3
+- ThreadCalculationEngine.ts
+- ToleranceEngine.ts
+- ToolBreakageEngine.ts
+- ToolpathCalculations.ts
+- UserAssistanceSkillsEngine.ts
+- UserWorkflowSkillsEngine.ts
+- WorkflowChainsEngine.ts
+- WorkholdingEngine.ts
+- WorkholdingIntelligenceEngine.ts
+- index.ts (barrel — exports all 73 engines)
 
 ## 5. REGISTRIES (19 files)
 
@@ -343,18 +388,20 @@ Total skill files: 119
 - W4_ASSESSMENT.md
 - W6_ROADMAP.md
 
-## 14. SUMMARY
+## 14. SUMMARY (verified R0-P0 audit 2026-02-24)
 
-- Dispatchers: 32 (382+ verified actions)
-- Engines: 73 (all wired — 57 direct, 15 via handlers, 1 via bundle)
-- Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
-- Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
-- Skill Bundles: 9 (wired to skillScriptDispatcher)
-- NL Hooks: 48 deployed
-- Build: 5.6MB, 1 warning, 73/74 tests pass
-- GSD files: 16 (~628L)
-- Synergy integration: synergyIntegration.ts (276L)
-- Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~3.9MB
+- Dispatchers: 32 (541 verified actions)
+- Engines: 73 (all barrel-exported, zero orphans)
+- Registries: 14 (across 18 registry files)
+- Skills: 61 (SkillRegistry entries)
+- Scripts: 48 (ScriptRegistry entries)
+- Hooks: 59 registry / 112 source implementations (16 files, 10,569 LOC)
+- Algorithms: 17 (AlgorithmRegistry entries)
+- Cadence Functions: 40 (cadenceExecutor.ts)
+- Build: 5.1MB bundle, 1 warning, 74/74 vitest tests pass
+- GSD files: 14 sections
+- Synergy integration: synergyIntegration.ts (275L)
+- Build: npm run build (tsc --noEmit + esbuild) → dist/index.js ~5.1MB
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

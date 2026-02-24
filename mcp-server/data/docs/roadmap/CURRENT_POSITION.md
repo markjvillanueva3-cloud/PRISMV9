@@ -1,33 +1,53 @@
 # CURRENT POSITION
-## Updated: 2026-02-22T23:00:00Z
+## Updated: 2026-02-24T23:00:00Z
 
-**Phase:** P0→R11 COMPLETE | R12→R14 PLANNED (dev infra → extraction → products)
-**Build:** 5.6MB server (esbuild clean, 1 warning — CommonJS only)
-**Roadmap:** v19.2 (Modular Phase Files + Audit Validation) — P0→R11 COMPLETE, R12/R13/R14 PLANNED
-**Tests:** 74/74 vitest pass (KC_INFLATED fixed), R4-R11 in CI pipeline
-**Last Commit:** Fix all 3 remaining: REST API, KC_INFLATED, CI pipeline (8bfdfa2)
-**Dispatchers:** 32 (382 verified actions) — 100% wired
-**Engines:** 73 total, 72/73 wired (SkillAutoLoader orphan — flagged for R12 MS0 cleanup)
-**Registries:** 10/10 loading (corrected from 9/9 per audit 2026-02-22)
-**Hooks:** 130 across 13 categories — 100% in allHooks[]
+**Phase:** R0-P0 Infrastructure Audit COMPLETE (11 units, 52+ findings, all critical fixes applied)
+**Build:** 5.1MB server (esbuild clean, 1 warning — CommonJS only)
+**Roadmap:** Master Roadmap — R0-P0 COMPLETE, R0-P1 next
+**Tests:** 74/74 vitest pass
+**Dispatchers:** 32 (541 verified actions) — 100% wired, 100% hook-wrapped
+**Engines:** 73 total (74 files incl. index.ts), all barrel-exported, zero orphans
+**Registries:** 14 registries across 18 files
+**Hooks:** 59 registry / 112 source implementations (16 files, 10,569 LOC)
 **Cadence Functions:** 40/40 called by autoHookWrapper
-**Skills:** 230/232 with SKILL.md (proposals/scripts dirs intentionally empty)
-**NL Hooks:** 9 deployed (+ 27 built-in hooks)
-**Skill Bundles:** 9 (wired to skillScriptDispatcher)
-**REST API:** 9 endpoints on express (speed-feed, job-plan, material, tool, alarm, toolpath, safety, knowledge)
-**CI/CD:** vitest + R4-R11 standalone tests + security + docker
-**Health Score:** 98/100 (per AUDIT_REPORT.md 2026-02-22)
+**Skills:** 61 (SkillRegistry entries)
+**Scripts:** 48 (ScriptRegistry entries)
+**Algorithms:** 17 (AlgorithmRegistry entries)
+**tsc Errors:** 28 across 11 files (deferred to R0-P1)
+**Health Score:** Omega = 0.77
 
-## Upcoming Phases
+## R0-P0 Audit Summary
 
-| Phase | Focus | Calls | Sessions | Status |
-|-------|-------|------:|:--------:|--------|
-| R12 | Infrastructure: dev tools, test infra, engine splits | ~139 | 6-8 | PLANNED |
-| R13 | Extraction: 7 monolith modules → 8 new engines (~27K lines) | ~138 | 8-12 | PLANNED |
-| R14 | Products: Post Processor, Quoting, Process Planning, Troubleshooter | ~176 | 11-15 | PLANNED |
-| **Total** | | **~453** | **25-35** | |
+| Severity | Count |
+|----------|-------|
+| CRITICAL | 5 |
+| HIGH | 14 |
+| MEDIUM | 13 |
+| LOW | 5 |
+| INFO | 15 |
+| **Total** | **52+** |
 
-## Audit Validation (2026-02-22)
-- 18/18 audit findings mapped to R12/R13/R14 milestones
-- 2 new tasks added to R12 MS0: Doc Sync (T6), State Cleanup (T7)
-- R14 MS7 effort reduced from ~12 to ~6 (9/13 REST endpoints already live)
+### Root Causes Identified
+1. **Systemic count inflation** — documentation captured planned/target counts, never reconciled
+2. **Documentation staleness** — CLAUDE.md, GSD_QUICK, MASTER_INDEX, CURRENT_STATE all diverged
+3. **prism_intelligence invisible** — 238-action mega-dispatcher (44% of all actions) absent from all docs
+
+### Fixes Applied (U11)
+- CLAUDE.md: Updated all counts to verified actuals
+- MASTER_INDEX.md: Added prism_intelligence, updated engine list (33→74), fixed counts
+- GSD_QUICK.md: Added prism_intelligence to decision tree, fixed prism_guard→prism_ralph_loop
+- CURRENT_STATE.json: Reconciled all counts against verified baseline
+- package.json: Increased build heap from 8GB to 16GB
+
+### Deferred Items
+- 28 tsc errors → R0-P1
+- Expand test coverage → R0-P3
+- Create mfg- skill files → L5
+- Expand formula/script/algorithm registrations → L0-L1
+
+## P0 Gate Criteria
+- [x] All 11 units complete
+- [x] Consolidated fix plan executed
+- [x] Build passes (5.1MB, 1 warning)
+- [x] Tests pass (74/74)
+- [x] Omega >= 0.75 (current: 0.77)
