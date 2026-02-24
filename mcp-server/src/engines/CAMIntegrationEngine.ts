@@ -285,6 +285,721 @@ export function getAllTools(): ToolLibraryEntry[] {
   return [...toolLibrary];
 }
 
+// ─── Source File Catalog ─────────────────────────────────────────────────────
+
+/**
+ * Catalog of 61 MEDIUM-priority extracted JS source files wired to this engine.
+ * Spans engines/cad_cam (55), engines/cad_complete (4), engines/general (2).
+ * Total: 40,827 lines of CAD/CAM source code.
+ */
+export type CamDomain =
+  | "toolpath"
+  | "surface-machining"
+  | "pocket-machining"
+  | "hole-making"
+  | "threading"
+  | "turning"
+  | "multi-axis"
+  | "post-processing"
+  | "verification"
+  | "solid-modeling"
+  | "curve-surface-math"
+  | "mesh-processing"
+  | "sketch-constraints"
+  | "feature-recognition"
+  | "spatial-algorithms"
+  | "topology"
+  | "geometry-analysis"
+  | "cad-core"
+  | "cam-core"
+  | "motion-planning"
+  | "polygon-operations"
+  | "thermal-analysis"
+  | "visualization"
+  | "general-cam";
+
+export interface CAMSourceFileEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  subcategory: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+  cam_domain: CamDomain;
+}
+
+export const CAM_SOURCE_FILE_CATALOG: Record<string, CAMSourceFileEntry> = {
+  "EXT-176": {
+    filename: "PRISM_ADAPTIVE_CLEARING_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 437,
+    safety_class: "MEDIUM",
+    description: "Adaptive trochoidal clearing toolpath generation",
+    cam_domain: "cam-core",
+  },
+  "EXT-177": {
+    filename: "PRISM_ADAPTIVE_TESSELLATION_ENGINE_V2.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 218,
+    safety_class: "MEDIUM",
+    description: "Adaptive mesh tessellation with curvature-based refinement",
+    cam_domain: "mesh-processing",
+  },
+  "EXT-178": {
+    filename: "PRISM_ADVANCED_BLADE_SURFACE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 484,
+    safety_class: "MEDIUM",
+    description: "Advanced blade and impeller surface machining",
+    cam_domain: "surface-machining",
+  },
+  "EXT-179": {
+    filename: "PRISM_ADVANCED_SWEEP_LOFT_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 511,
+    safety_class: "MEDIUM",
+    description: "Sweep and loft solid creation operations",
+    cam_domain: "solid-modeling",
+  },
+  "EXT-180": {
+    filename: "PRISM_BREP_CAD_GENERATOR_V2.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 1293,
+    safety_class: "MEDIUM",
+    description: "B-Rep solid model generation and manipulation",
+    cam_domain: "solid-modeling",
+  },
+  "EXT-181": {
+    filename: "PRISM_BREP_TESSELLATOR.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 724,
+    safety_class: "MEDIUM",
+    description: "B-Rep boundary to mesh tessellation conversion",
+    cam_domain: "solid-modeling",
+  },
+  "EXT-182": {
+    filename: "PRISM_BSPLINE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 207,
+    safety_class: "MEDIUM",
+    description: "B-Spline curve and surface evaluation",
+    cam_domain: "curve-surface-math",
+  },
+  "EXT-183": {
+    filename: "PRISM_BVH_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 6562,
+    safety_class: "MEDIUM",
+    description: "Bounding volume hierarchy spatial indexing",
+    cam_domain: "spatial-algorithms",
+  },
+  "EXT-184": {
+    filename: "PRISM_CAD_CAM_INTEGRATION_HUB.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 567,
+    safety_class: "MEDIUM",
+    description: "Central CAD/CAM data exchange coordination hub",
+    cam_domain: "cad-core",
+  },
+  "EXT-185": {
+    filename: "PRISM_CAD_CONFIDENCE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 199,
+    safety_class: "MEDIUM",
+    description: "CAD model quality confidence scoring",
+    cam_domain: "cad-core",
+  },
+  "EXT-186": {
+    filename: "PRISM_CAD_KERNEL_MIT.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 286,
+    safety_class: "MEDIUM",
+    description: "Core CAD kernel geometric operations",
+    cam_domain: "cad-core",
+  },
+  "EXT-187": {
+    filename: "PRISM_CAD_MATH.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 157,
+    safety_class: "MEDIUM",
+    description: "CAD mathematical primitives and transforms",
+    cam_domain: "cad-core",
+  },
+  "EXT-188": {
+    filename: "PRISM_CAD_QUALITY_ASSURANCE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 335,
+    safety_class: "MEDIUM",
+    description: "CAD model validation and quality checks",
+    cam_domain: "cad-core",
+  },
+  "EXT-189": {
+    filename: "PRISM_CAM_KERNEL_COMPLETE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 1237,
+    safety_class: "MEDIUM",
+    description: "Complete CAM kernel with operation planning",
+    cam_domain: "cam-core",
+  },
+  "EXT-190": {
+    filename: "PRISM_CAM_KERNEL_MIT.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 176,
+    safety_class: "MEDIUM",
+    description: "Core CAM kernel machining primitives",
+    cam_domain: "cam-core",
+  },
+  "EXT-191": {
+    filename: "PRISM_CAM_TOOLPATH_PARAMETERS_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 162,
+    safety_class: "MEDIUM",
+    description: "Toolpath parameter calculation and optimization",
+    cam_domain: "toolpath",
+  },
+  "EXT-192": {
+    filename: "PRISM_CLIPPER2_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 1317,
+    safety_class: "MEDIUM",
+    description: "Polygon boolean and offset operations via Clipper2",
+    cam_domain: "polygon-operations",
+  },
+  "EXT-193": {
+    filename: "PRISM_CONSTRUCTION_GEOMETRY_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 461,
+    safety_class: "MEDIUM",
+    description: "Construction geometry creation (planes, axes, points)",
+    cam_domain: "geometry-analysis",
+  },
+  "EXT-194": {
+    filename: "PRISM_CURVATURE_ANALYSIS_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 319,
+    safety_class: "MEDIUM",
+    description: "Surface and curve curvature analysis",
+    cam_domain: "geometry-analysis",
+  },
+  "EXT-195": {
+    filename: "PRISM_ENHANCED_MILL_TURN_CAM_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 436,
+    safety_class: "MEDIUM",
+    description: "Combined mill-turn CAM operation sequencing",
+    cam_domain: "turning",
+  },
+  "EXT-196": {
+    filename: "PRISM_ENHANCED_TOOLPATH_GENERATOR.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 390,
+    safety_class: "MEDIUM",
+    description: "Enhanced toolpath generation with collision avoidance",
+    cam_domain: "toolpath",
+  },
+  "EXT-197": {
+    filename: "PRISM_FEATURE_HISTORY_MANAGER.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 492,
+    safety_class: "MEDIUM",
+    description: "Parametric feature history tree management",
+    cam_domain: "feature-recognition",
+  },
+  "EXT-198": {
+    filename: "PRISM_FEATURE_INTERACTION_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 879,
+    safety_class: "MEDIUM",
+    description: "Feature interaction detection and resolution",
+    cam_domain: "feature-recognition",
+  },
+  "EXT-199": {
+    filename: "PRISM_FEATURE_RECOGNITION_ENHANCED.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 304,
+    safety_class: "MEDIUM",
+    description: "Automatic machining feature recognition from B-Rep",
+    cam_domain: "feature-recognition",
+  },
+  "EXT-200": {
+    filename: "PRISM_FILLETING_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 408,
+    safety_class: "MEDIUM",
+    description: "Edge fillet and chamfer solid operations",
+    cam_domain: "solid-modeling",
+  },
+  "EXT-201": {
+    filename: "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 385,
+    safety_class: "MEDIUM",
+    description: "Sketch constraint solver for geometric/dimensional constraints",
+    cam_domain: "sketch-constraints",
+  },
+  "EXT-202": {
+    filename: "PRISM_GEODESIC_DISTANCE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 4050,
+    safety_class: "MEDIUM",
+    description: "Geodesic distance computation on triangle meshes",
+    cam_domain: "spatial-algorithms",
+  },
+  "EXT-203": {
+    filename: "PRISM_GEOMETRY_ALGORITHMS.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 386,
+    safety_class: "MEDIUM",
+    description: "Computational geometry algorithm library",
+    cam_domain: "geometry-analysis",
+  },
+  "EXT-204": {
+    filename: "PRISM_INTELLIGENT_COLLISION_SYSTEM.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 153,
+    safety_class: "MEDIUM",
+    description: "Intelligent tool collision detection and avoidance",
+    cam_domain: "verification",
+  },
+  "EXT-205": {
+    filename: "PRISM_ISOSURFACE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 227,
+    safety_class: "MEDIUM",
+    description: "Isosurface extraction via marching cubes/tetrahedra",
+    cam_domain: "surface-machining",
+  },
+  "EXT-206": {
+    filename: "PRISM_LATHE_TOOLPATH_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 555,
+    safety_class: "MEDIUM",
+    description: "Lathe turning toolpath generation",
+    cam_domain: "toolpath",
+  },
+  "EXT-207": {
+    filename: "PRISM_MESH_DECIMATION_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 466,
+    safety_class: "MEDIUM",
+    description: "Mesh simplification and polygon reduction",
+    cam_domain: "mesh-processing",
+  },
+  "EXT-208": {
+    filename: "PRISM_MOTION_PLANNING_ENHANCED_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 344,
+    safety_class: "MEDIUM",
+    description: "CNC motion planning with jerk-limited profiles",
+    cam_domain: "motion-planning",
+  },
+  "EXT-209": {
+    filename: "PRISM_MULTIAXIS_TOOLPATH_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 668,
+    safety_class: "MEDIUM",
+    description: "Multi-axis (3+2 and 5-axis) toolpath generation",
+    cam_domain: "toolpath",
+  },
+  "EXT-210": {
+    filename: "PRISM_NURBS_ADVANCED_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 139,
+    safety_class: "MEDIUM",
+    description: "Advanced NURBS surface operations",
+    cam_domain: "curve-surface-math",
+  },
+  "EXT-211": {
+    filename: "PRISM_NURBS_LIBRARY.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 237,
+    safety_class: "MEDIUM",
+    description: "NURBS curve and surface evaluation library",
+    cam_domain: "curve-surface-math",
+  },
+  "EXT-212": {
+    filename: "PRISM_OFFSET_SURFACE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 121,
+    safety_class: "MEDIUM",
+    description: "Surface offset and shell operations",
+    cam_domain: "surface-machining",
+  },
+  "EXT-213": {
+    filename: "PRISM_PARAMETRIC_CAD_ENHANCEMENT_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 266,
+    safety_class: "MEDIUM",
+    description: "Parametric CAD model enhancement and repair",
+    cam_domain: "cad-core",
+  },
+  "EXT-214": {
+    filename: "PRISM_REAL_CAD_PRIORITY_SYSTEM.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 80,
+    safety_class: "MEDIUM",
+    description: "CAD operation priority scheduling system",
+    cam_domain: "cad-core",
+  },
+  "EXT-215": {
+    filename: "PRISM_REAL_TOOLPATH_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 14,
+    safety_class: "MEDIUM",
+    description: "Real-time toolpath streaming engine",
+    cam_domain: "toolpath",
+  },
+  "EXT-216": {
+    filename: "PRISM_REST_MACHINING_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 621,
+    safety_class: "MEDIUM",
+    description: "Rest/pencil machining for residual material removal",
+    cam_domain: "cam-core",
+  },
+  "EXT-217": {
+    filename: "PRISM_SIEMENS_5AXIS_CAM_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 295,
+    safety_class: "MEDIUM",
+    description: "Siemens NX-style 5-axis CAM operations",
+    cam_domain: "multi-axis",
+  },
+  "EXT-218": {
+    filename: "PRISM_SILHOUETTE_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 248,
+    safety_class: "MEDIUM",
+    description: "Silhouette curve extraction from 3D models",
+    cam_domain: "spatial-algorithms",
+  },
+  "EXT-219": {
+    filename: "PRISM_SKETCH_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 681,
+    safety_class: "MEDIUM",
+    description: "Parametric 2D sketch creation and editing",
+    cam_domain: "sketch-constraints",
+  },
+  "EXT-220": {
+    filename: "PRISM_SOLID_EDITING_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 550,
+    safety_class: "MEDIUM",
+    description: "Direct solid editing operations (push/pull, move face)",
+    cam_domain: "solid-modeling",
+  },
+  "EXT-221": {
+    filename: "PRISM_SURFACE_INTERSECTION_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 126,
+    safety_class: "MEDIUM",
+    description: "Surface-surface intersection curve computation",
+    cam_domain: "surface-machining",
+  },
+  "EXT-222": {
+    filename: "PRISM_SURFACE_RECONSTRUCTION_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 588,
+    safety_class: "MEDIUM",
+    description: "Point cloud to surface reconstruction",
+    cam_domain: "surface-machining",
+  },
+  "EXT-223": {
+    filename: "PRISM_TOOLPATH_OPTIMIZATION.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 214,
+    safety_class: "MEDIUM",
+    description: "Toolpath optimization for rapid moves and linking",
+    cam_domain: "toolpath",
+  },
+  "EXT-224": {
+    filename: "PRISM_TOOLPATH_STRATEGIES_COMPLETE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 1048,
+    safety_class: "MEDIUM",
+    description: "Complete toolpath strategy library (HSM, adaptive, etc)",
+    cam_domain: "toolpath",
+  },
+  "EXT-225": {
+    filename: "PRISM_TOPOLOGY_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 911,
+    safety_class: "MEDIUM",
+    description: "Topological structure operations on B-Rep solids",
+    cam_domain: "topology",
+  },
+  "EXT-226": {
+    filename: "PRISM_UNIFIED_3D_VIEWPORT_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 935,
+    safety_class: "MEDIUM",
+    description: "Unified 3D viewport rendering and interaction",
+    cam_domain: "visualization",
+  },
+  "EXT-227": {
+    filename: "PRISM_UNIFIED_TOOLPATH_DECISION_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 347,
+    safety_class: "MEDIUM",
+    description: "AI-driven toolpath strategy selection engine",
+    cam_domain: "toolpath",
+  },
+  "EXT-228": {
+    filename: "PRISM_V858_CAD_SYSTEM.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 66,
+    safety_class: "MEDIUM",
+    description: "V8.58 CAD system compatibility layer",
+    cam_domain: "cad-core",
+  },
+  "EXT-229": {
+    filename: "PRISM_VORONOI_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 119,
+    safety_class: "MEDIUM",
+    description: "Voronoi diagram and Delaunay triangulation",
+    cam_domain: "spatial-algorithms",
+  },
+  "EXT-230": {
+    filename: "PRISM_VOXEL_STOCK_ENGINE.js",
+    source_dir: "extracted/engines/cad_cam",
+    category: "engines",
+    subcategory: "cad_cam",
+    lines: 495,
+    safety_class: "MEDIUM",
+    description: "Voxel-based stock model material tracking",
+    cam_domain: "mesh-processing",
+  },
+  "EXT-231": {
+    filename: "PRISM_COMPLETE_CAD_CAM_ENGINE.js",
+    source_dir: "extracted/engines/cad_complete",
+    category: "engines",
+    subcategory: "cad_complete",
+    lines: 308,
+    safety_class: "MEDIUM",
+    description: "Complete integrated CAD/CAM engine",
+    cam_domain: "cad-core",
+  },
+  "EXT-232": {
+    filename: "PRISM_COMPLETE_CAD_GENERATION_ENGINE.js",
+    source_dir: "extracted/engines/cad_complete",
+    category: "engines",
+    subcategory: "cad_complete",
+    lines: 2914,
+    safety_class: "MEDIUM",
+    description: "Full parametric CAD model generation pipeline",
+    cam_domain: "cad-core",
+  },
+  "EXT-233": {
+    filename: "PRISM_COMPLETE_FEATURE_ENGINE.js",
+    source_dir: "extracted/engines/cad_complete",
+    category: "engines",
+    subcategory: "cad_complete",
+    lines: 496,
+    safety_class: "MEDIUM",
+    description: "Complete feature creation and editing engine",
+    cam_domain: "feature-recognition",
+  },
+  "EXT-234": {
+    filename: "PRISM_FEATURE_STRATEGY_COMPLETE.js",
+    source_dir: "extracted/engines/cad_complete",
+    category: "engines",
+    subcategory: "cad_complete",
+    lines: 1458,
+    safety_class: "MEDIUM",
+    description: "Complete feature-to-strategy mapping system",
+    cam_domain: "feature-recognition",
+  },
+  "EXT-307": {
+    filename: "PRISM_THERMAL_EXPANSION_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "engines",
+    subcategory: "general",
+    lines: 1563,
+    safety_class: "MEDIUM",
+    description: "Thermal expansion compensation calculations",
+    cam_domain: "thermal-analysis",
+  },
+  "EXT-308": {
+    filename: "PRISM_THERMAL_MODELING.js",
+    source_dir: "extracted/engines",
+    category: "engines",
+    subcategory: "general",
+    lines: 192,
+    safety_class: "MEDIUM",
+    description: "Thermal modeling for machining processes",
+    cam_domain: "thermal-analysis",
+  },
+};
+
+/** Return the full source-file catalog for external consumers */
+export function getSourceFileCatalog(): Record<string, CAMSourceFileEntry> {
+  return CAM_SOURCE_FILE_CATALOG;
+}
+
+/** Query catalog entries, optionally filtered by cam_domain */
+export function catalogSourceFiles(filter?: {
+  cam_domain?: CamDomain;
+  subcategory?: string;
+  min_lines?: number;
+}): { id: string; entry: CAMSourceFileEntry }[] {
+  const entries = Object.entries(CAM_SOURCE_FILE_CATALOG);
+  let result = entries.map(([id, entry]) => ({ id, entry }));
+
+  if (filter?.cam_domain) {
+    result = result.filter(r => r.entry.cam_domain === filter.cam_domain);
+  }
+  if (filter?.subcategory) {
+    result = result.filter(r => r.entry.subcategory === filter.subcategory);
+  }
+  if (filter?.min_lines !== undefined) {
+    result = result.filter(r => r.entry.lines >= filter.min_lines!);
+  }
+
+  return result;
+}
+
+/** Aggregate statistics across the source file catalog */
+export function getCatalogStats(): {
+  total_files: number;
+  total_lines: number;
+  by_domain: Record<string, { count: number; lines: number }>;
+  by_subcategory: Record<string, { count: number; lines: number }>;
+} {
+  const byDomain: Record<string, { count: number; lines: number }> = {};
+  const bySub: Record<string, { count: number; lines: number }> = {};
+  let totalLines = 0;
+
+  for (const entry of Object.values(CAM_SOURCE_FILE_CATALOG)) {
+    totalLines += entry.lines;
+
+    if (!byDomain[entry.cam_domain]) byDomain[entry.cam_domain] = { count: 0, lines: 0 };
+    byDomain[entry.cam_domain].count++;
+    byDomain[entry.cam_domain].lines += entry.lines;
+
+    if (!bySub[entry.subcategory]) bySub[entry.subcategory] = { count: 0, lines: 0 };
+    bySub[entry.subcategory].count++;
+    bySub[entry.subcategory].lines += entry.lines;
+  }
+
+  return {
+    total_files: Object.keys(CAM_SOURCE_FILE_CATALOG).length,
+    total_lines: totalLines,
+    by_domain: byDomain,
+    by_subcategory: bySub,
+  };
+}
+
 // ─── Dispatcher Entry Point ──────────────────────────────────────────────────
 
 /**
@@ -296,6 +1011,9 @@ export function getAllTools(): ToolLibraryEntry[] {
  *   cam_tool_library    — Search/get tool library entries
  *   cam_tool_get        — Get specific tool from library
  *   cam_systems         — List supported CAM systems
+ *   cam_source_catalog  — Return the full 61-file source catalog
+ *   cam_catalog_stats   — Aggregate stats by domain/subcategory
+ *   cam_catalog_filter  — Filter catalog by cam_domain, subcategory, min_lines
  */
 /** Build a CAMOperation from flat dispatcher params */
 function opFromParams(params: Record<string, any>): CAMOperation {
@@ -482,6 +1200,29 @@ export function camIntegration(action: string, params: Record<string, any>): any
       return {
         systems,
         total: systems.length,
+      };
+    }
+
+    case "cam_source_catalog": {
+      return {
+        catalog: getSourceFileCatalog(),
+        total: Object.keys(CAM_SOURCE_FILE_CATALOG).length,
+      };
+    }
+
+    case "cam_catalog_stats": {
+      return getCatalogStats();
+    }
+
+    case "cam_catalog_filter": {
+      const domain = params.cam_domain as CamDomain | undefined;
+      const subcategory = params.subcategory as string | undefined;
+      const minLines = params.min_lines as number | undefined;
+      const matches = catalogSourceFiles({ cam_domain: domain, subcategory, min_lines: minLines });
+      return {
+        filter: { cam_domain: domain ?? null, subcategory: subcategory ?? null, min_lines: minLines ?? null },
+        total: matches.length,
+        files: matches,
       };
     }
 

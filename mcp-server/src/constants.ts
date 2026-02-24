@@ -103,7 +103,17 @@ export const PATHS = {
   PHYSICS: "C:\\PRISM\\extracted\\engines\\physics",
   POST_PROCESSORS: "C:\\PRISM\\extracted\\engines\\post_processor",
   VIBRATION: "C:\\PRISM\\extracted\\engines\\vibration",
-  ENGINES_ROOT: "C:\\PRISM\\extracted\\engines"
+  ENGINES_ROOT: "C:\\PRISM\\extracted\\engines",
+
+  // Extracted module directories (P-MS4 Wave 3 MEDIUM)
+  ALGORITHMS: "C:\\PRISM\\extracted\\algorithms",
+  MATERIALS_EXTRACTED: "C:\\PRISM\\extracted\\materials",
+  MATERIALS_V9: "C:\\PRISM\\extracted\\materials_v9_complete",
+  ENGINES_CAD_CAM: "C:\\PRISM\\extracted\\engines\\cad_cam",
+  ENGINES_CAD_COMPLETE: "C:\\PRISM\\extracted\\engines\\cad_complete",
+  ENGINES_MACHINES: "C:\\PRISM\\extracted\\engines\\machines",
+  ENGINES_MATERIALS: "C:\\PRISM\\extracted\\engines\\materials",
+  ENGINES_TOOLS: "C:\\PRISM\\extracted\\engines\\tools"
 } as const;
 
 // Data Layers (4-layer hierarchy)

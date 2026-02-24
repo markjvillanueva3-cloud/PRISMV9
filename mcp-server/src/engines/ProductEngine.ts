@@ -72,7 +72,7 @@ import {
 import { collisionEngine } from "./CollisionEngine.js";
 
 // ─── Business Source File Catalog ────────────────────────────────────────────
-// Maps all 18 extracted business JS files from the PRISM v8.89.002 monolith
+// Maps all 19 extracted business JS files from the PRISM v8.89.002 monolith
 // to their target engines. Used for traceability, safety auditing, and wiring.
 
 export const BUSINESS_SOURCE_FILE_CATALOG: Record<string, {
@@ -269,6 +269,19 @@ export const BUSINESS_SOURCE_FILE_CATALOG: Record<string, {
     description: "Genetic algorithm schedule optimizer and operation sequence optimization",
     target_engine: "ShopSchedulerEngine",
     consumers: ["optimize_schedule", "schedule_jobs"],
+  },
+
+  // ── extracted/engines/ (MEDIUM wiring — wave 2) ─────────────────────────────
+
+  SPEED_FEED_UI: {
+    filename: "SPEED_FEED_UI.js",
+    source_dir: "extracted/engines",
+    category: "ui-engine",
+    lines: 894,
+    safety_class: "MEDIUM",
+    description: "Speed-and-feed UI calculation bridge: parameter binding, unit conversion, and recommendation display logic",
+    target_engine: "ProductEngine",
+    consumers: ["sfc_calculate", "sfc_quick", "sfc_compare"],
   },
 };
 

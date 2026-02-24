@@ -124,6 +124,117 @@ export interface CuttingTool {
 // TOOL REGISTRY CLASS
 // ============================================================================
 
+// ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority tool modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// ============================================================================
+
+export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  PRISM_TOOL_LIFE_ENGINE: {
+    filename: "PRISM_TOOL_LIFE_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "engines",
+    lines: 192,
+    safety_class: "MEDIUM",
+    description: "Tool life prediction engine — wear-rate models, Taylor equation implementation, and remaining-life estimation for carbide/HSS/ceramic tooling.",
+  },
+  PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE: {
+    filename: "PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 635,
+    safety_class: "MEDIUM",
+    description: "Enhanced lathe live-tooling engine — driven-tool parameter computation for milling/drilling on CNC lathes including C-axis and Y-axis offsets.",
+  },
+  PRISM_LATHE_PARAM_ENGINE: {
+    filename: "PRISM_LATHE_PARAM_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 649,
+    safety_class: "MEDIUM",
+    description: "Lathe parameter engine — turning-specific speed/feed calculation, insert selection, and nose-radius compensation tables.",
+  },
+  PRISM_PHASE1_TOOL_LIFE_MANAGER: {
+    filename: "PRISM_PHASE1_TOOL_LIFE_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 86,
+    safety_class: "MEDIUM",
+    description: "Phase 1 tool life manager — simple wear tracking and replacement-interval logic for initial tool-life monitoring.",
+  },
+  PRISM_TOOL_3D_GENERATOR: {
+    filename: "PRISM_TOOL_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 440,
+    safety_class: "MEDIUM",
+    description: "3D tool geometry generator — parametric mesh creation for endmills, drills, and inserts for visualization and collision-checking.",
+  },
+  PRISM_TOOL_GENERATOR: {
+    filename: "PRISM_TOOL_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 197,
+    safety_class: "MEDIUM",
+    description: "Tool generator — template-based tool definition creation from diameter, flute count, and coating specs.",
+  },
+  PRISM_TOOL_HOLDER_3D_GENERATOR: {
+    filename: "PRISM_TOOL_HOLDER_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 558,
+    safety_class: "MEDIUM",
+    description: "Tool holder 3D generator — parametric CAT/BT/HSK holder geometry for assembly visualization and gauge-length verification.",
+  },
+  PRISM_TOOL_LIBRARY_MANAGER: {
+    filename: "PRISM_TOOL_LIBRARY_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 169,
+    safety_class: "MEDIUM",
+    description: "Tool library manager — CRUD operations, search/filter, and catalog management for the master cutting-tool library.",
+  },
+  PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE: {
+    filename: "PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 81,
+    safety_class: "MEDIUM",
+    description: "Lathe tool nose radius compensation engine — G41/G42 offset calculation and contour-error correction for turning operations.",
+  },
+  PRISM_TOOL_PERFORMANCE_ENGINE: {
+    filename: "PRISM_TOOL_PERFORMANCE_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 1236,
+    safety_class: "MEDIUM",
+    description: "Tool performance engine — comprehensive cutting performance analytics, chip-load analysis, and cost-per-part optimization across tool families.",
+  },
+  PRISM_CUTTING_TOOL_DATABASE_V2: {
+    filename: "PRISM_CUTTING_TOOL_DATABASE_V2.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 1040,
+    safety_class: "MEDIUM",
+    description: "Cutting tool database V2 — structured catalog of endmills, drills, taps, inserts with geometry, coating, and recommended parameters per ISO material group.",
+  },
+  PRISM_TOOL_TYPES_COMPLETE: {
+    filename: "PRISM_TOOL_TYPES_COMPLETE.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 357,
+    safety_class: "MEDIUM",
+    description: "Complete tool type taxonomy — type definitions, classification hierarchy, and attribute schemas for all supported cutting tool families.",
+  },
+};
+
 export class ToolRegistry extends BaseRegistry<CuttingTool> {
   private indexByType: Map<string, Set<string>> = new Map();
   private indexByManufacturer: Map<string, Set<string>> = new Map();
@@ -892,6 +1003,44 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     stats.bySubstrate = substrateCounts;
     
     return stats;
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESSORS
+  // ==========================================================================
+
+  /**
+   * Return the full extracted-source-file catalog for this registry.
+   */
+  static getSourceFileCatalog(): typeof TOOL_SOURCE_FILE_CATALOG {
+    return TOOL_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries with aggregate stats, grouped by category.
+   */
+  catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    byCategory: Record<string, string[]>;
+    entries: typeof TOOL_SOURCE_FILE_CATALOG;
+  } {
+    const entries = TOOL_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    for (const key of keys) {
+      const entry = entries[key as keyof typeof entries];
+      totalLines += entry.lines;
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return { totalFiles: keys.length, totalLines, byCategory, entries };
   }
 }
 

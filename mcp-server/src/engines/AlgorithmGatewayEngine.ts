@@ -68,6 +68,512 @@ const ALGORITHM_DB: AlgorithmEntry[] = [
 ];
 
 // ============================================================================
+// SOURCE FILE CATALOG — 52 MEDIUM-priority extracted algorithm modules
+// Generated from MASTER_EXTRACTION_INDEX_V2.json (safety_class=MEDIUM, category=algorithms)
+// Total: 52 files, 35,257 lines of algorithm source code
+// ============================================================================
+
+export type AlgorithmDomain =
+  | 'general'
+  | 'toolpath'
+  | 'interpolation'
+  | 'optimization'
+  | 'collision-detection'
+  | 'surface'
+  | 'kinematics'
+  | 'signal-processing'
+  | 'graph'
+  | 'graphics'
+  | 'control'
+  | 'search'
+  | 'numerical'
+  | 'tool-life'
+  | 'sorting'
+  | 'spatial-indexing'
+  | 'design-for-manufacturing';
+
+export interface SourceFileCatalogEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: 'MEDIUM';
+  description: string;
+  algorithm_domain: AlgorithmDomain;
+}
+
+export const ALGORITHM_SOURCE_FILE_CATALOG: Record<string, SourceFileCatalogEntry> = {
+  'EXT-001': {
+    filename: 'ALGORITHM_LIBRARY.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 2213,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: comprehensive algorithm library with core mathematical routines',
+    algorithm_domain: 'general',
+  },
+  'EXT-002': {
+    filename: 'COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 2213,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for toolpath: complete toolpath generation and optimization library',
+    algorithm_domain: 'toolpath',
+  },
+  'EXT-003': {
+    filename: 'PRISM_ACO_SEQUENCER.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 5383,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for optimization: ant colony optimization for operation sequencing',
+    algorithm_domain: 'optimization',
+  },
+  'EXT-004': {
+    filename: 'PRISM_ADVANCED_INTERPOLATION.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 176,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for interpolation: advanced interpolation methods for curve fitting',
+    algorithm_domain: 'interpolation',
+  },
+  'EXT-005': {
+    filename: 'PRISM_ALGORITHM_ENSEMBLER.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 182,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: algorithm ensemble combiner for multi-method consensus',
+    algorithm_domain: 'general',
+  },
+  'EXT-006': {
+    filename: 'PRISM_ALGORITHM_ORCHESTRATOR.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 225,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: algorithm orchestration and pipeline management',
+    algorithm_domain: 'general',
+  },
+  'EXT-007': {
+    filename: 'PRISM_ALGORITHM_REGISTRY.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 3567,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: algorithm registry with capability metadata and selection logic',
+    algorithm_domain: 'general',
+  },
+  'EXT-008': {
+    filename: 'PRISM_ALGORITHM_STRATEGIES.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 257,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: strategy pattern implementations for algorithm selection',
+    algorithm_domain: 'general',
+  },
+  'EXT-009': {
+    filename: 'PRISM_BEZIER_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 111,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for interpolation: Bezier curve evaluation and subdivision',
+    algorithm_domain: 'interpolation',
+  },
+  'EXT-010': {
+    filename: 'PRISM_CONTROL_SYSTEMS_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 117,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for control: control systems modeling and stability analysis',
+    algorithm_domain: 'control',
+  },
+  'EXT-011': {
+    filename: 'PRISM_CORE_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 616,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: core algorithmic primitives and utility functions',
+    algorithm_domain: 'general',
+  },
+  'EXT-012': {
+    filename: 'PRISM_CRITICAL_ALGORITHM_INTEGRATION.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 188,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: critical algorithm integration and safety validation',
+    algorithm_domain: 'general',
+  },
+  'EXT-013': {
+    filename: 'PRISM_DFM_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 76,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for design-for-manufacturing: design-for-manufacturability analysis',
+    algorithm_domain: 'design-for-manufacturing',
+  },
+  'EXT-014': {
+    filename: 'PRISM_DIGITAL_CONTROL_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 101,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for control: digital control system design and discretization',
+    algorithm_domain: 'control',
+  },
+  'EXT-015': {
+    filename: 'PRISM_DS_SEARCH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 102,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for search: data structure based search algorithms',
+    algorithm_domain: 'search',
+  },
+  'EXT-016': {
+    filename: 'PRISM_FFT_PREDICTIVE_CHATTER.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 330,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for signal-processing: FFT-based predictive chatter detection',
+    algorithm_domain: 'signal-processing',
+  },
+  'EXT-017': {
+    filename: 'PRISM_GRAPH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 285,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graph: core graph data structure and traversal algorithms',
+    algorithm_domain: 'graph',
+  },
+  'EXT-018': {
+    filename: 'PRISM_GRAPHICS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 660,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graphics: computational graphics rendering primitives',
+    algorithm_domain: 'graphics',
+  },
+  'EXT-019': {
+    filename: 'PRISM_GRAPHICS_KERNEL_PASS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 171,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graphics: graphics kernel pass pipeline processing',
+    algorithm_domain: 'graphics',
+  },
+  'EXT-020': {
+    filename: 'PRISM_GRAPHICS_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 276,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graphics: MIT-sourced computer graphics algorithms',
+    algorithm_domain: 'graphics',
+  },
+  'EXT-021': {
+    filename: 'PRISM_GRAPH_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 315,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graph: graph algorithm suite including shortest path and MST',
+    algorithm_domain: 'graph',
+  },
+  'EXT-022': {
+    filename: 'PRISM_GRAPH_TOOLPATH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 180,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for toolpath: graph-based toolpath planning and optimization',
+    algorithm_domain: 'toolpath',
+  },
+  'EXT-023': {
+    filename: 'PRISM_JACOBIAN_ENGINE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 238,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for kinematics: Jacobian matrix computation for kinematic chains',
+    algorithm_domain: 'kinematics',
+  },
+  'EXT-024': {
+    filename: 'PRISM_JOHNSON_COOK_DATABASE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 158,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: Johnson-Cook material constitutive model database',
+    algorithm_domain: 'general',
+  },
+  'EXT-025': {
+    filename: 'PRISM_KDTREE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 112,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for spatial-indexing: k-d tree spatial partitioning for nearest neighbor queries',
+    algorithm_domain: 'spatial-indexing',
+  },
+  'EXT-026': {
+    filename: 'PRISM_KNOWLEDGE_INTEGRATION_TESTS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 119,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: knowledge base integration test suite',
+    algorithm_domain: 'general',
+  },
+  'EXT-027': {
+    filename: 'PRISM_LINALG_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 155,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for numerical: MIT linear algebra routines for matrix operations',
+    algorithm_domain: 'numerical',
+  },
+  'EXT-028': {
+    filename: 'PRISM_LOCAL_SEARCH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 385,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for optimization: local search metaheuristics for combinatorial problems',
+    algorithm_domain: 'optimization',
+  },
+  'EXT-029': {
+    filename: 'PRISM_LP_SOLVERS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 131,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for optimization: linear programming solvers for constraint optimization',
+    algorithm_domain: 'optimization',
+  },
+  'EXT-030': {
+    filename: 'PRISM_MANUFACTURING_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 101,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: manufacturing-specific algorithm collection',
+    algorithm_domain: 'general',
+  },
+  'EXT-031': {
+    filename: 'PRISM_MANUFACTURING_SEARCH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 141,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for search: manufacturing knowledge search and retrieval',
+    algorithm_domain: 'search',
+  },
+  'EXT-032': {
+    filename: 'PRISM_MANUFACTURING_SEARCH_ENGINE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 148,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for search: full-text manufacturing search engine with ranking',
+    algorithm_domain: 'search',
+  },
+  'EXT-033': {
+    filename: 'PRISM_MATH_FOUNDATIONS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 1730,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for numerical: mathematical foundation library with core numeric routines',
+    algorithm_domain: 'numerical',
+  },
+  'EXT-034': {
+    filename: 'PRISM_MEMORY_EFFICIENT_SEARCH.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 160,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for search: memory-efficient search for large datasets',
+    algorithm_domain: 'search',
+  },
+  'EXT-035': {
+    filename: 'PRISM_NUMERICAL.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 185,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for numerical: numerical methods for root finding and integration',
+    algorithm_domain: 'numerical',
+  },
+  'EXT-036': {
+    filename: 'PRISM_NUMERICAL_METHODS_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 167,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for numerical: MIT numerical methods including ODE and quadrature',
+    algorithm_domain: 'numerical',
+  },
+  'EXT-037': {
+    filename: 'PRISM_NURBS_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 590,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for interpolation: NURBS curve and surface evaluation',
+    algorithm_domain: 'interpolation',
+  },
+  'EXT-038': {
+    filename: 'PRISM_OCTREE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 111,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for spatial-indexing: octree spatial partitioning for 3D queries',
+    algorithm_domain: 'spatial-indexing',
+  },
+  'EXT-039': {
+    filename: 'PRISM_ODE_SOLVERS_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 6386,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for numerical: MIT ODE solver suite with Runge-Kutta and adaptive stepping',
+    algorithm_domain: 'numerical',
+  },
+  'EXT-040': {
+    filename: 'PRISM_OPTIMIZATION_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 195,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for optimization: optimization algorithm collection with gradient and derivative-free methods',
+    algorithm_domain: 'optimization',
+  },
+  'EXT-041': {
+    filename: 'PRISM_PHASE3_GRAPH_NEURAL.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 424,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for graph: graph neural network for manufacturing feature prediction',
+    algorithm_domain: 'graph',
+  },
+  'EXT-042': {
+    filename: 'PRISM_PHASE7_KNOWLEDGE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 2396,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for general: phase 7 knowledge graph integration and reasoning',
+    algorithm_domain: 'general',
+  },
+  'EXT-043': {
+    filename: 'PRISM_POLICY_GRADIENT_ENGINE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 113,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for control: policy gradient reinforcement learning for process control',
+    algorithm_domain: 'control',
+  },
+  'EXT-044': {
+    filename: 'PRISM_RL_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 358,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for control: reinforcement learning algorithms for adaptive manufacturing',
+    algorithm_domain: 'control',
+  },
+  'EXT-045': {
+    filename: 'PRISM_SEARCH_ENHANCED.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 1961,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for search: enhanced search with fuzzy matching and relevance scoring',
+    algorithm_domain: 'search',
+  },
+  'EXT-046': {
+    filename: 'PRISM_SIGNAL_ALGORITHMS.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 375,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for signal-processing: signal processing algorithms for vibration analysis',
+    algorithm_domain: 'signal-processing',
+  },
+  'EXT-047': {
+    filename: 'PRISM_SORTING.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 122,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for sorting: comparison and non-comparison sorting implementations',
+    algorithm_domain: 'sorting',
+  },
+  'EXT-048': {
+    filename: 'PRISM_SPECTRAL_GRAPH_CAD.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 185,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for signal-processing: spectral graph analysis for CAD feature extraction',
+    algorithm_domain: 'signal-processing',
+  },
+  'EXT-049': {
+    filename: 'PRISM_SURFACE_GEOMETRY_MIT.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 173,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for surface: MIT surface geometry and differential geometry computations',
+    algorithm_domain: 'surface',
+  },
+  'EXT-050': {
+    filename: 'PRISM_TAYLOR_ADVANCED.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 51,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for tool-life: advanced Taylor tool life modeling with thermal effects',
+    algorithm_domain: 'tool-life',
+  },
+  'EXT-051': {
+    filename: 'PRISM_TAYLOR_LOOKUP.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 45,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for tool-life: Taylor equation lookup table for rapid tool life estimation',
+    algorithm_domain: 'tool-life',
+  },
+  'EXT-052': {
+    filename: 'PRISM_TAYLOR_TOOL_LIFE.js',
+    source_dir: 'extracted/algorithms',
+    category: 'algorithms',
+    lines: 98,
+    safety_class: 'MEDIUM' as const,
+    description: 'Algorithm for tool-life: Taylor tool life equation with extended parameters',
+    algorithm_domain: 'tool-life',
+  },
+};
+
+// ============================================================================
 // ALGORITHM SELECTION
 // ============================================================================
 
@@ -922,6 +1428,122 @@ export function algorithmSelect(input: AlgorithmSelectInput): AlgorithmSelectRes
 }
 
 // ============================================================================
+// SOURCE FILE CATALOG METHODS
+// ============================================================================
+
+/**
+ * Returns the full source file catalog for all 52 MEDIUM-priority algorithm modules.
+ * Optionally filters by algorithm_domain.
+ */
+export function getSourceFileCatalog(params: {
+  domain?: AlgorithmDomain;
+  filename_pattern?: string;
+}): {
+  total_files: number;
+  total_lines: number;
+  files: (SourceFileCatalogEntry & { id: string })[];
+  domain_summary: Record<string, { count: number; lines: number }>;
+} {
+  const entries = Object.entries(ALGORITHM_SOURCE_FILE_CATALOG);
+
+  // Apply filters
+  let filtered = entries;
+  if (params.domain) {
+    filtered = filtered.filter(([, e]) => e.algorithm_domain === params.domain);
+  }
+  if (params.filename_pattern) {
+    const pattern = params.filename_pattern.toLowerCase();
+    filtered = filtered.filter(([, e]) => e.filename.toLowerCase().includes(pattern));
+  }
+
+  const files = filtered.map(([id, entry]) => ({ id, ...entry }));
+  const totalLines = files.reduce((sum, f) => sum + f.lines, 0);
+
+  // Build domain summary from the full catalog (unfiltered)
+  const domainSummary: Record<string, { count: number; lines: number }> = {};
+  for (const [, entry] of entries) {
+    if (!domainSummary[entry.algorithm_domain]) {
+      domainSummary[entry.algorithm_domain] = { count: 0, lines: 0 };
+    }
+    domainSummary[entry.algorithm_domain].count++;
+    domainSummary[entry.algorithm_domain].lines += entry.lines;
+  }
+
+  return {
+    total_files: files.length,
+    total_lines: totalLines,
+    files,
+    domain_summary: domainSummary,
+  };
+}
+
+/**
+ * Returns a structured summary of cataloged source files grouped by algorithm domain,
+ * with per-domain statistics and overall totals.
+ */
+export function catalogSourceFiles(): {
+  catalog_version: string;
+  safety_class: 'MEDIUM';
+  total_files: number;
+  total_lines: number;
+  domains: {
+    domain: AlgorithmDomain;
+    file_count: number;
+    total_lines: number;
+    files: { id: string; filename: string; lines: number; description: string }[];
+  }[];
+  largest_files: { id: string; filename: string; lines: number; algorithm_domain: AlgorithmDomain }[];
+} {
+  const entries = Object.entries(ALGORITHM_SOURCE_FILE_CATALOG);
+  const totalFiles = entries.length;
+  const totalLines = entries.reduce((sum, [, e]) => sum + e.lines, 0);
+
+  // Group by domain
+  const domainMap = new Map<AlgorithmDomain, { id: string; entry: SourceFileCatalogEntry }[]>();
+  for (const [id, entry] of entries) {
+    const list = domainMap.get(entry.algorithm_domain) ?? [];
+    list.push({ id, entry });
+    domainMap.set(entry.algorithm_domain, list);
+  }
+
+  const domains = Array.from(domainMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([domain, items]) => ({
+      domain,
+      file_count: items.length,
+      total_lines: items.reduce((sum, i) => sum + i.entry.lines, 0),
+      files: items
+        .sort((a, b) => b.entry.lines - a.entry.lines)
+        .map(i => ({
+          id: i.id,
+          filename: i.entry.filename,
+          lines: i.entry.lines,
+          description: i.entry.description,
+        })),
+    }));
+
+  // Top 10 largest files
+  const largest = entries
+    .sort(([, a], [, b]) => b.lines - a.lines)
+    .slice(0, 10)
+    .map(([id, e]) => ({
+      id,
+      filename: e.filename,
+      lines: e.lines,
+      algorithm_domain: e.algorithm_domain,
+    }));
+
+  return {
+    catalog_version: '2.0',
+    safety_class: 'MEDIUM' as const,
+    total_files: totalFiles,
+    total_lines: totalLines,
+    domains,
+    largest_files: largest,
+  };
+}
+
+// ============================================================================
 // DISPATCHER FUNCTION
 // ============================================================================
 
@@ -929,6 +1551,10 @@ export function algorithmGateway(action: string, params: Record<string, unknown>
   switch (action) {
     case 'algorithm_select':
       return algorithmSelect(params as unknown as AlgorithmSelectInput);
+    case 'get_source_file_catalog':
+      return getSourceFileCatalog(params as { domain?: AlgorithmDomain; filename_pattern?: string });
+    case 'catalog_source_files':
+      return catalogSourceFiles();
     default:
       return { error: `Unknown algorithm gateway action: ${action}` };
   }

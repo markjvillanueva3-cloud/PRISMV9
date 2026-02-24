@@ -131,6 +131,186 @@ const DEFAULT_MACHINE_CAPS: Record<string, string[]> = {
   'DRILL_PRESS': ['drilling'],
 };
 
+// ─── Scheduler Source File Catalog ───────────────────────────────────────────
+// Maps 19 extracted MEDIUM-safety business JS files from the PRISM v8.89.002
+// monolith that feed into ShopSchedulerEngine workflows. Used for traceability,
+// safety auditing, and wiring verification.
+
+export const SCHEDULER_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  // ── extracted/engines/business/ (11 files) ─────────────────────────────────
+
+  PRISM_FINANCIAL_ENGINE: {
+    filename: "PRISM_FINANCIAL_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "financial",
+    lines: 183,
+    safety_class: "MEDIUM",
+    description: "NPV, IRR, and financial viability calculations for capital projects",
+  },
+  PRISM_INVENTORY_ENGINE: {
+    filename: "PRISM_INVENTORY_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "inventory",
+    lines: 159,
+    safety_class: "MEDIUM",
+    description: "EOQ, reorder points, and inventory optimization models",
+  },
+  PRISM_JOB_COSTING_ENGINE: {
+    filename: "PRISM_JOB_COSTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "costing",
+    lines: 379,
+    safety_class: "MEDIUM",
+    description: "Job cost rollups: labor, machine, material, overhead, and setup rates",
+  },
+  PRISM_JOB_SHOP_SCHEDULING_ENGINE: {
+    filename: "PRISM_JOB_SHOP_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 926,
+    safety_class: "MEDIUM",
+    description: "Dispatching rules (FIFO, SPT, EDD, CR, SLACK) and job-shop optimization",
+  },
+  PRISM_JOB_TRACKING_ENGINE: {
+    filename: "PRISM_JOB_TRACKING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "tracking",
+    lines: 246,
+    safety_class: "MEDIUM",
+    description: "Job lifecycle state machine: quoted through invoiced/closed",
+  },
+  PRISM_ORDER_MANAGER: {
+    filename: "PRISM_ORDER_MANAGER.js",
+    source_dir: "extracted/engines/business",
+    category: "orders",
+    lines: 330,
+    safety_class: "MEDIUM",
+    description: "Order creation, work order management, and order lifecycle tracking",
+  },
+  PRISM_PURCHASING_SYSTEM: {
+    filename: "PRISM_PURCHASING_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "purchasing",
+    lines: 342,
+    safety_class: "MEDIUM",
+    description: "Supplier catalog (MSC, Grainger, etc.) and procurement workflows",
+  },
+  PRISM_QUOTING_ENGINE: {
+    filename: "PRISM_QUOTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "quoting",
+    lines: 215,
+    safety_class: "MEDIUM",
+    description: "Quote generation with margin targets, volume discounts, and rush pricing",
+  },
+  PRISM_REPORTING_ENGINE: {
+    filename: "PRISM_REPORTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "reporting",
+    lines: 412,
+    safety_class: "MEDIUM",
+    description: "KPI dashboards, production summaries, and financial/quality reports",
+  },
+  PRISM_SCHEDULING_ENGINE_CORE: {
+    filename: "PRISM_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 182,
+    safety_class: "MEDIUM",
+    description: "Johnson's algorithm for 2-machine flow shop makespan minimization",
+  },
+  PRISM_SUBSCRIPTION_SYSTEM: {
+    filename: "PRISM_SUBSCRIPTION_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "subscription",
+    lines: 270,
+    safety_class: "MEDIUM",
+    description: "Tier definitions (Essentials through Enterprise) and billing configuration",
+  },
+
+  // ── extracted/business/ (7 files) ──────────────────────────────────────────
+
+  PRISM_BUSINESS_AI_SYSTEM: {
+    filename: "PRISM_BUSINESS_AI_SYSTEM.js",
+    source_dir: "extracted/business",
+    category: "ai-orchestrator",
+    lines: 211,
+    safety_class: "MEDIUM",
+    description: "Business intelligence orchestrator: wires costing, quoting, analytics, and AI models",
+  },
+  PRISM_COST_DATABASE: {
+    filename: "PRISM_COST_DATABASE.js",
+    source_dir: "extracted/business",
+    category: "costing",
+    lines: 1026,
+    safety_class: "MEDIUM",
+    description: "Machine TCO hourly rates, material costs, and tooling cost factors",
+  },
+  PRISM_COST_ESTIMATION: {
+    filename: "PRISM_COST_ESTIMATION.js",
+    source_dir: "extracted/business",
+    category: "costing",
+    lines: 213,
+    safety_class: "MEDIUM",
+    description: "Parametric cost estimation: machine hourly, labor rates, and overhead multipliers",
+  },
+  PRISM_SCHEDULING_ENGINE_BUSINESS: {
+    filename: "PRISM_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "scheduling",
+    lines: 175,
+    safety_class: "MEDIUM",
+    description: "Johnson's algorithm and flow-shop scheduling (business-layer duplicate)",
+  },
+  PRISM_SHOP_ANALYTICS_ENGINE: {
+    filename: "PRISM_SHOP_ANALYTICS_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "analytics",
+    lines: 183,
+    safety_class: "MEDIUM",
+    description: "OEE calculation (Availability x Performance x Quality) and machine analytics",
+  },
+  PRISM_SHOP_LEARNING_ENGINE: {
+    filename: "PRISM_SHOP_LEARNING_ENGINE.js",
+    source_dir: "extracted/business",
+    category: "learning",
+    lines: 150,
+    safety_class: "MEDIUM",
+    description: "Bayesian estimation factor updates from job outcomes and operator/machine performance",
+  },
+  PRISM_SHOP_OPTIMIZER: {
+    filename: "PRISM_SHOP_OPTIMIZER.js",
+    source_dir: "extracted/business",
+    category: "optimization",
+    lines: 228,
+    safety_class: "MEDIUM",
+    description: "Genetic algorithm schedule optimizer and operation sequence optimization",
+  },
+
+  // ── extracted/engines/ (MEDIUM wiring — wave 2) ─────────────────────────────
+
+  SPEED_FEED_UI: {
+    filename: "SPEED_FEED_UI.js",
+    source_dir: "extracted/engines",
+    category: "ui-engine",
+    lines: 894,
+    safety_class: "MEDIUM",
+    description: "Speed-and-feed UI calculation bridge: parameter binding, unit conversion, and recommendation display logic",
+  },
+};
+
+/** Returns the scheduler source file catalog for introspection and audit. */
+export function getSchedulerSourceFileCatalog() {
+  return SCHEDULER_SOURCE_FILE_CATALOG;
+}
+
 // ============================================================================
 // MACHINE RESOLUTION
 // ============================================================================

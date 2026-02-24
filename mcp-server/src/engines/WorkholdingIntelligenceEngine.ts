@@ -420,6 +420,54 @@ function generateClampPositions(type: FixtureType, L: number, W: number): ClampP
 }
 
 // ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority workholding modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// Same 3 workholding files shared with WorkholdingEngine; each engine
+// owns its own copy so there are no cross-engine import dependencies.
+// ============================================================================
+
+export const WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  PRISM_FIXTURE_DATABASE: {
+    filename: "PRISM_FIXTURE_DATABASE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 325,
+    safety_class: "MEDIUM",
+    description: "Fixture database — catalog of vises, chucks, collets, vacuum fixtures, and magnetic chucks with dimensional specs, clamping-force ratings, and suitability matrices.",
+  },
+  PRISM_WORKHOLDING_DATABASE: {
+    filename: "PRISM_WORKHOLDING_DATABASE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 259,
+    safety_class: "MEDIUM",
+    description: "Workholding database — friction coefficients, jaw-material pairings, surface-condition modifiers, and clamping-force lookup tables for safety validation.",
+  },
+  PRISM_WORKHOLDING_ENGINE: {
+    filename: "PRISM_WORKHOLDING_ENGINE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 119,
+    safety_class: "MEDIUM",
+    description: "Workholding engine (extracted JS) — legacy implementation of clamping-force, pull-out resistance, and lift-off moment calculations prior to TypeScript rewrite.",
+  },
+};
+
+/**
+ * Static accessor for the extracted workholding-intelligence source file catalog.
+ */
+export function getWorkholdingIntelligenceSourceFileCatalog(): typeof WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG {
+  return WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG;
+}
+
+// ============================================================================
 // DISPATCHER FUNCTION
 // ============================================================================
 

@@ -159,6 +159,119 @@ const FORMULA_DOMAINS: Record<string, FormulaCategory[]> = {
 };
 
 // ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority knowledge-base modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// Same 12 knowledge_bases files shared with KnowledgeGraphEngine; each engine
+// owns its own copy so there are no cross-engine import dependencies.
+// ============================================================================
+
+export const KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  PRISM_220_COURSES_MASTER: {
+    filename: "PRISM_220_COURSES_MASTER.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 321,
+    safety_class: "MEDIUM",
+    description: "220-course manufacturing curriculum master index — topic trees, prerequisite graphs, and learning-path metadata for CNC/CAM training.",
+  },
+  PRISM_AI_STRUCTURES_KB: {
+    filename: "PRISM_AI_STRUCTURES_KB.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 13,
+    safety_class: "MEDIUM",
+    description: "AI data structures knowledge base — compact reference of neural-network, tree, and graph structures used by PRISM inference modules.",
+  },
+  PRISM_ALGORITHMS_KB: {
+    filename: "PRISM_ALGORITHMS_KB.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 2292,
+    safety_class: "MEDIUM",
+    description: "Algorithms knowledge base — comprehensive library of sorting, searching, optimization, and graph algorithms with manufacturing-specific applications.",
+  },
+  PRISM_DATA_STRUCTURES_KB: {
+    filename: "PRISM_DATA_STRUCTURES_KB.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 47,
+    safety_class: "MEDIUM",
+    description: "Data structures knowledge base — reference implementations of queues, heaps, hash maps, and spatial indexes for shop-floor data management.",
+  },
+  PRISM_KNOWLEDGE_AI_CONNECTOR: {
+    filename: "PRISM_KNOWLEDGE_AI_CONNECTOR.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 101,
+    safety_class: "MEDIUM",
+    description: "Knowledge-AI connector — bridge module linking the knowledge graph to AI inference pipelines for context-aware query enrichment.",
+  },
+  PRISM_KNOWLEDGE_BASE: {
+    filename: "PRISM_KNOWLEDGE_BASE.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 620,
+    safety_class: "MEDIUM",
+    description: "Core knowledge base — foundational manufacturing facts, process rules, and constraint tables consumed by all PRISM engines.",
+  },
+  PRISM_KNOWLEDGE_FUSION: {
+    filename: "PRISM_KNOWLEDGE_FUSION.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 143,
+    safety_class: "MEDIUM",
+    description: "Knowledge fusion engine — merges overlapping facts from multiple KB sources, resolves conflicts, and produces a unified truth set.",
+  },
+  PRISM_KNOWLEDGE_GRAPH: {
+    filename: "PRISM_KNOWLEDGE_GRAPH.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 268,
+    safety_class: "MEDIUM",
+    description: "Knowledge graph builder — constructs typed node/edge relationships between materials, tools, machines, and process parameters.",
+  },
+  PRISM_KNOWLEDGE_INTEGRATION_ROUTES: {
+    filename: "PRISM_KNOWLEDGE_INTEGRATION_ROUTES.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 138,
+    safety_class: "MEDIUM",
+    description: "Knowledge integration routes — API endpoint definitions for querying, updating, and synchronizing the distributed knowledge graph.",
+  },
+  PRISM_MFG_STRUCTURES_KB: {
+    filename: "PRISM_MFG_STRUCTURES_KB.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 21,
+    safety_class: "MEDIUM",
+    description: "Manufacturing structures knowledge base — BOM hierarchies, assembly relationships, and fixture/tooling dependency graphs.",
+  },
+  PRISM_SYSTEMS_KB: {
+    filename: "PRISM_SYSTEMS_KB.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 26,
+    safety_class: "MEDIUM",
+    description: "Systems knowledge base — machine-tool system architectures, CNC controller taxonomies, and servo-loop parameter references.",
+  },
+  PRISM_UNIVERSITY_ALGORITHMS: {
+    filename: "PRISM_UNIVERSITY_ALGORITHMS.js",
+    source_dir: "extracted/knowledge_bases",
+    category: "knowledge_bases",
+    lines: 4935,
+    safety_class: "MEDIUM",
+    description: "University algorithms compendium — MIT/Stanford/Georgia Tech sourced algorithms for optimization, scheduling, and manufacturing process modeling.",
+  },
+};
+
+// ============================================================================
 // KNOWLEDGE QUERY ENGINE
 // ============================================================================
 
@@ -862,6 +975,44 @@ export class KnowledgeQueryEngine {
       cache_size: this.cache.size,
       cache_hit_rate: 0  // Would need hit tracking to calculate
     };
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESSORS
+  // ==========================================================================
+
+  /**
+   * Return the full extracted-source-file catalog for knowledge-base modules.
+   */
+  static getSourceFileCatalog(): typeof KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG {
+    return KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries with aggregate stats.
+   */
+  catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    byCategory: Record<string, string[]>;
+    entries: typeof KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG;
+  } {
+    const entries = KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    for (const key of keys) {
+      const entry = entries[key as keyof typeof entries];
+      totalLines += entry.lines;
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return { totalFiles: keys.length, totalLines, byCategory, entries };
   }
 }
 

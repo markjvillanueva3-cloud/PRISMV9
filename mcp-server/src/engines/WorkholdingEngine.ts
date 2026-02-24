@@ -455,6 +455,45 @@ const MAGNETIC_PERMEABILITY: Record<string, number> = {
 };
 
 // ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority workholding modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// ============================================================================
+
+export const WORKHOLDING_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  PRISM_FIXTURE_DATABASE: {
+    filename: "PRISM_FIXTURE_DATABASE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 325,
+    safety_class: "MEDIUM",
+    description: "Fixture database — catalog of vises, chucks, collets, vacuum fixtures, and magnetic chucks with dimensional specs, clamping-force ratings, and suitability matrices.",
+  },
+  PRISM_WORKHOLDING_DATABASE: {
+    filename: "PRISM_WORKHOLDING_DATABASE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 259,
+    safety_class: "MEDIUM",
+    description: "Workholding database — friction coefficients, jaw-material pairings, surface-condition modifiers, and clamping-force lookup tables for safety validation.",
+  },
+  PRISM_WORKHOLDING_ENGINE: {
+    filename: "PRISM_WORKHOLDING_ENGINE.js",
+    source_dir: "extracted/workholding",
+    category: "workholding",
+    lines: 119,
+    safety_class: "MEDIUM",
+    description: "Workholding engine (extracted JS) — legacy implementation of clamping-force, pull-out resistance, and lift-off moment calculations prior to TypeScript rewrite.",
+  },
+};
+
+// ============================================================================
 // WORKHOLDING ENGINE CLASS
 // ============================================================================
 
@@ -1396,6 +1435,44 @@ class WorkholdingEngine {
       Fp: Math.round(Fp),
       F_resultant: Math.round(Math.sqrt(Fc*Fc + Ff*Ff + Fp*Fp))
     };
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESSORS
+  // ==========================================================================
+
+  /**
+   * Return the full extracted-source-file catalog for workholding modules.
+   */
+  static getSourceFileCatalog(): typeof WORKHOLDING_SOURCE_FILE_CATALOG {
+    return WORKHOLDING_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries with aggregate stats.
+   */
+  catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    byCategory: Record<string, string[]>;
+    entries: typeof WORKHOLDING_SOURCE_FILE_CATALOG;
+  } {
+    const entries = WORKHOLDING_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    for (const key of keys) {
+      const entry = entries[key as keyof typeof entries];
+      totalLines += entry.lines;
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return { totalFiles: keys.length, totalLines, byCategory, entries };
   }
 }
 

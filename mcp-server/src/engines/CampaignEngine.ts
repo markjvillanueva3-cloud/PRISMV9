@@ -205,6 +205,127 @@ export const CAMPAIGN_ACTIONS = [
   "campaign_cycle_time",
 ] as const;
 
+// ─── Campaign Source File Catalog ────────────────────────────────────────────
+// Maps 12 extracted MEDIUM-safety business JS files from the PRISM v8.89.002
+// monolith that feed into CampaignEngine workflows. Used for traceability,
+// safety auditing, and wiring verification.
+
+export const CAMPAIGN_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+}> = {
+  // ── extracted/engines/business/ (11 files) ─────────────────────────────────
+
+  PRISM_FINANCIAL_ENGINE: {
+    filename: "PRISM_FINANCIAL_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "financial",
+    lines: 183,
+    safety_class: "MEDIUM",
+    description: "NPV, IRR, and financial viability calculations for capital projects",
+  },
+  PRISM_INVENTORY_ENGINE: {
+    filename: "PRISM_INVENTORY_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "inventory",
+    lines: 159,
+    safety_class: "MEDIUM",
+    description: "EOQ, reorder points, and inventory optimization models",
+  },
+  PRISM_JOB_COSTING_ENGINE: {
+    filename: "PRISM_JOB_COSTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "costing",
+    lines: 379,
+    safety_class: "MEDIUM",
+    description: "Job cost rollups: labor, machine, material, overhead, and setup rates",
+  },
+  PRISM_JOB_SHOP_SCHEDULING_ENGINE: {
+    filename: "PRISM_JOB_SHOP_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 926,
+    safety_class: "MEDIUM",
+    description: "Dispatching rules (FIFO, SPT, EDD, CR, SLACK) and job-shop optimization",
+  },
+  PRISM_JOB_TRACKING_ENGINE: {
+    filename: "PRISM_JOB_TRACKING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "tracking",
+    lines: 246,
+    safety_class: "MEDIUM",
+    description: "Job lifecycle state machine: quoted through invoiced/closed",
+  },
+  PRISM_ORDER_MANAGER: {
+    filename: "PRISM_ORDER_MANAGER.js",
+    source_dir: "extracted/engines/business",
+    category: "orders",
+    lines: 330,
+    safety_class: "MEDIUM",
+    description: "Order creation, work order management, and order lifecycle tracking",
+  },
+  PRISM_PURCHASING_SYSTEM: {
+    filename: "PRISM_PURCHASING_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "purchasing",
+    lines: 342,
+    safety_class: "MEDIUM",
+    description: "Supplier catalog (MSC, Grainger, etc.) and procurement workflows",
+  },
+  PRISM_QUOTING_ENGINE: {
+    filename: "PRISM_QUOTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "quoting",
+    lines: 215,
+    safety_class: "MEDIUM",
+    description: "Quote generation with margin targets, volume discounts, and rush pricing",
+  },
+  PRISM_REPORTING_ENGINE: {
+    filename: "PRISM_REPORTING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "reporting",
+    lines: 412,
+    safety_class: "MEDIUM",
+    description: "KPI dashboards, production summaries, and financial/quality reports",
+  },
+  PRISM_SCHEDULING_ENGINE: {
+    filename: "PRISM_SCHEDULING_ENGINE.js",
+    source_dir: "extracted/engines/business",
+    category: "scheduling",
+    lines: 182,
+    safety_class: "MEDIUM",
+    description: "Johnson's algorithm for 2-machine flow shop makespan minimization",
+  },
+  PRISM_SUBSCRIPTION_SYSTEM: {
+    filename: "PRISM_SUBSCRIPTION_SYSTEM.js",
+    source_dir: "extracted/engines/business",
+    category: "subscription",
+    lines: 270,
+    safety_class: "MEDIUM",
+    description: "Tier definitions (Essentials through Enterprise) and billing configuration",
+  },
+
+  // ── extracted/engines/ (MEDIUM wiring — wave 2) ─────────────────────────────
+
+  SPEED_FEED_UI: {
+    filename: "SPEED_FEED_UI.js",
+    source_dir: "extracted/engines",
+    category: "ui-engine",
+    lines: 894,
+    safety_class: "MEDIUM",
+    description: "Speed-and-feed UI calculation bridge: parameter binding, unit conversion, and recommendation display logic",
+  },
+};
+
+/** Returns the campaign source file catalog for introspection and audit. */
+export function getCampaignSourceFileCatalog() {
+  return CAMPAIGN_SOURCE_FILE_CATALOG;
+}
+
 // Physical bounds for parameter validation
 const PARAM_BOUNDS = {
   cutting_speed_m_min: { min: 1, max: 2000 },
