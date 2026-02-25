@@ -6,6 +6,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/file-protect.sh \"$TOOL_INPUT_file_path\" 2>/dev/null",
+            "timeout": 1000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks pre-edit --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
@@ -15,6 +21,12 @@
       {
         "matcher": "^Bash$",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/bash-intercept.sh \"$TOOL_INPUT_command\" 2>/dev/null",
+            "timeout": 2000,
+            "continueOnError": false
+          },
           {
             "type": "command",
             "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
@@ -44,6 +56,12 @@
             "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks post-edit --file \"$TOOL_INPUT_file_path\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "rm -f /tmp/prism-build-cache /tmp/prism-test-cache 2>/dev/null; true",
+            "timeout": 1000,
+            "continueOnError": true
           }
         ]
       },
@@ -60,6 +78,12 @@
             "type": "command",
             "command": "echo \"$TOOL_INPUT_command\" | grep -q 'git commit' && bash /c/PRISM/.claude/helpers/session-breadcrumb.sh 2>/dev/null || true",
             "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/cache-writer.sh \"$TOOL_INPUT_command\" \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
+            "timeout": 2000,
             "continueOnError": true
           }
         ]
@@ -79,6 +103,12 @@
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/auto-route.sh \"$PROMPT\" 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "[ -n \"$PROMPT\" ] && npx @claude-flow/cli@latest hooks route --task \"$PROMPT\" || true",
@@ -110,11 +140,28 @@
             "continueOnError": true
           }
         ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat /c/PRISM/.claude/helpers/.compaction-survival.md 2>/dev/null || echo 'No compaction data'",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
       }
     ],
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/session-summary.sh 2>/dev/null || true",
+            "timeout": 5000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "bash /c/PRISM/.claude/helpers/sync-memory.sh 2>/dev/null || true",

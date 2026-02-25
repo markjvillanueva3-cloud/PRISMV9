@@ -15,6 +15,22 @@ Identify the active roadmap from $ARGUMENTS (roadmap ID or file path). If not pr
 - Read `data/state/{roadmap-id}/position.json` for current position
 - If no position file exists, initialize at the first unit of the first phase
 
+### 1.5 Parallel Detection
+After loading the phase, identify parallelizable units:
+- For each unit in current phase, check: are ALL dependencies in position.history?
+- Collect units with all deps met into ready_units[]
+- If ready_units.length > 1:
+  - Log: "PARALLEL: {N} independent units detected — spawning parallel agents"
+  - For each unit in ready_units:
+    - Spawn: `Task(subagent_type: "coder", isolation: "worktree", prompt: "[full unit context including steps, exit conditions, and deliverables]")`
+  - Wait for all agents to complete
+  - Merge worktree branches: `git merge --no-ff {branch}` for each
+  - Run build + test gate on merged result
+  - Update position.history with all completed units
+  - Continue to next batch of ready units
+- If ready_units.length <= 1:
+  - Execute sequentially (current behavior, no changes)
+
 ### 2. Pre-Execution Validation (Hook: pre-roadmap-execute)
 Before executing the current unit, validate:
 - **Entry conditions** — all entry_conditions for the unit must be satisfiable
