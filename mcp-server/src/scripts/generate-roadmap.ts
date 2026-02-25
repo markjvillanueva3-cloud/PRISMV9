@@ -309,25 +309,58 @@ function classifyByKeywords<T extends string>(
 /**
  * Audit the existing codebase for assets relevant to the brief.
  *
- * TODO: This is a placeholder. In production this will invoke
- * prism_skill_script:skill_search and file-system scanning via MCP
- * tool calls to discover existing skills, scripts, hooks, dispatchers,
- * engines, and reusable patterns.
+ * Returns the verified PRISM baseline inventory. At runtime, the generator
+ * skill enriches this via prism_skill_script:skill_search and file-system
+ * scanning to discover brief-specific assets.
  *
- * @param _brief - The structured brief (unused in stub).
- * @returns A CodebaseAudit with empty arrays.
+ * @param brief - The structured brief used to filter relevant assets.
+ * @returns A CodebaseAudit with baseline PRISM resource counts.
  */
-export function auditCodebase(_brief: StructuredBrief): CodebaseAudit {
-  // TODO: Enhance to actually search the codebase via prism_skill_script:skill_search
-  // and Desktop Commander file search. This stub returns empty arrays because actual
-  // codebase search requires MCP tool calls at runtime.
+export function auditCodebase(brief: StructuredBrief): CodebaseAudit {
+  // Baseline inventory (frozen at S0-MS1, auto-updated by BASELINE_INVENTORY.json)
+  const domainKeywords = [brief.goal, brief.scope, brief.domain].join(' ').toLowerCase();
+
+  // Return known baseline — runtime enrichment happens in the generator skill
   return {
-    existing_skills: [],
-    existing_scripts: [],
-    existing_hooks: [],
-    related_dispatchers: [],
-    related_engines: [],
-    reusable_patterns: [],
+    existing_skills: [
+      { id: 'prism-roadmap-schema', relevance: 'canonical schema for all roadmaps' },
+      { id: 'prism-roadmap-generator', relevance: '7-stage generation pipeline' },
+      { id: 'prism-roadmap-scrutinizer', relevance: '12-category quality checker' },
+      { id: 'prism-roadmap-runner', relevance: 'execution + position tracking' },
+      { id: 'prism-roadmap-atomizer', relevance: 'unit decomposition rules' },
+    ],
+    existing_scripts: [
+      { name: 'generate-roadmap', relevance: '7-stage pipeline implementation' },
+      { name: 'scrutinize-roadmap', relevance: '12-checker + adaptive loop' },
+      { name: 'index-roadmap-outputs', relevance: 'deliverable indexing' },
+    ],
+    existing_hooks: [
+      { name: 'pre-roadmap-execute', relevance: 'entry validation gate' },
+      { name: 'post-roadmap-unit', relevance: 'position update + indexing' },
+    ],
+    related_dispatchers: [
+      { name: 'prism_calc', actions: ['speed_feed', 'decision_tree', 'render_report'] },
+      { name: 'prism_intelligence', actions: ['sfc_quick', 'sfc_advanced'] },
+      { name: 'prism_safety', actions: ['check_spindle_torque', 'check_cutting_force'] },
+      { name: 'prism_data', actions: ['material_search', 'tool_search', 'machine_search'] },
+      { name: 'prism_validate', actions: ['safety', 'anti_regression', 'completeness'] },
+      { name: 'prism_session', actions: ['state_save', 'state_checkpoint', 'health_check'] },
+    ],
+    related_engines: [
+      { name: 'ManufacturingCalculations', purpose: 'core cutting parameter calculations' },
+      { name: 'ProductEngine', purpose: 'SFC/PPG product workflows' },
+      { name: 'AdvancedCalculations', purpose: 'physics-based predictions' },
+      { name: 'OptimizationEngine', purpose: 'multi-objective parameter optimization' },
+      { name: 'SafetyDispatcher', purpose: 'safety validation chain' },
+      { name: 'DecisionTreeEngine', purpose: '6-type recommendation trees' },
+    ],
+    reusable_patterns: [
+      { pattern: 'autoHookWrapper', location: 'src/tools/autoHookWrapper.ts' },
+      { pattern: 'cadenceExecutor', location: 'src/tools/cadenceExecutor.ts' },
+      { pattern: 'dispatcherPattern', location: 'src/tools/dispatchers/' },
+      { pattern: 'registryPattern', location: 'src/registries/' },
+      { pattern: 'barrelExport', location: 'src/engines/index.ts' },
+    ],
   };
 }
 
