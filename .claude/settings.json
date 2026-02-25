@@ -55,6 +55,12 @@
             "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks post-command --command \"$TOOL_INPUT_command\" --success \"${TOOL_SUCCESS:-true}\" 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "echo \"$TOOL_INPUT_command\" | grep -q 'git commit' && bash /c/PRISM/.claude/helpers/session-breadcrumb.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
           }
         ]
       },
@@ -87,6 +93,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/sync-memory.sh 2>/dev/null || true",
+            "timeout": 10000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "npx @claude-flow/cli@latest daemon start --quiet 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
@@ -105,8 +117,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"ok\": true}'",
-            "timeout": 1000
+            "command": "bash /c/PRISM/.claude/helpers/sync-memory.sh 2>/dev/null || true",
+            "timeout": 10000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/compaction-survival.sh 2>/dev/null || true",
+            "timeout": 5000,
+            "continueOnError": true
           }
         ]
       }
