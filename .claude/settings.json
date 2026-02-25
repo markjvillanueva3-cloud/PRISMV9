@@ -66,6 +66,12 @@
             "command": "bash /c/PRISM/.claude/helpers/read-optimizer.sh 2>/dev/null || true",
             "timeout": 1000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "[ -n \"$TOOL_INPUT_file_path\" ] && npx @claude-flow/cli@latest hooks pre-read --file \"$TOOL_INPUT_file_path\" 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
           }
         ]
       },
@@ -76,6 +82,12 @@
             "type": "command",
             "command": "bash /c/PRISM/.claude/helpers/search-optimizer.sh 2>/dev/null || true",
             "timeout": 1000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks pre-search --pattern \"${TOOL_INPUT_pattern:-}\" 2>/dev/null || true",
+            "timeout": 3000,
             "continueOnError": true
           }
         ]
@@ -247,6 +259,12 @@
             "command": "bash /c/PRISM/.claude/helpers/compaction-survival.sh 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest daemon stop --quiet 2>/dev/null || true",
+            "timeout": 5000,
+            "continueOnError": true
           }
         ]
       }
@@ -300,6 +318,12 @@
             "command": "bash /c/PRISM/.claude/helpers/smart-recovery.sh 2>/dev/null || true",
             "timeout": 3000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks error-report --tool \"${TOOL_NAME:-unknown}\" --error \"${TOOL_ERROR:-unknown}\" 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
           }
         ]
       }
@@ -310,6 +334,12 @@
           {
             "type": "command",
             "command": "bash /c/PRISM/.claude/helpers/subagent-context.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks pre-task --task-id \"subagent-$(date +%s)\" --description \"Subagent spawned\" 2>/dev/null || true",
             "timeout": 3000,
             "continueOnError": true
           }
@@ -383,6 +413,12 @@
           {
             "type": "command",
             "command": "bash /c/PRISM/.claude/helpers/subagent-results.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "npx @claude-flow/cli@latest hooks post-task --task-id \"subagent-done-$(date +%s)\" --success \"true\" 2>/dev/null || true",
             "timeout": 3000,
             "continueOnError": true
           }
