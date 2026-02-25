@@ -1,0 +1,787 @@
+{
+  "generated": "2026-02-23",
+  "milestone": "P-MS1",
+  "total_files": 44,
+  "categories": {
+    "knowledge_bases": [
+      {
+        "filename": "PRISM_220_COURSES_MASTER.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 321,
+        "category": "knowledge_base",
+        "subcategory": "course_catalog_kb",
+        "functions": ["initialize", "registerAllGatewayRoutes", "getAlgorithm", "searchAlgorithms", "getUtilizationReport", "getRoadmapStatus", "selfTest"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Master registry of 220 university courses with 850 algorithms, gateway route registration across optimization, ML, signal processing, manufacturing, and RL domains"
+      },
+      {
+        "filename": "PRISM_AI_STRUCTURES_KB.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 13,
+        "category": "knowledge_base",
+        "subcategory": "ai_structures_kb",
+        "functions": [],
+        "safety_class": "LOW",
+        "integration_wave": 3,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Static knowledge base of AI structure definitions (GAN, attention, neural network, clustering, HMM) sourced from MIT courseware"
+      },
+      {
+        "filename": "PRISM_ALGORITHMS_KB.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 2292,
+        "category": "knowledge_base",
+        "subcategory": "algorithms_kb",
+        "functions": [],
+        "safety_class": "LOW",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Comprehensive algorithm knowledge base covering sorting, searching, graph, optimization, numerical, and geometric algorithms with MIT/university course references"
+      },
+      {
+        "filename": "PRISM_DATA_STRUCTURES_KB.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 47,
+        "category": "knowledge_base",
+        "subcategory": "data_structures_kb",
+        "functions": [],
+        "safety_class": "LOW",
+        "integration_wave": 3,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Data structures knowledge base covering trees (kd-tree, BVH, heap), graphs (DAG, adjacency), geometric (mesh, CSG, point cloud), spatial, linear, and matrix structures"
+      },
+      {
+        "filename": "PRISM_KNOWLEDGE_AI_CONNECTOR.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 101,
+        "category": "knowledge_base",
+        "subcategory": "ai_connector",
+        "functions": ["connectToLearning", "generateTrainingData"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Bridges knowledge modules to AI learning pipeline via EVENT_BUS subscriptions; generates synthetic training data for optimization, dynamics, and signal processing domains"
+      },
+      {
+        "filename": "PRISM_KNOWLEDGE_BASE.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 620,
+        "category": "knowledge_base",
+        "subcategory": "machining_kb",
+        "functions": ["chipFormation.shearAngleFormula", "specificCuttingForce.calculate", "power.cuttingPower", "estimateTemperature", "taylorToolLife.calculate", "chipThinning.calculate", "deflection.cantilever", "surfaceFinish.theoretical"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Core manufacturing knowledge base with physics models (Merchant, Kienzle), material database (12+ alloys with Johnson-Cook), tool wear/coatings, cutting parameters, geometry strategies, dynamics, and surface integrity"
+      },
+      {
+        "filename": "PRISM_KNOWLEDGE_FUSION.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 143,
+        "category": "knowledge_base",
+        "subcategory": "cross_domain_fusion",
+        "functions": ["suggestFusion", "executeFusion", "_identifyDomains", "_selectBestAlgorithm", "_calculateFusionConfidence", "_generateImplementation", "_executeAlgorithm"],
+        "safety_class": "HIGH",
+        "integration_wave": 3,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Cross-domain algorithm fusion engine that combines optimization, ML, signal processing, manufacturing, planning, and control algorithms with confidence-scored recommendations"
+      },
+      {
+        "filename": "PRISM_KNOWLEDGE_GRAPH.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 268,
+        "category": "knowledge_base",
+        "subcategory": "knowledge_graph",
+        "functions": ["addNode", "addEdge", "getNode", "getNodesByType", "getOutgoingEdges", "getIncomingEdges", "getNeighbors", "findPath", "queryMaterialsForOperation", "querySolutionsForDefect", "queryParameterRecommendations", "initManufacturingKnowledge", "export", "import"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Graph-based manufacturing knowledge representation with nodes (material, tool, operation, defect, solution), BFS path finding, and semantic queries for troubleshooting and parameter recommendation"
+      },
+      {
+        "filename": "PRISM_KNOWLEDGE_INTEGRATION_ROUTES.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 138,
+        "category": "knowledge_base",
+        "subcategory": "gateway_routes",
+        "functions": ["registerAll"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Defines 70+ gateway routing entries for AI/ML (RL, NN activations, optimizers, clustering, XAI, attention, compression), process planning, optimization, and physics/dynamics modules"
+      },
+      {
+        "filename": "PRISM_MFG_STRUCTURES_KB.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 21,
+        "category": "knowledge_base",
+        "subcategory": "manufacturing_structures_kb",
+        "functions": [],
+        "safety_class": "LOW",
+        "integration_wave": 3,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Manufacturing structures knowledge base covering toolpath types (spiral, zigzag, contour, roughing), multiaxis collision, and cutting parameters (MRR, feed rate, spindle speed, tool life)"
+      },
+      {
+        "filename": "PRISM_SYSTEMS_KB.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 26,
+        "category": "knowledge_base",
+        "subcategory": "systems_patterns_kb",
+        "functions": [],
+        "safety_class": "LOW",
+        "integration_wave": 3,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Systems architecture knowledge base covering design patterns (strategy, command, observer, factory, adapter), concurrency (locks, threads, deadlock), and distributed systems (replication, raft, consensus)"
+      },
+      {
+        "filename": "PRISM_UNIVERSITY_ALGORITHMS.js",
+        "directory": "extracted/knowledge_bases",
+        "lines": 4935,
+        "category": "knowledge_base",
+        "subcategory": "university_algorithms_kb",
+        "functions": ["ruppertRefinement.refine", "constrainedDelaunay", "findEncroachedSegments", "findSkinnyTriangles", "circumcenter", "splitSegment", "insertPoint"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Comprehensive 20-algorithm library from MIT/Berkeley/Stanford courses including Ruppert's Delaunay refinement, computational geometry, meshing, and numerical methods with full implementations"
+      }
+    ],
+    "learning": [
+      {
+        "filename": "PRISM_LEARNING_ENGINE.js",
+        "directory": "extracted/learning",
+        "lines": 72,
+        "category": "learning",
+        "subcategory": "core_learning_engine",
+        "functions": ["recordOutcome", "recordCorrection", "recordFeedback", "_updateModels", "getStats", "exportData", "importData"],
+        "safety_class": "HIGH",
+        "integration_wave": 1,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Core learning engine that records outcomes, corrections, and user feedback; triggers model updates every 100 outcomes with 5000-entry circular buffer"
+      },
+      {
+        "filename": "PRISM_LEARNING_ENGINE_FEEDBACK.js",
+        "directory": "extracted/learning",
+        "lines": 399,
+        "category": "learning",
+        "subcategory": "job_feedback_learning",
+        "functions": ["recordJobFeedback", "getRecommendations", "getParameterAdjustments", "submitQuickFeedback", "getStatistics", "init", "_findSimilarJobs", "_matchesMaterial", "_averageParameters", "_getMostCommonStrategies", "_getMostSuccessfulTools", "_getWarningsFromHistory", "_analyzePatterns"],
+        "safety_class": "HIGH",
+        "integration_wave": 1,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Manufacturing job feedback engine that records detailed machining outcomes (tooling, parameters, surface quality), finds similar historical jobs, and generates data-driven parameter recommendations"
+      },
+      {
+        "filename": "PRISM_LEARNING_FEEDBACK_CONNECTOR.js",
+        "directory": "extracted/learning",
+        "lines": 251,
+        "category": "learning",
+        "subcategory": "feedback_loop_connector",
+        "functions": ["recordOutcome", "getAccuracyStats", "init", "_calculateError", "_updateLearningEngines", "_updateCAMLearning", "_updateToolLearning", "_updateStrategyScoring", "_updateToolLifeConstants", "_updateCycleTimeFactors", "_persist", "_load"],
+        "safety_class": "HIGH",
+        "integration_wave": 1,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Prediction-vs-actual feedback connector that routes outcomes to 5 specialized learning engines (CAM, tool life, strategy, Taylor constants, cycle time) with exponential moving average correction factors"
+      },
+      {
+        "filename": "PRISM_LEARNING_INTEGRATION_BRIDGE.js",
+        "directory": "extracted/learning",
+        "lines": 255,
+        "category": "learning",
+        "subcategory": "learning_hooks_bridge",
+        "functions": ["init", "hookGenerateToolpath", "hookSelectStrategy", "hookStrategyDatabase", "hookFeatureRecognition", "hookWorkflowPipeline", "getStatus"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Runtime monkey-patching bridge that injects learned recommendations into 7 existing systems (toolpath generation, strategy selection, CAM databases, feature recognition, workflow pipeline) via function wrapping"
+      },
+      {
+        "filename": "PRISM_LEARNING_PERSISTENCE_ENGINE.js",
+        "directory": "extracted/learning",
+        "lines": 135,
+        "category": "learning",
+        "subcategory": "learning_persistence",
+        "functions": ["init", "getAll", "getCategory", "add", "search", "getStats", "export", "import", "clearCategory", "clearAll"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "localStorage-based persistence engine for learning data across 9 categories (CAD models, toolpaths, cutting params, machines, tools, holders, feedback, part features, programs) with 10K entry limit"
+      },
+      {
+        "filename": "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js",
+        "directory": "extracted/learning",
+        "lines": 169,
+        "category": "learning",
+        "subcategory": "learning_rate_scheduling",
+        "functions": ["createStepDecay", "createExponentialDecay", "createCosineAnnealing", "createCosineWarmRestarts", "createWarmupScheduler", "createPolynomialDecay", "createOneCycle", "createReduceOnPlateau", "createCyclicLR"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "9 learning rate scheduler implementations (step decay, exponential, cosine annealing with warm restarts, linear warmup, polynomial decay, one-cycle, reduce-on-plateau, cyclic LR) from MIT 6.036 and Stanford CS 231N"
+      }
+    ],
+    "integration": [
+      {
+        "filename": "PRISM_100_PERCENT_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 187,
+        "category": "integration",
+        "subcategory": "failsafe_pipeline",
+        "functions": ["processAny", "init"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "6-stage failsafe processing pipeline (intelligent decision, physics-based, feature interaction, interpolation, failsafe generator, universal validation) guaranteeing output for any manufacturing input"
+      },
+      {
+        "filename": "PRISM_AI_100_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 165,
+        "category": "integration",
+        "subcategory": "ai_training_pipeline",
+        "functions": ["initialize", "_feedToAISystems", "getStatistics", "getTrainingData", "runAlgorithm", "getAlgorithmsByType"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "5-step AI integration orchestrator that connects KB algorithms, wraps engine outputs, collects database samples, generates physics training data, and feeds to 5 AI subsystems (Bayesian, neural, pipeline)"
+      },
+      {
+        "filename": "PRISM_AI_KNOWLEDGE_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 120,
+        "category": "integration",
+        "subcategory": "knowledge_domain_map",
+        "functions": ["getKnowledgeForDomain", "getAllAlgorithms", "getCourseCount"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Maps 10 knowledge domains (manufacturing, optimization, controls, materials, geometry, ML, statistics, signal processing, OR, economics) to university courses, algorithms, and PRISM modules"
+      },
+      {
+        "filename": "PRISM_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 279,
+        "category": "integration",
+        "subcategory": "knowledge_computation_bridge",
+        "functions": ["getMaterialProperties", "calculateCuttingSpeed", "calculateFeedPerTooth", "calculateKc", "calculateCuttingForces", "calculatePower", "calculateToolLife", "calculateSurfaceFinish", "getChipThinningFeed", "calculateDeflection", "getCoatingRecommendation", "getCoolantRecommendation", "generateOperationSequence", "getGeometryStrategy", "optimizeParameters", "generateRecommendations"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "KnowledgeQueryEngine",
+        "description": "Primary computation bridge between KNOWLEDGE_BASE data and application logic; provides 16 manufacturing calculation functions (cutting speed, forces, power, tool life, surface finish, deflection, optimization)"
+      },
+      {
+        "filename": "PRISM_CAD_LEARNING_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 304,
+        "category": "integration",
+        "subcategory": "cad_learning_bridge",
+        "functions": ["init", "connectToEngines", "learnFromImport", "extractMachineFeatures", "categorizeComponent", "isAxisComponent", "extractKinematicPatterns", "learnDimensionPatterns", "feedToExistingEngines", "detectAxes", "getStats", "saveStats", "loadStats"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "FederatedLearningEngine",
+        "description": "Bridges CAD file imports to 3 learning engines (Machine 3D, CAM, Unified CAD); extracts machine features, kinematic patterns (trunnion A/C, B/C), and dimension patterns from STEP files"
+      },
+      {
+        "filename": "PRISM_CALCULATOR_ENHANCEMENT_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 83,
+        "category": "integration",
+        "subcategory": "calculator_enhancement",
+        "functions": ["enhanceCuttingStrategies", "enhanceStrategyEngine", "enhanceConstraintSystem", "initialize"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Enhances existing cutting calculator with PRISM Optimized strategy (AI-powered PSO, FFT chatter avoidance), cross-CAM support for 8 CAM systems, and physics/constraint engine registration"
+      },
+      {
+        "filename": "PRISM_DATABASE_HUB.js",
+        "directory": "extracted/integration",
+        "lines": 77,
+        "category": "integration",
+        "subcategory": "database_hub",
+        "functions": ["tools.search", "tools.getCount", "machines.getCount", "cam.getCount", "materials.getCount", "postProcessors.getCount", "getStats", "checkHealth"],
+        "safety_class": "HIGH",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Central database access hub providing unified search across 87K+ tool configurations, 228 machines, 173 CAM strategies, 52 materials, and 27 post processors with health monitoring"
+      },
+      {
+        "filename": "PRISM_ENHANCED_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 476,
+        "category": "integration",
+        "subcategory": "module_registry_integration",
+        "functions": ["init"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Enhanced integration layer registering 4 new engines (AI orchestration, parametric constraint solver, sketch engine, feature history) and connecting 9 CAD engines + 8 CAM engines with dependency resolution"
+      },
+      {
+        "filename": "PRISM_EVENT_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 74,
+        "category": "integration",
+        "subcategory": "event_bridge",
+        "functions": ["bridgeDOMEvents", "bridgeCustomEvents", "createReverseBridge", "init"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Bidirectional event bridge between legacy DOM/custom events and PRISM_EVENT_BUS; maps 6 DOM event types and 5 custom events with reverse bridging for backward compatibility"
+      },
+      {
+        "filename": "PRISM_FINAL_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 136,
+        "category": "integration",
+        "subcategory": "production_viability_integration",
+        "functions": ["init"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Final integration layer connecting 5 production-critical engines (lathe toolpath, cost estimation, inspection/CMM, production scheduling, universal feature library) to DATABASE_HUB and workflow generators"
+      },
+      {
+        "filename": "PRISM_HIGH_PRIORITY_INTEGRATION_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 59,
+        "category": "integration",
+        "subcategory": "viewport_simulation_bridge",
+        "functions": ["initialize", "createViewport", "startSimulation", "getRecommendation", "parseGDT"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "High-priority bridge connecting 3D viewport, simulation engine v2, ASME/ISO GD&T databases, and ML strategy recommendation engine with unified access API"
+      },
+      {
+        "filename": "PRISM_KERNEL_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 101,
+        "category": "integration",
+        "subcategory": "kernel_integration",
+        "functions": ["init"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Connects 4 core kernels: CAD (STEP parsing + adaptive mesh + trimmed surfaces), CAM (toolpath + learning), collision (BVH + GJK + EPA + 5-axis kinematics), and simulation (backplot + animation)"
+      },
+      {
+        "filename": "PRISM_PRODUCTION_INTEGRATION.js",
+        "directory": "extracted/integration",
+        "lines": 205,
+        "category": "integration",
+        "subcategory": "production_workflow",
+        "functions": ["processComplete", "init"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "5-stage production workflow: feature recognition, catalog tool selection, real toolpath generation, collision detection, and visual preview with full SMART_AUTO_PROGRAM_GENERATOR integration"
+      },
+      {
+        "filename": "PRISM_SIMULATION_INTEGRATION_BRIDGE.js",
+        "directory": "extracted/integration",
+        "lines": 402,
+        "category": "integration",
+        "subcategory": "simulation_bridge",
+        "functions": ["init", "connectSystems", "createUnifiedAPI", "setupEventListeners"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Unifies 7 simulation subsystems (kinematics, axis behavior, contact constraints, contact learning, learned kinematics, animation, collision) into a window-level PRISM_SIMULATION API"
+      }
+    ],
+    "systems": [
+      {
+        "filename": "PRISM_ERROR_BOUNDARY.js",
+        "directory": "extracted/systems",
+        "lines": 154,
+        "category": "systems",
+        "subcategory": "error_boundary",
+        "functions": ["wrap", "wrapModule", "registerHandler", "getErrors", "getErrorsByModule", "exportReport"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "SystemReliabilityEngine",
+        "description": "Function-level error boundary with retry logic, fallback values, critical/non-critical classification, error history, and event-bus error publication for all PRISM modules"
+      },
+      {
+        "filename": "PRISM_ERROR_HANDLER.js",
+        "directory": "extracted/systems",
+        "lines": 63,
+        "category": "systems",
+        "subcategory": "global_error_handler",
+        "functions": ["init", "logError", "getErrors", "clearErrors", "safe"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "SystemReliabilityEngine",
+        "description": "Global window.onerror and unhandledrejection handler with 100-entry error log and safe async wrapper function"
+      },
+      {
+        "filename": "PRISM_ERROR_LOOKUP.js",
+        "directory": "extracted/systems",
+        "lines": 89,
+        "category": "systems",
+        "subcategory": "error_code_registry",
+        "functions": ["getMessage", "getSeverityLevel", "isRecoverable", "formatError"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 1,
+        "mcp_target": "SystemReliabilityEngine",
+        "description": "Error code dictionary with 30+ codes across 6 categories (input validation 1xxx, calculation 2xxx, database 3xxx, machine/physics 4xxx, AI/ML 5xxx, system 9xxx) with severity and recoverability classification"
+      },
+      {
+        "filename": "PRISM_UI_ADAPTER.js",
+        "directory": "extracted/systems",
+        "lines": 262,
+        "category": "systems",
+        "subcategory": "ui_adapter",
+        "functions": ["registerComponent", "scheduleUpdate", "showResult", "showError", "updateProgress", "requestInput", "updatePanel", "refreshVisualization"],
+        "safety_class": "MEDIUM",
+        "integration_wave": 2,
+        "mcp_target": "UIRenderEngine",
+        "description": "DOM abstraction layer providing batched requestAnimationFrame updates, result/error display, progress bars, input dialogs, and panel updates with EVENT_BUS integration"
+      },
+      {
+        "filename": "PRISM_UI_BACKEND_INTEGRATOR.js",
+        "directory": "extracted/systems",
+        "lines": 293,
+        "category": "systems",
+        "subcategory": "gcode_backend_integrator",
+        "functions": ["generateGCode"],
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mcp_target": "UIRenderEngine",
+        "description": "G-code generation orchestrator that tries 3 backends in priority order (GUARANTEED_POST_PROCESSOR, INTERNAL_POST_ENGINE, fallback) with automatic input format normalization"
+      },
+      {
+        "filename": "PRISM_UI_INTEGRATION_ENGINE.js",
+        "directory": "extracted/systems",
+        "lines": 208,
+        "category": "systems",
+        "subcategory": "ui_layout_engine",
+        "functions": [],
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mcp_target": "UIRenderEngine",
+        "description": "UI layout and component definition engine with 4 layout presets (standard, compact, simulation, print reading), panel configurations, and component data source mappings"
+      },
+      {
+        "filename": "PRISM_UI_SYSTEM.js",
+        "directory": "extracted/systems",
+        "lines": 347,
+        "category": "systems",
+        "subcategory": "ui_theme_system",
+        "functions": ["components.tabs.create"],
+        "safety_class": "LOW",
+        "integration_wave": 3,
+        "mcp_target": "UIRenderEngine",
+        "description": "Core UI system with dark/light theme definitions, responsive breakpoints (480-1440px), and reusable component factories (tabs, panels, etc.)"
+      }
+    ],
+    "infrastructure": [
+      {
+        "filename": "PRISM_COMPARE.js",
+        "directory": "extracted/infrastructure",
+        "lines": 2198,
+        "category": "infrastructure",
+        "subcategory": "numerical_comparison",
+        "functions": ["equal", "isEqual", "lessThan", "isLessThan", "greaterThan", "isGreaterThan"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "SystemReliabilityEngine",
+        "description": "Comprehensive float-safe comparison library with tolerance-based equality, vector/matrix comparisons, angle normalization, and full PRISM_CONSTANTS tolerance integration for all numeric types"
+      },
+      {
+        "filename": "PRISM_EVENT_BUS.js",
+        "directory": "extracted/infrastructure",
+        "lines": 154,
+        "category": "infrastructure",
+        "subcategory": "event_bus",
+        "functions": ["subscribe", "once", "unsubscribe", "publish", "getHistory", "getStats", "clear"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Core publish/subscribe event system with wildcard pattern matching, priority-based handler ordering, one-shot subscriptions, 100-event history buffer, and error-isolated callback execution"
+      },
+      {
+        "filename": "PRISM_GATEWAY.js",
+        "directory": "extracted/infrastructure",
+        "lines": 111,
+        "category": "infrastructure",
+        "subcategory": "cross_module_router",
+        "functions": ["route", "call", "registerAuthority", "hasCapability", "listCapabilities"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Central cross-module router with 30+ pre-registered authorities across 7 layers (materials, tools, toolpath, G-code, numerical, CAD/geometry, kinematics, collision) supporting dynamic capability registration"
+      },
+      {
+        "filename": "PRISM_STATE_STORE.js",
+        "directory": "extracted/infrastructure",
+        "lines": 221,
+        "category": "infrastructure",
+        "subcategory": "state_management",
+        "functions": ["getState", "setState", "subscribe", "undo", "redo", "batch", "getHistory", "reset"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "WorkflowOrchestrationEngine",
+        "description": "Immutable state store with deep-frozen state tree (ui, cad, cam, computation, session), path-based subscriptions with wildcards, 50-entry undo/redo history, and batched updates via EVENT_BUS"
+      },
+      {
+        "filename": "PRISM_VALIDATOR.js",
+        "directory": "extracted/infrastructure",
+        "lines": 3369,
+        "category": "infrastructure",
+        "subcategory": "input_output_validation",
+        "functions": ["safeDiv", "safeSqrt", "safePow"],
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mcp_target": "SystemReliabilityEngine",
+        "description": "Comprehensive input/output validation library with safe numerical operations (division, sqrt, power with overflow/NaN protection), PRISM_CONSTANTS error code integration, and type-safe fallback values"
+      }
+    ]
+  },
+  "summary": {
+    "by_category": {
+      "knowledge_bases": {
+        "count": 12,
+        "total_lines": 8925,
+        "files": [
+          "PRISM_220_COURSES_MASTER.js",
+          "PRISM_AI_STRUCTURES_KB.js",
+          "PRISM_ALGORITHMS_KB.js",
+          "PRISM_DATA_STRUCTURES_KB.js",
+          "PRISM_KNOWLEDGE_AI_CONNECTOR.js",
+          "PRISM_KNOWLEDGE_BASE.js",
+          "PRISM_KNOWLEDGE_FUSION.js",
+          "PRISM_KNOWLEDGE_GRAPH.js",
+          "PRISM_KNOWLEDGE_INTEGRATION_ROUTES.js",
+          "PRISM_MFG_STRUCTURES_KB.js",
+          "PRISM_SYSTEMS_KB.js",
+          "PRISM_UNIVERSITY_ALGORITHMS.js"
+        ]
+      },
+      "learning": {
+        "count": 6,
+        "total_lines": 1281,
+        "files": [
+          "PRISM_LEARNING_ENGINE.js",
+          "PRISM_LEARNING_ENGINE_FEEDBACK.js",
+          "PRISM_LEARNING_FEEDBACK_CONNECTOR.js",
+          "PRISM_LEARNING_INTEGRATION_BRIDGE.js",
+          "PRISM_LEARNING_PERSISTENCE_ENGINE.js",
+          "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js"
+        ]
+      },
+      "integration": {
+        "count": 14,
+        "total_lines": 2668,
+        "files": [
+          "PRISM_100_PERCENT_INTEGRATION.js",
+          "PRISM_AI_100_INTEGRATION.js",
+          "PRISM_AI_KNOWLEDGE_INTEGRATION.js",
+          "PRISM_BRIDGE.js",
+          "PRISM_CAD_LEARNING_BRIDGE.js",
+          "PRISM_CALCULATOR_ENHANCEMENT_BRIDGE.js",
+          "PRISM_DATABASE_HUB.js",
+          "PRISM_ENHANCED_INTEGRATION.js",
+          "PRISM_EVENT_BRIDGE.js",
+          "PRISM_FINAL_INTEGRATION.js",
+          "PRISM_HIGH_PRIORITY_INTEGRATION_BRIDGE.js",
+          "PRISM_KERNEL_INTEGRATION.js",
+          "PRISM_PRODUCTION_INTEGRATION.js",
+          "PRISM_SIMULATION_INTEGRATION_BRIDGE.js"
+        ]
+      },
+      "systems": {
+        "count": 7,
+        "total_lines": 1416,
+        "files": [
+          "PRISM_ERROR_BOUNDARY.js",
+          "PRISM_ERROR_HANDLER.js",
+          "PRISM_ERROR_LOOKUP.js",
+          "PRISM_UI_ADAPTER.js",
+          "PRISM_UI_BACKEND_INTEGRATOR.js",
+          "PRISM_UI_INTEGRATION_ENGINE.js",
+          "PRISM_UI_SYSTEM.js"
+        ]
+      },
+      "infrastructure": {
+        "count": 5,
+        "total_lines": 6053,
+        "files": [
+          "PRISM_COMPARE.js",
+          "PRISM_EVENT_BUS.js",
+          "PRISM_GATEWAY.js",
+          "PRISM_STATE_STORE.js",
+          "PRISM_VALIDATOR.js"
+        ]
+      }
+    },
+    "by_safety_class": {
+      "CRITICAL": {
+        "count": 14,
+        "files": [
+          "PRISM_KNOWLEDGE_BASE.js",
+          "PRISM_LEARNING_INTEGRATION_BRIDGE.js",
+          "PRISM_100_PERCENT_INTEGRATION.js",
+          "PRISM_BRIDGE.js",
+          "PRISM_FINAL_INTEGRATION.js",
+          "PRISM_KERNEL_INTEGRATION.js",
+          "PRISM_PRODUCTION_INTEGRATION.js",
+          "PRISM_ERROR_BOUNDARY.js",
+          "PRISM_ERROR_HANDLER.js",
+          "PRISM_COMPARE.js",
+          "PRISM_EVENT_BUS.js",
+          "PRISM_GATEWAY.js",
+          "PRISM_STATE_STORE.js",
+          "PRISM_VALIDATOR.js"
+        ]
+      },
+      "HIGH": {
+        "count": 15,
+        "files": [
+          "PRISM_KNOWLEDGE_FUSION.js",
+          "PRISM_KNOWLEDGE_GRAPH.js",
+          "PRISM_UNIVERSITY_ALGORITHMS.js",
+          "PRISM_LEARNING_ENGINE.js",
+          "PRISM_LEARNING_ENGINE_FEEDBACK.js",
+          "PRISM_LEARNING_FEEDBACK_CONNECTOR.js",
+          "PRISM_AI_100_INTEGRATION.js",
+          "PRISM_CAD_LEARNING_BRIDGE.js",
+          "PRISM_DATABASE_HUB.js",
+          "PRISM_ENHANCED_INTEGRATION.js",
+          "PRISM_HIGH_PRIORITY_INTEGRATION_BRIDGE.js",
+          "PRISM_SIMULATION_INTEGRATION_BRIDGE.js",
+          "PRISM_UI_BACKEND_INTEGRATOR.js"
+        ]
+      },
+      "MEDIUM": {
+        "count": 11,
+        "files": [
+          "PRISM_220_COURSES_MASTER.js",
+          "PRISM_KNOWLEDGE_AI_CONNECTOR.js",
+          "PRISM_KNOWLEDGE_INTEGRATION_ROUTES.js",
+          "PRISM_LEARNING_PERSISTENCE_ENGINE.js",
+          "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js",
+          "PRISM_AI_KNOWLEDGE_INTEGRATION.js",
+          "PRISM_CALCULATOR_ENHANCEMENT_BRIDGE.js",
+          "PRISM_EVENT_BRIDGE.js",
+          "PRISM_ERROR_LOOKUP.js",
+          "PRISM_UI_ADAPTER.js",
+          "PRISM_UI_INTEGRATION_ENGINE.js"
+        ]
+      },
+      "LOW": {
+        "count": 4,
+        "files": [
+          "PRISM_AI_STRUCTURES_KB.js",
+          "PRISM_DATA_STRUCTURES_KB.js",
+          "PRISM_MFG_STRUCTURES_KB.js",
+          "PRISM_SYSTEMS_KB.js",
+          "PRISM_UI_SYSTEM.js"
+        ]
+      }
+    },
+    "by_wave": {
+      "wave_1": {
+        "count": 19,
+        "description": "Foundation infrastructure and critical production paths",
+        "files": [
+          "PRISM_KNOWLEDGE_BASE.js",
+          "PRISM_LEARNING_ENGINE.js",
+          "PRISM_LEARNING_ENGINE_FEEDBACK.js",
+          "PRISM_LEARNING_FEEDBACK_CONNECTOR.js",
+          "PRISM_LEARNING_INTEGRATION_BRIDGE.js",
+          "PRISM_100_PERCENT_INTEGRATION.js",
+          "PRISM_BRIDGE.js",
+          "PRISM_DATABASE_HUB.js",
+          "PRISM_EVENT_BRIDGE.js",
+          "PRISM_FINAL_INTEGRATION.js",
+          "PRISM_KERNEL_INTEGRATION.js",
+          "PRISM_PRODUCTION_INTEGRATION.js",
+          "PRISM_ERROR_BOUNDARY.js",
+          "PRISM_ERROR_HANDLER.js",
+          "PRISM_ERROR_LOOKUP.js",
+          "PRISM_COMPARE.js",
+          "PRISM_EVENT_BUS.js",
+          "PRISM_GATEWAY.js",
+          "PRISM_STATE_STORE.js",
+          "PRISM_VALIDATOR.js"
+        ]
+      },
+      "wave_2": {
+        "count": 15,
+        "description": "Knowledge enrichment, AI training, and simulation",
+        "files": [
+          "PRISM_220_COURSES_MASTER.js",
+          "PRISM_ALGORITHMS_KB.js",
+          "PRISM_KNOWLEDGE_AI_CONNECTOR.js",
+          "PRISM_KNOWLEDGE_GRAPH.js",
+          "PRISM_KNOWLEDGE_INTEGRATION_ROUTES.js",
+          "PRISM_UNIVERSITY_ALGORITHMS.js",
+          "PRISM_LEARNING_PERSISTENCE_ENGINE.js",
+          "PRISM_LEARNING_RATE_SCHEDULER_ENGINE.js",
+          "PRISM_AI_100_INTEGRATION.js",
+          "PRISM_AI_KNOWLEDGE_INTEGRATION.js",
+          "PRISM_CAD_LEARNING_BRIDGE.js",
+          "PRISM_ENHANCED_INTEGRATION.js",
+          "PRISM_HIGH_PRIORITY_INTEGRATION_BRIDGE.js",
+          "PRISM_SIMULATION_INTEGRATION_BRIDGE.js",
+          "PRISM_UI_ADAPTER.js",
+          "PRISM_UI_BACKEND_INTEGRATOR.js"
+        ]
+      },
+      "wave_3": {
+        "count": 8,
+        "description": "Extended knowledge bases, UI polish, and enhancement features",
+        "files": [
+          "PRISM_AI_STRUCTURES_KB.js",
+          "PRISM_DATA_STRUCTURES_KB.js",
+          "PRISM_KNOWLEDGE_FUSION.js",
+          "PRISM_MFG_STRUCTURES_KB.js",
+          "PRISM_SYSTEMS_KB.js",
+          "PRISM_CALCULATOR_ENHANCEMENT_BRIDGE.js",
+          "PRISM_UI_INTEGRATION_ENGINE.js",
+          "PRISM_UI_SYSTEM.js"
+        ]
+      },
+      "wave_4": {
+        "count": 0,
+        "description": "Reserved for future expansion",
+        "files": []
+      }
+    },
+    "by_mcp_target": {
+      "KnowledgeQueryEngine": {
+        "count": 14,
+        "description": "Knowledge base queries, material lookups, algorithm search, graph traversal"
+      },
+      "FederatedLearningEngine": {
+        "count": 10,
+        "description": "Learning pipelines, feedback loops, model training, persistence"
+      },
+      "WorkflowOrchestrationEngine": {
+        "count": 13,
+        "description": "Integration pipelines, event routing, state management, production workflows"
+      },
+      "SystemReliabilityEngine": {
+        "count": 5,
+        "description": "Error handling, validation, numerical safety, comparison utilities"
+      },
+      "UIRenderEngine": {
+        "count": 4,
+        "description": "UI adaptation, layout management, theme system, G-code backend"
+      }
+    },
+    "total_lines": 20343,
+    "architecture_notes": {
+      "dependency_chain": "PRISM_CONSTANTS -> PRISM_VALIDATOR/PRISM_COMPARE -> PRISM_EVENT_BUS -> PRISM_STATE_STORE -> PRISM_GATEWAY -> All other modules",
+      "critical_path": "PRISM_GATEWAY routes to PRISM_BRIDGE which queries PRISM_KNOWLEDGE_BASE; learning feedback flows through PRISM_LEARNING_FEEDBACK_CONNECTOR to 5 specialized engines",
+      "localStorage_users": ["PRISM_LEARNING_PERSISTENCE_ENGINE", "PRISM_LEARNING_ENGINE_FEEDBACK", "PRISM_LEARNING_FEEDBACK_CONNECTOR", "PRISM_CAD_LEARNING_BRIDGE"],
+      "event_bus_publishers": 15,
+      "event_bus_subscribers": 12
+    }
+  }
+}

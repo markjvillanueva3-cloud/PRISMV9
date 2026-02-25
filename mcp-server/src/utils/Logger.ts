@@ -41,7 +41,9 @@ export const logger = winston.createLogger({
 import * as fs from 'fs';
 import * as path from 'path';
 
-const AUDIT_LOG_DIR = path.join(process.cwd(), 'state', 'logs');
+// Use PRISM_HOME env var if set, otherwise try to construct from cwd
+const PRISM_HOME = process.env.PRISM_HOME || 'C:\\PRISM';
+const AUDIT_LOG_DIR = path.join(PRISM_HOME, 'state', 'logs');
 try { if (!fs.existsSync(AUDIT_LOG_DIR)) fs.mkdirSync(AUDIT_LOG_DIR, { recursive: true }); } catch { /* non-fatal */ }
 
 logger.add(new winston.transports.File({

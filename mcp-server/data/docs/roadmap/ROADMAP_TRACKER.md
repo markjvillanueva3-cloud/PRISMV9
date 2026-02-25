@@ -642,3 +642,32 @@ NEXT: R1-MS1 material loading → R1-MS2 machine/tool/alarm loading → R1-MS3 p
     Key commits: 6156e82 (MS0), 419e5f4 (MS1), 63166cc (MS2), f6dec37 (MS3)
 
   POSITION: R4 COMPLETE → R5 next.
+
+
+---
+
+[2026-02-23] R15 PLANNED — MCP System Enhancement + Monolith Integration + PRISM App Wiring
+
+  Roadmap: PHASE_R15_MCP_ENHANCEMENT.md
+  Source: COMPREHENSIVE_AUDIT_2026-02-23.md (full system audit)
+  Scope:
+    - MS0: Full extraction inventory (536 modules → MASTER_EXTRACTION_INDEX.json)
+    - MS1: Wave 3+4 classification + 4 new registries (10→14)
+    - MS2: Post processor + optimization + business wiring (Wave 2)
+    - MS3: Physics + thermal + vibration critical wiring (Wave 1, CRITICAL)
+    - MS4: 13 new skills + 10 scripts + 10 hooks + 5 engines
+    - MS5: 7 new cadences + telemetry + hook enhancement
+    - MS6: GSD v23.0 with modular sections
+    - MS7: ~25K token savings + memory + context budget
+    - MS8: AppBridgeEngine + 20 REST endpoints + WebSocket + 8 app pages
+    - MS9: Phase gate (Ω ≥ 0.75)
+  Estimated: ~255 calls, 18-24 sessions
+  Key Targets:
+    - 536/536 modules indexed (was 78)
+    - 78+ engines (was 73), 140+ hooks (was 130), 47 cadences (was 40)
+    - 20+ REST endpoints (was 9), 4 WebSocket channels (was 0)
+    - 8/8 app pages wired to live MCP data (was 3/8)
+    - ~25K token savings per session
+  Dependencies: R11 complete. Parallel with R12-R14 on non-overlapping milestones.
+
+  POSITION: R15 PLANNED. Start after R12 infrastructure or parallel on non-overlapping MSes.

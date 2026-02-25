@@ -1,0 +1,213 @@
+{
+  "benchmarkSuite": {
+    "version": "1.0.0",
+    "created": "2026-01-27",
+    "description": "Benchmark tasks for testing CombinationEngine optimization quality",
+    "totalTasks": 15,
+    "categories": ["calculation", "extraction", "design", "validation", "coordination"]
+  },
+  "tasks": [
+    {
+      "id": "BENCH-001",
+      "category": "calculation",
+      "name": "Speed/Feed Calculation",
+      "description": "Calculate optimal speed and feed for milling 4140 steel with 0.5\" carbide endmill",
+      "expectedDomains": ["materials", "physics", "machining", "calculation"],
+      "expectedOperations": ["calculate", "validate"],
+      "expectedSkills": ["prism-material-physics", "prism-manufacturing-tables"],
+      "expectedAgents": ["cutting_calculator", "force_calculator", "materials_scientist"],
+      "complexity": 0.6,
+      "minPsiScore": 0.7
+    },
+    {
+      "id": "BENCH-002",
+      "category": "calculation",
+      "name": "Cutting Force Analysis",
+      "description": "Compute cutting forces using Kienzle model for titanium turning operation",
+      "expectedDomains": ["physics", "materials", "calculation"],
+      "expectedOperations": ["calculate", "prove"],
+      "expectedSkills": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "expectedAgents": ["force_calculator", "physics_validator"],
+      "complexity": 0.75,
+      "minPsiScore": 0.75
+    },
+    {
+      "id": "BENCH-003",
+      "category": "extraction",
+      "name": "Monolith Data Extraction",
+      "description": "Extract all material property data from monolith materials module",
+      "expectedDomains": ["extraction", "materials"],
+      "expectedOperations": ["extract", "validate"],
+      "expectedSkills": ["prism-monolith-extractor", "prism-monolith-navigator"],
+      "expectedAgents": ["extractor", "monolith_navigator", "materials_scientist"],
+      "complexity": 0.8,
+      "minPsiScore": 0.7
+    },
+    {
+      "id": "BENCH-004",
+      "category": "extraction",
+      "name": "Tool Database Migration",
+      "description": "Extract and migrate tool holder data from legacy system to new schema",
+      "expectedDomains": ["extraction", "machining"],
+      "expectedOperations": ["extract", "transform", "validate"],
+      "expectedSkills": ["prism-monolith-extractor", "prism-validator"],
+      "expectedAgents": ["extractor", "tool_engineer", "schema_designer"],
+      "complexity": 0.85,
+      "minPsiScore": 0.7
+    },
+    {
+      "id": "BENCH-005",
+      "category": "design",
+      "name": "System Architecture Design",
+      "description": "Design modular architecture for new tool selection engine",
+      "expectedDomains": ["planning", "coordination"],
+      "expectedOperations": ["generate", "prove"],
+      "expectedSkills": ["prism-sp-brainstorm", "prism-mathematical-planning"],
+      "expectedAgents": ["architect", "task_decomposer"],
+      "complexity": 0.9,
+      "minPsiScore": 0.8
+    },
+    {
+      "id": "BENCH-006",
+      "category": "design",
+      "name": "API Contract Definition",
+      "description": "Define TypeScript interfaces for machine database API",
+      "expectedDomains": ["planning", "documentation"],
+      "expectedOperations": ["generate", "document"],
+      "expectedSkills": ["prism-api-contracts", "prism-code-master"],
+      "expectedAgents": ["api_designer", "schema_designer", "coder"],
+      "complexity": 0.7,
+      "minPsiScore": 0.75
+    },
+    {
+      "id": "BENCH-007",
+      "category": "validation",
+      "name": "Material Database Validation",
+      "description": "Validate all 1540 materials have complete parameter coverage",
+      "expectedDomains": ["validation", "materials"],
+      "expectedOperations": ["validate", "analyze"],
+      "expectedSkills": ["prism-validator", "prism-material-schema"],
+      "expectedAgents": ["validator", "completeness_auditor", "materials_scientist"],
+      "complexity": 0.65,
+      "minPsiScore": 0.8
+    },
+    {
+      "id": "BENCH-008",
+      "category": "validation",
+      "name": "Formula Calibration Check",
+      "description": "Check calibration status of all 22 formulas and flag MAPE > 20%",
+      "expectedDomains": ["validation", "calculation"],
+      "expectedOperations": ["validate", "calibrate"],
+      "expectedSkills": ["prism-formula-evolution", "prism-uncertainty-propagation"],
+      "expectedAgents": ["calibration_engineer", "uncertainty_quantifier"],
+      "complexity": 0.6,
+      "minPsiScore": 0.85
+    },
+    {
+      "id": "BENCH-009",
+      "category": "coordination",
+      "name": "Multi-Agent Swarm Task",
+      "description": "Coordinate 6-agent swarm for comprehensive material enhancement",
+      "expectedDomains": ["coordination", "materials"],
+      "expectedOperations": ["coordinate", "optimize"],
+      "expectedSkills": ["prism-swarm-coordinator", "prism-material-enhancer"],
+      "expectedAgents": ["coordinator", "synergy_analyst", "materials_scientist"],
+      "complexity": 0.85,
+      "minPsiScore": 0.75
+    },
+    {
+      "id": "BENCH-010",
+      "category": "coordination",
+      "name": "Resource Optimization",
+      "description": "Find optimal resource combination for complex extraction + validation task",
+      "expectedDomains": ["coordination", "optimization"],
+      "expectedOperations": ["optimize", "prove"],
+      "expectedSkills": ["prism-combination-engine", "prism-resource-optimizer"],
+      "expectedAgents": ["combination_optimizer", "proof_generator"],
+      "complexity": 0.9,
+      "minPsiScore": 0.85
+    },
+    {
+      "id": "BENCH-011",
+      "category": "calculation",
+      "name": "Tool Life Prediction",
+      "description": "Predict tool life using Taylor equation for high-speed aluminum machining",
+      "expectedDomains": ["physics", "materials", "calculation"],
+      "expectedOperations": ["calculate", "validate"],
+      "expectedSkills": ["prism-material-physics"],
+      "expectedAgents": ["cutting_calculator", "tool_engineer"],
+      "complexity": 0.65,
+      "minPsiScore": 0.75
+    },
+    {
+      "id": "BENCH-012",
+      "category": "extraction",
+      "name": "G-Code Pattern Extraction",
+      "description": "Extract common G-code patterns from Fanuc post processor for documentation",
+      "expectedDomains": ["extraction", "gcode"],
+      "expectedOperations": ["extract", "document"],
+      "expectedSkills": ["prism-fanuc-programming", "prism-gcode-reference"],
+      "expectedAgents": ["gcode_expert", "extractor", "documentation_writer"],
+      "complexity": 0.7,
+      "minPsiScore": 0.7
+    },
+    {
+      "id": "BENCH-013",
+      "category": "validation",
+      "name": "Anti-Regression Check",
+      "description": "Verify new material database has no regression from previous version",
+      "expectedDomains": ["validation"],
+      "expectedOperations": ["validate", "analyze"],
+      "expectedSkills": ["prism-anti-regression", "prism-validator"],
+      "expectedAgents": ["regression_checker", "completeness_auditor"],
+      "complexity": 0.6,
+      "minPsiScore": 0.9
+    },
+    {
+      "id": "BENCH-014",
+      "category": "design",
+      "name": "Test Suite Generation",
+      "description": "Generate comprehensive test cases for material lookup API",
+      "expectedDomains": ["planning", "validation"],
+      "expectedOperations": ["generate", "validate"],
+      "expectedSkills": ["prism-tdd-enhanced", "prism-quality-master"],
+      "expectedAgents": ["test_generator", "test_orchestrator", "quality_gate"],
+      "complexity": 0.7,
+      "minPsiScore": 0.75
+    },
+    {
+      "id": "BENCH-015",
+      "category": "coordination",
+      "name": "Learning Pattern Extraction",
+      "description": "Extract and codify learnings from last 10 completed tasks",
+      "expectedDomains": ["learning", "coordination"],
+      "expectedOperations": ["learn", "coordinate"],
+      "expectedSkills": ["prism-deep-learning", "prism-synergy-calculator"],
+      "expectedAgents": ["learning_extractor", "synergy_analyst", "meta_analyst"],
+      "complexity": 0.75,
+      "minPsiScore": 0.7
+    }
+  ],
+  "scoringRules": {
+    "domainMatch": {
+      "weight": 0.3,
+      "calculation": "jaccard_similarity(actual_domains, expected_domains)"
+    },
+    "operationMatch": {
+      "weight": 0.25,
+      "calculation": "coverage(actual_operations, expected_operations)"
+    },
+    "skillMatch": {
+      "weight": 0.2,
+      "calculation": "overlap_count(actual_skills, expected_skills) / len(expected_skills)"
+    },
+    "agentMatch": {
+      "weight": 0.15,
+      "calculation": "overlap_count(actual_agents, expected_agents) / len(expected_agents)"
+    },
+    "psiScore": {
+      "weight": 0.1,
+      "calculation": "actual_psi >= min_psi_score ? 1.0 : actual_psi / min_psi_score"
+    }
+  }
+}

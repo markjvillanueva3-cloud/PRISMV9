@@ -1,0 +1,89 @@
+{
+  "target_engine": "PhysicsPredictionEngine",
+  "created": "2026-02-23T00:00:00Z",
+  "purpose": "Catalog of 9 safety-critical extracted JS source files to be wired into PhysicsPredictionEngine.ts. Created by SpindleProtection agent for later merge by PhysicsPrediction agent.",
+  "total_source_lines": 5347,
+  "files": {
+    "PRISM_ADVANCED_KINEMATICS_ENGINE": {
+      "filename": "PRISM_ADVANCED_KINEMATICS_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "kinematics",
+      "lines": 609,
+      "safety_class": "CRITICAL",
+      "description": "Homogeneous transformation matrices, forward/inverse kinematics, DH parameters, Jacobian computation (MIT 16.07, Stanford CS 223A)",
+      "physics_domain": "rigid-body-kinematics"
+    },
+    "PRISM_CUTTING_MECHANICS_ENGINE": {
+      "filename": "PRISM_CUTTING_MECHANICS_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "cutting-mechanics",
+      "lines": 277,
+      "safety_class": "CRITICAL",
+      "description": "Merchant orthogonal cutting model, force analysis, chip formation, and shear-plane mechanics (MIT 2.008, Merchant 1945, Shaw Metal Cutting)",
+      "physics_domain": "cutting-forces"
+    },
+    "PRISM_CUTTING_PHYSICS": {
+      "filename": "PRISM_CUTTING_PHYSICS.js",
+      "source_dir": "extracted/engines",
+      "category": "cutting-physics",
+      "lines": 214,
+      "safety_class": "CRITICAL",
+      "description": "Merchant's Circle force decomposition, shear-angle prediction, chip-thickness ratio, and specific cutting energy",
+      "physics_domain": "cutting-forces"
+    },
+    "PRISM_CUTTING_THERMAL_ENGINE": {
+      "filename": "PRISM_CUTTING_THERMAL_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "thermal",
+      "lines": 2755,
+      "safety_class": "CRITICAL",
+      "description": "Shear-plane temperature (Trigger-Chao), tool-chip interface thermal model, transient heat partition, and thermal damage prediction (MIT 16.050, Loewen-Shaw)",
+      "physics_domain": "thermal"
+    },
+    "PRISM_HEAT_TRANSFER_ENGINE": {
+      "filename": "PRISM_HEAT_TRANSFER_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "heat-transfer",
+      "lines": 471,
+      "safety_class": "CRITICAL",
+      "description": "1D/2D steady-state and transient conduction, convection correlations, and radiation models for machining thermal analysis (MIT 2.51, MIT 16.050)",
+      "physics_domain": "thermal"
+    },
+    "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE": {
+      "filename": "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "parameter-optimization",
+      "lines": 705,
+      "safety_class": "CRITICAL",
+      "description": "Intelligent cutting parameter selection: WOC/DOC defaults by operation type, adaptive roughing, HSM, trochoidal, and finishing parameter envelopes",
+      "physics_domain": "process-optimization"
+    },
+    "PRISM_JOHNSON_COOK_DATABASE": {
+      "filename": "PRISM_JOHNSON_COOK_DATABASE.js",
+      "source_dir": "extracted/engines",
+      "category": "material-constitutive",
+      "lines": 150,
+      "safety_class": "CRITICAL",
+      "description": "Johnson-Cook strain-rate sensitivity parameters (A, B, n, C, m, T_melt) for steels, aluminum, titanium, nickel alloys, and copper (MIT 3.22)",
+      "physics_domain": "material-model"
+    },
+    "PRISM_PHASE3_MANUFACTURING_PHYSICS": {
+      "filename": "PRISM_PHASE3_MANUFACTURING_PHYSICS.js",
+      "source_dir": "extracted/engines",
+      "category": "manufacturing-physics",
+      "lines": 152,
+      "safety_class": "CRITICAL",
+      "description": "Phase 3 thermal model for cutting zones, power prediction, and multi-source physics aggregation (MIT 2.810, MIT 2.094, MIT 2.830, MIT 3.22)",
+      "physics_domain": "thermal"
+    },
+    "PRISM_RIGID_BODY_DYNAMICS_ENGINE": {
+      "filename": "PRISM_RIGID_BODY_DYNAMICS_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "dynamics",
+      "lines": 14,
+      "safety_class": "CRITICAL",
+      "description": "Rigid body dynamics engine stub -- definition not found in monolith extraction; registered to window.PRISM_RIGID_BODY_DYNAMICS_ENGINE",
+      "physics_domain": "rigid-body-dynamics"
+    }
+  }
+}
