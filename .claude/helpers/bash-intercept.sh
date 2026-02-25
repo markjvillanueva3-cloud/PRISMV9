@@ -20,6 +20,34 @@ JSON_VALID_CACHE="$CACHE_DIR/json-valid"
 
 mkdir -p "$CACHE_DIR" 2>/dev/null || true
 
+# ============================================================
+# GIT SAFETY — block dangerous operations (P4 enhancement)
+# ============================================================
+if [[ "$cmd" == *"git push"*"--force"* || "$cmd" == *"git push"*"-f "* || "$cmd" == *"git push -f" ]]; then
+  echo "BLOCKED: Force push is disabled. Use 'git push' without --force. Force push can destroy remote history." >&2
+  exit 2
+fi
+
+if [[ "$cmd" == *"git reset --hard"* ]]; then
+  echo "BLOCKED: Hard reset destroys uncommitted work. Use 'git stash' to save changes, or 'git reset --soft' to keep them staged." >&2
+  exit 2
+fi
+
+if [[ "$cmd" == "git checkout ." || "$cmd" == "git checkout -- ." ]]; then
+  echo "BLOCKED: 'git checkout .' discards ALL unstaged changes. Use 'git stash' to save them first." >&2
+  exit 2
+fi
+
+if [[ "$cmd" == "git restore ." || "$cmd" == "git restore -- ." ]]; then
+  echo "BLOCKED: 'git restore .' discards ALL unstaged changes. Use 'git stash' to save them first." >&2
+  exit 2
+fi
+
+if [[ "$cmd" == *"git clean -f"* && "$cmd" != *"git clean -n"* ]]; then
+  echo "BLOCKED: 'git clean -f' permanently deletes untracked files. Review first with 'git clean -n' (dry run)." >&2
+  exit 2
+fi
+
 # Helper: check if cache file is younger than N seconds
 cache_fresh() {
   local file="$1" max_age="$2"
@@ -121,6 +149,55 @@ if [[ "$cmd" == *"JSON.parse"* && "$cmd" == *"settings.json"* ]]; then
     if [[ "$JSON_VALID_CACHE" -nt "$settings_file" ]]; then
       echo "settings.json already validated — no changes since last check" >&2
       exit 2
+    fi
+  fi
+  exit 0
+fi
+
+# ============================================================
+# NPM LIST — cache for 1 hour (until npm install)
+# ============================================================
+if [[ "$cmd" == "npm list"* || "$cmd" == "npm ls"* ]]; then
+  NPM_LIST_CACHE="$CACHE_DIR/npm-list"
+  if cache_fresh "$NPM_LIST_CACHE" 3600; then
+    echo "npm list (cached 1hr):" >&2
+    cat "$NPM_LIST_CACHE" >&2
+    exit 2
+  fi
+  exit 0
+fi
+
+# ============================================================
+# WC -L — cache by file path + mtime
+# ============================================================
+if [[ "$cmd" == "wc -l "* ]]; then
+  target_file=$(echo "$cmd" | sed 's/^wc -l //' | tr -d '"' | tr -d "'")
+  if [[ -f "$target_file" ]]; then
+    file_hash=$(echo -n "$target_file" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+    wc_cache="$CACHE_DIR/wc-$file_hash"
+    if [[ -f "$wc_cache" ]] && [[ "$wc_cache" -nt "$target_file" ]]; then
+      cached_count=$(cat "$wc_cache")
+      echo "wc -l (cached): $cached_count" >&2
+      exit 2
+    fi
+  fi
+  exit 0
+fi
+
+# ============================================================
+# CAT package.json / tsconfig.json — cache until file changes
+# ============================================================
+if [[ "$cmd" == "cat "* ]]; then
+  target_file=$(echo "$cmd" | sed 's/^cat //' | tr -d '"' | tr -d "'")
+  if [[ "$target_file" == *"package.json" || "$target_file" == *"tsconfig.json" ]]; then
+    if [[ -f "$target_file" ]]; then
+      file_hash=$(echo -n "$target_file" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+      cat_cache="$CACHE_DIR/cat-$file_hash"
+      if [[ -f "$cat_cache" ]] && [[ "$cat_cache" -nt "$target_file" ]]; then
+        echo "cat (cached — file unchanged):" >&2
+        cat "$cat_cache" >&2
+        exit 2
+      fi
     fi
   fi
   exit 0

@@ -72,4 +72,47 @@ if [[ "$cmd" == *"JSON.parse"* && "$cmd" == *"settings.json"* ]]; then
   touch "$CACHE_DIR/json-valid"
 fi
 
+# ============================================================
+# NPM INSTALL — invalidate npm list cache
+# ============================================================
+if [[ "$cmd" == *"npm install"* || "$cmd" == *"npm add"* || "$cmd" == *"npm ci"* ]]; then
+  rm -f "$CACHE_DIR/npm-list" 2>/dev/null || true
+fi
+
+# ============================================================
+# NPM LIST — cache output
+# ============================================================
+if [[ "$cmd" == "npm list"* || "$cmd" == "npm ls"* ]]; then
+  # Save last npm list output (interceptor reads from this)
+  cd /c/PRISM/mcp-server 2>/dev/null && npm list --depth=0 2>/dev/null > "$CACHE_DIR/npm-list" || true
+fi
+
+# ============================================================
+# WC -L — cache line count by file
+# ============================================================
+if [[ "$cmd" == "wc -l "* ]]; then
+  target_file=$(echo "$cmd" | sed 's/^wc -l //' | tr -d '"' | tr -d "'")
+  if [[ -f "$target_file" ]]; then
+    file_hash=$(echo -n "$target_file" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+    if [[ -n "$file_hash" ]]; then
+      wc -l "$target_file" 2>/dev/null > "$CACHE_DIR/wc-$file_hash" || true
+    fi
+  fi
+fi
+
+# ============================================================
+# CAT package.json / tsconfig.json — cache content
+# ============================================================
+if [[ "$cmd" == "cat "* ]]; then
+  target_file=$(echo "$cmd" | sed 's/^cat //' | tr -d '"' | tr -d "'")
+  if [[ "$target_file" == *"package.json" || "$target_file" == *"tsconfig.json" ]]; then
+    if [[ -f "$target_file" ]]; then
+      file_hash=$(echo -n "$target_file" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+      if [[ -n "$file_hash" ]]; then
+        cat "$target_file" 2>/dev/null > "$CACHE_DIR/cat-$file_hash" || true
+      fi
+    fi
+  fi
+fi
+
 exit 0
