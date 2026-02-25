@@ -1,9 +1,9 @@
 /**
- * Orchestration Dispatcher - Consolidates orchestrationV2 (8) + swarmToolsV2 (6) = 14 tools → 1
+ * Orchestration Dispatcher - Consolidates orchestrationV2 (8) + swarmToolsV2 (6) + roadmapExec (4) = 18 tools → 1
  * Tool: prism_orchestrate
  * Actions: agent_execute, agent_parallel, agent_pipeline, plan_create, plan_execute, plan_status,
  *          queue_stats, session_list, swarm_execute, swarm_parallel, swarm_consensus, swarm_pipeline,
- *          swarm_status, swarm_patterns
+ *          swarm_status, swarm_patterns, roadmap_plan, roadmap_next_batch, roadmap_advance, roadmap_gate
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -14,6 +14,12 @@ import {
 import {
   swarmExecutor, executeSwarm, type SwarmPattern
 } from "../../engines/SwarmExecutor.js";
+import {
+  roadmapExecutor,
+  summarizePlan,
+  getCompletedIds,
+} from "../../engines/RoadmapExecutor.js";
+import { parseRoadmap } from "../../schemas/roadmapSchema.js";
 import { agentRegistry } from "../../registries/AgentRegistry.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
@@ -21,7 +27,8 @@ const ACTIONS = [
   "agent_execute", "agent_parallel", "agent_pipeline",
   "plan_create", "plan_execute", "plan_status", "queue_stats", "session_list",
   "swarm_execute", "swarm_parallel", "swarm_consensus", "swarm_pipeline",
-  "swarm_status", "swarm_patterns"
+  "swarm_status", "swarm_patterns",
+  "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate"
 ] as const;
 
 function ok(data: any) {
@@ -31,7 +38,7 @@ function ok(data: any) {
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",
-    `Agent orchestration & swarm coordination (14 actions). Actions: ${ACTIONS.join(", ")}`,
+    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);
@@ -143,6 +150,129 @@ export function registerOrchestrationDispatcher(server: any): void {
               hierarchical: "Layered agent execution", ensemble: "Weighted combination",
               competition: "Best result wins", collaboration: "Iterative improvement"
             }});
+          }
+          // === ROADMAP EXECUTION ===
+          case "roadmap_plan": {
+            // Generate a batched execution plan with parallel detection
+            // params: { roadmap: RoadmapEnvelope, completed_ids?: string[] }
+            if (!params.roadmap) return ok({ error: "roadmap (RoadmapEnvelope JSON) required" });
+            try {
+              const envelope = parseRoadmap(params.roadmap);
+              const completedIds = new Set<string>(params.completed_ids || []);
+              const plan = roadmapExecutor.plan(envelope, completedIds);
+              const summary = summarizePlan(plan);
+              return ok({
+                roadmapId: plan.roadmapId,
+                totalUnits: plan.totalUnits,
+                totalBatches: plan.totalBatches,
+                parallelBatches: plan.parallelBatches,
+                maxParallelWidth: plan.maxParallelWidth,
+                estimatedTokens: plan.estimatedTokens,
+                hasCycles: plan.dag.hasCycles,
+                cycleInfo: plan.dag.cycleInfo,
+                phases: plan.phases.map(p => ({
+                  phaseId: p.phaseId,
+                  title: p.phaseTitle,
+                  totalUnits: p.totalUnits,
+                  batches: p.batches.map(b => ({
+                    batchId: b.batchId,
+                    parallel: b.parallel,
+                    unitIds: b.units.map(u => u.id),
+                    unitTitles: b.units.map(u => u.title),
+                    estimatedTokens: b.estimatedTokens,
+                  })),
+                })),
+                summary,
+              });
+            } catch (parseErr: any) {
+              return ok({ error: `Failed to parse roadmap: ${parseErr.message}` });
+            }
+          }
+          case "roadmap_next_batch": {
+            // Get the next batch of ready units for parallel execution
+            // params: { roadmap: RoadmapEnvelope, position: PositionTracker }
+            if (!params.roadmap) return ok({ error: "roadmap required" });
+            if (!params.position) return ok({ error: "position required" });
+            try {
+              const envelope = parseRoadmap(params.roadmap);
+              const result = roadmapExecutor.nextBatch(envelope, params.position);
+              return ok({
+                batch: result.batch ? {
+                  batchId: result.batch.batchId,
+                  parallel: result.batch.parallel,
+                  unitCount: result.batch.units.length,
+                  units: result.batch.units.map(u => ({
+                    id: u.id, title: u.title, phase: u.phase,
+                    role: u.role, model: u.model, effort: u.effort,
+                    dependencies: u.dependencies,
+                    steps: u.steps.length,
+                    deliverables: u.deliverables.map(d => d.path),
+                  })),
+                  estimatedTokens: result.batch.estimatedTokens,
+                } : null,
+                gatePending: result.gatePending,
+                gatePhaseId: result.gatePhaseId,
+                complete: result.complete,
+                message: result.message,
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_next_batch failed: ${err.message}` });
+            }
+          }
+          case "roadmap_advance": {
+            // Advance position after completing units
+            // params: { roadmap: RoadmapEnvelope, position: PositionTracker, completed: [{ unitId, buildPassed }] }
+            if (!params.roadmap || !params.position || !params.completed) {
+              return ok({ error: "roadmap, position, and completed[] required" });
+            }
+            try {
+              const envelope = parseRoadmap(params.roadmap);
+              const updated = roadmapExecutor.advance(
+                params.position,
+                params.completed,
+                envelope
+              );
+              return ok({
+                position: updated,
+                unitsCompleted: updated.units_completed,
+                totalUnits: updated.total_units,
+                percentComplete: updated.percent_complete,
+                status: updated.status,
+                nextUnit: updated.current_unit,
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_advance failed: ${err.message}` });
+            }
+          }
+          case "roadmap_gate": {
+            // Run a phase gate check
+            // params: { roadmap: RoadmapEnvelope, phase_id: string, completed_ids: string[],
+            //           build_passed: bool, tests_passed: bool, test_count: num, baseline_test_count: num, omega_score: num }
+            if (!params.roadmap || !params.phase_id) {
+              return ok({ error: "roadmap and phase_id required" });
+            }
+            try {
+              const envelope = parseRoadmap(params.roadmap);
+              const phase = envelope.phases.find(p => p.id === params.phase_id);
+              if (!phase) return ok({ error: `Phase not found: ${params.phase_id}` });
+
+              const completedIds = new Set<string>(params.completed_ids || []);
+              const gateResult = roadmapExecutor.gate(phase, completedIds, {
+                buildPassed: params.build_passed ?? true,
+                testsPassed: params.tests_passed ?? true,
+                testCount: params.test_count ?? 111,
+                baselineTestCount: params.baseline_test_count ?? 111,
+                omegaScore: params.omega_score ?? 1.0,
+              });
+              return ok({
+                phaseId: gateResult.phaseId,
+                passed: gateResult.passed,
+                omegaScore: gateResult.omegaScore,
+                checks: gateResult.checks,
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_gate failed: ${err.message}` });
+            }
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }

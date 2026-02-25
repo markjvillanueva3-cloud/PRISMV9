@@ -1,6 +1,6 @@
 /**
- * PRISM MCP Server - Engines Index v10
- * Re-exports all 35 calculation, orchestration, and infrastructure engines
+ * PRISM MCP Server - Engines Index v11
+ * Re-exports all 36 calculation, orchestration, and infrastructure engines
  * Updated: R1-AUDIT-T1 — Added 19 missing barrel exports
  */
 
@@ -880,3 +880,30 @@ export {
   type ProductTier, type SFCAction, type PPGAction, type ShopAction, type ACNCAction,
   type ProductAction, type SFCInput, type SFCResult, type SFCCompareResult, type SFCOptimizeResult,
 } from "./ProductEngine.js";
+
+// Roadmap Executor — Parallel Execution Protocol Engine
+export {
+  roadmapExecutor,
+  RoadmapExecutorEngine,
+  buildDependencyDAG,
+  getReadyUnits,
+  getReadyUnitsInPhase,
+  getReadyUnitsGlobal,
+  planPhaseExecution,
+  planRoadmapExecution,
+  createInitialPosition,
+  getCompletedIds,
+  advancePosition,
+  checkPhaseGate as checkRoadmapPhaseGate,
+  summarizePlan,
+  getNextBatch,
+  validateBatch,
+  type DAGNode,
+  type DependencyDAG,
+  type ExecutionBatch,
+  type PhaseExecutionPlan,
+  type RoadmapExecutionPlan,
+  type BatchResult,
+  type GateResult,
+  type GateCheck,
+} from "./RoadmapExecutor.js";
