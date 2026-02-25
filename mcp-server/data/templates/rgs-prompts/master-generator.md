@@ -9,7 +9,7 @@ This prompt is the top-level orchestration template. It contains the condensed r
 ## System Identity
 
 - **Name:** PRISM Roadmap Generation System (RGS)
-- **Version:** 2.1
+- **Version:** 3.0
 - **Schema:** rgs-canonical-v1 (defined in `src/schemas/roadmapSchema.ts`)
 - **Exemplar:** `data/templates/roadmap-exemplar.md`
 - **Output directory:** `data/roadmaps/`
@@ -136,52 +136,120 @@ checkpoint (bool), learning_save (bool), custom_checks: string[]
 
 | Dispatcher             | Actions | Domain                                    |
 |------------------------|---------|-------------------------------------------|
-| prism_sp               | 18      | Session/project management, file ops      |
-| prism_calc             | 12      | CNC calculations (speeds, feeds, forces)  |
-| prism_knowledge        | 8       | Knowledge base search and retrieval       |
-| prism_skill_script     | 10      | Skill and script management               |
-| prism_quality          | 9       | Quality control and inspection            |
-| prism_toolpath         | 14      | Toolpath generation and optimization      |
-| prism_material         | 7       | Material properties and selection         |
-| prism_machine          | 11      | Machine configuration and capabilities    |
-| prism_fixture          | 6       | Fixture design and workholding            |
-| prism_safety           | 5       | Safety validation and compliance          |
-| prism_cost             | 8       | Cost estimation and quoting               |
-| prism_process          | 13      | Process planning and optimization         |
-| prism_tool_management  | 9       | Tool library and wear tracking            |
-| prism_program          | 11      | G-code and NC program management          |
-| prism_simulation       | 7       | Cut simulation and verification           |
-| prism_reporting        | 6       | Report generation and formatting          |
-| prism_integration      | 8       | External system integration               |
-| prism_maintenance      | 5       | Preventive maintenance scheduling         |
-| prism_inventory        | 7       | Inventory tracking and reorder            |
-| prism_scheduling       | 9       | Job scheduling and capacity planning      |
-| prism_design           | 6       | CAD/CAM design assistance                 |
-| prism_metrology        | 8       | Measurement and GD&T analysis             |
-| prism_thermal          | 4       | Thermal management and compensation       |
-| prism_vibration        | 5       | Vibration analysis and damping            |
-| prism_coolant          | 4       | Coolant system management                 |
-| prism_chip             | 3       | Chip management and evacuation            |
-| prism_energy           | 4       | Energy consumption optimization           |
-| prism_compliance       | 6       | Regulatory and standards compliance       |
-| prism_training         | 5       | Operator training and documentation       |
-| prism_analytics        | 10      | Production analytics and dashboards       |
-| prism_workflow         | 8       | Workflow automation and orchestration      |
-| prism_rgs              | 12      | Roadmap generation and management         |
+| prism_intelligence     | 238     | Compound manufacturing intelligence: job planning, setup sheets, process costing, recommendations, what-if, forensics, genome, adaptive control, ACNC, shop management, CAM, DNC, mobile, ERP, measurement, inverse solving, apprentice, sustainability, graph |
+| prism_calc             | 50      | Manufacturing physics: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, stability, deflection, thermal, trochoidal/HSM, G-code, tolerance, decision trees, reports, campaigns, wear prediction, uncertainty |
+| prism_safety           | 29      | Safety-critical: collision detection, coolant/spindle/tool/workholding validation |
+| prism_session          | 31      | Session state + lifecycle: save/load/checkpoint/diff, handoff, memory, context pressure, compaction detection, workflow management |
+| prism_skill_script     | 27      | Skills + Scripts + Knowledge: search, load, recommend, analyze, chain, execute, bundle management |
+| prism_hook             | 20      | Hook & event management: list, execute, chain, toggle, emit, coverage, gaps, performance |
+| prism_sp               | 19      | Development protocol: brainstorm, plan, execute, review, debug, cognitive system, ILP, validation gates |
+| prism_context          | 18      | Context Engineering (Manus 6 Laws): KV sort, tool masking, memory externalize, todo, error patterns, team coordination, attention scoring |
+| prism_tenant           | 15      | Multi-tenant isolation with Shared Learning Bus |
+| prism_guard            | 14      | Reasoning + Enforcement: decision log, failure library, pre-write gate, pre-call validate, pattern scan, learning, priority scoring |
+| prism_orchestrate      | 14      | Agent orchestration & swarm coordination |
+| prism_bridge           | 13      | Multi-protocol API gateway: REST/gRPC/GraphQL/WebSocket routing, auth, rate limiting |
+| prism_thread           | 12      | Threading calculations: tap drill, thread milling, engagement, specs, gauges, G-code |
+| prism_atcs             | 12      | Autonomous Task Completion System: task init/resume, queue, batch validate, checkpoint |
+| prism_manus            | 11      | Manus AI agent + development hooks |
+| prism_dev              | 9       | Dev workflow: session boot, build, code template/search, file read/write, test smoke |
+| prism_compliance       | 8       | Compliance-as-Code: ISO 13485, AS9100, ITAR, SOC2, HIPAA, FDA 21 CFR Part 11 |
+| prism_autonomous       | 8       | Autonomous execution engine: plan, execute, validate, dry-run, pause/resume |
+| prism_toolpath         | 8       | Toolpath strategy engine: strategy selection, parameter calculation, material strategies |
+| prism_nl_hook          | 8       | Natural language hook authoring: create, parse, approve, remove |
+| prism_autopilot_d      | 8       | AutoPilot workflow orchestration: brainstorm lenses, Ralph loop lite, formula optimize |
+| prism_telemetry        | 7       | Dispatcher telemetry & self-optimization: dashboard, anomalies, optimization |
+| prism_doc              | 7       | Document management: read, write, append, roadmap status, action tracker |
+| prism_validate         | 7       | Validation: material, Kienzle, Taylor, Johnson-Cook, safety, completeness, anti-regression |
+| prism_gsd              | 6       | GSD protocol: core, quick, get section, dev protocol, resources summary |
+| prism_pfp              | 6       | Predictive Failure Prevention: dashboard, risk assessment, patterns, history |
+| prism_memory           | 6       | Cross-session memory graph: health, trace decisions, find similar, integrity |
+| prism_generator        | 6       | Hook generator: stats, domains, generate, batch, validate, template |
+| prism_knowledge        | 5       | Unified knowledge query across 9 registries: search, cross-query, formula, relations |
+| prism_omega            | 5       | Omega quality equation: compute, breakdown, validate, optimize, history |
+| prism_ralph            | 3       | Ralph 4-phase validation: loop, scrutinize, assess (REAL Claude API calls) |
 
 ---
 
-## Skill Catalog Summary (61 skills)
+## Skill Catalog Summary
 
-Skills are stored in `skills-consolidated/` and referenced by ID. Key categories:
+### Claude Code Skills (57 in `.claude/skills/`)
 
-- **CNC Calculation Skills** (12): speed-feed, force-analysis, surface-finish, tolerance-stack, etc.
-- **Quality Skills** (8): spc-analysis, gage-rr, capability-study, inspection-planning, etc.
-- **Programming Skills** (10): gcode-generation, macro-programming, probe-routines, etc.
-- **Process Skills** (9): process-planning, cycle-optimization, setup-reduction, etc.
-- **Integration Skills** (7): erp-integration, mes-connection, iot-setup, etc.
-- **Documentation Skills** (6): api-documentation, markdown-authoring, report-templates, etc.
-- **Meta Skills** (9): roadmap-generation, skill-builder, prompt-engineering, etc.
+| Category | Count | Skills |
+|----------|-------|--------|
+| **Security** | 2 | owasp-security (OWASP Top 10:2025 + Agentic AI), vibesec (bug bounty patterns) |
+| **Documents** | 4 | xlsx, docx, pdf, pptx (Anthropic official — CAM tooling databases) |
+| **Media** | 3 | video-toolkit (FFmpeg/Remotion/ElevenLabs/Playwright), youtube-transcript, epub |
+| **MCP/Dev** | 2 | mcp-builder (Anthropic official), varlock (env var security) |
+| **Business** | 9 | hundred-million-offers, storybrand-messaging, cro-methodology, jobs-to-be-done, obviously-awesome, one-page-marketing, predictable-revenue, clean-code, domain-driven-design |
+| **PM** | 8 | define-jtbd-canvas, define-problem-statement, deliver-prd, deliver-launch-checklist, discover-competitive-analysis, measure-experiment-design, develop-solution-brief, iterate-retrospective |
+| **v3 Core** | 10 | v3-cli-modernization, v3-core-implementation, v3-ddd-architecture, v3-integration-deep, v3-mcp-optimization, v3-memory-unification, v3-performance-optimization, v3-security-overhaul, v3-swarm-coordination |
+| **AgentDB** | 5 | agentdb-advanced, agentdb-learning, agentdb-memory-patterns, agentdb-optimization, agentdb-vector-search |
+| **GitHub** | 5 | github-code-review, github-multi-repo, github-project-management, github-release-management, github-workflow-automation |
+| **Meta** | 9 | hooks-automation, pair-programming, reasoningbank-agentdb, reasoningbank-intelligence, skill-builder, sparc-methodology, stream-chain, swarm-advanced, swarm-orchestration, verification-quality |
+
+### PRISM Internal Skills (96 in SKILL_TIER_MAP.json, served via prism_skill_script)
+
+| Tier | Count | Description |
+|------|-------|-------------|
+| **Tier A** (always relevant) | 15 | Core manufacturing + safety + session (prism-material-physics, prism-safety-framework, prism-cutting-mechanics, prism-speed-feed-engine, etc.) |
+| **Tier B** (phase relevant) | 33 | Load per active phase (prism-gcode-reference, prism-fanuc-programming, prism-cam-strategies, prism-hook-system, etc.) |
+| **Tier C** (specialized) | 48 | Load on explicit request (prism-prompt-engineering, prism-performance-patterns, prism-design-patterns, etc.) |
+
+---
+
+## Claude-Flow Integration
+
+All roadmap execution should leverage claude-flow for multi-agent coordination when beneficial:
+
+| Capability | When to Use | How |
+|------------|-------------|-----|
+| **Swarm coordination** | XL milestones (>30 calls), parallelizable work | `npx @claude-flow/cli@latest swarm init` with hierarchical-mesh topology |
+| **Worktree agents** | Independent units within a phase | Spawn agents in git worktrees for parallel execution |
+| **Memory sharing** | Cross-session state, swarm context | `npx @claude-flow/cli@latest memory store/recall` |
+| **Error reporting** | Swarm-wide error awareness | PostToolUseFailure hook auto-reports to claude-flow |
+| **Session lifecycle** | Start/stop daemon | SessionStart auto-starts daemon, Stop auto-stops |
+
+### Claude Code Hook Events (15 events, 46 hook entries)
+
+| Event | Hooks | Claude-Flow | Description |
+|-------|-------|-------------|-------------|
+| PreToolUse Write/Edit | 3 | yes | File protection + quality reminder + claude-flow pre-edit |
+| PreToolUse Bash | 2 | yes | Bash intercept (caching/dedup) + claude-flow pre-command |
+| PreToolUse Task | 2 | yes | Task context injection + claude-flow pre-task |
+| PreToolUse Read | 2 | yes | Read optimizer + claude-flow pre-read |
+| PreToolUse Glob/Grep | 2 | yes | Search optimizer + claude-flow pre-search |
+| PreToolUse WebFetch | 1 | no | URL deduplication (15-min TTL) |
+| PostToolUse Write/Edit | 2 | yes | claude-flow post-edit + smart cache invalidation |
+| PostToolUse Bash | 3 | yes | claude-flow post-command + breadcrumb + cache writer |
+| PostToolUse Task | 1 | yes | claude-flow post-task |
+| PostToolUse Read | 1 | no | Read tracker (files-read counter) |
+| PostToolUse (all) | 1 | no | Loop detector (repeated tool pattern detection) |
+| PostToolUseFailure | 3 | yes | Error recovery + smart recovery + claude-flow error-report |
+| UserPromptSubmit | 2 | yes | Auto-route + claude-flow task routing |
+| SessionStart | 3-4 | yes | Memory sync + daemon start + session restore (+ compaction survival on compact) |
+| Stop | 5 | yes | Stop guard + session summary + memory sync + compaction survival + daemon stop |
+| Notification | 2 | yes | claude-flow memory store + idle reminder |
+| SubagentStart | 2 | yes | Context injection + claude-flow pre-task |
+| SubagentStop | 2 | yes | Results collection + claude-flow post-task |
+| SessionEnd | 1 | no | Session end cleanup |
+| TaskCompleted | 1 | no | Task gate verification |
+| ConfigChange | 1 | no | Config guard |
+| WorktreeCreate | 1 | no | Worktree tracking |
+| WorktreeRemove | 1 | no | Worktree cleanup |
+| PreCompact | 1 | no | Pre-compaction state save |
+
+### Session Infrastructure
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| auto-memory sync | `.claude/helpers/sync-memory.sh` | Rebuilds MEMORY.md from CURRENT_POSITION.md + git state |
+| compaction survival | `.claude/helpers/compaction-survival.sh` | Writes critical state for context compaction recovery |
+| session breadcrumb | `.claude/helpers/session-breadcrumb.sh` | Writes breadcrumb after git commits |
+| session summary | `.claude/helpers/session-summary.sh` | Stop hook summary with metrics |
+| bash intercept | `.claude/helpers/bash-intercept.sh` | Command deduplication + caching |
+| cache writer | `.claude/helpers/cache-writer.sh` | PostToolUse cache writer for build/test/git/npm |
+| smart recovery | `.claude/helpers/smart-recovery.sh` | Pattern-based error recovery suggestions |
+| loop detector | `.claude/helpers/loop-detector.sh` | Detects repeated tool call patterns |
 
 ---
 

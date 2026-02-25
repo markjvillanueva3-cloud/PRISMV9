@@ -53,11 +53,26 @@ Use the role assignment matrix to select the correct role, model, and effort lev
 
 ### Step 3: Assign Tools and Resources
 
-- `tools`: Array of `ToolRef` objects. Each must include `tool` (the dispatcher name) and optionally `action` and `params_hint`. Only reference tools from the 32 PRISM dispatchers.
-- `skills`: Array of skill IDs from `skills-consolidated/`. Cross-reference the codebase audit.
+- `tools`: Array of `ToolRef` objects. Each must include `tool` (the dispatcher name) and optionally `action` and `params_hint`. Only reference tools from the 32 PRISM dispatchers (see master-generator.md §Dispatcher Catalog for the complete list).
+- `skills`: Array of skill references. PRISM has **two skill systems**:
+  - **Claude Code Skills** (57 in `.claude/skills/`): Native SKILL.md files for security, documents, media, business, PM, MCP, dev. Reference by directory name (e.g., `owasp-security`, `xlsx`, `video-toolkit`).
+  - **PRISM Internal Skills** (96 in `skills-consolidated/`): Three-tier MCP skills served via `prism_skill_script`. Reference by skill ID (e.g., `mfg-speed-feed`, `prism-roadmap-generator`).
+  - Cross-reference the codebase audit's `existing_cc_skills` and `existing_prism_skills` arrays.
 - `scripts`: Array of script paths from `src/scripts/`. Cross-reference the codebase audit.
-- `hooks`: Array of hook names. Standard hooks include `pre_unit: validate_workspace`, `post_unit: log_metrics`, `pre_unit: check_deps`, `post_unit: snapshot`.
-- `features`: Array of PRISM features used (e.g., `Desktop Commander`, `web_search`, `file_operations`).
+- `hooks`: Array of hook names. Standard hooks include:
+  - `pre_unit: validate_workspace` — verify clean build before starting
+  - `post_unit: log_metrics` — record unit completion metrics
+  - `pre_unit: check_deps` — verify dependency units completed
+  - `post_unit: snapshot` — checkpoint state after completion
+  - `post_unit: session_breadcrumb` — write breadcrumb for session continuity
+  - `post_unit: sync_memory` — update MEMORY.md with latest position
+- `features`: Array of PRISM features used. Available features:
+  - `Desktop Commander` — file system operations via MCP
+  - `web_search` — internet research
+  - `file_operations` — read/write/edit files
+  - `claude_flow` — multi-agent coordination (swarm orchestration, worktree agents, memory sharing). Use when the unit involves parallel work, cross-agent coordination, or would benefit from hierarchical/mesh/pipeline topology.
+  - `session_infrastructure` — auto-memory sync, compaction survival, breadcrumbs
+  - `playwright` — browser automation and testing
 - `dependencies`: Array of unit IDs that must complete before this unit starts.
 
 ### Step 4: Define Conditions
@@ -100,10 +115,11 @@ Use the role assignment matrix to select the correct role, model, and effort lev
 ### Step 8: Set Indexing Flags
 
 - `index_in_master`: true if deliverables should appear in MASTER_INDEX.md
-- `creates_skill`: true if this unit produces a new skill definition
+- `creates_skill`: true if this unit produces a new skill definition (either CC or PRISM)
 - `creates_script`: true if this unit produces a new automation script
 - `creates_hook`: true if this unit produces a new lifecycle hook
 - `creates_command`: true if this unit produces a new slash command
+- `uses_claude_flow`: true if this unit requires multi-agent coordination via claude-flow. When true, specify the topology (hierarchical, mesh, pipeline) in the unit's `features` array note.
 
 ## Mandatory Field Checklist
 
@@ -134,6 +150,9 @@ For EVERY unit, verify all of the following are populated:
 6. **Missing exit conditions.** Every unit must have at least one testable exit condition.
 7. **Effort mismatch.** Documentation units (R8) should not have effort 95. Schema design units (R1) should not have effort 60.
 8. **Role mismatch.** Test-writing work should not be assigned to R2 (Implementer). Use R3 (Test Writer).
+9. **Ignoring CC skills.** If a unit involves document generation (xlsx, docx, pdf, pptx), security review, or video creation, the corresponding CC skill MUST be referenced in the `skills` array. Do not rely only on PRISM internal skills.
+10. **Missing claude-flow for parallel work.** If a phase has 3+ independent units, `uses_claude_flow` should be true and the feature `claude_flow` should be listed. Multi-agent coordination dramatically improves throughput for parallelizable phases.
+11. **Fabricated dispatcher names.** Only use the 32 actual PRISM dispatchers listed in master-generator.md. Do NOT invent dispatcher names.
 
 ## Output Format
 
@@ -160,10 +179,10 @@ Return a JSON array of fully populated `RoadmapPhase` objects. Each phase contai
         "effort": 95,
         "rationale": "...",
         "tools": [{ "tool": "prism_sp", "action": "write_file", "params_hint": "path: src/schemas/foo.ts" }],
-        "skills": ["typescript-typing"],
+        "skills": ["typescript-typing", "owasp-security"],
         "scripts": [],
-        "hooks": ["pre_unit: validate_workspace"],
-        "features": [],
+        "hooks": ["pre_unit: validate_workspace", "post_unit: session_breadcrumb"],
+        "features": ["file_operations"],
         "dependencies": [],
         "entry_conditions": ["Build passes on current HEAD"],
         "exit_conditions": ["File src/schemas/foo.ts exists and compiles"],
@@ -191,7 +210,8 @@ Return a JSON array of fully populated `RoadmapPhase` objects. Each phase contai
         "creates_skill": false,
         "creates_script": false,
         "creates_hook": false,
-        "creates_command": false
+        "creates_command": false,
+        "uses_claude_flow": false
       }
     ],
     "gate": {

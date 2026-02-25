@@ -14,28 +14,38 @@ You will receive the structured brief produced by Stage 1:
 
 The PRISM codebase contains the following asset categories. Search each one for relevance to the brief:
 
-| Category     | Location                        | Count | Description                         |
-|--------------|---------------------------------|-------|-------------------------------------|
-| Skills       | `skills-consolidated/`          | 61    | Reusable skill definitions (.md)    |
-| Scripts      | `src/scripts/`                  | 48    | Executable automation scripts       |
-| Hooks        | `src/hooks/`                    | 32+   | Lifecycle hooks (pre/post actions)  |
-| Dispatchers  | `src/dispatchers/`              | 32    | Tool dispatchers (541 total actions)|
-| Engines      | `src/engines/`                  | 73    | Computation and logic engines       |
-| Patterns     | Various (src/, .claude/, data/) | --    | Reusable code patterns              |
+| Category           | Location                        | Count | Description                         |
+|--------------------|---------------------------------|-------|-------------------------------------|
+| PRISM Skills       | `skills-consolidated/`          | 96    | PRISM internal skill definitions (3 tiers: A=15, B=33, C=48) |
+| CC Skills          | `.claude/skills/`               | 57    | Claude Code native skills (security, docs, media, business, PM, dev, v3) |
+| Scripts            | `src/scripts/`                  | 48    | Executable automation scripts       |
+| Hooks (source)     | `src/hooks/`                    | 112   | TypeScript lifecycle hooks (16 files, 10,569 LOC) |
+| Hooks (CC)         | `.claude/helpers/`              | 18    | Bash hook scripts (caching, recovery, optimization, session) |
+| Hook Events        | `.claude/settings.json`         | 15    | Claude Code hook events (46 total entries, 9 with claude-flow) |
+| Dispatchers        | `src/index.ts` + `src/tools/`   | 32    | Tool dispatchers (541 total actions)|
+| Engines            | `src/engines/`                  | 74    | Computation and logic engines       |
+| Registries         | `data/registries/`              | 14    | Data registries (29,569 entries)    |
+| Claude-Flow        | `.claude/settings.json`         | 9/15  | Claude-flow hooks on 9 of 15 events |
+| Session Infra      | `.claude/helpers/`              | 6     | Auto-memory, compaction survival, breadcrumbs, summary, sync |
+| Patterns           | Various (src/, .claude/, data/) | --    | Reusable code patterns              |
 
 ## Instructions
 
-1. **Search skills.** Scan `skills-consolidated/` for skill files whose name or content matches keywords from the brief's `goal`, `scope`, or `domain`. Record the skill ID and a one-sentence relevance note.
+1. **Search PRISM skills.** Scan `skills-consolidated/` for the 96 PRISM internal skills whose name or content matches keywords from the brief's `goal`, `scope`, or `domain`. Record the skill ID and a one-sentence relevance note.
 
-2. **Search scripts.** Scan `src/scripts/` for scripts that perform operations related to the brief. Record the filename and relevance.
+2. **Search CC skills.** Scan `.claude/skills/` for the 57 Claude Code native skills (security, documents, media, business, PM, MCP, dev, v3, etc.) that could enhance roadmap execution quality. Record the skill name and relevance.
 
-3. **Search hooks.** Scan `src/hooks/` for hooks that fire during operations the brief touches. Record the hook name and relevance.
+3. **Search scripts.** Scan `src/scripts/` for scripts that perform operations related to the brief. Record the filename and relevance.
 
-4. **Identify dispatchers.** From the PRISM dispatcher catalog (32 dispatchers, 541 actions), identify which dispatchers and specific actions will be needed during roadmap execution. List the dispatcher name and relevant actions.
+4. **Search hooks.** Scan `src/hooks/` for TypeScript lifecycle hooks (112 implementations, 16 files) that fire during operations the brief touches. Also scan `.claude/helpers/` for the 18 bash hook scripts. Record the hook name and relevance.
 
-5. **Identify engines.** From the 73 registered engines, identify any that will be touched, extended, or leveraged by this work. Record the engine name and its purpose.
+5. **Identify dispatchers.** From the PRISM dispatcher catalog (32 dispatchers, 541 actions — see master-generator.md for full catalog), identify which dispatchers and specific actions will be needed during roadmap execution. List the dispatcher name and relevant actions. Note: prism_intelligence has 238 actions covering compound manufacturing intelligence.
 
-6. **Find reusable patterns.** Look for existing code patterns (utility functions, architectural patterns, configuration structures) that can be extended rather than built from scratch. Record the pattern description and file location.
+6. **Identify engines.** From the 74 registered engines, identify any that will be touched, extended, or leveraged by this work. Record the engine name and its purpose.
+
+7. **Identify claude-flow opportunities.** Assess whether the work would benefit from multi-agent coordination via claude-flow (swarm orchestration, worktree agents, memory sharing). Record recommended topology (hierarchical, mesh, pipeline) and parallelization opportunities.
+
+8. **Find reusable patterns.** Look for existing code patterns (utility functions, architectural patterns, configuration structures) that can be extended rather than built from scratch. Record the pattern description and file location.
 
 ## Output Format
 
@@ -43,14 +53,17 @@ Return a single JSON object matching the `CodebaseAudit` interface:
 
 ```json
 {
-  "existing_skills": [
-    { "id": "skill-id", "relevance": "Why this skill is relevant" }
+  "existing_prism_skills": [
+    { "id": "skill-id", "tier": "A|B|C", "relevance": "Why this skill is relevant" }
+  ],
+  "existing_cc_skills": [
+    { "name": "skill-name", "category": "security|docs|media|business|pm|dev|v3|meta", "relevance": "Why this skill is relevant" }
   ],
   "existing_scripts": [
     { "name": "script-name.ts", "relevance": "Why this script is relevant" }
   ],
   "existing_hooks": [
-    { "name": "hook-name", "relevance": "Why this hook is relevant" }
+    { "name": "hook-name", "source": "ts|bash", "relevance": "Why this hook is relevant" }
   ],
   "related_dispatchers": [
     { "name": "prism_dispatcher_name", "actions": ["action1", "action2"] }
@@ -58,6 +71,12 @@ Return a single JSON object matching the `CodebaseAudit` interface:
   "related_engines": [
     { "name": "engine-name", "purpose": "What this engine does" }
   ],
+  "claude_flow_plan": {
+    "recommended": true,
+    "topology": "hierarchical|mesh|pipeline|none",
+    "parallel_units": ["unit-id-1", "unit-id-2"],
+    "rationale": "Why claude-flow coordination is recommended"
+  },
   "reusable_patterns": [
     { "pattern": "Description of the pattern", "location": "relative/path/to/file.ts" }
   ]
