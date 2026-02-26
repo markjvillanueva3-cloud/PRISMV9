@@ -218,7 +218,7 @@ const onUsageTrack: HookDefinition = {
     const hook = onUsageTrack;
     
     const operation = context.operation || "unknown";
-    const sessionId = context.session?.sessionId || "unknown";
+    const sessionId = context.session?.id || "unknown";
     const userId = context.metadata?.userId as string || "default";
     
     // Get or create usage metric
@@ -504,7 +504,7 @@ const onQualityTrend: HookDefinition = {
   handler: (context: HookContext): HookResult => {
     const hook = onQualityTrend;
     
-    const qualityMetrics = context.qualityMetrics;
+    const qualityMetrics = context.quality;
     if (!qualityMetrics) {
       return hookSuccess(hook, "No quality metrics to track");
     }

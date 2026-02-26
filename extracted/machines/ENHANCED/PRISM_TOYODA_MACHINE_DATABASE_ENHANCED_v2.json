@@ -1,0 +1,1811 @@
+[
+  {
+    "id": "toyoda_fh400j",
+    "manufacturer": "Toyoda",
+    "model": "FH400J",
+    "series": "FH",
+    "type": "HMC",
+    "subtype": "4-axis",
+    "axes": 4,
+    "control": "FANUC 31i-B / TOYOPUC",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 15000,
+      "peakHp": 30,
+      "continuousHp": 25,
+      "maxTorque_Nm": 119,
+      "taper": "BBT40",
+      "orientation": "horizontal",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 180,
+        "headLength_mm": 380
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 560,
+        "rapid_mm_min": 60000
+      },
+      "y": {
+        "min": 0,
+        "max": 560,
+        "rapid_mm_min": 60000
+      },
+      "z": {
+        "min": 0,
+        "max": 625,
+        "rapid_mm_min": 60000
+      },
+      "b": {
+        "min": 0,
+        "max": 360,
+        "rapid_deg_sec": 60,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "HMC_4AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "B",
+        "TABLE",
+        "PART"
+      ],
+      "spindleOrientation": "horizontal",
+      "rotaryAxes": {
+        "b": {
+          "type": "indexing",
+          "continuous": true,
+          "indexIncrement_deg": 0.001,
+          "torque_Nm": 1000,
+          "clampTorque_Nm": 2500
+        }
+      }
+    },
+    "table": {
+      "type": "rotary_pallet",
+      "size_mm": 400,
+      "maxLoad_kg": 400,
+      "palletCount": 2,
+      "palletChangeTime_sec": 6.5
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 3500,
+        "width_mm": 3800,
+        "height_mm": 2900
+      },
+      "workEnvelope": {
+        "x_mm": 560,
+        "y_mm": 560,
+        "z_mm": 625
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 180,
+        "length_mm": 380,
+        "orientation": "horizontal"
+      },
+      "rotaryTable": {
+        "type": "box",
+        "dimensions": {
+          "x": 400,
+          "y": 250,
+          "z": 400
+        },
+        "rotatesWith": [
+          "b"
+        ]
+      }
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 60,
+      "maxToolDiameter_mm": 100,
+      "maxToolLength_mm": 350,
+      "changeTime_sec": 2.2
+    },
+    "accuracy": {
+      "positioning_mm": 0.004,
+      "repeatability_mm": 0.002
+    },
+    "physical": {
+      "weight_kg": 12000
+    },
+    "sources": [
+      "Toyoda FH400J Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 560,
+          "rapid_mm_min": 60000
+        },
+        "y": {
+          "min": 0,
+          "max": 560,
+          "rapid_mm_min": 60000
+        },
+        "z": {
+          "min": 0,
+          "max": 625,
+          "rapid_mm_min": 60000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 400,
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          },
+          "orientation": "horizontal"
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": "[object Object]400",
+            "z": "[object Object]600"
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 100
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 560,
+              "rapid_mm_min": 60000
+            },
+            "y": {
+              "min": 0,
+              "max": 560,
+              "rapid_mm_min": 60000
+            },
+            "z": {
+              "min": 0,
+              "max": 625,
+              "rapid_mm_min": 60000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "pallet_changer": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 300
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]800",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fh550j",
+    "manufacturer": "Toyoda",
+    "model": "FH550J",
+    "series": "FH",
+    "type": "HMC",
+    "subtype": "4-axis",
+    "axes": 4,
+    "control": "FANUC 31i-B / TOYOPUC",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 14000,
+      "peakHp": 40,
+      "continuousHp": 35,
+      "maxTorque_Nm": 178,
+      "taper": "BBT50",
+      "orientation": "horizontal",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 220,
+        "headLength_mm": 450
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 730,
+        "rapid_mm_min": 50000
+      },
+      "y": {
+        "min": 0,
+        "max": 730,
+        "rapid_mm_min": 50000
+      },
+      "z": {
+        "min": 0,
+        "max": 810,
+        "rapid_mm_min": 50000
+      },
+      "b": {
+        "min": 0,
+        "max": 360,
+        "rapid_deg_sec": 50,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "HMC_4AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "B",
+        "TABLE",
+        "PART"
+      ],
+      "spindleOrientation": "horizontal",
+      "rotaryAxes": {
+        "b": {
+          "type": "indexing",
+          "continuous": true,
+          "torque_Nm": 1800
+        }
+      }
+    },
+    "table": {
+      "type": "rotary_pallet",
+      "size_mm": 550,
+      "maxLoad_kg": 700,
+      "palletCount": 2,
+      "palletChangeTime_sec": 8
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 4200,
+        "width_mm": 4500,
+        "height_mm": 3200
+      },
+      "workEnvelope": {
+        "x_mm": 730,
+        "y_mm": 730,
+        "z_mm": 810
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 220,
+        "length_mm": 450,
+        "orientation": "horizontal"
+      },
+      "rotaryTable": {
+        "type": "box",
+        "dimensions": {
+          "x": 550,
+          "y": 300,
+          "z": 550
+        },
+        "rotatesWith": [
+          "b"
+        ]
+      }
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 90,
+      "maxToolDiameter_mm": 125,
+      "maxToolLength_mm": 450,
+      "changeTime_sec": 2.8
+    },
+    "physical": {
+      "weight_kg": 18000
+    },
+    "sources": [
+      "Toyoda FH550J Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 730,
+          "rapid_mm_min": 50000
+        },
+        "y": {
+          "min": 0,
+          "max": 730,
+          "rapid_mm_min": 50000
+        },
+        "z": {
+          "min": 0,
+          "max": 810,
+          "rapid_mm_min": 50000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 400,
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          },
+          "orientation": "horizontal"
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": "[object Object]400",
+            "z": "[object Object]600"
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 100
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 730,
+              "rapid_mm_min": 50000
+            },
+            "y": {
+              "min": 0,
+              "max": 730,
+              "rapid_mm_min": 50000
+            },
+            "z": {
+              "min": 0,
+              "max": 810,
+              "rapid_mm_min": 50000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "pallet_changer": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 300
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]800",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fh800sxj",
+    "manufacturer": "Toyoda",
+    "model": "FH800SXJ",
+    "series": "FH",
+    "type": "HMC",
+    "subtype": "4-axis-large",
+    "axes": 4,
+    "control": "FANUC 31i-B",
+    "spindle": {
+      "type": "gearSpindle",
+      "maxRpm": 10000,
+      "peakHp": 60,
+      "continuousHp": 50,
+      "maxTorque_Nm": 420,
+      "taper": "BBT50",
+      "orientation": "horizontal",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 280,
+        "headLength_mm": 520
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 1100,
+        "rapid_mm_min": 40000
+      },
+      "y": {
+        "min": 0,
+        "max": 1000,
+        "rapid_mm_min": 40000
+      },
+      "z": {
+        "min": 0,
+        "max": 1100,
+        "rapid_mm_min": 40000
+      },
+      "b": {
+        "min": 0,
+        "max": 360,
+        "rapid_deg_sec": 35,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "HMC_4AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "B",
+        "TABLE",
+        "PART"
+      ],
+      "spindleOrientation": "horizontal",
+      "rotaryAxes": {
+        "b": {
+          "type": "indexing",
+          "continuous": true,
+          "torque_Nm": 3500
+        }
+      }
+    },
+    "table": {
+      "type": "rotary_pallet",
+      "size_mm": 800,
+      "maxLoad_kg": 1500,
+      "palletCount": 2,
+      "palletChangeTime_sec": 12
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 5500,
+        "width_mm": 5800,
+        "height_mm": 3600
+      },
+      "workEnvelope": {
+        "x_mm": 1100,
+        "y_mm": 1000,
+        "z_mm": 1100
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 280,
+        "length_mm": 520,
+        "orientation": "horizontal"
+      },
+      "rotaryTable": {
+        "type": "box",
+        "dimensions": {
+          "x": 800,
+          "y": 400,
+          "z": 800
+        },
+        "rotatesWith": [
+          "b"
+        ]
+      }
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 120,
+      "maxToolDiameter_mm": 160,
+      "maxToolLength_mm": 600,
+      "changeTime_sec": 4
+    },
+    "physical": {
+      "weight_kg": 35000
+    },
+    "sources": [
+      "Toyoda FH800SXJ Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 1100,
+          "rapid_mm_min": 40000
+        },
+        "y": {
+          "min": 0,
+          "max": 1000,
+          "rapid_mm_min": 40000
+        },
+        "z": {
+          "min": 0,
+          "max": 1100,
+          "rapid_mm_min": 40000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 400,
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          },
+          "orientation": "horizontal"
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": "[object Object]400",
+            "z": "[object Object]600"
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 100
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 1100,
+              "rapid_mm_min": 40000
+            },
+            "y": {
+              "min": 0,
+              "max": 1000,
+              "rapid_mm_min": 40000
+            },
+            "z": {
+              "min": 0,
+              "max": 1100,
+              "rapid_mm_min": 40000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "pallet_changer": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 300
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]800",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fv1265",
+    "manufacturer": "Toyoda",
+    "model": "FV1265",
+    "series": "FV",
+    "type": "VMC",
+    "subtype": "3-axis",
+    "axes": 3,
+    "control": "FANUC 0i-MF Plus",
+    "spindle": {
+      "type": "inline",
+      "maxRpm": 12000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 119,
+      "taper": "BBT40",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 180,
+        "headLength_mm": 360
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 1270,
+        "rapid_mm_min": 36000
+      },
+      "y": {
+        "min": 0,
+        "max": 635,
+        "rapid_mm_min": 36000
+      },
+      "z": {
+        "min": 0,
+        "max": 560,
+        "rapid_mm_min": 30000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ],
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 635,
+          "y": 317,
+          "z": 560
+        },
+        "tableSurface": {
+          "x": 635,
+          "y": 317,
+          "z": 0
+        }
+      },
+      "spindleToTable_mm": 560
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 1400,
+      "width_mm": 635,
+      "thickness_mm": 75,
+      "tSlots": {
+        "count": 5,
+        "width_mm": 18,
+        "spacing_mm": 120
+      },
+      "maxLoad_kg": 1000
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 3200,
+        "width_mm": 2800,
+        "height_mm": 3000
+      },
+      "workEnvelope": {
+        "x_mm": 1270,
+        "y_mm": 635,
+        "z_mm": 560
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 180,
+        "length_mm": 360,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -180
+        }
+      },
+      "table": {
+        "type": "box",
+        "dimensions": {
+          "x": 1400,
+          "y": 635,
+          "z": 75
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -75
+        }
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 30,
+      "maxToolDiameter_mm": 80,
+      "maxToolLength_mm": 300,
+      "changeTime_sec": 2.2
+    },
+    "physical": {
+      "weight_kg": 8500
+    },
+    "sources": [
+      "Toyoda FV1265 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 1270,
+          "rapid_mm_min": 36000
+        },
+        "y": {
+          "min": 0,
+          "max": 635,
+          "rapid_mm_min": 36000
+        },
+        "z": {
+          "min": 0,
+          "max": 560,
+          "rapid_mm_min": 30000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 1270,
+              "rapid_mm_min": 36000
+            },
+            "y": {
+              "min": 0,
+              "max": 635,
+              "rapid_mm_min": 36000
+            },
+            "z": {
+              "min": 0,
+              "max": 560,
+              "rapid_mm_min": 30000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fv1680",
+    "manufacturer": "Toyoda",
+    "model": "FV1680",
+    "series": "FV",
+    "type": "VMC",
+    "subtype": "3-axis-large",
+    "axes": 3,
+    "control": "FANUC 31i-B",
+    "spindle": {
+      "type": "inline",
+      "maxRpm": 10000,
+      "peakHp": 35,
+      "continuousHp": 30,
+      "maxTorque_Nm": 200,
+      "taper": "BBT50",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 220,
+        "headLength_mm": 420
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 1650,
+        "rapid_mm_min": 30000
+      },
+      "y": {
+        "min": 0,
+        "max": 800,
+        "rapid_mm_min": 30000
+      },
+      "z": {
+        "min": 0,
+        "max": 700,
+        "rapid_mm_min": 24000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ],
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 825,
+          "y": 400,
+          "z": 700
+        },
+        "tableSurface": {
+          "x": 825,
+          "y": 400,
+          "z": 0
+        }
+      },
+      "spindleToTable_mm": 700
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 1800,
+      "width_mm": 800,
+      "thickness_mm": 90,
+      "maxLoad_kg": 2000
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 4000,
+        "width_mm": 3400,
+        "height_mm": 3300
+      },
+      "workEnvelope": {
+        "x_mm": 1650,
+        "y_mm": 800,
+        "z_mm": 700
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 220,
+        "length_mm": 420,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -210
+        }
+      },
+      "table": {
+        "type": "box",
+        "dimensions": {
+          "x": 1800,
+          "y": 800,
+          "z": 90
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -90
+        }
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 40,
+      "maxToolDiameter_mm": 100,
+      "maxToolLength_mm": 400,
+      "changeTime_sec": 3
+    },
+    "physical": {
+      "weight_kg": 15000
+    },
+    "sources": [
+      "Toyoda FV1680 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 1650,
+          "rapid_mm_min": 30000
+        },
+        "y": {
+          "min": 0,
+          "max": 800,
+          "rapid_mm_min": 30000
+        },
+        "z": {
+          "min": 0,
+          "max": 700,
+          "rapid_mm_min": 24000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 1650,
+              "rapid_mm_min": 30000
+            },
+            "y": {
+              "min": 0,
+              "max": 800,
+              "rapid_mm_min": 30000
+            },
+            "z": {
+              "min": 0,
+              "max": 700,
+              "rapid_mm_min": 24000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fa450v",
+    "manufacturer": "Toyoda",
+    "model": "FA450V",
+    "series": "FA",
+    "type": "5AXIS",
+    "subtype": "trunnion",
+    "axes": 5,
+    "control": "FANUC 31i-B5",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 12000,
+      "peakHp": 30,
+      "continuousHp": 25,
+      "maxTorque_Nm": 143,
+      "taper": "BBT40",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 190,
+        "headLength_mm": 400
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 680,
+        "rapid_mm_min": 50000
+      },
+      "y": {
+        "min": 0,
+        "max": 560,
+        "rapid_mm_min": 50000
+      },
+      "z": {
+        "min": 0,
+        "max": 510,
+        "rapid_mm_min": 50000
+      },
+      "a": {
+        "min": -120,
+        "max": 30,
+        "rapid_deg_sec": 30
+      },
+      "c": {
+        "min": -360,
+        "max": 360,
+        "rapid_deg_sec": 90,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "TRUNNION_TABLE_TABLE",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "A",
+        "C",
+        "TABLE",
+        "PART"
+      ],
+      "fiveAxisType": "table-table",
+      "rotaryAxes": {
+        "a": {
+          "type": "tilt",
+          "rotationVector": {
+            "i": 1,
+            "j": 0,
+            "k": 0
+          },
+          "minAngle_deg": -120,
+          "maxAngle_deg": 30,
+          "pivotPoint_mm": {
+            "x": 340,
+            "y": 280,
+            "z": 180
+          },
+          "pivotToTable_mm": 130,
+          "torque_Nm": 650,
+          "clampTorque_Nm": 1500
+        },
+        "c": {
+          "type": "rotary",
+          "rotationVector": {
+            "i": 0,
+            "j": 0,
+            "k": 1
+          },
+          "continuous": true,
+          "torque_Nm": 420,
+          "clampTorque_Nm": 950
+        }
+      },
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 340,
+          "y": 280,
+          "z": 510
+        },
+        "tableSurface": {
+          "x": 340,
+          "y": 280,
+          "z": 180
+        },
+        "aPivotPoint": {
+          "x": 340,
+          "y": 280,
+          "z": 180
+        }
+      },
+      "tcpcSupported": true,
+      "rtcpSupported": true
+    },
+    "table": {
+      "type": "trunnion_rotary",
+      "diameter_mm": 450,
+      "tSlots": {
+        "count": 4,
+        "width_mm": 14,
+        "pattern": "radial"
+      },
+      "maxLoad_kg": 300,
+      "trunnion": {
+        "width_mm": 680,
+        "supportHeight_mm": 340,
+        "clearanceUnder_mm": 110
+      }
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 3400,
+        "width_mm": 3600,
+        "height_mm": 3100
+      },
+      "workEnvelope": {
+        "x_mm": 680,
+        "y_mm": 560,
+        "z_mm": 510
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 190,
+        "length_mm": 400,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -200
+        }
+      },
+      "trunnionLeft": {
+        "type": "cylinder",
+        "diameter_mm": 260,
+        "length_mm": 170,
+        "position": {
+          "x": -340,
+          "y": 280,
+          "z": 180
+        }
+      },
+      "trunnionRight": {
+        "type": "cylinder",
+        "diameter_mm": 260,
+        "length_mm": 170,
+        "position": {
+          "x": 340,
+          "y": 280,
+          "z": 180
+        }
+      },
+      "rotaryTable": {
+        "type": "cylinder",
+        "diameter_mm": 450,
+        "height_mm": 95,
+        "rotatesWith": [
+          "a",
+          "c"
+        ]
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 60,
+      "maxToolDiameter_mm": 100,
+      "maxToolLength_mm": 350,
+      "changeTime_sec": 2.8
+    },
+    "accuracy": {
+      "positioning_mm": 0.004,
+      "repeatability_mm": 0.002,
+      "aAxisAccuracy_deg": 0.002,
+      "cAxisAccuracy_deg": 0.002
+    },
+    "physical": {
+      "weight_kg": 14000
+    },
+    "sources": [
+      "Toyoda FA450V Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 680,
+          "rapid_mm_min": 50000
+        },
+        "y": {
+          "min": 0,
+          "max": 560,
+          "rapid_mm_min": 50000
+        },
+        "z": {
+          "min": 0,
+          "max": 510,
+          "rapid_mm_min": 50000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": null,
+          "length": null,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 680,
+              "rapid_mm_min": 50000
+            },
+            "y": {
+              "min": 0,
+              "max": 560,
+              "rapid_mm_min": 50000
+            },
+            "z": {
+              "min": 0,
+              "max": 510,
+              "rapid_mm_min": 50000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "toyoda_fa630v",
+    "manufacturer": "Toyoda",
+    "model": "FA630V",
+    "series": "FA",
+    "type": "5AXIS",
+    "subtype": "trunnion",
+    "axes": 5,
+    "control": "FANUC 31i-B5",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 10000,
+      "peakHp": 40,
+      "continuousHp": 35,
+      "maxTorque_Nm": 220,
+      "taper": "BBT50",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 220,
+        "headLength_mm": 450
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 900,
+        "rapid_mm_min": 45000
+      },
+      "y": {
+        "min": 0,
+        "max": 750,
+        "rapid_mm_min": 45000
+      },
+      "z": {
+        "min": 0,
+        "max": 650,
+        "rapid_mm_min": 45000
+      },
+      "a": {
+        "min": -120,
+        "max": 30,
+        "rapid_deg_sec": 25
+      },
+      "c": {
+        "min": -360,
+        "max": 360,
+        "rapid_deg_sec": 70,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "TRUNNION_TABLE_TABLE",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "A",
+        "C",
+        "TABLE",
+        "PART"
+      ],
+      "fiveAxisType": "table-table",
+      "rotaryAxes": {
+        "a": {
+          "type": "tilt",
+          "minAngle_deg": -120,
+          "maxAngle_deg": 30,
+          "pivotPoint_mm": {
+            "x": 450,
+            "y": 375,
+            "z": 230
+          },
+          "torque_Nm": 1200
+        },
+        "c": {
+          "type": "rotary",
+          "continuous": true,
+          "torque_Nm": 750
+        }
+      },
+      "tcpcSupported": true
+    },
+    "table": {
+      "type": "trunnion_rotary",
+      "diameter_mm": 630,
+      "maxLoad_kg": 600,
+      "trunnion": {
+        "width_mm": 900
+      }
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 4200,
+        "width_mm": 4500,
+        "height_mm": 3400
+      },
+      "workEnvelope": {
+        "x_mm": 900,
+        "y_mm": 750,
+        "z_mm": 650
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 220,
+        "length_mm": 450,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -225
+        }
+      },
+      "rotaryTable": {
+        "type": "cylinder",
+        "diameter_mm": 630,
+        "height_mm": 120,
+        "rotatesWith": [
+          "a",
+          "c"
+        ]
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 90,
+      "maxToolDiameter_mm": 125,
+      "maxToolLength_mm": 450,
+      "changeTime_sec": 3.5
+    },
+    "physical": {
+      "weight_kg": 22000
+    },
+    "sources": [
+      "Toyoda FA630V Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 900,
+          "rapid_mm_min": 45000
+        },
+        "y": {
+          "min": 0,
+          "max": 750,
+          "rapid_mm_min": 45000
+        },
+        "z": {
+          "min": 0,
+          "max": 650,
+          "rapid_mm_min": 45000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": null,
+          "length": null,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 900,
+              "rapid_mm_min": 45000
+            },
+            "y": {
+              "min": 0,
+              "max": 750,
+              "rapid_mm_min": 45000
+            },
+            "z": {
+              "min": 0,
+              "max": 650,
+              "rapid_mm_min": 45000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  }
+]

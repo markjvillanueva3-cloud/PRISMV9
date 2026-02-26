@@ -88,6 +88,49 @@ export interface EventHistoryEntry {
 }
 
 // ============================================================================
+// PUB/SUB PROTOCOL TYPES (R3-MS4.5)
+// ============================================================================
+
+/** Typed event with source identification and structured payload. */
+export interface TypedEvent {
+  event: string;                    // e.g. "data_updated", "validation_complete"
+  source: string;                   // e.g. "material_merge", "ralph_assess"
+  payload: Record<string, unknown>; // Structured event data
+  timestamp?: Date;                 // Auto-populated if not set
+  chain_id?: string;                // Set when event is part of a reactive chain
+}
+
+/** Typed pub/sub subscription with optional filter criteria. */
+export interface TypedEventSubscription {
+  id?: string;                      // Auto-generated
+  event: string;                    // Event name or glob pattern (e.g. "data_*")
+  filter?: {
+    source?: string;                // Source glob filter (e.g. "material_*")
+    [key: string]: any;             // Additional filter criteria on payload
+  };
+  callback: (event: TypedEvent) => void | Promise<void>;
+  description?: string;             // Human-readable description
+  active?: boolean;                 // default: true
+}
+
+/** Reactive chain definition — sequence of actions triggered by an event. */
+export interface ReactiveChain {
+  id?: string;                      // Auto-generated
+  name: string;                     // Human-readable name
+  trigger_event: string;            // Event that starts the chain
+  trigger_filter?: {
+    source?: string;
+    [key: string]: any;
+  };
+  steps: Array<{
+    action: string;                 // Action name to execute
+    params?: Record<string, any>;   // Static params (template variables supported)
+    emit_event?: string;            // Event to emit on step completion
+  }>;
+  enabled: boolean;                 // default: true
+}
+
+// ============================================================================
 // CONSTANTS
 // ============================================================================
 
@@ -168,6 +211,18 @@ export class EventBus {
   private handlerErrors: number = 0;
   private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
   private cleanupInterval: NodeJS.Timeout | null = null;
+
+  // Pub/Sub protocol storage (R3-MS4.5)
+  private typedSubscriptions: Map<string, TypedEventSubscription> = new Map();
+  private reactiveChains: Map<string, ReactiveChain> = new Map();
+  private typedHistory: TypedEvent[] = [];
+  private typedSubCounter: number = 0;
+  private chainCounter: number = 0;
+  private chainDepth: number = 0;
+  private static readonly MAX_CHAIN_DEPTH = 5;
+
+  // Action registry for reactive chain step execution
+  private actionRegistry: Map<string, (params: Record<string, any>, context: { trigger: TypedEvent; chain_id: string }) => Promise<Record<string, any>>> = new Map();
 
   constructor() {
     this.startCleanup();
@@ -472,7 +527,7 @@ export class EventBus {
       results = results.filter(e => e.event.type === options.type);
     }
     if (options.since) {
-      results = results.filter(e => e.event.timestamp >= options.since);
+      results = results.filter(e => e.event.timestamp >= options.since!);
     }
 
     if (options.limit) {
@@ -497,10 +552,10 @@ export class EventBus {
     let events = this.history.map(h => h.event);
 
     if (options.since) {
-      events = events.filter(e => e.timestamp >= options.since);
+      events = events.filter(e => e.timestamp >= options.since!);
     }
     if (options.until) {
-      events = events.filter(e => e.timestamp <= options.until);
+      events = events.filter(e => e.timestamp <= options.until!);
     }
     if (options.category) {
       events = events.filter(e => e.category === options.category);
@@ -564,6 +619,274 @@ export class EventBus {
    */
   listSubscriptions(): EventSubscription[] {
     return Array.from(this.subscriptions.values());
+  }
+
+  /**
+   * List events (compatibility method used by hookDispatcher)
+   */
+  listEvents(category?: string): Array<{ type: string; category: string }> {
+    const seen = new Set<string>();
+    const events: Array<{ type: string; category: string }> = [];
+    this.history.forEach(entry => {
+      if (!seen.has(entry.event.type)) {
+        seen.add(entry.event.type);
+        if (!category || entry.event.category === category) {
+          events.push({ type: entry.event.type, category: entry.event.category });
+        }
+      }
+    });
+    return events;
+  }
+
+  // ==========================================================================
+  // PUB/SUB PROTOCOL METHODS (R3-MS4.5)
+  // ==========================================================================
+
+  /**
+   * Glob pattern matching helper.
+   * Supports '*' as a wildcard that matches any sequence of characters.
+   */
+  private matchesGlob(pattern: string, value: string): boolean {
+    const regex = new RegExp("^" + pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
+    return regex.test(value);
+  }
+
+  /**
+   * Register a typed subscription with optional source/payload filter.
+   * Returns a subscription_id for later unsubscribe.
+   */
+  subscribeTyped(subscription: TypedEventSubscription): string {
+    const id = subscription.id || `tsub_${++this.typedSubCounter}_${Date.now()}`;
+    const normalized: TypedEventSubscription = {
+      ...subscription,
+      id,
+      active: subscription.active !== false
+    };
+    this.typedSubscriptions.set(id, normalized);
+    log.debug(`[EventBus] TypedSubscription registered: ${id} for event "${subscription.event}"`);
+    return id;
+  }
+
+  /**
+   * Remove a typed subscription by id.
+   * Returns true if the subscription existed and was removed.
+   */
+  unsubscribeTyped(subscriptionId: string): boolean {
+    const deleted = this.typedSubscriptions.delete(subscriptionId);
+    if (deleted) {
+      log.debug(`[EventBus] TypedSubscription removed: ${subscriptionId}`);
+    }
+    return deleted;
+  }
+
+  /**
+   * Publish a typed event.
+   * Sets timestamp if absent, stores in typed history, notifies matching subscriptions,
+   * and triggers any matching reactive chains.
+   */
+  async publishTyped(event: TypedEvent): Promise<void> {
+    if (!event.timestamp) {
+      event.timestamp = new Date();
+    }
+
+    // Store in typed history
+    this.typedHistory.push(event);
+    if (this.typedHistory.length > EVENT_CONSTANTS.MAX_HISTORY) {
+      this.typedHistory.shift();
+    }
+
+    log.debug(`[EventBus] publishTyped: ${event.event} from ${event.source}`);
+
+    // Notify matching subscriptions
+    for (const [, sub] of this.typedSubscriptions) {
+      if (sub.active === false) continue;
+      if (!this.matchesGlob(sub.event, event.event)) continue;
+
+      if (sub.filter?.source && !this.matchesGlob(sub.filter.source, event.source)) continue;
+
+      // Additional payload filter keys (skip 'source' already handled)
+      let payloadMatch = true;
+      if (sub.filter) {
+        for (const [key, value] of Object.entries(sub.filter)) {
+          if (key === "source") continue;
+          if (event.payload[key] !== value) {
+            payloadMatch = false;
+            break;
+          }
+        }
+      }
+      if (!payloadMatch) continue;
+
+      try {
+        await sub.callback(event);
+      } catch (err) {
+        log.error(`[EventBus] TypedSubscription callback error (${sub.id}): ${err}`);
+      }
+    }
+
+    // Trigger matching reactive chains
+    await this.triggerReactiveChains(event);
+  }
+
+  /**
+   * Trigger reactive chains whose trigger_event matches the published event.
+   */
+  private async triggerReactiveChains(event: TypedEvent): Promise<void> {
+    if (this.chainDepth >= EventBus.MAX_CHAIN_DEPTH) {
+      log.warn(`[EventBus] Reactive chain depth limit (${EventBus.MAX_CHAIN_DEPTH}) reached — aborting`);
+      return;
+    }
+
+    for (const [, chain] of this.reactiveChains) {
+      if (!chain.enabled) continue;
+      if (!this.matchesGlob(chain.trigger_event, event.event)) continue;
+
+      if (chain.trigger_filter?.source && !this.matchesGlob(chain.trigger_filter.source, event.source)) continue;
+
+      log.info(`[EventBus] Reactive chain triggered: ${chain.name} (${chain.id})`);
+      this.chainDepth++;
+      try {
+        await this.executeChain(chain, event);
+      } catch (err) {
+        log.error(`[EventBus] Reactive chain "${chain.name}" error: ${err}`);
+      } finally {
+        this.chainDepth--;
+      }
+    }
+  }
+
+  /**
+   * Execute the steps of a reactive chain sequentially.
+   * Each step looks up its action in the actionRegistry and calls the handler.
+   * If no handler is registered, logs a warning and continues.
+   * Step results are accumulated and passed to subsequent steps as context.
+   * Stops on any step failure.
+   */
+  private async executeChain(chain: ReactiveChain, triggerEvent: TypedEvent): Promise<void> {
+    const stepResults: Record<string, Record<string, any>> = {};
+
+    for (let i = 0; i < chain.steps.length; i++) {
+      const step = chain.steps[i];
+      log.info(`[EventBus] Chain "${chain.name}" step ${i + 1}/${chain.steps.length}: ${step.action}`);
+
+      try {
+        // Execute the action handler if registered
+        const handler = this.actionRegistry.get(step.action);
+        let result: Record<string, any> = {};
+
+        if (handler) {
+          // Merge step params with trigger payload and previous step results
+          const mergedParams: Record<string, any> = {
+            ...triggerEvent.payload,
+            ...step.params,
+            _previous_results: stepResults,
+          };
+
+          result = await handler(mergedParams, {
+            trigger: triggerEvent,
+            chain_id: chain.id!,
+          });
+
+          stepResults[step.action] = result;
+          log.info(`[EventBus] Chain "${chain.name}" step "${step.action}" completed`);
+        } else {
+          log.warn(`[EventBus] Action "${step.action}" not registered — skipping execution`);
+        }
+
+        // If the step emits an event, publish it (may trigger further chains)
+        if (step.emit_event) {
+          const stepEvent: TypedEvent = {
+            event: step.emit_event,
+            source: `chain:${chain.id}`,
+            payload: {
+              chain_id: chain.id,
+              step: step.action,
+              trigger: triggerEvent.event,
+              ...(step.params || {}),
+              ...result,
+            },
+            timestamp: new Date(),
+            chain_id: chain.id,
+          };
+          await this.publishTyped(stepEvent);
+        }
+      } catch (err) {
+        log.error(`[EventBus] Chain "${chain.name}" step "${step.action}" failed: ${err}`);
+        break; // Chain stops on failure
+      }
+    }
+  }
+
+  /**
+   * Register an action handler that reactive chain steps can invoke.
+   * The handler receives the step's params merged with trigger event payload,
+   * and returns a result object that is passed to subsequent steps.
+   */
+  registerAction(
+    name: string,
+    handler: (params: Record<string, any>, context: { trigger: TypedEvent; chain_id: string }) => Promise<Record<string, any>>,
+  ): void {
+    this.actionRegistry.set(name, handler);
+    log.debug(`[EventBus] Action registered: ${name}`);
+  }
+
+  /**
+   * Remove a registered action by name.
+   */
+  removeAction(name: string): boolean {
+    return this.actionRegistry.delete(name);
+  }
+
+  /**
+   * List all registered action names.
+   */
+  listActions(): string[] {
+    return Array.from(this.actionRegistry.keys());
+  }
+
+  /**
+   * Register a reactive chain.
+   * Returns the chain_id.
+   */
+  registerReactiveChain(chain: ReactiveChain): string {
+    const id = chain.id || `chain_${++this.chainCounter}_${Date.now()}`;
+    const normalized: ReactiveChain = { ...chain, id };
+    this.reactiveChains.set(id, normalized);
+    log.debug(`[EventBus] Reactive chain registered: ${id} ("${chain.name}")`);
+    return id;
+  }
+
+  /**
+   * Remove a reactive chain by id.
+   * Returns true if it existed.
+   */
+  removeReactiveChain(chainId: string): boolean {
+    return this.reactiveChains.delete(chainId);
+  }
+
+  /**
+   * List all active typed subscriptions.
+   */
+  getTypedSubscriptions(): TypedEventSubscription[] {
+    return Array.from(this.typedSubscriptions.values());
+  }
+
+  /**
+   * List all registered reactive chains.
+   */
+  getReactiveChains(): ReactiveChain[] {
+    return Array.from(this.reactiveChains.values());
+  }
+
+  /**
+   * Replay typed events since a given date, optionally filtered by event glob pattern.
+   */
+  replayEvents(since: Date, filter?: string): TypedEvent[] {
+    let events = this.typedHistory.filter(e => e.timestamp && e.timestamp >= since);
+    if (filter) {
+      events = events.filter(e => this.matchesGlob(filter, e.event));
+    }
+    return events;
   }
 
   // ==========================================================================
@@ -653,4 +976,220 @@ export function once<T = unknown>(type: string, handler: EventHandler<T>): strin
  */
 export function off(subscriptionId: string): boolean {
   return eventBus.unsubscribe(subscriptionId);
+}
+
+// ============================================================================
+// SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting EventBus
+// ============================================================================
+
+export const EVENTBUS_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // ── extracted/core/ (11 files) ──────────────────────────────────────────────
+
+  PRISM_CAPABILITY_REGISTRY: {
+    filename: "PRISM_CAPABILITY_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 194,
+    safety_class: "LOW",
+    description: "Capability registry mapping available system features and their activation state",
+  },
+  PRISM_CONSTANTS: {
+    filename: "PRISM_CONSTANTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 2461,
+    safety_class: "LOW",
+    description: "Master constants library: units, tolerances, material codes, and system-wide defaults",
+  },
+  PRISM_ENHANCED_MASTER_ORCHESTRATOR: {
+    filename: "PRISM_ENHANCED_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 355,
+    safety_class: "LOW",
+    description: "Enhanced orchestrator with extended workflow coordination and task sequencing",
+  },
+  PRISM_ENHANCEMENTS: {
+    filename: "PRISM_ENHANCEMENTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 60,
+    safety_class: "LOW",
+    description: "Incremental enhancement patches and feature flags for core system behavior",
+  },
+  PRISM_MASTER: {
+    filename: "PRISM_MASTER.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 215,
+    safety_class: "LOW",
+    description: "Master entry point: top-level system initialization and module bootstrap",
+  },
+  PRISM_MASTER_DB: {
+    filename: "PRISM_MASTER_DB.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 131,
+    safety_class: "LOW",
+    description: "Master database schema definitions and connection pool configuration",
+  },
+  PRISM_MASTER_ORCHESTRATOR: {
+    filename: "PRISM_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 696,
+    safety_class: "LOW",
+    description: "Primary workflow orchestrator: task dispatch, dependency resolution, and execution ordering",
+  },
+  PRISM_MASTER_TOOLPATH_REGISTRY: {
+    filename: "PRISM_MASTER_TOOLPATH_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 612,
+    safety_class: "LOW",
+    description: "Central toolpath registry mapping operations to strategy chains and parameter sets",
+  },
+  PRISM_PARAM_ENGINE: {
+    filename: "PRISM_PARAM_ENGINE.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 10,
+    safety_class: "LOW",
+    description: "Lightweight parameter engine stub for dynamic parameter injection",
+  },
+  PRISM_UNIFIED_WORKFLOW: {
+    filename: "PRISM_UNIFIED_WORKFLOW.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 145,
+    safety_class: "LOW",
+    description: "Unified workflow definitions merging setup, machining, and inspection stages",
+  },
+  PRISM_WORKFLOW_ORCHESTRATOR_V2: {
+    filename: "PRISM_WORKFLOW_ORCHESTRATOR_V2.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 223,
+    safety_class: "LOW",
+    description: "V2 workflow orchestrator with improved retry logic and stage transitions",
+  },
+
+  // ── extracted/engines/core/ (5 files) ───────────────────────────────────────
+
+  PRISM_ENHANCED_ORCHESTRATION_ENGINE: {
+    filename: "PRISM_ENHANCED_ORCHESTRATION_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 452,
+    safety_class: "LOW",
+    description: "Enhanced orchestration engine with parallel execution paths and load balancing",
+  },
+  PRISM_FAILSAFE_GENERATOR: {
+    filename: "PRISM_FAILSAFE_GENERATOR.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 169,
+    safety_class: "LOW",
+    description: "Failsafe code generator producing conservative fallback parameters on error",
+  },
+  PRISM_INTERVAL_ENGINE: {
+    filename: "PRISM_INTERVAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 847,
+    safety_class: "LOW",
+    description: "Interval arithmetic engine for tolerance propagation and uncertainty quantification",
+  },
+  PRISM_NUMERICAL_ENGINE: {
+    filename: "PRISM_NUMERICAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 19,
+    safety_class: "LOW",
+    description: "Minimal numerical engine stub for basic arithmetic and rounding utilities",
+  },
+  PRISM_UNIFIED_OUTPUT_ENGINE: {
+    filename: "PRISM_UNIFIED_OUTPUT_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 195,
+    safety_class: "LOW",
+    description: "Unified output formatter producing consistent JSON, CSV, and human-readable reports",
+  },
+
+  // ── extracted/engines/infrastructure/ (2 files) ─────────────────────────────
+
+  PRISM_DB_MANAGER: {
+    filename: "PRISM_DB_MANAGER.js",
+    source_dir: "extracted/engines/infrastructure",
+    category: "engines",
+    lines: 258,
+    safety_class: "LOW",
+    description: "Database connection manager with pooling, migrations, and health checks",
+  },
+  PRISM_EVENT_MANAGER: {
+    filename: "PRISM_EVENT_MANAGER.js",
+    source_dir: "extracted/engines/infrastructure",
+    category: "engines",
+    lines: 106,
+    safety_class: "LOW",
+    description: "Event lifecycle manager: registration, dispatch, and handler cleanup",
+  },
+
+  // ── extracted/infrastructure/ (5 files) ─────────────────────────────────────
+
+  PRISM_COMPARE: {
+    filename: "PRISM_COMPARE.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 2198,
+    safety_class: "LOW",
+    description: "Deep comparison utilities for objects, arrays, and nested structures with diff output",
+  },
+  PRISM_EVENT_BUS: {
+    filename: "PRISM_EVENT_BUS.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 154,
+    safety_class: "LOW",
+    description: "Original event bus implementation with pub/sub, wildcards, and replay support",
+  },
+  PRISM_GATEWAY: {
+    filename: "PRISM_GATEWAY.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 111,
+    safety_class: "LOW",
+    description: "API gateway entry point for request routing and middleware chaining",
+  },
+  PRISM_STATE_STORE: {
+    filename: "PRISM_STATE_STORE.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 221,
+    safety_class: "LOW",
+    description: "Persistent state store with snapshot, restore, and change-notification support",
+  },
+  PRISM_VALIDATOR: {
+    filename: "PRISM_VALIDATOR.js",
+    source_dir: "extracted/infrastructure",
+    category: "infrastructure",
+    lines: 3369,
+    safety_class: "LOW",
+    description: "Comprehensive validation library for parameters, G-code, and configuration schemas",
+  },
+};
+
+/**
+ * Return the EventBus source-file catalog for audit and traceability.
+ */
+export function getEventBusSourceFileCatalog(): typeof EVENTBUS_SOURCE_FILE_CATALOG {
+  return EVENTBUS_SOURCE_FILE_CATALOG;
 }

@@ -89,3 +89,85 @@
     - BLOCKS stub expansion if any required action is missing
   
   === ROADMAP AUDIT FULLY REMEDIATED: 14/14 findings fixed ===
+
+[2026-02-21] R2-MS4 PHASE GATE PASSED — Ω=0.77, S(x)=0.85, 150/150 benchmarks
+  - Build: 3.93MB, 7 symbols OK, 0 bad patterns
+  - Tag: r2-complete
+  - See R2_QUALITY_REPORT.json for full breakdown
+
+[2026-02-21] R2-MS5 COMPLETE — Skill & plugin audit (no modifications, audit only)
+  - 6/6 spot checks passed across all ISO groups
+  - Skill overlap audit: no conflicts found
+  - Ralph audit: scoring stable
+
+[2026-02-21] R3-MS0 IN PROGRESS — Intelligence Engine wiring + first 6 actions
+  ARCHITECTURE:
+    - New IntelligenceEngine.ts (compound action engine, 6/11 actions implemented)
+    - New intelligenceDispatcher.ts (dispatcher #32, prism_intelligence)
+    - Barrel export added to src/engines/index.ts
+    - Registration added to src/index.ts (32 dispatchers, 379 actions)
+  ACTIONS IMPLEMENTED (6/11):
+    - job_plan: Full machining job plan (pre-existing, wired into dispatcher)
+    - setup_sheet: Calls jobPlan internally, formats as structured sheet (json/markdown)
+    - process_cost: Cost model: machine_rate + tool_cost/parts_per_edge + setup/batch
+    - material_recommend: MaterialRegistry.search → composite scoring (machinability, physics data, hardness fit)
+    - tool_recommend: ToolRegistry.search → suitability ranking (material group, type, diameter, coating)
+    - machine_recommend: MachineRegistry.search → utilization scoring (envelope, spindle, capacity)
+  STUBS REMAINING (5/11): what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict
+  TESTS:
+    - tests/r3/intelligence-tests.ts: 10/10 PASS (6 action tests + 3 job_plan variants + 1 stub confirm)
+    - R2 regression: 150/150 benchmarks (no regressions)
+  BUILD: 4.0MB clean, esbuild only
+
+[2026-02-22] R3-MS0 COMPLETE — All 11 intelligence actions implemented
+  SESSION: Implemented remaining 5 stub actions in IntelligenceEngine.ts
+  ACTIONS IMPLEMENTED (session 2):
+    - what_if: Baseline vs scenario comparison — runs full Kienzle/Taylor/SurfaceFinish/MRR for both parameter sets, computes deltas with percentage changes, generates insight summary
+    - failure_diagnose: Knowledge-based diagnostic — 7 failure modes (chatter, premature_wear, tool_breakage, poor_surface_finish, dimensional_error, chip_issues, thermal_damage) with 49 keywords, relevance scoring, optional physics cross-check via Taylor tool life
+    - parameter_optimize: Multi-objective optimization — wraps AdvancedCalculations.optimizeCuttingParameters() with material-resolved Kienzle/Taylor coefficients, also provides minimum cost speed reference
+    - cycle_time_estimate: Multi-operation estimation — derives pass counts from speed/feed axial/radial depth, sums cutting + rapid + tool change times across operations
+    - quality_predict: Combined quality prediction — surface finish (Ra/Rz/Rt) + tool deflection + cutting temperature + achievable tolerance grade (IT7-IT11)
+  BUGS FIXED:
+    - Kienzle return field: force.cutting_force → force.Fc (field name mismatch)
+    - SpindlePower return: power.power → power.power_spindle_kw
+  FINAL STATE: IntelligenceEngine.ts ~2100 lines, all 11 actions live, 0 stubs
+  TESTS:
+    - tests/r3/intelligence-tests.ts: 15/15 PASS (all 11 actions covered)
+    - R2 regression: 150/150 benchmarks (no regressions)
+  COMMIT: 3d57272 R3-MS0: Complete all 11 intelligence actions
+  BUILD: 4.0MB clean, esbuild only
+
+[2026-02-22] R3-MS0 HARDENING — 3 correctness/coverage fixes, 17/17 tests, 150/150 R2 benchmarks
+  FIXES:
+    1. intelligenceExtractKeyValues: Rewrote all 11 action key extractors to match actual engine
+       output shapes. Prior version had stale field names causing silent undefined under context
+       pressure (>50%) for 7/11 actions. Verified against every action's return object.
+    2. failure_diagnose + AlarmRegistry: Wired registryManager.alarms.decode() into failure_diagnose.
+       Now accepts alarm_code + controller as alternative/additional input (symptoms now optional).
+       Alarm causes are injected as symptoms for cross-reference with the 7-mode failure KB.
+       Fallback search via registryManager.alarms.search() if exact code not found.
+    3. job_plan + stability lobes: Enabled calculateStabilityLobes() in job_plan. Uses sensible
+       VMC defaults (fn=1500Hz, zeta=0.03, k=50MN/m), user-overridable via params.modal.
+       Stability warnings merged into safety gate. Result includes is_stable, critical_depth_mm,
+       margin_percent, recommended_speeds.
+  TESTS: 17/17 (added alarm code lookup, alarm+symptoms combo, stability check)
+  R2 REGRESSION: 150/150 (no regressions)
+  COMMIT: d21e13f R3-MS0 hardening
+  BUILD: 4.0MB clean
+
+[2026-02-22] R3-P2: ToleranceEngine COMPLETE — ISO 286-1:2010 tolerance analysis
+  NEW ENGINE: src/engines/ToleranceEngine.ts (~537 lines)
+    - Full ISO 286 IT grade table: 13 size bands (1-500mm) × 20 IT grades (IT01-IT18)
+    - Shaft fundamental deviations: 18 positions (a through z)
+    - Hole deviations derived via ISO 286-1 Section 4.3.2 negation rule
+    - 5 exported functions: calculateITGrade, analyzeShaftHoleFit, toleranceStackUp, calculateCpk, findAchievableGrade
+  DISPATCHER: calcDispatcher.ts — added tolerance_analysis + fit_analysis (26→28 actions)
+    - tolerance_analysis: single IT grade lookup, stack-up, or Cpk (via analysis_type param)
+    - fit_analysis: shaft/hole fit analysis (e.g. "H7/g6" → clearance/transition/interference)
+  ENHANCEMENT: quality_predict in IntelligenceEngine.ts now uses findAchievableGrade()
+    - Replaces crude deflection-to-IT-grade heuristic with proper ISO 286 lookup
+    - Returns actual tolerance values in μm alongside grade label
+    - achievable_tolerance field is now {grade, tolerance_um, tolerance_mm, nominal_mm}
+  BARREL EXPORTS: src/engines/index.ts — 5 functions + 6 types from ToleranceEngine.ts
+  TESTS: 8/8 tolerance tests, 17/17 intelligence tests, 150/150 R2 benchmarks
+  BUILD: 4.0MB clean

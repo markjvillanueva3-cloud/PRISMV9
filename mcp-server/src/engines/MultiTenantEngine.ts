@@ -294,6 +294,8 @@ export class MultiTenantEngine {
       tenant_name: tenant.name,
       state_dir: path.join(process.cwd(), this.config.base_state_dir, tenant.id),
       is_frozen: tenant.config.frozen_tenant_id,
+      inference_geo: tenant.config.inference_geo,
+      zero_data_retention: tenant.config.zero_data_retention,
     });
   }
 

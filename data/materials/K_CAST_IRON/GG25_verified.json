@@ -1,0 +1,221 @@
+{
+  "materials": [
+    {
+      "material_id": "KG-GG25-ASCAST",
+      "name": "GG25 Gray Cast Iron As-Cast",
+      "iso_group": "K",
+      "material_type": "cast_iron",
+      "subcategory": "gray_iron",
+      "condition": "as_cast",
+      "data_quality": "verified",
+      "data_sources": [
+        "ASM_Metals_Handbook",
+        "Machining_Data_Handbook",
+        "Sandvik_Technical_Guide"
+      ],
+      "physical": {
+        "density": 7200,
+        "melting_point": 1200,
+        "specific_heat": 460,
+        "thermal_conductivity": 46,
+        "thermal_expansion": 10.5,
+        "elastic_modulus": 110,
+        "poisson_ratio": 0.26,
+        "shear_modulus": 43.7,
+        "bulk_modulus": 76.4
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 205,
+          "vickers": 215,
+          "rockwell_c": null,
+          "rockwell_b": 96
+        },
+        "tensile_strength": {
+          "typical": 250,
+          "min": 200,
+          "max": 300
+        },
+        "yield_strength": {
+          "typical": 165,
+          "min": 130,
+          "max": 200
+        },
+        "elongation": 0.5,
+        "compressive_strength": 900,
+        "reduction_of_area": 60,
+        "impact_strength": 125,
+        "fatigue_strength": 125,
+        "fracture_toughness": 163,
+        "shear_strength": 225
+      },
+      "kienzle": {
+        "kc1_1": 1020,
+        "mc": 0.22,
+        "kc1_1_milling": 918,
+        "mc_milling": 0.2,
+        "kc1_1_drilling": 1142,
+        "mc_drilling": 0.24,
+        "kc1_1_boring": 1071,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 867,
+        "mc_reaming": 0.19
+      },
+      "johnson_cook": {
+        "A": 165,
+        "B": 320,
+        "n": 0.2,
+        "C": 0.008,
+        "m": 1,
+        "T_melt": 1200,
+        "T_ref": 25,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 300
+      },
+      "taylor": {
+        "C": 350,
+        "n": 0.27,
+        "C_carbide": 298,
+        "n_carbide": 0.22,
+        "C_ceramic": 600,
+        "n_ceramic": 0.35,
+        "C_hss": 104,
+        "n_hss": 0.17
+      },
+      "chip_formation": {
+        "chip_type": "discontinuous",
+        "chip_breaking": "excellent",
+        "built_up_edge_tendency": "none",
+        "work_hardening_severity": "none",
+        "segmentation_frequency": "low",
+        "shear_angle": 30,
+        "chip_compression_ratio": 1.2
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 150,
+          "speed_finishing": 220,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.1,
+          "doc_roughing": 2.5,
+          "doc_finishing": 0.5,
+          "coolant_type": "dry_or_mist",
+          "coolant_pressure": 10
+        },
+        "milling": {
+          "speed_roughing": 140,
+          "speed_finishing": 200,
+          "feed_per_tooth_roughing": 0.15,
+          "feed_per_tooth_finishing": 0.08,
+          "doc_roughing": 2,
+          "doc_finishing": 0.3,
+          "ae_roughing_pct": 50,
+          "ae_finishing_pct": 10
+        },
+        "drilling": {
+          "speed": 90,
+          "feed_per_rev": 0.12,
+          "peck_depth_ratio": 1,
+          "point_angle": 130,
+          "coolant_type": "flood_emulsion",
+          "coolant_through": false
+        },
+        "tool_material": {
+          "recommended_grade": "K20 (GC3210/GC3220)",
+          "coating_recommendation": "CVD Al2O3+TiCN",
+          "geometry_recommendation": "Negative rake -6°, strong edge, 0.8-1.2mm nose radius"
+        }
+      },
+      "machinability": {
+        "aisi_rating": 130,
+        "relative_to_1212": 1.08,
+        "surface_finish_tendency": "good",
+        "tool_wear_pattern": "abrasive_flank",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_verified": {
+        "session": 60,
+        "date": "2026-02-14",
+        "method": "handbook_reference",
+        "params": 127
+      },
+      "surface": {
+        "achievable_ra_turning": 1.6,
+        "achievable_ra_milling": 3.2,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "low"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 0.33,
+        "heat_partition_ratio": 0.23,
+        "thermal_softening_onset": 400,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "marginal"
+      },
+      "weldability": {
+        "rating": "poor",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "composition": {
+        "C": {
+          "min": 3,
+          "max": 3.5,
+          "typical": 3.25
+        },
+        "Si": {
+          "min": 1.8,
+          "max": 2.5,
+          "typical": 2.15
+        },
+        "Mn": {
+          "min": 0.5,
+          "max": 0.8,
+          "typical": 0.65
+        },
+        "P": {
+          "max": 0.15
+        },
+        "S": {
+          "max": 0.12
+        }
+      },
+      "tribology": {
+        "sliding_friction": 0.35,
+        "adhesion_tendency": "low",
+        "galling_tendency": "very_low",
+        "welding_temperature": 1200,
+        "oxide_stability": "good",
+        "lubricity_response": "moderate"
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.8,
+          "Ra_typical": 3.2
+        },
+        "residual_stress_tendency": "neutral",
+        "white_layer_tendency": "very_low",
+        "work_hardening_depth": 0.02,
+        "microstructure_stability": "excellent",
+        "burr_formation": "very_low",
+        "surface_defect_sensitivity": "low",
+        "polishability": "poor"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.78,
+        "heat_partition_to_chip": 0.85,
+        "heat_partition_to_tool": 0.05,
+        "heat_partition_to_workpiece": 0.1,
+        "thermal_softening_onset": 700,
+        "recrystallization_temperature": 650,
+        "hot_hardness_retention": "poor",
+        "thermal_shock_sensitivity": "high"
+      }
+    }
+  ]
+}

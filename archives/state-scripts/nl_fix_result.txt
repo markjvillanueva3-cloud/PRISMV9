@@ -1,0 +1,10 @@
+FIX: action_contains now checks current call + history
+ADDED: tool_action_is condition type
+getCurrentPhase found at offset 134748
+First 200 chars: function getCurrentPhase(): string {
+  try {
+    if (!fs.existsSync(POSITION_PATH)) return "DA";
+    const content = fs.readFileSync(POSITION_PATH, "utf-8");
+    // CURRENT: DA-MS11 | ... | PHASE: DA 
+
+Total changes: 2

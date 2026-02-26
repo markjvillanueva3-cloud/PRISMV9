@@ -42,10 +42,11 @@ import type {
   HookActivationCheckResult,
 } from "../types/prism-schema.js";
 import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
+import { PATHS } from "../constants.js";
 
-const STATE_DIR = "C:\\PRISM\\state";
-const SCRIPTS_DIR = "C:\\PRISM\\scripts\\core";
-const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+const STATE_DIR = PATHS.STATE_DIR;
+const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
+const PYTHON = PATHS.PYTHON;
 const TODO_FILE = path.join(STATE_DIR, "todo.md");
 const CURRENT_STATE_FILE = path.join(STATE_DIR, "CURRENT_STATE.json");
 const EVENT_LOG_FILE = path.join(STATE_DIR, "session_events.jsonl");
@@ -615,7 +616,7 @@ export function autoPreTaskRecon(callNumber: number): ReconResult {
 
     // GAP-A2: Check for active ATCS tasks that need resuming
     try {
-      const atcsDir = "C:\\PRISM\\autonomous-tasks";
+      const atcsDir = path.join(PATHS.PRISM_ROOT, "autonomous-tasks");
       if (fs.existsSync(atcsDir)) {
         const taskDirs = fs.readdirSync(atcsDir).filter((d: any) => {
           try { return fs.statSync(path.join(atcsDir, d)).isDirectory(); } catch { return false; }
@@ -879,7 +880,7 @@ export function autoWarmStartData(): WarmStartResult {
   try {
     // 1. Registry status — scan BOTH data/ and extracted/ paths (R1: fix dual-path disconnect)
     // The registries actually load from extracted/, but warm_start was only scanning data/
-    const EXTRACTED_DIR = "C:\\PRISM\\extracted";
+    const EXTRACTED_DIR = PATHS.EXTRACTED_DIR;
     const dataRoot = path.join(DATA_DIR);
     
     // Map each registry to ALL paths where its data lives
@@ -901,7 +902,7 @@ export function autoWarmStartData(): WarmStartResult {
       ],
       formulas: [
         path.join(dataRoot, "formulas"),
-        path.join("C:\\PRISM\\registries"),  // R1: FORMULA_REGISTRY.json lives here
+        path.join(path.join(PATHS.PRISM_ROOT, "registries")),  // R1: FORMULA_REGISTRY.json lives here
       ],
       tools: [
         path.join(dataRoot, "tools"),
@@ -1041,7 +1042,7 @@ export function autoVariationCheck(callNumber: number): VariationCheckResult {
 // ENHANCEMENT 1: AUTO SKILL HINTS — Surface relevant skills for active task
 // ============================================================================
 
-const SKILLS_DIR = "C:\\PRISM\\skills-consolidated";
+const SKILLS_DIR = PATHS.SKILLS;
 const SKILL_INDEX_FILE = path.join(STATE_DIR, "SKILL_INVENTORY.json");
 
 // Domain-to-skill mapping for fast lookup (no registry import needed)
@@ -1707,7 +1708,7 @@ function detectATCSCandidate(
 
   // Check for active ATCS — don't recommend if already in ATCS
   try {
-    const atcsDir = "C:\\PRISM\\autonomous-tasks";
+    const atcsDir = path.join(PATHS.PRISM_ROOT, "autonomous-tasks");
     if (fs.existsSync(atcsDir)) {
       const taskDirs = fs.readdirSync(atcsDir)
         .filter(d => { try { return fs.statSync(path.join(atcsDir, d)).isDirectory(); } catch { return false; } });
@@ -1735,7 +1736,7 @@ function detectATCSCandidate(
 // ENHANCEMENT 2: KNOWLEDGE CROSS-QUERY — Enrich recon with relevant knowledge
 // ============================================================================
 
-const MATERIALS_MASTER_FILE = "C:\\PRISM\\extracted\\materials\\MATERIALS_MASTER.json";
+const MATERIALS_MASTER_FILE = path.join(PATHS.EXTRACTED_DIR, "materials", "MATERIALS_MASTER.json");
 
 // KnowledgeCrossQueryResult — imported from prism-schema
 
@@ -2003,17 +2004,17 @@ export function autoInputValidation(
   params: Record<string, any>
 ): InputValidationResult {
   try {
-    const warnings: ValidationWarning[] = [];
+    const warnings: Array<{ param: string; value: any; issue: string; severity: string; safe_range?: string }> = [];
     let blocked = false;
     let blockReason: string | null = null;
 
     // Only validate calc, safety, and thread tools
     if (!["prism_calc", "prism_safety", "prism_thread"].includes(toolName)) {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
     }
 
     if (!params || typeof params !== "object") {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
     }
 
     // === Individual param range checks ===
@@ -2100,9 +2101,9 @@ export function autoInputValidation(
       } catch { /* log failed — non-fatal */ }
     }
 
-    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason };
+    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason } as any;
   } catch (err: any) {
-    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` };
+    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` } as any;
   }
 }
 
@@ -2111,7 +2112,7 @@ export function autoInputValidation(
 // ENHANCEMENT 5: SCRIPT RECOMMENDATIONS — Surface relevant scripts for tasks
 // ============================================================================
 
-const SCRIPTS_BASE_DIR = "C:\\PRISM\\scripts";
+const SCRIPTS_BASE_DIR = PATHS.SCRIPTS;
 const SCRIPT_INDEX_FILE = path.join(STATE_DIR, "SCRIPT_INDEX.md");
 
 // Domain-to-script mapping for fast lookup (built from script inventory)
@@ -2225,9 +2226,9 @@ export function autoScriptRecommend(
       recommendations: recommendations.slice(0, 3),
       domain,
       scripts_scanned: scriptsScanned,
-    };
+    } as any;
   } catch (err: any) {
-    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 };
+    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 } as any;
   }
 }
 
@@ -2418,7 +2419,7 @@ function deriveNextAction(todoSnapshot: string, quickResume: string, recentActio
 
   // Priority 1: ACTION_TRACKER next pending items
   try {
-    const trackerPath = "C:\\PRISM\\mcp-server\\data\\docs\\ACTION_TRACKER.md";
+    const trackerPath = path.join(PATHS.MCP_SERVER, "data", "docs", "ACTION_TRACKER.md");
     if (fs.existsSync(trackerPath)) {
       const tracker = fs.readFileSync(trackerPath, "utf-8");
       const nextMatch = tracker.match(/## NEXT SESSION[^\n]*\n([\s\S]*?)(?=\n## |$)/);
@@ -2612,7 +2613,7 @@ export function autoRecoveryManifest(
     let atcsTaskId: string | undefined;
     let atcsCurrentUnit: string | undefined;
     try {
-      const atcsDir = "C:\\PRISM\\autonomous-tasks";
+      const atcsDir = path.join(PATHS.PRISM_ROOT, "autonomous-tasks");
       if (fs.existsSync(atcsDir)) {
         const taskDirs = fs.readdirSync(atcsDir)
           .filter(d => { try { return fs.statSync(path.join(atcsDir, d)).isDirectory(); } catch { return false; } });
@@ -2818,7 +2819,7 @@ export function autoHandoffPackage(
     // 6. ATCS state
     const atcs: HandoffPackage["atcs"] = { active: false };
     try {
-      const atcsDir = "C:\\PRISM\\autonomous-tasks";
+      const atcsDir = path.join(PATHS.PRISM_ROOT, "autonomous-tasks");
       if (fs.existsSync(atcsDir)) {
         const taskDirs = fs.readdirSync(atcsDir)
           .filter(d => { try { return fs.statSync(path.join(atcsDir, d)).isDirectory(); } catch { return false; } });
@@ -2996,7 +2997,7 @@ export function autoCompactionSurvival(
     if (survival.current_task === "unknown" || !survival.current_task) {
       try {
         const trackerPath = path.join(STATE_DIR, "..", "mcp-server", "data", "docs", "ACTION_TRACKER.md");
-        const alt = "C:\\PRISM\\mcp-server\\data\\docs\\ACTION_TRACKER.md";
+        const alt = path.join(PATHS.MCP_SERVER, "data", "docs", "ACTION_TRACKER.md");
         const tp = fs.existsSync(trackerPath) ? trackerPath : (fs.existsSync(alt) ? alt : null);
         if (tp) {
           const tracker = fs.readFileSync(tp, "utf-8");
@@ -3204,9 +3205,9 @@ export function autoPreCompactionDump(
   recentActions: string[] = [],
   currentTask: string = "unknown"
 ): PreCompactionDumpResult {
-  const ROADMAP_DIR = path.join("C:\\PRISM\\mcp-server\\data\\docs\\roadmap");
+  const ROADMAP_DIR = path.join(path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap"));
   const POSITION_FILE = path.join(ROADMAP_DIR, "CURRENT_POSITION.md");
-  const SNAPSHOT_FILE = path.join("C:\\PRISM\\mcp-server\\data\\docs", "COMPACTION_SNAPSHOT.md");
+  const SNAPSHOT_FILE = path.join(path.join(PATHS.MCP_SERVER, "data", "docs"), "COMPACTION_SNAPSHOT.md");
 
   let positionSaved = false;
   let snapshotSaved = false;
@@ -3347,8 +3348,8 @@ export function autoTelemetrySnapshot(callNumber: number): TelemetrySnapshotResu
 // Unlike autoSkillHint (domain-based), this is PHASE-based.
 // ============================================================================
 
-const SKILL_INDEX_PATH = "C:\\PRISM\\skills-consolidated\\SKILL_INDEX.json";
-const POSITION_PATH = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+const SKILL_INDEX_PATH = path.join(PATHS.SKILLS, "SKILL_INDEX.json");
+const POSITION_PATH = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
 
 // Cache: avoid re-reading index every call
 let _phaseSkillCache: { phase: string; skills: Array<{id: string; name: string; description: string; size_bytes: number}>; ts: number } | null = null;
@@ -3414,7 +3415,7 @@ export function autoPhaseSkillLoader(callNumber: number): PhaseSkillLoadResult {
 
     const excerpts: Array<{ skill_id: string; title: string; content: string }> = [];
     const skillIds: string[] = [];
-    const SKILLS_BASE = "C:\\PRISM\\skills-consolidated";
+    const SKILLS_BASE = PATHS.SKILLS;
 
     for (const skill of toLoad) {
       skillIds.push(skill.id);

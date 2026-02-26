@@ -18,6 +18,98 @@
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
+// SOURCE FILE CATALOG - Vibration/Chatter Safety-Critical JS Origins
+// ============================================================================
+
+/**
+ * Catalog of extracted JS source files that feed SpindleProtectionEngine.
+ *
+ * SAFETY CRITICAL: These files contain vibration analysis, chatter prediction,
+ * and signal-processing algorithms. Incorrect integration = spindle damage,
+ * tool breakage, workpiece scrap.
+ *
+ * Each entry records the original filename, line count, safety class, and the
+ * signal domain it operates in so that downstream consumers can trace every
+ * calculation back to its monolith origin.
+ */
+export const SPINDLE_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL";
+  description: string;
+  signal_domain: string;
+  consumers: string[];
+}> = {
+  PRISM_CHATTER_PREDICTION_ENGINE: {
+    filename: "PRISM_CHATTER_PREDICTION_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "chatter-prediction",
+    lines: 397,
+    safety_class: "CRITICAL",
+    description: "Stability lobe diagram generation and chatter onset prediction (Altintas/Tlusty models, MIT 2.830)",
+    signal_domain: "frequency",
+    consumers: [
+      "SpindleProtectionEngine.checkVibrationLimits",
+      "SpindleProtectionEngine.predictChatterOnset"
+    ]
+  },
+  PRISM_PHASE3_ADVANCED_SIGNAL: {
+    filename: "PRISM_PHASE3_ADVANCED_SIGNAL.js",
+    source_dir: "extracted/engines",
+    category: "signal-processing",
+    lines: 441,
+    safety_class: "CRITICAL",
+    description: "Advanced signal processing: discrete wavelet transform, spectral analysis, and envelope detection for vibration monitoring",
+    signal_domain: "time-frequency",
+    consumers: [
+      "SpindleProtectionEngine.analyzeVibrationSignal",
+      "SpindleProtectionEngine.detectAnomalousFrequencies"
+    ]
+  },
+  PRISM_VIBRATION_ANALYSIS_ENGINE: {
+    filename: "PRISM_VIBRATION_ANALYSIS_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "vibration-analysis",
+    lines: 399,
+    safety_class: "CRITICAL",
+    description: "SDOF/MDOF vibration analysis, natural frequency calculation, FRF generation, and modal parameter extraction (MIT 16.07, Altintas)",
+    signal_domain: "frequency",
+    consumers: [
+      "SpindleProtectionEngine.checkVibrationLimits",
+      "SpindleProtectionEngine.calculateNaturalFrequencies"
+    ]
+  },
+  PRISM_CALCULATOR_CHATTER_ENGINE: {
+    filename: "PRISM_CALCULATOR_CHATTER_ENGINE.js",
+    source_dir: "extracted/engines/vibration",
+    category: "chatter-calculation",
+    lines: 133,
+    safety_class: "CRITICAL",
+    description: "Real-time chatter stability calculator: critical depth of cut, stability margin, risk assessment, and stable-pocket search",
+    signal_domain: "frequency",
+    consumers: [
+      "SpindleProtectionEngine.evaluateStabilityMargin",
+      "SpindleProtectionEngine.findStableCuttingPocket"
+    ]
+  },
+  PRISM_PHASE1_CHATTER_SYSTEM: {
+    filename: "PRISM_PHASE1_CHATTER_SYSTEM.js",
+    source_dir: "extracted/engines/vibration",
+    category: "chatter-detection",
+    lines: 42,
+    safety_class: "CRITICAL",
+    description: "Phase 1 real-time chatter detection system: FFT-based chatter detect and optimal stable parameter lookup",
+    signal_domain: "frequency",
+    consumers: [
+      "SpindleProtectionEngine.realtimeChatterDetect",
+      "SpindleProtectionEngine.getStableParameters"
+    ]
+  }
+};
+
+// ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 
@@ -889,6 +981,22 @@ class SpindleProtectionEngine {
   calculateTorque(power: number, speed: number): number {
     // T = P × 9549 / n (Nm)
     return (power * 9549) / speed;
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESS
+  // ==========================================================================
+
+  /**
+   * Return the catalog of safety-critical JS source files that feed this engine.
+   *
+   * Each entry traces back to the original extracted monolith file so that any
+   * vibration / chatter calculation can be audited to its source.
+   *
+   * @returns The full SPINDLE_SOURCE_FILE_CATALOG record
+   */
+  getSourceFileCatalog(): typeof SPINDLE_SOURCE_FILE_CATALOG {
+    return SPINDLE_SOURCE_FILE_CATALOG;
   }
 }
 

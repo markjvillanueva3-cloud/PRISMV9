@@ -46,6 +46,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { hasValidApiKey, parallelAPICalls, getModelForTier } from "../../config/api-config.js";
 import type { AutonomousConfig, ExecutionPlan, UnitExecutionResult, AuditEntry } from "../../types/prism-schema.js";
+import { PATHS } from "../../constants.js";
 
 const ACTIONS = [
   "auto_configure", "auto_plan", "auto_execute", "auto_status",
@@ -56,8 +57,8 @@ const ACTIONS = [
 // CONSTANTS
 // ============================================================================
 
-const ATCS_ROOT = "C:\\PRISM\\autonomous-tasks";
-const AUTONOMOUS_CONFIG_PATH = "C:\\PRISM\\state\\autonomous_config.json";
+const ATCS_ROOT = PATHS.AUTONOMOUS_TASKS;
+const AUTONOMOUS_CONFIG_PATH = path.join(PATHS.STATE_DIR, "autonomous_config.json");
 const MAX_CONCURRENT_AGENTS = 5;
 const DEFAULT_TOOL_BUDGET = 3;
 const DEFAULT_CHUNK_SIZE = 5; // units per tool call (G17)
@@ -198,7 +199,7 @@ function buildContextPackage(unit: any, taskType: string): string {
   // Load relevant context based on unit type
   try {
     if (taskType.includes("material") || unit.type?.includes("material")) {
-      const matRegistry = path.join("C:\\PRISM\\data\\materials");
+      const matRegistry = PATHS.MATERIALS;
       if (fs.existsSync(matRegistry)) {
         // Load just the material schema, not all 2805 materials
         const schemaPath = path.join(matRegistry, "MATERIAL_SCHEMA.json");
@@ -210,7 +211,7 @@ function buildContextPackage(unit: any, taskType: string): string {
     }
 
     if (taskType.includes("formula") || unit.type?.includes("formula")) {
-      const formulaPath = "C:\\PRISM\\data\\formulas";
+      const formulaPath = path.join(PATHS.DATA_DIR, "formulas");
       if (fs.existsSync(formulaPath)) {
         const formulaFiles = fs.readdirSync(formulaPath).filter(f => f.endsWith(".json")).slice(0, 3);
         for (const f of formulaFiles) {

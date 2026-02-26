@@ -158,14 +158,23 @@ export function calculateStabilityLobes(
   // Calculate chatter frequency (slightly above natural frequency)
   const r = 1 / (2 * damping_ratio);
   const chatter_frequency = natural_frequency * Math.sqrt(1 + (1 / (4 * r * r)));
-  
+
   // Average directional factor for milling (simplified)
   const alpha_avg = 0.5;
-  
+
   // Calculate critical depth of cut (minimum stable depth)
-  // b_lim = -1 / (2 × Ks × Re[G]) where Re[G] = -ζ/(k×(1-ζ²))
-  const real_part = -damping_ratio / (stiffness * (1 - damping_ratio * damping_ratio));
-  const b_lim_min = -1 / (2 * kc * number_of_teeth * alpha_avg * real_part);
+  // b_lim = -1 / (2 × Ks × z × α × Re[G]_min)
+  //
+  // Re[G]_min is the most negative real part of the FRF (not at resonance,
+  // but slightly above ω_n). For a SDOF system:
+  //   Re[G]_min = -1 / (2 × k × ζ × √(1 - ζ²))
+  // Ref: Altintas "Manufacturing Automation" (2012), Eq 3.13-3.16
+  //
+  // Unit conversion: stiffness is in N/m, kc is in N/mm².
+  // Convert k to N/mm for dimensional consistency (b_lim in mm).
+  const k_mm = stiffness / 1000; // N/m → N/mm
+  const real_part_min = -1 / (2 * k_mm * damping_ratio * Math.sqrt(1 - damping_ratio * damping_ratio));
+  const b_lim_min = -1 / (2 * kc * number_of_teeth * alpha_avg * real_part_min);
   
   // Generate stability lobes
   const lobes: StabilityLobe[] = [];
@@ -211,7 +220,7 @@ export function calculateStabilityLobes(
       is_stable = current_depth < critical * STABILITY_CONSTANTS.SAFETY_MARGIN;
       
       if (!is_stable) {
-        warnings.push(`Current depth ${current_depth}mm exceeds stable limit ${(critical * 0.7).toFixed(2)}mm at ${current_speed} rpm`);
+        warnings.push(`Current depth ${current_depth}mm exceeds stable limit ${(critical * STABILITY_CONSTANTS.SAFETY_MARGIN).toFixed(2)}mm at ${current_speed} rpm`);
       }
     } else {
       // Between lobes - use minimum critical depth
@@ -341,28 +350,33 @@ export function calculateCuttingTemperature(
   depth: number,
   specific_force: number,
   thermal_conductivity: number = 50,
-  workpiece_length?: number
+  workpiece_length?: number,
+  C_empirical?: number
 ): ThermalResult {
   const warnings: string[] = [];
   
-  // Empirical constants for steel cutting
-  const C_temp = 350;  // Empirical constant
+  // Empirical constants — Ref: Shaw "Metal Cutting Principles" Ch.12
+  // C_temp is material-specific; pass via C_empirical for accurate results
+  const C_temp = C_empirical ?? 350;
   const a = 0.4;       // Speed exponent
   const b = 0.2;       // Feed exponent
   const c = 0.1;       // Depth exponent
   
-  // Base cutting temperature
+  // Base cutting temperature (tool-chip interface)
   const T_rise = C_temp * Math.pow(cutting_speed, a) * Math.pow(feed, b) * Math.pow(depth, c) / Math.sqrt(thermal_conductivity);
   const cutting_temperature = THERMAL_CONSTANTS.AMBIENT_TEMP + T_rise;
   
-  // Heat partition
+  // Heat partition — Ref: Boothroyd & Knight "Fundamentals of Machining"
   const chip_fraction = THERMAL_CONSTANTS.CHIP_HEAT_FRACTION;
-  const tool_fraction = THERMAL_CONSTANTS.TOOL_HEAT_FRACTION;
   const work_fraction = THERMAL_CONSTANTS.WORK_HEAT_FRACTION;
+  const tool_fraction = 1 - chip_fraction - work_fraction;
   
-  // Individual temperatures
-  const chip_temperature = cutting_temperature * 1.1;  // Chip is hottest
-  const tool_temperature = cutting_temperature * tool_fraction / chip_fraction;
+  // Tool-chip contact temperature ≈ interface temperature
+  // Tool tip reaches near-interface temperature; chip carries bulk heat away
+  const tool_temperature = cutting_temperature;
+  // Chip temperature: lower than tool for low-k materials (heat stays at tool tip)
+  // Ref: Trent & Wright "Metal Cutting" 4th ed, Ch.5 — chip carries heat away
+  const chip_temperature = cutting_temperature * 0.85;
   const workpiece_temperature = THERMAL_CONSTANTS.AMBIENT_TEMP + T_rise * work_fraction;
   
   // Thermal expansion of workpiece
@@ -430,10 +444,12 @@ export function calculateMinimumCostSpeed(
   const warnings: string[] = [];
   const { machine_rate, tool_cost, tool_change_time } = cost_params;
   
-  // Minimum cost speed formula
-  // Vc_min_cost = C × [(1/n - 1) × (Ct + tc×Cm) / Cm]^n
+  // Minimum cost speed formula (Gilbert's equation, derived from Taylor)
+  // T_opt = (1/n - 1) × (Ct/Cm + tc)  where cost_ratio = Ct/Cm + tc
+  // V_opt = C / T_opt^n  (from Taylor: V × T^n = C)
   const cost_ratio = (tool_cost + tool_change_time * machine_rate) / machine_rate;
-  const optimal_speed = taylor_C * Math.pow((1 / taylor_n - 1) * cost_ratio, taylor_n);
+  const T_opt = (1 / taylor_n - 1) * cost_ratio;
+  const optimal_speed = taylor_C / Math.pow(Math.max(T_opt, 0.1), taylor_n);
   
   // Calculate tool life at optimal speed
   const tool_life = Math.pow(taylor_C / optimal_speed, 1 / taylor_n);

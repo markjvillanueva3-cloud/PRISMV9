@@ -754,7 +754,7 @@ export class HookExecutor {
 export function hookSuccess(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },
   message: string,
-  options?: { score?: number; threshold?: number; data?: unknown; actions?: string[] }
+  options?: { score?: number; threshold?: number; data?: unknown; actions?: string[]; [key: string]: unknown }
 ): HookResult {
   return {
     hookId: hook.id,
@@ -781,7 +781,7 @@ export function hookSuccess(
 export function hookBlock(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },
   message: string,
-  options?: { score?: number; threshold?: number; issues?: string[]; warnings?: string[] }
+  options?: { score?: number; threshold?: number; issues?: string[]; warnings?: string[]; data?: unknown; [key: string]: unknown }
 ): HookResult {
   return {
     hookId: hook.id,
@@ -796,6 +796,7 @@ export function hookBlock(
     threshold: options?.threshold,
     issues: options?.issues,
     warnings: options?.warnings,
+    data: options?.data,
     startTime: new Date(),
     endTime: new Date(),
     durationMs: 0
@@ -808,7 +809,7 @@ export function hookBlock(
 export function hookWarning(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },
   message: string,
-  options?: { score?: number; threshold?: number; warnings?: string[] }
+  options?: { score?: number; threshold?: number; warnings?: string[]; data?: unknown; actions?: string[]; [key: string]: unknown }
 ): HookResult {
   return {
     hookId: hook.id,
@@ -822,6 +823,8 @@ export function hookWarning(
     score: options?.score,
     threshold: options?.threshold,
     warnings: options?.warnings,
+    data: options?.data,
+    actions: options?.actions,
     startTime: new Date(),
     endTime: new Date(),
     durationMs: 0

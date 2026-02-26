@@ -1043,7 +1043,7 @@ export class SkillRegistry extends BaseRegistry<Skill> {
   private builtInSkills: Map<string, Partial<Skill>> = new Map();
 
   constructor() {
-    super("skills");
+    super("skills", path.join(PATHS.STATE_DIR, "skill-registry.json"), "1.0.0");
     this.initializeBuiltInSkills();
   }
 
@@ -1069,36 +1069,12 @@ export class SkillRegistry extends BaseRegistry<Skill> {
     
     // Load from skills directories
     await this.loadFromPath(PATHS.SKILLS);
-    
-    // Ensure built-in skills are present with default data
-    for (const [id, builtIn] of this.builtInSkills) {
-      if (!this.entries.has(id)) {
-        // Create skill entry from built-in definition
-        const skill: Skill = {
-          skill_id: id,
-          name: builtIn.name || id,
-          filename: builtIn.filename || "SKILL.md",
-          category: builtIn.category || "core_development",
-          description: builtIn.description || "",
-          version: builtIn.version || "1.0.0",
-          path: `${PATHS.SKILLS}/${id}/SKILL.md`,
-          lines: 0,
-          size_bytes: 0,
-          triggers: builtIn.triggers || [],
-          use_cases: builtIn.use_cases || [],
-          dependencies: builtIn.dependencies || [],
-          required_by: builtIn.required_by || [],
-          tags: builtIn.tags || [],
-          priority: builtIn.priority || 5,
-          status: builtIn.status || "active",
-          enabled: builtIn.enabled ?? true,
-          created: builtIn.created || "2026-01-01",
-          updated: builtIn.updated || "2026-01-31"
-        };
-        this.set(id, skill);
-      }
-    }
-    
+
+    // R1-AUDIT-T4: Built-in metadata is used ONLY for enrichment when matching
+    // skill directories exist on disk (see loadFromPath → line 1131). No phantom
+    // entries are created for non-existent skills. 212 skills discovered from disk,
+    // 48 enriched with BUILT_IN_SKILLS metadata, 8 phantoms eliminated (2026-02-20).
+
     this.buildIndexes();
     
     this.loaded = true;

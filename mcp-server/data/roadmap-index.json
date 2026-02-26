@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "title": "PRISM App — Comprehensive Layered Roadmap",
+  "updated_at": "2026-02-25T22:00:00Z",
+  "milestones": [
+    {
+      "id": "S0-MS1",
+      "title": "System Health Verification",
+      "track": "S0",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 11,
+      "completed_units": 11,
+      "sessions": "1",
+      "envelope_path": "milestones/S0-MS1.json",
+      "position_path": "state/S0-MS1/position.json"
+    },
+    {
+      "id": "S1-MS1",
+      "title": "Registry Enrichment for SFC",
+      "track": "S1",
+      "dependencies": ["S0-MS1"],
+      "status": "complete",
+      "total_units": 18,
+      "completed_units": 18,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S1-MS1.json",
+      "position_path": "state/S1-MS1/position.json"
+    },
+    {
+      "id": "S1-MS2",
+      "title": "Port Core Monolith Algorithms",
+      "track": "S1",
+      "dependencies": ["S1-MS1"],
+      "status": "not_started",
+      "total_units": 10,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S1-MS2.json",
+      "position_path": "state/S1-MS2/position.json"
+    },
+    {
+      "id": "S2-MS1",
+      "title": "Verify & Extend ProductEngine SFC Actions",
+      "track": "S2",
+      "dependencies": ["S1-MS2"],
+      "status": "not_started",
+      "total_units": 0,
+      "completed_units": 0,
+      "sessions": "1",
+      "envelope_path": "milestones/S2-MS1.json",
+      "position_path": "state/S2-MS1/position.json"
+    },
+    {
+      "id": "S2-MS2",
+      "title": "SFC API Routes + Thin-Client Calculator",
+      "track": "S2",
+      "dependencies": ["S2-MS1"],
+      "status": "not_started",
+      "total_units": 0,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/S2-MS2.json",
+      "position_path": "state/S2-MS2/position.json"
+    }
+  ],
+  "total_milestones": 5,
+  "completed_milestones": 2
+}

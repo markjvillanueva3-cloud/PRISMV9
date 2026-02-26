@@ -41,6 +41,7 @@ export interface TrochoidalParams {
   optimal_feed_rate: number;    // mm/min
   optimal_spindle: number;      // rpm
   engagement_percent: number;   // %
+  max_engagement_deg: number;   // degrees — max cutter engagement angle
   mrr: number;                  // cm³/min
   warnings: string[];
 }
@@ -122,6 +123,156 @@ const CAM_CONSTANTS = {
   RAPID_RATE_XY: 30000,           // mm/min
   RAPID_RATE_Z: 15000             // mm/min
 };
+
+// ============================================================================
+// TOOLPATH SOURCE FILE CATALOG (109 MEDIUM-priority extracted JS modules)
+// Wired from MASTER_EXTRACTION_INDEX_V2.json — 70,908 total source lines
+// Categories: algorithms (52), engines/cad_cam (55), engines (2)
+// ============================================================================
+
+export interface ToolpathSourceFileEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM";
+  description: string;
+  toolpath_role: string;
+}
+
+export const TOOLPATH_SOURCE_FILE_CATALOG: Record<string, ToolpathSourceFileEntry> = {
+  // --- Algorithms (52) ---
+  "EXT-001": { filename: "ALGORITHM_LIBRARY.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 2213, safety_class: "MEDIUM", description: "Core algorithm library for manufacturing computations", toolpath_role: "algorithm" },
+  "EXT-002": { filename: "COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 2213, safety_class: "MEDIUM", description: "Complete toolpath algorithm collection", toolpath_role: "algorithm" },
+  "EXT-003": { filename: "PRISM_ACO_SEQUENCER.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 5383, safety_class: "MEDIUM", description: "Ant colony optimization for operation sequencing", toolpath_role: "algorithm" },
+  "EXT-004": { filename: "PRISM_ADVANCED_INTERPOLATION.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 176, safety_class: "MEDIUM", description: "Advanced interpolation methods for toolpaths", toolpath_role: "algorithm" },
+  "EXT-005": { filename: "PRISM_ALGORITHM_ENSEMBLER.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 182, safety_class: "MEDIUM", description: "Algorithm ensemble coordination and voting", toolpath_role: "algorithm" },
+  "EXT-006": { filename: "PRISM_ALGORITHM_ORCHESTRATOR.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 225, safety_class: "MEDIUM", description: "Algorithm orchestration and pipeline management", toolpath_role: "algorithm" },
+  "EXT-007": { filename: "PRISM_ALGORITHM_REGISTRY.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 3567, safety_class: "MEDIUM", description: "Algorithm registry and discovery service", toolpath_role: "algorithm" },
+  "EXT-008": { filename: "PRISM_ALGORITHM_STRATEGIES.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 257, safety_class: "MEDIUM", description: "Strategic algorithm selection for machining", toolpath_role: "algorithm" },
+  "EXT-009": { filename: "PRISM_BEZIER_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 111, safety_class: "MEDIUM", description: "Bezier curve evaluation and manipulation", toolpath_role: "algorithm" },
+  "EXT-010": { filename: "PRISM_CONTROL_SYSTEMS_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 117, safety_class: "MEDIUM", description: "Control systems modeling for CNC machines", toolpath_role: "algorithm" },
+  "EXT-011": { filename: "PRISM_CORE_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 616, safety_class: "MEDIUM", description: "Core algorithmic foundations for PRISM", toolpath_role: "algorithm" },
+  "EXT-012": { filename: "PRISM_CRITICAL_ALGORITHM_INTEGRATION.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 188, safety_class: "MEDIUM", description: "Critical algorithm integration layer", toolpath_role: "algorithm" },
+  "EXT-013": { filename: "PRISM_DFM_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 76, safety_class: "MEDIUM", description: "Design for manufacturability analysis", toolpath_role: "algorithm" },
+  "EXT-014": { filename: "PRISM_DIGITAL_CONTROL_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 101, safety_class: "MEDIUM", description: "Digital control theory for CNC axes", toolpath_role: "algorithm" },
+  "EXT-015": { filename: "PRISM_DS_SEARCH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 102, safety_class: "MEDIUM", description: "Data structure-based search algorithms", toolpath_role: "algorithm" },
+  "EXT-016": { filename: "PRISM_FFT_PREDICTIVE_CHATTER.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 330, safety_class: "MEDIUM", description: "FFT-based predictive chatter detection", toolpath_role: "algorithm" },
+  "EXT-017": { filename: "PRISM_GRAPH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 285, safety_class: "MEDIUM", description: "Graph data structures and traversal", toolpath_role: "algorithm" },
+  "EXT-018": { filename: "PRISM_GRAPHICS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 660, safety_class: "MEDIUM", description: "Graphics rendering for toolpath visualization", toolpath_role: "algorithm" },
+  "EXT-019": { filename: "PRISM_GRAPHICS_KERNEL_PASS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 171, safety_class: "MEDIUM", description: "Graphics kernel rendering pipeline pass", toolpath_role: "algorithm" },
+  "EXT-020": { filename: "PRISM_GRAPHICS_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 276, safety_class: "MEDIUM", description: "MIT-licensed graphics utilities", toolpath_role: "algorithm" },
+  "EXT-021": { filename: "PRISM_GRAPH_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 315, safety_class: "MEDIUM", description: "Graph algorithms for dependency resolution", toolpath_role: "algorithm" },
+  "EXT-022": { filename: "PRISM_GRAPH_TOOLPATH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 180, safety_class: "MEDIUM", description: "Graph-based toolpath sequencing and optimization", toolpath_role: "algorithm" },
+  "EXT-023": { filename: "PRISM_JACOBIAN_ENGINE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 238, safety_class: "MEDIUM", description: "Jacobian computations for multi-axis kinematics", toolpath_role: "algorithm" },
+  "EXT-024": { filename: "PRISM_JOHNSON_COOK_DATABASE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 158, safety_class: "MEDIUM", description: "Johnson-Cook material flow stress database", toolpath_role: "algorithm" },
+  "EXT-025": { filename: "PRISM_KDTREE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 112, safety_class: "MEDIUM", description: "K-d tree spatial indexing for toolpath queries", toolpath_role: "algorithm" },
+  "EXT-026": { filename: "PRISM_KNOWLEDGE_INTEGRATION_TESTS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 119, safety_class: "MEDIUM", description: "Knowledge base integration test suite", toolpath_role: "algorithm" },
+  "EXT-027": { filename: "PRISM_LINALG_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 155, safety_class: "MEDIUM", description: "Linear algebra library for geometric transforms", toolpath_role: "algorithm" },
+  "EXT-028": { filename: "PRISM_LOCAL_SEARCH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 385, safety_class: "MEDIUM", description: "Local search optimization heuristics", toolpath_role: "algorithm" },
+  "EXT-029": { filename: "PRISM_LP_SOLVERS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 131, safety_class: "MEDIUM", description: "Linear programming solvers for scheduling", toolpath_role: "algorithm" },
+  "EXT-030": { filename: "PRISM_MANUFACTURING_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 101, safety_class: "MEDIUM", description: "Manufacturing-specific algorithm collection", toolpath_role: "algorithm" },
+  "EXT-031": { filename: "PRISM_MANUFACTURING_SEARCH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 141, safety_class: "MEDIUM", description: "Manufacturing knowledge search engine", toolpath_role: "algorithm" },
+  "EXT-032": { filename: "PRISM_MANUFACTURING_SEARCH_ENGINE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 148, safety_class: "MEDIUM", description: "Enhanced manufacturing search with ranking", toolpath_role: "algorithm" },
+  "EXT-033": { filename: "PRISM_MATH_FOUNDATIONS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 1730, safety_class: "MEDIUM", description: "Mathematical foundations for CAM computations", toolpath_role: "algorithm" },
+  "EXT-034": { filename: "PRISM_MEMORY_EFFICIENT_SEARCH.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 160, safety_class: "MEDIUM", description: "Memory-efficient search for large datasets", toolpath_role: "algorithm" },
+  "EXT-035": { filename: "PRISM_NUMERICAL.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 185, safety_class: "MEDIUM", description: "Numerical methods for engineering calculations", toolpath_role: "algorithm" },
+  "EXT-036": { filename: "PRISM_NUMERICAL_METHODS_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 167, safety_class: "MEDIUM", description: "MIT-licensed numerical methods library", toolpath_role: "algorithm" },
+  "EXT-037": { filename: "PRISM_NURBS_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 590, safety_class: "MEDIUM", description: "NURBS evaluation and refinement (MIT)", toolpath_role: "algorithm" },
+  "EXT-038": { filename: "PRISM_OCTREE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 111, safety_class: "MEDIUM", description: "Octree spatial partitioning for 3D queries", toolpath_role: "algorithm" },
+  "EXT-039": { filename: "PRISM_ODE_SOLVERS_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 6386, safety_class: "MEDIUM", description: "ODE solver suite for dynamic simulations", toolpath_role: "algorithm" },
+  "EXT-040": { filename: "PRISM_OPTIMIZATION_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 195, safety_class: "MEDIUM", description: "Optimization algorithms for parameter tuning", toolpath_role: "algorithm" },
+  "EXT-041": { filename: "PRISM_PHASE3_GRAPH_NEURAL.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 424, safety_class: "MEDIUM", description: "Graph neural network for feature recognition", toolpath_role: "algorithm" },
+  "EXT-042": { filename: "PRISM_PHASE7_KNOWLEDGE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 2396, safety_class: "MEDIUM", description: "Phase 7 knowledge graph and reasoning", toolpath_role: "algorithm" },
+  "EXT-043": { filename: "PRISM_POLICY_GRADIENT_ENGINE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 113, safety_class: "MEDIUM", description: "Policy gradient RL for adaptive machining", toolpath_role: "algorithm" },
+  "EXT-044": { filename: "PRISM_RL_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 358, safety_class: "MEDIUM", description: "Reinforcement learning for process optimization", toolpath_role: "algorithm" },
+  "EXT-045": { filename: "PRISM_SEARCH_ENHANCED.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 1961, safety_class: "MEDIUM", description: "Enhanced search with fuzzy matching", toolpath_role: "algorithm" },
+  "EXT-046": { filename: "PRISM_SIGNAL_ALGORITHMS.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 375, safety_class: "MEDIUM", description: "Signal processing for sensor data analysis", toolpath_role: "algorithm" },
+  "EXT-047": { filename: "PRISM_SORTING.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 122, safety_class: "MEDIUM", description: "Sorting algorithms for operation sequencing", toolpath_role: "algorithm" },
+  "EXT-048": { filename: "PRISM_SPECTRAL_GRAPH_CAD.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 185, safety_class: "MEDIUM", description: "Spectral graph methods for CAD analysis", toolpath_role: "algorithm" },
+  "EXT-049": { filename: "PRISM_SURFACE_GEOMETRY_MIT.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 173, safety_class: "MEDIUM", description: "Surface geometry computations (MIT)", toolpath_role: "algorithm" },
+  "EXT-050": { filename: "PRISM_TAYLOR_ADVANCED.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 51, safety_class: "MEDIUM", description: "Advanced Taylor tool life modeling", toolpath_role: "algorithm" },
+  "EXT-051": { filename: "PRISM_TAYLOR_LOOKUP.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 45, safety_class: "MEDIUM", description: "Taylor equation lookup tables", toolpath_role: "algorithm" },
+  "EXT-052": { filename: "PRISM_TAYLOR_TOOL_LIFE.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 98, safety_class: "MEDIUM", description: "Taylor tool life prediction engine", toolpath_role: "algorithm" },
+  // --- CAD/CAM Engines (55) ---
+  "EXT-176": { filename: "PRISM_ADAPTIVE_CLEARING_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 437, safety_class: "MEDIUM", description: "Adaptive clearing toolpath generation", toolpath_role: "cam-module" },
+  "EXT-177": { filename: "PRISM_ADAPTIVE_TESSELLATION_ENGINE_V2.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 218, safety_class: "MEDIUM", description: "Adaptive mesh tessellation v2", toolpath_role: "cam-module" },
+  "EXT-178": { filename: "PRISM_ADVANCED_BLADE_SURFACE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 484, safety_class: "MEDIUM", description: "Advanced blade and impeller surface machining", toolpath_role: "surface-machining" },
+  "EXT-179": { filename: "PRISM_ADVANCED_SWEEP_LOFT_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 511, safety_class: "MEDIUM", description: "Sweep and loft surface generation", toolpath_role: "cam-module" },
+  "EXT-180": { filename: "PRISM_BREP_CAD_GENERATOR_V2.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 1293, safety_class: "MEDIUM", description: "B-rep solid model generator v2", toolpath_role: "cam-module" },
+  "EXT-181": { filename: "PRISM_BREP_TESSELLATOR.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 724, safety_class: "MEDIUM", description: "B-rep to mesh tessellation engine", toolpath_role: "cam-module" },
+  "EXT-182": { filename: "PRISM_BSPLINE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 207, safety_class: "MEDIUM", description: "B-spline curve and surface evaluation", toolpath_role: "cam-module" },
+  "EXT-183": { filename: "PRISM_BVH_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 6562, safety_class: "MEDIUM", description: "Bounding volume hierarchy for collision detection", toolpath_role: "cam-module" },
+  "EXT-184": { filename: "PRISM_CAD_CAM_INTEGRATION_HUB.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 567, safety_class: "MEDIUM", description: "CAD/CAM data integration hub", toolpath_role: "cam-module" },
+  "EXT-185": { filename: "PRISM_CAD_CONFIDENCE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 199, safety_class: "MEDIUM", description: "CAD model confidence scoring", toolpath_role: "cam-module" },
+  "EXT-186": { filename: "PRISM_CAD_KERNEL_MIT.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 286, safety_class: "MEDIUM", description: "CAD geometric kernel (MIT)", toolpath_role: "cam-module" },
+  "EXT-187": { filename: "PRISM_CAD_MATH.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 157, safety_class: "MEDIUM", description: "CAD mathematical utilities", toolpath_role: "cam-module" },
+  "EXT-188": { filename: "PRISM_CAD_QUALITY_ASSURANCE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 335, safety_class: "MEDIUM", description: "CAD model quality assurance checks", toolpath_role: "cam-module" },
+  "EXT-189": { filename: "PRISM_CAM_KERNEL_COMPLETE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 1237, safety_class: "MEDIUM", description: "Complete CAM processing kernel", toolpath_role: "cam-module" },
+  "EXT-190": { filename: "PRISM_CAM_KERNEL_MIT.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 176, safety_class: "MEDIUM", description: "CAM kernel core functions (MIT)", toolpath_role: "cam-module" },
+  "EXT-191": { filename: "PRISM_CAM_TOOLPATH_PARAMETERS_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 162, safety_class: "MEDIUM", description: "CAM toolpath parameter computation", toolpath_role: "toolpath-generation" },
+  "EXT-192": { filename: "PRISM_CLIPPER2_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 1317, safety_class: "MEDIUM", description: "Clipper2 polygon boolean operations", toolpath_role: "cam-module" },
+  "EXT-193": { filename: "PRISM_CONSTRUCTION_GEOMETRY_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 461, safety_class: "MEDIUM", description: "Construction geometry and datum management", toolpath_role: "cam-module" },
+  "EXT-194": { filename: "PRISM_CURVATURE_ANALYSIS_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 319, safety_class: "MEDIUM", description: "Surface curvature analysis for machining", toolpath_role: "cam-module" },
+  "EXT-195": { filename: "PRISM_ENHANCED_MILL_TURN_CAM_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 436, safety_class: "MEDIUM", description: "Enhanced mill-turn CAM operations", toolpath_role: "cam-module" },
+  "EXT-196": { filename: "PRISM_ENHANCED_TOOLPATH_GENERATOR.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 390, safety_class: "MEDIUM", description: "Enhanced toolpath generation strategies", toolpath_role: "toolpath-generation" },
+  "EXT-197": { filename: "PRISM_FEATURE_HISTORY_MANAGER.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 492, safety_class: "MEDIUM", description: "Feature tree history and rollback", toolpath_role: "cam-module" },
+  "EXT-198": { filename: "PRISM_FEATURE_INTERACTION_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 879, safety_class: "MEDIUM", description: "Feature interaction detection and resolution", toolpath_role: "cam-module" },
+  "EXT-199": { filename: "PRISM_FEATURE_RECOGNITION_ENHANCED.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 304, safety_class: "MEDIUM", description: "Enhanced manufacturing feature recognition", toolpath_role: "cam-module" },
+  "EXT-200": { filename: "PRISM_FILLETING_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 408, safety_class: "MEDIUM", description: "Fillet and chamfer generation engine", toolpath_role: "cam-module" },
+  "EXT-201": { filename: "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 385, safety_class: "MEDIUM", description: "Sketch constraint solver engine", toolpath_role: "cam-module" },
+  "EXT-202": { filename: "PRISM_GEODESIC_DISTANCE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 4050, safety_class: "MEDIUM", description: "Geodesic distance on mesh surfaces", toolpath_role: "cam-module" },
+  "EXT-203": { filename: "PRISM_GEOMETRY_ALGORITHMS.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 386, safety_class: "MEDIUM", description: "Computational geometry algorithms", toolpath_role: "cam-module" },
+  "EXT-204": { filename: "PRISM_INTELLIGENT_COLLISION_SYSTEM.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 153, safety_class: "MEDIUM", description: "Intelligent collision avoidance system", toolpath_role: "cam-module" },
+  "EXT-205": { filename: "PRISM_ISOSURFACE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 227, safety_class: "MEDIUM", description: "Isosurface extraction (marching cubes)", toolpath_role: "surface-machining" },
+  "EXT-206": { filename: "PRISM_LATHE_TOOLPATH_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 555, safety_class: "MEDIUM", description: "Lathe turning toolpath generation", toolpath_role: "toolpath-generation" },
+  "EXT-207": { filename: "PRISM_MESH_DECIMATION_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 466, safety_class: "MEDIUM", description: "Mesh simplification and decimation", toolpath_role: "cam-module" },
+  "EXT-208": { filename: "PRISM_MOTION_PLANNING_ENHANCED_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 344, safety_class: "MEDIUM", description: "Enhanced CNC motion planning", toolpath_role: "cam-module" },
+  "EXT-209": { filename: "PRISM_MULTIAXIS_TOOLPATH_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 668, safety_class: "MEDIUM", description: "Multi-axis (3+2, 5-axis) toolpath engine", toolpath_role: "toolpath-generation" },
+  "EXT-210": { filename: "PRISM_NURBS_ADVANCED_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 139, safety_class: "MEDIUM", description: "Advanced NURBS surface operations", toolpath_role: "cam-module" },
+  "EXT-211": { filename: "PRISM_NURBS_LIBRARY.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 237, safety_class: "MEDIUM", description: "NURBS curve and surface library", toolpath_role: "cam-module" },
+  "EXT-212": { filename: "PRISM_OFFSET_SURFACE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 121, safety_class: "MEDIUM", description: "Surface offset for tool compensation", toolpath_role: "surface-machining" },
+  "EXT-213": { filename: "PRISM_PARAMETRIC_CAD_ENHANCEMENT_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 266, safety_class: "MEDIUM", description: "Parametric CAD model enhancement", toolpath_role: "cam-module" },
+  "EXT-214": { filename: "PRISM_REAL_CAD_PRIORITY_SYSTEM.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 80, safety_class: "MEDIUM", description: "CAD operation priority scheduler", toolpath_role: "cam-module" },
+  "EXT-215": { filename: "PRISM_REAL_TOOLPATH_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 14, safety_class: "MEDIUM", description: "Real toolpath engine stub", toolpath_role: "toolpath-generation" },
+  "EXT-216": { filename: "PRISM_REST_MACHINING_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 621, safety_class: "MEDIUM", description: "Rest machining and pencil finishing", toolpath_role: "cam-module" },
+  "EXT-217": { filename: "PRISM_SIEMENS_5AXIS_CAM_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 295, safety_class: "MEDIUM", description: "Siemens 5-axis CAM post-processing", toolpath_role: "cam-module" },
+  "EXT-218": { filename: "PRISM_SILHOUETTE_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 248, safety_class: "MEDIUM", description: "Silhouette curve extraction", toolpath_role: "cam-module" },
+  "EXT-219": { filename: "PRISM_SKETCH_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 681, safety_class: "MEDIUM", description: "Parametric sketch engine", toolpath_role: "cam-module" },
+  "EXT-220": { filename: "PRISM_SOLID_EDITING_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 550, safety_class: "MEDIUM", description: "Solid body editing operations", toolpath_role: "cam-module" },
+  "EXT-221": { filename: "PRISM_SURFACE_INTERSECTION_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 126, safety_class: "MEDIUM", description: "Surface-surface intersection computation", toolpath_role: "surface-machining" },
+  "EXT-222": { filename: "PRISM_SURFACE_RECONSTRUCTION_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 588, safety_class: "MEDIUM", description: "Surface reconstruction from point clouds", toolpath_role: "surface-machining" },
+  "EXT-223": { filename: "PRISM_TOOLPATH_OPTIMIZATION.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 214, safety_class: "MEDIUM", description: "Toolpath optimization and smoothing", toolpath_role: "toolpath-generation" },
+  "EXT-224": { filename: "PRISM_TOOLPATH_STRATEGIES_COMPLETE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 1048, safety_class: "MEDIUM", description: "Complete toolpath strategy library", toolpath_role: "toolpath-generation" },
+  "EXT-225": { filename: "PRISM_TOPOLOGY_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 911, safety_class: "MEDIUM", description: "Topological operations for solid modeling", toolpath_role: "cam-module" },
+  "EXT-226": { filename: "PRISM_UNIFIED_3D_VIEWPORT_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 935, safety_class: "MEDIUM", description: "Unified 3D viewport and scene management", toolpath_role: "cam-module" },
+  "EXT-227": { filename: "PRISM_UNIFIED_TOOLPATH_DECISION_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 347, safety_class: "MEDIUM", description: "Unified toolpath strategy decision engine", toolpath_role: "toolpath-generation" },
+  "EXT-228": { filename: "PRISM_V858_CAD_SYSTEM.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 66, safety_class: "MEDIUM", description: "V858 CAD system integration module", toolpath_role: "cam-module" },
+  "EXT-229": { filename: "PRISM_VORONOI_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 119, safety_class: "MEDIUM", description: "Voronoi diagram generation", toolpath_role: "cam-module" },
+  "EXT-230": { filename: "PRISM_VOXEL_STOCK_ENGINE.js", source_dir: "extracted/engines/cad_cam", category: "engines/cad_cam", lines: 495, safety_class: "MEDIUM", description: "Voxel-based stock material simulation", toolpath_role: "cam-module" },
+  // --- Other Engines (2) ---
+  "EXT-307": { filename: "PRISM_THERMAL_EXPANSION_ENGINE.js", source_dir: "extracted/engines", category: "engines", lines: 1563, safety_class: "MEDIUM", description: "Thermal expansion compensation engine", toolpath_role: "cam-module" },
+  "EXT-308": { filename: "PRISM_THERMAL_MODELING.js", source_dir: "extracted/engines", category: "engines", lines: 192, safety_class: "MEDIUM", description: "Thermal modeling for cutting processes", toolpath_role: "cam-module" }
+};
+
+/**
+ * Get the complete source file catalog for toolpath-related MEDIUM-priority modules.
+ * Returns all 109 extracted JS source files wired to ToolpathCalculations.
+ *
+ * @param filter - Optional filter: "algorithm", "toolpath-generation", "surface-machining", "cam-module", or category string
+ * @returns Filtered or complete catalog entries
+ */
+export function getSourceFileCatalog(filter?: string): Record<string, ToolpathSourceFileEntry> {
+  if (!filter) return TOOLPATH_SOURCE_FILE_CATALOG;
+
+  const result: Record<string, ToolpathSourceFileEntry> = {};
+  for (const [id, entry] of Object.entries(TOOLPATH_SOURCE_FILE_CATALOG)) {
+    if (entry.toolpath_role === filter || entry.category === filter || entry.category.startsWith(filter)) {
+      result[id] = entry;
+    }
+  }
+  return result;
+}
 
 // ============================================================================
 // ENGAGEMENT ANGLE CALCULATIONS
@@ -240,13 +391,15 @@ export function calculateTrochoidalParams(
   axial_depth: number,
   cutting_speed: number,
   feed_per_tooth: number,
-  number_of_teeth: number
+  number_of_teeth: number,
+  ae_max_mm?: number
 ): TrochoidalParams {
   const warnings: string[] = [];
   
-  // Trochoidal width (stepover) - typically 5-15% of tool diameter
+  // Trochoidal width (stepover) - use ae_max if provided, else % of diameter
   const engagement_percent = CAM_CONSTANTS.TROCHOIDAL_ENGAGEMENT;
-  const trochoidal_width = tool_diameter * (engagement_percent / 100);
+  const trochoidal_width = ae_max_mm ?? tool_diameter * (engagement_percent / 100);
+  const actual_engagement_pct = (trochoidal_width / tool_diameter) * 100;
   
   // Arc radius - tool moves in circular arcs
   // Typically: arc_radius = (slot_width - tool_diameter) / 2 + small_offset
@@ -269,10 +422,20 @@ export function calculateTrochoidalParams(
   const compensated_feed = feed_per_tooth * chip_thinning_factor;
   const optimal_feed_rate = compensated_feed * number_of_teeth * spindle_speed;
   
-  // Calculate MRR
-  const effective_ae = trochoidal_width;
-  const feed_rate_linear = trochoidal_pitch * spindle_speed / (2 * Math.PI * arc_radius) * (optimal_feed_rate / spindle_speed);
-  const mrr = (axial_depth * effective_ae * optimal_feed_rate) / 1000 / 1000;
+  // Calculate MRR — in trochoidal, low ae means ~1 tooth engaged at a time
+  // Effective MRR = RPM × fz × ap × ae / 1000 [cm³/min]
+  // Ref: Sandvik Coromant "Modern Metal Cutting" Ch.9 — trochoidal strategies
+  const mrr = (spindle_speed * feed_per_tooth * axial_depth * trochoidal_width) / 1000;
+  
+  // Maximum engagement angle from ae — corrected for trochoidal path curvature
+  // In trochoidal milling, the tool follows a curved path which reduces effective engagement
+  // φ_troch = φ_conv × r/(r + R_arc) where R_arc = (slot_width - D)/2
+  // Ref: Rauch et al., "Dynamic toolpath for trochoidal milling" (2009)
+  const ae_ratio = Math.min(trochoidal_width / tool_diameter, 1.0);
+  const phi_conventional = Math.acos(Math.max(-1, 1 - 2 * ae_ratio)) * (180 / Math.PI);
+  const r_tool = tool_diameter / 2;
+  const curvature_correction = r_tool / (r_tool + arc_radius);
+  const max_engagement_deg = phi_conventional * curvature_correction;
   
   // Warnings
   if (slot_width < tool_diameter * 1.2) {
@@ -291,7 +454,8 @@ export function calculateTrochoidalParams(
     helix_angle,
     optimal_feed_rate: Math.round(optimal_feed_rate),
     optimal_spindle: Math.round(spindle_speed),
-    engagement_percent,
+    engagement_percent: Math.round(actual_engagement_pct * 10) / 10,
+    max_engagement_deg: Math.round(max_engagement_deg * 10) / 10,
     mrr: Math.round(mrr * 100) / 100,
     warnings
   };
@@ -668,7 +832,30 @@ export const toolpathCalculations = {
   optimalStepover: calculateOptimalStepover,
   cycleTime: estimateCycleTime,
   arcFitting: calculateArcFitting,
-  CAM_CONSTANTS
+  CAM_CONSTANTS,
+
+  /** Return the full 109-entry source file catalog, optionally filtered by role or category */
+  catalogSourceFiles(filter?: string): {
+    total_files: number;
+    total_lines: number;
+    by_role: Record<string, number>;
+    entries: Record<string, ToolpathSourceFileEntry>;
+  } {
+    const entries = getSourceFileCatalog(filter);
+    const ids = Object.keys(entries);
+    let totalLines = 0;
+    const byRole: Record<string, number> = {};
+    for (const entry of Object.values(entries)) {
+      totalLines += entry.lines;
+      byRole[entry.toolpath_role] = (byRole[entry.toolpath_role] || 0) + 1;
+    }
+    return {
+      total_files: ids.length,
+      total_lines: totalLines,
+      by_role: byRole,
+      entries
+    };
+  }
 };
 
 // ============================================================
@@ -747,7 +934,8 @@ export function calculateMultiPassStrategy(
   cutting_speed_finish: number,
   fz_rough: number,
   fz_finish: number,
-  target_Ra?: number          // target surface finish μm
+  target_Ra?: number,         // target surface finish μm
+  cut_length_mm?: number       // total cut distance per pass (for time estimation)
 ): any {
   const warnings: string[] = [];
   
@@ -806,7 +994,8 @@ export function calculateMultiPassStrategy(
           fz: fz_rough,
           rpm: Math.round(rough_rpm),
           vf: Math.round(rough_vf),
-          mrr_cm3_min: Math.round(rough_mrr * 10) / 10
+          mrr_cm3_min: Math.round(rough_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(rough_passes * cut_length_mm / rough_vf * 100) / 100 } : {})
         },
         {
           phase: "semi-finishing",
@@ -817,7 +1006,8 @@ export function calculateMultiPassStrategy(
           fz: Math.round(semi_fz * 1000) / 1000,
           rpm: Math.round(semi_rpm),
           vf: Math.round(semi_vf),
-          mrr_cm3_min: Math.round(semi_mrr * 10) / 10
+          mrr_cm3_min: Math.round(semi_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(1 * cut_length_mm / semi_vf * 100) / 100 } : {})
         },
         {
           phase: "finishing",
@@ -828,7 +1018,8 @@ export function calculateMultiPassStrategy(
           fz: fz_finish,
           rpm: Math.round(finish_rpm),
           vf: Math.round(finish_vf),
-          mrr_cm3_min: Math.round(finish_mrr * 10) / 10
+          mrr_cm3_min: Math.round(finish_mrr * 10) / 10,
+          ...(cut_length_mm ? { time_min: Math.round(1 * cut_length_mm / finish_vf * 100) / 100 } : {})
         }
       ]
     },
@@ -850,7 +1041,9 @@ export function recommendCoolantStrategy(
   operation: string,
   cutting_speed: number,
   tool_has_coolant_through: boolean,
-  material_thermal_conductivity?: number
+  material_thermal_conductivity?: number,
+  machine_has_tsc?: boolean,
+  material_subtype?: string
 ): any {
   const op = operation.toLowerCase();
   const warnings: string[] = [];
@@ -859,6 +1052,7 @@ export function recommendCoolantStrategy(
   let primary = "flood";
   let pressure_bar = 20;
   let concentration_pct = 8;
+  let mql_flow_rate = 0; // ml/hr — set later if MQL selected
   let reasoning: string[] = [];
   
   // High-speed → MQL or dry
@@ -871,14 +1065,45 @@ export function recommendCoolantStrategy(
     }
   }
   
-  // Superalloys and titanium → high pressure
+  // Superalloys and titanium → high pressure / through-spindle coolant
   if (iso_group === "S" || (iso_group === "N" && (material_thermal_conductivity || 50) < 15)) {
-    primary = "high_pressure";
-    pressure_bar = 70;
-    reasoning.push("Low thermal conductivity material — high pressure coolant needed for chip breaking and heat removal");
-    if (tool_has_coolant_through) {
-      pressure_bar = 100;
-      reasoning.push("Through-tool coolant available — maximize pressure for chip evacuation");
+    const isTitanium = material_subtype?.toLowerCase().includes("titanium") || material_subtype?.toLowerCase().includes("ti-");
+    // Both titanium and nickel superalloys benefit from high-pressure coolant for chip breaking.
+    // Titanium has low thermal conductivity (6.7 W/m·K) — TSC preferred when available.
+    // Ref: Machining of Titanium Alloys (Davim, 2014), Ch.3: "High-pressure coolant delivery
+    // through the spindle is the most effective method for titanium machining."
+    if (isTitanium) {
+      // Titanium: TSC preferred for chip breaking + heat extraction. MQL only if TSC unavailable.
+      if (tool_has_coolant_through && machine_has_tsc === true) {
+        primary = "through_spindle_coolant";
+        pressure_bar = 70;
+        reasoning.push("Titanium alloy: TSC preferred — critical for chip breaking and heat removal in low thermal conductivity material (6.7 W/m·K)");
+      } else if (tool_has_coolant_through && machine_has_tsc === undefined) {
+        primary = "through_spindle_coolant";
+        pressure_bar = 70;
+        reasoning.push("Titanium alloy: TSC recommended — verify machine has through-spindle coolant capability");
+        warnings.push("UNVERIFIED: machine_has_tsc not specified — TSC recommended but machine capability must be confirmed before use");
+      } else {
+        primary = "high_pressure";
+        pressure_bar = 50;
+        reasoning.push("Titanium alloy: high-pressure external coolant as fallback — TSC unavailable");
+        if (machine_has_tsc === false) warnings.push("Machine lacks TSC — using external high-pressure nozzle. Consider upgrading for titanium work.");
+      }
+    } else if (tool_has_coolant_through && machine_has_tsc === true) {
+      primary = "through_spindle_coolant";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material with through-spindle coolant — optimal for chip breaking and heat removal");
+    } else if (tool_has_coolant_through && machine_has_tsc === undefined) {
+      primary = "through_spindle_coolant";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material — TSC recommended but machine capability not confirmed");
+      warnings.push("UNVERIFIED: machine_has_tsc not specified — TSC recommended but machine capability must be confirmed before use");
+    } else {
+      primary = "high_pressure";
+      pressure_bar = 70;
+      reasoning.push("Low thermal conductivity material — high pressure coolant needed for chip breaking and heat removal");
+      if (!tool_has_coolant_through) warnings.push("Tool lacks coolant-through channels — external high-pressure nozzle required");
+      if (machine_has_tsc === false) warnings.push("Machine lacks TSC — using external high-pressure as fallback");
     }
   }
   
@@ -913,13 +1138,28 @@ export function recommendCoolantStrategy(
   }
   
   // MQL specifics
-  let mql_flow_rate = primary === "mql" ? 50 : 0; // ml/hr
-  
+  if (primary === "mql" && mql_flow_rate === 0) mql_flow_rate = 50; // ml/hr default
+
+  // Flow rate estimation (L/min) based on strategy and pressure
+  const isHighPressure = primary === "high_pressure" || primary === "through_spindle_coolant";
+  const effective_pressure = isHighPressure ? pressure_bar : (primary === "flood" ? 20 : 0);
+  // Typical nozzle flow: Q ≈ k × √P, calibrated to ~15 LPM at 70 bar for TSC
+  const flow_lpm = effective_pressure > 0
+    ? Math.round(15 * Math.sqrt(effective_pressure / 70) * 10) / 10
+    : 0;
+
+  // Flow rate bounds validation for TSC (typical 10-20 L/min)
+  if (primary === "through_spindle_coolant" && flow_lpm > 0) {
+    if (flow_lpm < 10) warnings.push(`TSC flow rate ${flow_lpm} L/min below typical minimum (10 L/min) — may not provide adequate cooling`);
+    if (flow_lpm > 20) warnings.push(`TSC flow rate ${flow_lpm} L/min above typical maximum (20 L/min) — verify machine pump capacity`);
+  }
+
   return {
     recommendation: {
       strategy: primary,
-      pressure_bar: primary.includes("pressure") ? pressure_bar : (primary === "flood" ? 20 : 0),
-      concentration_pct: primary === "flood" || primary === "high_pressure" ? concentration_pct : 0,
+      pressure_bar: isHighPressure ? pressure_bar : (primary === "flood" ? 20 : 0),
+      flow_lpm: flow_lpm > 0 ? flow_lpm : undefined,
+      concentration_pct: primary === "flood" || isHighPressure ? concentration_pct : 0,
       mql_flow_rate_ml_hr: mql_flow_rate,
       coolant_type: primary === "dry" ? "none" : (primary === "mql" ? "vegetable_ester" : "semi_synthetic")
     },

@@ -41,6 +41,11 @@ export interface TenantConfig {
   // Isolation
   frozen_tenant_id: boolean;         // Prevent tenant ID injection (default true)
   anonymize_exports: boolean;        // Anonymize before SLB publish (default true)
+
+  // Data residency
+  inference_geo: 'us' | 'eu' | 'global';  // Inference region constraint (default 'global')
+  data_residency_region: string;           // Data storage region (default '')
+  zero_data_retention: boolean;            // ZDR flag for sensitive IP (default false)
 }
 
 export interface TenantStats {
@@ -63,6 +68,9 @@ export const DEFAULT_TENANT_CONFIG: TenantConfig = {
   slb_pattern_filter: [],
   frozen_tenant_id: true,
   anonymize_exports: true,
+  inference_geo: 'global',
+  data_residency_region: '',
+  zero_data_retention: false,
 };
 
 // ============================================================================
@@ -74,6 +82,8 @@ export interface TenantContext {
   readonly tenant_name: string;
   readonly state_dir: string;        // state/{tenant_id}/
   readonly is_frozen: boolean;       // Cannot be modified by dispatchers
+  readonly inference_geo: 'us' | 'eu' | 'global';  // Data residency constraint
+  readonly zero_data_retention: boolean;            // ZDR flag
 }
 
 // ============================================================================

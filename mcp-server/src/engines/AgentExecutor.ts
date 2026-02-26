@@ -255,7 +255,7 @@ export class AgentExecutor {
         session.status = "idle";
         session.currentTaskId = undefined;
         session.tasksCompleted++;
-        session.totalDuration_ms += result.duration_ms;
+        session.totalDuration_ms += result.duration_ms ?? 0;
         session.lastActivity = new Date();
 
         // Fire completion hook

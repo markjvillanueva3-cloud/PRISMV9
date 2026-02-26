@@ -24,7 +24,7 @@ import { log } from "../../utils/Logger.js";
 import type { AnomalySeverity } from "../../types/telemetry-types.js";
 
 export function registerTelemetryDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_telemetry",
     "Dispatcher telemetry & self-optimization. Actions: get_dashboard, get_detail, get_anomalies, get_optimization, acknowledge, freeze_weights, unfreeze_weights",
     {

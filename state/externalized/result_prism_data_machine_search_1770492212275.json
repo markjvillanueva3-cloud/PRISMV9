@@ -1,0 +1,1000 @@
+{
+  "machines": [
+    {
+      "manufacturer": "DMG MORI",
+      "model": "CLX 450",
+      "type": "2-axis_slant_bed",
+      "maxSwing": 400,
+      "maxTurningDiameter": 320,
+      "maxTurningLength": 450,
+      "barCapacity": 65,
+      "spindleNose": "A2-6",
+      "spindleBore": 68,
+      "spindleMotor": {
+        "power": 15,
+        "maxRPM": 5000,
+        "maxTorque": 319,
+        "torqueCurve": [
+          {
+            "rpm": 0,
+            "torque": 319
+          },
+          {
+            "rpm": 500,
+            "torque": 319
+          },
+          {
+            "rpm": 2000,
+            "torque": 200
+          },
+          {
+            "rpm": 4000,
+            "torque": 100
+          },
+          {
+            "rpm": 5000,
+            "torque": 80
+          }
+        ]
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI40",
+        "indexTime": 0.15,
+        "maxToolSize": 40,
+        "rigidityFactor": 0.93
+      },
+      "tailstock": {
+        "available": true,
+        "quillDiameter": 70,
+        "thrustForce": 12000
+      },
+      "chuckOptions": [
+        "8-inch_3-jaw",
+        "10-inch_3-jaw"
+      ],
+      "coolant": {
+        "pressure": 10,
+        "flow": 80,
+        "tscAvailable": true,
+        "tscPressure": 80
+      },
+      "rigidityClass": "medium",
+      "stabilityFactor": 0.92,
+      "id": "CLX_450",
+      "layer": "CORE"
+    },
+    {
+      "manufacturer": "DMG MORI",
+      "model": "NLX 2500",
+      "type": "2-axis_slant_bed",
+      "maxSwing": 700,
+      "maxTurningDiameter": 460,
+      "maxTurningLength": 705,
+      "barCapacity": 80,
+      "spindleNose": "A2-8",
+      "spindleBore": 92,
+      "spindleMotor": {
+        "power": 22,
+        "maxRPM": 4000,
+        "maxTorque": 750,
+        "torqueCurve": [
+          {
+            "rpm": 0,
+            "torque": 750
+          },
+          {
+            "rpm": 350,
+            "torque": 750
+          },
+          {
+            "rpm": 1200,
+            "torque": 550
+          },
+          {
+            "rpm": 2500,
+            "torque": 300
+          },
+          {
+            "rpm": 4000,
+            "torque": 180
+          }
+        ]
+      },
+      "turret": {
+        "stations": 12,
+        "type": "BMT65",
+        "indexTime": 0.13,
+        "maxToolSize": 45,
+        "rigidityFactor": 0.95
+      },
+      "tailstock": {
+        "available": true,
+        "quillDiameter": 90,
+        "thrustForce": 22000
+      },
+      "chuckOptions": [
+        "10-inch_3-jaw",
+        "12-inch_3-jaw",
+        "15-inch_3-jaw"
+      ],
+      "coolant": {
+        "pressure": 10,
+        "flow": 120,
+        "tscAvailable": true,
+        "tscPressure": 100
+      },
+      "rigidityClass": "heavy",
+      "stabilityFactor": 0.95,
+      "id": "NLX_2500",
+      "layer": "CORE"
+    },
+    {
+      "id": "DMG_DMU_50_3RD_GEN",
+      "manufacturer": "DMG MORI",
+      "model": "DMU 50 3rd Generation",
+      "type": "vertical_machining_center",
+      "subtype": "5_axis_trunnion",
+      "description": "Compact 5-axis universal machining center with trunnion table",
+      "series": "DMU",
+      "generation": 3,
+      "work_envelope": {
+        "x": {
+          "min": 0,
+          "max": 500,
+          "unit": "mm"
+        },
+        "y": {
+          "min": 0,
+          "max": 450,
+          "unit": "mm"
+        },
+        "z": {
+          "min": 0,
+          "max": 400,
+          "unit": "mm"
+        },
+        "a_axis": {
+          "min": -5,
+          "max": 110,
+          "unit": "deg"
+        },
+        "c_axis": {
+          "min": -360,
+          "max": 360,
+          "unit": "deg",
+          "continuous": true
+        },
+        "table_diameter": 630,
+        "max_workpiece_diameter": 630,
+        "max_workpiece_height": 500,
+        "table_load_capacity": 300,
+        "table_load_unit": "kg",
+        "spindle_nose_to_table_min": 50,
+        "spindle_nose_to_table_max": 450
+      },
+      "spindle": {
+        "type": "built_in_motor",
+        "model": "speedMASTER",
+        "taper": "HSK-A63",
+        "max_rpm": 15000,
+        "power_rating": 21,
+        "power_rating_s1": 17,
+        "power_unit": "kW",
+        "torque_max": 130,
+        "torque_s1": 111,
+        "torque_unit": "Nm",
+        "bearing_type": "hybrid_ceramic",
+        "bearing_arrangement": "O_arrangement",
+        "bearing_preload": "spring_preload",
+        "lubrication": "oil_air",
+        "cooling": "spindle_jacket_cooling",
+        "runout_TIR": 0.002,
+        "warmup_program": true,
+        "thermal_growth_compensation": true
+      },
+      "spindle_options": [
+        {
+          "name": "speedMASTER 15000",
+          "taper": "HSK-A63",
+          "max_rpm": 15000,
+          "power": 21,
+          "torque": 130
+        },
+        {
+          "name": "speedMASTER 20000",
+          "taper": "HSK-A63",
+          "max_rpm": 20000,
+          "power": 25,
+          "torque": 87
+        },
+        {
+          "name": "powerMASTER 12000",
+          "taper": "HSK-A63",
+          "max_rpm": 12000,
+          "power": 35,
+          "torque": 303
+        }
+      ],
+      "axis_specs": {
+        "x": {
+          "travel": 500,
+          "rapid_rate": 42000,
+          "max_feed": 42000,
+          "acceleration": 6,
+          "acceleration_unit": "m/s²",
+          "jerk": 60,
+          "jerk_unit": "m/s³",
+          "motor_type": "servo_direct_drive",
+          "motor_power": 8,
+          "guideway_type": "linear_roller",
+          "guideway_brand": "THK",
+          "guideway_model": "SHS35",
+          "guideway_size": 35,
+          "guideway_preload": "medium",
+          "ballscrew_diameter": 40,
+          "ballscrew_pitch": 16,
+          "ballscrew_grade": "C3",
+          "ballscrew_support": "fixed_fixed",
+          "encoder_type": "absolute_linear_scale",
+          "encoder_brand": "Heidenhain",
+          "encoder_model": "LC483",
+          "encoder_resolution": 0.001,
+          "positioning_accuracy": 0.005,
+          "repeatability": 0.003,
+          "backlash_compensation": true,
+          "thermal_compensation": true
+        },
+        "y": {
+          "travel": 450,
+          "rapid_rate": 42000,
+          "max_feed": 42000,
+          "acceleration": 6,
+          "acceleration_unit": "m/s²",
+          "jerk": 60,
+          "motor_type": "servo_direct_drive",
+          "motor_power": 8,
+          "guideway_type": "linear_roller",
+          "guideway_brand": "THK",
+          "guideway_model": "SHS35",
+          "guideway_size": 35,
+          "ballscrew_diameter": 40,
+          "ballscrew_pitch": 16,
+          "encoder_type": "absolute_linear_scale",
+          "encoder_resolution": 0.001,
+          "positioning_accuracy": 0.005,
+          "repeatability": 0.003
+        },
+        "z": {
+          "travel": 400,
+          "rapid_rate": 42000,
+          "max_feed": 42000,
+          "acceleration": 6,
+          "acceleration_unit": "m/s²",
+          "jerk": 60,
+          "motor_type": "servo_direct_drive",
+          "motor_power": 8,
+          "guideway_type": "linear_roller",
+          "guideway_size": 45,
+          "ballscrew_diameter": 40,
+          "ballscrew_pitch": 16,
+          "counterbalance": "pneumatic",
+          "counterbalance_pressure": 6,
+          "encoder_type": "absolute_linear_scale",
+          "encoder_resolution": 0.001,
+          "positioning_accuracy": 0.005,
+          "repeatability": 0.003
+        },
+        "b": {
+          "axis_type": "rotary_trunnion_tilt",
+          "cnc_designation": "B",
+          "physical_axis": "A",
+          "travel": {
+            "min": -5,
+            "max": 110
+          },
+          "travel_unit": "deg",
+          "rapid_rate": 30,
+          "rapid_rate_unit": "rpm",
+          "max_feed_rate": 18000,
+          "max_feed_unit": "deg/min",
+          "acceleration": 20,
+          "acceleration_unit": "rad/s²",
+          "motor_type": "direct_drive_torque",
+          "motor_brand": "Siemens",
+          "motor_model": "1FW6",
+          "max_torque": 1300,
+          "continuous_torque": 850,
+          "torque_unit": "Nm",
+          "clamping_torque": 2600,
+          "clamping_type": "hydraulic_brake",
+          "encoder_type": "absolute_rotary",
+          "encoder_resolution": 0.0001,
+          "encoder_brand": "Heidenhain",
+          "encoder_model": "RCN226",
+          "positioning_accuracy": 5,
+          "positioning_accuracy_unit": "arc_seconds",
+          "repeatability": 3,
+          "repeatability_unit": "arc_seconds",
+          "rotation_center": [
+            0,
+            0,
+            150
+          ],
+          "rotation_center_from": "table_surface"
+        },
+        "c": {
+          "axis_type": "rotary_table",
+          "cnc_designation": "C",
+          "travel": {
+            "min": -360,
+            "max": 360
+          },
+          "continuous": true,
+          "travel_unit": "deg",
+          "rapid_rate": 50,
+          "rapid_rate_unit": "rpm",
+          "max_feed_rate": 30000,
+          "max_feed_unit": "deg/min",
+          "acceleration": 25,
+          "acceleration_unit": "rad/s²",
+          "motor_type": "direct_drive_torque",
+          "max_torque": 850,
+          "continuous_torque": 560,
+          "torque_unit": "Nm",
+          "clamping_torque": 1700,
+          "clamping_type": "hydraulic_brake",
+          "encoder_type": "absolute_rotary",
+          "encoder_resolution": 0.0001,
+          "positioning_accuracy": 5,
+          "positioning_accuracy_unit": "arc_seconds",
+          "repeatability": 3,
+          "repeatability_unit": "arc_seconds"
+        }
+      },
+      "atc": {
+        "type": "wheel_magazine",
+        "capacity": 30,
+        "capacity_options": [
+          30,
+          60,
+          90,
+          120
+        ],
+        "max_tool_diameter": 80,
+        "max_tool_diameter_adjacent_empty": 130,
+        "max_tool_length": 300,
+        "max_tool_weight": 8,
+        "max_tool_weight_unit": "kg",
+        "tool_change_time": 1.5,
+        "chip_to_chip_time": 3.5,
+        "chip_to_chip_unit": "seconds",
+        "random_access": true,
+        "tool_identification": "RFID",
+        "tool_life_monitoring": true
+      },
+      "controller": {
+        "brand": "SIEMENS",
+        "model": "SINUMERIK 840D sl",
+        "variant": "CELOS",
+        "axes_count": 5,
+        "simultaneous_axes": 5,
+        "spindle_channels": 1,
+        "tcpc": true,
+        "tcpc_name": "TRAORI",
+        "rtcp": true,
+        "rtcp_name": "RTCP",
+        "tcp_transformation": "kinematic_transformation",
+        "look_ahead_blocks": 200,
+        "block_processing_time": 1.4,
+        "block_processing_unit": "ms",
+        "compressor": true,
+        "compressor_name": "COMPCAD",
+        "jerk_filter": true,
+        "volumetric_compensation": true,
+        "sag_compensation": true,
+        "thermal_compensation": true,
+        "backlash_compensation": true,
+        "measuring_cycles": [
+          "CYCLE977",
+          "CYCLE978",
+          "CYCLE979"
+        ],
+        "drilling_cycles": [
+          "CYCLE81",
+          "CYCLE82",
+          "CYCLE83",
+          "CYCLE84",
+          "CYCLE85"
+        ],
+        "milling_cycles": [
+          "CYCLE71",
+          "CYCLE72",
+          "CYCLE76"
+        ],
+        "memory_capacity": "120GB SSD",
+        "ethernet": true,
+        "usb": true,
+        "dxf_import": true
+      },
+      "coolant": {
+        "tank_capacity": 280,
+        "tank_unit": "liters",
+        "pump_output": 35,
+        "pump_output_unit": "l/min",
+        "pump_pressure": 6,
+        "pump_pressure_unit": "bar",
+        "through_spindle": true,
+        "tsc_pressure": 40,
+        "tsc_pressure_options": [
+          20,
+          40,
+          70
+        ],
+        "tsc_unit": "bar",
+        "flood_nozzles": 4,
+        "air_blast": true,
+        "mql_ready": true,
+        "chip_conveyor": "hinged_belt",
+        "chip_conveyor_width": 400
+      },
+      "machine_dimensions": {
+        "length": 2878,
+        "width": 2490,
+        "height": 2775,
+        "weight": 7500,
+        "weight_unit": "kg",
+        "floor_space": 7.16,
+        "floor_space_unit": "m²",
+        "foundation_required": false
+      },
+      "kinematic_chain": {
+        "type": "table_table",
+        "structure": "B_axis_trunnion_on_C_axis_rotary",
+        "topology": "serial",
+        "dof": 5,
+        "chain": [
+          "base",
+          "column",
+          "y_saddle",
+          "z_head",
+          "spindle",
+          "x_table_base",
+          "b_trunnion",
+          "c_table"
+        ],
+        "dh_parameters": {
+          "y": {
+            "a": 0,
+            "alpha": 0,
+            "d": "variable",
+            "theta": 0,
+            "type": "P",
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          "z": {
+            "a": 0,
+            "alpha": 90,
+            "d": "variable",
+            "theta": 0,
+            "type": "P",
+            "axis": [
+              0,
+              0,
+              1
+            ]
+          },
+          "x": {
+            "a": 0,
+            "alpha": 0,
+            "d": "variable",
+            "theta": 0,
+            "type": "P",
+            "axis": [
+              1,
+              0,
+              0
+            ]
+          },
+          "b": {
+            "a": 0,
+            "alpha": 0,
+            "d": 150,
+            "theta": "variable",
+            "type": "R",
+            "axis": [
+              0,
+              1,
+              0
+            ]
+          },
+          "c": {
+            "a": 0,
+            "alpha": 0,
+            "d": 0,
+            "theta": "variable",
+            "type": "R",
+            "axis": [
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "home_position": {
+          "x": 250,
+          "y": 225,
+          "z": 400,
+          "b": 0,
+          "c": 0
+        },
+        "machine_zero": [
+          0,
+          0,
+          0
+        ],
+        "spindle_gauge_point": [
+          0,
+          0,
+          -200
+        ],
+        "table_center": [
+          0,
+          0,
+          150
+        ],
+        "moving_masses": {
+          "y_assembly": {
+            "mass": 800,
+            "cog": [
+              0,
+              100,
+              400
+            ]
+          },
+          "z_assembly": {
+            "mass": 650,
+            "cog": [
+              0,
+              0,
+              200
+            ]
+          },
+          "x_assembly": {
+            "mass": 1200,
+            "cog": [
+              0,
+              0,
+              100
+            ]
+          },
+          "b_assembly": {
+            "mass": 450,
+            "cog": [
+              0,
+              0,
+              75
+            ]
+          },
+          "c_table": {
+            "mass": 180,
+            "cog": [
+              0,
+              0,
+              25
+            ]
+          }
+        }
+      },
+      "transformations": {
+        "x": {
+          "type": "translation",
+          "vector": [
+            1,
+            0,
+            0
+          ],
+          "component": "x_table_base",
+          "positive_direction": "table_moves_right",
+          "reference_frame": "machine"
+        },
+        "y": {
+          "type": "translation",
+          "vector": [
+            0,
+            1,
+            0
+          ],
+          "component": "y_saddle",
+          "positive_direction": "saddle_moves_back",
+          "reference_frame": "machine"
+        },
+        "z": {
+          "type": "translation",
+          "vector": [
+            0,
+            0,
+            1
+          ],
+          "component": "z_head",
+          "positive_direction": "head_moves_up",
+          "reference_frame": "machine"
+        },
+        "b": {
+          "type": "rotation",
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "center": [
+            0,
+            0,
+            150
+          ],
+          "component": "b_trunnion",
+          "positive_direction": "table_tilts_toward_operator",
+          "zero_position": "table_horizontal",
+          "reference_frame": "x_table_base"
+        },
+        "c": {
+          "type": "rotation",
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "component": "c_table",
+          "positive_direction": "CCW_when_viewed_from_above",
+          "reference_frame": "b_trunnion"
+        }
+      },
+      "geometry_reference": {
+        "base_path": "DMG_MORI/DMU_50_3RD_GEN",
+        "format_version": "1.0",
+        "assembly": {
+          "file": "ASSEMBLY/DMU_50_COMPLETE.step",
+          "format": "STEP_AP214",
+          "units": "mm",
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "orientation": "Z_UP_Y_BACK"
+        },
+        "components": {
+          "base": {
+            "step_file": "COMPONENTS/BASE.step",
+            "collision_file": "COLLISION/BASE.stl",
+            "mass": 4500,
+            "is_fixed": true,
+            "material": "cast_iron_GG25"
+          },
+          "column": {
+            "step_file": "COMPONENTS/COLUMN.step",
+            "collision_file": "COLLISION/COLUMN.stl",
+            "mass": 1800,
+            "parent": "base",
+            "joint_type": "fixed",
+            "material": "cast_iron_GG25"
+          },
+          "y_saddle": {
+            "step_file": "COMPONENTS/Y_SADDLE.step",
+            "collision_file": "COLLISION/Y_SADDLE.stl",
+            "mass": 800,
+            "parent": "column",
+            "joint_type": "prismatic",
+            "joint_axis": "Y",
+            "joint_limits": {
+              "min": 0,
+              "max": 450
+            },
+            "home_position": 225
+          },
+          "z_head": {
+            "step_file": "COMPONENTS/Z_HEAD.step",
+            "collision_file": "COLLISION/Z_HEAD.stl",
+            "mass": 650,
+            "parent": "y_saddle",
+            "joint_type": "prismatic",
+            "joint_axis": "Z",
+            "joint_limits": {
+              "min": 0,
+              "max": 400
+            },
+            "home_position": 400
+          },
+          "spindle": {
+            "step_file": "COMPONENTS/SPINDLE.step",
+            "collision_file": "COLLISION/SPINDLE.stl",
+            "mass": 85,
+            "parent": "z_head",
+            "joint_type": "revolute",
+            "joint_axis": "S",
+            "continuous": true,
+            "gauge_point": [
+              0,
+              0,
+              -200
+            ],
+            "tool_interface": "HSK-A63"
+          },
+          "x_table_base": {
+            "step_file": "COMPONENTS/X_TABLE_BASE.step",
+            "collision_file": "COLLISION/X_TABLE_BASE.stl",
+            "mass": 1200,
+            "parent": "base",
+            "joint_type": "prismatic",
+            "joint_axis": "X",
+            "joint_limits": {
+              "min": 0,
+              "max": 500
+            },
+            "home_position": 250
+          },
+          "b_trunnion": {
+            "step_file": "COMPONENTS/B_TRUNNION.step",
+            "collision_file": "COLLISION/B_TRUNNION.stl",
+            "mass": 450,
+            "parent": "x_table_base",
+            "joint_type": "revolute",
+            "joint_axis": "B",
+            "joint_limits": {
+              "min": -5,
+              "max": 110
+            },
+            "home_position": 0,
+            "rotation_center": [
+              0,
+              0,
+              150
+            ]
+          },
+          "c_table": {
+            "step_file": "COMPONENTS/C_TABLE.step",
+            "collision_file": "COLLISION/C_TABLE.stl",
+            "mass": 180,
+            "parent": "b_trunnion",
+            "joint_type": "revolute",
+            "joint_axis": "C",
+            "continuous": true,
+            "home_position": 0,
+            "rotation_center": [
+              0,
+              0,
+              0
+            ],
+            "workpiece_mounting": {
+              "type": "T_slot",
+              "t_slots": 4,
+              "slot_width": 14,
+              "pcd": 500
+            }
+          }
+        },
+        "collision_config": {
+          "check_pairs": [
+            [
+              "spindle",
+              "c_table",
+              true
+            ],
+            [
+              "spindle",
+              "b_trunnion",
+              true
+            ],
+            [
+              "z_head",
+              "c_table",
+              true
+            ],
+            [
+              "z_head",
+              "b_trunnion",
+              true
+            ],
+            [
+              "z_head",
+              "x_table_base",
+              true
+            ],
+            [
+              "tool",
+              "workpiece",
+              true
+            ],
+            [
+              "tool",
+              "fixture",
+              true
+            ],
+            [
+              "tool_holder",
+              "workpiece",
+              true
+            ],
+            [
+              "tool_holder",
+              "fixture",
+              true
+            ]
+          ],
+          "safety_margin": 2,
+          "safety_margin_unit": "mm",
+          "check_frequency": 100,
+          "check_frequency_unit": "Hz",
+          "algorithm": "GJK_EPA"
+        },
+        "bounding_boxes": {
+          "base": {
+            "min": [
+              -1200,
+              -1000,
+              -400
+            ],
+            "max": [
+              1200,
+              1000,
+              0
+            ]
+          },
+          "column": {
+            "min": [
+              -400,
+              0,
+              0
+            ],
+            "max": [
+              400,
+              600,
+              1500
+            ]
+          },
+          "y_saddle": {
+            "min": [
+              -300,
+              -200,
+              -100
+            ],
+            "max": [
+              300,
+              200,
+              100
+            ]
+          },
+          "z_head": {
+            "min": [
+              -250,
+              -250,
+              -400
+            ],
+            "max": [
+              250,
+              250,
+              0
+            ]
+          },
+          "spindle": {
+            "min": [
+              -75,
+              -75,
+              -250
+            ],
+            "max": [
+              75,
+              75,
+              0
+            ]
+          },
+          "x_table_base": {
+            "min": [
+              -400,
+              -300,
+              0
+            ],
+            "max": [
+              400,
+              300,
+              100
+            ]
+          },
+          "b_trunnion": {
+            "min": [
+              -320,
+              -250,
+              0
+            ],
+            "max": [
+              320,
+              250,
+              200
+            ]
+          },
+          "c_table": {
+            "min": [
+              -315,
+              -315,
+              0
+            ],
+            "max": [
+              315,
+              315,
+              50
+            ]
+          }
+        }
+      },
+      "collision_zones": {
+        "spindle_danger_zone": {
+          "type": "cylinder",
+          "radius": 150,
+          "height": 400,
+          "origin": [
+            0,
+            0,
+            -400
+          ],
+          "reference": "spindle_face",
+          "alert_level": "critical"
+        },
+        "tool_engagement_zone": {
+          "type": "cylinder",
+          "radius": 100,
+          "height": 300,
+          "origin": [
+            0,
+            0,
+            -300
+          ],
+          "reference": "tool_tip",
+          "alert_level": "warning"
+        },
+        "rapid_exclusion_zone": {
+          "type": "box",
+          "dimensions": [
+            700,
+            700,
+            600
+          ],
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "reference": "table_center",
+          "alert_level": "rapid_limit"
+        }
+      },
+      "options": [
+        "Through-spindle coolant 40/70 bar",
+        "Chip conveyor",
+        "Tool magazine 60/90/120 tools",
+        "Probing system Renishaw OMP60",
+        "Tool breakage detection",
+        "Automatic doors",
+        "Oil mist extraction"
+      ],
+      "applications": [
+        "5-axis simultaneous machining",
+        "Aerospace components",
+        "Medical implants",
+        "Mold and die",
+        "Precision mechanics"
+      ],
+      "layer": "ENHANCED"
+    }
+  ],
+  "total": 9,
+  "hasMore": true
+}

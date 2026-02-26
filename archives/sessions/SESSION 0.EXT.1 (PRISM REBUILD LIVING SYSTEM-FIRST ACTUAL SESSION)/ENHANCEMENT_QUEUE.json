@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-20",
+  "lastSession": "0.SETUP.1.1",
+  "description": "Queue for module enhancements and additions",
+  "queue": [],
+  "completed": [],
+  "enhancementTypes": {
+    "ADD_MODULE": "Adding a completely new module",
+    "ADD_FEATURE": "Adding feature to existing module",
+    "ADD_CONSUMER": "Adding new consumer to database",
+    "ADD_USE_CASE": "Adding new use case to engine",
+    "ADD_FIELD": "Adding new field to database",
+    "ADD_ALGORITHM": "Adding new algorithm to engine",
+    "OPTIMIZE": "Performance optimization",
+    "REFACTOR": "Code restructuring without behavior change",
+    "FIX": "Bug fix",
+    "ENHANCE_AI": "Improve AI/ML model",
+    "ADD_VALIDATION": "Add new validation rules",
+    "ADD_INTEGRATION": "Add integration with external system"
+  },
+  "template": {
+    "id": "ENH-XXX",
+    "type": "ADD_MODULE | ADD_FEATURE | etc",
+    "createdSession": "X.Y.Z",
+    "priority": "CRITICAL | HIGH | MEDIUM | LOW",
+    "status": "PENDING | IN_PROGRESS | COMPLETE | BLOCKED",
+    "target": {
+      "layer": "L0-L5 | DATABASES | ENGINES | etc",
+      "category": "materials | physics | ai_ml | etc",
+      "module": "PRISM_XXX (or NEW for new modules)"
+    },
+    "description": "What is being added/enhanced",
+    "rationale": "Why this enhancement is needed",
+    "dependencies": [
+      "List of modules this depends on"
+    ],
+    "affectedConsumers": [
+      "List of modules that will need updating"
+    ],
+    "estimatedSessions": 1,
+    "actualSessions": 0
+  }
+}

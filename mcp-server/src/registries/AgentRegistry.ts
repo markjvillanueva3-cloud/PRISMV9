@@ -114,7 +114,7 @@ export class AgentRegistry extends BaseRegistry<Agent> {
   private builtInAgents: Map<string, Agent> = new Map();
 
   constructor() {
-    super("agents");
+    super("agents", path.join(PATHS.STATE_DIR, "agent-registry.json"), "1.0.0");
     this.initializeBuiltInAgents();
   }
 
@@ -197,7 +197,7 @@ export class AgentRegistry extends BaseRegistry<Agent> {
           constraints: ["Use verified data", "Consider all factors", "Safety priority"],
           output_format: "structured_json"
         },
-        dependencies: ["AGT-EXPERT-MATERIALS"],
+        dependencies: ["AGT-EXPERT-MATERIALS"] as any,
         consumers: ["AGT-TASK-SPEED-FEED", "AGT-TASK-CAM"],
         status: "active",
         enabled: true,
@@ -219,7 +219,7 @@ export class AgentRegistry extends BaseRegistry<Agent> {
         ],
         domains: ["calculations", "machining", "optimization"],
         config: { model: apiConfig.sonnetModel, temperature: 0.1, max_tokens: 2048 },
-        dependencies: ["AGT-EXPERT-MATERIALS", "AGT-EXPERT-TOOLING"],
+        dependencies: ["AGT-EXPERT-MATERIALS", "AGT-EXPERT-TOOLING"] as any,
         consumers: ["AGT-TASK-CAM", "AGT-COORD-ORCHESTRATOR"],
         status: "active",
         enabled: true,

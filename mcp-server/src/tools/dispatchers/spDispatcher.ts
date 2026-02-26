@@ -16,6 +16,7 @@ import { knowledgeEngine } from "../../engines/KnowledgeQueryEngine.js";
 import { skillRegistry } from "../../registries/SkillRegistry.js";
 import { formulaRegistry } from "../../registries/FormulaRegistry.js";
 import type { CogState, BrainstormConfig, BrainstormResult } from "../../types/prism-schema.js";
+import { PATHS } from "../../constants.js";
 
 const ACTIONS = [
   "brainstorm", "plan", "execute", "review_spec", "review_quality", "debug",
@@ -26,9 +27,9 @@ const ACTIONS = [
 
 function ok(data: any) { return { content: [{ type: "text" as const, text: JSON.stringify(data) }] }; }
 
-const DATA_DIR = "C:\\PRISM\\data";
+const DATA_DIR = PATHS.DATA_DIR;
 const COORD_DIR = path.join(DATA_DIR, "coordination");
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 function loadJSON(fp: string) { try { return JSON.parse(fs.readFileSync(fp, "utf-8")); } catch { return null; } }
 function saveJSON(fp: string, data: any) { fs.writeFileSync(fp, JSON.stringify(data, null, 2)); }
 
@@ -93,8 +94,9 @@ async function runBrainstorm(config: BrainstormConfig): Promise<BrainstormResult
   // ── PHASE 1: PRISM Knowledge Grounding (all depths) ──
   try {
     // Find relevant skills
-    const skillResults = skillRegistry.search(problem, 5);
-    result.domain_context.relevant_skills = skillResults.map((s: any) => ({
+    const skillResults = skillRegistry.search(problem);
+    const skillList = (skillResults as any)?.skills || (Array.isArray(skillResults) ? skillResults : []);
+    result.domain_context.relevant_skills = skillList.slice(0, 5).map((s: any) => ({
       id: s.id || s.skill_id || "unknown",
       name: s.name || s.title || "unknown",
       relevance: s.relevance_score || s.score || 0.5
@@ -116,7 +118,7 @@ async function runBrainstorm(config: BrainstormConfig): Promise<BrainstormResult
     // Cross-query knowledge
     try {
       await knowledgeEngine.initialize();
-      const kq = await knowledgeEngine.crossQuery({ task: problem, context: { operation: domain } });
+      const kq = await (knowledgeEngine as any).crossQuery({ task: problem, context: { operation: domain } });
       result.domain_context.knowledge_enrichments = 
         (kq.results?.materials?.length || 0) + (kq.results?.formulas?.length || 0) + 
         (kq.results?.machines?.length || 0) + (kq.results?.skills?.length || 0);
@@ -441,10 +443,9 @@ export function registerSpDispatcher(server: any): void {
             // D5: Run session_lifecycle.py for full start protocol (includes context_dna)
             let lifecycleResult: any = null;
             try {
-              const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
               const { execSync } = await import("child_process");
               const output = execSync(
-                `"${PYTHON}" "C:\\PRISM\\scripts\\core\\session_lifecycle.py" start --json`,
+                `"${PATHS.PYTHON}" "${path.join(PATHS.SCRIPTS_CORE, "session_lifecycle.py")}" start --json`,
                 { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
               );
               lifecycleResult = JSON.parse(output.trim());
@@ -467,7 +468,6 @@ export function registerSpDispatcher(server: any): void {
             // D5: Run session_lifecycle.py for full end protocol (handoff doc + quality scores)
             let lifecycleResult: any = null;
             try {
-              const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
               const { execSync } = await import("child_process");
               const endArgs = [
                 "end",
@@ -476,7 +476,7 @@ export function registerSpDispatcher(server: any): void {
                 ...(params.tasks_completed ? ["--summary", JSON.stringify(params.tasks_completed)] : [])
               ];
               const output = execSync(
-                `"${PYTHON}" "C:\\PRISM\\scripts\\core\\session_lifecycle.py" ${endArgs.join(" ")}`,
+                `"${PATHS.PYTHON}" "${path.join(PATHS.SCRIPTS_CORE, "session_lifecycle.py")}" ${endArgs.join(" ")}`,
                 { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
               );
               lifecycleResult = JSON.parse(output.trim());
@@ -485,10 +485,9 @@ export function registerSpDispatcher(server: any): void {
             // D5: Run next_session_prep for handoff
             let nextPrep: any = null;
             try {
-              const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
               const { execSync } = await import("child_process");
               const prepOutput = execSync(
-                `"${PYTHON}" "C:\\PRISM\\scripts\\core\\next_session_prep.py" generate --json --save`,
+                `"${PATHS.PYTHON}" "${path.join(PATHS.SCRIPTS_CORE, "next_session_prep.py")}" generate --json --save`,
                 { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
               );
               nextPrep = JSON.parse(prepOutput.trim());

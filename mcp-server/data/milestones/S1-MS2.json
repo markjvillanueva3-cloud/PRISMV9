@@ -1,0 +1,757 @@
+{
+  "id": "S1-MS2",
+  "version": "1.0.0",
+  "title": "Port Core Monolith Algorithms",
+  "brief": "Extract and port 8 core manufacturing physics algorithms from monolith JS to standalone TypeScript modules with typed interfaces, validation, and unit tests.",
+  "created_at": "2026-02-25T23:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Architecture + Safety-Critical Models",
+      "description": "Design the algorithm interface pattern and port the two safety-critical models (Kienzle force, Extended Taylor tool life) using Opus.",
+      "sessions": "1",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Brainstorm algorithm interface design",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R1",
+          "role_name": "Schema Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Architectural decision — standard interface pattern for all 8 algorithms",
+          "tools": [
+            { "tool": "prism_sp", "action": "brainstorm", "params_hint": "problem='Design TypeScript algorithm interface for 8 manufacturing physics models', depth='standard', domain='manufacturing'" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "ManufacturingCalculations.ts exists in src/engines/",
+            "Enriched registries from S1-MS1 are in place (materials with kc1.1/mc, tools with geometry, machines with spindle curves)"
+          ],
+          "exit_conditions": [
+            "Standard interface pattern defined: AlgorithmInput, AlgorithmOutput, validate(), calculate(), getMetadata()",
+            "Interface documented in a shared types file or header comment"
+          ],
+          "rollback": "No file changes (design only)",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Use prism_sp→brainstorm to design the standard algorithm interface pattern for all 8 models",
+              "tool_calls": ["prism_sp→brainstorm(problem='Design TypeScript algorithm interface for 8 manufacturing physics models: Kienzle, Taylor, J-C, Surface Finish, Stability Lobe, Chip Thinning, Thermal Partition, Power/Torque. Need typed Input/Output, validate(), calculate(), getMetadata(). Must compose with registry lookups.', depth='standard', domain='manufacturing')"],
+              "validation": "Brainstorm output defines AlgorithmInput, AlgorithmOutput, validate(), calculate(), getMetadata() pattern"
+            },
+            {
+              "number": 2,
+              "instruction": "Create the shared algorithm interfaces file at src/algorithms/types.ts with the designed pattern",
+              "tool_calls": [],
+              "validation": "src/algorithms/types.ts exists with AlgorithmInput, AlgorithmOutput, AlgorithmMeta, and Algorithm<I,O> generic interface"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/types.ts", "type": "source", "description": "Shared algorithm interface types — AlgorithmInput, AlgorithmOutput, Algorithm<I,O>", "line_count_est": 60 }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U02",
+          "title": "Port Kienzle Force Model",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "SAFETY-CRITICAL — Kienzle force model drives cutting force predictions, feeds into power/torque and stability. Must be Opus.",
+          "tools": [
+            { "tool": "prism_validate", "action": "kienzle", "params_hint": "material, kc1_1, mc, feed, depth" },
+            { "tool": "prism_calc", "action": "cutting_force", "params_hint": "cross-check output values" }
+          ],
+          "skills": ["mfg-kienzle-validate", "mfg-cutting-force"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "src/algorithms/types.ts exists with Algorithm interface",
+            "ManufacturingCalculations.ts readable for reference",
+            "Material registry has kc1.1 and mc values (confirmed in S1-MS1)"
+          ],
+          "exit_conditions": [
+            "src/algorithms/KienzleForceModel.ts exists",
+            "Implements Fc = kc1.1 × b × h^(1-mc) with edge force correction",
+            "Calculates 3-component force (tangential, feed, radial)",
+            "Has typed KienzleInput/KienzleOutput interfaces",
+            "validate() checks all required fields",
+            "prism_validate→kienzle passes with S(x) >= 0.990 on steel, aluminum, titanium"
+          ],
+          "rollback": "git checkout -- src/algorithms/KienzleForceModel.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read ManufacturingCalculations.ts to find the existing Kienzle implementation and understand input/output patterns",
+              "tool_calls": [],
+              "validation": "Kienzle implementation location identified, formula and coefficients understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Read extracted monolith PRISM_CUTTING_MECHANICS_ENGINE.js for additional Kienzle reference and edge force correction factors",
+              "tool_calls": [],
+              "validation": "Edge force correction formula and 3-component ratio factors identified"
+            },
+            {
+              "number": 3,
+              "instruction": "Write src/algorithms/KienzleForceModel.ts implementing: Fc = kc1.1 × b × h^(1-mc) with edge force correction, 3-component decomposition (tangential, feed, radial via ratio factors), typed interfaces, validate(), calculate(), getMetadata()",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 4,
+              "instruction": "Validate against 3 materials (steel-4140, aluminum-6061, titanium-6Al4V) using prism_validate→kienzle",
+              "tool_calls": ["prism_validate→kienzle(material='steel-4140', feed=0.2, depth=2.0)", "prism_validate→kienzle(material='aluminum-6061', feed=0.15, depth=1.5)", "prism_validate→kienzle(material='titanium-6Al4V', feed=0.1, depth=1.0)"],
+              "validation": "All 3 validations pass S(x) >= 0.990"
+            },
+            {
+              "number": 5,
+              "instruction": "Cross-check output against prism_calc→cutting_force for same inputs to verify delta <= 5%",
+              "tool_calls": ["prism_calc→cutting_force(material='steel-4140', feed=0.2, depth=2.0)"],
+              "validation": "Fc values within ±5% of prism_calc results"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/KienzleForceModel.ts", "type": "source", "description": "Kienzle specific cutting force model — Fc = kc1.1 × b × h^(1-mc) with 3-component decomposition", "line_count_est": 180 }
+          ],
+          "estimated_tokens": 3000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U03",
+          "title": "Port Extended Taylor Tool Life",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "SAFETY-CRITICAL — Taylor tool life model directly impacts tool change decisions and cost. Must be Opus.",
+          "tools": [
+            { "tool": "prism_validate", "action": "taylor", "params_hint": "material, speed, feed, depth" },
+            { "tool": "prism_calc", "action": "tool_life", "params_hint": "cross-check output values" }
+          ],
+          "skills": ["mfg-taylor-validate", "mfg-tool-life"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "src/algorithms/types.ts exists",
+            "ManufacturingCalculations.ts readable for Taylor reference",
+            "PRISM_TAYLOR_ADVANCED.js accessible in extracted_modules/physics_engines/"
+          ],
+          "exit_conditions": [
+            "src/algorithms/ExtendedTaylorModel.ts exists",
+            "Implements VT^n = C with feed/depth/hardness exponents and temperature correction",
+            "Has typed TaylorInput/TaylorOutput interfaces",
+            "prism_validate→taylor passes with S(x) >= 0.990 on steel, aluminum, titanium"
+          ],
+          "rollback": "git checkout -- src/algorithms/ExtendedTaylorModel.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read ManufacturingCalculations.ts to find the existing Taylor implementation",
+              "tool_calls": [],
+              "validation": "Taylor formula location identified, extended exponents understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Read PRISM_TAYLOR_ADVANCED.js for extended Taylor model with temperature correction",
+              "tool_calls": [],
+              "validation": "Temperature correction formula and coefficient structure understood"
+            },
+            {
+              "number": 3,
+              "instruction": "Write src/algorithms/ExtendedTaylorModel.ts implementing: VT^n = C extended with feed/depth/hardness exponents, temperature correction factor, typed interfaces, validate(), calculate(), getMetadata()",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 4,
+              "instruction": "Validate against 3 materials using prism_validate→taylor",
+              "tool_calls": ["prism_validate→taylor(material='steel-4140', speed=200, feed=0.2, depth=2.0)", "prism_validate→taylor(material='aluminum-6061', speed=500, feed=0.15, depth=1.5)", "prism_validate→taylor(material='titanium-6Al4V', speed=60, feed=0.1, depth=1.0)"],
+              "validation": "All 3 validations pass S(x) >= 0.990"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/ExtendedTaylorModel.ts", "type": "source", "description": "Extended Taylor tool life model — VT^n = C with feed/depth/hardness exponents + temperature correction", "line_count_est": 160 }
+          ],
+          "estimated_tokens": 2800,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.990,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": ["Kienzle S(x) >= 0.990 on 3 materials", "Taylor S(x) >= 0.990 on 3 materials"]
+      }
+    },
+    {
+      "id": "P2",
+      "title": "Standard Algorithm Ports",
+      "description": "Port the remaining 5 algorithms (Johnson-Cook, Surface Finish, Stability Lobe, Chip Thinning, Thermal+Power) using Sonnet. Well-documented models with established patterns from P1.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Port Johnson-Cook Flow Stress",
+          "phase": "P2",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 75,
+          "rationale": "Well-documented constitutive model. Sonnet sufficient.",
+          "tools": [
+            { "tool": "prism_validate", "action": "johnson_cook", "params_hint": "material, strain, strain_rate, temperature" }
+          ],
+          "skills": ["mfg-johnson-cook-validate"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "src/algorithms/types.ts exists",
+            "PRISM_JOHNSON_COOK_DATABASE.js accessible in extracted_modules/priority_extraction/"
+          ],
+          "exit_conditions": [
+            "src/algorithms/JohnsonCookModel.ts exists",
+            "Implements σ = (A+Bε^n)(1+C ln ε̇*)(1-T*^m)",
+            "Has typed JohnsonCookInput/JohnsonCookOutput interfaces",
+            "prism_validate→johnson_cook passes"
+          ],
+          "rollback": "git checkout -- src/algorithms/JohnsonCookModel.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read PRISM_JOHNSON_COOK_DATABASE.js and ManufacturingCalculations.ts for J-C implementation reference",
+              "tool_calls": [],
+              "validation": "J-C coefficients (A, B, n, C, m) structure and formula understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Write src/algorithms/JohnsonCookModel.ts implementing: σ = (A+Bε^n)(1+C ln ε̇*)(1-T*^m) with typed interfaces, validate(), calculate(), getMetadata()",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 3,
+              "instruction": "Validate against prism_validate→johnson_cook for 3 materials",
+              "tool_calls": ["prism_validate→johnson_cook(material='steel-4140')", "prism_validate→johnson_cook(material='aluminum-6061')", "prism_validate→johnson_cook(material='titanium-6Al4V')"],
+              "validation": "All validations pass"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/JohnsonCookModel.ts", "type": "source", "description": "Johnson-Cook constitutive flow stress model", "line_count_est": 140 }
+          ],
+          "estimated_tokens": 2200,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U02",
+          "title": "Port Surface Finish Predictor",
+          "phase": "P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 75,
+          "tools": [
+            { "tool": "prism_calc", "action": "surface_finish", "params_hint": "cross-check Ra prediction" }
+          ],
+          "skills": ["mfg-surface-finish"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "src/algorithms/types.ts exists",
+            "PRISM_SURFACE_FINISH_LOOKUP.js and PRISM_SURFACE_FINISH_DATABASE.js accessible"
+          ],
+          "exit_conditions": [
+            "src/algorithms/SurfaceFinishPredictor.ts exists",
+            "Implements Ra_ideal = f²/(32R) with BUE correction and vibration correction",
+            "Cross-check with prism_calc→surface_finish within ±10%"
+          ],
+          "rollback": "git checkout -- src/algorithms/SurfaceFinishPredictor.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read PRISM_SURFACE_FINISH_LOOKUP.js and PRISM_SURFACE_FINISH_DATABASE.js for surface finish calculation reference",
+              "tool_calls": [],
+              "validation": "Ra formula, BUE correction factor, and vibration correction understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Write src/algorithms/SurfaceFinishPredictor.ts with Ra_ideal = f²/(32R), BUE and vibration corrections, typed interfaces",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 3,
+              "instruction": "Cross-check against prism_calc→surface_finish for 3 test cases",
+              "tool_calls": ["prism_calc→surface_finish(tool_nose_radius=0.8, feed=0.2)", "prism_calc→surface_finish(tool_nose_radius=0.4, feed=0.1)", "prism_calc→surface_finish(tool_nose_radius=1.2, feed=0.3)"],
+              "validation": "Ra predictions within ±10% of prism_calc"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/SurfaceFinishPredictor.ts", "type": "source", "description": "Surface finish predictor — Ra from tool geometry and feed with corrections", "line_count_est": 130 }
+          ],
+          "estimated_tokens": 2000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U03",
+          "title": "Port Stability Lobe Diagram",
+          "phase": "P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_calc", "action": "stability", "params_hint": "cross-check lobe boundaries" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U02"],
+          "entry_conditions": [
+            "KienzleForceModel.ts exists (stability depends on cutting force coefficients)",
+            "PRISM_CHATTER_PREDICTION_ENGINE.js accessible in extracted_modules/",
+            "PRISM_WAVELET_CHATTER.js accessible for advanced chatter reference"
+          ],
+          "exit_conditions": [
+            "src/algorithms/StabilityLobeDiagram.ts exists",
+            "Implements blim = -1/(2Ks×Re[G(jω)]) from FRF, tooth-passing frequency analysis",
+            "Cross-check with prism_calc→stability within ±5%"
+          ],
+          "rollback": "git checkout -- src/algorithms/StabilityLobeDiagram.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read PRISM_CHATTER_PREDICTION_ENGINE.js and PRISM_WAVELET_CHATTER.js for stability lobe implementation reference",
+              "tool_calls": [],
+              "validation": "FRF-based stability limit formula and lobe computation approach understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Write src/algorithms/StabilityLobeDiagram.ts with blim calculation from FRF, tooth-passing frequency, typed interfaces",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 3,
+              "instruction": "Cross-check against prism_calc→stability",
+              "tool_calls": ["prism_calc→stability(spindle_speed=8000, teeth=4, natural_freq=1200, damping=0.03)"],
+              "validation": "Lobe boundaries match within ±5%"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/StabilityLobeDiagram.ts", "type": "source", "description": "Stability lobe diagram — critical depth from FRF analysis", "line_count_est": 170 }
+          ],
+          "estimated_tokens": 2500,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U04",
+          "title": "Port Chip Thinning Compensation",
+          "phase": "P2",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "tools": [
+            { "tool": "prism_calc", "action": "chip_thinning", "params_hint": "cross-check compensated feed" }
+          ],
+          "skills": ["mfg-chip-thinning"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "src/algorithms/types.ts exists",
+            "ToolpathCalculations.ts readable for chip thinning reference"
+          ],
+          "exit_conditions": [
+            "src/algorithms/ChipThinningCompensation.ts exists",
+            "Implements hex = fz × √(1-(1-2ae/D)²) and inverse solve for compensated feed",
+            "Cross-check with prism_calc→chip_thinning within ±5%"
+          ],
+          "rollback": "git checkout -- src/algorithms/ChipThinningCompensation.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read ToolpathCalculations.ts for chip thinning implementation reference",
+              "tool_calls": [],
+              "validation": "Chip thinning hex formula and inverse solve approach understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Write src/algorithms/ChipThinningCompensation.ts with hex calculation and compensated feed inverse solve, typed interfaces",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 3,
+              "instruction": "Cross-check against prism_calc→chip_thinning",
+              "tool_calls": ["prism_calc→chip_thinning(fz=0.1, ae=2.0, D=12.0)"],
+              "validation": "Compensated fz within ±5% of prism_calc"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/ChipThinningCompensation.ts", "type": "source", "description": "Chip thinning compensation — effective chipload and compensated feed inverse solve", "line_count_est": 110 }
+          ],
+          "estimated_tokens": 1800,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U05",
+          "title": "Port Thermal Partition + Power/Torque",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_calc", "action": "thermal", "params_hint": "cross-check thermal partition" },
+            { "tool": "prism_calc", "action": "power", "params_hint": "cross-check Pc = Fc×Vc/60000" }
+          ],
+          "skills": ["mfg-thermal-analysis", "mfg-power"],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P1-U02"],
+          "entry_conditions": [
+            "KienzleForceModel.ts exists (thermal/power needs Fc from Kienzle)",
+            "PRISM_CUTTING_THERMAL_ENGINE.js and PRISM_HEAT_TRANSFER_ENGINE.js accessible"
+          ],
+          "exit_conditions": [
+            "src/algorithms/ThermalPartitionModel.ts exists — Jaeger moving heat source partition",
+            "src/algorithms/PowerTorqueCalc.ts exists — Pc = Fc×Vc/60000, T = Fc×D/2000",
+            "Cross-check both with prism_calc→thermal and prism_calc→power within ±5%"
+          ],
+          "rollback": "git checkout -- src/algorithms/ThermalPartitionModel.ts src/algorithms/PowerTorqueCalc.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read PRISM_CUTTING_THERMAL_ENGINE.js and PRISM_HEAT_TRANSFER_ENGINE.js for thermal partition reference",
+              "tool_calls": [],
+              "validation": "Jaeger model partition ratio formula understood"
+            },
+            {
+              "number": 2,
+              "instruction": "Write src/algorithms/ThermalPartitionModel.ts with Jaeger moving heat source model, typed interfaces",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 3,
+              "instruction": "Write src/algorithms/PowerTorqueCalc.ts with Pc = Fc×Vc/60000 and T = Fc×D/2000, typed interfaces",
+              "tool_calls": [],
+              "validation": "File compiles with no TS errors"
+            },
+            {
+              "number": 4,
+              "instruction": "Cross-check both against prism_calc→thermal and prism_calc→power",
+              "tool_calls": ["prism_calc→thermal(material='steel-4140', speed=200, feed=0.2, depth=2.0)", "prism_calc→power(Fc=1200, speed=200, diameter=12)"],
+              "validation": "Values within ±5% of prism_calc"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/ThermalPartitionModel.ts", "type": "source", "description": "Jaeger moving heat source thermal partition model", "line_count_est": 140 },
+            { "path": "src/algorithms/PowerTorqueCalc.ts", "type": "source", "description": "Cutting power and torque calculator — Pc = Fc×Vc/60000, T = Fc×D/2000", "line_count_est": 90 }
+          ],
+          "estimated_tokens": 2800,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": ["All 5 algorithm outputs within ±5% of prism_calc values"]
+      }
+    },
+    {
+      "id": "P3",
+      "title": "Safety Validation + AlgorithmEngine Wiring",
+      "description": "Full safety validation of all 8 algorithms across 3 materials (24 test cases), barrel export, and AlgorithmEngine wiring.",
+      "sessions": "1",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "SAFETY GATE — Full validation of all 8 algorithms",
+          "phase": "P3",
+          "sequence": 0,
+          "role": "R4",
+          "role_name": "Scrutinizer",
+          "model": "opus-4.6",
+          "effort": 95,
+          "rationale": "Safety verification of all physics models — must be Opus",
+          "tools": [
+            { "tool": "prism_validate", "action": "safety", "params_hint": "validate all outputs" },
+            { "tool": "prism_validate", "action": "kienzle" },
+            { "tool": "prism_validate", "action": "taylor" },
+            { "tool": "prism_validate", "action": "johnson_cook" },
+            { "tool": "prism_calc", "action": "cutting_force" },
+            { "tool": "prism_calc", "action": "tool_life" },
+            { "tool": "prism_calc", "action": "surface_finish" },
+            { "tool": "prism_calc", "action": "stability" },
+            { "tool": "prism_calc", "action": "chip_thinning" },
+            { "tool": "prism_calc", "action": "thermal" },
+            { "tool": "prism_calc", "action": "power" }
+          ],
+          "skills": ["mfg-kienzle-validate", "mfg-taylor-validate", "mfg-johnson-cook-validate"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P2-U01", "P2-U02", "P2-U03", "P2-U04", "P2-U05"],
+          "entry_conditions": [
+            "All 8 algorithm files exist in src/algorithms/",
+            "All compile with no TS errors"
+          ],
+          "exit_conditions": [
+            "24/24 test cases pass (8 algorithms × 3 materials)",
+            "All S(x) >= 0.990 for Kienzle and Taylor",
+            "All outputs within ±5% of prism_calc existing values",
+            "prism_validate→safety passes on all outputs"
+          ],
+          "rollback": "Report failures — do not delete algorithms, fix them",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "For each of the 8 algorithms, run calculations against steel-4140, aluminum-6061, and titanium-6Al4V (24 total test cases)",
+              "tool_calls": [],
+              "validation": "24 result sets collected"
+            },
+            {
+              "number": 2,
+              "instruction": "Cross-check each result against corresponding prism_calc action — record delta percentages",
+              "tool_calls": [],
+              "validation": "All deltas <= 5%"
+            },
+            {
+              "number": 3,
+              "instruction": "Run prism_validate→safety on all outputs",
+              "tool_calls": ["prism_validate→safety(results=<all 24 test case outputs>)"],
+              "validation": "S(x) >= 0.990 for safety-critical models, all pass"
+            }
+          ],
+          "deliverables": [],
+          "estimated_tokens": 3500,
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P3-U02",
+          "title": "Wire AlgorithmEngine + barrel export",
+          "phase": "P3",
+          "sequence": 1,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "tools": [
+            { "tool": "prism_dev", "action": "build" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": ["autoDocAntiRegression"],
+          "features": [],
+          "dependencies": ["P3-U01"],
+          "entry_conditions": [
+            "All 8 algorithms validated and passing safety gate",
+            "No TS compile errors"
+          ],
+          "exit_conditions": [
+            "src/algorithms/index.ts barrel export exists — exports all 8 algorithms",
+            "src/engines/AlgorithmEngine.ts exists or modified — exposes getAlgorithm(name) pattern",
+            "AlgorithmEngine.getAlgorithm('kienzle') returns KienzleForceModel instance",
+            "npm run build:fast passes with 0 errors",
+            "MASTER_INDEX.md updated with 'Algorithms: 8 standalone' section"
+          ],
+          "rollback": "git checkout -- src/algorithms/index.ts src/engines/AlgorithmEngine.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create src/algorithms/index.ts barrel exporting all 8 algorithm classes",
+              "tool_calls": [],
+              "validation": "index.ts exports KienzleForceModel, ExtendedTaylorModel, JohnsonCookModel, SurfaceFinishPredictor, StabilityLobeDiagram, ChipThinningCompensation, ThermalPartitionModel, PowerTorqueCalc"
+            },
+            {
+              "number": 2,
+              "instruction": "Create or modify src/engines/AlgorithmEngine.ts to import all 8 via barrel and expose getAlgorithm(name) registry pattern",
+              "tool_calls": [],
+              "validation": "AlgorithmEngine.getAlgorithm('kienzle') returns instance"
+            },
+            {
+              "number": 3,
+              "instruction": "Run npm run build:fast and verify 0 errors",
+              "tool_calls": ["prism_dev→build()"],
+              "validation": "Build passes, 0 errors"
+            },
+            {
+              "number": 4,
+              "instruction": "Update MASTER_INDEX.md with new Algorithms section documenting all 8",
+              "tool_calls": [],
+              "validation": "MASTER_INDEX.md contains 'Algorithms: 8 standalone' section"
+            },
+            {
+              "number": 5,
+              "instruction": "Smoke test: AlgorithmEngine.calculate('kienzle', {material: 'steel-4140', feed: 0.2, depth: 2.0}) returns Fc > 0",
+              "tool_calls": [],
+              "validation": "Fc > 0 returned"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/algorithms/index.ts", "type": "source", "description": "Barrel export for all 8 algorithms", "line_count_est": 20 },
+            { "path": "src/engines/AlgorithmEngine.ts", "type": "source", "description": "Algorithm registry engine — getAlgorithm(name) pattern", "line_count_est": 100 }
+          ],
+          "estimated_tokens": 2000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.990,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": ["24/24 safety test cases pass", "AlgorithmEngine.getAlgorithm('kienzle') returns instance", "All outputs within ±5% of prism_calc"]
+      }
+    }
+  ],
+  "total_units": 10,
+  "total_sessions": "2-3",
+  "dependency_graph": "P1-U01 (interface) → P1-U02 (Kienzle) + P1-U03 (Taylor) [parallel]\nP1-U01 → P2-U01 (J-C) + P2-U02 (Surface) + P2-U04 (Chip) [parallel]\nP1-U02 → P2-U03 (Stability) + P2-U05 (Thermal+Power) [parallel]\nP2-* → P3-U01 (Safety Gate) → P3-U02 (Engine Wiring)",
+  "role_matrix": [
+    { "code": "R1", "name": "Schema Architect", "model": "opus-4.6", "effort": 75, "description": "Algorithm interface design" },
+    { "code": "R2", "name": "Implementer", "model": "sonnet-4.6", "effort": 75, "description": "Standard algorithm ports" },
+    { "code": "R4", "name": "Scrutinizer", "model": "opus-4.6", "effort": 95, "description": "Safety validation of physics models" },
+    { "code": "R6", "name": "Integrator", "model": "sonnet-4.6", "effort": 70, "description": "AlgorithmEngine wiring" }
+  ],
+  "tool_map": [
+    { "tool": "prism_sp", "phases": ["P1"], "purpose": "Brainstorm algorithm architecture" },
+    { "tool": "prism_validate", "phases": ["P1", "P2", "P3"], "purpose": "Validate Kienzle, Taylor, J-C models and safety" },
+    { "tool": "prism_calc", "phases": ["P1", "P2", "P3"], "purpose": "Cross-check algorithm outputs against existing implementations" },
+    { "tool": "prism_dev", "phases": ["P3"], "purpose": "Build verification" }
+  ],
+  "deliverables_index": [
+    { "path": "src/algorithms/types.ts", "type": "source", "description": "Shared algorithm interface types" },
+    { "path": "src/algorithms/KienzleForceModel.ts", "type": "source", "description": "Kienzle specific cutting force model" },
+    { "path": "src/algorithms/ExtendedTaylorModel.ts", "type": "source", "description": "Extended Taylor tool life model" },
+    { "path": "src/algorithms/JohnsonCookModel.ts", "type": "source", "description": "Johnson-Cook flow stress model" },
+    { "path": "src/algorithms/SurfaceFinishPredictor.ts", "type": "source", "description": "Surface finish predictor with corrections" },
+    { "path": "src/algorithms/StabilityLobeDiagram.ts", "type": "source", "description": "Stability lobe diagram from FRF" },
+    { "path": "src/algorithms/ChipThinningCompensation.ts", "type": "source", "description": "Chip thinning compensation" },
+    { "path": "src/algorithms/ThermalPartitionModel.ts", "type": "source", "description": "Jaeger thermal partition model" },
+    { "path": "src/algorithms/PowerTorqueCalc.ts", "type": "source", "description": "Power and torque calculator" },
+    { "path": "src/algorithms/index.ts", "type": "source", "description": "Barrel export" },
+    { "path": "src/engines/AlgorithmEngine.ts", "type": "source", "description": "Algorithm registry engine" }
+  ],
+  "existing_leverage": [
+    { "asset": "ManufacturingCalculations.ts", "type": "engine", "usage": "Reference implementation for Kienzle, Taylor, surface finish, power/torque" },
+    { "asset": "ToolpathCalculations.ts", "type": "engine", "usage": "Reference for chip thinning compensation" },
+    { "asset": "extracted_modules/priority_extraction/", "type": "monolith", "count": 19, "usage": "Original JS implementations for all 8 algorithms" },
+    { "asset": "extracted_modules/physics_engines/", "type": "monolith", "count": 8, "usage": "Advanced Taylor, thermal, wavelet chatter reference" },
+    { "asset": "Material registry", "type": "registry", "count": 6346, "usage": "kc1.1, mc, J-C coefficients per material" },
+    { "asset": "Tool registry", "type": "registry", "count": 15911, "usage": "Tool geometry for surface finish, stability calculations" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools", "missing_deps", "missing_exit_conditions",
+      "missing_rollback", "sequence_errors", "role_mismatch",
+      "effort_mismatch", "missing_indexing", "missing_skills",
+      "orphaned_deliverables", "underspecified_steps", "missing_tests"
+    ],
+    "improvement_threshold": 0.92
+  },
+  "position_file": "state/S1-MS2/position.json",
+  "state_dir": "state/S1-MS2/"
+}

@@ -105,7 +105,8 @@ describe('Kienzle Cutting Force', () => {
   });
 
   it('warns on kc inflation at very small engagement', () => {
-    const thinCut = { ...BASE_CONDITIONS, radial_depth: 0.12 };
+    // 0.03mm radial on 12mm tool = 0.25% engagement → kc inflation ~3.2× (above 3.0× threshold)
+    const thinCut = { ...BASE_CONDITIONS, radial_depth: 0.03 };
     const result = calculateKienzleCuttingForce(thinCut, MATERIALS['4140_annealed'].kienzle);
     expect(result.warnings.some(w => w.includes('KC_INFLATED'))).toBe(true);
   });

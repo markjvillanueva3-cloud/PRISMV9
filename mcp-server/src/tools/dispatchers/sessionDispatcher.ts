@@ -6,6 +6,7 @@ import { execSync } from "child_process";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
+import { PATHS } from "../../constants.js";
 
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {
@@ -59,9 +60,8 @@ function ok(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
-const PRISM_ROOT = "C:\\PRISM";
-const STATE_DIR = path.join(PRISM_ROOT, "state");
-const SCRIPTS_DIR = path.join(PRISM_ROOT, "scripts", "core");
+const STATE_DIR = PATHS.STATE_DIR;
+const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
 const CURRENT_STATE_FILE = path.join(STATE_DIR, "CURRENT_STATE.json");
 const SESSION_MEMORY_FILE = path.join(STATE_DIR, "SESSION_MEMORY.json");
 const ROADMAP_FILE = path.join(STATE_DIR, "ROADMAP_TRACKER.json");
@@ -69,7 +69,7 @@ const PRESSURE_LOG = path.join(STATE_DIR, "context_pressure_log.json");
 const EVENT_LOG_FILE = path.join(STATE_DIR, "session_events.jsonl");
 const SNAPSHOTS_DIR = path.join(STATE_DIR, "snapshots");
 const TRANSCRIPTS_DIR = "/mnt/transcripts";
-const PYTHON = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
+const PYTHON = PATHS.PYTHON;
 
 const THRESHOLDS = {
   GREEN_MAX: 0.60,
@@ -331,7 +331,7 @@ export function registerSessionDispatcher(server: any): void {
             let resumeDetection: any = null;
             try {
               const compactionArg = params.compaction_detected ? " --compaction-detected" : "";
-              const resumeOutput = runPythonScript("resume_detector.py", ["--json" + compactionArg]);
+              const resumeOutput = await runPythonScript("resume_detector.py", ["--json" + compactionArg]);
               resumeDetection = JSON.parse(resumeOutput);
             } catch { /* non-fatal — fall back to basic resume */ }
             
@@ -471,7 +471,7 @@ export function registerSessionDispatcher(server: any): void {
             const state = loadJsonFile(CURRENT_STATE_FILE);
             let isCompacted = false;
             let confidence = 0;
-            const indicators = [];
+            const indicators: Array<{ name: string; detected: boolean }> = [];
             
             if (!state || !state.currentSession) {
               isCompacted = true;
@@ -479,7 +479,7 @@ export function registerSessionDispatcher(server: any): void {
             }
             indicators.push({ name: "state_file", detected: !!state });
             
-            let latestTranscript = null;
+            let latestTranscript: string | null = null;
             try {
               if (fs.existsSync(TRANSCRIPTS_DIR)) {
                 const files = fs.readdirSync(TRANSCRIPTS_DIR)
@@ -493,7 +493,7 @@ export function registerSessionDispatcher(server: any): void {
             } catch (e) {
               // Continue
             }
-            
+
             indicators.push({ name: "transcript", detected: !!latestTranscript });
             
             const compactionType = isCompacted ? (latestTranscript ? "soft" : "hard") : "none";
@@ -586,7 +586,7 @@ export function registerSessionDispatcher(server: any): void {
           }
           
           case "session_recover": {
-            let latestTranscript = null;
+            let latestTranscript: string | null = null;
             try {
               if (fs.existsSync(TRANSCRIPTS_DIR)) {
                 const files = fs.readdirSync(TRANSCRIPTS_DIR)
@@ -710,8 +710,8 @@ export function registerSessionDispatcher(server: any): void {
             // DA-MS11 UTILIZATION: Run enhanced shutdown for quality scoring + cadence tracking
             let enhancedShutdown: any = null;
             try {
-              const PYTHON_PATH = "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe";
-              const shutdownScript = "C:\\PRISM\\scripts\\session_enhanced_shutdown.py";
+              const PYTHON_PATH = PATHS.PYTHON;
+              const shutdownScript = path.join(PATHS.SCRIPTS, "session_enhanced_shutdown.py");
               const summary = params.summary || params.quick_resume || "session ended";
               if (fs.existsSync(shutdownScript)) {
                 const sdOutput = execSync(
@@ -944,7 +944,7 @@ export function registerSessionDispatcher(server: any): void {
 
             // Get last position save time
             let lastPositionSave: string | null = null;
-            const posFile = path.join(PRISM_ROOT, "mcp-server", "data", "docs", "roadmap", "CURRENT_POSITION.md");
+            const posFile = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             if (fs.existsSync(posFile)) {
               lastPositionSave = fs.statSync(posFile).mtime.toISOString();
             }

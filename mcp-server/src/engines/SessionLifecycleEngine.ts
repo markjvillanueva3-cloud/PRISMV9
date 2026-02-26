@@ -14,8 +14,9 @@
  */
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const PREP_TMP = path.join(STATE_DIR, "next_session_prep.tmp.json");
 const PREP_FINAL = path.join(STATE_DIR, "next_session_prep.json");
 const METRICS_FILE = path.join(STATE_DIR, "session_metrics.json");

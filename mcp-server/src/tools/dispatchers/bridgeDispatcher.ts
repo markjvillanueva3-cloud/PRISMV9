@@ -14,7 +14,7 @@ import { protocolBridgeEngine } from "../../engines/ProtocolBridgeEngine.js";
 import { log } from "../../utils/Logger.js";
 
 export function registerBridgeDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_bridge",
     "Multi-protocol API gateway for external system integration. REST/gRPC/GraphQL/WebSocket routing to PRISM dispatchers with auth (API key, bearer, mTLS), 3-tier rate limiting (burst/minute/hour), scope-based authorization. Actions: register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config",
     {
@@ -55,7 +55,7 @@ export function registerBridgeDispatcher(server: McpServer): void {
             result = protocolBridgeEngine.listApiKeys();
             break;
           case "route":
-            result = protocolBridgeEngine.routeRequest({
+            result = await protocolBridgeEngine.routeRequest({
               request_id: params.request_id || `req_${Date.now()}`,
               protocol: params.protocol || "rest",
               endpoint_id: params.endpoint_id || "",

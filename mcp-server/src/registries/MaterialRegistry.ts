@@ -214,9 +214,15 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     for (const [id, entry] of this.entries) {
       const material = entry.data;
       
-      // Index by name (lowercase for case-insensitive search)
+      // Index by name (normalized for case-insensitive search)
       if (material.name) {
-        this.indexByName.set(material.name.toLowerCase(), id);
+        const normalizedName = material.name.toLowerCase().trim().replace(/\s+/g, ' ');
+        const existing = this.indexByName.get(normalizedName);
+        if (existing && existing !== id) {
+          log.warn(`[MaterialRegistry] Name collision: "${material.name}" (${id}) normalizes to same key as existing entry (${existing}) — keeping first entry`);
+        } else {
+          this.indexByName.set(normalizedName, id);
+        }
       }
       
       // Index by ISO group — check both classification.iso_group AND top-level iso_group
@@ -253,8 +259,9 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     let material = this.get(identifier);
     if (material) return material;
     
-    // Try name lookup (case-insensitive)
-    const idFromName = this.indexByName.get(identifier.toLowerCase());
+    // Try name lookup (case-insensitive, whitespace-normalized)
+    const normalizedSearch = identifier.toLowerCase().trim().replace(/\s+/g, ' ');
+    const idFromName = this.indexByName.get(normalizedSearch);
     if (idFromName) {
       return this.get(idFromName);
     }
@@ -336,16 +343,16 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     if (options.hardness_min !== undefined) {
-      results = results.filter(m => 
-        (m.mechanical?.hardness_hrc || 0) >= options.hardness_min! ||
-        (m.mechanical?.hardness_hb || 0) >= options.hardness_min!
+      results = results.filter(m =>
+        (m.mechanical?.hardness?.rockwell_c || 0) >= options.hardness_min! ||
+        (m.mechanical?.hardness?.brinell || 0) >= options.hardness_min!
       );
     }
-    
+
     if (options.hardness_max !== undefined) {
-      results = results.filter(m => 
-        (m.mechanical?.hardness_hrc || 999) <= options.hardness_max! ||
-        (m.mechanical?.hardness_hb || 999) <= options.hardness_max!
+      results = results.filter(m =>
+        (m.mechanical?.hardness?.rockwell_c || 999) <= options.hardness_max! ||
+        (m.mechanical?.hardness?.brinell || 999) <= options.hardness_max!
       );
     }
     
@@ -590,7 +597,910 @@ export class MaterialRegistry extends BaseRegistry<Material> {
   private getNestedValue(obj: any, path: string): any {
     return path.split(".").reduce((o, k) => o?.[k], obj);
   }
+
+  /**
+   * Get the catalog of 81 source files targeting MaterialRegistry (65 MEDIUM + 16 LOW).
+   * Static access — no instance required.
+   */
+  static getSourceFileCatalog(): Record<string, MaterialSourceFileEntry> {
+    return MATERIAL_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Get catalog entries as an array with module names, optionally filtered by ISO group.
+   * Instance method for convenient access from registry consumers.
+   */
+  catalogSourceFiles(options?: {
+    iso_group?: string;
+    category?: string;
+    subcategory?: string;
+  }): Array<{ module: string } & MaterialSourceFileEntry> {
+    const entries = Object.entries(MATERIAL_SOURCE_FILE_CATALOG).map(
+      ([module, entry]) => ({ module, ...entry })
+    );
+
+    if (!options) return entries;
+
+    return entries.filter((e) => {
+      if (options.iso_group && e.iso_group !== options.iso_group) return false;
+      if (options.category && e.category !== options.category) return false;
+      if (options.subcategory && e.subcategory !== options.subcategory) return false;
+      return true;
+    });
+  }
 }
+
+// ============================================================================
+// MATERIAL SOURCE FILE CATALOG
+// 81 extracted JS source files targeting MaterialRegistry
+//   65 MEDIUM-priority (285,019 lines)  — extracted/
+//   16 LOW-priority    (347,390 lines)  — materials_complete + materials_enhanced
+// Total: 632,409 lines of material database source code
+// Generated: 2026-02-23 from MASTER_EXTRACTION_INDEX_V2.json
+// ============================================================================
+
+/** Type for a cataloged material source file entry */
+export interface MaterialSourceFileEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  subcategory: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  iso_group?: string;
+}
+
+/**
+ * Catalog of 81 extracted JS source files targeting MaterialRegistry.
+ *
+ * MEDIUM (65 files, 285,019 lines):
+ *   P - Steels (15 files, carbon/alloy/tool/free-machining)
+ *   M - Stainless steels (3 files)
+ *   K - Cast irons (3 files, gray/ductile/special)
+ *   N - Nonferrous metals (18 files, aluminum/copper/titanium/magnesium/zinc)
+ *   S - Superalloys (3 + 17 V9 batch files)
+ *   Plus 4 top-level material files and 2 engine files.
+ *
+ * LOW (16 files, 347,390 lines — P-MS5 Wave 4):
+ *   materials_complete/ — 2 complete profiles (P_STEELS, M_STAINLESS)
+ *   materials_enhanced/ — 14 enhanced profiles (12 P_STEELS, 2 M_STAINLESS)
+ */
+export const MATERIAL_SOURCE_FILE_CATALOG: Record<string, MaterialSourceFileEntry> = {
+  // --- engines/materials (2 files) ---
+  "PRISM_MATERIAL_SIMULATION_ENGINE": {
+    filename: "PRISM_MATERIAL_SIMULATION_ENGINE.js",
+    source_dir: "extracted/engines/materials",
+    category: "engines",
+    subcategory: "materials",
+    lines: 232,
+    safety_class: "MEDIUM",
+    description: "Material simulation engine for property prediction and modeling",
+    iso_group: undefined
+  },
+  "PRISM_REST_MATERIAL_ENGINE": {
+    filename: "PRISM_REST_MATERIAL_ENGINE.js",
+    source_dir: "extracted/engines/materials",
+    category: "engines",
+    subcategory: "materials",
+    lines: 234,
+    safety_class: "MEDIUM",
+    description: "Material REST API engine for material data access and queries",
+    iso_group: undefined
+  },
+
+  // --- materials/ top-level (4 files) ---
+  "EXOTIC_MATERIALS_DATABASE": {
+    filename: "EXOTIC_MATERIALS_DATABASE.js",
+    source_dir: "extracted/materials",
+    category: "materials",
+    subcategory: "",
+    lines: 560,
+    safety_class: "MEDIUM",
+    description: "Exotic materials database with specialty alloy properties and cutting data",
+    iso_group: undefined
+  },
+  "PRISM_ENHANCED_MATERIAL_DATABASE": {
+    filename: "PRISM_ENHANCED_MATERIAL_DATABASE.js",
+    source_dir: "extracted/materials",
+    category: "materials",
+    subcategory: "",
+    lines: 252,
+    safety_class: "MEDIUM",
+    description: "Enhanced material database with extended property coverage",
+    iso_group: undefined
+  },
+  "PRISM_MATERIALS_COMPLETE": {
+    filename: "PRISM_MATERIALS_COMPLETE.js",
+    source_dir: "extracted/materials",
+    category: "materials",
+    subcategory: "",
+    lines: 1293,
+    safety_class: "MEDIUM",
+    description: "Complete materials collection with full parameter coverage",
+    iso_group: undefined
+  },
+  "SCHEMA_127_PARAMETERS": {
+    filename: "SCHEMA_127_PARAMETERS.js",
+    source_dir: "extracted/materials",
+    category: "materials",
+    subcategory: "",
+    lines: 417,
+    safety_class: "MEDIUM",
+    description: "Material schema defining all 127 parameters per material entry",
+    iso_group: undefined
+  },
+
+  // --- materials/K_CAST_IRON (3 files, ISO group K) ---
+  "ductile_cast_irons_016_035": {
+    filename: "ductile_cast_irons_016_035.js",
+    source_dir: "extracted/materials/K_CAST_IRON",
+    category: "materials",
+    subcategory: "K_CAST_IRON",
+    lines: 1636,
+    safety_class: "MEDIUM",
+    description: "Ductile cast iron properties, machining parameters, and cutting data",
+    iso_group: "K"
+  },
+  "gray_cast_irons_001_015": {
+    filename: "gray_cast_irons_001_015.js",
+    source_dir: "extracted/materials/K_CAST_IRON",
+    category: "materials",
+    subcategory: "K_CAST_IRON",
+    lines: 2930,
+    safety_class: "MEDIUM",
+    description: "Gray cast iron properties, machining parameters, and cutting data",
+    iso_group: "K"
+  },
+  "special_cast_irons_036_060": {
+    filename: "special_cast_irons_036_060.js",
+    source_dir: "extracted/materials/K_CAST_IRON",
+    category: "materials",
+    subcategory: "K_CAST_IRON",
+    lines: 4874,
+    safety_class: "MEDIUM",
+    description: "Special cast iron properties, machining parameters, and cutting data",
+    iso_group: "K"
+  },
+
+  // --- materials/M_STAINLESS (3 files, ISO group M) ---
+  "stainless_conditions_generated": {
+    filename: "stainless_conditions_generated.js",
+    source_dir: "extracted/materials/M_STAINLESS",
+    category: "materials",
+    subcategory: "M_STAINLESS",
+    lines: 11197,
+    safety_class: "MEDIUM",
+    description: "Stainless steel condition variants with heat treatment parameters",
+    iso_group: "M"
+  },
+  "stainless_steels_001_050": {
+    filename: "stainless_steels_001_050.js",
+    source_dir: "extracted/materials/M_STAINLESS",
+    category: "materials",
+    subcategory: "M_STAINLESS",
+    lines: 17796,
+    safety_class: "MEDIUM",
+    description: "Stainless steel grades 001-050 properties and cutting data",
+    iso_group: "M"
+  },
+  "stainless_steels_051_100": {
+    filename: "stainless_steels_051_100.js",
+    source_dir: "extracted/materials/M_STAINLESS",
+    category: "materials",
+    subcategory: "M_STAINLESS",
+    lines: 18242,
+    safety_class: "MEDIUM",
+    description: "Stainless steel grades 051-100 properties and cutting data",
+    iso_group: "M"
+  },
+
+  // --- materials/N_NONFERROUS (18 files, ISO group N) ---
+  "aluminum_2xxx_011_030": {
+    filename: "aluminum_2xxx_011_030.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1848,
+    safety_class: "MEDIUM",
+    description: "Aluminum 2xxx series alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_2xxx_021_030": {
+    filename: "aluminum_2xxx_021_030.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1219,
+    safety_class: "MEDIUM",
+    description: "Aluminum 2xxx series alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_6xxx_031_050": {
+    filename: "aluminum_6xxx_031_050.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 649,
+    safety_class: "MEDIUM",
+    description: "Aluminum 6xxx series alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_6xxx_045_050": {
+    filename: "aluminum_6xxx_045_050.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 375,
+    safety_class: "MEDIUM",
+    description: "Aluminum 6xxx series alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_6xxx_generated": {
+    filename: "aluminum_6xxx_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2243,
+    safety_class: "MEDIUM",
+    description: "Generated aluminum 6xxx series alloy properties and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_7xxx_051_070": {
+    filename: "aluminum_7xxx_051_070.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2390,
+    safety_class: "MEDIUM",
+    description: "Aluminum 7xxx series alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_7xxx_generated": {
+    filename: "aluminum_7xxx_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 4260,
+    safety_class: "MEDIUM",
+    description: "Generated aluminum 7xxx series alloy properties and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_alloys_001_010": {
+    filename: "aluminum_alloys_001_010.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2164,
+    safety_class: "MEDIUM",
+    description: "Aluminum alloy base grades properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_cast_071_090": {
+    filename: "aluminum_cast_071_090.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2428,
+    safety_class: "MEDIUM",
+    description: "Aluminum cast alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_cast_generated": {
+    filename: "aluminum_cast_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1119,
+    safety_class: "MEDIUM",
+    description: "Generated aluminum cast alloy properties and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_temper_conditions": {
+    filename: "aluminum_temper_conditions.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 15595,
+    safety_class: "MEDIUM",
+    description: "Aluminum temper condition variants with mechanical properties",
+    iso_group: "N"
+  },
+  "aluminum_wrought_011_050": {
+    filename: "aluminum_wrought_011_050.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1852,
+    safety_class: "MEDIUM",
+    description: "Aluminum wrought alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "aluminum_wrought_generated": {
+    filename: "aluminum_wrought_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2277,
+    safety_class: "MEDIUM",
+    description: "Generated aluminum wrought alloy properties and cutting data",
+    iso_group: "N"
+  },
+  "copper_alloys_generated": {
+    filename: "copper_alloys_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 2933,
+    safety_class: "MEDIUM",
+    description: "Copper alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "copper_temper_conditions": {
+    filename: "copper_temper_conditions.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 8585,
+    safety_class: "MEDIUM",
+    description: "Copper temper condition variants with mechanical properties",
+    iso_group: "N"
+  },
+  "magnesium_alloys_generated": {
+    filename: "magnesium_alloys_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1447,
+    safety_class: "MEDIUM",
+    description: "Magnesium alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "titanium_alloys_generated": {
+    filename: "titanium_alloys_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1714,
+    safety_class: "MEDIUM",
+    description: "Titanium alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+  "zinc_alloys_generated": {
+    filename: "zinc_alloys_generated.js",
+    source_dir: "extracted/materials/N_NONFERROUS",
+    category: "materials",
+    subcategory: "N_NONFERROUS",
+    lines: 1146,
+    safety_class: "MEDIUM",
+    description: "Zinc alloy properties, machining parameters, and cutting data",
+    iso_group: "N"
+  },
+
+  // --- materials/P_STEELS (15 files, ISO group P) ---
+  "alloy_steels_065_100": {
+    filename: "alloy_steels_065_100.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 13126,
+    safety_class: "MEDIUM",
+    description: "Alloy steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "carbon_alloy_steel_conditions": {
+    filename: "carbon_alloy_steel_conditions.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 29941,
+    safety_class: "MEDIUM",
+    description: "Carbon and alloy steel condition variants with heat treatment parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_001_010": {
+    filename: "carbon_steels_001_010.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 1440,
+    safety_class: "MEDIUM",
+    description: "Carbon steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "carbon_steels_011_020": {
+    filename: "carbon_steels_011_020.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 2238,
+    safety_class: "MEDIUM",
+    description: "Carbon steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "carbon_steels_021_030": {
+    filename: "carbon_steels_021_030.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 2011,
+    safety_class: "MEDIUM",
+    description: "Carbon steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "carbon_steels_031_040": {
+    filename: "carbon_steels_031_040.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 1264,
+    safety_class: "MEDIUM",
+    description: "Carbon steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "carbon_steels_041_050": {
+    filename: "carbon_steels_041_050.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 797,
+    safety_class: "MEDIUM",
+    description: "Carbon steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "free_machining_steels_051_064": {
+    filename: "free_machining_steels_051_064.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 5210,
+    safety_class: "MEDIUM",
+    description: "Free machining steel properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "steels_151_200": {
+    filename: "steels_151_200.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 15911,
+    safety_class: "MEDIUM",
+    description: "Steel grades 151-200 properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "steels_201_250": {
+    filename: "steels_201_250.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 8960,
+    safety_class: "MEDIUM",
+    description: "Steel grades 201-250 properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "steels_251_300": {
+    filename: "steels_251_300.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 7961,
+    safety_class: "MEDIUM",
+    description: "Steel grades 251-300 properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "steels_301_350": {
+    filename: "steels_301_350.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 6467,
+    safety_class: "MEDIUM",
+    description: "Steel grades 301-350 properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "steels_351_400": {
+    filename: "steels_351_400.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 6775,
+    safety_class: "MEDIUM",
+    description: "Steel grades 351-400 properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "tool_steels_101_150": {
+    filename: "tool_steels_101_150.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 17497,
+    safety_class: "MEDIUM",
+    description: "Tool steel grades properties, machining parameters, and cutting data",
+    iso_group: "P"
+  },
+  "tool_steels_hardness_conditions": {
+    filename: "tool_steels_hardness_conditions.js",
+    source_dir: "extracted/materials/P_STEELS",
+    category: "materials",
+    subcategory: "P_STEELS",
+    lines: 31048,
+    safety_class: "MEDIUM",
+    description: "Tool steel hardness condition variants with heat treatment parameters",
+    iso_group: "P"
+  },
+
+  // --- materials/S_SUPERALLOYS (3 files, ISO group S) ---
+  "cobalt_superalloys_generated": {
+    filename: "cobalt_superalloys_generated.js",
+    source_dir: "extracted/materials/S_SUPERALLOYS",
+    category: "materials",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1188,
+    safety_class: "MEDIUM",
+    description: "Cobalt-based superalloy properties, machining parameters, and cutting data",
+    iso_group: "S"
+  },
+  "nickel_superalloys_011_020": {
+    filename: "nickel_superalloys_011_020.js",
+    source_dir: "extracted/materials/S_SUPERALLOYS",
+    category: "materials",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1568,
+    safety_class: "MEDIUM",
+    description: "Nickel superalloy grades properties, machining parameters, and cutting data",
+    iso_group: "S"
+  },
+  "nickel_superalloys_generated": {
+    filename: "nickel_superalloys_generated.js",
+    source_dir: "extracted/materials/S_SUPERALLOYS",
+    category: "materials",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1473,
+    safety_class: "MEDIUM",
+    description: "Generated nickel superalloy properties and cutting data",
+    iso_group: "S"
+  },
+
+  // --- materials_v9_complete/S_SUPERALLOYS (17 V9 batch files, ISO group S) ---
+  "s_superalloys_batch_20260125_010013": {
+    filename: "s_superalloys_batch_20260125_010013.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 993,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010133": {
+    filename: "s_superalloys_batch_20260125_010133.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1008,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010249": {
+    filename: "s_superalloys_batch_20260125_010249.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 988,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010411": {
+    filename: "s_superalloys_batch_20260125_010411.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1019,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010524": {
+    filename: "s_superalloys_batch_20260125_010524.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 983,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010641": {
+    filename: "s_superalloys_batch_20260125_010641.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1003,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010755": {
+    filename: "s_superalloys_batch_20260125_010755.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 978,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_010910": {
+    filename: "s_superalloys_batch_20260125_010910.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 978,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011032": {
+    filename: "s_superalloys_batch_20260125_011032.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1003,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011147": {
+    filename: "s_superalloys_batch_20260125_011147.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 993,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011312": {
+    filename: "s_superalloys_batch_20260125_011312.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 988,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011429": {
+    filename: "s_superalloys_batch_20260125_011429.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 998,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011545": {
+    filename: "s_superalloys_batch_20260125_011545.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 984,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011706": {
+    filename: "s_superalloys_batch_20260125_011706.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 999,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011827": {
+    filename: "s_superalloys_batch_20260125_011827.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 1008,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_011941": {
+    filename: "s_superalloys_batch_20260125_011941.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 943,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+  "s_superalloys_batch_20260125_012013": {
+    filename: "s_superalloys_batch_20260125_012013.js",
+    source_dir: "extracted/materials_v9_complete/S_SUPERALLOYS",
+    category: "materials_v9_complete",
+    subcategory: "S_SUPERALLOYS",
+    lines: 371,
+    safety_class: "MEDIUM",
+    description: "V9-enhanced superalloy profile batch with extended machining data",
+    iso_group: "S"
+  },
+
+  // --- LOW priority: materials_complete + materials_enhanced (P-MS5 Wave 4) ---
+
+  // --- materials_complete/ (2 files, 218,727 lines) ---
+  "M_STAINLESS_complete": {
+    filename: "M_STAINLESS_complete.js",
+    source_dir: "extracted/materials_complete/M_STAINLESS",
+    category: "materials_complete",
+    subcategory: "M_STAINLESS",
+    lines: 61969,
+    safety_class: "LOW",
+    description: "Complete stainless steel profile with full machining data library",
+    iso_group: "M"
+  },
+  "P_STEELS_complete": {
+    filename: "P_STEELS_complete.js",
+    source_dir: "extracted/materials_complete/P_STEELS",
+    category: "materials_complete",
+    subcategory: "P_STEELS",
+    lines: 156758,
+    safety_class: "LOW",
+    description: "Complete steel profile with full machining data library",
+    iso_group: "P"
+  },
+
+  // --- materials_enhanced/M_STAINLESS (2 files, ISO group M) ---
+  "stainless_steels_001_050_enhanced": {
+    filename: "stainless_steels_001_050_enhanced.js",
+    source_dir: "extracted/materials_enhanced/M_STAINLESS",
+    category: "materials_enhanced",
+    subcategory: "M_STAINLESS",
+    lines: 15615,
+    safety_class: "LOW",
+    description: "Enhanced stainless steel 001-050 profile with extended cutting parameters",
+    iso_group: "M"
+  },
+  "stainless_steels_051_100_enhanced": {
+    filename: "stainless_steels_051_100_enhanced.js",
+    source_dir: "extracted/materials_enhanced/M_STAINLESS",
+    category: "materials_enhanced",
+    subcategory: "M_STAINLESS",
+    lines: 18594,
+    safety_class: "LOW",
+    description: "Enhanced stainless steel 051-100 profile with extended cutting parameters",
+    iso_group: "M"
+  },
+
+  // --- materials_enhanced/P_STEELS (12 files, ISO group P) ---
+  "alloy_steels_065_100_enhanced": {
+    filename: "alloy_steels_065_100_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 11549,
+    safety_class: "LOW",
+    description: "Enhanced alloy steel profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_011_020_enhanced": {
+    filename: "carbon_steels_011_020_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3148,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 011-020 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_021_030_enhanced": {
+    filename: "carbon_steels_021_030_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3149,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 021-030 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_031_040_enhanced": {
+    filename: "carbon_steels_031_040_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3144,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 031-040 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "carbon_steels_041_050_enhanced": {
+    filename: "carbon_steels_041_050_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 3149,
+    safety_class: "LOW",
+    description: "Enhanced carbon steel 041-050 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "free_machining_steels_051_064_enhanced": {
+    filename: "free_machining_steels_051_064_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4580,
+    safety_class: "LOW",
+    description: "Enhanced free machining steel profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_151_200_enhanced": {
+    filename: "steels_151_200_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 19735,
+    safety_class: "LOW",
+    description: "Enhanced steel 151-200 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_201_250_enhanced": {
+    filename: "steels_201_250_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 11801,
+    safety_class: "LOW",
+    description: "Enhanced steel 201-250 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_251_300_enhanced": {
+    filename: "steels_251_300_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 9654,
+    safety_class: "LOW",
+    description: "Enhanced steel 251-300 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_301_350_enhanced": {
+    filename: "steels_301_350_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4465,
+    safety_class: "LOW",
+    description: "Enhanced steel 301-350 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "steels_351_400_enhanced": {
+    filename: "steels_351_400_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 4765,
+    safety_class: "LOW",
+    description: "Enhanced steel 351-400 profile with extended cutting parameters",
+    iso_group: "P"
+  },
+  "tool_steels_101_150_enhanced": {
+    filename: "tool_steels_101_150_enhanced.js",
+    source_dir: "extracted/materials_enhanced/P_STEELS",
+    category: "materials_enhanced",
+    subcategory: "P_STEELS",
+    lines: 15315,
+    safety_class: "LOW",
+    description: "Enhanced tool steel profile with extended cutting parameters",
+    iso_group: "P"
+  }
+};
 
 // Export singleton instance
 export const materialRegistry = new MaterialRegistry();

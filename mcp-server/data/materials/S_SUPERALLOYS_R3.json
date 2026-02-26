@@ -1,0 +1,66 @@
+{
+  "materials": [
+    {
+      "material_id": "SN-INCONEL718-SOLUTIONED",
+      "name": "Inconel 718 Solution Annealed",
+      "iso_group": "S",
+      "material_type": "nickel_superalloy",
+      "subcategory": "nickel_base",
+      "condition": "solution_annealed",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook", "Special_Metals_Technical_Bulletin", "Sandvik_Technical_Guide"],
+      "physical": {
+        "density": 8190, "melting_point": 1336, "specific_heat": 435,
+        "thermal_conductivity": 11.4, "thermal_expansion": 13.0,
+        "elastic_modulus": 205, "poisson_ratio": 0.30, "shear_modulus": 79, "bulk_modulus": 171
+      },
+      "mechanical": {
+        "hardness": { "brinell": 331, "vickers": 349, "rockwell_c": 36, "rockwell_b": null },
+        "tensile_strength": { "typical": 1035, "min": 965, "max": 1100 },
+        "yield_strength": { "typical": 862, "min": 793, "max": 930 },
+        "elongation": 12, "reduction_of_area": 15,
+        "impact_strength": 50, "fatigue_strength": 448, "fracture_toughness": 80
+      },
+      "kienzle": {
+        "kc1_1": 2400, "mc": 0.25,
+        "kc1_1_milling": 2160, "mc_milling": 0.235,
+        "kc1_1_drilling": 2640, "mc_drilling": 0.275
+      },
+      "johnson_cook": {
+        "A": 450, "B": 1700, "n": 0.65, "C": 0.017, "m": 1.3,
+        "T_melt": 1336, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 45, "n": 0.15,
+        "C_carbide": 38, "n_carbide": 0.12,
+        "C_ceramic": 120, "n_ceramic": 0.20,
+        "C_cbn": null, "n_cbn": null
+      },
+      "chip_formation": {
+        "chip_type": "continuous_tough", "chip_breaking": "poor",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "severe", "adhesion_tendency": "high"
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 25, "speed_finishing": 45,
+          "feed_roughing": 0.20, "feed_finishing": 0.08,
+          "doc_roughing": 2.0, "doc_finishing": 0.3
+        },
+        "milling": {
+          "speed_roughing": 20, "speed_finishing": 40,
+          "feed_per_tooth_roughing": 0.10, "feed_per_tooth_finishing": 0.05,
+          "doc_roughing": 1.5, "doc_finishing": 0.3
+        },
+        "tool_material": {
+          "recommended_grade": "Carbide K20 or Ceramic (SiAlON)",
+          "coating_recommendation": "TiAlN or AlTiN for heat resistance",
+          "geometry_recommendation": "Positive rake, high edge prep radius"
+        },
+        "coolant": { "type": "flood", "recommendation": "High-pressure coolant mandatory" }
+      },
+      "machinability": { "aisi_rating": 12, "relative_to_1212": 0.10 },
+      "_verified": { "session": 60, "date": "2026-02-14", "method": "handbook_reference", "params": 127 }
+    }
+  ]
+}

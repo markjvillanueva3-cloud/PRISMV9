@@ -11,6 +11,9 @@
  * @date 2026-02-08
  */
 
+import * as path from "path";
+import { PATHS } from "../constants.js";
+
 export type SlimLevel = "NORMAL" | "MODERATE" | "AGGRESSIVE";
 
 interface SlimConfig {
@@ -79,7 +82,7 @@ export function getCurrentPressurePct(): number {
   _lastPressureRead = now;
   try {
     const fs = require("fs");
-    const data = fs.readFileSync("C:\\PRISM\\state\\context_pressure.json", "utf-8");
+    const data = fs.readFileSync(path.join(PATHS.STATE_DIR, "context_pressure.json"), "utf-8");
     const parsed = JSON.parse(data);
     _cachedPressurePct = parsed.pressure_pct || 0;
   } catch { _cachedPressurePct = 0; }

@@ -1,0 +1,315 @@
+{
+  "materials": [
+    {
+      "material_id": "MD-2205-ANNEALED",
+      "name": "Duplex 2205 Solution Annealed",
+      "iso_group": "M",
+      "material_type": "stainless_steel",
+      "subcategory": "duplex",
+      "condition": "solution_annealed",
+      "data_quality": "verified",
+      "data_sources": [
+        "ASM_Metals_Handbook",
+        "Outokumpu_Technical_Data",
+        "Sandvik_Technical_Guide"
+      ],
+      "physical": {
+        "density": 7800,
+        "melting_point": 1385,
+        "specific_heat": 475,
+        "thermal_conductivity": 19,
+        "thermal_expansion": 13.7,
+        "elastic_modulus": 200,
+        "poisson_ratio": 0.3,
+        "shear_modulus": 76.9,
+        "bulk_modulus": 166.7
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 256,
+          "vickers": 270,
+          "rockwell_c": 26
+        },
+        "tensile_strength": {
+          "typical": 655,
+          "min": 620,
+          "max": 700
+        },
+        "yield_strength": {
+          "typical": 450,
+          "min": 420,
+          "max": 480
+        },
+        "elongation": 25,
+        "reduction_of_area": 44,
+        "impact_strength": 85,
+        "fatigue_strength": 328,
+        "fracture_toughness": 102,
+        "compressive_strength": 688,
+        "shear_strength": 393
+      },
+      "kienzle": {
+        "kc1_1": 2350,
+        "mc": 0.26,
+        "kc1_1_milling": 2115,
+        "mc_milling": 0.24,
+        "kc1_1_drilling": 2585,
+        "mc_drilling": 0.28,
+        "kc1_1_boring": 2468,
+        "mc_boring": 0.27,
+        "kc1_1_reaming": 1998,
+        "mc_reaming": 0.23
+      },
+      "johnson_cook": {
+        "A": 450,
+        "B": 1050,
+        "n": 0.5,
+        "C": 0.04,
+        "m": 1,
+        "T_melt": 1385,
+        "T_ref": 25,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 300
+      },
+      "taylor": {
+        "C": 130,
+        "n": 0.18,
+        "C_carbide": 104,
+        "n_carbide": 0.14,
+        "C_ceramic": 187,
+        "n_ceramic": 0.2,
+        "C_hss": 36,
+        "n_hss": 0.09
+      },
+      "chip_formation": {
+        "chip_type": "continuous_stringy",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "high",
+        "adhesion_tendency": "moderate",
+        "segmentation_frequency": "low",
+        "shear_angle": 28.45,
+        "chip_compression_ratio": 2.6550000000000002
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 80,
+          "speed_finishing": 120,
+          "feed_roughing": 0.25,
+          "feed_finishing": 0.1,
+          "doc_roughing": 2.5,
+          "doc_finishing": 0.5,
+          "coolant_type": "flood_emulsion",
+          "coolant_pressure": 10
+        },
+        "milling": {
+          "speed_roughing": 70,
+          "speed_finishing": 110,
+          "feed_per_tooth_roughing": 0.12,
+          "feed_per_tooth_finishing": 0.06,
+          "doc_roughing": 2,
+          "doc_finishing": 0.3,
+          "ae_roughing_pct": 50,
+          "ae_finishing_pct": 10
+        },
+        "coolant": {
+          "type": "flood",
+          "recommendation": "High-pressure coolant recommended"
+        },
+        "drilling": {
+          "speed": 48,
+          "feed_per_rev": 0.12,
+          "peck_depth_ratio": 1,
+          "point_angle": 130,
+          "coolant_type": "flood_emulsion",
+          "coolant_through": false
+        },
+        "tool_material": {
+          "recommended_grade": "M25 (GC2220/GC1125)",
+          "coating_recommendation": "PVD TiAlN",
+          "geometry_recommendation": "Sharp edge, positive rake 5-10°, 0.4mm nose, chip breaker essential"
+        }
+      },
+      "machinability": {
+        "aisi_rating": 35,
+        "relative_to_1212": 0.28,
+        "surface_finish_tendency": "moderate",
+        "tool_wear_pattern": "notch_wear",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_verified": {
+        "session": 60,
+        "date": "2026-02-14",
+        "method": "handbook_reference",
+        "params": 127
+      },
+      "surface": {
+        "achievable_ra_turning": 0.8,
+        "achievable_ra_milling": 1.6,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "low"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 2.07,
+        "heat_partition_ratio": 0.1,
+        "thermal_softening_onset": 400,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "marginal"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 100,
+        "postweld_treatment": "stress_relief_recommended"
+      },
+      "standards": {
+        "din": "X2CrNiMoN22-5-3",
+        "en": "1.4462",
+        "uns": "S32205"
+      },
+      "composition": {
+        "carbon": {
+          "min": 0,
+          "max": 0.03,
+          "typical": 0.02
+        },
+        "chromium": {
+          "min": 22,
+          "max": 23,
+          "typical": 22.5
+        },
+        "nickel": {
+          "min": 4.5,
+          "max": 6.5,
+          "typical": 5.5
+        },
+        "molybdenum": {
+          "min": 3,
+          "max": 3.5,
+          "typical": 3.25
+        },
+        "manganese": {
+          "min": 0,
+          "max": 2,
+          "typical": 1
+        },
+        "silicon": {
+          "min": 0,
+          "max": 1,
+          "typical": 0.5
+        },
+        "nitrogen": {
+          "min": 0.14,
+          "max": 0.2,
+          "typical": 0.17
+        },
+        "copper": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        },
+        "titanium": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        },
+        "niobium": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        },
+        "aluminum": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        },
+        "sulfur": {
+          "min": 0,
+          "max": 0.03,
+          "typical": 0.015
+        },
+        "phosphorus": {
+          "min": 0,
+          "max": 0.045,
+          "typical": 0.025
+        },
+        "iron": {
+          "min": 50,
+          "max": 80,
+          "typical": 65
+        },
+        "vanadium": {
+          "min": 0,
+          "max": 0.1,
+          "typical": 0
+        },
+        "tungsten": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        },
+        "cobalt": {
+          "min": 0,
+          "max": 0,
+          "typical": 0
+        }
+      },
+      "tribology": {
+        "sliding_friction": 0.42,
+        "adhesion_tendency": "moderate",
+        "galling_tendency": "moderate",
+        "welding_temperature": 950,
+        "oxide_stability": "excellent",
+        "lubricity_response": "moderate"
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.4,
+          "Ra_typical": 1.2,
+          "Ra_max": 3
+        },
+        "residual_stress_tendency": "neutral",
+        "white_layer_tendency": "low",
+        "work_hardening_depth": 0.08,
+        "microstructure_stability": "excellent",
+        "burr_formation": "moderate",
+        "surface_defect_sensitivity": "moderate",
+        "polishability": "good"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.72,
+        "heat_partition_to_chip": 0.78,
+        "heat_partition_to_tool": 0.14,
+        "heat_partition_to_workpiece": 0.08,
+        "thermal_softening_onset": 500,
+        "recrystallization_temperature": 900,
+        "hot_hardness_retention": "high",
+        "thermal_shock_sensitivity": "low"
+      },
+      "designation": {
+        "aisi_sae": "2205",
+        "uns": "S32205",
+        "din": "1.4462",
+        "jis": "SUS329J3L",
+        "en": "X2CrNiMoN22-5-3"
+      },
+      "statistics": {
+        "data_quality": "high",
+        "sample_size": 150,
+        "confidence_level": 0.96,
+        "standard_deviation_kc": 75,
+        "last_validated": "2025-12-01",
+        "source_references": [
+          "ASM-Handbook-Vol1",
+          "Machining-Data-Handbook",
+          "VDI-3323",
+          "SSINA-Data"
+        ]
+      }
+    }
+  ]
+}

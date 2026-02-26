@@ -11,6 +11,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
+import { PATHS } from "../../constants.js";
 
 const ACTIONS = ["create_task", "task_status", "task_result", "cancel_task", "list_tasks",
   "web_research", "code_sandbox", "hook_trigger", "hook_list", "hook_chain", "hook_stats"] as const;
@@ -116,7 +117,7 @@ async function executeTask(task: ManusTask): Promise<void> {
 
 function loadHookRegistry(): any {
   try {
-    const content = fs.readFileSync("C:\\PRISM\\data\\DEVELOPMENT_HOOKS_REGISTRY.json", "utf-8");
+    const content = fs.readFileSync(PATHS.HOOKS_REGISTRY, "utf-8");
     return JSON.parse(content);
   } catch { return null; }
 }

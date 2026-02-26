@@ -7,6 +7,7 @@
 
 import { Logger } from '../utils/Logger.js';
 import { Config } from '../utils/Config.js';
+import { PATHS } from '../constants.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -48,12 +49,12 @@ export abstract class BaseRegistry<T extends RegistryItem> {
     this.logger = new Logger(`Registry:${name}`);
     
     // Default layer paths - override in subclasses
-    const basePath = Config.get('dataPath', 'C:\\\\PRISM\\EXTRACTED');
+    const basePath = Config.get('dataPath', PATHS.EXTRACTED_DIR);
     this.layerPaths = {
       CORE: path.join(basePath, this.getCorePath()),
       ENHANCED: path.join(basePath, this.getEnhancedPath()),
-      USER: path.join(Config.get('userDataPath', 'C:\\PRISM\\data\\user'), this.name),
-      LEARNED: path.join(Config.get('learnedDataPath', 'C:\\PRISM\\data\\learned'), this.name),
+      USER: path.join(Config.get('userDataPath', path.join(PATHS.DATA_DIR, 'user')), this.name),
+      LEARNED: path.join(Config.get('learnedDataPath', path.join(PATHS.DATA_DIR, 'learned')), this.name),
     };
   }
 

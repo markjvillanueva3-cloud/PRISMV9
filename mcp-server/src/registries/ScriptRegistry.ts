@@ -24,7 +24,7 @@ import { fileExists, listDirectory } from "../utils/files.js";
 // ============================================================================
 
 export type ScriptLanguage = "python" | "powershell" | "bash" | "javascript" | "typescript";
-export type ScriptCategory = 
+export type ScriptCategory =
   | "session_management"
   | "skill_management"
   | "data_processing"
@@ -34,7 +34,8 @@ export type ScriptCategory =
   | "validation"
   | "utilities"
   | "testing"
-  | "deployment";
+  | "deployment"
+  | "dev_workflow";
 
 export interface ScriptParameter {
   name: string;
@@ -97,7 +98,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\pre_build_check.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\pre_build_check.js`],
     tags: ["build", "validation", "pre-build", "dispatchers"],
     priority: 10,
     status: "active",
@@ -112,7 +113,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\build_validator.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\build_validator.js`],
     tags: ["build", "validation", "inventory", "dispatchers"],
     priority: 9,
     status: "active",
@@ -131,9 +132,9 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
       { name: "label", type: "string", required: false, description: "Snapshot label (default: latest)" }
     ],
     usage_examples: [
-      'node C:\\PRISM\\scripts\\snapshot.js take pre-refactor',
-      'node C:\\PRISM\\scripts\\snapshot.js diff pre-refactor',
-      'node C:\\PRISM\\scripts\\snapshot.js list'
+      `node ${PATHS.SCRIPTS}\\snapshot.js take pre-refactor`,
+      `node ${PATHS.SCRIPTS}\\snapshot.js diff pre-refactor`,
+      `node ${PATHS.SCRIPTS}\\snapshot.js list`
     ],
     tags: ["regression", "snapshot", "validation", "anti-regression"],
     priority: 9,
@@ -153,8 +154,8 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
       { name: "--exports-only", type: "string", required: false, description: "Show only exported symbols" }
     ],
     usage_examples: [
-      'node C:\\PRISM\\scripts\\func_map.js src/tools/dispatchers/sessionDispatcher.ts',
-      'node C:\\PRISM\\scripts\\func_map.js src/index.ts --exports-only'
+      `node ${PATHS.SCRIPTS}\\func_map.js src/tools/dispatchers/sessionDispatcher.ts`,
+      `node ${PATHS.SCRIPTS}\\func_map.js src/index.ts --exports-only`
     ],
     tags: ["code", "navigation", "functions", "map"],
     priority: 8,
@@ -170,7 +171,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\health_check.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\health_check.js`],
     tags: ["health", "inventory", "dispatchers", "verification"],
     priority: 8,
     status: "active",
@@ -187,7 +188,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\session_state.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\session_state.js`],
     tags: ["session", "state", "recovery", "compaction"],
     priority: 10,
     status: "active",
@@ -205,8 +206,8 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
       { name: "task", type: "string", required: false, description: "Task description for skill selection" }
     ],
     usage_examples: [
-      'py -3 C:\\PRISM\\scripts\\gsd_startup.py "Your task description"',
-      'py -3 C:\\PRISM\\scripts\\gsd_startup.py  # Resume if active'
+      `py -3 ${PATHS.SCRIPTS}\\gsd_startup.py "Your task description"`,
+      `py -3 ${PATHS.SCRIPTS}\\gsd_startup.py  # Resume if active`
     ],
     tags: ["session", "startup", "gsd"],
     priority: 10,
@@ -222,7 +223,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\gsd_loader.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\gsd_loader.py`],
     tags: ["gsd", "loader", "config"],
     priority: 7,
     status: "active",
@@ -237,7 +238,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\session_init.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\session_init.py`],
     tags: ["session", "init"],
     priority: 7,
     status: "active",
@@ -254,7 +255,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\generate_verified_steels.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\generate_verified_steels.js`],
     tags: ["materials", "steels", "verification", "atcs"],
     priority: 8,
     status: "active",
@@ -269,7 +270,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\generate_verified_stainless.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\generate_verified_stainless.js`],
     tags: ["materials", "stainless", "verification", "atcs"],
     priority: 8,
     status: "active",
@@ -284,7 +285,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\generate_verified_nonferrous.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\generate_verified_nonferrous.js`],
     tags: ["materials", "nonferrous", "verification", "atcs"],
     priority: 8,
     status: "active",
@@ -299,7 +300,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\materials_auto_enhancer_v1.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\materials_auto_enhancer_v1.py`],
     tags: ["materials", "enhancement", "physics"],
     priority: 7,
     status: "active",
@@ -314,7 +315,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "javascript",
     interpreter: "node",
     parameters: [],
-    usage_examples: ['node C:\\PRISM\\scripts\\convert_machines_to_json.js'],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\convert_machines_to_json.js`],
     tags: ["machines", "conversion", "json"],
     priority: 6,
     status: "active",
@@ -329,7 +330,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\controller_alarm_builder.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\controller_alarm_builder.py`],
     tags: ["alarms", "controllers", "registry"],
     priority: 7,
     status: "active",
@@ -346,7 +347,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\registry_builder_r2.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\registry_builder_r2.py`],
     tags: ["registry", "builder"],
     priority: 7,
     status: "active",
@@ -361,7 +362,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\script_registry_builder.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\script_registry_builder.py`],
     tags: ["scripts", "registry", "builder"],
     priority: 6,
     status: "active",
@@ -376,7 +377,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\regression_checker.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\regression_checker.py`],
     tags: ["regression", "validation", "anti-regression"],
     priority: 9,
     status: "active",
@@ -391,7 +392,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\api_swarm_executor_v2.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\api_swarm_executor_v2.py`],
     tags: ["api", "swarm", "executor", "parallel"],
     priority: 7,
     status: "active",
@@ -406,7 +407,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\ilp_combination_engine.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\ilp_combination_engine.py`],
     tags: ["ilp", "optimization", "combination"],
     priority: 7,
     status: "active",
@@ -421,7 +422,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\prism_json_sort.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\prism_json_sort.py`],
     tags: ["json", "sort", "utility"],
     priority: 5,
     status: "active",
@@ -438,7 +439,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\gsd_sync_v2.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\gsd_sync_v2.py`],
     tags: ["gsd", "sync", "build", "auto-fire", "critical"],
     priority: 10,
     status: "active",
@@ -453,7 +454,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\phase0_hooks.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\phase0_hooks.py`],
     tags: ["hooks", "definitions", "registration", "phase0"],
     priority: 9,
     status: "active",
@@ -470,7 +471,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\compaction_detector.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\compaction_detector.py`],
     tags: ["compaction", "detection", "context", "recovery", "critical"],
     priority: 10,
     status: "active",
@@ -485,7 +486,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\state_reconstructor.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\state_reconstructor.py`],
     tags: ["state", "recovery", "compaction", "reconstruction", "critical"],
     priority: 10,
     status: "active",
@@ -500,7 +501,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\recovery_scorer.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\recovery_scorer.py`],
     tags: ["recovery", "scoring", "compaction", "quality"],
     priority: 8,
     status: "active",
@@ -517,7 +518,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\next_session_prep.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\next_session_prep.py`],
     tags: ["session", "handoff", "prep", "continuity"],
     priority: 9,
     status: "active",
@@ -532,7 +533,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\resume_detector.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\resume_detector.py`],
     tags: ["resume", "detection", "session", "handoff"],
     priority: 9,
     status: "active",
@@ -547,7 +548,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\resume_validator.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\resume_validator.py`],
     tags: ["resume", "validation", "integrity", "session"],
     priority: 9,
     status: "active",
@@ -562,7 +563,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\checkpoint_mapper.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\checkpoint_mapper.py`],
     tags: ["checkpoint", "dependencies", "mapping", "recovery"],
     priority: 7,
     status: "active",
@@ -584,8 +585,8 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
       { name: "--output", type: "string", required: false, description: "Output path" }
     ],
     usage_examples: [
-      'py -3 C:\\PRISM\\scripts\\core\\context_compressor.py --level medium',
-      'py -3 C:\\PRISM\\scripts\\core\\context_compressor.py --file state.json --level aggressive'
+      `py -3 ${PATHS.SCRIPTS}\\core\\context_compressor.py --level medium`,
+      `py -3 ${PATHS.SCRIPTS}\\core\\context_compressor.py --file state.json --level aggressive`
     ],
     tags: ["context", "compression", "pressure", "optimization"],
     priority: 9,
@@ -601,7 +602,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\context_pressure.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\context_pressure.py`],
     tags: ["context", "pressure", "monitoring", "tokens"],
     priority: 9,
     status: "active",
@@ -616,7 +617,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\context_monitor.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\context_monitor.py`],
     tags: ["context", "monitoring", "growth", "analysis"],
     priority: 8,
     status: "active",
@@ -631,7 +632,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\context_expander.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\context_expander.py`],
     tags: ["context", "expansion", "rehydration", "loading"],
     priority: 7,
     status: "active",
@@ -646,7 +647,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\attention_scorer.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\attention_scorer.py`],
     tags: ["attention", "scoring", "focus", "manus", "context"],
     priority: 8,
     status: "active",
@@ -661,7 +662,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\focus_optimizer.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\focus_optimizer.py`],
     tags: ["focus", "optimization", "attention", "priorities"],
     priority: 7,
     status: "active",
@@ -678,7 +679,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\error_extractor.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\error_extractor.py`],
     tags: ["error", "extraction", "analysis", "failure"],
     priority: 8,
     status: "active",
@@ -693,7 +694,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\pattern_detector.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\pattern_detector.py`],
     tags: ["pattern", "detection", "analysis", "learning"],
     priority: 7,
     status: "active",
@@ -708,7 +709,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\learning_store.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\learning_store.py`],
     tags: ["learning", "storage", "patterns", "knowledge"],
     priority: 7,
     status: "active",
@@ -725,7 +726,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\session_lifecycle.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\session_lifecycle.py`],
     tags: ["session", "lifecycle", "management", "coordination"],
     priority: 8,
     status: "active",
@@ -740,7 +741,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\workflow_tracker.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\workflow_tracker.py`],
     tags: ["workflow", "state", "tracking", "transitions"],
     priority: 7,
     status: "active",
@@ -755,7 +756,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\wip_capturer.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\wip_capturer.py`],
     tags: ["wip", "capture", "state", "compaction"],
     priority: 8,
     status: "active",
@@ -772,7 +773,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\skill_mcp.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\skill_mcp.py`],
     tags: ["skill", "mcp", "registry", "bridge"],
     priority: 7,
     status: "active",
@@ -787,7 +788,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\master_orchestrator_v2.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\master_orchestrator_v2.py`],
     tags: ["orchestration", "master", "routing", "agents"],
     priority: 8,
     status: "active",
@@ -802,7 +803,7 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     language: "python",
     interpreter: "py -3",
     parameters: [],
-    usage_examples: ['py -3 C:\\PRISM\\scripts\\core\\manus_context_engineering.py'],
+    usage_examples: [`py -3 ${PATHS.SCRIPTS}\\core\\manus_context_engineering.py`],
     tags: ["manus", "context", "engineering", "laws"],
     priority: 7,
     status: "active",
@@ -821,7 +822,7 @@ export class ScriptRegistry extends BaseRegistry<Script> {
   private builtInScripts: Map<string, Partial<Script>> = new Map();
 
   constructor() {
-    super("scripts");
+    super("scripts", path.join(PATHS.STATE_DIR, "script-registry.json"), "1.0.0");
     this.initializeBuiltInScripts();
   }
 
@@ -847,35 +848,12 @@ export class ScriptRegistry extends BaseRegistry<Script> {
     
     // Load from scripts directory
     await this.loadFromPath(PATHS.SCRIPTS);
-    
-    // Ensure built-ins are present
-    for (const [id, builtIn] of this.builtInScripts) {
-      if (!this.entries.has(id)) {
-        const script: Script = {
-          script_id: id,
-          name: builtIn.name || id,
-          filename: builtIn.filename || `${id}.py`,
-          category: builtIn.category || "utilities",
-          description: builtIn.description || "",
-          language: builtIn.language || "python",
-          interpreter: builtIn.interpreter || "py -3",
-          path: `${PATHS.SCRIPTS}/${builtIn.filename || id + ".py"}`,
-          lines: 0,
-          size_bytes: 0,
-          parameters: builtIn.parameters || [],
-          requires: builtIn.requires || [],
-          usage_examples: builtIn.usage_examples || [],
-          tags: builtIn.tags || [],
-          priority: builtIn.priority || 5,
-          status: builtIn.status || "active",
-          enabled: builtIn.enabled ?? true,
-          created: "2026-01-01",
-          updated: "2026-01-31"
-        };
-        this.set(id, script);
-      }
-    }
-    
+
+    // R1-AUDIT-T3: Built-in metadata is used ONLY for enrichment when matching
+    // files are found on disk (see loadFromPath → line 924). No phantom entries
+    // are created for non-existent scripts. All 42 built-ins verified to have
+    // matching files on disk (2026-02-20).
+
     this.buildIndexes();
     
     this.loaded = true;

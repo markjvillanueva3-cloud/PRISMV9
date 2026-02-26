@@ -13,9 +13,10 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../../constants.js";
 
-const STATE_DIR = "C:\\PRISM\\state";
-const GSD_DIR = "C:\\PRISM\\mcp-server\\data\\docs\\gsd";
+const STATE_DIR = PATHS.STATE_DIR;
+const GSD_DIR = PATHS.GSD_DIR;
 const GSD_SECTIONS_DIR = path.join(GSD_DIR, "sections");
 const ACTIONS = ["core", "quick", "get", "dev_protocol", "resources_summary", "quick_resume"] as const;
 const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manus", "evidence", "gates", "start", "end", "d1", "d2", "d3", "d4"] as const;
@@ -25,7 +26,7 @@ const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manu
 // These are safety nets, not the primary source. Edit the .md files instead.
 // ============================================================================
 
-const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 31 dispatchers | 368 verified actions | 37 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
+const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 32 dispatchers | 382+ verified actions | 73 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
 
 const FALLBACK_DEV_PROTOCOL = "# Dev Protocol\n## Files not found — edit data/docs/gsd/DEV_PROTOCOL.md";
 

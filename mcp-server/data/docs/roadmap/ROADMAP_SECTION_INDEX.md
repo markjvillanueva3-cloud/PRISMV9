@@ -526,3 +526,102 @@
 | PRISM_RECOVERY_CARD.md | rc_session_end_protocol | 402 | SESSION END PROTOCOL |
 
 **Total entries: 519**
+| PHASE_R12_INFRASTRUCTURE.md | r12_clean_house_activate_dev_tooling_harden_test_infrastructure | 2 | Clean House, Activate Dev Tooling, Harden Test Infrastructure |
+| PHASE_R12_INFRASTRUCTURE.md | r12_quick_reference_standalone_after_compaction_no_other_doc_needed | 16 | QUICK REFERENCE (standalone after compaction — no other doc needed) |
+| PHASE_R12_INFRASTRUCTURE.md | r12_knowledge_contributions | 30 | KNOWLEDGE CONTRIBUTIONS |
+| PHASE_R12_INFRASTRUCTURE.md | r12_execution_model | 43 | EXECUTION MODEL |
+| PHASE_R12_INFRASTRUCTURE.md | r12_phase_objective | 60 | PHASE OBJECTIVE |
+| PHASE_R12_INFRASTRUCTURE.md | r12_dependency_map | 82 | DEPENDENCY MAP |
+| PHASE_R12_INFRASTRUCTURE.md | r12_context_bridge | 93 | CONTEXT BRIDGE |
+| PHASE_R12_INFRASTRUCTURE.md | r12_fault_injection_test | 120 | FAULT INJECTION TEST (XA-13) |
+| PHASE_R12_INFRASTRUCTURE.md | r12_task_dag | 148 | R12 Task DAG |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms0_housekeeping_historical_backfill | 163 | MS0: HOUSEKEEPING + HISTORICAL BACKFILL |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms0_t6_doc_sync | 320 | MS0-T6: Doc Sync — Reconcile Tracking Files |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms0_t7_state_cleanup_policy | 330 | MS0-T7: State Cleanup Policy |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms1_skill_trigger_activation | 348 | MS1: SKILL TRIGGER ACTIVATION + CONTEXT MATCHER UNBLOCK |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms2_cc_deferred_backlog | 460 | MS2: CC_DEFERRED BACKLOG EXECUTION |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms3_engine_decomposition | 668 | MS3: ENGINE DECOMPOSITION (Large File Split) |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms4_unified_test_infrastructure | 790 | MS4: UNIFIED TEST INFRASTRUCTURE |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms5_hook_telemetry_autopilot_tracing | 878 | MS5: HOOK TELEMETRY + AUTOPILOT TRACING |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms6_integration_pipeline_activation | 940 | MS6: INTEGRATION PIPELINE ACTIVATION (Excel/DuckDB) |
+| PHASE_R12_INFRASTRUCTURE.md | r12_ms7_phase_gate | 980 | MS7: PHASE GATE |
+| PHASE_R12_INFRASTRUCTURE.md | r12_effort_summary | 1030 | EFFORT SUMMARY |
+| PHASE_R13_EXTRACTION.md | r13_extract_transform_wire_monolith_manufacturing_intelligence | 2 | Extract, Transform & Wire Monolith Manufacturing Intelligence |
+| PHASE_R13_EXTRACTION.md | r13_quick_reference | 11 | QUICK REFERENCE |
+| PHASE_R13_EXTRACTION.md | r13_knowledge_contributions | 25 | KNOWLEDGE CONTRIBUTIONS |
+| PHASE_R13_EXTRACTION.md | r13_execution_model | 39 | EXECUTION MODEL |
+| PHASE_R13_EXTRACTION.md | r13_phase_objective | 63 | PHASE OBJECTIVE |
+| PHASE_R13_EXTRACTION.md | r13_dependency_map | 94 | DEPENDENCY MAP |
+| PHASE_R13_EXTRACTION.md | r13_context_bridge | 106 | CONTEXT BRIDGE |
+| PHASE_R13_EXTRACTION.md | r13_fault_injection_test | 131 | FAULT INJECTION TEST (XA-13) |
+| PHASE_R13_EXTRACTION.md | r13_extraction_priority_dag | 150 | EXTRACTION PRIORITY DAG |
+| PHASE_R13_EXTRACTION.md | r13_task_dag | 168 | R13 Task DAG |
+| PHASE_R13_EXTRACTION.md | r13_ms0_monolith_intelligence_scan | 179 | MS0: MONOLITH INTELLIGENCE SCAN + CLASSIFICATION |
+| PHASE_R13_EXTRACTION.md | r13_ms1_rules_engine_extraction | 280 | MS1: RULES ENGINE + MACHINING RULES EXTRACTION |
+| PHASE_R13_EXTRACTION.md | r13_ms2_best_practices_troubleshooting | 430 | MS2: BEST PRACTICES + TROUBLESHOOTING EXTRACTION |
+| PHASE_R13_EXTRACTION.md | r13_ms3_optimization_suite | 520 | MS3: OPTIMIZATION SUITE EXTRACTION (4 Engines) |
+| PHASE_R13_EXTRACTION.md | r13_ms4_gcode_generator | 620 | MS4: G-CODE GENERATOR EXTRACTION (Safety-Critical) |
+| PHASE_R13_EXTRACTION.md | r13_ms5_extracted_engine_audit | 720 | MS5: EXTRACTED ENGINE AUDIT (257 → Classified) |
+| PHASE_R13_EXTRACTION.md | r13_ms6_phase_gate | 770 | MS6: PHASE GATE |
+| PHASE_R13_EXTRACTION.md | r13_effort_summary | 810 | EFFORT SUMMARY |
+| PHASE_R14_PRODUCTS.md | r14_build_four_flagship_product_features | 2 | Build Four Flagship Product Features |
+| PHASE_R14_PRODUCTS.md | r14_quick_reference | 11 | QUICK REFERENCE |
+| PHASE_R14_PRODUCTS.md | r14_knowledge_contributions | 25 | KNOWLEDGE CONTRIBUTIONS |
+| PHASE_R14_PRODUCTS.md | r14_execution_model | 39 | EXECUTION MODEL |
+| PHASE_R14_PRODUCTS.md | r14_phase_objective | 66 | PHASE OBJECTIVE |
+| PHASE_R14_PRODUCTS.md | r14_dependency_map | 87 | DEPENDENCY MAP |
+| PHASE_R14_PRODUCTS.md | r14_context_bridge | 101 | CONTEXT BRIDGE |
+| PHASE_R14_PRODUCTS.md | r14_fault_injection_test | 126 | FAULT INJECTION TEST (XA-13) |
+| PHASE_R14_PRODUCTS.md | r14_task_dag | 148 | R14 Task DAG |
+| PHASE_R14_PRODUCTS.md | r14_ms0_product_architecture | 159 | MS0: PRODUCT ARCHITECTURE + API DESIGN |
+| PHASE_R14_PRODUCTS.md | r14_ms1_post_processor_framework | 280 | MS1: POST PROCESSOR FRAMEWORK |
+| PHASE_R14_PRODUCTS.md | r14_ms2_quoting_engine | 450 | MS2: COST ESTIMATION / QUOTING ENGINE |
+| PHASE_R14_PRODUCTS.md | r14_ms3_process_planning_engine | 560 | MS3: PROCESS PLANNING ENGINE |
+| PHASE_R14_PRODUCTS.md | r14_ms4_intelligent_troubleshooter | 680 | MS4: INTELLIGENT TROUBLESHOOTER |
+| PHASE_R14_PRODUCTS.md | r14_ms5_catalog_parsing | 770 | MS5: MANUFACTURER CATALOG PARSING PIPELINE |
+| PHASE_R14_PRODUCTS.md | r14_ms6_tool_holder_schema | 830 | MS6: TOOL HOLDER SCHEMA V2 UPGRADE |
+| PHASE_R14_PRODUCTS.md | r14_ms7_rest_api_expansion | 890 | MS7: REST API EXPANSION + DOCUMENTATION |
+| PHASE_R14_PRODUCTS.md | r14_ms8_phase_gate | 940 | MS8: PHASE GATE |
+| PHASE_R14_PRODUCTS.md | r14_effort_summary | 1010 | EFFORT SUMMARY |
+
+**Total entries: 576 (57 R12/R13/R14 entries — +2 from audit validation: T6 Doc Sync, T7 State Cleanup)**
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_enhance_integrate_wire_full_manufacturing_intelligence_to_app | 6 | Enhance MCP, Integrate ALL Monolith, Wire PRISM App |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_quick_reference | 15 | QUICK REFERENCE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_extraction_inventory | 31 | MONOLITH EXTRACTION INVENTORY |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_knowledge_contributions | 100 | KNOWLEDGE CONTRIBUTIONS |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_execution_model | 115 | EXECUTION MODEL |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_phase_objective | 148 | PHASE OBJECTIVE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_dependency_map | 185 | DEPENDENCY MAP |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_context_bridge | 200 | CONTEXT BRIDGE |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_fault_injection_test | 228 | FAULT INJECTION TEST |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ralph_validator_map | 240 | Ralph Validator Map |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_task_dag | 256 | R15 Task DAG |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms0 | 272 | MS0: Full Extraction Inventory + Gap Matrix |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms1 | 320 | MS1: Wave 3+4 Classification + Registry Expansion |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms2 | 370 | MS2: Post Processor + Optimization + Business Wiring |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms3 | 400 | MS3: Physics + Thermal + Vibration Critical Wiring |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms4 | 430 | MS4: New Skills + Scripts + Hooks + Engines |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms5 | 460 | MS5: Cadence + Hook + Telemetry Enhancement |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms6 | 486 | MS6: GSD Enhancement → v23.0 |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms7 | 504 | MS7: Memory + Context + Token Optimization |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms8 | 520 | MS8: PRISM App — Bridge + REST + WebSocket + Pages |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_ms9 | 580 | MS9: Phase Gate |
+| PHASE_R15_MCP_ENHANCEMENT.md | r15_effort_summary | 610 | EFFORT SUMMARY |
+
+**Total entries: 598 (576 + 22 R15 entries)**
+
+---
+
+## Active Roadmaps
+
+| Roadmap ID | File | Units | Status | Position File |
+|------------|------|-------|--------|---------------|
+| RGS | RGS-roadmap-generation-system.md | 46 | P5 IN_PROGRESS | data/state/RGS/position.json |
+
+### RGS — Roadmap Generation System
+
+- **File:** `RGS-roadmap-generation-system.md`
+- **Source:** `C:\Users\Admin.DIGITALSTORM-PC\Downloads\RGS-roadmap-generation-system.md`
+- **Description:** META — Roadmap Generation System (schema, generator, scrutinizer, atomizer, hooks, runner)
+- **Status:** P5 IN_PROGRESS (P0-P4 complete, 34/46 units done)
+- **Position:** `data/state/RGS/position.json`

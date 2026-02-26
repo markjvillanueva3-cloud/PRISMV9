@@ -14,7 +14,7 @@ import { multiTenantEngine } from "../../engines/MultiTenantEngine.js";
 import { log } from "../../utils/Logger.js";
 
 export function registerTenantDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_tenant",
     "Multi-tenant isolation with Shared Learning Bus. Tenant namespace isolation (state/{tenant_id}/), per-tenant resource limits, anonymized cross-tenant pattern sharing (0.5x external weight), 2-phase deletion. Actions: create, get, list, suspend, reactivate, delete, get_context, check_limit, publish_pattern, consume_patterns, promote_pattern, quarantine_pattern, slb_stats, stats, config",
     {

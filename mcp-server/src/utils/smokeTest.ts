@@ -33,6 +33,7 @@ export async function runSmokeTests(): Promise<SmokeResult> {
 
   // Test 2: Speed/Feed calculation
   try {
+    // @ts-expect-error Module may not exist yet — guarded by try/catch
     const { SpeedFeedEngine } = await import("../engines/SpeedFeedEngine.js");
     const engine = new SpeedFeedEngine();
     const result = engine.calculate({
@@ -48,8 +49,9 @@ export async function runSmokeTests(): Promise<SmokeResult> {
     failures.push({ test: "speed_feed", error: e.message?.slice(0, 100) || "unknown" });
   }
 
-  // Test 3: Thread calculation  
+  // Test 3: Thread calculation
   try {
+    // @ts-expect-error Module may not exist yet — guarded by try/catch
     const { ThreadEngine } = await import("../engines/ThreadEngine.js");
     const engine = new ThreadEngine();
     const result = engine.calculateTapDrill({ type: "metric", size: "M10", pitch: 1.5 });
@@ -61,6 +63,7 @@ export async function runSmokeTests(): Promise<SmokeResult> {
 
   // Test 4: Toolpath strategy
   try {
+    // @ts-expect-error Module may not exist yet — guarded by try/catch
     const { ToolpathEngine } = await import("../engines/ToolpathEngine.js");
     const engine = new ToolpathEngine();
     const result = engine.selectStrategy({ feature: "pocket", material_class: "steel", goal: "roughing" });
@@ -75,7 +78,7 @@ export async function runSmokeTests(): Promise<SmokeResult> {
     const { KnowledgeQueryEngine } = await import("../engines/KnowledgeQueryEngine.js");
     const engine = new KnowledgeQueryEngine();
     const stats = await engine.getStats();
-    const total = stats?.total_entries || stats?.total || 0;
+    const total = stats?.total_entries || (stats as any)?.total || 0;
     if (total > 25000) { passed++; }
     else { failures.push({ test: "knowledge_stats", error: `total=${total}, expected >25000` }); }
   } catch (e: any) {

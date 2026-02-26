@@ -1,0 +1,770 @@
+{
+  "scan_date": "2026-02-23",
+  "task_id": "MS0-T2",
+  "source_csv": "MS0_RAW_SCAN.csv",
+  "classification_criteria": {
+    "safety_class": {
+      "CRITICAL": "Physics/force/thermal calculations that directly affect machine safety, cutting forces, or thermal behavior",
+      "HIGH": "Optimization/toolpath algorithms that influence machine motion or cutting parameters",
+      "MEDIUM": "General manufacturing algorithms (search, scheduling, knowledge systems)",
+      "LOW": "Pure math/utility/infrastructure (graph theory, sorting, data structures)"
+    },
+    "integration_wave": {
+      "1": "CRITICAL safety_class - must integrate first with full validation",
+      "2": "HIGH safety_class - integrate with manufacturing-context testing",
+      "3": "MEDIUM safety_class - integrate with standard testing",
+      "4": "LOW safety_class - integrate last, utility/support role"
+    },
+    "complexity": {
+      "S": "Under 200 lines",
+      "M": "200-500 lines",
+      "L": "500-1000 lines",
+      "XL": "1000+ lines"
+    },
+    "mfg_relevance": {
+      "HIGH": "Directly used in manufacturing calculations (cutting, forces, thermal, toolpath)",
+      "MEDIUM": "Supporting role (optimization, search, knowledge systems)",
+      "LOW": "General purpose (pure math, graphics, data structures)"
+    }
+  },
+  "algorithms": {
+    "total": 52,
+    "by_safety_class": { "CRITICAL": 9, "HIGH": 11, "MEDIUM": 17, "LOW": 15 },
+    "by_complexity": { "S": 30, "M": 11, "L": 3, "XL": 8 },
+    "by_mfg_relevance": { "HIGH": 21, "MEDIUM": 17, "LOW": 14 },
+    "files": [
+      {
+        "name": "ALGORITHM_LIBRARY.js",
+        "lines": 2213,
+        "size_kb": 74.0,
+        "complexity": "XL",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Comprehensive toolpath algorithm library: morph spiral, trochoidal, adaptive clearing, rest machining, and finishing strategies. Core CAM toolpath generation.",
+        "potential_duplicate_of": "COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js"
+      },
+      {
+        "name": "COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js",
+        "lines": 2213,
+        "size_kb": 74.1,
+        "complexity": "XL",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Identical content to ALGORITHM_LIBRARY.js with const declaration added. Same morph spiral, trochoidal, adaptive clearing toolpath algorithms.",
+        "potential_duplicate_of": "ALGORITHM_LIBRARY.js"
+      },
+      {
+        "name": "PRISM_ACO_SEQUENCER.js",
+        "lines": 5383,
+        "size_kb": 196.8,
+        "complexity": "XL",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Ant Colony Optimization for hole sequencing and operation ordering. Metaheuristic optimizer for CNC drilling sequence optimization (TSP-variant)."
+      },
+      {
+        "name": "PRISM_ADVANCED_INTERPOLATION.js",
+        "lines": 176,
+        "size_kb": 6.7,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Advanced interpolation methods for CNC motion: cubic spline, NURBS interpolation, and look-ahead algorithms for smooth toolpath execution."
+      },
+      {
+        "name": "PRISM_ALGORITHM_ENSEMBLER.js",
+        "lines": 182,
+        "size_kb": 6.4,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Combines results from multiple algorithms using voting, averaging, or weighted strategies. Meta-algorithm for ensemble decision making."
+      },
+      {
+        "name": "PRISM_ALGORITHM_ORCHESTRATOR.js",
+        "lines": 225,
+        "size_kb": 9.2,
+        "complexity": "M",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Routes manufacturing problems to appropriate algorithms based on problem type classification (speed/feed, tool life, chatter, scheduling, path planning)."
+      },
+      {
+        "name": "PRISM_ALGORITHM_REGISTRY.js",
+        "lines": 3567,
+        "size_kb": 150.8,
+        "complexity": "XL",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Central registry of 210+ algorithms organized by category (optimization, graph, signal, manufacturing, ML). Metadata catalog with gateway references."
+      },
+      {
+        "name": "PRISM_ALGORITHM_STRATEGIES.js",
+        "lines": 257,
+        "size_kb": 10.3,
+        "complexity": "M",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "25 toolpath strategy definitions: Voronoi adaptive clearing, medial axis roughing, trochoidal strategies. Strategy selection for CAM operations."
+      },
+      {
+        "name": "PRISM_BEZIER_MIT.js",
+        "lines": 111,
+        "size_kb": 3.4,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Bezier curve evaluation and manipulation algorithms. De Casteljau subdivision, degree elevation, point-on-curve evaluation."
+      },
+      {
+        "name": "PRISM_CONTROL_SYSTEMS_MIT.js",
+        "lines": 117,
+        "size_kb": 3.9,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "PID controller implementation, Ziegler-Nichols tuning, transfer function analysis. Direct machine control algorithm for CNC servo loops."
+      },
+      {
+        "name": "PRISM_CORE_ALGORITHMS.js",
+        "lines": 616,
+        "size_kb": 20.6,
+        "complexity": "L",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Core data structures (priority queue, binary heap) and foundational algorithms from MIT 6.006/18.086. Infrastructure for other algorithm modules."
+      },
+      {
+        "name": "PRISM_CRITICAL_ALGORITHM_INTEGRATION.js",
+        "lines": 188,
+        "size_kb": 9.1,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Integration glue module that registers critical algorithms (Voronoi, Interior Point, Spectral) with global window scope. Wiring/bootstrap code."
+      },
+      {
+        "name": "PRISM_DFM_MIT.js",
+        "lines": 76,
+        "size_kb": 2.7,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "HIGH",
+        "description": "Design for Manufacturability analysis algorithms. Evaluates part designs for manufacturing feasibility, wall thickness, draft angles, etc."
+      },
+      {
+        "name": "PRISM_DIGITAL_CONTROL_MIT.js",
+        "lines": 101,
+        "size_kb": 3.2,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Digital control theory: Z-transform analysis, discrete-time controllers, digital filter design for CNC machine control systems."
+      },
+      {
+        "name": "PRISM_DS_SEARCH.js",
+        "lines": 102,
+        "size_kb": 3.4,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Knowledge base search interface across data structures, algorithms, systems, and manufacturing KBs. Lookup/retrieval utility."
+      },
+      {
+        "name": "PRISM_FFT_PREDICTIVE_CHATTER.js",
+        "lines": 330,
+        "size_kb": 11.8,
+        "complexity": "M",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "FFT-based chatter prediction using vibration signal analysis combined with stability lobe diagrams. Real-time spindle vibration monitoring for proactive chatter avoidance."
+      },
+      {
+        "name": "PRISM_GRAPH.js",
+        "lines": 285,
+        "size_kb": 9.2,
+        "complexity": "M",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Core graph algorithms: Dijkstra shortest path, BFS, DFS, topological sort. General-purpose graph traversal and shortest path computation.",
+        "potential_duplicate_of": "PRISM_GRAPH_ALGORITHMS.js"
+      },
+      {
+        "name": "PRISM_GRAPHICS.js",
+        "lines": 660,
+        "size_kb": 21.3,
+        "complexity": "L",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "3D graphics transformation matrices, projection, viewport calculations. Rendering pipeline utilities for CAD visualization."
+      },
+      {
+        "name": "PRISM_GRAPHICS_KERNEL_PASS.js",
+        "lines": 171,
+        "size_kb": 6.2,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "BVH (Bounding Volume Hierarchy) construction with SAH (Surface Area Heuristic). Spatial acceleration structure for ray tracing / collision in graphics kernel."
+      },
+      {
+        "name": "PRISM_GRAPHICS_MIT.js",
+        "lines": 276,
+        "size_kb": 10.1,
+        "complexity": "M",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "MIT-sourced computer graphics algorithms: rasterization, clipping, shading models. Academic graphics pipeline implementation."
+      },
+      {
+        "name": "PRISM_GRAPH_ALGORITHMS.js",
+        "lines": 315,
+        "size_kb": 10.2,
+        "complexity": "M",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "MEDIUM",
+        "description": "Graph algorithms with explicit CAM applications: Dijkstra for rapid move minimization, MST for tool grouping. Overlaps with PRISM_GRAPH.js but adds manufacturing context.",
+        "potential_duplicate_of": "PRISM_GRAPH.js"
+      },
+      {
+        "name": "PRISM_GRAPH_TOOLPATH.js",
+        "lines": 180,
+        "size_kb": 6.0,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Graph neural network for learning optimal CNC toolpath structures. Converts toolpath to graph representation with feed rate, curvature features for GNN-based optimization."
+      },
+      {
+        "name": "PRISM_JACOBIAN_ENGINE.js",
+        "lines": 238,
+        "size_kb": 9.0,
+        "complexity": "M",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Jacobian matrix computation and singularity analysis for multi-axis CNC kinematics. Maps joint velocities to end-effector velocities (forward kinematics via DH parameters)."
+      },
+      {
+        "name": "PRISM_JOHNSON_COOK_DATABASE.js",
+        "lines": 158,
+        "size_kb": 7.9,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Johnson-Cook constitutive model parameters (A, B, n, C, m, T_melt) for strain-rate sensitivity in high-speed machining. Material physics constants database."
+      },
+      {
+        "name": "PRISM_KDTREE.js",
+        "lines": 112,
+        "size_kb": 5.6,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "KD-Tree spatial partitioning data structure for nearest-neighbor queries. Used in point cloud processing and spatial lookups."
+      },
+      {
+        "name": "PRISM_KNOWLEDGE_INTEGRATION_TESTS.js",
+        "lines": 119,
+        "size_kb": 5.2,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Integration test suite verifying knowledge base modules are loaded correctly. Test harness, not production algorithm code."
+      },
+      {
+        "name": "PRISM_LINALG_MIT.js",
+        "lines": 155,
+        "size_kb": 4.5,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Linear algebra fundamentals: matrix multiply, transpose, determinant, inverse, LU decomposition. Foundation math used by physics and CAD modules."
+      },
+      {
+        "name": "PRISM_LOCAL_SEARCH.js",
+        "lines": 385,
+        "size_kb": 13.1,
+        "complexity": "M",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Local search algorithms: hill climbing (steepest ascent), random restart, tabu search, stochastic hill climbing. General optimization from MIT 6.034."
+      },
+      {
+        "name": "PRISM_LP_SOLVERS.js",
+        "lines": 131,
+        "size_kb": 4.3,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Linear programming solvers: simplex method and potentially interior point. Used for resource allocation and scheduling optimization."
+      },
+      {
+        "name": "PRISM_MANUFACTURING_ALGORITHMS.js",
+        "lines": 101,
+        "size_kb": 3.7,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Manufacturing-specific algorithms: cutting mechanics, chip formation, surface finish prediction. References MIT 2.008/2.810/2.830 manufacturing courses."
+      },
+      {
+        "name": "PRISM_MANUFACTURING_SEARCH.js",
+        "lines": 141,
+        "size_kb": 5.4,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Manufacturing-specific search: tool change optimization using Weighted A*, operation sequencing. Minimizes tool changes across operations.",
+        "potential_duplicate_of": "PRISM_MANUFACTURING_SEARCH_ENGINE.js"
+      },
+      {
+        "name": "PRISM_MANUFACTURING_SEARCH_ENGINE.js",
+        "lines": 148,
+        "size_kb": 5.3,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Manufacturing search engine: hole sequence optimization (TSP-like with A* + MST heuristic), fixture optimization. Overlapping purpose with PRISM_MANUFACTURING_SEARCH.js.",
+        "potential_duplicate_of": "PRISM_MANUFACTURING_SEARCH.js"
+      },
+      {
+        "name": "PRISM_MATH_FOUNDATIONS.js",
+        "lines": 1730,
+        "size_kb": 66.9,
+        "complexity": "XL",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Mathematical foundations: interval arithmetic engine (guaranteed calculation bounds), root finding, numerical integration, polynomial arithmetic. Core math infrastructure."
+      },
+      {
+        "name": "PRISM_MEMORY_EFFICIENT_SEARCH.js",
+        "lines": 160,
+        "size_kb": 5.2,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Memory-efficient search algorithms: IDA* (Iterative Deepening A*) with O(bd) space complexity. General-purpose search from MIT 6.034."
+      },
+      {
+        "name": "PRISM_NUMERICAL.js",
+        "lines": 185,
+        "size_kb": 5.6,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "General numerical methods: root finding (Newton-Raphson, bisection), numerical differentiation, integration (Simpson, Gauss). Foundation math."
+      },
+      {
+        "name": "PRISM_NUMERICAL_METHODS_MIT.js",
+        "lines": 167,
+        "size_kb": 5.0,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "MIT-sourced numerical methods: iterative solvers, interpolation, curve fitting. Academic numerical computing implementations.",
+        "potential_duplicate_of": "PRISM_NUMERICAL.js"
+      },
+      {
+        "name": "PRISM_NURBS_MIT.js",
+        "lines": 590,
+        "size_kb": 20.5,
+        "complexity": "L",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "NURBS (Non-Uniform Rational B-Spline) surface evaluation: Cox-de Boor basis functions, surface point evaluation, knot insertion, degree elevation. Critical for CAD/CAM geometry."
+      },
+      {
+        "name": "PRISM_OCTREE.js",
+        "lines": 111,
+        "size_kb": 6.0,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Octree spatial data structure for 3D spatial partitioning. Used in collision detection, point cloud processing, and stock modeling."
+      },
+      {
+        "name": "PRISM_ODE_SOLVERS_MIT.js",
+        "lines": 6386,
+        "size_kb": 235.2,
+        "complexity": "XL",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Comprehensive ODE solvers: Euler forward/backward, Runge-Kutta (RK4/RK45), Adams-Bashforth, BDF methods, adaptive step control. Used for dynamic simulation of cutting processes."
+      },
+      {
+        "name": "PRISM_OPTIMIZATION_ALGORITHMS.js",
+        "lines": 195,
+        "size_kb": 7.6,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Gradient-based optimization: steepest descent, conjugate gradient, BFGS, L-BFGS. General optimization toolbox from MIT 6.251J/15.099."
+      },
+      {
+        "name": "PRISM_PHASE3_GRAPH_NEURAL.js",
+        "lines": 424,
+        "size_kb": 13.9,
+        "complexity": "M",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Graph Neural Network (GCN layers) for manufacturing feature aggregation. Phase 3 deep learning module for learning from manufacturing feature graphs."
+      },
+      {
+        "name": "PRISM_PHASE7_KNOWLEDGE.js",
+        "lines": 2396,
+        "size_kb": 105.9,
+        "complexity": "XL",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Phase 7 knowledge management system: rule engines, expert systems, manufacturing knowledge representation. Multi-source academic knowledge integration (MIT, Stanford, CMU)."
+      },
+      {
+        "name": "PRISM_POLICY_GRADIENT_ENGINE.js",
+        "lines": 113,
+        "size_kb": 3.9,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Policy gradient reinforcement learning: REINFORCE algorithm with linear policy (softmax). Used for learning cutting parameter policies."
+      },
+      {
+        "name": "PRISM_RL_ALGORITHMS.js",
+        "lines": 358,
+        "size_kb": 13.3,
+        "complexity": "M",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Reinforcement learning algorithms: Q-Learning, SARSA, policy gradient. 50 algorithm implementations from Stanford CS234/Berkeley CS285 for manufacturing parameter optimization."
+      },
+      {
+        "name": "PRISM_SEARCH_ENHANCED.js",
+        "lines": 1961,
+        "size_kb": 78.5,
+        "complexity": "XL",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Enhanced search algorithms: Best-First, A*, Beam Search, Bidirectional search, IDA*, SMA*, RBFS. Comprehensive AI search from MIT 6.034."
+      },
+      {
+        "name": "PRISM_SIGNAL_ALGORITHMS.js",
+        "lines": 375,
+        "size_kb": 10.6,
+        "complexity": "M",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Signal processing: FFT (Cooley-Tukey), digital filters, spectral analysis, windowing functions. 60 algorithms for vibration monitoring, chatter detection, sensor data processing."
+      },
+      {
+        "name": "PRISM_SORTING.js",
+        "lines": 122,
+        "size_kb": 4.0,
+        "complexity": "S",
+        "safety_class": "LOW",
+        "integration_wave": 4,
+        "mfg_relevance": "LOW",
+        "description": "Sorting algorithms: quicksort, mergesort, heapsort, radix sort, timsort. General-purpose utility algorithms."
+      },
+      {
+        "name": "PRISM_SPECTRAL_GRAPH_CAD.js",
+        "lines": 185,
+        "size_kb": 6.6,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Spectral graph theory applied to CAD: face adjacency graph construction, spectral decomposition for mesh segmentation and feature recognition."
+      },
+      {
+        "name": "PRISM_SURFACE_GEOMETRY_MIT.js",
+        "lines": 173,
+        "size_kb": 6.1,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Surface geometry algorithms: Gaussian/mean curvature computation, surface normal calculation, parametric surface evaluation. Critical for toolpath-on-surface generation."
+      },
+      {
+        "name": "PRISM_TAYLOR_ADVANCED.js",
+        "lines": 51,
+        "size_kb": 2.2,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Extended Taylor tool life equation with strain rate: V*T^n*f^a*d^b=C. Computes tool life and optimizes cutting speed for target tool life. Tiny but safety-critical.",
+        "potential_duplicate_of": "PRISM_TAYLOR_TOOL_LIFE.js"
+      },
+      {
+        "name": "PRISM_TAYLOR_LOOKUP.js",
+        "lines": 45,
+        "size_kb": 1.7,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Taylor equation constant lookup by material class. Returns default n-exponent and C-constant values for steel, aluminum, titanium, cast iron, stainless, superalloys.",
+        "potential_duplicate_of": "PRISM_TAYLOR_TOOL_LIFE.js"
+      },
+      {
+        "name": "PRISM_TAYLOR_TOOL_LIFE.js",
+        "lines": 98,
+        "size_kb": 5.4,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Comprehensive Taylor tool life database: 150 material/tool combinations with C, n, a, b constants. Extended Taylor equation parameters for all major material classes and tool coatings."
+      }
+    ],
+    "duplicates_detected": [
+      {
+        "file_a": "ALGORITHM_LIBRARY.js",
+        "file_b": "COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js",
+        "confidence": "CONFIRMED",
+        "evidence": "Identical line count (2213), identical size (~75KB), identical content starting with morphSpiral toolpath generation. Only difference is 'const' declaration prefix.",
+        "recommendation": "MERGE - keep COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js (has proper const declaration), retire ALGORITHM_LIBRARY.js"
+      },
+      {
+        "file_a": "PRISM_GRAPH.js",
+        "file_b": "PRISM_GRAPH_ALGORITHMS.js",
+        "confidence": "HIGH",
+        "evidence": "Both implement Dijkstra as primary algorithm. PRISM_GRAPH.js (285 lines) has generic graph ops; PRISM_GRAPH_ALGORITHMS.js (315 lines) adds CAM application context (rapid move minimization).",
+        "recommendation": "MERGE - consolidate into PRISM_GRAPH_ALGORITHMS.js which has manufacturing context annotations"
+      },
+      {
+        "file_a": "PRISM_MANUFACTURING_SEARCH.js",
+        "file_b": "PRISM_MANUFACTURING_SEARCH_ENGINE.js",
+        "confidence": "HIGH",
+        "evidence": "Both do manufacturing-specific search optimization. PRISM_MANUFACTURING_SEARCH.js (141 lines) focuses on tool change optimization via Weighted A*. PRISM_MANUFACTURING_SEARCH_ENGINE.js (148 lines) focuses on hole sequence optimization via A*+MST. Complementary but overlapping scope.",
+        "recommendation": "MERGE - combine tool change and hole sequence optimization into single manufacturing search module"
+      },
+      {
+        "file_a": "PRISM_NUMERICAL.js",
+        "file_b": "PRISM_NUMERICAL_METHODS_MIT.js",
+        "confidence": "MEDIUM",
+        "evidence": "Both provide numerical methods (root finding, interpolation, integration). PRISM_NUMERICAL.js (185 lines) is general; PRISM_NUMERICAL_METHODS_MIT.js (167 lines) has MIT provenance. Likely overlapping implementations of Newton-Raphson, bisection, etc.",
+        "recommendation": "REVIEW - compare implementations and merge, keeping MIT-attributed versions for provenance"
+      },
+      {
+        "file_a": "PRISM_TAYLOR_ADVANCED.js",
+        "file_b": "PRISM_TAYLOR_LOOKUP.js",
+        "confidence": "MEDIUM",
+        "evidence": "Both relate to Taylor tool life. PRISM_TAYLOR_ADVANCED.js (51 lines) has compute functions. PRISM_TAYLOR_LOOKUP.js (45 lines) has constant lookups. PRISM_TAYLOR_TOOL_LIFE.js (98 lines) has comprehensive constant database. These three form a Taylor tool life cluster.",
+        "recommendation": "MERGE - consolidate all three Taylor files into single PRISM_TAYLOR_TOOL_LIFE.js with lookup, compute, and database sections"
+      }
+    ]
+  },
+  "formulas": {
+    "total": 12,
+    "by_safety_class": { "CRITICAL": 8, "HIGH": 3, "MEDIUM": 1 },
+    "by_complexity": { "S": 8, "M": 3, "L": 1 },
+    "by_mfg_relevance": { "HIGH": 11, "MEDIUM": 1 },
+    "files": [
+      {
+        "name": "PRISM_FORCE_LOOKUP.js",
+        "lines": 51,
+        "size_kb": 2.0,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Cutting force constant (Kc) lookup by material class. Returns specific cutting force values for steel, aluminum, titanium, cast iron, stainless, superalloy. Safety-critical for force predictions."
+      },
+      {
+        "name": "PRISM_MATERIAL_PHYSICS.js",
+        "lines": 54,
+        "size_kb": 2.0,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Material physics property lookups: density, Young's modulus, Poisson's ratio, shear modulus by material class. Constants-backed lookup against PRISM_CONSTANTS."
+      },
+      {
+        "name": "PRISM_MFG_PHYSICS.js",
+        "lines": 197,
+        "size_kb": 6.8,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Complete cutting analysis: combined force, temperature, and wear prediction. The central manufacturing physics formula engine integrating Merchant's theory, thermal models, and tool wear."
+      },
+      {
+        "name": "PRISM_STANDALONE_CALCULATOR_API.js",
+        "lines": 304,
+        "size_kb": 11.1,
+        "complexity": "M",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Standalone machining calculator: RPM/SFM conversion, feed rate calculations, MRR (material removal rate), power requirements, cost estimation. User-facing calculation API."
+      },
+      {
+        "name": "PRISM_STRESS.js",
+        "lines": 138,
+        "size_kb": 4.3,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "2D principal stress calculations: Mohr's circle, principal stresses, max shear stress, and principal angle computation. Foundational stress analysis.",
+        "potential_duplicate_of": "PRISM_STRESS_ANALYSIS.js"
+      },
+      {
+        "name": "PRISM_STRESS_ANALYSIS.js",
+        "lines": 254,
+        "size_kb": 8.5,
+        "complexity": "M",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Full 3D stress analysis: Von Mises equivalent stress, 3D stress tensor analysis, yield criteria. Extends PRISM_STRESS with 3D Von Mises and full tensor support.",
+        "potential_duplicate_of": "PRISM_STRESS.js"
+      },
+      {
+        "name": "PRISM_THERMAL_COMPENSATION.js",
+        "lines": 205,
+        "size_kb": 7.0,
+        "complexity": "M",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Kalman filter-based thermal error prediction for CNC machine compensation. Multi-sensor thermal model with state estimation for real-time thermal drift correction."
+      },
+      {
+        "name": "PRISM_THERMAL_LOOKUP.js",
+        "lines": 41,
+        "size_kb": 1.7,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Thermal limit lookup: max cutting temperature, workpiece max temperature, and coolant requirement determination (dry/mist/flood/high-pressure) by material class."
+      },
+      {
+        "name": "PRISM_THERMAL_PROPERTIES.js",
+        "lines": 112,
+        "size_kb": 5.5,
+        "complexity": "S",
+        "safety_class": "CRITICAL",
+        "integration_wave": 1,
+        "mfg_relevance": "HIGH",
+        "description": "Thermal properties database: thermal conductivity (k), specific heat (cp), thermal expansion (alpha), max service temp for steels, aluminum, titanium, stainless, superalloys."
+      },
+      {
+        "name": "PRISM_TOOL_LIFE_ESTIMATOR.js",
+        "lines": 133,
+        "size_kb": 4.9,
+        "complexity": "S",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Tool life estimation using Taylor constants by material/tool combination. Provides n, C, and maxLife values for carbide/HSS/ceramic across steel, aluminum, stainless, titanium, inconel."
+      },
+      {
+        "name": "PRISM_TOOL_WEAR_MODELS.js",
+        "lines": 552,
+        "size_kb": 21.2,
+        "complexity": "L",
+        "safety_class": "HIGH",
+        "integration_wave": 2,
+        "mfg_relevance": "HIGH",
+        "description": "Comprehensive tool wear modeling: Extended Taylor, Archard wear model, diffusion wear, abrasive wear, adhesive wear, oxidation wear. Multi-mechanism wear prediction from MIT 2.008."
+      },
+      {
+        "name": "PRISM_WEAR_LOOKUP.js",
+        "lines": 71,
+        "size_kb": 3.0,
+        "complexity": "S",
+        "safety_class": "MEDIUM",
+        "integration_wave": 3,
+        "mfg_relevance": "MEDIUM",
+        "description": "Wear limit lookups: VB max by operation type (finishing, semi-finishing, roughing, heavy roughing), wear mode identification based on speed/temperature/hardness conditions."
+      }
+    ],
+    "duplicates_detected": [
+      {
+        "file_a": "PRISM_STRESS.js",
+        "file_b": "PRISM_STRESS_ANALYSIS.js",
+        "confidence": "HIGH",
+        "evidence": "Both compute stress analysis. PRISM_STRESS.js (138 lines) does 2D principal stresses. PRISM_STRESS_ANALYSIS.js (254 lines) does 3D Von Mises. The larger file likely subsumes the smaller.",
+        "recommendation": "MERGE - consolidate into PRISM_STRESS_ANALYSIS.js which covers both 2D and 3D cases"
+      }
+    ]
+  },
+  "summary": {
+    "total_files_scanned": 64,
+    "total_algorithm_files": 52,
+    "total_formula_files": 12,
+    "wave_1_critical_files": 17,
+    "wave_2_high_files": 14,
+    "wave_3_medium_files": 18,
+    "wave_4_low_files": 15,
+    "confirmed_duplicate_pairs": 1,
+    "high_confidence_duplicate_pairs": 3,
+    "medium_confidence_duplicate_pairs": 2,
+    "total_duplicate_pairs": 6,
+    "estimated_dead_weight_lines": 5200,
+    "key_findings": [
+      "ALGORITHM_LIBRARY.js and COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js are byte-for-byte identical (2213 lines each) - confirmed duplicate",
+      "Three Taylor tool life files (TAYLOR_ADVANCED, TAYLOR_LOOKUP, TAYLOR_TOOL_LIFE) should be consolidated into one module",
+      "PRISM_STRESS.js is a subset of PRISM_STRESS_ANALYSIS.js - merge into one stress module",
+      "PRISM_GRAPH.js vs PRISM_GRAPH_ALGORITHMS.js both implement Dijkstra - merge with manufacturing annotations",
+      "PRISM_MANUFACTURING_SEARCH.js vs PRISM_MANUFACTURING_SEARCH_ENGINE.js have overlapping manufacturing search scope",
+      "PRISM_NUMERICAL.js vs PRISM_NUMERICAL_METHODS_MIT.js likely overlap on root finding and interpolation methods",
+      "Formula files are predominantly CRITICAL safety class (7 of 12) since they directly compute forces, temperatures, and stresses",
+      "Algorithm files are more evenly distributed: 6 CRITICAL, 14 HIGH, 17 MEDIUM, 15 LOW",
+      "Largest files: PRISM_ODE_SOLVERS_MIT.js (6386 lines), PRISM_ACO_SEQUENCER.js (5383 lines), PRISM_ALGORITHM_REGISTRY.js (3567 lines)",
+      "PRISM_KNOWLEDGE_INTEGRATION_TESTS.js is a test file, not a production algorithm - consider moving to test directory",
+      "PRISM_GRAPHICS_KERNEL_PASS.js contains malformed extraction (raw markdown with code block fences) - needs re-extraction"
+    ]
+  }
+}

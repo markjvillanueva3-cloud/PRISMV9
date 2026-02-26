@@ -17,8 +17,9 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
-const SKILLS_DIR = "C:\\PRISM\\skills-consolidated";
+const SKILLS_DIR = PATHS.SKILLS;
 
 // ============================================================================
 // BUNDLE DEFINITIONS (9 bundles)
@@ -196,3 +197,39 @@ const BUNDLES: SkillBundle[] = [
     trigger_actions: ["cost_optimize", "multi_optimize", "thermal", "brainstorm", "plan", "productivity", "cycle_time"]
   }
 ];
+
+// ============================================================================
+// PUBLIC API
+// ============================================================================
+
+/** Get all bundles */
+export function getAllBundles(): SkillBundle[] { return BUNDLES; }
+
+/** Get bundle by ID */
+export function getBundle(id: string): SkillBundle | undefined { return BUNDLES.find(b => b.id === id); }
+
+/** Find bundles that match a given action */
+export function getBundlesForAction(action: string): SkillBundle[] {
+  return BUNDLES.filter(b => b.trigger_actions.includes(action));
+}
+
+/** Find bundles that match a given domain */
+export function getBundlesForDomain(domain: string): SkillBundle[] {
+  return BUNDLES.filter(b => b.trigger_domains.includes(domain));
+}
+
+/** Get compact digest for context injection */
+export function getBundleDigest(id: string): string[] {
+  const bundle = BUNDLES.find(b => b.id === id);
+  return bundle?.digest || [];
+}
+
+/** List all bundle IDs with names */
+export function listBundles(): Array<{ id: string; name: string; skills: number; actions: number }> {
+  return BUNDLES.map(b => ({
+    id: b.id,
+    name: b.name,
+    skills: b.skills.length,
+    actions: b.trigger_actions.length
+  }));
+}

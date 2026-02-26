@@ -1,0 +1,4537 @@
+{
+  "version": "1.0.0",
+  "description": "Complete type definitions for all PRISM components",
+  "primitives": {
+    "Number": {
+      "type": "number",
+      "variants": [
+        "int",
+        "float",
+        "decimal"
+      ]
+    },
+    "String": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "Boolean": {
+      "type": "boolean"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "UUID": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "domain": {
+    "ValueWithUnit": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "uncertainty": {
+          "type": "number",
+          "optional": true
+        },
+        "confidence": {
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "optional": true
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ]
+    },
+    "MaterialInput": {
+      "type": "object",
+      "properties": {
+        "material_id": {
+          "type": "string"
+        },
+        "hardness": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "tensile_strength": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "density": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "thermal_conductivity": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "specific_heat": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "kc1_1": {
+          "type": "number",
+          "description": "Kienzle specific cutting force"
+        },
+        "mc": {
+          "type": "number",
+          "description": "Kienzle exponent"
+        }
+      },
+      "required": [
+        "material_id"
+      ]
+    },
+    "ToolInput": {
+      "type": "object",
+      "properties": {
+        "tool_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "endmill",
+            "insert",
+            "drill",
+            "tap",
+            "boring"
+          ]
+        },
+        "diameter": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "length": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "flutes": {
+          "type": "integer",
+          "min": 1
+        },
+        "helix_angle": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "rake_angle": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "relief_angle": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "edge_radius": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "coating": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_id",
+        "type",
+        "diameter"
+      ]
+    },
+    "MachineInput": {
+      "type": "object",
+      "properties": {
+        "machine_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "controller": {
+          "type": "string"
+        },
+        "spindle_max_rpm": {
+          "type": "number"
+        },
+        "spindle_power": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "spindle_torque_curve": {
+          "type": "array"
+        },
+        "axis_config": {
+          "type": "string"
+        },
+        "rapid_rate": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "max_feed_rate": {
+          "$ref": "#/domain/ValueWithUnit"
+        }
+      },
+      "required": [
+        "machine_id"
+      ]
+    },
+    "CuttingParameters": {
+      "type": "object",
+      "properties": {
+        "cutting_speed": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Vc in m/min"
+        },
+        "feed_per_tooth": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "fz in mm/tooth"
+        },
+        "feed_rate": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "f in mm/min"
+        },
+        "depth_of_cut": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "ap in mm"
+        },
+        "width_of_cut": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "ae in mm"
+        },
+        "spindle_speed": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "n in rpm"
+        }
+      }
+    },
+    "ForceOutput": {
+      "type": "object",
+      "properties": {
+        "Fc": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Cutting force"
+        },
+        "Ff": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Feed force"
+        },
+        "Fp": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Passive force"
+        },
+        "Fr": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Resultant force"
+        },
+        "torque": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Spindle torque"
+        }
+      }
+    },
+    "PowerOutput": {
+      "type": "object",
+      "properties": {
+        "Pc": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Cutting power"
+        },
+        "Pm": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "Motor power required"
+        },
+        "efficiency": {
+          "type": "number",
+          "min": 0,
+          "max": 1
+        },
+        "specific_energy": {
+          "$ref": "#/domain/ValueWithUnit"
+        }
+      }
+    },
+    "ToolLifeOutput": {
+      "type": "object",
+      "properties": {
+        "tool_life": {
+          "$ref": "#/domain/ValueWithUnit",
+          "description": "T in minutes"
+        },
+        "volume_removed": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "cost_per_part": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "recommended_speed": {
+          "$ref": "#/domain/ValueWithUnit"
+        }
+      }
+    },
+    "SurfaceOutput": {
+      "type": "object",
+      "properties": {
+        "Ra_theoretical": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "Ra_actual": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "Rz": {
+          "$ref": "#/domain/ValueWithUnit"
+        },
+        "Rt": {
+          "$ref": "#/domain/ValueWithUnit"
+        }
+      }
+    }
+  },
+  "formulas": {
+    "F-CUT-001": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-002": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-003": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-004": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-005": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-006": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-007": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-008": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-009": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-010": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-011": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-012": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-013": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-014": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-015": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-016": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-017": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-018": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-019": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-020": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-021": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-022": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-023": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-024": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-CUT-025": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ForceOutput"
+      }
+    },
+    "F-POW-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-POW-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-THERM-001": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-002": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-003": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-004": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-005": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-006": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-007": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-008": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-009": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-010": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-011": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-012": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-013": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-014": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-015": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-016": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-THERM-017": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ForceOutput"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "$ref": "#/domain/ValueWithUnit"
+          }
+        }
+      }
+    },
+    "F-LIFE-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-WEAR-001": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-WEAR-002": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-WEAR-003": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-WEAR-004": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-WEAR-005": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-WEAR-006": {
+      "input": {
+        "$ref": "#/domain/MaterialInput",
+        "additionalProperties": [
+          "CuttingParameters",
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/ToolLifeOutput"
+      }
+    },
+    "F-LIFE-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-LIFE-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-VIB-022": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SURF-001": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-002": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-003": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-004": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-005": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-006": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-007": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-008": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-009": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-010": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-011": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-012": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-013": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-014": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-015": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-016": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-SURF-017": {
+      "input": {
+        "$ref": "#/domain/CuttingParameters",
+        "additionalProperties": [
+          "ToolInput"
+        ]
+      },
+      "output": {
+        "$ref": "#/domain/SurfaceOutput"
+      }
+    },
+    "F-DEFL-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DEFL-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-CHIP-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MAT-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PROC-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-022": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-023": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ECON-024": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-022": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-QUAL-023": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-OPT-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MACH-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-GEOM-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SUST-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-ML-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SIG-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-021": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-022": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-025": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-026": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-027": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-030": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-031": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-032": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-035": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-036": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-037": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-038": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-039": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-PRM-040": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TOOL-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-COOL-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-FIX-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-SCHED-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-MET-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-TRIB-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-DT-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-001": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-002": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-003": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-004": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-005": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-006": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-007": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-008": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-009": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-010": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-011": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-012": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-013": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-014": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-015": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-016": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-017": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-018": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-019": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    },
+    "F-HYB-020": {
+      "input": {
+        "type": "object"
+      },
+      "output": {
+        "type": "object"
+      }
+    }
+  },
+  "engines": {}
+}

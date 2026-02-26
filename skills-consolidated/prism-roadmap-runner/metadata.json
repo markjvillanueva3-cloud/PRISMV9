@@ -1,0 +1,48 @@
+{
+  "skill_id": "prism-roadmap-runner",
+  "name": "PRISM Roadmap Runner",
+  "category": "workflow",
+  "version": "2.0.0",
+  "priority": 10,
+  "triggers": [
+    "continue roadmap",
+    "next unit",
+    "resume roadmap",
+    "roadmap status",
+    "continue roadmap {id}",
+    "roadmap list",
+    "switch roadmap",
+    "what's next on the roadmap",
+    "roadmap progress"
+  ],
+  "use_cases": [
+    "Executing the next unit in an active roadmap",
+    "Checking roadmap progress and current position",
+    "Managing multiple concurrent roadmaps",
+    "Running phase gates and quality checks"
+  ],
+  "dependencies": [
+    "prism-roadmap-schema"
+  ],
+  "related_skills": [
+    "prism-roadmap-generator",
+    "prism-roadmap-scrutinizer",
+    "prism-roadmap-atomizer"
+  ],
+  "tags": [
+    "roadmap",
+    "runner",
+    "execution",
+    "rgs",
+    "position",
+    "hooks",
+    "multi-roadmap"
+  ],
+  "files": {
+    "pre_hook": "mcp-server/src/hooks/pre-roadmap-execute.ts",
+    "post_hook": "mcp-server/src/hooks/post-roadmap-unit.ts",
+    "indexer": "mcp-server/src/scripts/index-roadmap-outputs.ts",
+    "command": ".claude/commands/continue-roadmap.md",
+    "schema": "mcp-server/src/schemas/roadmapSchema.ts"
+  }
+}

@@ -1,0 +1,939 @@
+/**
+ * PRISM_TAKUMI_MACHINE_DATABASE_ENHANCED_v2.js
+ * ENHANCED Machine Database - Takumi Machinery Co., Ltd.
+ * 
+ * Takumi is a Japanese manufacturer specializing in high-speed, high-precision
+ * machining centers for graphite electrode, die/mold, and precision parts.
+ * Known for exceptional surface finish quality and thermal stability.
+ * 
+ * ENHANCED FORMAT: Full kinematic chains, work envelopes, collision geometry
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.7
+ */
+
+const PRISM_TAKUMI_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Takumi",
+        full_name: "Takumi Machinery Co., Ltd.",
+        country: "Japan",
+        founded: 1988,
+        headquarters: "Nagoya, Japan",
+        specialty: "High-speed graphite machining, die/mold precision, EDM electrode manufacturing",
+        website: "https://www.takumi-mc.com",
+        version: "2.0.0-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 8
+    },
+
+    machines: [
+        // ============================================
+        // HIGH-SPEED GRAPHITE - H SERIES
+        // ============================================
+        {
+            id: "TAKUMI_H10",
+            manufacturer: "Takumi",
+            model: "H10",
+            type: "vertical_machining_center",
+            subtype: "high_speed_graphite",
+            description: "Ultra high-speed VMC optimized for graphite electrode machining",
+            
+            work_envelope: {
+                x: { min: 0, max: 500, unit: "mm" },
+                y: { min: 0, max: 400, unit: "mm" },
+                z: { min: 0, max: 300, unit: "mm" },
+                table_length: 600,
+                table_width: 400,
+                table_load_capacity: 200,
+                table_load_unit: "kg",
+                spindle_nose_to_table: { min: 80, max: 380 }
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "HSK-E40",
+                max_rpm: 40000,
+                power_rating: 12,
+                power_unit: "kW",
+                torque_max: 9.5,
+                torque_unit: "Nm",
+                bearing_type: "ceramic_hybrid",
+                bearing_lubrication: "oil_mist",
+                runout: 0.001,
+                thermal_growth_compensation: true
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 500,
+                    rapid_rate: 60000,
+                    max_feed: 40000,
+                    acceleration: 1.5,
+                    jerk: 50,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    guideway_preload: "medium",
+                    encoder_type: "linear_scale",
+                    encoder_resolution: 0.0001,
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                },
+                y: {
+                    travel: 400,
+                    rapid_rate: 60000,
+                    max_feed: 40000,
+                    acceleration: 1.5,
+                    jerk: 50,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    encoder_type: "linear_scale",
+                    encoder_resolution: 0.0001,
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                },
+                z: {
+                    travel: 300,
+                    rapid_rate: 48000,
+                    max_feed: 30000,
+                    acceleration: 1.2,
+                    jerk: 40,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    encoder_type: "linear_scale",
+                    encoder_resolution: 0.0001,
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                }
+            },
+            
+            atc: {
+                type: "turret_disc",
+                capacity: 16,
+                max_tool_diameter: 50,
+                max_tool_length: 150,
+                max_tool_weight: 1.5,
+                tool_change_time: 0.8,
+                chip_to_chip_time: 1.2
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3,
+                nano_interpolation: true,
+                ai_contour_control_II: true,
+                smooth_tolerance_control: true,
+                look_ahead_blocks: 1000,
+                block_processing_time: 0.5
+            },
+            
+            graphite_features: {
+                graphite_optimized: true,
+                dust_extraction_system: true,
+                sealed_way_covers: true,
+                positive_pressure_cabinet: true,
+                air_purge_spindle: true,
+                graphite_coolant_option: false
+            },
+            
+            thermal_compensation: {
+                spindle_growth: true,
+                axis_compensation: true,
+                environment_sensor: true,
+                real_time_compensation: true
+            },
+            
+            machine_dimensions: {
+                length: 1800,
+                width: 1900,
+                height: 2400,
+                weight: 3800,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column_linear",
+                chain: ["base", "column_X", "saddle_Y", "spindle_Z"],
+                moving_mass_x: 350,
+                moving_mass_y: 200,
+                moving_mass_z: 150
+            }
+        },
+        
+        {
+            id: "TAKUMI_H13",
+            manufacturer: "Takumi",
+            model: "H13",
+            type: "vertical_machining_center",
+            subtype: "high_speed_graphite",
+            description: "Large-format high-speed graphite machining center",
+            
+            work_envelope: {
+                x: { min: 0, max: 800, unit: "mm" },
+                y: { min: 0, max: 550, unit: "mm" },
+                z: { min: 0, max: 400, unit: "mm" },
+                table_length: 900,
+                table_width: 550,
+                table_load_capacity: 400,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "HSK-E50",
+                max_rpm: 30000,
+                power_rating: 18,
+                power_unit: "kW",
+                torque_max: 25,
+                torque_unit: "Nm",
+                bearing_type: "ceramic_hybrid"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 800,
+                    rapid_rate: 50000,
+                    max_feed: 30000,
+                    acceleration: 1.2,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.0015
+                },
+                y: {
+                    travel: 550,
+                    rapid_rate: 50000,
+                    max_feed: 30000,
+                    acceleration: 1.2,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.0015
+                },
+                z: {
+                    travel: 400,
+                    rapid_rate: 40000,
+                    max_feed: 25000,
+                    acceleration: 1.0,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.0015
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 24,
+                max_tool_diameter: 65,
+                max_tool_length: 200,
+                max_tool_weight: 3,
+                tool_change_time: 1.5
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3,
+                nano_interpolation: true,
+                ai_contour_control_II: true
+            },
+            
+            graphite_features: {
+                graphite_optimized: true,
+                dust_extraction_system: true,
+                sealed_way_covers: true,
+                positive_pressure_cabinet: true
+            },
+            
+            machine_dimensions: {
+                length: 2400,
+                width: 2300,
+                height: 2700,
+                weight: 6200,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column_linear",
+                chain: ["base", "column_X", "saddle_Y", "spindle_Z"]
+            }
+        },
+
+        // ============================================
+        // PRECISION DIE/MOLD - V SERIES
+        // ============================================
+        {
+            id: "TAKUMI_V11A",
+            manufacturer: "Takumi",
+            model: "V11A",
+            type: "vertical_machining_center",
+            subtype: "high_precision_vmc",
+            description: "High-precision VMC for die/mold finishing",
+            
+            work_envelope: {
+                x: { min: 0, max: 600, unit: "mm" },
+                y: { min: 0, max: 450, unit: "mm" },
+                z: { min: 0, max: 350, unit: "mm" },
+                table_length: 700,
+                table_width: 450,
+                table_load_capacity: 300,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "BBT40",
+                max_rpm: 20000,
+                power_rating: 15,
+                power_unit: "kW",
+                torque_max: 80,
+                torque_unit: "Nm",
+                bearing_type: "ceramic_hybrid",
+                dynamic_balance: "G0.4"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 600,
+                    rapid_rate: 48000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    guideway_type: "linear_roller",
+                    guideway_size: 35,
+                    ballscrew_diameter: 40,
+                    ballscrew_grade: "C3",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                },
+                y: {
+                    travel: 450,
+                    rapid_rate: 48000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                },
+                z: {
+                    travel: 350,
+                    rapid_rate: 40000,
+                    max_feed: 15000,
+                    acceleration: 0.9,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 24,
+                max_tool_diameter: 80,
+                max_tool_length: 250,
+                max_tool_weight: 7,
+                tool_change_time: 2.0
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3,
+                high_precision_contour: true,
+                nano_smoothing: true
+            },
+            
+            thermal_compensation: {
+                spindle_growth: true,
+                ballscrew_compensation: true,
+                structure_compensation: true
+            },
+            
+            machine_dimensions: {
+                length: 2200,
+                width: 2100,
+                height: 2600,
+                weight: 5000,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column",
+                chain: ["base", "column_X", "saddle_Y", "spindle_Z"]
+            }
+        },
+        
+        {
+            id: "TAKUMI_V15",
+            manufacturer: "Takumi",
+            model: "V15",
+            type: "vertical_machining_center",
+            subtype: "high_precision_vmc",
+            description: "Large high-precision VMC for mold work",
+            
+            work_envelope: {
+                x: { min: 0, max: 1000, unit: "mm" },
+                y: { min: 0, max: 610, unit: "mm" },
+                z: { min: 0, max: 500, unit: "mm" },
+                table_length: 1200,
+                table_width: 600,
+                table_load_capacity: 800,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "BBT40",
+                max_rpm: 15000,
+                power_rating: 22,
+                power_unit: "kW",
+                torque_max: 140,
+                torque_unit: "Nm"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 1000,
+                    rapid_rate: 40000,
+                    max_feed: 15000,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                y: {
+                    travel: 610,
+                    rapid_rate: 40000,
+                    max_feed: 15000,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                z: {
+                    travel: 500,
+                    rapid_rate: 32000,
+                    max_feed: 12000,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 30,
+                max_tool_diameter: 90,
+                max_tool_length: 300,
+                max_tool_weight: 8,
+                tool_change_time: 2.5
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3
+            },
+            
+            machine_dimensions: {
+                length: 3000,
+                width: 2600,
+                height: 3000,
+                weight: 9000,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column",
+                chain: ["base", "column_X", "saddle_Y", "spindle_Z"]
+            }
+        },
+
+        // ============================================
+        // 5-AXIS - U SERIES
+        // ============================================
+        {
+            id: "TAKUMI_U600",
+            manufacturer: "Takumi",
+            model: "U600",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion",
+            description: "5-axis precision VMC for complex mold work",
+            
+            work_envelope: {
+                x: { min: 0, max: 600, unit: "mm" },
+                y: { min: 0, max: 500, unit: "mm" },
+                z: { min: 0, max: 400, unit: "mm" },
+                trunnion_diameter: 500,
+                max_workpiece_diameter: 600,
+                max_workpiece_height: 350,
+                table_load_capacity: 200,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "HSK-A63",
+                max_rpm: 20000,
+                power_rating: 25,
+                power_unit: "kW",
+                torque_max: 120,
+                torque_unit: "Nm",
+                bearing_type: "ceramic_hybrid"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 600,
+                    rapid_rate: 48000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.004,
+                    repeatability: 0.002
+                },
+                y: {
+                    travel: 500,
+                    rapid_rate: 48000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.004,
+                    repeatability: 0.002
+                },
+                z: {
+                    travel: 400,
+                    rapid_rate: 40000,
+                    max_feed: 15000,
+                    acceleration: 0.9,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.004,
+                    repeatability: 0.002
+                },
+                a: {
+                    type: "rotary_trunnion",
+                    travel: { min: -120, max: 30 },
+                    rapid_rate: 50,
+                    rapid_rate_unit: "rpm",
+                    max_torque: 700,
+                    clamping_torque: 1500,
+                    drive_type: "direct_drive",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                },
+                c: {
+                    type: "rotary_table",
+                    continuous: true,
+                    rapid_rate: 100,
+                    rapid_rate_unit: "rpm",
+                    max_torque: 400,
+                    clamping_torque: 800,
+                    drive_type: "direct_drive",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 32,
+                max_tool_diameter: 80,
+                max_tool_length: 250,
+                max_tool_weight: 8,
+                tool_change_time: 2.2
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 5,
+                simultaneous_axes: 5,
+                tcpc: true,
+                rtcp: true,
+                high_precision_5axis: true
+            },
+            
+            machine_dimensions: {
+                length: 2800,
+                width: 2500,
+                height: 3200,
+                weight: 9500,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "table_table",
+                structure: "trunnion_on_fixed_column",
+                chain: ["base", "column", "saddle_Y", "spindle_Z", "table_X", "trunnion_A", "rotary_C"],
+                tcp_reference: "workpiece_center",
+                rtcp_capable: true
+            }
+        },
+
+        // ============================================
+        // DOUBLE COLUMN - DP SERIES
+        // ============================================
+        {
+            id: "TAKUMI_DP_1612",
+            manufacturer: "Takumi",
+            model: "DP-1612",
+            type: "double_column_machining_center",
+            subtype: "bridge_type",
+            description: "Double-column for large die/mold work",
+            
+            work_envelope: {
+                x: { min: 0, max: 1600, unit: "mm" },
+                y: { min: 0, max: 1200, unit: "mm" },
+                z: { min: 0, max: 700, unit: "mm" },
+                table_length: 1800,
+                table_width: 1200,
+                table_load_capacity: 4000,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "gear_driven",
+                taper: "BT50",
+                max_rpm: 8000,
+                power_rating: 30,
+                power_unit: "kW",
+                torque_max: 400,
+                torque_unit: "Nm",
+                gear_ranges: 2
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 1600,
+                    rapid_rate: 24000,
+                    max_feed: 10000,
+                    guideway_type: "linear_roller",
+                    guideway_size: 55,
+                    positioning_accuracy: 0.010,
+                    repeatability: 0.005
+                },
+                y: {
+                    travel: 1200,
+                    rapid_rate: 24000,
+                    max_feed: 10000,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.010,
+                    repeatability: 0.005
+                },
+                z: {
+                    travel: 700,
+                    rapid_rate: 18000,
+                    max_feed: 8000,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.010,
+                    repeatability: 0.005
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 32,
+                max_tool_diameter: 130,
+                max_tool_length: 400,
+                max_tool_weight: 20,
+                tool_change_time: 6
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3
+            },
+            
+            machine_dimensions: {
+                length: 5000,
+                width: 3500,
+                height: 3800,
+                weight: 22000,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "bridge_type",
+                structure: "fixed_table_moving_bridge",
+                chain: ["base", "table_fixed", "column_left", "column_right", "crossrail_X", "saddle_Y", "ram_Z"]
+            }
+        },
+
+        // ============================================
+        // DRILL/TAP CENTER - S SERIES
+        // ============================================
+        {
+            id: "TAKUMI_S500",
+            manufacturer: "Takumi",
+            model: "S500",
+            type: "vertical_machining_center",
+            subtype: "drill_tap_center",
+            description: "High-speed drill/tap center for production",
+            
+            work_envelope: {
+                x: { min: 0, max: 500, unit: "mm" },
+                y: { min: 0, max: 400, unit: "mm" },
+                z: { min: 0, max: 300, unit: "mm" },
+                table_length: 600,
+                table_width: 400,
+                table_load_capacity: 200,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "BT30",
+                max_rpm: 20000,
+                power_rating: 7.5,
+                power_unit: "kW",
+                torque_max: 15,
+                torque_unit: "Nm",
+                rigid_tap_speed: 6000
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 500,
+                    rapid_rate: 54000,
+                    max_feed: 30000,
+                    acceleration: 1.3,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                y: {
+                    travel: 400,
+                    rapid_rate: 54000,
+                    max_feed: 30000,
+                    acceleration: 1.3,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                z: {
+                    travel: 300,
+                    rapid_rate: 48000,
+                    max_feed: 30000,
+                    acceleration: 1.2,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                }
+            },
+            
+            atc: {
+                type: "turret_type",
+                capacity: 21,
+                max_tool_diameter: 50,
+                max_tool_length: 150,
+                max_tool_weight: 2,
+                tool_change_time: 0.9,
+                chip_to_chip_time: 1.5
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "0i-MF Plus",
+                axes_count: 3,
+                rigid_tapping: true,
+                high_speed_rigid_tap: true
+            },
+            
+            machine_dimensions: {
+                length: 1800,
+                width: 1800,
+                height: 2300,
+                weight: 3500,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column",
+                chain: ["base", "column_X", "saddle_Y", "spindle_Z"]
+            }
+        },
+
+        // ============================================
+        // ULTRA PRECISION - UM SERIES
+        // ============================================
+        {
+            id: "TAKUMI_UM_400",
+            manufacturer: "Takumi",
+            model: "UM-400",
+            type: "vertical_machining_center",
+            subtype: "ultra_precision",
+            description: "Ultra-precision VMC for optical/medical parts",
+            
+            work_envelope: {
+                x: { min: 0, max: 400, unit: "mm" },
+                y: { min: 0, max: 350, unit: "mm" },
+                z: { min: 0, max: 250, unit: "mm" },
+                table_length: 500,
+                table_width: 350,
+                table_load_capacity: 100,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "air_bearing",
+                taper: "HSK-E32",
+                max_rpm: 60000,
+                power_rating: 8,
+                power_unit: "kW",
+                torque_max: 2.5,
+                torque_unit: "Nm",
+                bearing_type: "air_bearing",
+                runout: 0.0002,
+                thermal_growth: 0.001
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 400,
+                    rapid_rate: 40000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    motor_type: "linear_motor",
+                    guideway_type: "air_bearing",
+                    encoder_type: "laser_interferometer",
+                    encoder_resolution: 0.00001,
+                    positioning_accuracy: 0.0005,
+                    repeatability: 0.0003
+                },
+                y: {
+                    travel: 350,
+                    rapid_rate: 40000,
+                    max_feed: 20000,
+                    acceleration: 1.0,
+                    motor_type: "linear_motor",
+                    guideway_type: "air_bearing",
+                    encoder_type: "laser_interferometer",
+                    encoder_resolution: 0.00001,
+                    positioning_accuracy: 0.0005,
+                    repeatability: 0.0003
+                },
+                z: {
+                    travel: 250,
+                    rapid_rate: 30000,
+                    max_feed: 15000,
+                    acceleration: 0.8,
+                    motor_type: "linear_motor",
+                    guideway_type: "air_bearing",
+                    encoder_type: "laser_interferometer",
+                    encoder_resolution: 0.00001,
+                    positioning_accuracy: 0.0005,
+                    repeatability: 0.0003
+                }
+            },
+            
+            atc: {
+                type: "turret_type",
+                capacity: 12,
+                max_tool_diameter: 30,
+                max_tool_length: 100,
+                max_tool_weight: 0.5,
+                tool_change_time: 1.5
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3,
+                nano_interpolation: true,
+                ai_nano_contour: true,
+                smooth_tolerance_control: true,
+                servo_delay_compensation: true
+            },
+            
+            environment_control: {
+                temperature_controlled: true,
+                temperature_stability: 0.1,
+                temperature_unit: "°C",
+                vibration_isolation: true,
+                clean_room_compatible: true
+            },
+            
+            machine_dimensions: {
+                length: 1500,
+                width: 1600,
+                height: 2200,
+                weight: 3000,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "serial_C_prime",
+                structure: "moving_column_air_bearing",
+                chain: ["base_granite", "column_X", "saddle_Y", "spindle_Z"],
+                base_material: "granite",
+                vibration_damping: "excellent"
+            }
+        }
+    ],
+
+    // Helper functions
+    getMachineById: function(id) {
+        return this.machines.find(m => m.id === id);
+    },
+    
+    getMachinesByType: function(type) {
+        return this.machines.filter(m => m.type === type);
+    },
+    
+    getGraphiteMachines: function() {
+        return this.machines.filter(m => 
+            m.subtype && m.subtype.includes("graphite")
+        );
+    },
+    
+    getLinearMotorMachines: function() {
+        return this.machines.filter(m => 
+            m.axis_specs && Object.values(m.axis_specs).some(a => a.motor_type === "linear_motor")
+        );
+    },
+    
+    get5AxisMachines: function() {
+        return this.machines.filter(m => 
+            m.subtype && m.subtype.includes("5_axis")
+        );
+    },
+    
+    getUltraPrecisionMachines: function() {
+        return this.machines.filter(m => 
+            m.subtype === "ultra_precision" || 
+            (m.axis_specs && m.axis_specs.x && m.axis_specs.x.positioning_accuracy <= 0.001)
+        );
+    },
+    
+    getMachinesByMaxRPM: function(minRPM) {
+        return this.machines.filter(m => 
+            m.spindle && m.spindle.max_rpm >= minRPM
+        );
+    },
+    
+    exportForCollisionSystem: function(machineId) {
+        const machine = this.getMachineById(machineId);
+        if (!machine) return null;
+        
+        return {
+            id: machine.id,
+            type: machine.kinematic_chain?.type,
+            work_envelope: machine.work_envelope,
+            axis_limits: machine.axis_specs,
+            kinematic_chain: machine.kinematic_chain
+        };
+    }
+};
+
+// Export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PRISM_TAKUMI_MACHINE_DATABASE_ENHANCED;
+}
+if (typeof window !== 'undefined') {
+    window.PRISM_TAKUMI_MACHINE_DATABASE_ENHANCED = PRISM_TAKUMI_MACHINE_DATABASE_ENHANCED;
+}

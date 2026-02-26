@@ -1,0 +1,87 @@
+{
+  "template_id": "SWARM-MAPREDUCE-001",
+  "pattern": "MAP_REDUCE",
+  "description": "Split large task among specialists (map), then merge results (reduce). Best for large-scope tasks, domain decomposition, or distributed analysis.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Large datasets requiring parallel processing",
+    "Multi-domain analysis requiring specialists",
+    "Aggregation tasks (counting, summing, averaging)",
+    "Codebase analysis by module/directory"
+  ],
+  
+  "config": {
+    "min_mappers": 2,
+    "max_mappers": 10,
+    "reducer_count": 1,
+    "timeout_ms": 60000,
+    "reduce_function": "merge"
+  },
+  
+  "agent_selection": {
+    "strategy": "task_appropriate",
+    "mapper_tier": "SONNET",
+    "reducer_tier": "OPUS"
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["data_chunks", "map_task", "reduce_function"],
+    "properties": {
+      "data_chunks": {
+        "type": "array",
+        "items": {"type": "object"}
+      },
+      "map_task": {"type": "string"},
+      "reduce_function": {
+        "enum": ["concat", "merge", "sum", "average", "max", "min", "vote", "custom"]
+      },
+      "custom_reducer": {"type": "string"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "map_results": {
+        "type": "array",
+        "items": {
+          "chunk_id": {"type": "string"},
+          "agent_id": {"type": "string"},
+          "result": {"type": "object"},
+          "duration_ms": {"type": "number"}
+        }
+      },
+      "reduced_result": {"type": "object"},
+      "reducer_agent": {"type": "string"},
+      "total_duration_ms": {"type": "number"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_execute",
+  "mcp_pattern_param": "map_reduce",
+  
+  "example_usage": {
+    "name": "analyze_monolith_codebase",
+    "input": {
+      "data_chunks": [
+        {"id": "physics", "path": "/engines/physics/", "files": 50},
+        {"id": "database", "path": "/database/", "files": 30},
+        {"id": "api", "path": "/api/", "files": 80},
+        {"id": "utils", "path": "/utils/", "files": 40}
+      ],
+      "map_task": "Analyze module for complexity, dependencies, test coverage",
+      "reduce_function": "merge"
+    }
+  },
+  
+  "hooks_triggered": ["BATCH-001", "MAP-START-001", "MAP-COMPLETE-001", "REDUCE-001"],
+  
+  "performance_notes": {
+    "optimal_chunk_size": "100-1000 items per mapper",
+    "reducer_bottleneck": "Reducer sees all data - keep summaries small",
+    "shuffle_overhead": "~5% time for data transfer between phases"
+  }
+}

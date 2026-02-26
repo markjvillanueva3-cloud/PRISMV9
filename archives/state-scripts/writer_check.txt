@@ -1,0 +1,32 @@
+L1107:       const cpResult = autoCheckpoint(callNum);
+L1108:       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
+L1109:           // TOKEN OPT v2: Write HOT_RESUME.md at checkpoint cadence
+L1110:           try {
+L1111:             const hrPath = "C:\\PRISM\\state\\HOT_RESUME.md";
+L1112:             const cpPath = "C:\\PRISM\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md";
+L1113:             let positionContent = "";
+L1114:             try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch {}
+L1115:             const hotContent = [
+L1116:               "# HOT_RESUME (auto-generated at call " + callNum + " - " + new Date().toISOString() + ")",
+L1117:               "",
+L1118:               "## Position",
+L1119:               positionContent,
+L1120:               "",
+L1121:               "## Recent Activity",
+L1122:               "Last 5 tool calls: " + (recentActions || []).slice(-5).map(a => a.tool + ":" + a.action).join(", "),
+L1123:               "",
+L1124:               "## Recovery Instructions", 
+L1125:               "1. Read this file for context",
+L1126:               "2. Continue the task described in Position above",
+L1127:               "3. Do NOT re-audit, re-investigate, or ask user what to do",
+L1128:               "4. Transcripts available at /mnt/transcripts/ on Claude container for deep context"
+L1129:             ].join("\n");
+L1130:             fs.writeFileSync(hrPath, hotContent);
+L1131:           } catch {}
+L1132:       cadence.checkpoint = cpResult;
+L1133:       await fireHook("STATE-CHECKPOINT-CREATE-001", {
+
+--- NL Hook Evaluator ---
+L46: autoPhaseSkillLoader, autoSkillContextMatch, autoNLHookEvaluator,
+L1505: const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
+L1643: else if (action3.includes("NL_HOOK")) fires["autoNLHookEvaluator"] = (fires["autoNLHookEvaluator"] || 0) + 1;

@@ -1,0 +1,2373 @@
+[
+  {
+    "id": "hyundai_kf4600",
+    "manufacturer": "Hyundai WIA",
+    "model": "KF 4600",
+    "series": "KF",
+    "type": "VMC",
+    "subtype": "3-axis",
+    "axes": 3,
+    "control": "FANUC 0i-MF Plus",
+    "spindle": {
+      "type": "inline",
+      "maxRpm": 12000,
+      "peakHp": 20,
+      "continuousHp": 15,
+      "maxTorque_Nm": 95,
+      "taper": "BBT40",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 170,
+        "headLength_mm": 350
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 762,
+        "rapid_mm_min": 36000
+      },
+      "y": {
+        "min": 0,
+        "max": 410,
+        "rapid_mm_min": 36000
+      },
+      "z": {
+        "min": 0,
+        "max": 460,
+        "rapid_mm_min": 30000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ],
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 381,
+          "y": 205,
+          "z": 460
+        },
+        "tableSurface": {
+          "x": 381,
+          "y": 205,
+          "z": 0
+        }
+      },
+      "spindleToTable_mm": 460
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 914,
+      "width_mm": 410,
+      "thickness_mm": 65,
+      "tSlots": {
+        "count": 5,
+        "width_mm": 18,
+        "spacing_mm": 80
+      },
+      "maxLoad_kg": 500
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 2500,
+        "width_mm": 2100,
+        "height_mm": 2750
+      },
+      "workEnvelope": {
+        "x_mm": 762,
+        "y_mm": 410,
+        "z_mm": 460
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 170,
+        "length_mm": 350,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -175
+        }
+      },
+      "table": {
+        "type": "box",
+        "dimensions": {
+          "x": 914,
+          "y": 410,
+          "z": 65
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -65
+        }
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 24,
+      "maxToolDiameter_mm": 80,
+      "maxToolLength_mm": 300,
+      "changeTime_sec": 2
+    },
+    "physical": {
+      "weight_kg": 5500
+    },
+    "sources": [
+      "Hyundai-Wia KF 4600 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 762,
+          "rapid_mm_min": 36000
+        },
+        "y": {
+          "min": 0,
+          "max": 410,
+          "rapid_mm_min": 36000
+        },
+        "z": {
+          "min": 0,
+          "max": 460,
+          "rapid_mm_min": 30000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 762,
+              "rapid_mm_min": 36000
+            },
+            "y": {
+              "min": 0,
+              "max": 410,
+              "rapid_mm_min": 36000
+            },
+            "z": {
+              "min": 0,
+              "max": 460,
+              "rapid_mm_min": 30000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_kf5600",
+    "manufacturer": "Hyundai WIA",
+    "model": "KF 5600",
+    "series": "KF",
+    "type": "VMC",
+    "subtype": "3-axis",
+    "axes": 3,
+    "control": "FANUC 0i-MF Plus",
+    "spindle": {
+      "type": "inline",
+      "maxRpm": 12000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 119,
+      "taper": "BBT40",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 180,
+        "headLength_mm": 370
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 1016,
+        "rapid_mm_min": 36000
+      },
+      "y": {
+        "min": 0,
+        "max": 510,
+        "rapid_mm_min": 36000
+      },
+      "z": {
+        "min": 0,
+        "max": 510,
+        "rapid_mm_min": 30000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ],
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 508,
+          "y": 255,
+          "z": 510
+        },
+        "tableSurface": {
+          "x": 508,
+          "y": 255,
+          "z": 0
+        }
+      },
+      "spindleToTable_mm": 510
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 1200,
+      "width_mm": 510,
+      "thickness_mm": 70,
+      "tSlots": {
+        "count": 5,
+        "width_mm": 18,
+        "spacing_mm": 100
+      },
+      "maxLoad_kg": 800
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 2900,
+        "width_mm": 2400,
+        "height_mm": 2900
+      },
+      "workEnvelope": {
+        "x_mm": 1016,
+        "y_mm": 510,
+        "z_mm": 510
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 180,
+        "length_mm": 370,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -185
+        }
+      },
+      "table": {
+        "type": "box",
+        "dimensions": {
+          "x": 1200,
+          "y": 510,
+          "z": 70
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -70
+        }
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 30,
+      "maxToolDiameter_mm": 80,
+      "maxToolLength_mm": 300,
+      "changeTime_sec": 2.2
+    },
+    "physical": {
+      "weight_kg": 7200
+    },
+    "sources": [
+      "Hyundai-Wia KF 5600 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 1016,
+          "rapid_mm_min": 36000
+        },
+        "y": {
+          "min": 0,
+          "max": 510,
+          "rapid_mm_min": 36000
+        },
+        "z": {
+          "min": 0,
+          "max": 510,
+          "rapid_mm_min": 30000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 1016,
+              "rapid_mm_min": 36000
+            },
+            "y": {
+              "min": 0,
+              "max": 510,
+              "rapid_mm_min": 36000
+            },
+            "z": {
+              "min": 0,
+              "max": 510,
+              "rapid_mm_min": 30000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_kf6700",
+    "manufacturer": "Hyundai WIA",
+    "model": "KF 6700",
+    "series": "KF",
+    "type": "VMC",
+    "subtype": "3-axis",
+    "axes": 3,
+    "control": "FANUC 0i-MF Plus",
+    "spindle": {
+      "type": "inline",
+      "maxRpm": 10000,
+      "peakHp": 30,
+      "continuousHp": 25,
+      "maxTorque_Nm": 178,
+      "taper": "BBT50",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 220,
+        "headLength_mm": 430
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 1270,
+        "rapid_mm_min": 30000
+      },
+      "y": {
+        "min": 0,
+        "max": 670,
+        "rapid_mm_min": 30000
+      },
+      "z": {
+        "min": 0,
+        "max": 610,
+        "rapid_mm_min": 24000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ],
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 635,
+          "y": 335,
+          "z": 610
+        },
+        "tableSurface": {
+          "x": 635,
+          "y": 335,
+          "z": 0
+        }
+      },
+      "spindleToTable_mm": 610
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 1500,
+      "width_mm": 670,
+      "thickness_mm": 85,
+      "tSlots": {
+        "count": 5,
+        "width_mm": 22,
+        "spacing_mm": 125
+      },
+      "maxLoad_kg": 1500
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 3500,
+        "width_mm": 3000,
+        "height_mm": 3100
+      },
+      "workEnvelope": {
+        "x_mm": 1270,
+        "y_mm": 670,
+        "z_mm": 610
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 220,
+        "length_mm": 430,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -215
+        }
+      },
+      "table": {
+        "type": "box",
+        "dimensions": {
+          "x": 1500,
+          "y": 670,
+          "z": 85
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -85
+        }
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 40,
+      "maxToolDiameter_mm": 100,
+      "maxToolLength_mm": 350,
+      "changeTime_sec": 2.8
+    },
+    "physical": {
+      "weight_kg": 11500
+    },
+    "sources": [
+      "Hyundai-Wia KF 6700 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 1270,
+          "rapid_mm_min": 30000
+        },
+        "y": {
+          "min": 0,
+          "max": 670,
+          "rapid_mm_min": 30000
+        },
+        "z": {
+          "min": 0,
+          "max": 610,
+          "rapid_mm_min": 24000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 1270,
+              "rapid_mm_min": 30000
+            },
+            "y": {
+              "min": 0,
+              "max": 670,
+              "rapid_mm_min": 30000
+            },
+            "z": {
+              "min": 0,
+              "max": 610,
+              "rapid_mm_min": 24000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_xf6300",
+    "manufacturer": "Hyundai WIA",
+    "model": "XF 6300",
+    "series": "XF",
+    "type": "5AXIS",
+    "subtype": "trunnion",
+    "axes": 5,
+    "control": "FANUC 31i-B5",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 12000,
+      "peakHp": 30,
+      "continuousHp": 25,
+      "maxTorque_Nm": 143,
+      "taper": "BBT40",
+      "bigPlus": true,
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 190,
+        "headLength_mm": 400
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 800,
+        "rapid_mm_min": 40000
+      },
+      "y": {
+        "min": 0,
+        "max": 650,
+        "rapid_mm_min": 40000
+      },
+      "z": {
+        "min": 0,
+        "max": 550,
+        "rapid_mm_min": 36000
+      },
+      "a": {
+        "min": -120,
+        "max": 30,
+        "rapid_deg_sec": 30
+      },
+      "c": {
+        "min": -360,
+        "max": 360,
+        "rapid_deg_sec": 100,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "TRUNNION_TABLE_TABLE",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "A",
+        "C",
+        "TABLE",
+        "PART"
+      ],
+      "fiveAxisType": "table-table",
+      "rotaryAxes": {
+        "a": {
+          "type": "tilt",
+          "rotationVector": {
+            "i": 1,
+            "j": 0,
+            "k": 0
+          },
+          "minAngle_deg": -120,
+          "maxAngle_deg": 30,
+          "pivotPoint_mm": {
+            "x": 400,
+            "y": 325,
+            "z": 200
+          },
+          "torque_Nm": 700,
+          "clampTorque_Nm": 1600
+        },
+        "c": {
+          "type": "rotary",
+          "rotationVector": {
+            "i": 0,
+            "j": 0,
+            "k": 1
+          },
+          "continuous": true,
+          "torque_Nm": 450,
+          "clampTorque_Nm": 1000
+        }
+      },
+      "referencePoints": {
+        "spindleGageLine": {
+          "x": 400,
+          "y": 325,
+          "z": 550
+        },
+        "tableSurface": {
+          "x": 400,
+          "y": 325,
+          "z": 200
+        },
+        "aPivotPoint": {
+          "x": 400,
+          "y": 325,
+          "z": 200
+        }
+      },
+      "tcpcSupported": true,
+      "rtcpSupported": true
+    },
+    "table": {
+      "type": "trunnion_rotary",
+      "diameter_mm": 630,
+      "tSlots": {
+        "count": 6,
+        "width_mm": 14,
+        "pattern": "radial"
+      },
+      "maxLoad_kg": 500,
+      "trunnion": {
+        "width_mm": 850,
+        "supportHeight_mm": 350,
+        "clearanceUnder_mm": 120
+      }
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 3800,
+        "width_mm": 4200,
+        "height_mm": 3300
+      },
+      "workEnvelope": {
+        "x_mm": 800,
+        "y_mm": 650,
+        "z_mm": 550
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 190,
+        "length_mm": 400,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": -200
+        }
+      },
+      "trunnionLeft": {
+        "type": "cylinder",
+        "diameter_mm": 300,
+        "length_mm": 180,
+        "position": {
+          "x": -425,
+          "y": 325,
+          "z": 200
+        }
+      },
+      "trunnionRight": {
+        "type": "cylinder",
+        "diameter_mm": 300,
+        "length_mm": 180,
+        "position": {
+          "x": 425,
+          "y": 325,
+          "z": 200
+        }
+      },
+      "rotaryTable": {
+        "type": "cylinder",
+        "diameter_mm": 630,
+        "height_mm": 110,
+        "rotatesWith": [
+          "a",
+          "c"
+        ]
+      }
+    },
+    "atc": {
+      "type": "arm",
+      "capacity": 60,
+      "maxToolDiameter_mm": 80,
+      "maxToolLength_mm": 350,
+      "changeTime_sec": 2.5
+    },
+    "accuracy": {
+      "positioning_mm": 0.005,
+      "repeatability_mm": 0.003,
+      "aAxisAccuracy_deg": 0.002,
+      "cAxisAccuracy_deg": 0.002
+    },
+    "physical": {
+      "weight_kg": 18000
+    },
+    "sources": [
+      "Hyundai-Wia XF 6300 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 800,
+          "rapid_mm_min": 40000
+        },
+        "y": {
+          "min": 0,
+          "max": 650,
+          "rapid_mm_min": 40000
+        },
+        "z": {
+          "min": 0,
+          "max": 550,
+          "rapid_mm_min": 36000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": null,
+          "length": null,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 800,
+              "rapid_mm_min": 40000
+            },
+            "y": {
+              "min": 0,
+              "max": 650,
+              "rapid_mm_min": 40000
+            },
+            "z": {
+              "min": 0,
+              "max": 550,
+              "rapid_mm_min": 36000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_hs5000",
+    "manufacturer": "Hyundai WIA",
+    "model": "HS 5000",
+    "series": "HS",
+    "type": "HMC",
+    "subtype": "4-axis",
+    "axes": 4,
+    "control": "FANUC 31i-B",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 14000,
+      "peakHp": 35,
+      "continuousHp": 30,
+      "maxTorque_Nm": 166,
+      "taper": "BBT40",
+      "orientation": "horizontal",
+      "geometry": {
+        "noseToGageLine_mm": 100,
+        "headDiameter_mm": 200,
+        "headLength_mm": 420
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 730,
+        "rapid_mm_min": 60000
+      },
+      "y": {
+        "min": 0,
+        "max": 730,
+        "rapid_mm_min": 60000
+      },
+      "z": {
+        "min": 0,
+        "max": 730,
+        "rapid_mm_min": 60000
+      },
+      "b": {
+        "min": 0,
+        "max": 360,
+        "rapid_deg_sec": 60,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "HMC_4AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "B",
+        "TABLE",
+        "PART"
+      ],
+      "spindleOrientation": "horizontal",
+      "rotaryAxes": {
+        "b": {
+          "type": "indexing",
+          "continuous": true,
+          "indexIncrement_deg": 0.001,
+          "torque_Nm": 1500,
+          "clampTorque_Nm": 3200
+        }
+      }
+    },
+    "table": {
+      "type": "rotary_pallet",
+      "size_mm": 500,
+      "maxLoad_kg": 700,
+      "palletCount": 2,
+      "palletChangeTime_sec": 8
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 4200,
+        "width_mm": 5000,
+        "height_mm": 3200
+      },
+      "workEnvelope": {
+        "x_mm": 730,
+        "y_mm": 730,
+        "z_mm": 730
+      }
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "cylinder",
+        "diameter_mm": 200,
+        "length_mm": 420,
+        "orientation": "horizontal"
+      },
+      "rotaryTable": {
+        "type": "box",
+        "dimensions": {
+          "x": 500,
+          "y": 280,
+          "z": 500
+        },
+        "rotatesWith": [
+          "b"
+        ]
+      }
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 60,
+      "maxToolDiameter_mm": 100,
+      "maxToolLength_mm": 400,
+      "changeTime_sec": 2.5
+    },
+    "physical": {
+      "weight_kg": 16000
+    },
+    "sources": [
+      "Hyundai-Wia HS 5000 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 730,
+          "rapid_mm_min": 60000
+        },
+        "y": {
+          "min": 0,
+          "max": 730,
+          "rapid_mm_min": 60000
+        },
+        "z": {
+          "min": 0,
+          "max": 730,
+          "rapid_mm_min": 60000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 400,
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          },
+          "orientation": "horizontal"
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": "[object Object]400",
+            "z": "[object Object]600"
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 100
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 730,
+              "rapid_mm_min": 60000
+            },
+            "y": {
+              "min": 0,
+              "max": 730,
+              "rapid_mm_min": 60000
+            },
+            "z": {
+              "min": 0,
+              "max": 730,
+              "rapid_mm_min": 60000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "pallet_changer": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 300
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]800",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_hs6300",
+    "manufacturer": "Hyundai WIA",
+    "model": "HS 6300",
+    "series": "HS",
+    "type": "HMC",
+    "subtype": "4-axis",
+    "axes": 4,
+    "control": "FANUC 31i-B",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 10000,
+      "peakHp": 50,
+      "continuousHp": 40,
+      "maxTorque_Nm": 300,
+      "taper": "BBT50",
+      "orientation": "horizontal",
+      "geometry": {
+        "noseToGageLine_mm": 139.7,
+        "headDiameter_mm": 260,
+        "headLength_mm": 500
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 900,
+        "rapid_mm_min": 50000
+      },
+      "y": {
+        "min": 0,
+        "max": 850,
+        "rapid_mm_min": 50000
+      },
+      "z": {
+        "min": 0,
+        "max": 900,
+        "rapid_mm_min": 50000
+      },
+      "b": {
+        "min": 0,
+        "max": 360,
+        "rapid_deg_sec": 45,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "HMC_4AXIS",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "B",
+        "TABLE",
+        "PART"
+      ],
+      "spindleOrientation": "horizontal",
+      "rotaryAxes": {
+        "b": {
+          "type": "indexing",
+          "continuous": true,
+          "torque_Nm": 2200
+        }
+      }
+    },
+    "table": {
+      "type": "rotary_pallet",
+      "size_mm": 630,
+      "maxLoad_kg": 1200,
+      "palletCount": 2,
+      "palletChangeTime_sec": 12
+    },
+    "geometry": {
+      "footprint": {
+        "length_mm": 5200,
+        "width_mm": 6000,
+        "height_mm": 3500
+      },
+      "workEnvelope": {
+        "x_mm": 900,
+        "y_mm": 850,
+        "z_mm": 900
+      }
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 90,
+      "maxToolDiameter_mm": 125,
+      "maxToolLength_mm": 500,
+      "changeTime_sec": 3
+    },
+    "physical": {
+      "weight_kg": 24000
+    },
+    "sources": [
+      "Hyundai-Wia HS 6300 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 900,
+          "rapid_mm_min": 50000
+        },
+        "y": {
+          "min": 0,
+          "max": 850,
+          "rapid_mm_min": 50000
+        },
+        "z": {
+          "min": 0,
+          "max": 900,
+          "rapid_mm_min": 50000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 400,
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          },
+          "orientation": "horizontal"
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": "[object Object]400",
+            "z": "[object Object]600"
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 100
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 900,
+              "rapid_mm_min": 50000
+            },
+            "y": {
+              "min": 0,
+              "max": 850,
+              "rapid_mm_min": 50000
+            },
+            "z": {
+              "min": 0,
+              "max": 900,
+              "rapid_mm_min": 50000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "pallet_changer": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 300
+          },
+          "position": {
+            "x": null,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]800",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_skt200",
+    "manufacturer": "Hyundai WIA",
+    "model": "SKT 200",
+    "series": "SKT",
+    "type": "LATHE",
+    "subtype": "2-axis",
+    "axes": 2,
+    "control": "FANUC 0i-TF Plus",
+    "spindle": {
+      "type": "belt_drive",
+      "maxRpm": 4500,
+      "peakHp": 20,
+      "continuousHp": 15,
+      "maxTorque_Nm": 265,
+      "spindleNose": "A2-6",
+      "chuckSize_mm": 210,
+      "barCapacity_mm": 52,
+      "geometry": {
+        "spindleBore_mm": 62
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 200,
+        "rapid_mm_min": 24000
+      },
+      "z": {
+        "min": 0,
+        "max": 440,
+        "rapid_mm_min": 30000
+      },
+      "a": null,
+      "b": null,
+      "c": null,
+      "y": null
+    },
+    "kinematics": {
+      "type": "LATHE_2AXIS",
+      "chain": [
+        "SPINDLE",
+        "CHUCK",
+        "PART",
+        "Z",
+        "X",
+        "TURRET",
+        "TOOL"
+      ],
+      "referencePoints": {
+        "spindleCenterline": {
+          "x": 0,
+          "z": 0
+        },
+        "turretCenter": {
+          "x": 200,
+          "z": 220
+        }
+      }
+    },
+    "turret": {
+      "type": "disc",
+      "stations": 12,
+      "toolPattern": "VDI",
+      "vdiSize": 40,
+      "indexTime_sec": 0.2,
+      "liveTooling": true,
+      "liveToolRpm": 4000
+    },
+    "tailstock": {
+      "included": true,
+      "travel_mm": 350,
+      "taperType": "MT4",
+      "thrust_kN": 15
+    },
+    "geometry": {
+      "swingOverBed_mm": 450,
+      "maxTurningDiameter_mm": 270,
+      "maxTurningLength_mm": 400,
+      "footprint": {
+        "length_mm": 2800,
+        "width_mm": 1800,
+        "height_mm": 1950
+      }
+    },
+    "collisionZones": {
+      "chuck": {
+        "type": "cylinder",
+        "diameter_mm": 210,
+        "length_mm": 100,
+        "position": {
+          "x": 0,
+          "z": 0
+        }
+      },
+      "turret": {
+        "type": "cylinder",
+        "diameter_mm": 360,
+        "height_mm": 160,
+        "position": {
+          "x": 200,
+          "z": 220
+        }
+      },
+      "tailstock": {
+        "type": "cylinder",
+        "diameter_mm": 90,
+        "length_mm": 300,
+        "position": {
+          "x": 0,
+          "z": 440
+        }
+      }
+    },
+    "physical": {
+      "weight_kg": 4200
+    },
+    "sources": [
+      "Hyundai-Wia SKT 200 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 200,
+          "rapid_mm_min": 24000
+        },
+        "y": 0,
+        "z": {
+          "min": 0,
+          "max": 440,
+          "rapid_mm_min": 30000
+        },
+        "shape": "cylindrical"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 250,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        },
+        "chuck": {
+          "type": "cylinder",
+          "radius": 230,
+          "length": 150,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "workpiece_envelope": {
+          "type": "cylinder",
+          "radius": 200,
+          "length": {
+            "min": 0,
+            "max": 440,
+            "rapid_mm_min": 30000
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "turret": {
+          "type": "box",
+          "dimensions": {
+            "x": 300,
+            "y": 200,
+            "z": 200
+          },
+          "position": {
+            "x": "[object Object]50",
+            "y": 0,
+            "z": null
+          }
+        },
+        "tailstock": {
+          "type": "cylinder",
+          "radius": 75,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]50"
+          }
+        },
+        "bed": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 400,
+            "z": "[object Object]300"
+          },
+          "position": {
+            "x": 0,
+            "y": -250,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]400",
+            "y": 600,
+            "z": "[object Object]400"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_skt250",
+    "manufacturer": "Hyundai WIA",
+    "model": "SKT 250",
+    "series": "SKT",
+    "type": "LATHE",
+    "subtype": "2-axis",
+    "axes": 2,
+    "control": "FANUC 0i-TF Plus",
+    "spindle": {
+      "type": "belt_drive",
+      "maxRpm": 4000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 380,
+      "spindleNose": "A2-6",
+      "chuckSize_mm": 254,
+      "barCapacity_mm": 65
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 260,
+        "rapid_mm_min": 24000
+      },
+      "z": {
+        "min": 0,
+        "max": 605,
+        "rapid_mm_min": 30000
+      },
+      "a": null,
+      "b": null,
+      "c": null,
+      "y": null
+    },
+    "kinematics": {
+      "type": "LATHE_2AXIS",
+      "chain": [
+        "SPINDLE",
+        "CHUCK",
+        "PART",
+        "Z",
+        "X",
+        "TURRET",
+        "TOOL"
+      ]
+    },
+    "turret": {
+      "type": "disc",
+      "stations": 12,
+      "toolPattern": "VDI",
+      "vdiSize": 40,
+      "liveTooling": true,
+      "liveToolRpm": 4500
+    },
+    "tailstock": {
+      "included": true,
+      "travel_mm": 500
+    },
+    "geometry": {
+      "swingOverBed_mm": 580,
+      "maxTurningDiameter_mm": 360,
+      "maxTurningLength_mm": 555,
+      "footprint": {
+        "length_mm": 3200,
+        "width_mm": 1900,
+        "height_mm": 2050
+      }
+    },
+    "collisionZones": {
+      "chuck": {
+        "type": "cylinder",
+        "diameter_mm": 254,
+        "length_mm": 110,
+        "position": {
+          "x": 0,
+          "z": 0
+        }
+      },
+      "turret": {
+        "type": "cylinder",
+        "diameter_mm": 400,
+        "height_mm": 170,
+        "position": {
+          "x": 260,
+          "z": 302
+        }
+      }
+    },
+    "physical": {
+      "weight_kg": 5500
+    },
+    "sources": [
+      "Hyundai-Wia SKT 250 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 260,
+          "rapid_mm_min": 24000
+        },
+        "y": 0,
+        "z": {
+          "min": 0,
+          "max": 605,
+          "rapid_mm_min": 30000
+        },
+        "shape": "cylindrical"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 250,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        },
+        "chuck": {
+          "type": "cylinder",
+          "radius": 230,
+          "length": 150,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "workpiece_envelope": {
+          "type": "cylinder",
+          "radius": 200,
+          "length": {
+            "min": 0,
+            "max": 605,
+            "rapid_mm_min": 30000
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "turret": {
+          "type": "box",
+          "dimensions": {
+            "x": 300,
+            "y": 200,
+            "z": 200
+          },
+          "position": {
+            "x": "[object Object]50",
+            "y": 0,
+            "z": null
+          }
+        },
+        "tailstock": {
+          "type": "cylinder",
+          "radius": 75,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]50"
+          }
+        },
+        "bed": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 400,
+            "z": "[object Object]300"
+          },
+          "position": {
+            "x": 0,
+            "y": -250,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]400",
+            "y": 600,
+            "z": "[object Object]400"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_skt300",
+    "manufacturer": "Hyundai WIA",
+    "model": "SKT 300",
+    "series": "SKT",
+    "type": "LATHE",
+    "subtype": "2-axis",
+    "axes": 2,
+    "control": "FANUC 0i-TF Plus",
+    "spindle": {
+      "type": "geared",
+      "maxRpm": 3500,
+      "peakHp": 35,
+      "continuousHp": 30,
+      "maxTorque_Nm": 650,
+      "spindleNose": "A2-8",
+      "chuckSize_mm": 305,
+      "barCapacity_mm": 80
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 310,
+        "rapid_mm_min": 20000
+      },
+      "z": {
+        "min": 0,
+        "max": 830,
+        "rapid_mm_min": 24000
+      },
+      "a": null,
+      "b": null,
+      "c": null,
+      "y": null
+    },
+    "kinematics": {
+      "type": "LATHE_2AXIS",
+      "chain": [
+        "SPINDLE",
+        "CHUCK",
+        "PART",
+        "Z",
+        "X",
+        "TURRET",
+        "TOOL"
+      ]
+    },
+    "turret": {
+      "type": "disc",
+      "stations": 12,
+      "toolPattern": "VDI",
+      "vdiSize": 50,
+      "liveTooling": true,
+      "liveToolRpm": 4000
+    },
+    "tailstock": {
+      "included": true,
+      "travel_mm": 700
+    },
+    "geometry": {
+      "swingOverBed_mm": 700,
+      "maxTurningDiameter_mm": 430,
+      "maxTurningLength_mm": 780,
+      "footprint": {
+        "length_mm": 3800,
+        "width_mm": 2100,
+        "height_mm": 2150
+      }
+    },
+    "collisionZones": {
+      "chuck": {
+        "type": "cylinder",
+        "diameter_mm": 305,
+        "length_mm": 130,
+        "position": {
+          "x": 0,
+          "z": 0
+        }
+      },
+      "turret": {
+        "type": "cylinder",
+        "diameter_mm": 450,
+        "height_mm": 200,
+        "position": {
+          "x": 310,
+          "z": 415
+        }
+      }
+    },
+    "physical": {
+      "weight_kg": 7800
+    },
+    "sources": [
+      "Hyundai-Wia SKT 300 Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 310,
+          "rapid_mm_min": 20000
+        },
+        "y": 0,
+        "z": {
+          "min": 0,
+          "max": 830,
+          "rapid_mm_min": 24000
+        },
+        "shape": "cylindrical"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 250,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        },
+        "chuck": {
+          "type": "cylinder",
+          "radius": 230,
+          "length": 150,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "workpiece_envelope": {
+          "type": "cylinder",
+          "radius": 200,
+          "length": {
+            "min": 0,
+            "max": 830,
+            "rapid_mm_min": 24000
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "turret": {
+          "type": "box",
+          "dimensions": {
+            "x": 300,
+            "y": 200,
+            "z": 200
+          },
+          "position": {
+            "x": "[object Object]50",
+            "y": 0,
+            "z": null
+          }
+        },
+        "tailstock": {
+          "type": "cylinder",
+          "radius": 75,
+          "length": 200,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]50"
+          }
+        },
+        "bed": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 400,
+            "z": "[object Object]300"
+          },
+          "position": {
+            "x": 0,
+            "y": -250,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]400",
+            "y": 600,
+            "z": "[object Object]400"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "hyundai_lm1800ttsy",
+    "manufacturer": "Hyundai WIA",
+    "model": "LM1800TTSY",
+    "series": "LM",
+    "type": "MILL_TURN",
+    "subtype": "twin-turret-y",
+    "axes": 5,
+    "control": "FANUC 31i-B5",
+    "mainSpindle": {
+      "type": "built_in",
+      "maxRpm": 5000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 350,
+      "spindleNose": "A2-6",
+      "chuckSize_mm": 210,
+      "barCapacity_mm": 52
+    },
+    "subSpindle": {
+      "type": "built_in",
+      "maxRpm": 6000,
+      "peakHp": 15,
+      "continuousHp": 12,
+      "maxTorque_Nm": 150,
+      "spindleNose": "A2-5",
+      "chuckSize_mm": 165
+    },
+    "travels": {
+      "x1": {
+        "min": 0,
+        "max": 215,
+        "rapid_mm_min": 30000
+      },
+      "z1": {
+        "min": 0,
+        "max": 530,
+        "rapid_mm_min": 36000
+      },
+      "y1": {
+        "min": -50,
+        "max": 50,
+        "rapid_mm_min": 12000
+      },
+      "x2": {
+        "min": 0,
+        "max": 200,
+        "rapid_mm_min": 30000
+      },
+      "z2": {
+        "min": 0,
+        "max": 480,
+        "rapid_mm_min": 36000
+      },
+      "c": {
+        "min": -360,
+        "max": 360,
+        "rapid_deg_sec": 300,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "MILL_TURN_TWIN_TURRET",
+      "chain": [
+        "MAIN_SPINDLE",
+        "C",
+        "PART",
+        "Z1",
+        "X1",
+        "Y1",
+        "TURRET1",
+        "TOOL1"
+      ],
+      "hasSubSpindle": true,
+      "hasTwinTurret": true,
+      "yAxisCapability": "milling",
+      "rotaryAxes": {
+        "c": {
+          "type": "rotary",
+          "isMainSpindle": true,
+          "contouringCapable": true,
+          "continuous": true
+        }
+      },
+      "referencePoints": {
+        "mainSpindleCenterline": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "subSpindleCenterline": {
+          "x": 0,
+          "y": 0,
+          "z": 530
+        }
+      },
+      "simultaneousMachining": true
+    },
+    "turret1": {
+      "type": "disc",
+      "stations": 12,
+      "toolPattern": "BMT",
+      "liveTooling": true,
+      "liveToolRpm": 6000,
+      "liveToolHp": 7.5
+    },
+    "turret2": {
+      "type": "disc",
+      "stations": 10,
+      "toolPattern": "VDI",
+      "vdiSize": 30,
+      "liveTooling": true,
+      "liveToolRpm": 5000
+    },
+    "geometry": {
+      "swingOverBed_mm": 480,
+      "maxTurningDiameter_mm": 270,
+      "maxTurningLength_mm": 480,
+      "footprint": {
+        "length_mm": 4500,
+        "width_mm": 2400,
+        "height_mm": 2300
+      }
+    },
+    "collisionZones": {
+      "mainChuck": {
+        "type": "cylinder",
+        "diameter_mm": 210,
+        "length_mm": 100,
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "subChuck": {
+        "type": "cylinder",
+        "diameter_mm": 165,
+        "length_mm": 85,
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 530
+        }
+      },
+      "turret1": {
+        "type": "cylinder",
+        "diameter_mm": 380,
+        "height_mm": 180,
+        "position": {
+          "x": 215,
+          "y": 0,
+          "z": 265
+        }
+      },
+      "turret2": {
+        "type": "cylinder",
+        "diameter_mm": 320,
+        "height_mm": 150,
+        "position": {
+          "x": -200,
+          "y": 0,
+          "z": 265
+        }
+      }
+    },
+    "physical": {
+      "weight_kg": 10500
+    },
+    "sources": [
+      "Hyundai-Wia LM1800TTSY Specifications 2024"
+    ],
+    "layer": "ENHANCED",
+    "controller": {
+      "brand": "Fanuc",
+      "model": "31i-B5",
+      "type": "Fanuc 31i-B5"
+    },
+    "turret": {
+      "stations": 24,
+      "type": "BMT"
+    },
+    "barCapacity_mm": 65,
+    "weight_kg": 8000,
+    "coolant": {
+      "pressure_bar": 15,
+      "tsc": true,
+      "tsc_pressure_bar": 70
+    }
+  }
+]

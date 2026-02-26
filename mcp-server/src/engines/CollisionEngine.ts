@@ -713,6 +713,118 @@ export interface SweptVolume {
 }
 
 // ============================================================================
+// SIMULATION SOURCE FILE CATALOG
+// ============================================================================
+
+/**
+ * Catalog of all extracted JS source files from C:\PRISM\extracted\engines\simulation\
+ * that feed into the CollisionEngine. Each entry documents the file's purpose,
+ * safety classification, line count, and downstream consumers.
+ *
+ * SAFETY NOTE: Collision-related files are classified CRITICAL because a missed
+ * collision detection means potential machine crash, tool breakage, or operator injury.
+ */
+export const SIMULATION_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  consumers: string[];
+}> = {
+  PRISM_3D_TOOLPATH_STRATEGY_ENGINE: {
+    filename: "PRISM_3D_TOOLPATH_STRATEGY_ENGINE.js",
+    category: "toolpath_strategy",
+    lines: 102,
+    safety_class: "HIGH",
+    description:
+      "3D toolpath strategy definitions for non-prismatic machining (molds, dies, organic shapes). " +
+      "Covers cut tolerance, filter tolerance, data-starving prevention, and CAM gouge-checking parameters.",
+    consumers: ["CollisionEngine.validateToolpath", "ToolpathPlanner"],
+  },
+  PRISM_3D_VISUALIZATION_ENGINE: {
+    filename: "PRISM_3D_VISUALIZATION_ENGINE.js",
+    category: "visualization",
+    lines: 235,
+    safety_class: "MEDIUM",
+    description:
+      "Three.js-based 3D visualization engine for rendering toolpaths, stock, fixtures, and tools. " +
+      "Provides color schemes (rapid=red, cutting=green, plunge=yellow, retract=blue) and scene configuration.",
+    consumers: ["CollisionEngine.visualizeResults", "SimulationUI"],
+  },
+  PRISM_COLLISION_ALGORITHMS: {
+    filename: "PRISM_COLLISION_ALGORITHMS.js",
+    category: "collision_detection",
+    lines: 284,
+    safety_class: "CRITICAL",
+    description:
+      "Core collision algorithms including GJK (Gilbert-Johnson-Keerthi) for convex shape intersection " +
+      "via Minkowski difference and simplex iteration. Source: MIT 6.838, Real-Time Collision Detection (Ericson).",
+    consumers: [
+      "CollisionEngine.checkCollision",
+      "CollisionEngine.gjkIntersect",
+      "PRISM_COLLISION_MOTION",
+    ],
+  },
+  PRISM_COLLISION_DETECTION_V2: {
+    filename: "PRISM_COLLISION_DETECTION_V2.js",
+    category: "collision_detection",
+    lines: 416,
+    safety_class: "CRITICAL",
+    description:
+      "Enhanced collision detection v3.0 with configurable tolerances (head offset 0.5mm, fixture offset 0.5mm, " +
+      "check resolution 0.5mm). Checks tool-vs-model, holder-vs-model, shank-vs-model, and stores up to 1000 collisions.",
+    consumers: [
+      "CollisionEngine.runFullCheck",
+      "CollisionEngine.checkToolAssembly",
+      "SafetyValidator",
+    ],
+  },
+  PRISM_COLLISION_ENGINE: {
+    filename: "PRISM_COLLISION_ENGINE.js",
+    category: "collision_detection",
+    lines: 304,
+    safety_class: "CRITICAL",
+    description:
+      "Core AABB (Axis-Aligned Bounding Box) collision engine. Provides bounding box construction for tools " +
+      "at given positions and fast box-vs-box intersection tests as a broad-phase collision filter.",
+    consumers: [
+      "CollisionEngine.checkAABBCollision",
+      "CollisionEngine.broadPhase",
+      "PRISM_COLLISION_DETECTION_V2",
+    ],
+  },
+  PRISM_COLLISION_MOTION: {
+    filename: "PRISM_COLLISION_MOTION.js",
+    category: "motion_simulation",
+    lines: 1295,
+    safety_class: "CRITICAL",
+    description:
+      "Phase 4 motion planning and collision analysis. Implements GJK algorithm with full vector math, " +
+      "swept-volume collision checks along motion paths, and integrates with the university algorithm pack.",
+    consumers: [
+      "CollisionEngine.checkMotionPath",
+      "CollisionEngine.sweepTest",
+      "MotionPlanner",
+    ],
+  },
+  PRISM_STOCK_POSITIONS_DATABASE: {
+    filename: "PRISM_STOCK_POSITIONS_DATABASE.js",
+    category: "data",
+    lines: 39,
+    safety_class: "HIGH",
+    description:
+      "Stock position reference database (HyperMILL-compatible). Defines 18 canonical stock positions " +
+      "(top/bottom x center/corner variants) as normalized coordinates for fixture and clearance calculations.",
+    consumers: [
+      "CollisionEngine.getStockBounds",
+      "FixtureManager",
+      "SetupValidator",
+    ],
+  },
+};
+
+// ============================================================================
 // COLLISION ENGINE CLASS
 // ============================================================================
 
@@ -1915,6 +2027,60 @@ export class CollisionEngine {
       clear: issues.length === 0,
       minClearance,
       issues
+    };
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG METHODS
+  // ==========================================================================
+
+  /**
+   * Returns the full simulation source file catalog.
+   * Static accessor so callers do not need an engine instance.
+   */
+  public static getSourceFileCatalog(): typeof SIMULATION_SOURCE_FILE_CATALOG {
+    return SIMULATION_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries grouped by safety class, with aggregate stats.
+   * Useful for audit reports and safety documentation.
+   */
+  public catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    bySafetyClass: Record<string, string[]>;
+    byCategory: Record<string, string[]>;
+    entries: typeof SIMULATION_SOURCE_FILE_CATALOG;
+  } {
+    const entries = SIMULATION_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const bySafetyClass: Record<string, string[]> = {};
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    for (const key of keys) {
+      const entry = entries[key];
+      totalLines += entry.lines;
+
+      if (!bySafetyClass[entry.safety_class]) {
+        bySafetyClass[entry.safety_class] = [];
+      }
+      bySafetyClass[entry.safety_class].push(entry.filename);
+
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return {
+      totalFiles: keys.length,
+      totalLines,
+      bySafetyClass,
+      byCategory,
+      entries,
     };
   }
 }

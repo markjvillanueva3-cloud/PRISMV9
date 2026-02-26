@@ -124,6 +124,167 @@ export interface CuttingTool {
 // TOOL REGISTRY CLASS
 // ============================================================================
 
+// ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority tool modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// ============================================================================
+
+export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM" | "LOW";
+  description: string;
+}> = {
+  PRISM_TOOL_LIFE_ENGINE: {
+    filename: "PRISM_TOOL_LIFE_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "engines",
+    lines: 192,
+    safety_class: "MEDIUM",
+    description: "Tool life prediction engine — wear-rate models, Taylor equation implementation, and remaining-life estimation for carbide/HSS/ceramic tooling.",
+  },
+  PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE: {
+    filename: "PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 635,
+    safety_class: "MEDIUM",
+    description: "Enhanced lathe live-tooling engine — driven-tool parameter computation for milling/drilling on CNC lathes including C-axis and Y-axis offsets.",
+  },
+  PRISM_LATHE_PARAM_ENGINE: {
+    filename: "PRISM_LATHE_PARAM_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 649,
+    safety_class: "MEDIUM",
+    description: "Lathe parameter engine — turning-specific speed/feed calculation, insert selection, and nose-radius compensation tables.",
+  },
+  PRISM_PHASE1_TOOL_LIFE_MANAGER: {
+    filename: "PRISM_PHASE1_TOOL_LIFE_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 86,
+    safety_class: "MEDIUM",
+    description: "Phase 1 tool life manager — simple wear tracking and replacement-interval logic for initial tool-life monitoring.",
+  },
+  PRISM_TOOL_3D_GENERATOR: {
+    filename: "PRISM_TOOL_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 440,
+    safety_class: "MEDIUM",
+    description: "3D tool geometry generator — parametric mesh creation for endmills, drills, and inserts for visualization and collision-checking.",
+  },
+  PRISM_TOOL_GENERATOR: {
+    filename: "PRISM_TOOL_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 197,
+    safety_class: "MEDIUM",
+    description: "Tool generator — template-based tool definition creation from diameter, flute count, and coating specs.",
+  },
+  PRISM_TOOL_HOLDER_3D_GENERATOR: {
+    filename: "PRISM_TOOL_HOLDER_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 558,
+    safety_class: "MEDIUM",
+    description: "Tool holder 3D generator — parametric CAT/BT/HSK holder geometry for assembly visualization and gauge-length verification.",
+  },
+  PRISM_TOOL_LIBRARY_MANAGER: {
+    filename: "PRISM_TOOL_LIBRARY_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 169,
+    safety_class: "MEDIUM",
+    description: "Tool library manager — CRUD operations, search/filter, and catalog management for the master cutting-tool library.",
+  },
+  PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE: {
+    filename: "PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 81,
+    safety_class: "MEDIUM",
+    description: "Lathe tool nose radius compensation engine — G41/G42 offset calculation and contour-error correction for turning operations.",
+  },
+  PRISM_TOOL_PERFORMANCE_ENGINE: {
+    filename: "PRISM_TOOL_PERFORMANCE_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 1236,
+    safety_class: "MEDIUM",
+    description: "Tool performance engine — comprehensive cutting performance analytics, chip-load analysis, and cost-per-part optimization across tool families.",
+  },
+  PRISM_CUTTING_TOOL_DATABASE_V2: {
+    filename: "PRISM_CUTTING_TOOL_DATABASE_V2.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 1040,
+    safety_class: "MEDIUM",
+    description: "Cutting tool database V2 — structured catalog of endmills, drills, taps, inserts with geometry, coating, and recommended parameters per ISO material group.",
+  },
+  PRISM_TOOL_TYPES_COMPLETE: {
+    filename: "PRISM_TOOL_TYPES_COMPLETE.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 357,
+    safety_class: "MEDIUM",
+    description: "Complete tool type taxonomy — type definitions, classification hierarchy, and attribute schemas for all supported cutting tool families.",
+  },
+
+  // --- LOW priority: Manufacturer catalog data files (P-MS5 Wave 3) ---
+  PRISM_CATALOG_FINAL: {
+    filename: "PRISM_CATALOG_FINAL.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 911,
+    safety_class: "LOW",
+    description: "Final consolidated tool catalog — unified product listing across manufacturers with normalized attributes.",
+  },
+  PRISM_FINAL_CATALOG_GATEWAY: {
+    filename: "PRISM_FINAL_CATALOG_GATEWAY.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 424,
+    safety_class: "LOW",
+    description: "Catalog gateway — routing and adapter layer for multi-vendor tool catalog queries.",
+  },
+  PRISM_MAJOR_MANUFACTURERS_CATALOG: {
+    filename: "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1940,
+    safety_class: "LOW",
+    description: "Major manufacturers catalog — Sandvik, Kennametal, Walter, Iscar, Seco product data with geometry and cutting parameters.",
+  },
+  PRISM_MANUFACTURER_CATALOG_CONSOLIDATED: {
+    filename: "PRISM_MANUFACTURER_CATALOG_CONSOLIDATED.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1009,
+    safety_class: "LOW",
+    description: "Consolidated manufacturer catalog — deduplicated and merged product lines across vendor sources.",
+  },
+  PRISM_MANUFACTURER_CATALOG_DB: {
+    filename: "PRISM_MANUFACTURER_CATALOG_DB.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 178,
+    safety_class: "LOW",
+    description: "Manufacturer catalog database — structured vendor metadata, product families, and cross-reference tables.",
+  },
+  PRISM_ZENI_COMPLETE_CATALOG: {
+    filename: "PRISM_ZENI_COMPLETE_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1001,
+    safety_class: "LOW",
+    description: "Zeni complete catalog — full Zeni tool product line with geometry, coatings, and recommended parameters.",
+  },
+};
+
 export class ToolRegistry extends BaseRegistry<CuttingTool> {
   private indexByType: Map<string, Set<string>> = new Map();
   private indexByManufacturer: Map<string, Set<string>> = new Map();
@@ -150,7 +311,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     // R1: Load from both extracted/ and data/ paths (dual-path fix)
     await this.loadFromPath(PATHS.TOOLS_DB);
-    await this.loadFromPath("C:\\PRISM\\data\\tools");
+    await this.loadFromPath(path.join(PATHS.DATA_DIR, "tools"));
     this.buildIndexes();
     
     if (this.entries.size > 0) {
@@ -360,7 +521,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     application?: string;
     limit?: number;
     offset?: number;
-  }): { tools: CuttingTool[]; total: number } {
+  }): { tools: CuttingTool[]; total: number; hasMore?: boolean } {
     let results: CuttingTool[] = [];
     
     // Start with most selective filter
@@ -892,6 +1053,44 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     stats.bySubstrate = substrateCounts;
     
     return stats;
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESSORS
+  // ==========================================================================
+
+  /**
+   * Return the full extracted-source-file catalog for this registry.
+   */
+  static getSourceFileCatalog(): typeof TOOL_SOURCE_FILE_CATALOG {
+    return TOOL_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries with aggregate stats, grouped by category.
+   */
+  catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    byCategory: Record<string, string[]>;
+    entries: typeof TOOL_SOURCE_FILE_CATALOG;
+  } {
+    const entries = TOOL_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    for (const key of keys) {
+      const entry = entries[key as keyof typeof entries];
+      totalLines += entry.lines;
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return { totalFiles: keys.length, totalLines, byCategory, entries };
   }
 }
 

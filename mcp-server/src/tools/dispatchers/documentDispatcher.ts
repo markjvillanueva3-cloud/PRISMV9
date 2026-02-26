@@ -8,9 +8,10 @@ import * as fs from "fs";
 import * as path from "path";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
+import { PATHS } from "../../constants.js";
 
 const DOCS_DIR = path.join(__dirname, "../../data/docs");
-const LEGACY_STATE_DIR = "C:\\PRISM\\state";
+const LEGACY_STATE_DIR = PATHS.STATE_DIR;
 if (!fs.existsSync(DOCS_DIR)) fs.mkdirSync(DOCS_DIR, { recursive: true });
 
 function getDocPath(name: string): string { return path.join(DOCS_DIR, name); }

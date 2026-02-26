@@ -32,12 +32,13 @@ import {
   SandboxTestResult, DeployResult, NLHookRecord, NLHookConfig,
   DEFAULT_NL_HOOK_CONFIG, ConditionType, CompileMethod, ParseConfidence,
 } from '../types/nl-hook-types.js';
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // STATE
 // ============================================================================
 
-const STATE_DIR = path.join("C:\\PRISM\\mcp-server", 'state', 'nl_hooks');
+const STATE_DIR = path.join(PATHS.MCP_SERVER, 'state', 'nl_hooks');
 const REGISTRY_FILE = path.join(STATE_DIR, 'registry.json');
 const CONFIG_FILE = path.join(STATE_DIR, 'config.json');
 
@@ -883,7 +884,7 @@ export class NLHookEngine {
     this.init();
     let records = Array.from(this.registry.values());
     if (filter?.status) records = records.filter(r => r.deploy_status === filter.status);
-    if (filter?.tag) records = records.filter(r => r.tags.includes(filter.tag));
+    if (filter?.tag) records = records.filter(r => r.tags.includes(filter.tag!));
     return records;
   }
 

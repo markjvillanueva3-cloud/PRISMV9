@@ -9,10 +9,11 @@ import { log } from "../../utils/Logger.js";
 import { apiConfig } from "../../config/api-config.js";
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../../constants.js";
 
 const VALIDATORS = ["SAFETY_AUDITOR", "CODE_REVIEWER", "SPEC_VERIFIER", "FORMULA_VALIDATOR", "COMPLETENESS_CHECKER"] as const;
 const ACTIONS = ["loop", "scrutinize", "assess"] as const;
-const RALPH_DIR = "C:\\PRISM\\state\\ralph_loops";
+const RALPH_DIR = path.join(PATHS.STATE_DIR, "ralph_loops");
 
 function getApiKey(): string | null {
   return apiConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || null;
@@ -20,7 +21,7 @@ function getApiKey(): string | null {
 
 async function callClaudeApi(systemPrompt: string, userPrompt: string, model: string = apiConfig.sonnetModel): Promise<string> {
   const apiKey = getApiKey();
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set. Add key to C:\\PRISM\\mcp-server\\.env file.");
+  if (!apiKey) throw new Error(`ANTHROPIC_API_KEY not set. Add key to ${PATHS.MCP_SERVER}\\.env file.`);
   log.info(`[ralph] API call: model=${model}, prompt_len=${userPrompt.length}`);
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -84,7 +85,7 @@ export function registerRalphDispatcher(server: any): void {
             const phases: any[] = [];
 
             // Phase 1: SCRUTINIZE
-            const scrutinyResults = [];
+            const scrutinyResults: any[] = [];
             for (const v of validators) {
               const r = await executeValidator(target, v);
               scrutinyResults.push(r);

@@ -1,6 +1,6 @@
 # PRISM Quick Reference v22.0
-## 31 dispatchers | 368 verified actions | 33 cadence auto-functions | 37 engines | 112+6 hooks
-## F1-F8 COMPLETE | W1-W7 COMPLETE | D1-D4 COMPLETE | See MASTER_INDEX.md for full reference
+## 32 dispatchers | 541 verified actions | 40 cadence auto-functions | 73 engines | 112 hooks (59 registry)
+## F1-F8 COMPLETE | R0-P0 Audit COMPLETE | See MASTER_INDEX.md for full reference
 
 ## SESSION LIFECYCLE
 START: prism_dev→session_boot THEN prism_context→todo_update (2 calls, always)
@@ -17,7 +17,8 @@ END: prism_session→state_save → prism_doc→append(ACTION_TRACKER.md) → pr
 6. 100% UTILIZATION — if it exists, use it everywhere
 
 ## DECISION TREE — What Tool For What Task
-Manufacturing calculation → prism_calc (21 actions) + prism_safety (29 tools)
+Manufacturing calculation → prism_calc (91 actions) + prism_safety (29 tools)
+Intelligence/learning/patterns → prism_intelligence (238 actions)
 Material/machine/tool data → prism_data (14 actions)
 Thread operations → prism_thread (12 actions)
 Toolpath strategy → prism_toolpath (8 actions)
@@ -36,7 +37,7 @@ Development workflow → prism_dev (9 actions) + prism_sp (19 actions)
 Code generation → prism_generator (6 actions)
 External research → prism_manus (11 actions)
 Knowledge query → prism_knowledge (5 actions)
-Reasoning/enforcement → prism_guard (14 actions)
+Reasoning/enforcement → prism_ralph_loop (14 actions)
 Workflow orchestration → prism_autopilot_d (8 actions)
 Natural language hooks → prism_nl_hook (8 actions)
 Compliance templates → prism_compliance (8 actions)
@@ -121,6 +122,7 @@ Plan first for >50 lines. Ask when ambiguous.
 >30% doc reduction → warning. >60% doc reduction → BLOCKED.
 
 ## Changelog
+- 2026-02-24: v23.0 — R0-P0 audit reconciliation. 32 dispatchers, 541 actions, 73 engines. Added prism_intelligence (238 actions) to decision tree. Fixed prism_guard→prism_ralph_loop. Updated all counts.
 - 2026-02-17: v22.1 — Added SKILL_CREATION_GATE (hard gate, always_apply). Audit: 1/116 skills pass checklist. Remediation planned.
 - 2026-02-13: v22.0 — F1-F8 complete. 31 dispatchers, 368 actions, 37 engines. Added nl_hook, compliance, tenant, bridge to decision tree. Synergy cadence (compliance@25, crossHealth@15).
 - 2026-02-11: v21.2 — Verified audit: 324 actions (was ~279), 29 engines (was 26), 30 session actions (was 26). Added guard+autopilot to decision tree. MASTER_INDEX.md now truth source.

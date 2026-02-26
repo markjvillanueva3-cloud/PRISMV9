@@ -1,0 +1,238 @@
+{
+  "materials": [
+    {
+      "material_id": "MD-2507-SOLUTIONANNEALED",
+      "name": "SAF 2507 (S32750) Solution Annealed",
+      "iso_group": "M",
+      "material_type": "stainless_steel",
+      "subcategory": "super_duplex",
+      "condition": "solution_annealed",
+      "data_quality": "verified",
+      "data_sources": [
+        "ASM_Metals_Handbook",
+        "Machining_Data_Handbook",
+        "Sandvik_Technical_Guide"
+      ],
+      "physical": {
+        "density": 7800,
+        "melting_point": 1375,
+        "specific_heat": 475,
+        "thermal_conductivity": 17,
+        "thermal_expansion": 13,
+        "elastic_modulus": 200,
+        "poisson_ratio": 0.29,
+        "shear_modulus": 77,
+        "bulk_modulus": 159
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 290,
+          "vickers": 305,
+          "rockwell_c": 30,
+          "rockwell_b": null
+        },
+        "tensile_strength": {
+          "typical": 830,
+          "min": 747,
+          "max": 913
+        },
+        "yield_strength": {
+          "typical": 550,
+          "min": 495,
+          "max": 605
+        },
+        "elongation": 20,
+        "reduction_of_area": 45,
+        "impact_strength": 80,
+        "fatigue_strength": 332,
+        "fracture_toughness": 80,
+        "work_hardening_exponent": 0.3,
+        "compressive_strength": 872,
+        "shear_strength": 498
+      },
+      "kienzle": {
+        "kc1_1": 2550,
+        "mc": 0.28,
+        "kc1_1_milling": 2295,
+        "mc_milling": 0.265,
+        "kc1_1_drilling": 2856,
+        "mc_drilling": 0.305,
+        "kc1_1_boring": 2678,
+        "mc_boring": 0.29,
+        "kc1_1_reaming": 2168,
+        "mc_reaming": 0.25
+      },
+      "johnson_cook": {
+        "A": 550,
+        "B": 1200,
+        "n": 0.45,
+        "C": 0.015,
+        "m": 1,
+        "T_melt": 1375,
+        "T_ref": 25,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 300
+      },
+      "taylor": {
+        "C": 130,
+        "n": 0.18,
+        "C_carbide": 104,
+        "n_carbide": 0.14,
+        "C_ceramic": 187,
+        "n_ceramic": 0.2,
+        "C_cbn": null,
+        "n_cbn": null,
+        "C_hss": 36,
+        "n_hss": 0.09
+      },
+      "chip_formation": {
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "high",
+        "adhesion_tendency": "moderate",
+        "segmentation_frequency": "moderate",
+        "shear_angle": 26.7,
+        "chip_compression_ratio": 2.83
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 250,
+          "speed_finishing": 330,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.1,
+          "doc_roughing": 2,
+          "doc_finishing": 0.5,
+          "coolant_type": "flood_emulsion",
+          "coolant_pressure": 10
+        },
+        "milling": {
+          "speed_roughing": 200,
+          "speed_finishing": 280,
+          "feed_per_tooth_roughing": 0.15,
+          "feed_per_tooth_finishing": 0.06,
+          "doc_roughing": 1.5,
+          "doc_finishing": 0.4,
+          "ae_roughing_pct": 50,
+          "ae_finishing_pct": 10
+        },
+        "tool_material": {
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN or AlTiN",
+          "geometry_recommendation": "Positive rake"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "recommendation": "High pressure recommended. Through-spindle preferred."
+        },
+        "drilling": {
+          "speed": 150,
+          "feed_per_rev": 0.12,
+          "peck_depth_ratio": 1,
+          "point_angle": 130,
+          "coolant_type": "flood_emulsion",
+          "coolant_through": true
+        }
+      },
+      "machinability": {
+        "aisi_rating": 35,
+        "relative_to_1212": 0.28,
+        "surface_finish_tendency": "moderate",
+        "tool_wear_pattern": "notch_wear",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_gen_v5": null,
+      "_verified": {
+        "session": 47,
+        "date": "2026-02-07",
+        "method": "handbook_reference_with_physics_scaling",
+        "params": 127
+      },
+      "surface": {
+        "achievable_ra_turning": 0.8,
+        "achievable_ra_milling": 1.6,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 2.93,
+        "heat_partition_ratio": 0.09,
+        "thermal_softening_onset": 400,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "marginal"
+      },
+      "weldability": {
+        "rating": "fair",
+        "preheat_temperature": 200,
+        "postweld_treatment": "stress_relief_recommended"
+      },
+      "standards": {
+        "din": "X2CrNiMoN25-7-4",
+        "en": "1.4410",
+        "uns": "S32750"
+      },
+      "tribology": {
+        "sliding_friction": 0.5,
+        "adhesion_tendency": "high",
+        "galling_tendency": "high",
+        "welding_temperature": 950,
+        "oxide_stability": "poor",
+        "lubricity_response": "good"
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.4,
+          "Ra_typical": 1.6
+        },
+        "residual_stress_tendency": "tensile",
+        "white_layer_tendency": "moderate",
+        "work_hardening_depth": 0.15,
+        "microstructure_stability": "moderate",
+        "burr_formation": "high",
+        "surface_defect_sensitivity": "moderate",
+        "polishability": "good"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.92,
+        "heat_partition_to_chip": 0.6,
+        "heat_partition_to_tool": 0.2,
+        "heat_partition_to_workpiece": 0.2,
+        "thermal_softening_onset": 500,
+        "recrystallization_temperature": 480,
+        "hot_hardness_retention": "good",
+        "thermal_shock_sensitivity": "moderate"
+      },
+      "composition": {
+        "C": {
+          "max": 0.03,
+          "typical": 0.02
+        },
+        "Cr": {
+          "min": 24,
+          "max": 26,
+          "typical": 25
+        },
+        "Ni": {
+          "min": 6,
+          "max": 8,
+          "typical": 7
+        },
+        "Mo": {
+          "min": 3,
+          "max": 5,
+          "typical": 4
+        },
+        "N": {
+          "min": 0.24,
+          "max": 0.32,
+          "typical": 0.28
+        }
+      }
+    }
+  ]
+}

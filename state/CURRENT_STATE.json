@@ -1,122 +1,61 @@
 {
-  "version": "23.0.0",
-  "lastUpdated": "2026-01-30T04:30:00.000000",
+  "version": "26.0.0",
+  "lastUpdated": "2026-02-24T23:00:00.000Z",
   "currentSession": {
-    "id": "TOOL-DEPLOY",
+    "id": "R0-P0-AUDIT",
     "status": "COMPLETE",
-    "phase": "INTEGRATION & AUTOMATION TOOLS DEPLOYED"
-  },
-  "extractionProgress": {
-    "modulesExtracted": 136,
-    "linesExtracted": 62805,
-    "percentComplete": 6.37
-  },
-  "quickResume": "TOOL INTEGRATION + AUTOMATION COMPLETE. Created 9 new scripts: excel_to_json, json_to_duckdb, obsidian_generator, sync_to_drive, master_sync, auto_context, template_generator, git_manager, script_cleanup. Updated prism.py CLI with sync commands. Created prism-tool-integration skill. Folders: C:\\PRISM\\scripts\\integration\\ and C:\\PRISM\\scripts\\automation\\",
-  "currentTask": {
-    "id": "TOOLS-COMPLETE",
-    "name": "Integration & Automation Tools Deployed",
-    "status": "COMPLETE"
-  },
-  "infrastructure": {
-    "orchestratorVersion": "7.0",
-    "combinationEngineVersion": "3.0",
-    "constraintPolicy": "MAXIMUM_UTILIZATION",
-    "agentsRegistered": 64,
-    "formulasActive": 22,
-    "hooksEnforcing": 147,
-    "triggerPatterns": 160,
-    "scriptsRegistered": 39,
-    "limits": {
-      "skills": "UNLIMITED",
-      "agents": "UNLIMITED",
-      "safety": "S(R) >= 0.70 (HARD)",
-      "rigor": "M(R) >= 0.60",
-      "coverage": "100%"
-    },
-    "skillTree": {
-      "version": "1.1",
-      "rootPath": "/mnt/skills/user/",
-      "totalSkills": 121,
-      "totalBranches": 20,
-      "totalLevels": 5,
-      "structure": {
-        "L0_CORE": {
-          "count": 15,
-          "policy": "ALWAYS",
-          "description": "Always-On skills - load every session"
-        },
-        "L1_COGNITIVE": {
-          "count": 8,
-          "policy": "COMPLEX",
-          "description": "Multi-resource reasoning tasks"
-        },
-        "L2_WORKFLOW": {
-          "count": 31,
-          "policy": "PHASE",
-          "subBranches": 7,
-          "description": "Development phase skills"
-        },
-        "L3_DOMAIN": {
-          "count": 59,
-          "policy": "DOMAIN",
-          "subBranches": 10,
-          "description": "Domain-specific skills"
-        },
-        "L4_REFERENCE": {
-          "count": 8,
-          "policy": "ON_DEMAND",
-          "description": "Lookup-only reference materials"
-        }
-      },
-      "newSkills": [
-        "prism-tree-navigator",
-        "prism-tool-integration"
-      ],
-      "keyFiles": {
-        "treeIndex": "/mnt/skills/user/TREE_INDEX.md",
-        "treeRegistry": "C:\\PRISM\\data\\coordination\\SKILL_TREE_REGISTRY.json",
-        "treeNavigator": "C:\\PRISM\\scripts\\skill_tree_navigator.py",
-        "treeSync": "C:\\PRISM\\scripts\\skill_tree_sync.py"
-      }
-    },
-    "toolIntegration": {
-      "version": "1.0",
-      "scripts": {
-        "integration": [
-          "excel_to_json.py",
-          "json_to_duckdb.py",
-          "obsidian_generator.py",
-          "sync_to_drive.py",
-          "master_sync.py"
-        ],
-        "automation": [
-          "auto_context.py",
-          "template_generator.py",
-          "git_manager.py",
-          "script_cleanup.py"
-        ]
-      },
-      "folders": {
-        "integration": "C:\\PRISM\\scripts\\integration\\",
-        "automation": "C:\\PRISM\\scripts\\automation\\",
-        "knowledge": "C:\\PRISM\\knowledge\\",
-        "diagrams": "C:\\PRISM\\diagrams\\"
-      },
-      "dependencies": {
-        "python": ["pandas", "openpyxl", "duckdb"]
-      }
+    "phase": "R0-P0-U11-FIXES",
+    "progress": {
+      "toolCalls": 0,
+      "zone": "GREEN",
+      "omega_score": 1.0,
+      "omega_score_at": "2026-02-24T23:00:00.000Z"
     }
   },
-  "inheritance": {
-    "root": "L0_CORE",
-    "propagates": [
-      "Safety S >= 0.70 (HARD)",
-      "Rigor M >= 0.60",
-      "Coverage 100%",
-      "Hook enforcement (147)",
-      "State management protocol"
-    ],
-    "allChildrenInherit": true
+  "system": {
+    "dispatchers": 32,
+    "actions": 541,
+    "engines": 74,
+    "engine_modules": 73,
+    "registries": 14,
+    "registry_files": 18,
+    "skills": 61,
+    "scripts": 48,
+    "skillBundles": 9,
+    "nlHooks": 9,
+    "hooks_registry": 59,
+    "hooks_source": 112,
+    "algorithms": 17,
+    "cadenceFunctions": 40,
+    "build_size": "5.1MB",
+    "build_warnings": 1,
+    "tests_vitest": "74/74",
+    "tsc_errors": 0,
+    "total_ts_files": 217,
+    "total_loc": 129983
   },
-  "principle": "IF IT EXISTS, USE IT EVERYWHERE. Tree-aware skill loading. Deploy ALL relevant branches for any task. No artificial limits."
+  "phases": {
+    "P0": "COMPLETE",
+    "DA": "COMPLETE",
+    "R1": "PARTIAL (MS1-MS4 complete, MS5-MS9 deferred)",
+    "R2": "COMPLETE (175/175 tests, Omega=0.77)",
+    "R3": "COMPLETE (129/129 + 635 batches, Omega=0.912)",
+    "R4": "COMPLETE (116/116 tests)",
+    "R5": "COMPLETE (569/569 tests)",
+    "R6": "COMPLETE (Docker, CI/CD, monitoring, tests)",
+    "R7": "COMPLETE (~500 tests)",
+    "R8": "COMPLETE (~1100 tests)",
+    "R9": "COMPLETE (487/487 tests)",
+    "R10": "COMPLETE (1617/1617 tests)",
+    "R11": "COMPLETE (814/814 tests)",
+    "R12-R32": "COMPLETE (roadmap phases — 12 new engines, 48 new actions)",
+    "REORG": "COMPLETE (6 batches, ~262MB archived, chat dispatcher added)",
+    "R0-P0": "COMPLETE (11 units, 52+ findings, all fixes applied)"
+  },
+  "audit": {
+    "date": "2026-02-24",
+    "result": "R0-P0 Infrastructure Audit — 52+ findings, all critical/high fixes applied",
+    "findings": "5 CRITICAL, 14 HIGH, 13 MEDIUM, 5 LOW, 15 INFO",
+    "report": "mcp-server/audits/R0-P0/CONSOLIDATED_FINDINGS.md"
+  }
 }

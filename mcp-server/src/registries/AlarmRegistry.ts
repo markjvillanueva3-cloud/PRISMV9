@@ -106,6 +106,21 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       await this.loadMasterFile(masterPath);
     }
     
+    // Load verified/accurate alarm data (higher quality, override existing)
+    for (const subdir of ["alarms_verified", "alarms_accurate"]) {
+      const verifiedPath = path.join(PATHS.EXTRACTED_DIR, "controllers", subdir);
+      if (await fileExists(verifiedPath)) {
+        const vFiles = await listDirectory(verifiedPath);
+        const vJsonFiles = vFiles.filter(f => f.name.endsWith(".json"));
+        const beforeCount = this.entries.size;
+        for (const file of vJsonFiles) {
+          await this.loadAlarmFile(file.path);
+        }
+        const added = this.entries.size - beforeCount;
+        if (added > 0) log.info(`  ${subdir}: +${added} alarms`);
+      }
+    }
+    
     // Build indexes
     this.buildIndexes();
     
@@ -236,7 +251,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
         if (!this.indexByCode.has(controller)) {
           this.indexByCode.set(controller, new Map());
         }
-        const alarmCodeVal = alarm.alarm_code || alarm.code || (alarm.alarm_number != null ? String(alarm.alarm_number) : null);
+        const alarmCodeVal = (alarm as any).alarm_code || alarm.code || ((alarm as any).alarm_number != null ? String((alarm as any).alarm_number) : null);
         if (alarmCodeVal) {
           this.indexByCode.get(controller)!.set(String(alarmCodeVal).toUpperCase(), id);
         }

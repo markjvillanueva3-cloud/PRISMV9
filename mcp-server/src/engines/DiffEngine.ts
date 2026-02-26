@@ -16,6 +16,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // TYPES
@@ -62,7 +63,7 @@ function crc32(str: string): number {
   return (crc ^ 0xFFFFFFFF) >>> 0;
 }
 
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const DIFF_STATS_FILE = path.join(STATE_DIR, "d4_diff_stats.json");
 
 // Track checksums of files we've seen

@@ -1,9 +1,9 @@
 # PRISM MCP Server — Master Index
-# Verified: 2026-02-13 (F1-F8 Complete, Synergy Wired)
+# Verified: 2026-02-25 (S1-MS1 Registry Enrichment Complete)
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — All counts verified against actual dispatcher code
 
-## 1. DISPATCHERS (31 dispatchers, 368 verified actions)
+## 1. DISPATCHERS (32 dispatchers, 395+ verified actions)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
@@ -20,8 +20,8 @@ Actions (21): cutting_force, tool_life, speed_feed, flow_stress, surface_finish,
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
 
-### prism_data (dataDispatcher.ts, 199L)
-Actions (14): material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate
+### prism_data (dataDispatcher.ts, ~700L)
+Actions (27): material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute, coolant_get, coolant_search, coolant_recommend, coating_get, coating_search, coating_recommend
 
 ### prism_dev (devDispatcher.ts, 481L)
 Actions (9): session_boot, build, code_template, code_search, file_read, file_write, server_info, test_smoke, test_results
@@ -98,14 +98,15 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-**Total: 31 dispatchers, 368 actions**
+**Total: 32 dispatchers, 395+ actions**
 
 ---
 
 ## 2. DECISION TREE — What Tool For What Task
 
 Manufacturing calculation → prism_calc (21) + prism_safety (29)
-Material/machine/tool data → prism_data (14)
+Material/machine/tool data → prism_data (27)
+Coolant/coating lookup → prism_data (coolant_get, coolant_search, coolant_recommend, coating_get, coating_search, coating_recommend)
 Thread operations → prism_thread (12)
 Toolpath strategy → prism_toolpath (8)
 Alarm decode/fix → prism_data (alarm_decode, alarm_search, alarm_fix)
@@ -158,6 +159,9 @@ prism_session→workflow_start → prism_sp→brainstorm → prism_sp→plan →
 
 ### 3.5 Manufacturing Calculation
 prism_data→material_get → prism_calc→[calculation] → prism_safety→[validation] → prism_validate→safety
+
+### 3.5b SFC Calculation (with coolant/coating correction)
+prism_data→material_get(kc1_1, mc) → prism_data→coolant_recommend(material_group) → prism_data→coating_recommend(material_group) → prism_calc→cutting_force (Kienzle × coolant.force_reduction × coating.friction_factor) → prism_safety→check_spindle_power
 
 ### 3.6 Thread Calculation
 prism_thread→get_thread_specifications → prism_thread→calculate_tap_drill → prism_thread→generate_thread_gcode → prism_safety→check_chip_load_limits
@@ -345,12 +349,13 @@ Total skill files: 119
 
 ## 14. SUMMARY
 
-- Dispatchers: 31 (368 verified actions)
-- Engines: 37 (includes 8 F-series engines)
-- Registries: 19
-- Type definitions: 9
-- Python scripts: 73 (~35430L)
-- Skills: 119 (C:\PRISM\skills-consolidated)
+- Dispatchers: 32 (382+ verified actions)
+- Engines: 73 (all wired — 57 direct, 15 via handlers, 1 via bundle)
+- Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
+- Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
+- Skill Bundles: 9 (wired to skillScriptDispatcher)
+- NL Hooks: 48 deployed
+- Build: 5.6MB, 1 warning, 73/74 tests pass
 - GSD files: 16 (~628L)
 - Synergy integration: synergyIntegration.ts (276L)
 - Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~3.9MB

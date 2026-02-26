@@ -673,7 +673,7 @@ const preGcodeOutput: HookDefinition = {
   tags: ["gcode", "safety", "output"],
   
   condition: (context: HookContext): boolean => {
-    return context.target?.type === "gcode" ||
+    return (context.target?.type as string) === "gcode" ||
            context.metadata?.outputType === "gcode";
   },
   

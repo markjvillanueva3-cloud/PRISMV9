@@ -420,9 +420,9 @@ export async function loadAgents(): Promise<Map<string, Agent>> {
         
         try {
           const agent = await readJsonFile<Agent>(file);
-          if (agent.agent_id) {
+          if ((agent as any).agent_id) {
             // Use agent_id as the key (standard field)
-            caches.agents.data.set(agent.agent_id, { ...agent, id: agent.agent_id });
+            caches.agents.data.set((agent as any).agent_id, { ...agent, id: (agent as any).agent_id });
           } else if (agent.id) {
             caches.agents.data.set(agent.id, agent);
           }

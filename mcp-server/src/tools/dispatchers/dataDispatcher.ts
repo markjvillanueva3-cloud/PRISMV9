@@ -1,7 +1,8 @@
 /**
- * Data Access Dispatcher - Consolidates 14 data tools → 1 dispatcher
+ * Data Access Dispatcher - Consolidates data tools → 1 dispatcher (27 actions)
  * Actions: material_get/search/compare, machine_get/search/capabilities,
- *          tool_get/search/recommend, alarm_decode/search/fix, formula_get/calculate
+ *          tool_get/search/recommend, alarm_decode/search/fix, formula_get/calculate,
+ *          coolant_get/search/recommend, coating_get/search/recommend
  */
 
 import { z } from "zod";
@@ -18,7 +19,10 @@ const DataDispatcherSchema = z.object({
     "tool_get", "tool_search", "tool_recommend", "tool_facets",
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
-    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare"
+    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare",
+    "material_substitute",
+    "coolant_search", "coolant_recommend", "coolant_get",
+    "coating_search", "coating_recommend", "coating_get"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -30,7 +34,7 @@ function jsonResponse(data: any) {
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
-    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare",
+    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head), material_substitute (find alternative materials by cost/availability/machinability/performance), coolant get/search/recommend (SFC correction factors), coating get/search/recommend (SFC correction factors). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute, coolant_search, coolant_recommend, coolant_get, coating_search, coating_recommend, coating_get",
     DataDispatcherSchema.shape,
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_data] action=${action}`, params);
@@ -125,7 +129,6 @@ export function registerDataDispatcher(server: any): void {
               diameter_target: params.diameter, max_results: params.limit ?? 5
             });
             // Expand material-specific cutting params for the queried ISO group
-            const isoKey = `${mat.iso_group}_` ;
             result = recTools.map((t: any) => {
               const cpSrc = t.cutting_params?.materials || t.cutting_params || {};
               let materialParams: any = null;
@@ -283,7 +286,7 @@ export function registerDataDispatcher(server: any): void {
                 query: machineConstraints.spindle_interface,
                 limit: 5
               });
-              compatibleHolders = holderResult?.tools || holderResult?.results || [];
+              compatibleHolders = holderResult?.tools || (holderResult as any)?.results || [];
             }
             
             result = {
@@ -325,9 +328,9 @@ export function registerDataDispatcher(server: any): void {
             const mthMachine = registryManager.machines.getByIdOrModel(mthMachineId);
             if (!mthMachine) return jsonResponse({ error: `Machine not found: ${mthMachineId}` });
             
-            const spindleInterface = mthMachine.spindle?.spindle_nose || mthMachine.spindle?.interface || (mthMachine as any).spindle_interface;
-            const turretType = mthMachine.turret?.type || (mthMachine as any).turret_type;
-            const machineType = (mthMachine.type || mthMachine.machine_type || '').toLowerCase();
+            const spindleInterface = mthMachine.spindle?.spindle_nose || (mthMachine.spindle as any)?.interface || (mthMachine as any).spindle_interface;
+            const turretType = (mthMachine as any).turret?.type || (mthMachine as any).turret_type;
+            const machineType = (mthMachine.type || (mthMachine as any).machine_type || '').toLowerCase();
             const isLathe = machineType.includes('lathe') || machineType.includes('turn');
             
             let holders: any[] = [];
@@ -338,7 +341,7 @@ export function registerDataDispatcher(server: any): void {
                 query: turretType,
                 limit: params.limit ?? 20
               });
-              holders = turretResult?.tools || turretResult?.results || [];
+              holders = turretResult?.tools || (turretResult as any)?.results || [];
             }
             
             if (spindleInterface) {
@@ -347,7 +350,7 @@ export function registerDataDispatcher(server: any): void {
                 query: spindleInterface,
                 limit: params.limit ?? 20
               });
-              const spindleHolders = spindleResult?.tools || spindleResult?.results || [];
+              const spindleHolders = spindleResult?.tools || (spindleResult as any)?.results || [];
               holders = holders.concat(spindleHolders);
             }
             
@@ -362,7 +365,7 @@ export function registerDataDispatcher(server: any): void {
             
             result = {
               machine: {
-                id: mthMachine.id || mthMachine.machine_id,
+                id: mthMachine.id || (mthMachine as any).machine_id,
                 model: mthMachine.model || mthMachine.name,
                 type: machineType,
                 spindle_interface: spindleInterface,
@@ -395,9 +398,9 @@ export function registerDataDispatcher(server: any): void {
             if (adMachineId) {
               const adMachine = registryManager.machines.getByIdOrModel(adMachineId);
               if (adMachine) {
-                controller = controller || adMachine.controller?.brand || adMachine.controller?.manufacturer;
+                controller = controller || (adMachine.controller as any)?.brand || adMachine.controller?.manufacturer;
                 machineInfo = {
-                  id: adMachine.id || adMachine.machine_id,
+                  id: adMachine.id || (adMachine as any).machine_id,
                   model: adMachine.model || adMachine.name,
                   controller_brand: controller,
                   controller_model: adMachine.controller?.model
@@ -415,7 +418,7 @@ export function registerDataDispatcher(server: any): void {
               const searchResult = await registryManager.alarms.search({
                 query: String(adCode), controller: String(controller), limit: 5
               });
-              const searchAlarms = searchResult?.alarms || searchResult?.results || [];
+              const searchAlarms = searchResult?.alarms || (searchResult as any)?.results || [];
               if (searchAlarms.length > 0) {
                 result = {
                   exact_match: false,
@@ -478,7 +481,7 @@ export function registerDataDispatcher(server: any): void {
               const sfMach = registryManager.machines.getByIdOrModel(params.machine);
               if (sfMach) {
                 maxRPM = sfMach.spindle?.max_rpm || (sfMach as any).spindle_rpm_max || maxRPM;
-                maxPower = sfMach.spindle?.power_kw || sfMach.spindle?.power_continuous || maxPower;
+                maxPower = (sfMach.spindle as any)?.power_kw || sfMach.spindle?.power_continuous || maxPower;
               }
             }
             const vcRec = recBlock.speed || (isRoughing ? recSection.speed_roughing : recSection.speed_finishing) || (isRoughing ? 150 : 200);
@@ -546,6 +549,138 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === CROSS-SYSTEM INTELLIGENCE (R3-MS3) ===
+          case "material_substitute": {
+            const subMat = params.material;
+            const subReason = params.reason || "machinability";
+            if (!subMat) return jsonResponse({ error: "material_substitute requires 'material' parameter" });
+            const validReasons = ["cost", "availability", "machinability", "performance"];
+            if (!validReasons.includes(subReason)) return jsonResponse({ error: `Invalid reason: ${subReason}. Use: ${validReasons.join(", ")}` });
+
+            // 1. Get source material
+            const source = await registryManager.materials.getByIdOrName(subMat);
+            if (!source) return jsonResponse({ error: `Source material not found: ${subMat}` });
+            const srcGroup = (source as any).iso_group || "P";
+            const srcHardness = (source as any).hardness_hb || (source as any).hardness || 200;
+            const srcTensile = (source as any).tensile_strength_mpa || (source as any).tensile_strength || 500;
+            const srcMachinability = (source as any).machinability_rating || (source as any).machinability || 50;
+
+            // 2. Find candidates in same ISO group
+            const candidates = await registryManager.materials.search({
+              iso_group: srcGroup, limit: 50, offset: 0
+            });
+            const candidateList = Array.isArray(candidates) ? candidates : (candidates as any)?.results || [];
+
+            // 3. Score and rank based on reason
+            const scored = candidateList
+              .filter((c: any) => c.name !== source.name && c.id !== (source as any).id)
+              .map((c: any) => {
+                const cHardness = c.hardness_hb || c.hardness || 200;
+                const cTensile = c.tensile_strength_mpa || c.tensile_strength || 500;
+                const cMachinability = c.machinability_rating || c.machinability || 50;
+                const hardnessDiff = Math.abs(cHardness - srcHardness) / srcHardness;
+                const tensileDiff = Math.abs(cTensile - srcTensile) / srcTensile;
+                const machinabilityImprovement = ((cMachinability - srcMachinability) / Math.max(srcMachinability, 1)) * 100;
+
+                let score = 0;
+                const tradeOffs: string[] = [];
+                if (subReason === "machinability") {
+                  score = cMachinability;
+                  if (hardnessDiff > 0.20) tradeOffs.push(`Hardness differs by ${Math.round(hardnessDiff * 100)}%`);
+                  if (tensileDiff > 0.20) tradeOffs.push(`Tensile strength differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "cost") {
+                  score = cMachinability * 0.5 + (1 - hardnessDiff) * 50;
+                  if (tensileDiff > 0.15) tradeOffs.push(`Tensile differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "availability") {
+                  const commonAlloys = ["1045", "4140", "4340", "6061", "7075", "304", "316"];
+                  const isCommon = commonAlloys.some(a => c.name?.includes(a));
+                  score = (isCommon ? 100 : 50) + cMachinability * 0.3;
+                  if (tensileDiff > 0.15) tradeOffs.push(`Tensile differs by ${Math.round(tensileDiff * 100)}%`);
+                } else if (subReason === "performance") {
+                  score = cTensile * 0.5 + cHardness * 0.3 + cMachinability * 0.2;
+                  if (cMachinability < srcMachinability * 0.8) tradeOffs.push(`Lower machinability (${Math.round(cMachinability)} vs ${Math.round(srcMachinability)})`);
+                }
+
+                return {
+                  name: c.name,
+                  iso_group: c.iso_group || srcGroup,
+                  machinability_improvement_pct: Math.round(machinabilityImprovement),
+                  properties: {
+                    hardness: cHardness,
+                    tensile: cTensile,
+                    density: c.density || null,
+                    machinability: cMachinability
+                  },
+                  trade_offs: tradeOffs,
+                  score
+                };
+              })
+              .sort((a: any, b: any) => b.score - a.score)
+              .slice(0, 5);
+
+            result = {
+              source_material: { name: source.name, iso_group: srcGroup, hardness: srcHardness, tensile: srcTensile, machinability: srcMachinability },
+              reason: subReason,
+              substitutes: scored.map(({ score, ...rest }: any) => rest),
+              count: scored.length
+            };
+            break;
+          }
+
+          // === COOLANT (3) ===
+          case "coolant_get": {
+            const coolantId = params.id || params.coolant_id || params.identifier;
+            if (!coolantId) return jsonResponse({ error: "Missing coolant identifier. Provide 'id' or 'coolant_id'." });
+            const coolant = registryManager.coolants.get(coolantId);
+            if (!coolant) return jsonResponse({ error: `Coolant not found: ${coolantId}` });
+            result = coolant;
+            break;
+          }
+          case "coolant_search": {
+            result = registryManager.coolants.searchCoolants({
+              query: params.query, category: params.category, delivery: params.delivery,
+              material_group: params.material_group || params.material || params.iso_group,
+              operation: params.operation, limit: params.limit || 10
+            });
+            break;
+          }
+          case "coolant_recommend": {
+            const matGroup = params.material_group || params.material || params.iso_group;
+            if (!matGroup) return jsonResponse({ error: "Missing material_group (ISO group e.g. 'P', 'M', 'K')" });
+            result = registryManager.coolants.recommend({
+              material_group: matGroup, operation: params.operation || "general",
+              delivery: params.delivery
+            });
+            break;
+          }
+
+          // === COATING (3) ===
+          case "coating_get": {
+            const coatingId = params.id || params.coating_id || params.identifier;
+            if (!coatingId) return jsonResponse({ error: "Missing coating identifier. Provide 'id' or 'coating_id'." });
+            const coating = registryManager.coatings.get(coatingId);
+            if (!coating) return jsonResponse({ error: `Coating not found: ${coatingId}` });
+            result = coating;
+            break;
+          }
+          case "coating_search": {
+            result = registryManager.coatings.searchCoatings({
+              query: params.query, category: params.category, process: params.process,
+              material_group: params.material_group || params.material || params.iso_group,
+              application: params.application, limit: params.limit || 10
+            });
+            break;
+          }
+          case "coating_recommend": {
+            const coatMatGroup = params.material_group || params.material || params.iso_group;
+            if (!coatMatGroup) return jsonResponse({ error: "Missing material_group (ISO group e.g. 'P', 'M', 'K')" });
+            result = registryManager.coatings.recommend({
+              material_group: coatMatGroup, application: params.application || params.operation || "general",
+              process: params.process
+            });
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -557,5 +692,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (17 actions)");
+  log.info("[dataDispatcher] Registered prism_data (27 actions)");
 }

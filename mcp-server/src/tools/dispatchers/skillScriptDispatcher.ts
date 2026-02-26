@@ -5,12 +5,14 @@ import { skillExecutor, SkillLoadResult, SkillRecommendation, SkillChain, TaskAn
 import { scriptExecutor, ExecutionResult, QueuedExecution, ScriptRecommendation, ExecutionParams } from "../../engines/ScriptExecutor.js";
 import { skillRegistry, SkillCategory, Skill } from "../../registries/SkillRegistry.js";
 import { scriptRegistry, ScriptCategory, ScriptLanguage, Script } from "../../registries/ScriptRegistry.js";
+import { getAllBundles, getBundle, getBundlesForAction, getBundlesForDomain, listBundles } from "../../engines/SkillBundleEngine.js";
 
 const ACTIONS = [
   "skill_list", "skill_get", "skill_search", "skill_find_for_task", "skill_content", "skill_stats",
   "script_list", "script_get", "script_search", "script_command", "script_execute", "script_stats",
   "skill_load", "skill_recommend", "skill_analyze", "skill_chain", "skill_search_v2", "skill_stats_v2",
-  "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history"
+  "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history",
+  "bundle_list", "bundle_get", "bundle_for_action", "bundle_for_domain"
 ] as const;
 
 function ok(data: any) {
@@ -195,7 +197,7 @@ export function registerSkillScriptDispatcher(server: any): void {
               command,
               output: result.stdout?.substring(0, 4000),
               error: result.stderr?.substring(0, 2000),
-              exit_code: result.exitCode,
+              exit_code: result.exit_code,
               duration_ms: result.duration_ms
             });
           }
@@ -313,7 +315,7 @@ export function registerSkillScriptDispatcher(server: any): void {
             const executorStats = skillExecutor.getStats();
             const registryStats = executorStats.registry;
 
-            const stats = {
+            const stats: Record<string, any> = {
               skills_available: executorStats.skills_available,
               by_category: registryStats.byCategory,
               total_lines: registryStats.totalLines,
@@ -322,12 +324,12 @@ export function registerSkillScriptDispatcher(server: any): void {
             };
 
             if (params.include_cache !== false) {
-              stats.cache = executorStats.cache;
+              stats.cache = (executorStats as any).cache;
             }
 
             if (params.include_usage !== false) {
-              stats.usage = executorStats.usage;
-              
+              stats.usage = (executorStats as any).usage;
+
               const topN = params.top_n || 10;
               const topUsed = skillExecutor.getMostUsed(topN);
               stats.top_used = topUsed.map(u => ({
@@ -382,7 +384,7 @@ export function registerSkillScriptDispatcher(server: any): void {
           case "script_queue": {
             await scriptExecutor.initialize();
 
-            const queued = [];
+            const queued: any[] = [];
             for (const script of params.scripts || []) {
               const execution = scriptExecutor.queueScript(
                 script.script_id,
@@ -456,6 +458,25 @@ export function registerSkillScriptDispatcher(server: any): void {
             }
 
             return ok({ success: true, history, stats });
+          }
+
+          case "bundle_list":
+            return ok(listBundles());
+
+          case "bundle_get": {
+            const bundle = getBundle(params.id || params.bundle_id || "");
+            if (!bundle) return ok({ error: `Bundle not found: ${params.id}` });
+            return ok(bundle);
+          }
+
+          case "bundle_for_action": {
+            const bundles = getBundlesForAction(params.action || params.name || "");
+            return ok({ action: params.action || params.name, bundles: bundles.map(b => ({ id: b.id, name: b.name, digest: b.digest })) });
+          }
+
+          case "bundle_for_domain": {
+            const bundles = getBundlesForDomain(params.domain || "");
+            return ok({ domain: params.domain, bundles: bundles.map(b => ({ id: b.id, name: b.name, digest: b.digest })) });
           }
 
           default:

@@ -73,6 +73,129 @@ export interface Formula {
 }
 
 // ============================================================================
+// SOURCE FILE CATALOG (P-MS2: 12 extracted formula modules, 2,112 lines)
+// ============================================================================
+
+export const FORMULA_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  category: string;
+  lines: number;
+  safety_class: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  description: string;
+  formulas_provided: string[];
+  consumers: string[];
+}> = {
+  "PRISM_FORCE_LOOKUP": {
+    filename: "PRISM_FORCE_LOOKUP.js",
+    category: "physics",
+    lines: 51,
+    safety_class: "CRITICAL",
+    description: "Cutting force coefficient lookup tables (kc1.1, mc) by material",
+    formulas_provided: ["F-KIENZLE-001"],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_MATERIAL_PHYSICS": {
+    filename: "PRISM_MATERIAL_PHYSICS.js",
+    category: "physics",
+    lines: 54,
+    safety_class: "HIGH",
+    description: "Material-specific physics properties and deformation models",
+    formulas_provided: ["F-CHIPTHK-001", "F-DEFLECT-001"],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_MFG_PHYSICS": {
+    filename: "PRISM_MFG_PHYSICS.js",
+    category: "physics",
+    lines: 197,
+    safety_class: "CRITICAL",
+    description: "Comprehensive manufacturing physics: force, power, deflection, chatter",
+    formulas_provided: ["F-KIENZLE-001", "F-POWER-001", "F-DEFLECT-001", "F-CHATTER-001", "F-MRR-001"],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry", "OptimizationEngine"]
+  },
+  "PRISM_STANDALONE_CALCULATOR_API": {
+    filename: "PRISM_STANDALONE_CALCULATOR_API.js",
+    category: "calculator",
+    lines: 304,
+    safety_class: "MEDIUM",
+    description: "Self-contained calculator API: RPM, feed rate, speed, chip load, torque, thread",
+    formulas_provided: ["F-CALC-001", "F-CALC-002", "F-CALC-003", "F-CALC-004", "F-CALC-005", "F-CALC-006", "F-CALC-007", "F-CALC-008", "F-CALC-009"],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_STRESS": {
+    filename: "PRISM_STRESS.js",
+    category: "physics",
+    lines: 138,
+    safety_class: "HIGH",
+    description: "Stress analysis: Von Mises, principal stresses, safety factors",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "ComplianceEngine"]
+  },
+  "PRISM_STRESS_ANALYSIS": {
+    filename: "PRISM_STRESS_ANALYSIS.js",
+    category: "physics",
+    lines: 254,
+    safety_class: "HIGH",
+    description: "Advanced stress analysis: FEA integration, fatigue, creep models",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "ComplianceEngine"]
+  },
+  "PRISM_THERMAL_COMPENSATION": {
+    filename: "PRISM_THERMAL_COMPENSATION.js",
+    category: "thermal",
+    lines: 205,
+    safety_class: "MEDIUM",
+    description: "Thermal compensation: machine growth, tool expansion, workpiece deformation",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "ToleranceEngine"]
+  },
+  "PRISM_THERMAL_LOOKUP": {
+    filename: "PRISM_THERMAL_LOOKUP.js",
+    category: "thermal",
+    lines: 41,
+    safety_class: "MEDIUM",
+    description: "Thermal property lookup tables by material",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_THERMAL_PROPERTIES": {
+    filename: "PRISM_THERMAL_PROPERTIES.js",
+    category: "thermal",
+    lines: 112,
+    safety_class: "MEDIUM",
+    description: "Material thermal properties: conductivity, specific heat, expansion coefficients",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_TOOL_LIFE_ESTIMATOR": {
+    filename: "PRISM_TOOL_LIFE_ESTIMATOR.js",
+    category: "tool_life",
+    lines: 133,
+    safety_class: "HIGH",
+    description: "Tool life prediction: Taylor model, extended Taylor, multi-variable models",
+    formulas_provided: ["F-TAYLOR-001"],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry", "OptimizationEngine"]
+  },
+  "PRISM_TOOL_WEAR_MODELS": {
+    filename: "PRISM_TOOL_WEAR_MODELS.js",
+    category: "tool_life",
+    lines: 552,
+    safety_class: "HIGH",
+    description: "Advanced tool wear: Usui, diffusion, adhesive, abrasive, crater wear models",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  },
+  "PRISM_WEAR_LOOKUP": {
+    filename: "PRISM_WEAR_LOOKUP.js",
+    category: "tool_life",
+    lines: 71,
+    safety_class: "MEDIUM",
+    description: "Tool wear rate lookup tables by material-tool combination",
+    formulas_provided: [],
+    consumers: ["ManufacturingCalculations", "FormulaRegistry"]
+  }
+};
+
+// ============================================================================
 // BUILT-IN FORMULAS (Core Manufacturing Physics)
 // ============================================================================
 
@@ -327,6 +450,9 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
   private indexByDomain: Map<string, string[]> = new Map();
   private indexByCategory: Map<string, string[]> = new Map();
   private indexByConsumer: Map<string, string[]> = new Map();
+  private _sourceFileCatalogSize = 0;
+
+  get sourceFileCatalogSize(): number { return this._sourceFileCatalogSize; }
   
   constructor() {
     super(
@@ -363,12 +489,15 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     
     // Load from formula skill files (additional overrides)
     await this.loadFromSkillFiles();
-    
+
+    // P-MS2: Catalog extracted formula source files
+    await this.catalogExtractedFiles();
+
     // Build indexes
     this.buildIndexes();
-    
+
     this.loaded = true;
-    log.info(`FormulaRegistry loaded: ${this.entries.size} formulas across ${this.indexByDomain.size} domains`);
+    log.info(`FormulaRegistry loaded: ${this.entries.size} formulas across ${this.indexByDomain.size} domains, ${this.sourceFileCatalogSize} source files cataloged`);
   }
 
   /**
@@ -376,7 +505,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
    */
   private async loadFromRegistryFile(): Promise<void> {
     const registryPaths = [
-      path.join("C:\\PRISM\\registries", "FORMULA_REGISTRY.json"),
+      path.join(PATHS.PRISM_ROOT, "registries", "FORMULA_REGISTRY.json"),
       path.join(PATHS.DATA_DIR, "FORMULA_REGISTRY.json")
     ];
     
@@ -484,7 +613,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
                   created: new Date().toISOString(),
                   updated: new Date().toISOString(),
                   version: 1,
-                  source: file
+                  source: file.name
                 }
               });
             }
@@ -494,6 +623,68 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     } catch (error) {
       log.warn(`Failed to load formula skill files: ${error}`);
     }
+  }
+
+  /**
+   * P-MS2: Catalog extracted formula source files
+   * Scans PATHS.FORMULAS directory and verifies against SOURCE_FILE_CATALOG
+   */
+  private async catalogExtractedFiles(): Promise<void> {
+    const formulasDir = PATHS.FORMULAS;
+
+    try {
+      if (!await fileExists(formulasDir)) {
+        log.debug(`Formula source directory not found: ${formulasDir}`);
+        return;
+      }
+
+      const files = await listDirectory(formulasDir);
+      let cataloged = 0;
+
+      for (const file of files) {
+        if (!file.name.endsWith(".js")) continue;
+
+        const moduleName = file.name.replace(".js", "");
+        const catalogEntry = FORMULA_SOURCE_FILE_CATALOG[moduleName];
+
+        if (catalogEntry) {
+          cataloged++;
+          log.debug(`Formula source cataloged: ${moduleName} (${catalogEntry.category}, ${catalogEntry.lines} lines, ${catalogEntry.safety_class})`);
+        } else {
+          log.warn(`Formula source file not in catalog: ${file.name}`);
+        }
+      }
+
+      this._sourceFileCatalogSize = cataloged;
+      log.info(`Cataloged ${cataloged}/${Object.keys(FORMULA_SOURCE_FILE_CATALOG).length} formula source files from ${formulasDir}`);
+    } catch (error) {
+      log.warn(`Failed to catalog extracted formula files: ${error}`);
+    }
+  }
+
+  /**
+   * Get source file catalog
+   */
+  getSourceFileCatalog(): typeof FORMULA_SOURCE_FILE_CATALOG {
+    return FORMULA_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Get source files by category
+   */
+  getSourceFilesByCategory(category: string): string[] {
+    return Object.entries(FORMULA_SOURCE_FILE_CATALOG)
+      .filter(([_, entry]) => entry.category === category)
+      .map(([name]) => name);
+  }
+
+  /**
+   * Get source files by safety class
+   */
+  getSourceFilesBySafety(safetyClass: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"): string[] {
+    return Object.entries(FORMULA_SOURCE_FILE_CATALOG)
+      .filter(([_, entry]) => entry.safety_class === safetyClass)
+      .map(([name]) => name);
   }
 
   /**
@@ -746,14 +937,25 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     byDomain: Record<string, number>;
     byCategory: Record<string, number>;
     consumerCount: number;
+    sourceFiles: { total: number; cataloged: number; bySafety: Record<string, number> };
   }> {
     await this.load();
-    
+
+    const bySafety: Record<string, number> = {};
+    for (const entry of Object.values(FORMULA_SOURCE_FILE_CATALOG)) {
+      bySafety[entry.safety_class] = (bySafety[entry.safety_class] || 0) + 1;
+    }
+
     const stats = {
       total: this.entries.size,
       byDomain: {} as Record<string, number>,
       byCategory: {} as Record<string, number>,
-      consumerCount: this.indexByConsumer.size
+      consumerCount: this.indexByConsumer.size,
+      sourceFiles: {
+        total: Object.keys(FORMULA_SOURCE_FILE_CATALOG).length,
+        cataloged: this._sourceFileCatalogSize,
+        bySafety
+      }
     };
     
     for (const [domain, ids] of this.indexByDomain) {

@@ -57,7 +57,7 @@ Params vary by action - see individual action docs.`,
             break;
           }
           case "completeness": {
-            const r = checkMaterialCompleteness(params.material || {}, params.threshold ?? COMPLETENESS_THRESHOLD);
+            const r = checkMaterialCompleteness(params.material || {});
             result = r;
             break;
           }

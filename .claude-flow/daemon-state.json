@@ -1,0 +1,135 @@
+{
+  "running": true,
+  "startedAt": "2026-02-24T19:02:30.441Z",
+  "workers": {
+    "map": {
+      "runCount": 126,
+      "successCount": 126,
+      "failureCount": 0,
+      "averageDurationMs": 1.1349206349206342,
+      "lastRun": "2026-02-26T01:03:51.410Z",
+      "nextRun": "2026-02-26T01:18:51.411Z",
+      "isRunning": false
+    },
+    "audit": {
+      "runCount": 184,
+      "successCount": 184,
+      "failureCount": 0,
+      "averageDurationMs": 22716.885869565223,
+      "lastRun": "2026-02-26T01:14:02.290Z",
+      "nextRun": "2026-02-26T01:14:00.687Z",
+      "isRunning": false
+    },
+    "optimize": {
+      "runCount": 125,
+      "successCount": 125,
+      "failureCount": 0,
+      "averageDurationMs": 17.656,
+      "lastRun": "2026-02-26T01:03:51.409Z",
+      "nextRun": "2026-02-26T01:18:51.410Z",
+      "isRunning": false
+    },
+    "consolidate": {
+      "runCount": 65,
+      "successCount": 65,
+      "failureCount": 0,
+      "averageDurationMs": 1.0769230769230769,
+      "lastRun": "2026-02-26T01:03:51.357Z",
+      "nextRun": "2026-02-26T01:33:51.357Z",
+      "isRunning": false
+    },
+    "testgaps": {
+      "runCount": 95,
+      "successCount": 95,
+      "failureCount": 0,
+      "averageDurationMs": 9.421052631578947,
+      "lastRun": "2026-02-26T01:03:51.398Z",
+      "nextRun": "2026-02-26T01:23:51.399Z",
+      "isRunning": false
+    },
+    "predict": {
+      "runCount": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "averageDurationMs": 0,
+      "isRunning": false
+    },
+    "document": {
+      "runCount": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "averageDurationMs": 0,
+      "isRunning": false
+    }
+  },
+  "config": {
+    "autoStart": false,
+    "logDir": "C:\\PRISM\\.claude\\worktrees\\fervent-bohr\\.claude-flow\\logs",
+    "stateFile": "C:\\PRISM\\.claude\\worktrees\\fervent-bohr\\.claude-flow\\daemon-state.json",
+    "maxConcurrent": 2,
+    "workerTimeoutMs": 300000,
+    "resourceThresholds": {
+      "maxCpuLoad": 2,
+      "minFreeMemoryPercent": 20
+    },
+    "workers": [
+      {
+        "type": "map",
+        "intervalMs": 900000,
+        "offsetMs": 0,
+        "priority": "normal",
+        "description": "Codebase mapping",
+        "enabled": true
+      },
+      {
+        "type": "audit",
+        "intervalMs": 600000,
+        "offsetMs": 120000,
+        "priority": "critical",
+        "description": "Security analysis",
+        "enabled": true
+      },
+      {
+        "type": "optimize",
+        "intervalMs": 900000,
+        "offsetMs": 240000,
+        "priority": "high",
+        "description": "Performance optimization",
+        "enabled": true
+      },
+      {
+        "type": "consolidate",
+        "intervalMs": 1800000,
+        "offsetMs": 360000,
+        "priority": "low",
+        "description": "Memory consolidation",
+        "enabled": true
+      },
+      {
+        "type": "testgaps",
+        "intervalMs": 1200000,
+        "offsetMs": 480000,
+        "priority": "normal",
+        "description": "Test coverage analysis",
+        "enabled": true
+      },
+      {
+        "type": "predict",
+        "intervalMs": 600000,
+        "offsetMs": 0,
+        "priority": "low",
+        "description": "Predictive preloading",
+        "enabled": false
+      },
+      {
+        "type": "document",
+        "intervalMs": 3600000,
+        "offsetMs": 0,
+        "priority": "low",
+        "description": "Auto-documentation",
+        "enabled": false
+      }
+    ]
+  },
+  "savedAt": "2026-02-26T01:14:02.290Z"
+}

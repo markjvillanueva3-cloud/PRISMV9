@@ -21,6 +21,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // TYPES
@@ -152,7 +153,7 @@ class HookEngine {
   private hooks: Map<string, Hook> = new Map();
   private domainHooks: Map<string, Hook> = new Map();
   private executionLog: Array<{ hookId: string; timestamp: string; result: HookResult; duration_ms?: number; category?: string; isBlocking?: boolean; source?: string }> = [];
-  private registryPath = "C:\\PRISM\\state\\HOOK_REGISTRY.json";
+  private registryPath = path.join(PATHS.STATE_DIR, "HOOK_REGISTRY.json");
 
   constructor() {
     this.loadPhase0Hooks();
@@ -350,7 +351,7 @@ class HookEngine {
       const isSevere = severity === "HIGH" || severity === "CRITICAL";
       const isConfidenceLow = (context.data.confidence !== undefined && context.data.confidence < 0.80);
       const isSafetyRelated = context.data.safety_score !== undefined && context.data.safety_score < 0.70;
-      let recommendedTier = null;
+      let recommendedTier: string | null = null;
       let reason = "";
       if (currentTier.includes("haiku") && (error_message || isConfidenceLow)) {
         recommendedTier = "sonnet";

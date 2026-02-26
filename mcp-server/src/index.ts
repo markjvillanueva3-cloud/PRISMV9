@@ -3,15 +3,16 @@
  * Manufacturing Intelligence MCP Server
  * 
  * Provides access to:
- * - 31 dispatchers, 368 verified actions
- * - 37 engines, 19 registries
- * - Materials Database (3,518+ materials x 127 parameters)
- * - Machines Database (824+ machines x 4 layers)
- * - Controller Alarms (18,942+ alarms x 12 families)
+ * - 32 dispatchers, 382+ verified actions
+ * - 73 engines, 9 registries
+ * - Materials Database (6,372+ materials x 127 parameters)
+ * - Machines Database (1,015+ machines x 4 layers)
+ * - Controller Alarms (10,033+ alarms x 12 families)
  * - Manufacturing Calculations (Kienzle, Taylor, etc.)
- * - AI Agent Orchestration (56+ agents)
- * - Skills & Knowledge Base (119+ skills)
+ * - AI Agent Orchestration (75 agents)
+ * - Skills & Knowledge Base (230 skills, 9 bundles)
  * - F1-F8 Feature Suite (PFP, Memory, Telemetry, Certs, Multi-Tenant, NL Hooks, Bridge, Compliance)
+ * - R4-R11: Enterprise, Frontend, Production, Physics, UX, Shop Floor, ML, Products
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -87,6 +88,9 @@ import { registerTenantDispatcher } from "./tools/dispatchers/tenantDispatcher.j
 // PROTOCOL BRIDGE: Multi-protocol Gateway (Dispatcher #31) — F7
 import { registerBridgeDispatcher } from "./tools/dispatchers/bridgeDispatcher.js";
 
+// R3: Intelligence Engine — Compound Actions (Dispatcher #32)
+import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -101,6 +105,155 @@ import { registryManager } from "./registries/index.js";
 
 // Load environment variables
 dotenv.config();
+
+// ============================================================================
+// CORE SOURCE FILE CATALOG — 16 LOW-priority core infrastructure modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (P-MS5 Wave 4)
+// These are foundational bootstrap, orchestration, and config modules
+// that the index.ts entry point orchestrates.
+// Total: 16 files, 6,237 lines
+// ============================================================================
+
+export const CORE_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "LOW";
+  description: string;
+}> = {
+  // --- core/ category: bootstrap, config, orchestration, workflow ---
+  'EXT-067': {
+    filename: "PRISM_CAPABILITY_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 194,
+    safety_class: "LOW",
+    description: "Capability registry — dynamic feature/capability advertisement and discovery for engine self-registration.",
+  },
+  'EXT-068': {
+    filename: "PRISM_CONSTANTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 2461,
+    safety_class: "LOW",
+    description: "Core constants — ISO material groups, tool types, coatings, machine families, and lookup tables used across all engines.",
+  },
+  'EXT-069': {
+    filename: "PRISM_ENHANCED_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 355,
+    safety_class: "LOW",
+    description: "Enhanced master orchestrator — multi-step manufacturing workflow coordination with retry and checkpoint logic.",
+  },
+  'EXT-070': {
+    filename: "PRISM_ENHANCEMENTS.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 60,
+    safety_class: "LOW",
+    description: "Core enhancements — feature flag toggles and incremental improvement patches for the PRISM platform.",
+  },
+  'EXT-071': {
+    filename: "PRISM_MASTER.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 215,
+    safety_class: "LOW",
+    description: "Master module — top-level PRISM initialization, module wiring, and startup sequence coordinator.",
+  },
+  'EXT-072': {
+    filename: "PRISM_MASTER_DB.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 131,
+    safety_class: "LOW",
+    description: "Master database — central data-source registry connecting file-based and in-memory stores.",
+  },
+  'EXT-073': {
+    filename: "PRISM_MASTER_ORCHESTRATOR.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 696,
+    safety_class: "LOW",
+    description: "Master orchestrator — primary workflow engine coordinating multi-engine manufacturing pipelines.",
+  },
+  'EXT-074': {
+    filename: "PRISM_MASTER_TOOLPATH_REGISTRY.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 612,
+    safety_class: "LOW",
+    description: "Master toolpath registry — central catalog of toolpath strategies with selection heuristics and constraints.",
+  },
+  'EXT-075': {
+    filename: "PRISM_PARAM_ENGINE.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 10,
+    safety_class: "LOW",
+    description: "Parameter engine stub — lightweight parameter resolution entry point for the core bootstrap chain.",
+  },
+  'EXT-076': {
+    filename: "PRISM_UNIFIED_WORKFLOW.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 145,
+    safety_class: "LOW",
+    description: "Unified workflow — single-entry-point workflow executor merging planning, calculation, and validation stages.",
+  },
+  'EXT-077': {
+    filename: "PRISM_WORKFLOW_ORCHESTRATOR_V2.js",
+    source_dir: "extracted/core",
+    category: "core",
+    lines: 223,
+    safety_class: "LOW",
+    description: "Workflow orchestrator V2 — DAG-based task scheduler with parallel execution and dependency resolution.",
+  },
+
+  // --- engines/core subcategory: core engine infrastructure ---
+  'EXT-235': {
+    filename: "PRISM_ENHANCED_ORCHESTRATION_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 452,
+    safety_class: "LOW",
+    description: "Enhanced orchestration engine — event-driven multi-engine coordination with health monitoring and fallback routing.",
+  },
+  'EXT-236': {
+    filename: "PRISM_FAILSAFE_GENERATOR.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 169,
+    safety_class: "LOW",
+    description: "Failsafe generator — automatic safe-default parameter generation when primary calculation engines fail.",
+  },
+  'EXT-237': {
+    filename: "PRISM_INTERVAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 847,
+    safety_class: "LOW",
+    description: "Interval engine — interval arithmetic for uncertainty propagation through manufacturing calculation chains.",
+  },
+  'EXT-238': {
+    filename: "PRISM_NUMERICAL_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 19,
+    safety_class: "LOW",
+    description: "Numerical engine stub — lightweight numerical computation entry point for the core engine chain.",
+  },
+  'EXT-239': {
+    filename: "PRISM_UNIFIED_OUTPUT_ENGINE.js",
+    source_dir: "extracted/engines/core",
+    category: "engines",
+    lines: 195,
+    safety_class: "LOW",
+    description: "Unified output engine — standardized result formatting, unit labeling, and safety annotation for all engine outputs.",
+  },
+};
 
 // ============================================================================
 // SERVER INITIALIZATION
@@ -289,8 +442,11 @@ async function registerTools(): Promise<void> {
 
   // F7: Protocol Bridge — Multi-protocol Gateway (13 actions)
   registerBridgeDispatcher(server);
-  
-  log.info(`All PRISM tools registered: 31 dispatchers (368 verified actions)`);
+
+  // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
+  registerIntelligenceDispatcher(server);
+
+  log.info(`All PRISM tools registered: 32 dispatchers (382 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
@@ -345,13 +501,72 @@ async function runHTTP(): Promise<void> {
   const app = express();
   app.use(express.json());
   
-  // Health check endpoint
-  app.get("/health", (_, res) => {
-    res.json({ 
-      status: "healthy", 
+  // R6: Enhanced health check endpoint with registry stats
+  app.get("/health", async (_, res) => {
+    const memUsage = process.memoryUsage();
+    const uptime = process.uptime();
+    const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+    const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+    const rssMB = Math.round(memUsage.rss / 1024 / 1024);
+    
+    // Registry health
+    const registryStats = {
+      materials: registryManager.materials.size,
+      machines: registryManager.machines.size,
+      tools: registryManager.tools.size,
+      alarms: registryManager.alarms.size,
+      formulas: registryManager.formulas.size,
+    };
+    const totalEntries = Object.values(registryStats).reduce((a, b) => a + b, 0);
+    const healthy = totalEntries > 0 && heapUsedMB < 3500;
+    
+    res.status(healthy ? 200 : 503).json({ 
+      status: healthy ? "healthy" : "degraded",
       server: SERVER_NAME, 
-      version: SERVER_VERSION 
+      version: SERVER_VERSION,
+      uptime_seconds: Math.round(uptime),
+      memory: { heap_used_mb: heapUsedMB, heap_total_mb: heapTotalMB, rss_mb: rssMB },
+      registries: registryStats,
+      total_entries: totalEntries,
+      timestamp: new Date().toISOString()
     });
+  });
+
+  // R6: Prometheus-compatible metrics endpoint
+  app.get("/metrics", async (_, res) => {
+    const mem = process.memoryUsage();
+    const up = process.uptime();
+    const rs = {
+      materials: registryManager.materials.size,
+      machines: registryManager.machines.size,
+      tools: registryManager.tools.size,
+      alarms: registryManager.alarms.size,
+      formulas: registryManager.formulas.size,
+    };
+    
+    const lines = [
+      '# HELP prism_up PRISM server up status',
+      '# TYPE prism_up gauge',
+      `prism_up 1`,
+      '# HELP prism_uptime_seconds Server uptime in seconds',
+      '# TYPE prism_uptime_seconds gauge',
+      `prism_uptime_seconds ${Math.round(up)}`,
+      '# HELP prism_heap_used_bytes Heap memory used',
+      '# TYPE prism_heap_used_bytes gauge',
+      `prism_heap_used_bytes ${mem.heapUsed}`,
+      '# HELP prism_rss_bytes Resident set size',
+      '# TYPE prism_rss_bytes gauge',
+      `prism_rss_bytes ${mem.rss}`,
+      '# HELP prism_registry_entries Total entries per registry',
+      '# TYPE prism_registry_entries gauge',
+      ...Object.entries(rs).map(([k, v]) => `prism_registry_entries{registry="${k}"} ${v}`),
+      '# HELP prism_registry_total Total registry entries',
+      '# TYPE prism_registry_total gauge',
+      `prism_registry_total ${Object.values(rs).reduce((a, b) => a + b, 0)}`,
+    ];
+    
+    res.set('Content-Type', 'text/plain; version=0.0.4');
+    res.send(lines.join('\n') + '\n');
   });
   
   // MCP endpoint
@@ -366,11 +581,83 @@ async function runHTTP(): Promise<void> {
     await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
   });
+
+  // ========================================================================
+  // R5: REST API routes — proxy to MCP dispatchers for web frontend
+  // ========================================================================
+  
+  // Helper: call an MCP tool handler and return result
+  async function callTool(toolName: string, action: string, params: Record<string, any> = {}) {
+    const tool = (server as any)._registeredTools?.get(toolName);
+    if (!tool) return { error: `Tool ${toolName} not found` };
+    try {
+      const result = await tool.callback({ action, params });
+      const text = result?.content?.[0]?.text;
+      return text ? JSON.parse(text) : result;
+    } catch (e: any) {
+      return { error: e.message };
+    }
+  }
+
+  // Speed & Feed calculation
+  app.post("/api/v1/speed-feed", async (req, res) => {
+    const result = await callTool("prism_calc", "speed_feed", req.body);
+    res.json({ result, safety: result?.safety, meta: result?.meta });
+  });
+
+  // Job planning
+  app.post("/api/v1/job-plan", async (req, res) => {
+    const result = await callTool("prism_calc", "cycle_time", req.body);
+    res.json({ result, safety: result?.safety, meta: result?.meta });
+  });
+
+  // Material lookup
+  app.get("/api/v1/material/:id", async (req, res) => {
+    const result = await callTool("prism_data", "material_get", { id: req.params.id });
+    res.json({ result });
+  });
+
+  // Material search
+  app.post("/api/v1/material/search", async (req, res) => {
+    const result = await callTool("prism_data", "material_search", req.body);
+    res.json({ result });
+  });
+
+  // Tool lookup
+  app.get("/api/v1/tool/:id", async (req, res) => {
+    const result = await callTool("prism_data", "tool_get", { id: req.params.id });
+    res.json({ result });
+  });
+
+  // Alarm decode
+  app.post("/api/v1/alarm-decode", async (req, res) => {
+    const result = await callTool("prism_data", "alarm_decode", req.body);
+    res.json({ result });
+  });
+
+  // Toolpath strategy
+  app.post("/api/v1/toolpath/strategy", async (req, res) => {
+    const result = await callTool("prism_calc", "engagement", req.body);
+    res.json({ result });
+  });
+
+  // Safety validation
+  app.post("/api/v1/safety/validate", async (req, res) => {
+    const result = await callTool("prism_guard", "validate", req.body);
+    res.json({ result });
+  });
+
+  // Knowledge search
+  app.post("/api/v1/knowledge/search", async (req, res) => {
+    const result = await callTool("prism_knowledge", "search", req.body);
+    res.json({ result });
+  });
   
   const port = parseInt(process.env.PORT || "3000", 10);
-  // XA-6: Local-only transport during development (P0-R5)
-  app.listen(port, '127.0.0.1', () => {
-    log.info(`MCP server running on http://127.0.0.1:${port}/mcp`);
+  // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+  app.listen(port, host, () => {
+    log.info(`MCP server running on http://${host}:${port}/mcp`);
   });
 }
 

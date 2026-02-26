@@ -22,6 +22,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { PATHS } from "../constants.js";
 
 // ============================================================================
 // TYPES
@@ -63,7 +64,7 @@ export interface BatchStats {
   avg_process_ms: number;
 }
 
-const STATE_DIR = "C:\\PRISM\\state";
+const STATE_DIR = PATHS.STATE_DIR;
 const BATCH_STATS_FILE = path.join(STATE_DIR, "d4_batch_stats.json");
 const MAX_QUEUE_SIZE = 200;
 const DEFAULT_MAX_AGE_MS = 60_000;  // 1 minute max age

@@ -25,12 +25,13 @@ import * as path from "path";
 import type { TaskManifest, WorkUnit, StubScanResult, TaskStatus, UnitStatus } from "../../types/prism-schema.js";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
 import { delegateUnits, pollResults, clearCompletedDelegations } from "../../engines/ManusATCSBridge.js";
+import { PATHS } from "../../constants.js";
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-const ATCS_ROOT = "C:\\PRISM\\autonomous-tasks";
+const ATCS_ROOT = PATHS.AUTONOMOUS_TASKS;
 const DEFAULT_BATCH_SIZE = 20;
 const MAX_RALPH_ITERATIONS = 3;
 const REPLAN_FAILURE_THRESHOLD = 0.30; // 30% failure rate triggers replan
@@ -528,7 +529,7 @@ export function registerAtcsDispatcher(server: any): void {
 
             // Load most recent checkpoint info
             const checkpointDir = path.join(taskDir, "checkpoints");
-            let lastCheckpoint = null;
+            let lastCheckpoint: string | null = null;
             if (fs.existsSync(checkpointDir)) {
               const checkpoints = fs.readdirSync(checkpointDir).filter(f => f.endsWith(".json")).sort();
               if (checkpoints.length > 0) lastCheckpoint = checkpoints[checkpoints.length - 1];
@@ -574,7 +575,7 @@ export function registerAtcsDispatcher(server: any): void {
             } catch { /* queue may not exist yet */ }
 
             // Get average omega from ralph loops
-            let avgOmega = null;
+            let avgOmega: number | null = null;
             const ralphDir = path.join(getTaskDir(taskId), "ralph-loops");
             if (fs.existsSync(ralphDir)) {
               const ralphFiles = fs.readdirSync(ralphDir).filter(f => f.endsWith(".json"));
@@ -1180,7 +1181,7 @@ export function registerAtcsDispatcher(server: any): void {
             // Coverage check
             const completedUnitIds = new Set(unitIds);
             const totalExpected = manifest.decomposition.total_units;
-            const missingUnits = [];
+            const missingUnits: number[] = [];
             for (let i = 1; i <= totalExpected; i++) {
               if (!completedUnitIds.has(i)) missingUnits.push(i);
             }
@@ -1466,7 +1467,7 @@ export function registerAtcsDispatcher(server: any): void {
             // Update progress
             const totalUnits = queue.length;
             const completedCount = queue.filter(u => u.status === "COMPLETE").length;
-            manifest.progress.completed_pct = Math.round((completedCount / totalUnits) * 100);
+            (manifest.progress as any).completed_pct = Math.round((completedCount / totalUnits) * 100);
 
             return ok({
               task_id: taskId,
@@ -1478,7 +1479,7 @@ export function registerAtcsDispatcher(server: any): void {
                 completed: completed.length,
                 running: stillRunning.length,
                 failed: failed.length,
-                task_progress: `${completedCount}/${totalUnits} (${manifest.progress.completed_pct}%)`
+                task_progress: `${completedCount}/${totalUnits} (${(manifest.progress as any).completed_pct}%)`
               },
               next_step: stillRunning.length > 0
                 ? `${stillRunning.length} still running. Poll again shortly.`
