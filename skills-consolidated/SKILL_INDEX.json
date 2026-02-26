@@ -2236,35 +2236,21 @@
     },
     "prism-material-physics": {
       "name": "prism-material-physics",
-      "description": "|",
-      "size_bytes": 39866,
+      "description": "Material physics properties and calculations. Yield strength, UTS, hardness conversions, stress-strain models.",
+      "size_bytes": 1500,
       "triggers": [
-        "formulas",
-        "machining",
-        "material",
-        "models",
-        "parameters",
-        "physics",
-        "schema",
-        "using"
+        "material physics",
+        "yield strength",
+        "UTS",
+        "hardness",
+        "stress-strain",
+        "material properties"
       ],
-      "source": "existing_atomic",
-      "phases": [
-        "DA",
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
-        "R7",
-        "R8"
+      "categories": [
+        "materials",
+        "formula"
       ],
-      "tags": [
-        "monolith",
-        "needs-split"
-      ],
-      "size_kb": 38.9
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_MATERIAL_PHYSICS.js"
     },
     "prism-materials-core": {
       "name": "prism-materials-core",
@@ -6780,6 +6766,564 @@
         "synced"
       ],
       "size_kb": 10
+    },
+    "prism-numerical-mit": {
+      "name": "prism-numerical-mit",
+      "description": "Numerical methods from MIT (10.34, 18.086). Newton-Raphson, secant, bisection, Gauss elimination, LU/QR.",
+      "size_bytes": 3500,
+      "triggers": [
+        "newton-raphson",
+        "root finding",
+        "bisection",
+        "secant method",
+        "gauss elimination",
+        "numerical method",
+        "interpolation",
+        "LU decomposition"
+      ],
+      "categories": [
+        "numerical-methods",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "10.34",
+        "18.086"
+      ]
+    },
+    "prism-control-mit": {
+      "name": "prism-control-mit",
+      "description": "Control systems from MIT (2.004, 6.302). PID, Ziegler-Nichols, step response, stability criteria.",
+      "size_bytes": 3200,
+      "triggers": [
+        "PID",
+        "controller",
+        "Ziegler-Nichols",
+        "step response",
+        "stability",
+        "root locus",
+        "Routh-Hurwitz",
+        "pole placement"
+      ],
+      "categories": [
+        "control-systems",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.004",
+        "6.302"
+      ]
+    },
+    "prism-dfm-mit": {
+      "name": "prism-dfm-mit",
+      "description": "Design for Manufacturing from MIT (2.008, 2.810). Tolerance stackup, process capability Cp/Cpk.",
+      "size_bytes": 2800,
+      "triggers": [
+        "DFM",
+        "design for manufacturing",
+        "tolerance stackup",
+        "process capability",
+        "Cpk",
+        "Cp",
+        "defect rate"
+      ],
+      "categories": [
+        "manufacturing",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.008",
+        "2.810"
+      ]
+    },
+    "prism-digital-ctrl": {
+      "name": "prism-digital-ctrl",
+      "description": "Digital control from MIT (2.171). Tustin discretization, zero-order hold, digital PID.",
+      "size_bytes": 2900,
+      "triggers": [
+        "digital control",
+        "Tustin",
+        "discretization",
+        "z-transform",
+        "zero-order hold",
+        "digital PID"
+      ],
+      "categories": [
+        "control-systems",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.171"
+      ]
+    },
+    "prism-linalg-mit": {
+      "name": "prism-linalg-mit",
+      "description": "Linear algebra from MIT 18.06. LU decomposition, QR factorization, least squares.",
+      "size_bytes": 3100,
+      "triggers": [
+        "linear algebra",
+        "LU decomposition",
+        "matrix",
+        "least squares",
+        "QR factorization",
+        "eigenvalue",
+        "SVD"
+      ],
+      "categories": [
+        "numerical-methods",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "18.06"
+      ]
+    },
+    "prism-ode-solvers": {
+      "name": "prism-ode-solvers",
+      "description": "ODE solvers from MIT 2.086. Euler, RK4, adaptive step for dynamics and thermal transients.",
+      "size_bytes": 3000,
+      "triggers": [
+        "ODE",
+        "differential equation",
+        "Runge-Kutta",
+        "RK4",
+        "Euler method",
+        "initial value problem",
+        "transient"
+      ],
+      "categories": [
+        "numerical-methods",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.086",
+        "2.158J"
+      ]
+    },
+    "prism-bezier-mit": {
+      "name": "prism-bezier-mit",
+      "description": "Bezier curves from MIT 2.158J. Bernstein basis, de Casteljau, subdivision, derivatives.",
+      "size_bytes": 2500,
+      "triggers": [
+        "Bezier",
+        "Bernstein",
+        "de Casteljau",
+        "curve evaluation",
+        "subdivision",
+        "parametric curve"
+      ],
+      "categories": [
+        "geometry",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.158J"
+      ]
+    },
+    "prism-nurbs-mit": {
+      "name": "prism-nurbs-mit",
+      "description": "NURBS/B-spline from MIT 2.158J. Cox-de Boor, de Boor evaluation, knot insertion.",
+      "size_bytes": 3200,
+      "triggers": [
+        "NURBS",
+        "B-spline",
+        "de Boor",
+        "knot vector",
+        "basis function",
+        "knot insertion",
+        "Cox-de Boor"
+      ],
+      "categories": [
+        "geometry",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.158J"
+      ]
+    },
+    "prism-surface-geo": {
+      "name": "prism-surface-geo",
+      "description": "Surface geometry from MIT 2.158J. B-spline surfaces, normals, Gaussian/mean/principal curvatures.",
+      "size_bytes": 2600,
+      "triggers": [
+        "surface geometry",
+        "curvature",
+        "surface normal",
+        "Gaussian curvature",
+        "mean curvature",
+        "fundamental form"
+      ],
+      "categories": [
+        "geometry",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.158J"
+      ]
+    },
+    "prism-graphics-mit": {
+      "name": "prism-graphics-mit",
+      "description": "Computer graphics from MIT 6.837. Ray intersection, Blinn-Phong, Cook-Torrance PBR, projection.",
+      "size_bytes": 3800,
+      "triggers": [
+        "ray tracing",
+        "intersection test",
+        "Blinn-Phong",
+        "Cook-Torrance",
+        "BRDF",
+        "shading",
+        "projection matrix"
+      ],
+      "categories": [
+        "graphics",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "6.837",
+        "18.06"
+      ]
+    },
+    "prism-fft-chatter": {
+      "name": "prism-fft-chatter",
+      "description": "FFT chatter prediction from MIT 18.086/2.830. Vibration analysis, stability lobes, real-time detection.",
+      "size_bytes": 3500,
+      "triggers": [
+        "chatter",
+        "vibration",
+        "FFT",
+        "stability lobe",
+        "chatter detection",
+        "frequency analysis",
+        "machining dynamics"
+      ],
+      "categories": [
+        "manufacturing",
+        "signal-processing",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "18.086",
+        "2.830"
+      ]
+    },
+    "prism-signal-algo": {
+      "name": "prism-signal-algo",
+      "description": "Signal processing from MIT 18.086. FFT/IFFT, PSD, FIR/IIR filter design, spectrogram, Hilbert.",
+      "size_bytes": 3600,
+      "triggers": [
+        "FFT",
+        "signal processing",
+        "filter design",
+        "FIR",
+        "IIR",
+        "Butterworth",
+        "spectrogram",
+        "Hilbert transform"
+      ],
+      "categories": [
+        "signal-processing",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "18.086"
+      ]
+    },
+    "prism-taylor-life": {
+      "name": "prism-taylor-life",
+      "description": "Taylor tool life from MIT 2.008/2.810. Extended Taylor for 150 material/tool combos, economic speed.",
+      "size_bytes": 2800,
+      "triggers": [
+        "tool life",
+        "Taylor equation",
+        "tool wear",
+        "economic speed",
+        "cutting speed",
+        "VTn",
+        "flank wear"
+      ],
+      "categories": [
+        "manufacturing",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.008",
+        "2.810"
+      ]
+    },
+    "prism-mfg-algorithms": {
+      "name": "prism-mfg-algorithms",
+      "description": "Manufacturing algorithms from MIT 2.008/2.810/2.830. Merchant force, MRR, SPC control charts.",
+      "size_bytes": 2700,
+      "triggers": [
+        "cutting force",
+        "Merchant",
+        "MRR",
+        "material removal rate",
+        "chip formation",
+        "specific energy",
+        "SPC"
+      ],
+      "categories": [
+        "manufacturing",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "2.008",
+        "2.810",
+        "2.830"
+      ]
+    },
+    "prism-rl-algorithms": {
+      "name": "prism-rl-algorithms",
+      "description": "Reinforcement learning from Stanford CS234/Berkeley CS285. Q-learning, SARSA, REINFORCE, Actor-Critic, DQN.",
+      "size_bytes": 3400,
+      "triggers": [
+        "reinforcement learning",
+        "Q-learning",
+        "SARSA",
+        "policy gradient",
+        "REINFORCE",
+        "Actor-Critic",
+        "DQN"
+      ],
+      "categories": [
+        "machine-learning",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "CS234",
+        "CS285"
+      ]
+    },
+    "prism-opt-algorithms": {
+      "name": "prism-opt-algorithms",
+      "description": "Optimization from MIT 6.251J/15.099. Gradient descent (vanilla/momentum/Adam), Newton, BFGS.",
+      "size_bytes": 3100,
+      "triggers": [
+        "gradient descent",
+        "optimization",
+        "Newton method",
+        "BFGS",
+        "Adam optimizer",
+        "momentum",
+        "quasi-Newton"
+      ],
+      "categories": [
+        "optimization",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "6.251J",
+        "15.099",
+        "18.433"
+      ]
+    },
+    "prism-graph-algo": {
+      "name": "prism-graph-algo",
+      "description": "Graph algorithms from MIT 6.006/18.433. Dijkstra, A*, MST, topological sort, Christofides TSP.",
+      "size_bytes": 3300,
+      "triggers": [
+        "Dijkstra",
+        "shortest path",
+        "A-star",
+        "MST",
+        "topological sort",
+        "TSP",
+        "graph algorithm",
+        "Christofides"
+      ],
+      "categories": [
+        "algorithms",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "6.006",
+        "18.433"
+      ]
+    },
+    "prism-lp-solvers": {
+      "name": "prism-lp-solvers",
+      "description": "LP solvers from MIT 15.083J/15.084J. Revised simplex method for linear programming.",
+      "size_bytes": 2400,
+      "triggers": [
+        "linear programming",
+        "simplex",
+        "LP solver",
+        "constraint",
+        "feasibility",
+        "dual simplex"
+      ],
+      "categories": [
+        "optimization",
+        "mit-course"
+      ],
+      "mit_courses": [
+        "15.083J",
+        "15.084J"
+      ]
+    },
+    "prism-force-formulas": {
+      "name": "prism-force-formulas",
+      "description": "Cutting force lookup tables and formulas. Specific cutting force (Kc) by material, force components for turning/milling/drilling.",
+      "size_bytes": 1500,
+      "triggers": [
+        "cutting force",
+        "Kc",
+        "specific cutting force",
+        "force lookup",
+        "tangential force",
+        "feed force"
+      ],
+      "categories": [
+        "manufacturing",
+        "formula"
+      ],
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_FORCE_LOOKUP.js"
+    },
+    "prism-stress-formulas": {
+      "name": "prism-stress-formulas",
+      "description": "Stress analysis formulas. Von Mises, principal stresses, Mohr circle, beam bending, deflection, fatigue.",
+      "size_bytes": 1500,
+      "triggers": [
+        "stress analysis",
+        "von Mises",
+        "principal stress",
+        "Mohr circle",
+        "beam bending",
+        "fatigue",
+        "deflection"
+      ],
+      "categories": [
+        "mechanics",
+        "formula"
+      ],
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_STRESS.js"
+    },
+    "prism-thermal-formulas": {
+      "name": "prism-thermal-formulas",
+      "description": "Thermal compensation formulas. Thermal expansion, temperature distribution, thermal error prediction, compensation strategies.",
+      "size_bytes": 1500,
+      "triggers": [
+        "thermal compensation",
+        "thermal expansion",
+        "temperature",
+        "thermal error",
+        "heat dissipation"
+      ],
+      "categories": [
+        "thermal",
+        "formula"
+      ],
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_THERMAL_COMPENSATION.js"
+    },
+    "prism-wear-formulas": {
+      "name": "prism-wear-formulas",
+      "description": "Tool wear lookup tables. Flank wear, crater wear, notch wear rates by material/speed/feed combinations.",
+      "size_bytes": 1500,
+      "triggers": [
+        "wear rate",
+        "flank wear",
+        "crater wear",
+        "notch wear",
+        "wear lookup",
+        "wear prediction"
+      ],
+      "categories": [
+        "manufacturing",
+        "formula"
+      ],
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_WEAR_LOOKUP.js"
+    },
+    "prism-tool-life-est": {
+      "name": "prism-tool-life-est",
+      "description": "Tool life estimation engine. Multi-factor tool life prediction with material, speed, feed, DOC, coolant variables.",
+      "size_bytes": 1500,
+      "triggers": [
+        "tool life estimation",
+        "tool life prediction",
+        "remaining life",
+        "tool change",
+        "wear prediction"
+      ],
+      "categories": [
+        "manufacturing",
+        "formula"
+      ],
+      "source_file": "C:/PRISM/extracted/formulas/PRISM_TOOL_LIFE_ESTIMATOR.js"
+    },
+    "prism-roadmap-atomizer": {
+      "name": "Roadmap Atomizer",
+      "category": "workflow",
+      "description": "Decomposes high-level roadmap phases into atomic execution units following RGS schema with role, model, and tool assignment rules.",
+      "triggers": [
+        "atomize roadmap",
+        "decompose phase",
+        "break down roadmap",
+        "split into units",
+        "unit decomposition"
+      ],
+      "priority": 9
+    },
+    "prism-roadmap-generator": {
+      "name": "Roadmap Generator",
+      "category": "workflow",
+      "description": "7-stage pipeline converting human briefs into fully-detailed RGS-format roadmaps with role/model assignment, tool mapping, scrutinization, and auto-indexing.",
+      "triggers": [
+        "generate roadmap",
+        "create roadmap",
+        "build roadmap",
+        "plan roadmap",
+        "new roadmap from brief",
+        "roadmap generation"
+      ],
+      "priority": 10
+    },
+    "prism-roadmap-runner": {
+      "name": "PRISM Roadmap Runner",
+      "category": "workflow",
+      "description": "",
+      "triggers": [
+        "continue roadmap",
+        "next unit",
+        "resume roadmap",
+        "roadmap status",
+        "continue roadmap {id}",
+        "roadmap list",
+        "switch roadmap",
+        "what's next on the roadmap",
+        "roadmap progress"
+      ],
+      "priority": 10
+    },
+    "prism-roadmap-schema": {
+      "name": "PRISM Roadmap Schema",
+      "category": "workflow",
+      "description": "",
+      "triggers": [
+        "roadmap schema",
+        "roadmap format",
+        "unit schema",
+        "phase schema",
+        "canonical roadmap",
+        "what fields does a roadmap need",
+        "RGS schema",
+        "roadmap generation"
+      ],
+      "priority": 8
+    },
+    "prism-roadmap-scrutinizer": {
+      "name": "Roadmap Scrutinizer",
+      "category": "quality",
+      "description": "12-category gap analysis with adaptive improvement loops for validating RGS-format roadmaps. Scores, auto-fixes, and escalates structural issues.",
+      "triggers": [
+        "scrutinize roadmap",
+        "check roadmap",
+        "validate roadmap",
+        "roadmap gaps",
+        "roadmap quality",
+        "roadmap review"
+      ],
+      "priority": 9
     }
-  }
+  },
+  "totalSkills": 253,
+  "total_skills": 258
 }

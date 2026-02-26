@@ -1190,6 +1190,44 @@ const SKILL_DOMAIN_MAP: Record<string, string[]> = {
 };
 
 // ============================================================================
+// TRIGGER_MAP.json AUGMENTATION — Merge registry triggers into SKILL_DOMAIN_MAP
+// Loads once at startup, adds any trigger→skill[] routes not already hardcoded.
+// ============================================================================
+const TRIGGER_MAP_PATH = path.join(PATHS.SKILLS, "TRIGGER_MAP.json");
+let _triggerMapMerged = false;
+function mergeTriggerMap(): void {
+  if (_triggerMapMerged) return;
+  _triggerMapMerged = true;
+  try {
+    if (!fs.existsSync(TRIGGER_MAP_PATH)) return;
+    const raw = JSON.parse(fs.readFileSync(TRIGGER_MAP_PATH, "utf-8"));
+    const map: Record<string, string[]> = raw.trigger_map || {};
+    let added = 0;
+    for (const [trigger, skills] of Object.entries(map)) {
+      // Normalize trigger to lowercase single-word key (match SKILL_DOMAIN_MAP style)
+      const key = trigger.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+      if (!key || key.length < 2) continue;
+      if (SKILL_DOMAIN_MAP[key]) {
+        // Merge new skills into existing entry (deduplicated)
+        for (const s of skills) {
+          if (!SKILL_DOMAIN_MAP[key].includes(s)) {
+            SKILL_DOMAIN_MAP[key].push(s);
+            added++;
+          }
+        }
+      } else {
+        SKILL_DOMAIN_MAP[key] = [...skills];
+        added++;
+      }
+    }
+    if (added > 0) {
+      appendEventLine("trigger_map_merged", { path: TRIGGER_MAP_PATH, new_routes: added, total_keys: Object.keys(SKILL_DOMAIN_MAP).length });
+    }
+  } catch { /* non-fatal — hardcoded map still works */ }
+}
+mergeTriggerMap();
+
+// ============================================================================
 // D1.4: SKILL AUTO-LOADER — Domain-aware bundle loading with cache
 // ============================================================================
 
@@ -3551,6 +3589,204 @@ export function autoSkillContextMatch(
     };
   } catch {
     return { success: false, call_number: callNumber, matches: [], total_matched: 0, context_key: `${toolName}:${action}` };
+  }
+}
+
+
+// ============================================================================
+// AUTO_SKILL_HOOKS.json — Context-triggered skill loading
+// Loads 10 domain hooks from registries/AUTO_SKILL_HOOKS.json, matches their
+// trigger_keywords against current tool context, returns matched skills+formulas.
+// Cadence: every call (lightweight cached keyword match).
+// ============================================================================
+
+interface AutoSkillHook {
+  id: string;
+  name: string;
+  trigger_keywords: string[];
+  auto_load_skills: string[];
+  auto_load_formulas: string[];
+  priority: number;
+  category: string;
+}
+
+const AUTO_SKILL_HOOKS_PATH = path.join(PATHS.PRISM_ROOT, "registries", "AUTO_SKILL_HOOKS.json");
+let _autoSkillHooksCache: { hooks: AutoSkillHook[]; ts: number } | null = null;
+const AUTO_SKILL_HOOKS_TTL = 300_000; // 5 minutes
+
+function loadAutoSkillHooks(): AutoSkillHook[] {
+  const now = Date.now();
+  if (_autoSkillHooksCache && (now - _autoSkillHooksCache.ts) < AUTO_SKILL_HOOKS_TTL) return _autoSkillHooksCache.hooks;
+  try {
+    if (!fs.existsSync(AUTO_SKILL_HOOKS_PATH)) return [];
+    const raw = JSON.parse(fs.readFileSync(AUTO_SKILL_HOOKS_PATH, "utf-8"));
+    const hooks: AutoSkillHook[] = raw.hooks || [];
+    _autoSkillHooksCache = { hooks, ts: now };
+    return hooks;
+  } catch {
+    _autoSkillHooksCache = { hooks: [], ts: now };
+    return [];
+  }
+}
+
+export interface AutoSkillHookMatchResult {
+  success: boolean;
+  call_number: number;
+  matched_hooks: Array<{ id: string; name: string; skills: string[]; formulas: string[]; priority: number; category: string }>;
+  total_matched: number;
+  total_skills_loaded: number;
+  context_key: string;
+}
+
+export function autoSkillHookMatch(
+  callNumber: number,
+  toolName: string,
+  action: string,
+  params: Record<string, any>
+): AutoSkillHookMatchResult {
+  try {
+    const hooks = loadAutoSkillHooks();
+    if (hooks.length === 0) {
+      return { success: true, call_number: callNumber, matched_hooks: [], total_matched: 0, total_skills_loaded: 0, context_key: `${toolName}:${action}` };
+    }
+
+    // Build context string from tool call
+    const contextParts: string[] = [toolName, action];
+    for (const [k, v] of Object.entries(params)) {
+      if (typeof v === "string" && v.length > 0 && v.length < 200) contextParts.push(v);
+      contextParts.push(k);
+    }
+    // Normalize underscores/hyphens to spaces so "cutting_force" matches "cutting force"
+    const contextStr = contextParts.join(" ").toLowerCase().replace(/[_-]/g, " ");
+
+    const matched: AutoSkillHookMatchResult["matched_hooks"] = [];
+    let totalSkills = 0;
+
+    for (const hook of hooks) {
+      // Count how many trigger keywords appear in the context
+      let keywordHits = 0;
+      for (const kw of hook.trigger_keywords) {
+        if (contextStr.includes(kw.toLowerCase())) keywordHits++;
+      }
+      // Require at least 1 keyword match to fire
+      if (keywordHits > 0) {
+        matched.push({
+          id: hook.id,
+          name: hook.name,
+          skills: hook.auto_load_skills,
+          formulas: hook.auto_load_formulas,
+          priority: hook.priority,
+          category: hook.category,
+        });
+        totalSkills += hook.auto_load_skills.length;
+      }
+    }
+
+    // Sort by priority descending
+    matched.sort((a, b) => b.priority - a.priority);
+
+    if (matched.length > 0) {
+      appendEventLine("auto_skill_hook_match", {
+        call: callNumber, tool: toolName, action, matched: matched.length, skills: totalSkills,
+        hooks: matched.map(m => m.id),
+      });
+    }
+
+    return {
+      success: true,
+      call_number: callNumber,
+      matched_hooks: matched,
+      total_matched: matched.length,
+      total_skills_loaded: totalSkills,
+      context_key: `${toolName}:${action}`,
+    };
+  } catch {
+    return { success: false, call_number: callNumber, matched_hooks: [], total_matched: 0, total_skills_loaded: 0, context_key: `${toolName}:${action}` };
+  }
+}
+
+
+// ============================================================================
+// SUPERPOWERS SESSION BOOT — Load superpowers on first tool call
+// Reads SUPERPOWERS_REGISTRY.json, loads skill excerpts for all verified
+// superpowers. Called once per session from autoHookWrapper's first-call recon.
+// ============================================================================
+
+const SUPERPOWERS_REGISTRY_PATH = path.join(PATHS.SKILLS, "SUPERPOWERS_REGISTRY.json");
+let _superpowersLoaded = false;
+
+export interface SuperpowerBootResult {
+  success: boolean;
+  call_number: number;
+  total_superpowers: number;
+  loaded: number;
+  skill_ids: string[];
+  excerpts: Array<{ skill_id: string; action: string; title: string; content: string }>;
+}
+
+export function autoSuperpowerBoot(callNumber: number): SuperpowerBootResult {
+  if (_superpowersLoaded) {
+    return { success: true, call_number: callNumber, total_superpowers: 0, loaded: 0, skill_ids: [], excerpts: [] };
+  }
+  _superpowersLoaded = true;
+  try {
+    if (!fs.existsSync(SUPERPOWERS_REGISTRY_PATH)) {
+      return { success: true, call_number: callNumber, total_superpowers: 0, loaded: 0, skill_ids: [], excerpts: [] };
+    }
+    const raw = JSON.parse(fs.readFileSync(SUPERPOWERS_REGISTRY_PATH, "utf-8"));
+    if (!raw.auto_load_on_session_start) {
+      return { success: true, call_number: callNumber, total_superpowers: raw.total_superpowers || 0, loaded: 0, skill_ids: [], excerpts: [] };
+    }
+
+    const skills: Array<{ id: string; skill_dir: string; action: string; priority: number; verified: boolean }> = raw.skills || [];
+    const verified = skills.filter(s => s.verified);
+    const skillIds: string[] = [];
+    const excerpts: SuperpowerBootResult["excerpts"] = [];
+    const SKILLS_BASE = PATHS.SKILLS;
+
+    // Pressure check — suppress at high pressure
+    let pressurePct = 0;
+    try {
+      const pf = path.join(STATE_DIR, "context_pressure.json");
+      if (fs.existsSync(pf)) pressurePct = JSON.parse(fs.readFileSync(pf, "utf-8")).pressure_pct || 0;
+    } catch {}
+    const maxExcerptLen = pressurePct > 60 ? 80 : 150;
+    const maxLoad = pressurePct > 70 ? 5 : pressurePct > 50 ? 8 : verified.length;
+
+    for (const sp of verified.slice(0, maxLoad)) {
+      skillIds.push(sp.skill_dir);
+      const skillFile = path.join(SKILLS_BASE, sp.skill_dir, "SKILL.md");
+      if (fs.existsSync(skillFile)) {
+        try {
+          const content = fs.readFileSync(skillFile, "utf-8");
+          const lines = content.split("\n");
+          let title = sp.id;
+          const keyLines: string[] = [];
+          for (const line of lines.slice(0, 20)) {
+            if (line.startsWith("# ") && title === sp.id) { title = line.replace("# ", ""); continue; }
+            if (line.startsWith("## ") && keyLines.length > 0) break;
+            if (line.trim() && !line.startsWith("#") && !line.startsWith("---")) {
+              keyLines.push(line.trim());
+            }
+            if (keyLines.length >= 2) break;
+          }
+          excerpts.push({ skill_id: sp.skill_dir, action: sp.action, title, content: keyLines.join(" ").slice(0, maxExcerptLen) });
+        } catch { /* skip unreadable skill */ }
+      }
+    }
+
+    appendEventLine("superpower_boot", { total: verified.length, loaded: skillIds.length, call: callNumber });
+
+    return {
+      success: true,
+      call_number: callNumber,
+      total_superpowers: verified.length,
+      loaded: skillIds.length,
+      skill_ids: skillIds,
+      excerpts,
+    };
+  } catch {
+    return { success: false, call_number: callNumber, total_superpowers: 0, loaded: 0, skill_ids: [], excerpts: [] };
   }
 }
 

@@ -6,6 +6,7 @@ import * as crypto from "crypto";
 import { execSync } from "child_process";
 import { TodoState, TodoStep, isStepDone, getStepLabel } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
+import { ContextBudgetEngine } from "../../engines/ContextBudgetEngine.js";
 
 const ACTIONS = [
   "kv_sort_json",
@@ -22,6 +23,11 @@ const ACTIONS = [
   "team_broadcast",
   "team_create_task",
   "team_heartbeat",
+  // Budget management via ContextBudgetEngine
+  "budget_get",
+  "budget_track",
+  "budget_report",
+  "budget_reset",
   // D2: Context Intelligence — Python module wiring
   "attention_score",
   "focus_optimize",
@@ -676,6 +682,30 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               warning: elapsed > 30 ? "⚠️ Previous gap exceeded 30s threshold" : null,
               recommendation: "Call heartbeat every 20-25 seconds"
             });
+          }
+
+          // ================================================================
+          // CONTEXT BUDGET ENGINE
+          // ================================================================
+
+          case "budget_get": {
+            return ok(ContextBudgetEngine.getBudget());
+          }
+
+          case "budget_track": {
+            const { category, tokens } = params;
+            if (!category || !tokens) {
+              return ok({ error: "Required: category (string), tokens (number)" });
+            }
+            return ok(ContextBudgetEngine.trackUsage(category, Number(tokens)));
+          }
+
+          case "budget_report": {
+            return ok(ContextBudgetEngine.getUsageReport());
+          }
+
+          case "budget_reset": {
+            return ok(ContextBudgetEngine.resetBudget());
           }
 
           // ================================================================

@@ -45,7 +45,8 @@ import {
   autoSkillHint, autoKnowledgeCrossQuery, autoDocAntiRegression, autoAgentRecommend,
   autoScriptRecommend,
   autoPhaseSkillLoader, autoSkillContextMatch, autoNLHookEvaluator,
-  autoHookActivationPhaseCheck, autoD4PerfSummary
+  autoHookActivationPhaseCheck, autoD4PerfSummary,
+  autoSkillHookMatch, autoSuperpowerBoot
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { PATHS } from "../constants.js";
@@ -693,12 +694,24 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
         } catch {
         }
+        // Load superpowers on session boot
+        let superpowerResult: any = null;
+        try {
+          superpowerResult = autoSuperpowerBoot(callNum);
+          if (superpowerResult.loaded > 0) {
+            cadence.actions.push(`\u{1F9B8} SUPERPOWERS: ${superpowerResult.loaded}/${superpowerResult.total_superpowers} loaded on session boot`);
+            cadence.superpowers = superpowerResult;
+            for (let i = 0; i < superpowerResult.loaded; i++) recordSessionSkillInjection();
+          }
+        } catch { /* non-fatal */ }
+
         globalThis.__prism_recon = {
           recon: recon.warnings,
           warmStart: warmStart.session_info,
           knowledge: knowledgeHints?.total_enrichments ? knowledgeHints : undefined,
           scripts: scriptRecs?.recommendations?.length ? scriptRecs : undefined,
-          rehydrated: rehydrated ? cadence.rehydrated : undefined
+          rehydrated: rehydrated ? cadence.rehydrated : undefined,
+          superpowers: superpowerResult?.loaded ? superpowerResult : undefined,
         };
       } catch {
       }
@@ -1599,6 +1612,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       if (ctxMatch.success && ctxMatch.total_matched > 0) {
         cadence.actions.push(`\u{1F3AF} SKILL_MATCH: ${ctxMatch.total_matched} skills matched for ${ctxMatch.context_key}`);
         cadence.skill_context_matches = ctxMatch;
+      }
+    } catch {
+    }
+    try {
+      const hookMatch = autoSkillHookMatch(callNum, toolName, action2, args[0]?.params || {});
+      if (hookMatch.success && hookMatch.total_matched > 0) {
+        const hookNames = hookMatch.matched_hooks.map(h => h.name).join(", ");
+        cadence.actions.push(`\u{1FA9D} AUTO_HOOKS: ${hookMatch.total_matched} fired (${hookNames}), ${hookMatch.total_skills_loaded} skills`);
+        cadence.auto_skill_hooks = hookMatch;
+        recordSessionSkillInjection();
       }
     } catch {
     }

@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-26",
+  "description": "Auto-apply hooks that load MIT course skills based on context detection",
+  "total_hooks": 10,
+  "hooks": [
+    {
+      "id": "ASH-01",
+      "name": "cutting-force-auto",
+      "trigger_keywords": ["cutting force", "cutting power", "chip load", "specific cutting", "Merchant", "Kienzle"],
+      "auto_load_skills": ["prism-mfg-algorithms", "prism-taylor-life"],
+      "auto_load_formulas": ["PRISM_MFG_PHYSICS.js", "PRISM_FORCE_LOOKUP.js"],
+      "priority": 90,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-02",
+      "name": "tool-life-auto",
+      "trigger_keywords": ["tool life", "tool wear", "flank wear", "crater wear", "Taylor equation", "economic speed"],
+      "auto_load_skills": ["prism-taylor-life", "prism-mfg-algorithms"],
+      "auto_load_formulas": ["PRISM_TOOL_WEAR_MODELS.js", "PRISM_TOOL_LIFE_ESTIMATOR.js"],
+      "priority": 90,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-03",
+      "name": "chatter-vibration-auto",
+      "trigger_keywords": ["chatter", "vibration", "stability lobe", "regenerative", "machining dynamics", "modal analysis"],
+      "auto_load_skills": ["prism-fft-chatter", "prism-control-mit", "prism-signal-algo"],
+      "auto_load_formulas": [],
+      "priority": 95,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-04",
+      "name": "surface-quality-auto",
+      "trigger_keywords": ["surface roughness", "surface finish", "Ra value", "Rz", "surface quality", "scallop height"],
+      "auto_load_skills": ["prism-mfg-algorithms", "prism-dfm-mit"],
+      "auto_load_formulas": ["PRISM_STRESS.js"],
+      "priority": 80,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-05",
+      "name": "optimization-auto",
+      "trigger_keywords": ["optimize", "minimize", "maximize", "objective function", "gradient descent", "convergence"],
+      "auto_load_skills": ["prism-algorithm-selector", "prism-opt-algorithms", "prism-lp-solvers"],
+      "auto_load_formulas": [],
+      "priority": 85,
+      "category": "optimization"
+    },
+    {
+      "id": "ASH-06",
+      "name": "ml-prediction-auto",
+      "trigger_keywords": ["regression", "prediction", "classify", "machine learning", "neural network", "training data"],
+      "auto_load_skills": ["prism-aiml-unified", "prism-rl-algorithms", "prism-opt-algorithms"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "machine-learning"
+    },
+    {
+      "id": "ASH-07",
+      "name": "signal-analysis-auto",
+      "trigger_keywords": ["signal", "frequency", "spectrum", "FFT", "filter", "Butterworth", "spectrogram"],
+      "auto_load_skills": ["prism-signal-algo", "prism-fft-chatter"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "signal-processing"
+    },
+    {
+      "id": "ASH-08",
+      "name": "geometry-cad-auto",
+      "trigger_keywords": ["NURBS", "B-spline", "Bezier", "surface", "mesh", "curvature", "tessellation", "geometry"],
+      "auto_load_skills": ["prism-nurbs-mit", "prism-surface-geo", "prism-bezier-mit", "prism-graphics-mit"],
+      "auto_load_formulas": [],
+      "priority": 75,
+      "category": "geometry"
+    },
+    {
+      "id": "ASH-09",
+      "name": "thermal-analysis-auto",
+      "trigger_keywords": ["thermal", "heat transfer", "temperature", "thermal expansion", "cooling", "conduction"],
+      "auto_load_skills": ["prism-mfg-algorithms"],
+      "auto_load_formulas": ["PRISM_THERMAL_COMPENSATION.js", "PRISM_THERMAL_LOOKUP.js", "PRISM_THERMAL_PROPERTIES.js"],
+      "priority": 80,
+      "category": "thermal"
+    },
+    {
+      "id": "ASH-10",
+      "name": "control-systems-auto",
+      "trigger_keywords": ["PID", "controller", "feedback", "stability", "transfer function", "pole", "zero", "Bode"],
+      "auto_load_skills": ["prism-control-mit", "prism-digital-ctrl"],
+      "auto_load_formulas": [],
+      "priority": 75,
+      "category": "control-systems"
+    }
+  ]
+}
