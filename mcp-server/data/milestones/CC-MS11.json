@@ -1,0 +1,192 @@
+{
+  "id": "CC-MS11",
+  "version": "3.1.0",
+  "title": "Integration Testing + Safety Certification",
+  "brief": "SAFETY-CRITICAL PHASE GATE: E2E tests per domain, safety audit (zero bypass), boot integration, vision audit, anti-regression, Omega >= 0.70, Ralph MANDATORY.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Integration Testing + Safety Certification",
+      "description": "SAFETY-CRITICAL PHASE GATE: Full end-to-end integration testing across all domains, safety audit with zero bypass path verification, boot integration test, vision contribution audit, anti-regression across all dispatchers, performance benchmarks, documentation, and mandatory Omega/Ralph certification.",
+      "sessions": 3,
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "execution_split": "MCP 80% / CC 20%",
+      "safety_critical": true,
+      "phase_gate": true,
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Integration Testing + Safety Certification",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R4",
+          "role_name": "Quality Engineer",
+          "model": "opus-4.6",
+          "effort": 240,
+          "tools": [
+            { "tool": "prism_validate", "actions": ["safety", "anti_regression", "completeness"], "purpose": "all validation gates" },
+            { "tool": "prism_ralph", "action": "loop", "purpose": "MANDATORY 4-phase Ralph validation" },
+            { "tool": "prism_omega", "action": "compute", "purpose": "MANDATORY Omega quality score >= 0.70" },
+            { "tool": "prism_safety", "purpose": "full safety audit across all modules" },
+            { "tool": "prism_dev", "actions": ["build", "test"], "purpose": "build and test execution" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS0", "CC-MS1", "CC-MS2", "CC-MS3", "CC-MS4", "CC-MS5", "CC-MS6", "CC-MS7", "CC-MS8", "CC-MS9", "CC-MS10"],
+          "entry_conditions": [
+            "ALL CC-MS0 through CC-MS10 complete",
+            "30+ videos ingested and processed",
+            "5+ CAD recipes generated",
+            "10+ CAM strategies stored and validated",
+            "20+ shop practices stored and validated",
+            "Memory system operational with boot integration"
+          ],
+          "exit_conditions": [
+            "E2E integration test passes per domain: CAD (URL -> STEP file), CAM (URL -> strategy recommendation), SHOP (URL -> guidance), Cross-domain (full video -> all 3 outputs)",
+            "Safety audit: ALL validation checks pass, zero bypass paths confirmed, S(x) >= 0.70 hard block enforced",
+            "Boot integration test: restart session -> memory loads -> query succeeds",
+            "Vision analysis audit: vision-only vs transcript-only comparison shows vision contributes >60% unique information",
+            "Anti-regression: all 31+1 dispatchers functional, npm run build passes",
+            "Performance benchmarks: FTS <100ms, boot <2s, E2E pipeline <5min per video",
+            "Documentation complete: API docs, operator guide, troubleshooting guide",
+            "Omega computation: Omega >= 0.70 (MANDATORY for release)",
+            "Ralph validation: 4-phase loop completed with grade >= B (MANDATORY)",
+            "S(x) >= 0.70 enforced across all safety-critical paths"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/e2e/ cad-engine/docs/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "E2E integration test per domain: CAD (URL -> transcript -> feature tree -> CadQuery script -> STEP file), CAM (URL -> transcript -> strategy extraction -> recommendation with validation), SHOP (URL -> transcript -> practice extraction -> guidance), Cross-domain (single video -> all 3 domain outputs)"
+            },
+            {
+              "number": 2,
+              "instruction": "Safety audit (Opus SAFETY): verify ALL validation checks active, confirm zero bypass paths (no way to get output without passing validation), verify S(x) >= 0.70 hard block is enforced and cannot be circumvented"
+            },
+            {
+              "number": 3,
+              "instruction": "Boot integration test: kill and restart session, verify memory loads from SQLite, verify boot_manifest.json loads within 2 seconds, verify NL query succeeds using loaded memory"
+            },
+            {
+              "number": 4,
+              "instruction": "Vision analysis audit: for 8 test videos, compare vision-only extraction vs transcript-only extraction; quantify unique contribution of vision (UI elements, parameters from screens, feature tree structure); require >60% unique contribution"
+            },
+            {
+              "number": 5,
+              "instruction": "Anti-regression test: verify all 31+1 existing PRISM dispatchers remain functional, npm run build passes, existing test suite passes, no regressions introduced by CC phase"
+            },
+            {
+              "number": 6,
+              "instruction": "Performance benchmarks: FTS search <100ms, boot load <2 seconds, full E2E pipeline <5 minutes per video, memory DB size reasonable"
+            },
+            {
+              "number": 7,
+              "instruction": "Documentation: generate API documentation for all new modules, write operator guide (how to use NL queries, teach-me mode), write troubleshooting guide for common issues"
+            },
+            {
+              "number": 8,
+              "instruction": "Omega computation (MANDATORY): run prism_omega compute for Phase CC, require Omega >= 0.70 for release approval. Run prism_ralph loop (MANDATORY): 4-phase SCRUTINIZE -> IMPROVE -> VALIDATE -> ASSESS with Opus, require grade >= B"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/tests/e2e/test_cad_e2e.py",
+            "cad-engine/tests/e2e/test_cam_e2e.py",
+            "cad-engine/tests/e2e/test_shop_e2e.py",
+            "cad-engine/tests/e2e/test_cross_domain.py",
+            "cad-engine/tests/e2e/test_safety_audit.py",
+            "cad-engine/tests/e2e/test_boot_integration.py",
+            "cad-engine/tests/e2e/test_vision_audit.py",
+            "cad-engine/tests/e2e/test_anti_regression.py",
+            "cad-engine/tests/e2e/test_performance.py",
+            "cad-engine/docs/api-reference.md",
+            "cad-engine/docs/operator-guide.md",
+            "cad-engine/docs/troubleshooting-guide.md"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.70,
+        "safety_floor": 0.99,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "E2E passes for all 4 test paths (CAD, CAM, SHOP, cross-domain)",
+          "Zero bypass paths confirmed in safety audit",
+          "S(x) >= 0.70 hard block enforced and verified",
+          "Boot integration survives restart",
+          "Vision contributes >60% unique information",
+          "All 31+1 dispatchers pass anti-regression",
+          "Omega >= 0.70 computed and certified",
+          "Ralph 4-phase loop grade >= B"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["safety_certification", "zero_bypass_audit", "anti_regression", "omega_certification", "ralph_certification"]
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 3,
+  "role_matrix": [
+    {
+      "code": "R4",
+      "name": "Quality Engineer",
+      "model": "opus-4.6",
+      "effort": 240
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_ralph", "phases": ["P0"] },
+    { "tool": "prism_omega", "phases": ["P0"] },
+    { "tool": "prism_safety", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/tests/e2e/",
+    "cad-engine/docs/api-reference.md",
+    "cad-engine/docs/operator-guide.md",
+    "cad-engine/docs/troubleshooting-guide.md"
+  ],
+  "existing_leverage": [
+    "prism_ralph loop (4-phase validation with real Opus API calls)",
+    "prism_omega compute (quality equation)",
+    "prism_validate safety/anti_regression/completeness",
+    "prism_safety (29 safety check actions)",
+    "All CC-MS0 through CC-MS10 modules"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors",
+      "safety_bypass_paths",
+      "omega_score_gap",
+      "ralph_grade_gap"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

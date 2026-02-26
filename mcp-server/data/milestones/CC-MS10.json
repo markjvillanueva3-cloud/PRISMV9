@@ -1,0 +1,144 @@
+{
+  "id": "CC-MS10",
+  "version": "3.1.0",
+  "title": "Operator Guidance Interface",
+  "brief": "NL query handler spanning all 3 domains, step-by-step guidance generator, teach-me mode for on-demand learning from video URLs.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Operator Guidance Interface",
+      "description": "Build cross-domain NL query handler, step-by-step guidance generator with platform-specific menu paths, and teach-me mode for on-demand video learning pipeline.",
+      "sessions": 1,
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "execution_split": "CC 70% / MCP 30%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Operator Guidance Interface",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Application Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_intelligence", "actions": ["apprentice_explain", "assist_*"] },
+            { "tool": "prism_dev" },
+            { "tool": "prism_knowledge", "action": "search", "purpose": "recall from memory for query answering" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS7", "CC-MS8", "CC-MS9"],
+          "entry_conditions": [
+            "CC-MS7 complete (persistent memory + boot integration operational)",
+            "CC-MS8 complete (cross-platform mapping available)",
+            "CC-MS9 complete (manufacturability validation bridge operational)"
+          ],
+          "exit_conditions": [
+            "Cross-domain NL queries return relevant validated responses: 'Draw me a bearing block' -> CAD, 'Best strategy for roughing 4140?' -> CAM, 'How do I set up for this part?' -> SHOP, 'I'm getting chatter' -> troubleshooting tree",
+            "'teach me' mode runs full pipeline: operator provides video URL -> ingest -> extract -> validate -> store -> report",
+            "All responses include validation status and provenance information",
+            "Step-by-step guidance includes platform-specific menu paths",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/nl_query.py cad-engine/src/guidance_gen.py cad-engine/src/teach_me.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build NL query handler spanning all 3 domains: classify query intent (CAD draw request, CAM parameter question, SHOP practice question, troubleshooting), route to appropriate knowledge source, validate response, return with provenance. Examples: 'Draw me a bearing block' -> CAD code gen, 'Best strategy for roughing 4140?' -> CAM recommender, 'How do I set up for this part?' -> SHOP practice KB, 'I'm getting chatter' -> troubleshooting decision tree"
+            },
+            {
+              "number": 2,
+              "instruction": "Build step-by-step guidance generator: take recipe/recommendation + target platform -> produce ordered steps with platform-specific menu paths (e.g., SolidWorks: Insert > Features > Extrude Boss/Base), include screenshots placeholders and parameter values"
+            },
+            {
+              "number": 3,
+              "instruction": "Build 'teach me' mode: operator says 'teach me from this video: [URL]' -> run full pipeline (ingest -> extract -> validate -> store) -> generate learning report with key takeaways per domain -> persist to memory. UX review by Opus"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/nl_query.py",
+            "cad-engine/src/guidance_gen.py",
+            "cad-engine/src/teach_me.py",
+            "cad-engine/tests/test_operator_interface.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "Cross-domain queries route correctly",
+          "Teach-me mode runs full pipeline end-to-end",
+          "All responses include validation + provenance"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 1,
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Application Engineer",
+      "model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_knowledge", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/nl_query.py",
+    "cad-engine/src/guidance_gen.py",
+    "cad-engine/src/teach_me.py"
+  ],
+  "existing_leverage": [
+    "prism_intelligence apprentice_explain",
+    "prism_intelligence assist_* actions",
+    "Memory system from CC-MS7",
+    "Platform maps from CC-MS8",
+    "Validation bridge from CC-MS9"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

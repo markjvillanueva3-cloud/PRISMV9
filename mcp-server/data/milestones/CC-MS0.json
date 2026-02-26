@@ -1,0 +1,158 @@
+{
+  "id": "CC-MS0",
+  "version": "3.1.0",
+  "title": "Foundation: CadQuery Integration + CAD Kernel",
+  "brief": "Python cad_kernel.py, geo_validator.py, cad_export.py; CadQuery integration; 10 reference STEP parts.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation: CadQuery Integration + CAD Kernel",
+      "description": "Install CadQuery 2.x, build CAD kernel wrapper, geometry validator, export module, and test with 10 reference parts. Architecture review of API surface.",
+      "sessions": 2,
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "execution_split": "CC 80% / MCP 20%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "CadQuery Installation + CAD Kernel Wrapper",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["L8-P1-MS2"],
+          "entry_conditions": [
+            "L8-P1-MS2 complete",
+            "Python 3.10+ available",
+            "npm run build passes"
+          ],
+          "exit_conditions": [
+            "CadQuery 2.x installed with OCP and build123d dependencies",
+            "C:\\PRISM\\cad-engine\\ directory structure created",
+            "cad_kernel.py implements: create_sketch(), extrude(), revolve(), fillet(), chamfer(), hole(), pattern(), shell(), export()",
+            "geo_validator.py implements: manifold check, volume calculation, bounding box, min wall thickness detection",
+            "cad_export.py implements: STEP, DXF, STL, IGES export",
+            "10 reference parts pass: cube, cylinder, flanged plate, bracket, bearing block, shaft collar, gusset, spacer, bushing, manifold block",
+            "Validator detects intentional geometric defects",
+            "All 4 export formats produce valid files",
+            "API surface documented and matches planned dispatcher actions",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Install CadQuery 2.x + dependencies (OCP, build123d) into Python environment"
+            },
+            {
+              "number": 2,
+              "instruction": "Create C:\\PRISM\\cad-engine\\ directory structure (src/, tests/, reference_parts/, exports/)"
+            },
+            {
+              "number": 3,
+              "instruction": "Build CadQuery wrapper module (cad_kernel.py): create_sketch(), extrude(), revolve(), fillet(), chamfer(), hole(), pattern(), shell(), export()"
+            },
+            {
+              "number": 4,
+              "instruction": "Build geometry validator module (geo_validator.py): manifold check, volume calculation, bounding box computation, minimum wall thickness detection"
+            },
+            {
+              "number": 5,
+              "instruction": "Build export module (cad_export.py): STEP, DXF, STL, IGES format export with validation"
+            },
+            {
+              "number": 6,
+              "instruction": "Build test harness: 10 reference parts (cube, cylinder, flanged plate, bracket, bearing block, shaft collar, gusset, spacer, bushing, manifold block)"
+            },
+            {
+              "number": 7,
+              "instruction": "Architecture review (Opus): verify API surface matches planned dispatcher actions, review extensibility and error handling"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/cad_kernel.py",
+            "cad-engine/src/geo_validator.py",
+            "cad-engine/src/cad_export.py",
+            "cad-engine/tests/test_reference_parts.py",
+            "cad-engine/reference_parts/*.step"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All 10 reference STEP parts generate valid geometry",
+          "Validator detects defects in intentionally broken test parts",
+          "All 4 export formats produce valid output"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Platform Engineer",
+      "model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/cad_kernel.py",
+    "cad-engine/src/geo_validator.py",
+    "cad-engine/src/cad_export.py"
+  ],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

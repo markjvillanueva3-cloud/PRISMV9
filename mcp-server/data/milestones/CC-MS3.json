@@ -1,0 +1,152 @@
+{
+  "id": "CC-MS3",
+  "version": "3.1.0",
+  "title": "Parametric Code Generator (CAD -- DRAW)",
+  "brief": "feature_translator.py, code_gen.py; auto-generated CadQuery scripts from extracted feature trees with full parameterization.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Parametric Code Generator (CAD -- DRAW)",
+      "description": "Build feature-to-CadQuery translator, parametric template generator, code assembler, and code validator. Generate CadQuery code from extracted feature trees with full parameterization and provenance.",
+      "sessions": 2,
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "execution_split": "CC 70% / MCP 30%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Parametric Code Generator (CAD -- DRAW)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "CAD Engineer",
+          "model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc", "purpose": "geometry cross-checks" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS0", "CC-MS2"],
+          "entry_conditions": [
+            "CC-MS0 complete (CadQuery kernel operational)",
+            "CC-MS2 complete (extraction engine produces feature trees)"
+          ],
+          "exit_conditions": [
+            "Feature translator handles all schema operation types",
+            "3+ test parts generate valid CadQuery code from extracted feature trees",
+            "All dimensions fully parameterized with named parameters, types, ranges, and units",
+            "Provenance linked from generated code back to source video/timestamp",
+            "Edge cases handled: revolved features, patterns, mirror, multi-body, assemblies",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feature_translator.py cad-engine/src/code_gen.py cad-engine/src/param_template.py cad-engine/src/code_validator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build feature-to-CadQuery translator (feature_translator.py): map each operation type from knowledge schema to CadQuery API calls (extrude->Workplane.extrude, revolve->Workplane.revolve, etc.)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build parametric template generator: convert extracted dimensions to named parameters with types (float/int), valid ranges, units (mm/inch), and default values"
+            },
+            {
+              "number": 3,
+              "instruction": "Build code assembler (code_gen.py): chain operations into complete CadQuery script with imports, parameter declarations, feature sequence, export call, and provenance comments"
+            },
+            {
+              "number": 4,
+              "instruction": "Build code validator: verify generated script parses (AST check), executes without error, produces non-zero-volume geometry, and passes manifold check"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: generate CadQuery code from 3 extracted feature trees, execute, compare output geometry to reference parts"
+            },
+            {
+              "number": 6,
+              "instruction": "Edge case handling (Opus review): revolved features, linear/circular patterns, mirror operations, multi-body parts, basic assemblies"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/feature_translator.py",
+            "cad-engine/src/param_template.py",
+            "cad-engine/src/code_gen.py",
+            "cad-engine/src/code_validator.py",
+            "cad-engine/tests/test_code_gen.py",
+            "cad-engine/generated/*.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "3+ generated CadQuery scripts produce valid STEP geometry",
+          "All dimensions parameterized with types and ranges",
+          "Provenance links to source video present"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "CAD Engineer",
+      "model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/feature_translator.py",
+    "cad-engine/src/code_gen.py",
+    "cad-engine/src/code_validator.py"
+  ],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

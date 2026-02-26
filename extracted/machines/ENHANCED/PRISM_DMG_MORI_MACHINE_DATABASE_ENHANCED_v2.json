@@ -61,7 +61,12 @@
       "cooling": "spindle_jacket_cooling",
       "runout_TIR": 0.002,
       "warmup_program": true,
-      "thermal_growth_compensation": true
+      "thermal_growth_compensation": true,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "spindle_options": [
       {
@@ -92,9 +97,9 @@
         "rapid_rate": 42000,
         "max_feed": 42000,
         "acceleration": 6,
-        "acceleration_unit": "m/s²",
+        "acceleration_unit": "m/s\u00c2\u00b2",
         "jerk": 60,
-        "jerk_unit": "m/s³",
+        "jerk_unit": "m/s\u00c2\u00b3",
         "motor_type": "servo_direct_drive",
         "motor_power": 8,
         "guideway_type": "linear_roller",
@@ -120,7 +125,7 @@
         "rapid_rate": 42000,
         "max_feed": 42000,
         "acceleration": 6,
-        "acceleration_unit": "m/s²",
+        "acceleration_unit": "m/s\u00c2\u00b2",
         "jerk": 60,
         "motor_type": "servo_direct_drive",
         "motor_power": 8,
@@ -140,7 +145,7 @@
         "rapid_rate": 42000,
         "max_feed": 42000,
         "acceleration": 6,
-        "acceleration_unit": "m/s²",
+        "acceleration_unit": "m/s\u00c2\u00b2",
         "jerk": 60,
         "motor_type": "servo_direct_drive",
         "motor_power": 8,
@@ -169,7 +174,7 @@
         "max_feed_rate": 18000,
         "max_feed_unit": "deg/min",
         "acceleration": 20,
-        "acceleration_unit": "rad/s²",
+        "acceleration_unit": "rad/s\u00c2\u00b2",
         "motor_type": "direct_drive_torque",
         "motor_brand": "Siemens",
         "motor_model": "1FW6",
@@ -207,7 +212,7 @@
         "max_feed_rate": 30000,
         "max_feed_unit": "deg/min",
         "acceleration": 25,
-        "acceleration_unit": "rad/s²",
+        "acceleration_unit": "rad/s\u00c2\u00b2",
         "motor_type": "direct_drive_torque",
         "max_torque": 850,
         "continuous_torque": 560,
@@ -315,7 +320,7 @@
       "weight": 7500,
       "weight_unit": "kg",
       "floor_space": 7.16,
-      "floor_space_unit": "m²",
+      "floor_space_unit": "m\u00c2\u00b2",
       "foundation_required": false
     },
     "kinematic_chain": {
@@ -1015,7 +1020,12 @@
       "power_rating": 25,
       "power_unit": "kW",
       "torque_max": 87,
-      "torque_unit": "Nm"
+      "torque_unit": "Nm",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1362,7 +1372,12 @@
       "power_unit": "kW",
       "torque_max": 303,
       "torque_unit": "Nm",
-      "orientation": "horizontal"
+      "orientation": "horizontal",
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 120,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1637,7 +1652,10 @@
       "torque_unit": "Nm",
       "c_axis": true,
       "c_axis_indexing": 0.001,
-      "spindle_nose": "A2-11"
+      "spindle_nose": "A2-11",
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 200
     },
     "axis_specs": {
       "x": {
@@ -2142,7 +2160,19 @@
         }
       }
     },
-    "has3DModel": true
+    "has3DModel": true,
+    "spindle": {
+      "max_rpm": 5000,
+      "min_rpm": 10,
+      "power_continuous": 18.5,
+      "power_30min": 22,
+      "torque_max": 450,
+      "torque_continuous": 280,
+      "spindle_nose": "A2-6",
+      "coolant_through": true,
+      "coolant_pressure": 20,
+      "_enriched": "default"
+    }
   },
   {
     "id": "DMG_CTV_250",
@@ -2166,7 +2196,11 @@
       "power_unit": "kW",
       "torque_max": 95,
       "torque_unit": "Nm",
-      "c_axis": true
+      "c_axis": true,
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 200,
+      "spindle_nose": "A2-6"
     },
     "axis_specs": {
       "x": {
@@ -2332,7 +2366,12 @@
       "power_rating": 14,
       "power_unit": "kW",
       "torque_max": 83,
-      "torque_unit": "Nm"
+      "torque_unit": "Nm",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {

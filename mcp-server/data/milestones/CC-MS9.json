@@ -1,0 +1,165 @@
+{
+  "id": "CC-MS9",
+  "version": "3.1.0",
+  "title": "Manufacturability Validation Bridge",
+  "brief": "SAFETY-CRITICAL: feature_analyze.py, mfg_checker.py, cam_safety_overlay.py, shop_safety_validator.py; S(x) >= 0.70 hard block on all outputs.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Manufacturability Validation Bridge",
+      "description": "SAFETY-CRITICAL: Design and build validation pipeline for geometry manufacturability, CAM parameter safety overlay, and shop practice safety validator. No output without validation. S(x) >= 0.70 hard block enforced.",
+      "sessions": 2,
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "MCP 70% / CC 30%",
+      "safety_critical": true,
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Manufacturability Validation Bridge",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R4",
+          "role_name": "Safety Engineer",
+          "model": "opus-4.6",
+          "implementation_model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_safety", "purpose": "all safety checks -- toolpath collision, tool clearance, spindle limits, workholding" },
+            { "tool": "prism_calc", "purpose": "Kienzle force cross-check on all stored CAM parameters" },
+            { "tool": "prism_validate", "actions": ["safety"], "purpose": "safety gate S(x) >= 0.70 enforcement" },
+            { "tool": "prism_intelligence", "action": "quality_predict" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS3", "CC-MS5", "CC-MS6"],
+          "entry_conditions": [
+            "CC-MS3 complete (code generator produces CadQuery geometry)",
+            "CC-MS5 complete (CAM strategy DB with parameters)",
+            "CC-MS6 complete (shop practice KB populated)",
+            "prism_calc operational (Kienzle, Taylor, speed/feed)",
+            "prism_validate operational (safety gate)"
+          ],
+          "exit_conditions": [
+            "Validation pipeline catches ALL intentional geometric defects in test suite",
+            "S(x) >= 0.70 hard block enforced -- no output passes without meeting safety threshold",
+            "No output produced without validation (zero bypass paths)",
+            "CAM parameter safety overlay cross-references ALL stored params vs prism_calc Kienzle; flags violations",
+            "Shop practice safety validator confirms no stored practice contradicts physics or machine limits",
+            "MATHPLAN gate passed for validation pipeline design",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feature_analyze.py cad-engine/src/mfg_checker.py cad-engine/src/cam_safety_overlay.py cad-engine/src/shop_safety_validator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Design validation pipeline (Opus SAFETY): geometry -> feature analysis -> per-feature manufacturability check vs machine envelope + tool library + material properties + tolerance capability. Define pass/fail criteria and S(x) scoring"
+            },
+            {
+              "number": 2,
+              "instruction": "Build feature analyzer (feature_analyze.py): extract all geometric features from CadQuery model (holes, pockets, slots, walls, bosses, radii) with dimensions and tolerance requirements"
+            },
+            {
+              "number": 3,
+              "instruction": "Build manufacturability checker (mfg_checker.py): per-feature validation -- tooling availability for feature size, machine envelope fits, material machinability for feature, tolerance capability achievable with available tools/machine"
+            },
+            {
+              "number": 4,
+              "instruction": "Build CAM parameter safety overlay (cam_safety_overlay.py): cross-reference ALL stored CAM parameters vs prism_calc Kienzle force model; flag any parameter combination that exceeds tool/spindle/fixture limits; compute safety margin per parameter set"
+            },
+            {
+              "number": 5,
+              "instruction": "Build shop practice safety validator (shop_safety_validator.py): verify no stored practice contradicts physics (force/power limits), machine limits (speed/torque envelope), or safety constraints (tool breakage risk, workholding adequacy)"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/feature_analyze.py",
+            "cad-engine/src/mfg_checker.py",
+            "cad-engine/src/cam_safety_overlay.py",
+            "cad-engine/src/shop_safety_validator.py",
+            "cad-engine/tests/test_validation_bridge.py",
+            "cad-engine/tests/test_safety_defects.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.99,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "ALL intentional defects caught by validation pipeline",
+          "Zero bypass paths -- no output without validation",
+          "S(x) >= 0.70 hard block enforced at runtime",
+          "CAM params cross-checked vs Kienzle",
+          "Shop practices pass physics cross-check"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["safety_validation", "zero_bypass_paths", "physics_cross_check"]
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R4",
+      "name": "Safety Engineer",
+      "model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_safety", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/feature_analyze.py",
+    "cad-engine/src/mfg_checker.py",
+    "cad-engine/src/cam_safety_overlay.py",
+    "cad-engine/src/shop_safety_validator.py"
+  ],
+  "existing_leverage": [
+    "prism_safety (29 safety check actions)",
+    "prism_calc Kienzle cutting_force",
+    "prism_calc Taylor tool_life",
+    "prism_validate safety gate"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors",
+      "safety_bypass_paths"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

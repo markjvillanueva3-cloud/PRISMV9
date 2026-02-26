@@ -1,0 +1,130 @@
+{
+  "id": "L5-P0-MS2",
+  "version": "3.1.0",
+  "title": "22 PASS2 Specialty Skills",
+  "brief": "22 PASS2 skills: aerospace-requirements, medical-validation, automotive-standards, mold-design, electrode-edm, composites-layup.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "22 PASS2 Specialty Skills",
+      "description": "22 PASS2 skills: aerospace-requirements, medical-validation, automotive-standards, mold-design, electrode-edm, composites-layup.",
+      "sessions": "2-3",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Execute 22 PASS2 Specialty Skills",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_skill_script"
+            },
+            {
+              "tool": "prism_validate"
+            },
+            {
+              "tool": "prism_compliance"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "L5-P0-MS1 complete"
+          ],
+          "exit_conditions": [
+            "22 PASS2 Specialty Skills complete",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- [files modified by L5-P0-MS2]",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Execute 22 PASS2 Specialty Skills per roadmap spec"
+            }
+          ],
+          "deliverables": [],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 22,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_skill_script",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_compliance",
+      "phases": [
+        "P0"
+      ]
+    }
+  ],
+  "deliverables_index": [],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

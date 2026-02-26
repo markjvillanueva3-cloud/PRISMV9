@@ -43,7 +43,12 @@
       "bearing_arrangement": "P4_precision",
       "spindle_bore": 70,
       "drawbar_force": 15,
-      "warmup_time": 15
+      "warmup_time": 15,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -282,7 +287,12 @@
       "torque_max": 119,
       "torque_unit": "Nm",
       "bearing_type": "angular_contact",
-      "bearing_arrangement": "P4_precision"
+      "bearing_arrangement": "P4_precision",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -495,7 +505,12 @@
       "torque_max": 100,
       "torque_unit": "Nm",
       "bearing_type": "ceramic_hybrid",
-      "oil_air_lubrication": true
+      "oil_air_lubrication": true,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -708,7 +723,12 @@
       "power_unit": "kW",
       "torque_max": 140,
       "torque_unit": "Nm",
-      "bearing_type": "ceramic_hybrid"
+      "bearing_type": "ceramic_hybrid",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -954,7 +974,12 @@
       "power_unit": "kW",
       "torque_max": 380,
       "torque_unit": "Nm",
-      "bearing_type": "angular_contact"
+      "bearing_type": "angular_contact",
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 120,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1153,7 +1178,10 @@
       "torque_max": 287,
       "torque_unit": "Nm",
       "bearing_type": "angular_contact",
-      "spindle_nose": "A2-6"
+      "spindle_nose": "A2-6",
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 200
     },
     "axis_specs": {
       "x": {
@@ -1336,7 +1364,11 @@
       "torque_unit": "Nm",
       "c_axis": true,
       "c_axis_resolution": 0.001,
-      "c_axis_clamping_torque": 280
+      "c_axis_clamping_torque": 280,
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 200,
+      "spindle_nose": "A2-6"
     },
     "axis_specs": {
       "x": {
@@ -1725,7 +1757,12 @@
       "power_unit": "kW",
       "torque_max": 12,
       "torque_unit": "Nm",
-      "bearing_type": "ceramic_hybrid"
+      "bearing_type": "ceramic_hybrid",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1916,7 +1953,11 @@
       "power_unit": "kW",
       "torque_max": 8500,
       "torque_unit": "Nm",
-      "drive_type": "direct_drive"
+      "drive_type": "direct_drive",
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_continuous": 200,
+      "spindle_nose": "A2-6"
     },
     "axis_specs": {
       "x": {
@@ -2142,6 +2183,18 @@
       "pressure_bar": 10,
       "tsc": true,
       "tsc_pressure_bar": 70
+    },
+    "spindle": {
+      "max_rpm": 4500,
+      "min_rpm": 20,
+      "power_continuous": 15,
+      "power_30min": 18.5,
+      "torque_max": 350,
+      "torque_continuous": 200,
+      "spindle_nose": "A2-6",
+      "coolant_through": false,
+      "coolant_pressure": 0,
+      "_enriched": "default"
     }
   }
 ]

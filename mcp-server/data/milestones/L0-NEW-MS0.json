@@ -1,0 +1,233 @@
+{
+  "id": "L0-NEW-MS0",
+  "version": "3.1.0",
+  "title": "Data Consolidation & Deduplication",
+  "brief": "Merge 1,775 files (216MB) from extracted/ and extracted_modules/ into data/registries/. Inventory all sources, deduplicate, migrate useful modules, archive rest. R15 extraction gap: 536 files extracted, only 73 wired (86% gap).",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Data Consolidation & Deduplication",
+      "description": "Merge 1,775 files (216MB) from 5 source directories into data/registries/. R15 extraction audit shows 536 files extracted but only 73 wired in MCP (86% gap). Priority: wire CRITICAL/HIGH categories first (formulas, cutting data, material properties, machine specs), archive LOW priority (UI components, CSS).",
+      "sessions": "2-3",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory & Categorize All Source Directories",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 15,
+          "tools": [
+            { "tool": "prism_dev", "actions": ["file_read", "code_search"] },
+            { "tool": "prism_manus", "actions": ["web_research"] }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Desktop Commander"],
+          "dependencies": [],
+          "entry_conditions": [
+            "S0-MS1 complete",
+            "All source directories accessible: data/, extracted/, extracted_modules/, registries/, catalogs/, knowledge/"
+          ],
+          "exit_conditions": [
+            "Complete file inventory CSV/JSON with: path, size, category, priority, target_registry, duplicate_of",
+            "Deduplication report: exact duplicates identified",
+            "Category breakdown: formulas, cutting data, material props, machine specs, tool data, algorithms, UI/CSS, config, tests"
+          ],
+          "rollback": "No file modifications in this step — inventory only",
+          "steps": [
+            { "number": 1, "instruction": "Use Desktop Commander→start_search to scan all 5 source directories, build complete file manifest" },
+            { "number": 2, "instruction": "Categorize each file by content type using R15 extraction gap table (22 categories, priority CRITICAL/HIGH/MEDIUM/LOW)" },
+            { "number": 3, "instruction": "Identify exact duplicates (same content, different paths) and near-duplicates (similar content)" },
+            { "number": 4, "instruction": "Generate inventory report: data/consolidation-inventory.json" }
+          ],
+          "deliverables": [
+            "data/consolidation-inventory.json",
+            "data/consolidation-report.md"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Migrate CRITICAL Priority Files (Formulas + Cutting Data)",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 20,
+          "tools": [
+            { "tool": "prism_dev", "actions": ["file_read", "file_write", "build"] },
+            { "tool": "prism_validate", "actions": ["completeness"] },
+            { "tool": "prism_data", "actions": ["material_search", "tool_search"] }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Inventory complete"],
+          "exit_conditions": [
+            "All CRITICAL priority files migrated to data/registries/",
+            "Formulas registered in FormulaRegistry",
+            "Cutting data merged into existing tool/material DBs",
+            "No data loss — all migrated files verified against originals",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- data/registries/",
+          "steps": [
+            { "number": 1, "instruction": "Migrate formula extraction files (R15 category: formulas) → merge into FormulaRegistry" },
+            { "number": 2, "instruction": "Migrate cutting data files → merge into tool/material databases" },
+            { "number": 3, "instruction": "Migrate material property files → merge into MaterialDB" },
+            { "number": 4, "instruction": "Verify no data loss: compare record counts before/after" },
+            { "number": 5, "instruction": "Build and test to ensure registry loading works" }
+          ],
+          "deliverables": [
+            "Updated data/registries/ files",
+            "Migration verification report"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Migrate HIGH Priority + Archive LOW Priority",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 20,
+          "tools": [
+            { "tool": "prism_dev", "actions": ["file_read", "file_write", "build"] },
+            { "tool": "prism_validate", "actions": ["completeness", "anti_regression"] }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["CRITICAL priority migration complete"],
+          "exit_conditions": [
+            "HIGH priority files migrated to data/registries/",
+            "MEDIUM priority files triaged (migrate or defer to L0-P0-MS1)",
+            "LOW priority files archived to data/archive/",
+            "extracted/ and extracted_modules/ emptied (all files accounted for)",
+            "Build passes, tests pass, anti-regression clean"
+          ],
+          "rollback": "git checkout -- data/registries/ data/archive/",
+          "steps": [
+            { "number": 1, "instruction": "Migrate HIGH priority files (machine specs, tool geometry, algorithm implementations)" },
+            { "number": 2, "instruction": "Triage MEDIUM priority (charts, reference tables): migrate useful, defer rest" },
+            { "number": 3, "instruction": "Archive LOW priority (UI components, CSS, framework code) to data/archive/" },
+            { "number": 4, "instruction": "Verify all 1,775 files accounted for (migrated, archived, or marked as duplicate)" },
+            { "number": 5, "instruction": "Run prism_validate→anti_regression to ensure existing registries unaffected" },
+            { "number": 6, "instruction": "Full build + test pass" }
+          ],
+          "deliverables": [
+            "Updated data/registries/",
+            "data/archive/ (LOW priority files)",
+            "Final consolidation report with file counts"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All 1,775 files accounted for (migrated, archived, or duplicate)",
+          "R15 gap reduced from 86% to <50% for CRITICAL+HIGH categories",
+          "No data loss in migration (record counts verified)"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 3,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 55
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"], "purpose": "file operations, code search, build verification" },
+    { "tool": "prism_manus", "phases": ["P0"], "purpose": "web research for format identification if needed" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "completeness and anti-regression validation" },
+    { "tool": "prism_data", "phases": ["P0"], "purpose": "material and tool lookups for merge validation" },
+    { "tool": "Desktop Commander", "phases": ["P0"], "purpose": "bulk file scanning across 1,775 files (external)" }
+  ],
+  "deliverables_index": [
+    "data/consolidation-inventory.json",
+    "data/consolidation-report.md",
+    "Updated data/registries/",
+    "data/archive/"
+  ],
+  "existing_leverage": [
+    "R15 extraction gap analysis (536 files categorized by priority)",
+    "Existing data/registries/ structure",
+    "prism_data material/tool databases for merge validation",
+    "Desktop Commander for bulk file operations"
+  ],
+  "r15_extraction_inventory": {
+    "total_files": 536,
+    "wired_in_mcp": 73,
+    "gap_percentage": 86,
+    "categories": [
+      { "category": "Formulas & Calculations", "files": 45, "wired": 8, "priority": "CRITICAL" },
+      { "category": "Cutting Data & Parameters", "files": 62, "wired": 12, "priority": "CRITICAL" },
+      { "category": "Material Properties", "files": 38, "wired": 6, "priority": "CRITICAL" },
+      { "category": "Machine Specifications", "files": 28, "wired": 5, "priority": "HIGH" },
+      { "category": "Tool Geometry & Coatings", "files": 41, "wired": 8, "priority": "HIGH" },
+      { "category": "Thread Data & Standards", "files": 22, "wired": 4, "priority": "HIGH" },
+      { "category": "Alarm Codes & Diagnostics", "files": 35, "wired": 7, "priority": "HIGH" },
+      { "category": "Algorithm Implementations", "files": 18, "wired": 3, "priority": "HIGH" },
+      { "category": "G-code Templates", "files": 15, "wired": 2, "priority": "MEDIUM" },
+      { "category": "Surface Finish Reference", "files": 12, "wired": 2, "priority": "MEDIUM" },
+      { "category": "Charts & Nomograms", "files": 25, "wired": 3, "priority": "MEDIUM" },
+      { "category": "Coolant & Lubrication", "files": 14, "wired": 2, "priority": "MEDIUM" },
+      { "category": "Fixture & Workholding", "files": 19, "wired": 3, "priority": "MEDIUM" },
+      { "category": "Quality & Inspection", "files": 16, "wired": 2, "priority": "MEDIUM" },
+      { "category": "Safety Data", "files": 11, "wired": 1, "priority": "MEDIUM" },
+      { "category": "Process Planning", "files": 20, "wired": 2, "priority": "MEDIUM" },
+      { "category": "Cost Estimation", "files": 8, "wired": 1, "priority": "MEDIUM" },
+      { "category": "UI Components", "files": 35, "wired": 0, "priority": "LOW" },
+      { "category": "CSS/Styling", "files": 22, "wired": 0, "priority": "LOW" },
+      { "category": "Framework Code", "files": 18, "wired": 0, "priority": "LOW" },
+      { "category": "Test Files", "files": 15, "wired": 1, "priority": "LOW" },
+      { "category": "Config/Build", "files": 17, "wired": 1, "priority": "LOW" }
+    ]
+  },
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

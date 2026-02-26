@@ -1,0 +1,160 @@
+{
+  "id": "CC-MS5",
+  "version": "3.1.0",
+  "title": "CAM Strategy Learning Engine (CAM -- LEARN)",
+  "brief": "strategy_aggregate.py, strategy_recommend.py, tool_select_kb.py; consensus parameter ranges validated against prism_calc.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CAM Strategy Learning Engine (CAM -- LEARN)",
+      "description": "Build CAM strategy database, multi-video consensus aggregator, strategy recommender, tool selection knowledge base, and operation sequencing learner. All parameters validated against prism_calc.",
+      "sessions": 2,
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "MCP 60% / CC 40%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "CAM Strategy Learning Engine (CAM -- LEARN)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Manufacturing Engineer",
+          "model": "opus-4.6",
+          "implementation_model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_toolpath", "actions": ["strategy_select", "params_calculate"] },
+            { "tool": "prism_calc", "purpose": "cross-check all extracted parameters against physics" },
+            { "tool": "prism_validate", "purpose": "safety validation of parameter ranges" },
+            { "tool": "prism_data", "purpose": "tool and material lookups from 1,944+ tool DB" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS2"],
+          "entry_conditions": [
+            "CC-MS2 complete (extraction engine produces CAM knowledge)",
+            "prism_calc operational",
+            "Tool DB loaded (1,944+ tools)",
+            "Material DB loaded"
+          ],
+          "exit_conditions": [
+            "Strategy DB populated with strategy-material-machine combinations and param ranges",
+            "Aggregator produces consensus parameter ranges (mean/min/max/stddev) from multi-video data",
+            "Recommender returns ranked strategies with validation scores for feature+material+machine queries",
+            "Tool selection KB captures learned rationale for tool choices per material/operation",
+            "Operation sequencing learner captures multi-op patterns with rationale",
+            "ALL stored parameters validated against prism_calc (Kienzle, Taylor, speed/feed)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/strategy_aggregate.py cad-engine/src/strategy_recommend.py cad-engine/src/tool_select_kb.py cad-engine/src/op_sequence.py cad-engine/data/cam_strategies/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build CAM strategy DB schema + storage: one record per strategy-material-machine combination with parameter ranges (speed, feed, DOC, WOC, stepover), confidence scores, source video provenance"
+            },
+            {
+              "number": 2,
+              "instruction": "Build strategy aggregator (strategy_aggregate.py): combine parameters from multiple videos for same strategy-material-machine combo, compute consensus ranges (mean/min/max/stddev), weight by source authority"
+            },
+            {
+              "number": 3,
+              "instruction": "Build strategy recommender (strategy_recommend.py): given features + material + machine -> query strategy DB -> rank by suitability -> validate each against prism_calc -> return ranked list with validation status"
+            },
+            {
+              "number": 4,
+              "instruction": "Build tool selection KB (tool_select_kb.py): capture learned rationale for tool choices per material/operation (e.g., why 3-flute for aluminum, why specific coating for hardened steel)"
+            },
+            {
+              "number": 5,
+              "instruction": "Build operation sequencing learner: extract multi-operation sequencing patterns with rationale (e.g., rough->semi-finish->finish, why certain order, when to change tools)"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/strategy_aggregate.py",
+            "cad-engine/src/strategy_recommend.py",
+            "cad-engine/src/tool_select_kb.py",
+            "cad-engine/src/op_sequence.py",
+            "cad-engine/data/cam_strategies/strategy_db.json",
+            "cad-engine/tests/test_cam_learning.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All stored parameters validated against prism_calc",
+          "Strategy recommender returns ranked results with validation",
+          "Tool KB captures rationale not just selection"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R3",
+      "name": "Manufacturing Engineer",
+      "model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_toolpath", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_data", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/strategy_aggregate.py",
+    "cad-engine/src/strategy_recommend.py",
+    "cad-engine/src/tool_select_kb.py"
+  ],
+  "existing_leverage": [
+    "prism_toolpath strategy_select (existing 50+ strategies)",
+    "prism_calc speed_feed (physics validation)",
+    "Tool DB (1,944+ tools)"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

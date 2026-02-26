@@ -1,0 +1,144 @@
+{
+  "id": "CC-MS4",
+  "version": "3.1.0",
+  "title": "Feature Primitive Library (CAD -- LEARN)",
+  "brief": "pattern_detect.py, primitive_gen.py; 20 foundational CAD primitives searchable by tag/param/process/tool.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Feature Primitive Library (CAD -- LEARN)",
+      "description": "Design primitive abstraction framework, build pattern detector and primitive generator, seed 20 foundational CadQuery primitives from recurring feature patterns across extracted feature trees.",
+      "sessions": 2,
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 50% / MCP 50%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Feature Primitive Library (CAD -- LEARN)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Architect",
+          "model": "opus-4.6",
+          "implementation_model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_knowledge", "action": "search", "purpose": "pattern search across extracted knowledge" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS2", "CC-MS3"],
+          "entry_conditions": [
+            "CC-MS2 complete (extraction engine operational)",
+            "CC-MS3 complete (code generator produces CadQuery)",
+            "10+ CAD videos ingested with feature trees extracted"
+          ],
+          "exit_conditions": [
+            "20 foundational primitives tested and functional as CadQuery functions",
+            "Pattern detector identifies recurring feature sub-sequences across 10+ videos",
+            "All primitives searchable by tag, parameter, manufacturing process, and tooling",
+            "Each primitive is parameterized with typed parameters, defaults, and valid ranges",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/pattern_detect.py cad-engine/src/primitive_gen.py cad-engine/primitives/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Design primitive abstraction framework (Opus): define what constitutes a 'primitive' -- recurring parameterized feature sub-sequences that appear across multiple parts/videos, with metadata schema for tags, parameters, manufacturing constraints"
+            },
+            {
+              "number": 2,
+              "instruction": "Build pattern detector (pattern_detect.py): analyze extracted feature trees, cluster similar feature sub-sequences using sequence alignment, report recurring patterns with frequency and variance"
+            },
+            {
+              "number": 3,
+              "instruction": "Build primitive generator (primitive_gen.py): take a cluster of similar feature sequences -> extract common parameters -> generate parameterized CadQuery function with docstring, parameter types/ranges/units, and provenance"
+            },
+            {
+              "number": 4,
+              "instruction": "Seed 20 foundational primitives: bolt_circle, o_ring_groove, keyway, counterbore, countersink, tapped_hole, shoulder, step, pocket, slot, boss, rib, gusset, fillet_break, chamfer_break, draft_wall, shell, thread_relief, undercut, dovetail -- each as a parameterized CadQuery function with tests"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/pattern_detect.py",
+            "cad-engine/src/primitive_gen.py",
+            "cad-engine/primitives/*.py (20 primitive modules)",
+            "cad-engine/primitives/index.json",
+            "cad-engine/tests/test_primitives.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All 20 primitives generate valid geometry",
+          "Pattern detector finds patterns from 10+ video feature trees",
+          "Primitives searchable by tag/param/process/tool"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R3",
+      "name": "Knowledge Architect",
+      "model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_knowledge", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/pattern_detect.py",
+    "cad-engine/src/primitive_gen.py",
+    "cad-engine/primitives/"
+  ],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

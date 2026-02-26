@@ -1,0 +1,164 @@
+{
+  "id": "CC-MS1",
+  "version": "3.1.0",
+  "title": "Video Ingestion Pipeline + Vision Analysis",
+  "brief": "video_ingest.py, frame_extract.py, ui_ocr.py, vision_analyze.py, domain_classify.py, platform_detect.py; 8 test videos processed end-to-end.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Video Ingestion Pipeline + Vision Analysis",
+      "description": "Build full video ingestion pipeline: transcript extraction, frame sampling, OCR, vision analysis via Opus API, domain classification, and platform detection. Test with 8 real YouTube tutorials.",
+      "sessions": 3,
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "execution_split": "CC 70% / MCP 30%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Video Ingestion Pipeline + Vision Analysis",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Data Engineer",
+          "model": "sonnet-4.6",
+          "effort": 240,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_manus", "action": "web_research", "purpose": "video metadata retrieval" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS0"],
+          "entry_conditions": [
+            "CC-MS0 complete",
+            "yt-dlp installed and functional",
+            "ffmpeg installed and on PATH",
+            "Tesseract OCR installed and on PATH",
+            "Anthropic API key configured"
+          ],
+          "exit_conditions": [
+            "Pipeline processes URL to transcript.json + frames + ocr + vision_analysis + domain + platform + metadata",
+            "8 real YouTube tutorials processed end-to-end",
+            "Vision analysis extracts information beyond transcript for at least 5/8 videos",
+            "Domain classifier correct for all 8 test videos",
+            "Platform detector identifies software + version from frames/transcript",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/video_ingest.py cad-engine/src/frame_extract.py cad-engine/src/ui_ocr.py cad-engine/src/vision_analyze.py cad-engine/src/domain_classify.py cad-engine/src/platform_detect.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build transcript extractor (video_ingest.py): URL -> yt-dlp download -> SRT/VTT subtitle extraction -> cleaned plaintext with timestamps"
+            },
+            {
+              "number": 2,
+              "instruction": "Build frame sampler (frame_extract.py): scene change detection via ffmpeg, minimum 2-second interval between frames, keyframe selection"
+            },
+            {
+              "number": 3,
+              "instruction": "Build OCR pipeline (ui_ocr.py): frame -> preprocess (contrast, threshold, denoise) -> Tesseract OCR -> structured text with bounding boxes"
+            },
+            {
+              "number": 4,
+              "instruction": "Build vision analysis pipeline (vision_analyze.py): send keyframes to Opus API with 3 analysis modes (CAD: UI elements/menus/feature trees, CAM: toolpaths/parameters/strategies, SHOP: setup/tools/fixtures)"
+            },
+            {
+              "number": 5,
+              "instruction": "Build domain classifier (domain_classify.py): combine title + transcript + frame analysis -> classify as CAD/CAM/SHOP/multi with confidence scores"
+            },
+            {
+              "number": 6,
+              "instruction": "Build platform detector (platform_detect.py): identify software name + version from UI frames and transcript mentions"
+            },
+            {
+              "number": 7,
+              "instruction": "Integration test: process 8 real YouTube tutorials end-to-end, verify all pipeline stages produce valid output, compare vision-only vs transcript-only extraction"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/video_ingest.py",
+            "cad-engine/src/frame_extract.py",
+            "cad-engine/src/ui_ocr.py",
+            "cad-engine/src/vision_analyze.py",
+            "cad-engine/src/domain_classify.py",
+            "cad-engine/src/platform_detect.py",
+            "cad-engine/tests/test_video_pipeline.py",
+            "cad-engine/test_data/video_results/*.json"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "8 videos processed end-to-end without errors",
+          "Vision adds value beyond transcript for 5/8 videos",
+          "Domain classifier 8/8 correct"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 3,
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Data Engineer",
+      "model": "sonnet-4.6",
+      "review_model": "opus-4.6",
+      "effort": 240
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_manus", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/video_ingest.py",
+    "cad-engine/src/frame_extract.py",
+    "cad-engine/src/ui_ocr.py",
+    "cad-engine/src/vision_analyze.py",
+    "cad-engine/src/domain_classify.py",
+    "cad-engine/src/platform_detect.py"
+  ],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

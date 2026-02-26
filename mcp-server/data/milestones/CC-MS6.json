@@ -1,0 +1,162 @@
+{
+  "id": "CC-MS6",
+  "version": "3.1.0",
+  "title": "Machining Practice Knowledge Base (SHOP -- LEARN)",
+  "brief": "practice_aggregate.py, trouble_tree.py; 6 practice categories, 5+ troubleshooting trees, weighted consensus, zero unsafe practices.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Machining Practice Knowledge Base (SHOP -- LEARN)",
+      "description": "Build practice KB for 6 categories, weighted consensus aggregator, troubleshooting decision tree generator, material tips consolidator. Safety review ensures no practice contradicts physics or creates unsafe conditions.",
+      "sessions": 2,
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "MCP 60% / CC 40%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Machining Practice Knowledge Base (SHOP -- LEARN)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Master Machinist",
+          "model": "opus-4.6",
+          "implementation_model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_intelligence", "actions": ["apprentice_*", "shop_*"] },
+            { "tool": "prism_safety", "purpose": "validate all practices against safety constraints" },
+            { "tool": "prism_calc", "purpose": "physics cross-check of cutting practices" },
+            { "tool": "prism_data", "purpose": "machine lookups (824+) and alarm lookups (9,200+)" },
+            { "tool": "prism_knowledge", "purpose": "search existing knowledge base" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS2"],
+          "entry_conditions": [
+            "CC-MS2 complete (extraction engine produces SHOP knowledge)",
+            "Machine DB loaded (824+ machines)",
+            "Alarm DB loaded (9,200+ alarms)"
+          ],
+          "exit_conditions": [
+            "All 6 practice categories populated: Setup & Workholding, Cutting Practices, Tool Management, Troubleshooting, Material Tips, Machine Tips",
+            "Aggregator produces weighted consensus by channel authority/views/likes",
+            "5+ troubleshooting decision trees generated (symptom -> causes -> diagnostics -> solutions)",
+            "Material tips consolidated for P0 materials (aluminum, steel, stainless, titanium, cast iron)",
+            "Zero unsafe practices stored -- all records pass Opus SAFETY review",
+            "All records have provenance (source video, timestamp, confidence score)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/practice_aggregate.py cad-engine/src/trouble_tree.py cad-engine/src/material_tips.py cad-engine/data/shop_practices/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build practice KB schema + storage for 6 categories: Setup & Workholding (fixturing, clamping, alignment), Cutting Practices (speeds/feeds/DOC tips), Tool Management (selection/wear/replacement), Troubleshooting (chatter/finish/dimension issues), Material Tips (per-material best practices), Machine Tips (per-machine quirks/limits)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build practice aggregator (practice_aggregate.py): weighted consensus from multiple sources, weight by channel authority (subscriber count), video views, likes ratio, recency"
+            },
+            {
+              "number": 3,
+              "instruction": "Build troubleshooting decision tree generator (trouble_tree.py): extract symptom -> probable causes -> diagnostic steps -> solutions from troubleshooting videos, generate navigable tree structure"
+            },
+            {
+              "number": 4,
+              "instruction": "Build material tips consolidator: per-material ranked tip lists from all video sources, cross-referenced with prism_data material properties, conflict resolution for contradictory tips"
+            },
+            {
+              "number": 5,
+              "instruction": "Safety review (Opus SAFETY): audit every stored practice against physics (prism_calc), machine limits (prism_data), and safety constraints (prism_safety). Flag and remove any practice that contradicts physics or creates unsafe conditions"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/practice_aggregate.py",
+            "cad-engine/src/trouble_tree.py",
+            "cad-engine/src/material_tips.py",
+            "cad-engine/data/shop_practices/practice_db.json",
+            "cad-engine/data/shop_practices/trouble_trees/*.json",
+            "cad-engine/data/shop_practices/material_tips/*.json",
+            "cad-engine/tests/test_shop_practices.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All 6 practice categories populated",
+          "5+ troubleshooting trees generated",
+          "Zero unsafe practices (Opus SAFETY audit passed)",
+          "All records have provenance and confidence"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": ["safety_review"]
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R3",
+      "name": "Master Machinist",
+      "model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_safety", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_data", "phases": ["P0"] },
+    { "tool": "prism_knowledge", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/practice_aggregate.py",
+    "cad-engine/src/trouble_tree.py",
+    "cad-engine/src/material_tips.py"
+  ],
+  "existing_leverage": [
+    "Machine DB (824+ machines)",
+    "Alarm DB (9,200+ alarms)",
+    "prism_intelligence apprentice_* actions",
+    "prism_intelligence shop_* actions"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

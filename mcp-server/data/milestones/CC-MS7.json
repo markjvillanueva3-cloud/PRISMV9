@@ -1,0 +1,164 @@
+{
+  "id": "CC-MS7",
+  "version": "3.1.0",
+  "title": "Persistent Memory System + Boot Integration (RETAIN)",
+  "brief": "memory_index.py (SQLite FTS5), memory_write.py, memory_read.py, memory_boot.py; <100ms search, <2s boot, cross-session persistence.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Persistent Memory System + Boot Integration (RETAIN)",
+      "description": "Build SQLite FTS5 search index, atomic memory writer with dedup/versioning, NL memory reader, compaction engine, and boot integration. Memory persists across sessions and loads in <2 seconds.",
+      "sessions": 2,
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 60% / MCP 40%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Persistent Memory System + Boot Integration (RETAIN)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "implementation_model": "sonnet-4.6",
+          "effort": 160,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_session", "purpose": "state management integration" },
+            { "tool": "prism_memory", "purpose": "cross-session memory graph" },
+            { "tool": "prism_context", "actions": ["memory_externalize", "memory_restore"] }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-MS2", "CC-MS3", "CC-MS4", "CC-MS5", "CC-MS6"],
+          "entry_conditions": [
+            "CC-MS2 through CC-MS6 complete (all three domain knowledge bases populated)",
+            "Knowledge data available from CAD, CAM, and SHOP extraction pipelines"
+          ],
+          "exit_conditions": [
+            "FTS5 search returns results in <100ms across all domains",
+            "Dedup correctly consolidates near-duplicate entries",
+            "Boot loads memory in <2 seconds",
+            "Boot manifest fits within <2000 tokens",
+            "Memory persists across process restarts",
+            "session boot action registered in prism_cad boot sequence after state_load",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/memory_index.py cad-engine/src/memory_write.py cad-engine/src/memory_read.py cad-engine/src/memory_boot.py cad-engine/src/memory_compact.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build SQLite FTS5 search index (memory_index.py): index ALL knowledge from CAD/CAM/SHOP, support full-text search + tag filter + domain filter + material filter + machine filter + confidence threshold"
+            },
+            {
+              "number": 2,
+              "instruction": "Build memory writer (memory_write.py): atomic writes with provenance tracking, automatic dedup detection, versioning (keep history), confidence scoring, cross-domain linking"
+            },
+            {
+              "number": 3,
+              "instruction": "Build memory reader (memory_read.py): natural language search query -> FTS5 query -> ranked results with similarity scoring, support filter combinations, return with provenance"
+            },
+            {
+              "number": 4,
+              "instruction": "Build compaction/dedup engine (memory_compact.py): consolidate near-duplicate entries, merge consensus values, archive low-confidence records, maintain provenance chain"
+            },
+            {
+              "number": 5,
+              "instruction": "Build boot integration (memory_boot.py): generate boot_manifest.json on shutdown, load FTS index on startup, produce top-50-per-domain summary, include recent learning and active project context"
+            },
+            {
+              "number": 6,
+              "instruction": "Register session boot action (prism_cad -> memory_boot): add to boot sequence after state_load, verify loads correctly on fresh session start"
+            }
+          ],
+          "deliverables": [
+            "cad-engine/src/memory_index.py",
+            "cad-engine/src/memory_write.py",
+            "cad-engine/src/memory_read.py",
+            "cad-engine/src/memory_compact.py",
+            "cad-engine/src/memory_boot.py",
+            "cad-engine/data/memory/knowledge.db",
+            "cad-engine/data/memory/boot_manifest.json",
+            "cad-engine/tests/test_memory.py"
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "FTS5 search <100ms on full knowledge base",
+          "Boot completes in <2 seconds",
+          "Boot manifest <2000 tokens",
+          "Memory survives process restart"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": 2,
+  "role_matrix": [
+    {
+      "code": "R1",
+      "name": "Systems Architect",
+      "model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "effort": 160
+    }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_session", "phases": ["P0"] },
+    { "tool": "prism_memory", "phases": ["P0"] },
+    { "tool": "prism_context", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    "cad-engine/src/memory_index.py",
+    "cad-engine/src/memory_write.py",
+    "cad-engine/src/memory_read.py",
+    "cad-engine/src/memory_boot.py"
+  ],
+  "existing_leverage": [
+    "prism_session state_load (existing boot sequence)",
+    "prism_memory (existing cross-session graph)",
+    "prism_context memory_externalize/restore"
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

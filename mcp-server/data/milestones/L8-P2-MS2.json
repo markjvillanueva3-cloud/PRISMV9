@@ -1,0 +1,130 @@
+{
+  "id": "L8-P2-MS2",
+  "version": "3.1.0",
+  "title": "ERP/Business Web UI",
+  "brief": "ERP web interface: WorkOrderList, CostTracker, QualityDashboard, ToolInventory, ScheduleView, ReportBuilder.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ERP/Business Web UI",
+      "description": "ERP web interface: WorkOrderList, CostTracker, QualityDashboard, ToolInventory, ScheduleView, ReportBuilder.",
+      "sessions": "8-11",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Execute ERP/Business Web UI",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_intelligence"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "L8-P2-MS1 complete"
+          ],
+          "exit_conditions": [
+            "ERP/Business Web UI complete",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- [files modified by L8-P2-MS2]",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Execute ERP/Business Web UI per roadmap spec"
+            }
+          ],
+          "deliverables": [],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 15,
+  "total_sessions": "8-11",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_intelligence",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "Claude Preview",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "external"
+    }
+  ],
+  "deliverables_index": [],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  }
+}

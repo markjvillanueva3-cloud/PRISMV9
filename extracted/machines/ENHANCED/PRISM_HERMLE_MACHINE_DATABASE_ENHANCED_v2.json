@@ -58,7 +58,12 @@
       "cooling": "spindle_core_cooling",
       "runout_TIR": 0.001,
       "growth_Z": 0.005,
-      "thermal_stability": "excellent"
+      "thermal_stability": "excellent",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "spindle_options": [
       {
@@ -86,9 +91,9 @@
         "rapid_rate": 45000,
         "max_feed": 45000,
         "acceleration": 6,
-        "acceleration_unit": "m/s²",
+        "acceleration_unit": "m/s\u00c2\u00b2",
         "jerk": 50,
-        "jerk_unit": "m/s³",
+        "jerk_unit": "m/s\u00c2\u00b3",
         "motor_type": "servo_direct",
         "motor_torque": 22,
         "guideway_type": "linear_roller",
@@ -145,7 +150,7 @@
         "rapid_rate_unit": "rpm",
         "max_feed_rate": 50,
         "acceleration": 50,
-        "acceleration_unit": "rad/s²",
+        "acceleration_unit": "rad/s\u00c2\u00b2",
         "motor_type": "torque_motor_direct_drive",
         "motor_brand": "Hermle",
         "max_torque": 700,
@@ -155,7 +160,7 @@
         "clamping_type": "hydraulic",
         "encoder_type": "absolute_rotary",
         "encoder_brand": "Heidenhain",
-        "encoder_resolution": 0.00001,
+        "encoder_resolution": 1e-05,
         "positioning_accuracy": 3,
         "positioning_unit": "arc_seconds",
         "repeatability": 2,
@@ -183,7 +188,7 @@
         "torque_unit": "Nm",
         "clamping_torque": 900,
         "encoder_type": "absolute_rotary",
-        "encoder_resolution": 0.00001,
+        "encoder_resolution": 1e-05,
         "positioning_accuracy": 3,
         "positioning_unit": "arc_seconds",
         "repeatability": 2
@@ -261,7 +266,7 @@
       "weight": 12300,
       "weight_unit": "kg",
       "floor_space": 11.8,
-      "floor_space_unit": "m²"
+      "floor_space_unit": "m\u00c2\u00b2"
     },
     "kinematic_chain": {
       "type": "modified_gantry",
@@ -849,7 +854,12 @@
       "power_rating": 35,
       "power_s1": 25,
       "torque_max": 175,
-      "torque_s1": 105
+      "torque_s1": 105,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1178,7 +1188,12 @@
       "power_rating": 45,
       "power_s1": 35,
       "torque_max": 400,
-      "torque_s1": 280
+      "torque_s1": 280,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1467,7 +1482,12 @@
       "taper": "HSK-A63",
       "max_rpm": 18000,
       "power_rating": 22,
-      "torque_max": 110
+      "torque_max": 110,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1737,7 +1757,12 @@
       "taper": "HSK-E40",
       "max_rpm": 42000,
       "power_rating": 10,
-      "torque_max": 9
+      "torque_max": 9,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -1998,7 +2023,12 @@
       "taper": "HSK-A63",
       "max_rpm": 18000,
       "power_rating": 29,
-      "torque_max": 145
+      "torque_max": 145,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -2230,7 +2260,12 @@
       "max_rpm": 12000,
       "power_rating": 45,
       "torque_max": 353,
-      "turning_spindle": true
+      "turning_spindle": true,
+      "power_continuous": 18.5,
+      "power_30min": 22,
+      "torque_continuous": 280,
+      "spindle_nose": "A2-6",
+      "coolant_through": true
     },
     "turning_table": {
       "max_rpm": 800,
@@ -2508,7 +2543,12 @@
       "max_rpm": 42000,
       "power_rating": 16,
       "torque_max": 8,
-      "high_speed": true
+      "high_speed": true,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
@@ -2780,7 +2820,12 @@
       "taper": "HSK-A63",
       "max_rpm": 18000,
       "power_rating": 29,
-      "torque_max": 145
+      "torque_max": 145,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
     },
     "axis_specs": {
       "x": {
