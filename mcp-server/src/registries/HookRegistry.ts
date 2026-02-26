@@ -109,7 +109,7 @@ export class HookRegistry extends BaseRegistry<Hook> {
   private builtInHooks: Map<string, Hook> = new Map();
 
   constructor() {
-    super("hooks");
+    super("hooks", path.join(PATHS.STATE_DIR, "hook-registry.json"), "1.0.0");
     this.initializeBuiltInHooks();
   }
 

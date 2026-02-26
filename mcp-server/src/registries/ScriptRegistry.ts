@@ -822,7 +822,7 @@ export class ScriptRegistry extends BaseRegistry<Script> {
   private builtInScripts: Map<string, Partial<Script>> = new Map();
 
   constructor() {
-    super("scripts");
+    super("scripts", path.join(PATHS.STATE_DIR, "script-registry.json"), "1.0.0");
     this.initializeBuiltInScripts();
   }
 

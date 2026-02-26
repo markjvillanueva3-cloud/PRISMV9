@@ -155,7 +155,7 @@ export function transitionState(
 ): ConversationContext {
   const ctx = getSession(sessionId);
   const valid = VALID_TRANSITIONS[ctx.current_state];
-  if (!valid.includes(newState) && newState !== "idle") {
+  if (!valid.includes(newState) && (newState as string) !== "idle") {
     // Allow force-reset to idle from any state
     if (newState !== "idle") {
       throw new Error(

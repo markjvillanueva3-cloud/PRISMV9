@@ -858,11 +858,4 @@ export class SkillExecutor {
 
 export const skillExecutor = new SkillExecutor();
 
-// Export types for MCP tools
-export type {
-  SkillLoadResult,
-  SkillRecommendation,
-  SkillChain,
-  SkillUsageRecord,
-  TaskAnalysis
-};
+// Types are already exported at their declarations above

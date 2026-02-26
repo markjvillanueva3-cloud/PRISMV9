@@ -85,7 +85,7 @@ export function registerRalphDispatcher(server: any): void {
             const phases: any[] = [];
 
             // Phase 1: SCRUTINIZE
-            const scrutinyResults = [];
+            const scrutinyResults: any[] = [];
             for (const v of validators) {
               const r = await executeValidator(target, v);
               scrutinyResults.push(r);

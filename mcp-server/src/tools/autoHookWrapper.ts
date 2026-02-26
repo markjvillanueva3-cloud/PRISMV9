@@ -21,15 +21,16 @@ import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
 import {
-  HookResult, ToolCallContext, ProofValidation, FactVerify,
+  HookResult, ToolCallContext,
   HookExecution, RecordedAction, CompactionSurvivalData
 } from "../types/prism-schema.js";
+// ProofValidation and FactVerify do not exist as exports — functionality is inline
 import { hookExecutor } from "../engines/HookExecutor.js";
 import { hookEngine } from "../orchestration/HookEngine.js";
 import {
   autoTodoRefresh, autoCheckpoint, autoContextPressure,
   autoContextCompress, autoCompactionDetect, autoCompactionSurvival,
-  rehydrateFromSurvival, autoAttentionScore, autoContextPullBack,
+  autoAttentionScore, autoContextPullBack,
   autoRecoveryManifest, autoHandoffPackage, markHandoffResumed,
   autoPreCompactionDump,
   autoPreTaskRecon, autoWarmStartData, autoContextRehydrate,
@@ -166,9 +167,9 @@ export var AUTO_HOOK_CONFIG = {
     safety_min: 0.7
   }
 };
-var hookHistory = [];
+var hookHistory: any[] = [];
 var MAX_HISTORY = 1000;
-function logHookExecution(execution) {
+function logHookExecution(execution: any) {
   hookHistory.unshift(execution);
   if (hookHistory.length > MAX_HISTORY) {
     hookHistory.pop();
@@ -190,9 +191,9 @@ function logHookExecution(execution) {
 export function getHookHistory(limit = 50) {
   return hookHistory.slice(0, limit);
 }
-function validateSafetyProof(context) {
+function validateSafetyProof(context: any) {
   const { tool_name, inputs, result } = context;
-  const issues = [];
+  const issues: string[] = [];
   let validityScore = 1;
   if (inputs) {
     if (inputs.cutting_speed !== undefined) {
@@ -247,8 +248,8 @@ function validateSafetyProof(context) {
     issues
   };
 }
-function verifyFactualClaims(content) {
-  const detectedClaims = [];
+function verifyFactualClaims(content: any) {
+  const detectedClaims: string[] = [];
   const lowerContent = content.toLowerCase();
   for (const indicator of AUTO_HOOK_CONFIG.claimIndicators) {
     if (lowerContent.includes(indicator)) {
@@ -261,7 +262,7 @@ function verifyFactualClaims(content) {
   if (detectedClaims.length === 0) {
     return { verdict: "VERIFIED", confidence: 1, phi_score: 1, caveats: [] };
   }
-  const caveats = [];
+  const caveats: string[] = [];
   let confidence = 0.7;
   if (detectedClaims.length > 3) {
     confidence -= 0.1;
@@ -293,10 +294,10 @@ function verifyFactualClaims(content) {
     caveats
   };
 }
-async function fireHook(hookId, data) {
+async function fireHook(hookId: string, data: any) {
   const startTime = Date.now();
   try {
-    const hookContext = {
+    const hookContext: any = {
       operation: data.tool_name || "unknown",
       phase: "before",
       timestamp: /* @__PURE__ */ new Date(),
@@ -306,7 +307,7 @@ async function fireHook(hookId, data) {
       },
       metadata: { hookId, ...data }
     };
-    const executorResult = await hookExecutor.execute("before", hookContext).catch(() => null);
+    const executorResult = await hookExecutor.execute("before" as any, hookContext).catch(() => null);
     const result = {
       hook_id: hookId,
       success: true,
@@ -342,12 +343,12 @@ async function fireHook(hookId, data) {
     return result;
   }
 }
-export function wrapToolWithAutoHooks(toolName, handler) {
+export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) => any) {
   if (!AUTO_HOOK_CONFIG.enabled) {
     return handler;
   }
-  const wrappedHandler = async (...args) => {
-    const context = {
+  const wrappedHandler = async (...args: any[]) => {
+    const context: any = {
       tool_name: toolName,
       inputs: args[0] || {},
       start_time: Date.now()
@@ -467,7 +468,6 @@ var lastPressureCheck = 0;
 var lastCompactionCheck = 0;
 var lastAttentionCheck = 0;
 var handoffFired = false;
-var handoffFired = false;
 var accumulatedResultBytes = 0;
 var largestResultBytes = 0;
 var totalResultCount = 0;
@@ -477,10 +477,10 @@ var lastVariationCheck = 0;
 var lastCallTimestamp = 0;
 var compactionRecoveryCallsRemaining = 0;
 var compactionRecoverySurvival = null;
-var recentToolCalls = [];
+var recentToolCalls: string[] = [];
 var RECENT_ACTIONS_FILE = path.join(PATHS.STATE_DIR, "RECENT_ACTIONS.json");
 var STATE_DIR12 = PATHS.STATE_DIR;
-function buildCurrentTaskDescription(cadence, toolName, action2) {
+function buildCurrentTaskDescription(cadence: any, toolName: string, action2: string) {
   const todoFocus = cadence.todo?.currentFocus || cadence.todo?.taskName;
   if (todoFocus && todoFocus !== "Initialization" && todoFocus !== "Session startup") {
     return `${todoFocus} (last: ${toolName}:${action2})`;
@@ -492,9 +492,9 @@ function buildCurrentTaskDescription(cadence, toolName, action2) {
   return `${toolName}:${action2} (call #${cadence.call_number})`;
 }
 var MAX_RECORDED_ACTIONS = 12;
-function recordFlightAction(callNum, toolName, action2, params2, success, durationMs, result, errorMsg) {
+function recordFlightAction(callNum: number, toolName: string, action2: string, params2: any, success: boolean, durationMs: number, result: any, errorMsg?: string) {
   try {
-    let actions = [];
+    let actions: any[] = [];
     if (fs.existsSync(RECENT_ACTIONS_FILE)) {
       try {
         actions = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
@@ -523,7 +523,7 @@ function recordFlightAction(callNum, toolName, action2, params2, success, durati
     } catch {
       resultPreview = (result?.content?.[0]?.text || "").slice(0, 150);
     }
-    const entry = {
+    const entry: any = {
       seq: callNum,
       ts: (/* @__PURE__ */ new Date()).toISOString(),
       tool: toolName,
@@ -556,8 +556,8 @@ export function resetReconFlag() {
   compactionRecoverySurvival = null;
   lastCallTimestamp = 0;
 }
-export function wrapWithUniversalHooks(toolName, handler) {
-  const wrapped = async function(...args) {
+export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) => any) {
+  const wrapped = async function(this: any, ...args: any[]) {
     if (!AUTO_HOOK_CONFIG.enabled) {
       return handler.apply(this, args);
     }
@@ -565,7 +565,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     const action2 = args[0]?.action || "unknown";
     globalDispatchCount++;
     const callNum = globalDispatchCount;
-    const cadence = { call_number: callNum, actions: [] };
+    const cadence: any = { call_number: callNum, actions: [] as string[] };
     let compactionDetectedThisCall = false;
     const journalPath = path.join(STATE_DIR12, "SESSION_JOURNAL.jsonl");
     const userNotes = args[0]?.params?._notes;
@@ -604,7 +604,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       if (gapSeconds > 120 && firstCallReconDone && callNum > 3) {
         compactionDetectedThisCall = true;
         try {
-          const rehydrateResult = autoContextRehydrate(callNum);
+          const rehydrateResult: any = autoContextRehydrate(callNum);
           if (rehydrateResult.rehydrated && rehydrateResult.survival_data) {
             const survival = rehydrateResult.survival_data;
             cadence.actions.push(`\u26A0\uFE0F COMPACTION_DETECTED: ${Math.round(gapSeconds)}s gap between calls, rehydrating from survival data`);
@@ -639,7 +639,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
           recurring_patterns: recon.recurring_patterns.length,
           registry_status: warmStart.registry_status
         });
-        let knowledgeHints = null;
+        let knowledgeHints: any = null;
         try {
           knowledgeHints = autoKnowledgeCrossQuery(callNum, toolName, action2, args[0]?.params || {});
           if (knowledgeHints.total_enrichments > 0) {
@@ -648,10 +648,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
           }
         } catch {
         }
-        let scriptRecs = null;
+        let scriptRecs: any = null;
         try {
           scriptRecs = autoScriptRecommend(callNum, toolName, action2);
-          if (scriptRecs.recommendations.length > 0) {
+          if (scriptRecs.recommendations?.length > 0) {
             cadence.actions.push(`\u{1F4DC} SCRIPTS_AVAILABLE: ${scriptRecs.recommendations.length} relevant scripts`);
             cadence.script_recommendations = scriptRecs;
           }
@@ -665,9 +665,9 @@ export function wrapWithUniversalHooks(toolName, handler) {
           }
         } catch {
         }
-        let rehydrated = null;
+        let rehydrated: any = null;
         try {
-          const rehydrateResult = autoContextRehydrate(callNum);
+          const rehydrateResult: any = autoContextRehydrate(callNum);
           if (rehydrateResult.rehydrated && rehydrateResult.survival_data) {
             rehydrated = rehydrateResult.survival_data;
             cadence.actions.push(`\u{1F504} CONTEXT_REHYDRATED: from ${rehydrated.session_id} (${rehydrateResult.age_minutes}min ago, was at ${rehydrated.pressure_pct}% pressure)`);
@@ -722,9 +722,9 @@ export function wrapWithUniversalHooks(toolName, handler) {
     if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
       try {
         const domainPhase = mapping.category === "ORCH" ? "pre-swarm-execute" : "pre-agent-execute";
-        await hookExecutor.execute(domainPhase, {
+        await hookExecutor.execute(domainPhase as any, {
           operation: action2,
-          target: { type: "dispatcher", id: `${toolName}:${action2}` },
+          target: { type: "dispatcher" as any, id: `${toolName}:${action2}` },
           metadata: {
             dispatcher: toolName,
             action: action2,
@@ -737,10 +737,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
     }
     let inputBlocked = false;
     try {
-      const inputVal = autoInputValidation(callNum, toolName, action2, args[0]?.params || {});
+      const inputVal: any = autoInputValidation(callNum, toolName, action2, args[0]?.params || {});
       if (inputVal.warnings.length > 0) {
         cadence.input_validation = inputVal;
-        const criticalCount = inputVal.warnings.filter((w) => w.severity === "critical").length;
+        const criticalCount = inputVal.warnings.filter((w: any) => w.severity === "critical").length;
         if (criticalCount > 0) {
           cadence.actions.push(`\u26A0\uFE0F INPUT_WARNINGS: ${criticalCount} critical, ${inputVal.warnings.length} total`);
         } else {
@@ -819,7 +819,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
             } catch {
             }
           }
-        } catch (err3) {
+        } catch (err3: any) {
           error = err3;
           await fireHook("REFL-002", {
             tool_name: toolName,
@@ -842,7 +842,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
           } catch {
           }
           try {
-            const d3Result = autoD3ErrorChain(callNum, toolName, action2, err3.message);
+            const d3Result: any = autoD3ErrorChain(callNum, toolName, action2, err3.message);
             if (d3Result.success && d3Result.pattern) {
               cadence.actions.push(`\u{1F9E0} D3_ERROR_LEARNED: ${JSON.stringify(d3Result.pattern).slice(0, 60)}`);
             }
@@ -851,7 +851,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
           try {
             await hookExecutor.execute("on-error", {
               operation: action2,
-              target: { type: "tool", id: `${toolName}:${action2}` },
+              target: { type: "tool" as any, id: `${toolName}:${action2}` },
               metadata: { dispatcher: toolName, action: action2, call_number: callNum, error_message: err3.message, duration_ms: Date.now() - startTime }
             });
           } catch {
@@ -864,7 +864,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     // === PFP OUTCOME RECORDING (B1) ===
     try {
       const pfpOutcome = error ? 'failure' : 'success';
-      pfpEngine.recordAction(toolName, action2, pfpOutcome as any, durationMs, error?.constructor?.name, args[0]?.params || {});
+      pfpEngine.recordAction(toolName, action2, pfpOutcome as any, durationMs, (error as any)?.constructor?.name, args[0]?.params || {});
     } catch { /* PFP recording failure is non-fatal */ }
     await fireHook("DISPATCH-PERF-TRACK-001", {
       tool_name: toolName,
@@ -878,10 +878,10 @@ export function wrapWithUniversalHooks(toolName, handler) {
       const telemetryStartMs = startTime;
       const telemetryEndMs = startTime + durationMs;
       const outcome = error ? "failure" : result?.content?.[0]?.text?.includes('"blocked":true') ? "blocked" : "success";
-      const errorClass = error ? error.constructor?.name || "UnknownError" : undefined;
+      const errorClass = error ? (error as any)?.constructor?.name || "UnknownError" : undefined;
       const payloadSize = result?.content?.[0]?.text?.length || 0;
       const pressurePct = cadence.pressure?.pressure_pct ?? 0;
-      telemetryEngine2.record(
+      (telemetryEngine as any)?.record(
         toolName,
         action2,
         telemetryStartMs,
@@ -891,14 +891,14 @@ export function wrapWithUniversalHooks(toolName, handler) {
         payloadSize,
         pressurePct
       );
-      telemetryEngine2.recordWrapperOverhead(durationMs < 1 ? 0 : 0.1);
+      (telemetryEngine as any)?.recordWrapperOverhead(durationMs < 1 ? 0 : 0.1);
     } catch {
     }
     try {
       const { memoryGraphEngine: memoryGraphEngine2 } = await import("../engines/MemoryGraphEngine.js");
-      const paramsSummary = typeof args.params === "object" ? JSON.stringify(args.params).slice(0, 200) : String(args.params || "").slice(0, 200);
+      const paramsSummary = typeof (args as any).params === "object" ? JSON.stringify((args as any).params).slice(0, 200) : String((args as any).params || "").slice(0, 200);
       const resultSummary = result?.content?.[0]?.text?.slice(0, 200) || "";
-      const errorClass = error ? error.constructor?.name || "UnknownError" : undefined;
+      const errorClass = error ? (error as any)?.constructor?.name || "UnknownError" : undefined;
       memoryGraphEngine2.captureDispatch(
         process.env.SESSION_ID || "unknown",
         toolName,
@@ -915,7 +915,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     logDecisionIfApplicable(toolName, action2, args, result, error, durationMs);
     try {
       const { certificateEngine: certificateEngine2 } = await import("../engines/CertificateEngine.js");
-      const validationSteps = [];
+      const validationSteps: any[] = [];
       if (mapping) {
         validationSteps.push({
           hookId: `${mapping.category}-BEFORE-EXEC-001`,
@@ -935,7 +935,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         safetyScore,
         undefined,
         // omegaScore computed separately
-        { params_summary: (typeof args.params === "object" ? JSON.stringify(args.params) : "").slice(0, 100) }
+        { params_summary: (typeof (args as any).params === "object" ? JSON.stringify((args as any).params) : "").slice(0, 100) }
       );
     } catch {
     }
@@ -1005,8 +1005,8 @@ export function wrapWithUniversalHooks(toolName, handler) {
         const txt = result.content[0].text;
         const parsed = typeof txt === "string" ? JSON.parse(txt) : null;
         if (parsed) {
-          let scoreField = null;
-          let scoreValue = null;
+          let scoreField: string | null = null;
+          let scoreValue: any = null;
           if (toolName === "prism_omega" && action2 === "compute" && parsed.omega !== undefined) {
             scoreField = "omega_score";
             scoreValue = parsed.omega;
@@ -1039,7 +1039,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       try {
         await hookExecutor.execute("on-outcome", {
           operation: action2,
-          target: { type: "tool", id: `${toolName}:${action2}` },
+          target: { type: "tool" as any, id: `${toolName}:${action2}` },
           metadata: { dispatcher: toolName, action: action2, call_number: callNum, duration_ms: durationMs, success: true }
         });
       } catch {
@@ -1047,9 +1047,9 @@ export function wrapWithUniversalHooks(toolName, handler) {
       if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
         try {
           const domainPhase = mapping.category === "ORCH" ? "post-swarm-complete" : "post-agent-execute";
-          await hookExecutor.execute(domainPhase, {
+          await hookExecutor.execute(domainPhase as any, {
             operation: action2,
-            target: { type: "dispatcher", id: `${toolName}:${action2}` },
+            target: { type: "dispatcher" as any, id: `${toolName}:${action2}` },
             metadata: {
               dispatcher: toolName,
               action: action2,
@@ -1157,8 +1157,8 @@ export function wrapWithUniversalHooks(toolName, handler) {
     if (!error && ["prism_calc", "prism_data", "prism_safety", "prism_thread", "prism_toolpath"].includes(toolName)) {
       try {
         const pressurePct = getCurrentPressurePct();
-        const resultStr = typeof rawResult === "string" ? rawResult : JSON.stringify(rawResult);
-        const templateMatch = autoResponseTemplate(toolName, action2, resultStr, pressurePct);
+        const resultStr = typeof result === "string" ? result : JSON.stringify(result);
+        const templateMatch: any = autoResponseTemplate(toolName, action2, resultStr, pressurePct);
         if (templateMatch) {
           cadence.actions.push(`\u{1F4CB} TEMPLATE: ${templateMatch.template_id} (${templateMatch.size_level})`);
           cadence.response_template = templateMatch;
@@ -1550,10 +1550,11 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } catch {
       }
       try {
+        // @ts-ignore — synergyIntegration may not exist yet
         const { synergyCrossEngineHealth: synergyCrossEngineHealth2 } = await import("../engines/synergyIntegration.js");
         const health = synergyCrossEngineHealth2();
         if (!health.all_healthy) {
-          const degraded = Object.entries(health.engines).filter(([, v]) => v.status !== "healthy").map(([k]) => k);
+          const degraded = Object.entries(health.engines).filter(([, v]: [string, any]) => v.status !== "healthy").map(([k]: [string, any]) => k);
           cadence.actions.push(`\u26A0\uFE0F ENGINE_HEALTH: ${degraded.join(", ")} degraded`);
         }
       } catch {
@@ -1574,6 +1575,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     }
     if (callNum > 0 && callNum % 25 === 0) {
       try {
+        // @ts-ignore — synergyIntegration may not exist yet
         const { synergyComplianceAudit: synergyComplianceAudit2 } = await import("../engines/synergyIntegration.js");
         const auditResult = synergyComplianceAudit2(callNum);
         if (auditResult.ran) {
@@ -1593,7 +1595,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       }
     }
     try {
-      const ctxMatch = autoSkillContextMatch(callNum, toolName, action, params);
+      const ctxMatch = autoSkillContextMatch(callNum, toolName, action2, args[0]?.params || {});
       if (ctxMatch.success && ctxMatch.total_matched > 0) {
         cadence.actions.push(`\u{1F3AF} SKILL_MATCH: ${ctxMatch.total_matched} skills matched for ${ctxMatch.context_key}`);
         cadence.skill_context_matches = ctxMatch;
@@ -1636,7 +1638,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
     if (callNum >= 41) {
       cadence.actions.push("\u26AB ADVISORY: 41+ calls \u2014 consider checkpoint if pressure is rising");
       try {
-        const autoSaveState = {};
+        const autoSaveState: any = {};
         const stateFile = path.join(PATHS.STATE_DIR, "CURRENT_STATE.json");
         if (fs.existsSync(stateFile)) {
           try {
@@ -1721,7 +1723,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         parsed._cadence = slimCadence(fullCadence, pressurePct);
         try {
           const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
-          let fires = {};
+          let fires: any = {};
           if (fs.existsSync(cadenceFiresPath)) {
             try {
               fires = JSON.parse(fs.readFileSync(cadenceFiresPath, "utf-8"));
@@ -1830,13 +1832,11 @@ export function wrapWithUniversalHooks(toolName, handler) {
     }
     if (!error && result?.content?.[0]?.text) {
       try {
-        const preOutputResult = await hookExecutor.execute("pre-output", {
+        const preOutputResult: any = await hookExecutor.execute("pre-output", {
           operation: action2,
-          target: { type: "output", id: `${toolName}:${action2}` },
-          content: { text: result.content[0].text.slice(0, 2e3) },
-          // Cap context sent to hooks
-          metadata: { dispatcher: toolName, action: action2, call_number: callNum }
-        });
+          target: { type: "output" as any, id: `${toolName}:${action2}` },
+          metadata: { dispatcher: toolName, action: action2, call_number: callNum, content_preview: result.content[0].text.slice(0, 2e3) }
+        } as any);
         if (preOutputResult.blocked) {
           result = {
             content: [{
@@ -1853,7 +1853,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
       } catch {
       }
     }
-    recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, error?.message);
+    recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, (error as any)?.message);
     // CRITICAL: Write survival data on EVERY call so compaction recovery always has current state
     try {
       const survivalData = {
@@ -1867,7 +1867,7 @@ export function wrapWithUniversalHooks(toolName, handler) {
         todo_snapshot: cadence.todo?.raw?.slice?.(0, 500) || "",
         quick_resume: `Phase: ${cadence.todo?.taskName || "unknown"}, Call: ${callNum}, Last: ${toolName}:${action2}`,
         next_action: cadence.todo?.nextStep || null,
-        error_summary: error ? error.message?.slice(0, 200) : null,
+        error_summary: error ? (error as any).message?.slice(0, 200) : null,
       };
       fs.writeFileSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
       // HOT_RESUME: lean, recent calls only

@@ -527,7 +527,7 @@ export class EventBus {
       results = results.filter(e => e.event.type === options.type);
     }
     if (options.since) {
-      results = results.filter(e => e.event.timestamp >= options.since);
+      results = results.filter(e => e.event.timestamp >= options.since!);
     }
 
     if (options.limit) {
@@ -552,10 +552,10 @@ export class EventBus {
     let events = this.history.map(h => h.event);
 
     if (options.since) {
-      events = events.filter(e => e.timestamp >= options.since);
+      events = events.filter(e => e.timestamp >= options.since!);
     }
     if (options.until) {
-      events = events.filter(e => e.timestamp <= options.until);
+      events = events.filter(e => e.timestamp <= options.until!);
     }
     if (options.category) {
       events = events.filter(e => e.category === options.category);

@@ -1,0 +1,980 @@
+{
+  "scan_date": "2026-02-23",
+  "task": "MS1-T3: Deduplicate 87 AI/ML extracted JS files",
+  "total_files": 87,
+  "files_in_ai_ml": 74,
+  "files_in_ai_complete": 13,
+  "unique_modules": 33,
+  "duplicates": 41,
+  "stubs_or_config_only": 7,
+  "multi_module_bundles": 6,
+  "hypothesis_validated": true,
+  "hypothesis_note": "Hypothesis was ~30 unique, ~57 duplicates. Actual: 33 unique functional groups, 41 duplicates/subsets, 7 stubs/config-only, 6 files are multi-module concatenations containing embedded copies of other standalone files.",
+
+  "critical_finding": {
+    "description": "6 files are mega-bundles containing multiple concatenated modules. PRISM_REGULARIZATION_ENGINE.js (12613 lines) contains 31 separate modules. PRISM_DECISION_TREE_ENGINE.js (3172 lines) contains 7 modules. PRISM_AIRCUT_ELIMINATION_ENGINE.js (5228 lines) contains 5 modules. PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js (5389 lines) contains 10 modules. PRISM_AI_100_PHYSICS_GENERATOR.js (3676 lines) contains 9 modules. PRISM_PHASE3_ADVANCED_RL.js (838 lines) contains 2 modules. Many of these embedded modules also exist as standalone files, creating extensive duplication.",
+    "mega_bundles": [
+      {
+        "file": "PRISM_REGULARIZATION_ENGINE.js",
+        "lines": 12613,
+        "embedded_modules": 31,
+        "embedded_list": [
+          "PRISM_REGULARIZATION_ENGINE", "PRISM_CLUSTERING_ENGINE", "PRISM_DIMENSIONALITY_ENGINE",
+          "PRISM_MODEL_COMPRESSION_ENGINE", "PRISM_XAI_ENGINE", "PRISM_LOSS_FUNCTIONS_ENGINE",
+          "PRISM_EVOLUTIONARY_ENHANCED_ENGINE", "PRISM_LEARNING_RATE_SCHEDULER_ENGINE",
+          "PRISM_ENSEMBLE_ENGINE", "PRISM_SEARCH_ENHANCED_ENGINE", "PRISM_CSP_ENHANCED_ENGINE",
+          "PRISM_MOTION_PLANNING_ENHANCED_ENGINE", "PRISM_MANUFACTURING_SEARCH_ENGINE",
+          "PRISM_PROBABILISTIC_REASONING_ENGINE", "PRISM_JOB_SHOP_SCHEDULING_ENGINE",
+          "PRISM_GRAPH_ALGORITHMS_ENGINE", "PRISM_DECISION_TREE_ENGINE", "PRISM_RAPID_PATH_OPTIMIZER",
+          "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER", "PRISM_TRUST_REGION_OPTIMIZER",
+          "PRISM_CONSTRAINED_OPTIMIZER", "PRISM_SQP_INTERIOR_POINT_ENGINE",
+          "PRISM_COMBINATORIAL_OPTIMIZER", "PRISM_ADVANCED_METAHEURISTICS",
+          "PRISM_MULTI_OBJECTIVE_ENGINE", "PRISM_MOEAD_ENGINE", "PRISM_ADVANCED_KINEMATICS_ENGINE",
+          "PRISM_RIGID_BODY_DYNAMICS_ENGINE", "PRISM_VIBRATION_ANALYSIS_ENGINE",
+          "PRISM_CHATTER_PREDICTION_ENGINE", "PRISM_CUTTING_MECHANICS_ENGINE"
+        ]
+      },
+      {
+        "file": "PRISM_DECISION_TREE_ENGINE.js",
+        "lines": 3172,
+        "embedded_modules": 7,
+        "embedded_list": [
+          "PRISM_DECISION_TREE_ENGINE", "PRISM_RAPID_PATH_OPTIMIZER",
+          "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER", "PRISM_TRUST_REGION_OPTIMIZER",
+          "PRISM_CONSTRAINED_OPTIMIZER", "PRISM_SQP_INTERIOR_POINT_ENGINE",
+          "PRISM_COMBINATORIAL_OPTIMIZER"
+        ]
+      },
+      {
+        "file": "PRISM_AIRCUT_ELIMINATION_ENGINE.js",
+        "lines": 5228,
+        "embedded_modules": 5,
+        "embedded_list": [
+          "PRISM_AIRCUT_ELIMINATION_ENGINE", "PRISM_INNOVATION_REGISTRY",
+          "PRISM_STRUCTURE_CHANGELOG", "PRISM_LAYER2_VERIFICATION", "PRISM_BVH_ENGINE"
+        ]
+      },
+      {
+        "file": "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js",
+        "lines": 5389,
+        "embedded_modules": 10,
+        "embedded_list": [
+          "PRISM_UNIFIED_CAD_LEARNING_SYSTEM", "PRISM_CAD_UPLOAD_UI",
+          "PRISM_EXAMPLE_PARTS_INTEGRATION", "PRISM_MACHINE_3D_MODELS",
+          "PRISM_MACHINE_3D_LEARNING_ENGINE", "PRISM_LEARNED_KINEMATICS_BRIDGE",
+          "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE", "PRISM_CONTACT_CONSTRAINT_ENGINE",
+          "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE", "PRISM_SIMULATION_INTEGRATION_BRIDGE"
+        ]
+      },
+      {
+        "file": "PRISM_AI_100_PHYSICS_GENERATOR.js",
+        "lines": 3676,
+        "embedded_modules": 9,
+        "embedded_list": [
+          "PRISM_AI_100_PHYSICS_GENERATOR", "PRISM_AI_100_CROSSDOMAIN_GENERATOR",
+          "PRISM_AI_100_INTEGRATION", "PRISM_AI_100_TESTS",
+          "PRISM_LEAN_SIX_SIGMA_KAIZEN", "PRISM_RL_ENHANCED",
+          "PRISM_NN_ENHANCED", "PRISM_CLUSTERING_ENHANCED", "PRISM_SIGNAL_ENHANCED"
+        ]
+      },
+      {
+        "file": "PRISM_PHASE3_ADVANCED_RL.js",
+        "lines": 838,
+        "embedded_modules": 2,
+        "embedded_list": [
+          "PRISM_PHASE3_ADVANCED_RL", "PRISM_PHASE3_ADVANCED_SIGNAL"
+        ]
+      }
+    ]
+  },
+
+  "groups": [
+    {
+      "id": 1,
+      "name": "Neural Network Core",
+      "canonical": "PRISM_ML.js",
+      "canonical_path": "ai_ml/PRISM_ML.js",
+      "canonical_lines": 948,
+      "duplicates": [
+        {"file": "PRISM_NEURAL_NETWORK.js", "lines": 106, "reason": "Subset - basic Sequential model, already included in PRISM_ML.js neuralNetwork section"},
+        {"file": "PRISM_NEURAL_ENGINE_ENHANCED.js", "lines": 331, "reason": "Enhanced activations + layer creation, overlaps with PRISM_ML.js and PRISM_DL.js activations"},
+        {"file": "PRISM_DL.js", "lines": 600, "reason": "Deep learning layer implementations (dense, LSTM, GRU, conv1d, pooling) - parallel impl to PRISM_ML.js"},
+        {"file": "PRISM_ACTIVATIONS_ENGINE.js", "lines": 163, "reason": "Standalone activations - subset of what PRISM_ML.js and PRISM_DL.js already provide"}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Core neural network framework: Sequential model, layer creation (dense, conv, RNN), activation functions, forward/backward pass. PRISM_ML.js is the most comprehensive single-module version with NN + Q-learning + utils."
+    },
+    {
+      "id": 2,
+      "name": "Deep Learning (Phase-versioned)",
+      "canonical": "PRISM_PHASE3_DEEP_LEARNING.js",
+      "canonical_path": "ai_ml/PRISM_PHASE3_DEEP_LEARNING.js",
+      "canonical_lines": 659,
+      "duplicates": [
+        {"file": "PRISM_PHASE6_DEEPLEARNING.js", "lines": 315, "reason": "Phase 6 version with tensor ops + architecture - different structure but overlapping scope (conv2D, pooling, dropout, batch norm)"},
+        {"file": "PRISM_DEEP_LEARNING.js", "lines": 19, "reason": "STUB - failed extraction, contains only a note that the object does not exist"}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Conv2D, pooling, batch norm, dropout, ResNet blocks, skip connections. Phase3 has 25 algorithms including CNN architectures. Phase6 has tensor ops + similar layers but shorter."
+    },
+    {
+      "id": 3,
+      "name": "Reinforcement Learning",
+      "canonical": "PRISM_RL_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_RL_COMPLETE.js",
+      "canonical_lines": 719,
+      "duplicates": [
+        {"file": "PRISM_RL_QLEARNING_ENGINE.js", "lines": 719, "reason": "Near-identical line count to RL_COMPLETE - Q-Learning + SARSA with manufacturing state spaces. Parallel implementation."},
+        {"file": "PRISM_RL_SARSA_ENGINE.js", "lines": 84, "reason": "Tiny SARSA-only subset already covered in RL_COMPLETE and RL_QLEARNING"},
+        {"file": "PRISM_DQN_ENGINE.js", "lines": 136, "reason": "Basic DQN - subset of ADVANCED_DQN"},
+        {"file": "PRISM_ADVANCED_DQN.js", "lines": 725, "reason": "DQN/Double DQN/Dueling DQN/PER - extends beyond RL_COMPLETE scope, KEEP as separate"},
+        {"file": "PRISM_PHASE3_ADVANCED_RL.js", "lines": 838, "reason": "PPO, A2C, SAC + signal processing (multi-module bundle). PPO/A2C extend beyond RL_COMPLETE scope, KEEP as separate"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Q-Learning, SARSA, Monte Carlo policy, value iteration for manufacturing parameter optimization. RL_COMPLETE is the canonical tabular RL. ADVANCED_DQN and PHASE3_ADVANCED_RL add deep RL methods."
+    },
+    {
+      "id": 4,
+      "name": "Clustering",
+      "canonical": "PRISM_CLUSTERING_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_CLUSTERING_COMPLETE.js",
+      "canonical_lines": 605,
+      "duplicates": [
+        {"file": "PRISM_CLUSTERING_ENGINE.js", "lines": 471, "reason": "Subset - K-Means, DBSCAN, hierarchical, spectral. COMPLETE version adds K-Medoids, Gaussian Mixture, Mean Shift, more."}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "K-Means, DBSCAN, K-Medoids (PAM), Gaussian Mixture, hierarchical clustering, spectral clustering, Mean Shift. Used for grouping manufacturing features, defect classification."
+    },
+    {
+      "id": 5,
+      "name": "Attention Mechanisms",
+      "canonical": "PRISM_ATTENTION_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_ATTENTION_COMPLETE.js",
+      "canonical_lines": 300,
+      "duplicates": [
+        {"file": "PRISM_ATTENTION_ENGINE.js", "lines": 281, "reason": "Scaled dot-product + multi-head attention. COMPLETE version adds cross-attention, relative positional encoding."},
+        {"file": "ai_ml/PRISM_ATTENTION_COMPLETE.js", "lines": 8, "reason": "STUB - just a gateway route registration, not real code"}
+      ],
+      "mfg_relevance": "LOW",
+      "implementation_quality": "COMPLETE",
+      "description": "Scaled dot-product attention, multi-head attention, cross-attention, relative positional encoding per Vaswani et al."
+    },
+    {
+      "id": 6,
+      "name": "Explainable AI (XAI)",
+      "canonical": "PRISM_XAI_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_XAI_COMPLETE.js",
+      "canonical_lines": 392,
+      "duplicates": [
+        {"file": "PRISM_XAI_ENGINE.js", "lines": 334, "reason": "Gradient saliency + feature importance. COMPLETE version adds full LIME, SHAP, counterfactual explanations."}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "LIME, SHAP, gradient saliency, feature importance, counterfactual explanations. Useful for explaining manufacturing AI decisions to operators."
+    },
+    {
+      "id": 7,
+      "name": "Bayesian Learning & Inference",
+      "canonical": "PRISM_BAYESIAN_TOOL_LIFE.js",
+      "canonical_path": "ai_ml/PRISM_BAYESIAN_TOOL_LIFE.js",
+      "canonical_lines": 369,
+      "duplicates": [
+        {"file": "PRISM_BAYESIAN_LEARNING.js", "lines": 282, "reason": "Gaussian Process Regression - overlapping GP implementation with BAYESIAN_TOOL_LIFE but more generic"},
+        {"file": "PRISM_BAYESIAN_SYSTEM.js", "lines": 235, "reason": "Bayesian parameter learner for speed/feed/DOC - overlaps with CALCULATOR_LEARNING_ENGINE posteriors"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Gaussian Process regression + Taylor tool life equation for probabilistic tool wear prediction. BAYESIAN_LEARNING provides generic GP, BAYESIAN_SYSTEM does Bayesian speed/feed optimization, BAYESIAN_TOOL_LIFE combines GP + Taylor equation."
+    },
+    {
+      "id": 8,
+      "name": "Optimization - Metaheuristic",
+      "canonical": "PRISM_PSO_OPTIMIZER.js",
+      "canonical_path": "ai_ml/PRISM_PSO_OPTIMIZER.js",
+      "canonical_lines": 862,
+      "duplicates": [
+        {"file": "PRISM_SIMULATED_ANNEALING.js", "lines": 569, "reason": "KEEP SEPARATE - different algorithm (SA) but same domain (mfg parameter optimization)"},
+        {"file": "PRISM_GA_ENGINE.js", "lines": 631, "reason": "KEEP SEPARATE - Genetic Algorithm, different algorithm"},
+        {"file": "PRISM_DIFFERENTIAL_EVOLUTION.js", "lines": 601, "reason": "KEEP SEPARATE - DE optimizer, different algorithm"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Particle Swarm Optimization for feedrate/spindle/DOC optimization. Multi-objective with Pareto front. All four metaheuristics (PSO, SA, GA, DE) are unique algorithms but share manufacturing parameter bounds."
+    },
+    {
+      "id": 9,
+      "name": "Optimization - Mathematical",
+      "canonical": "PRISM_OPTIMIZATION_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_OPTIMIZATION_COMPLETE.js",
+      "canonical_lines": 199,
+      "duplicates": [
+        {"file": "PRISM_OPTIMIZERS_ENGINE.js", "lines": 314, "reason": "SGD, Adam, RMSProp, AdaGrad optimizers - gradient-based training optimizers, different scope than OPTIMIZATION_COMPLETE (which has SA/GA)"},
+        {"file": "PRISM_OPTIMIZER_ADVANCED.js", "lines": 174, "reason": "Nadam optimizer + advanced variants. Overlaps with OPTIMIZERS_ENGINE scope."}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "OPTIMIZATION_COMPLETE has SA and GA classes. OPTIMIZERS_ENGINE has SGD/Adam/RMSProp for neural network training. OPTIMIZER_ADVANCED adds Nadam. Different scopes but 'optimization' theme."
+    },
+    {
+      "id": 10,
+      "name": "Time Series & Forecasting",
+      "canonical": "PRISM_TIME_SERIES_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_TIME_SERIES_COMPLETE.js",
+      "canonical_lines": 780,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Exponential smoothing (SES, Holt, Holt-Winters), ARIMA, seasonal decomposition, change point detection. Critical for tool wear prediction, process monitoring, production forecasting."
+    },
+    {
+      "id": 11,
+      "name": "Graph Neural Networks",
+      "canonical": "PRISM_GNN_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_GNN_COMPLETE.js",
+      "canonical_lines": 435,
+      "duplicates": [],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Graph Convolutional Network (GCN), Graph Attention Network (GAT), message passing. For manufacturing process graphs, assembly relationships."
+    },
+    {
+      "id": 12,
+      "name": "Hyperparameter Optimization",
+      "canonical": "PRISM_HYPEROPT_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_HYPEROPT_COMPLETE.js",
+      "canonical_lines": 327,
+      "duplicates": [],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Search space definition, random/grid/Bayesian hyperparameter search, TPE (Tree-structured Parzen Estimators). Supports manufacturing ML model tuning."
+    },
+    {
+      "id": 13,
+      "name": "Learning Rate Scheduling",
+      "canonical": "PRISM_LR_SCHEDULER_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_LR_SCHEDULER_COMPLETE.js",
+      "canonical_lines": 211,
+      "duplicates": [],
+      "mfg_relevance": "LOW",
+      "implementation_quality": "COMPLETE",
+      "description": "Step decay, exponential decay, cosine annealing, warm restarts, 1cycle policy, linear warmup. Infrastructure for training ML models."
+    },
+    {
+      "id": 14,
+      "name": "Normalization Layers",
+      "canonical": "PRISM_NORMALIZATION_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_NORMALIZATION_COMPLETE.js",
+      "canonical_lines": 64,
+      "duplicates": [],
+      "mfg_relevance": "LOW",
+      "implementation_quality": "PARTIAL",
+      "description": "InstanceNorm, GroupNorm. Basic normalization layers. Short but functional. Missing BatchNorm (already in Phase3 deep learning)."
+    },
+    {
+      "id": 15,
+      "name": "Online / Active Learning",
+      "canonical": "PRISM_ONLINE_LEARNING_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_ONLINE_LEARNING_COMPLETE.js",
+      "canonical_lines": 460,
+      "duplicates": [
+        {"file": "PRISM_ACTIVE_LEARNING_COMPLETE.js", "lines": 206, "reason": "KEEP SEPARATE - Active learning (query strategies) is distinct from online learning (experience replay, curriculum). Complementary modules."}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Experience replay buffer, prioritized replay, curriculum learning, continual learning. Critical for manufacturing systems that learn from shop floor feedback."
+    },
+    {
+      "id": 16,
+      "name": "Active Learning",
+      "canonical": "PRISM_ACTIVE_LEARNING_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_ACTIVE_LEARNING_COMPLETE.js",
+      "canonical_lines": 206,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Uncertainty sampling, margin sampling, entropy sampling, query-by-committee. Minimizes labeling effort for manufacturing data (e.g., defect classification with limited expert labels)."
+    },
+    {
+      "id": 17,
+      "name": "Uncertainty Quantification",
+      "canonical": "PRISM_UNCERTAINTY_COMPLETE.js",
+      "canonical_path": "ai_complete/PRISM_UNCERTAINTY_COMPLETE.js",
+      "canonical_lines": 222,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Monte Carlo Dropout, ensemble uncertainty, calibration. Critical for manufacturing - quantifies confidence in AI predictions for safety-critical decisions."
+    },
+    {
+      "id": 18,
+      "name": "ML Algorithms Collection",
+      "canonical": "PRISM_ML_ALGORITHMS.js",
+      "canonical_path": "ai_ml/PRISM_ML_ALGORITHMS.js",
+      "canonical_lines": 747,
+      "duplicates": [
+        {"file": "PRISM_ENSEMBLE_ENGINE.js", "lines": 260, "reason": "Bagging, boosting, stacking - subset of algorithms also in ML_ALGORITHMS"},
+        {"file": "PRISM_GRADIENT_BOOSTING.js", "lines": 205, "reason": "CONFIG ONLY - just hyperparameter constants (XGBoost, RF, SVM, LightGBM params), no actual implementation"}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Linear/logistic regression, SVM, KNN, PCA, Naive Bayes, random forest. Broad classical ML algorithm library with 150+ algorithms claimed."
+    },
+    {
+      "id": 19,
+      "name": "Sequence Models (LSTM/GRU/Transformer)",
+      "canonical": "PRISM_SEQUENCE_MODEL_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_SEQUENCE_MODEL_ENGINE.js",
+      "canonical_lines": 198,
+      "duplicates": [
+        {"file": "PRISM_LSTM_ENGINE.js", "lines": 69, "reason": "LSTM cell only - subset of SEQUENCE_MODEL_ENGINE which has LSTM + GRU + bidirectional"}
+      ],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "LSTM cell, GRU cell, bidirectional wrapper. For time-series machining data (vibration, tool wear progression, process sequences)."
+    },
+    {
+      "id": 20,
+      "name": "Manufacturing Decision Engine",
+      "canonical": "PRISM_INTELLIGENT_DECISION_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_INTELLIGENT_DECISION_ENGINE.js",
+      "canonical_lines": 1612,
+      "duplicates": [
+        {"file": "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", "lines": 155, "reason": "Simpler recommendation system that delegates to CALCULATOR_LEARNING_ENGINE. Overlapping scope with INTELLIGENT_DECISION_ENGINE's recommendation pipeline."}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Confidence scoring, multi-criteria decision making, explanation generation, learning from feedback. Core manufacturing decision support for tool selection, strategy, parameters."
+    },
+    {
+      "id": 21,
+      "name": "Physics-Informed Manufacturing AI",
+      "canonical": "PRISM_PIML_CHATTER_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_PIML_CHATTER_ENGINE.js",
+      "canonical_lines": 860,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Semi-Discretization Method for milling stability, Physics-Guided ML, SVM chatter classification, fractal feature extraction, Bayesian SLD update. Highly specialized machining vibration/chatter analysis."
+    },
+    {
+      "id": 22,
+      "name": "Lean Six Sigma / Quality",
+      "canonical": "PRISM_LEAN_SIX_SIGMA_KAIZEN.js",
+      "canonical_path": "ai_ml/PRISM_LEAN_SIX_SIGMA_KAIZEN.js",
+      "canonical_lines": 1471,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "SPC (Cp, Cpk, control charts), DMAIC, 5S scoring, OEE calculation, value stream mapping, kaizen tracking. Comprehensive quality management toolkit."
+    },
+    {
+      "id": 23,
+      "name": "Monte Carlo Simulation",
+      "canonical": "PRISM_MONTE_CARLO_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_MONTE_CARLO_ENGINE.js",
+      "canonical_lines": 349,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Monte Carlo simulation for tool life prediction with uncertainty. Taylor coefficient uncertainty modeling, confidence intervals. Critical for tool replacement scheduling."
+    },
+    {
+      "id": 24,
+      "name": "AI System Integration Hubs",
+      "canonical": "PRISM_AI_ORCHESTRATION_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_AI_ORCHESTRATION_ENGINE.js",
+      "canonical_lines": 605,
+      "duplicates": [
+        {"file": "PRISM_AI_COMPLETE_SYSTEM.js", "lines": 376, "reason": "Integration hub referencing TENSOR, NN_LAYERS, NLP, BAYESIAN etc. - orchestration duplicate"},
+        {"file": "PRISM_AI_INTEGRATED_SYSTEM.js", "lines": 382, "reason": "Integration hub referencing PHYSICS, SWARM, BAYESIAN, MONTE_CARLO - orchestration duplicate"},
+        {"file": "PRISM_TRUE_AI_SYSTEM.js", "lines": 288, "reason": "Integration hub referencing TENSOR, NN_LAYERS, NEURAL_NETWORK, CLAUDE_API - orchestration duplicate"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "PARTIAL",
+      "description": "Workflow orchestration (Print-to-Part pipeline), component initialization, AI suggestion routing. Four files all try to be 'the' integration hub with different component sets. Need to merge into one."
+    },
+    {
+      "id": 25,
+      "name": "AI Physics / Training Data Generation",
+      "canonical": "PRISM_AI_PHYSICS_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_AI_PHYSICS_ENGINE.js",
+      "canonical_lines": 356,
+      "duplicates": [
+        {"file": "PRISM_AI_TRAINING_DATA.js", "lines": 200, "reason": "Training data generation from materials DB - complementary but distinct scope (data gen vs physics models)"},
+        {"file": "PRISM_AI_100_PHYSICS_GENERATOR.js", "lines": 3676, "reason": "MEGA-BUNDLE containing physics data gen + 8 other modules. The physics generator portion (lines 1-242) overlaps with AI_PHYSICS_ENGINE"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Merchant cutting force model, Kienzle force model, Taylor tool life, surface finish prediction. Physics-based ML training data generation from manufacturing first principles."
+    },
+    {
+      "id": 26,
+      "name": "Manufacturing Feature Recognition",
+      "canonical": "PRISM_ML_FEATURE_RECOGNITION.js",
+      "canonical_path": "ai_ml/PRISM_ML_FEATURE_RECOGNITION.js",
+      "canonical_lines": 286,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "CNN-based automatic manufacturing feature detection from CAD geometry (holes, pockets, slots, bosses, chamfers, threads). 20 feature types recognized."
+    },
+    {
+      "id": 27,
+      "name": "CAM / Machining Learning",
+      "canonical": "PRISM_CAM_LEARNING_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_CAM_LEARNING_ENGINE.js",
+      "canonical_lines": 332,
+      "duplicates": [
+        {"file": "PRISM_UNIFIED_LEARNING_ENGINE.js", "lines": 193, "reason": "Higher-level learning coordinator for cutting params, tool selection, strategy - overlapping scope with CAM_LEARNING but more abstract"},
+        {"file": "PRISM_CALCULATOR_LEARNING_ENGINE.js", "lines": 281, "reason": "Bayesian learning for calculator speed/feed posteriors - domain overlap with learning scope"},
+        {"file": "PRISM_AI_AUTO_CAM.js", "lines": 560, "reason": "KEEP SEPARATE - tool selection + automated CAM strategy, consumes learning engine outputs"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Learns feature-to-operation mappings, strategy parameters, material adjustments from machining outcomes. CAM_LEARNING is the core, UNIFIED_LEARNING is a coordinator, CALCULATOR_LEARNING does Bayesian parameter updates."
+    },
+    {
+      "id": 28,
+      "name": "Constraint Solving (CAD/Parametric)",
+      "canonical": "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js",
+      "canonical_path": "ai_ml/PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js",
+      "canonical_lines": 636,
+      "duplicates": [
+        {"file": "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", "lines": 386, "reason": "Fusion 360-style sketch constraints - domain overlap (both solve geometric constraints)"},
+        {"file": "PRISM_CSP_ENHANCED_ENGINE.js", "lines": 361, "reason": "General CSP solver (MRV, LCV, AC3) - algorithmic foundation used by constraint solvers"},
+        {"file": "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", "lines": 215, "reason": "Machine/tool/material parameter constraints - different domain (machining limits vs geometric constraints)"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Parametric constraint solver for CAD sketches: dimensional + geometric constraints (distance, angle, horizontal, vertical, parallel, perpendicular, tangent, coincident). Newton-Raphson solver."
+    },
+    {
+      "id": 29,
+      "name": "CAD/Machine Learning (3D)",
+      "canonical": "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js",
+      "canonical_path": "ai_ml/PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js",
+      "canonical_lines": 5389,
+      "duplicates": [
+        {"file": "PRISM_MACHINE_3D_LEARNING_ENGINE.js", "lines": 382, "reason": "Standalone version of module embedded in UNIFIED_CAD (starts at line 1743 of bundle)"},
+        {"file": "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js", "lines": 326, "reason": "Blisk/impeller/turbine blade learning - specialized CAD learning, partially overlaps UNIFIED_CAD scope"},
+        {"file": "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js", "lines": 367, "reason": "Standalone version of module embedded in UNIFIED_CAD (starts at line 3140 of bundle)"},
+        {"file": "PRISM_CONTACT_CONSTRAINT_ENGINE.js", "lines": 448, "reason": "Standalone version of module embedded in UNIFIED_CAD (starts at line 3514 of bundle)"},
+        {"file": "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js", "lines": 497, "reason": "Standalone version of module embedded in UNIFIED_CAD (starts at line 3969 of bundle)"}
+      ],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "MEGA-BUNDLE: Unified CAD learning from uploaded STEP files, machine 3D models, axis behavior learning, contact/collision detection and learning. The bundle is the canonical source; standalone files are redundant extractions."
+    },
+    {
+      "id": 30,
+      "name": "Aircut Elimination / Toolpath Optimization",
+      "canonical": "PRISM_AIRCUT_ELIMINATION_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_AIRCUT_ELIMINATION_ENGINE.js",
+      "canonical_lines": 5228,
+      "duplicates": [],
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "MEGA-BUNDLE: Air-cut detection in toolpaths, optimization of rapid moves, BVH spatial indexing. Also contains INNOVATION_REGISTRY, STRUCTURE_CHANGELOG, LAYER2_VERIFICATION (non-AI modules bundled in). The core aircut detection (~787 lines) is unique and high-value."
+    },
+    {
+      "id": 31,
+      "name": "Probabilistic Reasoning",
+      "canonical": "PRISM_PROBABILISTIC_REASONING_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_PROBABILISTIC_REASONING_ENGINE.js",
+      "canonical_lines": 419,
+      "duplicates": [],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Particle filter, HMM (Hidden Markov Model), Bayesian networks. For probabilistic state estimation in manufacturing (tool state, process phase detection)."
+    },
+    {
+      "id": 32,
+      "name": "Graph Algorithms",
+      "canonical": "PRISM_GRAPH_ALGORITHMS_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_GRAPH_ALGORITHMS_ENGINE.js",
+      "canonical_lines": 441,
+      "duplicates": [],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "Kruskal MST, Dijkstra, Bellman-Ford, topological sort, SCC (Tarjan). For toolpath optimization, operation sequencing, process dependency graphs."
+    },
+    {
+      "id": 33,
+      "name": "NLP for Manufacturing",
+      "canonical": "PRISM_NLP_ENGINE.js",
+      "canonical_path": "ai_ml/PRISM_NLP_ENGINE.js",
+      "canonical_lines": 181,
+      "duplicates": [],
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "PARTIAL",
+      "description": "Manufacturing vocabulary tokenization, special tokens. Basic NLP for interpreting manufacturing text commands/descriptions. Needs expansion for production use."
+    }
+  ],
+
+  "unique_standalone": [
+    {
+      "name": "PRISM_PSO_OPTIMIZER.js",
+      "path": "ai_ml/",
+      "lines": 862,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Particle Swarm Optimization for feedrate/spindle/DOC. Multi-objective Pareto optimization."
+    },
+    {
+      "name": "PRISM_SIMULATED_ANNEALING.js",
+      "path": "ai_ml/",
+      "lines": 569,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Simulated annealing with reheating, adaptive cooling, multi-start. Manufacturing parameter optimization."
+    },
+    {
+      "name": "PRISM_GA_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 631,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Genetic algorithm with tournament selection, crossover, mutation. Manufacturing parameter optimization."
+    },
+    {
+      "name": "PRISM_DIFFERENTIAL_EVOLUTION.js",
+      "path": "ai_ml/",
+      "lines": 601,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Differential Evolution optimizer (rand1bin, best1bin strategies). Manufacturing bounds built in."
+    },
+    {
+      "name": "PRISM_ADVANCED_DQN.js",
+      "path": "ai_ml/",
+      "lines": 725,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Deep Q-Network + Double DQN + Dueling DQN + Prioritized Experience Replay. Advanced deep RL."
+    },
+    {
+      "name": "PRISM_AI_AUTO_CAM.js",
+      "path": "ai_ml/",
+      "lines": 560,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Automated CAM: tool selection, operation sequencing, strategy recommendation from features."
+    },
+    {
+      "name": "PRISM_PIML_CHATTER_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 860,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Physics-Informed ML for milling stability/chatter prediction. Semi-Discretization Method."
+    },
+    {
+      "name": "PRISM_LEAN_SIX_SIGMA_KAIZEN.js",
+      "path": "ai_ml/",
+      "lines": 1471,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "SPC, DMAIC, 5S, OEE, value stream mapping, kaizen tracking."
+    },
+    {
+      "name": "PRISM_MONTE_CARLO_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 349,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Monte Carlo simulation for tool life with Taylor equation uncertainty."
+    },
+    {
+      "name": "PRISM_ML_FEATURE_RECOGNITION.js",
+      "path": "ai_ml/",
+      "lines": 286,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "CNN-based manufacturing feature recognition (20 feature types)."
+    },
+    {
+      "name": "PRISM_OCR_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 277,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "OCR via Tesseract.js for reading engineering drawings/prints."
+    },
+    {
+      "name": "PRISM_MESH_REPAIR_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 567,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Mesh boundary detection, hole filling, non-manifold repair for CAD/STL files."
+    },
+    {
+      "name": "PRISM_FAILSAFE_GENERATOR.js",
+      "path": "ai_ml/",
+      "lines": 170,
+      "mfg_relevance": "HIGH",
+      "implementation_quality": "COMPLETE",
+      "description": "Generates conservative safe machining parameters when AI confidence is low."
+    },
+    {
+      "name": "PRISM_MODEL_COMPRESSION_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 285,
+      "mfg_relevance": "LOW",
+      "implementation_quality": "COMPLETE",
+      "description": "INT8 quantization, pruning, knowledge distillation for deploying ML models."
+    },
+    {
+      "name": "PRISM_LOSS_FUNCTIONS_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 145,
+      "mfg_relevance": "LOW",
+      "implementation_quality": "COMPLETE",
+      "description": "MSE, MAE, cross-entropy, Huber, focal loss. Infrastructure for training."
+    },
+    {
+      "name": "PRISM_DECISION_TREE_ENGINE.js",
+      "path": "ai_ml/",
+      "lines": 3172,
+      "mfg_relevance": "MEDIUM",
+      "implementation_quality": "COMPLETE",
+      "description": "MEGA-BUNDLE: ID3/C4.5 decision tree + 6 optimization modules (rapid path, unconstrained, trust region, constrained, SQP, combinatorial). The decision tree (~222 lines) is the AI module; the optimizers are mathematical."
+    }
+  ],
+
+  "stubs_and_config_only": [
+    {
+      "file": "PRISM_CNN_ENGINE.js",
+      "lines": 6,
+      "status": "STUB",
+      "reason": "Single comment line - just a usage note pointing to PRISM_DEEP_LEARNING_PARAMS.getCNN()"
+    },
+    {
+      "file": "ai_ml/PRISM_ATTENTION_COMPLETE.js",
+      "lines": 8,
+      "status": "STUB",
+      "reason": "Gateway route registration only - 3 lines of route config, no implementation"
+    },
+    {
+      "file": "PRISM_DEEP_LEARNING.js",
+      "lines": 19,
+      "status": "STUB",
+      "reason": "Failed extraction - file contains a note saying the object does not exist in source"
+    },
+    {
+      "file": "PRISM_AUTOENCODER.js",
+      "lines": 146,
+      "status": "CONFIG_ONLY",
+      "reason": "Hyperparameter constants only (Kalman, ARIMA, exponential smoothing, anomaly detection params). Zero functions."
+    },
+    {
+      "file": "PRISM_GRADIENT_BOOSTING.js",
+      "lines": 205,
+      "status": "CONFIG_ONLY",
+      "reason": "Hyperparameter constants only (XGBoost, RF, SVM, LightGBM, PCA, UMAP, t-SNE params). Zero functions."
+    },
+    {
+      "file": "PRISM_TRANSFORMER_ENGINE.js",
+      "lines": 267,
+      "status": "CONFIG_ONLY",
+      "reason": "Hyperparameter constants only (transformer dims, attention params, optimizer params, LR schedules, regularization, gradient control, initialization). Zero functions."
+    },
+    {
+      "file": "PRISM_AI_100_ENGINE_WRAPPER.js",
+      "lines": 15,
+      "status": "STUB",
+      "reason": "Route registration only - 3 route paths, no implementation"
+    }
+  ],
+
+  "recommendation": {
+    "keep": [
+      "PRISM_ML.js",
+      "PRISM_ML_ALGORITHMS.js",
+      "PRISM_PHASE3_DEEP_LEARNING.js",
+      "PRISM_SEQUENCE_MODEL_ENGINE.js",
+      "PRISM_RL_COMPLETE.js",
+      "PRISM_ADVANCED_DQN.js",
+      "PRISM_PHASE3_ADVANCED_RL.js",
+      "PRISM_CLUSTERING_COMPLETE.js",
+      "PRISM_ATTENTION_COMPLETE.js (ai_complete)",
+      "PRISM_XAI_COMPLETE.js",
+      "PRISM_GNN_COMPLETE.js",
+      "PRISM_HYPEROPT_COMPLETE.js",
+      "PRISM_LR_SCHEDULER_COMPLETE.js",
+      "PRISM_NORMALIZATION_COMPLETE.js",
+      "PRISM_ONLINE_LEARNING_COMPLETE.js",
+      "PRISM_ACTIVE_LEARNING_COMPLETE.js",
+      "PRISM_UNCERTAINTY_COMPLETE.js",
+      "PRISM_TIME_SERIES_COMPLETE.js",
+      "PRISM_OPTIMIZATION_COMPLETE.js",
+      "PRISM_PSO_OPTIMIZER.js",
+      "PRISM_SIMULATED_ANNEALING.js",
+      "PRISM_GA_ENGINE.js",
+      "PRISM_DIFFERENTIAL_EVOLUTION.js",
+      "PRISM_BAYESIAN_TOOL_LIFE.js",
+      "PRISM_PIML_CHATTER_ENGINE.js",
+      "PRISM_MONTE_CARLO_ENGINE.js",
+      "PRISM_LEAN_SIX_SIGMA_KAIZEN.js",
+      "PRISM_INTELLIGENT_DECISION_ENGINE.js",
+      "PRISM_AI_ORCHESTRATION_ENGINE.js",
+      "PRISM_AI_AUTO_CAM.js",
+      "PRISM_AI_PHYSICS_ENGINE.js",
+      "PRISM_AI_TRAINING_DATA.js",
+      "PRISM_ML_FEATURE_RECOGNITION.js",
+      "PRISM_OCR_ENGINE.js",
+      "PRISM_MESH_REPAIR_ENGINE.js",
+      "PRISM_NLP_ENGINE.js",
+      "PRISM_FAILSAFE_GENERATOR.js",
+      "PRISM_GRAPH_ALGORITHMS_ENGINE.js",
+      "PRISM_PROBABILISTIC_REASONING_ENGINE.js",
+      "PRISM_CSP_ENHANCED_ENGINE.js",
+      "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js",
+      "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js",
+      "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js",
+      "PRISM_CAM_LEARNING_ENGINE.js",
+      "PRISM_MODEL_COMPRESSION_ENGINE.js",
+      "PRISM_LOSS_FUNCTIONS_ENGINE.js",
+      "PRISM_OPTIMIZERS_ENGINE.js"
+    ],
+    "archive": [
+      "PRISM_NEURAL_NETWORK.js (subset of PRISM_ML.js)",
+      "PRISM_NEURAL_ENGINE_ENHANCED.js (overlaps ML.js + DL.js activations)",
+      "PRISM_DL.js (parallel impl to PRISM_ML.js - merge best parts)",
+      "PRISM_ACTIVATIONS_ENGINE.js (subset of ML.js/DL.js activations)",
+      "PRISM_PHASE6_DEEPLEARNING.js (overlaps PHASE3_DEEP_LEARNING)",
+      "PRISM_DEEP_LEARNING.js (STUB - failed extraction)",
+      "PRISM_CNN_ENGINE.js (STUB - 1 comment line)",
+      "ai_ml/PRISM_ATTENTION_COMPLETE.js (STUB - route registration only)",
+      "PRISM_AI_100_ENGINE_WRAPPER.js (STUB - route registration only)",
+      "PRISM_AUTOENCODER.js (CONFIG ONLY - hyperparameter constants)",
+      "PRISM_GRADIENT_BOOSTING.js (CONFIG ONLY - hyperparameter constants)",
+      "PRISM_TRANSFORMER_ENGINE.js (CONFIG ONLY - hyperparameter constants)",
+      "PRISM_RL_QLEARNING_ENGINE.js (near-identical scope to RL_COMPLETE)",
+      "PRISM_RL_SARSA_ENGINE.js (tiny SARSA subset of RL_COMPLETE)",
+      "PRISM_DQN_ENGINE.js (basic DQN subset of ADVANCED_DQN)",
+      "PRISM_CLUSTERING_ENGINE.js (subset of CLUSTERING_COMPLETE)",
+      "PRISM_ATTENTION_ENGINE.js (subset of ATTENTION_COMPLETE)",
+      "PRISM_XAI_ENGINE.js (subset of XAI_COMPLETE)",
+      "PRISM_ENSEMBLE_ENGINE.js (subset of ML_ALGORITHMS)",
+      "PRISM_LSTM_ENGINE.js (subset of SEQUENCE_MODEL_ENGINE)",
+      "PRISM_BAYESIAN_LEARNING.js (GP subset of BAYESIAN_TOOL_LIFE)",
+      "PRISM_BAYESIAN_SYSTEM.js (parameter learning subset of CALCULATOR_LEARNING)",
+      "PRISM_AI_COMPLETE_SYSTEM.js (integration hub duplicate)",
+      "PRISM_AI_INTEGRATED_SYSTEM.js (integration hub duplicate)",
+      "PRISM_TRUE_AI_SYSTEM.js (integration hub duplicate)",
+      "PRISM_UNIFIED_LEARNING_ENGINE.js (high-level coordinator, overlaps CAM_LEARNING)",
+      "PRISM_CALCULATOR_LEARNING_ENGINE.js (Bayesian learning overlap with CAM_LEARNING)",
+      "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js (simpler version of INTELLIGENT_DECISION)",
+      "PRISM_OPTIMIZER_ADVANCED.js (Nadam overlap with OPTIMIZERS_ENGINE)",
+      "PRISM_MACHINE_3D_LEARNING_ENGINE.js (embedded in UNIFIED_CAD_LEARNING_SYSTEM)",
+      "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js (overlaps UNIFIED_CAD scope)",
+      "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js (embedded in UNIFIED_CAD_LEARNING_SYSTEM)",
+      "PRISM_CONTACT_CONSTRAINT_ENGINE.js (embedded in UNIFIED_CAD_LEARNING_SYSTEM)",
+      "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js (embedded in UNIFIED_CAD_LEARNING_SYSTEM)"
+    ],
+    "needs_splitting": [
+      {
+        "file": "PRISM_REGULARIZATION_ENGINE.js",
+        "lines": 12613,
+        "action": "SPLIT into individual module files. Contains 31 separate modules concatenated. The standalone files already extracted cover many of them. This mega-bundle should be archived after confirming all sub-modules are independently available.",
+        "modules_to_extract_if_missing": [
+          "PRISM_REGULARIZATION_ENGINE (lines 8-236) - keep as standalone",
+          "PRISM_DIMENSIONALITY_ENGINE (lines 708-1070) - NEW, no standalone exists",
+          "PRISM_EVOLUTIONARY_ENHANCED_ENGINE (lines 1881-2408) - NEW, no standalone exists",
+          "PRISM_MOTION_PLANNING_ENHANCED_ENGINE (lines 3706-4084) - NEW, no standalone exists",
+          "PRISM_MANUFACTURING_SEARCH_ENGINE (lines 4085-4570) - NEW, no standalone exists",
+          "PRISM_JOB_SHOP_SCHEDULING_ENGINE (lines 4992-5274) - NEW, no standalone exists",
+          "PRISM_RAPID_PATH_OPTIMIZER (lines 5933-6299) - NEW, no standalone exists",
+          "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER (lines 6300-6993) - NEW, no standalone exists",
+          "PRISM_TRUST_REGION_OPTIMIZER (lines 6994-7398) - NEW, no standalone exists",
+          "PRISM_CONSTRAINED_OPTIMIZER (lines 7399-7883) - NEW, no standalone exists",
+          "PRISM_SQP_INTERIOR_POINT_ENGINE (lines 7884-8498) - NEW, no standalone exists",
+          "PRISM_COMBINATORIAL_OPTIMIZER (lines 8499-8891) - NEW, no standalone exists",
+          "PRISM_ADVANCED_METAHEURISTICS (lines 8892-9438) - NEW, no standalone exists",
+          "PRISM_MULTI_OBJECTIVE_ENGINE (lines 9439-9817) - NEW, no standalone exists",
+          "PRISM_MOEAD_ENGINE (lines 9818-10280) - NEW, no standalone exists",
+          "PRISM_ADVANCED_KINEMATICS_ENGINE (lines 10281-10888) - NEW, no standalone exists",
+          "PRISM_RIGID_BODY_DYNAMICS_ENGINE (lines 10889-11508) - NEW, no standalone exists",
+          "PRISM_VIBRATION_ANALYSIS_ENGINE (lines 11509-11906) - NEW, no standalone exists",
+          "PRISM_CHATTER_PREDICTION_ENGINE (lines 11907-12337) - NEW, no standalone exists",
+          "PRISM_CUTTING_MECHANICS_ENGINE (lines 12338-12613) - NEW, no standalone exists"
+        ]
+      },
+      {
+        "file": "PRISM_DECISION_TREE_ENGINE.js",
+        "lines": 3172,
+        "action": "SPLIT into individual module files. Contains 7 modules. Decision tree portion is only ~215 lines.",
+        "modules_to_extract_if_missing": [
+          "PRISM_DECISION_TREE_ENGINE (lines 8-222) - keep as standalone",
+          "PRISM_RAPID_PATH_OPTIMIZER (lines 223-589) - also in REGULARIZATION bundle",
+          "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER (lines 590-1283) - also in REGULARIZATION bundle",
+          "PRISM_TRUST_REGION_OPTIMIZER (lines 1284-1688) - also in REGULARIZATION bundle",
+          "PRISM_CONSTRAINED_OPTIMIZER (lines 1689-2173) - also in REGULARIZATION bundle",
+          "PRISM_SQP_INTERIOR_POINT_ENGINE (lines 2174-2788) - also in REGULARIZATION bundle",
+          "PRISM_COMBINATORIAL_OPTIMIZER (lines 2789-3172) - also in REGULARIZATION bundle"
+        ]
+      },
+      {
+        "file": "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js",
+        "lines": 5389,
+        "action": "Keep as canonical bundle OR split. 4 of its 10 embedded modules already exist as standalone files (MACHINE_3D_LEARNING, AXIS_BEHAVIOR, CONTACT_CONSTRAINT, CONTACT_CONSTRAINT_LEARNING). The remaining 6 are unique to this bundle."
+      },
+      {
+        "file": "PRISM_AIRCUT_ELIMINATION_ENGINE.js",
+        "lines": 5228,
+        "action": "Keep core aircut module (~787 lines). Archive or split out INNOVATION_REGISTRY, STRUCTURE_CHANGELOG, LAYER2_VERIFICATION, BVH_ENGINE as separate files."
+      },
+      {
+        "file": "PRISM_AI_100_PHYSICS_GENERATOR.js",
+        "lines": 3676,
+        "action": "Split. Core physics generator is ~242 lines. Contains duplicates of LEAN_SIX_SIGMA_KAIZEN (already standalone). Other embedded modules (RL_ENHANCED, NN_ENHANCED, CLUSTERING_ENHANCED, SIGNAL_ENHANCED) may be unique."
+      }
+    ],
+    "merge": [
+      {
+        "target": "PRISM_ML.js",
+        "sources": ["PRISM_DL.js"],
+        "reason": "Both implement neural network layers. PRISM_DL.js has GRU implementation that PRISM_ML.js lacks. Merge GRU from DL into ML."
+      },
+      {
+        "target": "PRISM_AI_ORCHESTRATION_ENGINE.js",
+        "sources": ["PRISM_AI_COMPLETE_SYSTEM.js", "PRISM_AI_INTEGRATED_SYSTEM.js", "PRISM_TRUE_AI_SYSTEM.js"],
+        "reason": "Four integration hubs referencing different component sets. Merge into single orchestration hub."
+      },
+      {
+        "target": "PRISM_BAYESIAN_TOOL_LIFE.js",
+        "sources": ["PRISM_BAYESIAN_LEARNING.js", "PRISM_BAYESIAN_SYSTEM.js"],
+        "reason": "Three Bayesian modules. TOOL_LIFE has GP + Taylor equation. LEARNING has generic GP. SYSTEM has parameter posteriors. Merge into unified Bayesian manufacturing module."
+      },
+      {
+        "target": "PRISM_CAM_LEARNING_ENGINE.js",
+        "sources": ["PRISM_UNIFIED_LEARNING_ENGINE.js", "PRISM_CALCULATOR_LEARNING_ENGINE.js"],
+        "reason": "Three learning engines with overlapping scope. CAM_LEARNING is most specific. Merge Bayesian parameter updates from CALCULATOR_LEARNING."
+      },
+      {
+        "target": "PRISM_OPTIMIZERS_ENGINE.js",
+        "sources": ["PRISM_OPTIMIZER_ADVANCED.js"],
+        "reason": "Both implement gradient-based optimizers. Merge Nadam from ADVANCED into OPTIMIZERS_ENGINE."
+      }
+    ]
+  },
+
+  "summary_statistics": {
+    "total_files_scanned": 87,
+    "files_to_keep_as_is": 46,
+    "files_to_archive": 34,
+    "stubs_to_delete": 7,
+    "mega_bundles_to_split": 5,
+    "merge_operations": 5,
+    "estimated_final_module_count": 33,
+    "lines_in_keep_files": "~18000",
+    "lines_in_archive_files": "~6500",
+    "lines_in_mega_bundles": "~30000 (containing ~20 unique modules not available standalone)",
+    "mfg_relevance_breakdown": {
+      "HIGH": 20,
+      "MEDIUM": 10,
+      "LOW": 3
+    },
+    "implementation_quality_breakdown": {
+      "COMPLETE": 29,
+      "PARTIAL": 3,
+      "STUB": 4,
+      "CONFIG_ONLY": 3
+    }
+  },
+
+  "file_inventory": [
+    {"file": "PRISM_ACTIVATIONS_ENGINE.js", "dir": "ai_ml", "lines": 163, "bytes": 4706, "status": "ARCHIVE", "group": 1},
+    {"file": "PRISM_ADVANCED_DQN.js", "dir": "ai_ml", "lines": 725, "bytes": 26124, "status": "KEEP", "group": 3},
+    {"file": "PRISM_AI_100_ENGINE_WRAPPER.js", "dir": "ai_ml", "lines": 15, "bytes": 460, "status": "STUB", "group": null},
+    {"file": "PRISM_AI_100_PHYSICS_GENERATOR.js", "dir": "ai_ml", "lines": 3676, "bytes": 167813, "status": "SPLIT", "group": 25},
+    {"file": "PRISM_AI_AUTO_CAM.js", "dir": "ai_ml", "lines": 560, "bytes": 22311, "status": "KEEP", "group": 27},
+    {"file": "PRISM_AI_COMPLETE_SYSTEM.js", "dir": "ai_ml", "lines": 376, "bytes": 15487, "status": "ARCHIVE", "group": 24},
+    {"file": "PRISM_AI_INTEGRATED_SYSTEM.js", "dir": "ai_ml", "lines": 382, "bytes": 17147, "status": "ARCHIVE", "group": 24},
+    {"file": "PRISM_AI_ORCHESTRATION_ENGINE.js", "dir": "ai_ml", "lines": 605, "bytes": 21683, "status": "KEEP", "group": 24},
+    {"file": "PRISM_AI_PHYSICS_ENGINE.js", "dir": "ai_ml", "lines": 356, "bytes": 12568, "status": "KEEP", "group": 25},
+    {"file": "PRISM_AI_TRAINING_DATA.js", "dir": "ai_ml", "lines": 200, "bytes": 13164, "status": "KEEP", "group": 25},
+    {"file": "PRISM_AIRCUT_ELIMINATION_ENGINE.js", "dir": "ai_ml", "lines": 5228, "bytes": 315581, "status": "SPLIT", "group": 30},
+    {"file": "PRISM_ATTENTION_COMPLETE.js", "dir": "ai_ml", "lines": 8, "bytes": 335, "status": "STUB", "group": 5},
+    {"file": "PRISM_ATTENTION_ENGINE.js", "dir": "ai_ml", "lines": 281, "bytes": 9546, "status": "ARCHIVE", "group": 5},
+    {"file": "PRISM_AUTOENCODER.js", "dir": "ai_ml", "lines": 146, "bytes": 8050, "status": "CONFIG_ONLY", "group": null},
+    {"file": "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 367, "bytes": 12833, "status": "ARCHIVE", "group": 29},
+    {"file": "PRISM_BAYESIAN_LEARNING.js", "dir": "ai_ml", "lines": 282, "bytes": 10381, "status": "ARCHIVE", "group": 7},
+    {"file": "PRISM_BAYESIAN_SYSTEM.js", "dir": "ai_ml", "lines": 235, "bytes": 8547, "status": "ARCHIVE", "group": 7},
+    {"file": "PRISM_BAYESIAN_TOOL_LIFE.js", "dir": "ai_ml", "lines": 369, "bytes": 13609, "status": "KEEP", "group": 7},
+    {"file": "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", "dir": "ai_ml", "lines": 215, "bytes": 9198, "status": "KEEP", "group": 28},
+    {"file": "PRISM_CALCULATOR_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 281, "bytes": 13227, "status": "ARCHIVE", "group": 27},
+    {"file": "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", "dir": "ai_ml", "lines": 155, "bytes": 9003, "status": "ARCHIVE", "group": 20},
+    {"file": "PRISM_CAM_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 332, "bytes": 12141, "status": "KEEP", "group": 27},
+    {"file": "PRISM_CLUSTERING_ENGINE.js", "dir": "ai_ml", "lines": 471, "bytes": 15657, "status": "ARCHIVE", "group": 4},
+    {"file": "PRISM_CNN_ENGINE.js", "dir": "ai_ml", "lines": 6, "bytes": 285, "status": "STUB", "group": null},
+    {"file": "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 326, "bytes": 10281, "status": "ARCHIVE", "group": 29},
+    {"file": "PRISM_CONTACT_CONSTRAINT_ENGINE.js", "dir": "ai_ml", "lines": 448, "bytes": 14201, "status": "ARCHIVE", "group": 29},
+    {"file": "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 497, "bytes": 15820, "status": "ARCHIVE", "group": 29},
+    {"file": "PRISM_CSP_ENHANCED_ENGINE.js", "dir": "ai_ml", "lines": 361, "bytes": 16266, "status": "KEEP", "group": 28},
+    {"file": "PRISM_DECISION_TREE_ENGINE.js", "dir": "ai_ml", "lines": 3172, "bytes": 125968, "status": "SPLIT", "group": 18},
+    {"file": "PRISM_DEEP_LEARNING.js", "dir": "ai_ml", "lines": 19, "bytes": 720, "status": "STUB", "group": 2},
+    {"file": "PRISM_DIFFERENTIAL_EVOLUTION.js", "dir": "ai_ml", "lines": 601, "bytes": 22501, "status": "KEEP", "group": 8},
+    {"file": "PRISM_DL.js", "dir": "ai_ml", "lines": 600, "bytes": 20087, "status": "ARCHIVE", "group": 1},
+    {"file": "PRISM_DQN_ENGINE.js", "dir": "ai_ml", "lines": 136, "bytes": 5117, "status": "ARCHIVE", "group": 3},
+    {"file": "PRISM_ENSEMBLE_ENGINE.js", "dir": "ai_ml", "lines": 260, "bytes": 9073, "status": "ARCHIVE", "group": 18},
+    {"file": "PRISM_FAILSAFE_GENERATOR.js", "dir": "ai_ml", "lines": 170, "bytes": 5045, "status": "KEEP", "group": null},
+    {"file": "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", "dir": "ai_ml", "lines": 386, "bytes": 14970, "status": "KEEP", "group": 28},
+    {"file": "PRISM_GA_ENGINE.js", "dir": "ai_ml", "lines": 631, "bytes": 24396, "status": "KEEP", "group": 8},
+    {"file": "PRISM_GRADIENT_BOOSTING.js", "dir": "ai_ml", "lines": 205, "bytes": 10337, "status": "CONFIG_ONLY", "group": null},
+    {"file": "PRISM_GRAPH_ALGORITHMS_ENGINE.js", "dir": "ai_ml", "lines": 441, "bytes": 17064, "status": "KEEP", "group": 32},
+    {"file": "PRISM_INTELLIGENT_DECISION_ENGINE.js", "dir": "ai_ml", "lines": 1612, "bytes": 60140, "status": "KEEP", "group": 20},
+    {"file": "PRISM_LEAN_SIX_SIGMA_KAIZEN.js", "dir": "ai_ml", "lines": 1471, "bytes": 68196, "status": "KEEP", "group": 22},
+    {"file": "PRISM_LOSS_FUNCTIONS_ENGINE.js", "dir": "ai_ml", "lines": 145, "bytes": 4450, "status": "KEEP", "group": null},
+    {"file": "PRISM_LSTM_ENGINE.js", "dir": "ai_ml", "lines": 69, "bytes": 3241, "status": "ARCHIVE", "group": 19},
+    {"file": "PRISM_MACHINE_3D_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 382, "bytes": 20181, "status": "ARCHIVE", "group": 29},
+    {"file": "PRISM_MESH_REPAIR_ENGINE.js", "dir": "ai_ml", "lines": 567, "bytes": 21821, "status": "KEEP", "group": null},
+    {"file": "PRISM_ML.js", "dir": "ai_ml", "lines": 948, "bytes": 37020, "status": "KEEP", "group": 1},
+    {"file": "PRISM_ML_ALGORITHMS.js", "dir": "ai_ml", "lines": 747, "bytes": 28070, "status": "KEEP", "group": 18},
+    {"file": "PRISM_ML_FEATURE_RECOGNITION.js", "dir": "ai_ml", "lines": 286, "bytes": 10276, "status": "KEEP", "group": 26},
+    {"file": "PRISM_MODEL_COMPRESSION_ENGINE.js", "dir": "ai_ml", "lines": 285, "bytes": 10847, "status": "KEEP", "group": null},
+    {"file": "PRISM_MONTE_CARLO_ENGINE.js", "dir": "ai_ml", "lines": 349, "bytes": 12704, "status": "KEEP", "group": 23},
+    {"file": "PRISM_NEURAL_ENGINE_ENHANCED.js", "dir": "ai_ml", "lines": 331, "bytes": 13938, "status": "ARCHIVE", "group": 1},
+    {"file": "PRISM_NEURAL_NETWORK.js", "dir": "ai_ml", "lines": 106, "bytes": 4670, "status": "ARCHIVE", "group": 1},
+    {"file": "PRISM_NLP_ENGINE.js", "dir": "ai_ml", "lines": 181, "bytes": 6040, "status": "KEEP", "group": 33},
+    {"file": "PRISM_OCR_ENGINE.js", "dir": "ai_ml", "lines": 277, "bytes": 8126, "status": "KEEP", "group": null},
+    {"file": "PRISM_OPTIMIZER_ADVANCED.js", "dir": "ai_ml", "lines": 174, "bytes": 9529, "status": "ARCHIVE", "group": 9},
+    {"file": "PRISM_OPTIMIZERS_ENGINE.js", "dir": "ai_ml", "lines": 314, "bytes": 13650, "status": "KEEP", "group": 9},
+    {"file": "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js", "dir": "ai_ml", "lines": 636, "bytes": 20040, "status": "KEEP", "group": 28},
+    {"file": "PRISM_PHASE3_ADVANCED_RL.js", "dir": "ai_ml", "lines": 838, "bytes": 30059, "status": "KEEP", "group": 3},
+    {"file": "PRISM_PHASE3_DEEP_LEARNING.js", "dir": "ai_ml", "lines": 659, "bytes": 24564, "status": "KEEP", "group": 2},
+    {"file": "PRISM_PHASE6_DEEPLEARNING.js", "dir": "ai_ml", "lines": 315, "bytes": 13196, "status": "ARCHIVE", "group": 2},
+    {"file": "PRISM_PIML_CHATTER_ENGINE.js", "dir": "ai_ml", "lines": 860, "bytes": 30995, "status": "KEEP", "group": 21},
+    {"file": "PRISM_PROBABILISTIC_REASONING_ENGINE.js", "dir": "ai_ml", "lines": 419, "bytes": 17328, "status": "KEEP", "group": 31},
+    {"file": "PRISM_PSO_OPTIMIZER.js", "dir": "ai_ml", "lines": 862, "bytes": 34194, "status": "KEEP", "group": 8},
+    {"file": "PRISM_REGULARIZATION_ENGINE.js", "dir": "ai_ml", "lines": 12613, "bytes": 519277, "status": "SPLIT", "group": null},
+    {"file": "PRISM_RL_QLEARNING_ENGINE.js", "dir": "ai_ml", "lines": 719, "bytes": 26345, "status": "ARCHIVE", "group": 3},
+    {"file": "PRISM_RL_SARSA_ENGINE.js", "dir": "ai_ml", "lines": 84, "bytes": 3077, "status": "ARCHIVE", "group": 3},
+    {"file": "PRISM_SEARCH_ENHANCED_ENGINE.js", "dir": "ai_ml", "lines": 303, "bytes": 13705, "status": "KEEP", "group": null},
+    {"file": "PRISM_SEQUENCE_MODEL_ENGINE.js", "dir": "ai_ml", "lines": 198, "bytes": 7705, "status": "KEEP", "group": 19},
+    {"file": "PRISM_SIMULATED_ANNEALING.js", "dir": "ai_ml", "lines": 569, "bytes": 21471, "status": "KEEP", "group": 8},
+    {"file": "PRISM_TRANSFORMER_ENGINE.js", "dir": "ai_ml", "lines": 267, "bytes": 12447, "status": "CONFIG_ONLY", "group": null},
+    {"file": "PRISM_TRUE_AI_SYSTEM.js", "dir": "ai_ml", "lines": 288, "bytes": 11819, "status": "ARCHIVE", "group": 24},
+    {"file": "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js", "dir": "ai_ml", "lines": 5389, "bytes": 197587, "status": "SPLIT", "group": 29},
+    {"file": "PRISM_UNIFIED_LEARNING_ENGINE.js", "dir": "ai_ml", "lines": 193, "bytes": 7586, "status": "ARCHIVE", "group": 27},
+    {"file": "PRISM_XAI_ENGINE.js", "dir": "ai_ml", "lines": 334, "bytes": 11909, "status": "ARCHIVE", "group": 6},
+    {"file": "PRISM_ACTIVE_LEARNING_COMPLETE.js", "dir": "ai_complete", "lines": 206, "bytes": 7411, "status": "KEEP", "group": 16},
+    {"file": "PRISM_ATTENTION_COMPLETE.js", "dir": "ai_complete", "lines": 300, "bytes": 13444, "status": "KEEP", "group": 5},
+    {"file": "PRISM_CLUSTERING_COMPLETE.js", "dir": "ai_complete", "lines": 605, "bytes": 25618, "status": "KEEP", "group": 4},
+    {"file": "PRISM_GNN_COMPLETE.js", "dir": "ai_complete", "lines": 435, "bytes": 18567, "status": "KEEP", "group": 11},
+    {"file": "PRISM_HYPEROPT_COMPLETE.js", "dir": "ai_complete", "lines": 327, "bytes": 12096, "status": "KEEP", "group": 12},
+    {"file": "PRISM_LR_SCHEDULER_COMPLETE.js", "dir": "ai_complete", "lines": 211, "bytes": 7124, "status": "KEEP", "group": 13},
+    {"file": "PRISM_NORMALIZATION_COMPLETE.js", "dir": "ai_complete", "lines": 64, "bytes": 3344, "status": "KEEP", "group": 14},
+    {"file": "PRISM_ONLINE_LEARNING_COMPLETE.js", "dir": "ai_complete", "lines": 460, "bytes": 20094, "status": "KEEP", "group": 15},
+    {"file": "PRISM_OPTIMIZATION_COMPLETE.js", "dir": "ai_complete", "lines": 199, "bytes": 8071, "status": "KEEP", "group": 9},
+    {"file": "PRISM_RL_COMPLETE.js", "dir": "ai_complete", "lines": 719, "bytes": 30524, "status": "KEEP", "group": 3},
+    {"file": "PRISM_TIME_SERIES_COMPLETE.js", "dir": "ai_complete", "lines": 780, "bytes": 30058, "status": "KEEP", "group": 10},
+    {"file": "PRISM_UNCERTAINTY_COMPLETE.js", "dir": "ai_complete", "lines": 222, "bytes": 7353, "status": "KEEP", "group": 17},
+    {"file": "PRISM_XAI_COMPLETE.js", "dir": "ai_complete", "lines": 392, "bytes": 17362, "status": "KEEP", "group": 6}
+  ]
+}

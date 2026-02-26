@@ -16,8 +16,12 @@
 
 import { log } from "../utils/Logger.js";
 import { registryManager } from "../registries/index.js";
-import { formulaRegistry, Formula, FormulaCategory } from "../registries/FormulaRegistry.js";
-import { materialRegistry, Material } from "../registries/MaterialRegistry.js";
+import { formulaRegistry, Formula } from "../registries/FormulaRegistry.js";
+import { materialRegistry } from "../registries/MaterialRegistry.js";
+import type { Material } from "../types.js";
+
+/** Local alias -- FormulaCategory is just the string `category` field on Formula. */
+type FormulaCategory = string;
 import { machineRegistry, Machine } from "../registries/MachineRegistry.js";
 import { toolRegistry, CuttingTool } from "../registries/ToolRegistry.js";
 import { alarmRegistry, Alarm } from "../registries/AlarmRegistry.js";
@@ -359,15 +363,16 @@ export class KnowledgeQueryEngine {
       case "materials": {
         const materials = await materialRegistry.search({ query, limit });
         for (const m of materials.materials) {
-          const extraContext = [m.material_type, m.iso_group, m.material_id, m.category].filter(Boolean).join(" ");
+          const mAny = m as any;
+          const extraContext = [mAny.material_type, m.iso_group, mAny.material_id ?? m.id, m.category].filter(Boolean).join(" ");
           results.push({
             registry: "materials",
-            id: m.material_id,
+            id: mAny.material_id ?? m.id,
             name: m.name,
             relevance_score: this.calculateRelevance(query, m.name, extraContext),
             match_type: this.getMatchType(queryLower, m.name.toLowerCase()),
             match_field: "name",
-            summary: `${m.iso_group} | ${m.category} | Hardness: ${m.hardness_min}-${m.hardness_max} HB`,
+            summary: `${m.iso_group} | ${m.category} | Hardness: ${mAny.hardness_min ?? "?"}-${mAny.hardness_max ?? "?"} HB`,
             data: m
           });
         }
@@ -377,13 +382,14 @@ export class KnowledgeQueryEngine {
       case "machines": {
         const machineResult = machineRegistry.search({ query, limit });
         for (const m of machineResult.machines) {
-          const extraContext = [m.manufacturer, m.model, m.type, m.machine_id].filter(Boolean).map(String).join(" ");
+          const mAnyMach = m as any;
+          const extraContext = [m.manufacturer, m.model, m.type, mAnyMach.machine_id ?? m.id].filter(Boolean).map(String).join(" ");
           results.push({
             registry: "machines",
-            id: m.machine_id,
-            name: m.name,
-            relevance_score: this.calculateRelevance(query, m.name || "", extraContext),
-            match_type: this.getMatchType(queryLower, (m.name || "").toLowerCase()),
+            id: mAnyMach.machine_id ?? m.id,
+            name: mAnyMach.name ?? `${m.manufacturer} ${m.model}`,
+            relevance_score: this.calculateRelevance(query, mAnyMach.name || `${m.manufacturer} ${m.model}`, extraContext),
+            match_type: this.getMatchType(queryLower, (mAnyMach.name || `${m.manufacturer} ${m.model}`).toLowerCase()),
             match_field: "name",
             summary: `${m.manufacturer || "?"} | ${m.type || "?"} | ${m.controller || "?"}`,
             data: m
@@ -395,15 +401,16 @@ export class KnowledgeQueryEngine {
       case "tools": {
         const toolResult = toolRegistry.search({ query, limit });
         for (const t of toolResult.tools) {
-          const extraContext = [t.type, t.manufacturer, t.substrate, t.catalog_number, t.tool_id].filter(Boolean).map(String).join(" ");
+          const tAny = t as any;
+          const extraContext = [t.type, t.manufacturer, t.substrate, t.catalog_number, tAny.tool_id ?? t.id].filter(Boolean).map(String).join(" ");
           results.push({
             registry: "tools",
-            id: t.tool_id,
+            id: tAny.tool_id ?? t.id,
             name: t.name,
             relevance_score: this.calculateRelevance(query, t.name || "", extraContext),
             match_type: this.getMatchType(queryLower, (t.name || "").toLowerCase()),
             match_field: "name",
-            summary: `${t.type || "?"} | ${t.material || "?"} | D${t.diameter || "?"}mm`,
+            summary: `${t.type || "?"} | ${tAny.material ?? t.substrate ?? "?"} | D${tAny.diameter ?? t.geometry?.diameter ?? "?"}mm`,
             data: t
           });
         }
@@ -446,7 +453,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, f.name, f.description),
             match_type: this.getMatchType(queryLower, f.name.toLowerCase()),
             match_field: "name",
-            summary: `${f.category} | ${(f.equation || f.latex_formula || "").slice(0, 50)}...`,
+            summary: `${f.category} | ${(f.equation || (f as any).latex_formula || "").slice(0, 50)}...`,
             data: f
           });
         }
@@ -497,7 +504,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, a.name, a.description),
             match_type: this.getMatchType(queryLower, a.name.toLowerCase()),
             match_field: "name",
-            summary: `${a.category} | ${a.type} | ${a.capabilities?.length || 0} capabilities`,
+            summary: `${a.category} | ${(a as any).type ?? a.category} | ${a.capabilities?.length || 0} capabilities`,
             data: a
           });
         }
@@ -514,7 +521,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, h.name, h.description),
             match_type: this.getMatchType(queryLower, h.name.toLowerCase()),
             match_field: "name",
-            summary: `${h.phase} | ${h.priority} priority`,
+            summary: `${(h as any).phase ?? h.timing} | ${h.priority} priority`,
             data: h
           });
         }
@@ -632,7 +639,7 @@ export class KnowledgeQueryEngine {
           if (f.category === "cutting_force" || f.category === "tool_life") {
             relations.push({
               source_registry: "materials",
-              source_id: m.material_id,
+              source_id: m.material_id ?? m.id,
               target_registry: "formulas",
               target_id: f.formula_id,
               relation_type: "uses",
@@ -650,7 +657,7 @@ export class KnowledgeQueryEngine {
           if (a.controller_family?.toLowerCase().includes(String(m.controller || "").toLowerCase())) {
             relations.push({
               source_registry: "machines",
-              source_id: m.machine_id,
+              source_id: (m as any).machine_id ?? m.id,
               target_registry: "alarms",
               target_id: a.alarm_id,
               relation_type: "related",
@@ -790,12 +797,12 @@ export class KnowledgeQueryEngine {
       }
 
       // Check input parameters
-      const requiredInputs = formula.inputs.filter(i => i.required).map(i => i.name);
+      const requiredInputs = ((formula as any).inputs ?? formula.parameters ?? []).filter((i: any) => i.required ?? i.type === "input").map((i: any) => i.name);
 
       // Find related formulas
       let relatedFormulas: string[] = [];
       if (options?.include_related) {
-        relatedFormulas = this.findRelatedFormulas(formula);
+        relatedFormulas = await this.findRelatedFormulas(formula);
       }
 
       if (matchScore > 0 || matchReasons.length > 0) {
@@ -815,11 +822,11 @@ export class KnowledgeQueryEngine {
   /**
    * Find formulas related to a given formula
    */
-  private findRelatedFormulas(formula: Formula): string[] {
+  private async findRelatedFormulas(formula: Formula): Promise<string[]> {
     const related: string[] = [];
 
     // Find formulas in same category
-    const sameCategory = formulaRegistry.getByCategory(formula.category);
+    const sameCategory = await formulaRegistry.getByCategory(formula.category);
     for (const f of sameCategory) {
       if (f.formula_id !== formula.formula_id) {
         related.push(f.formula_id);
@@ -828,11 +835,11 @@ export class KnowledgeQueryEngine {
 
     // Find formulas that use similar inputs
     const allFormulas = formulaRegistry.all();
-    const inputNames = new Set(formula.inputs.map(i => i.name.toLowerCase()));
-    
+    const inputNames = new Set(((formula as any).inputs ?? formula.parameters ?? []).map((i: any) => i.name.toLowerCase()));
+
     for (const f of allFormulas) {
       if (f.formula_id === formula.formula_id) continue;
-      const fInputs = new Set(f.inputs.map(i => i.name.toLowerCase()));
+      const fInputs = new Set(((f as any).inputs ?? f.parameters ?? []).map((i: any) => i.name.toLowerCase()));
       const overlap = [...inputNames].filter(i => fInputs.has(i)).length;
       if (overlap >= 2 && !related.includes(f.formula_id)) {
         related.push(f.formula_id);
@@ -845,7 +852,7 @@ export class KnowledgeQueryEngine {
   /**
    * Get formula by ID with full details
    */
-  getFormula(formulaId: string): Formula | undefined {
+  async getFormula(formulaId: string): Promise<Formula | undefined> {
     return formulaRegistry.getFormula(formulaId);
   }
 

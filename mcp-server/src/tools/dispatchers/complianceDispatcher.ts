@@ -14,7 +14,7 @@ import { complianceEngine } from "../../engines/ComplianceEngine.js";
 import { log } from "../../utils/Logger.js";
 
 export function registerComplianceDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_compliance",
     "Compliance-as-Code regulatory templates. 6 frameworks (ISO 13485, AS9100, ITAR, SOC2, HIPAA, FDA 21 CFR Part 11). Auto-provisions hooks via F6, strictness lattice conflict resolution, append-only audit logs. Actions: apply_template, remove_template, list_templates, audit_status, check_compliance, resolve_conflicts, gap_analysis, config",
     {

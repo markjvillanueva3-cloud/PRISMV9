@@ -22,7 +22,7 @@ import { memoryGraphEngine } from "../../engines/MemoryGraphEngine.js";
 import { log } from "../../utils/Logger.js";
 
 export function registerMemoryDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_memory",
     "Cross-session memory graph. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity",
     {

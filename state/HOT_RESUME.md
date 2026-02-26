@@ -1,11 +1,11 @@
-# HOT_RESUME (call 9 — 2026-02-22T21:28:50.291Z)
-Last: prism_knowledge:stats (2ms, OK)
+# HOT_RESUME (call 8 — 2026-02-24T15:57:21.074Z)
+Last: prism_ralph:scrutinize (371ms, OK)
 ## Recent
-- prism_nl_hook:create
-- prism_nl_hook:create
-- prism_skill_script:script_execute
+- prism_ralph:loop
+- prism_ralph:scrutinize
+- prism_validate:completeness
 - prism_omega:compute
-- prism_doc:write
-- prism_doc:write
-- prism_session:state_save
-- prism_knowledge:stats
+- prism_sp:brainstorm
+- prism_ralph:loop
+- prism_sp:brainstorm
+- prism_ralph:scrutinize

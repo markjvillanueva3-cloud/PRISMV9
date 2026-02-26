@@ -226,9 +226,9 @@ const preFileReplaceStructure: HookDefinition = {
     }
     
     if (ext === ".md") {
-      const oldSections = (typeof oldContent === "string" ? oldContent : "")
+      const oldSections: string[] = (typeof oldContent === "string" ? oldContent : "")
         .match(/^#{1,3}\s+.+$/gm) || [];
-      const newSections = (typeof newContent === "string" ? newContent : "")
+      const newSections: string[] = (typeof newContent === "string" ? newContent : "")
         .match(/^#{1,3}\s+.+$/gm) || [];
       
       const missingSections = oldSections.filter(s => !newSections.includes(s));

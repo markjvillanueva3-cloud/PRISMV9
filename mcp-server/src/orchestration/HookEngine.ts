@@ -351,7 +351,7 @@ class HookEngine {
       const isSevere = severity === "HIGH" || severity === "CRITICAL";
       const isConfidenceLow = (context.data.confidence !== undefined && context.data.confidence < 0.80);
       const isSafetyRelated = context.data.safety_score !== undefined && context.data.safety_score < 0.70;
-      let recommendedTier = null;
+      let recommendedTier: string | null = null;
       let reason = "";
       if (currentTier.includes("haiku") && (error_message || isConfidenceLow)) {
         recommendedTier = "sonnet";

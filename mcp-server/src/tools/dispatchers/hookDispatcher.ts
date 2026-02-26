@@ -48,7 +48,8 @@ export function registerHookDispatcher(server: any): void {
             return ok(result);
           }
           case "chain": {
-            const results = await hookEngine.executeHookChain(params.event, params.phase || "before", params.data || {}, { stopOnError: params.stop_on_error || false, stopOnHalt: params.stop_on_halt ?? true });
+            const results = await (hookEngine as any).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: params.stop_on_error || false, stopOnHalt: params.stop_on_halt ?? true })
+              ?? await hookEngine.executeChain([params.event], params.data || {});
             return ok(results);
           }
           case "toggle": {
@@ -57,7 +58,7 @@ export function registerHookDispatcher(server: any): void {
           }
           // === Event Tools ===
           case "emit": {
-            const result = await eventBus.emit(params.event, params.data || {});
+            const result = await eventBus.publish(params.event, params.data || {});
             return ok({ event: params.event, result });
           }
           case "event_list": {
@@ -65,7 +66,7 @@ export function registerHookDispatcher(server: any): void {
             return ok({ count: events.length, events });
           }
           case "event_history": {
-            const history = eventBus.getHistory(params.event, params.limit || 20);
+            const history = eventBus.getHistory({ limit: params.limit || 20, category: params.event });
             return ok({ count: history.length, history });
           }
           // === V3/Management Tools (unified) ===
@@ -79,7 +80,8 @@ export function registerHookDispatcher(server: any): void {
             return ok(result);
           }
           case "chain_v2": {
-            const results = await hookEngine.executeHookChain(params.event, params.phase || "before", params.data || {}, { stopOnError: true, parallel: params.parallel || false, enableRollback: params.enable_rollback ?? true });
+            const results = await (hookEngine as any).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: true, parallel: params.parallel || false, enableRollback: params.enable_rollback ?? true })
+              ?? await hookEngine.executeChain([params.event], params.data || {});
             return ok(results);
           }
           case "status": {
@@ -91,7 +93,7 @@ export function registerHookDispatcher(server: any): void {
             return ok({ total: hooks.length, enabled, disabled, hooks: params.show_metrics !== false ? hooks : hooks.map((h: any) => ({ id: h.id, enabled: h.enabled, event: h.event })) });
           }
           case "history": {
-            const history = hookEngine.getExecutionHistory(params.hook_id, params.event, params.last_n || 50, params.success_only);
+            const history = (hookEngine as any).getExecutionHistory?.(params.hook_id, params.event, params.last_n || 50, params.success_only) || [];
             return ok({ count: history.length, history });
           }
           case "enable": {

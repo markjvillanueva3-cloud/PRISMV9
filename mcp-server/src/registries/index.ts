@@ -27,7 +27,8 @@
 export { BaseRegistry, type RegistryEntry } from "./base.js";
 
 // Data registries
-export { MaterialRegistry, materialRegistry, type Material } from "./MaterialRegistry.js";
+export { MaterialRegistry, materialRegistry } from "./MaterialRegistry.js";
+export type { Material } from "../types.js";
 export { MachineRegistry, machineRegistry, type Machine } from "./MachineRegistry.js";
 export { ToolRegistry, toolRegistry, type CuttingTool } from "./ToolRegistry.js";
 export { AlarmRegistry, alarmRegistry, type Alarm } from "./AlarmRegistry.js";

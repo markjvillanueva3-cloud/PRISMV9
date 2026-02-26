@@ -56,7 +56,7 @@ export function synergyComplianceAudit(callNum: number): {
     try {
       if (result.total_score > 0) {
         certificateEngine.init();
-        const certResult = certificateEngine.certify({
+        const certResult = (certificateEngine as any).certify({
           dispatcher: 'prism_compliance',
           action: 'audit_status',
           params: { auto_cadence: true, call_number: callNum },
@@ -117,7 +117,7 @@ export function synergyRecordEvent(
 ): void {
   if (!telemetry) return;
   try {
-    telemetry.recordExecution({
+    (telemetry as any).recordExecution({
       dispatcher: engine,
       action: event,
       success: true,

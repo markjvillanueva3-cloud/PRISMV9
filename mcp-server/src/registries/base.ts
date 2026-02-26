@@ -156,9 +156,10 @@ export class BaseRegistry<T> {
   }
 
   /**
-   * List all entries as RegistryEntry[] (with id, data, metadata)
+   * List all entries as RegistryEntry[] (with id, data, metadata).
+   * Subclasses may override with different signatures (e.g., options object).
    */
-  list(): RegistryEntry<T>[] {
+  list(..._args: any[]): any {
     return Array.from(this.entries.values());
   }
 
@@ -170,16 +171,33 @@ export class BaseRegistry<T> {
   }
 
   /**
-   * Search entries
+   * Ensure the registry is loaded before querying.
+   * Subclasses that override load() can await this before any query.
    */
-  search(predicate: (data: T, id: string) => boolean): T[] {
-    const results: T[] = [];
-    for (const [id, entry] of this.entries) {
-      if (predicate(entry.data, id)) {
-        results.push(entry.data);
-      }
+  protected async ensureLoaded(): Promise<void> {
+    if (!this.loaded) {
+      await this.load();
     }
-    return results;
+  }
+
+  /**
+   * Search entries.
+   * Subclasses may override with different signatures (e.g., options object).
+   */
+  search(...args: any[]): any {
+    // Default: treat first arg as predicate if it's a function
+    const predicate = args[0];
+    if (typeof predicate === "function") {
+      const results: T[] = [];
+      for (const [id, entry] of this.entries) {
+        if (predicate(entry.data, id)) {
+          results.push(entry.data);
+        }
+      }
+      return results;
+    }
+    // If not a function, return all entries (subclass should override)
+    return this.all();
   }
 
   /**

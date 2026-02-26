@@ -1,0 +1,6785 @@
+{
+  "skills": {
+    "prism-agent-selection": {
+      "name": "prism-agent-selection",
+      "description": "Decision procedure for selecting model tier (Opus/Sonnet/Haiku) and specific agent based on task complexity, cost, and capability requirements",
+      "size_bytes": 5109,
+      "triggers": [
+        "Is this an Opus or Sonnet task?",
+        "Model: Haiku→Sonnet→Opus",
+        "Which model should I use for this?",
+        "activation",
+        "agent",
+        "allocating",
+        "configuring",
+        "deciding",
+        "dispatcher",
+        "execution",
+        "selection"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 5
+    },
+    "prism-aiml-unified": {
+      "name": "prism-aiml-unified",
+      "description": "|",
+      "size_bytes": 8125,
+      "triggers": [
+        "aiml",
+        "algorithms",
+        "bayesian",
+        "deep",
+        "development",
+        "intelligence",
+        "manufacturing",
+        "pattern",
+        "selection",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.9
+    },
+    "prism-algorithm-selector": {
+      "name": "prism-algorithm-selector",
+      "description": "|",
+      "size_bytes": 12659,
+      "triggers": [
+        "algorithm",
+        "enrichment",
+        "instant",
+        "maps",
+        "problem",
+        "problems",
+        "registry",
+        "selection",
+        "selector"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 12.4
+    },
+    "prism-anti-regression": {
+      "name": "prism-anti-regression",
+      "description": "|",
+      "size_bytes": 38177,
+      "triggers": [
+        "anti",
+        "cadence",
+        "cadence_function",
+        "configuration",
+        "content",
+        "feature",
+        "function",
+        "hook",
+        "management",
+        "mandatory",
+        "preventing",
+        "protocol",
+        "regression"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 37.3
+    },
+    "prism-anti-regression-checklists": {
+      "name": "prism-anti-regression-checklists",
+      "description": "Domain-specific regression checklists for documents, databases, code modules, and skills — what to inventory and compare per file type",
+      "size_bytes": 5062,
+      "triggers": [
+        "What specifically should I check for regression in this [document/database/code/skill]?",
+        "anti",
+        "checklists",
+        "deciding",
+        "document",
+        "interpreting",
+        "regression"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.9
+    },
+    "prism-anti-regression-process": {
+      "name": "prism-anti-regression-process",
+      "description": "4-phase protocol for replacing any file without losing content — Inventory, Create, Compare, Verdict",
+      "size_bytes": 4485,
+      "triggers": [
+        "I need to rewrite this file",
+        "anti",
+        "appending",
+        "editing",
+        "existing",
+        "improved version of",
+        "operation",
+        "process",
+        "rebuild from scratch",
+        "regression",
+        "replace this with a new version"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "prism-anti-regression-size-analysis": {
+      "name": "prism-anti-regression-size-analysis",
+      "description": "Size heuristics and delta decision tree for detecting regressions — expected sizes by operation type and interpretation of size changes",
+      "size_bytes": 4081,
+      "triggers": [
+        "My replacement is smaller/larger — is that a regression?",
+        "What size should I expect for a [rewrite/consolidation/bug fix]?",
+        "analysis",
+        "anti",
+        "comparing",
+        "consolidation",
+        "regression",
+        "replacement",
+        "size",
+        "warning"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4
+    },
+    "prism-api-lifecycle": {
+      "name": "prism-api-lifecycle",
+      "description": "|",
+      "size_bytes": 3526,
+      "triggers": [
+        "action",
+        "api",
+        "deprecation",
+        "design",
+        "dispatcher",
+        "lifecycle",
+        "machining",
+        "material",
+        "versioning"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.4
+    },
+    "prism-architecture-decisions": {
+      "name": "prism-architecture-decisions",
+      "description": "|",
+      "size_bytes": 4592,
+      "triggers": [
+        "adrs",
+        "architecture",
+        "checkpoint",
+        "context_pressure",
+        "decision",
+        "decisions",
+        "document",
+        "management",
+        "records",
+        "recovery",
+        "session",
+        "were"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.5
+    },
+    "prism-async-patterns": {
+      "name": "prism-async-patterns",
+      "description": "Three async execution patterns for PRISM engines — parallel with Promise.all, controlled concurrency limiter, and debounce/throttle for rate-sensitive operations",
+      "size_bytes": 4800,
+      "triggers": [
+        "agent_parallel",
+        "async",
+        "batching",
+        "caching",
+        "calling",
+        "concurrent",
+        "efficiency",
+        "limiting",
+        "loading",
+        "monitoring",
+        "operation",
+        "parallel",
+        "patterns",
+        "processing",
+        "promise",
+        "swarm",
+        "tool"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.7
+    },
+    "prism-batch-efficiency": {
+      "name": "prism-batch-efficiency",
+      "description": "Token budget allocation, operation batching rules, and caching patterns — reduce tool call round trips by 3-5x through parallel batch execution",
+      "size_bytes": 4621,
+      "triggers": [
+        "Can I batch these operations?",
+        "How should I allocate my context budget?",
+        "batch",
+        "checkpoint",
+        "context_pressure",
+        "efficiency",
+        "loading",
+        "material",
+        "remaining",
+        "session",
+        "tool"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.5
+    },
+    "prism-caching-patterns": {
+      "name": "prism-caching-patterns",
+      "description": "Three caching strategies for PRISM engines — memoization for pure functions, LRU for repeated lookups, TTL for time-sensitive data — with decision tree for which to use",
+      "size_bytes": 4945,
+      "triggers": [
+        "Machine capabilities change but we cache them",
+        "Material lookups are slow and we keep requesting the same ones",
+        "This calculation is called 50 times with the same inputs",
+        "batching",
+        "building",
+        "cache",
+        "caching",
+        "calculation",
+        "dispatcher",
+        "efficiency",
+        "engine",
+        "machine",
+        "material",
+        "optimization",
+        "patterns",
+        "requesting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-cam-strategies": {
+      "name": "prism-cam-strategies",
+      "description": "|",
+      "size_bytes": 14284,
+      "triggers": [
+        "cam",
+        "comprehensive",
+        "intelligence",
+        "machining",
+        "manufacturing",
+        "material",
+        "roughing",
+        "strategies",
+        "strategy"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 13.9
+    },
+    "prism-chip-formation": {
+      "name": "prism-chip-formation",
+      "description": "|",
+      "size_bytes": 10449,
+      "triggers": [
+        "breaking",
+        "chip",
+        "evacuation",
+        "formation",
+        "machining",
+        "material",
+        "mechanics",
+        "thickness",
+        "types"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.2
+    },
+    "prism-claude-code-bridge": {
+      "name": "prism-claude-code-bridge",
+      "description": "|",
+      "size_bytes": 7522,
+      "triggers": [
+        "claude",
+        "code",
+        "bridge",
+        "between",
+        "python",
+        "scripts",
+        "automated",
+        "execution"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.3
+    },
+    "prism-codebase-health": {
+      "name": "prism-codebase-health",
+      "description": "|",
+      "size_bytes": 3427,
+      "triggers": [
+        "assessment",
+        "code",
+        "codebase",
+        "collision",
+        "continuous",
+        "health",
+        "monitoring",
+        "quality",
+        "safety",
+        "tracks",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.3
+    },
+    "prism-codebase-packaging": {
+      "name": "prism-codebase-packaging",
+      "description": "Pack entire codebases into AI-friendly single files for analysis using Repomix. Use when analyzing legacy code, planning extraction, performing code review, generating documentation, or preparing context for Claude sessions. Essential for PRISM monolith navigation.",
+      "size_bytes": 19012,
+      "triggers": [
+        "analyzing",
+        "checkpoint",
+        "codebase",
+        "context_pressure",
+        "documentation",
+        "extraction",
+        "generating",
+        "management",
+        "navigation",
+        "packaging",
+        "performing",
+        "planning",
+        "preparing",
+        "recovery",
+        "session"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 18.6
+    },
+    "prism-cognitive-core": {
+      "name": "prism-cognitive-core",
+      "description": "|",
+      "size_bytes": 5380,
+      "triggers": [
+        "cadence",
+        "cadence_function",
+        "cognitive",
+        "configuration",
+        "core",
+        "enhancement",
+        "function",
+        "hook",
+        "management",
+        "patterns",
+        "reasoning",
+        "thinking",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5.3
+    },
+    "prism-combination-engine": {
+      "name": "prism-combination-engine",
+      "description": "|",
+      "size_bytes": 17657,
+      "triggers": [
+        "ILP",
+        "combination",
+        "combination_ilp",
+        "constraint",
+        "engine",
+        "execution",
+        "hook",
+        "optimize"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 17.2
+    },
+    "prism-compliance-guide": {
+      "name": "prism-compliance-guide",
+      "description": "|",
+      "size_bytes": 3450,
+      "triggers": [
+        "application",
+        "cadence",
+        "cadence_function",
+        "compliance",
+        "configuration",
+        "function",
+        "guide",
+        "hipaa",
+        "hook",
+        "itar",
+        "management",
+        "template",
+        "using"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.4
+    },
+    "prism-context-pressure": {
+      "name": "prism-context-pressure",
+      "description": "Context pressure zones with response caps — 4 zones (green/yellow/orange/red), 3 metrics (tool calls, exchange depth, response length), and mandatory zone actions",
+      "size_bytes": 2714,
+      "triggers": [
+        "Am I running out of context?",
+        "Should I save now?",
+        "cadence",
+        "checkpoint",
+        "checkpointing",
+        "compaction",
+        "context",
+        "pressure",
+        "recovery",
+        "session",
+        "tool",
+        "working"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 2.7
+    },
+    "prism-context-unified": {
+      "name": "prism-context-unified",
+      "description": "|",
+      "size_bytes": 7300,
+      "triggers": [
+        "based",
+        "checkpoint",
+        "context",
+        "context_pressure",
+        "laws",
+        "management",
+        "manus",
+        "pressure",
+        "recovery",
+        "session",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.1
+    },
+    "prism-controller-quick-ref": {
+      "name": "prism-controller-quick-ref",
+      "description": "|",
+      "size_bytes": 10271,
+      "triggers": [
+        "comprehensive",
+        "controller",
+        "guide",
+        "navigation",
+        "points",
+        "program",
+        "programming",
+        "quick",
+        "ref",
+        "skills"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1",
+        "R4"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10
+    },
+    "prism-cost-optimizer": {
+      "name": "prism-cost-optimizer",
+      "description": "|",
+      "size_bytes": 4533,
+      "triggers": [
+        "balancing",
+        "calculations",
+        "cost",
+        "life",
+        "machining",
+        "material",
+        "optimizer",
+        "productivity",
+        "tool"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "prism-cross-domain-synthesizer": {
+      "name": "prism-cross-domain-synthesizer",
+      "description": "|",
+      "size_bytes": 8159,
+      "triggers": [
+        "across",
+        "connects",
+        "cross",
+        "domain",
+        "find",
+        "knowledge",
+        "machining",
+        "material",
+        "registries",
+        "synthesizer"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8
+    },
+    "prism-cutting-fluids": {
+      "name": "prism-cutting-fluids",
+      "description": "|",
+      "size_bytes": 12316,
+      "triggers": [
+        "application",
+        "cutting",
+        "fluid",
+        "fluids",
+        "machining",
+        "material",
+        "methods",
+        "optimization",
+        "selection"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 12
+    },
+    "prism-cutting-mechanics": {
+      "name": "prism-cutting-mechanics",
+      "description": "|",
+      "size_bytes": 20328,
+      "triggers": [
+        "cutting",
+        "force",
+        "intelligence",
+        "machining",
+        "manufacturing",
+        "material",
+        "mechanics",
+        "merchant",
+        "prediction"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 19.9
+    },
+    "prism-cutting-tools": {
+      "name": "prism-cutting-tools",
+      "description": "|",
+      "size_bytes": 11721,
+      "triggers": [
+        "comprehensive",
+        "cutting",
+        "database",
+        "intelligence",
+        "machining",
+        "manufacturing",
+        "material",
+        "tool",
+        "tools"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.4
+    },
+    "prism-data-pipeline": {
+      "name": "prism-data-pipeline",
+      "description": "|",
+      "size_bytes": 4219,
+      "triggers": [
+        "data",
+        "flow",
+        "ingestion",
+        "machining",
+        "material",
+        "patterns",
+        "pipeline",
+        "transformation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.1
+    },
+    "prism-design-patterns": {
+      "name": "prism-design-patterns",
+      "description": "|",
+      "size_bytes": 16417,
+      "triggers": [
+        "applied",
+        "design",
+        "development",
+        "four",
+        "gang",
+        "intelligence",
+        "manufacturing",
+        "pattern",
+        "patterns",
+        "selection"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 16
+    },
+    "prism-dev-accelerator": {
+      "name": "prism-dev-accelerator",
+      "description": "|",
+      "size_bytes": 8204,
+      "triggers": [
+        "accelerates",
+        "accelerator",
+        "assessment",
+        "dev",
+        "development",
+        "fundamentally",
+        "meta",
+        "orchestrating",
+        "regression",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8
+    },
+    "prism-dev-guide": {
+      "name": "prism-dev-guide",
+      "description": "|",
+      "size_bytes": 6945,
+      "triggers": [
+        "assessment",
+        "collision",
+        "dev",
+        "development",
+        "dispatcher",
+        "guide",
+        "module",
+        "safety",
+        "unified",
+        "utilities",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.8
+    },
+    "prism-dev-patterns": {
+      "name": "prism-dev-patterns",
+      "description": "",
+      "size_bytes": 8511,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "dev",
+        "management",
+        "patterns",
+        "recovery",
+        "session"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.3
+    },
+    "prism-dispatcher-composer": {
+      "name": "prism-dispatcher-composer",
+      "description": "|",
+      "size_bytes": 8982,
+      "triggers": [
+        "actions",
+        "composer",
+        "dispatcher",
+        "dispatchers",
+        "intelligent",
+        "isolated",
+        "machining",
+        "material",
+        "transforms"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.8
+    },
+    "prism-dispatcher-router": {
+      "name": "prism-dispatcher-router",
+      "description": "|",
+      "size_bytes": 6343,
+      "triggers": [
+        "dispatcher",
+        "machining",
+        "manufacturing",
+        "maps",
+        "master",
+        "material",
+        "query",
+        "router",
+        "routing"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.2
+    },
+    "prism-doe-manufacturing": {
+      "name": "prism-doe-manufacturing",
+      "description": "|",
+      "size_bytes": 9819,
+      "triggers": [
+        "design",
+        "doe",
+        "experiments",
+        "full",
+        "machining",
+        "manufacturing",
+        "material",
+        "optimization",
+        "process"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.6
+    },
+    "prism-edm-operations": {
+      "name": "prism-edm-operations",
+      "description": "|",
+      "size_bytes": 10981,
+      "triggers": [
+        "EDM",
+        "carbide",
+        "cutting",
+        "cutting_force",
+        "depth",
+        "electrical discharge",
+        "force",
+        "hardened",
+        "injection",
+        "material",
+        "material_removal",
+        "milling",
+        "operations",
+        "requirement",
+        "sinker EDM",
+        "spark erosion",
+        "tooling",
+        "width",
+        "wire EDM"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.7
+    },
+    "prism-efficiency-controller": {
+      "name": "prism-efficiency-controller",
+      "description": "|",
+      "size_bytes": 11856,
+      "triggers": [
+        "bottleneck",
+        "controller",
+        "cycle time",
+        "efficiency",
+        "loading",
+        "processing",
+        "throughput",
+        "tool",
+        "utilization"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.6
+    },
+    "prism-error-handling-patterns": {
+      "name": "prism-error-handling-patterns",
+      "description": "|",
+      "size_bytes": 29356,
+      "triggers": [
+        "assessment",
+        "collision",
+        "custom",
+        "error",
+        "handling",
+        "intelligence",
+        "manufacturing",
+        "patterns",
+        "result",
+        "safety",
+        "types",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 28.7
+    },
+    "prism-error-recovery": {
+      "name": "prism-error-recovery",
+      "description": "",
+      "size_bytes": 6944,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "error",
+        "management",
+        "recovery",
+        "session"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.8
+    },
+    "prism-error-recovery-strategies": {
+      "name": "prism-error-recovery-strategies",
+      "description": "Three recovery patterns for PRISM failures — retry with exponential backoff for transient errors, circuit breaker for cascading failures, fallback values for non-critical defaults",
+      "size_bytes": 4824,
+      "triggers": [
+        "How do I implement retry?",
+        "Need a fallback",
+        "Service keeps timing out",
+        "catching",
+        "deciding",
+        "error",
+        "failing",
+        "hammering",
+        "implement",
+        "recovery",
+        "safety",
+        "strategies"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.7
+    },
+    "prism-error-taxonomy": {
+      "name": "prism-error-taxonomy",
+      "description": "PrismError class hierarchy with 6 error categories and their mandatory treatment — safety blocks execution, network retries, data logs and continues",
+      "size_bytes": 4921,
+      "triggers": [
+        "How should this failure be handled?",
+        "What error type should I throw here?",
+        "classification",
+        "dispatcher",
+        "engine",
+        "error",
+        "failure",
+        "implementing",
+        "recovery",
+        "reviewing",
+        "taxonomy",
+        "validation",
+        "writing"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-expert-personas": {
+      "name": "prism-expert-personas",
+      "description": "|",
+      "size_bytes": 11464,
+      "triggers": [
+        "decision",
+        "domain",
+        "expert",
+        "intelligence",
+        "machining",
+        "manufacturing",
+        "material",
+        "personas",
+        "specific"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.2
+    },
+    "prism-fanuc-programming": {
+      "name": "prism-fanuc-programming",
+      "description": "",
+      "size_bytes": 55906,
+      "triggers": [
+        "CNC program",
+        "FANUC",
+        "G-code",
+        "M-code",
+        "building",
+        "creating",
+        "cycle",
+        "debugging",
+        "fanuc",
+        "gcode",
+        "heidenhain",
+        "implementing",
+        "macro B",
+        "optimizing",
+        "probing",
+        "programming",
+        "siemens",
+        "writing"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 54.6
+    },
+    "prism-fixturing-principles": {
+      "name": "prism-fixturing-principles",
+      "description": "|",
+      "size_bytes": 12003,
+      "triggers": [
+        "datum",
+        "fixturing",
+        "locating",
+        "machining",
+        "material",
+        "principles",
+        "selection",
+        "theory",
+        "workpiece"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.7
+    },
+    "prism-formula-calibration": {
+      "name": "prism-formula-calibration",
+      "description": "When and how to recalibrate PRISM formulas — 5 trigger conditions, the calibration procedure, performance metrics computation, and A/B version comparison",
+      "size_bytes": 4623,
+      "triggers": [
+        "Is this formula still accurate?",
+        "Should I recalibrate?",
+        "calibration",
+        "collecting",
+        "creating",
+        "degrading",
+        "formula",
+        "hook",
+        "performance",
+        "prediction",
+        "registering",
+        "understanding"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.5
+    },
+    "prism-formula-evolution": {
+      "name": "prism-formula-evolution",
+      "description": "|",
+      "size_bytes": 19458,
+      "triggers": [
+        "formula",
+        "evolution",
+        "continuous",
+        "mathematical",
+        "formulas",
+        "tracks",
+        "lifecycle"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 19
+    },
+    "prism-formula-lifecycle": {
+      "name": "prism-formula-lifecycle",
+      "description": "7-stage procedure for formula management — INVENT through DEPRECATE with required actions, validation gates, and registry operations at each stage",
+      "size_bytes": 4979,
+      "triggers": [
+        "How do I register a new formula?",
+        "What stage is this formula at?",
+        "agent",
+        "building",
+        "calculation",
+        "calibration",
+        "creating",
+        "degradation",
+        "drifting",
+        "error",
+        "error_handling",
+        "formula",
+        "handling",
+        "hook",
+        "lifecycle",
+        "material",
+        "recalibration",
+        "selecting",
+        "selection"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.9
+    },
+    "prism-gcode-coordinate-systems": {
+      "name": "prism-gcode-coordinate-systems",
+      "description": "Cross-controller coordinate system G-codes — work offsets (G54-G59), extended WCS, absolute/incremental, local/machine coordinates, plane selection across 7 controller families",
+      "size_bytes": 3118,
+      "triggers": [
+        "Extended work offsets beyond G59",
+        "G52 local coordinate on Mazak",
+        "G53 machine coordinate differences",
+        "G54 equivalent on Heidenhain",
+        "How do I set work offset on Siemens?",
+        "Switch between absolute and incremental mid-program",
+        "What plane codes does Heidenhain use?",
+        "compensation",
+        "coordinate",
+        "gcode",
+        "heidenhain",
+        "machine",
+        "program",
+        "siemens",
+        "systems",
+        "tool"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3
+    },
+    "prism-gcode-motion-codes": {
+      "name": "prism-gcode-motion-codes",
+      "description": "Cross-controller motion G-code syntax for rapid, linear, arc, helix, and spline moves across Fanuc, Siemens, Haas, Mazak, Heidenhain, Mitsubishi, and Okuma",
+      "size_bytes": 2742,
+      "triggers": [
+        "Arc move on Heidenhain TNC",
+        "G02 equivalent on Heidenhain",
+        "How do I program a helix on Fanuc vs Haas?",
+        "NURBS programming",
+        "Spline interpolation code",
+        "What's the G-code for circular interpolation on Siemens?",
+        "codes",
+        "converting",
+        "drilling",
+        "fanuc",
+        "gcode",
+        "haas",
+        "heidenhain",
+        "interpolation",
+        "motion",
+        "program",
+        "programming",
+        "siemens",
+        "tapping",
+        "translation"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 2.7
+    },
+    "prism-gcode-reference": {
+      "name": "prism-gcode-reference",
+      "description": "|",
+      "size_bytes": 64042,
+      "triggers": [
+        "code",
+        "comprehensive",
+        "controller",
+        "families",
+        "gcode",
+        "major",
+        "program",
+        "programming",
+        "reference"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 62.5
+    },
+    "prism-gcode-tool-compensation": {
+      "name": "prism-gcode-tool-compensation",
+      "description": "Cross-controller tool compensation G-codes — cutter radius comp (G40-G42), tool length offset (G43/G44/G49), 3D and dynamic compensation (G43.4/TCPM/TRAORI) across 7 controller families",
+      "size_bytes": 3039,
+      "triggers": [
+        "3D cutter comp for 5-axis",
+        "Cutter comp codes for Siemens",
+        "G41 on Heidenhain",
+        "G43.4 dynamic compensation — which controllers support it?",
+        "TCPM vs TRAORI vs G43.4",
+        "Tool length offset differences between controllers",
+        "compensation",
+        "converting",
+        "gcode",
+        "heidenhain",
+        "management",
+        "siemens",
+        "tool"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3
+    },
+    "prism-gdt-manufacturing": {
+      "name": "prism-gdt-manufacturing",
+      "description": "|",
+      "size_bytes": 10865,
+      "triggers": [
+        "asme",
+        "dimensioning",
+        "gdt",
+        "geometric",
+        "interpretation",
+        "machining",
+        "manufacturing",
+        "material",
+        "tolerancing"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.6
+    },
+    "prism-grinding-operations": {
+      "name": "prism-grinding-operations",
+      "description": "|",
+      "size_bytes": 10686,
+      "triggers": [
+        "cylindrical",
+        "fundamentals",
+        "grinding",
+        "internal",
+        "machining",
+        "material",
+        "operations",
+        "process",
+        "surface"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.4
+    },
+    "prism-hard-machining": {
+      "name": "prism-hard-machining",
+      "description": "|",
+      "size_bytes": 11911,
+      "triggers": [
+        "above",
+        "hard",
+        "machining",
+        "material",
+        "materials",
+        "milling",
+        "strategies",
+        "turning"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.6
+    },
+    "prism-heidenhain-programming": {
+      "name": "prism-heidenhain-programming",
+      "description": "",
+      "size_bytes": 55157,
+      "triggers": [
+        "heidenhain",
+        "program",
+        "programming"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 53.9
+    },
+    "prism-high-reliability": {
+      "name": "prism-high-reliability",
+      "description": "",
+      "size_bytes": 3324,
+      "triggers": [
+        "assessment",
+        "collision",
+        "high",
+        "reliability",
+        "safety",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.2
+    },
+    "prism-hook-architecture": {
+      "name": "prism-hook-architecture",
+      "description": "Hook system mechanics — 25 categories, priority levels 0-999, registration API, execution model, blocking vs warning patterns, and error handling",
+      "size_bytes": 4703,
+      "triggers": [
+        "How do I register a hook?",
+        "What priority should my hook use?",
+        "architecture",
+        "building",
+        "cadence",
+        "cadence_function",
+        "dispatcher",
+        "enforcement",
+        "engine",
+        "existing",
+        "hook",
+        "integration",
+        "logging",
+        "operation",
+        "understanding",
+        "validation"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.6
+    },
+    "prism-hook-authoring": {
+      "name": "prism-hook-authoring",
+      "description": "How to register, execute, and chain PRISM hooks — priority levels, blocking vs warning patterns, error handling, and the 25 hook categories",
+      "size_bytes": 4820,
+      "triggers": [
+        "How do I register a custom hook?",
+        "What priority should my hook use?",
+        "authoring",
+        "blocking",
+        "building",
+        "creation",
+        "deciding",
+        "dispatcher",
+        "enforcement",
+        "engine",
+        "hook",
+        "implementing",
+        "monitoring",
+        "nl_hook",
+        "processing",
+        "understanding",
+        "validation",
+        "warning"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.7
+    },
+    "prism-hook-enforcement": {
+      "name": "prism-hook-enforcement",
+      "description": "15 system hooks that cannot be disabled — what each enforces, HARD blocks vs SOFT auto-fixes, and the safety-critical hook chain",
+      "size_bytes": 4476,
+      "triggers": [
+        "What happens automatically when I run a calculation/task/session?",
+        "Why did my operation get blocked?",
+        "authoring",
+        "calculation",
+        "designing",
+        "enforcement",
+        "execution",
+        "hook",
+        "operation",
+        "registration",
+        "session",
+        "understanding"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "prism-hook-system": {
+      "name": "prism-hook-system",
+      "description": "|",
+      "size_bytes": 19391,
+      "triggers": [
+        "hook",
+        "hooks",
+        "hook_system",
+        "event",
+        "middleware",
+        "pre-output"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 18.9
+    },
+    "prism-intent-disambiguator": {
+      "name": "prism-intent-disambiguator",
+      "description": "|",
+      "size_bytes": 4559,
+      "triggers": [
+        "ambiguous",
+        "disambiguator",
+        "dispatch",
+        "intent",
+        "machining",
+        "material",
+        "parses",
+        "query",
+        "resolution"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.5
+    },
+    "prism-knowledge-base": {
+      "name": "prism-knowledge-base",
+      "description": "|",
+      "size_bytes": 9698,
+      "triggers": [
+        "assessment",
+        "base",
+        "comprehensive",
+        "course",
+        "courses",
+        "development",
+        "knowledge",
+        "regression",
+        "stanford",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.5
+    },
+    "prism-knowledge-graph": {
+      "name": "prism-knowledge-graph",
+      "description": "|",
+      "size_bytes": 3973,
+      "triggers": [
+        "across",
+        "domains",
+        "entity",
+        "graph",
+        "knowledge",
+        "machining",
+        "material",
+        "relationships",
+        "semantic"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.9
+    },
+    "prism-large-file-writer": {
+      "name": "prism-large-file-writer",
+      "description": "|",
+      "size_bytes": 8213,
+      "triggers": [
+        "assessment",
+        "file",
+        "files",
+        "large",
+        "like",
+        "optimized",
+        "regression",
+        "validation",
+        "workflow",
+        "writer",
+        "writing"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8
+    },
+    "prism-life-safety-mindset": {
+      "name": "prism-life-safety-mindset",
+      "description": "|",
+      "size_bytes": 9889,
+      "triggers": [
+        "critical",
+        "enforcing",
+        "life",
+        "machining",
+        "material",
+        "maximum",
+        "mindset",
+        "safety",
+        "thoroughness",
+        "work"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.7
+    },
+    "prism-machine-dynamics": {
+      "name": "prism-machine-dynamics",
+      "description": "|",
+      "size_bytes": 10691,
+      "triggers": [
+        "machine",
+        "dynamics",
+        "tool",
+        "structural",
+        "stiffness",
+        "measurement",
+        "performance"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1",
+        "R4"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.4
+    },
+    "prism-manufacturing-cost": {
+      "name": "prism-manufacturing-cost",
+      "description": "|",
+      "size_bytes": 10971,
+      "triggers": [
+        "cost",
+        "cycle",
+        "estimation",
+        "machining",
+        "manufacturing",
+        "material",
+        "optimization",
+        "process",
+        "quoting"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 10.7
+    },
+    "prism-master-equation": {
+      "name": "prism-master-equation",
+      "description": "",
+      "size_bytes": 23553,
+      "triggers": [
+        "master",
+        "equation",
+        "omega",
+        "capstone",
+        "integrating",
+        "cognitive",
+        "optimization",
+        "components"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 23
+    },
+    "prism-material-physics": {
+      "name": "prism-material-physics",
+      "description": "|",
+      "size_bytes": 39866,
+      "triggers": [
+        "formulas",
+        "machining",
+        "material",
+        "models",
+        "parameters",
+        "physics",
+        "schema",
+        "using"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 38.9
+    },
+    "prism-materials-core": {
+      "name": "prism-materials-core",
+      "description": "|",
+      "size_bytes": 8551,
+      "triggers": [
+        "complete",
+        "core",
+        "define",
+        "lookup",
+        "machining",
+        "material",
+        "materials",
+        "pipeline",
+        "template"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.4
+    },
+    "prism-mathematical-planning": {
+      "name": "prism-mathematical-planning",
+      "description": "|",
+      "size_bytes": 12075,
+      "triggers": [
+        "mathematical",
+        "planning",
+        "proof",
+        "required",
+        "execution",
+        "enforces",
+        "mathplan"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.8
+    },
+    "prism-mathplan-creation": {
+      "name": "prism-mathplan-creation",
+      "description": "Procedure for creating a MATHPLAN that passes the mandatory gate — scope quantification, decomposition proof, effort estimation with uncertainty, and verification criteria",
+      "size_bytes": 4689,
+      "triggers": [
+        "How do I scope this work?",
+        "How many microsessions will this take?",
+        "No valid MATHPLAN",
+        "brainstorm",
+        "context_pressure",
+        "creation",
+        "executing",
+        "execution",
+        "hook",
+        "mathplan",
+        "monitoring",
+        "session",
+        "starting",
+        "tool"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.6
+    },
+    "prism-memory-graph-guide": {
+      "name": "prism-memory-graph-guide",
+      "description": "|",
+      "size_bytes": 3498,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "continuity",
+        "cross",
+        "decision",
+        "graph",
+        "guide",
+        "management",
+        "memory",
+        "recovery",
+        "session",
+        "using"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.4
+    },
+    "prism-metrology-inspection": {
+      "name": "prism-metrology-inspection",
+      "description": "|",
+      "size_bytes": 11917,
+      "triggers": [
+        "inspection",
+        "machining",
+        "material",
+        "measurement",
+        "methods",
+        "metrology",
+        "quality",
+        "uncertainty",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.6
+    },
+    "prism-migration-playbook": {
+      "name": "prism-migration-playbook",
+      "description": "|",
+      "size_bytes": 4520,
+      "triggers": [
+        "code",
+        "data",
+        "machining",
+        "material",
+        "migration",
+        "patterns",
+        "playbook",
+        "safe",
+        "schema"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "prism-observability": {
+      "name": "prism-observability",
+      "description": "|",
+      "size_bytes": 4080,
+      "triggers": [
+        "alerting",
+        "assessment",
+        "collision",
+        "logging",
+        "metrics",
+        "monitoring",
+        "observability",
+        "safety",
+        "server",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4
+    },
+    "prism-orchestration": {
+      "name": "prism-orchestration",
+      "description": "|",
+      "size_bytes": 6648,
+      "triggers": [
+        "agent",
+        "batch",
+        "coordination",
+        "execution",
+        "orchestration",
+        "processing",
+        "selection",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.5
+    },
+    "prism-output-standards": {
+      "name": "prism-output-standards",
+      "description": "|",
+      "size_bytes": 4043,
+      "triggers": [
+        "assessment",
+        "audience",
+        "aware",
+        "collision",
+        "formatting",
+        "operator",
+        "output",
+        "outputs",
+        "safety",
+        "standards",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.9
+    },
+    "prism-pattern-selection": {
+      "name": "prism-pattern-selection",
+      "description": "Design pattern decision tree for PRISM development — which GoF pattern solves which problem, with manufacturing-specific use cases and anti-pattern warnings",
+      "size_bytes": 4916,
+      "triggers": [
+        "Should I use Factory or Builder here?",
+        "What pattern fits this problem?",
+        "checking",
+        "deciding",
+        "dispatcher",
+        "engine",
+        "existing",
+        "hook",
+        "identifying",
+        "implementation",
+        "pattern",
+        "refactoring",
+        "selection",
+        "starting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-performance-patterns": {
+      "name": "prism-performance-patterns",
+      "description": "|",
+      "size_bytes": 31328,
+      "triggers": [
+        "algorithm",
+        "complexity",
+        "development",
+        "intelligence",
+        "manufacturing",
+        "optimization",
+        "pattern",
+        "patterns",
+        "performance",
+        "selection"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 30.6
+    },
+    "prism-physics-unified": {
+      "name": "prism-physics-unified",
+      "description": "|",
+      "size_bytes": 6605,
+      "triggers": [
+        "formulas",
+        "foundations",
+        "kienzle",
+        "machining",
+        "manufacturing",
+        "material",
+        "mathematical",
+        "physics",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.5
+    },
+    "prism-post-processor-reference": {
+      "name": "prism-post-processor-reference",
+      "description": "|",
+      "size_bytes": 20060,
+      "triggers": [
+        "code",
+        "encyclopedic",
+        "generation",
+        "major",
+        "post",
+        "processor",
+        "program",
+        "programming",
+        "reference"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 19.6
+    },
+    "prism-predictive-maintenance": {
+      "name": "prism-predictive-maintenance",
+      "description": "|",
+      "size_bytes": 3513,
+      "triggers": [
+        "assessment",
+        "checkpoint",
+        "context_pressure",
+        "failure",
+        "maintenance",
+        "management",
+        "prediction",
+        "predictive",
+        "recovery",
+        "risk",
+        "session",
+        "using"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.4
+    },
+    "prism-process-optimizer": {
+      "name": "prism-process-optimizer",
+      "description": "",
+      "size_bytes": 25758,
+      "triggers": [
+        "process",
+        "optimizer",
+        "optimizes",
+        "workflow",
+        "processes",
+        "utilization",
+        "agent"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 25.2
+    },
+    "prism-prompt-engineering": {
+      "name": "prism-prompt-engineering",
+      "description": "|",
+      "size_bytes": 34759,
+      "triggers": [
+        "always",
+        "assessment",
+        "enforces",
+        "engineering",
+        "interactions",
+        "meta",
+        "prompt",
+        "quality",
+        "regression",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 33.9
+    },
+    "prism-python-tools": {
+      "name": "prism-python-tools",
+      "description": "|",
+      "size_bytes": 11741,
+      "triggers": [
+        "automation",
+        "checkpoint",
+        "complete",
+        "context_pressure",
+        "development",
+        "management",
+        "python",
+        "recovery",
+        "scripts",
+        "session",
+        "toolkit",
+        "tools"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.5
+    },
+    "prism-query-intelligence": {
+      "name": "prism-query-intelligence",
+      "description": "|",
+      "size_bytes": 8050,
+      "triggers": [
+        "ambiguity",
+        "intelligence",
+        "interprets",
+        "machining",
+        "manufacturing",
+        "material",
+        "queries",
+        "query",
+        "resolves"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.9
+    },
+    "prism-quick-start": {
+      "name": "prism-quick-start",
+      "description": "",
+      "size_bytes": 4037,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "management",
+        "quick",
+        "recovery",
+        "session",
+        "start"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.9
+    },
+    "prism-reasoning-chain-validator": {
+      "name": "prism-reasoning-chain-validator",
+      "description": "|",
+      "size_bytes": 4907,
+      "triggers": [
+        "catches",
+        "chain",
+        "itself",
+        "logical",
+        "machining",
+        "material",
+        "outputs",
+        "reasoning",
+        "validates",
+        "validator"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-reasoning-validator": {
+      "name": "prism-reasoning-validator",
+      "description": "|",
+      "size_bytes": 8183,
+      "triggers": [
+        "chains",
+        "machining",
+        "manufacturing",
+        "material",
+        "multi",
+        "reasoning",
+        "step",
+        "validates",
+        "validator"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8
+    },
+    "prism-recovery-playbook": {
+      "name": "prism-recovery-playbook",
+      "description": "|",
+      "size_bytes": 5143,
+      "triggers": [
+        "calculations",
+        "dispatchers",
+        "error",
+        "fail",
+        "machining",
+        "material",
+        "playbook",
+        "recovery",
+        "workflows"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5
+    },
+    "prism-registry-hydrator": {
+      "name": "prism-registry-hydrator",
+      "description": "|",
+      "size_bytes": 8471,
+      "triggers": [
+        "approach",
+        "critically",
+        "hydrator",
+        "machining",
+        "material",
+        "populating",
+        "registry",
+        "sparse",
+        "systematic"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.3
+    },
+    "prism-resource-optimizer": {
+      "name": "prism-resource-optimizer",
+      "description": "|",
+      "size_bytes": 12124,
+      "triggers": [
+        "allocation",
+        "capacity",
+        "combination",
+        "engine",
+        "evaluating",
+        "optimization",
+        "optimize",
+        "optimizer",
+        "resource",
+        "scheduling",
+        "selection",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.8
+    },
+    "prism-safety-cognition": {
+      "name": "prism-safety-cognition",
+      "description": "|",
+      "size_bytes": 5713,
+      "triggers": [
+        "anomaly",
+        "cognition",
+        "cognitive",
+        "detection",
+        "focused",
+        "machining",
+        "material",
+        "patterns",
+        "safety"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5.6
+    },
+    "prism-safety-framework": {
+      "name": "prism-safety-framework",
+      "description": "",
+      "size_bytes": 26830,
+      "triggers": [
+        "assessment",
+        "cognitive",
+        "collision",
+        "constraints",
+        "defines",
+        "enforces",
+        "framework",
+        "optimization",
+        "safety",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 26.2
+    },
+    "prism-scientific-packages": {
+      "name": "prism-scientific-packages",
+      "description": "\"Reference for 60+ Python packages for scientific computing, ML, and manufacturing analysis. Adapted from K-Dense-AI/claude-scientific-skills.\"",
+      "size_bytes": 12558,
+      "triggers": [
+        "Reference for 60+ Python packages for scientific computing, ML, and manufacturing analysis. Adapted from K-Dense-AI/claude-scientific-skills.",
+        "computing",
+        "machining",
+        "manufacturing",
+        "material",
+        "packages",
+        "scientific"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 12.3
+    },
+    "prism-self-diagnostic": {
+      "name": "prism-self-diagnostic",
+      "description": "|",
+      "size_bytes": 8943,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "detects",
+        "diagnostic",
+        "health",
+        "immune",
+        "management",
+        "monitors",
+        "recovery",
+        "self",
+        "session",
+        "system"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.7
+    },
+    "prism-self-evolution-engine": {
+      "name": "prism-self-evolution-engine",
+      "description": "|",
+      "size_bytes": 3811,
+      "triggers": [
+        "auto",
+        "development",
+        "engine",
+        "evolution",
+        "improvement",
+        "pattern",
+        "patterns",
+        "selection",
+        "self",
+        "tracks",
+        "usage"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.7
+    },
+    "prism-session-intelligence": {
+      "name": "prism-session-intelligence",
+      "description": "|",
+      "size_bytes": 3688,
+      "triggers": [
+        "analytics",
+        "checkpoint",
+        "context_pressure",
+        "efficiency",
+        "intelligence",
+        "management",
+        "optimization",
+        "productivity",
+        "recovery",
+        "session",
+        "tracks"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.6
+    },
+    "prism-session-lifecycle": {
+      "name": "prism-session-lifecycle",
+      "description": "Session start, during, and end protocols — the 5-step boot, checkpoint rhythm, anti-restart rules, and clean shutdown procedure",
+      "size_bytes": 3592,
+      "triggers": [
+        "How do I start a session?",
+        "What do I do when I'm done?",
+        "checkpoint",
+        "compaction",
+        "context_pressure",
+        "development",
+        "existing",
+        "lifecycle",
+        "recovery",
+        "session",
+        "session_recovery",
+        "starting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.5
+    },
+    "prism-session-master": {
+      "name": "prism-session-master",
+      "description": "|",
+      "size_bytes": 27562,
+      "triggers": [
+        "checkpoint",
+        "consolidating",
+        "context_pressure",
+        "existing",
+        "management",
+        "master",
+        "recovery",
+        "session",
+        "skills",
+        "unified"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 26.9
+    },
+    "prism-session-recovery": {
+      "name": "prism-session-recovery",
+      "description": "Recovery protocols for 4 scenarios — normal resume, post-compaction, cross-device, and emergency — with priority reading order and handoff format",
+      "size_bytes": 4539,
+      "triggers": [
+        "Continue from where we left off",
+        "I lost context",
+        "What was I doing?",
+        "compaction",
+        "context_pressure",
+        "current_position",
+        "monitoring",
+        "recovery",
+        "session",
+        "starting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "prism-siemens-programming": {
+      "name": "prism-siemens-programming",
+      "description": "",
+      "size_bytes": 53618,
+      "triggers": [
+        "program",
+        "programming",
+        "siemens"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 52.4
+    },
+    "prism-signal-processing": {
+      "name": "prism-signal-processing",
+      "description": "|",
+      "size_bytes": 20216,
+      "triggers": [
+        "algorithms",
+        "digital",
+        "filters",
+        "intelligence",
+        "machining",
+        "manufacturing",
+        "material",
+        "processing",
+        "signal"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 19.7
+    },
+    "prism-skill-orchestrator": {
+      "name": "prism-skill-orchestrator",
+      "description": "|",
+      "size_bytes": 22929,
+      "triggers": [
+        "skill",
+        "orchestrator",
+        "master",
+        "complete",
+        "integration",
+        "system",
+        "skills"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 22.4
+    },
+    "prism-solid-principles": {
+      "name": "prism-solid-principles",
+      "description": "|",
+      "size_bytes": 30738,
+      "triggers": [
+        "applied",
+        "design",
+        "machining",
+        "manufacturing",
+        "material",
+        "object",
+        "oriented",
+        "principles",
+        "solid"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 30
+    },
+    "prism-sp-brainstorm": {
+      "name": "prism-sp-brainstorm",
+      "description": "|",
+      "size_bytes": 4299,
+      "triggers": [
+        "alternatives",
+        "brainstorm",
+        "continuing",
+        "creative",
+        "explore",
+        "ideate"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.2
+    },
+    "prism-sp-debugging": {
+      "name": "prism-sp-debugging",
+      "description": "|",
+      "size_bytes": 6012,
+      "triggers": [
+        "brainstorm",
+        "bug",
+        "debug",
+        "debugging",
+        "diagnose",
+        "error",
+        "execution",
+        "performance",
+        "stack trace",
+        "trace",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5.9
+    },
+    "prism-sp-execution": {
+      "name": "prism-sp-execution",
+      "description": "|",
+      "size_bytes": 4867,
+      "triggers": [
+        "brainstorm",
+        "brainstorming",
+        "build",
+        "code",
+        "debugging",
+        "develop",
+        "execute",
+        "execution",
+        "implement",
+        "implementing",
+        "planning",
+        "reviewing"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-sp-handoff": {
+      "name": "prism-sp-handoff",
+      "description": "|",
+      "size_bytes": 4728,
+      "triggers": [
+        "compaction",
+        "context_pressure",
+        "delegate",
+        "hand off",
+        "handoff",
+        "session",
+        "switching",
+        "transfer",
+        "transition"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.6
+    },
+    "prism-sp-planning": {
+      "name": "prism-sp-planning",
+      "description": "|",
+      "size_bytes": 5093,
+      "triggers": [
+        "allocating",
+        "brainstorm",
+        "brainstorming",
+        "decompose",
+        "estimating",
+        "executing",
+        "execution",
+        "identifying",
+        "milestone",
+        "plan",
+        "planning",
+        "roadmap",
+        "strategy"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 5
+    },
+    "prism-sp-review-quality": {
+      "name": "prism-sp-review-quality",
+      "description": "|",
+      "size_bytes": 5076,
+      "triggers": [
+        "QA",
+        "audit",
+        "execution",
+        "implementation",
+        "inspect",
+        "merging",
+        "quality",
+        "releasing",
+        "review",
+        "testing",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 5
+    },
+    "prism-sp-verification": {
+      "name": "prism-sp-verification",
+      "description": "|",
+      "size_bytes": 4782,
+      "triggers": [
+        "check",
+        "confirm",
+        "deployment",
+        "development",
+        "execution",
+        "test",
+        "testing",
+        "validate",
+        "verification",
+        "verify",
+        "verifying"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.7
+    },
+    "prism-spc-process-capability": {
+      "name": "prism-spc-process-capability",
+      "description": "|",
+      "size_bytes": 8901,
+      "triggers": [
+        "analysis",
+        "capability",
+        "control",
+        "machining",
+        "manufacturing",
+        "material",
+        "process",
+        "shewhart",
+        "spc",
+        "statistical"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.7
+    },
+    "prism-speed-feed-engine": {
+      "name": "prism-speed-feed-engine",
+      "description": "",
+      "size_bytes": 15387,
+      "triggers": [
+        "IPR",
+        "SFM",
+        "calculating",
+        "cutting",
+        "cutting speed",
+        "engine",
+        "existing",
+        "feed",
+        "feed rate",
+        "generating",
+        "machine",
+        "operation",
+        "optimizing",
+        "speed",
+        "speed_feed",
+        "validating"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 15
+    },
+    "prism-surface-roughness": {
+      "name": "prism-surface-roughness",
+      "description": "|",
+      "size_bytes": 8595,
+      "triggers": [
+        "machining",
+        "material",
+        "milling",
+        "optimization",
+        "prediction",
+        "roughness",
+        "surface",
+        "theoretical",
+        "turning"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.4
+    },
+    "prism-synergy-calculator": {
+      "name": "prism-synergy-calculator",
+      "description": "|",
+      "size_bytes": 11513,
+      "triggers": [
+        "agent",
+        "calculator",
+        "combination",
+        "compatibility",
+        "composition",
+        "evaluating",
+        "identifying",
+        "integration",
+        "learning",
+        "optimizing",
+        "score",
+        "synergy"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1",
+        "R4"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.2
+    },
+    "prism-telemetry-guide": {
+      "name": "prism-telemetry-guide",
+      "description": "|",
+      "size_bytes": 3525,
+      "triggers": [
+        "checkpoint",
+        "context_pressure",
+        "dashboards",
+        "guide",
+        "management",
+        "optimization",
+        "reading",
+        "recovery",
+        "self",
+        "session",
+        "telemetry",
+        "using"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 3.4
+    },
+    "prism-testing-strategy": {
+      "name": "prism-testing-strategy",
+      "description": "|",
+      "size_bytes": 4260,
+      "triggers": [
+        "assessment",
+        "collision",
+        "comprehensive",
+        "coverage",
+        "pyramid",
+        "safety",
+        "strategy",
+        "targets",
+        "test",
+        "testing",
+        "validation",
+        "verification"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.2
+    },
+    "prism-thermal-effects": {
+      "name": "prism-thermal-effects",
+      "description": "|",
+      "size_bytes": 11944,
+      "triggers": [
+        "thermal",
+        "effects",
+        "heat",
+        "machining",
+        "accuracy",
+        "quality",
+        "cutting",
+        "temperature"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.7
+    },
+    "prism-threading-mastery": {
+      "name": "prism-threading-mastery",
+      "description": "|",
+      "size_bytes": 5191,
+      "triggers": [
+        "actions",
+        "complete",
+        "covering",
+        "machining",
+        "mastery",
+        "material",
+        "mill",
+        "thread",
+        "threading"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5.1
+    },
+    "prism-token-density": {
+      "name": "prism-token-density",
+      "description": "|",
+      "size_bytes": 9351,
+      "triggers": [
+        "checkpoint",
+        "compression",
+        "context_pressure",
+        "density",
+        "information",
+        "management",
+        "maximize",
+        "patterns",
+        "recovery",
+        "session",
+        "structure",
+        "token"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.1
+    },
+    "prism-tool-holder-schema": {
+      "name": "prism-tool-holder-schema",
+      "description": "|",
+      "size_bytes": 10079,
+      "triggers": [
+        "BT40",
+        "CAT40",
+        "HSK",
+        "chuck",
+        "collet",
+        "holder",
+        "schema",
+        "tool",
+        "tool holder",
+        "toolholder"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.8
+    },
+    "prism-tool-selector": {
+      "name": "prism-tool-selector",
+      "description": "|",
+      "size_bytes": 8557,
+      "triggers": [
+        "tool",
+        "selector",
+        "instant",
+        "selection",
+        "development",
+        "eliminates",
+        "confusion"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 8.4
+    },
+    "prism-tool-wear-mechanisms": {
+      "name": "prism-tool-wear-mechanisms",
+      "description": "|",
+      "size_bytes": 11785,
+      "triggers": [
+        "flank",
+        "machining",
+        "management",
+        "material",
+        "measurement",
+        "mechanisms",
+        "operations",
+        "prediction",
+        "tool",
+        "wear"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 11.5
+    },
+    "prism-toolpath-strategy": {
+      "name": "prism-toolpath-strategy",
+      "description": "|",
+      "size_bytes": 4973,
+      "triggers": [
+        "actions",
+        "deep",
+        "feature",
+        "guide",
+        "machining",
+        "mapping",
+        "material",
+        "strategy",
+        "toolpath"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.9
+    },
+    "prism-uncertainty-propagation": {
+      "name": "prism-uncertainty-propagation",
+      "description": "|",
+      "size_bytes": 7541,
+      "triggers": [
+        "uncertainty",
+        "propagation",
+        "mandatory",
+        "quantification",
+        "outputs",
+        "enforces",
+        "commandment"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.4
+    },
+    "prism-unit-converter": {
+      "name": "prism-unit-converter",
+      "description": "|",
+      "size_bytes": 9349,
+      "triggers": [
+        "calculations",
+        "conversions",
+        "converter",
+        "enrichment",
+        "instant",
+        "manufacturing",
+        "registry",
+        "stress",
+        "unit"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1",
+        "R4"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.1
+    },
+    "prism-validation-unified": {
+      "name": "prism-validation-unified",
+      "description": "|",
+      "size_bytes": 6511,
+      "triggers": [
+        "affecting",
+        "check",
+        "dispatcher",
+        "engine",
+        "gate",
+        "ralph",
+        "safety",
+        "threshold",
+        "unified",
+        "validate",
+        "validation"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 6.4
+    },
+    "prism-vibration-chatter": {
+      "name": "prism-vibration-chatter",
+      "description": "|",
+      "size_bytes": 13903,
+      "triggers": [
+        "analysis",
+        "chatter",
+        "lobe",
+        "machining",
+        "material",
+        "prediction",
+        "stability",
+        "vibration"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 13.6
+    },
+    "prism-wiring-procedure": {
+      "name": "prism-wiring-procedure",
+      "description": "Step-by-step procedure for wiring databases to consumers via gateway — register database, register consumers, add routes, verify utilization",
+      "size_bytes": 4997,
+      "triggers": [
+        "How do I connect my new calculator to the materials database?",
+        "agent",
+        "building",
+        "deciding",
+        "engine",
+        "existing",
+        "procedure",
+        "selection",
+        "verification",
+        "verifying",
+        "wiring"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.9
+    },
+    "prism-wiring-templates": {
+      "name": "prism-wiring-templates",
+      "description": "",
+      "size_bytes": 15556,
+      "triggers": [
+        "cutting",
+        "development",
+        "material",
+        "pattern",
+        "selection",
+        "speed",
+        "templates",
+        "wiring"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1",
+        "R4"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 15.2
+    },
+    "prism-wiring-validation": {
+      "name": "prism-wiring-validation",
+      "description": "Pre-migration and consumer registration checklists — 7-phase database validation, 6-phase consumer validation, and troubleshooting for common wiring failures",
+      "size_bytes": 5260,
+      "triggers": [
+        "Consumer can't find data",
+        "Why is my database showing low utilization?",
+        "completing",
+        "error",
+        "hook",
+        "migrating",
+        "migration",
+        "registering",
+        "registration",
+        "showing",
+        "utilization",
+        "validation",
+        "wiring"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "R2",
+        "R3",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 5.1
+    },
+    "prism-workflow-chains": {
+      "name": "prism-workflow-chains",
+      "description": "|",
+      "size_bytes": 7886,
+      "triggers": [
+        "built",
+        "chains",
+        "common",
+        "dispatcher",
+        "machining",
+        "material",
+        "multi",
+        "workflow",
+        "workflows"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 7.7
+    },
+    "prism-workholding-strategy": {
+      "name": "prism-workholding-strategy",
+      "description": "|",
+      "size_bytes": 4469,
+      "triggers": [
+        "clamping",
+        "fixture",
+        "force",
+        "machining",
+        "material",
+        "selection",
+        "setup",
+        "strategy",
+        "workholding"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "R2",
+        "R3",
+        "R4",
+        "DA",
+        "R1"
+      ],
+      "tags": [
+        "atomic",
+        "v2"
+      ],
+      "size_kb": 4.4
+    },
+    "skill-authoring-checklist": {
+      "name": "skill-authoring-checklist",
+      "description": "|",
+      "size_bytes": 9922,
+      "triggers": [
+        "author",
+        "authoring",
+        "checklist",
+        "create skill",
+        "skill",
+        "skill template",
+        "write skill"
+      ],
+      "source": "existing_atomic",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "monolith",
+        "needs-split"
+      ],
+      "size_kb": 9.7
+    },
+    "prism-coverage-metrics": {
+      "name": "prism-coverage-metrics",
+      "description": "Three formulas to measure completeness and utilization — MCI for material parameter coverage, DUF for database consumer utilization, TCC for task completion confidence",
+      "size_bytes": 4764,
+      "triggers": [
+        "Are our database entries actually being used?",
+        "Can I confidently call this task done?",
+        "Is this material complete enough for production?",
+        "coverage",
+        "estimating",
+        "estimation",
+        "material",
+        "metrics",
+        "phase_gate",
+        "production",
+        "scoring",
+        "starting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_kb": 4.7
+    },
+    "prism-effort-estimation": {
+      "name": "prism-effort-estimation",
+      "description": "Estimate tool calls and sessions needed for a task — base scope count, complexity multipliers, risk factor, producing an effort range with 95% confidence interval",
+      "size_bytes": 3897,
+      "triggers": [
+        "How many tool calls will this take?",
+        "committing",
+        "completion",
+        "counting",
+        "creating",
+        "creation",
+        "decomposition",
+        "effort",
+        "estimation",
+        "filling",
+        "session",
+        "tool",
+        "tracking"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_kb": 3.8
+    },
+    "prism-ilp-optimization": {
+      "name": "prism-ilp-optimization",
+      "description": "Solve the resource combination ILP — warm start, integer linear programming, optimality proof, and plan presentation for approval before execution",
+      "size_bytes": 4149,
+      "triggers": [
+        "Pick the best combination of skills + agents that covers all requirements",
+        "combination",
+        "optimization",
+        "respecting",
+        "safety",
+        "scoring"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_kb": 4.1
+    },
+    "prism-process-quality-audit": {
+      "name": "prism-process-quality-audit",
+      "description": "Compute process quality P(x) from 12 metrics at session end — geometric mean of skill utilization, workflow compliance, checkpoint quality, efficiency, and 8 more operational scores",
+      "size_bytes": 4713,
+      "triggers": [
+        "How did this session go?",
+        "audit",
+        "completion",
+        "development",
+        "equation",
+        "execution",
+        "omega",
+        "phase_gate",
+        "process",
+        "quality",
+        "reviewing",
+        "safety",
+        "scoring",
+        "session",
+        "validation"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_kb": 4.6
+    },
+    "prism-resource-scoring": {
+      "name": "prism-resource-scoring",
+      "description": "Parse task requirements and compute capability scores for skills/agents/modes — steps 1-3 of the combination engine producing a ranked resource list",
+      "size_bytes": 3928,
+      "triggers": [
+        "Which skills should I load?",
+        "agent",
+        "calling",
+        "combination",
+        "execution",
+        "generation",
+        "optimization",
+        "picking",
+        "resource",
+        "scoring",
+        "selection",
+        "solving",
+        "starting"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_kb": 3.8
+    },
+    "prism-batch-execution": {
+      "name": "prism-batch-execution",
+      "description": "Decision procedure for batching and parallelizing PRISM operations — when to batch, how to structure parallel calls, expected speedup",
+      "size_kb": 4.6,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4661,
+      "triggers": [
+        "alarm",
+        "alarm_code",
+        "batch",
+        "bulk process",
+        "cache",
+        "choosing",
+        "execute batch",
+        "execution",
+        "loading",
+        "management",
+        "material",
+        "processing",
+        "queue",
+        "selection",
+        "session",
+        "strategy",
+        "tool"
+      ]
+    },
+    "prism-cache-selection": {
+      "name": "prism-cache-selection",
+      "description": "Decision procedure for choosing cache strategy — memoize for pure functions, LRU for hot data with size limits, TTL for time-sensitive data",
+      "size_kb": 3.7,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 3756,
+      "triggers": [
+        "TTL",
+        "allocation",
+        "building",
+        "cache",
+        "caching",
+        "function",
+        "implementing",
+        "invalidate",
+        "management",
+        "memoize",
+        "profiling",
+        "registry",
+        "selection",
+        "session",
+        "strategy"
+      ]
+    },
+    "prism-prompt-crafting": {
+      "name": "prism-prompt-crafting",
+      "description": "7-step procedure for crafting PRISM prompts — analyze, select framework (Direct/CRAFT/RISEN/CoT), calibrate, contextualize, resolve ambiguity, format, document",
+      "size_kb": 5,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 5148,
+      "triggers": [
+        "building",
+        "chain of thought",
+        "crafting",
+        "designing",
+        "engineering",
+        "existing",
+        "few-shot",
+        "producing",
+        "prompt",
+        "prompt engineering",
+        "scoring",
+        "system prompt"
+      ]
+    },
+    "prism-prompt-quality-scoring": {
+      "name": "prism-prompt-quality-scoring",
+      "description": "Score a prompt using 6 gates (clarity, completeness, format, constraints, safety, context), compute PQS, and determine go/no-go threshold",
+      "size_kb": 4.7,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4856,
+      "triggers": [
+        "agent",
+        "choosing",
+        "crafting",
+        "evaluate prompt",
+        "improvement",
+        "iteration",
+        "prompt",
+        "prompt audit",
+        "prompt quality",
+        "prompt score",
+        "quality",
+        "scoring",
+        "selection",
+        "submitting"
+      ]
+    },
+    "prism-token-budget": {
+      "name": "prism-token-budget",
+      "description": "Compute working token budget, allocate across 4 categories (task/skills/state/buffer), and execute threshold actions at each pressure level",
+      "size_kb": 4.5,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4647,
+      "triggers": [
+        "budget",
+        "cache",
+        "checkpoint",
+        "computing",
+        "context window",
+        "deciding",
+        "eviction",
+        "loading",
+        "selection",
+        "session",
+        "token",
+        "token cost",
+        "token limit",
+        "tokens"
+      ]
+    },
+    "prism-algorithm-decision-tree": {
+      "name": "prism-algorithm-decision-tree",
+      "description": "3-step routing procedure — identify problem category, apply constraints, select PRISM engine — with 6 problem type tables and constraint matching",
+      "size_kb": 4.6,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4742,
+      "triggers": [
+        "algorithm",
+        "brainstorm",
+        "decision",
+        "decision tree",
+        "designing",
+        "engine",
+        "implement",
+        "optimization",
+        "scoring",
+        "select algorithm",
+        "tree",
+        "which algorithm"
+      ]
+    },
+    "prism-capability-scoring": {
+      "name": "prism-capability-scoring",
+      "description": "F-RESOURCE-001 capability scoring formula — compute Cap(r,T) from domain match (Jaccard), operation coverage, and complexity alignment with uncertainty propagation",
+      "size_kb": 4,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4063,
+      "triggers": [
+        "agent",
+        "allocation",
+        "benchmark",
+        "capability",
+        "evaluate",
+        "rank",
+        "routing",
+        "score",
+        "scoring",
+        "selecting"
+      ]
+    },
+    "prism-context-loading": {
+      "name": "prism-context-loading",
+      "description": "Step-by-step procedure for loading codebase into Claude's context — token counting, 4-step reduction pipeline, module splitting strategy, and session loading workflow",
+      "size_kb": 4.5,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4576,
+      "triggers": [
+        "boot",
+        "context",
+        "context loading",
+        "context_pressure",
+        "deciding",
+        "extraction",
+        "load context",
+        "loading",
+        "managing",
+        "refactoring",
+        "session",
+        "session start",
+        "starting"
+      ]
+    },
+    "prism-repomix-patterns": {
+      "name": "prism-repomix-patterns",
+      "description": "Exact repomix commands for packing PRISM code for Claude analysis — 5 patterns for monolith analysis, module extraction, anti-regression comparison, token optimization, and remote repos",
+      "size_kb": 4.3,
+      "source": "split_from_monolith",
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4447,
+      "triggers": [
+        "checking",
+        "code packaging",
+        "codebase snapshot",
+        "comparing",
+        "extraction",
+        "feed",
+        "loading",
+        "managing",
+        "patterns",
+        "refactoring",
+        "regression",
+        "repo summary",
+        "repomix",
+        "session"
+      ]
+    },
+    "prism-psi-equation": {
+      "name": "prism-psi-equation",
+      "description": "F-PSI-001 master combination equation — the argmax optimization that selects optimal skill+agent+mode combinations for any task",
+      "size_kb": 3.9,
+      "source": "split_from_monolith",
+      "has_v2_sections": true,
+      "triggers": [
+        "allocation",
+        "backing",
+        "combination",
+        "equation",
+        "executing",
+        "execution",
+        "metric",
+        "performance",
+        "planning",
+        "proving",
+        "psi",
+        "quality equation",
+        "scoring",
+        "solution"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 3954
+    },
+    "prism-resource-combination": {
+      "name": "prism-resource-combination",
+      "description": "8-step procedure for executing F-PSI-001 — from parsing task requirements through ILP solving to handoff",
+      "size_kb": 4.8,
+      "source": "split_from_monolith",
+      "has_v2_sections": true,
+      "triggers": [
+        "agent",
+        "combination",
+        "combine",
+        "deciding",
+        "engine",
+        "equation",
+        "integrate resources",
+        "interpreting",
+        "merge",
+        "resource",
+        "selection"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4923
+    },
+    "prism-process-quality-score": {
+      "name": "prism-process-quality-score",
+      "description": "P(x) process quality formula — geometric mean of 11 session metrics with quality gates and improvement targeting",
+      "size_kb": 4.3,
+      "source": "split_from_monolith",
+      "has_v2_sections": true,
+      "triggers": [
+        "Cpk",
+        "SPC",
+        "development",
+        "dragging",
+        "following",
+        "improvement",
+        "omega",
+        "process",
+        "process capability",
+        "process quality",
+        "quality",
+        "quality score",
+        "score",
+        "session"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4382
+    },
+    "prism-skill-activation": {
+      "name": "prism-skill-activation",
+      "description": "ACTIVATION_SCORE formula for deciding which skills to load — keyword matching, task fit, dependency readiness, and threshold-based activation",
+      "size_kb": 4.4,
+      "source": "split_from_monolith",
+      "has_v2_sections": true,
+      "triggers": [
+        "activate skill",
+        "activation",
+        "agent",
+        "building",
+        "cadence",
+        "cadence_function",
+        "enforcement",
+        "function",
+        "hook",
+        "incoming",
+        "load skill",
+        "selecting",
+        "selection",
+        "session",
+        "skill activation",
+        "skill trigger",
+        "tool"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 5003
+    },
+    "prism-optimality-certificate": {
+      "name": "prism-optimality-certificate",
+      "description": "F-PROOF-001 executable procedure — calculates optimality gap from ILP solver output, assigns certificate level, generates proof record with bounds and constraints",
+      "size_kb": 4.5,
+      "source": "split_from_monolith",
+      "has_v2_sections": true,
+      "triggers": [
+        "bound",
+        "certificate",
+        "combination",
+        "equation",
+        "formula",
+        "optimal",
+        "optimality",
+        "presenting",
+        "proof of optimality",
+        "recommendation",
+        "scoring",
+        "solution"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "v2.0"
+      ],
+      "size_bytes": 4649
+    },
+    "prism-wiring-verification": {
+      "name": "prism-wiring-verification",
+      "description": "Build-time utilization verifier and validation checklists — run after wiring to confirm databases meet minimum consumer counts and all fields have documented consumers",
+      "size_bytes": 4931,
+      "triggers": [
+        "build-time",
+        "completing",
+        "consumer count",
+        "error",
+        "performing",
+        "utilization",
+        "verification",
+        "wiring"
+      ],
+      "source": "split_from_monolith",
+      "phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7"
+      ],
+      "tags": [
+        "development",
+        "quality",
+        "wiring"
+      ],
+      "size_kb": 4.8
+    },
+    "prism-python-state-scripts": {
+      "description": "Python session/state/checkpoint scripts — start sessions, update state, generate context, and manage checkpoints from the command line",
+      "size_kb": 3.8,
+      "source": "split_from_monolith",
+      "triggers": [
+        "checkpoint",
+        "completing",
+        "development",
+        "extraction",
+        "management",
+        "material",
+        "python",
+        "scripts",
+        "session",
+        "session script",
+        "shutdown",
+        "starting",
+        "startup",
+        "state",
+        "state script",
+        "validation"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "procedure"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7"
+      ]
+    },
+    "prism-python-validation-scripts": {
+      "description": "Python material/physics validation and audit scripts — validate material databases against 127-parameter schema, check physics consistency, find extraction gaps",
+      "size_kb": 4.5,
+      "source": "split_from_monolith",
+      "triggers": [
+        "building",
+        "check script",
+        "committing",
+        "creating",
+        "management",
+        "material",
+        "modifying",
+        "python",
+        "scripts",
+        "session",
+        "validate",
+        "validation",
+        "validation script"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "procedure"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7"
+      ]
+    },
+    "prism-skill-loading-procedure": {
+      "description": "How to decide which skills to load at session boot and during execution — 5 loading levels, trigger pattern matching, and the priority cascade",
+      "size_kb": 4.7,
+      "source": "split_from_monolith",
+      "triggers": [
+        "authoring",
+        "auto-load",
+        "building",
+        "cadence",
+        "cadence_function",
+        "combination",
+        "deciding",
+        "equation",
+        "function",
+        "hook",
+        "loading",
+        "loading procedure",
+        "phase skills",
+        "procedure",
+        "session",
+        "skill load"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "procedure"
+      ],
+      "prism_phases": [
+        "DA",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7"
+      ]
+    },
+    "prism-cadence-tuning": {
+      "name": "prism-cadence-tuning",
+      "description": "Tune auto-fire cadence intervals, add/remove cadence functions, adjust thresholds — the operational playbook for the autoHookWrapper timing system",
+      "size_bytes": 5200,
+      "triggers": [
+        "authoring",
+        "autoHookWrapper timing",
+        "cadence",
+        "cadence not firing",
+        "cadence tuning",
+        "cadence_function",
+        "changing",
+        "creating",
+        "fire frequency",
+        "function",
+        "hook",
+        "interval adjustment",
+        "nl_hook",
+        "tuning"
+      ],
+      "source": "da_ms11_companion",
+      "phases": [
+        "DA",
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "W1",
+        "W2",
+        "W3",
+        "W4",
+        "W5",
+        "R1",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "cadence",
+        "v2"
+      ]
+    },
+    "prism-hook-activation-audit": {
+      "name": "prism-hook-activation-audit",
+      "description": "Run hook activation coverage audits for any phase — identify missing hooks, diagnose wiring gaps, fix coverage issues using the HOOK_ACTIVATION_MATRIX",
+      "size_bytes": 4800,
+      "triggers": [
+        "activation",
+        "activation matrix",
+        "audit",
+        "authoring",
+        "cadence",
+        "coverage gap",
+        "development",
+        "hook",
+        "hook audit",
+        "hook coverage",
+        "missing hooks",
+        "session",
+        "starting",
+        "switching",
+        "verification"
+      ],
+      "source": "da_ms11_companion",
+      "phases": [
+        "DA",
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "W1",
+        "W2",
+        "W3",
+        "W4",
+        "W5",
+        "R1",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "audit",
+        "v2"
+      ]
+    },
+    "prism-session-script-runner": {
+      "name": "prism-session-script-runner",
+      "description": "Execute enhanced startup/shutdown scripts, interpret their results, and take corrective action — the operational guide for DA-MS11 session lifecycle",
+      "size_bytes": 5100,
+      "triggers": [
+        "beginning",
+        "cadence",
+        "hook",
+        "interpreting",
+        "management",
+        "quality grade",
+        "readiness score",
+        "runner",
+        "script",
+        "session",
+        "session script",
+        "session shutdown",
+        "session startup",
+        "validation"
+      ],
+      "source": "da_ms11_companion",
+      "phases": [
+        "DA",
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "W1",
+        "W2",
+        "W3",
+        "W4",
+        "W5",
+        "R1",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "session",
+        "v2"
+      ]
+    },
+    "prism-nl-hook-lifecycle": {
+      "name": "prism-nl-hook-lifecycle",
+      "description": "Full NL hook lifecycle — create from natural language, evaluate effectiveness, promote/retire, integrate with cadence auto-fire system",
+      "size_bytes": 5800,
+      "triggers": [
+        "authoring",
+        "cadence",
+        "creating",
+        "description",
+        "evaluating",
+        "evaluation",
+        "existing",
+        "hook",
+        "hook evaluation",
+        "hook promotion",
+        "integrating",
+        "lifecycle",
+        "natural language hook",
+        "nl hook create",
+        "nl hook lifecycle",
+        "nl_hook",
+        "promoting",
+        "providing",
+        "retiring",
+        "titanium",
+        "tool",
+        "tool_wear",
+        "wear",
+        "writing"
+      ],
+      "source": "da_ms11_companion",
+      "phases": [
+        "DA",
+        "F6",
+        "W5",
+        "R1"
+      ],
+      "tags": [
+        "dev",
+        "executable",
+        "hooks",
+        "v2"
+      ]
+    },
+    "prism-acnc-guide": {
+      "name": "prism-acnc-guide",
+      "description": "|",
+      "size_bytes": 4189,
+      "triggers": [
+        "acnc",
+        "auto",
+        "batch",
+        "complete",
+        "cutting",
+        "cutting_parameters",
+        "describes",
+        "feature",
+        "features",
+        "generate",
+        "guide",
+        "keywords",
+        "machining",
+        "multiple",
+        "parameters",
+        "program",
+        "programming",
+        "recommendations",
+        "safety",
+        "simulate",
+        "strategy",
+        "tool",
+        "trigger",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-agent-selector": {
+      "name": "prism-agent-selector",
+      "description": "Selects the optimal subset of agents for a task using Integer Linear Programming. Minimizes cost while ensuring full task coverage and tier balance.",
+      "size_bytes": 10974,
+      "triggers": [
+        "agent",
+        "agents",
+        "assignment",
+        "budget",
+        "constrained",
+        "cost",
+        "execution",
+        "optimization",
+        "planning",
+        "resource",
+        "selecting",
+        "selector",
+        "single",
+        "swarm",
+        "task"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 11
+    },
+    "prism-alert-interpretation": {
+      "name": "prism-alert-interpretation",
+      "description": "|",
+      "size_bytes": 1618,
+      "triggers": [
+        "alert",
+        "interpretation"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 2
+    },
+    "prism-all-skills": {
+      "name": "prism-all-skills",
+      "description": "|",
+      "size_bytes": 9535,
+      "triggers": [
+        "skills"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 9
+    },
+    "prism-api-contracts": {
+      "name": "prism-api-contracts",
+      "description": "|",
+      "size_bytes": 192338,
+      "triggers": [
+        "contracts"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 188
+    },
+    "prism-apprentice-guide": {
+      "name": "prism-apprentice-guide",
+      "description": "|",
+      "size_bytes": 3701,
+      "triggers": [
+        "apprentice",
+        "assess",
+        "beginner",
+        "behind",
+        "competencies",
+        "concepts",
+        "develop",
+        "explain",
+        "explanation",
+        "guide",
+        "keywords",
+        "learn",
+        "learning",
+        "machining",
+        "needs",
+        "operator",
+        "parameter",
+        "physics",
+        "progressive",
+        "recommendation",
+        "shop",
+        "teach",
+        "train",
+        "trigger",
+        "understand",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-campaign-engine": {
+      "name": "prism-campaign-engine",
+      "description": "Manages multi-operation machining campaigns with cumulative safety tracking, batch optimization, and cycle time estimation.",
+      "size_bytes": 1276,
+      "triggers": [
+        "campaign",
+        "engine"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-decision-tree-engine": {
+      "name": "prism-decision-tree-engine",
+      "description": "Rule-based selection trees for tooling, insert grades, coolant strategies, workholding, and machining approaches. Returns scored recommendations with reasoning chains.",
+      "size_bytes": 1413,
+      "triggers": [
+        "decision",
+        "engine",
+        "tree"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-deep-learning": {
+      "name": "prism-deep-learning",
+      "description": "|",
+      "size_bytes": 16157,
+      "triggers": [
+        "deep",
+        "learning"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 16
+    },
+    "prism-dev-state-scripts": {
+      "name": "prism-dev-state-scripts",
+      "description": "Scripts for managing PRISM development state — checkpoints, snapshots, and state file management.",
+      "size_bytes": 483,
+      "triggers": [
+        "action_tracker",
+        "checkpoints",
+        "creating",
+        "current_position",
+        "development",
+        "managing",
+        "operations",
+        "programmatically",
+        "restoring",
+        "risky",
+        "saving",
+        "scripts",
+        "sessions",
+        "state"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 0
+    },
+    "prism-dev-utilities": {
+      "name": "prism-dev-utilities",
+      "description": "|",
+      "size_bytes": 11997,
+      "triggers": [
+        "utilities"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 12
+    },
+    "prism-digital-twin-guide": {
+      "name": "prism-digital-twin-guide",
+      "description": "|",
+      "size_bytes": 4160,
+      "triggers": [
+        "adaptive",
+        "chatter",
+        "chip",
+        "commands",
+        "compensation",
+        "configure",
+        "control",
+        "controller",
+        "digital",
+        "drift",
+        "feed",
+        "guide",
+        "keywords",
+        "load",
+        "loops",
+        "machining",
+        "needs",
+        "override",
+        "real",
+        "setting",
+        "speed",
+        "systems",
+        "thermal",
+        "time",
+        "trigger",
+        "twin",
+        "understand",
+        "user",
+        "wants",
+        "wear"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-error-catalog": {
+      "name": "prism-error-catalog",
+      "description": "|",
+      "size_bytes": 127169,
+      "triggers": [
+        "catalog",
+        "error"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 124
+    },
+    "prism-event-bus-engine": {
+      "name": "prism-event-bus-engine",
+      "description": "Publish-subscribe event system for cross-engine communication. Enables reactive workflows where one engine's output triggers another engine's action.",
+      "size_bytes": 1197,
+      "triggers": [
+        "engine",
+        "event"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-expert-cad-expert": {
+      "name": "prism-expert-cad-expert",
+      "description": "|",
+      "size_bytes": 4740,
+      "triggers": [
+        "expert"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-expert-cam-programmer": {
+      "name": "prism-expert-cam-programmer",
+      "description": "|",
+      "size_bytes": 5250,
+      "triggers": [
+        "expert",
+        "programmer"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-expert-master": {
+      "name": "prism-expert-master",
+      "description": "|",
+      "size_bytes": 12554,
+      "triggers": [
+        "area",
+        "curve",
+        "descent",
+        "eigenvalues",
+        "elimination",
+        "expert",
+        "function",
+        "gaussian",
+        "gradient",
+        "integration",
+        "iteration",
+        "linear",
+        "master",
+        "method",
+        "optimize",
+        "power",
+        "problem",
+        "regression",
+        "rule",
+        "simpson",
+        "solve",
+        "under"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 12
+    },
+    "prism-expert-master-machinist": {
+      "name": "prism-expert-master-machinist",
+      "description": "|",
+      "size_bytes": 6331,
+      "triggers": [
+        "expert",
+        "machinist",
+        "master"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-expert-materials-scientist": {
+      "name": "prism-expert-materials-scientist",
+      "description": "|",
+      "size_bytes": 8591,
+      "triggers": [
+        "expert",
+        "materials",
+        "scientist"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 8
+    },
+    "prism-expert-mathematics": {
+      "name": "prism-expert-mathematics",
+      "description": "|",
+      "size_bytes": 5860,
+      "triggers": [
+        "expert",
+        "mathematics"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-expert-mechanical-engineer": {
+      "name": "prism-expert-mechanical-engineer",
+      "description": "|",
+      "size_bytes": 3988,
+      "triggers": [
+        "engineer",
+        "expert",
+        "mechanical"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-expert-post-processor": {
+      "name": "prism-expert-post-processor",
+      "description": "|",
+      "size_bytes": 6496,
+      "triggers": [
+        "expert",
+        "post",
+        "processor"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-expert-quality-control": {
+      "name": "prism-expert-quality-control",
+      "description": "|",
+      "size_bytes": 4865,
+      "triggers": [
+        "control",
+        "expert",
+        "quality"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-expert-quality-manager": {
+      "name": "prism-expert-quality-manager",
+      "description": "|",
+      "size_bytes": 5289,
+      "triggers": [
+        "expert",
+        "manager",
+        "quality"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-expert-thermodynamics": {
+      "name": "prism-expert-thermodynamics",
+      "description": "|",
+      "size_bytes": 5611,
+      "triggers": [
+        "expert",
+        "thermodynamics"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-failure-forensics": {
+      "name": "prism-failure-forensics",
+      "description": "|",
+      "size_bytes": 3581,
+      "triggers": [
+        "broke",
+        "chatter",
+        "crashed",
+        "describes",
+        "failure",
+        "failures",
+        "forensics",
+        "keywords",
+        "machining",
+        "prevent",
+        "recurring",
+        "scrapped",
+        "surface",
+        "tool",
+        "trigger",
+        "understand",
+        "user",
+        "vibration",
+        "wants",
+        "went",
+        "wrong"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 3
+    },
+    "prism-formula-performance-metrics": {
+      "name": "prism-formula-performance-metrics",
+      "description": "Compute and interpret 4 formula health metrics — MAE, MAPE, R-squared, Bias — with alert thresholds and corrective action triggers",
+      "size_bytes": 4755,
+      "triggers": [
+        "accurate",
+        "actual",
+        "assess",
+        "calibration",
+        "collecting",
+        "compute",
+        "error",
+        "evaluating",
+        "expect",
+        "formula",
+        "full",
+        "health",
+        "lifecycle",
+        "match",
+        "metrics",
+        "monitor",
+        "needs",
+        "observed",
+        "pairs",
+        "performance",
+        "prediction",
+        "predictions",
+        "procedure",
+        "quality",
+        "registration",
+        "scores",
+        "values",
+        "versioning",
+        "well"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-gcode-m-codes": {
+      "name": "prism-gcode-m-codes",
+      "description": "Reference for G-code M-codes (machine auxiliary functions) across CNC controller families.",
+      "size_bytes": 442,
+      "triggers": [
+        "across",
+        "behavior",
+        "codes",
+        "comparing",
+        "controller",
+        "correct",
+        "decoding",
+        "fanuc",
+        "gcode",
+        "generating",
+        "haas",
+        "mazak",
+        "programs",
+        "siemens",
+        "target"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 0
+    },
+    "prism-gcode-template-engine": {
+      "name": "prism-gcode-template-engine",
+      "description": "Generates controller-specific G-code for 6 CNC controller families across 13 operation types. Handles dialect differences (Fanuc G43 vs Siemens CYCLE800) automatically.",
+      "size_bytes": 1164,
+      "triggers": [
+        "engine",
+        "gcode",
+        "template"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-generative-planning": {
+      "name": "prism-generative-planning",
+      "description": "|",
+      "size_bytes": 3483,
+      "triggers": [
+        "alternatives",
+        "auto",
+        "compare",
+        "complete",
+        "feature",
+        "generate",
+        "generative",
+        "hole",
+        "keywords",
+        "machining",
+        "multiple",
+        "needs",
+        "operation",
+        "order",
+        "part",
+        "plan",
+        "planning",
+        "pocket",
+        "process",
+        "profile",
+        "sequence",
+        "trigger",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 3
+    },
+    "prism-genome-advisor": {
+      "name": "prism-genome-advisor",
+      "description": "|",
+      "size_bytes": 4427,
+      "triggers": [
+        "advisor",
+        "asks",
+        "behave",
+        "differently",
+        "equivalents",
+        "family",
+        "fingerprint",
+        "genome",
+        "keywords",
+        "lineage",
+        "material",
+        "materials",
+        "parameter",
+        "parameters",
+        "similar",
+        "similarity",
+        "similarly",
+        "transfer",
+        "transferring",
+        "trees",
+        "trigger",
+        "understand",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-inference-chain-engine": {
+      "name": "prism-inference-chain-engine",
+      "description": "Multi-step physics reasoning chains that compose Kienzle, Taylor, and power calculations into complete machining parameter sets. Propagates uncertainty through each calculation step.",
+      "size_bytes": 1384,
+      "triggers": [
+        "chain",
+        "engine",
+        "inference"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-intelligence-engine": {
+      "name": "prism-intelligence-engine",
+      "description": "|",
+      "size_bytes": 2557,
+      "triggers": [
+        "analysis",
+        "asks",
+        "comparing",
+        "complete",
+        "cost",
+        "cycle",
+        "diagnosis",
+        "engine",
+        "estimate",
+        "estimation",
+        "failure",
+        "intelligence",
+        "machine",
+        "material",
+        "multi",
+        "objective",
+        "optimization",
+        "parameter",
+        "plan",
+        "prediction",
+        "quality",
+        "recommendations",
+        "scenarios",
+        "scoring",
+        "setup",
+        "sheet",
+        "symptoms",
+        "time",
+        "tool",
+        "user"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 2
+    },
+    "prism-inverse-solver": {
+      "name": "prism-inverse-solver",
+      "description": "|",
+      "size_bytes": 3493,
+      "triggers": [
+        "achieve",
+        "asks",
+        "desired",
+        "feed",
+        "finish",
+        "gives",
+        "inverse",
+        "keywords",
+        "know",
+        "life",
+        "outcome",
+        "parameters",
+        "solver",
+        "specifies",
+        "speed",
+        "surface",
+        "surface_finish",
+        "target",
+        "tool",
+        "tool_life",
+        "trigger",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 3
+    },
+    "prism-knowledge-master": {
+      "name": "prism-knowledge-master",
+      "description": "|",
+      "size_bytes": 12508,
+      "triggers": [
+        "knowledge",
+        "master"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 12
+    },
+    "prism-mandatory-microsession": {
+      "name": "prism-mandatory-microsession",
+      "description": "|",
+      "size_bytes": 5126,
+      "triggers": [
+        "mandatory",
+        "microsession"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-manufacturing-algorithms": {
+      "name": "prism-manufacturing-algorithms",
+      "description": "|",
+      "size_bytes": 6220,
+      "triggers": [
+        "algorithms",
+        "manufacturing"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-manufacturing-patterns": {
+      "name": "prism-manufacturing-patterns",
+      "description": "|",
+      "size_bytes": 7659,
+      "triggers": [
+        "manufacturing",
+        "patterns"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 7
+    },
+    "prism-manufacturing-safety": {
+      "name": "prism-manufacturing-safety",
+      "description": "|",
+      "size_bytes": 7618,
+      "triggers": [
+        "manufacturing",
+        "safety"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 7
+    },
+    "prism-manufacturing-tables": {
+      "name": "prism-manufacturing-tables",
+      "description": "|",
+      "size_bytes": 143340,
+      "triggers": [
+        "manufacturing",
+        "tables"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 140
+    },
+    "prism-material-enhancer": {
+      "name": "prism-material-enhancer",
+      "description": "|",
+      "size_bytes": 37539,
+      "triggers": [
+        "enhancer",
+        "material"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 37
+    },
+    "prism-material-lookup": {
+      "name": "prism-material-lookup",
+      "description": "|",
+      "size_bytes": 39631,
+      "triggers": [
+        "lookup",
+        "material"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 39
+    },
+    "prism-material-schema": {
+      "name": "prism-material-schema",
+      "description": "|",
+      "size_bytes": 54411,
+      "triggers": [
+        "material",
+        "schema"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 53
+    },
+    "prism-material-validator": {
+      "name": "prism-material-validator",
+      "description": "|",
+      "size_bytes": 48011,
+      "triggers": [
+        "material",
+        "validator"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 47
+    },
+    "prism-maximum-completeness": {
+      "name": "prism-maximum-completeness",
+      "description": "|",
+      "size_bytes": 6105,
+      "triggers": [
+        "completeness",
+        "maximum"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-monolith-extractor": {
+      "name": "prism-monolith-extractor",
+      "description": "|",
+      "size_bytes": 76353,
+      "triggers": [
+        "extractor",
+        "monolith"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 75
+    },
+    "prism-monolith-index": {
+      "name": "prism-monolith-index",
+      "description": "|",
+      "size_bytes": 75607,
+      "triggers": [
+        "index",
+        "monolith"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 74
+    },
+    "prism-monolith-navigator": {
+      "name": "prism-monolith-navigator",
+      "description": "|",
+      "size_bytes": 51256,
+      "triggers": [
+        "monolith",
+        "navigator"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 50
+    },
+    "prism-ppg-guide": {
+      "name": "prism-ppg-guide",
+      "description": "|",
+      "size_bytes": 4651,
+      "triggers": [
+        "across",
+        "against",
+        "another",
+        "compare",
+        "controller",
+        "controllers",
+        "dialect",
+        "fanuc",
+        "generate",
+        "guide",
+        "haas",
+        "heidenhain",
+        "keywords",
+        "mazak",
+        "multiple",
+        "okuma",
+        "operations",
+        "post",
+        "processor",
+        "program",
+        "siemens",
+        "translate",
+        "trigger",
+        "user",
+        "validate",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 5
+    },
+    "prism-predictive-thinking": {
+      "name": "prism-predictive-thinking",
+      "description": "|",
+      "size_bytes": 17231,
+      "triggers": [
+        "predictive",
+        "thinking"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 17
+    },
+    "prism-product-calculators": {
+      "name": "prism-product-calculators",
+      "description": "|",
+      "size_bytes": 131736,
+      "triggers": [
+        "calculators",
+        "product"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 129
+    },
+    "prism-production-runbook": {
+      "name": "prism-production-runbook",
+      "description": "|",
+      "size_bytes": 1589,
+      "triggers": [
+        "production",
+        "runbook"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 2
+    },
+    "prism-quality-master": {
+      "name": "prism-quality-master",
+      "description": "|",
+      "size_bytes": 24404,
+      "triggers": [
+        "master",
+        "quality"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 24
+    },
+    "prism-reasoning-engine": {
+      "name": "prism-reasoning-engine",
+      "description": "|",
+      "size_bytes": 35534,
+      "triggers": [
+        "engine",
+        "reasoning"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 35
+    },
+    "prism-report-renderer": {
+      "name": "prism-report-renderer",
+      "description": "Generates professional manufacturing documents from calculated data. Outputs formatted setup sheets, process plans, cost estimates, tool lists, inspection plans, alarm reports, and speed/feed cards.",
+      "size_bytes": 1272,
+      "triggers": [
+        "renderer",
+        "report"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-security-coding": {
+      "name": "prism-security-coding",
+      "description": "|",
+      "size_bytes": 23120,
+      "triggers": [
+        "coding",
+        "security"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 23
+    },
+    "prism-sfc-guide": {
+      "name": "prism-sfc-guide",
+      "description": "|",
+      "size_bytes": 4590,
+      "triggers": [
+        "analysis",
+        "approaches",
+        "calculate",
+        "carbide",
+        "ceramic",
+        "combination",
+        "compare",
+        "cost",
+        "cutting",
+        "cutting_parameters",
+        "feed",
+        "feed_rate",
+        "guide",
+        "keywords",
+        "life",
+        "material",
+        "needs",
+        "optimization",
+        "parameters",
+        "productivity",
+        "proposed",
+        "quality",
+        "rate",
+        "safety",
+        "speed",
+        "tool",
+        "tool_life",
+        "toward",
+        "trigger",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-shop-guide": {
+      "name": "prism-shop-guide",
+      "description": "|",
+      "size_bytes": 4547,
+      "triggers": [
+        "across",
+        "batch",
+        "breakdown",
+        "compare",
+        "cost",
+        "costs",
+        "cycle",
+        "different",
+        "estimates",
+        "features",
+        "guide",
+        "keywords",
+        "machines",
+        "machining",
+        "manufacturing",
+        "operations",
+        "part",
+        "plan",
+        "pricing",
+        "quote",
+        "reports",
+        "schedule",
+        "scheduling",
+        "shop",
+        "sustainability",
+        "time",
+        "times",
+        "trigger",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 4
+    },
+    "prism-skill-deployer": {
+      "name": "prism-skill-deployer",
+      "description": "|",
+      "size_bytes": 6463,
+      "triggers": [
+        "deployer",
+        "skill"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 6
+    },
+    "prism-supply-intelligence": {
+      "name": "prism-supply-intelligence",
+      "description": "|",
+      "size_bytes": 3032,
+      "triggers": [
+        "alternative",
+        "consumable",
+        "intelligence",
+        "keywords",
+        "lead",
+        "material",
+        "needs",
+        "plan",
+        "predict",
+        "preferred",
+        "procurement",
+        "stock",
+        "substitute",
+        "substitutions",
+        "supply",
+        "time",
+        "times",
+        "tool",
+        "trigger",
+        "unavailable",
+        "user",
+        "wants"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 3
+    },
+    "prism-swarm-coordinator": {
+      "name": "prism-swarm-coordinator",
+      "description": "Coordinates multi-agent swarm execution for optimal parallel task completion. Selects appropriate swarm patterns, distributes workload, and aggregates results while minimizing coordination overhead.",
+      "size_bytes": 13824,
+      "triggers": [
+        "agent",
+        "agents",
+        "benefiting",
+        "combination",
+        "complex",
+        "coordinator",
+        "engine",
+        "execution",
+        "mode",
+        "multiple",
+        "parallel",
+        "requires",
+        "selected",
+        "specialization",
+        "swarm",
+        "task",
+        "tasks",
+        "working"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 14
+    },
+    "prism-tdd-enhanced": {
+      "name": "prism-tdd-enhanced",
+      "description": "|",
+      "size_bytes": 20946,
+      "triggers": [
+        "cycle",
+        "development",
+        "enhanced",
+        "implementing",
+        "integration",
+        "manufacturing",
+        "refactoring",
+        "testing",
+        "writing"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 20
+    },
+    "prism-tolerance-engine": {
+      "name": "prism-tolerance-engine",
+      "description": "ISO 286 tolerance analysis and shaft/hole fit calculations. Validates dimensional tolerances, calculates interference/clearance fits, and predicts assembly outcomes.",
+      "size_bytes": 1242,
+      "triggers": [
+        "engine",
+        "tolerance"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 1
+    },
+    "prism-typescript-safety": {
+      "name": "prism-typescript-safety",
+      "description": "|",
+      "size_bytes": 24845,
+      "triggers": [
+        "safety",
+        "typescript"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 24
+    },
+    "prism-universal-formulas": {
+      "name": "prism-universal-formulas",
+      "description": "|",
+      "size_bytes": 14962,
+      "triggers": [
+        "formulas",
+        "universal"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 15
+    },
+    "prism-validator": {
+      "name": "prism-validator",
+      "description": "**Catch errors before they propagate.** Validates syntax, parameter ranges, cross-references, and physical consistency for materials and extracted modules.",
+      "size_bytes": 10630,
+      "triggers": [
+        "validator"
+      ],
+      "source": "disk_sync",
+      "tags": [
+        "synced"
+      ],
+      "size_kb": 10
+    }
+  }
+}

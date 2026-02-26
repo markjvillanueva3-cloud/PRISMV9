@@ -88,10 +88,11 @@ const preSwarmPatternSelect: HookDefinition = {
   tags: ["orchestration", "swarm", "pattern-selection"],
   handler: (context: HookContext): HookResult => {
     const hook = preSwarmPatternSelect;
-    const pattern = context.metadata?.pattern || "";
-    const agentCount = context.metadata?.agent_count || context.metadata?.agents?.length || 0;
-    const taskType = context.metadata?.task_type || "";
-    
+    const meta = context.metadata as Record<string, any> | undefined;
+    const pattern = (meta?.pattern || "") as string;
+    const agentCount = (meta?.agent_count || meta?.agents?.length || 0) as number;
+    const taskType = (meta?.task_type || "") as string;
+
     const spec = SWARM_PATTERNS[pattern];
     if (!spec) {
       return hookWarning(hook, 
@@ -144,8 +145,9 @@ const preSwarmAgentMix: HookDefinition = {
   tags: ["orchestration", "swarm", "cost-optimization"],
   handler: (context: HookContext): HookResult => {
     const hook = preSwarmAgentMix;
-    const agents = context.metadata?.agents || [];
-    const pattern = context.metadata?.pattern || "";
+    const meta = context.metadata as Record<string, any> | undefined;
+    const agents = (meta?.agents || []) as any[];
+    const pattern = (meta?.pattern || "") as string;
     
     if (!Array.isArray(agents) || agents.length === 0) {
       return hookSuccess(hook, "No agent list to validate");
@@ -193,10 +195,11 @@ const postSwarmResultMerge: HookDefinition = {
   tags: ["orchestration", "swarm", "quality"],
   handler: (context: HookContext): HookResult => {
     const hook = postSwarmResultMerge;
-    const results = context.metadata?.results || [];
-    const pattern = context.metadata?.pattern || "";
-    const agentCount = context.metadata?.agent_count || results.length;
-    
+    const meta = context.metadata as Record<string, any> | undefined;
+    const results = (meta?.results || []) as any[];
+    const pattern = (meta?.pattern || "") as string;
+    const agentCount = (meta?.agent_count || results.length) as number;
+
     const warnings: string[] = [];
     const emptyResults = results.filter((r: any) => !r || !r.result || r.result === "").length;
     const errorResults = results.filter((r: any) => r.error || r.status === "error").length;
@@ -236,8 +239,9 @@ const onSwarmConsensusVote: HookDefinition = {
   tags: ["orchestration", "swarm", "consensus"],
   handler: (context: HookContext): HookResult => {
     const hook = onSwarmConsensusVote;
-    const votes = context.metadata?.votes || [];
-    const totalVoters = context.metadata?.total_voters || votes.length;
+    const meta = context.metadata as Record<string, any> | undefined;
+    const votes = (meta?.votes || []) as any[];
+    const totalVoters = (meta?.total_voters || votes.length) as number;
 
     if (totalVoters < 3) {
       return hookWarning(hook, `Consensus with <3 voters is unreliable (got ${totalVoters})`);
@@ -289,12 +293,13 @@ const prePipelineStageGate: HookDefinition = {
   tags: ["orchestration", "pipeline", "quality-gate", "critical"],
   handler: (context: HookContext): HookResult => {
     const hook = prePipelineStageGate;
-    const pattern = context.metadata?.pattern || "";
+    const meta = context.metadata as Record<string, any> | undefined;
+    const pattern = (meta?.pattern || "") as string;
     if (pattern !== "pipeline") return hookSuccess(hook, "Not a pipeline");
 
-    const prevStageResult = context.metadata?.previous_stage_result;
-    const currentStage = context.metadata?.pipeline_stage || 0;
-    const pipelineId = context.metadata?.pipeline_id || "default";
+    const prevStageResult = meta?.previous_stage_result as any;
+    const currentStage = (meta?.pipeline_stage || 0) as number;
+    const pipelineId = (meta?.pipeline_id || "default") as string;
 
     if (prevStageResult) {
       const hasError = prevStageResult.error || prevStageResult.status === "error";
@@ -324,7 +329,7 @@ const prePipelineStageGate: HookDefinition = {
     // Track pipeline progress
     let progress = pipelineProgress.get(pipelineId);
     if (!progress) {
-      progress = { totalStages: context.metadata?.total_stages || 0, completedStages: 0, failedStages: 0, startTime: Date.now() };
+      progress = { totalStages: (meta?.total_stages || 0) as number, completedStages: 0, failedStages: 0, startTime: Date.now() };
       pipelineProgress.set(pipelineId, progress);
     }
 
@@ -347,9 +352,10 @@ const onSwarmCostBudget: HookDefinition = {
   tags: ["orchestration", "swarm", "cost-optimization"],
   handler: (context: HookContext): HookResult => {
     const hook = onSwarmCostBudget;
-    const agentCount = context.metadata?.agent_count || 0;
-    const tiers = context.metadata?.tier_distribution || {};
-    
+    const meta = context.metadata as Record<string, any> | undefined;
+    const agentCount = (meta?.agent_count || 0) as number;
+    const tiers = (meta?.tier_distribution || {}) as Record<string, number>;
+
     // Estimate cost from tier distribution
     const tierCosts: Record<string, number> = { opus: 75, sonnet: 3, haiku: 0.25 };
     const avgTokens = 8000; // Conservative estimate per agent call
@@ -391,16 +397,17 @@ const preSwarmAtcsBridge: HookDefinition = {
   tags: ["orchestration", "swarm", "atcs", "bridge"],
   handler: (context: HookContext): HookResult => {
     const hook = preSwarmAtcsBridge;
-    const source = context.metadata?.source || "";
-    const isFromATCS = source === "atcs" || context.metadata?.atcs_unit_id;
-    
+    const meta = context.metadata as Record<string, any> | undefined;
+    const source = (meta?.source || "") as string;
+    const isFromATCS = source === "atcs" || meta?.atcs_unit_id;
+
     if (!isFromATCS) return hookSuccess(hook, "Not an ATCS-delegated swarm");
 
     const warnings: string[] = [];
-    const unitId = context.metadata?.atcs_unit_id;
-    const hasManifest = !!context.metadata?.task_manifest;
-    const hasQualityGate = !!context.metadata?.quality_gate;
-    const hasCheckpoint = !!context.metadata?.checkpoint_config;
+    const unitId = meta?.atcs_unit_id;
+    const hasManifest = !!meta?.task_manifest;
+    const hasQualityGate = !!meta?.quality_gate;
+    const hasCheckpoint = !!meta?.checkpoint_config;
 
     if (!hasManifest) {
       warnings.push("ATCS unit missing task_manifest — swarm agents won't have clear instructions");

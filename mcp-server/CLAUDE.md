@@ -1,7 +1,7 @@
 # PRISM Manufacturing Intelligence — Claude Code Context
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 31 dispatchers, 368 actions, 37 engines.
+Safety-critical CNC manufacturing MCP server. 32 dispatchers, 541 actions, 74 engines.
 Mathematical errors cause tool explosions and operator injuries.
 **Lives depend on correctness. Zero tolerance for shortcuts or placeholders.**
 
@@ -15,24 +15,24 @@ Mathematical errors cause tool explosions and operator injuries.
 
 ## Build
 ```bash
-npm run build          # ONLY build command (tsc --noEmit + esbuild + test:critical)
-npm run build:fast     # Non-safety only
+npm run build          # tsc --noEmit (type-check) + esbuild (bundle)
+npm run build:fast     # esbuild only (no type-check)
 ```
-- **NEVER** standalone `tsc` (OOM at 3.87MB bundle)
+- **NEVER** standalone `tsc` (needs 16GB+ heap for 130K LOC)
 - After build: run `scripts/verify-build.ps1` (checks 7 required symbols + bad patterns)
 - Ω ≥ 0.70 = release ready. Current: Ω = 0.77
 
-## Registry Counts (verified 2026-02-19)
+## Registry Counts (verified 2026-02-24, R0-P0 audit)
 Materials: 3,533 | Machines: 1,016 | Tools: 13,967 | Alarms: 10,033
-Formulas: 509 | Toolpath Strategies: 680 | Threads: 339 specs
-Skills: 196 | Scripts: 215 | Agents: 75 | Hooks: 62 (100% coverage)
-**Total: 29,569 indexed entries across 9 registries**
+Formulas: 109 registered | Toolpath Strategies: 680 | Threads: 339 specs
+Skills: 61 (SkillRegistry) | Scripts: 48 (ScriptRegistry) | Agents: 75 | Hooks: 59 registry / 112 source
+Algorithms: 17 | Cadence Functions: 40
+**14 registries across 18 registry files**
 
 ## Current Position
-- **Phase:** Roadmap v17.0 COMPLETE → R2 Safety next
-- **Roadmap:** v17.0 (Claude Code Maximized) — 3 subagent archetypes, agent teams, hooks, task DAGs
+- **Phase:** R0-P0 Infrastructure Audit COMPLETE → R0-P1 next
+- **Roadmap:** Master Roadmap (46 units across 6 phases P0-P5)
 - Read `data/docs/roadmap/CURRENT_POSITION.md` for exact milestone
-- Read `data/docs/roadmap/PRISM_ROADMAP_v17.0.md` for full execution plan
 - Read `C:\PRISM\state\ACTION_TRACKER.md` for pending items
 
 ## Subagents (.claude/agents/)
@@ -41,15 +41,15 @@ Skills: 196 | Scripts: 215 | Agents: 75 | Hooks: 62 (100% coverage)
 - **verifier** (haiku, green): Tests, audits, regression checks. Reports only, never fixes.
 
 ## Key Architecture
-### Dispatchers (31 total)
-Manufacturing: prism_calc (26 actions), prism_safety (29), prism_thread (12), prism_toolpath (8)
-Data: prism_data (20), prism_knowledge (5)
-Session: prism_session (31), prism_context (18), prism_dev (9)
+### Dispatchers (32 total, 541 actions)
+Manufacturing: prism_calc (91 actions), prism_safety (29), prism_thread (12), prism_toolpath (8)
+Data: prism_data (21), prism_knowledge (5)
+Session: prism_session (31), prism_context (22), prism_dev (9)
 Quality: prism_validate (7), prism_omega (5), prism_ralph (3)
-Intelligence: prism_guard (14), prism_pfp (6), prism_memory (6), prism_telemetry (7)
+Intelligence: prism_intelligence (238), prism_ralph_loop (14), prism_pfp (6), prism_memory (6), prism_telemetry (7)
 Orchestration: prism_orchestrate (14), prism_atcs (12), prism_autonomous (8), prism_autopilot_d (8)
 Enterprise: prism_compliance (8), prism_tenant (15), prism_bridge (13), prism_nl_hook (8)
-Dev: prism_sp (19), prism_skill_script (23), prism_doc (7), prism_hook (18)
+Dev: prism_sp (19), prism_skill_script (27), prism_doc (7), prism_hook (20)
 Code Gen: prism_generator (6), prism_gsd (6), prism_manus (11)
 
 ### Persistence (H1 verified)
@@ -65,14 +65,14 @@ snake_case params auto-normalize to camelCase in safety/calc/thread dispatchers.
 
 ## Key Paths
 ```
-src/tools/dispatchers/    — 31 dispatcher files
-src/engines/              — 37 engine files  
+src/tools/dispatchers/    — 32 dispatcher files
+src/engines/              — 74 engine files (73 engines + index.ts)
 src/tools/autoHookWrapper.ts — Central hook/cadence/logging wrapper
 src/tools/cadenceExecutor.ts — Cadence functions (checkpoint, pressure, etc.)
 src/utils/paramNormalizer.ts — Snake→camel param aliases
 src/utils/smokeTest.ts       — 5 boot canary tests
 src/utils/responseSlimmer.ts — Token optimization
-data/docs/roadmap/           — Phase files (51 files)
+data/docs/roadmap/           — Phase files (63 files)
 data/docs/gsd/GSD_QUICK.md   — GSD v22.0 canonical protocol
 C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoints)
 ```
@@ -99,7 +99,7 @@ C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoint
 5. Before file replacement: run anti-regression validation
 
 ## Mode Switching (Code ↔ Chat)
-This codebase has an MCP server with 31 dispatchers for manufacturing physics,
+This codebase has an MCP server with 32 dispatchers for manufacturing physics,
 safety validation, and quality scoring. These are available in BOTH Code and Chat modes.
 
 **Code handles 90% of work** via 3 subagent archetypes + agent teams.

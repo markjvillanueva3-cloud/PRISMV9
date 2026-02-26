@@ -1043,7 +1043,7 @@ export class SkillRegistry extends BaseRegistry<Skill> {
   private builtInSkills: Map<string, Partial<Skill>> = new Map();
 
   constructor() {
-    super("skills");
+    super("skills", path.join(PATHS.STATE_DIR, "skill-registry.json"), "1.0.0");
     this.initializeBuiltInSkills();
   }
 

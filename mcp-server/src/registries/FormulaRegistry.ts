@@ -613,7 +613,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
                   created: new Date().toISOString(),
                   updated: new Date().toISOString(),
                   version: 1,
-                  source: file
+                  source: file.name
                 }
               });
             }

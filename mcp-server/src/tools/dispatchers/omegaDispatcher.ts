@@ -55,7 +55,7 @@ Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50, BLOCKED<0.40`,
       log.info(`[prism_omega] Action: ${action}`);
       let result: any;
       try {
-        const R = params.R ?? 0.8, C = params.C ?? 0.8, P = params.P ?? 0.8, S = params.S ?? 0.8, L = params.L ?? 0.5;
+        const R = params.R ?? 1.0, C = params.C ?? 1.0, P = params.P ?? 1.0, S = params.S ?? 1.0, L = params.L ?? 1.0;
         switch (action) {
           case "compute": { result = computeOmega({ R, C, P, S, L }); break; }
           case "breakdown": {

@@ -1,0 +1,857 @@
+{
+  "version": "10.0.0",
+  "type": "EXHAUSTIVE_SEMANTIC",
+  "generatedAt": "2026-01-31T18:56:09.328047",
+  "formula_chains": {
+    "cutting_force_chain": {
+      "description": "Complete cutting force to power to temperature chain",
+      "sequence": [
+        {
+          "formula": "F-CUT-001",
+          "output": "Fc",
+          "feeds": [
+            "F-POWER-001",
+            "F-POWER-002",
+            "F-VIB-001"
+          ]
+        },
+        {
+          "formula": "F-CUT-002",
+          "output": "Ff",
+          "feeds": [
+            "F-POWER-001",
+            "F-DEFL-001"
+          ]
+        },
+        {
+          "formula": "F-CUT-003",
+          "output": "Fp",
+          "feeds": [
+            "F-POWER-001",
+            "F-FIX-001"
+          ]
+        },
+        {
+          "formula": "F-POWER-001",
+          "output": "Pc",
+          "feeds": [
+            "F-THERM-001",
+            "F-ECON-001"
+          ]
+        },
+        {
+          "formula": "F-THERM-001",
+          "output": "T_interface",
+          "feeds": [
+            "F-WEAR-001",
+            "F-MAT-001"
+          ]
+        },
+        {
+          "formula": "F-WEAR-001",
+          "output": "VB",
+          "feeds": [
+            "F-WEAR-002",
+            "F-SURF-001"
+          ]
+        }
+      ]
+    },
+    "tool_life_chain": {
+      "description": "Taylor tool life with economic optimization",
+      "sequence": [
+        {
+          "formula": "F-WEAR-003",
+          "output": "T_life",
+          "feeds": [
+            "F-ECON-005",
+            "F-ECON-006"
+          ]
+        },
+        {
+          "formula": "F-ECON-005",
+          "output": "Ct_tool",
+          "feeds": [
+            "F-ECON-001",
+            "F-OPT-001"
+          ]
+        },
+        {
+          "formula": "F-OPT-001",
+          "output": "V_opt",
+          "feeds": [
+            "F-CUT-001",
+            "F-PROC-001"
+          ]
+        }
+      ]
+    },
+    "stability_chain": {
+      "description": "Chatter prediction and stability lobes",
+      "sequence": [
+        {
+          "formula": "F-VIB-001",
+          "output": "omega_n",
+          "feeds": [
+            "F-VIB-003",
+            "F-VIB-005"
+          ]
+        },
+        {
+          "formula": "F-VIB-002",
+          "output": "zeta",
+          "feeds": [
+            "F-VIB-003",
+            "F-VIB-008"
+          ]
+        },
+        {
+          "formula": "F-VIB-003",
+          "output": "FRF",
+          "feeds": [
+            "F-VIB-005",
+            "F-VIB-006"
+          ]
+        },
+        {
+          "formula": "F-VIB-005",
+          "output": "b_lim",
+          "feeds": [
+            "F-OPT-003",
+            "F-PROC-005"
+          ]
+        }
+      ]
+    },
+    "surface_chain": {
+      "description": "Theoretical to actual surface roughness",
+      "sequence": [
+        {
+          "formula": "F-SURF-001",
+          "output": "Ra_theoretical",
+          "feeds": [
+            "F-SURF-003",
+            "F-QUAL-001"
+          ]
+        },
+        {
+          "formula": "F-VIB-008",
+          "output": "Ra_vibration",
+          "feeds": [
+            "F-SURF-003"
+          ]
+        },
+        {
+          "formula": "F-SURF-003",
+          "output": "Ra_actual",
+          "feeds": [
+            "F-QUAL-001",
+            "F-QUAL-002"
+          ]
+        }
+      ]
+    },
+    "thermal_wear_chain": {
+      "description": "Temperature drives wear mechanisms",
+      "sequence": [
+        {
+          "formula": "F-THERM-001",
+          "output": "T_tool",
+          "feeds": [
+            "F-THERM-005",
+            "F-WEAR-004"
+          ]
+        },
+        {
+          "formula": "F-THERM-005",
+          "output": "T_partition",
+          "feeds": [
+            "F-WEAR-005",
+            "F-MAT-003"
+          ]
+        },
+        {
+          "formula": "F-WEAR-004",
+          "output": "W_diffusion",
+          "feeds": [
+            "F-WEAR-001"
+          ]
+        },
+        {
+          "formula": "F-WEAR-005",
+          "output": "W_adhesion",
+          "feeds": [
+            "F-WEAR-001"
+          ]
+        }
+      ]
+    },
+    "material_chain": {
+      "description": "Johnson-Cook constitutive to chip formation",
+      "sequence": [
+        {
+          "formula": "F-MAT-001",
+          "output": "sigma_flow",
+          "feeds": [
+            "F-CHIP-001",
+            "F-CUT-004"
+          ]
+        },
+        {
+          "formula": "F-CHIP-001",
+          "output": "phi",
+          "feeds": [
+            "F-CHIP-002",
+            "F-CUT-001"
+          ]
+        },
+        {
+          "formula": "F-CHIP-002",
+          "output": "rc",
+          "feeds": [
+            "F-CHIP-003",
+            "F-THERM-002"
+          ]
+        }
+      ]
+    },
+    "optimization_chain": {
+      "description": "Multi-objective optimization flow",
+      "sequence": [
+        {
+          "formula": "F-OPT-001",
+          "output": "obj_cost",
+          "feeds": [
+            "F-OPT-010",
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-OPT-002",
+          "output": "obj_mrr",
+          "feeds": [
+            "F-OPT-010",
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-OPT-003",
+          "output": "obj_quality",
+          "feeds": [
+            "F-OPT-010",
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-OPT-010",
+          "output": "pareto_front",
+          "feeds": [
+            "F-PRM-002",
+            "F-AI-001"
+          ]
+        }
+      ]
+    },
+    "ai_chain": {
+      "description": "ML prediction pipeline",
+      "sequence": [
+        {
+          "formula": "F-AI-001",
+          "output": "loss",
+          "feeds": [
+            "F-AI-002",
+            "F-AI-005"
+          ]
+        },
+        {
+          "formula": "F-AI-002",
+          "output": "gradient",
+          "feeds": [
+            "F-AI-003"
+          ]
+        },
+        {
+          "formula": "F-AI-003",
+          "output": "weights_updated",
+          "feeds": [
+            "F-AI-004",
+            "F-AI-010"
+          ]
+        },
+        {
+          "formula": "F-AI-010",
+          "output": "uncertainty",
+          "feeds": [
+            "F-PRM-003",
+            "F-OPT-015"
+          ]
+        }
+      ]
+    },
+    "quality_chain": {
+      "description": "SPC capability analysis",
+      "sequence": [
+        {
+          "formula": "F-QUAL-001",
+          "output": "Cp",
+          "feeds": [
+            "F-QUAL-003",
+            "F-QUAL-005"
+          ]
+        },
+        {
+          "formula": "F-QUAL-002",
+          "output": "Cpk",
+          "feeds": [
+            "F-QUAL-003",
+            "F-QUAL-005"
+          ]
+        },
+        {
+          "formula": "F-QUAL-005",
+          "output": "sigma_level",
+          "feeds": [
+            "F-QUAL-006",
+            "F-ECON-010"
+          ]
+        },
+        {
+          "formula": "F-QUAL-006",
+          "output": "DPMO",
+          "feeds": [
+            "F-ECON-010",
+            "F-PRM-004"
+          ]
+        }
+      ]
+    },
+    "twin_chain": {
+      "description": "State estimation and prediction",
+      "sequence": [
+        {
+          "formula": "F-DT-001",
+          "output": "x_predicted",
+          "feeds": [
+            "F-DT-002",
+            "F-DT-005"
+          ]
+        },
+        {
+          "formula": "F-DT-002",
+          "output": "x_updated",
+          "feeds": [
+            "F-DT-003",
+            "F-AI-015"
+          ]
+        },
+        {
+          "formula": "F-DT-005",
+          "output": "divergence",
+          "feeds": [
+            "F-DT-006",
+            "F-PRM-005"
+          ]
+        }
+      ]
+    },
+    "economics_chain": {
+      "description": "Cost buildup to ROI",
+      "sequence": [
+        {
+          "formula": "F-ECON-001",
+          "output": "Cp_part",
+          "feeds": [
+            "F-ECON-010",
+            "F-ECON-015"
+          ]
+        },
+        {
+          "formula": "F-ECON-005",
+          "output": "Ct_tool",
+          "feeds": [
+            "F-ECON-001"
+          ]
+        },
+        {
+          "formula": "F-ECON-008",
+          "output": "Cm_machine",
+          "feeds": [
+            "F-ECON-001"
+          ]
+        },
+        {
+          "formula": "F-ECON-010",
+          "output": "margin",
+          "feeds": [
+            "F-ECON-015",
+            "F-ECON-020"
+          ]
+        },
+        {
+          "formula": "F-ECON-015",
+          "output": "ROI",
+          "feeds": [
+            "F-OPT-020"
+          ]
+        }
+      ]
+    },
+    "prism_chain": {
+      "description": "PRISM quality scoring cascade",
+      "sequence": [
+        {
+          "formula": "F-PRM-010",
+          "output": "R_score",
+          "feeds": [
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-PRM-011",
+          "output": "C_score",
+          "feeds": [
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-PRM-012",
+          "output": "P_score",
+          "feeds": [
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-PRM-013",
+          "output": "S_score",
+          "feeds": [
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-PRM-014",
+          "output": "L_score",
+          "feeds": [
+            "F-PRM-001"
+          ]
+        },
+        {
+          "formula": "F-PRM-001",
+          "output": "Omega",
+          "feeds": [
+            "F-PRM-020",
+            "F-PRM-025"
+          ]
+        }
+      ]
+    },
+    "hybrid_chain": {
+      "description": "Physics-informed machine learning",
+      "sequence": [
+        {
+          "formula": "F-HYB-001",
+          "output": "physics_pred",
+          "feeds": [
+            "F-HYB-005",
+            "F-HYB-010"
+          ]
+        },
+        {
+          "formula": "F-HYB-002",
+          "output": "ml_residual",
+          "feeds": [
+            "F-HYB-005"
+          ]
+        },
+        {
+          "formula": "F-HYB-005",
+          "output": "hybrid_pred",
+          "feeds": [
+            "F-HYB-010",
+            "F-AI-020"
+          ]
+        },
+        {
+          "formula": "F-HYB-010",
+          "output": "physics_loss",
+          "feeds": [
+            "F-AI-001"
+          ]
+        }
+      ]
+    }
+  },
+  "precise_formula_engine": {
+    "F-CUT-001": [
+      "E-PHYS-KIENZLE",
+      "E-PHYS-CUTTING-FORCE",
+      "E-CAM-FEEDS-SPEEDS"
+    ],
+    "F-CUT-002": [
+      "E-PHYS-KIENZLE",
+      "E-PHYS-FEED-FORCE",
+      "E-CAM-FEEDS-SPEEDS"
+    ],
+    "F-CUT-003": [
+      "E-PHYS-KIENZLE",
+      "E-PHYS-PASSIVE-FORCE"
+    ],
+    "F-CUT-004": [
+      "E-PHYS-MERCHANT",
+      "E-PHYS-SHEAR-PLANE"
+    ],
+    "F-CUT-005": [
+      "E-PHYS-OXLEY",
+      "E-PHYS-CUTTING-FORCE"
+    ],
+    "F-POWER-001": [
+      "E-PHYS-POWER",
+      "E-PHYS-SPINDLE",
+      "E-CAM-FEEDS-SPEEDS"
+    ],
+    "F-POWER-002": [
+      "E-PHYS-SPECIFIC-ENERGY",
+      "E-PHYS-POWER"
+    ],
+    "F-THERM-001": [
+      "E-PHYS-THERMAL",
+      "E-DT-TEMPERATURE",
+      "E-AI-TEMP-PREDICT"
+    ],
+    "F-THERM-002": [
+      "E-PHYS-HEAT-PARTITION",
+      "E-PHYS-THERMAL"
+    ],
+    "F-THERM-005": [
+      "E-PHYS-THERMAL",
+      "E-PHYS-TOOL-TEMP"
+    ],
+    "F-WEAR-001": [
+      "E-PHYS-TAYLOR",
+      "E-PHYS-TOOL-WEAR",
+      "E-BUS-TOOL-COST"
+    ],
+    "F-WEAR-002": [
+      "E-PHYS-USUI",
+      "E-PHYS-TOOL-WEAR"
+    ],
+    "F-WEAR-003": [
+      "E-PHYS-TAYLOR",
+      "E-PROC-TOOL-LIFE",
+      "E-BUS-TOOL-COST"
+    ],
+    "F-VIB-001": [
+      "E-PHYS-CHATTER",
+      "E-PHYS-MODAL",
+      "E-DT-VIBRATION"
+    ],
+    "F-VIB-002": [
+      "E-PHYS-DAMPING",
+      "E-PHYS-CHATTER"
+    ],
+    "F-VIB-003": [
+      "E-PHYS-FRF",
+      "E-PHYS-CHATTER",
+      "E-AI-CHATTER-DETECT"
+    ],
+    "F-VIB-005": [
+      "E-PHYS-STABILITY-LOBE",
+      "E-CAM-CHATTER-AVOID"
+    ],
+    "F-SURF-001": [
+      "E-PHYS-SURFACE",
+      "E-QUAL-ROUGHNESS",
+      "E-CAM-FINISH"
+    ],
+    "F-SURF-002": [
+      "E-PHYS-SCALLOP",
+      "E-CAM-FINISH"
+    ],
+    "F-SURF-003": [
+      "E-PHYS-SURFACE",
+      "E-QUAL-ROUGHNESS"
+    ],
+    "F-MAT-001": [
+      "E-PHYS-JOHNSON-COOK",
+      "E-PHYS-FLOW-STRESS",
+      "E-AI-MATERIAL"
+    ],
+    "F-MAT-002": [
+      "E-PHYS-ZERILLI",
+      "E-PHYS-FLOW-STRESS"
+    ],
+    "F-MAT-005": [
+      "E-PHYS-HARDNESS",
+      "E-PROC-MATERIAL-SELECT"
+    ],
+    "F-OPT-001": [
+      "E-AI-PSO",
+      "E-AI-GA",
+      "E-AI-OPTIMIZER",
+      "E-PROC-OPTIMIZE"
+    ],
+    "F-OPT-002": [
+      "E-AI-PSO",
+      "E-AI-GA",
+      "E-AI-OPTIMIZER"
+    ],
+    "F-OPT-010": [
+      "E-AI-NSGA2",
+      "E-AI-MOEAD",
+      "E-AI-PARETO"
+    ],
+    "F-AI-001": [
+      "E-AI-NEURAL",
+      "E-AI-TRAINER",
+      "E-AI-LOSS"
+    ],
+    "F-AI-002": [
+      "E-AI-BACKPROP",
+      "E-AI-TRAINER"
+    ],
+    "F-AI-003": [
+      "E-AI-ADAM",
+      "E-AI-SGD",
+      "E-AI-TRAINER"
+    ],
+    "F-AI-010": [
+      "E-AI-UNCERTAINTY",
+      "E-AI-BAYESIAN",
+      "E-PRISM-CONFIDENCE"
+    ],
+    "F-QUAL-001": [
+      "E-QUAL-SPC",
+      "E-QUAL-CAPABILITY",
+      "E-PROC-QUALITY"
+    ],
+    "F-QUAL-002": [
+      "E-QUAL-SPC",
+      "E-QUAL-CAPABILITY"
+    ],
+    "F-QUAL-005": [
+      "E-QUAL-SIX-SIGMA",
+      "E-QUAL-SPC"
+    ],
+    "F-ECON-001": [
+      "E-BUS-COST",
+      "E-BUS-QUOTE",
+      "E-PROC-ECONOMICS"
+    ],
+    "F-ECON-005": [
+      "E-BUS-TOOL-COST",
+      "E-BUS-COST"
+    ],
+    "F-ECON-010": [
+      "E-BUS-MARGIN",
+      "E-BUS-QUOTE"
+    ],
+    "F-ECON-015": [
+      "E-BUS-ROI",
+      "E-BUS-NPV"
+    ],
+    "F-DT-001": [
+      "E-DT-KALMAN",
+      "E-DT-STATE-PREDICT",
+      "E-AI-STATE"
+    ],
+    "F-DT-002": [
+      "E-DT-KALMAN",
+      "E-DT-STATE-UPDATE"
+    ],
+    "F-DT-005": [
+      "E-DT-DIVERGENCE",
+      "E-PRISM-TWIN-HEALTH"
+    ],
+    "F-PRM-001": [
+      "E-PRISM-OMEGA",
+      "E-PRISM-QUALITY",
+      "E-PRISM-GATE"
+    ],
+    "F-PRM-010": [
+      "E-PRISM-REASONING",
+      "E-PRISM-OMEGA"
+    ],
+    "F-PRM-013": [
+      "E-PRISM-SAFETY",
+      "E-PRISM-OMEGA",
+      "E-PRISM-GATE"
+    ],
+    "F-HYB-001": [
+      "E-AI-HYBRID",
+      "E-PHYS-GENERIC",
+      "E-AI-PHYSICS-INFORMED"
+    ],
+    "F-HYB-005": [
+      "E-AI-HYBRID",
+      "E-PRISM-HYBRID"
+    ],
+    "F-HYB-010": [
+      "E-AI-PHYSICS-LOSS",
+      "E-AI-HYBRID"
+    ],
+    "F-GEOM-001": [
+      "E-CAD-TRANSFORM",
+      "E-CAM-TOOLPATH"
+    ],
+    "F-GEOM-005": [
+      "E-CAD-NURBS",
+      "E-CAM-SURFACE"
+    ],
+    "F-MACH-001": [
+      "E-CAM-AXIS-DYNAMICS",
+      "E-DT-MACHINE"
+    ],
+    "F-MACH-005": [
+      "E-CAM-SPINDLE",
+      "E-PHYS-SPINDLE"
+    ],
+    "F-TOOL-001": [
+      "E-CAM-TOOL-ENGAGE",
+      "E-PHYS-TOOL-GEOM"
+    ],
+    "F-TOOL-005": [
+      "E-CAM-TOOL-SELECT",
+      "E-PROC-TOOLING"
+    ],
+    "F-FIX-001": [
+      "E-CAM-FIXTURE",
+      "E-PHYS-CLAMP-FORCE"
+    ],
+    "F-COOL-001": [
+      "E-PHYS-COOLANT",
+      "E-PROC-COOLANT"
+    ],
+    "F-SCHED-001": [
+      "E-BUS-SCHEDULE",
+      "E-PROC-PLANNING"
+    ],
+    "F-MET-001": [
+      "E-QUAL-MEASURE",
+      "E-DT-METROLOGY"
+    ],
+    "F-TRIB-001": [
+      "E-PHYS-FRICTION",
+      "E-PHYS-TRIBOLOGY"
+    ],
+    "F-SIG-001": [
+      "E-AI-FFT",
+      "E-AI-SIGNAL",
+      "E-DT-MONITOR"
+    ],
+    "F-SIG-005": [
+      "E-AI-WAVELET",
+      "E-AI-SIGNAL"
+    ]
+  },
+  "engine_dependencies": {
+    "E-CAM-FEEDS-SPEEDS": [
+      "E-PHYS-KIENZLE",
+      "E-PHYS-POWER",
+      "E-PHYS-TAYLOR"
+    ],
+    "E-CAM-TOOLPATH": [
+      "E-PHYS-CUTTING-FORCE",
+      "E-CAD-GEOMETRY",
+      "E-AI-OPTIMIZER"
+    ],
+    "E-CAM-FINISH": [
+      "E-PHYS-SURFACE",
+      "E-PHYS-SCALLOP",
+      "E-AI-PREDICT-SURFACE"
+    ],
+    "E-CAM-CHATTER-AVOID": [
+      "E-PHYS-STABILITY-LOBE",
+      "E-PHYS-FRF",
+      "E-AI-CHATTER-DETECT"
+    ],
+    "E-AI-HYBRID": [
+      "E-PHYS-GENERIC",
+      "E-AI-NEURAL",
+      "E-AI-PHYSICS-LOSS"
+    ],
+    "E-AI-PHYSICS-INFORMED": [
+      "E-PHYS-KIENZLE",
+      "E-AI-NEURAL"
+    ],
+    "E-AI-TEMP-PREDICT": [
+      "E-PHYS-THERMAL",
+      "E-AI-LSTM"
+    ],
+    "E-AI-CHATTER-DETECT": [
+      "E-PHYS-FRF",
+      "E-AI-FFT",
+      "E-AI-CLASSIFIER"
+    ],
+    "E-QUAL-SPC": [
+      "E-PROC-DATA-COLLECT",
+      "E-AI-STATISTICS"
+    ],
+    "E-QUAL-ROUGHNESS": [
+      "E-PHYS-SURFACE",
+      "E-DT-MEASURE"
+    ],
+    "E-BUS-QUOTE": [
+      "E-BUS-COST",
+      "E-PROC-TIME",
+      "E-PHYS-TAYLOR"
+    ],
+    "E-BUS-SCHEDULE": [
+      "E-PROC-PLANNING",
+      "E-AI-OPTIMIZER"
+    ],
+    "E-DT-MACHINE": [
+      "E-PHYS-ALL",
+      "E-AI-STATE",
+      "E-CAM-DYNAMICS"
+    ],
+    "E-DT-PROCESS": [
+      "E-PHYS-CUTTING-FORCE",
+      "E-PHYS-THERMAL",
+      "E-AI-PREDICT"
+    ],
+    "E-PRISM-OMEGA": [
+      "E-PRISM-REASONING",
+      "E-PRISM-CODE",
+      "E-PRISM-PROCESS",
+      "E-PRISM-SAFETY",
+      "E-PRISM-LEARNING"
+    ],
+    "E-PRISM-HYBRID": [
+      "E-PHYS-GENERIC",
+      "E-AI-NEURAL",
+      "E-PRISM-CONFIDENCE"
+    ],
+    "E-INTEG-GATEWAY": [
+      "E-ALL-ENGINES"
+    ],
+    "E-INTEG-ORCHESTRATOR": [
+      "E-PRISM-OMEGA",
+      "E-AI-OPTIMIZER"
+    ]
+  },
+  "cross_domain": {
+    "F-CUT-001\u2192E-AI-FORCE-PREDICT": "ML predicts cutting force",
+    "F-THERM-001\u2192E-AI-TEMP-PREDICT": "ML predicts temperature",
+    "F-VIB-001\u2192E-AI-CHATTER-DETECT": "ML detects chatter onset",
+    "F-WEAR-001\u2192E-AI-WEAR-PREDICT": "ML predicts tool wear",
+    "F-ECON-001\u2192E-AI-COST-OPTIMIZE": "ML optimizes cost",
+    "F-ECON-015\u2192E-AI-ROI-PREDICT": "ML predicts ROI",
+    "F-QUAL-001\u2192E-AI-QUALITY-PREDICT": "ML predicts capability",
+    "F-SURF-001\u2192E-AI-SURFACE-PREDICT": "ML predicts roughness",
+    "F-CUT-001\u2192E-DT-FORCE-MONITOR": "Twin monitors force",
+    "F-THERM-001\u2192E-DT-THERMAL-STATE": "Twin tracks temperature",
+    "F-AI-010\u2192E-PRISM-CONFIDENCE": "Uncertainty feeds confidence",
+    "F-OPT-010\u2192E-PRISM-DECISION": "Pareto feeds decisions",
+    "F-HYB-001\u2192E-AI-NEURAL": "Physics output augments ML",
+    "F-HYB-005\u2192E-PHYS-GENERIC": "Hybrid uses physics base",
+    "F-SIG-001\u2192E-PHYS-FREQUENCY": "FFT reveals natural freq",
+    "F-SIG-005\u2192E-PHYS-CHATTER": "Wavelet detects chatter"
+  },
+  "statistics": {
+    "formula_chains": 13,
+    "chain_steps": 53,
+    "precise_mappings": 59,
+    "unique_formula_engine_pairs": 142,
+    "engine_dependencies": 18,
+    "cross_domain_connections": 16
+  }
+}

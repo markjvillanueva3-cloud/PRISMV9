@@ -148,6 +148,17 @@ export interface CuttingForceResult {
   power: number;          // P [kW]
   torque: number;         // M [Nm]
   warnings: string[];
+  uncertainty?: {
+    Fc_range: [number, number];
+    power_range: [number, number];
+    confidence: number;
+    source: string;
+  };
+  force_ratios?: {
+    Ff_over_Fc: number;
+    Fp_over_Fc: number;
+    iso_group: string;
+  };
   calculation_method: string;
 }
 

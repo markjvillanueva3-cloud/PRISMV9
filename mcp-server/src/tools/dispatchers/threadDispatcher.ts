@@ -80,7 +80,7 @@ export function registerThreadDispatcher(server: any): void {
               error: "Thread calculation failed",
               details: error instanceof Error ? error.message : "Unknown error",
               action,
-              params
+              params: rawParams
             }, null, 2)
           }]
         };

@@ -744,14 +744,7 @@ export class ScriptExecutor {
 
 export const scriptExecutor = new ScriptExecutor();
 
-// Export types for MCP tools
-export type {
-  ExecutionParams,
-  ExecutionOptions,
-  ExecutionResult,
-  QueuedExecution,
-  ScriptRecommendation
-};
+// Types are already exported at their declarations above
 
 // ============================================================================
 // SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting ScriptExecutor

@@ -23,7 +23,7 @@ import { log } from "../../utils/Logger.js";
 import type { PatternType } from "../../types/pfp-types.js";
 
 export function registerPFPDispatcher(server: McpServer): void {
-  server.tool(
+  (server as any).tool(
     "prism_pfp",
     "Predictive Failure Prevention. Actions: get_dashboard, assess_risk, get_patterns, get_history, force_extract, update_config",
     {
@@ -51,7 +51,7 @@ export function registerPFPDispatcher(server: McpServer): void {
             result = {
               ...dashboard,
               slos,
-              topPatterns: dashboard.topPatterns.map(p => ({
+              topPatterns: (dashboard.topPatterns ?? []).map(p => ({
                 type: p.type,
                 dispatcher: p.dispatcher,
                 action: p.action,
@@ -81,7 +81,7 @@ export function registerPFPDispatcher(server: McpServer): void {
               recommendation: assessment.recommendation,
               reason: assessment.reason,
               matched_patterns: assessment.matchedPatterns.length,
-              assessment_ms: assessment.assessmentMs.toFixed(2),
+              assessment_ms: (assessment.assessmentMs ?? 0).toFixed(2),
               patterns: assessment.matchedPatterns.map(m => ({
                 type: m.patternType,
                 confidence: (m.confidence * 100).toFixed(1) + '%',
