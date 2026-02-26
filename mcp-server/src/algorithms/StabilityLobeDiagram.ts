@@ -154,43 +154,54 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
 
     const omega_n = 2 * Math.PI * natural_frequency;
 
+    // Convert stiffness to N/mm for unit consistency with Ks [N/mm²]
+    // FRF: G_nondim/k_mm gives mm/N, so Ks × G/k = (N/mm²)(mm/N) = 1/mm → b_lim in mm
+    const k_Nmm = stiffness / 1000;
+
     // Average directional factor (depends on radial immersion)
     // α_xx = (1/2π)(φ_s - sin(2φ_s)/2) where φ_s = arccos(1 - 2·ae/D)
     const phi_s = Math.acos(Math.max(-1, 1 - 2 * radial_immersion));
     const alpha_xx = (1 / (2 * Math.PI)) * (phi_s - Math.sin(2 * phi_s) / 2);
 
-    // Damped natural frequency (chatter frequency)
-    const omega_c = omega_n * Math.sqrt(1 - damping_ratio * damping_ratio);
-    const chatter_frequency = omega_c / (2 * Math.PI);
-
-    // FRF at chatter frequency
-    const r = omega_c / omega_n;
-    const denom = (1 - r * r) * (1 - r * r) + (2 * damping_ratio * r) * (2 * damping_ratio * r);
-    const G_real = (1 - r * r) / denom;
+    // Sweep chatter frequency around natural frequency (Altintas-Budak 1995)
+    // Chatter occurs at ω_c slightly above ω_n where G_real < 0
+    const chatter_frequency = natural_frequency * Math.sqrt(1 - damping_ratio * damping_ratio);
 
     const lobes: StabilityLobe[] = [];
     let unconditional_limit = Infinity;
 
+    // Sweep ω_c from ω_n × 1.001 to ω_n × 2.0 (above resonance, G_real < 0 → positive b_lim)
     for (let k = 0; k < num_lobes; k++) {
       const lobe: StabilityLobe = { lobe_number: k, rpm: [], depth_limit: [] };
 
       for (let i = 0; i < num_points; i++) {
-        const epsilon = -2 * Math.PI * i / num_points;
+        // Sweep ratio from just above 1.0 to ~2.0
+        const r = 1.001 + (i / num_points) * 1.5;
+        const omega_c = r * omega_n;
 
-        // Spindle speed for this lobe point
+        // FRF at this chatter frequency
+        const denom = (1 - r * r) * (1 - r * r) + (2 * damping_ratio * r) * (2 * damping_ratio * r);
+        const G_real = (1 - r * r) / denom;
+        const G_imag = (-2 * damping_ratio * r) / denom;
+
+        // Skip if G_real >= 0 (unstable region not useful for SLD boundary)
+        if (G_real >= 0) continue;
+
+        // Stability limit [mm] (positive when G_real < 0)
+        const b_lim = -1 / (2 * Ks * alpha_xx * num_teeth * (G_real / k_Nmm));
+
+        // Phase angle for RPM calculation
+        const epsilon = Math.PI - 2 * Math.atan2(G_imag, G_real);
+
+        // Spindle speed for lobe k
         const N = (60 * omega_c) / (2 * Math.PI * (k + epsilon / (2 * Math.PI)) * num_teeth);
 
-        if (N >= rpm_range[0] && N <= rpm_range[1]) {
-          // Stability limit depth
-          const b_lim = -1 / (2 * Ks * alpha_xx * num_teeth * G_real / stiffness);
+        if (N >= rpm_range[0] && N <= rpm_range[1] && b_lim > 0 && b_lim < LIMITS.MAX_DEPTH) {
+          lobe.rpm.push(N);
+          lobe.depth_limit.push(b_lim);
 
-          if (b_lim > 0 && b_lim < LIMITS.MAX_DEPTH) {
-            lobe.rpm.push(N);
-            lobe.depth_limit.push(b_lim);
-
-            if (b_lim < unconditional_limit) {
-              unconditional_limit = b_lim;
-            }
+          if (b_lim < unconditional_limit) {
+            unconditional_limit = b_lim;
           }
         }
       }
