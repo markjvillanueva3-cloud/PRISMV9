@@ -1,0 +1,75 @@
+{
+  "id": "S1-MS1",
+  "version": "1.0.0",
+  "title": "Registry Enrichment for SFC",
+  "brief": "Enrich material, tool, machine, coolant, and coating registries with physics constants needed for SFC calculations.",
+  "created_at": "2026-02-25T10:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Material Kienzle Constants",
+      "description": "Verify and audit Kienzle constants (kc1.1, mc) across all 6,346 materials.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Audit Kienzle coverage",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": ["Material registry loaded with 6,346 entries"],
+          "exit_conditions": ["All materials have kienzle.kc1_1 and kienzle.mc fields"],
+          "rollback": "No changes needed (read-only audit)",
+          "steps": [{ "number": 1, "instruction": "Query material registry for Kienzle field coverage" }],
+          "deliverables": [],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      }
+    }
+  ],
+  "total_units": 1,
+  "total_sessions": "1",
+  "role_matrix": [{ "code": "R2", "name": "Implementer", "model": "sonnet-4.6", "effort": 60 }],
+  "tool_map": [],
+  "deliverables_index": [],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions"],
+    "improvement_threshold": 0.92
+  }
+}

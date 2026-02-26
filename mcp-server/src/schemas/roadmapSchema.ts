@@ -390,6 +390,72 @@ export const RoadmapEnvelope = z.object({
 });
 export type RoadmapEnvelope = z.infer<typeof RoadmapEnvelope>;
 
+// ─── Milestone Index ──────────────────────────────────────────────
+
+/** Status of a milestone in the roadmap index. */
+export const MilestoneStatus = z.enum(["not_started", "in_progress", "complete"]);
+export type MilestoneStatus = z.infer<typeof MilestoneStatus>;
+
+/** A lightweight reference to a milestone — used in the roadmap index. */
+export const MilestoneEntry = z.object({
+  /** Milestone ID, e.g. "S1-MS1". */
+  id: z.string().min(1),
+  /** Human-readable title. */
+  title: z.string().min(1),
+  /** Track grouping, e.g. "S1", "L0", "CC". */
+  track: z.string().min(1),
+  /** Milestone IDs that must complete before this one. */
+  dependencies: z.array(z.string()).default([]),
+  /** Current execution status. */
+  status: MilestoneStatus.default("not_started"),
+  /** Total units in this milestone. */
+  total_units: z.number().int().nonnegative(),
+  /** Units completed so far. */
+  completed_units: z.number().int().nonnegative().default(0),
+  /** Estimated sessions, e.g. "2-3". */
+  sessions: z.string().default("1"),
+  /** Relative path to the milestone envelope JSON (from data/). */
+  envelope_path: z.string().min(1),
+  /** Relative path to position.json (from data/). */
+  position_path: z.string().min(1),
+});
+export type MilestoneEntry = z.infer<typeof MilestoneEntry>;
+
+/** Top-level roadmap index — lightweight manifest of all milestones. */
+export const RoadmapIndex = z.object({
+  /** Semver version. */
+  version: z.string().regex(/^\d+\.\d+\.\d+$/, "Must be semver"),
+  /** Master roadmap title. */
+  title: z.string().min(1),
+  /** ISO timestamp of last update. */
+  updated_at: z.string(),
+  /** All milestones in execution order. */
+  milestones: z.array(MilestoneEntry),
+  /** Total milestone count. */
+  total_milestones: z.number().int().nonnegative(),
+  /** Completed milestone count. */
+  completed_milestones: z.number().int().nonnegative().default(0),
+});
+export type RoadmapIndex = z.infer<typeof RoadmapIndex>;
+
+/** Parse and validate a roadmap index JSON. Throws on error. */
+export function parseRoadmapIndex(data: unknown): RoadmapIndex {
+  return RoadmapIndex.parse(data);
+}
+
+/** Validate a roadmap index JSON. Returns { success, data?, error? }. */
+export function validateRoadmapIndex(data: unknown): {
+  success: boolean;
+  data?: RoadmapIndex;
+  error?: z.ZodError;
+} {
+  const result = RoadmapIndex.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
 // ─── Factory Functions ─────────────────────────────────────────────
 
 /** Create a minimal valid unit with sensible defaults. */

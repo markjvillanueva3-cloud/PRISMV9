@@ -25,12 +25,19 @@ Execute the 7-stage pipeline:
 - Use Sonnet for stages 2, 3, 6 (audit, estimation, resolution)
 - Use Haiku for stage 7 (formatting)
 
-## Output Files
+## Output Files (Modular)
+For each milestone generated:
+- Envelope: `C:\PRISM\mcp-server\data\milestones\{MILESTONE-ID}.json` (per-milestone JSON envelope)
+- Position: `C:\PRISM\mcp-server\data\state\{MILESTONE-ID}\position.json`
+- Index entry added to: `C:\PRISM\mcp-server\data\roadmap-index.json`
+
+Legacy (full roadmap markdown, optional):
 - Roadmap: `C:\PRISM\mcp-server\data\docs\roadmap\{ROADMAP-ID}-{slug}.md`
-- Position: `C:\PRISM\state\{roadmap-id}\position.json`
 - Scrutiny log: `C:\PRISM\state\{roadmap-id}\scrutiny-log.json`
 
 ## Post-Generation
+- Write each milestone envelope to `data/milestones/{MILESTONE-ID}.json`
+- Update `data/roadmap-index.json` with new milestone entries (id, title, track, dependencies, total_units, envelope_path, position_path)
 - Run adaptive scrutinization (load prism-roadmap-scrutinizer, 3-7 passes, delta < 2)
 - Report: roadmap location, unit count, session estimate, scrutiny score
 - Target Omega >= 1.0 for generated roadmap quality

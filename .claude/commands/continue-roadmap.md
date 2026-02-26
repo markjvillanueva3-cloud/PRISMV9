@@ -6,20 +6,20 @@ Load these skills before starting:
 2. `prism_skill_script->skill_content(id="prism-roadmap-scrutinizer")` -- quality checks between units
 
 ## Input
-Identify the active roadmap from $ARGUMENTS (roadmap ID or file path). If not provided, check `data/state/` for the most recently updated position.json. If no active roadmap found, ask the user.
+Identify the active milestone from $ARGUMENTS (milestone ID like "S1-MS2"). If not provided, use `prism_orchestrate:roadmap_list` to get the index and pick the first `in_progress` or `not_started` milestone. If no active milestone found, ask the user.
 
 ## Execution Flow
 
-### 1. Load State
-- Read the roadmap file (`.md` or `.json` format)
-- Read `data/state/{roadmap-id}/position.json` for current position
-- If no position file exists, initialize at the first unit of the first phase
+### 1. Load State (Modular)
+- Use `prism_orchestrate:roadmap_load { milestone_id: "<ID>" }` to load the milestone envelope + position
+- This loads only the single milestone (~15-25KB) instead of the full roadmap (~330KB)
+- If no position exists, an initial position is created automatically
 
 ### 1.5 Parallel Detection (MCP-Driven)
 Use the RoadmapExecutor engine via MCP to identify parallelizable units:
 
 ```
-prism_orchestrate:roadmap_next_batch { roadmap: <envelope>, position: <position> }
+prism_orchestrate:roadmap_next_batch { milestone_id: "<ID>" }
 ```
 
 This returns:
@@ -86,7 +86,7 @@ After all steps complete:
 
 ### 6. Post-Unit Processing (Hook: post-roadmap-unit)
 After successful completion:
-- **Update position** -- `prism_orchestrate:roadmap_advance { completed: [{ unitId, buildPassed: true }] }`
+- **Update position** -- `prism_orchestrate:roadmap_advance { milestone_id: "<ID>", completed: [{ unitId, buildPassed: true }] }` (auto-persists position + updates index status)
 - **Index deliverables** -- catalog all files created/modified by this unit
 - **Phase gate check** -- if this was the last unit in a phase, flag GATE_PENDING
 - **Checkpoint** -- trigger checkpoint every 3 completed units
@@ -95,7 +95,7 @@ After successful completion:
 When a phase gate is pending, use the MCP gate check:
 ```
 prism_orchestrate:roadmap_gate {
-  roadmap: <envelope>,
+  milestone_id: "<ID>",
   phase_id: "P1",
   completed_ids: [...],
   build_passed: true,
@@ -124,9 +124,16 @@ If gate FAILS:
 ## Full Execution Plan (Optional)
 To see the complete batched execution plan before starting:
 ```
-prism_orchestrate:roadmap_plan { roadmap: <envelope>, completed_ids: [] }
+prism_orchestrate:roadmap_plan { milestone_id: "<ID>", completed_ids: [] }
 ```
 This shows all phases, all batches, which batches are parallel vs sequential, max parallel width, and estimated token cost. Useful for capacity planning.
+
+## Milestone Index
+To see all milestones and their status:
+```
+prism_orchestrate:roadmap_list {}
+```
+Returns the lightweight index (~1KB) with all milestone IDs, titles, tracks, dependencies, and completion status.
 
 ## Status Report Format
 After each unit, output:

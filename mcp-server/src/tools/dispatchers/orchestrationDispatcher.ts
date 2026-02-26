@@ -20,6 +20,15 @@ import {
   getCompletedIds,
 } from "../../engines/RoadmapExecutor.js";
 import { parseRoadmap } from "../../schemas/roadmapSchema.js";
+import {
+  loadIndex,
+  loadEnvelope,
+  loadPosition,
+  resolveEnvelope,
+  resolvePosition,
+  savePosition,
+  updateMilestoneStatus,
+} from "../../services/RoadmapLoader.js";
 import { agentRegistry } from "../../registries/AgentRegistry.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
@@ -28,7 +37,8 @@ const ACTIONS = [
   "plan_create", "plan_execute", "plan_status", "queue_stats", "session_list",
   "swarm_execute", "swarm_parallel", "swarm_consensus", "swarm_pipeline",
   "swarm_status", "swarm_patterns",
-  "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate"
+  "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate",
+  "roadmap_list", "roadmap_load"
 ] as const;
 
 function ok(data: any) {
@@ -38,7 +48,7 @@ function ok(data: any) {
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",
-    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}`,
+    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}. Use milestone_id for modular roadmap loading (saves tokens vs full envelope).`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);
@@ -154,10 +164,12 @@ export function registerOrchestrationDispatcher(server: any): void {
           // === ROADMAP EXECUTION ===
           case "roadmap_plan": {
             // Generate a batched execution plan with parallel detection
-            // params: { roadmap: RoadmapEnvelope, completed_ids?: string[] }
-            if (!params.roadmap) return ok({ error: "roadmap (RoadmapEnvelope JSON) required" });
+            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, completed_ids?: string[] }
+            if (!params.roadmap && !params.milestone_id) {
+              return ok({ error: "milestone_id or roadmap (RoadmapEnvelope JSON) required" });
+            }
             try {
-              const envelope = parseRoadmap(params.roadmap);
+              const { envelope } = await resolveEnvelope(params);
               const completedIds = new Set<string>(params.completed_ids || []);
               const plan = roadmapExecutor.plan(envelope, completedIds);
               const summary = summarizePlan(plan);
@@ -185,17 +197,19 @@ export function registerOrchestrationDispatcher(server: any): void {
                 summary,
               });
             } catch (parseErr: any) {
-              return ok({ error: `Failed to parse roadmap: ${parseErr.message}` });
+              return ok({ error: `roadmap_plan failed: ${parseErr.message}` });
             }
           }
           case "roadmap_next_batch": {
             // Get the next batch of ready units for parallel execution
-            // params: { roadmap: RoadmapEnvelope, position: PositionTracker }
-            if (!params.roadmap) return ok({ error: "roadmap required" });
-            if (!params.position) return ok({ error: "position required" });
+            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, position?: PositionTracker }
+            if (!params.roadmap && !params.milestone_id) {
+              return ok({ error: "milestone_id or roadmap required" });
+            }
             try {
-              const envelope = parseRoadmap(params.roadmap);
-              const result = roadmapExecutor.nextBatch(envelope, params.position);
+              const { envelope } = await resolveEnvelope(params);
+              const position = await resolvePosition(params, envelope);
+              const result = roadmapExecutor.nextBatch(envelope, position);
               return ok({
                 batch: result.batch ? {
                   batchId: result.batch.batchId,
@@ -221,17 +235,27 @@ export function registerOrchestrationDispatcher(server: any): void {
           }
           case "roadmap_advance": {
             // Advance position after completing units
-            // params: { roadmap: RoadmapEnvelope, position: PositionTracker, completed: [{ unitId, buildPassed }] }
-            if (!params.roadmap || !params.position || !params.completed) {
-              return ok({ error: "roadmap, position, and completed[] required" });
+            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, position?: PositionTracker, completed: [{ unitId, buildPassed }] }
+            if ((!params.roadmap && !params.milestone_id) || !params.completed) {
+              return ok({ error: "(milestone_id or roadmap) and completed[] required" });
             }
             try {
-              const envelope = parseRoadmap(params.roadmap);
+              const { envelope, milestoneId } = await resolveEnvelope(params);
+              const position = await resolvePosition(params, envelope);
               const updated = roadmapExecutor.advance(
-                params.position,
+                position,
                 params.completed,
                 envelope
               );
+              // Auto-persist when using milestone_id
+              if (params.milestone_id) {
+                await savePosition(milestoneId, updated);
+                await updateMilestoneStatus(
+                  milestoneId,
+                  updated.status === "COMPLETE" ? "complete" : "in_progress",
+                  updated.units_completed,
+                );
+              }
               return ok({
                 position: updated,
                 unitsCompleted: updated.units_completed,
@@ -246,13 +270,13 @@ export function registerOrchestrationDispatcher(server: any): void {
           }
           case "roadmap_gate": {
             // Run a phase gate check
-            // params: { roadmap: RoadmapEnvelope, phase_id: string, completed_ids: string[],
-            //           build_passed: bool, tests_passed: bool, test_count: num, baseline_test_count: num, omega_score: num }
-            if (!params.roadmap || !params.phase_id) {
-              return ok({ error: "roadmap and phase_id required" });
+            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, phase_id: string,
+            //           completed_ids?: string[], build_passed?, tests_passed?, test_count?, baseline_test_count?, omega_score? }
+            if ((!params.roadmap && !params.milestone_id) || !params.phase_id) {
+              return ok({ error: "(milestone_id or roadmap) and phase_id required" });
             }
             try {
-              const envelope = parseRoadmap(params.roadmap);
+              const { envelope } = await resolveEnvelope(params);
               const phase = envelope.phases.find(p => p.id === params.phase_id);
               if (!phase) return ok({ error: `Phase not found: ${params.phase_id}` });
 
@@ -272,6 +296,60 @@ export function registerOrchestrationDispatcher(server: any): void {
               });
             } catch (err: any) {
               return ok({ error: `roadmap_gate failed: ${err.message}` });
+            }
+          }
+          // === MODULAR ROADMAP LOADING ===
+          case "roadmap_list": {
+            // List all milestones from the index (lightweight — no envelopes loaded)
+            try {
+              const index = await loadIndex();
+              return ok({
+                title: index.title,
+                totalMilestones: index.total_milestones,
+                completedMilestones: index.completed_milestones,
+                milestones: index.milestones.map(m => ({
+                  id: m.id,
+                  title: m.title,
+                  track: m.track,
+                  status: m.status,
+                  dependencies: m.dependencies,
+                  totalUnits: m.total_units,
+                  completedUnits: m.completed_units,
+                  sessions: m.sessions,
+                })),
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_list failed: ${err.message}` });
+            }
+          }
+          case "roadmap_load": {
+            // Load a single milestone envelope by ID
+            // params: { milestone_id: string }
+            if (!params.milestone_id) return ok({ error: "milestone_id required" });
+            try {
+              const envelope = await loadEnvelope(params.milestone_id);
+              const position = await loadPosition(params.milestone_id);
+              return ok({
+                milestoneId: params.milestone_id,
+                envelope: {
+                  id: envelope.id,
+                  title: envelope.title,
+                  totalUnits: envelope.total_units,
+                  totalSessions: envelope.total_sessions,
+                  phases: envelope.phases.map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    unitCount: p.units.length,
+                    units: p.units.map(u => ({
+                      id: u.id, title: u.title, sequence: u.sequence,
+                      dependencies: u.dependencies, role: u.role, model: u.model,
+                    })),
+                  })),
+                },
+                position: position || null,
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_load failed: ${err.message}` });
             }
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
