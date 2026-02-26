@@ -1,7 +1,8 @@
 /**
- * Data Access Dispatcher - Consolidates 14 data tools → 1 dispatcher
+ * Data Access Dispatcher - Consolidates data tools → 1 dispatcher (27 actions)
  * Actions: material_get/search/compare, machine_get/search/capabilities,
- *          tool_get/search/recommend, alarm_decode/search/fix, formula_get/calculate
+ *          tool_get/search/recommend, alarm_decode/search/fix, formula_get/calculate,
+ *          coolant_get/search/recommend, coating_get/search/recommend
  */
 
 import { z } from "zod";
@@ -19,7 +20,9 @@ const DataDispatcherSchema = z.object({
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
     "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare",
-    "material_substitute"
+    "material_substitute",
+    "coolant_search", "coolant_recommend", "coolant_get",
+    "coating_search", "coating_recommend", "coating_get"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -31,7 +34,7 @@ function jsonResponse(data: any) {
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
-    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head), material_substitute (find alternative materials by cost/availability/machinability/performance). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute",
+    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head), material_substitute (find alternative materials by cost/availability/machinability/performance), coolant get/search/recommend (SFC correction factors), coating get/search/recommend (SFC correction factors). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute, coolant_search, coolant_recommend, coolant_get, coating_search, coating_recommend, coating_get",
     DataDispatcherSchema.shape,
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_data] action=${action}`, params);
@@ -624,6 +627,60 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === COOLANT (3) ===
+          case "coolant_get": {
+            const coolantId = params.id || params.coolant_id || params.identifier;
+            if (!coolantId) return jsonResponse({ error: "Missing coolant identifier. Provide 'id' or 'coolant_id'." });
+            const coolant = registryManager.coolants.get(coolantId);
+            if (!coolant) return jsonResponse({ error: `Coolant not found: ${coolantId}` });
+            result = coolant;
+            break;
+          }
+          case "coolant_search": {
+            result = registryManager.coolants.searchCoolants({
+              query: params.query, category: params.category, delivery: params.delivery,
+              material_group: params.material_group || params.material || params.iso_group,
+              operation: params.operation, limit: params.limit || 10
+            });
+            break;
+          }
+          case "coolant_recommend": {
+            const matGroup = params.material_group || params.material || params.iso_group;
+            if (!matGroup) return jsonResponse({ error: "Missing material_group (ISO group e.g. 'P', 'M', 'K')" });
+            result = registryManager.coolants.recommend({
+              material_group: matGroup, operation: params.operation || "general",
+              delivery: params.delivery
+            });
+            break;
+          }
+
+          // === COATING (3) ===
+          case "coating_get": {
+            const coatingId = params.id || params.coating_id || params.identifier;
+            if (!coatingId) return jsonResponse({ error: "Missing coating identifier. Provide 'id' or 'coating_id'." });
+            const coating = registryManager.coatings.get(coatingId);
+            if (!coating) return jsonResponse({ error: `Coating not found: ${coatingId}` });
+            result = coating;
+            break;
+          }
+          case "coating_search": {
+            result = registryManager.coatings.searchCoatings({
+              query: params.query, category: params.category, process: params.process,
+              material_group: params.material_group || params.material || params.iso_group,
+              application: params.application, limit: params.limit || 10
+            });
+            break;
+          }
+          case "coating_recommend": {
+            const coatMatGroup = params.material_group || params.material || params.iso_group;
+            if (!coatMatGroup) return jsonResponse({ error: "Missing material_group (ISO group e.g. 'P', 'M', 'K')" });
+            result = registryManager.coatings.recommend({
+              material_group: coatMatGroup, application: params.application || params.operation || "general",
+              process: params.process
+            });
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -635,5 +692,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (21 actions)");
+  log.info("[dataDispatcher] Registered prism_data (27 actions)");
 }

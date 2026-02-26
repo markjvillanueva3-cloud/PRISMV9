@@ -2,15 +2,17 @@
  * PRISM MCP Server - Registry Manager v4
  * Coordinates loading and lifecycle of all data registries
  *
- * Data Registries (8):
- * - MaterialRegistry: 1,047+ materials × 127 parameters
- * - MachineRegistry: 824+ machines × 43 manufacturers
- * - ToolRegistry: 500+ cutting tools × 85 parameters
+ * Data Registries (10):
+ * - MaterialRegistry: 6,346+ materials × 127 parameters (Kienzle-enriched)
+ * - MachineRegistry: 2,107+ machines × 43 manufacturers (spindle-enriched)
+ * - ToolRegistry: 15,912+ cutting tools × 85 parameters (geometry-enriched)
  * - AlarmRegistry: 2,500+ alarms × 12 controller families
  * - FormulaRegistry: 109 formulas × 20 domains
  * - AlgorithmRegistry: 52+ algorithms × 14 types (P-MS1)
  * - PostProcessorRegistry: 8+ post processors × 13 controller families (P-MS1) ⚠️ SAFETY CRITICAL
  * - KnowledgeBaseRegistry: 12+ knowledge bases (P-MS1)
+ * - CoolantRegistry: 22 coolants × 7 categories with SFC factors (S1-P3)
+ * - CoatingRegistry: 20 coatings × 5 categories with SFC factors (S1-P3)
  *
  * Orchestration Registries (2):
  * - AgentRegistry: 64+ agents × 8 categories
@@ -29,6 +31,8 @@ import { formulaRegistry, FormulaRegistry } from "./FormulaRegistry.js";
 import { algorithmRegistry, AlgorithmRegistry } from "./AlgorithmRegistry.js";
 import { postProcessorRegistry, PostProcessorRegistry } from "./PostProcessorRegistry.js";
 import { knowledgeBaseRegistry, KnowledgeBaseRegistry } from "./KnowledgeBaseRegistry.js";
+import { coolantRegistry, CoolantRegistry } from "./CoolantRegistry.js";
+import { coatingRegistry, CoatingRegistry } from "./CoatingRegistry.js";
 import { agentRegistry, AgentRegistry } from "./AgentRegistry.js";
 import { hookRegistry, HookRegistry } from "./HookRegistry.js";
 import { skillRegistry, SkillRegistry } from "./SkillRegistry.js";
@@ -52,6 +56,8 @@ export class RegistryManager {
   readonly algorithms: AlgorithmRegistry;
   readonly postProcessors: PostProcessorRegistry;
   readonly knowledgeBases: KnowledgeBaseRegistry;
+  readonly coolants: CoolantRegistry;
+  readonly coatings: CoatingRegistry;
 
   // Orchestration registries
   readonly agents: AgentRegistry;
@@ -70,6 +76,8 @@ export class RegistryManager {
     this.algorithms = algorithmRegistry;
     this.postProcessors = postProcessorRegistry;
     this.knowledgeBases = knowledgeBaseRegistry;
+    this.coolants = coolantRegistry;
+    this.coatings = coatingRegistry;
     this.agents = agentRegistry;
     this.hooks = hookRegistry;
     this.skills = skillRegistry;
@@ -125,6 +133,12 @@ export class RegistryManager {
         this.knowledgeBases.load().catch(err => {
           log.error(`Failed to load knowledge bases: ${err}`);
         }),
+        this.coolants.load().catch(err => {
+          log.error(`Failed to load coolants: ${err}`);
+        }),
+        this.coatings.load().catch(err => {
+          log.error(`Failed to load coatings: ${err}`);
+        }),
         this.agents.load().catch(err => {
           log.error(`Failed to load agents: ${err}`);
         }),
@@ -173,6 +187,8 @@ export class RegistryManager {
     log.info(`  Algorithms:      ${this.algorithms.size} entries`);
     log.info(`  PostProcessors:  ${this.postProcessors.size} entries`);
     log.info(`  KnowledgeBases:  ${this.knowledgeBases.size} entries`);
+    log.info(`  Coolants:        ${this.coolants.size} entries`);
+    log.info(`  Coatings:        ${this.coatings.size} entries`);
     log.info(`  Agents:          ${this.agents.size} entries`);
     log.info(`  Hooks:           ${this.hooks.size} entries`);
     log.info(`  Skills:          ${this.skills.size} entries`);
@@ -193,6 +209,8 @@ export class RegistryManager {
       this.algorithms.size +
       this.postProcessors.size +
       this.knowledgeBases.size +
+      this.coolants.size +
+      this.coatings.size +
       this.agents.size +
       this.hooks.size +
       this.skills.size +
@@ -220,6 +238,8 @@ export class RegistryManager {
     algorithms: any;
     postProcessors: any;
     knowledgeBases: any;
+    coolants: any;
+    coatings: any;
     agents: any;
     hooks: any;
     skills: any;
@@ -238,6 +258,8 @@ export class RegistryManager {
       algorithms: await this.algorithms.getStats(),
       postProcessors: await this.postProcessors.getStats(),
       knowledgeBases: await this.knowledgeBases.getStats(),
+      coolants: this.coolants.getStats(),
+      coatings: this.coatings.getStats(),
       agents: this.agents.getStats(),
       hooks: this.hooks.getStats(),
       skills: this.skills.getStats(),
@@ -265,6 +287,8 @@ export class RegistryManager {
     this.algorithms.clear();
     this.postProcessors.clear();
     this.knowledgeBases.clear();
+    this.coolants.clear();
+    this.coatings.clear();
     this.agents.clear();
     this.hooks.clear();
     this.skills.clear();
@@ -308,6 +332,12 @@ export class RegistryManager {
       case "knowledge_base":
       case "kb":
         return this.knowledgeBases;
+      case "coolants":
+      case "coolant":
+        return this.coolants;
+      case "coatings":
+      case "coating":
+        return this.coatings;
       case "agents":
       case "agent":
         return this.agents;
@@ -339,6 +369,8 @@ export class RegistryManager {
       { name: "algorithms", size: this.algorithms.size, loaded: this.algorithms.isLoaded(), category: "data" },
       { name: "postProcessors", size: this.postProcessors.size, loaded: this.postProcessors.isLoaded(), category: "data" },
       { name: "knowledgeBases", size: this.knowledgeBases.size, loaded: this.knowledgeBases.isLoaded(), category: "data" },
+      { name: "coolants", size: this.coolants.size, loaded: this.coolants.isLoaded(), category: "data" },
+      { name: "coatings", size: this.coatings.size, loaded: this.coatings.isLoaded(), category: "data" },
       // Orchestration registries
       { name: "agents", size: this.agents.size, loaded: this.agents.isLoaded(), category: "orchestration" },
       { name: "hooks", size: this.hooks.size, loaded: this.hooks.isLoaded(), category: "orchestration" },
@@ -360,14 +392,16 @@ export class RegistryManager {
     tools: any[];
     alarms: any[];
     formulas: any[];
+    coolants: any[];
+    coatings: any[];
     agents: any[];
     hooks: any[];
     skills: any[];
     scripts: any[];
   }> {
     await this.initialize();
-    
-    const registries = options?.registries || ["materials", "machines", "tools", "alarms", "formulas", "agents", "hooks", "skills", "scripts"];
+
+    const registries = options?.registries || ["materials", "machines", "tools", "alarms", "formulas", "coolants", "coatings", "agents", "hooks", "skills", "scripts"];
     const limit = options?.limit || 5;
     
     const results = {
@@ -376,6 +410,8 @@ export class RegistryManager {
       tools: [] as any[],
       alarms: [] as any[],
       formulas: [] as any[],
+      coolants: [] as any[],
+      coatings: [] as any[],
       agents: [] as any[],
       hooks: [] as any[],
       skills: [] as any[],
@@ -404,12 +440,22 @@ export class RegistryManager {
     
     if (registries.includes("formulas")) {
       const formulaResults = await this.formulas.list({ limit });
-      results.formulas = formulaResults.formulas.filter(f => 
+      results.formulas = formulaResults.formulas.filter(f =>
         f.name.toLowerCase().includes(query.toLowerCase()) ||
         f.formula_id.toLowerCase().includes(query.toLowerCase())
       );
     }
-    
+
+    if (registries.includes("coolants")) {
+      const coolantResults = this.coolants.searchCoolants({ query, limit });
+      results.coolants = coolantResults.coolants;
+    }
+
+    if (registries.includes("coatings")) {
+      const coatingResults = this.coatings.searchCoatings({ query, limit });
+      results.coatings = coatingResults.coatings;
+    }
+
     if (registries.includes("agents")) {
       const agentResults = this.agents.search({ query, limit });
       results.agents = agentResults.agents;
