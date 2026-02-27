@@ -10,14 +10,14 @@ echo.
 
 REM Show current state
 echo Current Status:
-python "%~dp0update_state.py" status 2>nul
+python "%~dp0SCRIPTS\update_state.py" status 2>nul
 
 echo.
 echo ----------------------------------------
 echo Copy this into Claude to start:
 echo ----------------------------------------
 echo.
-echo PRISM Session. Read CURRENT_STATE.json at C:\Users\wompu\Box\PRISM REBUILD\ and continue.
+echo PRISM Session. Read PROJECT_INDEX.json at %~dp0 and continue.
 echo.
 echo ----------------------------------------
 echo.

@@ -19,7 +19,7 @@ npm install -g claude-flow@v3alpha
 
 echo.
 echo Initializing claude-flow in PRISM project...
-cd /d "C:\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)"
+cd /d "%~dp0"
 npx claude-flow@v3alpha init
 
 echo.

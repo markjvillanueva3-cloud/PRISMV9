@@ -76,6 +76,13 @@ jobs:
             echo "verify_features.py or _BUILD/ not found, skipping."
           fi
 
+      - name: Rebuild and verify PROJECT_INDEX.json
+        run: |
+          if [ -f "SCRIPTS/rebuild_project_index.py" ]; then
+            python3 SCRIPTS/rebuild_project_index.py
+            python3 -c "import json; idx=json.load(open('PROJECT_INDEX.json')); assert '_meta' in idx and 'extraction' in idx; print('PROJECT_INDEX.json valid.')"
+          fi
+
       - name: Run extraction validation
         run: |
           if [ -f "SCRIPTS/validate_extractions.py" ]; then

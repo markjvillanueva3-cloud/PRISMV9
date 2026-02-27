@@ -17,9 +17,13 @@ set /p NEXT_TASK="Next task description: "
 python "%~dp0SCRIPTS\update_state.py" next "%NEXT_ID%" "%NEXT_TASK%"
 
 echo.
+echo Rebuilding project index...
+python "%~dp0SCRIPTS\rebuild_project_index.py"
+
+echo.
 echo Committing to Git...
-cd /d "C:\Users\wompu\Box\PRISM REBUILD"
-git add -A
+cd /d "%~dp0"
+git add CURRENT_STATE.json SESSION_STATE.json PROJECT_INDEX.json
 git commit -m "Session complete: %COMPLETED%"
 git push origin main
 

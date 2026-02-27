@@ -1,0 +1,170 @@
+{
+  "_meta": {
+    "description": "Unified PRISM project index — single-read bootstrap for AI agents",
+    "version": "1.0.0",
+    "generatedAt": "2026-02-27T00:00:00Z",
+    "generatedBy": "rebuild_project_index.py",
+    "sources": [
+      "CURRENT_STATE.json",
+      "MASTER_INVENTORY.json",
+      "SESSION_STATE.json",
+      "CLAUDE_MEMORY.json",
+      "SCRIPTS/extraction_index_*.json"
+    ]
+  },
+
+  "project": {
+    "name": "PRISM Manufacturing Intelligence",
+    "targetVersion": "9.0.0",
+    "sourceVersion": "8.89.002",
+    "monolithLines": 986621,
+    "totalModules": 831,
+    "owner": "Mark Villanueva",
+    "github": "markjvillanueva3-cloud/PRISMV9",
+    "techStack": {
+      "frontend": "HTML/JS (single file builds)",
+      "databases": "JS objects (embedded)",
+      "ai_ml": "TensorFlow.js, custom algorithms",
+      "knowledge": "MIT courses, manufacturer catalogs"
+    },
+    "components": [
+      "Ultimate Speed & Feed Calculator",
+      "Post Processor Generator",
+      "Shop Manager (Quoting/ERP/Business)",
+      "Auto CNC Program Generator (Print-to-Program)"
+    ]
+  },
+
+  "session": {
+    "currentId": "1.A.2",
+    "name": "Extract Machine Databases (7 core databases)",
+    "status": "IN_PROGRESS",
+    "stage": "1",
+    "phase": "A",
+    "nextAction": "Extract the 7 core machine databases from the monolith HTML file",
+    "nextSession": {
+      "id": "1.A.5",
+      "topic": "Physics Models Extraction"
+    }
+  },
+
+  "extraction": {
+    "progress": {
+      "databases":      { "total": 62,  "extracted": 7,  "verified": 7 },
+      "engines":        { "total": 213, "extracted": 0,  "verified": 0 },
+      "knowledgeBases": { "total": 14,  "extracted": 0,  "verified": 0 },
+      "systems":        { "total": 31,  "extracted": 0,  "verified": 0 },
+      "learning":       { "total": 30,  "extracted": 0,  "verified": 0 },
+      "business":       { "total": 22,  "extracted": 0,  "verified": 0 },
+      "ui":             { "total": 16,  "extracted": 0,  "verified": 0 },
+      "lookups":        { "total": 20,  "extracted": 0,  "verified": 0 },
+      "manufacturers":  { "total": 44,  "extracted": 33, "verified": 33 },
+      "phase":          { "total": 46,  "extracted": 0,  "verified": 0 }
+    },
+    "completedExtractions": [
+      {
+        "category": "machines/ENHANCED",
+        "count": 33,
+        "manufacturers": ["AWEA","Brother","Chiron","Cincinnati","DMG_Mori","Doosan","Fanuc","Feeler","Fidia","Giddings","Grob","Haas","Hardinge","Hermle","Hurco","Hyundai_WIA","Kern","Kitamura","Leadwell","Makino","Matsuura","Mazak","MHI","Mikron","OKK","Okuma","Roku_Roku","Sodick","Soraluce","Spinner","Takumi","Toyoda","Yasda"],
+        "location": "EXTRACTED/machines/ENHANCED/"
+      },
+      {
+        "category": "machines/CORE",
+        "count": 7,
+        "files": 8,
+        "totalLines": 4489,
+        "date": "2026-01-20",
+        "status": "INDEX_CREATED"
+      }
+    ],
+    "phaseProgress": {
+      "1.A.1_Materials": "NEEDS_VERIFICATION",
+      "1.A.2_Machines": "IN_PROGRESS",
+      "1.A.3_Tools": "NOT_STARTED",
+      "1.A.4_Workholding": "NOT_STARTED",
+      "1.A.5_PostProcessors": "NOT_STARTED"
+    },
+    "indexes": {
+      "machines_core": {
+        "file": "SCRIPTS/extraction_index_machines_core.json",
+        "moduleCount": 7,
+        "status": "COMPLETE"
+      }
+    }
+  },
+
+  "paths": {
+    "monolith": "_BUILD/PRISM_v8_89_002_TRUE_100_PERCENT.zip",
+    "extracted": "EXTRACTED/",
+    "scripts": "SCRIPTS/",
+    "dashboard": "docs/index.html",
+    "stateFiles": {
+      "currentState": "CURRENT_STATE.json",
+      "masterInventory": "MASTER_INVENTORY.json",
+      "sessionState": "SESSION_STATE.json",
+      "projectIndex": "PROJECT_INDEX.json"
+    }
+  },
+
+  "fileIndex": {
+    "stateTracking": [
+      { "file": "CURRENT_STATE.json", "purpose": "Extraction progress counters" },
+      { "file": "MASTER_INVENTORY.json", "purpose": "Full inventory with module targets and session archives" },
+      { "file": "SESSION_STATE.json", "purpose": "Current session details and clarifications" },
+      { "file": "PROJECT_INDEX.json", "purpose": "Unified index (this file) — read this first" }
+    ],
+    "extractionTools": [
+      { "file": "SCRIPTS/extract_module.py", "purpose": "Extract line ranges from monolith into modules" },
+      { "file": "SCRIPTS/generate_extraction_index.py", "purpose": "Scan monolith for module boundaries" },
+      { "file": "SCRIPTS/validate_extractions.py", "purpose": "Validate extracted modules against indexes" },
+      { "file": "SCRIPTS/verify_features.py", "purpose": "Verify 85+ UI features exist in build" },
+      { "file": "SCRIPTS/rebuild_project_index.py", "purpose": "Regenerate this PROJECT_INDEX.json from sources" }
+    ],
+    "sessionTools": [
+      { "file": "SCRIPTS/update_state.py", "purpose": "Quick state updates (complete, next, stats, blocker)" },
+      { "file": "SCRIPTS/session_manager.py", "purpose": "Full session lifecycle management" },
+      { "file": "SCRIPTS/context_generator.py", "purpose": "Generate minimal context for Claude sessions" }
+    ],
+    "cicd": [
+      { "file": ".github/workflows/ci.yml", "purpose": "CI: lint, validate JSON, run tests" },
+      { "file": ".github/workflows/deploy.yml", "purpose": "Deploy dashboard to GitHub Pages" },
+      { "file": ".github/workflows/auto-index.yml", "purpose": "Auto-regenerate indexes on extraction changes" }
+    ],
+    "dashboard": [
+      { "file": "docs/index.html", "purpose": "GitHub Pages status dashboard" }
+    ],
+    "templates": [
+      { "file": "SCRIPTS/MODULE_TEMPLATE.js", "purpose": "Template for extracted modules" },
+      { "file": "SCRIPTS/session_handoff_template.json", "purpose": "Template for session handoff docs" }
+    ]
+  },
+
+  "codebaseMap": {
+    "_BUILD/": "Monolith source (zipped HTML)",
+    "EXTRACTED/": "Extracted module files organized by category",
+    "SCRIPTS/": "Python tools for extraction, validation, state management",
+    "docs/": "GitHub Pages dashboard",
+    "tests/": "Automated test suite",
+    ".github/workflows/": "CI/CD pipelines",
+    ".claude-flow/": "Claude Flow daemon state and metrics",
+    ".claude/": "Claude settings, hooks, helpers, skills"
+  },
+
+  "rules": [
+    "IF IT EXISTS, USE IT EVERYWHERE — wire all DBs to consumers",
+    "CARRY FORWARD — all existing code/data preserved",
+    "VERIFY — check before AND after every change",
+    "NO PARTIALS — complete extractions only",
+    "UPDATE STATE — CURRENT_STATE.json every session"
+  ],
+
+  "sessionHistory": [
+    "0.0.1 — Development Prompt",
+    "0.EXT.1 — Living System First Session",
+    "0.EXT.1b — Materials Database",
+    "0.EXT.2 — Machines Database (ENHANCED tier started)",
+    "0.EXT.2f.6 — ENHANCED Machine Expansion (33 manufacturers)",
+    "REORG.1 — Folder Reorganization",
+    "1.A.2 — Extract Machine Databases (CURRENT)"
+  ]
+}
