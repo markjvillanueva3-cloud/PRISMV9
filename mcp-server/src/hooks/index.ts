@@ -47,6 +47,8 @@ import { schemaHooks } from "./SchemaHooks.js";
 import { controllerHooks } from "./ControllerHooks.js";
 import { agentHooks } from "./AgentHooks.js";
 import { orchestrationHooks } from "./OrchestrationHooks.js";
+import { safetyQualityHooks } from "./SafetyQualityHooks.js";
+import { cadenceHooks } from "./CadenceDefinitions.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -65,6 +67,8 @@ export * from "./SchemaHooks.js";
 export * from "./ControllerHooks.js";
 export * from "./AgentHooks.js";
 export * from "./OrchestrationHooks.js";
+export * from "./SafetyQualityHooks.js";
+export * from "./CadenceDefinitions.js";
 export * from "./hookBridge.js";
 
 // ============================================================================
@@ -87,7 +91,9 @@ export const allHooks = [
   ...schemaHooks,
   ...controllerHooks,
   ...agentHooks,
-  ...orchestrationHooks
+  ...orchestrationHooks,
+  ...safetyQualityHooks,
+  ...cadenceHooks
 ];
 
 /**
@@ -107,6 +113,8 @@ export const hookCounts = {
   controller: controllerHooks.length,
   agent: agentHooks.length,
   orchestration: orchestrationHooks.length,
+  safetyQuality: safetyQualityHooks.length,
+  cadence: cadenceHooks.length,
   total: 0 // Computed below
 };
 
@@ -128,7 +136,9 @@ export const hooksByCategory = {
   schema: schemaHooks,
   controller: controllerHooks,
   agent: agentHooks,
-  orchestration: orchestrationHooks
+  orchestration: orchestrationHooks,
+  safetyQuality: safetyQualityHooks,
+  cadence: cadenceHooks
 };
 
 // ============================================================================
@@ -157,6 +167,9 @@ export function getHooksByCategory(category: string): HookDefinition[] {
     controller: controllerHooks,
     agent: agentHooks,
     orchestration: orchestrationHooks,
+    safetyQuality: safetyQualityHooks,
+    "safety-quality": safetyQualityHooks,
+    cadence: cadenceHooks,
     validation: [...enforcementHooks, ...schemaHooks].filter(h => h.category === "validation" || h.tags?.includes("validation"))
   };
   
@@ -277,7 +290,9 @@ export const categoryDescriptions = {
   schema: "Schema versions, field deprecation, migration safety, format validation",
   controller: "FANUC/SIEMENS/HAAS/MAZAK specific validation",
   agent: "Agent tier selection, cost control, escalation, performance tracking, safety auto-escalation",
-  orchestration: "Swarm pattern validation, pipeline quality gates, consensus integrity, ATCS bridge"
+  orchestration: "Swarm pattern validation, pipeline quality gates, consensus integrity, ATCS bridge",
+  safetyQuality: "Safety gates (5 blocking), quality gates (4), business hooks (4), system hooks (7) — L4-P0",
+  cadence: "Scheduled hooks: daily tool wear, weekly maintenance, hourly health, shift handoff, monthly cost, quarterly calibration"
 };
 
 // ============================================================================
