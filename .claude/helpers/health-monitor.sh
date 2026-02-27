@@ -24,22 +24,45 @@ check_health() {
 
   # Disk usage
   local disk_usage=$(df -h "$PROJECT_ROOT" 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%')
+  disk_usage=${disk_usage:-0}
   local disk_free=$(df -h "$PROJECT_ROOT" 2>/dev/null | awk 'NR==2 {print $4}')
+  disk_free=${disk_free:-"N/A"}
 
-  # Memory usage
-  local mem_total=$(free -m 2>/dev/null | awk '/Mem:/ {print $2}' || echo "0")
-  local mem_used=$(free -m 2>/dev/null | awk '/Mem:/ {print $3}' || echo "0")
+  # Memory usage (cross-platform: try free, then wmic for Windows)
+  local mem_total=0
+  local mem_used=0
+  if command -v free &>/dev/null; then
+    mem_total=$(free -m 2>/dev/null | awk '/Mem:/ {print $2}' || echo "0")
+    mem_used=$(free -m 2>/dev/null | awk '/Mem:/ {print $3}' || echo "0")
+  elif command -v wmic &>/dev/null; then
+    mem_total=$(wmic OS get TotalVisibleMemorySize /value 2>/dev/null | grep -o '[0-9]*' | head -1)
+    mem_total=$((${mem_total:-0} / 1024))
+    local mem_free=$(wmic OS get FreePhysicalMemory /value 2>/dev/null | grep -o '[0-9]*' | head -1)
+    mem_used=$(( mem_total - ${mem_free:-0} / 1024 ))
+  fi
+  mem_total=${mem_total:-0}
+  mem_used=${mem_used:-0}
   local mem_pct=$((mem_used * 100 / (mem_total + 1)))
 
   # Process counts
   local node_procs=$(pgrep -c node 2>/dev/null || echo "0")
-  local agentic_procs=$(ps aux 2>/dev/null | grep -c "agentic-flow" | grep -v grep || echo "0")
+  local agentic_procs=$(ps aux 2>/dev/null | grep "agentic-flow" | grep -v grep | wc -l | tr -d '[:space:]' || echo "0")
+  agentic_procs=${agentic_procs:-0}
 
-  # CPU load
-  local load_avg=$(cat /proc/loadavg 2>/dev/null | awk '{print $1}' || echo "0")
+  # CPU load (cross-platform: try /proc, then wmic for Windows)
+  local load_avg="0"
+  if [ -f /proc/loadavg ]; then
+    load_avg=$(awk '{print $1}' /proc/loadavg 2>/dev/null || echo "0")
+  elif command -v wmic &>/dev/null; then
+    load_avg=$(wmic cpu get LoadPercentage /value 2>/dev/null | grep -o '[0-9]*' | head -1 || echo "0")
+    load_avg=${load_avg:-0}
+  fi
 
-  # File descriptor usage
-  local fd_used=$(ls /proc/$$/fd 2>/dev/null | wc -l || echo "0")
+  # File descriptor usage (skip on Windows where /proc doesn't exist)
+  local fd_used="0"
+  if [ -d "/proc/$$/fd" ]; then
+    fd_used=$(ls /proc/$$/fd 2>/dev/null | wc -l || echo "0")
+  fi
 
   # Determine health status
   local status="healthy"

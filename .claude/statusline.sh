@@ -157,7 +157,7 @@ if [ "$MCP_ACTIVE" -gt 0 ]; then
 fi
 
 # Count running sub-agents (Task tool spawned agents)
-SUBAGENT_COUNT=$(ps aux 2>/dev/null | grep -E "claude.*Task\|subagent\|agent_spawn" | grep -v grep | wc -l | tr -d '[:space:]')
+SUBAGENT_COUNT=$(ps aux 2>/dev/null | grep -E "claude.*Task|subagent|agent_spawn" | grep -v grep | wc -l | tr -d '[:space:]')
 SUBAGENT_COUNT=${SUBAGENT_COUNT:-0}
 
 # Get swarm communication stats
@@ -176,6 +176,9 @@ if [ "$CLAUDE_INPUT" != "{}" ]; then
   CONTEXT_REMAINING=$(echo "$CLAUDE_INPUT" | jq '.context_window.remaining_percentage // null' 2>/dev/null)
 
   if [ "$CONTEXT_REMAINING" != "null" ] && [ -n "$CONTEXT_REMAINING" ]; then
+    # Truncate to integer (jq may return float like 85.5)
+    CONTEXT_REMAINING=$(echo "$CONTEXT_REMAINING" | cut -d. -f1)
+    CONTEXT_REMAINING=${CONTEXT_REMAINING:-0}
     # If we have remaining %, convert to used %
     CONTEXT_PCT=$((100 - CONTEXT_REMAINING))
   else

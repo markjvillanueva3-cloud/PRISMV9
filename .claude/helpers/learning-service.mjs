@@ -569,6 +569,7 @@ class EmbeddingService {
 
 class LearningService {
   constructor() {
+    this.config = CONFIG;
     this.db = null;
     this.shortTermIndex = null;
     this.longTermIndex = null;
@@ -802,7 +803,7 @@ class LearningService {
     const startTime = Date.now();
     const stats = {
       duplicatesRemoved: 0,
-      patternsProned: 0,
+      patternsPruned: 0,
       patternsMerged: 0,
     };
 
@@ -812,7 +813,7 @@ class LearningService {
       DELETE FROM short_term_patterns
       WHERE created_at < ? AND usage_count < ?
     `).run(oldThreshold, CONFIG.patterns.promotionThreshold);
-    stats.patternsProned = pruned.changes;
+    stats.patternsPruned = pruned.changes;
 
     // 2. Rebuild indexes
     await this._loadIndexes();
@@ -844,7 +845,7 @@ class LearningService {
       DELETE FROM long_term_patterns
       WHERE updated_at < ? AND usage_count < ?
     `).run(pruneAge, CONFIG.consolidation.minUsageForKeep);
-    stats.patternsProned += oldPruned.changes;
+    stats.patternsPruned += oldPruned.changes;
 
     // Rebuild indexes after changes
     await this._loadIndexes();

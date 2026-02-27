@@ -28,14 +28,20 @@ should_run() {
 
 # Simple search benchmark (measures grep/search speed)
 benchmark_search() {
-  local start=$(date +%s%3N)
+  local start=$(date +%s%3N 2>/dev/null || date +%s000)
 
-  # Search through v3 codebase
-  find "$PROJECT_ROOT/v3" -name "*.ts" -type f 2>/dev/null | \
-    xargs grep -l "function\|class\|interface" 2>/dev/null | \
+  # Search through project codebase (try v3 first, fall back to SCRIPTS and .claude/helpers)
+  local search_dir="$PROJECT_ROOT/v3"
+  if [ ! -d "$search_dir" ]; then
+    search_dir="$PROJECT_ROOT"
+  fi
+
+  find "$search_dir" -name "*.ts" -o -name "*.js" -o -name "*.mjs" -o -name "*.py" -o -name "*.sh" 2>/dev/null | \
+    head -100 | \
+    xargs grep -l "function\|class\|def " 2>/dev/null | \
     wc -l > /dev/null
 
-  local end=$(date +%s%3N)
+  local end=$(date +%s%3N 2>/dev/null || date +%s000)
   local duration=$((end - start))
 
   # Baseline is ~100ms, calculate improvement

@@ -56,6 +56,8 @@ def set_next_task(task_id, description):
         state['next_tasks'] = []
     
     state['next_tasks'].insert(0, new_task)
+    if 'current' not in state:
+        state['current'] = {}
     state['current']['phase'] = task_id.rsplit('.', 1)[0] if '.' in task_id else task_id
     
     save_state(state)
@@ -73,11 +75,22 @@ def update_stats(category, count):
     }
     
     total = totals.get(category, 100)
+    if 'quick_stats' not in state:
+        state['quick_stats'] = {}
     state['quick_stats'][category] = f"{count}/{total}"
     
-    # Recalculate overall
-    extracted = int(count) if category == 'databases' else 7
-    state['quick_stats']['extracted'] = f"{extracted}/831 modules"
+    # Recalculate overall from all categories
+    total_extracted = 0
+    for cat in totals:
+        cat_val = state['quick_stats'].get(cat, '0/0')
+        try:
+            total_extracted += int(cat_val.split('/')[0])
+        except (ValueError, IndexError):
+            pass
+    # Update with current category's new count
+    total_extracted = total_extracted - int(state['quick_stats'].get(category, '0/0').split('/')[0]) + int(count)
+    state['quick_stats'][category] = f"{count}/{total}"
+    state['quick_stats']['extracted'] = f"{total_extracted}/831 modules"
     
     save_state(state)
     print(f"Updated {category}: {count}/{total}")
@@ -85,6 +98,8 @@ def update_stats(category, count):
 def set_blocker(description):
     """Set a blocker"""
     state = load_state()
+    if 'current' not in state:
+        state['current'] = {}
     state['current']['blocker'] = description
     save_state(state)
     print(f"⚠️ Blocker set: {description}")
@@ -92,6 +107,8 @@ def set_blocker(description):
 def clear_blocker():
     """Clear blocker"""
     state = load_state()
+    if 'current' not in state:
+        state['current'] = {}
     state['current']['blocker'] = None
     save_state(state)
     print("✅ Blocker cleared")
