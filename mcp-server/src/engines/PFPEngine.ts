@@ -30,7 +30,7 @@ import {
   PFPConfig, DEFAULT_PFP_CONFIG, NEVER_FILTER_ACTIONS,
   PFPDashboard,
 } from '../types/pfp-types.js';
-import { crc32 } from '../engines/TelemetryEngine.js';
+import { sha256 } from './TelemetryEngine.js';
 import { log } from '../utils/Logger.js';
 import { safeWriteSync } from "../utils/atomicWrite.js";
 
@@ -144,7 +144,7 @@ export class PFPEngine {
     errorClass?: string, errorMessage?: string, paramKeys?: string[]
   ): void {
     try {
-      const paramSignature = paramKeys ? crc32(paramKeys.sort().join(',')).toString(16) : '0';
+      const paramSignature = paramKeys ? sha256(paramKeys.sort().join(',')) : '0';
 
       const partial: Omit<ActionRecord, 'checksum'> = {
         id: randomUUID(),
@@ -506,7 +506,7 @@ export class PFPEngine {
 
         // Boost for param correlation when matching param signature
         if (pattern.type === 'PARAM_CORRELATION' && paramKeys && pattern.context?.paramKeys) {
-          const currentSig = crc32(paramKeys.sort().join(',')).toString(16);
+          const currentSig = sha256(paramKeys.sort().join(','));
           if (pattern.context!.paramKeys!.includes(currentSig)) {
             contribution *= 1.4; // Strong boost — exact param signature match
           }

@@ -111,6 +111,21 @@ function getOpenApiSpec() {
       "/cost/history/{jobId}": {
         get: { summary: "Job cost history", tags: ["Cost"], parameters: [{ name: "jobId", in: "path", required: true, schema: { type: "string" } }], responses: stdResponse() }
       },
+      "/export/pdf": {
+        post: { summary: "Export to PDF", tags: ["Export"], requestBody: jsonBody(["template"]), responses: stdResponse() }
+      },
+      "/export/csv": {
+        post: { summary: "Export to CSV", tags: ["Export"], requestBody: jsonBody(["data"]), responses: stdResponse() }
+      },
+      "/export/excel": {
+        post: { summary: "Export to Excel", tags: ["Export"], requestBody: jsonBody(["data"]), responses: stdResponse() }
+      },
+      "/export/setup-sheet": {
+        post: { summary: "Generate setup sheet", tags: ["Export"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/export/speed-feed-card": {
+        post: { summary: "Generate speed & feed card", tags: ["Export"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
       "/data/material/{id}": {
         get: { summary: "Get material by ID", tags: ["Data"], parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: stdResponse() }
       },
@@ -141,17 +156,44 @@ function getOpenApiSpec() {
       "/safety/collision": {
         post: { summary: "Collision detection", tags: ["Safety"], requestBody: jsonBody([]), responses: stdResponse() }
       },
+      "/safety/knowledge/search": {
+        post: { summary: "Search safety knowledge base", tags: ["Safety"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
       "/auth/login": {
         post: { summary: "User login", tags: ["Auth"], requestBody: jsonBody(["username", "password"]), responses: stdResponse() }
       },
       "/auth/register": {
         post: { summary: "User registration", tags: ["Auth"], requestBody: jsonBody(["username", "email", "password"]), responses: stdResponse() }
       },
+      "/auth/refresh": {
+        post: { summary: "Refresh auth token", tags: ["Auth"], requestBody: jsonBody(["refreshToken"]), responses: stdResponse() }
+      },
+      "/auth/logout": {
+        post: { summary: "User logout", tags: ["Auth"], responses: stdResponse() }
+      },
+      "/auth/me": {
+        get: { summary: "Get current user profile", tags: ["Auth"], responses: stdResponse() }
+      },
+      "/auth/api-key": {
+        post: { summary: "Generate API key", tags: ["Auth"], responses: stdResponse() }
+      },
       "/admin/status": {
         get: { summary: "System status", tags: ["Admin"], responses: stdResponse() }
       },
       "/admin/registries": {
         get: { summary: "Registry statistics", tags: ["Admin"], responses: stdResponse() }
+      },
+      "/admin/dispatchers": {
+        get: { summary: "List dispatchers", tags: ["Admin"], responses: stdResponse() }
+      },
+      "/admin/users": {
+        post: { summary: "Manage users", tags: ["Admin"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/admin/audit-log": {
+        get: { summary: "View audit log", tags: ["Admin"], responses: stdResponse() }
+      },
+      "/admin/cache/clear": {
+        post: { summary: "Clear system cache", tags: ["Admin"], responses: stdResponse() }
       },
       "/ppg/generate": {
         post: { summary: "Generate G-code from toolpath", tags: ["PPG"], requestBody: jsonBody(["moves", "controller"]), responses: stdResponse() }
@@ -443,6 +485,7 @@ function getOpenApiSpec() {
       { name: "Quality", description: "Quality and SPC" },
       { name: "Schedule", description: "Job scheduling" },
       { name: "Cost", description: "Cost estimation" },
+      { name: "Export", description: "Document & report export" },
       { name: "Data", description: "Registry data lookups" },
       { name: "Safety", description: "Safety validation" },
       { name: "Auth", description: "Authentication" },
