@@ -177,7 +177,7 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
 
     return {
       crisp_outputs,
-      rule_activations,
+      rule_activations: ruleActivations,
       membership_values: membershipValues,
       warnings,
       calculation_method: "Mamdani fuzzy inference (AND=min, OR=max, centroid defuzzification)",
