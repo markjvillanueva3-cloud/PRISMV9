@@ -1298,3 +1298,199 @@ export {
 // --- Existing engines counted in L2-P1-MS1 ---
 // PredictiveMaintenanceEngine (already exported above in original barrel)
 // SetupSheetEngine (already exported above in original barrel)
+
+// ============================================================================
+// L2-P2-MS1: 16 CAD/CAM Engines
+// ============================================================================
+
+// Geometry Operations (high-level geometry: boolean, offset, fillet, analysis)
+export {
+  GeometryEngine,
+  geometryEngine,
+  type GeomPrimitiveType,
+  type GeomPoint,
+  type GeomPrimitive,
+  type GeomTransform,
+  type BoundingBox3D,
+  type DistanceResult as GeomDistanceResult,
+  type OffsetResult,
+  type FilletResult,
+  type GeomAnalysis,
+  type BooleanOp,
+  type BooleanResult,
+} from "./GeometryEngine.js";
+
+// Mesh Manipulation (generate, simplify, subdivide, analyze, repair)
+export {
+  MeshEngine,
+  meshEngine,
+  type MeshVertex,
+  type MeshTriangle,
+  type MeshData as MeshEngineData,
+  type MeshQuality,
+  type SimplifyResult,
+  type SubdivideResult,
+  type RepairResult,
+  type MeshFormat,
+} from "./MeshEngine.js";
+
+// Feature Recognition (identify machining features from geometry)
+export {
+  FeatureRecognitionEngine,
+  featureRecognitionEngine,
+  type FeatureType,
+  type RecognizedFeature,
+  type FeatureDimensions,
+  type FeatureClassification,
+  type FeatureGroup,
+  type FeatureRecognitionResult,
+} from "./FeatureRecognitionEngine.js";
+
+// Toolpath Generation (feature→strategy→moves)
+export {
+  ToolpathGenerationEngine,
+  toolpathGenerationEngine,
+  type ToolpathStrategy,
+  type CutDirection,
+  type ToolpathParams,
+  type ToolpathSegment,
+  type GeneratedToolpath,
+  type ToolpathOptimization,
+  type ToolpathSimulation,
+} from "./ToolpathGenerationEngine.js";
+
+// Post-Processor (multi-controller G-code generation)
+export {
+  PostProcessorEngine,
+  postProcessorEngine,
+  type PostController,
+  type PostConfig,
+  type PostInput,
+  type PostMove,
+  type PostResult,
+  type PostValidation,
+} from "./PostProcessorEngine.js";
+
+// Surface Finish Prediction (Ra, Rz, Rt from cutting params)
+export {
+  SurfaceFinishEngine,
+  surfaceFinishEngine,
+  type SurfaceProcess,
+  type SurfaceFinishInput,
+  type SurfaceFinishResult,
+  type AchievableFinish,
+} from "./SurfaceFinishEngine.js";
+
+// Collision Detection — SAFETY CRITICAL (AABB broad + swept volume)
+export {
+  CollisionDetectionEngine,
+  collisionDetectionEngine,
+  type CollisionBody,
+  type CollisionMove,
+  type CollisionSeverity,
+  type CollisionResult as CollisionDetectionResult,
+  type CollisionDetail,
+  type ClearanceCheck,
+  type RapidSafetyCheck,
+} from "./CollisionDetectionEngine.js";
+
+// Stock Model (material removal tracking, buy-to-fly ratio)
+export {
+  StockModelEngine,
+  stockModelEngine,
+  type StockType as StockModelType,
+  type StockDefinition,
+  type MaterialRemoval,
+  type StockState,
+  type StockAnalysis,
+  type StockComparison,
+} from "./StockModelEngine.js";
+
+// Clamping Simulation — SAFETY CRITICAL (force, pressure, deformation)
+export {
+  ClampingSimEngine,
+  clampingSimEngine,
+  type ClampPoint,
+  type CuttingForceProfile,
+  type ClampSimInput,
+  type ContactPressure,
+  type ClampSimResult,
+  type ClampOptimization,
+} from "./ClampingSimEngine.js";
+
+// Thermal Simulation — SAFETY CRITICAL (cutting temp, burn/white layer risk)
+export {
+  ThermalSimEngine,
+  thermalSimEngine,
+  type ThermalInput,
+  type ThermalResult,
+  type ThermalDamageRisk,
+  type ThermalOptimization,
+} from "./ThermalSimEngine.js";
+
+// Tool Assembly (holder + tool, stickout, runout, reach)
+export {
+  ToolAssemblyEngine,
+  toolAssemblyEngine,
+  type HolderType,
+  type HolderSpec,
+  type ToolSpec as AssemblyToolSpec,
+  type ToolAssembly,
+  type AssemblyValidation,
+  type ReachAnalysis,
+} from "./ToolAssemblyEngine.js";
+
+// Work Coordinate System (WCS setup, datum alignment, multi-part)
+export {
+  WorkCoordinateEngine,
+  workCoordinateEngine,
+  type WCSCode,
+  type WCSOffset,
+  type DatumPoint,
+  type WCSSetup,
+  type CoordTransform,
+  type MultiPartSetup,
+  type WCSValidation,
+} from "./WorkCoordinateEngine.js";
+
+// Dimensional Analysis — SAFETY CRITICAL (error budget, Cpk prediction)
+export {
+  DimensionalAnalysisEngine,
+  dimensionalAnalysisEngine,
+  type DimensionInput,
+  type DimensionPrediction,
+  type ErrorBudget,
+  type DimensionValidation,
+  type ToleranceBudget,
+} from "./DimensionalAnalysisEngine.js";
+
+// Tolerance Stack-up (worst-case, RSS, optimization)
+export {
+  ToleranceStackEngine,
+  toleranceStackEngine,
+  type StackMethod,
+  type StackDimension,
+  type StackResult,
+  type StackContributor,
+  type StackOptimization,
+} from "./ToleranceStackEngine.js";
+
+// G-Code Optimization (analysis, rapid reduction, redundancy removal)
+export {
+  GCodeOptimizationEngine,
+  gcodeOptimizationEngine,
+  type GCodeLine,
+  type GCodeAnalysis,
+  type OptimizationResult as GCodeOptResult,
+  type GCodeComparison,
+} from "./GCodeOptimizationEngine.js";
+
+// Machinability Rating (0-100 scale relative to AISI 1212)
+export {
+  MachinabilityRatingEngine,
+  machinabilityRatingEngine,
+  type MachinabilityInput,
+  type MachinabilityRating,
+  type MachinabilityFactor,
+  type MachinabilityComparison,
+} from "./MachinabilityRatingEngine.js";
