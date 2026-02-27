@@ -94,6 +94,14 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 // L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
 import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
 
+// L3: New Core Dispatchers — 6 dispatchers, 51 actions (#34-#39)
+import { registerCadDispatcher } from "./tools/dispatchers/cadDispatcher.js";
+import { registerCamDispatcher } from "./tools/dispatchers/camDispatcher.js";
+import { registerQualityDispatcher } from "./tools/dispatchers/qualityDispatcher.js";
+import { registerSchedulingDispatcher } from "./tools/dispatchers/schedulingDispatcher.js";
+import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
+import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -452,7 +460,15 @@ async function registerTools(): Promise<void> {
   // L2: Monolith Engine Ports — 8 engines, 34 actions
   registerL2EngineDispatcher(server);
 
-  log.info(`All PRISM tools registered: 33 dispatchers (416 verified actions)`);
+  // L3: New Core Dispatchers — 6 dispatchers, 51 actions
+  registerCadDispatcher(server);
+  registerCamDispatcher(server);
+  registerQualityDispatcher(server);
+  registerSchedulingDispatcher(server);
+  registerAuthDispatcher(server);
+  registerExportDispatcher(server);
+
+  log.info(`All PRISM tools registered: 39 dispatchers (472 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {

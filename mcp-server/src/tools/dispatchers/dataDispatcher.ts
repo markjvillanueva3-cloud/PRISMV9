@@ -23,7 +23,8 @@ const DataDispatcherSchema = z.object({
     "material_substitute",
     "coolant_search", "coolant_recommend", "coolant_get",
     "coating_search", "coating_recommend", "coating_get",
-    "cross_lookup", "dsl_lookup", "database_list", "database_search"
+    "cross_lookup", "dsl_lookup", "database_list", "database_search",
+    "workholding_get", "workholding_search", "insert_get", "insert_search"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -747,6 +748,36 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // L3-P0-MS1: Workholding & Insert registry lookups
+          case "workholding_get": {
+            const whId = params.identifier || params.workholding_id || params.id || params.name;
+            if (!whId) return jsonResponse({ error: "workholding_get requires 'identifier' or 'workholding_id'." });
+            // Search across databases for workholding data
+            const whResults = registryManager.databases?.search?.(whId, 5) || [];
+            result = whResults.length ? whResults[0] : { id: whId, type: "workholding", message: "Not found in registry — check workholding catalog" };
+            break;
+          }
+          case "workholding_search": {
+            const whQuery = params.query || params.q || params.type;
+            if (!whQuery) return jsonResponse({ error: "workholding_search requires 'query' param." });
+            result = registryManager.databases?.search?.(whQuery, params.limit || 10) || [];
+            break;
+          }
+          case "insert_get": {
+            const insId = params.identifier || params.insert_id || params.id || params.designation;
+            if (!insId) return jsonResponse({ error: "insert_get requires 'identifier' or 'insert_id'." });
+            // Search tools registry for insert data
+            const toolResult = await registryManager.tools.getByIdOrCatalog(insId);
+            result = toolResult || { id: insId, type: "insert", message: "Not found — check insert designation (e.g. CNMG120408)" };
+            break;
+          }
+          case "insert_search": {
+            const insQuery = params.query || params.q || params.material;
+            if (!insQuery) return jsonResponse({ error: "insert_search requires 'query' param." });
+            result = await registryManager.tools.search(insQuery, params.limit || 10);
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -758,5 +789,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (31 actions)");
+  log.info("[dataDispatcher] Registered prism_data (35 actions)");
 }
