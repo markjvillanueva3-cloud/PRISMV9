@@ -881,6 +881,117 @@ function getOpenApiSpec() {
       },
       "/doc/migrate": {
         post: { summary: "Migrate documents", tags: ["Doc"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/list": {
+        get: { summary: "List hooks", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/get": {
+        post: { summary: "Get hook details", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/execute": {
+        post: { summary: "Execute hook", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/chain": {
+        post: { summary: "Chain hooks", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/toggle": {
+        post: { summary: "Toggle hook enabled state", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/emit": {
+        post: { summary: "Emit event", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/event/list": {
+        get: { summary: "List event types", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/event/history": {
+        get: { summary: "Event history", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/fire": {
+        post: { summary: "Fire hook v2", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/chain-v2": {
+        post: { summary: "Chain hooks v2", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/status": {
+        get: { summary: "Hook system status", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/history": {
+        get: { summary: "Hook execution history", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/enable": {
+        post: { summary: "Enable hook", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/disable": {
+        post: { summary: "Disable hook", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/coverage": {
+        get: { summary: "Hook coverage report", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/gaps": {
+        get: { summary: "Hook coverage gaps", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/performance": {
+        get: { summary: "Hook performance metrics", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/failures": {
+        get: { summary: "Hook failure log", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/hook/subscribe": {
+        post: { summary: "Subscribe to events", tags: ["Hook"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/hook/reactive-chains": {
+        get: { summary: "List reactive chains", tags: ["Hook"], responses: stdResponse() }
+      },
+      "/gsd/core": {
+        post: { summary: "GSD core protocol", tags: ["GSD"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/gsd/quick": {
+        post: { summary: "GSD quick mode", tags: ["GSD"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/gsd/get": {
+        post: { summary: "Get GSD state", tags: ["GSD"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/gsd/dev-protocol": {
+        post: { summary: "GSD dev protocol", tags: ["GSD"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/gsd/resources": {
+        get: { summary: "GSD resources summary", tags: ["GSD"], responses: stdResponse() }
+      },
+      "/gsd/quick-resume": {
+        post: { summary: "Quick resume session", tags: ["GSD"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/task/create": {
+        post: { summary: "Create agent task", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/task/status": {
+        post: { summary: "Get task status", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/task/result": {
+        post: { summary: "Get task result", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/task/cancel": {
+        post: { summary: "Cancel task", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/task/list": {
+        get: { summary: "List agent tasks", tags: ["Manus"], responses: stdResponse() }
+      },
+      "/manus/web-research": {
+        post: { summary: "Web research task", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/code-sandbox": {
+        post: { summary: "Code sandbox execution", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/hook/trigger": {
+        post: { summary: "Trigger manus hook", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/hook/list": {
+        get: { summary: "List manus hooks", tags: ["Manus"], responses: stdResponse() }
+      },
+      "/manus/hook/chain": {
+        post: { summary: "Chain manus hooks", tags: ["Manus"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/manus/hook/stats": {
+        get: { summary: "Manus hook statistics", tags: ["Manus"], responses: stdResponse() }
       }
     },
     tags: [
@@ -911,7 +1022,10 @@ function getOpenApiSpec() {
       { name: "Dev", description: "Developer tools & testing" },
       { name: "SP", description: "SPARC Protocol workflow & cognitive" },
       { name: "SkillScript", description: "Skill & script registry" },
-      { name: "Doc", description: "Document management" }
+      { name: "Doc", description: "Document management" },
+      { name: "Hook", description: "Hook execution & event management" },
+      { name: "GSD", description: "Getting Stuff Done protocol" },
+      { name: "Manus", description: "Agent task management & sandboxing" }
     ]
   };
 }
