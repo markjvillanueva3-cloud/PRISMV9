@@ -1,0 +1,272 @@
+{
+  "_meta": {
+    "database": "GCodeTemplateDB",
+    "version": "1.0.0",
+    "description": "G-Code template engine reference data — 6 controller families, 13 operations, post-processor catalog",
+    "source_engine": "GCodeTemplateEngine.ts",
+    "safety_class": "CRITICAL",
+    "extracted": "2026-02-26",
+    "milestone": "L0-P0-MS2"
+  },
+  "controller_families": {
+    "fanuc": {
+      "name": "Fanuc",
+      "group": "A",
+      "aliases": ["fanuc", "fanuc 0i", "fanuc 30i", "fanuc 31i", "fanuc 32i"],
+      "comment_style": "( text )",
+      "program_start": "O####",
+      "program_end": "M30 / %",
+      "safety_line": "G90 G94 G17 G21",
+      "length_comp": "G43 H#",
+      "cancel_length_comp": "G49",
+      "cutter_comp": { "left": "G41 D#", "right": "G42 D#", "cancel": "G40" },
+      "spindle": { "cw": "S# M3", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "M98 P#### L#",
+      "tool_change_sequence": ["G91 G28 Z0.", "G90", "T# M6", "G43 H#", "S# M3"]
+    },
+    "haas": {
+      "name": "Haas",
+      "group": "A",
+      "aliases": ["haas", "haas vf", "haas st"],
+      "comment_style": "( text )",
+      "program_start": "O####",
+      "program_end": "M30 / %",
+      "safety_line": "G90 G94 G17 G21",
+      "length_comp": "G43 H#",
+      "cancel_length_comp": "G49",
+      "cutter_comp": { "left": "G41 D#", "right": "G42 D#", "cancel": "G40" },
+      "spindle": { "cw": "S# M3", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "M98 P#### L#",
+      "tool_change_sequence": ["G91 G28 Z0.", "G90", "T# M6", "G43 H#", "S# M3"],
+      "_note": "Fanuc-compatible with minor overrides"
+    },
+    "mazak": {
+      "name": "Mazak",
+      "group": "A",
+      "aliases": ["mazak", "mazatrol", "mazak integrex", "mazak variaxis"],
+      "comment_style": "( text )",
+      "program_start": "% / O####",
+      "program_end": "M30 / %",
+      "safety_line": "G90 G94 G17 G21",
+      "length_comp": "G43 H#",
+      "cancel_length_comp": "G49",
+      "cutter_comp": { "left": "G41 D#", "right": "G42 D#", "cancel": "G40" },
+      "spindle": { "cw": "S# M3", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "M98 P#### L#",
+      "tool_change_sequence": ["G91 G28 Z0.", "G90", "T# M6", "G43 H#", "S# M3"],
+      "_note": "Fanuc-compatible with % prefix"
+    },
+    "okuma": {
+      "name": "Okuma",
+      "group": "A",
+      "aliases": ["okuma", "osp", "okuma multus"],
+      "comment_style": "( text )",
+      "program_start": "O####",
+      "program_end": "M30 / %",
+      "safety_line": "G90 G94 G17 G21",
+      "length_comp": "G43 H#",
+      "cancel_length_comp": "G49",
+      "cutter_comp": { "left": "G41 D#", "right": "G42 D#", "cancel": "G40" },
+      "spindle": { "cw": "S# M3", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "M98 P#### L#",
+      "tool_change_sequence": ["G91 G28 Z0.", "G90", "T# M6", "G43 H#", "S# M3"],
+      "_note": "Fanuc-compatible"
+    },
+    "siemens": {
+      "name": "Siemens",
+      "group": "B",
+      "aliases": ["siemens", "sinumerik", "840d", "840d sl", "828d"],
+      "comment_style": "; text",
+      "program_start": "% / ; TAG",
+      "program_end": "M30 / %",
+      "safety_line": "G90 G94 G17 G71",
+      "length_comp": "D word (via tool call)",
+      "cancel_length_comp": "D0 or tool retract",
+      "cutter_comp": { "left": "G41 D#", "right": "G42 D#", "cancel": "G40" },
+      "spindle": { "cw": "S# M3", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "#### P#",
+      "tool_change_sequence": ["SUPA G0 Z0", "T# D1", "M6", "S# M3"],
+      "canned_cycles": {
+        "drilling": "CYCLE81",
+        "peck_drilling": "CYCLE83",
+        "tapping": "CYCLE84",
+        "boring": "CYCLE86"
+      },
+      "_note": "CYCLE81/83/84/86 canned cycles, G71 for metric"
+    },
+    "heidenhain": {
+      "name": "Heidenhain",
+      "group": "C",
+      "aliases": ["heidenhain", "tnc", "tnc 640", "tnc 620", "tnc 530", "itnc 530"],
+      "comment_style": "; text",
+      "program_start": "BEGIN PGM TAG MM",
+      "program_end": "END PGM MAIN MM",
+      "safety_line": "(set via BEGIN PGM)",
+      "length_comp": "(set via TOOL CALL)",
+      "cancel_length_comp": "(canceled at END PGM)",
+      "cutter_comp": { "left": "RL", "right": "RR", "cancel": "R0" },
+      "spindle": { "cw": "S# (via TOOL CALL)", "ccw": "S# M4", "stop": "M5" },
+      "coolant": { "flood": "M8", "mist": "M7", "tsc": "M88", "off": "M9" },
+      "sub_call": "CALL LBL # REP #",
+      "tool_change_sequence": ["L Z+100 R0 FMAX M5", "TOOL CALL # Z S#", "L Z+100 R0 FMAX"],
+      "canned_cycles": {
+        "drilling": "CYCL DEF 200",
+        "peck_drilling": "CYCL DEF 203",
+        "tapping": "CYCL DEF 206/207",
+        "boring": "CYCL DEF 201"
+      },
+      "rapid_format": "L X# Y# R0 FMAX",
+      "linear_format": "L X# Y# R0 F#",
+      "_note": "CYCL DEF / TOOL CALL dialect, unique motion syntax"
+    }
+  },
+  "supported_operations": [
+    "facing",
+    "drilling",
+    "peck_drilling",
+    "chip_break_drilling",
+    "tapping",
+    "boring",
+    "thread_milling",
+    "circular_pocket",
+    "profile",
+    "tool_change",
+    "program_header",
+    "program_footer",
+    "subprogram_call"
+  ],
+  "controller_groups": {
+    "A": {
+      "name": "Fanuc-like",
+      "members": ["fanuc", "haas", "mazak", "okuma"],
+      "gcode_style": "RS-274D standard G/M codes",
+      "canned_cycles": "G81/G83/G84/G76"
+    },
+    "B": {
+      "name": "Siemens 840D",
+      "members": ["siemens"],
+      "gcode_style": "Siemens CYCLE## canned cycles",
+      "canned_cycles": "CYCLE81/CYCLE83/CYCLE84/CYCLE86"
+    },
+    "C": {
+      "name": "Heidenhain TNC",
+      "members": ["heidenhain"],
+      "gcode_style": "CYCL DEF / TOOL CALL dialect",
+      "canned_cycles": "CYCL DEF 200/201/203/206/207"
+    }
+  },
+  "validation_rules": {
+    "rpm": { "min": 1, "max": 60000, "warning_above": 60000 },
+    "feed_rate_mm_min": { "min": 1, "max": 50000, "warning_above": 50000 },
+    "tool_number": { "min": 1, "max": 200 },
+    "z_safe": { "min": 0, "note": "Negative z_safe = crash hazard on rapid approach" },
+    "z_depth": { "note": "Typically negative for cutting — positive triggers warning" },
+    "peck_depth": { "min_exclusive": 0 },
+    "pitch": { "min_exclusive": 0 },
+    "thread_milling": "tool_diameter must be < thread_diameter",
+    "circular_pocket": "tool_diameter must be < pocket_diameter"
+  },
+  "post_processor_source_catalog": {
+    "POST_PROCESSOR_100_PERCENT": {
+      "filename": "POST_PROCESSOR_100_PERCENT.js",
+      "category": "post_processing",
+      "lines": 1204,
+      "safety_class": "CRITICAL",
+      "description": "Complete post processor with G-code validator, multi-controller support, modal state tracking, and arc validation",
+      "gcode_role": "Full G-code validation pipeline"
+    },
+    "POST_PROCESSOR_ENGINE_V2": {
+      "filename": "POST_PROCESSOR_ENGINE_V2.js",
+      "category": "post_processing",
+      "lines": 295,
+      "safety_class": "CRITICAL",
+      "description": "V2 post engine with controller-specific NC code generation for Fanuc, Siemens, Heidenhain, Mazak, Okuma",
+      "gcode_role": "Controller-specific NC block generation"
+    },
+    "PRISM_GCODE_BACKPLOT_ENGINE": {
+      "filename": "PRISM_GCODE_BACKPLOT_ENGINE.js",
+      "category": "backplotting",
+      "lines": 862,
+      "safety_class": "CRITICAL",
+      "description": "G-code visualization/backplot engine for toolpath verification with material removal simulation",
+      "gcode_role": "Toolpath backplot and visual verification"
+    },
+    "PRISM_GCODE_PROGRAMMING_ENGINE": {
+      "filename": "PRISM_GCODE_PROGRAMMING_ENGINE.js",
+      "category": "gcode_generation",
+      "lines": 127,
+      "safety_class": "CRITICAL",
+      "description": "RS-274D G-code programming reference and generator with full address code definitions",
+      "gcode_role": "G-code address code reference (A-Z) and RS-274D compliance"
+    },
+    "PRISM_GUARANTEED_POST_PROCESSOR": {
+      "filename": "PRISM_GUARANTEED_POST_PROCESSOR.js",
+      "category": "post_processing",
+      "lines": 307,
+      "safety_class": "CRITICAL",
+      "description": "Guaranteed-safe post processor with 47 controller configurations at 100% confidence",
+      "gcode_role": "Conservative G-code with verified configs for 47 controllers"
+    },
+    "PRISM_INTERNAL_POST_ENGINE": {
+      "filename": "PRISM_INTERNAL_POST_ENGINE.js",
+      "category": "post_processing",
+      "lines": 930,
+      "safety_class": "CRITICAL",
+      "description": "Internal post engine with Siemens/Heidenhain support and user selection collection",
+      "gcode_role": "End-to-end post processing pipeline"
+    },
+    "PRISM_POST_INTEGRATION_MODULE": {
+      "filename": "PRISM_POST_INTEGRATION_MODULE.js",
+      "category": "integration",
+      "lines": 676,
+      "safety_class": "CRITICAL",
+      "description": "Post processor integration module for CAM system bridging with real-time cutting parameter engine",
+      "gcode_role": "Real-time cutting parameter adjustment"
+    },
+    "PRISM_POST_OPTIMIZER": {
+      "filename": "PRISM_POST_OPTIMIZER.js",
+      "category": "optimization",
+      "lines": 121,
+      "safety_class": "CRITICAL",
+      "description": "G-code optimization engine for redundant move removal, rapid optimization, and arc fitting",
+      "gcode_role": "Post-generation G-code optimization"
+    },
+    "PRISM_POST_PROCESSOR_DATABASE_V2": {
+      "filename": "PRISM_POST_PROCESSOR_DATABASE_V2.js",
+      "category": "database",
+      "lines": 2717,
+      "safety_class": "CRITICAL",
+      "description": "Post processor database with 50+ controller configurations and G-Force physics engine",
+      "gcode_role": "Master controller database and physics engine"
+    },
+    "PRISM_POST_PROCESSOR_ENGINE": {
+      "filename": "PRISM_POST_PROCESSOR_ENGINE.js",
+      "category": "post_processing",
+      "lines": 138,
+      "safety_class": "CRITICAL",
+      "description": "Core post processor engine base with CAM system database integration",
+      "gcode_role": "Post processor system orchestration"
+    },
+    "PRISM_POST_PROCESSOR_GENERATOR": {
+      "filename": "PRISM_POST_PROCESSOR_GENERATOR.js",
+      "category": "gcode_generation",
+      "lines": 336,
+      "safety_class": "CRITICAL",
+      "description": "Post processor configuration generator with complete machine database",
+      "gcode_role": "Machine-specific post processor generation"
+    },
+    "PRISM_RL_POST_PROCESSOR": {
+      "filename": "PRISM_RL_POST_PROCESSOR.js",
+      "category": "ai_enhanced",
+      "lines": 172,
+      "safety_class": "CRITICAL",
+      "description": "Reinforcement learning-based post optimization using Q-learning for adaptive G-code generation",
+      "gcode_role": "AI-adaptive G-code optimization via Q-table reinforcement"
+    }
+  }
+}

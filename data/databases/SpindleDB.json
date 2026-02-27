@@ -1,0 +1,184 @@
+{
+  "_meta": {
+    "database": "SpindleDB",
+    "version": "1.0.0",
+    "description": "Spindle protection reference data — types, default specs, safety margins, thermal constants",
+    "source_engine": "SpindleProtectionEngine.ts",
+    "safety_class": "CRITICAL",
+    "extracted": "2026-02-26",
+    "milestone": "L0-P0-MS2"
+  },
+  "spindle_types": [
+    "BELT_DRIVE",
+    "GEAR_DRIVE",
+    "DIRECT_DRIVE",
+    "INTEGRAL_MOTOR",
+    "HIGH_SPEED_ELECTRIC"
+  ],
+  "bearing_types": [
+    "ANGULAR_CONTACT",
+    "ROLLER",
+    "HYBRID_CERAMIC",
+    "AIR_BEARING",
+    "MAGNETIC"
+  ],
+  "cooling_types": [
+    "AIR_COOLED",
+    "OIL_MIST",
+    "OIL_JET",
+    "WATER_COOLED",
+    "CHILLER"
+  ],
+  "default_spindle_specs": {
+    "BELT_DRIVE": {
+      "ratedPower_kW": 11,
+      "peakPower_kW": 15,
+      "ratedTorque_Nm": 70,
+      "peakTorque_Nm": 95,
+      "minSpeed_rpm": 50,
+      "maxSpeed_rpm": 8000,
+      "ratedSpeed_rpm": 1500,
+      "cornerSpeed_rpm": 1500,
+      "maxTemperature_C": 70,
+      "warningTemperature_C": 60,
+      "maxRadialLoad_N": 5000,
+      "maxAxialLoad_N": 3000
+    },
+    "GEAR_DRIVE": {
+      "ratedPower_kW": 18.5,
+      "peakPower_kW": 22,
+      "ratedTorque_Nm": 350,
+      "peakTorque_Nm": 420,
+      "minSpeed_rpm": 20,
+      "maxSpeed_rpm": 6000,
+      "ratedSpeed_rpm": 500,
+      "cornerSpeed_rpm": 500,
+      "maxTemperature_C": 65,
+      "warningTemperature_C": 55,
+      "maxRadialLoad_N": 8000,
+      "maxAxialLoad_N": 6000
+    },
+    "DIRECT_DRIVE": {
+      "ratedPower_kW": 22,
+      "peakPower_kW": 30,
+      "ratedTorque_Nm": 120,
+      "peakTorque_Nm": 160,
+      "minSpeed_rpm": 100,
+      "maxSpeed_rpm": 12000,
+      "ratedSpeed_rpm": 1750,
+      "cornerSpeed_rpm": 1750,
+      "maxTemperature_C": 60,
+      "warningTemperature_C": 50,
+      "maxRadialLoad_N": 4000,
+      "maxAxialLoad_N": 2500
+    },
+    "INTEGRAL_MOTOR": {
+      "ratedPower_kW": 30,
+      "peakPower_kW": 40,
+      "ratedTorque_Nm": 95,
+      "peakTorque_Nm": 130,
+      "minSpeed_rpm": 500,
+      "maxSpeed_rpm": 15000,
+      "ratedSpeed_rpm": 3000,
+      "cornerSpeed_rpm": 3000,
+      "maxTemperature_C": 55,
+      "warningTemperature_C": 45,
+      "maxRadialLoad_N": 3000,
+      "maxAxialLoad_N": 2000
+    },
+    "HIGH_SPEED_ELECTRIC": {
+      "ratedPower_kW": 15,
+      "peakPower_kW": 20,
+      "ratedTorque_Nm": 12,
+      "peakTorque_Nm": 16,
+      "minSpeed_rpm": 5000,
+      "maxSpeed_rpm": 42000,
+      "ratedSpeed_rpm": 12000,
+      "cornerSpeed_rpm": 12000,
+      "maxTemperature_C": 50,
+      "warningTemperature_C": 40,
+      "maxRadialLoad_N": 1500,
+      "maxAxialLoad_N": 800
+    }
+  },
+  "safety_margins_by_operation": {
+    "ROUGHING": 0.85,
+    "FINISHING": 0.70,
+    "DRILLING": 0.80,
+    "TAPPING": 0.60,
+    "HIGH_SPEED": 0.75,
+    "_note": "Fraction of spindle capacity — e.g. 0.85 = use max 85%"
+  },
+  "thermal_time_constants_minutes": {
+    "AIR_COOLED": 45,
+    "OIL_MIST": 35,
+    "OIL_JET": 25,
+    "WATER_COOLED": 20,
+    "CHILLER": 15,
+    "_note": "Thermal time constant tau [minutes] for T(t) = T_ss - (T_ss - T0) * exp(-t/tau)"
+  },
+  "peak_duration_limits_minutes": {
+    "TORQUE": 30,
+    "POWER": 30,
+    "THERMAL_WARNING": 15,
+    "_note": "Maximum time allowed operating in peak zone"
+  },
+  "formulas": {
+    "torque_at_speed": "T = P × 9549 / n  (above corner speed)",
+    "power_at_speed": "P = T × n / 9549  (below corner speed)",
+    "thermal_model": "T(t) = T_ambient + ΔT × (1 - e^(-t/τ))",
+    "torque_from_force": "T = F × D / 2000  (F in N, D in mm, T in Nm)"
+  },
+  "source_file_catalog": {
+    "PRISM_CHATTER_PREDICTION_ENGINE": {
+      "filename": "PRISM_CHATTER_PREDICTION_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "chatter-prediction",
+      "lines": 397,
+      "safety_class": "CRITICAL",
+      "description": "Stability lobe diagram generation and chatter onset prediction (Altintas/Tlusty models, MIT 2.830)",
+      "signal_domain": "frequency",
+      "consumers": ["SpindleProtectionEngine.checkVibrationLimits", "SpindleProtectionEngine.predictChatterOnset"]
+    },
+    "PRISM_PHASE3_ADVANCED_SIGNAL": {
+      "filename": "PRISM_PHASE3_ADVANCED_SIGNAL.js",
+      "source_dir": "extracted/engines",
+      "category": "signal-processing",
+      "lines": 441,
+      "safety_class": "CRITICAL",
+      "description": "Advanced signal processing: discrete wavelet transform, spectral analysis, and envelope detection for vibration monitoring",
+      "signal_domain": "time-frequency",
+      "consumers": ["SpindleProtectionEngine.analyzeVibrationSignal", "SpindleProtectionEngine.detectAnomalousFrequencies"]
+    },
+    "PRISM_VIBRATION_ANALYSIS_ENGINE": {
+      "filename": "PRISM_VIBRATION_ANALYSIS_ENGINE.js",
+      "source_dir": "extracted/engines",
+      "category": "vibration-analysis",
+      "lines": 399,
+      "safety_class": "CRITICAL",
+      "description": "SDOF/MDOF vibration analysis, natural frequency calculation, FRF generation, and modal parameter extraction (MIT 16.07, Altintas)",
+      "signal_domain": "frequency",
+      "consumers": ["SpindleProtectionEngine.checkVibrationLimits", "SpindleProtectionEngine.calculateNaturalFrequencies"]
+    },
+    "PRISM_CALCULATOR_CHATTER_ENGINE": {
+      "filename": "PRISM_CALCULATOR_CHATTER_ENGINE.js",
+      "source_dir": "extracted/engines/vibration",
+      "category": "chatter-calculation",
+      "lines": 133,
+      "safety_class": "CRITICAL",
+      "description": "Real-time chatter stability calculator: critical depth of cut, stability margin, risk assessment, and stable-pocket search",
+      "signal_domain": "frequency",
+      "consumers": ["SpindleProtectionEngine.evaluateStabilityMargin", "SpindleProtectionEngine.findStableCuttingPocket"]
+    },
+    "PRISM_PHASE1_CHATTER_SYSTEM": {
+      "filename": "PRISM_PHASE1_CHATTER_SYSTEM.js",
+      "source_dir": "extracted/engines/vibration",
+      "category": "chatter-detection",
+      "lines": 42,
+      "safety_class": "CRITICAL",
+      "description": "Phase 1 real-time chatter detection system: FFT-based chatter detect and optimal stable parameter lookup",
+      "signal_domain": "frequency",
+      "consumers": ["SpindleProtectionEngine.realtimeChatterDetect", "SpindleProtectionEngine.getStableParameters"]
+    }
+  }
+}
