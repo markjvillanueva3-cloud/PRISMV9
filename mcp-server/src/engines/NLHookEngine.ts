@@ -34,6 +34,7 @@ import {
 } from '../types/nl-hook-types.js';
 import { PATHS } from "../constants.js";
 import { safeWriteSync } from "../utils/atomicWrite.js";
+import { safeRegex } from "../utils/SafetyValidator.js";
 
 // ============================================================================
 // STATE
@@ -170,7 +171,7 @@ const REGEX_PATTERNS: TemplatePattern = {
   build(match) {
     const field = match[1];
     const pattern = match[2].trim();
-    try { new RegExp(pattern); } catch { return null; } // validate regex
+    if (!safeRegex(pattern)) return null; // validate regex + ReDoS safety
     return { type: 'regex', field, operator: 'matches', value: pattern };
   }
 };

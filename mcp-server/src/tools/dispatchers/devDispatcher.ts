@@ -8,6 +8,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { safeRegex } from "../../utils/SafetyValidator.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
 import { resetReconFlag } from "../autoHookWrapper.js";
@@ -33,13 +34,16 @@ const CODE_TEMPLATES: Record<string, string> = {
 
 function searchFiles(dir: string, pattern: string, maxResults: number = 20): any[] {
   const results: any[] = [];
-  const regex = new RegExp(pattern, "i"); // W5-DEV: removed 'g' flag — .test() with 'g' skips alternating matches (lastIndex bug)
-  function walk(d: string) {
-    if (results.length >= maxResults || !fs.existsSync(d)) return;
+  const maybeRegex = safeRegex(pattern, "i");
+  if (!maybeRegex) return [{ file: "(error)", line: 0, text: "Invalid or unsafe regex pattern" }];
+  const regex: RegExp = maybeRegex;
+  const MAX_DEPTH = 10;
+  function walk(d: string, depth: number = 0) {
+    if (depth > MAX_DEPTH || results.length >= maxResults || !fs.existsSync(d)) return;
     for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
       if (results.length >= maxResults) return;
       const full = path.join(d, entry.name);
-      if (entry.isDirectory() && !entry.name.includes("node_modules") && entry.name !== ".git") { walk(full); }
+      if (entry.isDirectory() && !entry.name.includes("node_modules") && entry.name !== ".git") { walk(full, depth + 1); }
       else if (entry.isFile() && (entry.name.endsWith(".ts") || entry.name.endsWith(".js"))) {
         try {
           const lines = fs.readFileSync(full, "utf-8").split("\n");

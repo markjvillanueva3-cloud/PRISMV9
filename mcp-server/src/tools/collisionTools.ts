@@ -24,7 +24,7 @@ import {
   CollisionGeometry,
   AABB,
   Capsule
-} from '../engines/CollisionEngine';
+} from '../engines/CollisionEngine.js';
 
 // ============================================================================
 // TOOL DEFINITIONS

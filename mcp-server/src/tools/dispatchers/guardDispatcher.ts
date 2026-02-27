@@ -4,7 +4,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
 import { getHookHistory, getDispatchCount } from "../autoHookWrapper.js";
 import { PATHS } from "../../constants.js";
@@ -37,7 +37,7 @@ function runPythonScript(scriptName: string, args: string[] = []): string {
   const scriptPath = path.join(SCRIPTS_DIR, scriptName);
   if (!fs.existsSync(scriptPath)) return JSON.stringify({ error: `Script not found: ${scriptPath}` });
   try {
-    return execSync(`"${PYTHON}" "${scriptPath}" ${args.join(' ')}`, {
+    return execFileSync(PYTHON, [scriptPath, ...args], {
       encoding: 'utf-8', timeout: 30000, cwd: SCRIPTS_DIR
     }).trim();
   } catch (error: any) {

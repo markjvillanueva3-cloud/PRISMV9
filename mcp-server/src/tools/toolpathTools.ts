@@ -14,7 +14,7 @@ import {
   StrategySelectionResult,
   StrategyParams,
   StrategyCategory
-} from '../registries/ToolpathStrategyRegistry';
+} from '../registries/ToolpathStrategyRegistry.js';
 
 // ============================================================================
 // TOOL DEFINITIONS

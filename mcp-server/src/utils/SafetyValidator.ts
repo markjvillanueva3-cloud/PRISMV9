@@ -25,6 +25,20 @@ export interface SafetyRule {
   weight: number;
 }
 
+/**
+ * Validate a regex pattern for ReDoS safety.
+ * Rejects patterns with nested quantifiers that cause exponential backtracking.
+ * Returns the compiled RegExp or null if unsafe/invalid.
+ */
+export function safeRegex(pattern: string, flags?: string, maxLen = 200): RegExp | null {
+  if (pattern.length > maxLen) return null;
+  // Reject nested quantifiers: (a+)+, (a*)+, (a+)*, etc.
+  if (/(\([^)]*[+*][^)]*\))[+*{]/.test(pattern)) return null;
+  // Reject excessive alternation: a|b|c|d|e|f|g|h|... (>10 branches)
+  if ((pattern.match(/\|/g) || []).length > 10) return null;
+  try { return new RegExp(pattern, flags); } catch { return null; }
+}
+
 export class SafetyValidator {
   private logger: Logger;
   private threshold: number;

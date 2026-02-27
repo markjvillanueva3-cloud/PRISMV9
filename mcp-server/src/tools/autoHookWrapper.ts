@@ -21,6 +21,7 @@ import "../engines/reactiveChainBootstrap.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
+import { log } from "../utils/Logger.js";
 // prism-schema types available via prism-schema.js if needed
 // ProofValidation and FactVerify do not exist as exports — functionality is inline
 import { hookExecutor } from "../engines/HookExecutor.js";
@@ -529,7 +530,7 @@ function flushPendingActions(callNum: number): void {
     if (fs.existsSync(RECENT_ACTIONS_FILE)) {
       try {
         actions = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     actions.push(..._pendingActions);
     if (actions.length > MAX_RECORDED_ACTIONS) {
@@ -542,8 +543,8 @@ function flushPendingActions(callNum: number): void {
       _hint: "READ THIS FIRST after compaction. Shows last 12 tool calls with results."
     }, null, 2));
     _pendingActions = [];
-  } catch {
-    // Flush failure is non-fatal — entries stay in buffer for next attempt
+  } catch (e: any) {
+    log.debug(`[hook-cadence] flush failed: ${e?.message?.slice(0, 80)}`);
   }
 }
 function buildCurrentTaskDescription(cadence: any, toolName: string, action2: string) {
@@ -571,15 +572,14 @@ function recordFlightAction(callNum: number, toolName: string, action2: string, 
           return `${k}=${vs}`;
         }).join(", ").slice(0, 120);
       }
-    } catch {
-    }
+    } catch (e: any) { log.debug(`[hook-cadence] param summary: ${e?.message?.slice(0, 80)}`); }
     let resultPreview = "";
     try {
       const text = result?.content?.[0]?.text || "";
       const parsed = JSON.parse(text);
       delete parsed._cadence;
       resultPreview = JSON.stringify(parsed).slice(0, 150);
-    } catch {
+    } catch (e: any) {
       resultPreview = (result?.content?.[0]?.text || "").slice(0, 150);
     }
     const entry: any = {
@@ -598,8 +598,7 @@ function recordFlightAction(callNum: number, toolName: string, action2: string, 
     if (_pendingActions.length >= FLUSH_THRESHOLD || callNum >= 41) {
       flushPendingActions(callNum);
     }
-  } catch {
-  }
+  } catch (e: any) { log.debug(`[hook-cadence] recordAction: ${e?.message?.slice(0, 80)}`); }
 }
 export function getDispatchCount() {
   return globalDispatchCount;
@@ -644,10 +643,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             safeWriteSync(journalPath, all.slice(-100).join("\n") + "\n");
           }
         }
-      } catch {
-      }
-    } catch {
-    }
+      } catch (e: any) { log.debug(`[hook-cadence] journal trim: ${e?.message?.slice(0, 80)}`); }
+    } catch (e: any) { log.debug(`[hook-cadence] journal write: ${e?.message?.slice(0, 80)}`); }
     recentToolCalls.push(`${toolName}:${action2}`);
     if (recentToolCalls.length > 20) recentToolCalls = recentToolCalls.slice(-20);
     const now = Date.now();
@@ -675,8 +672,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             compactionRecoveryCallsRemaining = 1;
             compactionRecoverySurvival = cadence.rehydrated;
           }
-        } catch {
-        }
+        } catch (e: any) { log.debug(`[hook-cadence] rehydrate: ${e?.message?.slice(0, 80)}`); }
       }
     }
     lastCallTimestamp = now;
@@ -700,23 +696,22 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F511} KV_CACHE: score=${kvResult.stability_score}, ${kvResult.issues_found} issues`);
             cadence.kv_cache_stability = kvResult;
           }
-        } catch {
-        }
+        } catch (e: any) { log.debug(`[hook-cadence] kv-cache: ${e?.message?.slice(0, 80)}`); }
         // Session lifecycle start + memory graph integrity + skill preload — one-time at boot
-        try { autoSessionLifecycleStart(callNum); cadence.actions.push("SESSION_LIFECYCLE_STARTED"); } catch {}
+        try { autoSessionLifecycleStart(callNum); cadence.actions.push("SESSION_LIFECYCLE_STARTED"); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const gResult = autoMemoryGraphIntegrity(callNum);
           if (gResult.violations > 0) cadence.actions.push(`GRAPH_INTEGRITY: ${gResult.violations} violations, ${gResult.fixed} fixed`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const sp = autoSkillPreload(callNum);
           if (sp.preloaded) cadence.actions.push(`SKILLS_PRELOADED: ${sp.skills_count} dynamic skills`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // Template optimizer — session boot
         try {
           const tOpt = autoTemplateOptimizer(callNum);
           if (tOpt.optimized && tOpt.tokens_saved) cadence.actions.push(`TEMPLATES_OPTIMIZED: ${tOpt.tokens_saved} tokens saved`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // Resume detector — session boot
         try {
           const rd = autoResumeDetector(callNum);
@@ -724,12 +719,12 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`RESUME_DETECTED: ${rd.scenario}${rd.actions?.length ? ` (${rd.actions.length} actions)` : ""}`);
             cadence.resume_scenario = rd;
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // Budget engine reset for new session
         try {
           const { ContextBudgetEngine } = await import("../engines/ContextBudgetEngine.js");
           ContextBudgetEngine.resetBudget();
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         let knowledgeHints: any = null;
         try {
           knowledgeHints = autoKnowledgeCrossQuery(callNum, toolName, action2, args[0]?.params || {});
@@ -737,8 +732,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F9E0} KNOWLEDGE_ENRICHED: ${knowledgeHints.total_enrichments} hints (${knowledgeHints.domain})`);
             cadence.knowledge_hints = knowledgeHints;
           }
-        } catch {
-        }
+        } catch (e: any) { log.debug(`[hook-cadence] knowledge: ${e?.message?.slice(0, 80)}`); }
         let scriptRecs: any = null;
         try {
           scriptRecs = autoScriptRecommend(callNum, toolName, action2);
@@ -746,8 +740,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F4DC} SCRIPTS_AVAILABLE: ${scriptRecs.recommendations.length} relevant scripts`);
             cadence.script_recommendations = scriptRecs;
           }
-        } catch {
-        }
+        } catch (e: any) { log.debug(`[hook-cadence] scripts: ${e?.message?.slice(0, 80)}`); }
         try {
           const agentRec = autoAgentRecommend(callNum, toolName, action2, args[0]?.params || {});
           if (agentRec.hint) {
@@ -800,7 +793,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             }
           }
           // Mark handoff as consumed so it doesn't re-inject on next boot
-          try { markHandoffResumed(); } catch {}
+          try { markHandoffResumed(); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         } catch {
         }
         // Load superpowers on session boot
@@ -818,28 +811,28 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         try {
           const compAudit = autoComplianceAuditBoot(callNum);
           if (compAudit.gaps_found > 0) cadence.actions.push(`📋 COMPLIANCE_BOOT: ${compAudit.templates_audited} templates, ${compAudit.gaps_found} gaps`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const slb = autoSLBConsume(callNum);
           if (slb.patterns_consumed > 0) cadence.actions.push(`🔄 SLB_CONSUMED: ${slb.patterns_consumed} patterns`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const bridge = autoBridgeHealthCheck(callNum);
           if (bridge.degraded > 0) cadence.actions.push(`⚠️ BRIDGE_DEGRADED: ${bridge.degraded}/${bridge.endpoints_checked} endpoints`);
           else if (bridge.endpoints_checked > 0) cadence.actions.push(`✅ BRIDGE_HEALTHY: ${bridge.endpoints_checked} endpoints`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const omRestore = autoOmegaHistoryRestore(callNum);
           if (omRestore.entries_restored > 0) cadence.actions.push(`📊 OMEGA_HISTORY_RESTORED: ${omRestore.entries_restored} entries`);
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const cogRestore = autoCognitiveStateRestore(callNum);
           if (cogRestore.restored) cadence.actions.push("🧠 COGNITIVE_STATE_RESTORED");
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         try {
           const kwResult = autoKnowledgePreWarm(callNum);
           if (kwResult.warmed) cadence.actions.push("🔥 KNOWLEDGE_ENGINE_PREWARMED");
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
 
         globalThis.__prism_recon = {
           recon: recon.warnings,
@@ -976,12 +969,12 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 cadence.machine_context = enrichResult.machine_context;
                 cadence.actions.push("🔧 CALC_PRE_ENRICHED");
               }
-            } catch {}
+            } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           }
         try {
           result = await handler.apply(this, args);
             // FIX 5: Slim main tool response based on pressure
-            try { const _sl = getSlimLevel(getCurrentPressurePct()); if (_sl !== "NORMAL") { const txt = result?.content?.[0]?.text; if (txt) { try { const _p = JSON.parse(txt); result.content[0].text = JSON.stringify(slimJsonResponse(_p, _sl)); } catch {} } } } catch {}
+            try { const _sl = getSlimLevel(getCurrentPressurePct()); if (_sl !== "NORMAL") { const txt = result?.content?.[0]?.text; if (txt) { try { const _p = JSON.parse(txt); result.content[0].text = JSON.stringify(slimJsonResponse(_p, _sl)); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); } } } } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           if (!error) {
             try {
               computationCache.set(cacheKey, args[0]?.params || args[0] || {}, result);
@@ -1043,7 +1036,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             }
           } catch { /* non-fatal */ }
           // Opp 6: PFP re-extract after error chain
-          try { pfpEngine.extractPatterns?.(); } catch {}
+          try { pfpEngine.extractPatterns?.(); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           try {
             await hookExecutor.execute("on-error", {
               operation: action2,
@@ -1159,7 +1152,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const certFiles = fs.readdirSync(certDir).filter(f => f.startsWith("CERT-")).sort();
         if (certFiles.length > 50) {
           for (const old of certFiles.slice(0, certFiles.length - 50)) {
-            try { fs.unlinkSync(path.join(certDir, old)); } catch {}
+            try { fs.unlinkSync(path.join(certDir, old)); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           }
         }
       } catch { /* cert persistence non-fatal */ }
@@ -1185,7 +1178,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const telResolve = autoTelemetryResolve(callNum, toolName, action2);
         if (telResolve.resolved > 0) cadence.actions.push(`📉 ANOMALY_RESOLVED: ${telResolve.resolved} for ${toolName}:${action2}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (toolName === "prism_dev" && action2 === "build" && !error) {
       try {
@@ -1255,7 +1248,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               const ralphCapture = autoRalphScoreCapture(callNum, txt);
               if (ralphCapture.quality_score !== null) { scoreField = "omega_score"; scoreValue = ralphCapture.quality_score; }
               if (ralphCapture.safety_score !== null && !scoreField) { scoreField = "safety_score"; scoreValue = ralphCapture.safety_score; }
-            } catch {}
+            } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           }
           if (scoreField && scoreValue !== null) {
             const stateFile = path.join(PATHS.STATE_DIR, "CURRENT_STATE.json");
@@ -1384,14 +1377,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         cadence.actions.push(`\u{1F4B8} OVER_BUDGET: ${budgetResult.category} at ${budgetResult.utilization_pct}%`);
       }
       cadence.budget = budgetResult;
-    } catch {}
+    } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     // Dispatcher byte tracking — every call
     try {
       const byteResult = autoDispatcherByteTrack(callNum, toolName, resultBytes);
       if (byteResult.heavy_dispatchers?.length) {
         cadence.actions.push(`⚖️ HEAVY_DISPATCHERS: ${byteResult.heavy_dispatchers.join(", ")}`);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     // Index staleness detection — flag when Write/Edit touches a tracked MCP source file
     try {
       const editedFile = args[0]?.file_path || args[0]?.path || "";
@@ -1496,7 +1489,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const hash = content.length + ":" + content.slice(0, 200);
         if (hash === _lastTodoHash) { todoChanged = false; _todoInterval = Math.min(_todoInterval + 2, 15); }
         else { _lastTodoHash = hash; _todoInterval = 5; }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       const todoResult = todoChanged ? autoTodoRefresh(callNum) : { success: true, skipped: true, todo_preview: "(unchanged)" };
       cadence.actions.push(todoResult.success ? (todoChanged ? "TODO_AUTO_REFRESHED" : "TODO_SKIP_UNCHANGED") : "TODO_REFRESH_FAILED");
       cadence.todo = todoResult;
@@ -1504,11 +1497,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       if (callNum % 10 !== 0) try {
         const hrPath5 = path.join(PATHS.STATE_DIR, "HOT_RESUME.md");
         const cpPath5 = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
-        let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
-        let errs5 = ""; try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
+        let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
+        let errs5 = ""; try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         const ra5 = (() => { try { const merged = [...getCachedRecentActions(callNum), ..._pendingActions]; return merged.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
         safeWriteSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       await fireHook("STATE-SESSION-BOUNDARY-001", {
         event: "cadence_todo_executed",
         call_number: callNum,
@@ -1525,7 +1518,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F4D6} LEARNING: ${lq.matches} lessons for ${toolName}:${action2}`);
             cadence.learning = lq;
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // Attention anchor — every 5 calls (structured goal hierarchy)
         try {
           const anchor = autoAttentionAnchor(callNum);
@@ -1533,14 +1526,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F3AF} ANCHOR: ${anchor.anchor.slice(0, 100)}`);
             cadence.attention_anchor = anchor;
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       }
     }
     if (callNum - lastCheckpointReminder >= 10) {
       lastCheckpointReminder = callNum;
       // A4: Read ERROR_LOG once, share between HOT_RESUME and cognitive update
       let _errLogLines: string[] = [];
-      try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) _errLogLines = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean); } catch {}
+      try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) _errLogLines = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       const cpResult = autoCheckpoint(callNum);
       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
           // TOKEN OPT v2: Write HOT_RESUME.md at checkpoint cadence
@@ -1548,13 +1541,13 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             const hrPath = path.join(PATHS.STATE_DIR, "HOT_RESUME.md");
             const cpPath = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             let positionContent = "";
-            try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch {}
+            try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
             // A4: Reuse shared _errLogLines instead of re-reading
             let recentErrors = "";
             try {
               const errs = _errLogLines.slice(-3).map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; } }).filter(Boolean);
               if (errs.length) recentErrors = "Recent errors: " + errs.join(" | ");
-            } catch {}
+            } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
             const hotContent = [
               "# HOT_RESUME (auto-generated call " + callNum + " — " + new Date().toISOString() + ")",
               "",
@@ -1570,7 +1563,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               "Transcripts: /mnt/transcripts/"
             ].join("\n");
             safeWriteSync(hrPath, hotContent);
-          } catch {}
+          } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       cadence.checkpoint = cpResult;
       // Opp 13: Include ATCS manifests in session checkpoints
       try {
@@ -1579,7 +1572,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`📋 ATCS_IN_CHECKPOINT: ${atcsScan.active_tasks} active tasks`);
           cadence.atcs_checkpoint = atcsScan.tasks;
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       await fireHook("STATE-CHECKPOINT-CREATE-001", {
         event: "cadence_checkpoint_executed",
         call_number: callNum,
@@ -1613,24 +1606,24 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`\u{1FA7A} HEALTH:${healthResult.status} — ${healthResult.advisory}`);
         }
         cadence.session_health = healthResult;
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Session quality track — every 10 calls (resurrect dead SessionLifecycleEngine)
       try {
         const sqt = autoSessionQualityTrack(callNum, cadence.actions);
         if (sqt.quality_score) cadence.actions.push(`QUALITY:${(sqt.quality_score as any).grade || "?"}`);
         cadence.session_quality = sqt;
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Budget report — every 10 calls
       try {
         const br = autoBudgetReport(callNum);
         if (br.over_budget.length > 0) cadence.actions.push(`\u{1F4B8} BUDGET_REPORT: ${br.utilization_pct}% used, over: ${br.over_budget.join(",")}`);
         cadence.budget_report = br;
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // WIP capture — every 10 calls
       try {
         const wip = autoWipCapture(callNum);
         if (wip.captured) cadence.actions.push("WIP_CAPTURED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Cognitive update — every 10 calls
       try {
         const errCount = _errLogLines.length; // A4: reuse shared error log data
@@ -1638,19 +1631,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const cog = autoCognitiveUpdate(callNum, pPct2, errCount);
         if (cog.omega > 0) cadence.actions.push(`\u{1F9E0} COGNITIVE: \u03A9=${cog.omega}`);
         cadence.cognitive = cog;
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // === NEW AUTO-FIRES: Every-10 (Opp 5,6,8,12,17,20) ===
       try {
         const omPersist = autoOmegaHistoryPersist(callNum);
         if (omPersist.entries_saved > 0) cadence.actions.push(`📊 OMEGA_HISTORY_SAVED: ${omPersist.entries_saved}`);
-      } catch {}
-      try { autoCognitiveStatePersist(callNum); } catch {}
-      try { autoConversationalMemorySave(callNum, recentToolCalls); } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
+      try { autoCognitiveStatePersist(callNum); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
+      try { autoConversationalMemorySave(callNum, recentToolCalls); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Opp 6: PFP pattern extract moved from every-25 to every-10
       try {
         const pfp10 = autoPfpPatternExtract(callNum);
         if (pfp10.after > pfp10.before) cadence.actions.push(`PFP_PATTERNS_10: ${pfp10.before}→${pfp10.after}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // KV cache stability — every 10 calls
       try {
         const kvStab = autoKvStabilityPeriodic(callNum);
@@ -1658,7 +1651,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`\u26A0\uFE0F KV_STABILITY: unstable`);
           cadence.kv_stability = kvStab;
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (callNum - lastPressureCheck >= 8) {
       lastPressureCheck = callNum;
@@ -1720,19 +1713,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F4E4} MEMORY_EXTERNALIZED: ${extResult.externalized_count} files, ~${Math.round(extResult.estimated_bytes_saved / 1024)}KB freed`);
             cadence.memory_externalize = extResult;
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // Focus optimize — semantic trimming at pressure >= 65%
         try {
           const fo = autoFocusOptimize(callNum, pressureResult.pressure_pct);
           if (fo.optimized) cadence.actions.push("FOCUS_OPTIMIZED");
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       }
       if (pressureResult.pressure_pct >= 70) {
         // Relevance filter — drop low-relevance content before compression
         try {
           const rf = autoRelevanceFilter(callNum, pressureResult.pressure_pct);
           if (rf.filtered) cadence.actions.push("RELEVANCE_FILTERED");
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         const compressResult = autoContextCompress(callNum, {
           task: "Active session \u2014 auto-triggered by high pressure",
           completedSteps: cadence.actions,
@@ -1825,7 +1818,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`\u{1F3AF} PRIORITY_SCORE: ${priScore.segments} segments scored at ${cadence.pressure.pressure_pct}%`);
           cadence.priority_score = priScore;
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (cadence.pressure?.pressure_pct < 40 && cadence.pressure?.pressure_pct > 0) {
       try {
@@ -1998,20 +1991,20 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const gf = autoMemoryGraphFlush(callNum);
         if (gf.flushed && gf.stats) cadence.actions.push(`GRAPH_FLUSHED: ${gf.stats.nodes}n/${gf.stats.edges}e`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // === NEW AUTO-FIRES: Every-15 (Opp 3, 5, 7, 10) ===
       try {
         const gi15 = autoMemoryGraphIntegrity(callNum);
         if (gi15.violations > 0) cadence.actions.push(`GRAPH_INTEGRITY_15: ${gi15.violations} violations, ${gi15.fixed} fixed`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const regRefresh = autoRegistryRefresh(callNum);
         if (regRefresh.refreshed) cadence.actions.push("🔄 REGISTRY_REFRESHED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const bridgeH = autoBridgeHealthCheck(callNum);
         if (bridgeH.degraded > 0) cadence.actions.push(`⚠️ BRIDGE_HEALTH: ${bridgeH.degraded} degraded`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // H1 fix: Stagger D4/ATCS to offset-4 (fires at 4,12,20,28) to avoid spike with pressure/attention at 8,16,24
     if (callNum > 0 && (callNum + 4) % 8 === 0) {
@@ -2042,11 +2035,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const sqd = autoScriptQueueDrain(callNum);
         if (sqd.processed > 0) cadence.actions.push(`📜 SCRIPT_QUEUE: ${sqd.processed} processed, ${sqd.remaining} remaining`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const hb = autoRoadmapHeartbeat(callNum);
         if (hb.beat) cadence.actions.push("💓 ROADMAP_HEARTBEAT");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (callNum % 15 === 0) {
       try {
@@ -2070,14 +2063,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const anomResult = autoTelemetryAnomalyCheck(callNum);
         if (anomResult.critical_count > 0) cadence.actions.push(`\u{26A0}\u{FE0F} CRITICAL_ANOMALIES: ${anomResult.critical_count}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Pattern detect — every 15 calls
       try {
         const pd = autoPatternDetect(callNum);
         if (pd.patterns_found > 0) cadence.actions.push(`\u{1F50D} PATTERNS: ${pd.patterns_found} new`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Session metrics snapshot — every 15 calls
-      try { autoSessionMetricsSnapshot(callNum); } catch {}
+      try { autoSessionMetricsSnapshot(callNum); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (callNum === 1 && globalThis.__prism_recon) {
       cadence.session_recon = globalThis.__prism_recon;
@@ -2131,7 +2124,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`\u{1F5D1}\uFE0F GRAPH_EVICT: ${evictResult.evicted} expired nodes pruned`);
           cadence.graph_evict = evictResult;
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // GAP A: Sync failure_patterns.jsonl → memory.db pattern_history
     try { autoFailurePatternSync(callNum); } catch { /* non-fatal */ }
@@ -2165,7 +2158,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.compaction_trend = trend;
           }
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // H3 fix: Skill matching moved from every-call to every-5 (reduces 40x→8x per session)
     if (callNum <= 1 || (callNum - lastTodoReminder <= 1)) {
@@ -2192,7 +2185,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     if (callNum > 0 && (callNum + 4) % 8 === 0) {
       try {
         const nlLogPath = path.join(PATHS.STATE_DIR, "nl_hook_debug.log");
-        try { if (fs.existsSync(nlLogPath) && fs.statSync(nlLogPath).size > 100_000) safeWriteSync(nlLogPath, ""); } catch {}
+        try { if (fs.existsSync(nlLogPath) && fs.statSync(nlLogPath).size > 100_000) safeWriteSync(nlLogPath, ""); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         fs.appendFileSync(nlLogPath, `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
         const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
         if (nlResult.success && nlResult.hooks_fired > 0) {
@@ -2219,7 +2212,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F5DC}\uFE0F AUTO_COMPRESS: ${ac.bytes_saved}B saved`);
           }
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (callNum > 0 && callNum % 25 === 0) {
       try {
@@ -2235,29 +2228,29 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const slo = autoTelemetrySloCheck(callNum);
         if (slo.breaches.length > 0) cadence.actions.push(`\u26A0\uFE0F SLO_BREACHES: ${slo.breaches.length}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Learning store persist — every 25 calls
       try {
         const lsp = autoLearningStorePersist(callNum);
         if (lsp.persisted && lsp.patterns_count) cadence.actions.push(`\u{1F4DA} LEARNING_PERSISTED: ${lsp.patterns_count} patterns`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // === NEW AUTO-FIRES: Every-25 (Opp 2, 5, 6, 7, 14, 15) ===
       try {
         const slb25 = autoSLBConsume(callNum);
         if (slb25.patterns_consumed > 0) cadence.actions.push(`🔄 SLB_DRAINED: ${slb25.patterns_consumed}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const gsd25 = autoGsdAccessSummary(callNum);
         if (gsd25.entries_before > 200) cadence.actions.push(`📋 GSD_PRUNED: ${gsd25.entries_before}→${gsd25.entries_after}`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const decay = autoSwarmPatternDecay(callNum);
         if (decay.patterns_decayed > 0) cadence.actions.push(`⏳ SWARM_DECAY: ${decay.patterns_decayed} decayed`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       try {
         const nlVal = autoNLHookValidate(callNum);
         if (nlVal.hooks_broken > 0) cadence.actions.push(`⚠️ NL_HOOKS_BROKEN: ${nlVal.hooks_broken} (${nlVal.broken_names.join(", ")})`);
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // D4 Performance summary — cache/diff/batch stats + recommendations (every 40 calls)
     if (callNum > 0 && callNum % 40 === 0) {
@@ -2349,38 +2342,38 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const shg = autoSessionHandoffGenerate(callNum, cadence.actions);
         if (shg.generated) cadence.actions.push("SESSION_HANDOFF_GENERATED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // Next session prep — once at call >= 35 (pre-BLACK)
     if (callNum >= 35) {
       try {
         const nsp = autoNextSessionPrep(callNum);
         if (nsp.prepared) cadence.actions.push("NEXT_SESSION_PREP_GENERATED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // Session lifecycle end — once at call >= 41 (BLACK zone)
     if (callNum >= 41) {
       try {
         const sle = autoSessionLifecycleEnd(callNum);
         if (sle.ended) cadence.actions.push("SESSION_LIFECYCLE_ENDED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Opp 18: Persist job learning on session end
       try {
         const jlp = autoJobLearningPersist(callNum);
         if (jlp.persisted) cadence.actions.push("📚 JOB_LEARNING_PERSISTED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Finalize trajectory on session end — closes orphaned trajectory records
       try {
         autoTrajectoryFinalize("partial");
         cadence.actions.push("TRAJECTORY_FINALIZED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     // State reconstruct — after compaction detected (one-time)
     if (cadence.compaction?.risk_level === "IMMINENT" || cadence.compaction?.risk_level === "HIGH") {
       try {
         const sr = autoStateReconstruct(callNum);
         if (sr.reconstructed) cadence.actions.push("STATE_RECONSTRUCTED");
-      } catch {}
+      } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (cadence.actions.length > 0 && result?.content?.[0]?.text) {
       try {
@@ -2464,7 +2457,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               };
             }
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
         // === SINGLE-SHOT COMPACTION RECOVERY v3 ===
         // One hijack with lean workflow state, then done. No multi-call injection.
         if (compactionDetectedThisCall) {
@@ -2480,25 +2473,25 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 recoveryLine = `WORKFLOW ACTIVE: ${wf.workflow_type} step ${wf.current_step}/${wf.total_steps} (${done} done). Current: ${cur?.name} — ${cur?.intent}. Next: step ${wf.current_step + 1}.`;
               }
             }
-          } catch {}
+          } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           // 2. Try session digest (concise summary)
           let digest = "";
           try {
             const digestPath = path.join(STATE_DIR12, "SESSION_DIGEST.md");
             if (fs.existsSync(digestPath)) digest = fs.readFileSync(digestPath, "utf-8").slice(0, 800);
-          } catch {}
+          } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           // 3. Try survival data (always fresh from every-call write)
           let survival: any = {};
           try {
             const survPath = path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json");
             if (fs.existsSync(survPath)) survival = JSON.parse(fs.readFileSync(survPath, "utf-8"));
-          } catch {}
+          } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           // 4. CURRENT_POSITION.md as fallback
           let position = "";
           try {
             const cpPath = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             if (fs.existsSync(cpPath)) position = fs.readFileSync(cpPath, "utf-8").slice(0, 1500);
-          } catch {}
+          } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
           const hijacked = {
             _COMPACTION_DETECTED: true,
             _RECOVERY: {

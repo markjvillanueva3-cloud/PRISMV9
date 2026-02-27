@@ -712,7 +712,7 @@ function gracefulShutdown(signal: string): void {
   try {
     const { telemetryEngine } = require("./engines/TelemetryEngine.js");
     telemetryEngine?.shutdown?.();
-  } catch {}
+  } catch (e: any) { log.debug(`[shutdown] telemetry: ${e?.message?.slice(0, 80)}`); }
   if (signal === "uncaughtException") process.exit(1);
 }
 process.on("SIGINT", () => { gracefulShutdown("SIGINT"); process.exit(0); });

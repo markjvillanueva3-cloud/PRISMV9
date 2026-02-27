@@ -19,26 +19,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16.5,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 250,
           "rockwell_c": 24,
-          "vickers": 262
+          "vickers": 262,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 862
+          "typical": 862,
+          "min": 776,
+          "max": 948
         },
         "yield_strength": {
-          "typical": 844
+          "typical": 844,
+          "min": 760,
+          "max": 928
         },
         "elongation": {
           "typical": 10
@@ -53,7 +59,10 @@
           "temperature": 20
         },
         "fatigue_strength": 524,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 69,
+        "compressive_strength": 905.0,
+        "shear_strength": 497.0
       },
       "kienzle": {
         "kc1_1": 1508,
@@ -70,7 +79,15 @@
       },
       "taylor": {
         "C": 170,
-        "n": 0.17
+        "n": 0.17,
+        "C_carbide": 138,
+        "n_carbide": 0.16,
+        "C_ceramic": 243,
+        "n_ceramic": 0.21,
+        "C_hss": 49,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 673,
@@ -81,7 +98,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 54,
@@ -386,7 +405,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.03,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-077-CW14",
@@ -407,26 +453,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16.5,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 200,
           "rockwell_c": null,
-          "vickers": 210
+          "vickers": 210,
+          "rockwell_b": 120.0
         },
         "tensile_strength": {
-          "typical": 698
+          "typical": 698,
+          "min": 628,
+          "max": 768
         },
         "yield_strength": {
-          "typical": 684
+          "typical": 684,
+          "min": 616,
+          "max": 752
         },
         "elongation": {
           "typical": 10
@@ -441,7 +493,10 @@
           "temperature": 20
         },
         "fatigue_strength": 524,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 56,
+        "compressive_strength": 733.0,
+        "shear_strength": 403.0
       },
       "kienzle": {
         "kc1_1": 1166,
@@ -458,7 +513,15 @@
       },
       "taylor": {
         "C": 217,
-        "n": 0.18
+        "n": 0.18,
+        "C_carbide": 178,
+        "n_carbide": 0.16,
+        "C_ceramic": 315,
+        "n_ceramic": 0.21,
+        "C_hss": 63,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 550,
@@ -469,7 +532,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 70,
@@ -774,7 +839,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.03,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-077-CWFH",
@@ -795,26 +887,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16.5,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 320,
           "rockwell_c": 33,
-          "vickers": 336
+          "vickers": 336,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 1090
+          "typical": 1090,
+          "min": 981,
+          "max": 1199
         },
         "yield_strength": {
-          "typical": 1068
+          "typical": 1068,
+          "min": 961,
+          "max": 1175
         },
         "elongation": {
           "typical": 10
@@ -829,7 +927,10 @@
           "temperature": 20
         },
         "fatigue_strength": 524,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 87,
+        "compressive_strength": 1144.0,
+        "shear_strength": 629.0
       },
       "kienzle": {
         "kc1_1": 2003,
@@ -846,7 +947,15 @@
       },
       "taylor": {
         "C": 129,
-        "n": 0.16
+        "n": 0.16,
+        "C_carbide": 102,
+        "n_carbide": 0.16,
+        "C_ceramic": 180,
+        "n_ceramic": 0.21,
+        "C_hss": 36,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 840,
@@ -857,7 +966,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 40,
@@ -1162,7 +1273,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.03,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-078-CW12",
@@ -1183,26 +1321,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 250,
           "rockwell_c": 24,
-          "vickers": 262
+          "vickers": 262,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 839
+          "typical": 839,
+          "min": 755,
+          "max": 923
         },
         "yield_strength": {
-          "typical": 822
+          "typical": 822,
+          "min": 740,
+          "max": 904
         },
         "elongation": {
           "typical": 10
@@ -1217,7 +1361,10 @@
           "temperature": 20
         },
         "fatigue_strength": 510,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 67,
+        "compressive_strength": 881.0,
+        "shear_strength": 484.0
       },
       "kienzle": {
         "kc1_1": 1495,
@@ -1234,7 +1381,15 @@
       },
       "taylor": {
         "C": 175,
-        "n": 0.17
+        "n": 0.17,
+        "C_carbide": 140,
+        "n_carbide": 0.16,
+        "C_ceramic": 248,
+        "n_ceramic": 0.21,
+        "C_hss": 50,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 659,
@@ -1245,7 +1400,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 55,
@@ -1550,7 +1707,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.12,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-078-CW14",
@@ -1571,26 +1755,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 200,
           "rockwell_c": null,
-          "vickers": 210
+          "vickers": 210,
+          "rockwell_b": 120.0
         },
         "tensile_strength": {
-          "typical": 679
+          "typical": 679,
+          "min": 611,
+          "max": 747
         },
         "yield_strength": {
-          "typical": 665
+          "typical": 665,
+          "min": 598,
+          "max": 732
         },
         "elongation": {
           "typical": 10
@@ -1605,7 +1795,10 @@
           "temperature": 20
         },
         "fatigue_strength": 510,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 54,
+        "compressive_strength": 713.0,
+        "shear_strength": 392.0
       },
       "kienzle": {
         "kc1_1": 1157,
@@ -1622,7 +1815,15 @@
       },
       "taylor": {
         "C": 223,
-        "n": 0.18
+        "n": 0.18,
+        "C_carbide": 186,
+        "n_carbide": 0.16,
+        "C_ceramic": 328,
+        "n_ceramic": 0.21,
+        "C_hss": 66,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 539,
@@ -1633,7 +1834,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 73,
@@ -1938,7 +2141,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.12,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-078-CWFH",
@@ -1959,26 +2189,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 16,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 320,
           "rockwell_c": 33,
-          "vickers": 336
+          "vickers": 336,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 1061
+          "typical": 1061,
+          "min": 955,
+          "max": 1167
         },
         "yield_strength": {
-          "typical": 1039
+          "typical": 1039,
+          "min": 935,
+          "max": 1143
         },
         "elongation": {
           "typical": 10
@@ -1993,7 +2229,10 @@
           "temperature": 20
         },
         "fatigue_strength": 510,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 85,
+        "compressive_strength": 1114.0,
+        "shear_strength": 612.0
       },
       "kienzle": {
         "kc1_1": 1987,
@@ -2010,7 +2249,15 @@
       },
       "taylor": {
         "C": 133,
-        "n": 0.16
+        "n": 0.16,
+        "C_carbide": 105,
+        "n_carbide": 0.16,
+        "C_ceramic": 184,
+        "n_ceramic": 0.21,
+        "C_hss": 37,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 823,
@@ -2021,7 +2268,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 41,
@@ -2326,7 +2575,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.12,
+        "heat_partition_ratio": 0.08,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-079-CW12",
@@ -2347,26 +2623,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 15,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 250,
           "rockwell_c": 24,
-          "vickers": 262
+          "vickers": 262,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 889
+          "typical": 889,
+          "min": 800,
+          "max": 978
         },
         "yield_strength": {
-          "typical": 871
+          "typical": 871,
+          "min": 784,
+          "max": 958
         },
         "elongation": {
           "typical": 8
@@ -2381,7 +2663,10 @@
           "temperature": 20
         },
         "fatigue_strength": 648,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 57,
+        "compressive_strength": 933.0,
+        "shear_strength": 513.0
       },
       "kienzle": {
         "kc1_1": 1403,
@@ -2398,7 +2683,15 @@
       },
       "taylor": {
         "C": 150,
-        "n": 0.14
+        "n": 0.14,
+        "C_carbide": 117,
+        "n_carbide": 0.16,
+        "C_ceramic": 207,
+        "n_ceramic": 0.21,
+        "C_hss": 41,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 781,
@@ -2409,7 +2702,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 46,
@@ -2714,7 +3009,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.33,
+        "heat_partition_ratio": 0.07,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-079-CW14",
@@ -2735,26 +3057,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 15,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 200,
           "rockwell_c": null,
-          "vickers": 210
+          "vickers": 210,
+          "rockwell_b": 120.0
         },
         "tensile_strength": {
-          "typical": 719
+          "typical": 719,
+          "min": 647,
+          "max": 791
         },
         "yield_strength": {
-          "typical": 704
+          "typical": 704,
+          "min": 634,
+          "max": 774
         },
         "elongation": {
           "typical": 8
@@ -2769,7 +3097,10 @@
           "temperature": 20
         },
         "fatigue_strength": 648,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 46,
+        "compressive_strength": 755.0,
+        "shear_strength": 415.0
       },
       "kienzle": {
         "kc1_1": 1085,
@@ -2786,7 +3117,15 @@
       },
       "taylor": {
         "C": 191,
-        "n": 0.15
+        "n": 0.15,
+        "C_carbide": 156,
+        "n_carbide": 0.16,
+        "C_ceramic": 274,
+        "n_ceramic": 0.21,
+        "C_hss": 55,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 639,
@@ -2797,7 +3136,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 61,
@@ -3102,7 +3443,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.33,
+        "heat_partition_ratio": 0.07,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     },
     {
       "material_id": "M-SS-079-CWFH",
@@ -3123,26 +3491,32 @@
         },
         "specific_heat": 500,
         "thermal_conductivity": 15,
-        "thermal_expansion": 0.0000115,
-        "electrical_resistivity": 6e-7,
+        "thermal_expansion": 13.5,
+        "electrical_resistivity": 0.0,
         "magnetic": "magnetic",
         "poissons_ratio": 0.29,
-        "elastic_modulus": 200000,
+        "elastic_modulus": 202.5,
         "shear_modulus": 77000,
         "magnetic_permeability": 1.02,
-        "poisson_ratio": 0.29
+        "poisson_ratio": 0.29,
+        "bulk_modulus": 160.7
       },
       "mechanical": {
         "hardness": {
           "brinell": 320,
           "rockwell_c": 33,
-          "vickers": 336
+          "vickers": 336,
+          "rockwell_b": null
         },
         "tensile_strength": {
-          "typical": 1124
+          "typical": 1124,
+          "min": 1012,
+          "max": 1236
         },
         "yield_strength": {
-          "typical": 1101
+          "typical": 1101,
+          "min": 991,
+          "max": 1211
         },
         "elongation": {
           "typical": 8
@@ -3157,7 +3531,10 @@
           "temperature": 20
         },
         "fatigue_strength": 648,
-        "fracture_toughness": 80
+        "fracture_toughness": 80,
+        "impact_strength": 72,
+        "compressive_strength": 1180.0,
+        "shear_strength": 649.0
       },
       "kienzle": {
         "kc1_1": 1863,
@@ -3174,7 +3551,15 @@
       },
       "taylor": {
         "C": 114,
-        "n": 0.14
+        "n": 0.14,
+        "C_carbide": 87,
+        "n_carbide": 0.16,
+        "C_ceramic": 153,
+        "n_ceramic": 0.21,
+        "C_hss": 31,
+        "n_hss": 0.12,
+        "C_cbn": null,
+        "n_cbn": null
       },
       "johnson_cook": {
         "A": 976,
@@ -3185,7 +3570,9 @@
         "T_melt": 1450,
         "T_melt_source": "class_default",
         "T_ref": 20,
-        "epsilon_ref": 1
+        "epsilon_ref": 1,
+        "epsilon_dot_ref": 0.001,
+        "T_transition": 308
       },
       "machinability": {
         "aisi_rating": 34,
@@ -3490,7 +3877,34 @@
           "date": "2026-02-19",
           "method": "kienzle_expansion"
         }
-      ]
+      ],
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.2,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "moderate"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 3.33,
+        "heat_partition_ratio": 0.07,
+        "thermal_softening_onset": 500,
+        "hot_hardness_retention": "moderate",
+        "cryogenic_machinability": "beneficial"
+      },
+      "weldability": {
+        "rating": "good",
+        "preheat_temperature": 0,
+        "postweld_treatment": "none_required"
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 262,
+        "prior_method": null,
+        "prior_params": null
+      }
     }
   ]
 }

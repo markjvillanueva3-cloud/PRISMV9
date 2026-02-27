@@ -5,7 +5,7 @@ import * as path from "path";
 import * as crypto from "crypto";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { TodoState, TodoStep, isStepDone, getStepLabel } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
 import { ContextBudgetEngine } from "../../engines/ContextBudgetEngine.js";
@@ -60,7 +60,7 @@ function runPythonScript(scriptName: string, args: string[] = []): string {
     return JSON.stringify({ error: `Script not found: ${scriptPath}` });
   }
   try {
-    return execSync(`"${PYTHON}" "${scriptPath}" ${args.join(' ')}`, {
+    return execFileSync(PYTHON, [scriptPath, ...args], {
       encoding: 'utf-8', timeout: 30000, cwd: SCRIPTS_DIR
     }).trim();
   } catch (error: any) {

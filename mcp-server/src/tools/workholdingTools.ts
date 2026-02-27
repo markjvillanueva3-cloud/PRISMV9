@@ -27,7 +27,7 @@ import {
   DeflectionResult,
   VacuumValidationResult,
   WorkholdingValidationResult
-} from '../engines/WorkholdingEngine';
+} from '../engines/WorkholdingEngine.js';
 
 // ============================================================================
 // TOOL DEFINITIONS

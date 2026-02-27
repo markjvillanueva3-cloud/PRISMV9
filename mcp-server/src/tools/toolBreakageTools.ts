@@ -20,7 +20,7 @@ import {
   FatigueResult,
   BreakagePrediction,
   SafeCuttingLimits
-} from '../engines/ToolBreakageEngine';
+} from '../engines/ToolBreakageEngine.js';
 
 // ============================================================================
 // TOOL DEFINITIONS

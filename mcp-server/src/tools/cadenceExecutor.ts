@@ -14,7 +14,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
+import { log } from "../utils/Logger.js";
 import type {
   CompactionSurvivalData,
   TodoRefreshResult,
@@ -1067,14 +1068,14 @@ function loadDocBaselines(): Record<string, number> {
     if (fs.existsSync(DOC_BASELINES_FILE)) {
       return JSON.parse(fs.readFileSync(DOC_BASELINES_FILE, "utf-8"));
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
   return {};
 }
 
 function saveDocBaselines(baselines: Record<string, number>): void {
   try {
     writeFileAtomic(DOC_BASELINES_FILE, JSON.stringify(baselines, null, 2));
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function autoDocAntiRegression(filePath: string, newContent: string): DocAntiRegressionResult {
@@ -1239,17 +1240,17 @@ export function autoWarmStartData(): WarmStartResult {
               try {
                 const subFiles = fs.readdirSync(path.join(searchPath, entry.name)).filter(f => f.endsWith(".json") && f !== "index.json");
                 for (const sf of subFiles) allJsonFiles.push(path.join(searchPath, entry.name, sf));
-              } catch {}
+              } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
             }
           }
-        } catch {}
+        } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
       }
       let count = 0;
       for (const fp of allJsonFiles.slice(0, 8)) { // Sample first 8 files
         try {
           const d = JSON.parse(fs.readFileSync(fp, "utf-8"));
           count += d.materials?.length || d.alarms?.length || d.tools?.length || d.count || (Array.isArray(d) ? d.length : 1);
-        } catch {}
+        } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
       }
       if (allJsonFiles.length > 8) count = Math.round(count / 8 * allJsonFiles.length); // Estimate
       result.registry_status[dir] = count;
@@ -1280,7 +1281,7 @@ export function autoWarmStartData(): WarmStartResult {
           phase: state.phase || "unknown",
           quick_resume: state.quickResume || "None",
         };
-      } catch {}
+      } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     }
 
     // 5. Roadmap next items
@@ -2130,7 +2131,7 @@ function detectATCSCandidate(
         }
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
   if (estimatedUnits >= 10) {
     return { suggested: true, reason, estimated_units: estimatedUnits, task_type: taskType };
@@ -2648,7 +2649,7 @@ function runPythonCadence(script: string, args: string[] = [], timeoutMs = 10000
   const scriptPath = path.join(SCRIPTS_DIR, script);
   if (!fs.existsSync(scriptPath)) return { error: `Script not found: ${script}` };
   try {
-    const output = execSync(`"${PYTHON}" "${scriptPath}" ${args.join(' ')}`, {
+    const output = execFileSync(PYTHON, [scriptPath, ...args], {
       encoding: 'utf-8', timeout: timeoutMs, cwd: SCRIPTS_DIR
     }).trim();
     try { return JSON.parse(output); } catch { return { raw: output }; }
@@ -2823,7 +2824,7 @@ function deriveNextAction(todoSnapshot: string, quickResume: string, recentActio
         }
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
   // Priority 1: ACTION_TRACKER next pending items
   try {
@@ -2838,7 +2839,7 @@ function deriveNextAction(todoSnapshot: string, quickResume: string, recentActio
         }
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
   // Priority 2: todo current step
   try {
@@ -2867,7 +2868,7 @@ function deriveNextAction(todoSnapshot: string, quickResume: string, recentActio
         return `Continue from: ${last.tool}:${last.action} (${last.params_summary || ""})`.slice(0, 250);
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
   return "Read ACTION_TRACKER.md and RECENT_ACTIONS.json, then continue W2 wiring roadmap.";
 }
@@ -2933,7 +2934,7 @@ export function autoRecoveryManifest(
           currentTask = state.currentSession?.task || state.currentTask || "unknown";
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 2. Workflow step
     let workflowStep: string | null = null;
@@ -2947,7 +2948,7 @@ export function autoRecoveryManifest(
           workflowStep = `Step ${wf.current_step}/${total}: ${cur?.name || "?"} — ${cur?.intent || "?"}`;
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 3. Active files from RECENT_ACTIONS
     let activeFiles: string[] = [];
@@ -2972,7 +2973,7 @@ export function autoRecoveryManifest(
         }
         activeFiles = [...files].slice(-10);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 4. Pending todos
     let pendingTodos: string[] = [];
@@ -2985,7 +2986,7 @@ export function autoRecoveryManifest(
           .filter(Boolean)
           .slice(0, 10);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 5. Recent decisions
     let recentDecisions: string[] = [];
@@ -2997,10 +2998,10 @@ export function autoRecoveryManifest(
           try {
             const d = JSON.parse(fs.readFileSync(path.join(decDir, f), "utf-8"));
             recentDecisions.push(`${d.decision || d.description || f}: ${d.rationale || ""}`.slice(0, 150));
-          } catch {}
+          } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 6. Claude's own reasoning notes from SESSION_JOURNAL
     let reasoningNotes: string[] = [];
@@ -3014,7 +3015,7 @@ export function autoRecoveryManifest(
           .map((e: any) => `[call ${e.call}] ${e.tool}:${e.action} — ${e.notes}`)
           .slice(-8);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 7. ATCS state
     let atcsActive = false;
@@ -3044,7 +3045,7 @@ export function autoRecoveryManifest(
           }
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 8. Derive next action
     const nextAction = deriveNextAction(
@@ -3152,7 +3153,7 @@ export function autoHandoffPackage(
           currentTask = state.currentSession?.task || state.currentTask || "unknown";
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 2. Workflow state
     const workflow: HandoffPackage["workflow"] = { active: false };
@@ -3177,7 +3178,7 @@ export function autoHandoffPackage(
             .map((s: any) => `Step ${s.id}: ${s.name} — ${s.intent}`);
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 3. Active files from recent actions
     let activeFiles: string[] = [];
@@ -3196,7 +3197,7 @@ export function autoHandoffPackage(
         }
         activeFiles = [...files].slice(-10);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 4. Pending todos
     let pendingTodos: string[] = [];
@@ -3208,7 +3209,7 @@ export function autoHandoffPackage(
           .filter(Boolean)
           .slice(0, 10);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 5. Reasoning notes
     let reasoningNotes: string[] = [];
@@ -3222,7 +3223,7 @@ export function autoHandoffPackage(
           .map((e: any) => `[call ${e.call}] ${e.tool}:${e.action} — ${e.notes}`)
           .slice(-8);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 6. ATCS state
     const atcs: HandoffPackage["atcs"] = { active: false };
@@ -3250,7 +3251,7 @@ export function autoHandoffPackage(
           }
         }
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // 7. Build resume instruction
     let resumeInstruction: string;
@@ -3421,7 +3422,7 @@ export function autoCompactionSurvival(
             if (titleMatch) survival.current_task = titleMatch[1].trim();
           }
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     }
 
     writeFileAtomic(COMPACTION_SURVIVAL_FILE, JSON.stringify(survival, null, 2));
@@ -3838,7 +3839,7 @@ export function autoPhaseSkillLoader(callNumber: number): PhaseSkillLoadResult {
       if (fs.existsSync(pressureFile)) {
         pressurePct = JSON.parse(fs.readFileSync(pressureFile, "utf-8")).pressure_pct || 0;
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     if (pressurePct > 85) {
       return { success: true, call_number: callNumber, current_phase: "?", skills_matched: 0, skills_loaded: 0, skill_ids: [], excerpts: [], pressure_mode: "suppressed", cache_hit: false };
@@ -3933,7 +3934,7 @@ function buildTriggerIndex(): Map<string, string[]> {
         }
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
   _triggerIndex = idx;
   _triggerIndexTs = now;
   return idx;
@@ -4168,7 +4169,7 @@ export function autoSuperpowerBoot(callNumber: number): SuperpowerBootResult {
     try {
       const pf = path.join(STATE_DIR, "context_pressure.json");
       if (fs.existsSync(pf)) pressurePct = JSON.parse(fs.readFileSync(pf, "utf-8")).pressure_pct || 0;
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     const maxExcerptLen = pressurePct > 60 ? 80 : 150;
     const maxLoad = pressurePct > 70 ? 5 : pressurePct > 50 ? 8 : verified.length;
 
@@ -4454,7 +4455,7 @@ export function autoSessionHealthPoll(
       if (fs.existsSync(errorLog)) {
         errorCount = fs.readFileSync(errorLog, "utf-8").trim().split("\n").filter(Boolean).length;
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // Budget utilization
     const budgetReport = ContextBudgetEngine.getUsageReport();
@@ -4579,7 +4580,7 @@ export function autoKvCacheStabilityCheck(callNumber: number): KvCacheStabilityR
             totalIssues += matches.length;
           }
         }
-      } catch {}
+      } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     }
 
     // Check if kv_sort_json has ever been called (look for sorted marker)
@@ -4632,13 +4633,13 @@ export function autoNextSessionPrep(callNumber: number): { success: boolean; cal
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, prepared: false };
     const stateFile = CURRENT_STATE_FILE;
     try {
-      execSync(`${PYTHON} "${script}" generate --state "${stateFile}"`, { timeout: 8000, stdio: "pipe", cwd: STATE_DIR });
+      execFileSync(PYTHON, [script, "generate", "--state", stateFile], { timeout: 8000, stdio: "pipe", cwd: STATE_DIR });
     } catch { /* non-fatal */ }
     const prepFile = path.join(STATE_DIR, "next_session_prep.json");
     const prepared = fs.existsSync(prepFile);
     if (prepared) appendEventLine("next_session_prep_generated", { call: callNumber });
     return { success: true, call_number: callNumber, prepared, file: prepared ? prepFile : undefined };
-  } catch { return { success: false, call_number: callNumber, prepared: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, prepared: false }; }
 }
 
 // ============================================================================
@@ -4653,7 +4654,7 @@ export function autoPfpPatternExtract(callNumber: number): { success: boolean; c
     const after = pfpEngine.getPatterns().length;
     if (after > before) appendEventLine("pfp_patterns_extracted", { call: callNumber, before, after });
     return { success: true, call_number: callNumber, before, after };
-  } catch { return { success: false, call_number: callNumber, before: 0, after: 0 }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, before: 0, after: 0 }; }
 }
 
 // ============================================================================
@@ -4669,15 +4670,15 @@ export function autoSessionQualityTrack(callNumber: number, recentActions: strin
     let prepWritten = false;
     try {
       let quickResume = "";
-      try { quickResume = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+      try { quickResume = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
       const pending = recentActions.filter(a => a.includes("TODO") || a.includes("PENDING")).slice(-5);
       const findings = recentActions.filter(a => a.includes("KNOWLEDGE") || a.includes("SKILL") || a.includes("HEALTH")).slice(-5);
       writeSessionIncrementalPrep(callNumber, "active", quickResume, pending, findings, []);
       prepWritten = true;
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     if (score) appendEventLine("session_quality_tracked", { call: callNumber, score: (score as any).score });
     return { success: true, call_number: callNumber, quality_score: score, prep_written: prepWritten };
-  } catch { return { success: false, call_number: callNumber, quality_score: null, prep_written: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, quality_score: null, prep_written: false }; }
 }
 
 // ============================================================================
@@ -4690,12 +4691,12 @@ export function autoPatternDetect(callNumber: number): { success: boolean; call_
     const script = path.join(SCRIPTS_DIR, "pattern_detector.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, patterns_found: 0 };
     if (!fs.existsSync(EVENT_LOG_FILE)) return { success: true, call_number: callNumber, patterns_found: 0 };
-    const output = execSync(`${PYTHON} "${script}" --events "${EVENT_LOG_FILE}"`, { timeout: 5000, stdio: "pipe" }).toString().trim();
+    const output = execFileSync(PYTHON, [script, "--events", EVENT_LOG_FILE], { timeout: 5000, stdio: "pipe" }).toString().trim();
     let count = 0;
-    try { count = JSON.parse(output).patterns?.length || 0; } catch {}
+    try { count = JSON.parse(output).patterns?.length || 0; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     if (count > 0) appendEventLine("patterns_detected", { call: callNumber, count });
     return { success: true, call_number: callNumber, patterns_found: count };
-  } catch { return { success: false, call_number: callNumber, patterns_found: 0 }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, patterns_found: 0 }; }
 }
 
 // ============================================================================
@@ -4708,10 +4709,10 @@ export function autoFocusOptimize(callNumber: number, pressurePct: number): { su
     if (pressurePct < 65) return { success: true, call_number: callNumber, optimized: false };
     const script = path.join(SCRIPTS_DIR, "focus_optimizer.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, optimized: false };
-    execSync(`${PYTHON} "${script}" --pressure ${Math.round(pressurePct)} --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    execFileSync(PYTHON, [script, "--pressure", String(Math.round(pressurePct)), "--state-dir", STATE_DIR], { timeout: 5000, stdio: "pipe" });
     appendEventLine("focus_optimized", { call: callNumber, pressure: pressurePct });
     return { success: true, call_number: callNumber, optimized: true };
-  } catch { return { success: false, call_number: callNumber, optimized: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, optimized: false }; }
 }
 
 // ============================================================================
@@ -4724,10 +4725,10 @@ export function autoRelevanceFilter(callNumber: number, pressurePct: number): { 
     if (pressurePct < 70) return { success: true, call_number: callNumber, filtered: false };
     const script = path.join(SCRIPTS_DIR, "relevance_filter.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, filtered: false };
-    execSync(`${PYTHON} "${script}" --pressure ${Math.round(pressurePct)} --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    execFileSync(PYTHON, [script, "--pressure", String(Math.round(pressurePct)), "--state-dir", STATE_DIR], { timeout: 5000, stdio: "pipe" });
     appendEventLine("relevance_filtered", { call: callNumber, pressure: pressurePct });
     return { success: true, call_number: callNumber, filtered: true };
-  } catch { return { success: false, call_number: callNumber, filtered: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, filtered: false }; }
 }
 
 // ============================================================================
@@ -4741,7 +4742,7 @@ export function autoMemoryGraphFlush(callNumber: number): { success: boolean; ca
     const stats = memoryGraphEngine.getStats();
     appendEventLine("memory_graph_flushed", { call: callNumber, nodes: stats.nodes, edges: stats.edges });
     return { success: true, call_number: callNumber, flushed: true, stats };
-  } catch { return { success: false, call_number: callNumber, flushed: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, flushed: false }; }
 }
 
 // ============================================================================
@@ -4753,10 +4754,10 @@ export function autoWipCapture(callNumber: number): { success: boolean; call_num
   try {
     const script = path.join(SCRIPTS_DIR, "wip_capturer.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, captured: false };
-    execSync(`${PYTHON} "${script}" capture-task --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    execFileSync(PYTHON, [script, "capture-task", "--state-dir", STATE_DIR], { timeout: 5000, stdio: "pipe" });
     appendEventLine("wip_captured", { call: callNumber });
     return { success: true, call_number: callNumber, captured: true };
-  } catch { return { success: false, call_number: callNumber, captured: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, captured: false }; }
 }
 
 // ============================================================================
@@ -4774,10 +4775,10 @@ export function autoSessionLifecycleStart(callNumber: number): { success: boolea
     _sessionLifecycleStarted = true;
     const script = path.join(SCRIPTS_DIR, "session_lifecycle.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, started: false };
-    try { execSync(`${PYTHON} "${script}" start --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" }); } catch {}
+    try { execFileSync(PYTHON, [script, "start", "--state-dir", STATE_DIR], { timeout: 5000, stdio: "pipe" }); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     appendEventLine("session_lifecycle_started", { call: callNumber });
     return { success: true, call_number: callNumber, started: true };
-  } catch { return { success: false, call_number: callNumber, started: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, started: false }; }
 }
 
 export function autoSessionLifecycleEnd(callNumber: number): { success: boolean; call_number: number; ended: boolean } {
@@ -4786,10 +4787,10 @@ export function autoSessionLifecycleEnd(callNumber: number): { success: boolean;
     _sessionLifecycleEnded = true;
     const script = path.join(SCRIPTS_DIR, "session_lifecycle.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, ended: false };
-    try { execSync(`${PYTHON} "${script}" end --state-dir "${STATE_DIR}"`, { timeout: 8000, stdio: "pipe" }); } catch {}
+    try { execFileSync(PYTHON, [script, "end", "--state-dir", STATE_DIR], { timeout: 8000, stdio: "pipe" }); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     appendEventLine("session_lifecycle_ended", { call: callNumber });
     return { success: true, call_number: callNumber, ended: true };
-  } catch { return { success: false, call_number: callNumber, ended: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, ended: false }; }
 }
 
 // ============================================================================
@@ -4821,7 +4822,7 @@ export function autoLearningQuery(callNumber: number, toolName: string, action: 
       }
     }
     return { success: true, call_number: callNumber, matches: lessons.length, lessons: lessons.slice(0, 5) };
-  } catch { return { success: false, call_number: callNumber, matches: 0, lessons: [] }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, matches: 0, lessons: [] }; }
 }
 
 // ============================================================================
@@ -4835,7 +4836,7 @@ export function autoTelemetryAnomalyCheck(callNumber: number): { success: boolea
     const summaries = all.slice(0, 5).map((a: any) => `${a.dispatcher || "?"}:${a.action || "?"} — ${(a.message || "").slice(0, 80)}`);
     if (all.length > 0) appendEventLine("telemetry_critical_anomalies", { call: callNumber, count: all.length });
     return { success: true, call_number: callNumber, critical_count: all.length, anomalies: summaries };
-  } catch { return { success: false, call_number: callNumber, critical_count: 0, anomalies: [] }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, critical_count: 0, anomalies: [] }; }
 }
 
 // ============================================================================
@@ -4847,7 +4848,7 @@ export function autoBudgetReport(callNumber: number): { success: boolean; call_n
   try {
     const report = ContextBudgetEngine.getUsageReport();
     return { success: true, call_number: callNumber, total_used: report.totalUsed, utilization_pct: report.utilizationPercent, over_budget: report.overBudgetCategories };
-  } catch { return { success: false, call_number: callNumber, total_used: 0, utilization_pct: 0, over_budget: [] }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, total_used: 0, utilization_pct: 0, over_budget: [] }; }
 }
 
 // ============================================================================
@@ -4865,12 +4866,12 @@ export function autoAttentionAnchor(callNumber: number): { success: boolean; cal
       }
     }
     let focus = "";
-    try { focus = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+    try { focus = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     const anchor = focus
       ? `FOCUS: ${focus.slice(0, 150)}${goals.length > 0 ? " | GOALS: " + goals.slice(0, 3).join("; ") : ""}`
       : goals.length > 0 ? `GOALS: ${goals.slice(0, 3).join("; ")}` : "";
     return { success: true, call_number: callNumber, anchor, goals: goals.slice(0, 5) };
-  } catch { return { success: false, call_number: callNumber, anchor: "", goals: [] }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, anchor: "", goals: [] }; }
 }
 
 // ============================================================================
@@ -4885,7 +4886,7 @@ export function autoCognitiveUpdate(callNumber: number, pressurePct: number, err
 } {
   try {
     let s: Record<string, number> = { R: 0.85, C: 0.90, P: 0.85, S: 1.0, L: 0.80, omega: 0.88 };
-    try { if (fs.existsSync(COGNITIVE_STATE_FILE)) s = JSON.parse(fs.readFileSync(COGNITIVE_STATE_FILE, "utf-8")); } catch {}
+    try { if (fs.existsSync(COGNITIVE_STATE_FILE)) s = JSON.parse(fs.readFileSync(COGNITIVE_STATE_FILE, "utf-8")); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     const errorRate = callNumber > 0 ? errorCount / callNumber : 0;
     s.R = Math.max(0.5, Math.min(1.0, 1.0 - (pressurePct / 200)));
     s.C = Math.max(0.5, Math.min(1.0, 1.0 - errorRate * 2));
@@ -4896,7 +4897,7 @@ export function autoCognitiveUpdate(callNumber: number, pressurePct: number, err
     writeFileAtomic(COGNITIVE_STATE_FILE, JSON.stringify(s, null, 2));
     appendEventLine("cognitive_update", { call: callNumber, omega: s.omega });
     return { success: true, call_number: callNumber, omega: s.omega, metrics: s };
-  } catch { return { success: false, call_number: callNumber, omega: 0 }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, omega: 0 }; }
 }
 
 // ============================================================================
@@ -4912,13 +4913,13 @@ export function autoSessionHandoffGenerate(callNumber: number, recentActions: st
   try {
     if (_sessionHandoffGenerated || callNumber < 21) return { success: true, call_number: callNumber, generated: false };
     _sessionHandoffGenerated = true;
-    let qr = ""; try { qr = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+    let qr = ""; try { qr = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     const pending = recentActions.filter(a => a.includes("TODO") || a.includes("PENDING")).slice(-5);
     const findings = recentActions.filter(a => !a.startsWith("PRESSURE") && !a.startsWith("CHECKPOINT")).slice(-5);
     const handoff = generateSessionHandoff("active", qr, pending, findings);
     if (handoff) appendEventLine("session_handoff_generated", { call: callNumber });
     return { success: true, call_number: callNumber, generated: !!handoff };
-  } catch { return { success: false, call_number: callNumber, generated: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, generated: false }; }
 }
 
 // ============================================================================
@@ -4935,7 +4936,7 @@ export function autoTelemetrySloCheck(callNumber: number): { success: boolean; c
     }
     if (breaches.length > 0) appendEventLine("slo_breaches", { call: callNumber, count: breaches.length });
     return { success: true, call_number: callNumber, breaches };
-  } catch { return { success: false, call_number: callNumber, breaches: [] }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, breaches: [] }; }
 }
 
 // ============================================================================
@@ -4951,10 +4952,10 @@ export function autoStateReconstruct(callNumber: number): { success: boolean; ca
     _stateReconstructDone = true;
     const script = path.join(SCRIPTS_DIR, "state_reconstructor.py");
     if (!fs.existsSync(script)) return { success: true, call_number: callNumber, reconstructed: false };
-    execSync(`${PYTHON} "${script}" --state-dir "${STATE_DIR}"`, { timeout: 8000, stdio: "pipe" });
+    execFileSync(PYTHON, [script, "--state-dir", STATE_DIR], { timeout: 8000, stdio: "pipe" });
     appendEventLine("state_reconstructed", { call: callNumber });
     return { success: true, call_number: callNumber, reconstructed: true };
-  } catch { return { success: false, call_number: callNumber, reconstructed: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, reconstructed: false }; }
 }
 
 // ============================================================================
@@ -4967,7 +4968,7 @@ export function autoSessionMetricsSnapshot(callNumber: number): { success: boole
     const m = getSessionMetrics();
     if (m) appendEventLine("session_metrics_snapshot", { call: callNumber });
     return { success: true, call_number: callNumber, metrics: m };
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -4987,7 +4988,7 @@ export function autoMemoryGraphIntegrity(callNumber: number): { success: boolean
     const result = memoryGraphEngine.runIntegrityCheck();
     if (result.violations > 0) appendEventLine("graph_integrity_issues", { call: callNumber, violations: result.violations, fixed: result.fixed });
     return { success: true, call_number: callNumber, violations: result.violations, fixed: result.fixed };
-  } catch { return { success: false, call_number: callNumber, violations: 0, fixed: 0 }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, violations: 0, fixed: 0 }; }
 }
 
 // ============================================================================
@@ -5005,7 +5006,7 @@ export function autoPriorityScore(callNumber: number, pressurePct: number): { su
     const segments = output?.scored_segments || output?.segments || 0;
     if (segments > 0) appendEventLine("priority_scored", { call: callNumber, pressure: pressurePct, segments });
     return { success: true, call_number: callNumber, scored: segments > 0, segments };
-  } catch { return { success: false, call_number: callNumber, scored: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, scored: false }; }
 }
 
 // ============================================================================
@@ -5027,7 +5028,7 @@ export function autoSkillPreload(callNumber: number): { success: boolean; call_n
     const count = output?.preloaded_count || output?.skills?.length || 0;
     if (count > 0) appendEventLine("skills_preloaded", { call: callNumber, count });
     return { success: true, call_number: callNumber, preloaded: count > 0, skills_count: count };
-  } catch { return { success: false, call_number: callNumber, preloaded: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, preloaded: false }; }
 }
 
 // ============================================================================
@@ -5048,7 +5049,7 @@ export function autoKvStabilityPeriodic(callNumber: number): { success: boolean;
     const stable = output?.stable !== false;
     if (!stable) appendEventLine("kv_prefix_unstable", { call: callNumber, issues: output?.issues?.slice(0, 3) });
     return { success: true, call_number: callNumber, checked: true, stable };
-  } catch { return { success: false, call_number: callNumber, checked: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, checked: false }; }
 }
 
 // ============================================================================
@@ -5070,7 +5071,7 @@ export function autoContextPressureRecommend(callNumber: number, pressurePct: nu
     const rec = output?.recommendation || output?.action;
     if (rec) appendEventLine("pressure_recommendation", { call: callNumber, pressure: pressurePct, rec: String(rec).slice(0, 100) });
     return { success: true, call_number: callNumber, recommendation: rec };
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5090,7 +5091,7 @@ export function autoMemoryGraphEvict(callNumber: number): { success: boolean; ca
     const result = memoryGraphEngine.runIntegrityCheck();
     if (result.fixed > 0) appendEventLine("graph_evicted", { call: callNumber, evicted: result.fixed, nodes: stats.nodes });
     return { success: true, call_number: callNumber, evicted: result.fixed };
-  } catch { return { success: false, call_number: callNumber, evicted: 0 }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, evicted: 0 }; }
 }
 
 // ============================================================================
@@ -5116,7 +5117,7 @@ export function autoCompactionTrend(callNumber: number, pressurePct: number): { 
     const trend = escalating ? "ESCALATING" : highCount >= 2 ? "RISING" : "STABLE";
     if (escalating) appendEventLine("compaction_trend_escalating", { call: callNumber, highCount, lastFive: lines.length });
     return { success: true, call_number: callNumber, trend, escalating };
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5150,10 +5151,9 @@ export function autoCompress(callNumber: number, pressurePct: number): { success
     _autoCompressLastCall = callNumber;
     const scriptPath = path.join(SCRIPTS_DIR, "auto_compress.py");
     if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
-    const result = execSync(
-      `python "${scriptPath}" --pressure ${pressurePct} --state-dir "${STATE_DIR}" 2>/dev/null`,
-      { timeout: 8000, encoding: "utf-8" }
-    ).trim();
+    const result = execFileSync(PYTHON, [scriptPath, "--pressure", String(pressurePct), "--state-dir", STATE_DIR], {
+      timeout: 8000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"]
+    }).trim();
     try {
       const parsed = JSON.parse(result);
       if (parsed.bytes_saved > 0) {
@@ -5161,7 +5161,7 @@ export function autoCompress(callNumber: number, pressurePct: number): { success
       }
       return { success: true, call_number: callNumber, compressed: parsed.compressed, bytes_saved: parsed.bytes_saved };
     } catch { return { success: true, call_number: callNumber, compressed: true }; }
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5177,10 +5177,9 @@ export function autoTemplateOptimizer(callNumber: number): { success: boolean; c
     _templateOptimizerRan = true;
     const scriptPath = path.join(SCRIPTS_DIR, "template_optimizer.py");
     if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
-    const result = execSync(
-      `python "${scriptPath}" --state-dir "${STATE_DIR}" 2>/dev/null`,
-      { timeout: 10000, encoding: "utf-8" }
-    ).trim();
+    const result = execFileSync(PYTHON, [scriptPath, "--state-dir", STATE_DIR], {
+      timeout: 10000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"]
+    }).trim();
     try {
       const parsed = JSON.parse(result);
       if (parsed.tokens_saved > 0) {
@@ -5188,7 +5187,7 @@ export function autoTemplateOptimizer(callNumber: number): { success: boolean; c
       }
       return { success: true, call_number: callNumber, optimized: true, templates_count: parsed.templates_count, tokens_saved: parsed.tokens_saved };
     } catch { return { success: true, call_number: callNumber, optimized: true }; }
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5204,16 +5203,15 @@ export function autoResumeDetector(callNumber: number): { success: boolean; call
     _resumeDetectorRan = true;
     const scriptPath = path.join(SCRIPTS_DIR, "resume_detector.py");
     if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
-    const result = execSync(
-      `python "${scriptPath}" --state-dir "${STATE_DIR}" 2>/dev/null`,
-      { timeout: 8000, encoding: "utf-8" }
-    ).trim();
+    const result = execFileSync(PYTHON, [scriptPath, "--state-dir", STATE_DIR], {
+      timeout: 8000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"]
+    }).trim();
     try {
       const parsed = JSON.parse(result);
       appendEventLine("resume_detected", { call: callNumber, scenario: parsed.type, actions: parsed.actions?.length || 0 });
       return { success: true, call_number: callNumber, scenario: parsed.type, actions: parsed.actions };
     } catch { return { success: true, call_number: callNumber, scenario: "unknown" }; }
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5229,10 +5227,9 @@ export function autoLearningStorePersist(callNumber: number): { success: boolean
     _learningStoreLastCall = callNumber;
     const scriptPath = path.join(SCRIPTS_DIR, "learning_store.py");
     if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
-    const result = execSync(
-      `python "${scriptPath}" --state-dir "${STATE_DIR}" --action persist 2>/dev/null`,
-      { timeout: 8000, encoding: "utf-8" }
-    ).trim();
+    const result = execFileSync(PYTHON, [scriptPath, "--state-dir", STATE_DIR, "--action", "persist"], {
+      timeout: 8000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"]
+    }).trim();
     try {
       const parsed = JSON.parse(result);
       if (parsed.patterns_count > 0) {
@@ -5240,7 +5237,7 @@ export function autoLearningStorePersist(callNumber: number): { success: boolean
       }
       return { success: true, call_number: callNumber, persisted: true, patterns_count: parsed.patterns_count };
     } catch { return { success: true, call_number: callNumber, persisted: true }; }
-  } catch { return { success: false, call_number: callNumber }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
@@ -5443,7 +5440,7 @@ export function autoATCSParallelUpgrade(callNumber: number): { success: boolean;
     _atcsParallelUpgraded = true;
     appendEventLine("atcs_parallel_upgraded", { call: callNumber, units: state.units.length });
     return { success: true, call_number: callNumber, upgraded: true };
-  } catch { return { success: false, call_number: callNumber, upgraded: false }; }
+  } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, upgraded: false }; }
 }
 
 // ============================================================================
@@ -5671,7 +5668,7 @@ export function autoNLHookEvaluator(
   try {
     const hooks = getDeployedNLHooks();
     // DEBUG NL HOOKS (temporary - remove after verification)
-    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] call=${callNumber} hooks=${hooks.length} tool=${toolName}:${action}\n`); } catch {}
+    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] call=${callNumber} hooks=${hooks.length} tool=${toolName}:${action}\n`); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     if (hooks.length === 0) {
       return { success: true, call_number: callNumber, hooks_evaluated: 0, hooks_fired: 0, fired_hooks: [], errors: 0 };
     }
@@ -5683,7 +5680,7 @@ export function autoNLHookEvaluator(
       if (fs.existsSync(pressureFile)) {
         pressurePct = JSON.parse(fs.readFileSync(pressureFile, "utf-8")).pressure_pct || 0;
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     // Read recent actions from flight recorder
     let recentActions: string[] = [];
@@ -5694,7 +5691,7 @@ export function autoNLHookEvaluator(
         const actions = Array.isArray(data) ? data : data.actions || [];
         recentActions = actions.slice(-10).map((a: any) => `${a.tool || ""}:${a.action || ""}`);
       }
-    } catch {}
+    } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
 
     const ctx: NLHookContext = {
       call_number: callNumber,
@@ -5720,7 +5717,7 @@ export function autoNLHookEvaluator(
     }
 
     // DEBUG: trace evaluation results
-    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `  -> evaluated=${hooks.length} fired=${fired.length} errors=${errors} firedIds=${fired.map(f=>f.hook_id).join(",")}\n`); } catch {}
+    try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `  -> evaluated=${hooks.length} fired=${fired.length} errors=${errors} firedIds=${fired.map(f=>f.hook_id).join(",")}\n`); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     // Update execution_count in registry for fired hooks
     if (fired.length > 0) {
       try {
@@ -5804,7 +5801,7 @@ function parseHookActivationMatrix(): PhaseHookExpectation[] {
         inTable = false;
       }
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
   
   _hookMatrixCache = { matrix: result, ts: now };
   return result;
@@ -5960,7 +5957,7 @@ export function autoSLBConsume(callNumber: number): { success: boolean; call_num
     const stateFile = path.join(STATE_DIR, "CURRENT_STATE.json");
     let tenantId = "";
     if (fs.existsSync(stateFile)) {
-      try { tenantId = JSON.parse(fs.readFileSync(stateFile, "utf-8")).tenant_id || ""; } catch {}
+      try { tenantId = JSON.parse(fs.readFileSync(stateFile, "utf-8")).tenant_id || ""; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     }
     if (!tenantId) tenantId = process.env.PRISM_TENANT_ID || "default";
     const MultiTenantEngine = require("../engines/MultiTenantEngine.js").MultiTenantEngine || require("../engines/MultiTenantEngine.js").default;
@@ -6069,7 +6066,7 @@ export function autoOmegaHistoryPersist(callNumber: number): { success: boolean;
     if (history.length === 0) return { success: true, call_number: callNumber, entries_saved: 0 };
     const histPath = path.join(STATE_DIR, "omega_history.json");
     let existing: any[] = [];
-    if (fs.existsSync(histPath)) { try { existing = JSON.parse(fs.readFileSync(histPath, "utf-8")); } catch {} }
+    if (fs.existsSync(histPath)) { try { existing = JSON.parse(fs.readFileSync(histPath, "utf-8")); } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); } }
     const merged = [...existing, ...history].slice(-100);
     writeFileAtomic(histPath, JSON.stringify(merged, null, 2));
     appendEventLine("omega_history_persist", { entries: merged.length, call: callNumber });
@@ -6136,7 +6133,7 @@ export function autoConversationalMemorySave(callNumber: number, recentCalls: st
     const engine = typeof ConversationalMemoryEngine === "function" ? new ConversationalMemoryEngine() : ConversationalMemoryEngine;
     const stateFile = path.join(STATE_DIR, "CURRENT_STATE.json");
     let task = "unknown";
-    try { task = JSON.parse(fs.readFileSync(stateFile, "utf-8")).currentSession?.task || "unknown"; } catch {}
+    try { task = JSON.parse(fs.readFileSync(stateFile, "utf-8")).currentSession?.task || "unknown"; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
     engine.saveContext?.(task, recentCalls.slice(-10)) || engine.save?.({ task, recent: recentCalls.slice(-10), call: callNumber });
     return { success: true, call_number: callNumber, saved: true };
   } catch { return { success: true, call_number: callNumber, saved: false }; }
@@ -6150,7 +6147,7 @@ export function autoTelemetryResolve(callNumber: number, toolName: string, actio
     let resolved = 0;
     for (const anomaly of anomalies) {
       if (anomaly.dispatcher === toolName && anomaly.action === action && !anomaly.acknowledged) {
-        try { (telemetryEngine as any).acknowledge?.(anomaly.id || anomaly.key); resolved++; } catch {}
+        try { (telemetryEngine as any).acknowledge?.(anomaly.id || anomaly.key); resolved++; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
       }
     }
     if (resolved > 0) appendEventLine("telemetry_resolve", { tool: toolName, action, resolved, call: callNumber });
@@ -6199,7 +6196,7 @@ export function autoCalcPreEnrich(callNumber: number, params: any): { success: b
     return { success: true, call_number: callNumber, enriched: !!(materialCtx || machineCtx), material_context: materialCtx, machine_context: machineCtx };
   } catch { return { success: true, call_number: callNumber, enriched: false }; }
 }
-function await_safe(fn: () => any): void { try { const r = fn(); if (r && typeof r.then === "function") { /* skip async */ } } catch {} }
+function await_safe(fn: () => any): void { try { const r = fn(); if (r && typeof r.then === "function") { /* skip async */ } } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); } }
 
 /** 17. Pre-warm knowledge engine at session boot */
 export function autoKnowledgePreWarm(callNumber: number): { success: boolean; call_number: number; warmed: boolean } {
@@ -6271,7 +6268,7 @@ export function autoRalphScoreCapture(callNumber: number, resultText: string): {
           if (safety !== null) { state.currentSession.progress.safety_score = safety; state.currentSession.progress.safety_score_at = new Date().toISOString(); }
           state.lastUpdated = new Date().toISOString();
           writeFileAtomic(stateFile, JSON.stringify(state, null, 2));
-        } catch {}
+        } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
       }
       appendEventLine("ralph_score_capture", { quality, safety, call: callNumber });
     }
