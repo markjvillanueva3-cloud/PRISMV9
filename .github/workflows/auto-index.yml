@@ -42,12 +42,10 @@ jobs:
           assert 'project' in idx, 'Missing project'
           assert 'session' in idx, 'Missing session'
           assert 'extraction' in idx, 'Missing extraction'
-          progress = idx['extraction']['progress']
-          total = sum(p.get('total', 0) for p in progress.values())
-          extracted = sum(p.get('extracted', 0) for p in progress.values())
-          print(f'Index valid: {extracted}/{total} modules tracked')
-          print(f'Indexes found: {len(idx[\"extraction\"][\"indexes\"])}')
-          print(f'Files indexed: {sum(len(v) for v in idx[\"fileIndex\"].values())}')
+          indexes = idx['extraction'].get('indexes', {})
+          completed = idx['extraction'].get('completedExtractions', [])
+          print(f'Index valid: {len(indexes)} category indexes, {len(completed)} completed extractions')
+          print(f'Files indexed: {sum(len(v) for v in idx.get(\"fileIndex\", {}).values())}')
           "
 
       - name: Generate missing extraction indexes
