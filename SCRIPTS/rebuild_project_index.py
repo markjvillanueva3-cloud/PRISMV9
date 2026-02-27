@@ -79,6 +79,8 @@ def build_index():
     targets = inventory.get("moduleTargets", {})
 
     for key in targets:
+        if key == "total":
+            continue  # Skip the aggregate total — we compute it
         if key in state_progress:
             progress[key] = state_progress[key]
         else:

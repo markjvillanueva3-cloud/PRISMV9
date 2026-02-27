@@ -17,6 +17,7 @@ SCRIPTS_DIR = PROJ_ROOT / "SCRIPTS"
 EXTRACTED_DIR = PROJ_ROOT / "EXTRACTED"
 CURRENT_STATE = PROJ_ROOT / "CURRENT_STATE.json"
 MASTER_INVENTORY = PROJ_ROOT / "MASTER_INVENTORY.json"
+PROJECT_INDEX = PROJ_ROOT / "PROJECT_INDEX.json"
 
 
 class TestProjectState(unittest.TestCase):
@@ -192,6 +193,77 @@ class TestScripts(unittest.TestCase):
             import update_state
         finally:
             sys.path.pop(0)
+
+
+class TestProjectIndex(unittest.TestCase):
+    """Verify PROJECT_INDEX.json is valid and complete."""
+
+    def test_project_index_exists(self):
+        self.assertTrue(PROJECT_INDEX.exists(), "PROJECT_INDEX.json missing")
+
+    def test_project_index_valid_json(self):
+        with open(PROJECT_INDEX) as f:
+            data = json.load(f)
+        self.assertIn("_meta", data)
+        self.assertIn("project", data)
+        self.assertIn("session", data)
+        self.assertIn("extraction", data)
+        self.assertIn("paths", data)
+        self.assertIn("fileIndex", data)
+        self.assertIn("rules", data)
+
+    def test_project_index_has_progress(self):
+        with open(PROJECT_INDEX) as f:
+            data = json.load(f)
+        progress = data.get("extraction", {}).get("progress", {})
+        self.assertGreater(len(progress), 0, "No extraction progress in index")
+        for key, val in progress.items():
+            self.assertIn("total", val, f"{key} missing total")
+            self.assertIn("extracted", val, f"{key} missing extracted")
+
+    def test_project_index_consistent_with_state(self):
+        """PROJECT_INDEX extraction totals should match CURRENT_STATE."""
+        with open(PROJECT_INDEX) as f:
+            idx = json.load(f)
+        with open(CURRENT_STATE) as f:
+            state = json.load(f)
+
+        idx_progress = idx.get("extraction", {}).get("progress", {})
+        state_progress = state.get("extraction", {}).get("progress", {})
+
+        for key in state_progress:
+            if key in idx_progress:
+                self.assertEqual(
+                    idx_progress[key]["total"],
+                    state_progress[key]["total"],
+                    f"{key} total mismatch between PROJECT_INDEX and CURRENT_STATE"
+                )
+
+    def test_project_index_file_index_references_exist(self):
+        """Files listed in fileIndex should exist on disk."""
+        with open(PROJECT_INDEX) as f:
+            data = json.load(f)
+        file_index = data.get("fileIndex", {})
+        for category, files in file_index.items():
+            for entry in files:
+                filepath = PROJ_ROOT / entry["file"]
+                self.assertTrue(
+                    filepath.exists(),
+                    f"fileIndex[{category}] references {entry['file']} which does not exist"
+                )
+
+    def test_project_index_has_session(self):
+        with open(PROJECT_INDEX) as f:
+            data = json.load(f)
+        session = data.get("session", {})
+        self.assertIsNotNone(session.get("currentId"), "session.currentId is null")
+        self.assertIn("status", session)
+
+    def test_rebuild_script_exists(self):
+        self.assertTrue(
+            (SCRIPTS_DIR / "rebuild_project_index.py").exists(),
+            "rebuild_project_index.py missing"
+        )
 
 
 class TestDashboard(unittest.TestCase):
