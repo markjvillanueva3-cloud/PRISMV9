@@ -12,6 +12,7 @@
  */
 
 import * as path from "path";
+import { log } from "./Logger.js";
 import { PATHS } from "../constants.js";
 import { safeWriteSync } from "./atomicWrite.js";
 
@@ -267,8 +268,8 @@ export function persistCadenceToDisk(fullCadence: Record<string, any>, stateDir:
         const lines = fs.readFileSync(logPath, "utf-8").trim().split("\n");
         safeWriteSync(logPath, lines.slice(-50).join("\n") + "\n");
       }
-    } catch {}
-  } catch { /* disk write non-fatal */ }
+    } catch (e: any) { log.debug(`[slimmer] log trim: ${e?.message?.slice(0, 80)}`); }
+  } catch (e: any) { log.debug(`[slimmer] disk write: ${e?.message?.slice(0, 80)}`); }
 
   return { alerts, alert_count: alerts.length, routine_count: routineCount };
 }

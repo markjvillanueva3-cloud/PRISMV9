@@ -8,12 +8,13 @@
  *   try {
  *     const { normalizeParams } = await import("../../utils/paramNormalizer.js");
  *     params = normalizeParams(rawParams);
- *   } catch {}
+ *   } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
  *
  * @version 1.0.0
  * @date 2026-02-27
  */
 
+import { log } from "./Logger.js";
 import { slimResponse } from "./responseSlimmer.js";
 
 // ============================================================================

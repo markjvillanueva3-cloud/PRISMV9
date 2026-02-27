@@ -15,6 +15,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { log } from "../utils/Logger.js";
 import { safeWriteSync } from "../utils/atomicWrite.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -295,35 +296,35 @@ export class SessionLifecycleEngine {
 // ─── Convenience Functions (for cadence wiring) ──────────────────────────────
 
 export function recordSessionToolCall(success: boolean, latencyMs: number): void {
-  try { SessionLifecycleEngine.getInstance().recordToolCall(success, latencyMs); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordToolCall(success, latencyMs); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionHook(blocked: boolean): void {
-  try { SessionLifecycleEngine.getInstance().recordHookExecution(blocked); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordHookExecution(blocked); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionSkillInjection(): void {
-  try { SessionLifecycleEngine.getInstance().recordSkillInjection(); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordSkillInjection(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionTemplateMatch(): void {
-  try { SessionLifecycleEngine.getInstance().recordTemplateMatch(); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordTemplateMatch(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionPressure(pct: number): void {
-  try { SessionLifecycleEngine.getInstance().recordPressure(pct); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordPressure(pct); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionCheckpoint(): void {
-  try { SessionLifecycleEngine.getInstance().recordCheckpoint(); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordCheckpoint(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionCompactionRecovery(): void {
-  try { SessionLifecycleEngine.getInstance().recordCompactionRecovery(); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordCompactionRecovery(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function recordSessionError(resolved: boolean): void {
-  try { SessionLifecycleEngine.getInstance().recordError(resolved); } catch {}
+  try { SessionLifecycleEngine.getInstance().recordError(resolved); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function getSessionQualityScore(): SessionQualityScore | null {
@@ -339,7 +340,7 @@ export function writeSessionIncrementalPrep(
     if (engine.shouldWriteIncrementalPrep(callNumber)) {
       engine.writeIncrementalPrep(callNumber, phase, quickResume, pendingTasks, keyFindings, activeFiles);
     }
-  } catch {}
+  } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 export function generateSessionHandoff(

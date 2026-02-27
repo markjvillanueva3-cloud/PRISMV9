@@ -47,7 +47,7 @@ const GSD_TELEMETRY_FILE = path.join(STATE_DIR, "gsd_access_log.json");
 function logGsdAccess(action: string, section?: string): void {
   try {
     let log: any = { accesses: [], summary: {} };
-    try { log = JSON.parse(fs.readFileSync(GSD_TELEMETRY_FILE, "utf-8")); } catch {}
+    try { log = JSON.parse(fs.readFileSync(GSD_TELEMETRY_FILE, "utf-8")); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
     const key = section ? `${action}:${section}` : action;
     log.summary[key] = (log.summary[key] || 0) + 1;
     log.accesses.push({ action, section, at: new Date().toISOString() });

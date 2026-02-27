@@ -456,7 +456,7 @@ async function executeBatch(
     (() => { try {
       const bs = path.join(PATHS.STATE_DIR, "atcs_batch_state.json");
       if (fs.existsSync(bs)) { const s = JSON.parse(fs.readFileSync(bs, "utf-8")); return s.parallel_enabled === true; }
-    } catch {} return false; })();
+    } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); } return false; })();
 
   if (parallelEnabled && units.length >= 2) {
     // === PARALLEL MODE: Execute in micro-batches of MAX_CONCURRENT_AGENTS ===

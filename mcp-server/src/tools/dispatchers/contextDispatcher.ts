@@ -306,7 +306,7 @@ export function registerContextDispatcher(server: any): void {
                         foundIn = filepath;
                         break;
                       }
-                    } catch {}
+                    } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
                   }
                 } else if (file.endsWith('.json')) {
                   try {
@@ -315,7 +315,7 @@ export function registerContextDispatcher(server: any): void {
                       found = record;
                       foundIn = filepath;
                     }
-                  } catch {}
+                  } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
                 }
                 
                 if (found) break;
@@ -427,7 +427,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                   })) || effectiveState.steps;
                 }
               }
-            } catch {}
+            } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 
             return ok({
               status: "TODO READ - ATTENTION REFRESHED",
@@ -491,7 +491,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                 content.trim().split('\n').forEach(line => {
                   try {
                     errors.push(JSON.parse(line));
-                  } catch {}
+                  } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
                 });
               }
             }
@@ -740,7 +740,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push("--score", `"${tmpFile}"`);
               const output = runPythonScript("attention_scorer.py", pyArgs);
-              try { fs.unlinkSync(tmpFile); } catch {}
+              try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
               try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
             }
             const output = runPythonScript("attention_scorer.py", pyArgs);
@@ -757,7 +757,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               safeWriteSync(tmpFile, JSON.stringify(params.items));
               pyArgs.push("--items", `"${tmpFile}"`);
               const output = runPythonScript("focus_optimizer.py", pyArgs);
-              try { fs.unlinkSync(tmpFile); } catch {}
+              try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
               try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
             }
             const output = runPythonScript("focus_optimizer.py", pyArgs);
@@ -775,7 +775,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               if (params.threshold) pyArgs.push("--threshold", String(params.threshold));
               if (params.mode) pyArgs.push("--mode", params.mode);
               const output = runPythonScript("relevance_filter.py", pyArgs);
-              try { fs.unlinkSync(tmpFile); } catch {}
+              try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
               try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
             }
             const output = runPythonScript("relevance_filter.py", pyArgs);

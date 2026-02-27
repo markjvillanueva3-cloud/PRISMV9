@@ -344,7 +344,7 @@ export function registerCalcDispatcher(server: any): void {
                 ...hookCtx,
                 metadata: { ...hookCtx.metadata, result }
               });
-            } catch {}
+            } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
             const pressurePct = getCurrentPressurePct();
             if (pressurePct > 50) {
               try {
@@ -352,7 +352,7 @@ export function registerCalcDispatcher(server: any): void {
                 if (extracted && Object.keys(extracted).length > 0) {
                   return { content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true, _cached: true }, getSlimLevel(pressurePct))) }] };
                 }
-              } catch {}
+              } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
             }
             return { content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }] };
           }
@@ -1333,7 +1333,7 @@ export function registerCalcDispatcher(server: any): void {
           try {
             const storeParams = { ...params, _cache_material: params.material_id || params.material || "", _cache_tool: params.tool_id || params.tool_material || "" };
             computationCache.set(action, storeParams, result);
-          } catch {}
+          } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
         }
 
         // === POST-CALCULATION HOOKS (9 hooks: chip breaking, stability, power, torque, Bayesian, deflection, surface finish, MRR) ===
@@ -1377,7 +1377,7 @@ export function registerCalcDispatcher(server: any): void {
                 content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true }, slimLevel)) }]
               };
             }
-          } catch {}
+          } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
         }
 
         return {

@@ -673,7 +673,7 @@ export function registerGuardDispatcher(server: any): void {
               safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push(tmpFile);
               const output = runPythonScript("pattern_detector.py", pyArgs);
-              try { fs.unlinkSync(tmpFile); } catch {}
+              try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
               try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
             }
             const output = runPythonScript("pattern_detector.py", pyArgs);
@@ -697,7 +697,7 @@ export function registerGuardDispatcher(server: any): void {
             const tmpFile = path.join(STATE_DIR, `_learning_tmp_${Date.now()}.txt`);
             safeWriteSync(tmpFile, typeof data === 'string' ? data : JSON.stringify(data));
             const output = runPythonScript("learning_store.py", ["--learn-file", tmpFile]);
-            try { fs.unlinkSync(tmpFile); } catch {}
+            try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
           }
 
@@ -721,7 +721,7 @@ export function registerGuardDispatcher(server: any): void {
               pyArgs.push("--file", tmpFile);
               if (params.target && !isNaN(Number(params.target))) pyArgs.push("--target", String(params.target));
               const output = runPythonScript("priority_scorer.py", pyArgs);
-              try { fs.unlinkSync(tmpFile); } catch {}
+              try { fs.unlinkSync(tmpFile); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
               try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
             }
             if (params.target && !isNaN(Number(params.target))) pyArgs.push("--target", String(params.target));
