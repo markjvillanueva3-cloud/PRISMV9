@@ -317,6 +317,123 @@ function getOpenApiSpec() {
       },
       "/telemetry/unfreeze": {
         post: { summary: "Unfreeze telemetry weights", tags: ["Telemetry"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/agent/execute": {
+        post: { summary: "Execute single agent", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/agent/parallel": {
+        post: { summary: "Execute agents in parallel", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/agent/pipeline": {
+        post: { summary: "Execute agent pipeline", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/plan/create": {
+        post: { summary: "Create execution plan", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/plan/execute": {
+        post: { summary: "Execute plan", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/plan/status": {
+        get: { summary: "Plan execution status", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/queue/stats": {
+        get: { summary: "Queue statistics", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/sessions": {
+        get: { summary: "List active sessions", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/swarm/execute": {
+        post: { summary: "Execute swarm task", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/swarm/parallel": {
+        post: { summary: "Parallel swarm execution", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/swarm/consensus": {
+        post: { summary: "Swarm consensus decision", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/swarm/pipeline": {
+        post: { summary: "Swarm pipeline execution", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/swarm/status": {
+        get: { summary: "Swarm execution status", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/swarm/patterns": {
+        get: { summary: "Available swarm patterns", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/swarm/quick": {
+        post: { summary: "Quick swarm execution", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/plan": {
+        post: { summary: "Create roadmap plan", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/next-batch": {
+        post: { summary: "Get next roadmap batch", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/advance": {
+        post: { summary: "Advance roadmap position", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/gate": {
+        post: { summary: "Run roadmap phase gate", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/list": {
+        get: { summary: "List roadmap milestones", tags: ["Orchestration"], responses: stdResponse() }
+      },
+      "/orchestration/roadmap/load": {
+        post: { summary: "Load roadmap definition", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/claim": {
+        post: { summary: "Claim roadmap unit", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/release": {
+        post: { summary: "Release roadmap unit", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/heartbeat": {
+        post: { summary: "Roadmap worker heartbeat", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/discover": {
+        post: { summary: "Discover roadmap files", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/orchestration/roadmap/register": {
+        post: { summary: "Register roadmap", tags: ["Orchestration"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/endpoint/register": {
+        post: { summary: "Register external endpoint", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/endpoint/remove": {
+        post: { summary: "Remove external endpoint", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/endpoint/status": {
+        post: { summary: "Set endpoint status", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/endpoints": {
+        get: { summary: "List registered endpoints", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/bridge/key/create": {
+        post: { summary: "Create API key", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/key/revoke": {
+        post: { summary: "Revoke API key", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/key/validate": {
+        post: { summary: "Validate API key", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/keys": {
+        get: { summary: "List API keys", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/bridge/route": {
+        post: { summary: "Route request to external system", tags: ["Bridge"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/bridge/route-map": {
+        get: { summary: "Get routing map", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/bridge/health": {
+        get: { summary: "Bridge health check", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/bridge/stats": {
+        get: { summary: "Bridge statistics", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/bridge/config": {
+        get: { summary: "Bridge configuration", tags: ["Bridge"], responses: stdResponse() }
       }
     },
     tags: [
@@ -335,7 +452,9 @@ function getOpenApiSpec() {
       { name: "ERP", description: "ERP, quoting & analytics" },
       { name: "Threads", description: "Thread manufacturing calculations" },
       { name: "Compliance", description: "Regulatory compliance management" },
-      { name: "Telemetry", description: "System telemetry & monitoring" }
+      { name: "Telemetry", description: "System telemetry & monitoring" },
+      { name: "Orchestration", description: "Agent, swarm & roadmap orchestration" },
+      { name: "Bridge", description: "External system integration & API keys" }
     ]
   };
 }
