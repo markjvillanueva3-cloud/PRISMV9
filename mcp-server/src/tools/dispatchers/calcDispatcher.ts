@@ -107,6 +107,10 @@ import {
   workholdingIntelligence,
 } from "../../engines/WorkholdingIntelligenceEngine.js";
 
+import {
+  algorithmEngine,
+} from "../../engines/AlgorithmEngine.js";
+
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
  * Each calc type returns only the most critical metrics (~50-100 tokens).
@@ -235,7 +239,9 @@ const ACTIONS = [
   "surface_integrity_predict", "chatter_predict", "thermal_compensate",
   "unified_machining_model", "coupling_sensitivity",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
-  "fixture_recommend"
+  "fixture_recommend",
+  "algorithm_calculate", "algorithm_validate", "algorithm_list",
+  "algorithm_info", "algorithm_batch", "algorithm_benchmark"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1268,6 +1274,48 @@ export function registerCalcDispatcher(server: any): void {
 
           case "fixture_recommend": {
             result = workholdingIntelligence(action, params);
+            break;
+          }
+
+          // === ALGORITHM ENGINE (L1-P2-MS1) — 6 typed algorithm actions ===
+          case "algorithm_calculate": {
+            result = algorithmEngine.calculate({
+              algorithm_id: params.algorithm_id,
+              params: params.algorithm_params ?? params.params ?? params,
+            });
+            break;
+          }
+          case "algorithm_validate": {
+            result = algorithmEngine.validate({
+              algorithm_id: params.algorithm_id,
+              params: params.algorithm_params ?? params.params ?? params,
+            });
+            break;
+          }
+          case "algorithm_list": {
+            result = algorithmEngine.list({
+              domain: params.domain,
+              safety_class: params.safety_class,
+            });
+            break;
+          }
+          case "algorithm_info": {
+            result = algorithmEngine.info(params.algorithm_id);
+            if (!result) throw new Error(`Unknown algorithm: "${params.algorithm_id}"`);
+            break;
+          }
+          case "algorithm_batch": {
+            result = algorithmEngine.batch({
+              calculations: params.calculations,
+              stop_on_error: params.stop_on_error,
+            });
+            break;
+          }
+          case "algorithm_benchmark": {
+            result = algorithmEngine.benchmark({
+              algorithm_id: params.algorithm_id,
+              params: params.algorithm_params ?? params.params ?? params,
+            });
             break;
           }
 

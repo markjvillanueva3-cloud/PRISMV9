@@ -350,7 +350,8 @@ Total skill files: 119
 ## 14. SUMMARY
 
 - Dispatchers: 32 (382+ verified actions)
-- Engines: 73 (all wired — 57 direct, 15 via handlers, 1 via bundle)
+- Engines: 74 (all wired — 58 direct, 15 via handlers, 1 via bundle) + AlgorithmEngine (50 typed algorithms)
+- Algorithms: 50 standalone Algorithm<I,O> implementations (18 safety-critical, 32 standard)
 - Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
 - Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
 - Skill Bundles: 9 (wired to skillScriptDispatcher)

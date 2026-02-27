@@ -64,6 +64,7 @@ import {
 } from "./ToolpathCalculations.js";
 
 import { findAchievableGrade } from "./ToleranceEngine.js";
+import { algorithmEngine } from "./AlgorithmEngine.js";
 import { registryManager } from "../registries/manager.js";
 import { toolpathRegistry } from "../registries/ToolpathStrategyRegistry.js";
 import { log } from "../utils/Logger.js";
@@ -2556,6 +2557,8 @@ export const intelligenceEngine = {
   SOURCE_CATALOG: INTELLIGENCE_SOURCE_FILE_CATALOG,
   getSourceFileCatalog,
   catalogSourceFiles,
+  /** Access to 50 typed Algorithm<I,O> implementations via AlgorithmEngine (L1-P2-MS1). */
+  algorithmEngine,
 };
 
 export type { JobPlanInput, JobPlanResult, JobPlanOperation, FeatureType, IntelligenceSourceEntry };

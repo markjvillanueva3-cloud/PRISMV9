@@ -70,6 +70,7 @@ import {
 } from "./DecisionTreeEngine.js";
 
 import { collisionEngine } from "./CollisionEngine.js";
+import { algorithmEngine } from "./AlgorithmEngine.js";
 
 // ─── Business Source File Catalog ────────────────────────────────────────────
 // Maps all 19 extracted business JS files from the PRISM v8.89.002 monolith
@@ -2528,6 +2529,11 @@ export function productACNC(action: string, params: Record<string, any>): any {
  * @param filter.safety_class  - Filter by safety classification
  * @returns Matching catalog entries with summary statistics
  */
+// ── Algorithm Engine Bridge (L1-P2-MS1) ─────────────────────────────────────
+// Re-export algorithmEngine for consuming engines and dispatchers.
+// Provides typed access to all 50 Algorithm<I,O> implementations.
+export { algorithmEngine };
+
 export function getSourceFileCatalog(filter?: {
   target_engine?: string;
   category?: string;

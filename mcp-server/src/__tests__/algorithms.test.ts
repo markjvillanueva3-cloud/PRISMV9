@@ -449,9 +449,10 @@ describe("ThermalPartitionModel", () => {
 // ═══════════════════════════════════════════════════════════════════
 
 describe("Algorithm Registry", () => {
-  it("lists 7 algorithms", () => {
+  it("lists 50 algorithms", () => {
     const ids = listAlgorithms();
-    expect(ids.length).toBe(7);
+    expect(ids.length).toBe(50);
+    // Original 7
     expect(ids).toContain("kienzle");
     expect(ids).toContain("taylor");
     expect(ids).toContain("johnson-cook");
@@ -459,6 +460,16 @@ describe("Algorithm Registry", () => {
     expect(ids).toContain("stability-lobe");
     expect(ids).toContain("chip-thinning");
     expect(ids).toContain("thermal-power");
+    // L1-P0-MS1 samples
+    expect(ids).toContain("gilbert-mrr");
+    expect(ids).toContain("bayesian-wear");
+    // L1-P1-MS1 samples
+    expect(ids).toContain("genetic-optimizer");
+    expect(ids).toContain("neural-inference");
+    // L1-P1-MS2 samples
+    expect(ids).toContain("minkowski-sum");
+    expect(ids).toContain("ant-colony-tsp");
+    expect(ids).toContain("wavelet-breakage");
   });
 
   it("createAlgorithm returns instance", () => {
