@@ -3,9 +3,6 @@ import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
 import { registryManager } from "../../registries/manager.js";
-import { SafetyBlockError } from "../../errors/PrismError.js";
-import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
-import type { SafetyCalcResult } from "../../schemas/safetyCalcSchema.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import { computationCache } from "../../engines/ComputationCache.js";
 

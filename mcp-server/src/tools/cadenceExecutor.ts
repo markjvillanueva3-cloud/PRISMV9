@@ -41,7 +41,7 @@ import type {
   NLHookEvalResult,
   HookActivationCheckResult,
 } from "../types/prism-schema.js";
-import { classifyTask, type TaskClassification, type GroupDecomposition } from "../engines/TaskAgentClassifier.js";
+import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
 import { executeSwarmGroups, type TaskGroup, type SwarmGroupResult } from "../engines/SwarmGroupExecutor.js";
 import { PATHS } from "../constants.js";
 import { ContextBudgetEngine } from "../engines/ContextBudgetEngine.js";
@@ -52,10 +52,9 @@ import {
   getSessionQualityScore, writeSessionIncrementalPrep,
   getSessionMetrics, generateSessionHandoff
 } from "../engines/SessionLifecycleEngine.js";
-import { executeAgentsParallel } from "../engines/AgentExecutor.js";
 import { executeSwarm, type SwarmPattern } from "../engines/SwarmExecutor.js";
 import { hasValidApiKey } from "../config/api-config.js";
-import { fuzzyGet, fuzzyGetAll, normalize } from "./fuzzyResolver.js";
+import { fuzzyGet, fuzzyGetAll } from "./fuzzyResolver.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;

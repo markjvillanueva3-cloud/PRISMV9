@@ -491,6 +491,8 @@ export class AgentExecutor {
         case "swarm":
           await this.executeSwarm(plan);
           break;
+        default:
+          throw new Error(`Unknown execution mode: ${plan.mode}`);
       }
 
       // Aggregate results

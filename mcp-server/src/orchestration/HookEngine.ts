@@ -143,6 +143,19 @@ const PHASE0_HOOKS: Hook[] = [
   { id: "ORCH-PARALLEL-LIMIT-001", name: "Parallel Agent Limit (BLOCKING)", category: "ORCH", trigger: "before_spawn", priority: 100, enabled: true, isBlocking: true },
   { id: "ORCH-PATTERN-VALIDATE-001", name: "Swarm Pattern Selection Validator", category: "ORCH", trigger: "before_spawn", priority: 90, enabled: true, isBlocking: false },
   { id: "ORCH-PIPELINE-CHECKPOINT-001", name: "Pipeline Stage Checkpoint", category: "ORCH", trigger: "on_complete", priority: 80, enabled: true, isBlocking: false },
+
+  // SESSION/CONTEXT HOOKS — Wired from autoHookWrapper cadence (5 new)
+  { id: "SESSION-AUTO-BOOT-001", name: "Session Auto-Boot Notification", category: "SESSION", trigger: "session_start", priority: 80, enabled: true, isBlocking: false },
+  { id: "CONTEXT-PRESSURE-CHECK-001", name: "Context Pressure Check", category: "CONTEXT", trigger: "pressure_check", priority: 85, enabled: true, isBlocking: false },
+  { id: "CONTEXT-COMPRESS-AUTO-001", name: "Auto-Compression Trigger", category: "CONTEXT", trigger: "compress_auto", priority: 80, enabled: true, isBlocking: false },
+  { id: "CONTEXT-COMPACTION-DETECT-001", name: "Compaction Detection Alert", category: "CONTEXT", trigger: "compaction_detect", priority: 90, enabled: true, isBlocking: false },
+  { id: "CONTEXT-TRUNCATE-001", name: "Context Truncation Handler", category: "CONTEXT", trigger: "truncate", priority: 85, enabled: true, isBlocking: false },
+
+  // REFLECTION — Prevention hook (1 new)
+  { id: "REFL-002-PREVENTION", name: "Error Prevention Analysis", category: "REFL", trigger: "error_prevention", priority: 90, enabled: true, isBlocking: false },
+
+  // BATCH — Exec variant alias (1 new)
+  { id: "BATCH-BEFORE-EXEC-001", name: "Pre-Batch Execution", category: "BATCH", trigger: "before_exec", priority: 90, enabled: true, isBlocking: false },
 ];
 
 // ============================================================================

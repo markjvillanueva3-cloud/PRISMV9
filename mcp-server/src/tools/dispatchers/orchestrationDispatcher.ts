@@ -19,9 +19,7 @@ import {
 import {
   roadmapExecutor,
   summarizePlan,
-  getCompletedIds,
 } from "../../engines/RoadmapExecutor.js";
-import { parseRoadmap } from "../../schemas/roadmapSchema.js";
 import {
   loadIndex,
   loadEnvelope,

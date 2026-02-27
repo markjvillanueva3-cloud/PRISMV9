@@ -264,9 +264,8 @@ export type QualityComponent = typeof QUALITY_COMPONENTS[number];
 
 // Swarm Patterns
 export const SWARM_PATTERNS = [
-  "PARALLEL_EXTRACTION", "SEQUENTIAL_VALIDATION", "HIERARCHICAL_REVIEW",
-  "CONSENSUS_BUILDING", "DIVIDE_CONQUER", "EXPERT_ENSEMBLE",
-  "COMPETITIVE_OPTIMIZATION", "COOPERATIVE_LEARNING"
+  "parallel", "pipeline", "map_reduce", "consensus",
+  "hierarchical", "ensemble", "competition", "collaboration"
 ] as const;
 export type SwarmPattern = typeof SWARM_PATTERNS[number];
 

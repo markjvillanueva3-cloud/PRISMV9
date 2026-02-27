@@ -21,10 +21,7 @@ import "../engines/reactiveChainBootstrap.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
-import {
-  HookResult, ToolCallContext,
-  HookExecution, RecordedAction, CompactionSurvivalData
-} from "../types/prism-schema.js";
+// prism-schema types available via prism-schema.js if needed
 // ProofValidation and FactVerify do not exist as exports — functionality is inline
 import { hookExecutor } from "../engines/HookExecutor.js";
 import { hookEngine } from "../orchestration/HookEngine.js";
@@ -58,7 +55,7 @@ import {
   autoLearningQuery, autoTelemetryAnomalyCheck, autoBudgetReport, autoAttentionAnchor,
   autoCognitiveUpdate, autoSessionHandoffGenerate, autoTelemetrySloCheck,
   autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity,
-  autoParallelDispatch, autoGroupedSwarmDispatch, autoATCSParallelUpgrade,
+  autoGroupedSwarmDispatch, autoATCSParallelUpgrade,
   autoPriorityScore, autoSkillPreload, autoKvStabilityPeriodic,
   autoContextPressureRecommend, autoMemoryGraphEvict, autoCompactionTrend,
   autoDispatcherByteTrack,
@@ -71,20 +68,19 @@ import {
   autoATCSCheckpointScan, autoRalphScoreCapture
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, persistCadenceToDisk, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
-import { compactJsonValues, getDslLegend } from "../config/dslAbbreviations.js";
+import { compactJsonValues } from "../config/dslAbbreviations.js";
 import { PATHS } from "../constants.js";
-import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
-import { TelemetryEngine } from "../engines/TelemetryEngine.js";
+import { autoResponseTemplate } from "../engines/ResponseTemplateEngine.js";
+// TelemetryEngine singleton accessed via cadenceExecutor
 import { MemoryGraphEngine } from "../engines/MemoryGraphEngine.js";
-import { PredictiveFailureEngine, pfpEngine } from "../engines/PredictiveFailureEngine.js";
+import { pfpEngine } from "../engines/PredictiveFailureEngine.js";
 import { computationCache } from "../engines/ComputationCache.js";
 import {
   recordSessionToolCall, recordSessionHook, recordSessionSkillInjection,
   recordSessionTemplateMatch, recordSessionPressure, recordSessionCheckpoint,
-  recordSessionCompactionRecovery, recordSessionError,
-  writeSessionIncrementalPrep, getSessionQualityScore, getSessionMetrics
+  recordSessionCompactionRecovery, recordSessionError
 } from "../engines/SessionLifecycleEngine.js";
-import { autoManusATCSPoll, getBridgeStatus } from "../engines/ManusATCSBridge.js";
+import { autoManusATCSPoll } from "../engines/ManusATCSBridge.js";
 
 // ============================================================================
 // CONFIGURATION
@@ -2134,6 +2130,13 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           (globalThis as any).__prism_master_index = idx;
         }).catch(() => {});
         cadence.actions.push(`\u{1F4CB} INDEX_STALE: reindexing`);
+      }
+    } catch { /* non-fatal */ }
+    // Master index reader — expose index totals for cadence consumers
+    try {
+      const masterIdx = (globalThis as any).__prism_master_index;
+      if (masterIdx?.totals) {
+        cadence.master_index_totals = masterIdx.totals;
       }
     } catch { /* non-fatal */ }
     // Deferred swarm result injection — surfaces pending results for 3 calls after dispatch
