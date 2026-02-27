@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRISM v9 — Status Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 24px; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  .meta { color: var(--text-muted); font-size: 13px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .progress-item { margin-bottom: 12px; }
+  .progress-item:last-child { margin-bottom: 0; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .progress-label .count { color: var(--text-muted); }
+  .progress-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.yellow { background: var(--yellow); }
+  .progress-fill.red { background: var(--red); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-muted { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .stat {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 6px;
+  }
+  .stat .value { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .module-item {
+    padding: 8px;
+    background: var(--bg);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 13px;
+  }
+  .module-item .num { font-size: 20px; font-weight: 600; color: var(--purple); }
+  .session-list { list-style: none; }
+  .session-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .session-list li:last-child { border-bottom: none; }
+  .session-id { color: var(--accent); font-weight: 600; margin-right: 8px; }
+  footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PRISM <span>v9</span> Status Dashboard</h1>
+  <div class="meta">
+    <span id="lastUpdated"></span> |
+    Source: v<span id="sourceVersion"></span> to v<span id="targetVersion"></span>
+  </div>
+</header>
+
+<div class="stats" style="margin-bottom: 16px;">
+  <div class="stat"><div class="value" id="monolithLines"></div><div class="label">Monolith Lines</div></div>
+  <div class="stat"><div class="value" id="totalModules"></div><div class="label">Target Modules</div></div>
+  <div class="stat"><div class="value" id="extractedCount"></div><div class="label">Extracted</div></div>
+  <div class="stat"><div class="value" id="overallPct"></div><div class="label">Overall Progress</div></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Extraction Progress</h2>
+    <div id="extractionBars"></div>
+  </div>
+  <div class="card">
+    <h2>Worker Health</h2>
+    <table>
+      <thead><tr><th>Worker</th><th>Runs</th><th>Success</th><th>Avg (ms)</th><th>Status</th></tr></thead>
+      <tbody id="workerBody"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Module Targets</h2>
+    <div class="module-grid" id="moduleGrid"></div>
+  </div>
+  <div class="card">
+    <h2>Session Archives</h2>
+    <ul class="session-list" id="sessionList"></ul>
+  </div>
+  <div class="card">
+    <h2>Consolidation Metrics</h2>
+    <div class="stats" id="consolidationStats"></div>
+  </div>
+  <div class="card">
+    <h2>Current Stage</h2>
+    <div class="stats" id="stageStats"></div>
+  </div>
+</div>
+
+<footer>PRISM Manufacturing Intelligence | Dashboard auto-generated by CI | Data from project JSON metrics</footer>
+
+<script>
+// === EMBEDDED METRICS (injected by CI, or default snapshot) ===
+var METRICS = {
+  currentState: /*__CURRENT_STATE__*/ {
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-20T17:15:00",
+  "currentSession": null,
+  "prism": {
+    "sourceVersion": "8.89.002",
+    "targetVersion": "9.0.0",
+    "monolithLines": 986000
+  },
+  "extraction": {
+    "stage": "1",
+    "phase": "A",
+    "progress": {
+      "databases": {"total": 62, "extracted": 7, "verified": 7},
+      "engines": {"total": 213, "extracted": 0, "verified": 0},
+      "knowledgeBases": {"total": 14, "extracted": 0, "verified": 0},
+      "systems": {"total": 31, "extracted": 0, "verified": 0}
+    }
+  },
+  "completedExtractions": [
+    {"category": "machines/CORE", "files": 8, "totalLines": 4489, "date": "2026-01-20"}
+  ],
+  "history": []
+} /*__END_CURRENT_STATE__*/,
+
+  inventory: /*__INVENTORY__*/ {
+  "sourceMonolith": {"version": "v8.89.002", "lines": 986621, "modules": 831, "size": "~48MB"},
+  "extracted": {
+    "machines": {"enhanced": {"count": 33, "estimatedMachines": 310}},
+    "materials": {"count": 0}, "tools": {"count": 0}, "engines": {"count": 0},
+    "systems": {"count": 0}, "knowledgeBases": {"count": 0}, "learning": {"count": 0}, "business": {"count": 0}
+  },
+  "sessionArchives": [
+    {"id": "0.EXT.1", "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION", "status": "ARCHIVED"},
+    {"id": "0.EXT.1b", "name": "MATERIALS DATABASE", "status": "ARCHIVED"},
+    {"id": "0.EXT.2", "name": "MACHINES DATABASE", "status": "ARCHIVED"}
+  ],
+  "moduleTargets": {
+    "databases": 62, "engines": 213, "knowledgeBases": 14, "systems": 31,
+    "learning": 30, "business": 22, "ui": 16, "lookups": 20, "manufacturers": 44, "phase": 46, "total": 831
+  },
+  "nextSession": {"id": "1.A.5", "topic": "Physics Models Extraction"}
+} /*__END_INVENTORY__*/,
+
+  daemon: /*__DAEMON__*/ {
+  "running": true,
+  "workers": {
+    "map": {"runCount": 6, "successCount": 6, "failureCount": 0, "averageDurationMs": 0.83, "isRunning": false},
+    "audit": {"runCount": 8, "successCount": 8, "failureCount": 0, "averageDurationMs": 128, "isRunning": false},
+    "optimize": {"runCount": 6, "successCount": 6, "failureCount": 0, "averageDurationMs": 4.33, "isRunning": false},
+    "consolidate": {"runCount": 3, "successCount": 3, "failureCount": 0, "averageDurationMs": 1, "isRunning": false},
+    "testgaps": {"runCount": 4, "successCount": 4, "failureCount": 0, "averageDurationMs": 4.75, "isRunning": false},
+    "predict": {"runCount": 0, "successCount": 0, "failureCount": 0, "averageDurationMs": 0, "isRunning": false},
+    "document": {"runCount": 0, "successCount": 0, "failureCount": 0, "averageDurationMs": 0, "isRunning": false}
+  }
+} /*__END_DAEMON__*/,
+
+  consolidation: /*__CONSOLIDATION__*/ {
+  "timestamp": "2026-01-20T18:59:21.658Z",
+  "patternsConsolidated": 0,
+  "memoryCleaned": 0,
+  "duplicatesRemoved": 0
+} /*__END_CONSOLIDATION__*/
+};
+
+// === SAFE DOM HELPERS ===
+function setText(id, text) {
+  document.getElementById(id).textContent = String(text);
+}
+
+function createEl(tag, className, textContent) {
+  var el = document.createElement(tag);
+  if (className) el.className = className;
+  if (textContent !== undefined) el.textContent = String(textContent);
+  return el;
+}
+
+// === RENDER ===
+(function() {
+  var cs = METRICS.currentState;
+  var inv = METRICS.inventory;
+  var dm = METRICS.daemon;
+  var con = METRICS.consolidation;
+
+  // Header
+  setText('lastUpdated', cs.lastUpdated ? new Date(cs.lastUpdated).toLocaleDateString() : '—');
+  setText('sourceVersion', cs.prism ? cs.prism.sourceVersion : '—');
+  setText('targetVersion', cs.prism ? cs.prism.targetVersion : '—');
+
+  // Overview stats
+  var monolith = (inv.sourceMonolith ? inv.sourceMonolith.lines : 0) || (cs.prism ? cs.prism.monolithLines : 0) || 0;
+  setText('monolithLines', monolith.toLocaleString());
+  setText('totalModules', inv.moduleTargets ? inv.moduleTargets.total : '—');
+
+  var prog = (cs.extraction ? cs.extraction.progress : {}) || {};
+  var totalExtracted = 0, totalTarget = 0;
+  var keys = Object.keys(prog);
+  for (var i = 0; i < keys.length; i++) {
+    totalExtracted += prog[keys[i]].extracted || 0;
+    totalTarget += prog[keys[i]].total || 0;
+  }
+  setText('extractedCount', totalExtracted + ' / ' + totalTarget);
+  var pct = totalTarget > 0 ? ((totalExtracted / totalTarget) * 100).toFixed(1) : '0';
+  setText('overallPct', pct + '%');
+
+  // Extraction progress bars
+  var barContainer = document.getElementById('extractionBars');
+  var categories = [
+    ['databases', 'Databases'], ['engines', 'Engines'],
+    ['knowledgeBases', 'Knowledge Bases'], ['systems', 'Systems']
+  ];
+  for (var c = 0; c < categories.length; c++) {
+    var key = categories[c][0], label = categories[c][1];
+    var d = prog[key] || {total: 0, extracted: 0};
+    var p = d.total > 0 ? (d.extracted / d.total * 100) : 0;
+    var colorClass = p >= 50 ? 'green' : (p > 0 ? 'yellow' : 'red');
+
+    var item = createEl('div', 'progress-item');
+    var labelRow = createEl('div', 'progress-label');
+    labelRow.appendChild(createEl('span', null, label));
+    labelRow.appendChild(createEl('span', 'count', d.extracted + ' / ' + d.total + ' (' + p.toFixed(1) + '%)'));
+    item.appendChild(labelRow);
+
+    var track = createEl('div', 'progress-track');
+    var fill = createEl('div', 'progress-fill ' + colorClass);
+    fill.style.width = p + '%';
+    track.appendChild(fill);
+    item.appendChild(track);
+    barContainer.appendChild(item);
+  }
+
+  // Worker health table
+  var workerBody = document.getElementById('workerBody');
+  var workerKeys = Object.keys(dm.workers || {});
+  for (var w = 0; w < workerKeys.length; w++) {
+    var name = workerKeys[w];
+    var wk = dm.workers[name];
+    var rate = wk.runCount > 0 ? ((wk.successCount / wk.runCount) * 100).toFixed(0) : '—';
+    var badgeClass = 'badge-muted', statusText = 'Idle';
+    if (wk.isRunning) { badgeClass = 'badge-green'; statusText = 'Running'; }
+    else if (wk.runCount > 0 && wk.failureCount === 0) { badgeClass = 'badge-green'; statusText = 'Healthy'; }
+    else if (wk.failureCount > 0) { badgeClass = 'badge-red'; statusText = 'Errors'; }
+
+    var tr = document.createElement('tr');
+    var tdName = createEl('td'); var strong = createEl('strong', null, name); tdName.appendChild(strong); tr.appendChild(tdName);
+    tr.appendChild(createEl('td', null, wk.runCount));
+    tr.appendChild(createEl('td', null, rate + '%'));
+    tr.appendChild(createEl('td', null, wk.averageDurationMs.toFixed(1)));
+    var tdStatus = createEl('td'); tdStatus.appendChild(createEl('span', 'badge ' + badgeClass, statusText)); tr.appendChild(tdStatus);
+    workerBody.appendChild(tr);
+  }
+
+  // Module targets
+  var moduleGrid = document.getElementById('moduleGrid');
+  var targets = inv.moduleTargets || {};
+  var tKeys = Object.keys(targets);
+  for (var m = 0; m < tKeys.length; m++) {
+    if (tKeys[m] === 'total') continue;
+    var mi = createEl('div', 'module-item');
+    mi.appendChild(createEl('div', 'num', targets[tKeys[m]]));
+    mi.appendChild(createEl('div', null, tKeys[m]));
+    moduleGrid.appendChild(mi);
+  }
+
+  // Session archives
+  var sessionList = document.getElementById('sessionList');
+  var archives = inv.sessionArchives || [];
+  for (var s = 0; s < archives.length; s++) {
+    var li = createEl('li');
+    li.appendChild(createEl('span', 'session-id', archives[s].id));
+    li.appendChild(document.createTextNode(archives[s].name + ' '));
+    li.appendChild(createEl('span', 'badge badge-muted', archives[s].status));
+    sessionList.appendChild(li);
+  }
+
+  // Consolidation stats
+  var conStats = document.getElementById('consolidationStats');
+  var conItems = [
+    {label: 'Patterns', value: con.patternsConsolidated},
+    {label: 'Memory Cleaned', value: con.memoryCleaned},
+    {label: 'Duplicates Removed', value: con.duplicatesRemoved}
+  ];
+  for (var ci = 0; ci < conItems.length; ci++) {
+    var sd = createEl('div', 'stat');
+    sd.appendChild(createEl('div', 'value', conItems[ci].value));
+    sd.appendChild(createEl('div', 'label', conItems[ci].label));
+    conStats.appendChild(sd);
+  }
+
+  // Stage info
+  var stageStats = document.getElementById('stageStats');
+  var stageItems = [
+    {label: 'Stage', value: cs.extraction ? cs.extraction.stage : '—'},
+    {label: 'Phase', value: cs.extraction ? cs.extraction.phase : '—'},
+    {label: 'Next Session', value: inv.nextSession ? inv.nextSession.id : '—'},
+    {label: 'Next Topic', value: inv.nextSession ? inv.nextSession.topic : '—'}
+  ];
+  for (var si = 0; si < stageItems.length; si++) {
+    var stD = createEl('div', 'stat');
+    var valDiv = createEl('div', 'value', stageItems[si].value);
+    if (stageItems[si].value.length > 10) valDiv.style.fontSize = '14px';
+    stD.appendChild(valDiv);
+    stD.appendChild(createEl('div', 'label', stageItems[si].label));
+    stageStats.appendChild(stD);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject live metrics into dashboard
+        run: |
+          echo "Injecting metrics into docs/index.html..."
+
+          # Read JSON sources (default to empty object if missing)
+          CS=$(cat CURRENT_STATE.json 2>/dev/null || echo '{}')
+          INV=$(cat MASTER_INVENTORY.json 2>/dev/null || echo '{}')
+
+          # Daemon state — nested path
+          DM=$(cat .claude-flow/daemon-state.json 2>/dev/null || echo '{"running":false,"workers":{}}')
+
+          # Consolidation metrics
+          CON=$(cat .claude-flow/metrics/consolidation.json 2>/dev/null || echo '{"patternsConsolidated":0,"memoryCleaned":0,"duplicatesRemoved":0}')
+
+          # Trim inventory to dashboard-relevant fields
+          INV_SLIM=$(python3 -c "
+          import json, sys
+          try:
+              inv = json.load(open('MASTER_INVENTORY.json'))
+          except Exception:
+              inv = {}
+          slim = {
+              'sourceMonolith': inv.get('sourceMonolith', {}),
+              'extracted': inv.get('extracted', {}),
+              'sessionArchives': inv.get('sessionArchives', []),
+              'moduleTargets': inv.get('moduleTargets', {}),
+              'nextSession': inv.get('nextSession', {})
+          }
+          json.dump(slim, sys.stdout)
+          ")
+
+          # Trim daemon to workers only
+          DM_SLIM=$(python3 -c "
+          import json, sys
+          try:
+              dm = json.load(open('.claude-flow/daemon-state.json'))
+          except Exception:
+              dm = {}
+          slim = {
+              'running': dm.get('running', False),
+              'workers': dm.get('workers', {})
+          }
+          json.dump(slim, sys.stdout)
+          ")
+
+          # Use Python for safe injection (handles special chars in JSON)
+          python3 << 'PYEOF'
+          import re, json
+
+          with open('docs/index.html', 'r', encoding='utf-8') as f:
+              html = f.read()
+
+          def load_json(path, fallback):
+              try:
+                  with open(path) as jf:
+                      return json.dumps(json.load(jf))
+              except Exception:
+                  return json.dumps(fallback)
+
+          cs = load_json('CURRENT_STATE.json', {})
+
+          # Slim inventory
+          try:
+              inv_raw = json.load(open('MASTER_INVENTORY.json'))
+          except Exception:
+              inv_raw = {}
+          inv_slim = json.dumps({
+              'sourceMonolith': inv_raw.get('sourceMonolith', {}),
+              'extracted': inv_raw.get('extracted', {}),
+              'sessionArchives': inv_raw.get('sessionArchives', []),
+              'moduleTargets': inv_raw.get('moduleTargets', {}),
+              'nextSession': inv_raw.get('nextSession', {})
+          })
+
+          # Slim daemon
+          try:
+              dm_raw = json.load(open('.claude-flow/daemon-state.json'))
+          except Exception:
+              dm_raw = {}
+          dm_slim = json.dumps({
+              'running': dm_raw.get('running', False),
+              'workers': dm_raw.get('workers', {})
+          })
+
+          con = load_json('.claude-flow/metrics/consolidation.json',
+              {'patternsConsolidated': 0, 'memoryCleaned': 0, 'duplicatesRemoved': 0})
+
+          # Replace between sentinel comments
+          html = re.sub(
+              r'/\*__CURRENT_STATE__\*/.*?/\*__END_CURRENT_STATE__\*/',
+              '/*__CURRENT_STATE__*/ ' + cs + ' /*__END_CURRENT_STATE__*/',
+              html, flags=re.DOTALL)
+          html = re.sub(
+              r'/\*__INVENTORY__\*/.*?/\*__END_INVENTORY__\*/',
+              '/*__INVENTORY__*/ ' + inv_slim + ' /*__END_INVENTORY__*/',
+              html, flags=re.DOTALL)
+          html = re.sub(
+              r'/\*__DAEMON__\*/.*?/\*__END_DAEMON__\*/',
+              '/*__DAEMON__*/ ' + dm_slim + ' /*__END_DAEMON__*/',
+              html, flags=re.DOTALL)
+          html = re.sub(
+              r'/\*__CONSOLIDATION__\*/.*?/\*__END_CONSOLIDATION__\*/',
+              '/*__CONSOLIDATION__*/ ' + con + ' /*__END_CONSOLIDATION__*/',
+              html, flags=re.DOTALL)
+
+          with open('docs/index.html', 'w', encoding='utf-8') as f:
+              f.write(html)
+
+          print('Metrics injected successfully.')
+          PYEOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

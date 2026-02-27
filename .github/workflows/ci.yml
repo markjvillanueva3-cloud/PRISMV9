@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          find . -name '*.json' -not -path './node_modules/*' -not -path './.git/*' | while read f; do
+            if python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
+              echo "  OK: $f"
+            else
+              echo "  FAIL: $f"
+              exit 1
+            fi
+          done
+          echo "All JSON files valid."
+
+      - name: Lint shell scripts with shellcheck
+        run: |
+          if command -v shellcheck &>/dev/null; then
+            echo "shellcheck found"
+          else
+            sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          fi
+          shopt -s globstar nullglob
+          scripts=(.claude/helpers/*.sh SCRIPTS/*.sh)
+          if [ ${#scripts[@]} -eq 0 ]; then
+            echo "No shell scripts found, skipping."
+          else
+            shellcheck "${scripts[@]}" && echo "shellcheck passed."
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Lint Python (syntax check)
+        run: |
+          pip install flake8 --quiet
+          shopt -s globstar nullglob
+          pyfiles=(SCRIPTS/*.py)
+          if [ ${#pyfiles[@]} -eq 0 ]; then
+            echo "No Python files found, skipping."
+          else
+            flake8 --select=E9,F63,F7,F82 "${pyfiles[@]}" && echo "Python syntax OK."
+          fi
+
+      - name: Compile-check Python files
+        run: |
+          shopt -s globstar nullglob
+          pyfiles=(SCRIPTS/*.py)
+          if [ ${#pyfiles[@]} -eq 0 ]; then
+            echo "No Python files found, skipping."
+          else
+            for f in "${pyfiles[@]}"; do
+              python3 -m py_compile "$f" && echo "  OK: $f"
+            done
+          fi
+
+      - name: Run verify_features (if exists)
+        run: |
+          if [ -f "SCRIPTS/verify_features.py" ]; then
+            python3 SCRIPTS/verify_features.py
+          else
+            echo "verify_features.py not found, skipping."
+          fi

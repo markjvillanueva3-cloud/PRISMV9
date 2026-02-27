@@ -1,0 +1,9 @@
+{
+  "name": "prism-v9",
+  "version": "9.0.0",
+  "private": true,
+  "description": "PRISM Manufacturing Intelligence v9 — Monolith Decomposition",
+  "scripts": {
+    "build:dashboard": "node -e \"const fs=require('fs');const path=require('path');const html=fs.readFileSync('docs/index.html','utf8');const inject=(tag,file)=>{try{const d=fs.readFileSync(file,'utf8');return html.replace(new RegExp('/\\\\*__'+tag+'__\\\\*/.+?/\\\\*__END_'+tag+'__\\\\*/','s'),'/*__'+tag+'__*/ '+d+' /*__END_'+tag+'__*/');}catch{return html;}};let out=inject('CURRENT_STATE','CURRENT_STATE.json');out=inject('INVENTORY','MASTER_INVENTORY.json');out=inject('DAEMON','.claude-flow/daemon-state.json');out=inject('CONSOLIDATION','.claude-flow/metrics/consolidation.json');fs.writeFileSync('docs/index.html',out);console.log('Dashboard built.');\""
+  }
+}
