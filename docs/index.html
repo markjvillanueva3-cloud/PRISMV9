@@ -134,6 +134,15 @@
   }
   .session-list li:last-child { border-bottom: none; }
   .session-id { color: var(--accent); font-weight: 600; margin-right: 8px; }
+  .badges { display: flex; gap: 8px; align-items: center; }
+  .badges img { height: 20px; }
+  .build-ts { color: var(--text-muted); font-size: 11px; margin-left: 8px; }
+  .trend-bar { display: flex; align-items: flex-end; gap: 2px; height: 40px; }
+  .trend-col { width: 24px; border-radius: 2px 2px 0 0; background: var(--accent); min-height: 2px; }
+  .trend-label { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 2px; }
+  .extraction-log { font-size: 13px; }
+  .extraction-log .entry { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .extraction-log .entry:last-child { border-bottom: none; }
   footer {
     margin-top: 24px;
     padding-top: 16px;
@@ -147,7 +156,14 @@
 <body>
 
 <header>
-  <h1>PRISM <span>v9</span> Status Dashboard</h1>
+  <div>
+    <h1>PRISM <span>v9</span> Status Dashboard</h1>
+    <div class="badges">
+      <img alt="CI" src="https://github.com/markjvillanueva3-cloud/PRISMV9/actions/workflows/ci.yml/badge.svg">
+      <img alt="Deploy" src="https://github.com/markjvillanueva3-cloud/PRISMV9/actions/workflows/deploy.yml/badge.svg">
+      <span class="build-ts" id="buildTimestamp"></span>
+    </div>
+  </div>
   <div class="meta">
     <span id="lastUpdated"></span> |
     Source: v<span id="sourceVersion"></span> to v<span id="targetVersion"></span>
@@ -180,6 +196,10 @@
   <div class="card">
     <h2>Session Archives</h2>
     <ul class="session-list" id="sessionList"></ul>
+  </div>
+  <div class="card">
+    <h2>Completed Extractions</h2>
+    <div class="extraction-log" id="extractionLog"></div>
   </div>
   <div class="card">
     <h2>Consolidation Metrics</h2>
@@ -383,6 +403,33 @@ function createEl(tag, className, textContent) {
     sd.appendChild(createEl('div', 'value', conItems[ci].value));
     sd.appendChild(createEl('div', 'label', conItems[ci].label));
     conStats.appendChild(sd);
+  }
+
+  // Build timestamp (injected by CI)
+  var buildTs = document.getElementById('buildTimestamp');
+  var BUILD_TIME = /*__BUILD_TIME__*/ null /*__END_BUILD_TIME__*/;
+  if (BUILD_TIME) {
+    buildTs.textContent = 'Built: ' + new Date(BUILD_TIME).toLocaleString();
+  } else {
+    buildTs.textContent = 'Local build';
+  }
+
+  // Completed extractions log
+  var extractionLog = document.getElementById('extractionLog');
+  var completed = cs.completedExtractions || [];
+  if (completed.length === 0) {
+    extractionLog.appendChild(createEl('div', 'count', 'No extractions recorded yet.'));
+  } else {
+    for (var e = 0; e < completed.length; e++) {
+      var entry = createEl('div', 'entry');
+      entry.appendChild(createEl('span', null, completed[e].category));
+      var meta = createEl('span', 'count',
+        completed[e].files + ' files, ' +
+        (completed[e].totalLines || 0).toLocaleString() + ' lines — ' +
+        completed[e].date);
+      entry.appendChild(meta);
+      extractionLog.appendChild(entry);
+    }
   }
 
   // Stage info

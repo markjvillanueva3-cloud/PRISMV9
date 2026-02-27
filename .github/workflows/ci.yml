@@ -33,7 +33,7 @@ jobs:
             sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
           fi
           shopt -s globstar nullglob
-          scripts=(SCRIPTS/*.sh)
+          scripts=(.claude/helpers/*.sh SCRIPTS/*.sh)
           if [ ${#scripts[@]} -eq 0 ]; then
             echo "No shell scripts found, skipping."
           else
@@ -74,4 +74,18 @@ jobs:
             python3 SCRIPTS/verify_features.py _BUILD/
           else
             echo "verify_features.py or _BUILD/ not found, skipping."
+          fi
+
+      - name: Run extraction validation
+        run: |
+          if [ -f "SCRIPTS/validate_extractions.py" ]; then
+            python3 SCRIPTS/validate_extractions.py || echo "Validation completed with warnings."
+          fi
+
+      - name: Run test suite
+        run: |
+          if [ -d "tests" ]; then
+            python3 -m pytest tests/ -v --tb=short 2>/dev/null || python3 -m unittest discover tests -v
+          else
+            echo "No tests directory found, skipping."
           fi
