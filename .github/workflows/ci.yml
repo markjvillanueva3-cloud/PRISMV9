@@ -70,8 +70,8 @@ jobs:
 
       - name: Run verify_features (if exists)
         run: |
-          if [ -f "SCRIPTS/verify_features.py" ]; then
-            python3 SCRIPTS/verify_features.py
+          if [ -f "SCRIPTS/verify_features.py" ] && [ -d "_BUILD" ]; then
+            python3 SCRIPTS/verify_features.py _BUILD/
           else
-            echo "verify_features.py not found, skipping."
+            echo "verify_features.py or _BUILD/ not found, skipping."
           fi
