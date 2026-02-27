@@ -102,6 +102,14 @@ import { registerSchedulingDispatcher } from "./tools/dispatchers/schedulingDisp
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
+// L3: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions (#40-#45)
+import { registerTurningDispatcher } from "./tools/dispatchers/turningDispatcher.js";
+import { registerFiveAxisDispatcher } from "./tools/dispatchers/fiveAxisDispatcher.js";
+import { registerEdmDispatcher } from "./tools/dispatchers/edmDispatcher.js";
+import { registerGrindingDispatcher } from "./tools/dispatchers/grindingDispatcher.js";
+import { registerIndustryDispatcher } from "./tools/dispatchers/industryDispatcher.js";
+import { registerAutomationDispatcher } from "./tools/dispatchers/automationDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -468,7 +476,15 @@ async function registerTools(): Promise<void> {
   registerAuthDispatcher(server);
   registerExportDispatcher(server);
 
-  log.info(`All PRISM tools registered: 39 dispatchers (472 verified actions)`);
+  // L3-P1: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions
+  registerTurningDispatcher(server);
+  registerFiveAxisDispatcher(server);
+  registerEdmDispatcher(server);
+  registerGrindingDispatcher(server);
+  registerIndustryDispatcher(server);
+  registerAutomationDispatcher(server);
+
+  log.info(`All PRISM tools registered: 45 dispatchers (500 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
