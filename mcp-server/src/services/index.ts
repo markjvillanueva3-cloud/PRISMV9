@@ -3,4 +3,4 @@
  * Re-exports all service modules
  */
 
-export * from "./dataLoader.js";
+// dataLoader.ts is superseded by registries — no longer exported

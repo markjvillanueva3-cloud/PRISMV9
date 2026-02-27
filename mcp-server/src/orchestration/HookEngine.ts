@@ -494,6 +494,30 @@ class HookEngine {
       }
     }
 
+    // BLOCKING: INTEL-PROOF-ENFORCE-001 — Block if proof_status is explicitly "failed"
+    if (hook.id === "INTEL-PROOF-ENFORCE-001") {
+      const { proof_status, confidence } = context.data;
+      if (proof_status === "failed" || (confidence !== undefined && confidence < 0.30)) {
+        return { status: "blocked", hookId: hook.id, message: `BLOCK: Proof enforcement failed (status=${proof_status}, confidence=${confidence})`, blockReason: "proof_failed" };
+      }
+    }
+
+    // BLOCKING: DIAG-CRITICAL-BLOCK-001 — Block on critical diagnostic failure
+    if (hook.id === "DIAG-CRITICAL-BLOCK-001") {
+      const { severity, error_count, is_critical } = context.data;
+      if (is_critical || severity === "CRITICAL" || (error_count !== undefined && error_count > 10)) {
+        return { status: "blocked", hookId: hook.id, message: `BLOCK: Critical diagnostic failure (severity=${severity}, errors=${error_count})`, blockReason: "critical_failure" };
+      }
+    }
+
+    // BLOCKING: REFL-ERROR-ESCALATE-001 — Block on repeated errors exceeding threshold
+    if (hook.id === "REFL-ERROR-ESCALATE-001") {
+      const { repeat_count, error_type } = context.data;
+      if (repeat_count !== undefined && repeat_count >= 3) {
+        return { status: "blocked", hookId: hook.id, message: `BLOCK: Error "${error_type}" repeated ${repeat_count} times — escalation required`, blockReason: "repeated_error" };
+      }
+    }
+
     return { status: "success", hookId: hook.id, message: `Hook ${hook.id} executed`, data: { trigger: hook.trigger, priority: hook.priority } };
   }
 

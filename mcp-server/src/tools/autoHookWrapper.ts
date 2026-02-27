@@ -798,6 +798,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               cadence.actions.push("\u26A0\uFE0F RECOVERY_TRIGGERED: Fresh survival data found on server start \u2014 likely post-compaction");
             }
           }
+          // Mark handoff as consumed so it doesn't re-inject on next boot
+          try { markHandoffResumed(); } catch {}
         } catch {
         }
         // Load superpowers on session boot
@@ -1384,7 +1386,10 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     } catch {}
     // Dispatcher byte tracking — every call
     try {
-      autoDispatcherByteTrack(callNum, toolName, resultBytes);
+      const byteResult = autoDispatcherByteTrack(callNum, toolName, resultBytes);
+      if (byteResult.heavy_dispatchers?.length) {
+        cadence.actions.push(`⚖️ HEAVY_DISPATCHERS: ${byteResult.heavy_dispatchers.join(", ")}`);
+      }
     } catch {}
     // Index staleness detection — flag when Write/Edit touches a tracked MCP source file
     try {
@@ -2362,6 +2367,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const jlp = autoJobLearningPersist(callNum);
         if (jlp.persisted) cadence.actions.push("📚 JOB_LEARNING_PERSISTED");
+      } catch {}
+      // Finalize trajectory on session end — closes orphaned trajectory records
+      try {
+        autoTrajectoryFinalize("partial");
+        cadence.actions.push("TRAJECTORY_FINALIZED");
       } catch {}
     }
     // State reconstruct — after compaction detected (one-time)

@@ -5,6 +5,7 @@ import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/r
 import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import { computationCache } from "../../engines/ComputationCache.js";
+import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 
 // Import original handlers
 import {
@@ -1337,7 +1338,20 @@ export function registerCalcDispatcher(server: any): void {
         } catch (postErr) {
           log.warn(`[prism_calc] Post-calculation hook error (non-blocking): ${postErr}`);
         }
-        
+
+        // Cross-field physics validation — catches physically impossible results
+        // Only applies to actions that produce SafetyCalcResult-shaped output
+        const _physicsActions = new Set(["cutting_force", "tool_life", "speed_feed", "optimize"]);
+        if (_physicsActions.has(action) && result && !result.error && result.Vc !== undefined) {
+          try {
+            const material = params.material_id || params.material || params.material_group || "unknown";
+            validateCrossFieldPhysics({ ...result, material, operation: action });
+          } catch (physicsErr: any) {
+            if (physicsErr?.name === "SafetyBlockError") throw physicsErr;
+            log.warn(`[prism_calc] Cross-field physics check error: ${physicsErr}`);
+          }
+        }
+
         // R2-MS1 T5: Apply response_level formatting if requested
         const responseLevel = (params.response_level as ResponseLevel) || undefined;
         if (responseLevel) {
