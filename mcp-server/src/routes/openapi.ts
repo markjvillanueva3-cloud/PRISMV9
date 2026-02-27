@@ -722,6 +722,165 @@ function getOpenApiSpec() {
       },
       "/dev/test/results": {
         get: { summary: "Get test results", tags: ["Dev"], responses: stdResponse() }
+      },
+      "/sp/brainstorm": {
+        post: { summary: "Brainstorm solutions", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/plan": {
+        post: { summary: "Create execution plan", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/execute": {
+        post: { summary: "Execute plan step", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/review/spec": {
+        post: { summary: "Review specification", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/review/quality": {
+        post: { summary: "Review quality", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/debug": {
+        post: { summary: "Debug issue", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/cognitive/init": {
+        post: { summary: "Initialize cognitive model", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/cognitive/check": {
+        post: { summary: "Cognitive consistency check", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/cognitive/bayes": {
+        post: { summary: "Bayesian reasoning", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/cognitive/rl": {
+        post: { summary: "Reinforcement learning step", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/combination/ilp": {
+        post: { summary: "ILP combination solver", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/context/kv-optimize": {
+        post: { summary: "KV context optimization", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/context/attention-anchor": {
+        post: { summary: "Attention anchoring", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/context/error-preserve": {
+        post: { summary: "Preserve error context", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/session/start": {
+        post: { summary: "Start SP session", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/session/end": {
+        post: { summary: "End SP session", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/evidence-level": {
+        post: { summary: "Evaluate evidence level", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/validate/gates": {
+        post: { summary: "Validate quality gates", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/sp/validate/mathplan": {
+        post: { summary: "Validate math plan", tags: ["SP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/list": {
+        get: { summary: "List skills", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/skill/get": {
+        post: { summary: "Get skill details", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/search": {
+        post: { summary: "Search skills", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/find": {
+        post: { summary: "Find skill for task", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/content": {
+        post: { summary: "Get skill content", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/stats": {
+        get: { summary: "Skill statistics", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/skill/load": {
+        post: { summary: "Load skill", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/recommend": {
+        post: { summary: "Recommend skills", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/analyze": {
+        post: { summary: "Analyze skill usage", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/chain": {
+        post: { summary: "Chain skills", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/search-v2": {
+        post: { summary: "Search skills v2", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/skill/stats-v2": {
+        get: { summary: "Skill statistics v2", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/script/list": {
+        get: { summary: "List scripts", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/script/get": {
+        post: { summary: "Get script details", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/search": {
+        post: { summary: "Search scripts", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/command": {
+        post: { summary: "Get script command", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/execute": {
+        post: { summary: "Execute script", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/stats": {
+        get: { summary: "Script statistics", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/script/execute-v2": {
+        post: { summary: "Execute script v2", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/queue": {
+        post: { summary: "Queue script execution", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/recommend": {
+        post: { summary: "Recommend scripts", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/search-v2": {
+        post: { summary: "Search scripts v2", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/script/history": {
+        get: { summary: "Script execution history", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/bundle/list": {
+        get: { summary: "List bundles", tags: ["SkillScript"], responses: stdResponse() }
+      },
+      "/skill-script/bundle/get": {
+        post: { summary: "Get bundle", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/bundle/for-action": {
+        post: { summary: "Bundle for action", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/skill-script/bundle/for-domain": {
+        post: { summary: "Bundle for domain", tags: ["SkillScript"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/doc/list": {
+        get: { summary: "List documents", tags: ["Doc"], responses: stdResponse() }
+      },
+      "/doc/read": {
+        post: { summary: "Read document", tags: ["Doc"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/doc/write": {
+        post: { summary: "Write document", tags: ["Doc"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/doc/append": {
+        post: { summary: "Append to document", tags: ["Doc"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/doc/roadmap-status": {
+        get: { summary: "Roadmap status", tags: ["Doc"], responses: stdResponse() }
+      },
+      "/doc/action-tracker": {
+        get: { summary: "Action tracker", tags: ["Doc"], responses: stdResponse() }
+      },
+      "/doc/migrate": {
+        post: { summary: "Migrate documents", tags: ["Doc"], requestBody: jsonBody([]), responses: stdResponse() }
       }
     },
     tags: [
@@ -749,7 +908,10 @@ function getOpenApiSpec() {
       { name: "Validate", description: "Material & formula validation" },
       { name: "Omega", description: "Omega quality scoring" },
       { name: "Ralph", description: "RALPH quality assessment" },
-      { name: "Dev", description: "Developer tools & testing" }
+      { name: "Dev", description: "Developer tools & testing" },
+      { name: "SP", description: "SPARC Protocol workflow & cognitive" },
+      { name: "SkillScript", description: "Skill & script registry" },
+      { name: "Doc", description: "Document management" }
     ]
   };
 }
