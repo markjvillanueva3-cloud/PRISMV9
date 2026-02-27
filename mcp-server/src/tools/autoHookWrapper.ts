@@ -54,7 +54,10 @@ import {
   autoLearningQuery, autoTelemetryAnomalyCheck, autoBudgetReport, autoAttentionAnchor,
   autoCognitiveUpdate, autoSessionHandoffGenerate, autoTelemetrySloCheck,
   autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity,
-  autoParallelDispatch, autoATCSParallelUpgrade
+  autoParallelDispatch, autoATCSParallelUpgrade,
+  autoPriorityScore, autoSkillPreload, autoKvStabilityPeriodic,
+  autoContextPressureRecommend, autoMemoryGraphEvict, autoCompactionTrend,
+  autoDispatcherByteTrack
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { compactJsonValues, getDslLegend } from "../config/dslAbbreviations.js";
@@ -658,11 +661,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
         } catch {
         }
-        // Session lifecycle start + memory graph integrity — one-time at boot
+        // Session lifecycle start + memory graph integrity + skill preload — one-time at boot
         try { autoSessionLifecycleStart(callNum); cadence.actions.push("SESSION_LIFECYCLE_STARTED"); } catch {}
         try {
           const gResult = autoMemoryGraphIntegrity(callNum);
           if (gResult.violations > 0) cadence.actions.push(`GRAPH_INTEGRITY: ${gResult.violations} violations, ${gResult.fixed} fixed`);
+        } catch {}
+        try {
+          const sp = autoSkillPreload(callNum);
+          if (sp.preloaded) cadence.actions.push(`SKILLS_PRELOADED: ${sp.skills_count} dynamic skills`);
         } catch {}
         // Budget engine reset for new session
         try {
@@ -1199,6 +1206,10 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       }
       cadence.budget = budgetResult;
     } catch {}
+    // Dispatcher byte tracking — every call
+    try {
+      autoDispatcherByteTrack(callNum, toolName, resultBytes);
+    } catch {}
     let classifiedDomain;
     const mfgDispatchers = ["prism_calc", "prism_safety", "prism_thread", "prism_toolpath", "prism_data", "prism_orchestrate", "prism_atcs"];
     if (!error && mfgDispatchers.includes(toolName)) {
@@ -1383,6 +1394,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         if (cog.omega > 0) cadence.actions.push(`\u{1F9E0} COGNITIVE: \u03A9=${cog.omega}`);
         cadence.cognitive = cog;
       } catch {}
+      // KV cache stability — every 10 calls
+      try {
+        const kvStab = autoKvStabilityPeriodic(callNum);
+        if (kvStab.success && kvStab.checked && kvStab.stable === false) {
+          cadence.actions.push(`\u26A0\uFE0F KV_STABILITY: unstable`);
+          cadence.kv_stability = kvStab;
+        }
+      } catch {}
     }
     if (callNum - lastPressureCheck >= 8) {
       lastPressureCheck = callNum;
@@ -1523,6 +1542,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Priority scoring — pressure >= 70%
+      try {
+        const priScore = autoPriorityScore(callNum, cadence.pressure.pressure_pct);
+        if (priScore.success && priScore.scored && priScore.segments) {
+          cadence.actions.push(`\u{1F3AF} PRIORITY_SCORE: ${priScore.segments} segments scored at ${cadence.pressure.pressure_pct}%`);
+          cadence.priority_score = priScore;
+        }
+      } catch {}
     }
     if (cadence.pressure?.pressure_pct < 40 && cadence.pressure?.pressure_pct > 0) {
       try {
@@ -1754,6 +1781,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       } catch {
       }
     }
+    // Memory graph eviction — every 20 calls (prune expired nodes)
+    if (callNum > 0 && callNum % 20 === 0) {
+      try {
+        const evictResult = autoMemoryGraphEvict(callNum);
+        if (evictResult.success && evictResult.evicted > 0) {
+          cadence.actions.push(`\u{1F5D1}\uFE0F GRAPH_EVICT: ${evictResult.evicted} expired nodes pruned`);
+          cadence.graph_evict = evictResult;
+        }
+      } catch {}
+    }
     if (callNum > 0 && callNum % 25 === 0) {
       try {
         // @ts-ignore — synergyIntegration may not exist yet
@@ -1774,6 +1811,17 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Compaction trend analysis — every 10 calls at pressure >= 50%
+      try {
+        const pPctTrend = cadence.pressure?.pressure_pct || getCurrentPressurePct();
+        if (pPctTrend >= 50) {
+          const trend = autoCompactionTrend(callNum, pPctTrend);
+          if (trend.success && trend.escalating) {
+            cadence.actions.push(`\u{1F4C8} COMPACTION_TREND: escalating — ${trend.trend || "rising"}`);
+            cadence.compaction_trend = trend;
+          }
+        }
+      } catch {}
     }
     try {
       const ctxMatch = autoSkillContextMatch(callNum, toolName, action2, args[0]?.params || {});
@@ -1804,6 +1852,17 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Context pressure recommendations — every 8 calls at pressure >= 50%
+      try {
+        const pPctNow = cadence.pressure?.pressure_pct || getCurrentPressurePct();
+        if (pPctNow >= 50) {
+          const cpRec = autoContextPressureRecommend(callNum, pPctNow);
+          if (cpRec.success && cpRec.recommendation) {
+            cadence.actions.push(`\u{1F4CA} PRESSURE_REC: ${cpRec.recommendation}`);
+            cadence.pressure_recommendations = cpRec;
+          }
+        }
+      } catch {}
     }
     if (callNum > 0 && callNum % 25 === 0) {
       try {

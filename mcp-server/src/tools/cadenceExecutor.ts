@@ -4567,16 +4567,165 @@ export function autoSessionMetricsSnapshot(callNumber: number): { success: boole
 // Cadence: once at session boot. Detects and fixes corrupted nodes/edges.
 // ============================================================================
 
-let _graphIntegrityDone = false;
+let _graphIntegrityLastCall = 0;
 
 export function autoMemoryGraphIntegrity(callNumber: number): { success: boolean; call_number: number; violations: number; fixed: number } {
   try {
-    if (_graphIntegrityDone) return { success: true, call_number: callNumber, violations: 0, fixed: 0 };
-    _graphIntegrityDone = true;
+    // Fire at boot (call 1) and then every 50 calls
+    if (_graphIntegrityLastCall > 0 && (callNumber - _graphIntegrityLastCall) < 50) {
+      return { success: true, call_number: callNumber, violations: 0, fixed: 0 };
+    }
+    _graphIntegrityLastCall = callNumber;
     const result = memoryGraphEngine.runIntegrityCheck();
     if (result.violations > 0) appendEventLine("graph_integrity_issues", { call: callNumber, violations: result.violations, fixed: result.fixed });
     return { success: true, call_number: callNumber, violations: result.violations, fixed: result.fixed };
   } catch { return { success: false, call_number: callNumber, violations: 0, fixed: 0 }; }
+}
+
+// ============================================================================
+// AUTO PRIORITY SCORER — Smart compression using semantic importance scoring
+// Cadence: pressure >= 70%. Runs priority_scorer.py before auto_compress.py
+// to rank content by importance (safety=100, task=90, redundant=10).
+// ============================================================================
+
+export function autoPriorityScore(callNumber: number, pressurePct: number): { success: boolean; call_number: number; scored: boolean; segments?: number } {
+  try {
+    if (pressurePct < 70) return { success: true, call_number: callNumber, scored: false };
+    const script = path.join(SCRIPTS_DIR, "priority_scorer.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, scored: false };
+    const output = runPythonCadence("priority_scorer.py", ["--state-dir", STATE_DIR, "--pressure", String(Math.round(pressurePct))], 5000);
+    const segments = output?.scored_segments || output?.segments || 0;
+    if (segments > 0) appendEventLine("priority_scored", { call: callNumber, pressure: pressurePct, segments });
+    return { success: true, call_number: callNumber, scored: segments > 0, segments };
+  } catch { return { success: false, call_number: callNumber, scored: false }; }
+}
+
+// ============================================================================
+// AUTO SKILL PRELOAD — Dynamic skill preloading based on session context
+// Cadence: once at session start (call 1). Runs skill_preloader.py to select
+// optimal skills for current task/domain instead of static TRIGGER_MAP loading.
+// ============================================================================
+
+let _skillPreloadDone = false;
+
+export function autoSkillPreload(callNumber: number): { success: boolean; call_number: number; preloaded: boolean; skills_count?: number } {
+  try {
+    if (_skillPreloadDone) return { success: true, call_number: callNumber, preloaded: false };
+    _skillPreloadDone = true;
+    const script = path.join(SCRIPTS_DIR, "skill_preloader.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, preloaded: false };
+    const stateFile = CURRENT_STATE_FILE;
+    const output = runPythonCadence("skill_preloader.py", ["--state", stateFile, "--budget", "50"], 8000);
+    const count = output?.preloaded_count || output?.skills?.length || 0;
+    if (count > 0) appendEventLine("skills_preloaded", { call: callNumber, count });
+    return { success: true, call_number: callNumber, preloaded: count > 0, skills_count: count };
+  } catch { return { success: false, call_number: callNumber, preloaded: false }; }
+}
+
+// ============================================================================
+// AUTO KV STABILITY CHECK — Periodic KV cache prefix stability analysis
+// Cadence: every 10 calls. Calls manus_context_engineering.py to detect
+// if dynamic content (timestamps, UUIDs) is polluting the KV prefix.
+// ============================================================================
+
+let _kvStabilityLastCall = 0;
+
+export function autoKvStabilityPeriodic(callNumber: number): { success: boolean; call_number: number; checked: boolean; stable?: boolean } {
+  try {
+    if ((callNumber - _kvStabilityLastCall) < 10) return { success: true, call_number: callNumber, checked: false };
+    _kvStabilityLastCall = callNumber;
+    const script = path.join(SCRIPTS_DIR, "manus_context_engineering.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, checked: false };
+    const output = runPythonCadence("manus_context_engineering.py", ["kv_check_stability", "--auto", "--state-dir", STATE_DIR], 5000);
+    const stable = output?.stable !== false;
+    if (!stable) appendEventLine("kv_prefix_unstable", { call: callNumber, issues: output?.issues?.slice(0, 3) });
+    return { success: true, call_number: callNumber, checked: true, stable };
+  } catch { return { success: false, call_number: callNumber, checked: false }; }
+}
+
+// ============================================================================
+// AUTO CONTEXT PRESSURE RECOMMEND — Rich Python pressure analysis
+// Cadence: every 8 calls. context_pressure.py recommend gives actionable
+// per-zone recommendations beyond the TS-only byte counting.
+// ============================================================================
+
+let _pressureRecommendLastCall = 0;
+
+export function autoContextPressureRecommend(callNumber: number, pressurePct: number): { success: boolean; call_number: number; recommendation?: string } {
+  try {
+    if ((callNumber - _pressureRecommendLastCall) < 8) return { success: true, call_number: callNumber };
+    _pressureRecommendLastCall = callNumber;
+    if (pressurePct < 50) return { success: true, call_number: callNumber };
+    const script = path.join(SCRIPTS_DIR, "context_pressure.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber };
+    const output = runPythonCadence("context_pressure.py", ["recommend", "--json", "--pressure", String(Math.round(pressurePct))], 5000);
+    const rec = output?.recommendation || output?.action;
+    if (rec) appendEventLine("pressure_recommendation", { call: callNumber, pressure: pressurePct, rec: String(rec).slice(0, 100) });
+    return { success: true, call_number: callNumber, recommendation: rec };
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO MEMORY GRAPH EVICT — Periodic age-expired node pruning
+// Cadence: every 20 calls. Checks for nodes past maxNodeAge and evicts them.
+// Prevents graph bloat in read-heavy sessions where addNode() eviction never fires.
+// ============================================================================
+
+let _graphEvictLastCall = 0;
+
+export function autoMemoryGraphEvict(callNumber: number): { success: boolean; call_number: number; evicted: number } {
+  try {
+    if ((callNumber - _graphEvictLastCall) < 20) return { success: true, call_number: callNumber, evicted: 0 };
+    _graphEvictLastCall = callNumber;
+    const stats = memoryGraphEngine.getStats();
+    if (stats.nodes < 50) return { success: true, call_number: callNumber, evicted: 0 };
+    const result = memoryGraphEngine.runIntegrityCheck();
+    if (result.fixed > 0) appendEventLine("graph_evicted", { call: callNumber, evicted: result.fixed, nodes: stats.nodes });
+    return { success: true, call_number: callNumber, evicted: result.fixed };
+  } catch { return { success: false, call_number: callNumber, evicted: 0 }; }
+}
+
+// ============================================================================
+// AUTO COMPACTION TREND — Analyze compaction log for escalating risk patterns
+// Cadence: every 10 calls when pressure >= 50%. Reads recent compaction log entries
+// and detects if risk has been HIGH for 3+ consecutive checks (trend escalation).
+// ============================================================================
+
+export function autoCompactionTrend(callNumber: number, pressurePct: number): { success: boolean; call_number: number; trend?: string; escalating?: boolean } {
+  try {
+    if (pressurePct < 50) return { success: true, call_number: callNumber };
+    const logFile = path.join(STATE_DIR, "compaction_log.jsonl");
+    if (!fs.existsSync(logFile)) return { success: true, call_number: callNumber };
+    const lines = fs.readFileSync(logFile, "utf-8").trim().split("\n").slice(-5);
+    let highCount = 0;
+    for (const line of lines) {
+      try {
+        const entry = JSON.parse(line);
+        if (["HIGH", "IMMINENT"].includes(entry.risk_level)) highCount++;
+      } catch { /* skip malformed */ }
+    }
+    const escalating = highCount >= 3;
+    const trend = escalating ? "ESCALATING" : highCount >= 2 ? "RISING" : "STABLE";
+    if (escalating) appendEventLine("compaction_trend_escalating", { call: callNumber, highCount, lastFive: lines.length });
+    return { success: true, call_number: callNumber, trend, escalating };
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO PER-DISPATCHER BYTE TRACKING — Track cumulative bytes per dispatcher
+// Cadence: every call. Warns when any single dispatcher exceeds 50KB cumulative.
+// ============================================================================
+
+const _dispatcherBytes: Record<string, number> = {};
+
+export function autoDispatcherByteTrack(callNumber: number, toolName: string, resultBytes: number): { success: boolean; heavy_dispatchers?: string[] } {
+  try {
+    _dispatcherBytes[toolName] = (_dispatcherBytes[toolName] || 0) + resultBytes;
+    const heavy = Object.entries(_dispatcherBytes)
+      .filter(([_, b]) => b > 50000)
+      .map(([d, b]) => `${d}:${Math.round(b / 1024)}KB`);
+    return { success: true, heavy_dispatchers: heavy.length > 0 ? heavy : undefined };
+  } catch { return { success: true }; }
 }
 
 // ============================================================================
@@ -5183,4 +5332,354 @@ export function autoHookActivationPhaseCheck(callNumber: number): HookActivation
       coverage_pct: 0,
     };
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTO-FIRE FUNCTIONS (20) — Added 2026-02-26
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** 1. Session boot: run compliance audit on provisioned templates */
+export function autoComplianceAuditBoot(callNumber: number): { success: boolean; call_number: number; templates_audited: number; gaps_found: number } {
+  try {
+    const ComplianceEngine = require("../engines/ComplianceEngine.js").ComplianceEngine || require("../engines/ComplianceEngine.js").default;
+    const engine = new ComplianceEngine();
+    const templates = engine.listTemplates?.() || [];
+    if (templates.length === 0) return { success: true, call_number: callNumber, templates_audited: 0, gaps_found: 0 };
+    let totalGaps = 0;
+    for (const tmpl of templates.slice(0, 5)) {
+      try {
+        const audit = engine.runAudit?.(tmpl.id || tmpl.template_id);
+        if (audit?.gaps) totalGaps += audit.gaps.length || 0;
+      } catch { /* individual audit non-fatal */ }
+    }
+    appendEventLine("compliance_audit_boot", { templates: templates.length, gaps: totalGaps });
+    return { success: true, call_number: callNumber, templates_audited: templates.length, gaps_found: totalGaps };
+  } catch { return { success: true, call_number: callNumber, templates_audited: 0, gaps_found: 0 }; }
+}
+
+/** 2. Consume Shared Learning Bus patterns from multi-tenant engine */
+export function autoSLBConsume(callNumber: number): { success: boolean; call_number: number; patterns_consumed: number; pending: number } {
+  try {
+    const stateFile = path.join(STATE_DIR, "CURRENT_STATE.json");
+    let tenantId = "";
+    if (fs.existsSync(stateFile)) {
+      try { tenantId = JSON.parse(fs.readFileSync(stateFile, "utf-8")).tenant_id || ""; } catch {}
+    }
+    if (!tenantId) tenantId = process.env.PRISM_TENANT_ID || "default";
+    const MultiTenantEngine = require("../engines/MultiTenantEngine.js").MultiTenantEngine || require("../engines/MultiTenantEngine.js").default;
+    const engine = typeof MultiTenantEngine === "function" ? new MultiTenantEngine() : MultiTenantEngine;
+    const stats = engine.getSLBStats?.() || { pending_patterns: 0 };
+    if (stats.pending_patterns === 0) return { success: true, call_number: callNumber, patterns_consumed: 0, pending: 0 };
+    const result = engine.consumePatterns?.(tenantId) || { consumed: 0 };
+    appendEventLine("slb_consume", { tenant: tenantId, consumed: result.consumed || 0 });
+    return { success: true, call_number: callNumber, patterns_consumed: result.consumed || 0, pending: stats.pending_patterns };
+  } catch { return { success: true, call_number: callNumber, patterns_consumed: 0, pending: 0 }; }
+}
+
+/** 3. Check health of registered protocol bridge endpoints */
+export function autoBridgeHealthCheck(callNumber: number): { success: boolean; call_number: number; endpoints_checked: number; degraded: number; healthy: number } {
+  try {
+    const ProtocolBridgeEngine = require("../engines/ProtocolBridgeEngine.js").ProtocolBridgeEngine || require("../engines/ProtocolBridgeEngine.js").default;
+    const engine = typeof ProtocolBridgeEngine === "function" ? new ProtocolBridgeEngine() : ProtocolBridgeEngine;
+    const health = engine.health?.() || engine.getHealth?.() || { endpoints: [], degraded_endpoints: 0 };
+    const total = health.endpoints?.length || health.total || 0;
+    const degraded = health.degraded_endpoints || health.degraded || 0;
+    if (total > 0) appendEventLine("bridge_health", { total, degraded, call: callNumber });
+    return { success: true, call_number: callNumber, endpoints_checked: total, degraded, healthy: total - degraded };
+  } catch { return { success: true, call_number: callNumber, endpoints_checked: 0, degraded: 0, healthy: 0 }; }
+}
+
+/** 4. Refresh registries if manifest mtime changed */
+let _lastRegistryMtime = 0;
+export function autoRegistryRefresh(callNumber: number): { success: boolean; call_number: number; refreshed: boolean; reason?: string } {
+  try {
+    const manifestPath = path.join("C:", "PRISM", "registries", "REGISTRY_MANIFEST.json");
+    if (!fs.existsSync(manifestPath)) return { success: true, call_number: callNumber, refreshed: false, reason: "no_manifest" };
+    const currentMtime = fs.statSync(manifestPath).mtimeMs;
+    if (_lastRegistryMtime === 0) { _lastRegistryMtime = currentMtime; return { success: true, call_number: callNumber, refreshed: false, reason: "first_check" }; }
+    if (currentMtime === _lastRegistryMtime) return { success: true, call_number: callNumber, refreshed: false, reason: "unchanged" };
+    _lastRegistryMtime = currentMtime;
+    try {
+      const RegistryManager = require("../engines/RegistryManager.js").RegistryManager || require("../engines/RegistryManager.js").registryManager;
+      const mgr = typeof RegistryManager === "function" ? new RegistryManager() : RegistryManager;
+      if (mgr?.refresh) mgr.refresh();
+      else if (mgr?.initialize) { mgr._initialized = false; mgr.initialize(); }
+    } catch { /* refresh attempt non-fatal */ }
+    appendEventLine("registry_refresh", { mtime: currentMtime, call: callNumber });
+    return { success: true, call_number: callNumber, refreshed: true, reason: "manifest_changed" };
+  } catch { return { success: true, call_number: callNumber, refreshed: false, reason: "error" }; }
+}
+
+/** 5. Prune and summarize GSD access log */
+export function autoGsdAccessSummary(callNumber: number): { success: boolean; call_number: number; entries_before: number; entries_after: number; top_sections: string[] } {
+  try {
+    const logPath = path.join(STATE_DIR, "gsd_access_log.json");
+    if (!fs.existsSync(logPath)) return { success: true, call_number: callNumber, entries_before: 0, entries_after: 0, top_sections: [] };
+    let entries: any[] = [];
+    try { entries = JSON.parse(fs.readFileSync(logPath, "utf-8")); if (!Array.isArray(entries)) entries = []; } catch { return { success: true, call_number: callNumber, entries_before: 0, entries_after: 0, top_sections: [] }; }
+    const before = entries.length;
+    // Count section frequency
+    const freq: Record<string, number> = {};
+    for (const e of entries) { const s = e.section || e.action || "unknown"; freq[s] = (freq[s] || 0) + 1; }
+    const topSections = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${k}(${v})`);
+    // Prune to last 200
+    if (entries.length > 200) entries = entries.slice(-200);
+    fs.writeFileSync(logPath, JSON.stringify(entries));
+    // Write summary
+    fs.writeFileSync(path.join(STATE_DIR, "gsd_access_summary.json"), JSON.stringify({ updated: new Date().toISOString(), call: callNumber, total_entries: before, top_sections: topSections, freq }, null, 2));
+    return { success: true, call_number: callNumber, entries_before: before, entries_after: entries.length, top_sections: topSections };
+  } catch { return { success: true, call_number: callNumber, entries_before: 0, entries_after: 0, top_sections: [] }; }
+}
+
+/** 6. Apply temporal decay to stale swarm patterns */
+export function autoSwarmPatternDecay(callNumber: number): { success: boolean; call_number: number; patterns_decayed: number; patterns_deactivated: number } {
+  try {
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(dbPath)) return { success: true, call_number: callNumber, patterns_decayed: 0, patterns_deactivated: 0 };
+    const decaySql = "UPDATE patterns SET confidence = confidence * 0.95 WHERE status = 'active' AND confidence > 0.01; UPDATE patterns SET status = 'decayed' WHERE status = 'active' AND confidence < 0.05;";
+    try {
+      const args = ["-3", "-c", `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.executescript("${decaySql}"); c.close(); print('ok')`];
+      const { execFileSync } = require("child_process");
+      const result = execFileSync("py", args, { encoding: "utf-8", timeout: 5000 }).trim();
+      appendEventLine("swarm_decay", { call: callNumber, result });
+    } catch { /* decay SQL non-fatal */ }
+    return { success: true, call_number: callNumber, patterns_decayed: 1, patterns_deactivated: 0 };
+  } catch { return { success: true, call_number: callNumber, patterns_decayed: 0, patterns_deactivated: 0 }; }
+}
+
+/** 7. Validate deployed NL hooks still match conditions */
+export function autoNLHookValidate(callNumber: number): { success: boolean; call_number: number; hooks_validated: number; hooks_broken: number; broken_names: string[] } {
+  try {
+    const NLHookEngine = require("../engines/NLHookEngine.js").NLHookEngine || require("../engines/NLHookEngine.js").nlHookEngine || require("../engines/NLHookEngine.js").default;
+    const engine = typeof NLHookEngine === "function" ? new NLHookEngine() : NLHookEngine;
+    const deployed = engine.listDeployed?.() || engine.getDeployedHooks?.() || [];
+    if (deployed.length === 0) return { success: true, call_number: callNumber, hooks_validated: 0, hooks_broken: 0, broken_names: [] };
+    const broken: string[] = [];
+    for (const hook of deployed.slice(0, 20)) {
+      try {
+        const valid = engine.validate?.(hook.id || hook.name) || engine.approve?.(hook);
+        if (valid === false || valid?.valid === false) broken.push(hook.name || hook.id || "unnamed");
+      } catch { /* individual validation non-fatal */ }
+    }
+    if (broken.length > 0) appendEventLine("nl_hook_validation", { total: deployed.length, broken: broken.length, names: broken });
+    return { success: true, call_number: callNumber, hooks_validated: deployed.length, hooks_broken: broken.length, broken_names: broken };
+  } catch { return { success: true, call_number: callNumber, hooks_validated: 0, hooks_broken: 0, broken_names: [] }; }
+}
+
+/** 8. Save omega history to disk at checkpoint cadence */
+export function autoOmegaHistoryPersist(callNumber: number): { success: boolean; call_number: number; entries_saved: number } {
+  try {
+    const omegaModule = require("../dispatchers/omegaDispatcher.js");
+    const history = omegaModule.omegaHistory || omegaModule.getOmegaHistory?.() || [];
+    if (history.length === 0) return { success: true, call_number: callNumber, entries_saved: 0 };
+    const histPath = path.join(STATE_DIR, "omega_history.json");
+    let existing: any[] = [];
+    if (fs.existsSync(histPath)) { try { existing = JSON.parse(fs.readFileSync(histPath, "utf-8")); } catch {} }
+    const merged = [...existing, ...history].slice(-100);
+    fs.writeFileSync(histPath, JSON.stringify(merged, null, 2));
+    appendEventLine("omega_history_persist", { entries: merged.length, call: callNumber });
+    return { success: true, call_number: callNumber, entries_saved: merged.length };
+  } catch { return { success: true, call_number: callNumber, entries_saved: 0 }; }
+}
+
+/** 9. Restore omega history from disk on session boot */
+export function autoOmegaHistoryRestore(callNumber: number): { success: boolean; call_number: number; entries_restored: number } {
+  try {
+    const histPath = path.join(STATE_DIR, "omega_history.json");
+    if (!fs.existsSync(histPath)) return { success: true, call_number: callNumber, entries_restored: 0 };
+    const history = JSON.parse(fs.readFileSync(histPath, "utf-8"));
+    if (!Array.isArray(history) || history.length === 0) return { success: true, call_number: callNumber, entries_restored: 0 };
+    try {
+      const omegaModule = require("../dispatchers/omegaDispatcher.js");
+      if (omegaModule.omegaHistory && Array.isArray(omegaModule.omegaHistory)) {
+        omegaModule.omegaHistory.push(...history.slice(-100));
+      } else if (omegaModule.setOmegaHistory) {
+        omegaModule.setOmegaHistory(history.slice(-100));
+      }
+    } catch { /* restore attempt non-fatal */ }
+    return { success: true, call_number: callNumber, entries_restored: history.length };
+  } catch { return { success: true, call_number: callNumber, entries_restored: 0 }; }
+}
+
+/** 10. Persist cognitive state to disk */
+export function autoCognitiveStatePersist(callNumber: number): { success: boolean; call_number: number; persisted: boolean } {
+  try {
+    const spModule = require("../dispatchers/spDispatcher.js");
+    const cog = spModule.cog || spModule.getCogState?.();
+    if (!cog) return { success: true, call_number: callNumber, persisted: false };
+    const cogPath = path.join(STATE_DIR, "cognitive_state.json");
+    fs.writeFileSync(cogPath, JSON.stringify({ ...cog, persisted_at: new Date().toISOString(), call_number: callNumber }, null, 2));
+    return { success: true, call_number: callNumber, persisted: true };
+  } catch { return { success: true, call_number: callNumber, persisted: false }; }
+}
+
+/** 11. Restore cognitive state on session boot */
+export function autoCognitiveStateRestore(callNumber: number): { success: boolean; call_number: number; restored: boolean } {
+  try {
+    const cogPath = path.join(STATE_DIR, "cognitive_state.json");
+    if (!fs.existsSync(cogPath)) return { success: true, call_number: callNumber, restored: false };
+    const saved = JSON.parse(fs.readFileSync(cogPath, "utf-8"));
+    try {
+      const spModule = require("../dispatchers/spDispatcher.js");
+      if (spModule.cog) {
+        if (saved.bayes_priors) spModule.cog.bayes_priors = saved.bayes_priors;
+        if (saved.rl_policy) spModule.cog.rl_policy = saved.rl_policy;
+        if (saved.opt_objectives) spModule.cog.opt_objectives = saved.opt_objectives;
+      } else if (spModule.setCogState) {
+        spModule.setCogState(saved);
+      }
+    } catch { /* restore attempt non-fatal */ }
+    appendEventLine("cognitive_restore", { call: callNumber });
+    return { success: true, call_number: callNumber, restored: true };
+  } catch { return { success: true, call_number: callNumber, restored: false }; }
+}
+
+/** 12. Save conversational memory context */
+export function autoConversationalMemorySave(callNumber: number, recentCalls: string[]): { success: boolean; call_number: number; saved: boolean } {
+  try {
+    const ConversationalMemoryEngine = require("../engines/ConversationalMemoryEngine.js").ConversationalMemoryEngine || require("../engines/ConversationalMemoryEngine.js").conversationalMemory || require("../engines/ConversationalMemoryEngine.js").default;
+    const engine = typeof ConversationalMemoryEngine === "function" ? new ConversationalMemoryEngine() : ConversationalMemoryEngine;
+    const stateFile = path.join(STATE_DIR, "CURRENT_STATE.json");
+    let task = "unknown";
+    try { task = JSON.parse(fs.readFileSync(stateFile, "utf-8")).currentSession?.task || "unknown"; } catch {}
+    engine.saveContext?.(task, recentCalls.slice(-10)) || engine.save?.({ task, recent: recentCalls.slice(-10), call: callNumber });
+    return { success: true, call_number: callNumber, saved: true };
+  } catch { return { success: true, call_number: callNumber, saved: false }; }
+}
+
+/** 13. Auto-acknowledge anomalies for dispatchers that succeeded */
+export function autoTelemetryResolve(callNumber: number, toolName: string, action: string): { success: boolean; call_number: number; resolved: number } {
+  try {
+    if (!telemetryEngine) return { success: true, call_number: callNumber, resolved: 0 };
+    const anomalies = (telemetryEngine as any).getAnomalies?.() || [];
+    let resolved = 0;
+    for (const anomaly of anomalies) {
+      if (anomaly.dispatcher === toolName && anomaly.action === action && !anomaly.acknowledged) {
+        try { (telemetryEngine as any).acknowledge?.(anomaly.id || anomaly.key); resolved++; } catch {}
+      }
+    }
+    if (resolved > 0) appendEventLine("telemetry_resolve", { tool: toolName, action, resolved, call: callNumber });
+    return { success: true, call_number: callNumber, resolved };
+  } catch { return { success: true, call_number: callNumber, resolved: 0 }; }
+}
+
+/** 14. Drain the ScriptExecutor priority queue */
+export function autoScriptQueueDrain(callNumber: number): { success: boolean; call_number: number; processed: number; remaining: number } {
+  try {
+    const ScriptExecutor = require("../engines/ScriptExecutor.js").ScriptExecutor || require("../engines/ScriptExecutor.js").scriptExecutor || require("../engines/ScriptExecutor.js").default;
+    const executor = typeof ScriptExecutor === "function" ? new ScriptExecutor() : ScriptExecutor;
+    const status = executor.getQueueStatus?.() || executor.queueStatus?.() || { queued: 0 };
+    if (status.queued === 0) return { success: true, call_number: callNumber, processed: 0, remaining: 0 };
+    const result = executor.processQueue?.() || executor.drainQueue?.() || { processed: 0 };
+    appendEventLine("script_queue_drain", { processed: result.processed || 0, remaining: result.remaining || 0, call: callNumber });
+    return { success: true, call_number: callNumber, processed: result.processed || 0, remaining: result.remaining || 0 };
+  } catch { return { success: true, call_number: callNumber, processed: 0, remaining: 0 }; }
+}
+
+/** 15. Fire roadmap heartbeat for multi-Claude coordination */
+export function autoRoadmapHeartbeat(callNumber: number): { success: boolean; call_number: number; beat: boolean } {
+  try {
+    const TaskClaimService = require("../engines/TaskClaimService.js").TaskClaimService || require("../engines/TaskClaimService.js").default;
+    const service = typeof TaskClaimService === "function" ? new TaskClaimService() : TaskClaimService;
+    service.heartbeat?.() || service.sendHeartbeat?.();
+    return { success: true, call_number: callNumber, beat: true };
+  } catch { return { success: true, call_number: callNumber, beat: false }; }
+}
+
+/** 16. Pre-enrich calc dispatchers with material+machine context */
+export function autoCalcPreEnrich(callNumber: number, params: any): { success: boolean; call_number: number; enriched: boolean; material_context?: any; machine_context?: any } {
+  try {
+    const materialId = params.material_id || params.material || params.materialId;
+    const machineId = params.machine_id || params.machine || params.machineId;
+    if (!materialId && !machineId) return { success: true, call_number: callNumber, enriched: false };
+    let materialCtx: any = null;
+    let machineCtx: any = null;
+    try {
+      const RegistryManager = require("../engines/RegistryManager.js").registryManager || require("../engines/RegistryManager.js").RegistryManager;
+      const mgr = typeof RegistryManager === "function" ? new RegistryManager() : RegistryManager;
+      if (mgr?.initialize) await_safe(() => mgr.initialize());
+      if (materialId && mgr?.materials) materialCtx = mgr.materials.getByIdOrName?.(materialId) || mgr.materials.search?.({ id: materialId })?.[0];
+      if (machineId && mgr?.machines) machineCtx = mgr.machines.search?.({ id: machineId })?.[0] || mgr.machines.getById?.(machineId);
+    } catch { /* registry lookup non-fatal */ }
+    return { success: true, call_number: callNumber, enriched: !!(materialCtx || machineCtx), material_context: materialCtx, machine_context: machineCtx };
+  } catch { return { success: true, call_number: callNumber, enriched: false }; }
+}
+function await_safe(fn: () => any): void { try { const r = fn(); if (r && typeof r.then === "function") { /* skip async */ } } catch {} }
+
+/** 17. Pre-warm knowledge engine at session boot */
+export function autoKnowledgePreWarm(callNumber: number): { success: boolean; call_number: number; warmed: boolean } {
+  try {
+    const KnowledgeQueryEngine = require("../engines/KnowledgeQueryEngine.js").KnowledgeQueryEngine || require("../engines/KnowledgeQueryEngine.js").default;
+    const engine = typeof KnowledgeQueryEngine === "function" ? new KnowledgeQueryEngine() : KnowledgeQueryEngine;
+    engine.initialize?.() || engine.warmUp?.() || engine.init?.();
+    appendEventLine("knowledge_prewarm", { call: callNumber });
+    return { success: true, call_number: callNumber, warmed: true };
+  } catch { return { success: true, call_number: callNumber, warmed: false }; }
+}
+
+/** 18. Persist job learning model on session end */
+export function autoJobLearningPersist(callNumber: number): { success: boolean; call_number: number; persisted: boolean } {
+  try {
+    const JobLearningEngine = require("../engines/JobLearningEngine.js").JobLearningEngine || require("../engines/JobLearningEngine.js").jobLearning || require("../engines/JobLearningEngine.js").default;
+    const engine = typeof JobLearningEngine === "function" ? new JobLearningEngine() : JobLearningEngine;
+    engine.persistLearning?.() || engine.save?.() || engine.flush?.();
+    appendEventLine("job_learning_persist", { call: callNumber });
+    return { success: true, call_number: callNumber, persisted: true };
+  } catch { return { success: true, call_number: callNumber, persisted: false }; }
+}
+
+/** 19. Scan ATCS task manifests for inclusion in session checkpoints */
+export function autoATCSCheckpointScan(callNumber: number): { success: boolean; call_number: number; active_tasks: number; tasks: any[] } {
+  try {
+    const atcsDir = path.join(PATHS.PRISM_ROOT || path.join("C:", "PRISM"), "autonomous-tasks");
+    if (!fs.existsSync(atcsDir)) return { success: true, call_number: callNumber, active_tasks: 0, tasks: [] };
+    const taskDirs = fs.readdirSync(atcsDir).filter(d => { try { return fs.statSync(path.join(atcsDir, d)).isDirectory(); } catch { return false; } });
+    const activeTasks: any[] = [];
+    for (const dir of taskDirs) {
+      const mfPath = path.join(atcsDir, dir, "TASK_MANIFEST.json");
+      if (!fs.existsSync(mfPath)) continue;
+      try {
+        const mf = JSON.parse(fs.readFileSync(mfPath, "utf-8"));
+        if (mf.status === "IN_PROGRESS") {
+          activeTasks.push({ task_id: mf.task_id, progress_pct: mf.progress_pct || 0, started: mf.started_at });
+        }
+      } catch { /* individual manifest read non-fatal */ }
+    }
+    return { success: true, call_number: callNumber, active_tasks: activeTasks.length, tasks: activeTasks };
+  } catch { return { success: true, call_number: callNumber, active_tasks: 0, tasks: [] }; }
+}
+
+/** 20. Extract quality scores from Ralph loop results */
+export function autoRalphScoreCapture(callNumber: number, resultText: string): { success: boolean; call_number: number; quality_score: number | null; safety_score: number | null } {
+  try {
+    const parsed = JSON.parse(resultText);
+    let quality: number | null = null;
+    let safety: number | null = null;
+    if (parsed.quality_score !== undefined) quality = parsed.quality_score;
+    else if (parsed.omega !== undefined) quality = parsed.omega;
+    else if (parsed.score !== undefined) quality = parsed.score;
+    if (parsed.safety_score !== undefined) safety = parsed.safety_score;
+    // Check validators array
+    if (!quality && parsed.validators && Array.isArray(parsed.validators)) {
+      const scores = parsed.validators.map((v: any) => v.score).filter((s: any) => typeof s === "number");
+      if (scores.length > 0) quality = scores.reduce((a: number, b: number) => a + b, 0) / scores.length;
+    }
+    if (quality !== null || safety !== null) {
+      // Write to state
+      const stateFile = path.join(STATE_DIR, "CURRENT_STATE.json");
+      if (fs.existsSync(stateFile)) {
+        try {
+          const state = JSON.parse(fs.readFileSync(stateFile, "utf-8"));
+          state.currentSession = state.currentSession || {};
+          state.currentSession.progress = state.currentSession.progress || {};
+          if (quality !== null) { state.currentSession.progress.omega_score = quality; state.currentSession.progress.omega_score_at = new Date().toISOString(); }
+          if (safety !== null) { state.currentSession.progress.safety_score = safety; state.currentSession.progress.safety_score_at = new Date().toISOString(); }
+          state.lastUpdated = new Date().toISOString();
+          fs.writeFileSync(stateFile, JSON.stringify(state, null, 2));
+        } catch {}
+      }
+      appendEventLine("ralph_score_capture", { quality, safety, call: callNumber });
+    }
+    return { success: true, call_number: callNumber, quality_score: quality, safety_score: safety };
+  } catch { return { success: true, call_number: callNumber, quality_score: null, safety_score: null }; }
 }

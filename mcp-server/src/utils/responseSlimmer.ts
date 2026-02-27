@@ -176,7 +176,10 @@ export function slimJsonResponse(jsonStr: string, level?: SlimLevel): string {
 const CRITICAL_PATTERNS = [
   "COMPACTION_DETECTED", "RECOVERY_TRIGGERED", "CONTEXT_REHYDRATED",
   "PFP_BLOCKED", "PFP_WARNING", "SAFETY_BLOCK", "INPUT_BLOCKED",
-  "SAFETY BLOCK", "INPUT_VALIDATION_BLOCKED"
+  "SAFETY BLOCK", "INPUT_VALIDATION_BLOCKED",
+  "OVER_BUDGET", "QUALITY_GATE_BLOCKED", "GRAPH_INTEGRITY",
+  "PARALLEL_DISPATCH", "ATCS_PARALLEL", "REPEATED_ERROR",
+  "COMPACTION_IMMINENT", "PYTHON_COMPACTION_IMMINENT"
 ];
 
 function getCadenceVerbosity(): string {
@@ -191,15 +194,29 @@ export function slimCadence(cadence: Record<string, any>, pressurePct: number): 
     return { call_number: cadence.call_number };
   }
   
-  // CRITICAL: only safety/compaction/blocking messages
+  // CRITICAL: only safety/compaction/blocking messages + key warnings
   if (verbosity === "critical") {
     const criticalActions = (cadence.actions || []).filter((a: string) =>
       typeof a === "string" && CRITICAL_PATTERNS.some(p => a.includes(p))
     );
-    if (criticalActions.length === 0) {
+    const result: Record<string, any> = { call_number: cadence.call_number };
+    if (criticalActions.length > 0) result.actions = criticalActions;
+    // Surface budget violations even in critical mode
+    if (cadence.budget?.over_budget?.length > 0) {
+      result.budget_warn = cadence.budget.over_budget;
+    }
+    // Surface omega degradation warning
+    if (cadence.cognitive?.omega != null && cadence.cognitive.omega < 0.7) {
+      result.omega_warn = cadence.cognitive.omega;
+    }
+    // Surface quality gate blocks
+    if (cadence.quality_gate?.blocked) {
+      result.quality_blocked = cadence.quality_gate.blocked_reason;
+    }
+    if (criticalActions.length === 0 && !result.budget_warn && !result.omega_warn && !result.quality_blocked) {
       return { call_number: cadence.call_number };
     }
-    return { call_number: cadence.call_number, actions: criticalActions };
+    return result;
   }
   
   // NORMAL: original behavior with pressure-based slimming
