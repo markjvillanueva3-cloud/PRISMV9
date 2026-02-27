@@ -1083,3 +1083,218 @@ export {
   type SafetySettings,
   type UserSettings,
 } from "./SettingsEngine.js";
+
+// ──────────────────────────────────────────────────────────────
+// L2-P1-MS1 — 20 Manufacturing Intelligence Engines
+// ──────────────────────────────────────────────────────────────
+
+// Tool Selection (composes ToolRegistry)
+export {
+  ToolSelectionEngine,
+  toolSelectionEngine,
+  type ToolRequirements,
+  type ToolRecommendation,
+  type ToolComparisonResult,
+  type ToolValidationResult as ToolSelValidation,
+} from "./ToolSelectionEngine.js";
+
+// Material Selection (composes MaterialRegistry)
+export {
+  MaterialSelectionEngine,
+  materialSelectionEngine,
+  type MaterialRequirements,
+  type MaterialCandidate,
+  type MaterialProperties,
+  type MachinabilityReport,
+  type MaterialComparisonResult,
+} from "./MaterialSelectionEngine.js";
+
+// Machine Selection (composes MachineRegistry)
+export {
+  MachineSelectionEngine,
+  machineSelectionEngine,
+  type MachineRequirements,
+  type MachineCandidate,
+  type MachineComparisonResult as MachineSelComparison,
+  type MachineValidationResult as MachineSelValidation,
+} from "./MachineSelectionEngine.js";
+
+// Fixture Design (SAFETY CRITICAL — clamping force)
+export {
+  FixtureDesignEngine,
+  fixtureDesignEngine,
+  type PartGeometry,
+  type CuttingLoads,
+  type FixtureType,
+  type FixtureRecommendation,
+  type ClampForceResult,
+  type DeflectionResult as FixtureDeflectionResult,
+  type FixtureValidationResult,
+} from "./FixtureDesignEngine.js";
+
+// Process Planning (composes GenPlanEngine + registries)
+export {
+  ProcessPlanEngine,
+  processPlanEngine,
+  type FeatureCategory,
+  type PartFeature,
+  type ProcessPlanInput,
+  type ProcessOperation,
+  type ProcessPlan,
+  type PlanOptimization,
+  type TimeEstimate as PlanTimeEstimate,
+} from "./ProcessPlanEngine.js";
+
+// Cost Estimation
+export {
+  CostEstimationEngine,
+  costEstimationEngine,
+  type CostInput,
+  type CostBreakdown,
+  type CostDriver,
+  type MaterialCostComparison,
+} from "./CostEstimationEngine.js";
+
+// Quoting
+export {
+  QuoteEngine,
+  quoteEngine,
+  type QuoteInput,
+  type Quote,
+  type QuoteLineItem,
+  type QuantityBreak,
+  type MarginAnalysis,
+} from "./QuoteEngine.js";
+
+// Job Scheduling
+export {
+  SchedulingEngine,
+  schedulingEngine,
+  type Job as ScheduleJob,
+  type MachineSlot,
+  type ScheduleResult,
+  type JobAssignment,
+  type CapacityReport,
+  type ScheduleStrategy,
+} from "./SchedulingEngine.js";
+
+// Quality Prediction (statistical process control)
+export {
+  QualityPredictionEngine,
+  qualityPredictionEngine,
+  type QualityInput,
+  type QualityPrediction,
+  type QualityFactor,
+  type CpkResult,
+  type SurfaceRoughnessResult,
+  type QualityRiskAssessment,
+} from "./QualityPredictionEngine.js";
+
+// Troubleshooting (fault diagnosis)
+export {
+  TroubleshootingEngine,
+  troubleshootingEngine,
+  type Symptom,
+  type DiagnosisInput,
+  type Diagnosis,
+  type RankedCause,
+  type CorrectiveAction,
+  type RootCauseAnalysis,
+} from "./TroubleshootingEngine.js";
+
+// Tribal Knowledge (shop-floor wisdom)
+export {
+  TribalKnowledgeEngine,
+  tribalKnowledgeEngine,
+  type KnowledgeTip,
+  type KnowledgeCategory,
+  type KnowledgeSearchInput,
+  type KnowledgeSuggestion,
+  type KnowledgeStats,
+} from "./TribalKnowledgeEngine.js";
+
+// Learning Paths (operator training)
+export {
+  LearningPathEngine,
+  learningPathEngine,
+  type SkillLevel,
+  type OperatorRole,
+  type SkillAssessment,
+  type LearningModule,
+  type LearningPlan,
+  type ProgressReport,
+} from "./LearningPathEngine.js";
+
+// Digital Twin (machine state & prediction)
+export {
+  DigitalTwinEngine,
+  digitalTwinEngine,
+  type MachineTwin,
+  type MachineState as TwinMachineState,
+  type MachineHealth,
+  type HealthAlert,
+  type MachinePerformance,
+  type TwinPrediction,
+  type SimulationResult as TwinSimResult,
+} from "./DigitalTwinEngine.js";
+
+// Energy Optimization (sustainability)
+export {
+  EnergyOptimizationEngine,
+  energyOptimizationEngine,
+  type EnergyInput,
+  type EnergyOperation,
+  type EnergyAnalysis,
+  type EnergyOptimization,
+  type EnergyChange,
+} from "./EnergyOptimizationEngine.js";
+
+// Batch Optimization (campaign sequencing)
+export {
+  BatchOptimizationEngine,
+  batchOptimizationEngine,
+  type BatchJob,
+  type BatchGroup,
+  type BatchSequence,
+  type SetupMatrix,
+  type BatchCapacity,
+} from "./BatchOptimizationEngine.js";
+
+// Nesting (2D part layout optimization)
+export {
+  NestingEngine,
+  nestingEngine,
+  type NestPart,
+  type StockSheet,
+  type NestPlacement,
+  type NestResult,
+  type NestAnalysis,
+} from "./NestingEngine.js";
+
+// Probe Routine Generation (GD&T → probe paths)
+export {
+  ProbeRoutineEngine,
+  probeRoutineEngine,
+  type GDTCallout,
+  type GDTSpec,
+  type ProbeMove,
+  type ProbeRoutine,
+  type GDTInterpretation,
+  type ProbeReport,
+} from "./ProbeRoutineEngine.js";
+
+// Tool Crib Management (inventory, check-in/out)
+export {
+  ToolCribEngine,
+  toolCribEngine,
+  type ToolCribItem,
+  type CheckoutRecord,
+  type ToolCribCheckout,
+  type ToolCribCheckin,
+  type InventoryReport,
+  type ReorderRecommendation,
+} from "./ToolCribEngine.js";
+
+// --- Existing engines counted in L2-P1-MS1 ---
+// PredictiveMaintenanceEngine (already exported above in original barrel)
+// SetupSheetEngine (already exported above in original barrel)
