@@ -218,16 +218,21 @@ export interface ContextPullBackResult {
 }
 
 export interface ValidationWarning {
-  field: string;
-  message: string;
-  severity: 'info' | 'warning' | 'error';
+  param: string;
+  value: any;
+  issue: string;
+  severity: "info" | "warning" | "critical";
+  safe_range?: string;
 }
 
 export interface InputValidationResult {
   success: boolean;
-  valid: boolean;
+  call_number: number;
+  tool: string;
+  action: string;
   warnings: ValidationWarning[];
-  corrected_params: Record<string, any> | null;
+  blocked: boolean;
+  block_reason: string | null;
 }
 
 export interface ScriptRecommendResult {

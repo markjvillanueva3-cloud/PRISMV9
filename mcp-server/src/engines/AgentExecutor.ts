@@ -18,6 +18,7 @@
 import { log } from "../utils/Logger.js";
 import { agentRegistry, type AgentDefinition } from "../registries/AgentRegistry.js";
 import { hookRegistry } from "../registries/HookRegistry.js";
+import { hookEngine } from "../orchestration/HookEngine.js";
 import Anthropic from "@anthropic-ai/sdk";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../config/api-config.js";
 import { getEffort } from "../config/effortTiers.js";
@@ -743,9 +744,22 @@ export class AgentExecutor {
    * Fire a hook
    */
   private fireHook(event: string, data: Record<string, unknown>): void {
+    const hookMap: Record<string, string> = {
+      task_queued: "AGENT-BEFORE-SPAWN-001",
+      task_started: "AGENT-AFTER-SPAWN-001",
+      task_completed: "AGENT-ON-COMPLETE-001",
+      task_failed: "AGENT-ON-ERROR-001",
+      plan_started: "AGENT-BEFORE-SPAWN-001",
+      plan_completed: "AGENT-ON-COMPLETE-001",
+    };
+    const hookId = hookMap[event];
     try {
-      // Log hook execution (in real implementation, this would trigger actual hooks)
-      log.debug(`[AgentExecutor] Hook fired: ${event}`);
+      log.debug(`[AgentExecutor] Hook fired: ${event} → ${hookId ?? "unmapped"}`);
+      if (hookId) {
+        void hookEngine.executeHook(hookId, { event, ...data }).catch((err) => {
+          log.warn(`[AgentExecutor] Hook ${hookId} error: ${err}`);
+        });
+      }
     } catch (error) {
       log.warn(`[AgentExecutor] Hook error: ${error}`);
     }

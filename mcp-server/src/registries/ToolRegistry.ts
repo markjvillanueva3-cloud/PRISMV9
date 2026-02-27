@@ -98,7 +98,7 @@ export interface CuttingTool {
   // Material & coating
   substrate: string;            // carbide, HSS, ceramic, PCD, CBN
   grade: string;                // manufacturer's grade
-  coating?: ToolCoating;
+  coating?: ToolCoating | string;
   
   // Geometry
   geometry: ToolGeometry;
@@ -113,6 +113,19 @@ export interface CuttingTool {
   // Holder (if integrated)
   holder?: ToolHolder;
   
+  // Extended fields from JSON data (optional — present in enriched tool records)
+  vendor?: string;              // alias for manufacturer in some data sources
+  category?: string;            // broad tool category
+  subcategory?: string;         // sub-classification
+  coating_type?: string;        // flat coating name (alternative to coating.type)
+  coolant_through?: boolean;    // through-spindle coolant support
+  cutting_diameter_mm?: number; // diameter shorthand (alternative to geometry.diameter)
+  flute_count?: number;         // flute shorthand (alternative to geometry.flutes)
+  substrate_grade?: string;     // combined substrate+grade string
+  confidence?: number;          // data source confidence score (0-1)
+  description?: string;         // free-text tool description
+  cutting_params?: Record<string, any>; // material-specific cutting parameters
+
   // Metadata
   layer?: string;
   price?: number;               // USD
@@ -388,7 +401,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       // Index by manufacturer/vendor — R1-MS5: data uses 'vendor', interface uses 'manufacturer'
-      const mfrName = tool.manufacturer || (tool as any).vendor;
+      const mfrName = tool.manufacturer || tool.vendor;
       if (mfrName) {
         const mfr = String(mfrName).toLowerCase();
         if (!this.indexByManufacturer.has(mfr)) {
@@ -398,7 +411,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       // Index by category (R1-MS5: new index for faceted search)
-      const catName = (tool as any).category;
+      const catName = tool.category;
       if (catName) {
         const cat = String(catName).toLowerCase();
         if (!this.indexByCategory.has(cat)) {
@@ -408,7 +421,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       // Index by coating (R1-MS5: new index for faceted search)
-      const coatingName = (tool as any).coating || (tool as any).coating_type;
+      const coatingName = (tool.coating as any) || tool.coating_type;
       if (coatingName) {
         const coat = String(coatingName).toLowerCase();
         if (!this.indexByCoating.has(coat)) {
@@ -428,7 +441,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
         }
       }
       // Source 2: derive from cutting_params.materials keys (P_STEELS → P, M_STAINLESS → M, etc.)
-      const cpMaterials = (tool as any).cutting_params?.materials;
+      const cpMaterials = tool.cutting_params?.materials;
       if (cpMaterials && typeof cpMaterials === 'object') {
         for (const matKey of Object.keys(cpMaterials)) {
           // Extract ISO group letter: P_STEELS → P, M_STAINLESS → M, K_CAST_IRON → K, etc.
@@ -443,7 +456,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       // Index by diameter (rounded to nearest 0.5mm)
-      const toolDiameter = (tool as any).cutting_diameter_mm || tool.geometry?.diameter;
+      const toolDiameter = tool.cutting_diameter_mm || tool.geometry?.diameter;
       if (toolDiameter) {
         const d = Math.round(toolDiameter * 2) / 2;
         if (!this.indexByDiameter.has(d)) {
@@ -497,7 +510,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
    */
   getByCatalogNumber(catalogNumber: string): CuttingTool | undefined {
     for (const tool of this.all()) {
-      if ((tool as any).catalog_number && (tool as any).catalog_number.toLowerCase() === catalogNumber.toLowerCase()) {
+      if (tool.catalog_number && tool.catalog_number.toLowerCase() === catalogNumber.toLowerCase()) {
         return tool;
       }
     }
@@ -733,9 +746,9 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
   }): number {
     let score = 50;
     const op = options.operation.toLowerCase();
-    const cat = ((tool as any).category || '').toLowerCase();
-    const type = ((tool as any).type || '').toLowerCase();
-    const subcat = ((tool as any).subcategory || '').toLowerCase();
+    const cat = (tool.category || '').toLowerCase();
+    const type = (tool.type || '').toLowerCase();
+    const subcat = (tool.subcategory || '').toLowerCase();
     
     // Prefer actual cutting tools over inserts for milling/drilling
     if (op === 'milling' || op === 'roughing' || op === 'finishing' || op === 'drilling') {
@@ -749,21 +762,21 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     }
     
     // Vendor quality tier
-    const vendor = ((tool as any).vendor || '').toLowerCase();
+    const vendor = (tool.vendor || '').toLowerCase();
     if (['sandvik coromant', 'kennametal', 'walter', 'iscar', 'seco'].some(v => vendor.includes(v))) score += 10;
     if (['mitsubishi', 'kyocera', 'tungaloy', 'sumitomo'].some(v => vendor.includes(v))) score += 8;
     
     // Confidence score
-    const conf = (tool as any).confidence || 0;
+    const conf = tool.confidence || 0;
     if (conf >= 0.95) score += 10;
     else if (conf >= 0.90) score += 5;
     
     // Coolant through — big advantage for deep cuts and difficult materials
-    if ((tool as any).coolant_through) score += 8;
+    if (tool.coolant_through) score += 8;
     
     // Diameter match
     if (options.diameter_target) {
-      const toolDiam = (tool as any).cutting_diameter_mm || tool.geometry?.diameter || 0;
+      const toolDiam = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
       if (toolDiam > 0) {
         const diamDiff = Math.abs(toolDiam - options.diameter_target);
         if (diamDiff === 0) score += 30;
@@ -774,7 +787,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     }
     
     // Coating quality for material ISO group
-    const coating = ((tool as any).coating?.type || (tool as any).coating || (tool as any).coating_type || '').toString().toUpperCase();
+    const coating = ((tool.coating as any)?.type || (tool.coating as any) || tool.coating_type || '').toString().toUpperCase();
     if (coating) {
       if (options.material_iso_group === "P") {
         if (coating.includes("ALTI") || coating.includes("TIAL")) score += 15;
@@ -795,7 +808,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       if (options.material_iso_group === "S") {
         if (coating.includes("ALTI") || coating.includes("TIAL")) score += 10;
-        if ((tool as any).coolant_through) score += 5; // Extra bonus for S group
+        if (tool.coolant_through) score += 5; // Extra bonus for S group
       }
       if (options.material_iso_group === "H") {
         if (coating.includes("ALCRN") || coating.includes("TISIN")) score += 15;
@@ -805,7 +818,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     }
     
     // Flute count optimization (milling only)
-    const flutes = (tool as any).flute_count || tool.geometry?.flutes || 0;
+    const flutes = tool.flute_count || tool.geometry?.flutes || 0;
     if (flutes > 0) {
       if (op === 'roughing') {
         if (flutes <= 3) score += 10;
@@ -818,7 +831,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     }
     
     // Substrate quality
-    const substrate = ((tool as any).substrate || (tool as any).substrate_grade || '').toString().toLowerCase();
+    const substrate = (tool.substrate || tool.substrate_grade || '').toString().toLowerCase();
     if (substrate.includes("carbide")) score += 10;
     if (substrate.includes("pcd")) score += 20; // For aluminum
     if (substrate.includes("cbn")) score += 15; // For hardened
@@ -921,7 +934,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
         for (const id of toolIds) {
           const tool = this.get(id);
           if (!tool) continue;
-          const d = (tool as any).cutting_diameter_mm || tool.geometry?.diameter || 0;
+          const d = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
           if (d <= 0) continue;
           if (filters.diameter_min !== undefined && d < filters.diameter_min) continue;
           if (filters.diameter_max !== undefined && d > filters.diameter_max) continue;
@@ -945,20 +958,20 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       const tool = this.get(id);
       if (!tool) continue;
       
-      const cat = ((tool as any).category || 'unknown').toLowerCase();
+      const cat = (tool.category || 'unknown').toLowerCase();
       catCounts.set(cat, (catCounts.get(cat) || 0) + 1);
       
-      const vendor = ((tool as any).vendor || (tool as any).manufacturer || 'unknown').toLowerCase();
+      const vendor = (tool.vendor || tool.manufacturer || 'unknown').toLowerCase();
       vendorCounts.set(vendor, (vendorCounts.get(vendor) || 0) + 1);
       
-      const type = ((tool as any).type || 'unknown').toLowerCase();
+      const type = (tool.type || 'unknown').toLowerCase();
       typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
       
-      const coating = ((tool as any).coating || 'unknown').toLowerCase();
+      const coating = ((tool.coating as any) || 'unknown').toLowerCase();
       coatingCounts.set(coating, (coatingCounts.get(coating) || 0) + 1);
       
       // Material groups from cutting_params
-      const cpMaterials = (tool as any).cutting_params?.materials;
+      const cpMaterials = tool.cutting_params?.materials;
       if (cpMaterials && typeof cpMaterials === 'object') {
         for (const matKey of Object.keys(cpMaterials)) {
           const isoGroup = matKey.split('_')[0].toUpperCase();
@@ -968,7 +981,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
         }
       }
       
-      const d = (tool as any).cutting_diameter_mm || tool.geometry?.diameter || 0;
+      const d = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
       if (d > 0) {
         if (d < dMin) dMin = d;
         if (d > dMax) dMax = d;
@@ -1046,9 +1059,9 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     const substrateCounts: Record<string, number> = {};
     for (const tool of this.all()) {
-      const sub = ((tool as any).substrate || 'unknown').toString().toLowerCase();
+      const sub = (tool.substrate || 'unknown').toString().toLowerCase();
       substrateCounts[sub] = (substrateCounts[sub] || 0) + 1;
-      if ((tool as any).coating) stats.withCoating++;
+      if ((tool.coating as any)) stats.withCoating++;
     }
     stats.bySubstrate = substrateCounts;
     

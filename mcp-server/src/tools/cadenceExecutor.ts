@@ -1544,12 +1544,6 @@ function getTriggersByNamespace(namespace: string): Array<{ trigger: string; ski
   return _triggerNamespaceIndex[namespace] || _triggerNamespaceIndex["general"] || [];
 }
 
-/** Get all namespace keys for diagnostics */
-function getTriggerNamespaces(): string[] {
-  if (!_triggerNamespaceIndex) getTriggersByNamespace("general"); // force init
-  return Object.keys(_triggerNamespaceIndex || {});
-}
-
 function mergeTriggerMap(): void {
   if (_triggerMapMerged) return;
   _triggerMapMerged = true;
@@ -2418,17 +2412,17 @@ export function autoInputValidation(
   params: Record<string, any>
 ): InputValidationResult {
   try {
-    const warnings: Array<{ param: string; value: any; issue: string; severity: string; safe_range?: string }> = [];
+    const warnings: Array<{ param: string; value: any; issue: string; severity: "info" | "warning" | "critical"; safe_range?: string }> = [];
     let blocked = false;
     let blockReason: string | null = null;
 
     // Only validate calc, safety, and thread tools
     if (!["prism_calc", "prism_safety", "prism_thread"].includes(toolName)) {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
     }
 
     if (!params || typeof params !== "object") {
-      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null } as any;
+      return { success: true, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: null };
     }
 
     // === Individual param range checks ===
@@ -2515,9 +2509,9 @@ export function autoInputValidation(
       } catch { /* log failed — non-fatal */ }
     }
 
-    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason } as any;
+    return { success: true, call_number: callNumber, tool: toolName, action, warnings, blocked, block_reason: blockReason };
   } catch (err: any) {
-    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` } as any;
+    return { success: false, call_number: callNumber, tool: toolName, action, warnings: [], blocked: false, block_reason: `Validation error: ${err.message}` };
   }
 }
 
@@ -6028,8 +6022,6 @@ export function autoGsdAccessSummary(callNumber: number): { success: boolean; ca
     // Prune to last 200
     if (entries.length > 200) entries = entries.slice(-200);
     fs.writeFileSync(logPath, JSON.stringify(entries));
-    // Write summary
-    fs.writeFileSync(path.join(STATE_DIR, "gsd_access_summary.json"), JSON.stringify({ updated: new Date().toISOString(), call: callNumber, total_entries: before, top_sections: topSections, freq }, null, 2));
     return { success: true, call_number: callNumber, entries_before: before, entries_after: entries.length, top_sections: topSections };
   } catch { return { success: true, call_number: callNumber, entries_before: 0, entries_after: 0, top_sections: [] }; }
 }

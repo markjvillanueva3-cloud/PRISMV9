@@ -115,8 +115,6 @@ function logDecisionIfApplicable(
   } catch { /* decision logging non-fatal */ }
 }
 
-let telemetryEngine: any = null;
-
 // H1-MS4: Error→Fix tracking in LEARNING_LOG
 export function logErrorFix(errorSignature: string, dispatcher: string, action: string, fix: string, file?: string): void {
   try {
@@ -768,19 +766,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 }
               }).catch(() => {});
             } catch { /* non-fatal */ }
-            // Write orchestration hint for AutoPilot consumption
             if (agentRec.classification?.complexity === "complex" || agentRec.classification?.complexity === "critical") {
-              try {
-                fs.writeFileSync(path.join(PATHS.STATE_DIR, "AUTO_ORCHESTRATE_HINT.json"), JSON.stringify({
-                  ts: new Date().toISOString(),
-                  call: callNum,
-                  tool: toolName,
-                  action: action2,
-                  classification: agentRec.classification,
-                  recommended_pattern: agentRec.classification.complexity === "critical" ? "consensus" : "parallel",
-                }, null, 2));
-                cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity → ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
-              } catch {}
+              cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity → ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
             }
           }
         } catch {
@@ -905,7 +892,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     }
     let inputBlocked = false;
     try {
-      const inputVal: any = autoInputValidation(callNum, toolName, action2, args[0]?.params || {});
+      const inputVal = autoInputValidation(callNum, toolName, action2, args[0]?.params || {});
       if (inputVal.warnings.length > 0) {
         cadence.input_validation = inputVal;
         const criticalCount = inputVal.warnings.filter((w: any) => w.severity === "critical").length;
@@ -1087,17 +1074,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       const errorClass = error ? (error as any)?.constructor?.name || "UnknownError" : undefined;
       const payloadSize = result?.content?.[0]?.text?.length || 0;
       const pressurePct = cadence.pressure?.pressure_pct ?? 0;
-      (telemetryEngine as any)?.record(
-        toolName,
-        action2,
-        telemetryStartMs,
-        telemetryEndMs,
-        outcome,
-        errorClass,
-        payloadSize,
-        pressurePct
-      );
-      (telemetryEngine as any)?.recordWrapperOverhead(durationMs < 1 ? 0 : 0.1);
+      // Telemetry recording handled by autoTelemetrySnapshot cadence function
     } catch {
     }
     try {
@@ -1466,19 +1443,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               } catch { /* non-fatal */ }
             }
           } catch { /* non-fatal */ }
-          // Write orchestration hint for AutoPilot consumption
           if (agentRec.classification?.complexity === "complex" || agentRec.classification?.complexity === "critical") {
-            try {
-              fs.writeFileSync(path.join(PATHS.STATE_DIR, "AUTO_ORCHESTRATE_HINT.json"), JSON.stringify({
-                ts: new Date().toISOString(),
-                call: callNum,
-                tool: toolName,
-                action: action2,
-                classification: agentRec.classification,
-                recommended_pattern: agentRec.classification.complexity === "critical" ? "consensus" : "parallel",
-              }, null, 2));
-              cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity \u{2192} ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
-            } catch {}
+            cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity \u{2192} ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
           }
         }
       } catch {
@@ -2219,7 +2185,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     // H1 fix: NL hooks staggered to offset-4 (same tier as D4/ATCS)
     if (callNum > 0 && (callNum + 4) % 8 === 0) {
       try {
-        fs.appendFileSync(path.join(PATHS.STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
+        const nlLogPath = path.join(PATHS.STATE_DIR, "nl_hook_debug.log");
+        try { if (fs.existsSync(nlLogPath) && fs.statSync(nlLogPath).size > 100_000) fs.writeFileSync(nlLogPath, ""); } catch {}
+        fs.appendFileSync(nlLogPath, `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
         const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
         if (nlResult.success && nlResult.hooks_fired > 0) {
           cadence.actions.push(`\u{1FA9D} NL_HOOKS: ${nlResult.hooks_fired}/${nlResult.hooks_evaluated} fired`);
