@@ -176,6 +176,66 @@ function getOpenApiSpec() {
       },
       "/ppg/operations": {
         get: { summary: "List supported G-code operations", tags: ["PPG"], responses: stdResponse() }
+      },
+      "/learning/assess": {
+        post: { summary: "Assess operator skill levels", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/plan": {
+        post: { summary: "Generate learning plan", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/progress": {
+        post: { summary: "Track learning progress", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/recommend": {
+        post: { summary: "Recommend learning modules", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/knowledge/search": {
+        post: { summary: "Search knowledge base", tags: ["Learning"], requestBody: jsonBody(["query"]), responses: stdResponse() }
+      },
+      "/learning/tribal": {
+        post: { summary: "Search tribal knowledge", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/select/material": {
+        post: { summary: "Material selection wizard", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/select/tool": {
+        post: { summary: "Tool selection wizard", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/select/machine": {
+        post: { summary: "Machine selection wizard", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/learning/twin": {
+        post: { summary: "Digital twin operations", tags: ["Learning"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/quote/generate": {
+        post: { summary: "Generate manufacturing quote", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/quote/breakdown": {
+        post: { summary: "Detailed cost breakdown", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/quote/compare": {
+        post: { summary: "Compare quotes", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/job/plan": {
+        post: { summary: "Plan manufacturing job", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/job/schedule": {
+        post: { summary: "Schedule job on machines", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/job/track": {
+        post: { summary: "Track job progress", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/analytics/capacity": {
+        post: { summary: "Capacity utilization analysis", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/analytics/bottleneck": {
+        post: { summary: "Bottleneck identification", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/analytics/oee": {
+        post: { summary: "Overall Equipment Effectiveness", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/erp/analytics/predictive": {
+        post: { summary: "Predictive maintenance", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
       }
     },
     tags: [
@@ -189,7 +249,9 @@ function getOpenApiSpec() {
       { name: "Safety", description: "Safety validation" },
       { name: "Auth", description: "Authentication" },
       { name: "Admin", description: "Administration" },
-      { name: "PPG", description: "Post Processor Generator" }
+      { name: "PPG", description: "Post Processor Generator" },
+      { name: "Learning", description: "Learning paths & knowledge" },
+      { name: "ERP", description: "ERP, quoting & analytics" }
     ]
   };
 }

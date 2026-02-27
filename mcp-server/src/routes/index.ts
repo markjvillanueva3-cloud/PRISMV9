@@ -2,10 +2,10 @@
  * PRISM MCP Server — Route Registry
  * Central registration for all API route modules
  *
- * 13 route modules, 64 endpoints total:
+ * 15 route modules, 84 endpoints total:
  * - SFC (7), CAD (5), CAM (4), Quality (4), Schedule (4), Cost (4)
  * - Export (5), Data (7), Safety (4), Auth (6), Admin (6), OpenAPI (1)
- * - PPG (8)
+ * - PPG (8), Learning (10), ERP (10)
  * + WebSocket handler at /ws (6 channels)
  */
 import type { Express } from "express";
@@ -24,6 +24,8 @@ import { createAuthRouter } from "./auth.js";
 import { createAdminRouter } from "./admin.js";
 import { createOpenApiRouter } from "./openapi.js";
 import { createPpgRouter } from "./ppg.js";
+import { createLearningRouter } from "./learning.js";
+import { createErpRouter } from "./erp.js";
 import { log } from "../utils/Logger.js";
 
 /** Tool call function signature — injected from index.ts */
@@ -49,10 +51,12 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/auth", createAuthRouter(callTool));
   app.use("/api/v1/admin", createAdminRouter(callTool));
   app.use("/api/v1/ppg", createPpgRouter(callTool));
+  app.use("/api/v1/learning", createLearningRouter(callTool));
+  app.use("/api/v1/erp", createErpRouter(callTool));
   app.use("/api", createOpenApiRouter());
 
   // Error handler — must be last
   app.use("/api", errorHandler);
 
-  log.info("[API] Registered 13 route modules (64 endpoints) under /api/v1/");
+  log.info("[API] Registered 15 route modules (84 endpoints) under /api/v1/");
 }
