@@ -1,7 +1,7 @@
 /**
  * PRISM Algorithm Module — Barrel Export
  *
- * All 8 standalone manufacturing physics algorithms, each implementing
+ * All 18 standalone manufacturing physics algorithms, each implementing
  * Algorithm<I, O> with typed validation, calculation, and metadata.
  *
  * Usage:
@@ -38,6 +38,17 @@ import { JohnsonCookModel } from "./JohnsonCookModel.js";
 import { SurfaceFinishPredictor } from "./SurfaceFinishPredictor.js";
 import { ChipThinningCompensation } from "./ChipThinningCompensation.js";
 import { ThermalPartitionModel } from "./ThermalPartitionModel.js";
+import { GilbertMRRModel } from "./GilbertMRRModel.js";
+import { ToolDeflectionModel } from "./ToolDeflectionModel.js";
+import { ChipBreakingModel } from "./ChipBreakingModel.js";
+import { CoolantFlowModel } from "./CoolantFlowModel.js";
+import { ToolWearPrediction } from "./ToolWearPrediction.js";
+import { SpindleVibFFTModel } from "./SpindleVibFFTModel.js";
+import { ChipEvacuationModel } from "./ChipEvacuationModel.js";
+import { ThermalFEAModel } from "./ThermalFEAModel.js";
+import { BayesianWearModel } from "./BayesianWearModel.js";
+import { EnsemblePredictorModel } from "./EnsemblePredictorModel.js";
+import { AdaptiveControllerModel } from "./AdaptiveControllerModel.js";
 
 // ── Safety-Critical Algorithms (Opus-reviewed) ──────────────────────
 
@@ -64,13 +75,49 @@ export type { ChipThinningInput, ChipThinningOutput } from "./ChipThinningCompen
 export { ThermalPartitionModel } from "./ThermalPartitionModel.js";
 export type { ThermalInput, ThermalOutput } from "./ThermalPartitionModel.js";
 
+// ── L1-P0-MS1: Ported Monolith Algorithms ───────────────────────────
+
+export { GilbertMRRModel } from "./GilbertMRRModel.js";
+export type { GilbertMRRInput, GilbertMRROutput } from "./GilbertMRRModel.js";
+
+export { ToolDeflectionModel } from "./ToolDeflectionModel.js";
+export type { ToolDeflectionInput, ToolDeflectionOutput } from "./ToolDeflectionModel.js";
+
+export { ChipBreakingModel } from "./ChipBreakingModel.js";
+export type { ChipBreakingInput, ChipBreakingOutput } from "./ChipBreakingModel.js";
+
+export { CoolantFlowModel } from "./CoolantFlowModel.js";
+export type { CoolantFlowInput, CoolantFlowOutput } from "./CoolantFlowModel.js";
+
+export { ToolWearPrediction } from "./ToolWearPrediction.js";
+export type { TWPInput, TWPOutput } from "./ToolWearPrediction.js";
+
+export { SpindleVibFFTModel } from "./SpindleVibFFTModel.js";
+export type { SpindleVibFFTInput, SpindleVibFFTOutput } from "./SpindleVibFFTModel.js";
+
+export { ChipEvacuationModel } from "./ChipEvacuationModel.js";
+export type { ChipEvacuationInput, ChipEvacuationOutput } from "./ChipEvacuationModel.js";
+
+export { ThermalFEAModel } from "./ThermalFEAModel.js";
+export type { ThermalFEAInput, ThermalFEAOutput } from "./ThermalFEAModel.js";
+
+export { BayesianWearModel } from "./BayesianWearModel.js";
+export type { BayesianWearInput, BayesianWearOutput } from "./BayesianWearModel.js";
+
+export { EnsemblePredictorModel } from "./EnsemblePredictorModel.js";
+export type { EnsemblePredictorInput, EnsemblePredictorOutput } from "./EnsemblePredictorModel.js";
+
+export { AdaptiveControllerModel } from "./AdaptiveControllerModel.js";
+export type { AdaptiveControllerInput, AdaptiveControllerOutput } from "./AdaptiveControllerModel.js";
+
 // ── Algorithm Registry ──────────────────────────────────────────────
 
 /**
- * All algorithm classes, indexed by their metadata ID.
+ * All 18 algorithm classes, indexed by their metadata ID.
  * Useful for dynamic dispatch and introspection.
  */
 export const ALGORITHM_REGISTRY = {
+  // Original 7
   "kienzle": KienzleForceModel,
   "taylor": ExtendedTaylorModel,
   "johnson-cook": JohnsonCookModel,
@@ -78,6 +125,18 @@ export const ALGORITHM_REGISTRY = {
   "stability-lobe": StabilityLobeDiagram,
   "chip-thinning": ChipThinningCompensation,
   "thermal-power": ThermalPartitionModel,
+  // L1-P0-MS1: 11 new ported algorithms
+  "gilbert-mrr": GilbertMRRModel,
+  "tool-deflection": ToolDeflectionModel,
+  "chip-breaking": ChipBreakingModel,
+  "coolant-flow": CoolantFlowModel,
+  "tool-wear-prediction": ToolWearPrediction,
+  "spindle-vib-fft": SpindleVibFFTModel,
+  "chip-evacuation": ChipEvacuationModel,
+  "thermal-fea": ThermalFEAModel,
+  "bayesian-wear": BayesianWearModel,
+  "ensemble-predictor": EnsemblePredictorModel,
+  "adaptive-controller": AdaptiveControllerModel,
 } as const;
 
 export type AlgorithmId = keyof typeof ALGORITHM_REGISTRY;
