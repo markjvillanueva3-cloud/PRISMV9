@@ -602,6 +602,19 @@ export {
   type PIDResult,
 } from "./AlgorithmGatewayEngine.js";
 
+// Algorithm Engine — L1-P2-MS1: Typed Algorithm<I,O> management (50 algorithms)
+export {
+  AlgorithmEngine,
+  algorithmEngine,
+  type AlgorithmCalculateInput,
+  type AlgorithmCalculateResult,
+  type AlgorithmValidateResult,
+  type AlgorithmListResult,
+  type AlgorithmBatchInput,
+  type AlgorithmBatchResult,
+  type AlgorithmBenchmarkResult,
+} from "./AlgorithmEngine.js";
+
 // Shop Scheduler Engine — R7-MS5 Shop Floor Optimization
 export {
   shopScheduler,

@@ -9,6 +9,18 @@
  */
 import { executeSwarm, type SwarmPattern } from "./SwarmExecutor.js";
 import type { SwarmResult } from "./SwarmExecutor.js";
+import { hookEngine } from "../orchestration/HookEngine.js";
+
+// ── Batch Hook Helpers ────────────────────────────────────────────────
+// Fire registered BATCH-* hooks from HookEngine. Non-fatal — swarm
+// execution continues normally if any hook fails.
+
+function fireBatchHook(hookId: string, data: Record<string, unknown>): void {
+  try {
+    // Fire-and-forget — don't await to avoid blocking swarm execution
+    hookEngine.executeHook(hookId, data).catch(() => {});
+  } catch { /* batch hooks are non-fatal */ }
+}
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -113,6 +125,16 @@ export async function executeSwarmGroups(
   const start = Date.now();
   const results: GroupResult[] = [];
   let timedOut = false;
+  const totalItems = groups.length;
+
+  // BATCH-BEFORE-START: Validate and announce batch operation
+  fireBatchHook("BATCH-BEFORE-START-001", {
+    event: "batch_start",
+    total_groups: totalItems,
+    total_agents: groups.reduce((n, g) => n + g.agents.length, 0),
+    group_ids: groups.map(g => g.groupId),
+    timeout_ms,
+  });
 
   // Partition into independent (no deps) and dependent groups
   const independent = groups.filter(g => !g.dependsOn || g.dependsOn.length === 0);
@@ -134,9 +156,20 @@ export async function executeSwarmGroups(
     if (s.status === "fulfilled") {
       results.push(s.value);
       resultMap.set(s.value.groupId, s.value);
+      // BATCH-ITEM-COMPLETE: Track per-group completion
+      fireBatchHook("BATCH-ITEM-COMPLETE-001", {
+        event: "item_complete",
+        group_id: s.value.groupId,
+        group_name: s.value.name,
+        status: s.value.status,
+        duration_ms: s.value.duration_ms,
+        success_count: s.value.successCount,
+        fail_count: s.value.failCount,
+        progress: `${results.length}/${totalItems}`,
+      });
     } else {
       // Should not happen (executeOneGroup catches), but safety net
-      results.push({
+      const failResult: GroupResult = {
         groupId: "unknown",
         name: "unknown",
         status: "failed",
@@ -145,8 +178,30 @@ export async function executeSwarmGroups(
         failCount: 1,
         keyFindings: [],
         error: String(s.reason).slice(0, 200),
+      };
+      results.push(failResult);
+      // BATCH-ERROR-HANDLER: Report unexpected group failure
+      fireBatchHook("BATCH-ERROR-HANDLER-001", {
+        event: "batch_item_error",
+        group_id: "unknown",
+        error: failResult.error,
+        progress: `${results.length}/${totalItems}`,
+        recoverable: false,
       });
     }
+  }
+
+  // BATCH-PROGRESS-UPDATE: Mid-batch progress after parallel pass
+  if (dependent.length > 0) {
+    fireBatchHook("BATCH-PROGRESS-UPDATE-001", {
+      event: "progress_update",
+      phase: "parallel_complete",
+      completed: results.length,
+      remaining: dependent.length,
+      total: totalItems,
+      elapsed_ms: Date.now() - start,
+      failed_so_far: results.filter(r => r.status === "failed").length,
+    });
   }
 
   // ── Pass 2: Dependent groups sequentially ──
@@ -154,7 +209,7 @@ export async function executeSwarmGroups(
     const elapsed = Date.now() - start;
     if (elapsed >= timeout_ms) {
       timedOut = true;
-      results.push({
+      const timedOutResult: GroupResult = {
         groupId: group.groupId,
         name: group.name,
         status: "timedOut",
@@ -163,6 +218,15 @@ export async function executeSwarmGroups(
         failCount: 0,
         keyFindings: [],
         error: "Overall timeout reached before group could start",
+      };
+      results.push(timedOutResult);
+      // BATCH-ERROR-HANDLER: Timeout
+      fireBatchHook("BATCH-ERROR-HANDLER-001", {
+        event: "batch_item_timeout",
+        group_id: group.groupId,
+        group_name: group.name,
+        elapsed_ms: elapsed,
+        timeout_ms,
       });
       continue;
     }
@@ -170,6 +234,24 @@ export async function executeSwarmGroups(
     const groupResult = await executeOneGroup(group, resultMap, timeout_ms - elapsed);
     results.push(groupResult);
     resultMap.set(groupResult.groupId, groupResult);
+
+    // BATCH-ITEM-COMPLETE: Track dependent group completion
+    fireBatchHook("BATCH-ITEM-COMPLETE-001", {
+      event: "item_complete",
+      group_id: groupResult.groupId,
+      group_name: groupResult.name,
+      status: groupResult.status,
+      duration_ms: groupResult.duration_ms,
+      progress: `${results.length}/${totalItems}`,
+    });
+
+    // BATCH-CHECKPOINT: Checkpoint after each sequential group (resumable state)
+    fireBatchHook("BATCH-CHECKPOINT-001", {
+      event: "batch_checkpoint",
+      completed_groups: results.filter(r => r.status === "completed" || r.status === "partial").map(r => r.groupId),
+      pending_groups: dependent.filter(g => !resultMap.has(g.groupId)).map(g => g.groupId),
+      elapsed_ms: Date.now() - start,
+    });
   }
 
   // ── Synthesis: top findings across all groups ──
@@ -182,6 +264,17 @@ export async function executeSwarmGroups(
   const duration_ms = Date.now() - start;
   const completedGroups = results.filter(r => r.status === "completed" || r.status === "partial").length;
   const failedGroups = results.filter(r => r.status === "failed").length;
+
+  // BATCH-AFTER-COMPLETE: Final batch summary
+  fireBatchHook("BATCH-AFTER-COMPLETE-001", {
+    event: "batch_complete",
+    total_groups: totalItems,
+    completed_groups: completedGroups,
+    failed_groups: failedGroups,
+    timed_out: timedOut || duration_ms >= timeout_ms,
+    duration_ms,
+    synthesis,
+  });
 
   return {
     totalGroups: groups.length,

@@ -663,6 +663,90 @@ export function autoFailurePatternSync(callNumber: number): void {
 }
 
 // ============================================================================
+// TRAJECTORY RECORDING — SONA-style dispatch learning
+// Records each dispatch as a trajectory step in memory.db for offline analysis.
+// Creates one trajectory per session; appends steps on each call.
+// ============================================================================
+
+let TRAJECTORY_SESSION_ID: string | null = null;
+let TRAJECTORY_ID: string | null = null;
+let TRAJECTORY_STEP_NUM = 0;
+
+/**
+ * Record a dispatch as a trajectory step.
+ * Creates the session trajectory on first call, then appends steps.
+ * Called from autoHookWrapper after captureDispatch.
+ */
+export function autoTrajectoryRecord(
+  callNumber: number,
+  toolName: string,
+  action: string,
+  success: boolean,
+  durationMs: number,
+  resultSummary?: string
+): void {
+  try {
+    // Only record every 3rd call to keep DB writes low
+    if (callNumber % 3 !== 0) return;
+
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(dbPath)) return;
+
+    const { execFileSync } = require("child_process");
+    const now = Date.now();
+
+    // Create trajectory on first call
+    if (!TRAJECTORY_ID) {
+      TRAJECTORY_SESSION_ID = `session_${now}`;
+      TRAJECTORY_ID = `traj_${now}_${Math.random().toString(36).slice(2, 8)}`;
+      TRAJECTORY_STEP_NUM = 0;
+
+      const task = `MCP dispatch session starting at call ${callNumber}`.replace(/'/g, "''");
+      const ctx = JSON.stringify({ tool: toolName, action }).replace(/'/g, "''");
+      const createSql = `INSERT OR IGNORE INTO trajectories (id, session_id, status, task, context, total_steps, total_reward, started_at) VALUES ('${TRAJECTORY_ID}', '${TRAJECTORY_SESSION_ID}', 'active', '${task}', '${ctx}', 0, 0, ${now})`;
+      const pyCreate = `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.execute("""${createSql}"""); c.commit(); c.close(); print('ok')`;
+      execFileSync("py", ["-3", "-c", pyCreate], { encoding: "utf-8", timeout: 5000 });
+    }
+
+    // Record step
+    TRAJECTORY_STEP_NUM++;
+    const stepAction = `${toolName}:${action}`.replace(/'/g, "''").slice(0, 200);
+    const observation = (resultSummary || (success ? "success" : "failed")).replace(/'/g, "''").slice(0, 300);
+    const reward = success ? 1.0 : -0.5;
+    const meta = JSON.stringify({ call: callNumber, duration_ms: durationMs }).replace(/'/g, "''");
+
+    const stepSql = `INSERT INTO trajectory_steps (trajectory_id, step_number, action, observation, reward, metadata, created_at) VALUES ('${TRAJECTORY_ID}', ${TRAJECTORY_STEP_NUM}, '${stepAction}', '${observation}', ${reward}, '${meta}', ${now})`;
+    const updateSql = `UPDATE trajectories SET total_steps = ${TRAJECTORY_STEP_NUM}, total_reward = total_reward + ${reward} WHERE id = '${TRAJECTORY_ID}'`;
+    const pyStep = `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.execute("""${stepSql}"""); c.execute("""${updateSql}"""); c.commit(); c.close(); print('ok')`;
+    execFileSync("py", ["-3", "-c", pyStep], { encoding: "utf-8", timeout: 5000 });
+
+    appendEventLine("trajectory_step", { call: callNumber, step: TRAJECTORY_STEP_NUM, action: stepAction, reward });
+  } catch { /* non-fatal — trajectory recording must never block dispatch */ }
+}
+
+/**
+ * Finalize the current trajectory (call on session end or after sustained errors).
+ */
+export function autoTrajectoryFinalize(verdict: "success" | "failure" | "partial"): void {
+  try {
+    if (!TRAJECTORY_ID) return;
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(dbPath)) return;
+
+    const { execFileSync } = require("child_process");
+    const now = Date.now();
+    const sql = `UPDATE trajectories SET status = 'completed', verdict = '${verdict}', ended_at = ${now} WHERE id = '${TRAJECTORY_ID}'`;
+    const pyFin = `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.execute("""${sql}"""); c.commit(); c.close(); print('ok')`;
+    execFileSync("py", ["-3", "-c", pyFin], { encoding: "utf-8", timeout: 5000 });
+
+    appendEventLine("trajectory_finalize", { id: TRAJECTORY_ID, verdict, steps: TRAJECTORY_STEP_NUM });
+    TRAJECTORY_ID = null;
+    TRAJECTORY_SESSION_ID = null;
+    TRAJECTORY_STEP_NUM = 0;
+  } catch { /* non-fatal */ }
+}
+
+// ============================================================================
 // GAP 1: ERROR AUTO-LEARN — Persist errors to failure_library automatically
 // ============================================================================
 
@@ -832,6 +916,28 @@ export function autoPreTaskRecon(callNumber: number): ReconResult {
         }
       }
     } catch { /* ATCS check failed — non-fatal */ }
+
+    // 4. Session events readback — recent activity summary
+    try {
+      if (fs.existsSync(EVENT_LOG_FILE)) {
+        const evLines = fs.readFileSync(EVENT_LOG_FILE, "utf-8").trim().split("\n").filter(Boolean);
+        const recentEvents = evLines.slice(-15).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+        if (recentEvents.length > 0) {
+          const typeCounts: Record<string, number> = {};
+          for (const ev of recentEvents) {
+            typeCounts[ev.type] = (typeCounts[ev.type] || 0) + 1;
+          }
+          const summary = Object.entries(typeCounts).map(([t, c]) => `${t}:${c}`).join(", ");
+          sessionCtx.recent_events = summary;
+          sessionCtx.event_count = recentEvents.length;
+          // Flag specific conditions from events
+          const swarmEvents = recentEvents.filter(e => e.type?.includes("swarm"));
+          if (swarmEvents.length > 0) warnings.push(`🔄 ${swarmEvents.length} recent swarm dispatch(es) — review synthesis before re-dispatching`);
+          const errorEvents = recentEvents.filter(e => e.type === "error");
+          if (errorEvents.length >= 3) warnings.push(`🔥 ${errorEvents.length} errors in recent events — high failure rate detected`);
+        }
+      }
+    } catch { /* session events readback non-fatal */ }
 
     if (warnings.length === 0) warnings.push("✅ No known pitfalls — clear to proceed");
   } catch { warnings.push("⚠️ Recon failed — proceed with caution"); }
@@ -3339,17 +3445,49 @@ export function autoCompactionSurvival(
 export function autoContextRehydrate(callNumber: number): {
   success: boolean; call_number: number; rehydrated: boolean;
   survival_data?: CompactionSurvivalData; age_minutes?: number; error?: string;
+  checkpoint_source?: string;
 } {
   try {
-    if (!fs.existsSync(COMPACTION_SURVIVAL_FILE)) {
-      return { success: true, call_number: callNumber, rehydrated: false };
+    // Primary: COMPACTION_SURVIVAL.json
+    if (fs.existsSync(COMPACTION_SURVIVAL_FILE)) {
+      const data: CompactionSurvivalData = JSON.parse(fs.readFileSync(COMPACTION_SURVIVAL_FILE, "utf-8"));
+      const age = (Date.now() - new Date(data.captured_at).getTime()) / 60000;
+      if (age <= 240) {
+        return { success: true, call_number: callNumber, rehydrated: true, survival_data: data, age_minutes: Math.round(age), checkpoint_source: "survival" };
+      }
     }
-    const data: CompactionSurvivalData = JSON.parse(fs.readFileSync(COMPACTION_SURVIVAL_FILE, "utf-8"));
-    const age = (Date.now() - new Date(data.captured_at).getTime()) / 60000;
-    if (age > 240) {
-      return { success: true, call_number: callNumber, rehydrated: false, age_minutes: Math.round(age) };
-    }
-    return { success: true, call_number: callNumber, rehydrated: true, survival_data: data, age_minutes: Math.round(age) };
+
+    // Fallback: Most recent checkpoint file from checkpoints/ directory
+    try {
+      const checkpointDir = path.join(STATE_DIR, "checkpoints");
+      if (fs.existsSync(checkpointDir)) {
+        const files = fs.readdirSync(checkpointDir)
+          .filter(f => f.endsWith(".json"))
+          .map(f => ({ name: f, mtime: fs.statSync(path.join(checkpointDir, f)).mtimeMs }))
+          .sort((a, b) => b.mtime - a.mtime);
+        if (files.length > 0) {
+          const latest = files[0];
+          const age = (Date.now() - latest.mtime) / 60000;
+          if (age <= 240) {
+            const cpData = JSON.parse(fs.readFileSync(path.join(checkpointDir, latest.name), "utf-8"));
+            // Adapt checkpoint format to CompactionSurvivalData shape
+            const adapted: CompactionSurvivalData = {
+              captured_at: new Date(latest.mtime).toISOString(),
+              call_number: cpData.call_number || callNumber,
+              current_task: cpData.current_task || cpData.task || "unknown",
+              quick_resume: cpData.quick_resume || cpData.summary || "",
+              todo_snapshot: cpData.todo_snapshot || cpData.todo || "",
+              active_files: cpData.active_files || [],
+              recent_actions: cpData.recent_actions || [],
+              session_id: cpData.session_id || process.env.SESSION_ID || "unknown",
+            } as CompactionSurvivalData;
+            return { success: true, call_number: callNumber, rehydrated: true, survival_data: adapted, age_minutes: Math.round(age), checkpoint_source: `checkpoint:${latest.name}` };
+          }
+        }
+      }
+    } catch { /* checkpoint fallback non-fatal */ }
+
+    return { success: true, call_number: callNumber, rehydrated: false };
   } catch (err: any) {
     return { success: false, call_number: callNumber, rehydrated: false, error: err.message };
   }

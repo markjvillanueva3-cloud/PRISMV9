@@ -24,6 +24,17 @@ import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
 
+// Lazy-load hookEngine to avoid circular deps at module init
+let _hookEngine: any = null;
+function fireBatchProcessorHook(hookId: string, data: Record<string, unknown>): void {
+  try {
+    if (!_hookEngine) {
+      _hookEngine = require("../orchestration/HookEngine.js").hookEngine;
+    }
+    _hookEngine?.executeHook?.(hookId, data)?.catch?.(() => {});
+  } catch { /* batch hooks are non-fatal */ }
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -163,6 +174,19 @@ class BatchProcessor {
 
     // Process up to MAX_BATCH_PER_TICK
     const batch = this.queue.splice(0, MAX_BATCH_PER_TICK);
+    if (batch.length === 0) return results;
+
+    // BATCH-BEFORE-START: Announce D4 batch tick processing
+    fireBatchProcessorHook("BATCH-BEFORE-START-001", {
+      event: "d4_batch_tick_start",
+      batch_size: batch.length,
+      expired_count: expired.length,
+      queue_remaining: this.queue.length,
+      priority_breakdown: batch.reduce((acc, item) => {
+        acc[PRIORITY_LABELS[item.priority]] = (acc[PRIORITY_LABELS[item.priority]] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
+    });
 
     for (const item of batch) {
       const start = Date.now();
@@ -181,6 +205,17 @@ class BatchProcessor {
         }
 
         results.push({ id: item.id, status: "success", result, duration_ms: duration });
+
+        // BATCH-ITEM-COMPLETE: Per-item success
+        fireBatchProcessorHook("BATCH-ITEM-COMPLETE-001", {
+          event: "d4_item_complete",
+          item_id: item.id,
+          action: item.action,
+          priority: PRIORITY_LABELS[item.priority],
+          status: "success",
+          duration_ms: duration,
+          wait_ms: waitTime,
+        });
       } catch (err: any) {
         const duration = Date.now() - start;
         item.retry_count++;
@@ -189,12 +224,31 @@ class BatchProcessor {
           // Re-queue for retry
           this.queue.push(item);
           this.stats.queue_by_priority[item.priority]++;
+          // BATCH-ERROR-HANDLER: Retriable error
+          fireBatchProcessorHook("BATCH-ERROR-HANDLER-001", {
+            event: "d4_item_retry",
+            item_id: item.id,
+            action: item.action,
+            error: err.message?.slice(0, 200),
+            retry_count: item.retry_count,
+            max_retries: item.max_retries,
+            recoverable: true,
+          });
         } else {
           this.stats.total_failed++;
           results.push({
             id: item.id, status: "failed",
             error: err.message?.slice(0, 200) || "Unknown error",
             duration_ms: duration,
+          });
+          // BATCH-ERROR-HANDLER: Terminal failure
+          fireBatchProcessorHook("BATCH-ERROR-HANDLER-001", {
+            event: "d4_item_failed",
+            item_id: item.id,
+            action: item.action,
+            error: err.message?.slice(0, 200),
+            retry_count: item.retry_count,
+            recoverable: false,
           });
         }
       }
@@ -206,6 +260,19 @@ class BatchProcessor {
     this.stats.avg_wait_ms = this.waitTimes.reduce((a, b) => a + b, 0) / (this.waitTimes.length || 1);
     this.stats.avg_process_ms = this.processTimes.reduce((a, b) => a + b, 0) / (this.processTimes.length || 1);
     this.stats.current_queue_size = this.queue.length;
+
+    // BATCH-AFTER-COMPLETE: Tick summary
+    const successes = results.filter(r => r.status === "success").length;
+    const failures = results.filter(r => r.status === "failed").length;
+    fireBatchProcessorHook("BATCH-AFTER-COMPLETE-001", {
+      event: "d4_batch_tick_complete",
+      processed: results.length,
+      successes,
+      failures,
+      expired: expired.length,
+      queue_remaining: this.queue.length,
+      avg_process_ms: this.stats.avg_process_ms,
+    });
 
     return results;
   }

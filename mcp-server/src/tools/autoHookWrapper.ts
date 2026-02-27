@@ -41,7 +41,8 @@ import {
   autoD4CacheCheck, autoD4DiffCheck, autoD4BatchTick,
   autoTelemetrySnapshot,
   autoPythonCompactionPredict, autoPythonCompress, autoPythonExpand,
-  autoPatternMatch, autoPatternStatsUpdate, autoFailurePatternSync
+  autoPatternMatch, autoPatternStatsUpdate, autoFailurePatternSync,
+  autoTrajectoryRecord, autoTrajectoryFinalize
 } from "./cadenceExecutor.js";
 import type { PatternMatchResult } from "./cadenceExecutor.js";
 import {
@@ -1126,6 +1127,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         autoPatternStatsUpdate(preDispatchPattern.pattern_id, !error);
       }
     } catch { /* non-fatal */ }
+    // Trajectory recording — SONA-style dispatch learning
+    try {
+      const resultSnippet = result?.content?.[0]?.text?.slice(0, 100) || (error ? String((error as any)?.message || error).slice(0, 100) : "ok");
+      autoTrajectoryRecord(callNum, toolName, action2, !error, durationMs, resultSnippet);
+    } catch { /* non-fatal */ }
     // H1-MS4: Auto-capture decisions for high-value actions
     logDecisionIfApplicable(toolName, action2, args, result, error, durationMs);
     try {
@@ -1429,6 +1435,17 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         classifiedDomain = agentRec.classification?.domain;
         // Auto-dispatch grouped swarm — await for inline synthesis
         if (agentRec.classification?.auto_orchestrate) {
+          // BATCH-BEFORE-START: Announce swarm dispatch batch
+          try {
+            await fireHook("BATCH-BEFORE-START-001", {
+              event: "swarm_batch_start",
+              tool_name: toolName, action: action2,
+              complexity: agentRec.classification.complexity,
+              domain: agentRec.classification.domain,
+              agents: agentRec.classification.recommended_agents?.length || 0,
+              call_number: callNum,
+            });
+          } catch { /* non-fatal */ }
           try {
             const pd = await autoGroupedSwarmDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
             if (pd.dispatched) {
@@ -1440,6 +1457,17 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               if (pd.synthesis && pd.synthesis.length > 0) {
                 cadence.swarm_results = { synthesis: pd.synthesis, groups: pd.groupCount, timedOut: pd.timedOut };
               }
+              // BATCH-AFTER-COMPLETE: Summary for swarm dispatch
+              try {
+                await fireHook("BATCH-AFTER-COMPLETE-001", {
+                  event: "swarm_batch_complete",
+                  tool_name: toolName, action: action2,
+                  groups: pd.groupCount, agents: pd.agents?.length || 0,
+                  timed_out: pd.timedOut, mode: pd.mode,
+                  synthesis_count: pd.synthesis?.length || 0,
+                  call_number: callNum,
+                });
+              } catch { /* non-fatal */ }
             }
           } catch { /* non-fatal */ }
           // Write orchestration hint for AutoPilot consumption
