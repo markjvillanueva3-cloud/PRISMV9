@@ -12,6 +12,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { multiTenantEngine } from "../../engines/MultiTenantEngine.js";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 export function registerTenantDispatcher(server: McpServer): void {
   (server as any).tool(
@@ -26,7 +28,13 @@ export function registerTenantDispatcher(server: McpServer): void {
       params: z.record(z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
-      const { action, params = {} } = args;
+      const { action, params: rawParams = {} } = args;
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         let result: unknown;
         switch (action) {
@@ -76,9 +84,9 @@ export function registerTenantDispatcher(server: McpServer): void {
             result = params.updates ? multiTenantEngine.updateConfig(params.updates) : multiTenantEngine.getConfig();
             break;
         }
-        return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
-      } catch (e) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ error: (e as Error).message }) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_tenant");
       }
     }
   );

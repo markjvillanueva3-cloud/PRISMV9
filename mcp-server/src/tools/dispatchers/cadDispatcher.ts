@@ -11,6 +11,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any;
 async function getEngine(name: string): Promise<any> {
@@ -39,10 +40,16 @@ export function registerCadDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_cad] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "geometry_create": {
             const engine = await getEngine("cad");
@@ -97,9 +104,8 @@ Params vary by action — pass relevant fields in params object.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (err: any) {
-        log.error(`[prism_cad] ${action} failed: ${err.message}`);
-        result = { error: err.message, action };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_cad");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

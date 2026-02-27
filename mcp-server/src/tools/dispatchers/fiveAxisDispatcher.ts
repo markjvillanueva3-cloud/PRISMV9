@@ -10,6 +10,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 let _rtcp: any, _sing: any, _tilt: any, _envelope: any, _ik: any;
 async function getEngine(name: string): Promise<any> {
@@ -34,10 +35,16 @@ export function registerFiveAxisDispatcher(server: any): void {
     `5-Axis Kinematics dispatcher — SAFETY CRITICAL. RTCP compensation, singularity avoidance, tilt optimization, work envelope validation, inverse kinematics.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_5axis] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "rtcp_calc": {
             const engine = await getEngine("rtcp");
@@ -67,9 +74,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (err: any) {
-        log.error(`[prism_5axis] ${action} failed: ${err.message}`);
-        result = { error: err.message, action };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_5axis");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

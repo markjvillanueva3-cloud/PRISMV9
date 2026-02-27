@@ -3,11 +3,14 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { execSync } from "child_process";
 import { TodoState, TodoStep, isStepDone, getStepLabel } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
 import { ContextBudgetEngine } from "../../engines/ContextBudgetEngine.js";
 import { getAllCatalogs, searchCatalog, getEngineCatalog, getCatalogStats } from "../../engines/SourceCatalogAggregator.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = [
   "kv_sort_json",
@@ -86,7 +89,7 @@ let todoState: TodoState = {
 };
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 function getDateString(): string {
@@ -118,8 +121,14 @@ export function registerContextDispatcher(server: any): void {
     "prism_context",
     "Context engineering: KV-cache stability, tool masking, memory externalize/restore, todo, error tracking, teams, budget. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_context] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case "kv_sort_json": {
@@ -128,7 +137,7 @@ export function registerContextDispatcher(server: any): void {
             const json = JSON.stringify(sorted, null, 2);
             
             if (write_to) {
-              fs.writeFileSync(write_to, json);
+              safeWriteSync(write_to, json);
             }
             
             return ok({
@@ -251,7 +260,7 @@ export function registerContextDispatcher(server: any): void {
             }
             
             if (memory_type === "snapshot" || memory_type === "custom") {
-              fs.writeFileSync(filepath, JSON.stringify(record, null, 2));
+              safeWriteSync(filepath, JSON.stringify(record, null, 2));
             } else {
               appendJsonl(filepath, record);
             }
@@ -377,7 +386,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
 > ${todoState.nextAction || 'Continue with current step'}
 `;
             
-            fs.writeFileSync(TODO_FILE, todoContent);
+            safeWriteSync(TODO_FILE, todoContent);
             
             return ok({
               status: "TODO UPDATED - ATTENTION ANCHORED",
@@ -555,7 +564,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               heartbeat: new Date().toISOString()
             };
             
-            fs.writeFileSync(path.join(teamDir, "state.json"), JSON.stringify(teamState, null, 2));
+            safeWriteSync(path.join(teamDir, "state.json"), JSON.stringify(teamState, null, 2));
             
             return ok({
               status: "TEAM SPAWNED",
@@ -631,7 +640,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               completed: null
             };
             
-            fs.writeFileSync(path.join(teamDir, "tasks", `${taskId}.json`), JSON.stringify(task, null, 2));
+            safeWriteSync(path.join(teamDir, "tasks", `${taskId}.json`), JSON.stringify(task, null, 2));
             
             if (blocked_by) {
               blocked_by.forEach((blockerId: string) => {
@@ -640,7 +649,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                   const blocker = JSON.parse(fs.readFileSync(blockerFile, 'utf-8'));
                   blocker.blocks = blocker.blocks || [];
                   blocker.blocks.push(taskId);
-                  fs.writeFileSync(blockerFile, JSON.stringify(blocker, null, 2));
+                  safeWriteSync(blockerFile, JSON.stringify(blocker, null, 2));
                 }
               });
             }
@@ -676,7 +685,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const elapsed = (now.getTime() - lastHeartbeat.getTime()) / 1000;
             
             teamState.heartbeat = now.toISOString();
-            fs.writeFileSync(stateFile, JSON.stringify(teamState, null, 2));
+            safeWriteSync(stateFile, JSON.stringify(teamState, null, 2));
             
             return ok({
               status: "HEARTBEAT UPDATED",
@@ -728,7 +737,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             } else if (params.content) {
               // Write content to temp file for scoring
               const tmpFile = path.join(STATE_DIR, `_attention_tmp_${Date.now()}.txt`);
-              fs.writeFileSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
+              safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push("--score", `"${tmpFile}"`);
               const output = runPythonScript("attention_scorer.py", pyArgs);
               try { fs.unlinkSync(tmpFile); } catch {}
@@ -745,7 +754,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             if (params.task) pyArgs.push("--task", `"${params.task}"`);
             if (params.items) {
               const tmpFile = path.join(STATE_DIR, `_focus_tmp_${Date.now()}.json`);
-              fs.writeFileSync(tmpFile, JSON.stringify(params.items));
+              safeWriteSync(tmpFile, JSON.stringify(params.items));
               pyArgs.push("--items", `"${tmpFile}"`);
               const output = runPythonScript("focus_optimizer.py", pyArgs);
               try { fs.unlinkSync(tmpFile); } catch {}
@@ -761,7 +770,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const pyArgs = ["--task", `"${task}"`];
             if (params.content) {
               const tmpFile = path.join(STATE_DIR, `_relevance_tmp_${Date.now()}.txt`);
-              fs.writeFileSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
+              safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push("--file", `"${tmpFile}"`);
               if (params.threshold) pyArgs.push("--threshold", String(params.threshold));
               if (params.mode) pyArgs.push("--mode", params.mode);
@@ -810,8 +819,8 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
           default:
             return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
-      } catch (err: any) {
-        return ok({ error: err.message, action });
+      } catch (error) {
+        return dispatcherError(error, action, "prism_context");
       }
     }
   );

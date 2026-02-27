@@ -9,6 +9,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 let _electrode: any, _wire: any, _surface: any, _micro: any;
 async function getEngine(name: string): Promise<any> {
@@ -31,10 +32,16 @@ export function registerEdmDispatcher(server: any): void {
     `EDM Process dispatcher — electrode design, wire EDM settings, surface integrity assessment, micro-EDM parameters.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_edm] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "electrode_design": {
             const engine = await getEngine("electrode");
@@ -59,9 +66,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (err: any) {
-        log.error(`[prism_edm] ${action} failed: ${err.message}`);
-        result = { error: err.message, action };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_edm");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

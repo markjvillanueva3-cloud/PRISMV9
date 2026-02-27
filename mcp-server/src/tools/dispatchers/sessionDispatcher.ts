@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
@@ -7,6 +9,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {
@@ -58,7 +61,7 @@ const ACTIONS = [
 ] as const;
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -92,7 +95,7 @@ function loadJsonFile(filepath: string): any {
 }
 
 function saveJsonFile(filepath: string, data: any): void {
-  fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+  safeWriteSync(filepath, JSON.stringify(data, null, 2));
 }
 
 // ============================================================================
@@ -224,8 +227,14 @@ export function registerSessionDispatcher(server: any): void {
     "prism_session",
     "Session state management: save/load/checkpoint/diff, handoff, memory, context pressure, workflows, health. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_session] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case "state_load": {
@@ -993,7 +1002,7 @@ export function registerSessionDispatcher(server: any): void {
             return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
       } catch (err: any) {
-        return ok({ error: err.message, action });
+        return dispatcherError(err, action, "prism_session");
       }
     }
   );

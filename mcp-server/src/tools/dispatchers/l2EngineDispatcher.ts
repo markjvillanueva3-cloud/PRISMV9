@@ -9,6 +9,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 // Lazy-load engines to avoid circular deps and startup cost
 let _aiml: any, _cad: any, _cam: any, _fileIO: any, _sim: any, _viz: any, _report: any, _settings: any;
@@ -54,10 +55,16 @@ export function registerL2EngineDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_l2] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
 
           // ================================================================
@@ -345,7 +352,7 @@ Params vary by action — pass relevant fields in params object.`,
 
       } catch (error: any) {
         log.error(`[prism_l2] Error in ${action}:`, error);
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_l2");
       }
     }
   );

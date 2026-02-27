@@ -20,6 +20,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { memoryGraphEngine } from "../../engines/MemoryGraphEngine.js";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as any).tool(
@@ -37,7 +39,13 @@ export function registerMemoryDispatcher(server: McpServer): void {
       params: z.record(z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
-      const { action, params = {} } = args;
+      const { action, params: rawParams = {} } = args;
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       const start = performance.now();
 
       try {
@@ -162,17 +170,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
         return {
           content: [{
             type: "text" as const,
-            text: JSON.stringify({ ...result, _action: action, _elapsed_ms: elapsed }),
+            text: JSON.stringify(slimResponse({ ...result, _action: action, _elapsed_ms: elapsed })),
           }],
         };
-      } catch (error: any) {
-        log.error(`[MEMORY_DISPATCH] ${action} error: ${error.message}`);
-        return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({ error: error.message, action }),
-          }],
-        };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_memory");
       }
     }
   );

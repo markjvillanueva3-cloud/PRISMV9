@@ -12,6 +12,8 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
 import { PATHS } from "../../constants.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = ["create_task", "task_status", "task_result", "cancel_task", "list_tasks",
   "web_research", "code_sandbox", "hook_trigger", "hook_list", "hook_chain", "hook_stats"] as const;
@@ -134,8 +136,14 @@ export function registerManusDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("Manus action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_manus] Action: ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       let result: any;
       try {
         switch (action) {
@@ -274,13 +282,13 @@ export function registerManusDispatcher(server: any): void {
             result = { error: `Unknown action: ${action}`, available: ACTIONS };
         }
         return ok(result);
-      } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_manus");
       }
     }
   );
 }
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }

@@ -9,6 +9,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = [
   "aerospace_check", "medical_check", "automotive_check", "oil_gas_check",
@@ -20,10 +21,16 @@ export function registerIndustryDispatcher(server: any): void {
     `Industry Compliance dispatcher — aerospace (AS9100/NADCAP), medical (ISO 13485), automotive (IATF 16949), oil & gas (API) compliance checks.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_industry] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "aerospace_check": {
             const checks: Array<{ item: string; status: string; note: string }> = [];
@@ -91,9 +98,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (err: any) {
-        log.error(`[prism_industry] ${action} failed: ${err.message}`);
-        result = { error: err.message, action };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_industry");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

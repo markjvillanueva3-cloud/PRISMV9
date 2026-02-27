@@ -7,10 +7,13 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
 import { resetReconFlag } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 // __dirname at runtime = C:\PRISM\mcp-server\dist (esbuild bundles to single file)
 const MCP_ROOT = path.join(__dirname, "..");        // C:\PRISM\mcp-server (for build/src/dist)
@@ -61,8 +64,14 @@ export function registerDevDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("Dev action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_dev] Action: ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       let result: any;
       try {
         switch (action) {
@@ -241,7 +250,7 @@ export function registerDevDispatcher(server: any): void {
             // and deriveNextAction() would otherwise point at stale tool calls.
             try {
               const raReset = path.join(STATE_DIR, "RECENT_ACTIONS.json");
-              fs.writeFileSync(raReset, JSON.stringify({ updated: new Date().toISOString(), session_call_count: 0, actions: [] }, null, 2));
+              safeWriteSync(raReset, JSON.stringify({ updated: new Date().toISOString(), session_call_count: 0, actions: [] }, null, 2));
             } catch { /* non-fatal */ }
             // Reset recon flag so rehydration fires on next tool call post-compaction
             try { resetReconFlag(); } catch { /* non-fatal */ }
@@ -469,7 +478,7 @@ export function registerDevDispatcher(server: any): void {
             // Reset CADENCE_FIRES.json on boot so each session gets fresh tracking
             try {
               const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
-              fs.writeFileSync(cadenceFiresPath, JSON.stringify({ _session_start: new Date().toISOString() }, null, 2));
+              safeWriteSync(cadenceFiresPath, JSON.stringify({ _session_start: new Date().toISOString() }, null, 2));
             } catch { /* non-fatal */ }
             // H1-MS4: Cross-session learning injection
             try {
@@ -566,7 +575,7 @@ export function registerDevDispatcher(server: any): void {
             const fullPath = path.join(MCP_ROOT, params.path || "");
             const dir = path.dirname(fullPath);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-            fs.writeFileSync(fullPath, params.content || "", "utf-8");
+            safeWriteSync(fullPath, params.content || "", "utf-8");
             result = { written: params.path, size: fs.statSync(fullPath).size, lines: (params.content || "").split("\n").length };
             break;
           }
@@ -585,14 +594,14 @@ export function registerDevDispatcher(server: any): void {
               const queue = generateATCSWorkQueue();
               const taskDir = path.join(PROJECT_ROOT, "autonomous-tasks", "smoke-test-latest");
               if (!fs.existsSync(taskDir)) fs.mkdirSync(taskDir, { recursive: true });
-              fs.writeFileSync(path.join(taskDir, "WORK_QUEUE.json"), JSON.stringify({ units: queue }, null, 2));
-              fs.writeFileSync(path.join(taskDir, "TASK_MANIFEST.json"), JSON.stringify({
+              safeWriteSync(path.join(taskDir, "WORK_QUEUE.json"), JSON.stringify({ units: queue }, null, 2));
+              safeWriteSync(path.join(taskDir, "TASK_MANIFEST.json"), JSON.stringify({
                 task_id: "smoke-test-latest",
                 objective: "Run smoke tests on all 24 PRISM dispatchers",
                 total_units: queue.length,
                 created_at: new Date().toISOString(),
               }, null, 2));
-              fs.writeFileSync(path.join(taskDir, "ACCEPTANCE_CRITERIA.json"), JSON.stringify({
+              safeWriteSync(path.join(taskDir, "ACCEPTANCE_CRITERIA.json"), JSON.stringify({
                 pass_rate_min: 80,
                 max_errors: 3,
                 must_pass: ["SMK-001", "SMK-009", "SMK-011", "SMK-012"],
@@ -629,9 +638,9 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
-      } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_dev");
       }
     }
   );

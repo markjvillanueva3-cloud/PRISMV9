@@ -10,6 +10,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 let _quality: any, _tolerance: any, _dimensional: any;
 async function getEngine(name: string): Promise<any> {
@@ -33,10 +34,16 @@ export function registerQualityDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_quality] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "spc_calculate": {
             const engine = await getEngine("quality");
@@ -132,9 +139,8 @@ Params vary by action — pass relevant fields in params object.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (err: any) {
-        log.error(`[prism_quality] ${action} failed: ${err.message}`);
-        result = { error: err.message, action };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_quality");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

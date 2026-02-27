@@ -18,7 +18,7 @@ import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils
 
 export class MaterialRegistry extends BaseRegistry<Material> {
   private layerCaches: Map<string, Map<string, Material>> = new Map();
-  private indexByName: Map<string, string> = new Map();
+  private indexByName: Map<string, string[]> = new Map();
   private indexByISO: Map<string, string[]> = new Map();
   private indexByCategory: Map<string, string[]> = new Map();
   
@@ -214,15 +214,13 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     for (const [id, entry] of this.entries) {
       const material = entry.data;
       
-      // Index by name (normalized for case-insensitive search)
+      // Index by name (normalized for case-insensitive search) — multi-value
       if (material.name) {
         const normalizedName = material.name.toLowerCase().trim().replace(/\s+/g, ' ');
-        const existing = this.indexByName.get(normalizedName);
-        if (existing && existing !== id) {
-          log.warn(`[MaterialRegistry] Name collision: "${material.name}" (${id}) normalizes to same key as existing entry (${existing}) — keeping first entry`);
-        } else {
-          this.indexByName.set(normalizedName, id);
+        if (!this.indexByName.has(normalizedName)) {
+          this.indexByName.set(normalizedName, []);
         }
+        this.indexByName.get(normalizedName)!.push(id);
       }
       
       // Index by ISO group — check both classification.iso_group AND top-level iso_group
@@ -248,6 +246,35 @@ export class MaterialRegistry extends BaseRegistry<Material> {
   }
 
   /**
+   * Incrementally add a single material to indexes (avoids full rebuild)
+   */
+  private addToIndexes(id: string, material: Material): void {
+    if (material.name) {
+      const normalizedName = material.name.toLowerCase().trim().replace(/\s+/g, ' ');
+      if (!this.indexByName.has(normalizedName)) {
+        this.indexByName.set(normalizedName, []);
+      }
+      this.indexByName.get(normalizedName)!.push(id);
+    }
+
+    const iso = material.classification?.iso_group || (material as any).iso_group;
+    if (iso) {
+      if (!this.indexByISO.has(iso)) {
+        this.indexByISO.set(iso, []);
+      }
+      this.indexByISO.get(iso)!.push(id);
+    }
+
+    const category = material.classification?.category || (material as any).material_type || (material as any).subcategory;
+    if (category) {
+      if (!this.indexByCategory.has(category)) {
+        this.indexByCategory.set(category, []);
+      }
+      this.indexByCategory.get(category)!.push(id);
+    }
+  }
+
+  /**
    * Get material by ID or name
    */
   async getByIdOrName(identifier: string): Promise<Material | undefined> {
@@ -261,17 +288,17 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     // Try name lookup (case-insensitive, whitespace-normalized)
     const normalizedSearch = identifier.toLowerCase().trim().replace(/\s+/g, ' ');
-    const idFromName = this.indexByName.get(normalizedSearch);
-    if (idFromName) {
-      return this.get(idFromName);
+    const idsFromName = this.indexByName.get(normalizedSearch);
+    if (idsFromName && idsFromName.length > 0) {
+      return this.get(idsFromName[0]);
     }
     
     // Try partial name match - ALL words must be present
     const searchWords = identifier.toLowerCase().split(/\s+/).filter(w => w.length > 0);
-    for (const [name, id] of this.indexByName) {
+    for (const [name, ids] of this.indexByName) {
       // Check if ALL search words are in the name
       if (searchWords.every(word => name.includes(word))) {
-        return this.get(id);
+        return this.get(ids[0]);
       }
     }
     
@@ -428,8 +455,8 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     this.set(id, material, layer);
     this.layerCaches.get(layer)?.set(id, material);
     
-    // Update indexes
-    this.buildIndexes();
+    // Incremental index update (avoids full rebuild)
+    this.addToIndexes(id, material);
     
     // Persist to layer file
     await this.persistToLayer(id, material, layer);

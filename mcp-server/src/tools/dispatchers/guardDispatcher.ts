@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
@@ -7,6 +9,7 @@ import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
 import { getHookHistory, getDispatchCount } from "../autoHookWrapper.js";
 import { PATHS } from "../../constants.js";
 import type { HookExecution } from "../../types/prism-schema.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test",
   // D3: Learning & Pattern Detection — Python module wiring
@@ -14,7 +17,7 @@ const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_
 ] as const;
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 // State and constants
@@ -374,8 +377,14 @@ export function registerGuardDispatcher(server: any): void {
     "prism_guard",
     `Reasoning + Enforcement + AutoHook diagnostics (8 actions). Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_guard] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case "decision_log": {
@@ -397,7 +406,7 @@ export function registerGuardDispatcher(server: any): void {
                 session: 0,
               };
               const filePath = path.join(DECISIONS_DIR, `${id}.json`);
-              fs.writeFileSync(filePath, JSON.stringify(decision, null, 2), "utf-8");
+              safeWriteSync(filePath, JSON.stringify(decision, null, 2), "utf-8");
               return ok({ action: "recorded", ...decision });
             } else if (subAction === "search") {
               ensureDirs();
@@ -441,7 +450,7 @@ export function registerGuardDispatcher(server: any): void {
                 if (params.root_cause && !existing.root_cause) existing.root_cause = params.root_cause;
                 if (params.prevention && !existing.prevention) existing.prevention = params.prevention;
                 const updated = patterns.map((p: any) => p.id === existing.id ? existing : p);
-                fs.writeFileSync(FAILURE_PATTERNS_PATH, updated.map((p: any) => JSON.stringify(p)).join("\n") + "\n", "utf-8");
+                safeWriteSync(FAILURE_PATTERNS_PATH, updated.map((p: any) => JSON.stringify(p)).join("\n") + "\n", "utf-8");
                 return ok({ action: "recorded", pattern: existing });
               }
               const pattern = {
@@ -508,7 +517,7 @@ export function registerGuardDispatcher(server: any): void {
               matchingPattern.occurrences++;
               matchingPattern.last_seen = entry.timestamp;
               const updated = patterns.map((p: any) => p.id === matchingPattern.id ? matchingPattern : p);
-              fs.writeFileSync(FAILURE_PATTERNS_PATH, updated.map((p: any) => JSON.stringify(p)).join("\n") + "\n", "utf-8");
+              safeWriteSync(FAILURE_PATTERNS_PATH, updated.map((p: any) => JSON.stringify(p)).join("\n") + "\n", "utf-8");
             }
             
             const related = patterns.filter((p: any) => {
@@ -661,7 +670,7 @@ export function registerGuardDispatcher(server: any): void {
             const pyArgs = ["--detect"];
             if (params.content) {
               const tmpFile = path.join(STATE_DIR, `_pattern_tmp_${Date.now()}.txt`);
-              fs.writeFileSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
+              safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push(tmpFile);
               const output = runPythonScript("pattern_detector.py", pyArgs);
               try { fs.unlinkSync(tmpFile); } catch {}
@@ -686,7 +695,7 @@ export function registerGuardDispatcher(server: any): void {
             const data = params.data || params.content || params.lesson;
             if (!data) return ok({ error: "Missing data/content/lesson parameter" });
             const tmpFile = path.join(STATE_DIR, `_learning_tmp_${Date.now()}.txt`);
-            fs.writeFileSync(tmpFile, typeof data === 'string' ? data : JSON.stringify(data));
+            safeWriteSync(tmpFile, typeof data === 'string' ? data : JSON.stringify(data));
             const output = runPythonScript("learning_store.py", ["--learn-file", tmpFile]);
             try { fs.unlinkSync(tmpFile); } catch {}
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
@@ -708,7 +717,7 @@ export function registerGuardDispatcher(server: any): void {
             const pyArgs: string[] = [];
             if (params.content) {
               const tmpFile = path.join(STATE_DIR, `_priority_tmp_${Date.now()}.txt`);
-              fs.writeFileSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
+              safeWriteSync(tmpFile, typeof params.content === "string" ? params.content : JSON.stringify(params.content));
               pyArgs.push("--file", tmpFile);
               if (params.target && !isNaN(Number(params.target))) pyArgs.push("--target", String(params.target));
               const output = runPythonScript("priority_scorer.py", pyArgs);
@@ -723,7 +732,7 @@ export function registerGuardDispatcher(server: any): void {
           default:
         }
       } catch (err: any) {
-        return ok({ error: err.message, action });
+        return dispatcherError(err, action, "prism_guard");
       }
     }
   );

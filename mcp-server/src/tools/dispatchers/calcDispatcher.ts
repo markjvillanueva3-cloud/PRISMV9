@@ -2,6 +2,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import { computationCache } from "../../engines/ComputationCache.js";
@@ -286,6 +287,12 @@ export function registerCalcDispatcher(server: any): void {
       };
       
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          Object.assign(params, normalizeParams(rawParams));
+        } catch { /* normalizer not available */ }
+
         // === PRE-CALCULATION HOOKS (9 hooks: lesson recall, validation, compatibility, force bounds, circuit breaker) ===
         const hookCtx = {
           operation: action,
@@ -1379,16 +1386,7 @@ export function registerCalcDispatcher(server: any): void {
         
       } catch (error) {
         log.error(`[prism_calc] Error in ${action}:`, error);
-        return {
-          content: [{ 
-            type: "text", 
-            text: JSON.stringify({ 
-              error: `Calculation failed: ${error instanceof Error ? error.message : String(error)}`,
-              action,
-              params 
-            }) 
-          }]
-        };
+        return dispatcherError(error, action, "prism_calc");
       }
     }
   );

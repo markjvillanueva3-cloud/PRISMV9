@@ -13,6 +13,7 @@
 
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "./atomicWrite.js";
 
 export type SlimLevel = "NORMAL" | "MODERATE" | "AGGRESSIVE";
 
@@ -246,7 +247,7 @@ export function persistCadenceToDisk(fullCadence: Record<string, any>, stateDir:
       _alert_count: alerts.length,
       _routine_count: routineCount,
     };
-    fs.writeFileSync(cadencePath, JSON.stringify(diskData, null, 2));
+    safeWriteSync(cadencePath, JSON.stringify(diskData, null, 2));
 
     // Also append to rolling cadence log (keep last 50 entries)
     const logPath = path.join(stateDir, "CADENCE_LOG.jsonl");
@@ -264,7 +265,7 @@ export function persistCadenceToDisk(fullCadence: Record<string, any>, stateDir:
       const stat = fs.statSync(logPath);
       if (stat.size > 50000) {
         const lines = fs.readFileSync(logPath, "utf-8").trim().split("\n");
-        fs.writeFileSync(logPath, lines.slice(-50).join("\n") + "\n");
+        safeWriteSync(logPath, lines.slice(-50).join("\n") + "\n");
       }
     } catch {}
   } catch { /* disk write non-fatal */ }

@@ -21,11 +21,13 @@
 import { z } from 'zod';
 import { log } from '../../utils/Logger.js';
 import { nlHookEngine } from '../../engines/NLHookEngine.js';
+import { slimResponse } from '../../utils/responseSlimmer.js';
+import { dispatcherError } from '../../utils/dispatcherMiddleware.js';
 
 const ACTIONS = ['create', 'parse', 'approve', 'remove', 'list', 'get', 'stats', 'config'] as const;
 
 function ok(data: any) {
-  return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: 'text' as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 export function registerNLHookDispatcher(server: any): void {
@@ -33,8 +35,14 @@ export function registerNLHookDispatcher(server: any): void {
     'prism_nl_hook',
     `Natural language hook authoring (8 actions). Parse NL descriptions into live hooks. Actions: ${ACTIONS.join(', ')}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_nl_hook] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import('../../utils/paramNormalizer.js');
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case 'create': {
@@ -102,9 +110,8 @@ export function registerNLHookDispatcher(server: any): void {
           default:
             return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
-      } catch (e: any) {
-        log.error(`[prism_nl_hook] ${action} failed: ${e.message}`);
-        return ok({ error: e.message, action });
+      } catch (error) {
+        return dispatcherError(error, action, "prism_nl_hook");
       }
     }
   );

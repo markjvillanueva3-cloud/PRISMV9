@@ -5,6 +5,8 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = ["autopilot", "autopilot_quick", "brainstorm_lenses", "ralph_loop_lite", "formula_optimize", "autopilot_v2", "registry_status", "working_tools"] as const;
 
@@ -48,8 +50,14 @@ export function registerAutoPilotDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("AutoPilot action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_autopilot_d] Action: ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       loadAutoPilot();
       let result: any;
       try {
@@ -148,9 +156,9 @@ export function registerAutoPilotDispatcher(server: any): void {
             return { content: [{ type: "text", text: out }] };
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
-      } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_autopilot_d");
       }
     }
   );

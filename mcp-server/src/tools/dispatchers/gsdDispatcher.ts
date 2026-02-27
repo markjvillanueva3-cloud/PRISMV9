@@ -14,6 +14,9 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../../constants.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const GSD_DIR = PATHS.GSD_DIR;
@@ -51,7 +54,7 @@ function logGsdAccess(action: string, section?: string): void {
     // Keep last 200 accesses to prevent file growth
     if (log.accesses.length > 200) log.accesses = log.accesses.slice(-200);
     log.last_updated = new Date().toISOString();
-    fs.writeFileSync(GSD_TELEMETRY_FILE, JSON.stringify(log, null, 2));
+    safeWriteSync(GSD_TELEMETRY_FILE, JSON.stringify(log, null, 2));
   } catch { /* non-fatal — telemetry shouldn't break GSD */ }
 }
 
@@ -100,8 +103,14 @@ export function registerGsdDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("GSD action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_gsd] Action: ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       let result: any;
       try {
         switch (action) {
@@ -183,9 +192,9 @@ export function registerGsdDispatcher(server: any): void {
             break;
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
-      } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_gsd");
       }
     }
   );

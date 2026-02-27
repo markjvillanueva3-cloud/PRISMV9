@@ -42,11 +42,14 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import * as fs from "fs";
 import * as path from "path";
 import { hasValidApiKey, parallelAPICalls, getModelForTier } from "../../config/api-config.js";
 import type { AutonomousConfig, ExecutionPlan, UnitExecutionResult, AuditEntry } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = [
   "auto_configure", "auto_plan", "auto_execute", "auto_status",
@@ -133,7 +136,7 @@ function loadConfig(): AutonomousConfig {
 function saveConfig(config: AutonomousConfig): void {
   const dir = path.dirname(AUTONOMOUS_CONFIG_PATH);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(AUTONOMOUS_CONFIG_PATH, JSON.stringify(config, null, 2));
+  safeWriteSync(AUTONOMOUS_CONFIG_PATH, JSON.stringify(config, null, 2));
 }
 
 // ============================================================================
@@ -573,7 +576,7 @@ function writeATCSUnitOutput(taskId: string, unitId: number, output: any, batchN
     try { batchOutput = JSON.parse(fs.readFileSync(outputFile, "utf-8")); } catch { batchOutput = []; }
   }
   batchOutput.push({ unit_id: unitId, ...output });
-  fs.writeFileSync(outputFile, JSON.stringify(batchOutput, null, 2));
+  safeWriteSync(outputFile, JSON.stringify(batchOutput, null, 2));
 }
 
 function writeATCSQueue(taskId: string, queue: any[]): void {
@@ -585,7 +588,7 @@ function writeATCSQueue(taskId: string, queue: any[]): void {
     isWrapped = !Array.isArray(raw) && (raw.units || raw.queue);
   } catch { /* new file */ }
   const data = isWrapped ? { units: queue } : queue;
-  fs.writeFileSync(qPath, JSON.stringify(data, null, 2));
+  safeWriteSync(qPath, JSON.stringify(data, null, 2));
 }
 
 function updateATCSUnit(taskId: string, unitId: number, status: string, error?: string): void {
@@ -606,14 +609,14 @@ function updateATCSProgress(taskId: string, completedCount: number, failedCount:
   manifest.progress.completed_units = (manifest.progress.completed_units || 0) + completedCount;
   manifest.progress.failed_units = (manifest.progress.failed_units || 0) + failedCount;
   manifest.status = "IN_PROGRESS";
-  fs.writeFileSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
+  safeWriteSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
 }
 
 function appendATCSLog(taskId: string, message: string): void {
   const logPath = path.join(ATCS_ROOT, taskId, "EXECUTION_LOG.md");
   const line = `\n[${new Date().toISOString()}] [AUTONOMOUS] ${message}`;
   if (fs.existsSync(logPath)) fs.appendFileSync(logPath, line);
-  else fs.writeFileSync(logPath, `# Execution Log: ${taskId}\n${line}`);
+  else safeWriteSync(logPath, `# Execution Log: ${taskId}\n${line}`);
 }
 
 function listATCSTasks(): string[] {
@@ -637,7 +640,7 @@ function findActiveATCSTask(): string | null {
 // HELPERS
 // ============================================================================
 
-function ok(data: any) { return { content: [{ type: "text" as const, text: JSON.stringify(data) }] }; }
+function ok(data: any) { return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] }; }
 function err(msg: string, extra?: any) { return { content: [{ type: "text" as const, text: JSON.stringify({ error: msg, ...extra }) }], isError: true }; }
 /** Normalize unit ID — ATCS uses `id`, autonomous uses `unit_id` */
 function uid(unit: any): number { return unit.unit_id ?? unit.id ?? 0; }
@@ -652,10 +655,15 @@ export function registerAutonomousDispatcher(server: any): void {
     `Autonomous execution engine — bridges ATCS state machine + AgentExecutor for background task processing.
 Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_autonomous] ${action}`);
       const config = loadConfig();
-      
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
 
@@ -1001,7 +1009,7 @@ Actions: ${ACTIONS.join(", ")}`,
             // Write validation report
             const valDir = path.join(ATCS_ROOT, taskId, "validation");
             if (!fs.existsSync(valDir)) fs.mkdirSync(valDir, { recursive: true });
-            fs.writeFileSync(path.join(valDir, `auto_validate_batch_${String(batchNum).padStart(3, "0")}.json`), JSON.stringify(report, null, 2));
+            safeWriteSync(path.join(valDir, `auto_validate_batch_${String(batchNum).padStart(3, "0")}.json`), JSON.stringify(report, null, 2));
             appendATCSLog(taskId, `AUTO_VALIDATE batch ${batchNum}: ${report.overall}`);
 
             return ok(report);
@@ -1065,7 +1073,7 @@ Actions: ${ACTIONS.join(", ")}`,
             const manifest = readATCSManifest(taskId);
             manifest.status = "PAUSED";
             manifest.progress.last_checkpoint = new Date().toISOString();
-            fs.writeFileSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
+            safeWriteSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
 
             // Save checkpoint
             const queue = readATCSQueue(taskId);
@@ -1082,7 +1090,7 @@ Actions: ${ACTIONS.join(", ")}`,
             };
             const cpDir = path.join(ATCS_ROOT, taskId, "checkpoints");
             if (!fs.existsSync(cpDir)) fs.mkdirSync(cpDir, { recursive: true });
-            fs.writeFileSync(path.join(cpDir, `pause_${Date.now()}.json`), JSON.stringify(checkpoint, null, 2));
+            safeWriteSync(path.join(cpDir, `pause_${Date.now()}.json`), JSON.stringify(checkpoint, null, 2));
             
             // Reset any IN_PROGRESS units back to PENDING (G18)
             for (const u of queue) {
@@ -1103,7 +1111,7 @@ Actions: ${ACTIONS.join(", ")}`,
 
             const manifest = readATCSManifest(taskId);
             manifest.status = "IN_PROGRESS";
-            fs.writeFileSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
+            safeWriteSync(path.join(ATCS_ROOT, taskId, "TASK_MANIFEST.json"), JSON.stringify(manifest, null, 2));
 
             const queue = readATCSQueue(taskId);
             const pending = queue.filter((u: any) => u.status === "PENDING").length;
@@ -1124,7 +1132,7 @@ Actions: ${ACTIONS.join(", ")}`,
         }
       } catch (error: any) {
         log.error(`[prism_autonomous] Error in ${action}: ${error.message}`);
-        return err(error.message, { action, stack: error.stack?.split("\n").slice(0, 3) });
+        return dispatcherError(error, action, "prism_autonomous");
       }
     }
   );

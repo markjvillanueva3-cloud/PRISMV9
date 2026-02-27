@@ -4,11 +4,14 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import * as fs from "fs";
 import * as path from "path";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const DOCS_DIR = path.join(__dirname, "../../data/docs");
 const LEGACY_STATE_DIR = PATHS.STATE_DIR;
@@ -22,14 +25,14 @@ function readDoc(name: string): string {
     const legacyPath = path.join(LEGACY_STATE_DIR, name);
     if (fs.existsSync(legacyPath)) {
       const content = fs.readFileSync(legacyPath, "utf-8");
-      fs.writeFileSync(docPath, content, "utf-8");
+      safeWriteSync(docPath, content, "utf-8");
       return content;
     }
     throw new Error(`Document not found: ${name}`);
   }
   return fs.readFileSync(docPath, "utf-8");
 }
-function writeDoc(name: string, content: string): void { fs.writeFileSync(getDocPath(name), content, "utf-8"); }
+function writeDoc(name: string, content: string): void { safeWriteSync(getDocPath(name), content, "utf-8"); }
 function listDocs(): string[] {
   if (!fs.existsSync(DOCS_DIR)) return [];
   return fs.readdirSync(DOCS_DIR).filter(f => f.endsWith(".md") || f.endsWith(".json"));
@@ -97,10 +100,16 @@ export function registerDocumentDispatcher(server: any): void {
     `Document management dispatcher. Actions: list, read, write, append, roadmap_status, action_tracker, migrate.
 Params: read/write/append need 'name'. write needs 'content'. read accepts 'detail':true for full content.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_doc] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "list": {
             const docs = listDocs();
@@ -189,10 +198,10 @@ Params: read/write/append need 'name'. write needs 'content'. read accepts 'deta
           }
           default: result = { error: `Unknown action: ${action}`, available: ACTIONS };
         }
-        return { content: [{ type: "text", text: typeof result === "string" ? result : JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: typeof result === "string" ? result : JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
         log.error(`[prism_doc] Error: ${error.message}`);
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_doc");
       }
     }
   );

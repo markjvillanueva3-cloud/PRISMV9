@@ -10,6 +10,8 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookEngine } from "../../orchestration/HookEngine.js";
 import { hasValidApiKey, parallelAPICalls, getModelForTier } from "../../config/api-config.js";
 import { knowledgeEngine } from "../../engines/KnowledgeQueryEngine.js";
@@ -17,6 +19,7 @@ import { skillRegistry } from "../../registries/SkillRegistry.js";
 import { formulaRegistry } from "../../registries/FormulaRegistry.js";
 import type { CogState, BrainstormConfig, BrainstormResult } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = [
   "brainstorm", "plan", "execute", "review_spec", "review_quality", "debug",
@@ -25,13 +28,13 @@ const ACTIONS = [
   "session_start_full", "session_end_full", "evidence_level", "validate_gates_full", "validate_mathplan"
 ] as const;
 
-function ok(data: any) { return { content: [{ type: "text" as const, text: JSON.stringify(data) }] }; }
+function ok(data: any) { return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] }; }
 
 const DATA_DIR = PATHS.DATA_DIR;
 const COORD_DIR = path.join(DATA_DIR, "coordination");
 const STATE_DIR = PATHS.STATE_DIR;
 function loadJSON(fp: string) { try { return JSON.parse(fs.readFileSync(fp, "utf-8")); } catch { return null; } }
-function saveJSON(fp: string, data: any) { fs.writeFileSync(fp, JSON.stringify(data, null, 2)); }
+function saveJSON(fp: string, data: any) { safeWriteSync(fp, JSON.stringify(data, null, 2)); }
 
 async function fireHook(id: string, ctx: Record<string, any>) {
   try { return await hookEngine.executeHook(id, ctx); } catch { return null; }
@@ -338,8 +341,14 @@ export function registerSpDispatcher(server: any): void {
     "prism_sp",
     `Development protocol dispatcher (19 actions). Superpowers workflow, cognitive system, ILP, validation gates.\nActions: ${ACTIONS.join(", ")}\n\nbrainstorm: ENHANCED - Real 7-lens analysis (problem, context?, domain?, depth?:"quick"|"standard"|"deep", constraints?, max_lenses?). Quick=free/fast, Standard=5 parallel API calls, Deep=7 lenses+Opus synthesis. Grounded in PRISM knowledge.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string,any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string,any> }) => {
       log.info(`[prism_sp] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case "brainstorm": {
@@ -521,7 +530,7 @@ export function registerSpDispatcher(server: any): void {
           }
           default: return ok({ error:`Unknown action: ${action}`, available:ACTIONS });
         }
-      } catch(err:any) { return ok({error:err.message, action}); }
+      } catch(error) { return dispatcherError(error, action, "prism_sp"); }
     }
   );
 }

@@ -6,10 +6,13 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { apiConfig } from "../../config/api-config.js";
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const VALIDATORS = ["SAFETY_AUDITOR", "CODE_REVIEWER", "SPEC_VERIFIER", "FORMULA_VALIDATOR", "COMPLETENESS_CHECKER"] as const;
 const ACTIONS = ["loop", "scrutinize", "assess"] as const;
@@ -69,10 +72,16 @@ export function registerRalphDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("Ralph action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_ralph] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "loop": {
             const target = params.content || params.target || "";
@@ -109,7 +118,7 @@ export function registerRalphDispatcher(server: any): void {
             // Save session
             if (!fs.existsSync(RALPH_DIR)) fs.mkdirSync(RALPH_DIR, { recursive: true });
             const sessionId = `ralph_${Date.now()}`;
-            fs.writeFileSync(path.join(RALPH_DIR, `${sessionId}.json`), JSON.stringify({ sessionId, phases, timestamp: new Date().toISOString() }, null, 2));
+            safeWriteSync(path.join(RALPH_DIR, `${sessionId}.json`), JSON.stringify({ sessionId, phases, timestamp: new Date().toISOString() }, null, 2));
 
             result = { sessionId, phases_completed: 4, phases, api_calls: validators.length + 3 };
             break;
@@ -127,9 +136,9 @@ export function registerRalphDispatcher(server: any): void {
             break;
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_ralph");
       }
     }
   );

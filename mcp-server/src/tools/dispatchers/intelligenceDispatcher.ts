@@ -15,37 +15,60 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { registryManager } from "../../registries/manager.js";
-import { executeIntelligenceAction, INTELLIGENCE_ACTIONS, type IntelligenceAction } from "../../engines/IntelligenceEngine.js";
-import { jobLearning } from "../../engines/JobLearningEngine.js";
-import { algorithmGateway } from "../../engines/AlgorithmGatewayEngine.js";
-import { shopScheduler } from "../../engines/ShopSchedulerEngine.js";
-import { intentEngine } from "../../engines/IntentDecompositionEngine.js";
-import { responseFormatter } from "../../engines/ResponseFormatterEngine.js";
-import { workflowChains } from "../../engines/WorkflowChainsEngine.js";
-import { onboardingEngine } from "../../engines/OnboardingEngine.js";
-import { setupSheetEngine } from "../../engines/SetupSheetEngine.js";
-import { conversationalMemory } from "../../engines/ConversationalMemoryEngine.js";
-import { userWorkflowSkills } from "../../engines/UserWorkflowSkillsEngine.js";
-import { userAssistanceSkills } from "../../engines/UserAssistanceSkillsEngine.js";
-import { machineConnectivity } from "../../engines/MachineConnectivityEngine.js";
-import { camIntegration } from "../../engines/CAMIntegrationEngine.js";
-import { dncTransfer } from "../../engines/DNCTransferEngine.js";
-import { mobileInterface } from "../../engines/MobileInterfaceEngine.js";
-import { erpIntegration } from "../../engines/ERPIntegrationEngine.js";
-import { measurementIntegration } from "../../engines/MeasurementIntegrationEngine.js";
-import { inverseSolver } from "../../engines/InverseSolverEngine.js";
-import { failureForensics } from "../../engines/FailureForensicsEngine.js";
-import { apprenticeEngine } from "../../engines/ApprenticeEngine.js";
-import { manufacturingGenome } from "../../engines/ManufacturingGenomeEngine.js";
-import { predictiveMaintenance } from "../../engines/PredictiveMaintenanceEngine.js";
-import { sustainabilityEngine } from "../../engines/SustainabilityEngine.js";
-import { generativeProcess } from "../../engines/GenerativeProcessEngine.js";
-import { knowledgeGraph } from "../../engines/KnowledgeGraphEngine.js";
-import { federatedLearning } from "../../engines/FederatedLearningEngine.js";
-import { adaptiveControl } from "../../engines/AdaptiveControlEngine.js";
-import { productSFC, productPPG, productShop, productACNC } from "../../engines/ProductEngine.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+import type { IntelligenceAction } from "../../engines/IntelligenceEngine.js";
+
+// Lazy engine cache — each engine is loaded on first use only
+let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
+    _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
+    _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
+    _userAssistanceSkills: any, _machineConnectivity: any, _camIntegration: any,
+    _dncTransfer: any, _mobileInterface: any, _erpIntegration: any,
+    _measurementIntegration: any, _inverseSolver: any, _failureForensics: any,
+    _apprenticeEngine: any, _manufacturingGenome: any, _predictiveMaintenance: any,
+    _sustainabilityEngine: any, _generativeProcess: any, _knowledgeGraph: any,
+    _federatedLearning: any, _adaptiveControl: any,
+    _productSFC: any, _productPPG: any, _productShop: any, _productACNC: any;
+
+async function getEngine(name: string): Promise<any> {
+  switch (name) {
+    case "intelligence":       return _intelligence ??= (await import("../../engines/IntelligenceEngine.js")).executeIntelligenceAction;
+    case "jobLearning":        return _jobLearning ??= (await import("../../engines/JobLearningEngine.js")).jobLearning;
+    case "algorithmGateway":   return _algorithmGateway ??= (await import("../../engines/AlgorithmGatewayEngine.js")).algorithmGateway;
+    case "shopScheduler":      return _shopScheduler ??= (await import("../../engines/ShopSchedulerEngine.js")).shopScheduler;
+    case "intentEngine":       return _intentEngine ??= (await import("../../engines/IntentDecompositionEngine.js")).intentEngine;
+    case "responseFormatter":  return _responseFormatter ??= (await import("../../engines/ResponseFormatterEngine.js")).responseFormatter;
+    case "workflowChains":     return _workflowChains ??= (await import("../../engines/WorkflowChainsEngine.js")).workflowChains;
+    case "onboardingEngine":   return _onboardingEngine ??= (await import("../../engines/OnboardingEngine.js")).onboardingEngine;
+    case "setupSheetEngine":   return _setupSheetEngine ??= (await import("../../engines/SetupSheetEngine.js")).setupSheetEngine;
+    case "conversationalMemory": return _conversationalMemory ??= (await import("../../engines/ConversationalMemoryEngine.js")).conversationalMemory;
+    case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
+    case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
+    case "machineConnectivity": return _machineConnectivity ??= (await import("../../engines/MachineConnectivityEngine.js")).machineConnectivity;
+    case "camIntegration":     return _camIntegration ??= (await import("../../engines/CAMIntegrationEngine.js")).camIntegration;
+    case "dncTransfer":        return _dncTransfer ??= (await import("../../engines/DNCTransferEngine.js")).dncTransfer;
+    case "mobileInterface":    return _mobileInterface ??= (await import("../../engines/MobileInterfaceEngine.js")).mobileInterface;
+    case "erpIntegration":     return _erpIntegration ??= (await import("../../engines/ERPIntegrationEngine.js")).erpIntegration;
+    case "measurementIntegration": return _measurementIntegration ??= (await import("../../engines/MeasurementIntegrationEngine.js")).measurementIntegration;
+    case "inverseSolver":      return _inverseSolver ??= (await import("../../engines/InverseSolverEngine.js")).inverseSolver;
+    case "failureForensics":   return _failureForensics ??= (await import("../../engines/FailureForensicsEngine.js")).failureForensics;
+    case "apprenticeEngine":   return _apprenticeEngine ??= (await import("../../engines/ApprenticeEngine.js")).apprenticeEngine;
+    case "manufacturingGenome": return _manufacturingGenome ??= (await import("../../engines/ManufacturingGenomeEngine.js")).manufacturingGenome;
+    case "predictiveMaintenance": return _predictiveMaintenance ??= (await import("../../engines/PredictiveMaintenanceEngine.js")).predictiveMaintenance;
+    case "sustainabilityEngine": return _sustainabilityEngine ??= (await import("../../engines/SustainabilityEngine.js")).sustainabilityEngine;
+    case "generativeProcess":  return _generativeProcess ??= (await import("../../engines/GenerativeProcessEngine.js")).generativeProcess;
+    case "knowledgeGraph":     return _knowledgeGraph ??= (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraph;
+    case "federatedLearning":  return _federatedLearning ??= (await import("../../engines/FederatedLearningEngine.js")).federatedLearning;
+    case "adaptiveControl":    return _adaptiveControl ??= (await import("../../engines/AdaptiveControlEngine.js")).adaptiveControl;
+    case "productSFC":         return _productSFC ??= (await import("../../engines/ProductEngine.js")).productSFC;
+    case "productPPG":         return _productPPG ??= (await import("../../engines/ProductEngine.js")).productPPG;
+    case "productShop":        return _productShop ??= (await import("../../engines/ProductEngine.js")).productShop;
+    case "productACNC":        return _productACNC ??= (await import("../../engines/ProductEngine.js")).productACNC;
+    default: throw new Error(`Unknown intelligence engine: ${name}`);
+  }
+}
 
 const ACTIONS = [
   "job_plan",
@@ -1028,6 +1051,12 @@ export function registerIntelligenceDispatcher(server: any): void {
       }
 
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          Object.assign(params, normalizeParams(rawParams));
+        } catch { /* normalizer not available */ }
+
         // === PRE-INTELLIGENCE HOOKS ===
         const hookCtx = {
           operation: action,
@@ -1087,68 +1116,68 @@ export function registerIntelligenceDispatcher(server: any): void {
         const result = L3_INDUSTRY_ACTIONS.includes(action as any)
           ? l3IndustryAction(action, params)
           : SFC_ACTIONS.includes(action as any)
-          ? productSFC(action, params)
+          ? (await getEngine("productSFC"))(action, params)
           : PPG_ACTIONS.includes(action as any)
-          ? productPPG(action, params)
+          ? (await getEngine("productPPG"))(action, params)
           : SHOP_ACTIONS.includes(action as any)
-          ? productShop(action, params)
+          ? (await getEngine("productShop"))(action, params)
           : ACNC_ACTIONS.includes(action as any)
-          ? productACNC(action, params)
+          ? (await getEngine("productACNC"))(action, params)
           : ADAPTIVE_ACTIONS.includes(action as any)
-          ? adaptiveControl(action, params)
+          ? (await getEngine("adaptiveControl"))(action, params)
           : LEARN_ACTIONS.includes(action as any)
-          ? federatedLearning(action, params)
+          ? (await getEngine("federatedLearning"))(action, params)
           : GRAPH_ACTIONS.includes(action as any)
-          ? knowledgeGraph(action, params)
+          ? (await getEngine("knowledgeGraph"))(action, params)
           : GENPLAN_ACTIONS.includes(action as any)
-          ? generativeProcess(action, params)
+          ? (await getEngine("generativeProcess"))(action, params)
           : SUSTAIN_ACTIONS.includes(action as any)
-          ? sustainabilityEngine(action, params)
+          ? (await getEngine("sustainabilityEngine"))(action, params)
           : MAINT_ACTIONS.includes(action as any)
-          ? predictiveMaintenance(action, params)
+          ? (await getEngine("predictiveMaintenance"))(action, params)
           : GENOME_ACTIONS.includes(action as any)
-          ? manufacturingGenome(action, params)
+          ? (await getEngine("manufacturingGenome"))(action, params)
           : APPRENTICE_ACTIONS.includes(action as any)
-          ? apprenticeEngine(action, params)
+          ? (await getEngine("apprenticeEngine"))(action, params)
           : FORENSIC_ACTIONS.includes(action as any)
-          ? failureForensics(action, params)
+          ? (await getEngine("failureForensics"))(action, params)
           : INVERSE_ACTIONS.includes(action as any)
-          ? inverseSolver(action, params)
+          ? (await getEngine("inverseSolver"))(action, params)
           : MEASURE_ACTIONS.includes(action as any)
-          ? measurementIntegration(action, params)
+          ? (await getEngine("measurementIntegration"))(action, params)
           : ERP_ACTIONS.includes(action as any)
-          ? erpIntegration(action, params)
+          ? (await getEngine("erpIntegration"))(action, params)
           : MOBILE_ACTIONS.includes(action as any)
-          ? mobileInterface(action, params)
+          ? (await getEngine("mobileInterface"))(action, params)
           : DNC_ACTIONS.includes(action as any)
-          ? dncTransfer(action, params)
+          ? (await getEngine("dncTransfer"))(action, params)
           : CAM_ACTIONS.includes(action as any)
-          ? camIntegration(action, params)
+          ? (await getEngine("camIntegration"))(action, params)
           : MACHINE_ACTIONS.includes(action as any)
-          ? machineConnectivity(action, params)
+          ? (await getEngine("machineConnectivity"))(action, params)
           : ASSIST_ACTIONS.includes(action as any)
-          ? userAssistanceSkills(action, params)
+          ? (await getEngine("userAssistanceSkills"))(action, params)
           : SKILL_ACTIONS.includes(action as any)
-          ? userWorkflowSkills(action, params)
+          ? (await getEngine("userWorkflowSkills"))(action, params)
           : CONVERSATION_ACTIONS.includes(action as any)
-            ? conversationalMemory(action, params)
+            ? (await getEngine("conversationalMemory"))(action, params)
             : SETUP_SHEET_ACTIONS.includes(action as any)
-            ? setupSheetEngine(action, params)
+            ? (await getEngine("setupSheetEngine"))(action, params)
             : LEARNING_ACTIONS.includes(action as any)
-          ? jobLearning(action, params)
+          ? (await getEngine("jobLearning"))(action, params)
           : ALGORITHM_ACTIONS.includes(action as any)
-            ? algorithmGateway(action, params)
+            ? (await getEngine("algorithmGateway"))(action, params)
             : SCHEDULER_ACTIONS.includes(action as any)
-              ? shopScheduler(action, params)
+              ? (await getEngine("shopScheduler"))(action, params)
               : INTENT_ACTIONS.includes(action as any)
-                ? intentEngine(action, params)
+                ? (await getEngine("intentEngine"))(action, params)
                 : FORMATTER_ACTIONS.includes(action as any)
-                  ? responseFormatter(action, params)
+                  ? (await getEngine("responseFormatter"))(action, params)
                   : WORKFLOW_ACTIONS.includes(action as any)
-                    ? workflowChains(action, params)
+                    ? (await getEngine("workflowChains"))(action, params)
                     : ONBOARDING_ACTIONS.includes(action as any)
-                      ? onboardingEngine(action, params)
-                      : await executeIntelligenceAction(action as IntelligenceAction, params);
+                      ? (await getEngine("onboardingEngine"))(action, params)
+                      : await (await getEngine("intelligence"))(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
         const postCtx = {
@@ -1191,23 +1220,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         };
       } catch (err: any) {
         log.error(`[prism_intelligence] ${action} failed: ${err.message}`);
-
-        // Return structured error (not a throw — keep MCP protocol clean)
-        const isStub = err.message?.includes("not yet implemented");
-        return {
-          content: [{
-            type: "text" as const,
-            text: JSON.stringify({
-              error: true,
-              action,
-              message: err.message,
-              stub: isStub,
-              hint: isStub
-                ? `Action "${action}" is not yet implemented`
-                : undefined,
-            }),
-          }],
-        };
+        return dispatcherError(err, action, "prism_intelligence");
       }
     }
   );

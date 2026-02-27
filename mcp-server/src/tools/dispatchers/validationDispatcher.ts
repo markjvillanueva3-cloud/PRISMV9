@@ -5,6 +5,8 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import {
   validateKienzle, validateTaylor, validateJohnsonCook,
   computeSafetyScore, checkMaterialCompleteness, checkAntiRegression, validateMaterial,
@@ -20,10 +22,16 @@ export function registerValidationDispatcher(server: any): void {
 Safety threshold S(x)≥0.70. Completeness≥80%. Anti-regression: new_count≥old_count.
 Params vary by action - see individual action docs.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_validate] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "material": {
             const mat = params.material || {};
@@ -68,10 +76,10 @@ Params vary by action - see individual action docs.`,
           }
           default: result = { error: `Unknown action: ${action}`, available: ACTIONS };
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
         log.error(`[prism_validate] Error: ${error.message}`);
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_validate");
       }
     }
   );

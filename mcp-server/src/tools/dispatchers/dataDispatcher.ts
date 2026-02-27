@@ -11,6 +11,7 @@ import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { validateMaterialSanity } from "../../validation/materialSanity.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const DataDispatcherSchema = z.object({
   action: z.enum([
@@ -38,10 +39,16 @@ export function registerDataDispatcher(server: any): void {
     "prism_data",
     "Registry data access: material/machine/tool/alarm/formula/coolant/coating get/search/recommend, cross_query, speed_feed_calc. Use 'action' param.",
     DataDispatcherSchema.shape,
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
-      log.info(`[prism_data] action=${action}`, params);
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
+      log.info(`[prism_data] action=${action}`, rawParams);
       await registryManager.initialize();
       let result: any;
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
 
       // A6: Param ID resolution helpers (eliminates 11 duplicated coalescing patterns)
       const matId = (p: any) => p.identifier || p.material_id || p.id || p.name || null;
@@ -774,7 +781,7 @@ export function registerDataDispatcher(server: any): void {
           case "insert_search": {
             const insQuery = params.query || params.q || params.material;
             if (!insQuery) return jsonResponse({ error: "insert_search requires 'query' param." });
-            result = await registryManager.tools.search(insQuery, params.limit || 10);
+            result = await registryManager.tools.search({ query: insQuery, limit: params.limit || 10 });
             break;
           }
 
@@ -782,7 +789,7 @@ export function registerDataDispatcher(server: any): void {
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
       } catch (err: any) {
-        return jsonResponse({ error: `${action} failed: ${err.message}` });
+        return dispatcherError(err, action, "prism_data");
       }
 
       return jsonResponse(slimResponse(result, getSlimLevel(getCurrentPressurePct())));

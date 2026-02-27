@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { registryManager } from "../../registries/index.js";
 import { skillExecutor, SkillLoadResult, SkillRecommendation, SkillChain, TaskAnalysis } from "../../engines/SkillExecutor.js";
 import { scriptExecutor, ExecutionResult, QueuedExecution, ScriptRecommendation, ExecutionParams } from "../../engines/ScriptExecutor.js";
@@ -16,7 +18,7 @@ const ACTIONS = [
 ] as const;
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 export function registerSkillScriptDispatcher(server: any): void {
@@ -24,8 +26,14 @@ export function registerSkillScriptDispatcher(server: any): void {
     "prism_skill_script",
     "Skills, scripts, and bundles: list/get/search/execute/recommend/chain. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_skill_script] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           case "skill_list": {
@@ -482,8 +490,8 @@ export function registerSkillScriptDispatcher(server: any): void {
           default:
             return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
-      } catch (err: any) {
-        return ok({ error: err.message, action });
+      } catch (error) {
+        return dispatcherError(error, action, "prism_skill_script");
       }
     }
   );

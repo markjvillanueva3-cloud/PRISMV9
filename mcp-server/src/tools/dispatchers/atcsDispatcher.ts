@@ -26,6 +26,9 @@ import type { TaskManifest, WorkUnit, StubScanResult, TaskStatus, UnitStatus } f
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
 import { delegateUnits, pollResults, clearCompletedDelegations } from "../../engines/ManusATCSBridge.js";
 import { PATHS } from "../../constants.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 // ============================================================================
 // CONSTANTS
@@ -96,7 +99,7 @@ async function callClaudeForUnit(
 function saveDelegationState(taskId: string, delegated: DelegatedUnit[]): void {
   const taskDir = getTaskDir(taskId);
   const filePath = path.join(taskDir, "DELEGATED_UNITS.json");
-  fs.writeFileSync(filePath, JSON.stringify({ task_id: taskId, updated_at: new Date().toISOString(), units: delegated }, null, 2));
+  safeWriteSync(filePath, JSON.stringify({ task_id: taskId, updated_at: new Date().toISOString(), units: delegated }, null, 2));
 }
 
 /** Load delegation state from task directory */
@@ -163,7 +166,7 @@ function readJSON<T>(filePath: string): T {
 function writeJSON(filePath: string, data: any): void {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+  safeWriteSync(filePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
 function appendLog(taskId: string, entry: string): void {
@@ -173,7 +176,7 @@ function appendLog(taskId: string, entry: string): void {
   if (fs.existsSync(logPath)) {
     fs.appendFileSync(logPath, line, "utf-8");
   } else {
-    fs.writeFileSync(logPath, `# Execution Log: ${taskId}\n${line}`, "utf-8");
+    safeWriteSync(logPath, `# Execution Log: ${taskId}\n${line}`, "utf-8");
   }
 }
 
@@ -366,7 +369,7 @@ function computeProgress(manifest: TaskManifest): {
 // ============================================================================
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 function err(message: string, extra?: any) {
@@ -382,8 +385,14 @@ export function registerAtcsDispatcher(server: any): void {
     "prism_atcs",
     `Autonomous Task Completion System — file-system state machine for multi-session execution with quality gates. Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_atcs] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
 
@@ -616,7 +625,7 @@ export function registerAtcsDispatcher(server: any): void {
                       qUnit.output_ref = `manus_output_unit_${qUnit.unit_id}`;
                       const outputDir = path.join(getTaskDir(taskId), "output");
                       if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-                      fs.writeFileSync(
+                      safeWriteSync(
                         path.join(outputDir, `unit_${qUnit.unit_id}.json`),
                         JSON.stringify({ unit_id: qUnit.unit_id, output: completed.output, source: "manus_delegation", tokens: completed.tokens, duration_ms: completed.duration_ms }, null, 2)
                       );
@@ -1492,9 +1501,8 @@ export function registerAtcsDispatcher(server: any): void {
           default:
             return err(`Unknown action: ${action}`, { available: ACTIONS });
         }
-      } catch (error: any) {
-        log.error(`[prism_atcs] Error in ${action}: ${error.message}`);
-        return err(error.message, { action, stack: error.stack?.split("\n").slice(0, 3) });
+      } catch (error) {
+        return dispatcherError(error, action, "prism_atcs");
       }
     }
   );

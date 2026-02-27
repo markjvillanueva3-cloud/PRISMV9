@@ -9,6 +9,8 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import {
   agentExecutor, executeAgent, executeAgentsParallel, executeAgentPipeline,
   type TaskPriority, type ExecutionMode
@@ -50,7 +52,7 @@ const ACTIONS = [
 ] as const;
 
 function ok(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
 export function registerOrchestrationDispatcher(server: any): void {
@@ -58,8 +60,14 @@ export function registerOrchestrationDispatcher(server: any): void {
     "prism_orchestrate",
     "Agent orchestration, swarm coordination, and roadmap execution. Multi-Claude parallel via claim/release/heartbeat. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
       try {
         switch (action) {
           // === AGENT TOOLS ===
@@ -621,7 +629,7 @@ export function registerOrchestrationDispatcher(server: any): void {
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
       } catch (err: any) {
-        return ok({ error: err.message, action });
+        return dispatcherError(err, action, "prism_orchestrate");
       }
     }
   );

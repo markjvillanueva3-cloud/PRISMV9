@@ -5,6 +5,8 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = ["search", "cross_query", "formula", "relations", "stats"] as const;
 const REGISTRIES = ["materials", "machines", "tools", "alarms", "formulas", "skills", "scripts", "agents", "hooks"] as const;
@@ -31,12 +33,18 @@ export function registerKnowledgeDispatcher(server: any): void {
       action: z.enum(ACTIONS).describe("Knowledge action"),
       params: z.record(z.any()).optional().describe("Action parameters")
     },
-    async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_knowledge] Action: ${action}`);
       const engine = getEngine();
       let result: any;
 
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         switch (action) {
           case "search": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
@@ -71,9 +79,9 @@ export function registerKnowledgeDispatcher(server: any): void {
             break;
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_knowledge");
       }
     }
   );

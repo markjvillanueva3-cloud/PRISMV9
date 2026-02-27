@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import {
   toolpath_strategy_select,
   toolpath_params_calculate,
@@ -31,74 +33,85 @@ export function registerToolpathDispatcher(server: any): void {
       ]),
       params: z.record(z.any()).optional()
     },
-    async ({ action, params = {} }: { action: string; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
+
       let result: any;
       const isCalc = CALC_ACTIONS.has(action);
-      
-      // Pre-calculation hooks for strategy/param calculations
-      if (isCalc) {
-        const hookCtx = {
-          operation: action,
-          target: { type: "calculation" as const, id: action, data: params },
-          metadata: { dispatcher: "toolpathDispatcher", action, params }
-        };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
-        if (preResult.blocked) {
-          return { content: [{ type: "text", text: JSON.stringify({ blocked: true, blocker: preResult.blockedBy, reason: preResult.summary, action }) }] };
-        }
-      }
 
-      switch (action) {
-        case "strategy_select":
-          result = await toolpath_strategy_select(params as any);
-          break;
-
-        case "params_calculate":
-          result = await toolpath_params_calculate(params as any);
-          break;
-
-        case "strategy_search":
-          result = await toolpath_strategy_search(params as any);
-          break;
-
-        case "strategy_list":
-          result = await toolpath_strategy_list(params as any);
-          break;
-
-        case "strategy_info":
-          result = await toolpath_strategy_info(params as any);
-          break;
-
-        case "stats":
-          result = await toolpath_stats();
-          break;
-
-        case "material_strategies":
-          result = await toolpath_material_strategies(params as any);
-          break;
-
-        case "prism_novel":
-          result = await toolpath_prism_novel(params);
-          break;
-
-        default:
-          throw new Error(`Unknown action: ${action}`);
-      }
-
-      // Post-calculation hooks (non-blocking)
-      if (isCalc) {
-        try {
-          await hookExecutor.execute("post-calculation", {
+      try {
+        // Pre-calculation hooks for strategy/param calculations
+        if (isCalc) {
+          const hookCtx = {
             operation: action,
             target: { type: "calculation" as const, id: action, data: params },
-            metadata: { dispatcher: "toolpathDispatcher", action, result }
-          });
-        } catch (e) { log.warn(`[toolpathDispatcher] Post-calc hook error: ${e}`); }
-      }
+            metadata: { dispatcher: "toolpathDispatcher", action, params }
+          };
+          const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+          if (preResult.blocked) {
+            return { content: [{ type: "text", text: JSON.stringify({ blocked: true, blocker: preResult.blockedBy, reason: preResult.summary, action }) }] };
+          }
+        }
 
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }]
-      };
+        switch (action) {
+          case "strategy_select":
+            result = await toolpath_strategy_select(params as any);
+            break;
+
+          case "params_calculate":
+            result = await toolpath_params_calculate(params as any);
+            break;
+
+          case "strategy_search":
+            result = await toolpath_strategy_search(params as any);
+            break;
+
+          case "strategy_list":
+            result = await toolpath_strategy_list(params as any);
+            break;
+
+          case "strategy_info":
+            result = await toolpath_strategy_info(params as any);
+            break;
+
+          case "stats":
+            result = await toolpath_stats();
+            break;
+
+          case "material_strategies":
+            result = await toolpath_material_strategies(params as any);
+            break;
+
+          case "prism_novel":
+            result = await toolpath_prism_novel(params);
+            break;
+
+          default:
+            throw new Error(`Unknown action: ${action}`);
+        }
+
+        // Post-calculation hooks (non-blocking)
+        if (isCalc) {
+          try {
+            await hookExecutor.execute("post-calculation", {
+              operation: action,
+              target: { type: "calculation" as const, id: action, data: params },
+              metadata: { dispatcher: "toolpathDispatcher", action, result }
+            });
+          } catch (e) { log.warn(`[toolpathDispatcher] Post-calc hook error: ${e}`); }
+        }
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }]
+        };
+      } catch (err: any) {
+        return dispatcherError(err, action, "prism_toolpath");
+      }
     }
   );
 }

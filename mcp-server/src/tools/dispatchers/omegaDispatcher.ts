@@ -6,6 +6,8 @@
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import type { OmegaHistoryEntry } from "../../types/prism-schema.js";
 
 const DEFAULT_WEIGHTS = { R: 0.25, C: 0.20, P: 0.15, S: 0.30, L: 0.10 };
@@ -51,10 +53,16 @@ export function registerOmegaDispatcher(server: any): void {
 Actions: compute, breakdown, validate, optimize, history.
 Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50, BLOCKED<0.40`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
-    async ({ action, params = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_omega] Action: ${action}`);
       let result: any;
       try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
         const R = params.R ?? 1.0, C = params.C ?? 1.0, P = params.P ?? 1.0, S = params.S ?? 1.0, L = params.L ?? 1.0;
         switch (action) {
           case "compute": { result = computeOmega({ R, C, P, S, L }); break; }
@@ -112,10 +120,10 @@ Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50, BLOCKED<0.40`,
           }
           default: result = { error: `Unknown action: ${action}`, available: ACTIONS };
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
         log.error(`[prism_omega] Error: ${error.message}`);
-        return { content: [{ type: "text", text: JSON.stringify({ error: error.message, action }) }], isError: true };
+        return dispatcherError(error, action, "prism_omega");
       }
     }
   );
