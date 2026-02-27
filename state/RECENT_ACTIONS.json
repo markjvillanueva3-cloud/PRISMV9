@@ -1,47 +1,7 @@
 {
-  "updated": "2026-02-26T23:18:31.344Z",
-  "session_call_count": 48,
+  "updated": "2026-02-26T23:55:58.339Z",
+  "session_call_count": 52,
   "actions": [
-    {
-      "seq": 37,
-      "ts": "2026-02-26T23:17:57.198Z",
-      "tool": "prism_calc",
-      "action": "cutting_force",
-      "params_summary": "material=steel-4140, cutting_speed=200, feed_per_tooth=0.15, axial_depth=3, radial_depth=10, tool_diameter=20, number_of",
-      "success": true,
-      "duration_ms": 3,
-      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Phase: unknown, Call: 36, Last: prism_calc:surface_finish\",\"recent\":[\"prism_calc:thermal\",\"prism_valid"
-    },
-    {
-      "seq": 38,
-      "ts": "2026-02-26T23:17:58.318Z",
-      "tool": "prism_calc",
-      "action": "cutting_force",
-      "params_summary": "material=aluminum-6061, cutting_speed=400, feed_per_tooth=0.12, axial_depth=4, radial_depth=8, tool_diameter=16, number_",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"Fc\":737.594449931045,\"Ff\":295.03777997241804,\"Fp\":221.27833497931348,\"F_resultant\":824.6556649361909,\"specific_force\":3423.790344609894,\"chip_thickn"
-    },
-    {
-      "seq": 39,
-      "ts": "2026-02-26T23:17:59.594Z",
-      "tool": "prism_calc",
-      "action": "cutting_force",
-      "params_summary": "material=titanium-6al4v, cutting_speed=60, feed_per_tooth=0.08, axial_depth=2, radial_depth=6, tool_diameter=12, number_",
-      "success": true,
-      "duration_ms": 1,
-      "result_preview": "{\"Fc\":362.7921963599963,\"Ff\":145.11687854399852,\"Fp\":108.83765890799889,\"F_resultant\":405.61400638370174,\"specific_force\":3789.0468712243032,\"chip_thi"
-    },
-    {
-      "seq": 40,
-      "ts": "2026-02-26T23:18:01.518Z",
-      "tool": "prism_calc",
-      "action": "cutting_force",
-      "params_summary": "material=stainless-304, cutting_speed=150, feed_per_tooth=0.1, axial_depth=2.5, radial_depth=8, tool_diameter=16, number",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"Fc\":536.1057429989048,\"Ff\":214.44229719956195,\"Fp\":160.83172289967143,\"F_resultant\":599.3844422367915,\"specific_force\":3583.459284580121,\"chip_thick"
-    },
     {
       "seq": 41,
       "ts": "2026-02-26T23:18:05.991Z",
@@ -121,6 +81,46 @@
       "success": true,
       "duration_ms": 1,
       "result_preview": "{\"Ra\":20.25,\"Rz\":81,\"Rt\":105.3,\"theoretical_Ra\":10.12,\"actual_Ra\":20.25,\"finish_factor\":2,\"warnings\":[\"Surface may be rough\"]}"
+    },
+    {
+      "seq": 49,
+      "ts": "2026-02-26T23:55:55.753Z",
+      "tool": "prism_data",
+      "action": "material_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 19,
+      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Read CURRENT_POSITION.md and continue\",\"recent\":[\"✅ D3_LKG_UPDATED: prism_data:material_search\",\"🤖 AG"
+    },
+    {
+      "seq": 50,
+      "ts": "2026-02-26T23:55:56.646Z",
+      "tool": "prism_data",
+      "action": "machine_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 5,
+      "result_preview": "{\"machines\":[{\"manufacturer\":\"Haas\",\"model\":\"ST-10\",\"type\":\"2-axis_slant_bed\",\"maxSwing\":419,\"maxTurningDiameter\":254,\"maxTurningLength\":356,\"barCapac"
+    },
+    {
+      "seq": 51,
+      "ts": "2026-02-26T23:55:57.494Z",
+      "tool": "prism_data",
+      "action": "tool_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 3,
+      "result_preview": "{\"tools\":[{\"id\":\"EM-SQ-001.0-2F-0000\",\"vendor\":\"OSG\",\"catalog_number\":\"OSG-EM-1-2\",\"category\":\"MILLING\",\"subcategory\":\"END_MILLS\",\"type\":\"SQUARE\",\"nam"
+    },
+    {
+      "seq": 52,
+      "ts": "2026-02-26T23:55:58.339Z",
+      "tool": "prism_data",
+      "action": "alarm_search",
+      "params_summary": "query=*, limit=1",
+      "success": true,
+      "duration_ms": 2,
+      "result_preview": "{\"alarms\":[{\"alarm_id\":\"ALM-BRO-P001\",\"code\":\"P001\",\"name\":\"PROGRAM ALARM 1\",\"category\":\"PROGRAM\",\"severity\":\"LOW\",\"description\":\"Program alarm 1\",\"ca"
     }
   ],
   "_hint": "READ THIS FIRST after compaction. Shows last 12 tool calls with results."

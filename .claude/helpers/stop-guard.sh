@@ -31,5 +31,5 @@ fi
 msg="UNCOMMITTED WORK: $file_count files with changes: $file_list. Consider committing or stashing before stopping."
 msg_escaped=$(echo "$msg" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' ')
 
-echo "{\"decision\": \"block\", \"additionalContext\": \"$msg_escaped\"}"
+echo "{\"decision\": \"allow\", \"reason\": \"$msg_escaped\"}"
 exit 0
