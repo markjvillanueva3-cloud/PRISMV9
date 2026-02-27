@@ -1,0 +1,146 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-27",
+  "description": "PRISM Decision Tree Reference Data — Lookup tables, thresholds, and mappings for 7 manufacturing decision trees",
+  "source_file": "mcp-server/src/engines/DecisionTreeEngine.ts",
+  "note": "Algorithmic traversal logic remains in DecisionTreeEngine.ts. This file contains the DATA inputs: grade matrices, speed maps, coolant thresholds, material-operation mappings.",
+  "trees": [
+    "selectToolType",
+    "selectInsertGrade",
+    "selectCoolantStrategy",
+    "selectWorkholding",
+    "selectStrategy",
+    "selectApproachRetract",
+    "selectMaterial"
+  ],
+  "iso_groups": {
+    "P": {"name": "Steel", "color": "blue", "keywords": ["steel", "carbon steel", "alloy steel", "1018", "1045", "4140", "4340", "8620"]},
+    "M": {"name": "Stainless Steel", "color": "yellow", "keywords": ["stainless", "303", "304", "316", "17-4", "austenitic", "duplex"]},
+    "K": {"name": "Cast Iron", "color": "red", "keywords": ["cast iron", "gray iron", "ductile", "nodular", "GG", "GGG"]},
+    "N": {"name": "Non-Ferrous", "color": "green", "keywords": ["aluminum", "aluminium", "copper", "brass", "bronze", "6061", "7075", "2024"]},
+    "S": {"name": "Superalloys", "color": "brown", "keywords": ["inconel", "titanium", "hastelloy", "waspaloy", "nimonic", "Ti-6Al-4V", "718"]},
+    "H": {"name": "Hardened Steel", "color": "gray", "keywords": ["hardened", "hard", ">45 HRC", ">55 HRC", "D2", "A2", "M2", "H13"]}
+  },
+  "reference_data": {
+    "insert_grade_matrix": {
+      "description": "ISO 513 insert grade selection by material group and cutting condition",
+      "columns": ["stable", "interrupted", "heavy_interrupted"],
+      "matrix": {
+        "P": ["P10-P15", "P20-P25", "P30-P40"],
+        "M": ["M10-M15", "M20-M25", "M30-M40"],
+        "K": ["K01-K10", "K20", "K30"],
+        "N": ["N10", "N20", "N30"],
+        "S": ["S10-S15", "S20-S25", "S30"],
+        "H": ["H01-H10", "H10-H20", "H20-H30"]
+      }
+    },
+    "speed_ranges_m_min": {
+      "description": "Cutting speed ranges by ISO group (m/min)",
+      "P": [150, 350],
+      "M": [80, 220],
+      "K": [100, 500],
+      "N": [200, 1500],
+      "S": [30, 80],
+      "H": [80, 200]
+    },
+    "coolant_strategy_thresholds": {
+      "description": "Coolant strategy selection thresholds",
+      "high_speed_boundary_m_min": {
+        "P": 300, "M": 180, "K": 400, "N": 800, "S": 60, "H": 150
+      },
+      "deep_hole_threshold_ratio": 4,
+      "mql_suitable": ["P", "K", "N"],
+      "dry_suitable": ["K"],
+      "tsc_required_operations": ["drilling", "deep_hole", "tapping"],
+      "flood_always": ["S", "M"]
+    },
+    "tool_type_defaults": {
+      "description": "Default tool types by operation",
+      "turning": {
+        "roughing_insert": "CNMG/WNMG",
+        "finishing_insert": "DNMG/VNMG",
+        "roughing_nose_radius_mm": 1.6,
+        "finishing_nose_radius_mm": 0.4
+      },
+      "milling": {
+        "face": "facemill",
+        "pocket": "endmill",
+        "slot": "endmill",
+        "profile": "endmill",
+        "default_flutes": {"P": 4, "M": 4, "K": 4, "N": 2, "S": 4, "H": 4}
+      },
+      "drilling": {
+        "indexable_threshold_mm": 20,
+        "below_threshold": "twist_drill",
+        "above_threshold": "indexable_drill"
+      },
+      "threading": {
+        "prefer_thread_mill": ["H", "S"],
+        "prefer_tap": ["P", "M", "K", "N"]
+      }
+    },
+    "coating_matrix": {
+      "description": "Coating recommendations by ISO group and condition",
+      "P": {"stable": "PVD TiAlN", "interrupted": "CVD Al₂O₃ + TiCN"},
+      "M": {"stable": "PVD TiAlN", "interrupted": "CVD Al₂O₃ + TiCN"},
+      "K": {"stable": "CVD Al₂O₃", "interrupted": "Uncoated ceramic or whisker-reinforced"},
+      "N": {"all": "Uncoated carbide or PCD"},
+      "S": {"all": "PVD TiAlN (thin <3 µm)"},
+      "H": {"hrc_gt_55": "CBN", "hrc_45_55": "PVD TiAlN on carbide", "hrc_lt_45": "PVD AlCrN"}
+    },
+    "workholding_rules": {
+      "description": "Fixture selection criteria",
+      "prismatic_small": {"fixture": "5-axis vise", "method": "mechanical jaw clamping"},
+      "prismatic_medium": {"fixture": "modular fixture plate", "method": "step clamps + toe clamps"},
+      "prismatic_large": {"fixture": "T-slot table with strap clamps", "method": "step clamps"},
+      "cylindrical_short": {"fixture": "3-jaw chuck", "method": "OD grip"},
+      "cylindrical_long": {"fixture": "3-jaw chuck + tailstock", "method": "OD grip + live center"},
+      "thin_wall": {"fixture": "collet chuck or mandrel", "method": "distributed pressure"},
+      "vacuum": {"fixture": "vacuum table", "method": "vacuum suction", "min_area_cm2": 25}
+    },
+    "strategy_mappings": {
+      "description": "Toolpath strategy recommendations by feature type",
+      "pocket": {
+        "default": "adaptive_clearing",
+        "shallow": "contour_parallel",
+        "deep_narrow": "trochoidal",
+        "large_open": "zigzag_raster"
+      },
+      "slot": {
+        "default": "trochoidal",
+        "wide": "adaptive_clearing",
+        "keyway": "plunge_then_sweep"
+      },
+      "profile": {
+        "default": "contour_with_compensation",
+        "thin_wall": "waterline_constant_z"
+      },
+      "face": {
+        "default": "face_mill_raster",
+        "large_area": "face_mill_spiral"
+      },
+      "3d_surface": {
+        "roughing": "adaptive_clearing_3d",
+        "semi_finish": "waterline_constant_z",
+        "finishing": "scallop_constant_cusp"
+      }
+    },
+    "approach_retract_patterns": {
+      "description": "Tool entry/exit methods by operation context",
+      "milling": {
+        "default_approach": "tangential_arc",
+        "pocket_entry": "helical_ramp",
+        "slot_entry": "ramp_linear",
+        "face_entry": "roll_on_arc"
+      },
+      "turning": {
+        "default_approach": "direct_linear",
+        "finishing_approach": "tangential_arc"
+      },
+      "drilling": {
+        "default_approach": "rapid_to_r_plane",
+        "peck_cycle": "G83_deep_hole"
+      }
+    }
+  }
+}

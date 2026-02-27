@@ -1,0 +1,183 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-27",
+  "milestone": "L0-P0-MS1",
+  "description": "PRISM Core Database Manifest — Single source of truth for all 12 core databases",
+  "total_databases": 12,
+  "databases": [
+    {
+      "id": "MaterialDB",
+      "name": "Material Database",
+      "type": "registry-backed",
+      "registry_class": "MaterialRegistry",
+      "source_dir": "data/materials/",
+      "file_count": 305,
+      "entry_count": 6509,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by MaterialRegistry from PATHS.MATERIALS_DIR (ISO group subdirs)",
+      "standards": ["ISO 513", "AISI", "DIN", "JIS"],
+      "status": "verified"
+    },
+    {
+      "id": "ToolDB",
+      "name": "Cutting Tool Database",
+      "type": "registry-backed",
+      "registry_class": "ToolRegistry",
+      "source_dir": "data/tools/",
+      "file_count": 14,
+      "entry_count": 13967,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by ToolRegistry from PATHS.TOOLS_DB",
+      "standards": ["ISO 13399"],
+      "status": "verified"
+    },
+    {
+      "id": "MachineDB",
+      "name": "Machine Database",
+      "type": "registry-backed",
+      "registry_class": "MachineRegistry",
+      "source_dir": "data/machines/",
+      "file_count": 144,
+      "entry_count": 1015,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by MachineRegistry from PATHS.MACHINES_DIR (CORE/ENHANCED/LEVEL5 layers)",
+      "standards": [],
+      "status": "verified"
+    },
+    {
+      "id": "AlarmDB",
+      "name": "Alarm & Controller Database",
+      "type": "registry-backed",
+      "registry_class": "AlarmRegistry",
+      "source_dir": "data/controllers/",
+      "file_count": 81,
+      "entry_count": 10090,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by AlarmRegistry from PATHS.CONTROLLERS",
+      "standards": [],
+      "status": "verified"
+    },
+    {
+      "id": "FormulaDB",
+      "name": "Formula Database",
+      "type": "registry-backed",
+      "registry_class": "FormulaRegistry",
+      "source_dir": "data/",
+      "file_count": 13,
+      "entry_count": 499,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by FormulaRegistry from data/FORMULA_REGISTRY.json (+ 10 built-in)",
+      "standards": ["Kienzle", "Taylor", "Merchant"],
+      "status": "verified"
+    },
+    {
+      "id": "AlgorithmDB",
+      "name": "Algorithm Database",
+      "type": "registry-backed",
+      "registry_class": "AlgorithmRegistry",
+      "source_dir": "data/algorithms/",
+      "file_count": 52,
+      "entry_count": 52,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by AlgorithmRegistry from PATHS.DATA_DIR/algorithms/",
+      "standards": [],
+      "status": "verified"
+    },
+    {
+      "id": "KnowledgeDB",
+      "name": "Knowledge Base Database",
+      "type": "registry-backed",
+      "registry_class": "KnowledgeBaseRegistry",
+      "source_dir": "data/knowledge/",
+      "file_count": 58,
+      "entry_count": 58,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by KnowledgeBaseRegistry from PATHS.KNOWLEDGE_DIR",
+      "standards": [],
+      "status": "verified"
+    },
+    {
+      "id": "ThreadDB",
+      "name": "Thread Specifications Database",
+      "type": "file-backed",
+      "registry_class": null,
+      "source_file": "data/databases/ThreadDB.json",
+      "file_count": 1,
+      "entry_count": 339,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by ThreadCalculationEngine from data/databases/ThreadDB.json",
+      "standards": ["ASME B1.1", "ISO 261", "ANSI/ASME B1.5", "ISO 2904", "ASME B1.20.1", "BS 21"],
+      "status": "created",
+      "series": ["UNC", "UNF", "UNEF", "ISO_coarse", "ISO_fine", "ACME", "STUB-ACME", "trapezoidal", "NPT", "NPTF", "BSP", "BSPT"]
+    },
+    {
+      "id": "WorkflowDB",
+      "name": "Workflow Chains Database",
+      "type": "file-backed",
+      "registry_class": null,
+      "source_file": "data/databases/WorkflowDB.json",
+      "file_count": 1,
+      "entry_count": 10,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by WorkflowChainsEngine from data/databases/WorkflowDB.json",
+      "standards": [],
+      "status": "created",
+      "workflows": ["plan_job", "quick_params", "compare_strategies", "quote_part", "fix_chatter", "tool_select", "capability_check", "schedule_shop", "diagnose_alarm", "teach_me"]
+    },
+    {
+      "id": "DecisionTreeDB",
+      "name": "Decision Tree Reference Data",
+      "type": "file-backed",
+      "registry_class": null,
+      "source_file": "data/databases/DecisionTreeDB.json",
+      "file_count": 1,
+      "entry_count": 7,
+      "schema_version": "1.0.0",
+      "load_path": "Reference data for DecisionTreeEngine (lookup tables, thresholds, mappings)",
+      "standards": ["ISO 513"],
+      "status": "created",
+      "trees": ["selectToolType", "selectInsertGrade", "selectCoolantStrategy", "selectWorkholding", "selectStrategy", "selectApproachRetract", "selectMaterial"]
+    },
+    {
+      "id": "InferenceDB",
+      "name": "Inference Chain Templates",
+      "type": "engine-inline",
+      "registry_class": null,
+      "source_file": "mcp-server/src/engines/InferenceChainEngine.ts",
+      "file_count": 0,
+      "entry_count": 3,
+      "schema_version": "1.0.0",
+      "load_path": "Inline in InferenceChainEngine (chain templates with API call orchestration)",
+      "standards": [],
+      "status": "deferred",
+      "note": "Chain templates tightly coupled to API orchestration logic. Extraction deferred to L1 when inference pipeline is enhanced."
+    },
+    {
+      "id": "CompoundActionDB",
+      "name": "Compound Action Definitions",
+      "type": "engine-inline",
+      "registry_class": null,
+      "source_file": "mcp-server/src/types/CompoundActions.ts",
+      "file_count": 0,
+      "entry_count": 6,
+      "schema_version": "1.0.0",
+      "load_path": "TypeScript interfaces in CompoundActions.ts (type definitions, not data)",
+      "standards": [],
+      "status": "deferred",
+      "note": "Compound actions are TypeScript interface definitions, not data. They define request/response shapes for server-side multi-step computations. Extraction to JSON not beneficial at L0."
+    }
+  ],
+  "summary": {
+    "total_entries": 32564,
+    "by_type": {
+      "registry-backed": 7,
+      "file-backed": 3,
+      "engine-inline": 2
+    },
+    "by_status": {
+      "verified": 7,
+      "created": 3,
+      "deferred": 2
+    }
+  }
+}
