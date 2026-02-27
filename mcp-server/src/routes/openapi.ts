@@ -152,6 +152,30 @@ function getOpenApiSpec() {
       },
       "/admin/registries": {
         get: { summary: "Registry statistics", tags: ["Admin"], responses: stdResponse() }
+      },
+      "/ppg/generate": {
+        post: { summary: "Generate G-code from toolpath", tags: ["PPG"], requestBody: jsonBody(["moves", "controller"]), responses: stdResponse() }
+      },
+      "/ppg/template": {
+        post: { summary: "Generate from parametric template", tags: ["PPG"], requestBody: jsonBody(["controller", "operation"]), responses: stdResponse() }
+      },
+      "/ppg/program": {
+        post: { summary: "Multi-operation program generation", tags: ["PPG"], requestBody: jsonBody(["controller", "operations"]), responses: stdResponse() }
+      },
+      "/ppg/validate": {
+        post: { summary: "Validate G-code for controller", tags: ["PPG"], requestBody: jsonBody(["gcode", "controller"]), responses: stdResponse() }
+      },
+      "/ppg/compare": {
+        post: { summary: "Compare output across controllers", tags: ["PPG"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/ppg/optimize": {
+        post: { summary: "Optimize G-code", tags: ["PPG"], requestBody: jsonBody(["gcode"]), responses: stdResponse() }
+      },
+      "/ppg/controllers": {
+        get: { summary: "List supported CNC controllers", tags: ["PPG"], responses: stdResponse() }
+      },
+      "/ppg/operations": {
+        get: { summary: "List supported G-code operations", tags: ["PPG"], responses: stdResponse() }
       }
     },
     tags: [
@@ -164,7 +188,8 @@ function getOpenApiSpec() {
       { name: "Data", description: "Registry data lookups" },
       { name: "Safety", description: "Safety validation" },
       { name: "Auth", description: "Authentication" },
-      { name: "Admin", description: "Administration" }
+      { name: "Admin", description: "Administration" },
+      { name: "PPG", description: "Post Processor Generator" }
     ]
   };
 }
