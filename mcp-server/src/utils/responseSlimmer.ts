@@ -39,7 +39,13 @@ const CONFIGS: Record<SlimLevel, SlimConfig> = {
     stripFields: new Set([
       "_raw", "_debug", "raw_data", "internal_id", "created_at", "updated_at", "metadata_version",
       "description", "notes", "comments", "history", "changelog", "tags", "aliases",
-      "source_reference", "last_modified_by", "validation_details"
+      "source_reference", "last_modified_by", "validation_details",
+      // Cadence metadata — strip at moderate pressure
+      "agent_recommend", "skill_hints", "phase_skills", "session_recon",
+      "compaction_prediction", "budget_report", "session_quality", "session_health",
+      "nl_hook_eval", "auto_skill_hooks", "hook_activation_check",
+      "pressure_recommendations", "compaction_trend", "parallel_dispatch", "graph_evict",
+      "d4_perf_summary", "kv_stability", "priority_score", "knowledge_hints"
     ]),
     keepFields: new Set(["id", "name", "error", "status", "success", "blocked", "result", "value", "score", "count", "total"]),
   },
@@ -52,7 +58,15 @@ const CONFIGS: Record<SlimLevel, SlimConfig> = {
       "description", "notes", "comments", "history", "changelog", "tags", "aliases",
       "source_reference", "last_modified_by", "validation_details",
       "specifications", "properties", "extended_data", "mechanical_properties",
-      "thermal_properties", "physical_properties", "processing_notes"
+      "thermal_properties", "physical_properties", "processing_notes",
+      // Cadence metadata — strip at aggressive pressure
+      "agent_recommend", "skill_hints", "phase_skills", "session_recon",
+      "compaction_prediction", "budget_report", "session_quality", "session_health",
+      "nl_hook_eval", "auto_skill_hooks", "hook_activation_check",
+      "pressure_recommendations", "compaction_trend", "parallel_dispatch", "graph_evict",
+      "d4_perf_summary", "kv_stability", "priority_score", "knowledge_hints",
+      "script_recommendations", "attention", "cognitive", "error_learn",
+      "skill_context_matches", "todo", "checkpoint", "rehydrated"
     ]),
     keepFields: new Set(["id", "name", "error", "status", "success", "blocked", "result", "value", "score", "count", "total"]),
   }

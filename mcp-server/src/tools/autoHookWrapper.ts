@@ -17,6 +17,7 @@
  * 
  * BACKUP POLICY: Always run backup-before-edit.ps1 before modifying this file.
  */
+import "../engines/reactiveChainBootstrap.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
@@ -58,6 +59,7 @@ import {
   autoPriorityScore, autoSkillPreload, autoKvStabilityPeriodic,
   autoContextPressureRecommend, autoMemoryGraphEvict, autoCompactionTrend,
   autoDispatcherByteTrack,
+  autoCompress, autoTemplateOptimizer, autoResumeDetector, autoLearningStorePersist,
   autoComplianceAuditBoot, autoSLBConsume, autoBridgeHealthCheck, autoRegistryRefresh,
   autoGsdAccessSummary, autoSwarmPatternDecay, autoNLHookValidate, autoOmegaHistoryPersist,
   autoOmegaHistoryRestore, autoCognitiveStatePersist, autoCognitiveStateRestore,
@@ -187,7 +189,7 @@ export var AUTO_HOOK_CONFIG = {
   }
 };
 var hookHistory: any[] = [];
-var MAX_HISTORY = 1000;
+var MAX_HISTORY = 100;
 function logHookExecution(execution: any) {
   hookHistory.unshift(execution);
   if (hookHistory.length > MAX_HISTORY) {
@@ -497,6 +499,8 @@ var lastCallTimestamp = 0;
 var compactionRecoveryCallsRemaining = 0;
 var compactionRecoverySurvival = null;
 var recentToolCalls: string[] = [];
+var sessionSlimOverride: string | null = null;
+var highPressureStreak = 0;
 var RECENT_ACTIONS_FILE = path.join(PATHS.STATE_DIR, "RECENT_ACTIONS.json");
 var STATE_DIR12 = PATHS.STATE_DIR;
 function buildCurrentTaskDescription(cadence: any, toolName: string, action2: string) {
@@ -677,6 +681,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           const sp = autoSkillPreload(callNum);
           if (sp.preloaded) cadence.actions.push(`SKILLS_PRELOADED: ${sp.skills_count} dynamic skills`);
         } catch {}
+        // Template optimizer — session boot
+        try {
+          const tOpt = autoTemplateOptimizer(callNum);
+          if (tOpt.optimized && tOpt.tokens_saved) cadence.actions.push(`TEMPLATES_OPTIMIZED: ${tOpt.tokens_saved} tokens saved`);
+        } catch {}
+        // Resume detector — session boot
+        try {
+          const rd = autoResumeDetector(callNum);
+          if (rd.scenario && rd.scenario !== "NEW_START") {
+            cadence.actions.push(`RESUME_DETECTED: ${rd.scenario}${rd.actions?.length ? ` (${rd.actions.length} actions)` : ""}`);
+            cadence.resume_scenario = rd;
+          }
+        } catch {}
         // Budget engine reset for new session
         try {
           const { ContextBudgetEngine } = await import("../engines/ContextBudgetEngine.js");
@@ -715,6 +732,20 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 cadence.parallel_dispatch = pd;
               }
             } catch { /* non-fatal */ }
+            // Write orchestration hint for AutoPilot consumption
+            if (agentRec.classification?.complexity === "complex" || agentRec.classification?.complexity === "critical") {
+              try {
+                fs.writeFileSync(path.join(PATHS.STATE_DIR, "AUTO_ORCHESTRATE_HINT.json"), JSON.stringify({
+                  ts: new Date().toISOString(),
+                  call: callNum,
+                  tool: toolName,
+                  action: action2,
+                  classification: agentRec.classification,
+                  recommended_pattern: agentRec.classification.complexity === "critical" ? "consensus" : "parallel",
+                }, null, 2));
+                cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity → ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
+              } catch {}
+            }
           }
         } catch {
         }
@@ -1044,6 +1075,34 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       );
     } catch {
     }
+    // Auto-persist certificates for safety-critical actions to disk audit trail
+    if (!error && ["cutting_force", "tool_life", "speed_feed", "speed_feed_calc", "safety", "stability"].includes(action2)) {
+      try {
+        const certDir = path.join(PATHS.STATE_DIR, "certificates");
+        if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
+        const certFile = path.join(certDir, `CERT-${toolName}-${action2}-${Date.now()}.json`);
+        const certData = {
+          type: "safety_critical_audit",
+          dispatcher: toolName,
+          action: action2,
+          call_number: callNum,
+          timestamp: new Date().toISOString(),
+          duration_ms: durationMs,
+          safety_score: cadence.pressure?.safety_score ?? null,
+          input_hash: typeof args[0]?.params === "object" ? JSON.stringify(args[0].params).length : 0,
+          result_hash: result?.content?.[0]?.text?.length || 0,
+          session: process.env.SESSION_ID || "unknown",
+        };
+        fs.writeFileSync(certFile, JSON.stringify(certData, null, 2));
+        // Keep max 50 cert files
+        const certFiles = fs.readdirSync(certDir).filter(f => f.startsWith("CERT-")).sort();
+        if (certFiles.length > 50) {
+          for (const old of certFiles.slice(0, certFiles.length - 50)) {
+            try { fs.unlinkSync(path.join(certDir, old)); } catch {}
+          }
+        }
+      } catch { /* cert persistence non-fatal */ }
+    }
     if (mapping) {
       await fireHook(`${mapping.category}-AFTER-EXEC-001`, {
         tool_name: toolName,
@@ -1288,6 +1347,20 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               cadence.parallel_dispatch = pd;
             }
           } catch { /* non-fatal */ }
+          // Write orchestration hint for AutoPilot consumption
+          if (agentRec.classification?.complexity === "complex" || agentRec.classification?.complexity === "critical") {
+            try {
+              fs.writeFileSync(path.join(PATHS.STATE_DIR, "AUTO_ORCHESTRATE_HINT.json"), JSON.stringify({
+                ts: new Date().toISOString(),
+                call: callNum,
+                tool: toolName,
+                action: action2,
+                classification: agentRec.classification,
+                recommended_pattern: agentRec.classification.complexity === "critical" ? "consensus" : "parallel",
+              }, null, 2));
+              cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity → ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
+            } catch {}
+          }
         }
       } catch {
       }
@@ -1327,8 +1400,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       const todoResult = autoTodoRefresh(callNum);
       cadence.actions.push(todoResult.success ? "TODO_AUTO_REFRESHED" : "TODO_REFRESH_FAILED");
       cadence.todo = todoResult;
-      // H1: Also write HOT_RESUME at todo cadence (every 5 calls, more frequent than checkpoint@10)
-      try {
+      // H1: Also write HOT_RESUME at todo cadence (every 5 calls, skip when every-10 will overwrite)
+      if (callNum % 10 !== 0) try {
         const hrPath5 = path.join(PATHS.STATE_DIR, "HOT_RESUME.md");
         const cpPath5 = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
         let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
@@ -1491,6 +1564,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         currentTruncationCap = 2e4;
       }
       cadence.truncation_cap = currentTruncationCap;
+      // Session-level slim override: lock AGGRESSIVE after 3+ consecutive high-pressure checks
+      if (pressureResult.pressure_pct >= 70) {
+        highPressureStreak++;
+        if (highPressureStreak >= 3 && !sessionSlimOverride) {
+          sessionSlimOverride = "AGGRESSIVE";
+          cadence.actions.push("🔒 SLIM_LOCKED: AGGRESSIVE mode for rest of session (sustained high pressure)");
+        }
+      } else {
+        if (highPressureStreak > 0 && pressureResult.pressure_pct < 50) highPressureStreak = 0;
+      }
       await fireHook("CONTEXT-PRESSURE-CHECK-001", {
         event: "cadence_pressure_checked",
         call_number: callNum,
@@ -1949,6 +2032,13 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.pressure_recommendations = cpRec;
           }
         }
+        // Auto-compress — every 8 calls at pressure >= 65%
+        if (pPctNow >= 65) {
+          const ac = autoCompress(callNum, pPctNow);
+          if (ac.compressed && ac.bytes_saved) {
+            cadence.actions.push(`\u{1F5DC}\uFE0F AUTO_COMPRESS: ${ac.bytes_saved}B saved`);
+          }
+        }
       } catch {}
     }
     if (callNum > 0 && callNum % 25 === 0) {
@@ -1969,6 +2059,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const slo = autoTelemetrySloCheck(callNum);
         if (slo.breaches.length > 0) cadence.actions.push(`\u26A0\uFE0F SLO_BREACHES: ${slo.breaches.length}`);
+      } catch {}
+      // Learning store persist — every 25 calls
+      try {
+        const lsp = autoLearningStorePersist(callNum);
+        if (lsp.persisted && lsp.patterns_count) cadence.actions.push(`\u{1F4DA} LEARNING_PERSISTED: ${lsp.patterns_count} patterns`);
       } catch {}
       // === NEW AUTO-FIRES: Every-25 (Opp 2, 5, 6, 7, 14, 15) ===
       try {
@@ -2117,7 +2212,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         // CADENCE-TO-DISK: Persist full cadence for monitoring, return alert-only for response
         const { alerts, alert_count, routine_count } = persistCadenceToDisk(fullCadence, STATE_DIR12);
         const pressurePct = cadence.pressure?.pressure_pct ?? 0;
-        parsed._cadence = slimCadence({ ...fullCadence, actions: alerts }, pressurePct);
+        parsed._cadence = sessionSlimOverride === "AGGRESSIVE"
+          ? slimCadence({ ...fullCadence, actions: alerts }, 90)  // Force max pressure slimming
+          : slimCadence({ ...fullCadence, actions: alerts }, pressurePct);
         try {
           const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
           let fires: any = {};

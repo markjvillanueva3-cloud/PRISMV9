@@ -9,7 +9,17 @@ PRISM_DIR="/c/PRISM"
 MCP_DIR="$PRISM_DIR/mcp-server"
 HELPERS_DIR="$PRISM_DIR/.claude/helpers"
 SURVIVAL_FILE="$HELPERS_DIR/.compaction-survival.md"
-MEMORY_FILE="$HOME/.claude/projects/C--PRISM--claude-worktrees-fervent-bohr/memory/MEMORY.md"
+# Dynamic MEMORY.md resolution — check multiple project paths
+MEMORY_FILE=""
+for candidate in \
+  "$HOME/.claude/projects/C--Users-Admin-DIGITALSTORM-PC/memory/MEMORY.md" \
+  "$HOME/.claude/projects/C--PRISM/memory/MEMORY.md" \
+  "$HOME/.claude/projects/C--PRISM--mcp-server/memory/MEMORY.md"; do
+  if [[ -f "$candidate" ]]; then MEMORY_FILE="$candidate"; break; fi
+done
+if [[ -z "$MEMORY_FILE" ]]; then
+  MEMORY_FILE=$(find "$HOME/.claude/projects" -name "MEMORY.md" -path "*/memory/*" 2>/dev/null | head -1)
+fi
 POSITION_FILE="$MCP_DIR/data/docs/roadmap/CURRENT_POSITION.md"
 
 # Gather state

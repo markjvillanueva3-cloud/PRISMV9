@@ -651,6 +651,21 @@ export function autoPreTaskRecon(callNumber: number): ReconResult {
     if (warnings.length === 0) warnings.push("✅ No known pitfalls — clear to proceed");
   } catch { warnings.push("⚠️ Recon failed — proceed with caution"); }
 
+    // Smoke test anti-regression: compare current results against baseline
+    try {
+      const baselinePath = path.join("C:", "PRISM", "audits", "anti_regression_baseline_2026-02-26.json");
+      const smokeResultPath = path.join(STATE_DIR, "smoke_results.json");
+      if (fs.existsSync(baselinePath) && fs.existsSync(smokeResultPath)) {
+        const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf-8"));
+        const current = JSON.parse(fs.readFileSync(smokeResultPath, "utf-8"));
+        const baselineHealth = baseline.health?.pass || baseline.health_pass || 0;
+        const currentHealth = current.health?.pass || current.pass || 0;
+        if (currentHealth < baselineHealth) {
+          warnings.push(`⚠️ REGRESSION: Smoke test health dropped from ${baselineHealth} to ${currentHealth} (baseline: ${baselinePath})`);
+        }
+      }
+    } catch { /* anti-regression comparison non-fatal */ }
+
   return { success: true, call_number: callNumber, recent_errors: recentErrors, recurring_patterns: recurringPatterns, session_context: sessionCtx, warnings };
 }
 
@@ -4746,6 +4761,113 @@ export function autoDispatcherByteTrack(callNumber: number, toolName: string, re
       .map(([d, b]) => `${d}:${Math.round(b / 1024)}KB`);
     return { success: true, heavy_dispatchers: heavy.length > 0 ? heavy : undefined };
   } catch { return { success: true }; }
+}
+
+// ============================================================================
+// AUTO COMPRESS — Orchestrate compression pipeline at high pressure
+// Cadence: every 8 calls at pressure >= 65%. Calls auto_compress.py.
+// ============================================================================
+
+let _autoCompressLastCall = 0;
+
+export function autoCompress(callNumber: number, pressurePct: number): { success: boolean; call_number: number; compressed?: boolean; bytes_saved?: number } {
+  try {
+    if (pressurePct < 65) return { success: true, call_number: callNumber };
+    if (callNumber - _autoCompressLastCall < 8) return { success: true, call_number: callNumber };
+    _autoCompressLastCall = callNumber;
+    const scriptPath = path.join(SCRIPTS_DIR, "auto_compress.py");
+    if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
+    const result = execSync(
+      `python "${scriptPath}" --pressure ${pressurePct} --state-dir "${STATE_DIR}" 2>/dev/null`,
+      { timeout: 8000, encoding: "utf-8" }
+    ).trim();
+    try {
+      const parsed = JSON.parse(result);
+      if (parsed.bytes_saved > 0) {
+        appendEventLine("auto_compress_ran", { call: callNumber, pressure: pressurePct, bytes_saved: parsed.bytes_saved });
+      }
+      return { success: true, call_number: callNumber, compressed: parsed.compressed, bytes_saved: parsed.bytes_saved };
+    } catch { return { success: true, call_number: callNumber, compressed: true }; }
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO TEMPLATE OPTIMIZER — Optimize prompt templates at session boot
+// Cadence: once at session start. Calls template_optimizer.py.
+// ============================================================================
+
+let _templateOptimizerRan = false;
+
+export function autoTemplateOptimizer(callNumber: number): { success: boolean; call_number: number; optimized?: boolean; templates_count?: number; tokens_saved?: number } {
+  try {
+    if (_templateOptimizerRan) return { success: true, call_number: callNumber };
+    _templateOptimizerRan = true;
+    const scriptPath = path.join(SCRIPTS_DIR, "template_optimizer.py");
+    if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
+    const result = execSync(
+      `python "${scriptPath}" --state-dir "${STATE_DIR}" 2>/dev/null`,
+      { timeout: 10000, encoding: "utf-8" }
+    ).trim();
+    try {
+      const parsed = JSON.parse(result);
+      if (parsed.tokens_saved > 0) {
+        appendEventLine("template_optimizer_ran", { call: callNumber, templates: parsed.templates_count, tokens_saved: parsed.tokens_saved });
+      }
+      return { success: true, call_number: callNumber, optimized: true, templates_count: parsed.templates_count, tokens_saved: parsed.tokens_saved };
+    } catch { return { success: true, call_number: callNumber, optimized: true }; }
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO RESUME DETECTOR — Detect resume scenarios at session start
+// Cadence: once at first call. Calls resume_detector.py.
+// ============================================================================
+
+let _resumeDetectorRan = false;
+
+export function autoResumeDetector(callNumber: number): { success: boolean; call_number: number; scenario?: string; actions?: string[] } {
+  try {
+    if (_resumeDetectorRan) return { success: true, call_number: callNumber };
+    _resumeDetectorRan = true;
+    const scriptPath = path.join(SCRIPTS_DIR, "resume_detector.py");
+    if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
+    const result = execSync(
+      `python "${scriptPath}" --state-dir "${STATE_DIR}" 2>/dev/null`,
+      { timeout: 8000, encoding: "utf-8" }
+    ).trim();
+    try {
+      const parsed = JSON.parse(result);
+      appendEventLine("resume_detected", { call: callNumber, scenario: parsed.type, actions: parsed.actions?.length || 0 });
+      return { success: true, call_number: callNumber, scenario: parsed.type, actions: parsed.actions };
+    } catch { return { success: true, call_number: callNumber, scenario: "unknown" }; }
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO LEARNING STORE — Persist learned patterns at session end or every 25 calls
+// Cadence: every 25 calls. Calls learning_store.py.
+// ============================================================================
+
+let _learningStoreLastCall = 0;
+
+export function autoLearningStorePersist(callNumber: number): { success: boolean; call_number: number; persisted?: boolean; patterns_count?: number } {
+  try {
+    if (callNumber - _learningStoreLastCall < 25) return { success: true, call_number: callNumber };
+    _learningStoreLastCall = callNumber;
+    const scriptPath = path.join(SCRIPTS_DIR, "learning_store.py");
+    if (!fs.existsSync(scriptPath)) return { success: true, call_number: callNumber };
+    const result = execSync(
+      `python "${scriptPath}" --state-dir "${STATE_DIR}" --action persist 2>/dev/null`,
+      { timeout: 8000, encoding: "utf-8" }
+    ).trim();
+    try {
+      const parsed = JSON.parse(result);
+      if (parsed.patterns_count > 0) {
+        appendEventLine("learning_store_persisted", { call: callNumber, patterns: parsed.patterns_count });
+      }
+      return { success: true, call_number: callNumber, persisted: true, patterns_count: parsed.patterns_count };
+    } catch { return { success: true, call_number: callNumber, persisted: true }; }
+  } catch { return { success: false, call_number: callNumber }; }
 }
 
 // ============================================================================
