@@ -25,6 +25,7 @@
 import { log } from "../utils/Logger.js";
 import * as path from "path";
 import * as fs from "fs";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // Extended domain templates (45 additional domains)
 import { EXTENDED_DOMAIN_TEMPLATES } from "./ExtendedDomainTemplates.js";

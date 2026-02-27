@@ -101,7 +101,7 @@ export class AuditEngine {
     if (q.severity) result = result.filter(e => e.severity === q.severity);
     if (q.actor) result = result.filter(e => e.actor === q.actor);
     if (q.tenant_id) result = result.filter(e => e.tenant_id === q.tenant_id);
-    if (q.action) result = result.filter(e => e.action.includes(q.action));
+    if (q.action) { const act = q.action; result = result.filter(e => e.action.includes(act)); }
     if (q.resource_type) result = result.filter(e => e.resource_type === q.resource_type);
     if (q.since) { const ts = new Date(q.since).getTime(); result = result.filter(e => new Date(e.timestamp).getTime() >= ts); }
     if (q.until) { const ts = new Date(q.until).getTime(); result = result.filter(e => new Date(e.timestamp).getTime() <= ts); }

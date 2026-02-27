@@ -1339,7 +1339,7 @@ export {
   FeatureRecognitionEngine,
   featureRecognitionEngine,
   type FeatureType,
-  type RecognizedFeature,
+  type RecognizedFeature as FRRecognizedFeature,
   type FeatureDimensions,
   type FeatureClassification,
   type FeatureGroup,
@@ -1377,7 +1377,7 @@ export {
   surfaceFinishEngine,
   type SurfaceProcess,
   type SurfaceFinishInput,
-  type SurfaceFinishResult,
+  type SurfaceFinishResult as SFEngineSurfaceFinishResult,
   type AchievableFinish,
 } from "./SurfaceFinishEngine.js";
 
@@ -1399,7 +1399,7 @@ export {
   StockModelEngine,
   stockModelEngine,
   type StockType as StockModelType,
-  type StockDefinition,
+  type StockDefinition as StockModelDefinition,
   type MaterialRemoval,
   type StockState,
   type StockAnalysis,
@@ -1423,7 +1423,7 @@ export {
   ThermalSimEngine,
   thermalSimEngine,
   type ThermalInput,
-  type ThermalResult,
+  type ThermalResult as ThermalSimResult,
   type ThermalDamageRisk,
   type ThermalOptimization,
 } from "./ThermalSimEngine.js";
@@ -1435,7 +1435,7 @@ export {
   type HolderType,
   type HolderSpec,
   type ToolSpec as AssemblyToolSpec,
-  type ToolAssembly,
+  type ToolAssembly as ToolAssemblyDef,
   type AssemblyValidation,
   type ReachAnalysis,
 } from "./ToolAssemblyEngine.js";
@@ -1469,7 +1469,7 @@ export {
   ToleranceStackEngine,
   toleranceStackEngine,
   type StackMethod,
-  type StackDimension,
+  type StackDimension as ToleranceStackDimension,
   type StackResult,
   type StackContributor,
   type StackOptimization,
@@ -1539,7 +1539,7 @@ export {
 export {
   CacheEngine,
   cacheEngine,
-  type CacheEntry,
+  type CacheEntry as CacheEngineCacheEntry,
   type CacheStats,
   type CacheConfig,
 } from "./CacheEngine.js";
@@ -1551,7 +1551,7 @@ export {
   type QueueJob,
   type JobStatus,
   type JobPriority,
-  type QueueStats,
+  type QueueStats as QueueEngineStats,
   type EnqueueOptions,
 } from "./QueueEngine.js";
 
@@ -1560,9 +1560,9 @@ export {
   EventEngine,
   eventEngine,
   type EventMessage,
-  type EventSubscription,
-  type EventStats,
-  type EventHandler,
+  type EventSubscription as EventEngineSubscription,
+  type EventStats as EventEngineStats,
+  type EventHandler as EventEngineHandler,
 } from "./EventEngine.js";
 
 // Logging (structured logging with levels)
@@ -1724,9 +1724,9 @@ export {
 export {
   CryogenicTreatmentEngine,
   cryogenicTreatmentEngine,
-  type CryoToolType,
-  type CryogenicInput,
-  type CryogenicResult,
+  type CryoLevel,
+  type CryoTreatmentInput,
+  type CryoTreatmentResult,
 } from "./CryogenicTreatmentEngine.js";
 
 // Plating Allowance
@@ -1734,8 +1734,8 @@ export {
   PlatingAllowanceEngine,
   platingAllowanceEngine,
   type PlatingProcess,
-  type PlatingInput,
-  type PlatingResult,
+  type PlatingAllowanceInput,
+  type PlatingAllowanceResult,
 } from "./PlatingAllowanceEngine.js";
 
 // --- Batch 2: Vibration & Dynamics (5 engines) ---
@@ -1744,7 +1744,7 @@ export {
 export {
   HarmonicAnalysisEngine,
   harmonicAnalysisEngine,
-  type VibrationSource,
+  type HarmonicSource,
   type HarmonicInput,
   type HarmonicPeak,
   type HarmonicResult,
@@ -1762,9 +1762,9 @@ export {
 export {
   ToolholderDynamicsEngine,
   toolholderDynamicsEngine,
-  type HolderType as ToolholderType,
+  type ToolholderType,
   type ToolholderInput,
-  type ToolholderFRFResult,
+  type ToolholderFRF,
   type ToolholderComparison,
 } from "./ToolholderDynamicsEngine.js";
 
@@ -1774,7 +1774,7 @@ export {
   regenerativeChatterPredictor,
   type CutType as RegenerativeCutType,
   type ChatterInput as RegenerativeChatterInput,
-  type StabilityLobe,
+  type StabilityLobe as RegenerativeStabilityLobe,
   type ChatterResult as RegenerativeChatterResult,
 } from "./RegenerativeChatterPredictor.js";
 
@@ -1794,18 +1794,18 @@ export {
   ThreadMillingEngine,
   threadMillingEngine,
   type ThreadMillInput,
-  type ThreadMillResult,
+  type ThreadMillResult as ThreadMillEngineResult,
 } from "./ThreadMillingEngine.js";
 
 // Single-Point Threading (SAFETY CRITICAL)
 export {
   SinglePointThreadEngine,
   singlePointThreadEngine,
-  type ThreadForm,
   type InfeedMethod,
-  type SinglePointThreadInput,
-  type ThreadPass,
-  type SinglePointThreadResult,
+  type SPTInput,
+  type SPTPass,
+  type SPTPassPlan,
+  type SPTValidation,
 } from "./SinglePointThreadEngine.js";
 
 // Gear Hobbing
