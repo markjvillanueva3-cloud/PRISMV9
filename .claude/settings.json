@@ -35,6 +35,12 @@
           },
           {
             "type": "command",
+            "command": "bash /c/PRISM/.claude/helpers/completion-gate.sh 2>/dev/null || true",
+            "timeout": 8000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "[ -n \"$TOOL_INPUT_command\" ] && npx @claude-flow/cli@latest hooks pre-command --command \"$TOOL_INPUT_command\" 2>/dev/null || true",
             "timeout": 5000,
             "continueOnError": true
