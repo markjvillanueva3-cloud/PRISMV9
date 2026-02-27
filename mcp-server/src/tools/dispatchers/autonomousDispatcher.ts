@@ -448,6 +448,68 @@ async function executeBatch(
   let totalCost = 0;
   let failureCount = 0;
 
+  // Check if parallel execution is enabled (via batch state or config)
+  const parallelEnabled = (config as any).parallel_enabled ||
+    (() => { try {
+      const bs = path.join(PATHS.STATE_DIR, "atcs_batch_state.json");
+      if (fs.existsSync(bs)) { const s = JSON.parse(fs.readFileSync(bs, "utf-8")); return s.parallel_enabled === true; }
+    } catch {} return false; })();
+
+  if (parallelEnabled && units.length >= 2) {
+    // === PARALLEL MODE: Execute in micro-batches of MAX_CONCURRENT_AGENTS ===
+    const batchSize = Math.min(MAX_CONCURRENT_AGENTS, units.length);
+    for (let batchStart = 0; batchStart < units.length; batchStart += batchSize) {
+      // Circuit breaker check between micro-batches
+      const failureRate = results.length > 0 ? failureCount / results.length : 0;
+      if (failureRate > config.max_failure_rate && results.length >= 3) {
+        log.warn(`[autonomous] Circuit breaker tripped (parallel): ${(failureRate * 100).toFixed(0)}% failure rate`);
+        return { results, total_cost: totalCost, circuit_breaker_tripped: true };
+      }
+      if (totalCost >= config.max_cost_per_batch) {
+        log.warn(`[autonomous] Batch budget exceeded (parallel): $${totalCost.toFixed(2)} >= $${config.max_cost_per_batch}`);
+        return { results, total_cost: totalCost, circuit_breaker_tripped: true };
+      }
+
+      const microBatch = units.slice(batchStart, batchStart + batchSize);
+      log.info(`[autonomous] Parallel micro-batch ${Math.floor(batchStart / batchSize) + 1}: ${microBatch.length} units`);
+
+      // Rate limiting between micro-batches (not between units within a batch)
+      if (batchStart > 0 && config.rate_limit_ms > 0) {
+        await new Promise(resolve => setTimeout(resolve, config.rate_limit_ms));
+      }
+
+      // Execute all units in micro-batch concurrently
+      const settled = await Promise.allSettled(
+        microBatch.map(unit => executeUnit(unit, taskObjective, acceptanceCriteria, config, taskId))
+      );
+
+      for (const s of settled) {
+        if (s.status === "fulfilled") {
+          results.push(s.value);
+          totalCost += s.value.cost_usd;
+          if (s.value.status === "failed") failureCount++;
+          log.info(`[autonomous] Unit ${s.value.unit_id}: ${s.value.status} ($${s.value.cost_usd.toFixed(4)}, ${s.value.duration_ms}ms)`);
+        } else {
+          // Promise rejected — create a failure result
+          const failResult: UnitExecutionResult = {
+            unit_id: -1, status: "failed", output: null,
+            agent_tier: "unknown", model: "unknown",
+            tokens: { input: 0, output: 0 },
+            cost_usd: 0, duration_ms: 0,
+            tool_calls_made: 0, stub_scan_clean: false,
+            safety_check: "N/A",
+            error: String(s.reason).slice(0, 200)
+          };
+          results.push(failResult);
+          failureCount++;
+          log.warn(`[autonomous] Unit execution rejected: ${failResult.error}`);
+        }
+      }
+    }
+    return { results, total_cost: totalCost, circuit_breaker_tripped: false };
+  }
+
+  // === SEQUENTIAL MODE (default): Original behavior ===
   for (let i = 0; i < units.length; i++) {
     // Circuit breaker check (G12)
     const failureRate = results.length > 0 ? failureCount / results.length : 0;

@@ -38,12 +38,13 @@ import {
 import * as TaskClaimService from "../../services/TaskClaimService.js";
 import { agentRegistry } from "../../registries/AgentRegistry.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { classifyTask } from "../../engines/TaskAgentClassifier.js";
 
 const ACTIONS = [
   "agent_execute", "agent_parallel", "agent_pipeline",
   "plan_create", "plan_execute", "plan_status", "queue_stats", "session_list",
   "swarm_execute", "swarm_parallel", "swarm_consensus", "swarm_pipeline",
-  "swarm_status", "swarm_patterns",
+  "swarm_status", "swarm_patterns", "swarm_quick",
   "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate",
   "roadmap_list", "roadmap_load",
   "roadmap_claim", "roadmap_release", "roadmap_heartbeat", "roadmap_discover",
@@ -170,6 +171,57 @@ export function registerOrchestrationDispatcher(server: any): void {
               competition: "Best result wins", collaboration: "Iterative improvement"
             }});
           }
+          case "swarm_quick": {
+            // One-shot swarm: auto-selects pattern + agents from task description + domain
+            const task = params.task || params.description || "";
+            const domain = params.domain || "general";
+            const maxAgents = Math.min(params.max_agents || 5, 8);
+            const minAgents = Math.max(params.min_agents || 2, 2);
+            const timeoutMs = params.timeout_ms || 30000;
+
+            // Use TaskAgentClassifier to pick agents and pattern
+            const classification = classifyTask("prism_orchestrate", "swarm_quick", { task, domain });
+            const swarmRec = classification.recommended_swarm;
+            const agentRecs = classification.recommended_agents;
+
+            // Determine agents: from classification or fallback to registry search
+            let agentIds: string[] = [];
+            if (swarmRec && swarmRec.agents.length >= minAgents) {
+              agentIds = swarmRec.agents.slice(0, maxAgents);
+            } else if (agentRecs.length >= minAgents) {
+              agentIds = agentRecs.slice(0, maxAgents).map(a => a.agent_id);
+            } else {
+              // Fallback: find agents from registry matching domain
+              const all = agentRegistry.all().filter(a => a.enabled && a.status === "active");
+              const domainMatch = all.filter(a => a.category?.toLowerCase().includes(domain.toLowerCase()));
+              agentIds = (domainMatch.length >= minAgents ? domainMatch : all).slice(0, maxAgents).map(a => a.agent_id);
+            }
+
+            if (agentIds.length < minAgents) {
+              return ok({ error: `Only ${agentIds.length} agents found for domain "${domain}", need at least ${minAgents}`, available: agentIds });
+            }
+
+            // Select pattern: from recommendation or complexity-based
+            const pattern: SwarmPattern = (swarmRec?.pattern as SwarmPattern) ||
+              (classification.complexity === "critical" ? "consensus" :
+               classification.complexity === "complex" ? "map_reduce" : "parallel");
+
+            const result = await executeSwarm({
+              name: `quick-${domain}-${Date.now()}`,
+              pattern,
+              agents: agentIds,
+              input: { task, domain, params: params.context || {} },
+              timeout_ms: timeoutMs
+            });
+
+            return ok({
+              swarmId: result.swarmId, pattern: result.pattern, status: result.status,
+              duration_ms: result.duration_ms, agents: agentIds,
+              successCount: result.successCount, failCount: result.failCount,
+              output: result.aggregatedOutput,
+              classification: { complexity: classification.complexity, domain: classification.domain, auto_orchestrate: classification.auto_orchestrate }
+            });
+          }
           // === ROADMAP EXECUTION ===
           case "roadmap_plan": {
             // Generate a batched execution plan with parallel detection
@@ -211,32 +263,76 @@ export function registerOrchestrationDispatcher(server: any): void {
           }
           case "roadmap_next_batch": {
             // Get the next batch of ready units for parallel execution
-            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, position?: PositionTracker }
+            // params: { milestone_id?: string, roadmap?: RoadmapEnvelope, position?: PositionTracker, auto_execute?: boolean }
             if (!params.roadmap && !params.milestone_id) {
               return ok({ error: "milestone_id or roadmap required" });
             }
             try {
-              const { envelope } = await resolveEnvelope(params);
+              const { envelope, milestoneId } = await resolveEnvelope(params);
               const position = await resolvePosition(params, envelope);
               const result = roadmapExecutor.nextBatch(envelope, position);
+
+              const batchInfo = result.batch ? {
+                batchId: result.batch.batchId,
+                parallel: result.batch.parallel,
+                unitCount: result.batch.units.length,
+                units: result.batch.units.map(u => ({
+                  id: u.id, title: u.title, phase: u.phase,
+                  role: u.role, model: u.model, effort: u.effort,
+                  dependencies: u.dependencies,
+                  steps: u.steps.length,
+                  deliverables: u.deliverables.map(d => d.path),
+                })),
+                estimatedTokens: result.batch.estimatedTokens,
+              } : null;
+
+              // Auto-execute: dispatch parallel agents and auto-advance
+              let autoExecResult: any = null;
+              if (params.auto_execute && result.batch && result.batch.parallel && result.batch.units.length >= 2) {
+                try {
+                  const agentTasks = result.batch.units.map(u => ({
+                    agentId: u.role || "AGT-COG-REASONING",
+                    input: {
+                      task: u.title,
+                      steps: u.steps,
+                      deliverables: u.deliverables,
+                      phase: u.phase,
+                      effort: u.effort,
+                      auto_dispatched: true
+                    }
+                  }));
+
+                  const agentResults = await executeAgentsParallel(agentTasks);
+                  const completedUnits = result.batch.units.map((u, i) => ({
+                    unitId: u.id,
+                    buildPassed: agentResults[i]?.status === "completed"
+                  }));
+
+                  // Auto-advance position
+                  const advanceResult = roadmapExecutor.advance(position, completedUnits, envelope);
+                  await savePosition(milestoneId || "default", position);
+
+                  const successful = agentResults.filter(r => r.status === "completed").length;
+                  autoExecResult = {
+                    auto_executed: true,
+                    total: agentResults.length,
+                    successful,
+                    failed: agentResults.length - successful,
+                    auto_advanced: true,
+                    new_position: advanceResult
+                  };
+                } catch (autoErr: any) {
+                  autoExecResult = { auto_executed: false, error: autoErr.message?.slice(0, 200) };
+                }
+              }
+
               return ok({
-                batch: result.batch ? {
-                  batchId: result.batch.batchId,
-                  parallel: result.batch.parallel,
-                  unitCount: result.batch.units.length,
-                  units: result.batch.units.map(u => ({
-                    id: u.id, title: u.title, phase: u.phase,
-                    role: u.role, model: u.model, effort: u.effort,
-                    dependencies: u.dependencies,
-                    steps: u.steps.length,
-                    deliverables: u.deliverables.map(d => d.path),
-                  })),
-                  estimatedTokens: result.batch.estimatedTokens,
-                } : null,
+                batch: batchInfo,
                 gatePending: result.gatePending,
                 gatePhaseId: result.gatePhaseId,
                 complete: result.complete,
                 message: result.message,
+                ...(autoExecResult ? { auto_execute: autoExecResult } : {}),
               });
             } catch (err: any) {
               return ok({ error: `roadmap_next_batch failed: ${err.message}` });

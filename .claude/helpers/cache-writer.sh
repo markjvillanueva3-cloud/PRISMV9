@@ -80,10 +80,10 @@ if [[ "$cmd" == *"JSON.parse"* && "$cmd" == *"settings.json"* ]]; then
 fi
 
 # ============================================================
-# NPM INSTALL — invalidate npm list cache
+# NPM INSTALL — invalidate npm list + build + tsc caches
 # ============================================================
-if [[ "$cmd" == *"npm install"* || "$cmd" == *"npm add"* || "$cmd" == *"npm ci"* ]]; then
-  rm -f "$CACHE_DIR/npm-list" 2>/dev/null || true
+if [[ "$cmd" == *"npm install"* || "$cmd" == *"npm add"* || "$cmd" == *"npm ci"* || "$cmd" == *"npm update"* || "$cmd" == *"npm remove"* ]]; then
+  rm -f "$CACHE_DIR/npm-list" "$BUILD_CACHE" "$TEST_CACHE" "/tmp/prism-tsc-cache" 2>/dev/null || true
 fi
 
 # ============================================================

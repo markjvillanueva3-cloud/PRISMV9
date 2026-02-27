@@ -19,6 +19,12 @@
           {
             "type": "command",
             "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\pre-edit-safety-gate.ps1"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -File C:\\PRISM\\mcp-server\\scripts\\hooks\\anti-regression-gate.ps1 -FilePath \"$TOOL_INPUT_file_path\"",
+            "timeout": 3000,
+            "continueOnError": true
           }
         ]
       },
