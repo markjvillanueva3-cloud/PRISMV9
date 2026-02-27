@@ -7,6 +7,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -302,7 +303,7 @@ export async function generate(): Promise<MasterIndex> {
   try {
     const outDir = path.dirname(OUTPUT_FILE);
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(index, null, 2));
+    safeWriteSync(OUTPUT_FILE, JSON.stringify(index, null, 2));
   } catch { /* non-fatal */ }
 
   return index;

@@ -216,6 +216,11 @@ export class SafetyValidator {
                 /Function\s*\(/,      // Function constructor
                 /exec\s*\(/,          // exec() calls
                 /import\s*\(/,        // Dynamic imports
+                /\.\.\//,              // Path traversal (SF-006)
+                /[;|&`]\s*\w/,        // Shell metacharacters (SF-006)
+                /file:\/\//i,          // file:// protocol (SF-006)
+                /__proto__/,           // Prototype pollution (SF-006)
+                /constructor\s*\[\s*['"]prototype['"]\s*\]/, // Prototype access (SF-006)
               ];
 
               for (const pattern of dangerousPatterns) {

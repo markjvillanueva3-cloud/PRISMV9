@@ -32,6 +32,7 @@ import {
 } from '../types/pfp-types.js';
 import { crc32 } from '../engines/TelemetryEngine.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE DIRECTORY
@@ -669,13 +670,13 @@ export class PFPEngine {
       // Save patterns (compact)
       const patternsPath = path.join(STATE_DIR, 'patterns.json');
       const tmpPatterns = patternsPath + '.tmp';
-      fs.writeFileSync(tmpPatterns, JSON.stringify(this.patterns));
+      safeWriteSync(tmpPatterns, JSON.stringify(this.patterns));
       fs.renameSync(tmpPatterns, patternsPath);
 
       // Save config
       const configPath = path.join(STATE_DIR, 'config.json');
       const tmpConfig = configPath + '.tmp';
-      fs.writeFileSync(tmpConfig, JSON.stringify(this.config, null, 2));
+      safeWriteSync(tmpConfig, JSON.stringify(this.config, null, 2));
       fs.renameSync(tmpConfig, configPath);
     } catch (e) {
       log.warn(`[PFP] State save failed: ${(e as Error).message}`);

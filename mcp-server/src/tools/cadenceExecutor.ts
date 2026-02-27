@@ -67,9 +67,9 @@ const EVENT_LOG_FILE = path.join(STATE_DIR, "session_events.jsonl");
  * C4 fix: Atomic file write — write to .tmp then rename to prevent corruption
  * from concurrent writes to the same file.
  */
-function writeFileAtomic(filePath: string, data: string): void {
+function writeFileAtomic(filePath: string, data: string, encoding: BufferEncoding = "utf-8"): void {
   const tmpPath = filePath + ".tmp";
-  fs.writeFileSync(tmpPath, data);
+  fs.writeFileSync(tmpPath, data, encoding);
   fs.renameSync(tmpPath, filePath);
 }
 
@@ -96,7 +96,7 @@ export function autoTodoRefresh(callNumber: number): TodoRefreshResult {
     if (!fs.existsSync(TODO_FILE)) {
       // Create minimal todo if none exists
       const minimal = `# PRISM Active Task: Session Active\n## Auto-refreshed at call ${callNumber}\n> No task defined yet — call prism_context todo_update to set one.\n`;
-      fs.writeFileSync(TODO_FILE, minimal);
+      writeFileAtomic(TODO_FILE, minimal);
       return {
         success: true,
         call_number: callNumber,
@@ -120,7 +120,7 @@ export function autoTodoRefresh(callNumber: number): TodoRefreshResult {
     content = content.replace(/\n---\n_Auto-refreshed at dispatch #\d+.*\n/g, "");
     content += marker;
 
-    fs.writeFileSync(TODO_FILE, content);
+    writeFileAtomic(TODO_FILE, content);
 
     // Extract focus line for attention anchoring
     const focusMatch = content.match(/> (.+)/);
@@ -232,7 +232,7 @@ export function autoCheckpoint(callNumber: number): CheckpointResult {
         }
       }
       
-      fs.writeFileSync(path.join(cpDir, `${checkpointId}.json`), JSON.stringify(checkpoint, null, 2));
+      writeFileAtomic(path.join(cpDir, `${checkpointId}.json`), JSON.stringify(checkpoint, null, 2));
     } catch { /* checkpoint file write non-fatal */ }
 
     return {
@@ -309,7 +309,7 @@ export function autoContextPressure(callNumber: number, accumulatedBytes: number
       } catch { /* fresh start */ }
     }
     pressureState.history.push({ call: callNumber, pct: pressurePct, zone, ts: pressureState.timestamp });
-    fs.writeFileSync(CONTEXT_PRESSURE_FILE, JSON.stringify(pressureState, null, 2));
+    writeFileAtomic(CONTEXT_PRESSURE_FILE, JSON.stringify(pressureState, null, 2));
 
     return {
       success: true,
@@ -398,7 +398,7 @@ export function autoCompactionDetect(
     }
     logHistory.push(logEntry);
     if (logHistory.length > 50) logHistory = logHistory.slice(-50);
-    fs.writeFileSync(COMPACTION_LOG_FILE, JSON.stringify(logHistory, null, 2));
+    writeFileAtomic(COMPACTION_LOG_FILE, JSON.stringify(logHistory, null, 2));
 
     return {
       success: true,
@@ -451,7 +451,7 @@ export function autoContextCompress(
       findings: sessionSummary.keyFindings,
       files: sessionSummary.activeFiles,
     };
-    fs.writeFileSync(COMPRESS_SNAPSHOT_FILE, JSON.stringify(snapshot, null, 2));
+    writeFileAtomic(COMPRESS_SNAPSHOT_FILE, JSON.stringify(snapshot, null, 2));
 
     // Generate cleanup recommendations
     recommendations.push("Drop previous tool result payloads from context — snapshot saved to disk");
@@ -818,7 +818,7 @@ export function autoErrorLearn(
       existing.last_error = errorMessage.slice(0, 200);
       existing.last_tool = `${toolName}:${action}`;
       // Rewrite file
-      fs.writeFileSync(FAILURE_PATTERNS_PATH, patterns.map((p: any) => JSON.stringify(p)).join("\n") + "\n");
+      writeFileAtomic(FAILURE_PATTERNS_PATH, patterns.map((p: any) => JSON.stringify(p)).join("\n") + "\n");
       return {
         success: true, call_number: callNumber, error_id: errorId,
         pattern_matched: true, pattern_id: existing.id,
@@ -1073,7 +1073,7 @@ function loadDocBaselines(): Record<string, number> {
 
 function saveDocBaselines(baselines: Record<string, number>): void {
   try {
-    fs.writeFileSync(DOC_BASELINES_FILE, JSON.stringify(baselines, null, 2));
+    writeFileAtomic(DOC_BASELINES_FILE, JSON.stringify(baselines, null, 2));
   } catch {}
 }
 
@@ -1173,7 +1173,7 @@ export function autoDecisionCapture(callNumber: number, toolName: string, action
       status: "auto-captured", created: new Date().toISOString(),
       updated: new Date().toISOString(), session: callNumber,
     };
-    fs.writeFileSync(path.join(DECISIONS_DIR, `${id}.json`), JSON.stringify(decision, null, 2));
+    writeFileAtomic(path.join(DECISIONS_DIR, `${id}.json`), JSON.stringify(decision, null, 2));
     return { success: true, decision_id: id, file_changed: filePath || "", auto_captured: true };
   } catch { return { success: true, decision_id: null, file_changed: filePath || "", auto_captured: false }; }
 }
@@ -1348,7 +1348,7 @@ export function autoVariationCheck(callNumber: number): VariationCheckResult {
     }
     history.push(log);
     if (history.length > 20) history = history.slice(-20);
-    fs.writeFileSync(VARIATION_LOG_PATH, JSON.stringify(history, null, 2));
+    writeFileAtomic(VARIATION_LOG_PATH, JSON.stringify(history, null, 2));
 
     return { success: true, call_number: callNumber, variation_needed: variationNeeded, repetitive_patterns: repetitive, recommendation };
   } catch { return { success: true, call_number: callNumber, variation_needed: false, repetitive_patterns: [], recommendation: "Check failed — continue normally" }; }
@@ -2335,7 +2335,7 @@ export function autoContextPullBack(
             }
             manifest.push(summary);
             if (manifest.length > 10) manifest = manifest.slice(-10);
-            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+            writeFileAtomic(manifestPath, JSON.stringify(manifest, null, 2));
             
             pulledBack.push(`${path.basename(filepath)} (${Math.round(fileBytes/1024)}KB)`);
             pulledBackBytes += fileBytes;
@@ -3074,7 +3074,7 @@ export function autoRecoveryManifest(
       ...(atcsCurrentUnit ? { atcs_current_unit: atcsCurrentUnit } : {}),
     };
 
-    fs.writeFileSync(RECOVERY_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
+    writeFileAtomic(RECOVERY_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
     return { success: true, call_number: callNumber, file: RECOVERY_MANIFEST_FILE };
   } catch (err: any) {
     return { success: false, call_number: callNumber, file: RECOVERY_MANIFEST_FILE, error: err.message };
@@ -3286,7 +3286,7 @@ export function autoHandoffPackage(
       resumed: false,
     };
 
-    fs.writeFileSync(HANDOFF_PACKAGE_FILE, JSON.stringify(pkg, null, 2));
+    writeFileAtomic(HANDOFF_PACKAGE_FILE, JSON.stringify(pkg, null, 2));
     return { success: true, call_number: callNumber, file: HANDOFF_PACKAGE_FILE };
   } catch (err: any) {
     return { success: false, call_number: callNumber, file: HANDOFF_PACKAGE_FILE, error: err.message };
@@ -3302,7 +3302,7 @@ export function markHandoffResumed(): boolean {
       const pkg = JSON.parse(fs.readFileSync(HANDOFF_PACKAGE_FILE, "utf-8"));
       pkg.resumed = true;
       pkg.resumed_at = new Date().toISOString();
-      fs.writeFileSync(HANDOFF_PACKAGE_FILE, JSON.stringify(pkg, null, 2));
+      writeFileAtomic(HANDOFF_PACKAGE_FILE, JSON.stringify(pkg, null, 2));
       return true;
     }
     return false;
@@ -3424,7 +3424,7 @@ export function autoCompactionSurvival(
       } catch {}
     }
 
-    fs.writeFileSync(COMPACTION_SURVIVAL_FILE, JSON.stringify(survival, null, 2));
+    writeFileAtomic(COMPACTION_SURVIVAL_FILE, JSON.stringify(survival, null, 2));
     return { success: true, call_number: callNumber, file: COMPACTION_SURVIVAL_FILE };
   } catch (err: any) {
     return { success: false, call_number: callNumber, file: COMPACTION_SURVIVAL_FILE, error: err.message };
@@ -3671,7 +3671,7 @@ export function autoPreCompactionDump(
             `CONTEXT_NOTES: ${pressureNote}`
           )
         : existingPosition + `\nCONTEXT_NOTES: ${pressureNote}`;
-      fs.writeFileSync(POSITION_FILE, updatedPosition, "utf-8");
+      writeFileAtomic(POSITION_FILE, updatedPosition, "utf-8");
       positionSaved = true;
     }
 
@@ -3718,7 +3718,7 @@ export function autoPreCompactionDump(
       `DECISION_PENDING: Resume from CURRENT_POSITION.md after recovery.`,
     ].join("\n");
 
-    fs.writeFileSync(SNAPSHOT_FILE, snapshot, "utf-8");
+    writeFileAtomic(SNAPSHOT_FILE, snapshot, "utf-8");
     snapshotSaved = true;
 
     return {
@@ -4339,14 +4339,14 @@ export function autoMemoryExternalize(
       const content = fs.readFileSync(decisionLog, "utf-8");
       if (content.length > 2000) {
         const extPath = path.join(externalDir, `decisions_${dateTag}.jsonl`);
-        fs.writeFileSync(extPath, content);
+        writeFileAtomic(extPath, content);
         totalBytes += content.length;
         count++;
         filesWritten.push(extPath);
         categories.push("decisions");
         // Truncate original to last 5 entries
         const lines = content.trim().split("\n").filter(Boolean);
-        fs.writeFileSync(decisionLog, lines.slice(-5).join("\n") + "\n");
+        writeFileAtomic(decisionLog, lines.slice(-5).join("\n") + "\n");
       }
     }
 
@@ -4356,14 +4356,14 @@ export function autoMemoryExternalize(
       const content = fs.readFileSync(errorLog, "utf-8");
       if (content.length > 3000) {
         const extPath = path.join(externalDir, `errors_${dateTag}.jsonl`);
-        fs.writeFileSync(extPath, content);
+        writeFileAtomic(extPath, content);
         totalBytes += content.length;
         count++;
         filesWritten.push(extPath);
         categories.push("errors");
         // Keep last 3 entries in working log
         const lines = content.trim().split("\n").filter(Boolean);
-        fs.writeFileSync(errorLog, lines.slice(-3).join("\n") + "\n");
+        writeFileAtomic(errorLog, lines.slice(-3).join("\n") + "\n");
       }
     }
 
@@ -4372,14 +4372,14 @@ export function autoMemoryExternalize(
       const content = fs.readFileSync(EVENT_LOG_FILE, "utf-8");
       if (content.length > 5000) {
         const extPath = path.join(externalDir, `events_${dateTag}.jsonl`);
-        fs.writeFileSync(extPath, content);
+        writeFileAtomic(extPath, content);
         totalBytes += content.length;
         count++;
         filesWritten.push(extPath);
         categories.push("events");
         // Keep last 10 entries
         const lines = content.trim().split("\n").filter(Boolean);
-        fs.writeFileSync(EVENT_LOG_FILE, lines.slice(-10).join("\n") + "\n");
+        writeFileAtomic(EVENT_LOG_FILE, lines.slice(-10).join("\n") + "\n");
       }
     }
 
@@ -4389,7 +4389,7 @@ export function autoMemoryExternalize(
       const content = fs.readFileSync(failurePatternsFile, "utf-8");
       if (content.length > 2000) {
         const extPath = path.join(externalDir, `patterns_${dateTag}.jsonl`);
-        fs.writeFileSync(extPath, content);
+        writeFileAtomic(extPath, content);
         totalBytes += content.length;
         count++;
         filesWritten.push(extPath);
@@ -4893,7 +4893,7 @@ export function autoCognitiveUpdate(callNumber: number, pressurePct: number, err
     s.S = errorRate > 0.3 ? 0.85 : 1.0;
     s.L = Math.min(1.0, 0.7 + (callNumber / 100));
     s.omega = Math.round(Math.pow(s.R * s.C * s.P * s.S * s.L, 0.2) * 100) / 100;
-    fs.writeFileSync(COGNITIVE_STATE_FILE, JSON.stringify(s, null, 2));
+    writeFileAtomic(COGNITIVE_STATE_FILE, JSON.stringify(s, null, 2));
     appendEventLine("cognitive_update", { call: callNumber, omega: s.omega });
     return { success: true, call_number: callNumber, omega: s.omega, metrics: s };
   } catch { return { success: false, call_number: callNumber, omega: 0 }; }
@@ -5369,7 +5369,7 @@ export async function autoGroupedSwarmDispatch(
 
     // Write results to disk for persistence
     try {
-      fs.writeFileSync(SWARM_RESULTS_FILE, JSON.stringify({
+      writeFileAtomic(SWARM_RESULTS_FILE, JSON.stringify({
         ts: new Date().toISOString(),
         call: callNumber,
         tool: toolName,
@@ -5439,7 +5439,7 @@ export function autoATCSParallelUpgrade(callNumber: number): { success: boolean;
     state.execution_mode = "parallel";
     state.parallel_enabled = true;
     state.parallel_upgraded_at = callNumber;
-    fs.writeFileSync(batchState, JSON.stringify(state, null, 2), "utf-8");
+    writeFileAtomic(batchState, JSON.stringify(state, null, 2), "utf-8");
     _atcsParallelUpgraded = true;
     appendEventLine("atcs_parallel_upgraded", { call: callNumber, units: state.units.length });
     return { success: true, call_number: callNumber, upgraded: true };
@@ -5466,7 +5466,7 @@ function getDeployedNLHooks(): any[] {
       // Create directory + empty registry if missing
       const dir = path.dirname(NL_HOOK_REGISTRY);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(NL_HOOK_REGISTRY, JSON.stringify({ hooks: [], created: new Date().toISOString() }, null, 2));
+      writeFileAtomic(NL_HOOK_REGISTRY, JSON.stringify({ hooks: [], created: new Date().toISOString() }, null, 2));
       _nlHookCache = { hooks: [], ts: now };
       return [];
     }
@@ -5639,7 +5639,7 @@ function executeNLHookAction(hook: any, ctx: NLHookContext): string {
         existing.push({ hook_id: hook.id, name: hook.name, content: actionPayload, ts: Date.now() });
         // Keep only last 10 injections
         const trimmed = existing.slice(-10);
-        fs.writeFileSync(injectFile, JSON.stringify(trimmed, null, 2));
+        writeFileAtomic(injectFile, JSON.stringify(trimmed, null, 2));
         return `injected: ${actionPayload.slice(0, 80)}`;
       }
       case "set_todo": {
@@ -5647,7 +5647,7 @@ function executeNLHookAction(hook: any, ctx: NLHookContext): string {
         const todoFile = path.join(STATE_DIR, "nl_hook_todos.json");
         const todos = fs.existsSync(todoFile) ? JSON.parse(fs.readFileSync(todoFile, "utf-8")) : [];
         todos.push({ hook_id: hook.id, todo: actionPayload, ts: Date.now(), done: false });
-        fs.writeFileSync(todoFile, JSON.stringify(todos.slice(-20), null, 2));
+        writeFileAtomic(todoFile, JSON.stringify(todos.slice(-20), null, 2));
         return `todo added: ${actionPayload.slice(0, 80)}`;
       }
       case "block": {
@@ -5733,7 +5733,7 @@ export function autoNLHookEvaluator(
           }
         }
         regData.last_updated = new Date().toISOString();
-        fs.writeFileSync(NL_HOOK_REGISTRY, JSON.stringify(regData, null, 2));
+        writeFileAtomic(NL_HOOK_REGISTRY, JSON.stringify(regData, null, 2));
       } catch { /* non-critical — don't fail the cadence for registry write issues */ }
     }
 
@@ -6021,7 +6021,7 @@ export function autoGsdAccessSummary(callNumber: number): { success: boolean; ca
     const topSections = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${k}(${v})`);
     // Prune to last 200
     if (entries.length > 200) entries = entries.slice(-200);
-    fs.writeFileSync(logPath, JSON.stringify(entries));
+    writeFileAtomic(logPath, JSON.stringify(entries));
     return { success: true, call_number: callNumber, entries_before: before, entries_after: entries.length, top_sections: topSections };
   } catch { return { success: true, call_number: callNumber, entries_before: 0, entries_after: 0, top_sections: [] }; }
 }
@@ -6071,7 +6071,7 @@ export function autoOmegaHistoryPersist(callNumber: number): { success: boolean;
     let existing: any[] = [];
     if (fs.existsSync(histPath)) { try { existing = JSON.parse(fs.readFileSync(histPath, "utf-8")); } catch {} }
     const merged = [...existing, ...history].slice(-100);
-    fs.writeFileSync(histPath, JSON.stringify(merged, null, 2));
+    writeFileAtomic(histPath, JSON.stringify(merged, null, 2));
     appendEventLine("omega_history_persist", { entries: merged.length, call: callNumber });
     return { success: true, call_number: callNumber, entries_saved: merged.length };
   } catch { return { success: true, call_number: callNumber, entries_saved: 0 }; }
@@ -6103,7 +6103,7 @@ export function autoCognitiveStatePersist(callNumber: number): { success: boolea
     const cog = spModule.cog || spModule.getCogState?.();
     if (!cog) return { success: true, call_number: callNumber, persisted: false };
     const cogPath = path.join(STATE_DIR, "cognitive_state.json");
-    fs.writeFileSync(cogPath, JSON.stringify({ ...cog, persisted_at: new Date().toISOString(), call_number: callNumber }, null, 2));
+    writeFileAtomic(cogPath, JSON.stringify({ ...cog, persisted_at: new Date().toISOString(), call_number: callNumber }, null, 2));
     return { success: true, call_number: callNumber, persisted: true };
   } catch { return { success: true, call_number: callNumber, persisted: false }; }
 }
@@ -6270,7 +6270,7 @@ export function autoRalphScoreCapture(callNumber: number, resultText: string): {
           if (quality !== null) { state.currentSession.progress.omega_score = quality; state.currentSession.progress.omega_score_at = new Date().toISOString(); }
           if (safety !== null) { state.currentSession.progress.safety_score = safety; state.currentSession.progress.safety_score_at = new Date().toISOString(); }
           state.lastUpdated = new Date().toISOString();
-          fs.writeFileSync(stateFile, JSON.stringify(state, null, 2));
+          writeFileAtomic(stateFile, JSON.stringify(state, null, 2));
         } catch {}
       }
       appendEventLine("ralph_score_capture", { quality, safety, call: callNumber });

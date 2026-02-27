@@ -1385,7 +1385,7 @@ export class HookGenerator {
     const content = JSON.stringify({ hooks, generated: new Date().toISOString(), count: hooks.length }, null, 2);
     
     fs.mkdirSync(outputDir, { recursive: true });
-    fs.writeFileSync(filePath, content, "utf-8");
+    safeWriteSync(filePath, content, "utf-8");
     log.info(`Wrote ${hooks.length} hooks to ${filePath}`);
   }
 
@@ -1398,7 +1398,7 @@ export class HookGenerator {
     const content = this.generateTypeScriptContent(hooks, domain);
     
     fs.mkdirSync(outputDir, { recursive: true });
-    fs.writeFileSync(filePath, content, "utf-8");
+    safeWriteSync(filePath, content, "utf-8");
     log.info(`Wrote ${hooks.length} hooks to ${filePath}`);
   }
 
@@ -1413,6 +1413,7 @@ export class HookGenerator {
 
 import { HookDefinition, HookContext, HookResult, hookSuccess, hookBlock, hookWarning } from "../engines/HookExecutor.js";
 import { log } from "../utils/Logger.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 `;
 
@@ -1432,7 +1433,32 @@ export default ${domain.toLowerCase()}GeneratedHooks;
 
   private generateHookDefinition(hook: GeneratedHook): string {
     const varName = this.toVarName(hook.hook_id);
-    
+    const handler = hook.handlers[0];
+    const handlerTarget = handler?.target || "unknown";
+    const handlerConfig = handler?.config ? JSON.stringify(handler.config) : "{}";
+    const failFn = hook.mode === "blocking" ? "hookBlock"
+      : hook.mode === "warning" ? "hookWarning"
+      : "hookSuccess";
+
+    // Generate inline condition checks from expanded conditions
+    let conditionCode = "";
+    if (hook.conditions && hook.conditions.length > 0) {
+      const opMap: Record<string, string> = {
+        lt: "<", gt: ">", lte: "<=", gte: ">=", eq: "===", ne: "!=="
+      };
+      const checks = hook.conditions
+        .filter(c => opMap[c.operator])
+        .map(c => {
+          const jsOp = opMap[c.operator];
+          const unitNote = c.unit ? ` (${c.unit})` : "";
+          return `    if (params["${c.field}"] !== undefined && !(params["${c.field}"] ${jsOp} params["${c.value}"])) {\n      return ${failFn}(hook, "Condition failed: ${c.field} must be ${c.operator} ${c.value}${unitNote}");\n    }`;
+        })
+        .join("\n");
+      if (checks) {
+        conditionCode = `\n    const params = context.params || {};\n${checks}`;
+      }
+    }
+
     return `const ${varName}: HookDefinition = {
   id: "${hook.hook_id}",
   name: "${hook.name}",
@@ -1445,9 +1471,20 @@ export default ${domain.toLowerCase()}GeneratedHooks;
   tags: ${JSON.stringify(hook.tags)},
   handler: (context: HookContext): HookResult => {
     const hook = ${varName};
-    log.debug(\`[HOOK] \${hook.name} triggered\`);
-    // TODO: Implement handler logic for ${hook.handlers[0]?.target || "unknown"}
-    return hookSuccess(hook, "Hook executed successfully");
+    log.debug(\`[HOOK] \${hook.name} triggered\`);${conditionCode}
+    // Dispatch to handler: ${handlerTarget}
+    const handlerFn = (globalThis as any).__prismHandlers?.["${handlerTarget}"];
+    if (typeof handlerFn === "function") {
+      try {
+        return handlerFn(context, ${handlerConfig});
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log.error(\`[HOOK] \${hook.name} handler error: \${msg}\`);
+        return ${hook.fail_silent ? "hookSuccess" : failFn}(hook, \`Handler error: \${msg}\`);
+      }
+    }
+    log.warn(\`[HOOK] Handler "${handlerTarget}" not registered for \${hook.name}\`);
+    return hookSuccess(hook, "Handler not registered");
   }
 };`;
   }

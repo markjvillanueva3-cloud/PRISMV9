@@ -25,6 +25,7 @@ import {
   RouteMap, RouteEntry,
 } from '../types/bridge-types.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE PATHS
@@ -429,7 +430,7 @@ export class ProtocolBridgeEngine {
       ensureDirs();
       const data = JSON.stringify({ endpoints: Object.fromEntries(this.endpoints), saved_at: Date.now() });
       const tmp = ENDPOINTS_PATH + '.tmp';
-      fs.writeFileSync(tmp, data);
+      safeWriteSync(tmp, data);
       fs.renameSync(tmp, ENDPOINTS_PATH);
     } catch (e) { log.warn(`[BRIDGE] Endpoints save failed: ${(e as Error).message}`); }
   }
@@ -450,7 +451,7 @@ export class ProtocolBridgeEngine {
       ensureDirs();
       const data = JSON.stringify({ keys: Object.fromEntries(this.apiKeys), saved_at: Date.now() });
       const tmp = KEYS_PATH + '.tmp';
-      fs.writeFileSync(tmp, data);
+      safeWriteSync(tmp, data);
       fs.renameSync(tmp, KEYS_PATH);
     } catch (e) { log.warn(`[BRIDGE] API keys save failed: ${(e as Error).message}`); }
   }

@@ -23,6 +23,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 import {
   TelemetryRecord, TelemetryOutcome, MetricsWindow,
   DispatcherMetrics, ActionMetrics, DataIntegrityMetrics,
@@ -561,7 +562,7 @@ export class TelemetryEngine {
         routeWeights: Object.fromEntries(this.routeWeights),
       };
       const filePath = path.join(STATE_DIR, 'telemetry_snapshot.json');
-      fs.writeFileSync(filePath, JSON.stringify(state, null, 2));
+      safeWriteSync(filePath, JSON.stringify(state, null, 2));
     } catch { /* non-fatal */ }
   }
 

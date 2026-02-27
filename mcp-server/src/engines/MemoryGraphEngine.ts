@@ -33,6 +33,7 @@ import {
 } from '../types/graph-types.js';
 import { crc32 } from './TelemetryEngine.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE DIRECTORY
@@ -614,26 +615,26 @@ export class MemoryGraphEngine {
       const nodesPath = path.join(STATE_DIR, 'nodes.jsonl');
       const nodesTmp = nodesPath + '.tmp';
       const nodeLines = Array.from(this.nodes.values()).map(n => JSON.stringify(n)).join('\n');
-      fs.writeFileSync(nodesTmp, nodeLines);
+      safeWriteSync(nodesTmp, nodeLines);
       fs.renameSync(nodesTmp, nodesPath);
 
       // Save edges
       const edgesPath = path.join(STATE_DIR, 'edges.jsonl');
       const edgesTmp = edgesPath + '.tmp';
       const edgeLines = Array.from(this.edges.values()).map(e => JSON.stringify(e)).join('\n');
-      fs.writeFileSync(edgesTmp, edgeLines);
+      safeWriteSync(edgesTmp, edgeLines);
       fs.renameSync(edgesTmp, edgesPath);
 
       // Save index with current WAL sequence
       const indexPath = path.join(STATE_DIR, 'index.json');
       const indexTmp = indexPath + '.tmp';
       this.index.checkpointByteOffset = this.walSeq;
-      fs.writeFileSync(indexTmp, JSON.stringify(this.index));
+      safeWriteSync(indexTmp, JSON.stringify(this.index));
       fs.renameSync(indexTmp, indexPath);
 
       // Truncate WAL (already checkpointed)
       const walPath = path.join(STATE_DIR, 'wal.jsonl');
-      fs.writeFileSync(walPath, '');
+      safeWriteSync(walPath, '');
 
       log.info(`[GRAPH] Checkpoint saved (${this.nodes.size} nodes, ${this.edges.size} edges, WAL seq=${this.walSeq})`);
     } catch (e) {

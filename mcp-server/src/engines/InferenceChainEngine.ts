@@ -33,6 +33,7 @@ import * as fs from "fs";
 import * as path from "path";
 // fileURLToPath removed — esbuild banner already declares it (duplicate causes crash)
 import { parallelAPICalls, hasValidApiKey, getModelForTier } from "../config/api-config.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // __dirname shim: esbuild injects __dirname/__filename via banner for the bundled dist file.
 // tsx also provides them. Use directly.
@@ -301,7 +302,7 @@ function writeChainLog(chainId: string, data: unknown): void {
   try {
     ensureLogDir();
     const filePath = path.join(LOG_DIR, `${chainId}.json`);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    safeWriteSync(filePath, JSON.stringify(data, null, 2), "utf8");
   } catch {
     process.stderr.write(`[InferenceChainEngine] Log write failed for ${chainId}\n`);
   }

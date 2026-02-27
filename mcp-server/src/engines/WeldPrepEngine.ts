@@ -105,7 +105,7 @@ export class WeldPrepEngine {
       const rootArea = rootGap * t;
       area = triangleArea + rootArea;
       if (input.groove_type === "double_V") area *= 2;
-    } else if (input.groove_type === "J" || input.groove_type === "U") {
+    } else if (input.groove_type === "J" || input.groove_type === "U" || input.groove_type === "double_U") {
       // Approximate: bevel portion + radius portion
       const bevelArea = grooveDepth * grooveDepth * tanBevel;
       const radiusArea = Math.PI * grooveRadius ** 2 * 0.25; // quarter circle

@@ -168,7 +168,7 @@ export class TenantEngine {
       storage_mb: "storage_used_mb", api_calls: "api_calls_today",
     };
     const field = fieldMap[resource];
-    if (field) (t.usage as Record<string, number>)[field] = Math.max(0, (t.usage as Record<string, number>)[field] + delta);
+    if (field) (t.usage as unknown as Record<string, number>)[field] = Math.max(0, (t.usage as unknown as Record<string, number>)[field] + delta);
     t.usage.last_activity = new Date().toISOString();
     return true;
   }

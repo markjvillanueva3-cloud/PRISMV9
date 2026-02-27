@@ -15,6 +15,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const PREP_TMP = path.join(STATE_DIR, "next_session_prep.tmp.json");
@@ -236,7 +237,7 @@ export class SessionLifecycleEngine {
         active_files: activeFiles.slice(0, 5),
         warnings: []
       };
-      fs.writeFileSync(PREP_TMP, JSON.stringify(prep, null, 2));
+      safeWriteSync(PREP_TMP, JSON.stringify(prep, null, 2));
     } catch { /* non-fatal — incremental prep is best-effort */ }
   }
 
@@ -274,9 +275,9 @@ export class SessionLifecycleEngine {
 
     try {
       // Write final prep (promotes from .tmp to real)
-      fs.writeFileSync(PREP_FINAL, JSON.stringify(handoff, null, 2));
+      safeWriteSync(PREP_FINAL, JSON.stringify(handoff, null, 2));
       // Also save full metrics
-      fs.writeFileSync(METRICS_FILE, JSON.stringify(this.metrics, null, 2));
+      safeWriteSync(METRICS_FILE, JSON.stringify(this.metrics, null, 2));
       // Clean up tmp
       if (fs.existsSync(PREP_TMP)) fs.unlinkSync(PREP_TMP);
     } catch { /* non-fatal */ }

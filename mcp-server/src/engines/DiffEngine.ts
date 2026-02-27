@@ -17,6 +17,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // TYPES
@@ -94,7 +95,7 @@ class DiffEngine {
       try {
         const dir = path.dirname(filePath);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(filePath, content, "utf-8");
+        safeWriteSync(filePath, content, "utf-8");
         fileChecksums.set(filePath, newChecksum);
         this.stats.actual_writes++;
         return { changed: true, action: "created", path: filePath, new_checksum: newChecksum };
@@ -137,7 +138,7 @@ class DiffEngine {
     const tmpPath = filePath + ".d4tmp";
     try {
       // 1. Write to temp file
-      fs.writeFileSync(tmpPath, content, "utf-8");
+      safeWriteSync(tmpPath, content, "utf-8");
 
       // 2. Validate temp file is readable and correct
       const verify = fs.readFileSync(tmpPath, "utf-8");
@@ -181,7 +182,7 @@ class DiffEngine {
 
   persistStats(): void {
     try {
-      fs.writeFileSync(DIFF_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
+      safeWriteSync(DIFF_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
     } catch { /* non-fatal */ }
   }
 

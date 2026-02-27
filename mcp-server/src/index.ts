@@ -498,6 +498,26 @@ async function registerTools(): Promise<void> {
   log.info(`[AUTO-HOOK] ${universalHookCount} dispatchers wrapped with UNIVERSAL hooks (before/after/cadence/error)`);
   log.info(`[AUTO-HOOK] ${autoHookCount} calculation tools wrapped with additional Λ(x)/Φ(x) safety validation`);
   log.info(`[AUTO-HOOK] Global dispatch counter active — cadence: todo@5, checkpoint@10, buffer zones enforced`);
+
+  // C2 FIX: Eager module health check — surface lazy-load failures at startup
+  const moduleChecks: Array<{ name: string; path: string }> = [
+    { name: "AutoPilot", path: "./orchestration/AutoPilot.js" },
+    { name: "AutoPilotV2", path: "./orchestration/AutoPilotV2.js" },
+    { name: "KnowledgeQueryEngine", path: "./engines/KnowledgeQueryEngine.js" },
+  ];
+  const failed: string[] = [];
+  for (const mod of moduleChecks) {
+    try {
+      require(mod.path);
+    } catch (e) {
+      failed.push(`${mod.name} (${(e as Error).message?.split("\n")[0]})`);
+    }
+  }
+  if (failed.length > 0) {
+    log.warn(`[HEALTH] ${failed.length} optional module(s) unavailable: ${failed.join(", ")}`);
+  } else {
+    log.info(`[HEALTH] All ${moduleChecks.length} lazy-loaded modules verified OK`);
+  }
 }
 
 // ============================================================================

@@ -33,6 +33,7 @@ import {
   DEFAULT_NL_HOOK_CONFIG, ConditionType, CompileMethod, ParseConfidence,
 } from '../types/nl-hook-types.js';
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE
@@ -253,7 +254,7 @@ export class NLHookEngine {
     try {
       ensureStateDir();
       const records = Array.from(this.registry.values());
-      fs.writeFileSync(REGISTRY_FILE, JSON.stringify({ hooks: records, version: 1, last_updated: new Date().toISOString() }, null, 2));
+      safeWriteSync(REGISTRY_FILE, JSON.stringify({ hooks: records, version: 1, last_updated: new Date().toISOString() }, null, 2));
       NLHookEngine.invalidateCache(); // C1 fix: invalidate static cache after write
     } catch (e: any) {
       log.warn(`[NLHookEngine] Failed to save registry: ${e.message}`);
@@ -263,7 +264,7 @@ export class NLHookEngine {
   private saveConfig(): void {
     try {
       ensureStateDir();
-      fs.writeFileSync(CONFIG_FILE, JSON.stringify(this.config, null, 2));
+      safeWriteSync(CONFIG_FILE, JSON.stringify(this.config, null, 2));
       NLHookEngine.invalidateCache(); // C1 fix: invalidate static cache after config change
     } catch { /* non-fatal */ }
   }

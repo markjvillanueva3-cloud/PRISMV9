@@ -279,10 +279,10 @@ class CoolantValidationEngine {
     let requiredFlow = baseFlow * params.toolDiameter * materialFactor;
 
     // Adjust for cutting speed (higher speed = more heat = more coolant)
-    if (params.cuttingSpeed > 200) {
-      requiredFlow *= 1.2;
-    } else if (params.cuttingSpeed > 300) {
+    if (params.cuttingSpeed > 300) {
       requiredFlow *= 1.4;
+    } else if (params.cuttingSpeed > 200) {
+      requiredFlow *= 1.2;
     }
 
     // MQL uses much less flow

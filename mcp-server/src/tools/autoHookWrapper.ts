@@ -81,6 +81,7 @@ import {
   recordSessionCompactionRecovery, recordSessionError
 } from "../engines/SessionLifecycleEngine.js";
 import { autoManusATCSPoll } from "../engines/ManusATCSBridge.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // CONFIGURATION
@@ -534,7 +535,7 @@ function flushPendingActions(callNum: number): void {
     if (actions.length > MAX_RECORDED_ACTIONS) {
       actions = actions.slice(-MAX_RECORDED_ACTIONS);
     }
-    fs.writeFileSync(RECENT_ACTIONS_FILE, JSON.stringify({
+    safeWriteSync(RECENT_ACTIONS_FILE, JSON.stringify({
       updated: (/* @__PURE__ */ new Date()).toISOString(),
       session_call_count: callNum,
       actions,
@@ -640,7 +641,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         if (stat3.size > 5e4) {
           const all = fs.readFileSync(journalPath, "utf-8").trim().split("\n");
           if (all.length > 200) {
-            fs.writeFileSync(journalPath, all.slice(-100).join("\n") + "\n");
+            safeWriteSync(journalPath, all.slice(-100).join("\n") + "\n");
           }
         }
       } catch {
@@ -1153,7 +1154,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           result_hash: result?.content?.[0]?.text?.length || 0,
           session: process.env.SESSION_ID || "unknown",
         };
-        fs.writeFileSync(certFile, JSON.stringify(certData, null, 2));
+        safeWriteSync(certFile, JSON.stringify(certData, null, 2));
         // Keep max 50 cert files
         const certFiles = fs.readdirSync(certDir).filter(f => f.startsWith("CERT-")).sort();
         if (certFiles.length > 50) {
@@ -1193,7 +1194,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push("\u2705 BUILD_SUCCESS \u2014 Phase checklist REQUIRED: skills\u2192hooks\u2192GSD\u2192memories\u2192orchestrators\u2192state\u2192scripts");
           cadence.actions.push("\u26A0\uFE0F RESTART REQUIRED: New build must be loaded. Restart Claude app or the changes won't take effect. Current session still runs OLD code.");
           const checklistPath = path.join(PATHS.STATE_DIR, "build_checklist.json");
-          fs.writeFileSync(checklistPath, JSON.stringify({
+          safeWriteSync(checklistPath, JSON.stringify({
             build_at: (/* @__PURE__ */ new Date()).toISOString(),
             build_call: callNum,
             completed: { skills: false, hooks: false, gsd: false, memories: false, orchestrators: false, state: false, scripts: false }
@@ -1265,7 +1266,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               state.currentSession.progress[scoreField] = scoreValue;
               state.currentSession.progress[`${scoreField}_at`] = (/* @__PURE__ */ new Date()).toISOString();
               state.lastUpdated = (/* @__PURE__ */ new Date()).toISOString();
-              fs.writeFileSync(stateFile, JSON.stringify(state, null, 2));
+              safeWriteSync(stateFile, JSON.stringify(state, null, 2));
             }
           }
         }
@@ -1313,7 +1314,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const extDir = path.join(PATHS.STATE_DIR, "externalized");
         if (!fs.existsSync(extDir)) fs.mkdirSync(extDir, { recursive: true });
         const extFile = path.join(extDir, `result_${toolName}_${action2}_${Date.now()}.json`);
-        fs.writeFileSync(extFile, fullText);
+        safeWriteSync(extFile, fullText);
         const parsed = JSON.parse(fullText);
         const truncated = {
           _truncated: true,
@@ -1506,7 +1507,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
         let errs5 = ""; try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
         const ra5 = (() => { try { const merged = [...getCachedRecentActions(callNum), ..._pendingActions]; return merged.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
-        fs.writeFileSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
+        safeWriteSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
       } catch {}
       await fireHook("STATE-SESSION-BOUNDARY-001", {
         event: "cadence_todo_executed",
@@ -1568,7 +1569,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               "Continue the task in Position above. Do NOT re-audit or ask user what to do.",
               "Transcripts: /mnt/transcripts/"
             ].join("\n");
-            fs.writeFileSync(hrPath, hotContent);
+            safeWriteSync(hrPath, hotContent);
           } catch {}
       cadence.checkpoint = cpResult;
       // Opp 13: Include ATCS manifests in session checkpoints
@@ -1884,7 +1885,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               match.resolved = true;
               match.resolved_at = (/* @__PURE__ */ new Date()).toISOString();
               match.prevention = match.prevention || `Auto-resolved after successful ${toolKey} call. Review what changed.`;
-              fs.writeFileSync(fpPath, patterns.map((p) => JSON.stringify(p)).join("\n") + "\n");
+              safeWriteSync(fpPath, patterns.map((p) => JSON.stringify(p)).join("\n") + "\n");
               cadence.actions.push(`\u2705 ERROR_RESOLVED: ${match.type}/${match.domain} (was ${match.occurrences}x)`);
               cadence.error_resolved = { pattern_id: match.id, type: match.type, domain: match.domain, occurrences: match.occurrences };
               // GAP B: Create RESOLVED_BY edge in memory graph
@@ -2191,7 +2192,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     if (callNum > 0 && (callNum + 4) % 8 === 0) {
       try {
         const nlLogPath = path.join(PATHS.STATE_DIR, "nl_hook_debug.log");
-        try { if (fs.existsSync(nlLogPath) && fs.statSync(nlLogPath).size > 100_000) fs.writeFileSync(nlLogPath, ""); } catch {}
+        try { if (fs.existsSync(nlLogPath) && fs.statSync(nlLogPath).size > 100_000) safeWriteSync(nlLogPath, ""); } catch {}
         fs.appendFileSync(nlLogPath, `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
         const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
         if (nlResult.success && nlResult.hooks_fired > 0) {
@@ -2288,7 +2289,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         autoSaveState.currentSession.progress.toolCalls = callNum;
         autoSaveState.currentSession.progress.zone = "\u26AB BLACK";
         autoSaveState.lastUpdated = (/* @__PURE__ */ new Date()).toISOString();
-        fs.writeFileSync(stateFile, JSON.stringify(autoSaveState, null, 2));
+        safeWriteSync(stateFile, JSON.stringify(autoSaveState, null, 2));
         cadence.actions.push("STATE_AUTO_SAVED:HIGH_CALLS");
         try {
           const currentTask = cadence.todo?.currentFocus || cadence.todo?.taskName || "unknown";
@@ -2316,7 +2317,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                     mf.last_emergency_save = (/* @__PURE__ */ new Date()).toISOString();
                     mf.emergency_reason = "HIGH_CALL_COUNT";
                     mf.emergency_call_number = callNum;
-                    fs.writeFileSync(mfPath, JSON.stringify(mf, null, 2));
+                    safeWriteSync(mfPath, JSON.stringify(mf, null, 2));
                     cadence.actions.push("ATCS_EMERGENCY_SAVED:" + mf.task_id);
                   }
                 } catch {
@@ -2443,7 +2444,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
           fires._last_call = callNum;
           fires._updated = (/* @__PURE__ */ new Date()).toISOString();
-          if (callNum % 5 === 0) fs.writeFileSync(cadenceFiresPath, JSON.stringify(fires, null, 2));
+          if (callNum % 5 === 0) safeWriteSync(cadenceFiresPath, JSON.stringify(fires, null, 2));
         } catch {
         }
         // === HYBRID CONTEXT SYSTEM v3 ===
@@ -2557,11 +2558,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         next_action: cadence.todo?.nextStep || null,
         error_summary: error ? (error as any).message?.slice(0, 200) : null,
       };
-      fs.writeFileSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
+      safeWriteSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
       // HOT_RESUME: lean, recent calls only
       const hrPath = path.join(STATE_DIR12, "HOT_RESUME.md");
       const recentStr = recentToolCalls.slice(-8).map(t => `- ${t}`).join("\n");
-      fs.writeFileSync(hrPath, `# HOT_RESUME (call ${callNum} — ${new Date().toISOString()})\nLast: ${toolName}:${action2} (${durationMs}ms, ${error ? "FAIL" : "OK"})\n## Recent\n${recentStr}\n`);
+      safeWriteSync(hrPath, `# HOT_RESUME (call ${callNum} — ${new Date().toISOString()})\nLast: ${toolName}:${action2} (${durationMs}ms, ${error ? "FAIL" : "OK"})\n## Recent\n${recentStr}\n`);
       // SESSION_DIGEST: every 10 calls, write concise summary (~500 tokens)
       if (callNum % 10 === 0 && callNum > 0) {
         const digestPath = path.join(STATE_DIR12, "SESSION_DIGEST.md");
@@ -2569,7 +2570,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const errors = cadence.actions.filter((a: string) => a.includes("ERROR") || a.includes("FAIL")).slice(-3);
         const findings = cadence.actions.filter((a: string) => a.includes("✅") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5);
         const wfStatus = (() => { try { const wf = JSON.parse(fs.readFileSync(path.join(STATE_DIR12, "WORKFLOW_STATE.json"), "utf-8")); return wf.status === "active" ? `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}` : "none"; } catch { return "none"; } })();
-        fs.writeFileSync(digestPath, `# Session Digest (call ${callNum})\nWorkflow: ${wfStatus}\nPhase: ${survivalData.phase}\n## Last 20 calls\n${actions.map(a => `- ${a}`).join("\n")}\n## Key findings\n${findings.map(f => `- ${f}`).join("\n") || "- none yet"}\n## Errors\n${errors.map(e => `- ${e}`).join("\n") || "- none"}\n`);
+        safeWriteSync(digestPath, `# Session Digest (call ${callNum})\nWorkflow: ${wfStatus}\nPhase: ${survivalData.phase}\n## Last 20 calls\n${actions.map(a => `- ${a}`).join("\n")}\n## Key findings\n${findings.map(f => `- ${f}`).join("\n") || "- none yet"}\n## Errors\n${errors.map(e => `- ${e}`).join("\n") || "- none"}\n`);
       }
     } catch { /* non-fatal */ }
     if (error) throw error;

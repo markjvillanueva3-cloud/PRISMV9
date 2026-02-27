@@ -28,6 +28,7 @@ import {
   PFPDashboard, ExtractionStats, PFPHealthMetrics,
 } from '../types/pfp-types.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // CRC32 (same as TelemetryEngine — shared utility)
@@ -743,7 +744,7 @@ export class PredictiveFailureEngine {
       const tmpPath = patternsPath + '.tmp';
       const json = JSON.stringify(data);
       JSON.parse(json); // Validate parseable
-      fs.writeFileSync(tmpPath, json);
+      safeWriteSync(tmpPath, json);
       fs.renameSync(tmpPath, patternsPath);
     } catch (e) {
       log.warn(`[PFP] Pattern save failed: ${(e as Error).message}`);
@@ -780,7 +781,7 @@ export class PredictiveFailureEngine {
       ensureStateDir();
       const configPath = path.join(STATE_DIR, 'config.json');
       const tmpPath = configPath + '.tmp';
-      fs.writeFileSync(tmpPath, JSON.stringify(this.config, null, 2));
+      safeWriteSync(tmpPath, JSON.stringify(this.config, null, 2));
       fs.renameSync(tmpPath, configPath);
     } catch { /* non-fatal */ }
   }

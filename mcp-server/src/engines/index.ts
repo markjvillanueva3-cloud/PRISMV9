@@ -1812,17 +1812,16 @@ export {
 export {
   GearHobbingEngine,
   gearHobbingEngine,
-  type GearHobInput,
-  type GearHobResult,
-  type ShiftPlan,
+  type GearHobbingInput,
+  type GearHobbingResult,
 } from "./GearHobbingEngine.js";
 
 // Spline Milling
 export {
   SplineMillingEngine,
   splineMillingEngine,
-  type SplineMillInput,
-  type SplineMillResult,
+  type SplineMillingInput,
+  type SplineMillingResult,
 } from "./SplineMillingEngine.js";
 
 // --- Batch 4: Sheet Metal & Fabrication (3 engines) ---
@@ -1831,8 +1830,8 @@ export {
 export {
   BendAllowanceEngine,
   bendAllowanceEngine,
-  type BendInput,
-  type BendResult,
+  type BendAllowanceInput,
+  type BendAllowanceResult,
 } from "./BendAllowanceEngine.js";
 
 // Weld Prep (AWS D1.1)
@@ -1868,7 +1867,7 @@ export {
 export {
   SingularityAvoidanceEngine,
   singularityAvoidanceEngine,
-  type SingularityType,
+  type SingularityMap,
   type SingularityInput,
   type SingularityPoint,
   type SingularityResult,
@@ -1878,18 +1877,18 @@ export {
 export {
   TiltAngleOptimizationEngine,
   tiltAngleOptimizationEngine,
-  type TiltInput,
-  type TiltResult,
+  type TiltAngleInput,
+  type TiltAngleResult,
 } from "./TiltAngleOptimizationEngine.js";
 
 // Work Envelope Validator (SAFETY CRITICAL)
 export {
   WorkEnvelopeValidatorEngine,
   workEnvelopeValidatorEngine,
-  type AxisLimit,
-  type WorkEnvelopeInput,
-  type AxisViolation,
-  type WorkEnvelopeResult,
+  type AxisLimits,
+  type EnvelopeInput,
+  type EnvelopeViolation,
+  type EnvelopeResult,
 } from "./WorkEnvelopeValidatorEngine.js";
 
 // Inverse Kinematics Solver
@@ -1908,8 +1907,8 @@ export {
   ChuckJawForceEngine,
   chuckJawForceEngine,
   type ChuckType as ChuckJawChuckType,
-  type ChuckJawInput,
-  type ChuckJawResult,
+  type ChuckForceInput,
+  type ChuckForceResult,
 } from "./ChuckJawForceEngine.js";
 
 // Tailstock Force (SAFETY CRITICAL)
@@ -1953,9 +1952,8 @@ export {
   ElectrodeDesignEngine,
   electrodeDesignEngine,
   type ElectrodeMaterial,
-  type ElectrodeInput,
-  type ElectrodeStage,
-  type ElectrodeResult,
+  type ElectrodeDesignInput,
+  type ElectrodeDesignResult,
 } from "./ElectrodeDesignEngine.js";
 
 // Wire EDM Settings
@@ -1964,7 +1962,6 @@ export {
   wireEDMSettingsEngine,
   type WireType,
   type WireEDMInput,
-  type SkimPass,
   type WireEDMResult,
 } from "./WireEDMSettingsEngine.js";
 
@@ -1972,7 +1969,7 @@ export {
 export {
   EDMSurfaceIntegrityEngine,
   edmSurfaceIntegrityEngine,
-  type EDMProcessType,
+  type EDMType,
   type EDMSurfaceInput,
   type EDMSurfaceResult,
 } from "./EDMSurfaceIntegrityEngine.js";
@@ -1993,8 +1990,8 @@ export {
   WaterjetTaperEngine,
   waterjetTaperEngine,
   type WaterjetQuality,
-  type WaterjetInput,
-  type WaterjetResult,
+  type WaterjetTaperInput,
+  type WaterjetTaperResult,
 } from "./WaterjetTaperEngine.js";
 
 // Laser Marking
@@ -2011,7 +2008,7 @@ export {
 export {
   HybridLaserMachineEngine,
   hybridLaserMachineEngine,
-  type HybridMode,
+  type HybridProcess,
   type HybridLaserInput,
   type HybridLaserResult,
 } from "./HybridLaserMachineEngine.js";
@@ -2022,8 +2019,8 @@ export {
 export {
   DigitalThreadEngine,
   digitalThreadEngine,
-  type DigitalThreadNode,
-  type DigitalThreadLink,
+  type ThreadNode,
+  type ThreadLink,
   type DigitalThreadInput,
   type DigitalThreadResult,
 } from "./DigitalThreadEngine.js";
@@ -2033,7 +2030,6 @@ export {
   OEECalculatorEngine,
   oeeCalculatorEngine,
   type OEEInput,
-  type BigLoss,
   type OEEResult,
 } from "./OEECalculatorEngine.js";
 
@@ -2041,7 +2037,7 @@ export {
 export {
   BottleneckIdentificationEngine,
   bottleneckIdentificationEngine,
-  type WorkStation,
+  type WorkCenter,
   type BottleneckInput,
   type BottleneckResult,
 } from "./BottleneckIdentificationEngine.js";
@@ -2069,10 +2065,9 @@ export {
 export {
   MaskingCalculatorEngine,
   maskingCalculatorEngine,
-  type MaskingProcessType,
-  type MaskArea,
+  type MaskMethod,
+  type MaskProcess,
   type MaskingInput,
-  type MaskSelection,
   type MaskingResult,
 } from "./MaskingCalculatorEngine.js";
 

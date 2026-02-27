@@ -90,6 +90,7 @@ export function registerAutoPilotDispatcher(server: any): void {
           case "ralph_loop_lite": {
             // DEPRECATED: Was generating fake incrementing scores (Law 2 violation).
             // Real validation requires API calls via prism_ralph→loop.
+            log.warn("[autoPilotDispatcher] ralph_loop_lite called — action is deprecated, use prism_ralph→loop");
             result = {
               deprecated: true,
               message: "ralph_loop_lite has been deprecated — use prism_ralph→loop for real validation",

@@ -30,6 +30,7 @@ import {
   DEFAULT_SLB_CONFIG,
 } from '../types/tenant-types.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE PATHS
@@ -492,7 +493,7 @@ export class MultiTenantEngine {
       ensureDirs(BASE_DIR);
       const data = JSON.stringify({ tenants: Object.fromEntries(this.tenants), saved_at: Date.now() });
       const tmp = REGISTRY_PATH + '.tmp';
-      fs.writeFileSync(tmp, data);
+      safeWriteSync(tmp, data);
       fs.renameSync(tmp, REGISTRY_PATH);
     } catch (e) {
       log.warn(`[TENANT] Registry save failed: ${(e as Error).message}`);
@@ -519,7 +520,7 @@ export class MultiTenantEngine {
       ensureDirs(BASE_DIR);
       const data = JSON.stringify({ patterns: Object.fromEntries(this.slbPatterns), saved_at: Date.now() });
       const tmp = SLB_PATH + '.tmp';
-      fs.writeFileSync(tmp, data);
+      safeWriteSync(tmp, data);
       fs.renameSync(tmp, SLB_PATH);
     } catch (e) {
       log.warn(`[TENANT] SLB save failed: ${(e as Error).message}`);

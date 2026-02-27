@@ -22,6 +22,7 @@ import { swarmExecutor } from "../engines/SwarmExecutor.js";
 import { agentExecutor } from "../engines/AgentExecutor.js";
 import { log } from "../utils/Logger.js";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // TYPES
@@ -713,7 +714,7 @@ Return JSON: {"grade": "A/B/C/D/F", "omega": 0.0-1.0, "summary": "...", "ready_f
 
       let currentState: Record<string, unknown> = {};
       try { currentState = JSON.parse(fs.readFileSync(this.config.statePath, "utf-8")); } catch { }
-      fs.writeFileSync(this.config.statePath, JSON.stringify({ ...currentState, autoPilot: stateUpdate }, null, 2));
+      safeWriteSync(this.config.statePath, JSON.stringify({ ...currentState, autoPilot: stateUpdate }, null, 2));
       result.stateUpdated = true;
     } catch (e) {
       log.error(`[AutoPilot v3] State update failed: ${e}`);

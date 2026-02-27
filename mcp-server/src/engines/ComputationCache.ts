@@ -21,6 +21,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // TYPES
@@ -392,7 +393,7 @@ class ComputationCache {
    */
   persistStats(): void {
     try {
-      fs.writeFileSync(CACHE_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
+      safeWriteSync(CACHE_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
     } catch { /* non-fatal */ }
   }
 

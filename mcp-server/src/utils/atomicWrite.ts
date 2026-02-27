@@ -8,11 +8,12 @@
  */
 
 import { writeFile, rename, unlink } from 'fs/promises';
+import { writeFileSync, renameSync, unlinkSync } from 'fs';
 import path from 'path';
 
-// Serialization queue — prevents concurrent writes to same file
-// Using a simple promise chain instead of p-queue to minimize dependencies
-let writeChain: Promise<void> = Promise.resolve();
+// Per-file serialization — prevents concurrent writes to the SAME file
+// while allowing parallel writes to DIFFERENT files
+const writeChains = new Map<string, Promise<void>>();
 
 /**
  * Atomically write data to a file.
@@ -27,8 +28,9 @@ export async function atomicWrite(filePath: string, data: string): Promise<void>
   const resolved = path.resolve(filePath);
   const tmpPath = `${resolved}.${Date.now()}.tmp`;
 
-  // Chain writes to serialize access
-  const operation = writeChain.then(async () => {
+  // Chain writes per-file to serialize access to the same path
+  const prev = writeChains.get(resolved) ?? Promise.resolve();
+  const operation = prev.then(async () => {
     try {
       await writeFile(tmpPath, data, 'utf-8');
       await rename(tmpPath, resolved);
@@ -39,6 +41,23 @@ export async function atomicWrite(filePath: string, data: string): Promise<void>
     }
   });
 
-  writeChain = operation.catch(() => { /* prevent chain from breaking on error */ });
+  writeChains.set(resolved, operation.catch(() => { /* prevent chain from breaking on error */ }));
   return operation;
+}
+
+/**
+ * Synchronous atomic write — drop-in replacement for fs.writeFileSync.
+ * Writes to .tmp then renames for crash-safety.
+ * Use this for all state/checkpoint file writes.
+ */
+export function safeWriteSync(filePath: string, data: string, encoding: BufferEncoding = 'utf-8'): void {
+  const resolved = path.resolve(filePath);
+  const tmpPath = `${resolved}.${Date.now()}.tmp`;
+  try {
+    writeFileSync(tmpPath, data, encoding);
+    renameSync(tmpPath, resolved);
+  } catch (err: unknown) {
+    try { unlinkSync(tmpPath); } catch { /* ignore cleanup failure */ }
+    throw err;
+  }
 }

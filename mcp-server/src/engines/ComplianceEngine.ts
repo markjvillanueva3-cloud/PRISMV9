@@ -27,6 +27,7 @@ import {
 import { nlHookEngine } from './NLHookEngine.js';
 import { certificateEngine } from './CertificateEngine.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // QUALITY SOURCE FILE CATALOG — extracted JS quality engines wired to this engine
@@ -700,7 +701,7 @@ export class ComplianceEngine {
         saved_at: Date.now(),
       });
       const tmpPath = REGISTRY_PATH + '.tmp';
-      fs.writeFileSync(tmpPath, data);
+      safeWriteSync(tmpPath, data);
       fs.renameSync(tmpPath, REGISTRY_PATH);
     } catch (e) {
       log.warn(`[COMPLIANCE] Registry save failed: ${(e as Error).message}`);
@@ -752,7 +753,7 @@ export class ComplianceEngine {
     this.config = { ...this.config, ...updates };
     try {
       ensureDirs();
-      fs.writeFileSync(CONFIG_PATH, JSON.stringify(this.config, null, 2));
+      safeWriteSync(CONFIG_PATH, JSON.stringify(this.config, null, 2));
     } catch { /* non-fatal */ }
     return { ...this.config };
   }

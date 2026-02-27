@@ -23,6 +23,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // Lazy-load hookEngine to avoid circular deps at module init
 let _hookEngine: any = null;
@@ -282,7 +283,7 @@ class BatchProcessor {
 
   persistStats(): void {
     try {
-      fs.writeFileSync(BATCH_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
+      safeWriteSync(BATCH_STATS_FILE, JSON.stringify(this.getStats(), null, 2));
     } catch { /* non-fatal */ }
   }
 

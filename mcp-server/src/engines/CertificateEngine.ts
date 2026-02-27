@@ -29,6 +29,7 @@ import {
   CertificateConfig, DEFAULT_CERT_CONFIG,
 } from '../types/certificate-types.js';
 import { log } from '../utils/Logger.js';
+import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ============================================================================
 // STATE DIRECTORY
@@ -84,8 +85,8 @@ function loadOrGenerateKeyPair(): KeyPair {
 
   try {
     ensureDirs();
-    fs.writeFileSync(pubPath, publicKey);
-    fs.writeFileSync(privPath, privateKey);
+    safeWriteSync(pubPath, publicKey);
+    safeWriteSync(privPath, privateKey);
   } catch (e) {
     log.warn(`[CERT] Key persist failed: ${(e as Error).message}`);
   }
@@ -328,7 +329,7 @@ export class CertificateEngine {
       const fileName = `${datePrefix}_${cert.certId}.json`;
       const filePath = path.join(CERTS_DIR, fileName);
       const tmpPath = filePath + '.tmp';
-      fs.writeFileSync(tmpPath, JSON.stringify(cert, null, 2));
+      safeWriteSync(tmpPath, JSON.stringify(cert, null, 2));
       fs.renameSync(tmpPath, filePath);
 
       // Update index
@@ -410,10 +411,10 @@ export class CertificateEngine {
       const checksumPath = path.join(STATE_DIR, 'cert_index.checksum');
       const tmpPath = indexPath + '.tmp';
       const data = JSON.stringify(this.index);
-      fs.writeFileSync(tmpPath, data);
+      safeWriteSync(tmpPath, data);
       fs.renameSync(tmpPath, indexPath);
       // Write checksum for corruption detection on load
-      fs.writeFileSync(checksumPath, sha256(data));
+      safeWriteSync(checksumPath, sha256(data));
     } catch (e) {
       log.warn(`[CERT] Index save failed: ${(e as Error).message}`);
     }
@@ -524,7 +525,7 @@ export class CertificateEngine {
 
       // Persist endorsement
       const endorsePath = path.join(KEYS_DIR, `rotation_${Date.now()}.json`);
-      fs.writeFileSync(endorsePath, JSON.stringify({
+      safeWriteSync(endorsePath, JSON.stringify({
         endorsement, signature: endorsementSig.toString('hex'),
         old_public_key: this.keyPair.publicKeyHex, new_public_key: newPubHex,
       }, null, 2));
@@ -533,8 +534,8 @@ export class CertificateEngine {
       this.keyPair = { publicKey: Buffer.from(publicKey), privateKey: Buffer.from(privateKey), publicKeyHex: newPubHex };
       const pubPath = path.join(KEYS_DIR, 'cert_pub.pem');
       const privPath = path.join(KEYS_DIR, 'cert_priv.pem');
-      fs.writeFileSync(pubPath, publicKey);
-      fs.writeFileSync(privPath, privateKey);
+      safeWriteSync(pubPath, publicKey);
+      safeWriteSync(privPath, privateKey);
 
       this.metrics.key_rotations++;
       this.selfTest();
