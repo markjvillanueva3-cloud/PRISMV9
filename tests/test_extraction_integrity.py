@@ -27,15 +27,19 @@ class TestProjectState(unittest.TestCase):
         self.assertTrue(CURRENT_STATE.exists(), "CURRENT_STATE.json missing")
         with open(CURRENT_STATE) as f:
             data = json.load(f)
-        self.assertIn("extraction", data)
-        self.assertIn("prism", data)
+        # v2.0 format uses layers + verified; v1 used extraction + prism
+        has_v2 = "layers" in data and "verified" in data
+        has_v1 = "extraction" in data and "prism" in data
+        self.assertTrue(has_v2 or has_v1, "CURRENT_STATE missing expected keys")
 
     def test_master_inventory_valid_json(self):
         self.assertTrue(MASTER_INVENTORY.exists(), "MASTER_INVENTORY.json missing")
         with open(MASTER_INVENTORY) as f:
             data = json.load(f)
         self.assertIn("sourceMonolith", data)
-        self.assertIn("moduleTargets", data)
+        # v2.0 uses layerTargets; v1 used moduleTargets
+        has_targets = "layerTargets" in data or "moduleTargets" in data
+        self.assertTrue(has_targets, "MASTER_INVENTORY missing target keys")
 
     def test_extraction_progress_consistent(self):
         with open(CURRENT_STATE) as f:
@@ -43,6 +47,20 @@ class TestProjectState(unittest.TestCase):
         with open(MASTER_INVENTORY) as f:
             inv = json.load(f)
 
+        # v2.0: compare layers vs layerTargets
+        state_layers = state.get("layers", {})
+        inv_targets = inv.get("layerTargets", {})
+        if state_layers and inv_targets:
+            for key in state_layers:
+                if key in inv_targets:
+                    self.assertEqual(
+                        state_layers[key].get("target", 0),
+                        inv_targets[key].get("total", inv_targets[key].get("milestones", 0)),
+                        f"Layer {key} target mismatch"
+                    )
+            return
+
+        # v1 fallback
         progress = state.get("extraction", {}).get("progress", {})
         targets = inv.get("moduleTargets", {})
 
@@ -208,35 +226,47 @@ class TestProjectIndex(unittest.TestCase):
         self.assertIn("project", data)
         self.assertIn("session", data)
         self.assertIn("extraction", data)
+        self.assertIn("layers", data)
+        self.assertIn("phases", data)
+        self.assertIn("verified", data)
         self.assertIn("paths", data)
         self.assertIn("fileIndex", data)
-        self.assertIn("rules", data)
 
-    def test_project_index_has_progress(self):
+    def test_project_index_has_layers(self):
         with open(PROJECT_INDEX) as f:
             data = json.load(f)
-        progress = data.get("extraction", {}).get("progress", {})
-        self.assertGreater(len(progress), 0, "No extraction progress in index")
-        for key, val in progress.items():
-            self.assertIn("total", val, f"{key} missing total")
-            self.assertIn("extracted", val, f"{key} missing extracted")
+        layers = data.get("layers", {})
+        self.assertGreater(len(layers), 0, "No layers in index")
+        for key, layer in layers.items():
+            self.assertIn("name", layer, f"{key} missing name")
+            self.assertIn("target", layer, f"{key} missing target")
+            self.assertIn("status", layer, f"{key} missing status")
+
+    def test_project_index_has_verified(self):
+        with open(PROJECT_INDEX) as f:
+            data = json.load(f)
+        verified = data.get("verified", {})
+        self.assertGreater(len(verified), 0, "No verified counts in index")
+        self.assertIn("dispatchers", verified)
+        self.assertIn("engines", verified)
+        self.assertIn("testsPassing", verified)
 
     def test_project_index_consistent_with_state(self):
-        """PROJECT_INDEX extraction totals should match CURRENT_STATE."""
+        """PROJECT_INDEX layers should match CURRENT_STATE."""
         with open(PROJECT_INDEX) as f:
             idx = json.load(f)
         with open(CURRENT_STATE) as f:
             state = json.load(f)
 
-        idx_progress = idx.get("extraction", {}).get("progress", {})
-        state_progress = state.get("extraction", {}).get("progress", {})
+        idx_layers = idx.get("layers", {})
+        state_layers = state.get("layers", {})
 
-        for key in state_progress:
-            if key in idx_progress:
+        for key in state_layers:
+            if key in idx_layers:
                 self.assertEqual(
-                    idx_progress[key]["total"],
-                    state_progress[key]["total"],
-                    f"{key} total mismatch between PROJECT_INDEX and CURRENT_STATE"
+                    idx_layers[key]["target"],
+                    state_layers[key]["target"],
+                    f"{key} target mismatch between PROJECT_INDEX and CURRENT_STATE"
                 )
 
     def test_project_index_file_index_references_exist(self):
@@ -277,7 +307,7 @@ class TestDashboard(unittest.TestCase):
     def test_dashboard_has_sentinel_markers(self):
         with open(self.DASHBOARD, encoding="utf-8") as f:
             content = f.read()
-        markers = ["CURRENT_STATE", "INVENTORY", "DAEMON", "CONSOLIDATION"]
+        markers = ["CURRENT_STATE", "DAEMON", "CONSOLIDATION"]
         for m in markers:
             self.assertIn(f"/*__{m}__*/", content, f"Missing sentinel: {m}")
             self.assertIn(f"/*__END_{m}__*/", content, f"Missing end sentinel: {m}")
@@ -285,8 +315,7 @@ class TestDashboard(unittest.TestCase):
     def test_dashboard_has_required_sections(self):
         with open(self.DASHBOARD, encoding="utf-8") as f:
             content = f.read()
-        sections = ["Extraction Progress", "Worker Health", "Module Targets",
-                     "Session Archives", "Current Stage"]
+        sections = ["Worker Health", "Session Archives", "Verified Baseline"]
         for s in sections:
             self.assertIn(s, content, f"Missing section: {s}")
 

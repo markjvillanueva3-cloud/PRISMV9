@@ -1,8 +1,9 @@
 {
   "_meta": {
     "description": "Unified PRISM project index \u2014 single-read bootstrap for AI agents",
-    "version": "1.0.0",
-    "generatedAt": "2026-02-27T14:55:18.776095+00:00",
+    "version": "2.0.0",
+    "stateVersion": "2.0.0",
+    "generatedAt": "2026-02-27T15:00:26.457031+00:00",
     "generatedBy": "rebuild_project_index.py",
     "sources": [
       "CURRENT_STATE.json",
@@ -17,7 +18,7 @@
     "targetVersion": "9.0.0",
     "sourceVersion": "8.89.002",
     "monolithLines": 986621,
-    "totalModules": 831,
+    "extractedFiles": 1775,
     "owner": "Mark Villanueva",
     "github": "markjvillanueva3-cloud/PRISMV9",
     "techStack": {
@@ -31,119 +32,222 @@
       "Post Processor Generator",
       "Shop Manager (Quoting/ERP/Business)",
       "Auto CNC Program Generator (Print-to-Program)"
+    ],
+    "products": [
+      {
+        "id": "SFC",
+        "name": "Speed & Feed Calculator",
+        "layer": "L7",
+        "priority": 1
+      },
+      {
+        "id": "PPG",
+        "name": "Post Processor Generator",
+        "layer": "L8",
+        "priority": 2
+      },
+      {
+        "id": "CADCAM",
+        "name": "CAD/CAM Learning & Help",
+        "layer": "L8",
+        "priority": 3
+      },
+      {
+        "id": "ERP",
+        "name": "ERP/Quoting/Business Management",
+        "layer": "L8",
+        "priority": 4
+      }
     ]
+  },
+  "layers": {
+    "L0": {
+      "name": "Data Foundation",
+      "target": 38,
+      "existing": 14,
+      "status": "not_started",
+      "milestones": 5,
+      "milestonesComplete": 0,
+      "sessions": "10-14",
+      "details": "14 existing registries + 12 core + 12 specialty databases. 29,569 entries to enrich. 1,775 extracted files to consolidate."
+    },
+    "L1": {
+      "name": "Algorithm Foundation",
+      "target": 44,
+      "existing": 17,
+      "status": "not_started",
+      "milestones": 4,
+      "milestonesComplete": 0,
+      "sessions": "6-8",
+      "details": "17 existing + 14 monolith port + 13 new algorithms."
+    },
+    "L2": {
+      "name": "Engine Foundation",
+      "target": 187,
+      "existing": 75,
+      "status": "not_started",
+      "milestones": 5,
+      "milestonesComplete": 0,
+      "sessions": "20-26",
+      "details": "75 existing + 112 new (8 monolith port + 20 mfg intel + 16 CAD/CAM + 16 infra + 52 PASS2)."
+    },
+    "L3": {
+      "name": "Dispatcher Layer",
+      "target": 44,
+      "existing": 32,
+      "status": "not_started",
+      "milestones": 2,
+      "milestonesComplete": 0,
+      "sessions": "4-6",
+      "details": "32 existing (670 actions) + 12 new dispatchers + 100+ new actions."
+    },
+    "L4": {
+      "name": "Hooks & Safety",
+      "target": 152,
+      "existing": 112,
+      "status": "not_started",
+      "milestones": 2,
+      "milestonesComplete": 0,
+      "sessions": "3-4",
+      "details": "112 existing + 40 new hooks + 12 new cadences."
+    },
+    "L5": {
+      "name": "Skills & Scripts",
+      "target": 269,
+      "existing": 201,
+      "status": "not_started",
+      "milestones": 3,
+      "milestonesComplete": 0,
+      "sessions": "4-6",
+      "details": "153 skills (57 CC + 96 PRISM) + 44 new. 48 scripts + 28 new."
+    },
+    "L6": {
+      "name": "API Layer",
+      "target": 50,
+      "existing": 0,
+      "status": "not_started",
+      "milestones": 2,
+      "milestonesComplete": 0,
+      "sessions": "3-4",
+      "details": "50+ REST/WebSocket endpoints exposing all dispatcher actions."
+    },
+    "L7": {
+      "name": "SFC Product",
+      "target": 4,
+      "existing": 0,
+      "status": "not_started",
+      "milestones": 4,
+      "milestonesComplete": 0,
+      "sessions": "7-10",
+      "details": "Speed & Feed Calculator \u2014 first launch product."
+    },
+    "L8": {
+      "name": "Products 2-4",
+      "target": 7,
+      "existing": 0,
+      "status": "not_started",
+      "milestones": 7,
+      "milestonesComplete": 0,
+      "sessions": "30-42",
+      "details": "PPG, CAD/CAM Learning, ERP/Business, PASS2 Pages."
+    },
+    "L9": {
+      "name": "CAD/CAM Kernel",
+      "target": 3,
+      "existing": 0,
+      "status": "not_started",
+      "milestones": 3,
+      "milestonesComplete": 0,
+      "sessions": "10-15",
+      "details": "CAD Geometry Kernel + CAM Toolpath Algorithms + WebGL 3D Viewer."
+    },
+    "L10": {
+      "name": "Enterprise & Production",
+      "target": 4,
+      "existing": 0,
+      "status": "not_started",
+      "milestones": 4,
+      "milestonesComplete": 0,
+      "sessions": "8-12",
+      "details": "Security, CI/CD, monitoring, cross-cutting features."
+    }
+  },
+  "phases": {
+    "CC": {
+      "name": "Knowledge Engine",
+      "milestones": 12,
+      "milestonesComplete": 0,
+      "status": "not_started",
+      "sessions": "35-40"
+    },
+    "CC-EXT": {
+      "name": "Extended Learning",
+      "milestones": 6,
+      "milestonesComplete": 0,
+      "status": "not_started",
+      "sessions": "18-24"
+    }
+  },
+  "verified": {
+    "dispatchers": 32,
+    "actions": 670,
+    "engines": 75,
+    "formulas": 109,
+    "formulasTarget": 509,
+    "algorithms": 17,
+    "registryEntries": 29569,
+    "registries": 14,
+    "ccSkills": 57,
+    "prismSkills": 96,
+    "scripts": 48,
+    "hooks": 112,
+    "ccHooks": 18,
+    "toolpathStrategies": 680,
+    "tscErrors": 0,
+    "testsPassing": 152,
+    "testsTotal": 152,
+    "omega": 1.0
   },
   "session": {
     "currentId": "1.A.2",
     "name": "Extract Machine Databases (7 core databases)",
     "status": "IN_PROGRESS",
-    "stage": "1",
-    "phase": "A",
     "nextAction": "Extract the 7 core machine databases from the monolith HTML file",
-    "nextSession": {
-      "id": "1.A.5",
-      "topic": "Physics Models Extraction",
-      "prerequisite": "Continue from v4.1 roadmap"
-    }
+    "nextMilestone": {
+      "id": "L0-NEW-MS0",
+      "name": "Data Consolidation & Deduplication",
+      "sessions": "2-3"
+    },
+    "sessionArchives": [
+      {
+        "id": "0.EXT.1",
+        "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION",
+        "status": "ARCHIVED"
+      },
+      {
+        "id": "0.EXT.1b",
+        "name": "MATERIALS DATABASE",
+        "status": "ARCHIVED"
+      },
+      {
+        "id": "0.EXT.2",
+        "name": "MACHINES DATABASE",
+        "status": "ARCHIVED"
+      }
+    ]
   },
   "extraction": {
-    "progress": {
-      "databases": {
-        "total": 62,
-        "extracted": 7,
-        "verified": 7
-      },
-      "engines": {
-        "total": 213,
-        "extracted": 0,
-        "verified": 0
-      },
-      "knowledgeBases": {
-        "total": 14,
-        "extracted": 0,
-        "verified": 0
-      },
-      "systems": {
-        "total": 31,
-        "extracted": 0,
-        "verified": 0
-      },
-      "learning": {
-        "total": 30,
-        "extracted": 0,
-        "verified": 0
-      },
-      "business": {
-        "total": 22,
-        "extracted": 0,
-        "verified": 0
-      },
-      "ui": {
-        "total": 16,
-        "extracted": 0,
-        "verified": 0
-      },
-      "lookups": {
-        "total": 20,
-        "extracted": 0,
-        "verified": 0
-      },
-      "manufacturers": {
-        "total": 44,
-        "extracted": 33,
-        "verified": 33
-      },
-      "phase": {
-        "total": 46,
-        "extracted": 0,
-        "verified": 0
-      }
-    },
     "completedExtractions": [
-      {
-        "category": "machines/ENHANCED",
-        "count": 33,
-        "manufacturers": [
-          "AWEA",
-          "Brother",
-          "Chiron",
-          "Cincinnati",
-          "DMG_Mori",
-          "Doosan",
-          "Fanuc",
-          "Feeler",
-          "Fidia",
-          "Giddings",
-          "Grob",
-          "Haas",
-          "Hardinge",
-          "Hermle",
-          "Hurco",
-          "Hyundai_WIA",
-          "Kern",
-          "Kitamura",
-          "Leadwell",
-          "Makino",
-          "Matsuura",
-          "Mazak",
-          "MHI",
-          "Mikron",
-          "OKK",
-          "Okuma",
-          "Roku_Roku",
-          "Sodick",
-          "Soraluce",
-          "Spinner",
-          "Takumi",
-          "Toyoda",
-          "Yasda"
-        ],
-        "location": "EXTRACTED/machines/ENHANCED/"
-      },
       {
         "category": "machines/CORE",
         "files": 8,
         "totalLines": 4489,
+        "date": "2026-01-20"
+      },
+      {
+        "category": "machines/ENHANCED",
+        "manufacturers": 33,
+        "machines": 310,
         "date": "2026-01-20"
       }
     ],
@@ -163,7 +267,7 @@
     }
   },
   "paths": {
-    "monolith": "_BUILD/PRISM_v8_89_002_TRUE_100_PERCENT.zip",
+    "monolith": "extracted_modules/complete_extraction/",
     "extracted": "EXTRACTED/",
     "scripts": "SCRIPTS/",
     "dashboard": "docs/index.html",
@@ -178,11 +282,11 @@
     "stateTracking": [
       {
         "file": "CURRENT_STATE.json",
-        "purpose": "Extraction progress counters"
+        "purpose": "Layer architecture, verified counts, milestones"
       },
       {
         "file": "MASTER_INVENTORY.json",
-        "purpose": "Full inventory with module targets and session archives"
+        "purpose": "Full inventory with layer targets and session archives"
       },
       {
         "file": "SESSION_STATE.json",

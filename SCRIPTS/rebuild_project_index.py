@@ -1,5 +1,5 @@
 """
-PRISM Project Index Rebuilder v1.0
+PRISM Project Index Rebuilder v2.0
 Regenerates PROJECT_INDEX.json from all source state files.
 
 Usage:
@@ -13,7 +13,6 @@ Sources read:
 """
 
 import json
-import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,17 +50,103 @@ def scan_extraction_indexes():
     return indexes
 
 
-def scan_extracted_files():
-    """Count extracted files by category."""
-    extracted_dir = PROJ_ROOT / "EXTRACTED"
-    counts = {}
-    if extracted_dir.exists():
-        for category_dir in sorted(extracted_dir.iterdir()):
-            if category_dir.is_dir():
-                js_files = list(category_dir.rglob("*.js"))
-                if js_files:
-                    counts[category_dir.name] = len(js_files)
-    return counts
+def build_layers(state, inventory):
+    """Build layers section from CURRENT_STATE v2.0 or MASTER_INVENTORY."""
+    layers = {}
+    # Prefer CURRENT_STATE.json layers (has status, milestones progress)
+    state_layers = state.get("layers", {})
+    inv_targets = inventory.get("layerTargets", {})
+
+    if state_layers:
+        # v2.0 format — use directly
+        for key, layer in state_layers.items():
+            layers[key] = {
+                "name": layer.get("name", ""),
+                "target": layer.get("target", 0),
+                "existing": layer.get("existing", 0),
+                "status": layer.get("status", "not_started"),
+                "milestones": layer.get("milestones", 0),
+                "milestonesComplete": layer.get("milestonesComplete", 0),
+                "sessions": layer.get("sessions", ""),
+                "details": layer.get("details", ""),
+            }
+    elif inv_targets:
+        # Fallback to MASTER_INVENTORY layerTargets
+        for key, target in inv_targets.items():
+            if key in ("CC", "CC-EXT"):
+                continue  # These are phases, not layers
+            layers[key] = {
+                "name": target.get("name", ""),
+                "target": target.get("total", target.get("milestones", 0)),
+                "existing": target.get("existing", 0),
+                "status": "not_started",
+                "milestones": target.get("milestones", 0),
+                "milestonesComplete": 0,
+                "sessions": "",
+                "details": "",
+            }
+
+    return layers
+
+
+def build_phases(state, inventory):
+    """Build phases section from CURRENT_STATE v2.0 or MASTER_INVENTORY."""
+    phases = {}
+    state_phases = state.get("phases", {})
+    inv_targets = inventory.get("layerTargets", {})
+
+    if state_phases:
+        for key, phase in state_phases.items():
+            phases[key] = {
+                "name": phase.get("name", ""),
+                "milestones": phase.get("milestones", 0),
+                "milestonesComplete": phase.get("milestonesComplete", 0),
+                "status": phase.get("status", "not_started"),
+                "sessions": phase.get("sessions", ""),
+            }
+    else:
+        # Fallback: extract CC/CC-EXT from inventory layerTargets
+        for key in ("CC", "CC-EXT"):
+            if key in inv_targets:
+                phases[key] = {
+                    "name": inv_targets[key].get("name", ""),
+                    "milestones": inv_targets[key].get("milestones", 0),
+                    "milestonesComplete": 0,
+                    "status": "not_started",
+                    "sessions": "",
+                }
+
+    return phases
+
+
+def build_verified(state, inventory):
+    """Build verified counts from CURRENT_STATE or MASTER_INVENTORY."""
+    # Prefer CURRENT_STATE.verified (concise)
+    verified = state.get("verified", {})
+    if verified:
+        return dict(verified)
+
+    # Fallback to MASTER_INVENTORY.verifiedBaseline
+    baseline = inventory.get("verifiedBaseline", {})
+    if baseline:
+        result = {}
+        for key, val in baseline.items():
+            if key in ("frozenAt", "verifiedDate"):
+                continue
+            if isinstance(val, dict):
+                # e.g. formulas: {registered: 109, target: 509}
+                result[key] = val.get("registered", val)
+                result[f"{key}Target"] = val.get("target", val)
+            elif key == "tests":
+                # "152/152" -> testsPassing: 152, testsTotal: 152
+                parts = str(val).split("/")
+                result["testsPassing"] = int(parts[0])
+                result["testsTotal"] = int(parts[1]) if len(parts) > 1 else int(parts[0])
+            else:
+                result[key] = val
+        return result
+
+    return {}
 
 
 def build_index():
@@ -72,34 +157,22 @@ def build_index():
     memory = load_json(PROJ_ROOT / "CLAUDE_MEMORY.json")
 
     now = datetime.now(timezone.utc).isoformat()
+    state_version = state.get("version", "1.0.0")
 
-    # Merge extraction progress — prefer CURRENT_STATE counts, add extras from inventory
-    progress = {}
-    state_progress = state.get("extraction", {}).get("progress", {})
-    targets = inventory.get("moduleTargets", {})
+    # --- Layers & Phases (v2.0) ---
+    layers = build_layers(state, inventory)
+    phases = build_phases(state, inventory)
+    verified = build_verified(state, inventory)
 
-    for key in targets:
-        if key == "total":
-            continue  # Skip the aggregate total — we compute it
-        if key in state_progress:
-            progress[key] = state_progress[key]
-        else:
-            progress[key] = {"total": targets[key], "extracted": 0, "verified": 0}
-
-    # Detect manufacturer extractions from inventory
-    machines_enhanced = inventory.get("extracted", {}).get("machines", {}).get("enhanced", {})
-    if machines_enhanced.get("count", 0) > 0:
-        progress["manufacturers"] = {
-            "total": targets.get("manufacturers", 44),
-            "extracted": machines_enhanced["count"],
-            "verified": machines_enhanced["count"],
-        }
-
-    # Scan for extraction indexes
+    # --- Extraction indexes ---
     indexes = scan_extraction_indexes()
 
-    # Build completed extractions list
+    # --- Completed extractions ---
     completed = list(state.get("completedExtractions", []))
+    # Also check MASTER_INVENTORY for enhanced machines
+    machines_enhanced = inventory.get("extractedData", {}).get("machines", {}).get("enhanced", {})
+    if not machines_enhanced:
+        machines_enhanced = inventory.get("extracted", {}).get("machines", {}).get("enhanced", {})
     if machines_enhanced.get("count", 0) > 0:
         has_enhanced = any(c.get("category") == "machines/ENHANCED" for c in completed)
         if not has_enhanced:
@@ -110,29 +183,54 @@ def build_index():
                 "location": machines_enhanced.get("location", "EXTRACTED/machines/ENHANCED/"),
             })
 
-    # Session info — prefer SESSION_STATE (more recent)
-    session_id = session.get("currentSession") or state.get("currentSession")
+    # --- Session info ---
+    session_id = session.get("currentSession") or state.get("currentSession", "")
     session_name = session.get("sessionName", "")
     session_status = session.get("status", "UNKNOWN")
     next_action = session.get("nextAction", "")
+    next_milestone = state.get("nextMilestone", inventory.get("nextMilestone", {}))
 
     # Phase progress from SESSION_STATE
     phase_progress = session.get("extractionProgress", {})
 
-    # Build session history
-    history = session.get("completedSessions", [])
+    # Session history
+    history = list(session.get("completedSessions", []))
+    session_archives = state.get("sessionArchives", inventory.get("sessionArchives", []))
     if session_id:
-        current_entry = f"{session_id} — {session_name} (CURRENT)"
+        current_entry = f"{session_id} \u2014 {session_name} (CURRENT)"
         if not any("CURRENT" in h for h in history):
             history.append(current_entry)
 
-    # Tech stack and components from CLAUDE_MEMORY
+    # --- Project info from CLAUDE_MEMORY ---
     tech_stack = memory.get("tech_stack", {})
     components = memory.get("product_components", [])
     rules = memory.get("critical_rules", [])
     project_info = memory.get("prism_project", {})
+    products = inventory.get("products", [])
 
-    # File index — enumerate key files
+    # --- Extracted data summary ---
+    extracted_data = inventory.get("extractedData", {})
+    extraction_summary = {}
+    if extracted_data:
+        extraction_summary = {
+            "totalFiles": extracted_data.get("totalFiles", 0),
+            "totalSize": extracted_data.get("totalSize", ""),
+        }
+
+    # --- Source version ---
+    source_version = (
+        state.get("prism", {}).get("sourceVersion")
+        or inventory.get("sourceMonolith", {}).get("version", "").lstrip("v")
+        or "8.89.002"
+    )
+    monolith_lines = (
+        state.get("prism", {}).get("monolithLines")
+        or inventory.get("sourceMonolith", {}).get("lines")
+        or state.get("monolithLines")
+        or 986621
+    )
+
+    # --- File index ---
     file_index = {
         "stateTracking": [],
         "extractionTools": [],
@@ -143,10 +241,10 @@ def build_index():
     }
 
     state_files = [
-        ("CURRENT_STATE.json", "Extraction progress counters"),
-        ("MASTER_INVENTORY.json", "Full inventory with module targets and session archives"),
+        ("CURRENT_STATE.json", "Layer architecture, verified counts, milestones"),
+        ("MASTER_INVENTORY.json", "Full inventory with layer targets and session archives"),
         ("SESSION_STATE.json", "Current session details and clarifications"),
-        ("PROJECT_INDEX.json", "Unified index (this file) — read this first"),
+        ("PROJECT_INDEX.json", "Unified index (this file) \u2014 read this first"),
     ]
     for f, p in state_files:
         if (PROJ_ROOT / f).exists() or f == "PROJECT_INDEX.json":
@@ -192,7 +290,7 @@ def build_index():
         if (PROJ_ROOT / f).exists():
             file_index["templates"].append({"file": f, "purpose": p})
 
-    # Codebase map — scan top-level dirs
+    # --- Codebase map ---
     codebase_map = {}
     dir_purposes = {
         "_BUILD": "Monolith source (zipped HTML)",
@@ -209,11 +307,12 @@ def build_index():
         if path.exists() and path.is_dir():
             codebase_map[f"{d}/"] = purpose
 
-    # Assemble final index
+    # --- Assemble final index ---
     index = {
         "_meta": {
-            "description": "Unified PRISM project index — single-read bootstrap for AI agents",
-            "version": "1.0.0",
+            "description": "Unified PRISM project index \u2014 single-read bootstrap for AI agents",
+            "version": "2.0.0",
+            "stateVersion": state_version,
             "generatedAt": now,
             "generatedBy": "rebuild_project_index.py",
             "sources": [
@@ -227,25 +326,27 @@ def build_index():
         "project": {
             "name": project_info.get("name", inventory.get("project", "PRISM Manufacturing Intelligence")),
             "targetVersion": "9.0.0",
-            "sourceVersion": state.get("prism", {}).get("sourceVersion", "8.89.002"),
-            "monolithLines": inventory.get("sourceMonolith", {}).get("lines", state.get("prism", {}).get("monolithLines", 0)),
-            "totalModules": targets.get("total", 831),
+            "sourceVersion": source_version,
+            "monolithLines": monolith_lines,
+            "extractedFiles": extraction_summary.get("totalFiles", state.get("prism", {}).get("extractedFiles", 1775)),
             "owner": project_info.get("owner", "Mark Villanueva"),
             "github": project_info.get("github", "markjvillanueva3-cloud/PRISMV9"),
             "techStack": tech_stack,
             "components": components,
+            "products": products,
         },
+        "layers": layers,
+        "phases": phases,
+        "verified": verified,
         "session": {
             "currentId": session_id,
             "name": session_name,
             "status": session_status,
-            "stage": state.get("extraction", {}).get("stage", "1"),
-            "phase": state.get("extraction", {}).get("phase", "A"),
             "nextAction": next_action,
-            "nextSession": inventory.get("nextSession", {}),
+            "nextMilestone": next_milestone,
+            "sessionArchives": session_archives,
         },
         "extraction": {
-            "progress": progress,
             "completedExtractions": completed,
             "phaseProgress": phase_progress,
             "indexes": indexes,
@@ -282,7 +383,7 @@ def main():
     check_mode = "--check" in sys.argv
     diff_mode = "--diff" in sys.argv
 
-    print("PRISM Project Index Rebuilder")
+    print("PRISM Project Index Rebuilder v2.0")
     print("=" * 40)
 
     new_index = build_index()
@@ -292,23 +393,24 @@ def main():
             old_index = load_json(OUTPUT_FILE)
             old_meta = old_index.get("_meta", {})
             print(f"Current index generated: {old_meta.get('generatedAt', 'UNKNOWN')}")
-            # Compare key fields
-            old_progress = old_index.get("extraction", {}).get("progress", {})
-            new_progress = new_index.get("extraction", {}).get("progress", {})
-            if old_progress == new_progress:
+            # Compare layers + verified (the key data sections)
+            old_layers = old_index.get("layers", {})
+            new_layers = new_index.get("layers", {})
+            old_verified = old_index.get("verified", {})
+            new_verified = new_index.get("verified", {})
+            if old_layers == new_layers and old_verified == new_verified:
                 print("Index is UP TO DATE.")
             else:
-                print("Index is STALE — run without --check to rebuild.")
+                print("Index is STALE \u2014 run without --check to rebuild.")
                 sys.exit(1)
         else:
-            print("PROJECT_INDEX.json does not exist — run without --check to create.")
+            print("PROJECT_INDEX.json does not exist \u2014 run without --check to create.")
             sys.exit(1)
         return
 
     if diff_mode:
         if OUTPUT_FILE.exists():
             old_index = load_json(OUTPUT_FILE)
-            # Simple diff: compare serialized forms
             old_str = json.dumps(old_index, indent=2, sort_keys=True)
             new_str = json.dumps(new_index, indent=2, sort_keys=True)
             if old_str == new_str:
@@ -325,7 +427,7 @@ def main():
                 if len(old_lines) != len(new_lines):
                     print(f"  Line count: {len(old_lines)} -> {len(new_lines)}")
         else:
-            print("PROJECT_INDEX.json does not exist — all content is new.")
+            print("PROJECT_INDEX.json does not exist \u2014 all content is new.")
         return
 
     # Write the index
@@ -336,12 +438,25 @@ def main():
     print(f"Generated at: {new_index['_meta']['generatedAt']}")
 
     # Summary
-    progress = new_index["extraction"]["progress"]
-    total_extracted = sum(p.get("extracted", 0) for p in progress.values())
-    total_modules = sum(p.get("total", 0) for p in progress.values())
-    print(f"Extraction: {total_extracted}/{total_modules} modules ({total_extracted/max(total_modules,1)*100:.1f}%)")
+    layers = new_index.get("layers", {})
+    total_target = sum(l.get("target", 0) for l in layers.values())
+    total_existing = sum(l.get("existing", 0) for l in layers.values())
+    total_milestones = sum(l.get("milestones", 0) for l in layers.values())
+    total_ms_complete = sum(l.get("milestonesComplete", 0) for l in layers.values())
+    print(f"Layers: {len(layers)} (L0-L{len(layers)-1})")
+    print(f"Modules: {total_existing}/{total_target} existing ({total_existing/max(total_target,1)*100:.0f}%)")
+    print(f"Milestones: {total_ms_complete}/{total_milestones}")
+    verified = new_index.get("verified", {})
+    if verified:
+        print(f"Verified: {verified.get('dispatchers', 0)} dispatchers, {verified.get('engines', 0)} engines, "
+              f"{verified.get('formulas', 0)}/{verified.get('formulasTarget', 0)} formulas, "
+              f"{verified.get('testsPassing', 0)}/{verified.get('testsTotal', 0)} tests")
     print(f"Indexes: {len(new_index['extraction']['indexes'])} category indexes found")
-    print(f"Session: {new_index['session']['currentId']} — {new_index['session']['status']}")
+    session = new_index.get("session", {})
+    print(f"Session: {session.get('currentId', 'N/A')} \u2014 {session.get('status', 'UNKNOWN')}")
+    nm = session.get("nextMilestone", {})
+    if nm:
+        print(f"Next milestone: {nm.get('id', '')} \u2014 {nm.get('name', '')}")
 
 
 if __name__ == "__main__":
