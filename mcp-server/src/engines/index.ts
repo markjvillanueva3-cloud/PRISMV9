@@ -1494,3 +1494,184 @@ export {
   type MachinabilityFactor,
   type MachinabilityComparison,
 } from "./MachinabilityRatingEngine.js";
+
+// ============================================================================
+// L2-P3-MS1: 16 Infrastructure Engines (#174-#189)
+// ============================================================================
+
+// Auth (SECURITY CRITICAL — JWT, RBAC, MFA)
+export {
+  AuthEngine,
+  authEngine,
+  type AuthUser,
+  type AuthToken,
+  type AuthSession,
+  type AuthRole,
+  type RoleDefinition,
+  type AuthResult,
+  type PermissionCheck,
+} from "./AuthEngine.js";
+
+// Tenant (multi-tenant isolation, quotas)
+export {
+  TenantEngine,
+  tenantEngine,
+  type Tenant,
+  type TenantPlan,
+  type TenantStatus,
+  type TenantSettings,
+  type TenantQuota,
+  type TenantUsage,
+  type TenantCreateInput,
+} from "./TenantEngine.js";
+
+// Rate Limit (SECURITY — token bucket, sliding window)
+export {
+  RateLimitEngine,
+  rateLimitEngine,
+  type RateLimitAlgorithm,
+  type RateLimitRule,
+  type RateLimitState,
+  type RateLimitCheckResult,
+} from "./RateLimitEngine.js";
+
+// Cache (LRU with TTL, namespace isolation)
+export {
+  CacheEngine,
+  cacheEngine,
+  type CacheEntry,
+  type CacheStats,
+  type CacheConfig,
+} from "./CacheEngine.js";
+
+// Queue (job queue, priority, retry, dead-letter)
+export {
+  QueueEngine,
+  queueEngine,
+  type QueueJob,
+  type JobStatus,
+  type JobPriority,
+  type QueueStats,
+  type EnqueueOptions,
+} from "./QueueEngine.js";
+
+// Event (pub/sub event bus)
+export {
+  EventEngine,
+  eventEngine,
+  type EventMessage,
+  type EventSubscription,
+  type EventStats,
+  type EventHandler,
+} from "./EventEngine.js";
+
+// Logging (structured logging with levels)
+export {
+  LoggingEngine,
+  loggingEngine,
+  type LogLevel,
+  type LogEntry,
+  type LogQuery,
+  type LogStats,
+  type LogConfig,
+} from "./LoggingEngine.js";
+
+// Metrics (counters, gauges, histograms)
+export {
+  MetricsEngine,
+  metricsEngine,
+  type MetricType,
+  type MetricDefinition,
+  type MetricValue,
+  type HistogramSummary,
+  type HistogramBucket,
+  type MetricsExport,
+} from "./MetricsEngine.js";
+
+// Health (liveness, readiness, component checks)
+export {
+  HealthEngine,
+  healthEngine,
+  type HealthStatus,
+  type HealthComponent,
+  type HealthCheck,
+  type HealthHistoryEntry,
+  type HealthChecker,
+} from "./HealthEngine.js";
+
+// Config (hierarchical configuration, validation)
+export {
+  ConfigEngine,
+  configEngine,
+  type ConfigSource,
+  type ConfigEntry,
+  type ConfigValidation,
+} from "./ConfigEngine.js";
+
+// Migration (schema versioning, up/down)
+export {
+  MigrationEngine,
+  migrationEngine,
+  type Migration,
+  type MigrationRecord,
+  type MigrationPlan,
+  type MigrationStatus,
+  type MigrationDirection,
+} from "./MigrationEngine.js";
+
+// Notification (multi-channel alerts)
+export {
+  NotificationEngine,
+  notificationEngine,
+  type Notification as NotificationMessage,
+  type NotificationChannel,
+  type NotificationPriority,
+  type NotificationStatus,
+  type NotificationTemplate,
+  type NotificationStats,
+} from "./NotificationEngine.js";
+
+// Webhook (registration, delivery, signatures)
+export {
+  WebhookEngine,
+  webhookEngine,
+  type WebhookEvent,
+  type WebhookStatus,
+  type WebhookRegistration,
+  type WebhookDelivery,
+  type WebhookStats,
+} from "./WebhookEngine.js";
+
+// Audit (compliance audit trail)
+export {
+  AuditEngine,
+  auditEngine,
+  type AuditCategory,
+  type AuditSeverity,
+  type AuditEntry,
+  type AuditQuery,
+  type AuditReport,
+} from "./AuditEngine.js";
+
+// Export (PDF, CSV, Excel, DXF, STEP, G-code rendering)
+export {
+  ExportEngine,
+  exportEngine,
+  type ExportFormat,
+  type ExportStatus as ExportJobStatus,
+  type ExportJob,
+  type ExportOptions,
+  type ExportTemplate,
+  type ExportStats,
+} from "./ExportEngine.js";
+
+// Plugin (lifecycle, hooks, discovery)
+export {
+  PluginEngine,
+  pluginEngine,
+  type PluginManifest,
+  type Plugin,
+  type PluginStatus,
+  type PluginHook,
+  type PluginStats,
+} from "./PluginEngine.js";
