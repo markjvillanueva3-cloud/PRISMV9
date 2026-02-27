@@ -71,10 +71,16 @@ export default function statusline(context) {
   if (context.model) {
     const model = context.model
       .replace('claude-', '')
-      .replace('-20250514', '')
+      .replace(/-\d{8}$/, '')       // Strip date suffixes like -20250514
+      .replace('opus-4-6', 'O4.6')
+      .replace('sonnet-4-6', 'S4.6')
+      .replace('opus-4-5', 'O4.5')
+      .replace('sonnet-4-5', 'S4.5')
+      .replace('haiku-4-5', 'H4.5')
       .replace('sonnet-4', 'S4')
       .replace('opus-4', 'O4')
-      .replace('haiku-3.5', 'H3.5');
+      .replace('haiku-3.5', 'H3.5')
+      .replace('haiku-3-5', 'H3.5');
     parts.push(model);
   }
 

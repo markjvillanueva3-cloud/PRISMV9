@@ -65,7 +65,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
     else:
         context += "- Check CURRENT_STATE.json\n"
     
-    context += """
+    context += f"""
 ## Core Rules
 1. USE EVERYTHING - Wire all DBs to consumers
 2. CARRY FORWARD - Preserve existing code
@@ -74,7 +74,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
 5. UPDATE STATE - End with CURRENT_STATE.json update
 
 ## Paths
-- Box: C:\\Users\\wompu\\Box\\PRISM REBUILD\\
+- Box: {os.path.join(os.path.expanduser('~'), 'Box', 'PRISM REBUILD')}
 - Extracted: [Box]\\EXTRACTED\\
 - GitHub: markjvillanueva3-cloud/PRISMV9
 """

@@ -52,12 +52,14 @@ optimize_patterns() {
     WHERE quality > 0.5
   " 2>/dev/null || true
 
-  # Cross-pollinate: copy strategies across similar domains
+  # Cross-pollinate: copy high-quality strategies to general domain
   sqlite3 "$PATTERNS_DB" "
-    INSERT OR IGNORE INTO short_term_patterns (strategy, domain, quality, source)
-    SELECT strategy, 'general', quality * 0.8, 'cross-pollinated'
+    INSERT OR IGNORE INTO short_term_patterns
+      (id, strategy, domain, embedding, quality, usage_count, success_count, created_at, updated_at, metadata)
+    SELECT
+      'xp_' || id, strategy, 'general', embedding, quality * 0.8, 0, 0, strftime('%s','now') * 1000, strftime('%s','now') * 1000, '{\"source\":\"cross-pollinated\"}'
     FROM short_term_patterns
-    WHERE quality > 0.8
+    WHERE quality > 0.8 AND domain != 'general'
     LIMIT 10
   " 2>/dev/null || true
 

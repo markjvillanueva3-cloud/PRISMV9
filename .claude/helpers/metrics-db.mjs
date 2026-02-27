@@ -225,16 +225,28 @@ function checkSecurityFile(filename, minLines = 100) {
  */
 function countProcesses() {
   try {
-    const ps = execSync('ps aux 2>/dev/null || echo ""', { encoding: 'utf-8' });
+    // Cross-platform process listing: try ps (Unix/Git Bash), fall back to tasklist (Windows)
+    let ps = '';
+    try {
+      ps = execSync('ps aux 2>/dev/null', { encoding: 'utf-8', timeout: 5000 });
+    } catch {
+      try {
+        ps = execSync('tasklist /FO CSV /NH 2>nul', { encoding: 'utf-8', timeout: 5000, shell: true });
+      } catch {
+        return { agenticFlow: 0, mcp: 0, agents: 0 };
+      }
+    }
 
-    const agenticFlow = (ps.match(/agentic-flow/g) || []).length;
-    const mcp = (ps.match(/mcp.*start/g) || []).length;
-    const agents = (ps.match(/agent|swarm|coordinator/g) || []).length;
+    // Count occurrences by splitting into lines and filtering
+    const lines = ps.split('\n');
+    const agenticFlow = lines.filter(l => /agentic-flow/.test(l) && !/metrics-db/.test(l)).length;
+    const mcp = lines.filter(l => /mcp.*start/.test(l)).length;
+    const agents = lines.filter(l => /agent|swarm|coordinator/.test(l) && !/metrics-db/.test(l) && !/swarm-monitor/.test(l)).length;
 
     return {
-      agenticFlow: Math.max(0, agenticFlow - 1), // Exclude grep itself
+      agenticFlow,
       mcp,
-      agents: Math.max(0, agents - 1)
+      agents
     };
   } catch (e) {
     return { agenticFlow: 0, mcp: 0, agents: 0 };

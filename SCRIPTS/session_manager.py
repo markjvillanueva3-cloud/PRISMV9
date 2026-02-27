@@ -166,7 +166,8 @@ def calculate_duration(start, end):
     start_dt = datetime.fromisoformat(start)
     end_dt = datetime.fromisoformat(end)
     duration = end_dt - start_dt
-    hours, remainder = divmod(duration.seconds, 3600)
+    total_seconds = int(duration.total_seconds())
+    hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return f"{hours}h {minutes}m {seconds}s"
 

@@ -29,8 +29,19 @@ scan_secrets() {
     "private[_-]?key"
   )
 
+  # Build list of directories that actually exist
+  local scan_dirs=()
+  for dir in "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" "$PROJECT_ROOT/SCRIPTS" "$PROJECT_ROOT/.claude/helpers"; do
+    [ -d "$dir" ] && scan_dirs+=("$dir")
+  done
+
+  if [ ${#scan_dirs[@]} -eq 0 ]; then
+    echo "0"
+    return
+  fi
+
   for pattern in "${patterns[@]}"; do
-    local count=$(grep -riE "$pattern" "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" 2>/dev/null | grep -v node_modules | grep -v ".git" | wc -l | tr -d '[:space:]')
+    local count=$(grep -riE "$pattern" "${scan_dirs[@]}" 2>/dev/null | grep -v node_modules | grep -v ".git" | wc -l | tr -d '[:space:]')
     count=${count:-0}
     secrets_found=$((secrets_found + count))
   done
@@ -41,17 +52,28 @@ scan_secrets() {
 scan_vulnerabilities() {
   local vulns=0
 
+  # Build list of directories that actually exist
+  local scan_dirs=()
+  for dir in "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" "$PROJECT_ROOT/SCRIPTS" "$PROJECT_ROOT/.claude/helpers"; do
+    [ -d "$dir" ] && scan_dirs+=("$dir")
+  done
+
+  if [ ${#scan_dirs[@]} -eq 0 ]; then
+    echo "0"
+    return
+  fi
+
   # Check for known vulnerable patterns
   # SQL injection patterns
-  local sql_count=$(grep -rE "execute\s*\(" "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" 2>/dev/null | grep -v node_modules | grep -v ".test." | wc -l | tr -d '[:space:]')
+  local sql_count=$(grep -rE "execute\s*\(" "${scan_dirs[@]}" 2>/dev/null | grep -v node_modules | grep -v ".test." | wc -l | tr -d '[:space:]')
   vulns=$((vulns + ${sql_count:-0}))
 
   # Command injection patterns
-  local cmd_count=$(grep -rE "exec\s*\(|spawn\s*\(" "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" 2>/dev/null | grep -v node_modules | grep -v ".test." | wc -l | tr -d '[:space:]')
+  local cmd_count=$(grep -rE "exec\s*\(|spawn\s*\(" "${scan_dirs[@]}" 2>/dev/null | grep -v node_modules | grep -v ".test." | wc -l | tr -d '[:space:]')
   vulns=$((vulns + ${cmd_count:-0}))
 
   # Unsafe eval
-  local eval_count=$(grep -rE "\beval\s*\(" "$PROJECT_ROOT/src" "$PROJECT_ROOT/v3" 2>/dev/null | grep -v node_modules | wc -l | tr -d '[:space:]')
+  local eval_count=$(grep -rE "\beval\s*\(" "${scan_dirs[@]}" 2>/dev/null | grep -v node_modules | wc -l | tr -d '[:space:]')
   vulns=$((vulns + ${eval_count:-0}))
 
   echo "$vulns"
