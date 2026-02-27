@@ -7,6 +7,7 @@ import { execSync } from "child_process";
 import { TodoState, TodoStep, isStepDone, getStepLabel } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
 import { ContextBudgetEngine } from "../../engines/ContextBudgetEngine.js";
+import { getAllCatalogs, searchCatalog, getEngineCatalog, getCatalogStats } from "../../engines/SourceCatalogAggregator.js";
 
 const ACTIONS = [
   "kv_sort_json",
@@ -33,6 +34,11 @@ const ACTIONS = [
   "focus_optimize",
   "relevance_filter",
   "context_monitor_check",
+  // Source catalog aggregation — unified query across 28 engine catalogs
+  "catalog_overview",
+  "catalog_search",
+  "catalog_engine",
+  "catalog_stats",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -775,6 +781,30 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             if (params.demo) pyArgs.push("--demo");
             const output = runPythonScript("context_monitor.py", pyArgs);
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
+          }
+
+          // ============================================================
+          // SOURCE CATALOG AGGREGATION (28 engine catalogs)
+          // ============================================================
+          case "catalog_overview": {
+            const overview = await getAllCatalogs();
+            return ok(overview);
+          }
+          case "catalog_search": {
+            const results = await searchCatalog(params.query || "", {
+              engine: params.engine, category: params.category,
+              safety_class: params.safety_class, limit: params.limit
+            });
+            return ok({ query: params.query, results, count: results.length });
+          }
+          case "catalog_engine": {
+            const catalog = await getEngineCatalog(params.engine || params.name);
+            if (!catalog) return ok({ error: `Engine catalog not found: ${params.engine || params.name}` });
+            return ok({ engine: params.engine || params.name, entries: catalog, count: Object.keys(catalog).length });
+          }
+          case "catalog_stats": {
+            const stats = await getCatalogStats();
+            return ok(stats);
           }
 
           default:

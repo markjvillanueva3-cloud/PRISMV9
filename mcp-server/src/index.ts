@@ -91,6 +91,9 @@ import { registerBridgeDispatcher } from "./tools/dispatchers/bridgeDispatcher.j
 // R3: Intelligence Engine — Compound Actions (Dispatcher #32)
 import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
 
+// L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
+import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -446,7 +449,10 @@ async function registerTools(): Promise<void> {
   // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
   registerIntelligenceDispatcher(server);
 
-  log.info(`All PRISM tools registered: 32 dispatchers (382 verified actions)`);
+  // L2: Monolith Engine Ports — 8 engines, 34 actions
+  registerL2EngineDispatcher(server);
+
+  log.info(`All PRISM tools registered: 33 dispatchers (416 verified actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
