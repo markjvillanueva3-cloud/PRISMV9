@@ -55,26 +55,21 @@ jobs:
           con = load_json('.claude-flow/metrics/consolidation.json',
               {'patternsConsolidated': 0, 'memoryCleaned': 0, 'duplicatesRemoved': 0})
 
-          # Replace between sentinel comments
-          html = re.sub(
-              r'/\*__CURRENT_STATE__\*/.*?/\*__END_CURRENT_STATE__\*/',
-              '/*__CURRENT_STATE__*/ ' + cs + ' /*__END_CURRENT_STATE__*/',
-              html, flags=re.DOTALL)
-          html = re.sub(
-              r'/\*__DAEMON__\*/.*?/\*__END_DAEMON__\*/',
-              '/*__DAEMON__*/ ' + dm_slim + ' /*__END_DAEMON__*/',
-              html, flags=re.DOTALL)
-          html = re.sub(
-              r'/\*__CONSOLIDATION__\*/.*?/\*__END_CONSOLIDATION__\*/',
-              '/*__CONSOLIDATION__*/ ' + con + ' /*__END_CONSOLIDATION__*/',
-              html, flags=re.DOTALL)
+          # Replace between sentinel comments (use lambda to avoid backreference issues with \u escapes)
+          def inject(tag, data, target):
+              repl = '/*__' + tag + '__*/ ' + data + ' /*__END_' + tag + '__*/'
+              return re.sub(
+                  r'/\*__' + tag + r'__\*/.*?/\*__END_' + tag + r'__\*/',
+                  lambda m: repl,
+                  target, flags=re.DOTALL)
+
+          html = inject('CURRENT_STATE', cs, html)
+          html = inject('DAEMON', dm_slim, html)
+          html = inject('CONSOLIDATION', con, html)
 
           # Inject build timestamp
           build_time = json.dumps(datetime.now(timezone.utc).isoformat())
-          html = re.sub(
-              r'/\*__BUILD_TIME__\*/.*?/\*__END_BUILD_TIME__\*/',
-              '/*__BUILD_TIME__*/ ' + build_time + ' /*__END_BUILD_TIME__*/',
-              html, flags=re.DOTALL)
+          html = inject('BUILD_TIME', build_time, html)
 
           with open('docs/index.html', 'w', encoding='utf-8') as f:
               f.write(html)
