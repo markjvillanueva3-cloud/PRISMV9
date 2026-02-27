@@ -2,13 +2,14 @@
  * PRISM MCP Server — Route Registry
  * Central registration for all API route modules
  *
- * 22 route modules, 208 endpoints total:
+ * 26 route modules, 232 endpoints total:
  * - SFC (7), CAD (5), CAM (4), Quality (4), Schedule (4), Cost (4)
  * - Export (5), Data (7), Safety (4), Auth (6), Admin (6), OpenAPI (1)
  * - PPG (8), Learning (10), ERP (10)
  * - Threads (12), Compliance (8), Telemetry (7)
  * - Orchestration (26), Bridge (13)
  * - Session (32), Context (26)
+ * - Validate (7), Omega (5), Ralph (3), Dev (9)
  * + WebSocket handler at /ws (6 channels)
  */
 import type { Express } from "express";
@@ -36,6 +37,10 @@ import { createOrchestrationRouter } from "./orchestration.js";
 import { createBridgeRouter } from "./bridge.js";
 import { createSessionRouter } from "./session.js";
 import { createContextRouter } from "./context.js";
+import { createValidateRouter } from "./validate.js";
+import { createOmegaRouter } from "./omega.js";
+import { createRalphRouter } from "./ralph.js";
+import { createDevRouter } from "./dev.js";
 import { log } from "../utils/Logger.js";
 
 /** Tool call function signature — injected from index.ts */
@@ -70,10 +75,14 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/bridge", createBridgeRouter(callTool));
   app.use("/api/v1/session", createSessionRouter(callTool));
   app.use("/api/v1/context", createContextRouter(callTool));
+  app.use("/api/v1/validate", createValidateRouter(callTool));
+  app.use("/api/v1/omega", createOmegaRouter(callTool));
+  app.use("/api/v1/ralph", createRalphRouter(callTool));
+  app.use("/api/v1/dev", createDevRouter(callTool));
   app.use("/api", createOpenApiRouter());
 
   // Error handler — must be last
   app.use("/api", errorHandler);
 
-  log.info("[API] Registered 22 route modules (208 endpoints) under /api/v1/");
+  log.info("[API] Registered 26 route modules (232 endpoints) under /api/v1/");
 }

@@ -650,6 +650,78 @@ function getOpenApiSpec() {
       },
       "/context/catalog/stats": {
         get: { summary: "Catalog statistics", tags: ["Context"], responses: stdResponse() }
+      },
+      "/validate/material": {
+        post: { summary: "Validate material data", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/kienzle": {
+        post: { summary: "Validate Kienzle coefficients", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/taylor": {
+        post: { summary: "Validate Taylor tool life", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/johnson-cook": {
+        post: { summary: "Validate Johnson-Cook model", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/safety": {
+        post: { summary: "Validate safety parameters", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/completeness": {
+        post: { summary: "Validate data completeness", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/validate/anti-regression": {
+        post: { summary: "Anti-regression validation", tags: ["Validate"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/omega/compute": {
+        post: { summary: "Compute Omega quality score", tags: ["Omega"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/omega/breakdown": {
+        post: { summary: "Omega score breakdown", tags: ["Omega"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/omega/validate": {
+        post: { summary: "Validate against Omega threshold", tags: ["Omega"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/omega/optimize": {
+        post: { summary: "Optimize for Omega score", tags: ["Omega"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/omega/history": {
+        get: { summary: "Omega score history", tags: ["Omega"], responses: stdResponse() }
+      },
+      "/ralph/loop": {
+        post: { summary: "RALPH quality loop", tags: ["Ralph"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/ralph/scrutinize": {
+        post: { summary: "RALPH scrutinize", tags: ["Ralph"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/ralph/assess": {
+        post: { summary: "RALPH quality assessment", tags: ["Ralph"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/session-boot": {
+        post: { summary: "Boot dev session", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/build": {
+        post: { summary: "Trigger build", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/code/template": {
+        post: { summary: "Generate code template", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/code/search": {
+        post: { summary: "Search codebase", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/file/read": {
+        post: { summary: "Read file", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/file/write": {
+        post: { summary: "Write file", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/server-info": {
+        get: { summary: "Server information", tags: ["Dev"], responses: stdResponse() }
+      },
+      "/dev/test/smoke": {
+        post: { summary: "Run smoke tests", tags: ["Dev"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/dev/test/results": {
+        get: { summary: "Get test results", tags: ["Dev"], responses: stdResponse() }
       }
     },
     tags: [
@@ -673,7 +745,11 @@ function getOpenApiSpec() {
       { name: "Orchestration", description: "Agent, swarm & roadmap orchestration" },
       { name: "Bridge", description: "External system integration & API keys" },
       { name: "Session", description: "Session state, memory & workflow" },
-      { name: "Context", description: "Context management, teams & budget" }
+      { name: "Context", description: "Context management, teams & budget" },
+      { name: "Validate", description: "Material & formula validation" },
+      { name: "Omega", description: "Omega quality scoring" },
+      { name: "Ralph", description: "RALPH quality assessment" },
+      { name: "Dev", description: "Developer tools & testing" }
     ]
   };
 }
