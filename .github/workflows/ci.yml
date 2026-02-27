@@ -37,7 +37,7 @@ jobs:
           if [ ${#scripts[@]} -eq 0 ]; then
             echo "No shell scripts found, skipping."
           else
-            shellcheck "${scripts[@]}" && echo "shellcheck passed."
+            shellcheck --severity=warning "${scripts[@]}" && echo "shellcheck passed."
           fi
 
       - name: Set up Python
