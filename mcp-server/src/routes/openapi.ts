@@ -476,6 +476,180 @@ function getOpenApiSpec() {
       },
       "/bridge/config": {
         get: { summary: "Bridge configuration", tags: ["Bridge"], responses: stdResponse() }
+      },
+      "/session/state/load": {
+        post: { summary: "Load session state", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/state/save": {
+        post: { summary: "Save session state", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/state/checkpoint": {
+        post: { summary: "Create state checkpoint", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/state/diff": {
+        post: { summary: "Diff session states", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/state/rollback": {
+        post: { summary: "Rollback session state", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/state/reconstruct": {
+        post: { summary: "Reconstruct session state", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/start": {
+        post: { summary: "Start new session", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/end": {
+        post: { summary: "End session", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/recover": {
+        post: { summary: "Recover session", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/resume": {
+        post: { summary: "Resume session", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/quick-resume": {
+        post: { summary: "Quick resume session", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/resume-score": {
+        post: { summary: "Score resume candidates", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/handoff": {
+        post: { summary: "Prepare session handoff", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/memory/save": {
+        post: { summary: "Save to session memory", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/memory/recall": {
+        post: { summary: "Recall from session memory", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/context/pressure": {
+        get: { summary: "Get context pressure", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/context/size": {
+        get: { summary: "Get context size", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/context/compress": {
+        post: { summary: "Compress context", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/context/expand": {
+        post: { summary: "Expand context", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/context/compaction": {
+        get: { summary: "Detect compaction", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/transcript": {
+        post: { summary: "Read transcript", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/wip/capture": {
+        post: { summary: "Capture work in progress", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/wip/list": {
+        get: { summary: "List WIP items", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/wip/restore": {
+        post: { summary: "Restore WIP", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/checkpoint/auto": {
+        post: { summary: "Auto checkpoint", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/checkpoint/enhanced": {
+        post: { summary: "Enhanced checkpoint", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/workflow/start": {
+        post: { summary: "Start workflow", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/workflow/advance": {
+        post: { summary: "Advance workflow", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/workflow/status": {
+        get: { summary: "Workflow status", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/workflow/complete": {
+        post: { summary: "Complete workflow", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/session/health": {
+        get: { summary: "Session health check", tags: ["Session"], responses: stdResponse() }
+      },
+      "/session/dsl-mode": {
+        post: { summary: "Set DSL mode", tags: ["Session"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/kv/sort": {
+        post: { summary: "Sort JSON KV store", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/kv/stability": {
+        post: { summary: "Check KV stability", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/tool-mask": {
+        post: { summary: "Tool mask state", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/memory/externalize": {
+        post: { summary: "Externalize memory", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/memory/restore": {
+        post: { summary: "Restore memory", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/todo/update": {
+        post: { summary: "Update todo", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/todo": {
+        get: { summary: "Read todos", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/error/preserve": {
+        post: { summary: "Preserve error context", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/error/patterns": {
+        get: { summary: "Get error patterns", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/vary-response": {
+        post: { summary: "Vary response style", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/team/spawn": {
+        post: { summary: "Spawn team member", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/team/broadcast": {
+        post: { summary: "Broadcast to team", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/team/task": {
+        post: { summary: "Create team task", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/team/heartbeat": {
+        post: { summary: "Team heartbeat", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/budget": {
+        get: { summary: "Get budget", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/budget/track": {
+        post: { summary: "Track budget usage", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/budget/report": {
+        get: { summary: "Budget report", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/budget/reset": {
+        post: { summary: "Reset budget", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/attention/score": {
+        post: { summary: "Score attention", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/focus/optimize": {
+        post: { summary: "Optimize focus", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/relevance/filter": {
+        post: { summary: "Filter by relevance", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/monitor": {
+        get: { summary: "Context monitor check", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/catalog": {
+        get: { summary: "Catalog overview", tags: ["Context"], responses: stdResponse() }
+      },
+      "/context/catalog/search": {
+        post: { summary: "Search catalog", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/catalog/engine": {
+        post: { summary: "Get engine details", tags: ["Context"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/context/catalog/stats": {
+        get: { summary: "Catalog statistics", tags: ["Context"], responses: stdResponse() }
       }
     },
     tags: [
@@ -497,7 +671,9 @@ function getOpenApiSpec() {
       { name: "Compliance", description: "Regulatory compliance management" },
       { name: "Telemetry", description: "System telemetry & monitoring" },
       { name: "Orchestration", description: "Agent, swarm & roadmap orchestration" },
-      { name: "Bridge", description: "External system integration & API keys" }
+      { name: "Bridge", description: "External system integration & API keys" },
+      { name: "Session", description: "Session state, memory & workflow" },
+      { name: "Context", description: "Context management, teams & budget" }
     ]
   };
 }
