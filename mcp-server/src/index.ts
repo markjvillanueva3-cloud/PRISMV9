@@ -621,9 +621,9 @@ async function runHTTP(): Promise<void> {
   });
 
   // ========================================================================
-  // R5: REST API routes — proxy to MCP dispatchers for web frontend
+  // R5+L6: REST API routes — 9 route modules, 42 endpoints
   // ========================================================================
-  
+
   // Helper: call an MCP tool handler and return result
   async function callTool(toolName: string, action: string, params: Record<string, any> = {}) {
     const tool = (server as any)._registeredTools?.get(toolName);
@@ -637,59 +637,9 @@ async function runHTTP(): Promise<void> {
     }
   }
 
-  // Speed & Feed calculation
-  app.post("/api/v1/speed-feed", async (req, res) => {
-    const result = await callTool("prism_calc", "speed_feed", req.body);
-    res.json({ result, safety: result?.safety, meta: result?.meta });
-  });
-
-  // Job planning
-  app.post("/api/v1/job-plan", async (req, res) => {
-    const result = await callTool("prism_calc", "cycle_time", req.body);
-    res.json({ result, safety: result?.safety, meta: result?.meta });
-  });
-
-  // Material lookup
-  app.get("/api/v1/material/:id", async (req, res) => {
-    const result = await callTool("prism_data", "material_get", { id: req.params.id });
-    res.json({ result });
-  });
-
-  // Material search
-  app.post("/api/v1/material/search", async (req, res) => {
-    const result = await callTool("prism_data", "material_search", req.body);
-    res.json({ result });
-  });
-
-  // Tool lookup
-  app.get("/api/v1/tool/:id", async (req, res) => {
-    const result = await callTool("prism_data", "tool_get", { id: req.params.id });
-    res.json({ result });
-  });
-
-  // Alarm decode
-  app.post("/api/v1/alarm-decode", async (req, res) => {
-    const result = await callTool("prism_data", "alarm_decode", req.body);
-    res.json({ result });
-  });
-
-  // Toolpath strategy
-  app.post("/api/v1/toolpath/strategy", async (req, res) => {
-    const result = await callTool("prism_calc", "engagement", req.body);
-    res.json({ result });
-  });
-
-  // Safety validation
-  app.post("/api/v1/safety/validate", async (req, res) => {
-    const result = await callTool("prism_guard", "validate", req.body);
-    res.json({ result });
-  });
-
-  // Knowledge search
-  app.post("/api/v1/knowledge/search", async (req, res) => {
-    const result = await callTool("prism_knowledge", "search", req.body);
-    res.json({ result });
-  });
+  // Register all route modules (SFC, CAD, CAM, Quality, Schedule, Cost, Export, Data, Safety)
+  const { registerRoutes } = await import("./routes/index.js");
+  registerRoutes(app, callTool);
   
   const port = parseInt(process.env.PORT || "3000", 10);
   // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
