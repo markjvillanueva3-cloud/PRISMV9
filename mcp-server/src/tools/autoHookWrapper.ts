@@ -523,7 +523,7 @@ function getCachedRecentActions(callNum: number): any[] {
     _recentActionsCache = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
   } catch { _recentActionsCache = []; }
   _recentActionsCacheCall = callNum;
-  return _recentActionsCache;
+  return _recentActionsCache ?? [];
 }
 
 function flushPendingActions(callNum: number): void {
@@ -1624,6 +1624,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const survivalResult = autoCompactionSurvival(callNum, 50, cadence.actions, currentTask);
         if (survivalResult.success) {
           cadence.actions.push(`\u{1F4BE} SURVIVAL_SAVED`);
+        }
+      } catch {
+      }
+      // Recovery manifest — at checkpoint cadence (every 10 calls)
+      try {
+        const pPct = cadence.pressure?.pressure_pct || getCurrentPressurePct();
+        const manifestTask = buildCurrentTaskDescription(cadence, toolName, action2);
+        const manifestResult = autoRecoveryManifest(callNum, pPct, cadence.actions, manifestTask);
+        if (manifestResult.success && manifestResult.file) {
+          cadence.actions.push(`\u{1F4CB} RECOVERY_MANIFEST: ${manifestResult.file}`);
         }
       } catch {
       }
