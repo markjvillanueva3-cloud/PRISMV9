@@ -53,7 +53,8 @@ const ACTIONS = [
   "workflow_advance", 
   "workflow_status",
   "workflow_complete",
-  "health_check"
+  "health_check",
+  "dsl_mode"
 ] as const;
 
 function ok(data: any) {
@@ -964,6 +965,28 @@ export function registerSessionDispatcher(server: any): void {
               reasons,
               advisory
             });
+          }
+
+          case "dsl_mode": {
+            // L0-P1-MS1: DSL compression mode toggle
+            // Persists to CURRENT_STATE.json under dsl_mode key
+            const DSL_STATE_KEY = "dsl_mode";
+            const mode = params.mode; // "enable" | "disable" | "status"
+            const state = loadJsonFile(CURRENT_STATE_FILE) || {};
+
+            if (mode === "enable") {
+              state[DSL_STATE_KEY] = { enabled: true, activated_at: new Date().toISOString() };
+              saveJsonFile(CURRENT_STATE_FILE, state);
+              return ok({ dsl_mode: "enabled", message: "DSL compression active. Dispatcher responses will use abbreviated terms." });
+            } else if (mode === "disable") {
+              state[DSL_STATE_KEY] = { enabled: false, deactivated_at: new Date().toISOString() };
+              saveJsonFile(CURRENT_STATE_FILE, state);
+              return ok({ dsl_mode: "disabled", message: "DSL compression disabled. Full terms will be used." });
+            } else {
+              // status
+              const dslState = state[DSL_STATE_KEY] || { enabled: false };
+              return ok({ dsl_mode: dslState.enabled ? "enabled" : "disabled", state: dslState });
+            }
           }
 
           default:

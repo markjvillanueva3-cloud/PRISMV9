@@ -57,6 +57,7 @@ import {
   autoParallelDispatch, autoATCSParallelUpgrade
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
+import { compactJsonValues, getDslLegend } from "../config/dslAbbreviations.js";
 import { PATHS } from "../constants.js";
 import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
 import { TelemetryEngine } from "../engines/TelemetryEngine.js";
@@ -1169,6 +1170,22 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+    }
+    // L0-P1-MS1: DSL compression — apply abbreviations when dsl_mode is enabled
+    if (result?.content?.[0]?.text && resultBytes > 500) {
+      try {
+        const dslStateFile = path.join(STATE_DIR12, "CURRENT_STATE.json");
+        if (fs.existsSync(dslStateFile)) {
+          const dslState = JSON.parse(fs.readFileSync(dslStateFile, "utf-8"));
+          if (dslState?.dsl_mode?.enabled) {
+            const compacted = compactJsonValues(result.content[0].text);
+            if (compacted.length < resultBytes) {
+              result.content[0].text = compacted;
+              resultBytes = compacted.length;
+            }
+          }
+        }
+      } catch { /* DSL compression failure is non-fatal */ }
     }
     accumulatedResultBytes += resultBytes;
     totalResultCount++;
