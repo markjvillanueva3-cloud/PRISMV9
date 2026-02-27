@@ -808,6 +808,516 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
     priority: 7,
     status: "active",
     enabled: true
+  },
+
+  // === L5-P1: 14 CORE MANUFACTURING AUTOMATION SCRIPTS ===
+  {
+    script_id: "auto_material_lookup",
+    name: "Auto Material Lookup",
+    filename: "auto_material_lookup.ts",
+    category: "data_processing",
+    description: "Automatically looks up material properties from registry by name, UNS, or AISI designation. Returns cutting data, heat treat specs, and machinability ratings.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "material", type: "string", required: true, description: "Material name, UNS, or AISI designation" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_material_lookup.ts "Ti-6Al-4V"`, `node ${PATHS.SCRIPTS}\\auto_material_lookup.ts "UNS S31600"`],
+    tags: ["material", "lookup", "registry", "automation"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_tool_recommend",
+    name: "Auto Tool Recommend",
+    filename: "auto_tool_recommend.ts",
+    category: "data_processing",
+    description: "Recommends cutting tools from 13,967-entry registry based on material, operation, and machine. Returns top 3 ranked by performance/cost.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "material", type: "string", required: true, description: "Workpiece material" },
+      { name: "operation", type: "string", required: true, description: "Operation type (roughing, finishing, drilling, etc.)" },
+      { name: "diameter", type: "number", required: false, description: "Tool diameter in mm" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_tool_recommend.ts --material "4140" --operation "roughing"`],
+    tags: ["tool", "recommend", "selection", "automation"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_machine_match",
+    name: "Auto Machine Match",
+    filename: "auto_machine_match.ts",
+    category: "data_processing",
+    description: "Matches part requirements to available machines from 1,016-entry registry. Checks envelope, spindle power, axis travel, and controller compatibility.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "partSize", type: "string", required: true, description: "Part bounding box (LxWxH mm)" },
+      { name: "spindlePower", type: "number", required: false, description: "Required spindle power in kW" },
+      { name: "axes", type: "number", required: false, description: "Required axis count (3, 4, or 5)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_machine_match.ts --partSize "300x200x100"`],
+    tags: ["machine", "match", "selection", "envelope"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_safety_check",
+    name: "Auto Safety Check",
+    filename: "auto_safety_check.ts",
+    category: "validation",
+    description: "Validates cutting parameters against machine limits and safety thresholds. Checks RPM, feed, DOC, power, and force limits. Blocks unsafe operations.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "params", type: "string", required: true, description: "JSON string of cutting parameters" },
+      { name: "machine", type: "string", required: true, description: "Machine model name" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_safety_check.ts --params '{"rpm":12000,"feed":5000}' --machine "VF-2"`],
+    tags: ["safety", "validation", "limits", "blocking"],
+    priority: 10,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_cost_estimate",
+    name: "Auto Cost Estimate",
+    filename: "auto_cost_estimate.ts",
+    category: "analysis",
+    description: "Estimates per-part manufacturing cost from cycle time, material, tooling, and shop rate. Returns cost breakdown and batch quantity curves.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "cycleTime", type: "number", required: true, description: "Cycle time in minutes" },
+      { name: "material", type: "string", required: true, description: "Material type" },
+      { name: "quantity", type: "number", required: false, default: 1, description: "Batch quantity" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_cost_estimate.ts --cycleTime 14.2 --material "7075-T6" --quantity 100`],
+    tags: ["cost", "estimate", "quoting", "economics"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_setup_sheet",
+    name: "Auto Setup Sheet",
+    filename: "auto_setup_sheet.ts",
+    category: "utilities",
+    description: "Generates shop floor setup sheet from job data: tool list, WCS, fixture notes, runtime. Outputs formatted PDF or markdown.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "jobId", type: "string", required: true, description: "Job identifier" },
+      { name: "format", type: "string", required: false, default: "pdf", description: "Output format (pdf, md, html)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_setup_sheet.ts --jobId "J-2024-047"`],
+    tags: ["setup", "sheet", "shop-floor", "documentation"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_export_pdf",
+    name: "Auto Export PDF",
+    filename: "auto_export_pdf.ts",
+    category: "utilities",
+    description: "Exports PRISM data to PDF: speed/feed cards, quality reports, quotes, FAI documents. Uses template system with company branding.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "template", type: "string", required: true, description: "Template name (speed-feed-card, quality-report, quote, fai)" },
+      { name: "data", type: "string", required: true, description: "JSON data to render" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_export_pdf.ts --template "speed-feed-card" --data '{"material":"4140"}'`],
+    tags: ["export", "pdf", "report", "template"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_backup_data",
+    name: "Auto Backup Data",
+    filename: "auto_backup_data.ts",
+    category: "utilities",
+    description: "Backs up PRISM data (registries, state, settings) to timestamped archive. Supports incremental and full backup modes.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "mode", type: "string", required: false, default: "incremental", description: "Backup mode (full, incremental)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_backup_data.ts --mode full`],
+    tags: ["backup", "data", "archive", "recovery"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_spc_update",
+    name: "Auto SPC Update",
+    filename: "auto_spc_update.ts",
+    category: "analysis",
+    description: "Updates SPC charts with new measurement data. Calculates X-bar/R, Cp/Cpk, and checks Western Electric rules for out-of-control signals.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "dimension", type: "string", required: true, description: "Dimension identifier" },
+      { name: "value", type: "number", required: true, description: "New measurement value" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_spc_update.ts --dimension "bore-25H7" --value 25.003`],
+    tags: ["spc", "quality", "measurement", "control-chart"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_tool_reorder",
+    name: "Auto Tool Reorder",
+    filename: "auto_tool_reorder.ts",
+    category: "utilities",
+    description: "Checks tool inventory against reorder points and generates purchase requisitions. Tracks usage rate and lead times.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "checkAll", type: "boolean", required: false, default: false, description: "Check all tools (default: only low-stock)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_tool_reorder.ts`, `node ${PATHS.SCRIPTS}\\auto_tool_reorder.ts --checkAll`],
+    tags: ["tool", "inventory", "reorder", "procurement"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_maintenance_alert",
+    name: "Auto Maintenance Alert",
+    filename: "auto_maintenance_alert.ts",
+    category: "analysis",
+    description: "Monitors machine health metrics and generates maintenance alerts when thresholds are exceeded. Tracks spindle hours, vibration, and thermal drift.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "machineId", type: "string", required: false, description: "Specific machine (default: all)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_maintenance_alert.ts`, `node ${PATHS.SCRIPTS}\\auto_maintenance_alert.ts --machineId "VF-2-001"`],
+    tags: ["maintenance", "predictive", "health", "alert"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_quote_generate",
+    name: "Auto Quote Generate",
+    filename: "auto_quote_generate.ts",
+    category: "analysis",
+    description: "Generates customer quotes from part data: material + machining + tooling + overhead + margin. Outputs formatted quote document.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "partId", type: "string", required: true, description: "Part identifier" },
+      { name: "quantity", type: "number", required: true, description: "Quantity to quote" },
+      { name: "margin", type: "number", required: false, default: 25, description: "Profit margin percentage" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_quote_generate.ts --partId "BR-2024-047" --quantity 500 --margin 30`],
+    tags: ["quote", "costing", "business", "customer"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_compliance_check",
+    name: "Auto Compliance Check",
+    filename: "auto_compliance_check.ts",
+    category: "validation",
+    description: "Validates manufacturing process against industry standards (AS9100, IATF 16949, FDA 21 CFR 820). Reports gaps and required documentation.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "standard", type: "string", required: true, description: "Standard to check (AS9100, IATF16949, FDA820, NACE)" },
+      { name: "processId", type: "string", required: true, description: "Process or job identifier" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_compliance_check.ts --standard "AS9100" --processId "J-2024-047"`],
+    tags: ["compliance", "standards", "audit", "aerospace", "medical"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "auto_unit_convert",
+    name: "Auto Unit Convert",
+    filename: "auto_unit_convert.ts",
+    category: "utilities",
+    description: "Converts between manufacturing units: metric/imperial, SFM/m-min, IPR/mm-rev, PSI/MPa, HP/kW. Handles all common CNC parameter units.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "value", type: "number", required: true, description: "Value to convert" },
+      { name: "from", type: "string", required: true, description: "Source unit" },
+      { name: "to", type: "string", required: true, description: "Target unit" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\auto_unit_convert.ts --value 200 --from "SFM" --to "m/min"`, `node ${PATHS.SCRIPTS}\\auto_unit_convert.ts --value 0.004 --from "IPR" --to "mm/rev"`],
+    tags: ["units", "conversion", "metric", "imperial"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+
+  // === L5-P1: 14 PASS2 SPECIALTY SCRIPTS (M125-M138) ===
+  {
+    script_id: "tap_test_processor",
+    name: "Tap Test Processor",
+    filename: "tap_test_processor.ts",
+    category: "analysis",
+    description: "Processes FRF (Frequency Response Function) tap test data to generate stability lobe diagrams. Reads accelerometer CSV, computes transfer function, outputs stable RPM zones.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "inputFile", type: "string", required: true, description: "CSV file with accelerometer data" },
+      { name: "toolDiameter", type: "number", required: true, description: "Tool diameter in mm" },
+      { name: "flutes", type: "number", required: true, description: "Number of flutes" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\tap_test_processor.ts --inputFile "tap_data.csv" --toolDiameter 12 --flutes 4`],
+    tags: ["frf", "tap-test", "stability-lobe", "vibration", "chatter"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "oee_calculator",
+    name: "OEE Calculator",
+    filename: "oee_calculator.ts",
+    category: "analysis",
+    description: "Calculates Overall Equipment Effectiveness from machine log data: Availability x Performance x Quality. Supports shift-level and machine-level aggregation.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "machineId", type: "string", required: true, description: "Machine identifier" },
+      { name: "period", type: "string", required: false, default: "shift", description: "Aggregation period (shift, day, week, month)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\oee_calculator.ts --machineId "VF-2-001" --period "week"`],
+    tags: ["oee", "utilization", "availability", "performance", "quality"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "tool_crib_optimizer",
+    name: "Tool Crib Optimizer",
+    filename: "tool_crib_optimizer.ts",
+    category: "analysis",
+    description: "Analyzes tool usage patterns to recommend standard tool list, identify duplicate tools, and suggest consolidation opportunities across machines.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "period", type: "string", required: false, default: "90d", description: "Analysis period (30d, 60d, 90d, 1y)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\tool_crib_optimizer.ts --period "90d"`],
+    tags: ["tool-crib", "optimization", "inventory", "standardization"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "program_comparison",
+    name: "Program Comparison",
+    filename: "program_comparison.ts",
+    category: "utilities",
+    description: "Diffs two G-code programs highlighting parameter changes, added/removed blocks, and tool path differences. Ignores comments and whitespace.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "fileA", type: "string", required: true, description: "First G-code file" },
+      { name: "fileB", type: "string", required: true, description: "Second G-code file" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\program_comparison.ts --fileA "O1000_v1.nc" --fileB "O1000_v2.nc"`],
+    tags: ["gcode", "diff", "comparison", "program"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "machine_capability_study",
+    name: "Machine Capability Study",
+    filename: "machine_capability_study.ts",
+    category: "analysis",
+    description: "Runs Cpk study protocol: generates measurement plan, collects data, computes Cp/Cpk/Pp/Ppk with confidence intervals, outputs capability report.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "dimension", type: "string", required: true, description: "Dimension to study" },
+      { name: "nominal", type: "number", required: true, description: "Nominal value" },
+      { name: "tolerance", type: "number", required: true, description: "Total tolerance band" },
+      { name: "sampleSize", type: "number", required: false, default: 30, description: "Number of samples" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\machine_capability_study.ts --dimension "bore" --nominal 25.000 --tolerance 0.026 --sampleSize 50`],
+    tags: ["cpk", "capability", "study", "quality", "spc"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "batch_quote_generator",
+    name: "Batch Quote Generator",
+    filename: "batch_quote_generator.ts",
+    category: "analysis",
+    description: "Processes batch RFQs: reads multi-part quote request, estimates each part, generates quote package with volume discounts and lead times.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "rfqFile", type: "string", required: true, description: "RFQ file (CSV or JSON)" },
+      { name: "margin", type: "number", required: false, default: 25, description: "Default margin %" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\batch_quote_generator.ts --rfqFile "rfq_2024_q4.csv" --margin 30`],
+    tags: ["quote", "batch", "rfq", "pricing", "business"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "vendor_catalog_parser",
+    name: "Vendor Catalog Parser",
+    filename: "vendor_catalog_parser.ts",
+    category: "data_processing",
+    description: "Parses vendor tool catalog PDFs into structured JSON data for tool registry import. Extracts dimensions, grades, coatings, and recommended parameters.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "catalogFile", type: "string", required: true, description: "Vendor catalog PDF file" },
+      { name: "vendor", type: "string", required: true, description: "Vendor name (sandvik, kennametal, iscar, seco, etc.)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\vendor_catalog_parser.ts --catalogFile "sandvik_2024.pdf" --vendor "sandvik"`],
+    tags: ["vendor", "catalog", "parser", "tool-data", "import"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "mtconnect_bridge",
+    name: "MTConnect Bridge",
+    filename: "mtconnect_bridge.ts",
+    category: "api_integration",
+    description: "Bridges MTConnect XML stream to PRISM telemetry format. Parses real-time machine data (spindle speed, axis positions, alarms) into PRISM events.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "agentUrl", type: "string", required: true, description: "MTConnect agent URL" },
+      { name: "interval", type: "number", required: false, default: 1000, description: "Poll interval in ms" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\mtconnect_bridge.ts --agentUrl "http://machine:5000/current"`],
+    tags: ["mtconnect", "telemetry", "machine-data", "iot", "streaming"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "shift_report_generator",
+    name: "Shift Report Generator",
+    filename: "shift_report_generator.ts",
+    category: "utilities",
+    description: "Auto-generates shift handoff report: parts produced, scrap, machine status, tool changes, issues, and next-shift priorities.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "shift", type: "string", required: false, default: "current", description: "Shift identifier (day, swing, night, or current)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\shift_report_generator.ts --shift "day"`],
+    tags: ["shift", "report", "handoff", "production", "summary"],
+    priority: 6,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "tool_life_regression",
+    name: "Tool Life Regression",
+    filename: "tool_life_regression.ts",
+    category: "analysis",
+    description: "Performs regression on actual tool life data to update Taylor C/n constants. Compares predicted vs. actual, adjusts model, outputs updated coefficients.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "toolId", type: "string", required: true, description: "Tool identifier" },
+      { name: "material", type: "string", required: true, description: "Workpiece material" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\tool_life_regression.ts --toolId "EM-12-4F-ALTIN" --material "4140"`],
+    tags: ["tool-life", "taylor", "regression", "wear", "prediction"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "material_cert_validator",
+    name: "Material Cert Validator",
+    filename: "material_cert_validator.ts",
+    category: "validation",
+    description: "Parses material certificate PDFs and validates chemistry, mechanical properties, and heat treatment against specification requirements (AMS, ASTM, DIN).",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "certFile", type: "string", required: true, description: "Material certificate PDF" },
+      { name: "spec", type: "string", required: true, description: "Specification to validate against (e.g., AMS 4911, ASTM A564)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\material_cert_validator.ts --certFile "heat_lot_A12345.pdf" --spec "AMS 4911"`],
+    tags: ["material", "cert", "validation", "traceability", "compliance"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "fixture_force_validator",
+    name: "Fixture Force Validator",
+    filename: "fixture_force_validator.ts",
+    category: "validation",
+    description: "Validates fixture clamping force against cutting force estimates. Computes safety factor, checks deflection, flags insufficient clamping.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "clampForce", type: "number", required: true, description: "Total clamping force in N" },
+      { name: "cuttingParams", type: "string", required: true, description: "JSON with cutting parameters" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\fixture_force_validator.ts --clampForce 5000 --cuttingParams '{"Fc":1200,"material":"4140"}'`],
+    tags: ["fixture", "force", "validation", "safety", "clamping"],
+    priority: 8,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "nc_program_optimizer",
+    name: "NC Program Optimizer",
+    filename: "nc_program_optimizer.ts",
+    category: "utilities",
+    description: "Post-processes G-code for optimization: removes redundant moves, optimizes rapid paths, applies arc fitting, constant chip load adjustments.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "inputFile", type: "string", required: true, description: "Input G-code file" },
+      { name: "optimizations", type: "string", required: false, default: "all", description: "Optimizations to apply (rapids, arcs, chipload, all)" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\nc_program_optimizer.ts --inputFile "O1000.nc" --optimizations "all"`],
+    tags: ["gcode", "optimization", "rapids", "arc-fitting", "cycle-time"],
+    priority: 7,
+    status: "active",
+    enabled: true
+  },
+  {
+    script_id: "thermal_model_calibrator",
+    name: "Thermal Model Calibrator",
+    filename: "thermal_model_calibrator.ts",
+    category: "analysis",
+    description: "Calibrates machine thermal compensation model from interferometer measurement data. Computes thermal coefficients per axis and temperature range.",
+    language: "typescript",
+    interpreter: "node",
+    parameters: [
+      { name: "measurementFile", type: "string", required: true, description: "Interferometer data CSV" },
+      { name: "machineId", type: "string", required: true, description: "Machine identifier" }
+    ],
+    usage_examples: [`node ${PATHS.SCRIPTS}\\thermal_model_calibrator.ts --measurementFile "thermal_survey.csv" --machineId "NV5000-001"`],
+    tags: ["thermal", "compensation", "calibration", "interferometer", "precision"],
+    priority: 7,
+    status: "active",
+    enabled: true
   }
 ];
 
