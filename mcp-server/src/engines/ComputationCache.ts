@@ -8,7 +8,7 @@
  * - STABLE tier (300s TTL): material properties, thread specs, formulas
  * 
  * Safety constraint: S(x)≥0.70 calcs ALWAYS bypass cache.
- * Uses CRC32 for cache keys, dependency graphs for surgical invalidation.
+ * Uses SHA-256 for cache keys, dependency graphs for surgical invalidation.
  * 
  * IMPORTED BY: cadenceExecutor.ts, autoHookWrapper.ts
  * ZERO TOKEN COST — pure server-side execution
@@ -22,6 +22,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
 import { safeWriteSync } from "../utils/atomicWrite.js";
+import { sha256 as crc32 } from './TelemetryEngine.js';
 
 // ============================================================================
 // TYPES
@@ -39,7 +40,7 @@ export interface CacheEntry {
   hit_count: number;
   last_hit: number;
   dependencies: string[];      // keys this entry depends on
-  checksum: number;            // CRC32 of input params
+  checksum: string;            // SHA-256 of input params
   source_action: string;       // e.g. "prism_calc:cutting_force"
   safety_critical: boolean;    // if true, never served from cache
 }
@@ -139,30 +140,6 @@ const SAFETY_BYPASS_ACTIONS = new Set([
 const STATE_DIR = PATHS.STATE_DIR;
 const CACHE_STATS_FILE = path.join(STATE_DIR, "d4_cache_stats.json");
 const MAX_CACHE_SIZE = 500;
-
-// ============================================================================
-// CRC32 — lightweight hash for cache keys
-// ============================================================================
-
-const CRC32_TABLE = (() => {
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let j = 0; j < 8; j++) {
-      c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    }
-    table[i] = c;
-  }
-  return table;
-})();
-
-function crc32(str: string): number {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc = CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF] ^ (crc >>> 8);
-  }
-  return (crc ^ 0xFFFFFFFF) >>> 0;
-}
 
 // ============================================================================
 // COMPUTATION CACHE CLASS

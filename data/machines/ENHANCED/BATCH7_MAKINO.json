@@ -1,0 +1,2783 @@
+{
+  "metadata": {
+    "source": "Makino published specs",
+    "created": "2026-02-15T04:46:54.015Z",
+    "count": 19
+  },
+  "machines": [
+    {
+      "id": "MAKINO_a51nx",
+      "name": "Makino a51nx",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 560,
+        "y": 410,
+        "z": 410
+      },
+      "spindle": {
+        "rpm": 14000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 20,
+        "type": "arm",
+        "changeTime_sec": 0.9
+      },
+      "table": {
+        "type": "fixed",
+        "length": 760,
+        "width": 460,
+        "load_kg": 500
+      },
+      "weight_kg": 5500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 560,
+          "y": 410,
+          "z": 410,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 585
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 610
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1110
+            },
+            "position": {
+              "x": 0,
+              "y": -455,
+              "z": 205
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 760,
+              "y": 460,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 560,
+              "y": 410,
+              "z": 410
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 205
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 760,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -205,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1060,
+              "y": 810,
+              "z": 1110
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 205
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a61nx",
+      "name": "Makino a61nx",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 730,
+        "y": 510,
+        "z": 460
+      },
+      "spindle": {
+        "rpm": 14000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 1.3
+      },
+      "table": {
+        "type": "fixed",
+        "length": 900,
+        "width": 510,
+        "load_kg": 700
+      },
+      "weight_kg": 7000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 730,
+          "y": 510,
+          "z": 460,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 635
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 660
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1160
+            },
+            "position": {
+              "x": 0,
+              "y": -505,
+              "z": 230
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 510,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 730,
+              "y": 510,
+              "z": 460
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 930,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -255,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1230,
+              "y": 910,
+              "z": 1160
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a81nx",
+      "name": "Makino a81nx",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 900,
+        "y": 600,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A63",
+        "power_kW": 30,
+        "torque_Nm": 200,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 40,
+        "type": "chain",
+        "changeTime_sec": 1.6
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1100,
+        "width": 600,
+        "load_kg": 1000
+      },
+      "weight_kg": 9500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 900,
+          "y": 600,
+          "z": 510,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 685
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": -550,
+              "z": 255
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 600,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 600,
+              "z": 510
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -300,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1400,
+              "y": 1000,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a92",
+      "name": "Makino a92",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1050,
+        "y": 700,
+        "z": 560
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "HSK-A100",
+        "power_kW": 37,
+        "torque_Nm": 350,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 40,
+        "type": "chain",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1300,
+        "width": 700,
+        "load_kg": 1500
+      },
+      "weight_kg": 13000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1050,
+          "y": 700,
+          "z": 560,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 735
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 760
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": -600,
+              "z": 280
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 700,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 700,
+              "z": 560
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1250,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -350,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1550,
+              "y": 1100,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_F5",
+      "name": "Makino F5",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 900,
+        "y": 500,
+        "z": 450
+      },
+      "spindle": {
+        "rpm": 20000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 87,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 1
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1100,
+        "width": 500,
+        "load_kg": 800
+      },
+      "weight_kg": 8500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 900,
+          "y": 500,
+          "z": 450,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 625
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 650
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": -500,
+              "z": 225
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 500,
+              "z": 450
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1400,
+              "y": 900,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_F9",
+      "name": "Makino F9",
+      "manufacturer": "Makino",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1400,
+        "y": 700,
+        "z": 560
+      },
+      "spindle": {
+        "rpm": 14000,
+        "taper": "HSK-A63",
+        "power_kW": 30,
+        "torque_Nm": 200,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 40,
+        "type": "chain",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1600,
+        "width": 700,
+        "load_kg": 2000
+      },
+      "weight_kg": 15000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1400,
+          "y": 700,
+          "z": 560,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 735
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 760
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": -600,
+              "z": 280
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1600,
+              "y": 700,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1400,
+              "y": 700,
+              "z": 560
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1600,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -350,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1900,
+              "y": 1100,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 280
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a51",
+      "name": "Makino a51",
+      "manufacturer": "Makino",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 560,
+        "y": 510,
+        "z": 500
+      },
+      "spindle": {
+        "rpm": 14000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "max_rpm": 10000,
+        "min_rpm": 30,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 200,
+        "torque_continuous": 120,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 61,
+        "type": "chain",
+        "changeTime_sec": 0.9
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 400,
+        "width": 400,
+        "load_kg": 400
+      },
+      "weight_kg": 7500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 560,
+          "y": 510,
+          "z": 500,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 455,
+              "z": 250
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 910,
+              "z": 1100
+            },
+            "position": {
+              "x": -530,
+              "y": 0,
+              "z": 250
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 560,
+              "y": 510,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 255,
+              "z": 250
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 600,
+              "z": 300
+            },
+            "position": {
+              "x": 500,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1360,
+              "y": 1110,
+              "z": 1300
+            },
+            "position": {
+              "x": 0,
+              "y": 255,
+              "z": 250
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a61",
+      "name": "Makino a61",
+      "manufacturer": "Makino",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 730,
+        "y": 650,
+        "z": 600
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A63",
+        "power_kW": 30,
+        "torque_Nm": 200,
+        "max_rpm": 10000,
+        "min_rpm": 30,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 200,
+        "torque_continuous": 120,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 80,
+        "type": "chain",
+        "changeTime_sec": 1.5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 500,
+        "width": 500,
+        "load_kg": 700
+      },
+      "weight_kg": 12000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 730,
+          "y": 650,
+          "z": 600,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 525,
+              "z": 300
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1050,
+              "z": 1200
+            },
+            "position": {
+              "x": -615,
+              "y": 0,
+              "z": 300
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 500,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 730,
+              "y": 650,
+              "z": 600
+            },
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": 300
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 700,
+              "z": 300
+            },
+            "position": {
+              "x": 600,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1530,
+              "y": 1250,
+              "z": 1400
+            },
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": 300
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a81M",
+      "name": "Makino a81M",
+      "manufacturer": "Makino",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 900,
+        "y": 800,
+        "z": 760
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "HSK-A100",
+        "power_kW": 37,
+        "torque_Nm": 350,
+        "max_rpm": 10000,
+        "min_rpm": 30,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 200,
+        "torque_continuous": 120,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 100,
+        "type": "chain",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 630,
+        "width": 630,
+        "load_kg": 1200
+      },
+      "weight_kg": 18000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 900,
+          "y": 800,
+          "z": 760,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 600,
+              "z": 380
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1200,
+              "z": 1360
+            },
+            "position": {
+              "x": -700,
+              "y": 0,
+              "z": 380
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 630,
+              "y": 630,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 800,
+              "z": 760
+            },
+            "position": {
+              "x": 0,
+              "y": 400,
+              "z": 380
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 830,
+              "y": 830,
+              "z": 300
+            },
+            "position": {
+              "x": 730,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1700,
+              "y": 1400,
+              "z": 1560
+            },
+            "position": {
+              "x": 0,
+              "y": 400,
+              "z": 380
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a100e",
+      "name": "Makino a100e",
+      "manufacturer": "Makino",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 1050,
+        "y": 900,
+        "z": 900
+      },
+      "spindle": {
+        "rpm": 8000,
+        "taper": "HSK-A100",
+        "power_kW": 45,
+        "torque_Nm": 700,
+        "max_rpm": 10000,
+        "min_rpm": 30,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 200,
+        "torque_continuous": 120,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 120,
+        "type": "chain",
+        "changeTime_sec": 3.5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 800,
+        "width": 800,
+        "load_kg": 2000
+      },
+      "weight_kg": 28000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1050,
+          "y": 900,
+          "z": 900,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 650,
+              "z": 450
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1300,
+              "z": 1500
+            },
+            "position": {
+              "x": -775,
+              "y": 0,
+              "z": 450
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 800,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 900,
+              "z": 900
+            },
+            "position": {
+              "x": 0,
+              "y": 450,
+              "z": 450
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 1000,
+              "z": 300
+            },
+            "position": {
+              "x": 900,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1850,
+              "y": 1500,
+              "z": 1700
+            },
+            "position": {
+              "x": 0,
+              "y": 450,
+              "z": 450
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_a120nx",
+      "name": "Makino a120nx",
+      "manufacturer": "Makino",
+      "type": "horizontal_machining_center",
+      "travels": {
+        "x": 1300,
+        "y": 1100,
+        "z": 1050
+      },
+      "spindle": {
+        "rpm": 6000,
+        "taper": "CAT50",
+        "power_kW": 55,
+        "torque_Nm": 1100,
+        "max_rpm": 10000,
+        "min_rpm": 30,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 200,
+        "torque_continuous": 120,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 150,
+        "type": "chain",
+        "changeTime_sec": 5
+      },
+      "table": {
+        "type": "rotary_pallet",
+        "length": 1000,
+        "width": 1000,
+        "load_kg": 3000
+      },
+      "weight_kg": 40000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1300,
+          "y": 1100,
+          "z": 1050,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 750,
+              "z": 525
+            },
+            "orientation": "horizontal"
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 1500,
+              "z": 1650
+            },
+            "position": {
+              "x": -900,
+              "y": 0,
+              "z": 525
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 1000,
+              "z": 100
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 1100,
+              "z": 1050
+            },
+            "position": {
+              "x": 0,
+              "y": 550,
+              "z": 525
+            }
+          },
+          "pallet_changer": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1200,
+              "z": 300
+            },
+            "position": {
+              "x": 1100,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 2100,
+              "y": 1700,
+              "z": 1850
+            },
+            "position": {
+              "x": 0,
+              "y": 550,
+              "z": 525
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_D500",
+      "name": "Makino D500",
+      "manufacturer": "Makino",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 500,
+        "y": 500,
+        "z": 350
+      },
+      "spindle": {
+        "rpm": 20000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 87,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 60,
+        "type": "chain",
+        "changeTime_sec": 1.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 500,
+        "width": 400,
+        "load_kg": 200
+      },
+      "weight_kg": 10000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 500,
+          "y": 500,
+          "z": 350,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 525
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 600
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": -550,
+              "z": 175
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 300,
+            "length": 500,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 400,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 500,
+              "z": 350
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 1100,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_D800Z",
+      "name": "Makino D800Z",
+      "manufacturer": "Makino",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 800,
+        "y": 650,
+        "z": 500
+      },
+      "spindle": {
+        "rpm": 14000,
+        "taper": "HSK-A63",
+        "power_kW": 30,
+        "torque_Nm": 200,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 80,
+        "type": "chain",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 800,
+        "width": 630,
+        "load_kg": 600
+      },
+      "weight_kg": 16000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 800,
+          "y": 650,
+          "z": 500,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 675
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 750
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1300
+            },
+            "position": {
+              "x": 0,
+              "y": -625,
+              "z": 250
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 450,
+            "length": 730,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 630,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 650,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 250
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1400,
+              "y": 1250,
+              "z": 1300
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 250
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_T1",
+      "name": "Makino T1",
+      "manufacturer": "Makino",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 1300,
+        "y": 1050,
+        "z": 800
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "HSK-A100",
+        "power_kW": 37,
+        "torque_Nm": 350,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 100,
+        "type": "chain",
+        "changeTime_sec": 4
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 1300,
+        "width": 1000,
+        "load_kg": 2000
+      },
+      "weight_kg": 30000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1300,
+          "y": 1050,
+          "z": 800,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 975
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1050
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1600
+            },
+            "position": {
+              "x": 0,
+              "y": -825,
+              "z": 400
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 700,
+            "length": 1100,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 1000,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 1050,
+              "z": 800
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 400
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1900,
+              "y": 1650,
+              "z": 1600
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_T2",
+      "name": "Makino T2",
+      "manufacturer": "Makino",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 1800,
+        "y": 1500,
+        "z": 1050
+      },
+      "spindle": {
+        "rpm": 8000,
+        "taper": "HSK-A100",
+        "power_kW": 52,
+        "torque_Nm": 700,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Professional 6",
+        "type": "Makino Pro 6"
+      },
+      "atc": {
+        "capacity": 120,
+        "type": "chain",
+        "changeTime_sec": 5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 1800,
+        "width": 1500,
+        "load_kg": 4000
+      },
+      "weight_kg": 52000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1800,
+          "y": 1500,
+          "z": 1050,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1225
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1300
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1850
+            },
+            "position": {
+              "x": 0,
+              "y": -1050,
+              "z": 525
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 950,
+            "length": 1600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1800,
+              "y": 1500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1800,
+              "y": 1500,
+              "z": 1050
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 525
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 2400,
+              "y": 2100,
+              "z": 1850
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 525
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "MAKINO_EDAF2",
+      "name": "Makino EDAF2",
+      "manufacturer": "Makino",
+      "type": "sinker_edm",
+      "travels": {
+        "x": 300,
+        "y": 250,
+        "z": 250
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Hyper-i",
+        "type": "Makino Hyper-i"
+      },
+      "table": {
+        "type": "fixed",
+        "length": 550,
+        "width": 400,
+        "load_kg": 500
+      },
+      "electrode": {
+        "orbit": true,
+        "rotation": true
+      },
+      "weight_kg": 3800,
+      "dielectric": {
+        "type": "oil",
+        "capacity_L": 350
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 300,
+          "y": 250,
+          "z": 250,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 425
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 450
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 950
+            },
+            "position": {
+              "x": 0,
+              "y": -375,
+              "z": 125
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 550,
+              "y": 400,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 250,
+              "z": 250
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 125
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -125,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 650,
+              "z": 950
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 125
+            }
+          }
+        }
+      },
+      "spindle": {}
+    },
+    {
+      "id": "MAKINO_EDAF3",
+      "name": "Makino EDAF3",
+      "manufacturer": "Makino",
+      "type": "sinker_edm",
+      "travels": {
+        "x": 400,
+        "y": 300,
+        "z": 300
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Hyper-i",
+        "type": "Makino Hyper-i"
+      },
+      "table": {
+        "type": "fixed",
+        "length": 700,
+        "width": 500,
+        "load_kg": 1000
+      },
+      "electrode": {
+        "orbit": true,
+        "rotation": true
+      },
+      "weight_kg": 5500,
+      "dielectric": {
+        "type": "oil",
+        "capacity_L": 600
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 400,
+          "y": 300,
+          "z": 300,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 475
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1000
+            },
+            "position": {
+              "x": 0,
+              "y": -400,
+              "z": 150
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 300,
+              "z": 300
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 150
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -150,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 700,
+              "z": 1000
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 150
+            }
+          }
+        }
+      },
+      "spindle": {}
+    },
+    {
+      "id": "MAKINO_U6_HEAT",
+      "name": "Makino U6 H.E.A.T.",
+      "manufacturer": "Makino",
+      "type": "wire_edm",
+      "travels": {
+        "x": 400,
+        "y": 300,
+        "z": 256
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Hyper-i",
+        "type": "Makino Hyper-i"
+      },
+      "table": {
+        "type": "fixed",
+        "length": 640,
+        "width": 500,
+        "load_kg": 500
+      },
+      "wireSize_mm": [
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3
+      ],
+      "maxTaper_deg": 30,
+      "weight_kg": 3200,
+      "dielectric": {
+        "type": "deionized_water",
+        "capacity_L": 200
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 400,
+          "y": 300,
+          "z": 256,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 431
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 456
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 956
+            },
+            "position": {
+              "x": 0,
+              "y": -400,
+              "z": 128
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 640,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 300,
+              "z": 256
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 128
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -150,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 700,
+              "z": 956
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 128
+            }
+          }
+        }
+      },
+      "spindle": {}
+    },
+    {
+      "id": "MAKINO_U86",
+      "name": "Makino U86",
+      "manufacturer": "Makino",
+      "type": "wire_edm",
+      "travels": {
+        "x": 800,
+        "y": 600,
+        "z": 420
+      },
+      "controller": {
+        "brand": "Makino",
+        "model": "Hyper-i",
+        "type": "Makino Hyper-i"
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1100,
+        "width": 750,
+        "load_kg": 2000
+      },
+      "wireSize_mm": [
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3
+      ],
+      "maxTaper_deg": 30,
+      "weight_kg": 7500,
+      "dielectric": {
+        "type": "deionized_water",
+        "capacity_L": 500
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 800,
+          "y": 600,
+          "z": 420,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 595
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 620
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1120
+            },
+            "position": {
+              "x": 0,
+              "y": -550,
+              "z": 210
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 750,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 600,
+              "z": 420
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 210
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -300,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 1000,
+              "z": 1120
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 210
+            }
+          }
+        }
+      },
+      "spindle": {}
+    }
+  ]
+}

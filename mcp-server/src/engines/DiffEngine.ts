@@ -2,7 +2,7 @@
  * PRISM D4 — Diff Engine
  * ========================
  * 
- * CRC32 checksum-based diff detection for file writes.
+ * SHA-256 checksum-based diff detection for file writes.
  * Shadow-write pattern: write to .tmp → validate → atomic swap.
  * Only writes when content actually changes, eliminating redundant I/O.
  * 
@@ -18,6 +18,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../constants.js";
 import { safeWriteSync } from "../utils/atomicWrite.js";
+import { sha256 as crc32 } from './TelemetryEngine.js';
 
 // ============================================================================
 // TYPES
@@ -27,8 +28,8 @@ export interface DiffResult {
   changed: boolean;
   action: "written" | "skipped" | "created" | "error";
   path: string;
-  old_checksum?: number;
-  new_checksum?: number;
+  old_checksum?: string;
+  new_checksum?: string;
   bytes_saved?: number;
 }
 
@@ -40,35 +41,11 @@ export interface DiffStats {
   shadow_write_errors: number;
 }
 
-// ============================================================================
-// CRC32 (shared with ComputationCache)
-// ============================================================================
-
-const CRC32_TABLE = (() => {
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let j = 0; j < 8; j++) {
-      c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    }
-    table[i] = c;
-  }
-  return table;
-})();
-
-function crc32(str: string): number {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc = CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF] ^ (crc >>> 8);
-  }
-  return (crc ^ 0xFFFFFFFF) >>> 0;
-}
-
 const STATE_DIR = PATHS.STATE_DIR;
 const DIFF_STATS_FILE = path.join(STATE_DIR, "d4_diff_stats.json");
 
 // Track checksums of files we've seen
-const fileChecksums = new Map<string, number>();
+const fileChecksums = new Map<string, string>();
 
 // ============================================================================
 // DIFF ENGINE CLASS

@@ -1,0 +1,592 @@
+[
+  {
+    "id": "chiron_fz08s",
+    "manufacturer": "Chiron",
+    "model": "FZ 08 S",
+    "series": "FZ",
+    "type": "VMC",
+    "subtype": "3-axis-high-speed",
+    "axes": 3,
+    "control": "Siemens 840D sl",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 20000,
+      "peakHp": 18,
+      "continuousHp": 15,
+      "maxTorque_Nm": 52,
+      "taper": "HSK-A50",
+      "geometry": {
+        "noseToGageLine_mm": 76.2,
+        "headDiameter_mm": 140,
+        "headLength_mm": 300
+      },
+      "max_rpm": 10000,
+      "min_rpm": 50,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_max": 120,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true,
+      "coolant_pressure": 20,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 350,
+        "rapid_mm_min": 75000
+      },
+      "y": {
+        "min": 0,
+        "max": 350,
+        "rapid_mm_min": 75000
+      },
+      "z": {
+        "min": 0,
+        "max": 350,
+        "rapid_mm_min": 75000
+      },
+      "a": null,
+      "b": null,
+      "c": null
+    },
+    "kinematics": {
+      "type": "VMC_3AXIS_HIGH_SPEED",
+      "chain": [
+        "SPINDLE",
+        "Z",
+        "Y",
+        "X",
+        "TABLE",
+        "PART"
+      ]
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 440,
+      "width_mm": 350,
+      "thickness_mm": 50,
+      "maxLoad_kg": 100
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 24,
+      "maxToolDiameter_mm": 63,
+      "maxToolLength_mm": 200,
+      "changeTime_sec": 1.2
+    },
+    "physical": {
+      "weight_kg": 3800
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 350,
+          "rapid_mm_min": 75000
+        },
+        "y": {
+          "min": 0,
+          "max": 350,
+          "rapid_mm_min": 75000
+        },
+        "z": {
+          "min": 0,
+          "max": 350,
+          "rapid_mm_min": 75000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 350,
+              "rapid_mm_min": 75000
+            },
+            "y": {
+              "min": 0,
+              "max": 350,
+              "rapid_mm_min": 75000
+            },
+            "z": {
+              "min": 0,
+              "max": 350,
+              "rapid_mm_min": 75000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "chiron_fz12s",
+    "manufacturer": "Chiron",
+    "model": "FZ 12 S",
+    "series": "FZ",
+    "type": "VMC",
+    "subtype": "3-axis-high-speed",
+    "axes": 3,
+    "control": "Siemens 840D sl",
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 20000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 85,
+      "taper": "HSK-A63",
+      "max_rpm": 10000,
+      "min_rpm": 50,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_max": 120,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true,
+      "coolant_pressure": 20,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 550,
+        "rapid_mm_min": 75000
+      },
+      "y": {
+        "min": 0,
+        "max": 400,
+        "rapid_mm_min": 75000
+      },
+      "z": {
+        "min": 0,
+        "max": 400,
+        "rapid_mm_min": 75000
+      }
+    },
+    "table": {
+      "type": "fixed",
+      "length_mm": 700,
+      "width_mm": 400,
+      "maxLoad_kg": 200
+    },
+    "atc": {
+      "type": "chain",
+      "capacity": 36,
+      "changeTime_sec": 1.5
+    },
+    "physical": {
+      "weight_kg": 5500
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 550,
+          "rapid_mm_min": 75000
+        },
+        "y": {
+          "min": 0,
+          "max": 400,
+          "rapid_mm_min": 75000
+        },
+        "z": {
+          "min": 0,
+          "max": 400,
+          "rapid_mm_min": 75000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 550,
+              "rapid_mm_min": 75000
+            },
+            "y": {
+              "min": 0,
+              "max": 400,
+              "rapid_mm_min": 75000
+            },
+            "z": {
+              "min": 0,
+              "max": 400,
+              "rapid_mm_min": 75000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "chiron_mill800",
+    "manufacturer": "Chiron",
+    "model": "MILL 800",
+    "series": "MILL",
+    "type": "5AXIS",
+    "subtype": "trunnion-high-speed",
+    "axes": 5,
+    "spindle": {
+      "type": "motorSpindle",
+      "maxRpm": 20000,
+      "peakHp": 25,
+      "continuousHp": 20,
+      "maxTorque_Nm": 85,
+      "taper": "HSK-A63",
+      "max_rpm": 12000,
+      "min_rpm": 50,
+      "power_continuous": 18.5,
+      "power_30min": 22,
+      "torque_max": 150,
+      "torque_continuous": 90,
+      "spindle_nose": "HSK-A63",
+      "coolant_through": true,
+      "coolant_pressure": 40,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 550,
+        "rapid_mm_min": 75000
+      },
+      "y": {
+        "min": 0,
+        "max": 400,
+        "rapid_mm_min": 75000
+      },
+      "z": {
+        "min": 0,
+        "max": 400,
+        "rapid_mm_min": 75000
+      },
+      "a": {
+        "min": -120,
+        "max": 30,
+        "rapid_deg_sec": 50
+      },
+      "c": {
+        "min": -360,
+        "max": 360,
+        "rapid_deg_sec": 120,
+        "continuous": true
+      }
+    },
+    "kinematics": {
+      "type": "TRUNNION_TABLE_TABLE",
+      "fiveAxisType": "table-table",
+      "tcpcSupported": true
+    },
+    "table": {
+      "type": "trunnion_rotary",
+      "diameter_mm": 350,
+      "maxLoad_kg": 100
+    },
+    "physical": {
+      "weight_kg": 8500
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 550,
+          "rapid_mm_min": 75000
+        },
+        "y": {
+          "min": 0,
+          "max": 400,
+          "rapid_mm_min": 75000
+        },
+        "z": {
+          "min": 0,
+          "max": 400,
+          "rapid_mm_min": 75000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": null,
+          "length": null,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 550,
+              "rapid_mm_min": 75000
+            },
+            "y": {
+              "min": 0,
+              "max": 400,
+              "rapid_mm_min": 75000
+            },
+            "z": {
+              "min": 0,
+              "max": 400,
+              "rapid_mm_min": 75000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  }
+]

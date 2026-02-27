@@ -7,7 +7,7 @@
  * full hook validation including S(x)≥0.70 hard threshold.
  * 
  * Architecture:
- * 1. HistoryBuffer — ring buffer of ActionRecords with CRC32
+ * 1. HistoryBuffer — ring buffer of ActionRecords with SHA-256
  * 2. PatternExtractor — chi-squared significance testing
  * 3. RiskScorer — pattern matching → risk assessment
  * 
@@ -29,30 +29,10 @@ import {
 } from '../types/pfp-types.js';
 import { log } from '../utils/Logger.js';
 import { safeWriteSync } from "../utils/atomicWrite.js";
+import { sha256 } from './TelemetryEngine.js';
 
-// ============================================================================
-// CRC32 (same as TelemetryEngine — shared utility)
-// ============================================================================
-
-const CRC32_TABLE: number[] = [];
-for (let i = 0; i < 256; i++) {
-  let c = i;
-  for (let j = 0; j < 8; j++) {
-    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-  }
-  CRC32_TABLE[i] = c;
-}
-
-function crc32(str: string): number {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc = CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF] ^ (crc >>> 8);
-  }
-  return (crc ^ 0xFFFFFFFF) >>> 0;
-}
-
-function computeActionChecksum(r: Omit<ActionRecord, 'checksum'>): number {
-  return crc32(`${r.id}|${r.timestamp}|${r.dispatcher}|${r.action}|${r.outcome}|${r.latencyMs}|${r.errorClass || ''}|${r.paramSignature}|${r.contextDepthPercent}|${r.callNumber}`);
+function computeActionChecksum(r: Omit<ActionRecord, 'checksum'>): string {
+  return sha256(`${r.id}|${r.timestamp}|${r.dispatcher}|${r.action}|${r.outcome}|${r.latencyMs}|${r.errorClass || ''}|${r.paramSignature}|${r.contextDepthPercent}|${r.callNumber}`);
 }
 
 function validateActionChecksum(r: ActionRecord): boolean {
@@ -162,7 +142,7 @@ function computeParamSignature(params: any): string {
   try {
     if (!params || typeof params !== 'object') return 'empty';
     const keys = Object.keys(params).sort().join(',');
-    return String(crc32(keys));
+    return sha256(keys);
   } catch {
     return 'unknown';
   }

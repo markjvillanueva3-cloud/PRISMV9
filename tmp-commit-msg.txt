@@ -1,0 +1,12 @@
+L9-P0-MS1: API Integration Phase Gate — OpenAPI parity + PFPEngine fix
+
+Phase gate fixes:
+- openapi.ts: Added 14 missing path definitions (Export 5, Safety 1,
+  Auth 4, Admin 4) + Export tag. Now 150 operations matching 150 routes.
+- PFPEngine.ts: Fixed crc32→sha256 import, removed invalid
+  .toString(16) on string return (was hidden by tsbuildinfo cache).
+
+API surface verified: 20 route modules, 150 REST endpoints + WebSocket.
+Build: 6.4MB clean, 0 TS errors. Tests: 1080 passed (32 suites).
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

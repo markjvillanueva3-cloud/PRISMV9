@@ -50,10 +50,10 @@ function ensureStateDir(): void {
 }
 
 // ============================================================================
-// CRC32 FOR GRAPH NODES
+// SHA-256 FOR GRAPH NODES
 // ============================================================================
 
-function computeNodeChecksum(node: Omit<GraphNode, 'checksum'>): number {
+function computeNodeChecksum(node: Omit<GraphNode, 'checksum'>): string {
   const payload = `${node.id}|${node.type}|${node.timestamp}|${node.sessionId}|${JSON.stringify(node.tags)}`;
   return crc32(payload);
 }
@@ -168,7 +168,7 @@ export class MemoryGraphEngine {
 
       const id = randomUUID();
       const timestamp = Date.now();
-      const partial = { ...node, id, timestamp, checksum: 0 } as any;
+      const partial = { ...node, id, timestamp, checksum: '' } as any;
       partial.checksum = computeNodeChecksum(partial);
       const fullNode = partial as GraphNode;
 

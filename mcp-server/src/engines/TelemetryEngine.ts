@@ -21,7 +21,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import { log } from '../utils/Logger.js';
 import { safeWriteSync } from "../utils/atomicWrite.js";
 import {
@@ -35,25 +35,16 @@ import {
 } from '../types/telemetry-types.js';
 
 // ============================================================================
-// CRC32 — Shared utility for data integrity
+// SHA-256 — Shared utility for data integrity (replaces CRC32)
 // ============================================================================
 
-const CRC32_TABLE: number[] = [];
-for (let i = 0; i < 256; i++) {
-  let c = i;
-  for (let j = 0; j < 8; j++) {
-    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-  }
-  CRC32_TABLE[i] = c;
+/** SHA-256 hex digest for data integrity. Truncated to 16 hex chars (64 bits) for compact storage. */
+export function sha256(str: string): string {
+  return createHash('sha256').update(str).digest('hex').slice(0, 16);
 }
 
-export function crc32(str: string): number {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc = CRC32_TABLE[(crc ^ str.charCodeAt(i)) & 0xFF] ^ (crc >>> 8);
-  }
-  return (crc ^ 0xFFFFFFFF) >>> 0;
-}
+/** @deprecated Use sha256() instead. Kept for backward compatibility. */
+export const crc32 = sha256;
 
 // ============================================================================
 // STATE DIRECTORY

@@ -25,7 +25,7 @@ export type ActionOutcome = 'success' | 'failure' | 'partial' | 'blocked' | 'tim
 
 /**
  * Historical record of a dispatcher action invocation.
- * CRC32 integrity, UUID identity, typed outcome.
+ * SHA-256 integrity, UUID identity, typed outcome.
  */
 export interface ActionRecord {
   readonly id: string;                  // UUID v4
@@ -40,10 +40,10 @@ export interface ActionRecord {
   readonly paramSignature: string;      // Hash of key param names (not values)
   readonly contextDepthPercent: number; // 0-100 at time of call
   readonly callNumber: number;          // Session dispatch count
-  readonly checksum: number;            // CRC32 of all fields
+  readonly checksum: string;            // SHA-256 of all fields
 }
 
-export function computeActionChecksum(r: Omit<ActionRecord, 'checksum'>): number {
+export function computeActionChecksum(r: Omit<ActionRecord, 'checksum'>): string {
   const payload = `${r.id}|${r.timestamp}|${r.dispatcher}|${r.action}|${r.outcome}|${r.durationMs}|${r.errorClass || ''}|${r.paramSignature}|${r.contextDepthPercent}|${r.callNumber}`;
   return crc32(payload);
 }

@@ -1,130 +1,118 @@
-# PRISM Automation Toolkit
+# PRISM Automation Scripts & Token-Saving Tools
 
-## Overview
+## Quick Start (New Session)
 
-Python-based automation tools for PRISM Manufacturing Intelligence development.
-These tools enforce thoroughness and consistency throughout development.
+**Option 1: Run batch file**
+```
+START_SESSION.bat
+```
 
-## Requirements
+**Option 2: Copy this into Claude (50 tokens)**
+```
+PRISM Session. Read CURRENT_STATE.json at C:\Users\wompu\Box\PRISM REBUILD\ and continue.
+```
 
-- Python 3.8+
-- No external dependencies (uses standard library only)
+---
 
-## Quick Start
+## Token-Saving Strategy
+
+| Instead of... | Use... | Saves |
+|---------------|--------|-------|
+| Full project docs | `00_COMPACT_RULES.md` | ~80% |
+| Explaining context | `CURRENT_STATE.json` | ~90% |
+| Session history | `last_completed` array | ~95% |
+| Re-stating rules | `rules_reminder` array | ~70% |
+
+---
+
+## Scripts
+
+### Session Management
+| Script | Purpose |
+|--------|---------|
+| `START_SESSION.bat` | Shows status, gives copy-paste prompt |
+| `END_SESSION.bat` | Updates state, commits to git |
+| `session_manager.py` | Full session tracking |
+| `update_state.py` | Quick state updates |
+| `context_generator.py` | Generate minimal context |
+
+### Extraction
+| Script | Purpose |
+|--------|---------|
+| `extract_module.py` | Extract by line ranges |
+| `MODULE_TEMPLATE.js` | Template for new modules |
+| `INDEX_TEMPLATE.js` | Template for category indexes |
+
+### Verification
+| Script | Purpose |
+|--------|---------|
+| `verify_features.py` | Check 85+ UI features |
+
+### Git
+| Script | Purpose |
+|--------|---------|
+| `setup_git.bat` | Initialize repo with branches |
+
+---
+
+## Quick Commands
 
 ```bash
-# Validate a single material file
-python validation/material_validator.py path/to/material.json
+# Check status
+python SCRIPTS/update_state.py status
 
-# Batch validate all materials in a directory
-python validation/batch_validator.py ./materials/
+# Mark task complete
+python SCRIPTS/update_state.py complete "Extracted materials DB"
 
-# Run validation test on existing materials
-python test_validator.py
+# Set next task
+python SCRIPTS/update_state.py next "1.A.2" "Extract tool databases"
+
+# Update stats
+python SCRIPTS/update_state.py stats databases 10
+
+# Generate context for Claude
+python SCRIPTS/context_generator.py --clipboard
+
+# Extract module
+python SCRIPTS/extract_module.py monolith.html 45000 45500 output.js
 ```
 
-## Toolkit Structure
+---
+
+## File Structure
 
 ```
-SCRIPTS/
-├── core/                    # Shared infrastructure
-│   ├── config.py           # Paths, constants, thresholds
-│   ├── logger.py           # Logging utilities
-│   └── utils.py            # Common helper functions
+PRISM REBUILD/
+├── CURRENT_STATE.json      ← READ THIS FIRST (every session)
+├── CLAUDE_MEMORY.json      ← MCP memory reference
+├── START_SESSION.bat       ← Run before session
+├── END_SESSION.bat         ← Run after session
 │
-├── validation/             # Material validation (Toolkit 1)
-│   ├── material_schema.py  # 127-parameter schema definition
-│   ├── material_validator.py  # Single material validator
-│   └── batch_validator.py  # Batch validation
+├── _PROJECT_FILES/
+│   └── 00_COMPACT_RULES.md ← Minimal rules (load if needed)
 │
-├── extraction/             # Monolith extraction (Toolkit 2) - PLANNED
-├── audit/                  # Database audit (Toolkit 3) - PLANNED
-├── state/                  # State management (Toolkit 4) - PLANNED
-├── batch/                  # Batch processing (Toolkit 5) - PLANNED
+├── SCRIPTS/
+│   ├── session_manager.py
+│   ├── update_state.py
+│   ├── context_generator.py
+│   ├── extract_module.py
+│   ├── verify_features.py
+│   ├── MODULE_TEMPLATE.js
+│   ├── INDEX_TEMPLATE.js
+│   └── SESSION_START_TEMPLATES.md
 │
-├── test_validator.py       # Test validator on existing materials
-├── requirements.txt        # Python requirements
-├── TOOLKIT_ROADMAP.md     # Complete development roadmap
-└── README.md              # This file
+└── EXTRACTED/
+    ├── machines/CORE/     ← 7 DBs complete
+    ├── machines/ENHANCED/ ← 33 mfg complete
+    ├── materials/         ← Next
+    └── tools/             ← After materials
 ```
 
-## Toolkit 1: Material Validation
+---
 
-### Schema Definition (material_schema.py)
+## Workflow
 
-Defines all 127 material parameters with:
-- Data types (string, number, boolean, array, object)
-- Valid ranges (min/max values)
-- Requirement levels (required, recommended, optional)
-- Units
-- Categories
-
-### Single Material Validator (material_validator.py)
-
-Validates individual materials against the schema:
-- **Completeness Check**: Verifies all required parameters present
-- **Range Validation**: Ensures values within acceptable limits
-- **Physics Consistency**: Cross-checks related parameters
-
-Physics checks include:
-1. Kc1.1 vs UTS ratio (2.5-6.0)
-2. Johnson-Cook A vs Yield (0.85-1.3)
-3. Taylor exponent n (0.08-0.50)
-4. Kienzle mc exponent (0.10-0.45)
-5. Yield < UTS relationship
-6. Thermal diffusivity consistency
-
-### Batch Validator (batch_validator.py)
-
-Validates entire files/directories:
-- Parses JS and JSON material files
-- Generates comprehensive reports
-- Detects duplicate material IDs
-- Outputs text or JSON reports
-
-## Usage Examples
-
-### Validate a JSON material
-```python
-from validation.material_validator import MaterialValidator
-
-validator = MaterialValidator(strict=True)
-result = validator.validate_material(material_dict)
-validator.print_result(result, verbose=True)
-```
-
-### Batch validate a directory
-```python
-from validation.batch_validator import BatchValidator
-
-validator = BatchValidator(strict=False)
-result = validator.validate_directory(Path('./materials'))
-report = validator.generate_report(result)
-print(report)
-```
-
-### CLI usage
-```bash
-# Single file validation
-python -m validation.material_validator material.json -v
-
-# Batch validation with report output
-python -m validation.batch_validator ./materials --report report.txt --json report.json
-```
-
-## Development Roadmap
-
-See `TOOLKIT_ROADMAP.md` for the complete 20-session development plan covering:
-- Toolkit 1: Material Validation (T.1.1-T.1.4) - IN PROGRESS
-- Toolkit 2: Monolith Extraction (T.2.1-T.2.4)
-- Toolkit 3: Database Audit (T.3.1-T.3.4)
-- Toolkit 4: State Management (T.4.1-T.4.4)
-- Toolkit 5: Batch Processing (T.5.1-T.5.4)
-
-## Philosophy
-
-**Automation = Enforced Thoroughness**
-
-Scripts don't get tired at parameter #80 of 127. Every check runs with the same rigor every time. Quality gates BLOCK incomplete work.
-
-Human judgment handles decisions. Automation handles verification.
+1. **Start:** Run `START_SESSION.bat` or paste minimal prompt
+2. **Work:** Claude reads state, continues from last point
+3. **End:** Run `END_SESSION.bat` to save progress
+4. **Repeat:** Each session ~100 tokens to resume vs 5000+

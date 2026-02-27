@@ -1,0 +1,182 @@
+{
+  "_note": "Mirror of C:\\PRISM\\registries\\AUTO_SKILL_HOOKS.json — cadenceExecutor reads from registries/",
+  "_canonical_path": "C:\\PRISM\\registries\\AUTO_SKILL_HOOKS.json",
+  "version": "2.0.0",
+  "created": "2026-02-26",
+  "updated": "2026-02-26",
+  "description": "Auto-apply hooks that load skills based on context detection. ASH-01 to ASH-10 cover MIT course domains; ASH-11 to ASH-19 cover dispatcher-level auto-matching for prism_calc, prism_safety, prism_thread, prism_data, prism_knowledge, prism_session, prism_context, prism_orchestrate, and prism_atcs.",
+  "total_hooks": 19,
+  "hooks": [
+    {
+      "id": "ASH-01",
+      "name": "cutting-force-auto",
+      "trigger_keywords": ["cutting force", "cutting power", "chip load", "specific cutting", "Merchant", "Kienzle"],
+      "auto_load_skills": ["prism-mfg-algorithms", "prism-taylor-life"],
+      "auto_load_formulas": ["PRISM_MFG_PHYSICS.js", "PRISM_FORCE_LOOKUP.js"],
+      "priority": 90,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-02",
+      "name": "tool-life-auto",
+      "trigger_keywords": ["tool life", "tool wear", "flank wear", "crater wear", "Taylor equation", "economic speed"],
+      "auto_load_skills": ["prism-taylor-life", "prism-mfg-algorithms"],
+      "auto_load_formulas": ["PRISM_TOOL_WEAR_MODELS.js", "PRISM_TOOL_LIFE_ESTIMATOR.js"],
+      "priority": 90,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-03",
+      "name": "chatter-vibration-auto",
+      "trigger_keywords": ["chatter", "vibration", "stability lobe", "regenerative", "machining dynamics", "modal analysis"],
+      "auto_load_skills": ["prism-fft-chatter", "prism-control-mit", "prism-signal-algo"],
+      "auto_load_formulas": [],
+      "priority": 95,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-04",
+      "name": "surface-quality-auto",
+      "trigger_keywords": ["surface roughness", "surface finish", "Ra value", "Rz", "surface quality", "scallop height"],
+      "auto_load_skills": ["prism-mfg-algorithms", "prism-dfm-mit"],
+      "auto_load_formulas": ["PRISM_STRESS.js"],
+      "priority": 80,
+      "category": "manufacturing"
+    },
+    {
+      "id": "ASH-05",
+      "name": "optimization-auto",
+      "trigger_keywords": ["optimize", "minimize", "maximize", "objective function", "gradient descent", "convergence"],
+      "auto_load_skills": ["prism-algorithm-selector", "prism-opt-algorithms", "prism-lp-solvers"],
+      "auto_load_formulas": [],
+      "priority": 85,
+      "category": "optimization"
+    },
+    {
+      "id": "ASH-06",
+      "name": "ml-prediction-auto",
+      "trigger_keywords": ["regression", "prediction", "classify", "machine learning", "neural network", "training data"],
+      "auto_load_skills": ["prism-aiml-unified", "prism-rl-algorithms", "prism-opt-algorithms"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "machine-learning"
+    },
+    {
+      "id": "ASH-07",
+      "name": "signal-analysis-auto",
+      "trigger_keywords": ["signal", "frequency", "spectrum", "FFT", "filter", "Butterworth", "spectrogram"],
+      "auto_load_skills": ["prism-signal-algo", "prism-fft-chatter"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "signal-processing"
+    },
+    {
+      "id": "ASH-08",
+      "name": "geometry-cad-auto",
+      "trigger_keywords": ["NURBS", "B-spline", "Bezier", "surface", "mesh", "curvature", "tessellation", "geometry"],
+      "auto_load_skills": ["prism-nurbs-mit", "prism-surface-geo", "prism-bezier-mit", "prism-graphics-mit"],
+      "auto_load_formulas": [],
+      "priority": 75,
+      "category": "geometry"
+    },
+    {
+      "id": "ASH-09",
+      "name": "thermal-analysis-auto",
+      "trigger_keywords": ["thermal", "heat transfer", "temperature", "thermal expansion", "cooling", "conduction"],
+      "auto_load_skills": ["prism-mfg-algorithms"],
+      "auto_load_formulas": ["PRISM_THERMAL_COMPENSATION.js", "PRISM_THERMAL_LOOKUP.js", "PRISM_THERMAL_PROPERTIES.js"],
+      "priority": 80,
+      "category": "thermal"
+    },
+    {
+      "id": "ASH-10",
+      "name": "control-systems-auto",
+      "trigger_keywords": ["PID", "controller", "feedback", "stability", "transfer function", "pole", "zero", "Bode"],
+      "auto_load_skills": ["prism-control-mit", "prism-digital-ctrl"],
+      "auto_load_formulas": [],
+      "priority": 75,
+      "category": "control-systems"
+    },
+    {
+      "id": "ASH-11",
+      "name": "calc-dispatcher-auto",
+      "trigger_keywords": ["prism calc", "speed feed", "cutting force", "tool life", "flow stress", "mrr", "power", "torque", "chip load", "deflection", "cost optimize", "multi optimize", "trochoidal", "hsm", "coolant strategy", "tolerance analysis", "fit analysis", "gcode generate", "wear prediction", "cycle time", "productivity", "engagement", "scallop", "stepover", "arc fit", "campaign", "inference chain", "uncertainty chain"],
+      "auto_load_skills": ["prism-cutting-mechanics", "prism-speed-feed-engine", "prism-process-optimizer", "prism-cam-strategies", "prism-universal-formulas"],
+      "auto_load_formulas": ["PRISM_MFG_PHYSICS.js", "PRISM_FORCE_LOOKUP.js"],
+      "priority": 85,
+      "category": "manufacturing-calc"
+    },
+    {
+      "id": "ASH-12",
+      "name": "safety-dispatcher-auto",
+      "trigger_keywords": ["prism safety", "collision", "clearance", "safe approach", "near miss", "tool clearance", "5axis head", "coolant flow", "through spindle", "chip evacuation", "spindle torque", "spindle power", "spindle speed", "tool breakage", "tool stress", "chip load limits", "tool fatigue", "safe cutting limits", "clamp force", "workholding", "pullout resistance", "liftoff moment", "part deflection", "vacuum fixture"],
+      "auto_load_skills": ["prism-safety-framework", "prism-safety-cognition", "prism-life-safety-mindset", "prism-manufacturing-safety"],
+      "auto_load_formulas": [],
+      "priority": 95,
+      "category": "manufacturing-safety"
+    },
+    {
+      "id": "ASH-13",
+      "name": "thread-dispatcher-auto",
+      "trigger_keywords": ["prism thread", "tap drill", "thread mill", "thread depth", "engagement percent", "thread specifications", "go nogo", "pitch diameter", "thread insert", "thread cutting", "thread gcode", "threading"],
+      "auto_load_skills": ["prism-threading-mastery", "prism-universal-formulas", "prism-gcode-reference", "prism-fanuc-programming"],
+      "auto_load_formulas": [],
+      "priority": 85,
+      "category": "manufacturing-threading"
+    },
+    {
+      "id": "ASH-14",
+      "name": "data-dispatcher-auto",
+      "trigger_keywords": ["prism data", "material get", "material search", "material compare", "machine get", "machine search", "machine capabilities", "tool get", "tool search", "tool recommend", "alarm decode", "alarm search", "alarm fix", "formula get", "formula calculate", "cross query", "coolant", "coating", "cross lookup", "dsl lookup", "database list", "speed feed calc", "tool compare", "material substitute"],
+      "auto_load_skills": ["prism-material-lookup", "prism-cutting-tools", "prism-tool-selector", "prism-controller-quick-ref", "prism-universal-formulas"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "data-lookup"
+    },
+    {
+      "id": "ASH-15",
+      "name": "knowledge-dispatcher-auto",
+      "trigger_keywords": ["prism knowledge", "knowledge search", "cross query", "formula lookup", "relations", "knowledge base", "knowledge graph"],
+      "auto_load_skills": ["prism-knowledge-base", "prism-knowledge-graph", "prism-universal-formulas", "prism-physics-formulas"],
+      "auto_load_formulas": [],
+      "priority": 75,
+      "category": "knowledge"
+    },
+    {
+      "id": "ASH-16",
+      "name": "session-dispatcher-auto",
+      "trigger_keywords": ["prism session", "state save", "state load", "state checkpoint", "resume session", "handoff prepare", "context compress", "context pressure", "compaction detect", "session start", "session end", "session recover", "quick resume", "auto checkpoint", "wip capture", "wip restore", "state rollback", "workflow start", "workflow advance"],
+      "auto_load_skills": ["prism-session-master", "prism-session-lifecycle", "prism-session-recovery", "prism-session-intelligence", "prism-context-pressure"],
+      "auto_load_formulas": [],
+      "priority": 70,
+      "category": "session"
+    },
+    {
+      "id": "ASH-17",
+      "name": "context-dispatcher-auto",
+      "trigger_keywords": ["prism context", "todo update", "todo read", "memory externalize", "memory restore", "error preserve", "error patterns", "attention score", "focus optimize", "relevance filter", "budget get", "budget track", "budget report", "kv sort", "kv check", "tool mask", "team spawn", "team broadcast", "context monitor"],
+      "auto_load_skills": ["prism-context-engineering", "prism-task-continuity", "prism-error-handling-patterns", "prism-context-pressure"],
+      "auto_load_formulas": [],
+      "priority": 70,
+      "category": "context"
+    },
+    {
+      "id": "ASH-18",
+      "name": "orchestrate-dispatcher-auto",
+      "trigger_keywords": ["prism orchestrate", "agent execute", "agent parallel", "agent pipeline", "plan create", "plan execute", "plan status", "swarm execute", "swarm parallel", "swarm consensus", "swarm pipeline", "swarm status", "swarm patterns", "roadmap plan", "roadmap next", "roadmap advance", "roadmap gate", "roadmap list", "roadmap load"],
+      "auto_load_skills": ["prism-orchestration", "prism-agent-selector", "prism-swarm-coordinator", "prism-mathematical-planning", "prism-sp-planning"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "orchestration"
+    },
+    {
+      "id": "ASH-19",
+      "name": "atcs-dispatcher-auto",
+      "trigger_keywords": ["prism atcs", "task init", "task resume", "task status", "queue next", "unit complete", "batch validate", "checkpoint", "replan", "assemble", "stub scan", "delegate", "poll delegated", "autonomous task"],
+      "auto_load_skills": ["prism-batch-orchestrator", "prism-sp-execution", "prism-sp-planning", "prism-task-continuity"],
+      "auto_load_formulas": [],
+      "priority": 80,
+      "category": "autonomous-tasks"
+    }
+  ]
+}

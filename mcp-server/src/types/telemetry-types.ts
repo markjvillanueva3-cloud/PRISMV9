@@ -17,7 +17,7 @@
 
 /**
  * Individual telemetry record captured per dispatcher action invocation.
- * CRC32 checksum ensures data integrity during aggregation.
+ * SHA-256 checksum ensures data integrity during aggregation.
  */
 export interface TelemetryRecord {
   readonly id: string;                    // UUID v4
@@ -32,7 +32,7 @@ export interface TelemetryRecord {
   readonly tokenEstimate: number;         // payload-based estimate
   readonly payloadSizeBytes: number;
   readonly contextDepthPercent: number;   // 0-100
-  readonly checksum: number;              // CRC32 of all fields above
+  readonly checksum: string;              // SHA-256 (truncated) of all fields above
 }
 
 export type TelemetryOutcome = 'success' | 'failure' | 'partial' | 'blocked';

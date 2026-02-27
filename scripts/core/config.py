@@ -9,17 +9,17 @@ from pathlib import Path
 # PATH CONFIGURATION
 # =============================================================================
 
-# Base directory (handle spaces in path)
-BASE_DIR = Path(r"C:\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)")
+# Base directory
+BASE_DIR = Path(r"C:\PRISM")
 
-# Alternative if spaces cause issues
-# BASE_DIR = Path("C:/PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)")
+# Legacy path (pre-v9 migration, no longer primary)
+# LEGACY_DIR = Path(r"C:\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)")
 
 # Key paths
 PATHS = {
     'base': BASE_DIR,
     'state_file': BASE_DIR / "CURRENT_STATE.json",
-    'monolith': BASE_DIR / "_BUILD" / "PRISM_v8_89_002_TRUE_100_PERCENT" / "PRISM_v8_89_002_TRUE_100_PERCENT.html",
+    'monolith': BASE_DIR / "PRISM_v8_89_002_TRUE_100_PERCENT.html",
     'extracted': BASE_DIR / "EXTRACTED",
     'materials': BASE_DIR / "EXTRACTED" / "materials" / "enhanced",
     'machines': BASE_DIR / "EXTRACTED" / "machines",

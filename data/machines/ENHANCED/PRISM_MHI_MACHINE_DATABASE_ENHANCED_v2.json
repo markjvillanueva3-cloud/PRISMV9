@@ -1,0 +1,1873 @@
+[
+  {
+    "id": "mhi_mvr_ex35",
+    "manufacturer": "MHI",
+    "model": "MVR-Ex35",
+    "series": "MVR-Ex",
+    "type": "DOUBLE_COLUMN",
+    "subType": "5-axis-dc",
+    "description": "High-rigidity double column 5-axis for aerospace structural parts",
+    "axes": 5,
+    "control": {
+      "manufacturer": "Mitsubishi",
+      "model": "M850W",
+      "features": [
+        "TCPC",
+        "RTCP",
+        "High-Speed Surface",
+        "Collision Avoidance"
+      ],
+      "maxBlockProcessing": 2000,
+      "lookAhead": 1000,
+      "nanoSmoothing": true
+    },
+    "spindle": {
+      "type": "gear-driven",
+      "maxRpm": 8000,
+      "ratedRpm": 4000,
+      "peakPower": 50,
+      "continuousPower": 40,
+      "peakTorque": 450,
+      "continuousTorque": 280,
+      "taper": "HSK-A100",
+      "bearingDiameter": 100,
+      "runoutTIR": 0.002,
+      "geometry": {
+        "noseToGageLine": 120,
+        "housingDiameter": 280,
+        "housingLength": 450,
+        "collarDiameter": 320,
+        "collarLength": 80
+      }
+    },
+    "travels": {
+      "x": {
+        "min": 0,
+        "max": 3500,
+        "units": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 1400,
+        "units": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 900,
+        "units": "mm"
+      },
+      "w": {
+        "min": 0,
+        "max": 800,
+        "units": "mm"
+      }
+    },
+    "rotaryAxes": {
+      "a": {
+        "type": "tilting_head",
+        "location": "spindle_head",
+        "range": {
+          "min": -110,
+          "max": 30
+        },
+        "drive": "worm_gear",
+        "maxSpeed": 15,
+        "clampTorque": 8000,
+        "rotaryAccuracy": 0.002,
+        "pivotPoint": {
+          "x": 0,
+          "y": 0,
+          "z": -180
+        }
+      },
+      "c": {
+        "type": "rotary_head",
+        "location": "spindle_head",
+        "continuous": true,
+        "drive": "direct_drive",
+        "maxSpeed": 50,
+        "clampTorque": 6000
+      }
+    },
+    "rapids": {
+      "x": 24000,
+      "y": 24000,
+      "z": 20000,
+      "w": 15000,
+      "a": 15,
+      "c": 50,
+      "units": {
+        "linear": "mm/min",
+        "rotary": "deg/sec"
+      }
+    },
+    "workEnvelope": {
+      "maxX": 3500,
+      "maxY": 1400,
+      "maxZ": 900,
+      "usableVolume": 4410000000
+    },
+    "table": {
+      "type": "fixed_floor",
+      "length": 4000,
+      "width": 1600,
+      "maxLoad": 12000,
+      "tSlots": {
+        "count": 7,
+        "width": 28,
+        "spacing": 200
+      }
+    },
+    "atc": {
+      "capacity": 60,
+      "maxToolDiameter": 130,
+      "maxToolLength": 450,
+      "maxToolWeight": 35,
+      "changeTime": 8.5
+    },
+    "coolant": {
+      "throughSpindle": true,
+      "tscPressure": 1000,
+      "tankCapacity": 800
+    },
+    "kinematicChain": {
+      "type": "XYZBAC_HEAD",
+      "structure": "double_column_moving_crossrail",
+      "sequence": [
+        "X",
+        "Y",
+        "Z",
+        "W",
+        "A",
+        "C",
+        "SPINDLE"
+      ]
+    },
+    "collisionZones": {
+      "spindleHead": {
+        "type": "composite",
+        "components": [
+          {
+            "type": "cylinder",
+            "diameter": 280,
+            "length": 450,
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "type": "cylinder",
+            "diameter": 320,
+            "length": 80,
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 450
+            }
+          }
+        ]
+      },
+      "ram": {
+        "type": "box",
+        "dimensions": {
+          "x": 450,
+          "y": 500,
+          "z": 1200
+        }
+      },
+      "crossrail": {
+        "type": "box",
+        "dimensions": {
+          "x": 4200,
+          "y": 600,
+          "z": 800
+        }
+      }
+    },
+    "tcpcRtcp": {
+      "supported": true,
+      "modes": [
+        "TCPC",
+        "RTCP",
+        "TCP"
+      ]
+    },
+    "accuracy": {
+      "positioning": {
+        "x": 0.008,
+        "y": 0.008,
+        "z": 0.008
+      },
+      "repeatability": {
+        "x": 0.004,
+        "y": 0.004,
+        "z": 0.004
+      }
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "min": 0,
+          "max": 3500,
+          "units": "mm"
+        },
+        "y": {
+          "min": 0,
+          "max": 1400,
+          "units": "mm"
+        },
+        "z": {
+          "min": 0,
+          "max": 900,
+          "units": "mm"
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "crossrail": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": 300,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": "[object Object]400"
+          }
+        },
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 500,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          },
+          "orientation": "vertical"
+        },
+        "columns": [
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          },
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          }
+        ],
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 4000,
+            "y": 1600,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "min": 0,
+              "max": 3500,
+              "units": "mm"
+            },
+            "y": {
+              "min": 0,
+              "max": 1400,
+              "units": "mm"
+            },
+            "z": {
+              "min": 0,
+              "max": 900,
+              "units": "mm"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_mvr_ex50",
+    "model": "MVR-Ex50",
+    "type": "DOUBLE_COLUMN",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 6000,
+      "peakPower": 75,
+      "taper": "HSK-A100"
+    },
+    "travels": {
+      "x": {
+        "max": 5000
+      },
+      "y": {
+        "max": 2000
+      },
+      "z": {
+        "max": 1200
+      }
+    },
+    "table": {
+      "length": 6000,
+      "width": 2200,
+      "maxLoad": 25000
+    },
+    "atc": {
+      "capacity": 80
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 5000
+        },
+        "y": {
+          "max": 2000
+        },
+        "z": {
+          "max": 1200
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "crossrail": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": 300,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": "[object Object]400"
+          }
+        },
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 500,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          },
+          "orientation": "vertical"
+        },
+        "columns": [
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          },
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          }
+        ],
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 6000,
+            "y": 2200,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 5000
+            },
+            "y": {
+              "max": 2000
+            },
+            "z": {
+              "max": 1200
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_mvr_ex80",
+    "model": "MVR-Ex80",
+    "type": "DOUBLE_COLUMN",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 5000,
+      "peakPower": 100,
+      "taper": "HSK-A100"
+    },
+    "travels": {
+      "x": {
+        "max": 8000
+      },
+      "y": {
+        "max": 3000
+      },
+      "z": {
+        "max": 1500
+      }
+    },
+    "table": {
+      "length": 10000,
+      "width": 3500,
+      "maxLoad": 50000
+    },
+    "atc": {
+      "capacity": 100
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 8000
+        },
+        "y": {
+          "max": 3000
+        },
+        "z": {
+          "max": 1500
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "crossrail": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": 300,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": "[object Object]400"
+          }
+        },
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 500,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          },
+          "orientation": "vertical"
+        },
+        "columns": [
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          },
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": "[object Object]800"
+            },
+            "position": {
+              "x": null,
+              "y": null,
+              "z": null
+            }
+          }
+        ],
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 10000,
+            "y": 3500,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 8000
+            },
+            "y": {
+              "max": 3000
+            },
+            "z": {
+              "max": 1500
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_maf_e180",
+    "model": "MAF-E180",
+    "type": "5AXIS_GANTRY",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 24000,
+      "peakPower": 55,
+      "taper": "HSK-A63",
+      "max_rpm": 12000,
+      "min_rpm": 50,
+      "power_continuous": 18.5,
+      "power_30min": 22,
+      "torque_max": 150,
+      "torque_continuous": 90,
+      "spindle_nose": "HSK-A63",
+      "coolant_through": true,
+      "coolant_pressure": 40,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "max": 18000
+      },
+      "y": {
+        "max": 4000
+      },
+      "z": {
+        "max": 1200
+      }
+    },
+    "rotaryAxes": {
+      "a": {
+        "range": {
+          "min": -120,
+          "max": 120
+        },
+        "drive": "direct_drive",
+        "maxSpeed": 60
+      },
+      "c": {
+        "continuous": true,
+        "drive": "direct_drive",
+        "maxSpeed": 100
+      }
+    },
+    "rapids": {
+      "x": 60000,
+      "y": 60000,
+      "z": 40000
+    },
+    "acceleration": {
+      "x": 0.6,
+      "y": 0.6,
+      "z": 0.5
+    },
+    "atc": {
+      "capacity": 120,
+      "changeTime": 6
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 18000
+        },
+        "y": {
+          "max": 4000
+        },
+        "z": {
+          "max": 1200
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": null,
+          "length": null,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 18000
+            },
+            "y": {
+              "max": 4000
+            },
+            "z": {
+              "max": 1200
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_maf_s150",
+    "model": "MAF-S150",
+    "type": "5AXIS_GANTRY",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 12000,
+      "peakPower": 80,
+      "taper": "HSK-A100",
+      "max_rpm": 12000,
+      "min_rpm": 50,
+      "power_continuous": 18.5,
+      "power_30min": 22,
+      "torque_max": 150,
+      "torque_continuous": 90,
+      "spindle_nose": "HSK-A63",
+      "coolant_through": true,
+      "coolant_pressure": 40,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "max": 15000
+      },
+      "y": {
+        "max": 5000
+      },
+      "z": {
+        "max": 1500
+      }
+    },
+    "table": {
+      "length": 16000,
+      "width": 5500,
+      "maxLoad": 60000
+    },
+    "atc": {
+      "capacity": 100
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 15000
+        },
+        "y": {
+          "max": 5000
+        },
+        "z": {
+          "max": 1500
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 400,
+            "z": 500
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]250"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 400,
+            "y": 600,
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "trunnion": {
+          "type": "cylinder",
+          "radius": 8050,
+          "length": 5600,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": "horizontal"
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 16000,
+            "y": 5500,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 15000
+            },
+            "y": {
+              "max": 5000
+            },
+            "z": {
+              "max": 1500
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]600",
+            "y": "[object Object]600",
+            "z": "[object Object]800"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_maf_hb130",
+    "model": "MAF-HB130",
+    "type": "HBM",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 3000,
+      "peakPower": 45,
+      "taper": "ISO50",
+      "boringBarDiameter": 130
+    },
+    "travels": {
+      "x": {
+        "max": 6000
+      },
+      "y": {
+        "max": 3000
+      },
+      "z": {
+        "max": 1500
+      },
+      "w": {
+        "max": 800
+      }
+    },
+    "rotaryAxes": {
+      "b": {
+        "type": "rotary_table",
+        "tableDiameter": 2000,
+        "maxTableLoad": 20000
+      }
+    },
+    "atc": {
+      "capacity": 60
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 6000
+        },
+        "y": {
+          "max": 3000
+        },
+        "z": {
+          "max": 1500
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 6000
+            },
+            "y": {
+              "max": 3000
+            },
+            "z": {
+              "max": 1500
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_maf_hb180",
+    "model": "MAF-HB180",
+    "type": "HBM",
+    "axes": 5,
+    "spindle": {
+      "maxRpm": 2500,
+      "peakPower": 75,
+      "boringBarDiameter": 180
+    },
+    "travels": {
+      "x": {
+        "max": 10000
+      },
+      "y": {
+        "max": 4000
+      },
+      "z": {
+        "max": 2000
+      }
+    },
+    "rotaryAxes": {
+      "b": {
+        "tableDiameter": 3000,
+        "maxTableLoad": 40000
+      }
+    },
+    "atc": {
+      "capacity": 80
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 10000
+        },
+        "y": {
+          "max": 4000
+        },
+        "z": {
+          "max": 2000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": null,
+            "y": null,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 10000
+            },
+            "y": {
+              "max": 4000
+            },
+            "z": {
+              "max": 2000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_mvr_cx50",
+    "model": "MVR-Cx50",
+    "type": "LARGE_VMC",
+    "axes": 3,
+    "spindle": {
+      "maxRpm": 6000,
+      "peakPower": 55,
+      "taper": "CAT50",
+      "max_rpm": 10000,
+      "min_rpm": 50,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_max": 120,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true,
+      "coolant_pressure": 20,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "max": 5000
+      },
+      "y": {
+        "max": 2500
+      },
+      "z": {
+        "max": 800
+      }
+    },
+    "table": {
+      "length": 5500,
+      "width": 2800,
+      "maxLoad": 20000
+    },
+    "atc": {
+      "capacity": 40
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 5000
+        },
+        "y": {
+          "max": 2500
+        },
+        "z": {
+          "max": 800
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 5500,
+            "y": 2800,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 5000
+            },
+            "y": {
+              "max": 2500
+            },
+            "z": {
+              "max": 800
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_mvr_40",
+    "model": "MVR-40",
+    "type": "LARGE_VMC",
+    "axes": 3,
+    "spindle": {
+      "maxRpm": 8000,
+      "peakPower": 45,
+      "taper": "CAT50",
+      "max_rpm": 10000,
+      "min_rpm": 50,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_max": 120,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true,
+      "coolant_pressure": 20,
+      "_enriched": "default"
+    },
+    "travels": {
+      "x": {
+        "max": 4000
+      },
+      "y": {
+        "max": 2000
+      },
+      "z": {
+        "max": 700
+      }
+    },
+    "table": {
+      "length": 4500,
+      "width": 2200,
+      "maxLoad": 15000
+    },
+    "atc": {
+      "capacity": 32
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 4000
+        },
+        "y": {
+          "max": 2000
+        },
+        "z": {
+          "max": 700
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 4500,
+            "y": 2200,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 4000
+            },
+            "y": {
+              "max": 2000
+            },
+            "z": {
+              "max": 700
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "mhi_maf_s500",
+    "model": "MAF-S500",
+    "type": "SPECIAL",
+    "axes": 5,
+    "description": "Ultra-large 5-axis for complete aircraft wing machining",
+    "spindle": {
+      "maxRpm": 10000,
+      "peakPower": 120,
+      "taper": "HSK-A100"
+    },
+    "travels": {
+      "x": {
+        "max": 50000
+      },
+      "y": {
+        "max": 8000
+      },
+      "z": {
+        "max": 2000
+      }
+    },
+    "table": {
+      "length": 52000,
+      "width": 9000,
+      "maxLoad": 150000
+    },
+    "atc": {
+      "capacity": 200
+    },
+    "manufacturer": {
+      "id": "mhi",
+      "name": "MHI Machine Tool",
+      "fullName": "Mitsubishi Heavy Industries Machine Tool Co., Ltd.",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Ritto, Shiga",
+      "founded": 1884,
+      "website": "https://www.mhi.com/products/machine_tools",
+      "specialty": [
+        "Large Double Column",
+        "5-Axis Aerospace",
+        "Horizontal Boring Mills"
+      ],
+      "marketSegments": [
+        "Aerospace",
+        "Energy",
+        "Heavy Industry",
+        "Die/Mold"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": {
+          "max": 50000
+        },
+        "y": {
+          "max": 8000
+        },
+        "z": {
+          "max": 2000
+        },
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]175"
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": "[object Object]200"
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": null
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 52000,
+            "y": 9000,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": {
+              "max": 50000
+            },
+            "y": {
+              "max": 8000
+            },
+            "z": {
+              "max": 2000
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]200",
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": null,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": "[object Object]500",
+            "y": "[object Object]400",
+            "z": "[object Object]700"
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": null
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  }
+]

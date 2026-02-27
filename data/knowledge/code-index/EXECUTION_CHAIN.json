@@ -1,0 +1,966 @@
+{
+  "summary": {
+    "total_actions": 382,
+    "engine_count": 37,
+    "dispatcher_count": 31
+  },
+  "dispatchers": {
+    "prism_autoPilot": {
+      "actions": [
+        "autopilot",
+        "autopilot_quick",
+        "brainstorm_lenses",
+        "ralph_loop_lite",
+        "formula_optimize",
+        "autopilot_v2",
+        "registry_status",
+        "working_tools"
+      ],
+      "registries_referenced": "formulas",
+      "action_count": 8,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/autoPilotDispatcher.ts"
+    },
+    "prism_pfp": {
+      "actions": [
+        "get_dashboard",
+        "assess_risk",
+        "get_patterns",
+        "get_history",
+        "force_extract",
+        "update_config"
+      ],
+      "registries_referenced": {},
+      "action_count": 6,
+      "engines_referenced": "pfpEngine",
+      "engine_imports": [
+        "PFPEngine"
+      ],
+      "file": "src/tools/dispatchers/pfpDispatcher.ts"
+    },
+    "prism_context": {
+      "actions": [
+        "kv_sort_json",
+        "kv_check_stability",
+        "tool_mask_state",
+        "memory_externalize",
+        "memory_restore",
+        "todo_update",
+        "todo_read",
+        "error_preserve",
+        "error_patterns",
+        "vary_response",
+        "team_spawn",
+        "team_broadcast",
+        "team_create_task",
+        "team_heartbeat",
+        "attention_score",
+        "focus_optimize",
+        "relevance_filter",
+        "context_monitor_check"
+      ],
+      "registries_referenced": {},
+      "action_count": 18,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/contextDispatcher.ts"
+    },
+    "prism_telemetry": {
+      "actions": [
+        "get_dashboard",
+        "get_detail",
+        "get_anomalies",
+        "get_optimization",
+        "acknowledge",
+        "freeze_weights",
+        "unfreeze_weights"
+      ],
+      "registries_referenced": {},
+      "action_count": 7,
+      "engines_referenced": "telemetryEngine",
+      "engine_imports": [
+        "TelemetryEngine"
+      ],
+      "file": "src/tools/dispatchers/telemetryDispatcher.ts"
+    },
+    "prism_manus": {
+      "actions": [
+        "create_task",
+        "task_status",
+        "task_result",
+        "cancel_task",
+        "list_tasks",
+        "web_research",
+        "code_sandbox",
+        "hook_trigger",
+        "hook_list",
+        "hook_chain",
+        "hook_stats"
+      ],
+      "registries_referenced": {},
+      "action_count": 11,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/manusDispatcher.ts"
+    },
+    "prism_skillScript": {
+      "actions": [
+        "skill_list",
+        "skill_get",
+        "skill_search",
+        "skill_find_for_task",
+        "skill_content",
+        "skill_stats",
+        "script_list",
+        "script_get",
+        "script_search",
+        "script_command",
+        "script_execute",
+        "script_stats",
+        "skill_load",
+        "skill_recommend",
+        "skill_analyze",
+        "skill_chain",
+        "skill_search_v2",
+        "skill_stats_v2",
+        "script_execute_v2",
+        "script_queue",
+        "script_recommend",
+        "script_search_v2",
+        "script_history"
+      ],
+      "registries_referenced": {},
+      "action_count": 23,
+      "engines_referenced": {},
+      "engine_imports": [
+        "SkillExecutor",
+        "ScriptExecutor"
+      ],
+      "file": "src/tools/dispatchers/skillScriptDispatcher.ts"
+    },
+    "prism_atcs": {
+      "actions": [
+        "task_init",
+        "task_resume",
+        "task_status",
+        "queue_next",
+        "unit_complete",
+        "batch_validate",
+        "checkpoint",
+        "replan",
+        "assemble",
+        "stub_scan",
+        "delegate_to_manus",
+        "poll_delegated"
+      ],
+      "registries_referenced": {},
+      "action_count": 12,
+      "engines_referenced": {},
+      "engine_imports": [
+        "ManusATCSBridge"
+      ],
+      "file": "src/tools/dispatchers/atcsDispatcher.ts"
+    },
+    "prism_tenant": {
+      "actions": [
+        "create",
+        "get",
+        "list",
+        "suspend",
+        "reactivate",
+        "delete",
+        "get_context",
+        "check_limit",
+        "publish_pattern",
+        "consume_patterns",
+        "promote_pattern",
+        "quarantine_pattern",
+        "slb_stats",
+        "stats",
+        "config"
+      ],
+      "registries_referenced": {},
+      "action_count": 15,
+      "engines_referenced": "multiTenantEngine",
+      "engine_imports": [
+        "MultiTenantEngine"
+      ],
+      "file": "src/tools/dispatchers/tenantDispatcher.ts"
+    },
+    "prism_memory": {
+      "actions": [
+        "get_health",
+        "trace_decision",
+        "find_similar",
+        "get_session",
+        "get_node",
+        "run_integrity"
+      ],
+      "registries_referenced": {},
+      "action_count": 6,
+      "engines_referenced": "memoryGraphEngine",
+      "engine_imports": [
+        "MemoryGraphEngine"
+      ],
+      "file": "src/tools/dispatchers/memoryDispatcher.ts"
+    },
+    "prism_omega": {
+      "actions": [
+        "compute",
+        "breakdown",
+        "validate",
+        "optimize",
+        "history"
+      ],
+      "registries_referenced": {},
+      "action_count": 5,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/omegaDispatcher.ts"
+    },
+    "prism_guard": {
+      "actions": [
+        "decision_log",
+        "failure_library",
+        "error_capture",
+        "pre_write_gate",
+        "pre_write_diff",
+        "pre_call_validate",
+        "autohook_status",
+        "autohook_test",
+        "pattern_scan",
+        "pattern_history",
+        "learning_query",
+        "learning_save",
+        "lkg_status",
+        "priority_score"
+      ],
+      "registries_referenced": [
+        "alarms",
+        "formulas"
+      ],
+      "action_count": 14,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/guardDispatcher.ts"
+    },
+    "prism_knowledge": {
+      "actions": [
+        "search",
+        "cross_query",
+        "formula",
+        "relations",
+        "stats"
+      ],
+      "registries_referenced": [
+        "alarms",
+        "formulas",
+        "machines",
+        "materials"
+      ],
+      "action_count": 5,
+      "engines_referenced": "KnowledgeQueryEngine",
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/knowledgeDispatcher.ts"
+    },
+    "prism_bridge": {
+      "actions": [
+        "register_endpoint",
+        "remove_endpoint",
+        "set_status",
+        "list_endpoints",
+        "create_key",
+        "revoke_key",
+        "validate_key",
+        "list_keys",
+        "route",
+        "route_map",
+        "health",
+        "stats",
+        "config"
+      ],
+      "registries_referenced": {},
+      "action_count": 13,
+      "engines_referenced": "protocolBridgeEngine",
+      "engine_imports": [
+        "ProtocolBridgeEngine"
+      ],
+      "file": "src/tools/dispatchers/bridgeDispatcher.ts"
+    },
+    "prism_thread": {
+      "actions": [
+        "calculate_tap_drill",
+        "calculate_thread_mill_params",
+        "calculate_thread_depth",
+        "calculate_engagement_percent",
+        "get_thread_specifications",
+        "get_go_nogo_gauges",
+        "calculate_pitch_diameter",
+        "calculate_minor_major_diameter",
+        "select_thread_insert",
+        "calculate_thread_cutting_params",
+        "validate_thread_fit_class",
+        "generate_thread_gcode"
+      ],
+      "registries_referenced": {},
+      "action_count": 12,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/threadDispatcher.ts"
+    },
+    "prism_sp": {
+      "actions": [
+        "brainstorm",
+        "plan",
+        "execute",
+        "review_spec",
+        "review_quality",
+        "debug",
+        "cognitive_init",
+        "cognitive_check",
+        "cognitive_bayes",
+        "cognitive_rl",
+        "combination_ilp",
+        "context_kv_optimize",
+        "context_attention_anchor",
+        "context_error_preserve",
+        "session_start_full",
+        "session_end_full",
+        "evidence_level",
+        "validate_gates_full",
+        "validate_mathplan"
+      ],
+      "registries_referenced": [
+        "alarms",
+        "formulas",
+        "machines",
+        "materials"
+      ],
+      "action_count": 19,
+      "engines_referenced": [
+        "hookEngine",
+        "knowledgeEngine",
+        "KnowledgeQueryEngine"
+      ],
+      "engine_imports": [
+        "KnowledgeQueryEngine"
+      ],
+      "file": "src/tools/dispatchers/spDispatcher.ts"
+    },
+    "prism_generator": {
+      "actions": [
+        "stats",
+        "list_domains",
+        "generate",
+        "generate_batch",
+        "validate",
+        "get_template"
+      ],
+      "registries_referenced": {},
+      "action_count": 6,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/generatorDispatcher.ts"
+    },
+    "prism_session": {
+      "actions": [
+        "state_load",
+        "state_save",
+        "state_checkpoint",
+        "state_diff",
+        "handoff_prepare",
+        "resume_session",
+        "memory_save",
+        "memory_recall",
+        "context_pressure",
+        "context_size",
+        "context_compress",
+        "context_expand",
+        "compaction_detect",
+        "transcript_read",
+        "state_reconstruct",
+        "session_recover",
+        "quick_resume",
+        "session_start",
+        "session_end",
+        "auto_checkpoint",
+        "wip_capture",
+        "wip_list",
+        "wip_restore",
+        "state_rollback",
+        "resume_score",
+        "checkpoint_enhanced",
+        "workflow_start",
+        "workflow_advance",
+        "workflow_status",
+        "workflow_complete",
+        "health_check"
+      ],
+      "registries_referenced": {},
+      "action_count": 31,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/sessionDispatcher.ts"
+    },
+    "prism_toolpath": {
+      "actions": [
+        "strategy_select",
+        "params_calculate",
+        "strategy_search",
+        "strategy_list",
+        "strategy_info",
+        "stats",
+        "material_strategies",
+        "prism_novel"
+      ],
+      "registries_referenced": {},
+      "action_count": 8,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/toolpathDispatcher.ts"
+    },
+    "prism_autonomous": {
+      "actions": [
+        "auto_configure",
+        "auto_plan",
+        "auto_execute",
+        "auto_status",
+        "auto_validate",
+        "auto_dry_run",
+        "auto_pause",
+        "auto_resume"
+      ],
+      "registries_referenced": [
+        "formulas",
+        "materials"
+      ],
+      "action_count": 8,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/autonomousDispatcher.ts"
+    },
+    "prism_hook": {
+      "actions": [
+        "list",
+        "get",
+        "execute",
+        "chain",
+        "toggle",
+        "emit",
+        "event_list",
+        "event_history",
+        "fire",
+        "chain_v2",
+        "status",
+        "history",
+        "enable",
+        "disable",
+        "coverage",
+        "gaps",
+        "performance",
+        "failures"
+      ],
+      "registries_referenced": {},
+      "action_count": 18,
+      "engines_referenced": "hookEngine",
+      "engine_imports": [
+        "EventBus"
+      ],
+      "file": "src/tools/dispatchers/hookDispatcher.ts"
+    },
+    "prism_calc": {
+      "actions": [
+        "cutting_force",
+        "tool_life",
+        "speed_feed",
+        "flow_stress",
+        "surface_finish",
+        "mrr",
+        "power",
+        "torque",
+        "chip_load",
+        "stability",
+        "deflection",
+        "thermal",
+        "cost_optimize",
+        "multi_optimize",
+        "productivity",
+        "engagement",
+        "trochoidal",
+        "hsm",
+        "scallop",
+        "stepover",
+        "cycle_time",
+        "arc_fit",
+        "chip_thinning",
+        "multi_pass",
+        "coolant_strategy",
+        "gcode_snippet"
+      ],
+      "registries_referenced": [
+        "formulas",
+        "materials"
+      ],
+      "action_count": 26,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/calcDispatcher.ts"
+    },
+    "prism_document": {
+      "actions": [
+        "list",
+        "read",
+        "write",
+        "append",
+        "roadmap_status",
+        "action_tracker",
+        "migrate"
+      ],
+      "registries_referenced": {},
+      "action_count": 7,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/documentDispatcher.ts"
+    },
+    "prism_orchestration": {
+      "actions": [
+        "agent_execute",
+        "agent_parallel",
+        "agent_pipeline",
+        "plan_create",
+        "plan_execute",
+        "plan_status",
+        "queue_stats",
+        "session_list",
+        "swarm_execute",
+        "swarm_parallel",
+        "swarm_consensus",
+        "swarm_pipeline",
+        "swarm_status",
+        "swarm_patterns"
+      ],
+      "registries_referenced": {},
+      "action_count": 14,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/orchestrationDispatcher.ts"
+    },
+    "prism_safety": {
+      "actions": [
+        "analyze_liftoff_moment",
+        "calculate_chip_evacuation",
+        "calculate_clamp_force_required",
+        "calculate_part_deflection",
+        "calculate_safe_approach",
+        "calculate_tool_stress",
+        "check_5axis_head_clearance",
+        "check_chip_load_limits",
+        "check_fixture_clearance",
+        "check_pullout_resistance",
+        "check_spindle_power",
+        "check_spindle_torque",
+        "check_through_spindle_coolant",
+        "check_toolpath_collision",
+        "detect_near_miss",
+        "estimate_tool_fatigue",
+        "generate_collision_report",
+        "get_coolant_recommendations",
+        "get_safe_cutting_limits",
+        "get_spindle_safe_envelope",
+        "monitor_spindle_thermal",
+        "predict_tool_breakage",
+        "validate_coolant_flow",
+        "validate_mql_parameters",
+        "validate_rapid_moves",
+        "validate_spindle_speed",
+        "validate_tool_clearance",
+        "validate_vacuum_fixture",
+        "validate_workholding_setup"
+      ],
+      "registries_referenced": {},
+      "action_count": 29,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/safetyDispatcher.ts"
+    },
+    "prism_compliance": {
+      "actions": [
+        "apply_template",
+        "remove_template",
+        "list_templates",
+        "audit_status",
+        "check_compliance",
+        "resolve_conflicts",
+        "gap_analysis",
+        "config"
+      ],
+      "registries_referenced": {},
+      "action_count": 8,
+      "engines_referenced": "complianceEngine",
+      "engine_imports": [
+        "ComplianceEngine"
+      ],
+      "file": "src/tools/dispatchers/complianceDispatcher.ts"
+    },
+    "prism_validation": {
+      "actions": [
+        "material",
+        "kienzle",
+        "taylor",
+        "johnson_cook",
+        "safety",
+        "completeness",
+        "anti_regression"
+      ],
+      "registries_referenced": {},
+      "action_count": 7,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/validationDispatcher.ts"
+    },
+    "prism_nlHook": {
+      "actions": [
+        "create",
+        "parse",
+        "approve",
+        "remove",
+        "list",
+        "get",
+        "stats",
+        "config"
+      ],
+      "registries_referenced": {},
+      "action_count": 8,
+      "engines_referenced": "nlHookEngine",
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/nlHookDispatcher.ts"
+    },
+    "prism_dev": {
+      "actions": [
+        "session_boot",
+        "build",
+        "code_template",
+        "code_search",
+        "file_read",
+        "file_write",
+        "server_info",
+        "test_smoke",
+        "test_results"
+      ],
+      "registries_referenced": {},
+      "action_count": 9,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/devDispatcher.ts"
+    },
+    "prism_gsd": {
+      "actions": [
+        "core",
+        "quick",
+        "get",
+        "dev_protocol",
+        "resources_summary",
+        "quick_resume"
+      ],
+      "registries_referenced": [
+        "alarms",
+        "formulas",
+        "machines",
+        "materials"
+      ],
+      "action_count": 6,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/gsdDispatcher.ts"
+    },
+    "prism_ralph": {
+      "actions": [
+        "loop",
+        "scrutinize",
+        "assess"
+      ],
+      "registries_referenced": "formulas",
+      "action_count": 3,
+      "engines_referenced": {},
+      "engine_imports": [],
+      "file": "src/tools/dispatchers/ralphDispatcher.ts"
+    },
+    "prism_data": {
+      "actions": [
+        "alarm_decode",
+        "alarm_diagnose",
+        "alarm_fix",
+        "alarm_search",
+        "cross_query",
+        "formula_calculate",
+        "formula_get",
+        "machine_capabilities",
+        "machine_get",
+        "machine_search",
+        "machine_toolholder_match",
+        "material_compare",
+        "material_get",
+        "material_search",
+        "speed_feed_calc",
+        "tool_compare",
+        "tool_facets",
+        "tool_get",
+        "tool_recommend",
+        "tool_search"
+      ],
+      "registries_referenced": [
+        "alarms",
+        "formulas",
+        "machines",
+        "materials"
+      ],
+      "action_count": 20,
+      "engines_referenced": {},
+      "engine_imports": [
+        "HookExecutor"
+      ],
+      "file": "src/tools/dispatchers/dataDispatcher.ts"
+    }
+  },
+  "version": "1.1.0",
+  "engines": {
+    "ProtocolBridgeEngine": {
+      "line_count": 490,
+      "file": "src/engines/ProtocolBridgeEngine.ts",
+      "called_by": [
+        "prism_bridge"
+      ]
+    },
+    "ToolpathCalculations": {
+      "line_count": 1065,
+      "file": "src/engines/ToolpathCalculations.ts",
+      "called_by": []
+    },
+    "KnowledgeQueryEngine": {
+      "line_count": 872,
+      "file": "src/engines/KnowledgeQueryEngine.ts",
+      "called_by": [
+        "prism_knowledge",
+        "prism_sp"
+      ]
+    },
+    "PredictiveFailureEngine": {
+      "line_count": 808,
+      "file": "src/engines/PredictiveFailureEngine.ts",
+      "called_by": []
+    },
+    "ComputationCache": {
+      "line_count": 427,
+      "file": "src/engines/ComputationCache.ts",
+      "called_by": []
+    },
+    "CollisionEngine": {
+      "line_count": 1924,
+      "file": "src/engines/CollisionEngine.ts",
+      "called_by": []
+    },
+    "ToolBreakageEngine": {
+      "line_count": 1072,
+      "file": "src/engines/ToolBreakageEngine.ts",
+      "called_by": []
+    },
+    "TelemetryEngine": {
+      "line_count": 615,
+      "file": "src/engines/TelemetryEngine.ts",
+      "called_by": [
+        "prism_telemetry"
+      ]
+    },
+    "CoolantValidationEngine": {
+      "line_count": 753,
+      "file": "src/engines/CoolantValidationEngine.ts",
+      "called_by": []
+    },
+    "TaskAgentClassifier": {
+      "line_count": 545,
+      "file": "src/engines/TaskAgentClassifier.ts",
+      "called_by": []
+    },
+    "index": {
+      "line_count": 301,
+      "file": "src/engines/index.ts",
+      "called_by": []
+    },
+    "HookEngine": {
+      "line_count": 803,
+      "file": "src/engines/HookEngine.ts",
+      "called_by": [
+        "prism_sp",
+        "prism_hook"
+      ]
+    },
+    "ScriptExecutor": {
+      "line_count": 755,
+      "file": "src/engines/ScriptExecutor.ts",
+      "called_by": [
+        "prism_skillScript"
+      ]
+    },
+    "BatchProcessor": {
+      "line_count": 234,
+      "file": "src/engines/BatchProcessor.ts",
+      "called_by": []
+    },
+    "SkillBundleEngine": {
+      "line_count": 199,
+      "file": "src/engines/SkillBundleEngine.ts",
+      "called_by": []
+    },
+    "SwarmExecutor": {
+      "line_count": 954,
+      "file": "src/engines/SwarmExecutor.ts",
+      "called_by": []
+    },
+    "ResponseTemplateEngine": {
+      "line_count": 670,
+      "file": "src/engines/ResponseTemplateEngine.ts",
+      "called_by": []
+    },
+    "CertificateEngine": {
+      "line_count": 642,
+      "file": "src/engines/CertificateEngine.ts",
+      "called_by": []
+    },
+    "SkillAutoLoader": {
+      "line_count": 416,
+      "file": "src/engines/SkillAutoLoader.ts",
+      "called_by": []
+    },
+    "MultiTenantEngine": {
+      "line_count": 588,
+      "file": "src/engines/MultiTenantEngine.ts",
+      "called_by": [
+        "prism_tenant"
+      ]
+    },
+    "PFPEngine": {
+      "line_count": 778,
+      "file": "src/engines/PFPEngine.ts",
+      "called_by": [
+        "prism_pfp"
+      ]
+    },
+    "AgentExecutor": {
+      "line_count": 820,
+      "file": "src/engines/AgentExecutor.ts",
+      "called_by": []
+    },
+    "SessionLifecycleEngine": {
+      "line_count": 352,
+      "file": "src/engines/SessionLifecycleEngine.ts",
+      "called_by": []
+    },
+    "ManusATCSBridge": {
+      "line_count": 306,
+      "file": "src/engines/ManusATCSBridge.ts",
+      "called_by": [
+        "prism_atcs"
+      ]
+    },
+    "AdvancedCalculations": {
+      "line_count": 624,
+      "file": "src/engines/AdvancedCalculations.ts",
+      "called_by": []
+    },
+    "CalcHookMiddleware": {
+      "line_count": 269,
+      "file": "src/engines/CalcHookMiddleware.ts",
+      "called_by": []
+    },
+    "SkillExecutor": {
+      "line_count": 869,
+      "file": "src/engines/SkillExecutor.ts",
+      "called_by": [
+        "prism_skillScript"
+      ]
+    },
+    "SpindleProtectionEngine": {
+      "line_count": 902,
+      "file": "src/engines/SpindleProtectionEngine.ts",
+      "called_by": []
+    },
+    "EventBus": {
+      "line_count": 657,
+      "file": "src/engines/EventBus.ts",
+      "called_by": [
+        "prism_hook"
+      ]
+    },
+    "HookExecutor": {
+      "line_count": 836,
+      "file": "src/engines/HookExecutor.ts",
+      "called_by": [
+        "prism_guard",
+        "prism_thread",
+        "prism_session",
+        "prism_toolpath",
+        "prism_calc",
+        "prism_document",
+        "prism_orchestration",
+        "prism_data"
+      ]
+    },
+    "DiffEngine": {
+      "line_count": 197,
+      "file": "src/engines/DiffEngine.ts",
+      "called_by": []
+    },
+    "ComplianceEngine": {
+      "line_count": 722,
+      "file": "src/engines/ComplianceEngine.ts",
+      "called_by": [
+        "prism_compliance"
+      ]
+    },
+    "ManufacturingCalculations": {
+      "line_count": 763,
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "called_by": []
+    },
+    "WorkholdingEngine": {
+      "line_count": 1410,
+      "file": "src/engines/WorkholdingEngine.ts",
+      "called_by": []
+    },
+    "MemoryGraphEngine": {
+      "line_count": 775,
+      "file": "src/engines/MemoryGraphEngine.ts",
+      "called_by": [
+        "prism_memory"
+      ]
+    },
+    "ThreadCalculationEngine": {
+      "line_count": 659,
+      "file": "src/engines/ThreadCalculationEngine.ts",
+      "called_by": []
+    },
+    "NLHookEngine": {
+      "line_count": 924,
+      "file": "src/engines/NLHookEngine.ts",
+      "called_by": [
+        "prism_nlHook"
+      ]
+    }
+  },
+  "generated": "2026-02-17T10:12:07Z"
+}

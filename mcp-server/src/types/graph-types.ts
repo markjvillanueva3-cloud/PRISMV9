@@ -21,7 +21,7 @@ interface BaseNode {
   readonly type: NodeType;
   readonly timestamp: number;       // Unix ms
   readonly sessionId: string;
-  readonly checksum: number;        // CRC32
+  readonly checksum: string;        // SHA-256
   tags: string[];
 }
 
