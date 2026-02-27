@@ -236,6 +236,87 @@ function getOpenApiSpec() {
       },
       "/erp/analytics/predictive": {
         post: { summary: "Predictive maintenance", tags: ["ERP"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/tap-drill": {
+        post: { summary: "Calculate tap drill size", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/mill-params": {
+        post: { summary: "Thread milling parameters", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/depth": {
+        post: { summary: "Thread depth calculation", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/engagement": {
+        post: { summary: "Thread engagement percentage", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/specifications": {
+        post: { summary: "Get thread specifications", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/gauges": {
+        post: { summary: "Go/no-go gauge dimensions", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/pitch-diameter": {
+        post: { summary: "Pitch diameter calculation", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/diameters": {
+        post: { summary: "Minor/major diameter calculation", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/select-insert": {
+        post: { summary: "Select threading insert", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/cutting-params": {
+        post: { summary: "Thread cutting parameters", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/validate-fit": {
+        post: { summary: "Validate thread fit class", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/threads/gcode": {
+        post: { summary: "Generate threading G-code", tags: ["Threads"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/template/apply": {
+        post: { summary: "Apply compliance template", tags: ["Compliance"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/template/remove": {
+        post: { summary: "Remove compliance template", tags: ["Compliance"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/templates": {
+        get: { summary: "List compliance templates", tags: ["Compliance"], responses: stdResponse() }
+      },
+      "/compliance/audit": {
+        get: { summary: "Audit compliance status", tags: ["Compliance"], responses: stdResponse() }
+      },
+      "/compliance/check": {
+        post: { summary: "Check compliance against standards", tags: ["Compliance"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/resolve": {
+        post: { summary: "Resolve compliance conflicts", tags: ["Compliance"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/gap-analysis": {
+        post: { summary: "Run compliance gap analysis", tags: ["Compliance"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/compliance/config": {
+        get: { summary: "Get compliance configuration", tags: ["Compliance"], responses: stdResponse() }
+      },
+      "/telemetry/dashboard": {
+        get: { summary: "Telemetry dashboard overview", tags: ["Telemetry"], responses: stdResponse() }
+      },
+      "/telemetry/detail": {
+        post: { summary: "Detailed metric telemetry", tags: ["Telemetry"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/telemetry/anomalies": {
+        get: { summary: "Detected anomalies", tags: ["Telemetry"], responses: stdResponse() }
+      },
+      "/telemetry/optimization": {
+        get: { summary: "Optimization recommendations", tags: ["Telemetry"], responses: stdResponse() }
+      },
+      "/telemetry/acknowledge": {
+        post: { summary: "Acknowledge anomaly or alert", tags: ["Telemetry"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/telemetry/freeze": {
+        post: { summary: "Freeze telemetry weights", tags: ["Telemetry"], requestBody: jsonBody([]), responses: stdResponse() }
+      },
+      "/telemetry/unfreeze": {
+        post: { summary: "Unfreeze telemetry weights", tags: ["Telemetry"], requestBody: jsonBody([]), responses: stdResponse() }
       }
     },
     tags: [
@@ -251,7 +332,10 @@ function getOpenApiSpec() {
       { name: "Admin", description: "Administration" },
       { name: "PPG", description: "Post Processor Generator" },
       { name: "Learning", description: "Learning paths & knowledge" },
-      { name: "ERP", description: "ERP, quoting & analytics" }
+      { name: "ERP", description: "ERP, quoting & analytics" },
+      { name: "Threads", description: "Thread manufacturing calculations" },
+      { name: "Compliance", description: "Regulatory compliance management" },
+      { name: "Telemetry", description: "System telemetry & monitoring" }
     ]
   };
 }
