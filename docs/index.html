@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRISM v9 — Status Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230d1117'/><polygon points='16,4 28,16 16,28 4,16' fill='none' stroke='%2358a6ff' stroke-width='2'/><polygon points='16,9 23,16 16,23 9,16' fill='%2358a6ff' opacity='0.3'/><circle cx='16' cy='16' r='3' fill='%2358a6ff'/></svg>">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --cyan: #39d2c0;
+    --orange: #f0883e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 24px; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  .meta { color: var(--text-muted); font-size: 13px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card.full-width {
+    grid-column: 1 / -1;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .progress-item { margin-bottom: 10px; }
+  .progress-item:last-child { margin-bottom: 0; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  .progress-label .name { font-weight: 500; }
+  .progress-label .count { color: var(--text-muted); }
+  .progress-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.yellow { background: var(--yellow); }
+  .progress-fill.red { background: var(--red); }
+  .progress-fill.accent { background: var(--accent); }
+  .progress-fill.purple { background: var(--purple); }
+  .progress-fill.cyan { background: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-muted { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .badge-accent { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .badge-purple { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .stat {
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--bg);
+    border-radius: 6px;
+  }
+  .stat .value { font-size: 26px; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+  .resource-item {
+    padding: 10px 8px;
+    background: var(--bg);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .resource-item .num { font-size: 22px; font-weight: 600; color: var(--purple); }
+  .resource-item .lbl { color: var(--text-muted); margin-top: 2px; }
+  .session-list { list-style: none; }
+  .session-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .session-list li:last-child { border-bottom: none; }
+  .session-id { color: var(--accent); font-weight: 600; margin-right: 8px; }
+  .badges { display: flex; gap: 8px; align-items: center; }
+  .badges img { height: 20px; }
+  .build-ts { color: var(--text-muted); font-size: 11px; margin-left: 8px; }
+  .layer-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .layer-tag.infra { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .layer-tag.product { background: rgba(57,210,192,0.2); color: var(--cyan); }
+  .layer-tag.phase { background: rgba(188,140,255,0.2); color: var(--purple); }
+  .extraction-log { font-size: 13px; }
+  .extraction-log .entry { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .extraction-log .entry:last-child { border-bottom: none; }
+  .product-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .product-card:last-child { margin-bottom: 0; }
+  .product-card .rank {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-right: 14px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .product-card .pname { font-weight: 600; }
+  .product-card .pdesc { font-size: 12px; color: var(--text-muted); }
+  .detail-text { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  /* Kanban board */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .kanban { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .kanban { grid-template-columns: 1fr; } }
+  .kanban-col { min-height: 120px; }
+  .kanban-header {
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .kanban-header.done { background: rgba(63,185,80,0.2); color: var(--green); }
+  .kanban-header.available { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .kanban-header.claimed { background: rgba(210,153,34,0.2); color: var(--yellow); }
+  .kanban-header.blocked { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .kanban-list {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .kanban-card:last-child { margin-bottom: 0; }
+  .kanban-card .kc-id { font-weight: 700; color: var(--accent); }
+  .kanban-card .kc-title { margin-top: 2px; }
+  .kanban-card .kc-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .kanban-card .kc-blocked-by { font-size: 11px; color: var(--red); margin-top: 4px; }
+  .kanban-empty { color: var(--text-muted); font-size: 12px; text-align: center; padding: 16px 0; }
+  footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>PRISM <span>v9</span> Status Dashboard</h1>
+    <div class="badges">
+      <img alt="CI" src="https://github.com/markjvillanueva3-cloud/PRISMV9/actions/workflows/ci.yml/badge.svg">
+      <img alt="Deploy" src="https://github.com/markjvillanueva3-cloud/PRISMV9/actions/workflows/deploy.yml/badge.svg">
+      <span class="build-ts" id="buildTimestamp"></span>
+    </div>
+  </div>
+  <div class="meta">
+    <span id="lastUpdated"></span> |
+    v<span id="sourceVersion"></span> &rarr; v<span id="targetVersion"></span> |
+    <span id="nextMs"></span>
+  </div>
+</header>
+
+<div class="stats" style="margin-bottom: 16px;">
+  <div class="stat"><div class="value" id="monolithLines"></div><div class="label">Monolith Lines</div></div>
+  <div class="stat"><div class="value" id="monolithFiles"></div><div class="label">Monolith JS Files</div></div>
+  <div class="stat"><div class="value" id="extractedFiles"></div><div class="label">Extracted Files</div></div>
+  <div class="stat"><div class="value" id="totalLayers"></div><div class="label">Layers (L0-L10)</div></div>
+  <div class="stat"><div class="value" id="totalMilestones"></div><div class="label">Total Milestones</div></div>
+  <div class="stat"><div class="value" id="overallPct"></div><div class="label">Overall Progress</div></div>
+  <div class="stat"><div class="value" id="availableTasks">—</div><div class="label">Available Tasks</div></div>
+  <div class="stat"><div class="value" id="activeInstances">—</div><div class="label">Active Instances</div></div>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>Infrastructure Layers (L0-L6)</h2>
+    <div id="infraBars"></div>
+  </div>
+
+  <div class="card">
+    <h2>Product & Phase Progress</h2>
+    <div id="productBars"></div>
+  </div>
+
+  <div class="card full-width">
+    <h2>Roadmap Task Board (Multi-Claude Coordination)</h2>
+    <div class="kanban" id="kanbanBoard"></div>
+  </div>
+
+  <div class="card full-width">
+    <h2>Verified Baseline (S0-MS1)</h2>
+    <div class="resource-grid" id="baselineGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Launch Products</h2>
+    <div id="productList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Worker Health</h2>
+    <table>
+      <thead><tr><th>Worker</th><th>Runs</th><th>Success</th><th>Avg (ms)</th><th>Status</th></tr></thead>
+      <tbody id="workerBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Session Archives</h2>
+    <ul class="session-list" id="sessionList"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Completed Extractions</h2>
+    <div class="extraction-log" id="extractionLog"></div>
+  </div>
+
+  <div class="card">
+    <h2>Consolidation Metrics</h2>
+    <div class="stats" id="consolidationStats"></div>
+  </div>
+
+</div>
+
+<footer>PRISM Manufacturing Intelligence | Dashboard auto-generated by CI | Roadmap: Comprehensive Layered Architecture v3</footer>
+
+<script>
+var METRICS = {
+  state: /*__CURRENT_STATE__*/ {
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-27T12:00:00Z",
+  "prism": {
+    "sourceVersion": "8.89.002",
+    "targetVersion": "9.0.0",
+    "monolithLines": 986621,
+    "monolithFiles": 830,
+    "extractedFiles": 1775
+  },
+  "layers": {
+    "L0": {"name": "Data Foundation", "target": 38, "existing": 14, "status": "not_started", "milestones": 5, "milestonesComplete": 0, "sessions": "10-14", "details": "14 existing registries + 12 core + 12 specialty databases."},
+    "L1": {"name": "Algorithm Foundation", "target": 44, "existing": 17, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "6-8", "details": "17 existing + 14 monolith port + 13 new."},
+    "L2": {"name": "Engine Foundation", "target": 187, "existing": 75, "status": "not_started", "milestones": 5, "milestonesComplete": 0, "sessions": "20-26", "details": "75 existing + 112 new engines."},
+    "L3": {"name": "Dispatcher Layer", "target": 44, "existing": 32, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "4-6", "details": "32 existing (670 actions) + 12 new."},
+    "L4": {"name": "Hooks & Safety", "target": 152, "existing": 112, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "3-4", "details": "112 existing + 40 new + 12 cadences."},
+    "L5": {"name": "Skills & Scripts", "target": 269, "existing": 201, "status": "not_started", "milestones": 3, "milestonesComplete": 0, "sessions": "4-6", "details": "153 skills + 48 scripts + 68 new."},
+    "L6": {"name": "API Layer", "target": 50, "existing": 0, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "3-4", "details": "50+ REST/WebSocket endpoints."},
+    "L7": {"name": "SFC Product", "target": 4, "existing": 0, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "7-10", "details": "Speed & Feed Calculator."},
+    "L8": {"name": "Products 2-4", "target": 7, "existing": 0, "status": "not_started", "milestones": 7, "milestonesComplete": 0, "sessions": "30-42", "details": "PPG, CAD/CAM Learning, ERP/Business."},
+    "L9": {"name": "CAD/CAM Kernel", "target": 3, "existing": 0, "status": "not_started", "milestones": 3, "milestonesComplete": 0, "sessions": "10-15", "details": "Full monolith kernel port + WebGL."},
+    "L10": {"name": "Enterprise & Production", "target": 4, "existing": 0, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "8-12", "details": "Security, CI/CD, monitoring."}
+  },
+  "phases": {
+    "CC": {"name": "Knowledge Engine", "milestones": 12, "milestonesComplete": 0, "status": "not_started", "sessions": "35-40"},
+    "CC-EXT": {"name": "Extended Learning", "milestones": 6, "milestonesComplete": 0, "status": "not_started", "sessions": "18-24"}
+  },
+  "verified": {
+    "dispatchers": 32, "actions": 670, "engines": 75, "formulas": 109, "formulasTarget": 509,
+    "algorithms": 17, "registryEntries": 29569, "registries": 14,
+    "ccSkills": 57, "prismSkills": 96, "scripts": 48, "hooks": 112, "ccHooks": 18,
+    "toolpathStrategies": 680, "tscErrors": 0, "testsPassing": 152, "testsTotal": 152, "omega": 1.0
+  },
+  "completedExtractions": [
+    {"category": "machines/CORE", "files": 8, "totalLines": 4489, "date": "2026-01-20"},
+    {"category": "machines/ENHANCED", "manufacturers": 33, "machines": 310, "date": "2026-01-20"}
+  ],
+  "sessionArchives": [
+    {"id": "0.EXT.1", "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION", "status": "ARCHIVED"},
+    {"id": "0.EXT.1b", "name": "MATERIALS DATABASE", "status": "ARCHIVED"},
+    {"id": "0.EXT.2", "name": "MACHINES DATABASE", "status": "ARCHIVED"}
+  ],
+  "nextMilestone": {"id": "L0-NEW-MS0", "name": "Data Consolidation & Deduplication", "sessions": "2-3"}
+} /*__END_CURRENT_STATE__*/,
+
+  daemon: /*__DAEMON__*/ {
+  "running": true,
+  "workers": {
+    "map": {"runCount": 6, "successCount": 6, "failureCount": 0, "averageDurationMs": 0.83, "isRunning": false},
+    "audit": {"runCount": 8, "successCount": 8, "failureCount": 0, "averageDurationMs": 128, "isRunning": false},
+    "optimize": {"runCount": 6, "successCount": 6, "failureCount": 0, "averageDurationMs": 4.33, "isRunning": false},
+    "consolidate": {"runCount": 3, "successCount": 3, "failureCount": 0, "averageDurationMs": 1, "isRunning": false},
+    "testgaps": {"runCount": 4, "successCount": 4, "failureCount": 0, "averageDurationMs": 4.75, "isRunning": false},
+    "predict": {"runCount": 0, "successCount": 0, "failureCount": 0, "averageDurationMs": 0, "isRunning": false},
+    "document": {"runCount": 0, "successCount": 0, "failureCount": 0, "averageDurationMs": 0, "isRunning": false}
+  }
+} /*__END_DAEMON__*/,
+
+  consolidation: /*__CONSOLIDATION__*/ {
+  "timestamp": "2026-01-20T18:59:21.658Z",
+  "patternsConsolidated": 0,
+  "memoryCleaned": 0,
+  "duplicatesRemoved": 0
+} /*__END_CONSOLIDATION__*/,
+
+  roadmapQueue: /*__ROADMAP_QUEUE__*/ {
+  "exported_at": null,
+  "total_milestones": 0,
+  "columns": {"done": [], "available": [], "claimed": [], "blocked": []},
+  "instances": [],
+  "summary": {"done": 0, "available": 0, "claimed": 0, "blocked": 0}
+} /*__END_ROADMAP_QUEUE__*/
+};
+
+// === HELPERS ===
+function setText(id, t) { document.getElementById(id).textContent = String(t); }
+function el(tag, cls, txt) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined) e.textContent = String(txt);
+  return e;
+}
+
+// === RENDER ===
+(function() {
+  var S = METRICS.state;
+  var DM = METRICS.daemon;
+  var CON = METRICS.consolidation;
+  var layers = S.layers || {};
+  var phases = S.phases || {};
+  var verified = S.verified || {};
+
+  // Header
+  setText('lastUpdated', S.lastUpdated ? new Date(S.lastUpdated).toLocaleDateString() : '—');
+  setText('sourceVersion', S.prism ? S.prism.sourceVersion : '—');
+  setText('targetVersion', S.prism ? S.prism.targetVersion : '—');
+  var nm = S.nextMilestone;
+  if (nm) {
+    setText('nextMs', 'Next: ' + nm.id + ' (' + nm.name + ')');
+  }
+
+  // Overview stats
+  var prism = S.prism || {};
+  setText('monolithLines', (prism.monolithLines || 0).toLocaleString());
+  setText('monolithFiles', (prism.monolithFiles || 0).toLocaleString());
+  setText('extractedFiles', (prism.extractedFiles || 0).toLocaleString());
+  setText('totalLayers', '11');
+
+  // Count milestones
+  var totalMs = 0, completedMs = 0;
+  var lk = Object.keys(layers);
+  for (var i = 0; i < lk.length; i++) {
+    totalMs += layers[lk[i]].milestones || 0;
+    completedMs += layers[lk[i]].milestonesComplete || 0;
+  }
+  var pk = Object.keys(phases);
+  for (var j = 0; j < pk.length; j++) {
+    totalMs += phases[pk[j]].milestones || 0;
+    completedMs += phases[pk[j]].milestonesComplete || 0;
+  }
+  setText('totalMilestones', totalMs);
+  var overallPct = totalMs > 0 ? ((completedMs / totalMs) * 100).toFixed(1) : '0';
+  setText('overallPct', overallPct + '%');
+
+  // Infrastructure layers (L0-L6) — show existing/target progress bars
+  var infraContainer = document.getElementById('infraBars');
+  var infraLayers = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6'];
+  for (var li = 0; li < infraLayers.length; li++) {
+    var key = infraLayers[li];
+    var layer = layers[key];
+    if (!layer) continue;
+    var pct = layer.target > 0 ? (layer.existing / layer.target * 100) : 0;
+    var colorCls = pct >= 80 ? 'green' : (pct >= 30 ? 'yellow' : (pct > 0 ? 'accent' : 'red'));
+    var statusBadge = layer.status === 'complete' ? 'badge-green' :
+                      layer.status === 'in_progress' ? 'badge-yellow' : 'badge-muted';
+    var statusText = layer.status === 'complete' ? 'Done' :
+                     layer.status === 'in_progress' ? 'Active' : 'Pending';
+
+    var item = el('div', 'progress-item');
+    var labelRow = el('div', 'progress-label');
+    var nameSpan = el('span', 'name');
+    var tag = el('span', 'layer-tag infra', key);
+    nameSpan.appendChild(tag);
+    nameSpan.appendChild(document.createTextNode(layer.name));
+    labelRow.appendChild(nameSpan);
+    var countSpan = el('span', 'count', layer.existing + ' / ' + layer.target + ' (' + pct.toFixed(0) + '%)');
+    labelRow.appendChild(countSpan);
+    item.appendChild(labelRow);
+
+    var track = el('div', 'progress-track');
+    var fill = el('div', 'progress-fill ' + colorCls);
+    fill.style.width = Math.max(pct, 1) + '%';
+    track.appendChild(fill);
+    item.appendChild(track);
+
+    var detail = el('div', 'detail-text', layer.milestones + ' milestones | ' + layer.sessions + ' sessions | ');
+    var badge = el('span', 'badge ' + statusBadge, statusText);
+    detail.appendChild(badge);
+    item.appendChild(detail);
+    infraContainer.appendChild(item);
+  }
+
+  // Product & Phase progress (L7-L10, CC, CC-EXT) — milestone-based bars
+  var prodContainer = document.getElementById('productBars');
+  var prodLayers = [
+    {key: 'L7', type: 'product'},
+    {key: 'L8', type: 'product'},
+    {key: 'L9', type: 'product'},
+    {key: 'L10', type: 'product'},
+    {key: 'CC', type: 'phase', src: phases},
+    {key: 'CC-EXT', type: 'phase', src: phases}
+  ];
+  for (var pi = 0; pi < prodLayers.length; pi++) {
+    var pk2 = prodLayers[pi].key;
+    var src = prodLayers[pi].src || layers;
+    var pl = src[pk2];
+    if (!pl) continue;
+    var msDone = pl.milestonesComplete || 0;
+    var msTotal = pl.milestones || 1;
+    var msPct = (msDone / msTotal) * 100;
+    var msColor = msPct >= 100 ? 'green' : (msPct > 0 ? 'cyan' : 'red');
+    var tagType = prodLayers[pi].type === 'phase' ? 'phase' : 'product';
+    var msStatus = pl.status === 'complete' ? 'badge-green' :
+                   pl.status === 'in_progress' ? 'badge-yellow' : 'badge-muted';
+    var msStatusTxt = pl.status === 'complete' ? 'Done' :
+                      pl.status === 'in_progress' ? 'Active' : 'Pending';
+
+    var pItem = el('div', 'progress-item');
+    var pLabel = el('div', 'progress-label');
+    var pName = el('span', 'name');
+    var pTag = el('span', 'layer-tag ' + tagType, pk2);
+    pName.appendChild(pTag);
+    pName.appendChild(document.createTextNode(pl.name));
+    pLabel.appendChild(pName);
+    pLabel.appendChild(el('span', 'count', msDone + ' / ' + msTotal + ' milestones'));
+    pItem.appendChild(pLabel);
+
+    var pTrack = el('div', 'progress-track');
+    var pFill = el('div', 'progress-fill ' + msColor);
+    pFill.style.width = Math.max(msPct, 1) + '%';
+    pTrack.appendChild(pFill);
+    pItem.appendChild(pTrack);
+
+    var pDetail = el('div', 'detail-text');
+    pDetail.textContent = (pl.sessions || '?') + ' sessions | ';
+    pDetail.appendChild(el('span', 'badge ' + msStatus, msStatusTxt));
+    pItem.appendChild(pDetail);
+    prodContainer.appendChild(pItem);
+  }
+
+  // Verified baseline grid
+  var baseGrid = document.getElementById('baselineGrid');
+  var baseItems = [
+    {n: verified.dispatchers, l: 'Dispatchers'},
+    {n: verified.actions, l: 'Actions'},
+    {n: verified.engines, l: 'Engines'},
+    {n: verified.formulas, l: 'Formulas'},
+    {n: verified.algorithms, l: 'Algorithms'},
+    {n: verified.registryEntries, l: 'Registry Entries'},
+    {n: verified.ccSkills + verified.prismSkills, l: 'Skills (CC+PRISM)'},
+    {n: verified.scripts, l: 'Scripts'},
+    {n: verified.hooks + verified.ccHooks, l: 'Hooks (All)'},
+    {n: verified.toolpathStrategies, l: 'Toolpath Strategies'},
+    {n: verified.testsPassing + '/' + verified.testsTotal, l: 'Tests Passing'},
+    {n: verified.tscErrors, l: 'TSC Errors'}
+  ];
+  for (var bi = 0; bi < baseItems.length; bi++) {
+    var bItem = el('div', 'resource-item');
+    var bNum = el('div', 'num', typeof baseItems[bi].n === 'number' ? baseItems[bi].n.toLocaleString() : baseItems[bi].n);
+    if (baseItems[bi].l === 'TSC Errors') bNum.style.color = 'var(--green)';
+    bItem.appendChild(bNum);
+    bItem.appendChild(el('div', 'lbl', baseItems[bi].l));
+    baseGrid.appendChild(bItem);
+  }
+
+  // Products list
+  var productList = document.getElementById('productList');
+  var products = [
+    {rank: '#1', name: 'SFC', desc: 'Speed & Feed Calculator', layer: 'L7'},
+    {rank: '#2', name: 'PPG', desc: 'Post Processor Generator', layer: 'L8'},
+    {rank: '#3', name: 'CAD/CAM', desc: 'Learning & Help', layer: 'L8'},
+    {rank: '#4', name: 'ERP', desc: 'Quoting/Business Mgmt', layer: 'L8'}
+  ];
+  for (var pr = 0; pr < products.length; pr++) {
+    var pc = el('div', 'product-card');
+    pc.appendChild(el('span', 'rank', products[pr].rank));
+    var pInfo = el('div');
+    pInfo.appendChild(el('div', 'pname', products[pr].name));
+    var pDescLine = el('div', 'pdesc');
+    pDescLine.appendChild(el('span', 'badge badge-accent', products[pr].layer));
+    pDescLine.appendChild(document.createTextNode(' ' + products[pr].desc));
+    pInfo.appendChild(pDescLine);
+    pc.appendChild(pInfo);
+    productList.appendChild(pc);
+  }
+
+  // Worker health
+  var workerBody = document.getElementById('workerBody');
+  var wKeys = Object.keys(DM.workers || {});
+  for (var w = 0; w < wKeys.length; w++) {
+    var wn = wKeys[w];
+    var wk = DM.workers[wn];
+    var rate = wk.runCount > 0 ? ((wk.successCount / wk.runCount) * 100).toFixed(0) : '—';
+    var badgeCls = 'badge-muted', sTxt = 'Idle';
+    if (wk.isRunning) { badgeCls = 'badge-green'; sTxt = 'Running'; }
+    else if (wk.runCount > 0 && wk.failureCount === 0) { badgeCls = 'badge-green'; sTxt = 'Healthy'; }
+    else if (wk.failureCount > 0) { badgeCls = 'badge-red'; sTxt = 'Errors'; }
+
+    var tr = document.createElement('tr');
+    var tdN = el('td'); tdN.appendChild(el('strong', null, wn)); tr.appendChild(tdN);
+    tr.appendChild(el('td', null, wk.runCount));
+    tr.appendChild(el('td', null, rate + '%'));
+    tr.appendChild(el('td', null, wk.averageDurationMs.toFixed(1)));
+    var tdS = el('td'); tdS.appendChild(el('span', 'badge ' + badgeCls, sTxt)); tr.appendChild(tdS);
+    workerBody.appendChild(tr);
+  }
+
+  // Session archives
+  var sessionList = document.getElementById('sessionList');
+  var archives = S.sessionArchives || [];
+  for (var s = 0; s < archives.length; s++) {
+    var sli = el('li');
+    sli.appendChild(el('span', 'session-id', archives[s].id));
+    sli.appendChild(document.createTextNode(archives[s].name + ' '));
+    sli.appendChild(el('span', 'badge badge-muted', archives[s].status));
+    sessionList.appendChild(sli);
+  }
+
+  // Completed extractions
+  var exLog = document.getElementById('extractionLog');
+  var completed = S.completedExtractions || [];
+  if (completed.length === 0) {
+    exLog.appendChild(el('div', 'count', 'No extractions recorded yet.'));
+  } else {
+    for (var e = 0; e < completed.length; e++) {
+      var ent = el('div', 'entry');
+      ent.appendChild(el('span', null, completed[e].category));
+      var mInfo = '';
+      if (completed[e].files) mInfo += completed[e].files + ' files';
+      if (completed[e].manufacturers) mInfo += completed[e].manufacturers + ' mfgs, ' + completed[e].machines + ' machines';
+      if (completed[e].totalLines) mInfo += ', ' + completed[e].totalLines.toLocaleString() + ' lines';
+      mInfo += ' — ' + completed[e].date;
+      ent.appendChild(el('span', 'count', mInfo));
+      exLog.appendChild(ent);
+    }
+  }
+
+  // Consolidation stats
+  var conStats = document.getElementById('consolidationStats');
+  var cItems = [
+    {label: 'Patterns', value: CON.patternsConsolidated || 0},
+    {label: 'Memory Cleaned', value: CON.memoryCleaned || 0},
+    {label: 'Duplicates Removed', value: CON.duplicatesRemoved || 0}
+  ];
+  for (var ci = 0; ci < cItems.length; ci++) {
+    var cd = el('div', 'stat');
+    cd.appendChild(el('div', 'value', cItems[ci].value));
+    cd.appendChild(el('div', 'label', cItems[ci].label));
+    conStats.appendChild(cd);
+  }
+
+  // Roadmap kanban board
+  var RQ = METRICS.roadmapQueue || {};
+  var rqSummary = RQ.summary || {};
+  setText('availableTasks', rqSummary.available || 0);
+  setText('activeInstances', (RQ.instances || []).length);
+
+  var kanbanBoard = document.getElementById('kanbanBoard');
+  var colDefs = [
+    {key: 'done', label: 'Done', cls: 'done'},
+    {key: 'available', label: 'Available', cls: 'available'},
+    {key: 'claimed', label: 'Claimed', cls: 'claimed'},
+    {key: 'blocked', label: 'Blocked', cls: 'blocked'}
+  ];
+  var rqCols = RQ.columns || {};
+  for (var ki = 0; ki < colDefs.length; ki++) {
+    var cdef = colDefs[ki];
+    var items = rqCols[cdef.key] || [];
+    var col = el('div', 'kanban-col');
+    var hdr = el('div', 'kanban-header ' + cdef.cls, cdef.label + ' (' + items.length + ')');
+    col.appendChild(hdr);
+    var list = el('div', 'kanban-list');
+    if (items.length === 0) {
+      list.appendChild(el('div', 'kanban-empty', 'None'));
+    } else {
+      var showMax = cdef.key === 'blocked' ? 5 : items.length;
+      for (var kj = 0; kj < Math.min(items.length, showMax); kj++) {
+        var it = items[kj];
+        var card = el('div', 'kanban-card');
+        var idLine = el('div');
+        var trackTag = el('span', 'layer-tag infra', it.track || '');
+        idLine.appendChild(trackTag);
+        idLine.appendChild(el('span', 'kc-id', ' ' + it.id));
+        card.appendChild(idLine);
+        card.appendChild(el('div', 'kc-title', it.title || ''));
+        var metaParts = [];
+        if (it.units) metaParts.push(it.units + ' units');
+        if (it.sessions) metaParts.push('~' + it.sessions + ' sessions');
+        if (it.instance) metaParts.push('Instance: ' + it.instance);
+        if (metaParts.length) card.appendChild(el('div', 'kc-meta', metaParts.join(' | ')));
+        if (it.blocked_by && it.blocked_by.length) {
+          card.appendChild(el('div', 'kc-blocked-by', 'Blocked by: ' + it.blocked_by.join(', ')));
+        }
+        list.appendChild(card);
+      }
+      if (cdef.key === 'blocked' && items.length > showMax) {
+        list.appendChild(el('div', 'kanban-empty', '...+' + (items.length - showMax) + ' more'));
+      }
+    }
+    col.appendChild(list);
+    kanbanBoard.appendChild(col);
+  }
+
+  // Build timestamp
+  var buildTs = document.getElementById('buildTimestamp');
+  var BUILD_TIME = /*__BUILD_TIME__*/ null /*__END_BUILD_TIME__*/;
+  if (BUILD_TIME) {
+    buildTs.textContent = 'Built: ' + new Date(BUILD_TIME).toLocaleString();
+  } else {
+    buildTs.textContent = 'Local build';
+  }
+})();
+</script>
+</body>
+</html>

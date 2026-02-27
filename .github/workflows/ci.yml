@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          find . -name '*.json' -not -path './node_modules/*' -not -path './.git/*' | while read f; do
+            if python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
+              echo "  OK: $f"
+            else
+              echo "  FAIL: $f"
+              exit 1
+            fi
+          done
+          echo "All JSON files valid."
+
+      - name: Lint shell scripts with shellcheck
+        run: |
+          if command -v shellcheck &>/dev/null; then
+            echo "shellcheck found"
+          else
+            sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          fi
+          shopt -s globstar nullglob
+          scripts=(.claude/helpers/*.sh SCRIPTS/*.sh)
+          if [ ${#scripts[@]} -eq 0 ]; then
+            echo "No shell scripts found, skipping."
+          else
+            shellcheck --severity=error "${scripts[@]}" && echo "shellcheck passed."
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Lint Python (syntax check)
+        run: |
+          pip install flake8 --quiet
+          shopt -s globstar nullglob
+          pyfiles=(SCRIPTS/*.py)
+          if [ ${#pyfiles[@]} -eq 0 ]; then
+            echo "No Python files found, skipping."
+          else
+            flake8 --select=E9,F63,F7,F82 "${pyfiles[@]}" && echo "Python syntax OK."
+          fi
+
+      - name: Compile-check Python files
+        run: |
+          shopt -s globstar nullglob
+          pyfiles=(SCRIPTS/*.py)
+          if [ ${#pyfiles[@]} -eq 0 ]; then
+            echo "No Python files found, skipping."
+          else
+            for f in "${pyfiles[@]}"; do
+              python3 -m py_compile "$f" && echo "  OK: $f"
+            done
+          fi
+
+      - name: Run verify_features (if exists)
+        run: |
+          if [ -f "SCRIPTS/verify_features.py" ] && [ -d "_BUILD" ]; then
+            python3 SCRIPTS/verify_features.py _BUILD/
+          else
+            echo "verify_features.py or _BUILD/ not found, skipping."
+          fi
+
+      - name: Rebuild and verify PROJECT_INDEX.json
+        run: |
+          if [ -f "SCRIPTS/rebuild_project_index.py" ]; then
+            python3 SCRIPTS/rebuild_project_index.py
+            python3 -c "import json; idx=json.load(open('PROJECT_INDEX.json')); assert '_meta' in idx and 'extraction' in idx; print('PROJECT_INDEX.json valid.')"
+          fi
+
+      - name: Run extraction validation
+        run: |
+          if [ -f "SCRIPTS/validate_extractions.py" ]; then
+            python3 SCRIPTS/validate_extractions.py || echo "Validation completed with warnings."
+          fi
+
+      - name: Run test suite
+        run: |
+          if [ -d "tests" ]; then
+            python3 -m pytest tests/ -v --tb=short 2>/dev/null || python3 -m unittest discover tests -v
+          else
+            echo "No tests directory found, skipping."
+          fi

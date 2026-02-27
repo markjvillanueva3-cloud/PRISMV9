@@ -1,0 +1,99 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-27T12:00:00Z",
+  "project": "PRISM Manufacturing Intelligence",
+  "sourceMonolith": {
+    "version": "v8.89.002",
+    "lines": 986621,
+    "files": 830,
+    "size": "~13MB",
+    "location": "extracted_modules/complete_extraction/"
+  },
+  "extractedData": {
+    "extracted": {"files": 714, "size": "65MB", "location": "extracted/"},
+    "extractedModules": {"files": 1061, "size": "151MB", "location": "extracted_modules/"},
+    "totalFiles": 1775,
+    "totalSize": "216MB",
+    "machines": {
+      "enhanced": {
+        "count": 33,
+        "manufacturers": [
+          "AWEA", "Brother", "Chiron", "Cincinnati", "DMG_Mori", "Doosan",
+          "Fanuc", "Feeler", "Fidia", "Giddings", "Grob", "Haas", "Hardinge",
+          "Hermle", "Hurco", "Hyundai_WIA", "Kern", "Kitamura", "Leadwell",
+          "Makino", "Matsuura", "Mazak", "MHI", "Mikron", "OKK", "Okuma",
+          "Roku_Roku", "Sodick", "Soraluce", "Spinner", "Takumi", "Toyoda", "Yasda"
+        ],
+        "estimatedMachines": 310,
+        "location": "EXTRACTED/machines/ENHANCED/"
+      }
+    }
+  },
+  "verifiedBaseline": {
+    "frozenAt": "S0-MS1",
+    "verifiedDate": "2026-02-25",
+    "dispatchers": 32,
+    "actions": 670,
+    "engines": 75,
+    "formulas": {"registered": 109, "target": 509},
+    "algorithms": 17,
+    "registryEntries": 29569,
+    "registries": 14,
+    "ccSkills": 57,
+    "prismSkills": 96,
+    "scripts": 48,
+    "hooks": 112,
+    "ccHooks": 18,
+    "hookEvents": 15,
+    "toolpathStrategies": 680,
+    "reportTemplates": 7,
+    "featureSystems": 8,
+    "postProcessors": 8,
+    "decisionTrees": 6,
+    "knowledgeBundles": 6,
+    "tscErrors": 0,
+    "tests": "152/152",
+    "omega": 1.0
+  },
+  "layerTargets": {
+    "L0": {"name": "Data Foundation", "new": 24, "existing": 14, "total": 38},
+    "L1": {"name": "Algorithm Foundation", "new": 27, "existing": 17, "total": 44},
+    "L2": {"name": "Engine Foundation", "new": 112, "existing": 75, "total": 187},
+    "L3": {"name": "Dispatcher Layer", "new": 12, "existing": 32, "total": 44},
+    "L4": {"name": "Hooks & Safety", "new": 40, "existing": 112, "total": 152},
+    "L5": {"name": "Skills & Scripts", "new": 68, "existing": 201, "total": 269},
+    "L6": {"name": "API Layer", "new": 50, "existing": 0, "total": 50},
+    "L7": {"name": "SFC Product", "milestones": 4},
+    "L8": {"name": "Products 2-4", "milestones": 7},
+    "L9": {"name": "CAD/CAM Kernel", "milestones": 3},
+    "L10": {"name": "Enterprise & Production", "milestones": 4},
+    "CC": {"name": "Knowledge Engine", "milestones": 12},
+    "CC-EXT": {"name": "Extended Learning", "milestones": 6}
+  },
+  "products": [
+    {"id": "SFC", "name": "Speed & Feed Calculator", "layer": "L7", "priority": 1},
+    {"id": "PPG", "name": "Post Processor Generator", "layer": "L8", "priority": 2},
+    {"id": "CADCAM", "name": "CAD/CAM Learning & Help", "layer": "L8", "priority": 3},
+    {"id": "ERP", "name": "ERP/Quoting/Business Management", "layer": "L8", "priority": 4}
+  ],
+  "sessionArchives": [
+    {"id": "0.EXT.1", "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION", "status": "ARCHIVED"},
+    {"id": "0.EXT.1b", "name": "MATERIALS DATABASE", "status": "ARCHIVED"},
+    {"id": "0.EXT.2", "name": "MACHINES DATABASE", "status": "ARCHIVED"}
+  ],
+  "documentation": {
+    "current": "sleepy-chasing-prism.md",
+    "baselineInventory": "BASELINE_INVENTORY.json"
+  },
+  "claudeFlow": {
+    "installed": true,
+    "version": "3.0.0-alpha.86",
+    "topology": "hierarchical-mesh"
+  },
+  "nextMilestone": {
+    "id": "L0-NEW-MS0",
+    "name": "Data Consolidation & Deduplication",
+    "sessions": "2-3",
+    "prerequisite": "Start bottom-up: complete L0 before L1"
+  }
+}

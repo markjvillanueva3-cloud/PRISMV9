@@ -98,11 +98,15 @@ function getUserInfo() {
             }
           }
 
-          // Parse model ID to human-readable name
-          if (modelId.includes('opus')) modelName = 'Opus 4.5';
-          else if (modelId.includes('sonnet')) modelName = 'Sonnet 4';
-          else if (modelId.includes('haiku')) modelName = 'Haiku 4.5';
-          else modelName = modelId.split('-').slice(1, 3).join(' ');
+          // Parse model ID to human-readable name (e.g. claude-opus-4-6 → Opus 4.6)
+          const vMatch = modelId.match(/(opus|sonnet|haiku)-(\d+)(?:-(\d+))?/);
+          if (vMatch) {
+            const family = vMatch[1].charAt(0).toUpperCase() + vMatch[1].slice(1);
+            const ver = vMatch[3] ? `${vMatch[2]}.${vMatch[3]}` : vMatch[2];
+            modelName = `${family} ${ver}`;
+          } else {
+            modelName = modelId.split('-').slice(1, 3).join(' ');
+          }
         }
       }
     }
@@ -117,10 +121,14 @@ function getUserInfo() {
       if (fs.existsSync(settingsPath)) {
         const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
         if (settings.model) {
-          if (settings.model.includes('opus')) modelName = 'Opus 4.5';
-          else if (settings.model.includes('sonnet')) modelName = 'Sonnet 4';
-          else if (settings.model.includes('haiku')) modelName = 'Haiku 4.5';
-          else modelName = settings.model.split('-').slice(1, 3).join(' ');
+          const vm = settings.model.match(/(opus|sonnet|haiku)-(\d+)(?:-(\d+))?/);
+          if (vm) {
+            const fam = vm[1].charAt(0).toUpperCase() + vm[1].slice(1);
+            const v = vm[3] ? `${vm[2]}.${vm[3]}` : vm[2];
+            modelName = `${fam} ${v}`;
+          } else {
+            modelName = settings.model.split('-').slice(1, 3).join(' ');
+          }
         }
       }
     } catch (e) {
