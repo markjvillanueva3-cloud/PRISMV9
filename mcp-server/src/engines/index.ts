@@ -1675,3 +1675,511 @@ export {
   type PluginHook,
   type PluginStats,
 } from "./PluginEngine.js";
+
+// ============================================================================
+// L2-P4-MS1: 52 PASS2 Specialty Engines (#190-#241)
+// ============================================================================
+
+// --- Batch 1: Surface Integrity & Metallurgy (6 engines) ---
+
+// White Layer Detection (SAFETY CRITICAL — hard machining)
+export {
+  WhiteLayerDetectionEngine,
+  whiteLayerDetectionEngine,
+  type WhiteLayerInput,
+  type WhiteLayerRisk,
+  type WhiteLayerResult,
+} from "./WhiteLayerDetectionEngine.js";
+
+// Recast Layer (SAFETY CRITICAL — EDM/laser)
+export {
+  RecastLayerEngine,
+  recastLayerEngine,
+  type RecastProcess,
+  type RecastLayerInput,
+  type RecastRisk,
+  type RecastLayerResult,
+} from "./RecastLayerEngine.js";
+
+// Microstructure Effect on Machinability
+export {
+  MicrostructureEffectEngine,
+  microstructureEffectEngine,
+  type PhaseType,
+  type MicrostructureInput,
+  type MicrostructureResult,
+} from "./MicrostructureEffectEngine.js";
+
+// Heat Treatment Response
+export {
+  HeatTreatmentResponseEngine,
+  heatTreatmentResponseEngine,
+  type HeatTreatProcess,
+  type HeatTreatInput,
+  type HeatTreatResult,
+  type TemperCurvePoint,
+} from "./HeatTreatmentResponseEngine.js";
+
+// Cryogenic Treatment
+export {
+  CryogenicTreatmentEngine,
+  cryogenicTreatmentEngine,
+  type CryoToolType,
+  type CryogenicInput,
+  type CryogenicResult,
+} from "./CryogenicTreatmentEngine.js";
+
+// Plating Allowance
+export {
+  PlatingAllowanceEngine,
+  platingAllowanceEngine,
+  type PlatingProcess,
+  type PlatingInput,
+  type PlatingResult,
+} from "./PlatingAllowanceEngine.js";
+
+// --- Batch 2: Vibration & Dynamics (5 engines) ---
+
+// Harmonic Analysis (vibration spectrum)
+export {
+  HarmonicAnalysisEngine,
+  harmonicAnalysisEngine,
+  type VibrationSource,
+  type HarmonicInput,
+  type HarmonicPeak,
+  type HarmonicResult,
+} from "./HarmonicAnalysisEngine.js";
+
+// Thin Floor/Wall Vibration
+export {
+  ThinFloorVibrationEngine,
+  thinFloorVibrationEngine,
+  type ThinFeatureInput,
+  type ThinFeatureResult,
+} from "./ThinFloorVibrationEngine.js";
+
+// Toolholder Dynamics (FRF)
+export {
+  ToolholderDynamicsEngine,
+  toolholderDynamicsEngine,
+  type HolderType as ToolholderType,
+  type ToolholderInput,
+  type ToolholderFRFResult,
+  type ToolholderComparison,
+} from "./ToolholderDynamicsEngine.js";
+
+// Regenerative Chatter Predictor (SAFETY CRITICAL)
+export {
+  RegenerativeChatterPredictor,
+  regenerativeChatterPredictor,
+  type CutType as RegenerativeCutType,
+  type ChatterInput as RegenerativeChatterInput,
+  type StabilityLobe,
+  type ChatterResult as RegenerativeChatterResult,
+} from "./RegenerativeChatterPredictor.js";
+
+// Damping Optimization
+export {
+  DampingOptimizationEngine,
+  dampingOptimizationEngine,
+  type DampingStrategy,
+  type DampingInput,
+  type DampingResult,
+} from "./DampingOptimizationEngine.js";
+
+// --- Batch 3: Thread & Gear Manufacturing (4 engines) ---
+
+// Thread Milling (helical interpolation)
+export {
+  ThreadMillingEngine,
+  threadMillingEngine,
+  type ThreadMillInput,
+  type ThreadMillResult,
+} from "./ThreadMillingEngine.js";
+
+// Single-Point Threading (SAFETY CRITICAL)
+export {
+  SinglePointThreadEngine,
+  singlePointThreadEngine,
+  type ThreadForm,
+  type InfeedMethod,
+  type SinglePointThreadInput,
+  type ThreadPass,
+  type SinglePointThreadResult,
+} from "./SinglePointThreadEngine.js";
+
+// Gear Hobbing
+export {
+  GearHobbingEngine,
+  gearHobbingEngine,
+  type GearHobInput,
+  type GearHobResult,
+  type ShiftPlan,
+} from "./GearHobbingEngine.js";
+
+// Spline Milling
+export {
+  SplineMillingEngine,
+  splineMillingEngine,
+  type SplineMillInput,
+  type SplineMillResult,
+} from "./SplineMillingEngine.js";
+
+// --- Batch 4: Sheet Metal & Fabrication (3 engines) ---
+
+// Bend Allowance
+export {
+  BendAllowanceEngine,
+  bendAllowanceEngine,
+  type BendInput,
+  type BendResult,
+} from "./BendAllowanceEngine.js";
+
+// Weld Prep (AWS D1.1)
+export {
+  WeldPrepEngine,
+  weldPrepEngine,
+  type GrooveType,
+  type WeldPrepInput,
+  type WeldPrepResult,
+} from "./WeldPrepEngine.js";
+
+// Laser Cut Interface
+export {
+  LaserCutInterfaceEngine,
+  laserCutInterfaceEngine,
+  type LaserType,
+  type LaserCutInput,
+  type LaserCutResult,
+} from "./LaserCutInterfaceEngine.js";
+
+// --- Batch 5: Multi-Axis & Complex Kinematics (5 engines) ---
+
+// RTCP Compensation (SAFETY CRITICAL)
+export {
+  RTCP_CompensationEngine,
+  rtcpCompensationEngine,
+  type KinematicType,
+  type RTCPInput,
+  type RTCPResult,
+} from "./RTCP_CompensationEngine.js";
+
+// Singularity Avoidance (SAFETY CRITICAL)
+export {
+  SingularityAvoidanceEngine,
+  singularityAvoidanceEngine,
+  type SingularityType,
+  type SingularityInput,
+  type SingularityPoint,
+  type SingularityResult,
+} from "./SingularityAvoidanceEngine.js";
+
+// Tilt Angle Optimization
+export {
+  TiltAngleOptimizationEngine,
+  tiltAngleOptimizationEngine,
+  type TiltInput,
+  type TiltResult,
+} from "./TiltAngleOptimizationEngine.js";
+
+// Work Envelope Validator (SAFETY CRITICAL)
+export {
+  WorkEnvelopeValidatorEngine,
+  workEnvelopeValidatorEngine,
+  type AxisLimit,
+  type WorkEnvelopeInput,
+  type AxisViolation,
+  type WorkEnvelopeResult,
+} from "./WorkEnvelopeValidatorEngine.js";
+
+// Inverse Kinematics Solver
+export {
+  InverseKinematicsSolverEngine,
+  inverseKinematicsSolverEngine,
+  type IKInput,
+  type IKSolution,
+  type IKResult,
+} from "./InverseKinematicsSolverEngine.js";
+
+// --- Batch 6: Turning-Specific (5 engines) ---
+
+// Chuck Jaw Force (SAFETY CRITICAL)
+export {
+  ChuckJawForceEngine,
+  chuckJawForceEngine,
+  type ChuckType as ChuckJawChuckType,
+  type ChuckJawInput,
+  type ChuckJawResult,
+} from "./ChuckJawForceEngine.js";
+
+// Tailstock Force (SAFETY CRITICAL)
+export {
+  TailstockForceEngine,
+  tailstockForceEngine,
+  type CenterType,
+  type TailstockInput,
+  type TailstockResult,
+} from "./TailstockForceEngine.js";
+
+// Bar Puller Timing
+export {
+  BarPullerTimingEngine,
+  barPullerTimingEngine,
+  type BarPullerInput,
+  type BarPullerResult,
+} from "./BarPullerTimingEngine.js";
+
+// Live Tooling
+export {
+  LiveToolingEngine,
+  liveToolingEngine,
+  type LiveToolOp,
+  type LiveToolInput,
+  type LiveToolResult,
+} from "./LiveToolingEngine.js";
+
+// Steady Rest Placement
+export {
+  SteadyRestPlacementEngine,
+  steadyRestPlacementEngine,
+  type SteadyRestInput,
+  type SteadyRestResult,
+} from "./SteadyRestPlacementEngine.js";
+
+// --- Batch 7: EDM-Specific (4 engines) ---
+
+// Electrode Design
+export {
+  ElectrodeDesignEngine,
+  electrodeDesignEngine,
+  type ElectrodeMaterial,
+  type ElectrodeInput,
+  type ElectrodeStage,
+  type ElectrodeResult,
+} from "./ElectrodeDesignEngine.js";
+
+// Wire EDM Settings
+export {
+  WireEDMSettingsEngine,
+  wireEDMSettingsEngine,
+  type WireType,
+  type WireEDMInput,
+  type SkimPass,
+  type WireEDMResult,
+} from "./WireEDMSettingsEngine.js";
+
+// EDM Surface Integrity (SAFETY CRITICAL)
+export {
+  EDMSurfaceIntegrityEngine,
+  edmSurfaceIntegrityEngine,
+  type EDMProcessType,
+  type EDMSurfaceInput,
+  type EDMSurfaceResult,
+} from "./EDMSurfaceIntegrityEngine.js";
+
+// Micro EDM
+export {
+  MicroEDMEngine,
+  microEDMEngine,
+  type MicroEDMProcess,
+  type MicroEDMInput,
+  type MicroEDMResult,
+} from "./MicroEDMEngine.js";
+
+// --- Batch 8: Laser & Waterjet (3 engines) ---
+
+// Waterjet Taper Compensation
+export {
+  WaterjetTaperEngine,
+  waterjetTaperEngine,
+  type WaterjetQuality,
+  type WaterjetInput,
+  type WaterjetResult,
+} from "./WaterjetTaperEngine.js";
+
+// Laser Marking
+export {
+  LaserMarkingEngine,
+  laserMarkingEngine,
+  type LaserMarkSource,
+  type MarkType,
+  type LaserMarkInput,
+  type LaserMarkResult,
+} from "./LaserMarkingEngine.js";
+
+// Hybrid Laser + Machining
+export {
+  HybridLaserMachineEngine,
+  hybridLaserMachineEngine,
+  type HybridMode,
+  type HybridLaserInput,
+  type HybridLaserResult,
+} from "./HybridLaserMachineEngine.js";
+
+// --- Batch 9: Automation & Industry 4.0 (5 engines) ---
+
+// Digital Thread
+export {
+  DigitalThreadEngine,
+  digitalThreadEngine,
+  type DigitalThreadNode,
+  type DigitalThreadLink,
+  type DigitalThreadInput,
+  type DigitalThreadResult,
+} from "./DigitalThreadEngine.js";
+
+// OEE Calculator
+export {
+  OEECalculatorEngine,
+  oeeCalculatorEngine,
+  type OEEInput,
+  type BigLoss,
+  type OEEResult,
+} from "./OEECalculatorEngine.js";
+
+// Bottleneck Identification
+export {
+  BottleneckIdentificationEngine,
+  bottleneckIdentificationEngine,
+  type WorkStation,
+  type BottleneckInput,
+  type BottleneckResult,
+} from "./BottleneckIdentificationEngine.js";
+
+// Digital Work Instruction
+export {
+  DigitalWorkInstructionEngine,
+  digitalWorkInstructionEngine,
+  type WorkInstructionStep,
+  type WorkInstructionInput,
+  type WorkInstructionResult,
+} from "./DigitalWorkInstructionEngine.js";
+
+// Shift Handoff
+export {
+  ShiftHandoffEngine,
+  shiftHandoffEngine,
+  type ShiftHandoffInput,
+  type ShiftHandoffResult,
+} from "./ShiftHandoffEngine.js";
+
+// --- Batch 10: Coating & Surface Treatment (4 engines) ---
+
+// Masking Calculator
+export {
+  MaskingCalculatorEngine,
+  maskingCalculatorEngine,
+  type MaskingProcessType,
+  type MaskArea,
+  type MaskingInput,
+  type MaskSelection,
+  type MaskingResult,
+} from "./MaskingCalculatorEngine.js";
+
+// Shot Peening (AMS 2430)
+export {
+  ShotPeeningEngine,
+  shotPeeningEngine,
+  type AlmenStrip,
+  type ShotMedia,
+  type ShotPeeningInput,
+  type ShotPeeningResult,
+} from "./ShotPeeningEngine.js";
+
+// Passivation (ASTM A967)
+export {
+  PassivationEngine,
+  passivationEngine,
+  type PassivationMethod,
+  type StainlessFamily,
+  type PassivationInput,
+  type PassivationResult,
+} from "./PassivationEngine.js";
+
+// Anodize Allowance
+export {
+  AnodizeAllowanceEngine,
+  anodizeAllowanceEngine,
+  type AnodizeType,
+  type AnodizeAllowanceInput,
+  type AnodizeAllowanceResult,
+} from "./AnodizeAllowanceEngine.js";
+
+// --- Batch 11: Material Testing Interface (3 engines) ---
+
+// Hardness Conversion (ASTM E140)
+export {
+  HardnessConversionEngine,
+  hardnessConversionEngine,
+  type HardnessScale,
+  type HardnessConvertInput,
+  type HardnessConvertResult,
+} from "./HardnessConversionEngine.js";
+
+// Tensile-to-Machinability
+export {
+  TensileToMachinabilityEngine,
+  tensileToMachinabilityEngine,
+  type TensileData,
+  type MachinabilityResult as TensileToMachResult,
+} from "./TensileToMachinabilityEngine.js";
+
+// Material Equivalence (AISI/DIN/EN/JIS/UNS)
+export {
+  MaterialEquivalenceEngine,
+  materialEquivalenceEngine,
+  type MaterialStandard,
+  type MaterialEquivInput,
+  type MaterialEquivalent,
+  type MaterialEquivResult,
+} from "./MaterialEquivalenceEngine.js";
+
+// --- Batch 12: Jig & Fixture Specific (5 engines) ---
+
+// Modular Fixture Layout (3-2-1 principle)
+export {
+  ModularFixtureLayoutEngine,
+  modularFixtureLayoutEngine,
+  type GridSystem,
+  type ModularFixtureInput,
+  type LocatorPoint,
+  type ClampPoint as FixtureClampPoint,
+  type ModularFixtureResult,
+} from "./ModularFixtureLayoutEngine.js";
+
+// Soft Jaw Profile
+export {
+  SoftJawProfileEngine,
+  softJawProfileEngine,
+  type JawProfile,
+  type JawMaterial,
+  type SoftJawInput,
+  type SoftJawResult,
+} from "./SoftJawProfileEngine.js";
+
+// 3D-Printed Fixture
+export {
+  ThreeDPrintedFixtureEngine,
+  threeDPrintedFixtureEngine,
+  type PrintProcess,
+  type PrintMaterial,
+  type ThreeDPrintFixtureInput,
+  type ThreeDPrintFixtureResult,
+} from "./ThreeDPrintedFixtureEngine.js";
+
+// Magnetic Chuck (SAFETY CRITICAL)
+export {
+  MagneticChuckEngine,
+  magneticChuckEngine,
+  type ChuckType as MagneticChuckType,
+  type MagneticChuckInput,
+  type MagneticChuckResult,
+} from "./MagneticChuckEngine.js";
+
+// Tombstone Layout (HMC production)
+export {
+  TombstoneLayoutEngine,
+  tombstoneLayoutEngine,
+  type TombstoneInput,
+  type TombstoneLayoutResult,
+} from "./TombstoneLayoutEngine.js";
