@@ -351,7 +351,7 @@ export const MACHINE_SPINDLE_DEFAULTS: Record<string, MachineSpindleDefault> = {
     spindle_nose: "NONE",
     coolant_through: false,
     coolant_pressure: 0,
-    confidence: "measured",
+    confidence: "catalog",
     notes: "Wire EDM — no spindle, electrical discharge machining"
   },
   "sinker_edm": {
@@ -364,7 +364,7 @@ export const MACHINE_SPINDLE_DEFAULTS: Record<string, MachineSpindleDefault> = {
     spindle_nose: "NONE",
     coolant_through: false,
     coolant_pressure: 0,
-    confidence: "measured",
+    confidence: "catalog",
     notes: "Sinker/die-sinking EDM — no spindle"
   },
 };

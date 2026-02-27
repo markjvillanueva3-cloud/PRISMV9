@@ -46,7 +46,8 @@ import {
   autoScriptRecommend,
   autoPhaseSkillLoader, autoSkillContextMatch, autoNLHookEvaluator,
   autoHookActivationPhaseCheck, autoD4PerfSummary,
-  autoSkillHookMatch, autoSuperpowerBoot
+  autoSkillHookMatch, autoSuperpowerBoot,
+  autoBudgetTrack, autoMemoryExternalize, autoSessionHealthPoll, autoKvCacheStabilityCheck
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { PATHS } from "../constants.js";
@@ -640,6 +641,20 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           recurring_patterns: recon.recurring_patterns.length,
           registry_status: warmStart.registry_status
         });
+        // KV Cache stability check — one-time at session boot
+        try {
+          const kvResult = autoKvCacheStabilityCheck(callNum);
+          if (kvResult.issues_found > 0) {
+            cadence.actions.push(`\u{1F511} KV_CACHE: score=${kvResult.stability_score}, ${kvResult.issues_found} issues`);
+            cadence.kv_cache_stability = kvResult;
+          }
+        } catch {
+        }
+        // Budget engine reset for new session
+        try {
+          const { ContextBudgetEngine } = await import("../engines/ContextBudgetEngine.js");
+          ContextBudgetEngine.resetBudget();
+        } catch {}
         let knowledgeHints: any = null;
         try {
           knowledgeHints = autoKnowledgeCrossQuery(callNum, toolName, action2, args[0]?.params || {});
@@ -1136,6 +1151,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     totalResultCount++;
     if (resultBytes > largestResultBytes) largestResultBytes = resultBytes;
     const avgResultBytes = totalResultCount > 0 ? Math.round(accumulatedResultBytes / totalResultCount) : 0;
+    // Budget tracking — every call
+    try {
+      const budgetResult = autoBudgetTrack(callNum, toolName, action2, resultBytes);
+      if (budgetResult.over_budget) {
+        cadence.actions.push(`\u{1F4B8} OVER_BUDGET: ${budgetResult.category} at ${budgetResult.utilization_pct}%`);
+      }
+      cadence.budget = budgetResult;
+    } catch {}
     let classifiedDomain;
     const mfgDispatchers = ["prism_calc", "prism_safety", "prism_thread", "prism_toolpath", "prism_data", "prism_orchestrate", "prism_atcs"];
     if (!error && mfgDispatchers.includes(toolName)) {
@@ -1259,6 +1282,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Session health poll — at checkpoint cadence (every 10 calls)
+      try {
+        const pPct = cadence.pressure?.pressure_pct || getCurrentPressurePct();
+        const healthResult = autoSessionHealthPoll(callNum, pPct);
+        if (healthResult.status !== "GREEN") {
+          cadence.actions.push(`\u{1FA7A} HEALTH:${healthResult.status} — ${healthResult.advisory}`);
+        }
+        cadence.session_health = healthResult;
+      } catch {}
     }
     if (callNum - lastPressureCheck >= 8) {
       lastPressureCheck = callNum;
@@ -1292,6 +1324,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
         } catch {
         }
+      }
+      // Memory externalize — at pressure >= 65%, move accumulated data to filesystem
+      if (pressureResult.pressure_pct >= 65) {
+        try {
+          const extResult = autoMemoryExternalize(callNum, pressureResult.pressure_pct, cadence.actions);
+          if (extResult.externalized_count > 0) {
+            cadence.actions.push(`\u{1F4E4} MEMORY_EXTERNALIZED: ${extResult.externalized_count} files, ~${Math.round(extResult.estimated_bytes_saved / 1024)}KB freed`);
+            cadence.memory_externalize = extResult;
+          }
+        } catch {}
       }
       if (pressureResult.pressure_pct >= 70) {
         const compressResult = autoContextCompress(callNum, {

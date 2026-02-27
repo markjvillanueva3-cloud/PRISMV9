@@ -43,6 +43,7 @@ import type {
 } from "../types/prism-schema.js";
 import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
 import { PATHS } from "../constants.js";
+import { ContextBudgetEngine } from "../engines/ContextBudgetEngine.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
@@ -3790,6 +3791,412 @@ export function autoSuperpowerBoot(callNumber: number): SuperpowerBootResult {
   }
 }
 
+
+// ============================================================================
+// AUTO BUDGET TRACK — Token budget tracking per category
+// Cadence: every call. Classifies tool call into budget category and tracks
+// token usage via ContextBudgetEngine. Detects over-budget categories.
+// ============================================================================
+
+export interface BudgetTrackResult {
+  success: boolean;
+  call_number: number;
+  category: string;
+  tokens_estimated: number;
+  tokens_used_total: number;
+  limit: number;
+  over_budget: boolean;
+  utilization_pct: number;
+  warnings: string[];
+}
+
+const TOOL_BUDGET_CATEGORY: Record<string, string> = {
+  prism_calc: "manufacturing",
+  prism_safety: "manufacturing",
+  prism_thread: "manufacturing",
+  prism_toolpath: "manufacturing",
+  prism_data: "manufacturing",
+  prism_atcs: "manufacturing",
+  prism_orchestrate: "manufacturing",
+  prism_dev: "development",
+  prism_sp: "development",
+  prism_guard: "development",
+  prism_context: "context",
+  prism_session: "context",
+  prism_intelligence: "context",
+  prism_memory: "context",
+};
+
+export function autoBudgetTrack(
+  callNumber: number,
+  toolName: string,
+  action: string,
+  resultBytes: number
+): BudgetTrackResult {
+  try {
+    const category = TOOL_BUDGET_CATEGORY[toolName] || "reserve";
+    // Estimate tokens: ~4 chars per token for typical JSON output
+    const tokensEstimated = Math.max(1, Math.round(resultBytes / 4));
+
+    const tracked = ContextBudgetEngine.trackUsage(category, tokensEstimated);
+    const overBudgetCheck = ContextBudgetEngine.isOverBudget(category);
+
+    const warnings: string[] = [];
+    if (overBudgetCheck.overBudget) {
+      warnings.push(`Category '${category}' over budget by ${overBudgetCheck.overage} tokens`);
+    }
+    // Warn at 80% utilization
+    if (tracked.tokensUsed > tracked.limit * 0.8 && !overBudgetCheck.overBudget) {
+      warnings.push(`Category '${category}' at ${Math.round((tracked.tokensUsed / tracked.limit) * 100)}% of budget`);
+    }
+
+    if (warnings.length > 0) {
+      appendEventLine("budget_warning", { category, used: tracked.tokensUsed, limit: tracked.limit, warnings });
+    }
+
+    return {
+      success: true,
+      call_number: callNumber,
+      category,
+      tokens_estimated: tokensEstimated,
+      tokens_used_total: tracked.tokensUsed,
+      limit: tracked.limit,
+      over_budget: overBudgetCheck.overBudget,
+      utilization_pct: tracked.limit > 0 ? Math.round((tracked.tokensUsed / tracked.limit) * 100) : 0,
+      warnings,
+    };
+  } catch {
+    return {
+      success: false, call_number: callNumber, category: "unknown",
+      tokens_estimated: 0, tokens_used_total: 0, limit: 0,
+      over_budget: false, utilization_pct: 0, warnings: [],
+    };
+  }
+}
+
+// ============================================================================
+// AUTO MEMORY EXTERNALIZE — Move accumulated data to filesystem at high pressure
+// Cadence: at pressure >= 65%. Writes events, decisions, errors to JSONL files
+// on disk, freeing context window space. Returns estimated bytes saved.
+// ============================================================================
+
+export interface MemoryExternalizeResult {
+  success: boolean;
+  call_number: number;
+  externalized_count: number;
+  estimated_bytes_saved: number;
+  files_written: string[];
+  categories: string[];
+}
+
+let _lastExternalizeCall = 0;
+
+export function autoMemoryExternalize(
+  callNumber: number,
+  pressurePct: number,
+  recentActions: string[]
+): MemoryExternalizeResult {
+  try {
+    // Debounce: at most once every 5 calls
+    if (callNumber - _lastExternalizeCall < 5) {
+      return { success: true, call_number: callNumber, externalized_count: 0, estimated_bytes_saved: 0, files_written: [], categories: [] };
+    }
+    if (pressurePct < 65) {
+      return { success: true, call_number: callNumber, externalized_count: 0, estimated_bytes_saved: 0, files_written: [], categories: [] };
+    }
+    _lastExternalizeCall = callNumber;
+
+    const externalDir = path.join(STATE_DIR, "externalized");
+    if (!fs.existsSync(externalDir)) fs.mkdirSync(externalDir, { recursive: true });
+
+    const dateTag = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const filesWritten: string[] = [];
+    const categories: string[] = [];
+    let totalBytes = 0;
+    let count = 0;
+
+    // 1. Externalize decision log if it exists and is large
+    const decisionLog = path.join(STATE_DIR, "SESSION_JOURNAL.jsonl");
+    if (fs.existsSync(decisionLog)) {
+      const content = fs.readFileSync(decisionLog, "utf-8");
+      if (content.length > 2000) {
+        const extPath = path.join(externalDir, `decisions_${dateTag}.jsonl`);
+        fs.writeFileSync(extPath, content);
+        totalBytes += content.length;
+        count++;
+        filesWritten.push(extPath);
+        categories.push("decisions");
+        // Truncate original to last 5 entries
+        const lines = content.trim().split("\n").filter(Boolean);
+        fs.writeFileSync(decisionLog, lines.slice(-5).join("\n") + "\n");
+      }
+    }
+
+    // 2. Externalize error log if large
+    const errorLog = path.join(STATE_DIR, "ERROR_LOG.jsonl");
+    if (fs.existsSync(errorLog)) {
+      const content = fs.readFileSync(errorLog, "utf-8");
+      if (content.length > 3000) {
+        const extPath = path.join(externalDir, `errors_${dateTag}.jsonl`);
+        fs.writeFileSync(extPath, content);
+        totalBytes += content.length;
+        count++;
+        filesWritten.push(extPath);
+        categories.push("errors");
+        // Keep last 3 entries in working log
+        const lines = content.trim().split("\n").filter(Boolean);
+        fs.writeFileSync(errorLog, lines.slice(-3).join("\n") + "\n");
+      }
+    }
+
+    // 3. Externalize event log if large
+    if (fs.existsSync(EVENT_LOG_FILE)) {
+      const content = fs.readFileSync(EVENT_LOG_FILE, "utf-8");
+      if (content.length > 5000) {
+        const extPath = path.join(externalDir, `events_${dateTag}.jsonl`);
+        fs.writeFileSync(extPath, content);
+        totalBytes += content.length;
+        count++;
+        filesWritten.push(extPath);
+        categories.push("events");
+        // Keep last 10 entries
+        const lines = content.trim().split("\n").filter(Boolean);
+        fs.writeFileSync(EVENT_LOG_FILE, lines.slice(-10).join("\n") + "\n");
+      }
+    }
+
+    // 4. Externalize failure patterns if large
+    const failurePatternsFile = path.join(STATE_DIR, "failure_patterns.jsonl");
+    if (fs.existsSync(failurePatternsFile)) {
+      const content = fs.readFileSync(failurePatternsFile, "utf-8");
+      if (content.length > 2000) {
+        const extPath = path.join(externalDir, `patterns_${dateTag}.jsonl`);
+        fs.writeFileSync(extPath, content);
+        totalBytes += content.length;
+        count++;
+        filesWritten.push(extPath);
+        categories.push("patterns");
+      }
+    }
+
+    if (count > 0) {
+      appendEventLine("memory_externalized", {
+        files: count, bytes_saved: totalBytes, pressure_pct: pressurePct, categories,
+      });
+    }
+
+    return {
+      success: true,
+      call_number: callNumber,
+      externalized_count: count,
+      estimated_bytes_saved: totalBytes,
+      files_written: filesWritten,
+      categories,
+    };
+  } catch {
+    return {
+      success: false, call_number: callNumber,
+      externalized_count: 0, estimated_bytes_saved: 0,
+      files_written: [], categories: [],
+    };
+  }
+}
+
+// ============================================================================
+// AUTO SESSION HEALTH POLL — Periodic session health check
+// Cadence: every 10 calls (at checkpoint cadence). Computes session health
+// from call count, estimated tokens, error rate, budget utilization.
+// ============================================================================
+
+export interface SessionHealthResult {
+  success: boolean;
+  call_number: number;
+  status: "GREEN" | "YELLOW" | "RED";
+  advisory: string;
+  metrics: {
+    call_count: number;
+    estimated_tokens: number;
+    error_count: number;
+    error_rate_pct: number;
+    budget_utilization_pct: number;
+    over_budget_categories: string[];
+    pressure_pct: number;
+  };
+}
+
+export function autoSessionHealthPoll(
+  callNumber: number,
+  pressurePct: number
+): SessionHealthResult {
+  try {
+    // Count errors from log
+    let errorCount = 0;
+    const errorLog = path.join(STATE_DIR, "ERROR_LOG.jsonl");
+    try {
+      if (fs.existsSync(errorLog)) {
+        errorCount = fs.readFileSync(errorLog, "utf-8").trim().split("\n").filter(Boolean).length;
+      }
+    } catch {}
+
+    // Budget utilization
+    const budgetReport = ContextBudgetEngine.getUsageReport();
+    const errorRatePct = callNumber > 0 ? Math.round((errorCount / callNumber) * 100) : 0;
+
+    // Determine status
+    let status: "GREEN" | "YELLOW" | "RED" = "GREEN";
+    const advisories: string[] = [];
+
+    if (pressurePct >= 75) {
+      status = "RED";
+      advisories.push(`High context pressure (${pressurePct}%)`);
+    } else if (pressurePct >= 55) {
+      status = "YELLOW";
+      advisories.push(`Elevated context pressure (${pressurePct}%)`);
+    }
+
+    if (errorRatePct > 30) {
+      status = "RED";
+      advisories.push(`High error rate (${errorRatePct}%)`);
+    } else if (errorRatePct > 15) {
+      if (status === "GREEN") status = "YELLOW";
+      advisories.push(`Elevated error rate (${errorRatePct}%)`);
+    }
+
+    if (budgetReport.overBudgetCategories.length > 0) {
+      if (status === "GREEN") status = "YELLOW";
+      advisories.push(`Over budget: ${budgetReport.overBudgetCategories.join(", ")}`);
+    }
+
+    if (budgetReport.utilizationPercent > 80) {
+      if (status === "GREEN") status = "YELLOW";
+      advisories.push(`Total budget at ${budgetReport.utilizationPercent}%`);
+    }
+
+    if (advisories.length === 0) advisories.push("Session healthy");
+
+    appendEventLine("session_health_poll", {
+      call: callNumber, status, pressure: pressurePct,
+      budget_pct: budgetReport.utilizationPercent, error_rate: errorRatePct,
+    });
+
+    return {
+      success: true,
+      call_number: callNumber,
+      status,
+      advisory: advisories.join("; "),
+      metrics: {
+        call_count: callNumber,
+        estimated_tokens: Math.round(pressurePct * 1500), // rough: 100% ≈ 150K tokens
+        error_count: errorCount,
+        error_rate_pct: errorRatePct,
+        budget_utilization_pct: budgetReport.utilizationPercent,
+        over_budget_categories: budgetReport.overBudgetCategories,
+        pressure_pct: pressurePct,
+      },
+    };
+  } catch {
+    return {
+      success: false, call_number: callNumber, status: "RED",
+      advisory: "Health check failed",
+      metrics: {
+        call_count: callNumber, estimated_tokens: 0, error_count: 0,
+        error_rate_pct: 0, budget_utilization_pct: 0,
+        over_budget_categories: [], pressure_pct: 0,
+      },
+    };
+  }
+}
+
+// ============================================================================
+// AUTO KV CACHE STABILITY CHECK — One-time boot check for KV cache stability
+// Fires once at session boot. Scans PRISM state files for KV-cache-breaking
+// patterns (timestamps, random session IDs in prefix content) and flags them.
+// ============================================================================
+
+export interface KvCacheStabilityResult {
+  success: boolean;
+  call_number: number;
+  stability_score: number; // 0-100, higher = more stable
+  issues_found: number;
+  issues: string[];
+  recommendations: string[];
+}
+
+let _kvCheckDone = false;
+
+export function autoKvCacheStabilityCheck(callNumber: number): KvCacheStabilityResult {
+  try {
+    if (_kvCheckDone) {
+      return { success: true, call_number: callNumber, stability_score: 100, issues_found: 0, issues: [], recommendations: [] };
+    }
+    _kvCheckDone = true;
+
+    const issues: string[] = [];
+    const recommendations: string[] = [];
+
+    // Check key state files for volatile patterns that break KV cache
+    const filesToCheck = [
+      { path: path.join(STATE_DIR, "CURRENT_STATE.json"), name: "CURRENT_STATE" },
+      { path: path.join(STATE_DIR, "HOT_RESUME.md"), name: "HOT_RESUME" },
+      { path: path.join(STATE_DIR, "COMPACTION_SURVIVAL.json"), name: "COMPACTION_SURVIVAL" },
+    ];
+
+    // Patterns that break KV cache prefix matching
+    const volatilePatterns = [
+      { regex: /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, name: "ISO timestamp" },
+      { regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i, name: "UUID" },
+      { regex: /session_\d{13,}/, name: "session timestamp ID" },
+      { regex: /Date\.now\(\)|new Date\(\)/, name: "dynamic date call" },
+    ];
+
+    let totalIssues = 0;
+    for (const file of filesToCheck) {
+      if (!fs.existsSync(file.path)) continue;
+      try {
+        const content = fs.readFileSync(file.path, "utf-8").slice(0, 2000);
+        for (const pattern of volatilePatterns) {
+          const matches = content.match(new RegExp(pattern.regex, "g"));
+          if (matches && matches.length > 0) {
+            issues.push(`${file.name}: ${matches.length} ${pattern.name}(s) — breaks KV cache prefix`);
+            totalIssues += matches.length;
+          }
+        }
+      } catch {}
+    }
+
+    // Check if kv_sort_json has ever been called (look for sorted marker)
+    const kvSortMarker = path.join(STATE_DIR, ".kv_sorted");
+    if (!fs.existsSync(kvSortMarker) && totalIssues > 0) {
+      recommendations.push("Run prism_context kv_sort_json to stabilize key ordering");
+    }
+    if (totalIssues > 3) {
+      recommendations.push("Consider moving volatile timestamps to a separate state file not in system prompt");
+    }
+    if (totalIssues > 0) {
+      recommendations.push("Use deterministic session IDs (hash-based) instead of timestamp-based");
+    }
+
+    const stabilityScore = Math.max(0, 100 - totalIssues * 8);
+
+    appendEventLine("kv_cache_stability_check", {
+      score: stabilityScore, issues: totalIssues, call: callNumber,
+    });
+
+    return {
+      success: true,
+      call_number: callNumber,
+      stability_score: stabilityScore,
+      issues_found: totalIssues,
+      issues,
+      recommendations,
+    };
+  } catch {
+    return {
+      success: false, call_number: callNumber,
+      stability_score: 0, issues_found: 0, issues: [], recommendations: [],
+    };
+  }
+}
 
 // ============================================================================
 // DA-MS11 STEP 3: NL HOOK EVALUATOR
