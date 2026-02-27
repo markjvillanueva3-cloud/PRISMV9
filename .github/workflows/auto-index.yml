@@ -11,6 +11,9 @@ on:
       - 'SCRIPTS/extraction_index_*.json'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   rebuild-index:
     runs-on: ubuntu-latest
