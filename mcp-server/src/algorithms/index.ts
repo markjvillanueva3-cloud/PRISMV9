@@ -1,7 +1,7 @@
 /**
  * PRISM Algorithm Module — Barrel Export
  *
- * All 18 standalone manufacturing physics algorithms, each implementing
+ * All 36 standalone manufacturing physics & general-purpose algorithms, each implementing
  * Algorithm<I, O> with typed validation, calculation, and metadata.
  *
  * Usage:
@@ -49,6 +49,25 @@ import { ThermalFEAModel } from "./ThermalFEAModel.js";
 import { BayesianWearModel } from "./BayesianWearModel.js";
 import { EnsemblePredictorModel } from "./EnsemblePredictorModel.js";
 import { AdaptiveControllerModel } from "./AdaptiveControllerModel.js";
+// L1-P1-MS1: 18 new general-purpose algorithms
+import { GeneticOptimizer } from "./GeneticOptimizer.js";
+import { SimulatedAnnealing } from "./SimulatedAnnealing.js";
+import { ParticleSwarm } from "./ParticleSwarm.js";
+import { MonteCarlo } from "./MonteCarlo.js";
+import { NeuralInference } from "./NeuralInference.js";
+import { BayesianOptimizer } from "./BayesianOptimizer.js";
+import { FuzzyController } from "./FuzzyController.js";
+import { DigitalTwinEstimator } from "./DigitalTwinEstimator.js";
+import { TimeSeriesPredictor } from "./TimeSeriesPredictor.js";
+import { AnomalyDetector } from "./AnomalyDetector.js";
+import { ClusteringEngine } from "./ClusteringEngine.js";
+import { DecisionTreeClassifier } from "./DecisionTreeClassifier.js";
+import { RegressionEngine } from "./RegressionEngine.js";
+import { InterpolationEngine } from "./InterpolationEngine.js";
+import { KalmanFilter } from "./KalmanFilter.js";
+import { PIDController } from "./PIDController.js";
+import { FEASolver2D } from "./FEASolver2D.js";
+import { FFTAnalyzer } from "./FFTAnalyzer.js";
 
 // ── Safety-Critical Algorithms (Opus-reviewed) ──────────────────────
 
@@ -110,10 +129,66 @@ export type { EnsemblePredictorInput, EnsemblePredictorOutput } from "./Ensemble
 export { AdaptiveControllerModel } from "./AdaptiveControllerModel.js";
 export type { AdaptiveControllerInput, AdaptiveControllerOutput } from "./AdaptiveControllerModel.js";
 
+// ── L1-P1-MS1: General-Purpose Algorithms ────────────────────────────
+
+export { GeneticOptimizer } from "./GeneticOptimizer.js";
+export type { GeneticOptimizerInput, GeneticOptimizerOutput } from "./GeneticOptimizer.js";
+
+export { SimulatedAnnealing } from "./SimulatedAnnealing.js";
+export type { SimulatedAnnealingInput, SimulatedAnnealingOutput } from "./SimulatedAnnealing.js";
+
+export { ParticleSwarm } from "./ParticleSwarm.js";
+export type { ParticleSwarmInput, ParticleSwarmOutput } from "./ParticleSwarm.js";
+
+export { MonteCarlo } from "./MonteCarlo.js";
+export type { MonteCarloInput, MonteCarloOutput } from "./MonteCarlo.js";
+
+export { NeuralInference } from "./NeuralInference.js";
+export type { NeuralInferenceInput, NeuralInferenceOutput } from "./NeuralInference.js";
+
+export { BayesianOptimizer } from "./BayesianOptimizer.js";
+export type { BayesianOptimizerInput, BayesianOptimizerOutput } from "./BayesianOptimizer.js";
+
+export { FuzzyController } from "./FuzzyController.js";
+export type { FuzzyControllerInput, FuzzyControllerOutput } from "./FuzzyController.js";
+
+export { DigitalTwinEstimator } from "./DigitalTwinEstimator.js";
+export type { DigitalTwinEstimatorInput, DigitalTwinEstimatorOutput } from "./DigitalTwinEstimator.js";
+
+export { TimeSeriesPredictor } from "./TimeSeriesPredictor.js";
+export type { TimeSeriesPredictorInput, TimeSeriesPredictorOutput } from "./TimeSeriesPredictor.js";
+
+export { AnomalyDetector } from "./AnomalyDetector.js";
+export type { AnomalyDetectorInput, AnomalyDetectorOutput } from "./AnomalyDetector.js";
+
+export { ClusteringEngine } from "./ClusteringEngine.js";
+export type { ClusteringEngineInput, ClusteringEngineOutput } from "./ClusteringEngine.js";
+
+export { DecisionTreeClassifier } from "./DecisionTreeClassifier.js";
+export type { DecisionTreeClassifierInput, DecisionTreeClassifierOutput } from "./DecisionTreeClassifier.js";
+
+export { RegressionEngine } from "./RegressionEngine.js";
+export type { RegressionEngineInput, RegressionEngineOutput } from "./RegressionEngine.js";
+
+export { InterpolationEngine } from "./InterpolationEngine.js";
+export type { InterpolationEngineInput, InterpolationEngineOutput } from "./InterpolationEngine.js";
+
+export { KalmanFilter } from "./KalmanFilter.js";
+export type { KalmanFilterInput, KalmanFilterOutput } from "./KalmanFilter.js";
+
+export { PIDController } from "./PIDController.js";
+export type { PIDControllerInput, PIDControllerOutput } from "./PIDController.js";
+
+export { FEASolver2D } from "./FEASolver2D.js";
+export type { FEASolver2DInput, FEASolver2DOutput } from "./FEASolver2D.js";
+
+export { FFTAnalyzer } from "./FFTAnalyzer.js";
+export type { FFTAnalyzerInput, FFTAnalyzerOutput } from "./FFTAnalyzer.js";
+
 // ── Algorithm Registry ──────────────────────────────────────────────
 
 /**
- * All 18 algorithm classes, indexed by their metadata ID.
+ * All 36 algorithm classes, indexed by their metadata ID.
  * Useful for dynamic dispatch and introspection.
  */
 export const ALGORITHM_REGISTRY = {
@@ -125,7 +200,7 @@ export const ALGORITHM_REGISTRY = {
   "stability-lobe": StabilityLobeDiagram,
   "chip-thinning": ChipThinningCompensation,
   "thermal-power": ThermalPartitionModel,
-  // L1-P0-MS1: 11 new ported algorithms
+  // L1-P0-MS1: 11 ported monolith algorithms
   "gilbert-mrr": GilbertMRRModel,
   "tool-deflection": ToolDeflectionModel,
   "chip-breaking": ChipBreakingModel,
@@ -137,6 +212,25 @@ export const ALGORITHM_REGISTRY = {
   "bayesian-wear": BayesianWearModel,
   "ensemble-predictor": EnsemblePredictorModel,
   "adaptive-controller": AdaptiveControllerModel,
+  // L1-P1-MS1: 18 new general-purpose algorithms
+  "genetic-optimizer": GeneticOptimizer,
+  "simulated-annealing": SimulatedAnnealing,
+  "particle-swarm": ParticleSwarm,
+  "monte-carlo": MonteCarlo,
+  "neural-inference": NeuralInference,
+  "bayesian-optimizer": BayesianOptimizer,
+  "fuzzy-controller": FuzzyController,
+  "digital-twin-estimator": DigitalTwinEstimator,
+  "time-series-predictor": TimeSeriesPredictor,
+  "anomaly-detector": AnomalyDetector,
+  "clustering-engine": ClusteringEngine,
+  "decision-tree-classifier": DecisionTreeClassifier,
+  "regression-engine": RegressionEngine,
+  "interpolation-engine": InterpolationEngine,
+  "kalman-filter": KalmanFilter,
+  "pid-controller": PIDController,
+  "fea-solver-2d": FEASolver2D,
+  "fft-analyzer": FFTAnalyzer,
 } as const;
 
 export type AlgorithmId = keyof typeof ALGORITHM_REGISTRY;
