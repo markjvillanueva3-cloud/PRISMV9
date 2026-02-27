@@ -920,3 +920,166 @@ export {
   type GateResult,
   type GateCheck,
 } from "./RoadmapExecutor.js";
+
+// ──────────────────────────────────────────────────────────────
+// L2-P0-MS1 — 8 Monolith Engine Ports
+// ──────────────────────────────────────────────────────────────
+
+// CAD File Import / Export
+export {
+  FileIOEngine,
+  fileIOEngine,
+  type CADFormat,
+  type STEPEntityCategory,
+  type STEPEntity,
+  type STEPHeader,
+  type STEPParseResult,
+  type IGESEntityType,
+  type IGESEntity,
+  type IGESParseResult,
+  type STLParseResult,
+  type DXFEntityType,
+  type DXFEntity,
+  type DXFLayer,
+  type DXFParseResult,
+  type ParseResult as FileIOParseResult,
+  type Vec3 as FileIOVec3,
+  type Triangle as FileIOTriangle,
+  type BoundingBox as FileIOBoundingBox,
+} from "./FileIOEngine.js";
+
+// G-code Simulation & Collision Detection
+export {
+  SimulationEngine,
+  simulationEngine,
+  type SimulationMode,
+  type MoveType,
+  type ToolDefinition as SimToolDefinition,
+  type MachineDefinition as SimMachineDefinition,
+  type StockDefinition,
+  type SimulatedMove,
+  type CollisionEvent as SimCollisionEvent,
+  type SimulationResult,
+  type Vec3 as SimVec3,
+} from "./SimulationEngine.js";
+
+// 3D Visualization Data Pipeline
+export {
+  VisualizationEngine,
+  visualizationEngine,
+  type ViewPreset,
+  type ColorMode,
+  type RenderMode,
+  type CameraConfig,
+  type MeshData,
+  type ToolpathLineData,
+  type SceneNode,
+  type SceneGraph,
+  type HeatmapConfig,
+  type Vec3 as VizVec3,
+  type Vec4 as VizVec4,
+  type Color as VizColor,
+} from "./VisualizationEngine.js";
+
+// Manufacturing AI / ML Intelligence
+export {
+  AIMLEngine,
+  aimlEngine,
+  type ModelType as AIModelType,
+  type ModelStatus as AIModelStatus,
+  type ManufacturingDomain,
+  type ModelMetadata,
+  type PredictionInput,
+  type PredictionResult,
+  type TrainingInput,
+  type TrainingResult,
+  type ClusterInput,
+  type ClusterResult,
+  type IntentResult,
+  type AnomalyResult,
+} from "./AIMLEngine.js";
+
+// Computational Geometry & B-Rep Kernel
+export {
+  CADKernelEngine,
+  cadKernelEngine,
+  type Vec2 as CADVec2,
+  type Vec3 as CADVec3,
+  type Vec4 as CADVec4,
+  type Mat4 as CADMat4,
+  type Quaternion as CADQuaternion,
+  type Ray as CADRay,
+  type Plane as CADPlane,
+  type AABB as CADAABB,
+  type NURBSCurve,
+  type NURBSSurface,
+  type BSplineCurve,
+  type BezierCurve,
+  type BRepVertex,
+  type BRepEdge,
+  type BRepFace,
+  type BRepShell,
+  type BRepSolid,
+  type Triangle as CADTriangle,
+  type Mesh as CADMesh,
+  type CSGOperation,
+  type CSGResult,
+  type ConvexHullResult,
+  type VoronoiResult,
+} from "./CADKernelEngine.js";
+
+// CAM Toolpath Generation & G-code (SAFETY CRITICAL)
+export {
+  CAMKernelEngine,
+  camKernelEngine,
+  type ToolpathMoveType,
+  type ToolpathMove as CAMToolpathMove,
+  type ToolpathStats,
+  type Toolpath as CAMToolpath,
+  type OperationType as CAMKernelOpType,
+  type MaterialType as CAMMaterialType,
+  type EntryStrategy,
+  type ExitStrategy,
+  type ControllerType as CAMControllerType,
+  type ToolSpec as CAMToolSpec,
+  type ChipThinningResult,
+  type EngagementResult,
+  type EntryParams,
+  type HelixEntryParams,
+  type GCodeParams,
+  type GCodeProgram,
+  type CollisionCheckResult as CAMCollisionCheckResult,
+  type Vec2 as CAMVec2,
+  type Vec3 as CAMVec3,
+} from "./CAMKernelEngine.js";
+
+// Report Generation (Setup Sheets, Process Plans, Cost Estimates)
+export {
+  ReportEngine,
+  reportEngine,
+  type ReportType as ReportEngineType,
+  type ReportMeta,
+  type SetupSheetData,
+  type ProcessPlanData,
+  type CostEstimateData,
+  type ToolListData,
+  type InspectionPlanData,
+  type AlarmReportData,
+  type SpeedFeedCardData,
+  type ReportData,
+} from "./ReportEngine.js";
+
+// Settings, Units & Presets
+export {
+  SettingsEngine,
+  settingsEngine,
+  type UnitSystem as SettingsUnitSystem,
+  type AngleUnit,
+  type PressureUnit,
+  type TemperatureUnit,
+  type UnitPreferences,
+  type MachineDefaults,
+  type CalculationPreset,
+  type SafetySettings,
+  type UserSettings,
+} from "./SettingsEngine.js";
