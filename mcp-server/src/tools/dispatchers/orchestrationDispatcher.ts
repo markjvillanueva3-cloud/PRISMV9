@@ -58,7 +58,7 @@ function ok(data: any) {
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",
-    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}. Use milestone_id for modular roadmap loading (saves tokens vs full envelope). Multi-Claude: roadmap_claim/release/heartbeat/discover for coordinated parallel execution.`,
+    "Agent orchestration, swarm coordination, and roadmap execution. Multi-Claude parallel via claim/release/heartbeat. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);

@@ -22,7 +22,7 @@ function ok(data: any) {
 export function registerSkillScriptDispatcher(server: any): void {
   server.tool(
     "prism_skill_script",
-    `Skills + Scripts + Knowledge V2 (12+6+5 = 23 tools → 1). Actions: ${ACTIONS.join(", ")}`,
+    "Skills, scripts, and bundles: list/get/search/execute/recommend/chain. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_skill_script] ${action}`);

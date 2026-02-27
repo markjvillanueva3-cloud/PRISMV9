@@ -448,6 +448,9 @@ export class PFPEngine {
   // RISK SCORING — Fast assessment per proposed action (<5ms target)
   // ==========================================================================
 
+  // Memoization cache: avoid re-computing identical risk assessments within 60s
+  private _riskCache: Map<string, { result: RiskAssessment; ts: number }> = new Map();
+
   assessRisk(dispatcher: string, action: string, callNumber: number,
              contextDepthPercent: number, paramKeys?: string[]): RiskAssessment {
     const start = performance.now();
@@ -466,6 +469,12 @@ export class PFPEngine {
       }
 
       const key = `${dispatcher}:${action}`;
+
+      // Check memoization cache (60s TTL, same dispatcher:action)
+      const cached = this._riskCache.get(key);
+      if (cached && Date.now() - cached.ts < 60000) {
+        return { ...cached.result, assessmentMs: performance.now() - start, reason: cached.result.reason + ' (cached)' };
+      }
       const now = Date.now();
       const matchedPatterns: PatternMatch[] = [];
       let totalRisk = 0;
@@ -553,7 +562,7 @@ export class PFPEngine {
         log.info(`[PFP] ${riskLevel} risk: ${dispatcher}:${action} score=${riskScore.toFixed(3)} patterns=${matchedPatterns.length} rec=${recommendation} (${assessmentMs.toFixed(1)}ms)`);
       }
 
-      return {
+      const assessment: RiskAssessment = {
         dispatcher,
         action,
         riskLevel,
@@ -563,6 +572,15 @@ export class PFPEngine {
         assessmentMs,
         reason,
       };
+
+      // Store in memoization cache; prune if > 100 entries
+      this._riskCache.set(key, { result: assessment, ts: Date.now() });
+      if (this._riskCache.size > 100) {
+        const firstKey = this._riskCache.keys().next().value;
+        if (firstKey) this._riskCache.delete(firstKey);
+      }
+
+      return assessment;
     } catch (e) {
       // On ANY error, return GREEN — fail-open, never block
       return this.greenAssessment(dispatcher, action, start, `Assessment error: ${(e as Error).message}`);

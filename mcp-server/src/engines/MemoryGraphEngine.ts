@@ -730,6 +730,9 @@ export class MemoryGraphEngine {
    * Record a decision+outcome pair from a dispatcher call.
    * Called by autoHookWrapper after each dispatch.
    */
+  /** Track last decision ID per session for PRECEDED edges */
+  private lastDecisionId: string | null = null;
+
   captureDispatch(
     sessionId: string,
     dispatcher: string,
@@ -767,9 +770,127 @@ export class MemoryGraphEngine {
         this.addEdge(decisionId, outcomeId, 'CAUSED');
       }
 
+      // Auto-link PRECEDED: previous decision → this decision (sequence tracking)
+      if (decisionId && this.lastDecisionId && this.nodes.has(this.lastDecisionId)) {
+        this.addEdge(this.lastDecisionId, decisionId, 'PRECEDED');
+      }
+      if (decisionId) this.lastDecisionId = decisionId;
+
+      // Auto-link SIMILAR_TO: find recent decisions with same dispatcher+action
+      if (decisionId) {
+        const candidates = this.index.nodesByDispatcher[dispatcher] || [];
+        let linked = 0;
+        for (let i = candidates.length - 1; i >= 0 && linked < 3; i--) {
+          const cid = candidates[i];
+          if (cid === decisionId) continue;
+          const cnode = this.nodes.get(cid);
+          if (!cnode || cnode.type !== 'DECISION') continue;
+          if ((cnode as any).action !== action) continue;
+          this.addEdge(decisionId, cid, 'SIMILAR_TO');
+          linked++;
+        }
+      }
+
+      // Auto-create CONTEXT node from params (extract key-value context)
+      if (decisionId && paramsSummary.length > 10) {
+        const contextId = this.addNode({
+          type: 'CONTEXT' as const,
+          sessionId,
+          tags: [dispatcher, action, 'auto-context'],
+          values: paramsSummary.slice(0, 500),
+        } as any);
+        if (contextId) {
+          this.addEdge(contextId, decisionId, 'CONTEXT_OF');
+        }
+      }
+
       return { decisionId, outcomeId };
     } catch {
       return { decisionId: null, outcomeId: null };
+    }
+  }
+
+  // ==========================================================================
+  // PATTERN HELPERS — Wire GAP B (error→pattern learning)
+  // ==========================================================================
+
+  /**
+   * Create a PATTERN node from an error occurrence and optionally link it
+   * to the ERROR node via a TRIGGERED edge.
+   */
+  createPatternFromError(
+    sessionId: string,
+    patternType: string,
+    description: string,
+    confidence: number = 0.5,
+    occurrences: number = 1,
+    errorNodeId?: string
+  ): string | null {
+    try {
+      const patternId = this.addNode({
+        type: 'PATTERN' as const,
+        sessionId,
+        tags: ['auto-learned', patternType],
+        patternType,
+        description: description.slice(0, 300),
+        confidence: Math.max(0, Math.min(1, confidence)),
+        occurrences,
+      } as any);
+
+      if (patternId && errorNodeId && this.nodes.has(errorNodeId)) {
+        this.addEdge(errorNodeId, patternId, 'TRIGGERED', confidence);
+      }
+
+      return patternId;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Create a RESOLVED_BY edge from an ERROR node to the DECISION node
+   * that resolved it.
+   */
+  linkErrorResolution(
+    errorNodeId: string,
+    resolvingDecisionId: string,
+    weight: number = 1.0
+  ): string | null {
+    try {
+      if (!this.nodes.has(errorNodeId) || !this.nodes.has(resolvingDecisionId)) {
+        return null;
+      }
+      return this.addEdge(errorNodeId, resolvingDecisionId, 'RESOLVED_BY', weight);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Update an existing PATTERN node's confidence and optionally increment occurrences.
+   */
+  updatePatternConfidence(
+    patternId: string,
+    newConfidence: number,
+    incrementOccurrences: boolean = false
+  ): boolean {
+    try {
+      const node = this.nodes.get(patternId);
+      if (!node || node.type !== 'PATTERN') return false;
+      const pNode = node as PatternNode;
+      const updated = {
+        ...pNode,
+        confidence: Math.max(0, Math.min(1, newConfidence)),
+        occurrences: incrementOccurrences ? pNode.occurrences + 1 : pNode.occurrences,
+      } as any;
+      updated.checksum = computeNodeChecksum(updated);
+      this.enqueueWrite(() => {
+        this.nodes.set(patternId, updated);
+        this.appendWAL({ seq: ++this.walSeq, type: 'ADD_NODE' as WALEntryType, timestamp: Date.now(), data: updated });
+      });
+      return true;
+    } catch {
+      return false;
     }
   }
 

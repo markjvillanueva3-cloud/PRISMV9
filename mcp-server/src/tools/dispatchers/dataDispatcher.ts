@@ -35,20 +35,31 @@ function jsonResponse(data: any) {
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
-    "Data access layer: material get/search/compare, machine get/search/capabilities, cutting tool get/search/recommend/facets, alarm decode/search/fix, formula get/calculate, cross_query (material+operation+machine→full params), machine_toolholder_match (spindle→holders), alarm_diagnose (machine+code→fix), speed_feed_calc (material+tool+machine→optimal parameters), tool_compare (two tools head-to-head), material_substitute (find alternative materials by cost/availability/machinability/performance), coolant get/search/recommend (SFC correction factors), coating get/search/recommend (SFC correction factors). Actions: material_get, material_search, material_compare, machine_get, machine_search, machine_capabilities, tool_get, tool_search, tool_recommend, tool_facets, alarm_decode, alarm_search, alarm_fix, formula_get, formula_calculate, cross_query, machine_toolholder_match, alarm_diagnose, speed_feed_calc, tool_compare, material_substitute, coolant_search, coolant_recommend, coolant_get, coating_search, coating_recommend, coating_get",
+    "Registry data access: material/machine/tool/alarm/formula/coolant/coating get/search/recommend, cross_query, speed_feed_calc. Use 'action' param.",
     DataDispatcherSchema.shape,
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_data] action=${action}`, params);
       await registryManager.initialize();
       let result: any;
 
+      // A6: Param ID resolution helpers (eliminates 11 duplicated coalescing patterns)
+      const matId = (p: any) => p.identifier || p.material_id || p.id || p.name || null;
+      const machId = (p: any) => p.identifier || p.machine_id || p.id || p.model || null;
+      const toolId = (p: any) => p.identifier || p.tool_id || p.id || p.catalog || null;
+      // A8: Per-call machine lookup memoization
+      const _machCache = new Map<string, any>();
+      const getMach = (id: string) => {
+        if (!_machCache.has(id)) _machCache.set(id, registryManager.machines.getByIdOrModel(id));
+        return _machCache.get(id);
+      };
+
       try {
         switch (action) {
           // === MATERIAL (3) ===
           case "material_get": {
-            const matId = params.identifier || params.material_id || params.id || params.name;
-            if (!matId) return jsonResponse({ error: "Missing material identifier. Provide 'identifier', 'material_id', or 'name'." });
-            const mat = await registryManager.materials.getByIdOrName(matId);
+            const mid = matId(params);
+            if (!mid) return jsonResponse({ error: "Missing material identifier. Provide 'identifier', 'material_id', or 'name'." });
+            const mat = await registryManager.materials.getByIdOrName(mid);
             if (!mat) return jsonResponse({ error: `Material not found: ${matId}` });
             let out: any = mat;
             if (params.fields?.length) {
@@ -56,6 +67,11 @@ export function registerDataDispatcher(server: any): void {
               for (const f of params.fields) { if (f in mat) out[f] = (mat as any)[f]; }
             }
             result = out;
+            // Pressure-aware: strip deep properties
+            if (getCurrentPressurePct() > 50 && result) {
+              const { composition, tribology, thermal_properties, mechanical_properties, processing_notes, ...essential } = result;
+              result = { ...essential, _slimmed: true };
+            }
             break;
           }
           case "material_search": {
@@ -74,11 +90,16 @@ export function registerDataDispatcher(server: any): void {
 
           // === MACHINE (3) ===
           case "machine_get": {
-            const machineId = params.identifier || params.machine_id || params.id || params.model;
-            if (!machineId) return jsonResponse({ error: "machine_get requires 'identifier', 'machine_id', 'id', or 'model' parameter" });
-            const machine = registryManager.machines.getByIdOrModel(machineId);
-            if (!machine) return jsonResponse({ error: `Machine not found: ${machineId}` });
+            const mid2 = machId(params);
+            if (!mid2) return jsonResponse({ error: "machine_get requires 'identifier', 'machine_id', 'id', or 'model' parameter" });
+            const machine = getMach(mid2);
+            if (!machine) return jsonResponse({ error: `Machine not found: ${mid2}` });
             result = machine;
+            // Pressure-aware: strip deep properties
+            if (getCurrentPressurePct() > 50 && result) {
+              const { specifications, extended_data, maintenance_history, ...essential } = result as any;
+              result = { ...essential, _slimmed: true };
+            }
             break;
           }
           case "machine_search": {
@@ -93,7 +114,7 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
           case "machine_capabilities": {
-            const capsId = params.identifier || params.machine_id || params.id || params.model;
+            const capsId = machId(params);
             if (!capsId) return jsonResponse({ error: "machine_capabilities requires 'identifier', 'machine_id', 'id', or 'model' parameter" });
             const caps = registryManager.machines.getCapabilities(capsId);
             if (!caps) return jsonResponse({ error: `Machine not found: ${capsId}` });
@@ -103,11 +124,16 @@ export function registerDataDispatcher(server: any): void {
 
           // === CUTTING TOOL (4) ===
           case "tool_get": {
-            const toolId = params.identifier || params.tool_id || params.id || params.catalog;
-            if (!toolId) return jsonResponse({ error: "tool_get requires 'identifier', 'tool_id', 'id', or 'catalog' parameter" });
-            const tool = await registryManager.tools.getByIdOrCatalog(toolId);
+            const tid = toolId(params);
+            if (!tid) return jsonResponse({ error: "tool_get requires 'identifier', 'tool_id', 'id', or 'catalog' parameter" });
+            const tool = await registryManager.tools.getByIdOrCatalog(tid);
             if (!tool) return jsonResponse({ error: `Tool not found: ${toolId}` });
             result = tool;
+            // Pressure-aware: strip deep properties
+            if (getCurrentPressurePct() > 50 && result) {
+              const { extended_data, coating_details, application_notes, ...essential } = result as any;
+              result = { ...essential, _slimmed: true };
+            }
             break;
           }
           case "tool_search": {
@@ -237,7 +263,7 @@ export function registerDataDispatcher(server: any): void {
             let cqMachine: any = null;
             let machineConstraints: any = {};
             if (cqMachineId) {
-              cqMachine = registryManager.machines.getByIdOrModel(cqMachineId);
+              cqMachine = getMach(cqMachineId);
               if (cqMachine) {
                 machineConstraints = {
                   max_rpm: cqMachine.spindle?.max_rpm,
@@ -326,7 +352,7 @@ export function registerDataDispatcher(server: any): void {
             const mthMachineId = params.machine_id || params.machine || params.identifier;
             if (!mthMachineId) return jsonResponse({ error: "machine_toolholder_match requires 'machine_id' or 'machine'" });
             
-            const mthMachine = registryManager.machines.getByIdOrModel(mthMachineId);
+            const mthMachine = getMach(mthMachineId);
             if (!mthMachine) return jsonResponse({ error: `Machine not found: ${mthMachineId}` });
             
             const spindleInterface = mthMachine.spindle?.spindle_nose || (mthMachine.spindle as any)?.interface || (mthMachine as any).spindle_interface;
@@ -397,7 +423,7 @@ export function registerDataDispatcher(server: any): void {
             let machineInfo: any = null;
             
             if (adMachineId) {
-              const adMachine = registryManager.machines.getByIdOrModel(adMachineId);
+              const adMachine = getMach(adMachineId);
               if (adMachine) {
                 controller = controller || (adMachine.controller as any)?.brand || adMachine.controller?.manufacturer;
                 machineInfo = {
@@ -479,7 +505,7 @@ export function registerDataDispatcher(server: any): void {
             let maxRPM = params.max_rpm || 12000;
             let maxPower = params.max_power_kw || 15;
             if (params.machine) {
-              const sfMach = registryManager.machines.getByIdOrModel(params.machine);
+              const sfMach = getMach(params.machine);
               if (sfMach) {
                 maxRPM = sfMach.spindle?.max_rpm || (sfMach as any).spindle_rpm_max || maxRPM;
                 maxPower = (sfMach.spindle as any)?.power_kw || sfMach.spindle?.power_continuous || maxPower;

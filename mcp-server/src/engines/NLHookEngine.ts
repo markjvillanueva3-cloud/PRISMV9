@@ -206,9 +206,22 @@ export class NLHookEngine {
   // INIT — Load state from disk
   // ==========================================================================
 
+  // Static cache: avoid re-reading registry from disk on every init()
+  private static _cachedConfig: NLHookConfig | null = null;
+  private static _cachedRegistryData: Map<string, NLHookRecord> | null = null;
+
   init(): void {
     if (this.initialized) return;
     ensureStateDir();
+
+    // Reuse static cache if available (same process, avoids disk I/O)
+    if (NLHookEngine._cachedConfig && NLHookEngine._cachedRegistryData) {
+      this.config = { ...NLHookEngine._cachedConfig };
+      this.registry = new Map(NLHookEngine._cachedRegistryData);
+      this.initialized = true;
+      return;
+    }
+
     try {
       if (fs.existsSync(CONFIG_FILE)) {
         const raw = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
@@ -223,7 +236,17 @@ export class NLHookEngine {
         log.info(`[NLHookEngine] Loaded ${this.registry.size} NL hooks from registry`);
       }
     } catch { /* empty registry */ }
+
+    // Cache for future instances
+    NLHookEngine._cachedConfig = { ...this.config };
+    NLHookEngine._cachedRegistryData = new Map(this.registry);
     this.initialized = true;
+  }
+
+  /** Invalidate static cache so next init() re-reads from disk */
+  private static invalidateCache(): void {
+    NLHookEngine._cachedConfig = null;
+    NLHookEngine._cachedRegistryData = null;
   }
 
   private saveRegistry(): void {
@@ -231,6 +254,7 @@ export class NLHookEngine {
       ensureStateDir();
       const records = Array.from(this.registry.values());
       fs.writeFileSync(REGISTRY_FILE, JSON.stringify({ hooks: records, version: 1, last_updated: new Date().toISOString() }, null, 2));
+      NLHookEngine.invalidateCache(); // C1 fix: invalidate static cache after write
     } catch (e: any) {
       log.warn(`[NLHookEngine] Failed to save registry: ${e.message}`);
     }
@@ -240,6 +264,7 @@ export class NLHookEngine {
     try {
       ensureStateDir();
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(this.config, null, 2));
+      NLHookEngine.invalidateCache(); // C1 fix: invalidate static cache after config change
     } catch { /* non-fatal */ }
   }
 

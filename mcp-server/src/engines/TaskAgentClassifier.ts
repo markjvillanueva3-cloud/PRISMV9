@@ -33,6 +33,18 @@ export interface SwarmRecommendation {
   estimated_cost_tier: "low" | "medium" | "high";
 }
 
+export interface GroupDecomposition {
+  groups: Array<{
+    groupId: string;
+    name: string;
+    pattern: string;
+    agents: string[];
+    dependsOn?: string[];
+    wave: number;
+  }>;
+  reason: string;
+}
+
 export interface TaskClassification {
   complexity: "simple" | "moderate" | "complex" | "critical";
   domain: string;
@@ -41,6 +53,7 @@ export interface TaskClassification {
   recommended_tier: "opus" | "sonnet" | "haiku";
   auto_orchestrate: boolean; // Should AutoPilot handle this?
   reasoning: string;
+  group_decomposition: GroupDecomposition | null;
 }
 
 // ============================================================================
@@ -336,7 +349,10 @@ export function classifyTask(
   const autoOrchestrate = complexity !== "simple" && agents.length >= 2;
   
   const reasoning = buildReasoning(key, domains, complexity, tier, agents, swarm);
-  
+
+  // 7. Check group decomposition for multi-group swarm dispatch
+  const groupDecomp = findGroupDecomposition({ domains, complexity, action, params: safeParams });
+
   return {
     complexity,
     domain: domains[0] || "general",
@@ -344,7 +360,8 @@ export function classifyTask(
     recommended_swarm: swarm,
     recommended_tier: tier,
     auto_orchestrate: autoOrchestrate,
-    reasoning
+    reasoning,
+    group_decomposition: groupDecomp
   };
 }
 
@@ -522,6 +539,74 @@ function buildReasoning(
   }
   
   return parts.join(". ");
+}
+
+// ============================================================================
+// GROUP DECOMPOSITIONS — multi-group swarm triggers
+// ============================================================================
+
+interface GroupDecompTrigger {
+  name: string;
+  condition: (ctx: { domains: string[]; complexity: string; action: string; params: any }) => boolean;
+  decomposition: GroupDecomposition;
+}
+
+const GROUP_DECOMPOSITIONS: GroupDecompTrigger[] = [
+  {
+    name: "cross_domain_mfg",
+    condition: (ctx) => {
+      const mfgDomains = ["materials", "machines", "tooling", "threading", "toolpath"];
+      const matched = ctx.domains.filter(d => mfgDomains.includes(d));
+      return matched.length >= 2 && (ctx.complexity === "complex" || ctx.complexity === "critical");
+    },
+    decomposition: {
+      groups: [
+        { groupId: "domain-experts", name: "Domain Expert Analysis", pattern: "parallel", agents: ["AGT-OPUS-004-materials_scientist", "AGT-OPUS-005-machinist", "AGT-SONNET-008-thermal_calculator"], wave: 0 },
+        { groupId: "validation", name: "Cross-Domain Validation", pattern: "consensus", agents: ["AGT-COORD-VALIDATOR", "AGT-OPUS-003-physics_validator"], dependsOn: ["domain-experts"], wave: 1 },
+      ],
+      reason: "Cross-domain MFG task: parallel domain experts then consensus validation",
+    },
+  },
+  {
+    name: "safety_physics_critical",
+    condition: (ctx) => {
+      return (ctx.domains.includes("safety") || ctx.domains.includes("physics")) && ctx.complexity === "critical";
+    },
+    decomposition: {
+      groups: [
+        { groupId: "physics-analysis", name: "Physics Analysis", pattern: "parallel", agents: ["AGT-OPUS-003-physics_validator", "AGT-SONNET-008-thermal_calculator", "AGT-OPUS-011-force_calculator"], wave: 0 },
+        { groupId: "safety-validation", name: "Safety Validation", pattern: "consensus", agents: ["AGT-COORD-VALIDATOR", "AGT-OPUS-003-physics_validator"], dependsOn: ["physics-analysis"], wave: 1 },
+      ],
+      reason: "Safety/physics critical: parallel physics analysis then safety consensus",
+    },
+  },
+  {
+    name: "multi_optimize",
+    condition: (ctx) => {
+      return ctx.action.includes("optimize") && ctx.complexity !== "simple" && ctx.domains.length >= 2;
+    },
+    decomposition: {
+      groups: [
+        { groupId: "generation", name: "Solution Generation", pattern: "parallel", agents: ["AGT-OPUS-008-combination_optimizer", "AGT-OPUS-005-machinist", "AGT-SONNET-001-force_calculator"], wave: 0 },
+        { groupId: "validate-merge", name: "Validate & Merge", pattern: "consensus", agents: ["AGT-COORD-VALIDATOR", "AGT-OPUS-009-synergy_analyst"], dependsOn: ["generation"], wave: 1 },
+      ],
+      reason: "Multi-optimize: parallel generation then consensus validation pipeline",
+    },
+  },
+];
+
+function findGroupDecomposition(ctx: {
+  domains: string[];
+  complexity: string;
+  action: string;
+  params: any;
+}): GroupDecomposition | null {
+  for (const trigger of GROUP_DECOMPOSITIONS) {
+    if (trigger.condition(ctx)) {
+      return trigger.decomposition;
+    }
+  }
+  return null;
 }
 
 // ============================================================================

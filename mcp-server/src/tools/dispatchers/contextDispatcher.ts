@@ -110,7 +110,7 @@ function appendJsonl(filepath: string, data: any): void {
 export function registerContextDispatcher(server: any): void {
   server.tool(
     "prism_context",
-    `Context Engineering - Manus 6 Laws + TeammateTool (14 actions). Actions: ${ACTIONS.join(", ")}`,
+    "Context engineering: KV-cache stability, tool masking, memory externalize/restore, todo, error tracking, teams, budget. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_context] ${action}`);

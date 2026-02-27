@@ -40,8 +40,10 @@ import {
   autoQualityGate, autoVariationCheck,
   autoD4CacheCheck, autoD4DiffCheck, autoD4BatchTick,
   autoTelemetrySnapshot,
-  autoPythonCompactionPredict, autoPythonCompress, autoPythonExpand
+  autoPythonCompactionPredict, autoPythonCompress, autoPythonExpand,
+  autoPatternMatch, autoPatternStatsUpdate, autoFailurePatternSync
 } from "./cadenceExecutor.js";
+import type { PatternMatchResult } from "./cadenceExecutor.js";
 import {
   autoSkillHint, autoKnowledgeCrossQuery, autoDocAntiRegression, autoAgentRecommend,
   autoScriptRecommend,
@@ -55,7 +57,7 @@ import {
   autoLearningQuery, autoTelemetryAnomalyCheck, autoBudgetReport, autoAttentionAnchor,
   autoCognitiveUpdate, autoSessionHandoffGenerate, autoTelemetrySloCheck,
   autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity,
-  autoParallelDispatch, autoATCSParallelUpgrade,
+  autoParallelDispatch, autoGroupedSwarmDispatch, autoATCSParallelUpgrade,
   autoPriorityScore, autoSkillPreload, autoKvStabilityPeriodic,
   autoContextPressureRecommend, autoMemoryGraphEvict, autoCompactionTrend,
   autoDispatcherByteTrack,
@@ -378,7 +380,7 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
       await fireHook("CALC-BEFORE-EXEC-001", {
         tool_name: toolName,
         event: "calculation:before",
-        inputs: context.inputs
+        input_keys: Object.keys(context.inputs || {}).slice(0, 5)
       });
     }
     let result;
@@ -391,7 +393,7 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
         tool_name: toolName,
         event: "error:detected",
         error: context.error.message,
-        inputs: context.inputs
+        input_keys: Object.keys(context.inputs || {}).slice(0, 5)
       });
       throw error;
     }
@@ -399,8 +401,8 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
       await fireHook("CALC-AFTER-EXEC-001", {
         tool_name: toolName,
         event: "calculation:after",
-        inputs: context.inputs,
-        result: context.result,
+        input_keys: Object.keys(context.inputs || {}).slice(0, 5),
+        has_result: !!context.result,
         duration_ms: Date.now() - context.start_time
       });
       const proofResult = validateSafetyProof(context);
@@ -409,7 +411,7 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
         event: "proof:validate",
         lambda_score: proofResult.validity_score,
         is_valid: proofResult.is_valid,
-        issues: proofResult.issues
+        issue_count: proofResult.issues?.length || 0
       });
       if (!proofResult.is_valid && proofResult.validity_score < 0.5) {
         await fireHook("CALC-SAFETY-VIOLATION-001", {
@@ -417,7 +419,7 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
           event: "safety:violation",
           score: proofResult.validity_score,
           threshold: AUTO_HOOK_CONFIG.thresholds.lambda_min,
-          issues: proofResult.issues
+          issue_count: proofResult.issues?.length || 0
         });
         if (typeof result === "object" && result !== null) {
           result._safety_warning = {
@@ -436,7 +438,7 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
         event: "fact:verify",
         phi_score: factResult.phi_score,
         verdict: factResult.verdict,
-        caveats: factResult.caveats
+        caveat_count: factResult.caveats?.length || 0
       });
       if (typeof result === "object" && result !== null && factResult.caveats.length > 0) {
         result._fact_verification = {
@@ -484,6 +486,9 @@ var DISPATCHER_HOOK_MAP = {
 };
 var globalDispatchCount = 0;
 var lastTodoReminder = 0;
+// A7: State-aware cadence — skip TODO refresh if file unchanged, backoff interval
+var _lastTodoHash = "";
+var _todoInterval = 5;
 var lastCheckpointReminder = 0;
 var lastPressureCheck = 0;
 var lastCompactionCheck = 0;
@@ -503,6 +508,48 @@ var sessionSlimOverride: string | null = null;
 var highPressureStreak = 0;
 var RECENT_ACTIONS_FILE = path.join(PATHS.STATE_DIR, "RECENT_ACTIONS.json");
 var STATE_DIR12 = PATHS.STATE_DIR;
+
+// Task O: Batched flight action writes — buffer to reduce disk I/O
+let _pendingActions: any[] = [];
+const FLUSH_THRESHOLD = 5;
+
+// A2: In-memory cache for RECENT_ACTIONS (avoids redundant disk reads per cadence window)
+let _recentActionsCache: any[] | null = null;
+let _recentActionsCacheCall = 0;
+function getCachedRecentActions(callNum: number): any[] {
+  if (_recentActionsCache !== null && callNum - _recentActionsCacheCall <= 2) return _recentActionsCache;
+  try {
+    _recentActionsCache = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
+  } catch { _recentActionsCache = []; }
+  _recentActionsCacheCall = callNum;
+  return _recentActionsCache;
+}
+
+function flushPendingActions(callNum: number): void {
+  if (_pendingActions.length === 0) return;
+  _recentActionsCache = null; // A2: invalidate cache on flush
+  try {
+    let actions: any[] = [];
+    if (fs.existsSync(RECENT_ACTIONS_FILE)) {
+      try {
+        actions = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
+      } catch {}
+    }
+    actions.push(..._pendingActions);
+    if (actions.length > MAX_RECORDED_ACTIONS) {
+      actions = actions.slice(-MAX_RECORDED_ACTIONS);
+    }
+    fs.writeFileSync(RECENT_ACTIONS_FILE, JSON.stringify({
+      updated: (/* @__PURE__ */ new Date()).toISOString(),
+      session_call_count: callNum,
+      actions,
+      _hint: "READ THIS FIRST after compaction. Shows last 12 tool calls with results."
+    }, null, 2));
+    _pendingActions = [];
+  } catch {
+    // Flush failure is non-fatal — entries stay in buffer for next attempt
+  }
+}
 function buildCurrentTaskDescription(cadence: any, toolName: string, action2: string) {
   const todoFocus = cadence.todo?.currentFocus || cadence.todo?.taskName;
   if (todoFocus && todoFocus !== "Initialization" && todoFocus !== "Session startup") {
@@ -517,13 +564,6 @@ function buildCurrentTaskDescription(cadence: any, toolName: string, action2: st
 var MAX_RECORDED_ACTIONS = 12;
 function recordFlightAction(callNum: number, toolName: string, action2: string, params2: any, success: boolean, durationMs: number, result: any, errorMsg?: string) {
   try {
-    let actions: any[] = [];
-    if (fs.existsSync(RECENT_ACTIONS_FILE)) {
-      try {
-        actions = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || [];
-      } catch {
-      }
-    }
     let paramsSummary = "{}";
     try {
       const p = params2?.params || params2 || {};
@@ -557,16 +597,11 @@ function recordFlightAction(callNum: number, toolName: string, action2: string, 
       result_preview: resultPreview
     };
     if (errorMsg) entry.error = errorMsg.slice(0, 100);
-    actions.push(entry);
-    if (actions.length > MAX_RECORDED_ACTIONS) {
-      actions = actions.slice(-MAX_RECORDED_ACTIONS);
+    _pendingActions.push(entry);
+    // Flush on buffer threshold or session end (call >= 41)
+    if (_pendingActions.length >= FLUSH_THRESHOLD || callNum >= 41) {
+      flushPendingActions(callNum);
     }
-    fs.writeFileSync(RECENT_ACTIONS_FILE, JSON.stringify({
-      updated: (/* @__PURE__ */ new Date()).toISOString(),
-      session_call_count: callNum,
-      actions,
-      _hint: "READ THIS FIRST after compaction. Shows last 12 tool calls with results."
-    }, null, 2));
   } catch {
   }
 }
@@ -657,10 +692,10 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         await fireHook("SESSION-AUTO-BOOT-001", {
           event: "auto_session_recon",
           call_number: callNum,
-          warnings: recon.warnings,
-          recent_errors: recon.recent_errors.length,
-          recurring_patterns: recon.recurring_patterns.length,
-          registry_status: warmStart.registry_status
+          warnings_count: recon.warnings?.length || 0,
+          recent_errors_count: recon.recent_errors?.length || 0,
+          recurring_patterns_count: recon.recurring_patterns?.length || 0,
+          registry_ready: !!warmStart?.registry_status
         });
         // KV Cache stability check — one-time at session boot
         try {
@@ -723,14 +758,18 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F916} AGENT_REC: ${agentRec.hint}`);
             cadence.agent_recommend = agentRec;
           }
-          // Auto-dispatch parallel agents when auto_orchestrate=true
+          // Auto-dispatch grouped swarm when auto_orchestrate=true (pre-call: fire-and-forget via void)
           if (agentRec.classification?.auto_orchestrate) {
             try {
-              const pd = await autoParallelDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
-              if (pd.dispatched) {
-                cadence.actions.push(`\u{26A1} PARALLEL_DISPATCH: ${pd.mode} → [${pd.agents?.join(", ")}]`);
-                cadence.parallel_dispatch = pd;
-              }
+              void autoGroupedSwarmDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {}).then(pd => {
+                if (pd.dispatched) {
+                  (globalThis as any).__prism_swarm_pending = {
+                    result: { synthesis: pd.synthesis, groups: pd.groupCount, timedOut: pd.timedOut, mode: pd.mode },
+                    injected_at: callNum,
+                    remaining: 3
+                  };
+                }
+              }).catch(() => {});
             } catch { /* non-fatal */ }
             // Write orchestration hint for AutoPilot consumption
             if (agentRec.classification?.complexity === "complex" || agentRec.classification?.complexity === "critical") {
@@ -826,6 +865,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       } catch {
       }
     }
+    // GAP A: Pre-dispatch routing pattern match
+    let preDispatchPattern: PatternMatchResult | null = null;
+    try {
+      preDispatchPattern = autoPatternMatch(callNum, toolName, action2, args[0]?.params || {}, undefined, "task-routing");
+      if (preDispatchPattern.matched) {
+        cadence.actions.push(`🧭 PATTERN_ROUTE: ${preDispatchPattern.pattern_id} (${(preDispatchPattern.confidence * 100).toFixed(0)}%) → ${preDispatchPattern.suggested_action}`);
+      }
+    } catch { /* non-fatal */ }
+
     await fireHook("DISPATCH-ACTION-VALIDATE-001", {
       tool_name: toolName,
       action: action2,
@@ -894,7 +942,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             error: `\u{1F6D1} SAFETY BLOCK: ${valData?.block_reason || "Input validation failed"}`,
             warnings: valData?.warnings || [],
             guidance: "Fix the flagged parameters and retry.",
-            _cadence: cadence
+            _cadence: { c: cadence.call_number }
           })
         }]
       };
@@ -921,7 +969,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               risk_score: pfpAssessment?.riskScore,
               matched_patterns: pfpAssessment?.matchedPatterns?.length || 0,
               guidance: "This action has a high historical failure rate. Review parameters and retry.",
-              _cadence: cadence
+              _cadence: { c: cadence.call_number }
             })
           }]
         };
@@ -973,6 +1021,23 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 occurrences: learnResult.occurrences
               });
             }
+            // GAP B: Create PATTERN node + TRIGGERED edge in memory graph
+            if (learnResult.pattern_id && learnResult.occurrences >= 2) {
+              try {
+                const { memoryGraphEngine: mge } = await import("../engines/MemoryGraphEngine.js");
+                // Find recent ERROR node for this dispatcher
+                const errorNodes = (mge as any).index?.nodesByType?.ERROR || [];
+                const recentErrorId = errorNodes.length > 0 ? errorNodes[errorNodes.length - 1] : undefined;
+                mge.createPatternFromError(
+                  process.env.SESSION_ID || "unknown",
+                  learnResult.pattern_matched ? "error-recovery" : "error-new",
+                  `${toolName}:${action2} — ${err3.message.slice(0, 150)}`,
+                  0.5 + Math.min(0.3, (learnResult.occurrences || 1) * 0.05),
+                  learnResult.occurrences || 1,
+                  recentErrorId
+                );
+              } catch { /* graph wiring non-fatal */ }
+            }
           } catch {
           }
           try {
@@ -982,6 +1047,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             }
           } catch {
           }
+          // GAP A: Post-error recovery pattern match
+          try {
+            const errPattern = autoPatternMatch(callNum, toolName, action2, args[0]?.params || {}, err3.message, "error-recovery");
+            if (errPattern.matched) {
+              cadence.actions.push(`🩹 PATTERN_RECOVER: ${errPattern.pattern_id} (${(errPattern.confidence * 100).toFixed(0)}%) → ${errPattern.suggested_action}`);
+              cadence.error_pattern = errPattern;
+            }
+          } catch { /* non-fatal */ }
           // Opp 6: PFP re-extract after error chain
           try { pfpEngine.extractPatterns?.(); } catch {}
           try {
@@ -1047,6 +1120,12 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       );
     } catch {
     }
+    // GAP A: Update pattern stats if a routing pattern was matched pre-dispatch
+    try {
+      if (preDispatchPattern?.matched && preDispatchPattern.pattern_id) {
+        autoPatternStatsUpdate(preDispatchPattern.pattern_id, !error);
+      }
+    } catch { /* non-fatal */ }
     // H1-MS4: Auto-capture decisions for high-value actions
     logDecisionIfApplicable(toolName, action2, args, result, error, durationMs);
     try {
@@ -1328,9 +1407,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     try {
       autoDispatcherByteTrack(callNum, toolName, resultBytes);
     } catch {}
+    // Index staleness detection — flag when Write/Edit touches a tracked MCP source file
+    try {
+      const editedFile = args[0]?.file_path || args[0]?.path || "";
+      if (typeof editedFile === "string" && editedFile.length > 0) {
+        const { isStale } = await import("../engines/MasterIndexGenerator.js");
+        if (isStale(editedFile)) {
+          (globalThis as any).__prism_index_stale = true;
+        }
+      }
+    } catch { /* non-fatal */ }
     let classifiedDomain;
-    const mfgDispatchers = ["prism_calc", "prism_safety", "prism_thread", "prism_toolpath", "prism_data", "prism_orchestrate", "prism_atcs"];
-    if (!error && mfgDispatchers.includes(toolName)) {
+    // Post-result grouped swarm dispatch — ALL dispatchers (removed MFG-only gate)
+    if (!error) {
       try {
         const agentRec = autoAgentRecommend(callNum, toolName, action2, args[0]?.params || {});
         if (agentRec.hint) {
@@ -1338,13 +1427,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.agent_recommend = agentRec;
         }
         classifiedDomain = agentRec.classification?.domain;
-        // Auto-dispatch parallel agents for manufacturing tasks
+        // Auto-dispatch grouped swarm — await for inline synthesis
         if (agentRec.classification?.auto_orchestrate) {
           try {
-            const pd = await autoParallelDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
+            const pd = await autoGroupedSwarmDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
             if (pd.dispatched) {
-              cadence.actions.push(`\u{26A1} PARALLEL_DISPATCH: ${pd.mode} → [${pd.agents?.join(", ")}]`);
+              const label = pd.groupCount && pd.groupCount > 1
+                ? `\u{26A1} SWARM_GROUPS: ${pd.groupCount} groups (${pd.agents?.length} agents)`
+                : `\u{26A1} PARALLEL_DISPATCH: ${pd.mode} \u{2192} [${pd.agents?.join(", ")}]`;
+              cadence.actions.push(label);
               cadence.parallel_dispatch = pd;
+              if (pd.synthesis && pd.synthesis.length > 0) {
+                cadence.swarm_results = { synthesis: pd.synthesis, groups: pd.groupCount, timedOut: pd.timedOut };
+              }
             }
           } catch { /* non-fatal */ }
           // Write orchestration hint for AutoPilot consumption
@@ -1358,7 +1453,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
                 classification: agentRec.classification,
                 recommended_pattern: agentRec.classification.complexity === "critical" ? "consensus" : "parallel",
               }, null, 2));
-              cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity → ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
+              cadence.actions.push(`\u{1F3AF} AUTO_ORCHESTRATE: ${agentRec.classification.complexity} complexity \u{2192} ${agentRec.classification.complexity === "critical" ? "consensus" : "parallel"} pattern`);
             } catch {}
           }
         }
@@ -1395,10 +1490,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       } catch {
       }
     }
-    if (callNum - lastTodoReminder >= 5) {
+    if (callNum - lastTodoReminder >= _todoInterval) {
       lastTodoReminder = callNum;
-      const todoResult = autoTodoRefresh(callNum);
-      cadence.actions.push(todoResult.success ? "TODO_AUTO_REFRESHED" : "TODO_REFRESH_FAILED");
+      // A7: Check if TODO file actually changed before full refresh
+      let todoChanged = true;
+      try {
+        const tp = path.join(PATHS.STATE_DIR, "TODO.md");
+        const content = fs.existsSync(tp) ? fs.readFileSync(tp, "utf-8") : "";
+        const hash = content.length + ":" + content.slice(0, 200);
+        if (hash === _lastTodoHash) { todoChanged = false; _todoInterval = Math.min(_todoInterval + 2, 15); }
+        else { _lastTodoHash = hash; _todoInterval = 5; }
+      } catch {}
+      const todoResult = todoChanged ? autoTodoRefresh(callNum) : { success: true, skipped: true, todo_preview: "(unchanged)" };
+      cadence.actions.push(todoResult.success ? (todoChanged ? "TODO_AUTO_REFRESHED" : "TODO_SKIP_UNCHANGED") : "TODO_REFRESH_FAILED");
       cadence.todo = todoResult;
       // H1: Also write HOT_RESUME at todo cadence (every 5 calls, skip when every-10 will overwrite)
       if (callNum % 10 !== 0) try {
@@ -1406,7 +1510,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const cpPath5 = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
         let pos5 = ""; try { pos5 = fs.existsSync(cpPath5) ? fs.readFileSync(cpPath5, "utf-8").slice(0, 1500) : ""; } catch {}
         let errs5 = ""; try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) { const el = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).slice(-3); errs5 = el.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; }}).filter(Boolean).join(" | "); } } catch {}
-        const ra5 = (() => { try { return JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions?.slice(-8)?.map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
+        const ra5 = (() => { try { const merged = [...getCachedRecentActions(callNum), ..._pendingActions]; return merged.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n") || ""; } catch { return ""; } })();
         fs.writeFileSync(hrPath5, `# HOT_RESUME (auto call ${callNum} — ${new Date().toISOString()})\n\n## Position\n${pos5}\n\n## Recent\n${ra5}\n${errs5 ? "\n## Errors\n" + errs5 + "\n" : ""}\n## Recovery\nContinue task above. Transcripts: /mnt/transcripts/\n`);
       } catch {}
       await fireHook("STATE-SESSION-BOUNDARY-001", {
@@ -1416,25 +1520,31 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         preview: todoResult.todo_preview
       });
       // Recovery manifest moved to every-10 checkpoint block (dedup)
-      // Learning query — every 5 calls (read back learned patterns)
-      try {
-        const lq = autoLearningQuery(callNum, toolName, action2);
-        if (lq.matches > 0) {
-          cadence.actions.push(`\u{1F4D6} LEARNING: ${lq.matches} lessons for ${toolName}:${action2}`);
-          cadence.learning = lq;
-        }
-      } catch {}
-      // Attention anchor — every 5 calls (structured goal hierarchy)
-      try {
-        const anchor = autoAttentionAnchor(callNum);
-        if (anchor.anchor) {
-          cadence.actions.push(`\u{1F3AF} ANCHOR: ${anchor.anchor.slice(0, 100)}`);
-          cadence.attention_anchor = anchor;
-        }
-      } catch {}
+      // A3: Short-circuit non-critical cadence at high pressure (>75%)
+      if (getCurrentPressurePct() < 75) {
+        // Learning query — every 5 calls (read back learned patterns)
+        try {
+          const lq = autoLearningQuery(callNum, toolName, action2);
+          if (lq.matches > 0) {
+            cadence.actions.push(`\u{1F4D6} LEARNING: ${lq.matches} lessons for ${toolName}:${action2}`);
+            cadence.learning = lq;
+          }
+        } catch {}
+        // Attention anchor — every 5 calls (structured goal hierarchy)
+        try {
+          const anchor = autoAttentionAnchor(callNum);
+          if (anchor.anchor) {
+            cadence.actions.push(`\u{1F3AF} ANCHOR: ${anchor.anchor.slice(0, 100)}`);
+            cadence.attention_anchor = anchor;
+          }
+        } catch {}
+      }
     }
     if (callNum - lastCheckpointReminder >= 10) {
       lastCheckpointReminder = callNum;
+      // A4: Read ERROR_LOG once, share between HOT_RESUME and cognitive update
+      let _errLogLines: string[] = [];
+      try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) _errLogLines = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean); } catch {}
       const cpResult = autoCheckpoint(callNum);
       cadence.actions.push(cpResult.success ? `CHECKPOINT_AUTO_SAVED:${cpResult.checkpoint_id}` : "CHECKPOINT_FAILED");
           // TOKEN OPT v2: Write HOT_RESUME.md at checkpoint cadence
@@ -1443,15 +1553,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             const cpPath = path.join(PATHS.MCP_SERVER, "data", "docs", "roadmap", "CURRENT_POSITION.md");
             let positionContent = "";
             try { positionContent = fs.existsSync(cpPath) ? fs.readFileSync(cpPath, "utf-8").slice(0, 1500) : ""; } catch {}
-            // Read recent errors for context
+            // A4: Reuse shared _errLogLines instead of re-reading
             let recentErrors = "";
             try {
-              const errPath = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl");
-              if (fs.existsSync(errPath)) {
-                const errLines = fs.readFileSync(errPath, "utf-8").trim().split("\n").filter(Boolean).slice(-3);
-                const errs = errLines.map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; } }).filter(Boolean);
-                if (errs.length) recentErrors = "Recent errors: " + errs.join(" | ");
-              }
+              const errs = _errLogLines.slice(-3).map(l => { try { const e = JSON.parse(l); return `${e.tool_name}:${e.action} — ${(e.error_message||"").slice(0,80)}`; } catch { return ""; } }).filter(Boolean);
+              if (errs.length) recentErrors = "Recent errors: " + errs.join(" | ");
             } catch {}
             const hotContent = [
               "# HOT_RESUME (auto-generated call " + callNum + " — " + new Date().toISOString() + ")",
@@ -1460,7 +1566,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               positionContent,
               "",
               "## Recent Activity",
-              (() => { try { const ra = JSON.parse(fs.readFileSync(RECENT_ACTIONS_FILE, "utf-8")).actions || []; return ra.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n"); } catch { return "unavailable"; } })(),
+              (() => { try { const merged = [...getCachedRecentActions(callNum), ..._pendingActions]; return merged.slice(-8).map((a: any) => `${a.tool}:${a.action} ${a.success?"✓":"✗"} ${a.duration_ms}ms`).join("\n"); } catch { return "unavailable"; } })(),
               "",
               recentErrors ? "## Errors\n" + recentErrors + "\n" : "",
               "## Recovery",
@@ -1521,8 +1627,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       } catch {}
       // Cognitive update — every 10 calls
       try {
-        let errCount = 0;
-        try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) errCount = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).length; } catch {}
+        const errCount = _errLogLines.length; // A4: reuse shared error log data
         const pPct2 = cadence.pressure?.pressure_pct || getCurrentPressurePct();
         const cog = autoCognitiveUpdate(callNum, pPct2, errCount);
         if (cog.omega > 0) cadence.actions.push(`\u{1F9E0} COGNITIVE: \u03A9=${cog.omega}`);
@@ -1569,10 +1674,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         highPressureStreak++;
         if (highPressureStreak >= 3 && !sessionSlimOverride) {
           sessionSlimOverride = "AGGRESSIVE";
-          cadence.actions.push("🔒 SLIM_LOCKED: AGGRESSIVE mode for rest of session (sustained high pressure)");
+          cadence.actions.push("🔒 SLIM_LOCKED: AGGRESSIVE mode (sustained high pressure)");
+        }
+      } else if (pressureResult.pressure_pct < 40) {
+        // H5 fix: Unlock AGGRESSIVE when pressure drops below 40% for 3+ consecutive checks
+        highPressureStreak--;
+        if (highPressureStreak <= -3 && sessionSlimOverride) {
+          sessionSlimOverride = null;
+          highPressureStreak = 0;
+          cadence.actions.push("🔓 SLIM_UNLOCKED: pressure recovered, resuming normal slimming");
         }
       } else {
-        if (highPressureStreak > 0 && pressureResult.pressure_pct < 50) highPressureStreak = 0;
+        // Between 40-70%: reset streak toward 0
+        if (highPressureStreak > 0) highPressureStreak = 0;
       }
       await fireHook("CONTEXT-PRESSURE-CHECK-001", {
         event: "cadence_pressure_checked",
@@ -1626,7 +1740,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           event: "cadence_auto_compress",
           call_number: callNum,
           snapshot_saved: compressResult.snapshot_saved,
-          recommendations: compressResult.recommendations
+          recommendation_count: compressResult.recommendations?.length || 0
         });
         try {
           const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
@@ -1662,7 +1776,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         call_number: callNum,
         risk_level: compactResult.risk_level,
         risk_score: compactResult.risk_score,
-        signals: compactResult.signals,
+        signal_count: Array.isArray(compactResult.signals) ? compactResult.signals.length : (compactResult.signals ? Object.keys(compactResult.signals).length : 0),
         action_required: compactResult.action_required
       });
     }
@@ -1768,6 +1882,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               fs.writeFileSync(fpPath, patterns.map((p) => JSON.stringify(p)).join("\n") + "\n");
               cadence.actions.push(`\u2705 ERROR_RESOLVED: ${match.type}/${match.domain} (was ${match.occurrences}x)`);
               cadence.error_resolved = { pattern_id: match.id, type: match.type, domain: match.domain, occurrences: match.occurrences };
+              // GAP B: Create RESOLVED_BY edge in memory graph
+              try {
+                const { memoryGraphEngine: mgeResolve } = await import("../engines/MemoryGraphEngine.js");
+                const errorNodes = (mgeResolve as any).index?.nodesByType?.ERROR || [];
+                const decisionNodes = (mgeResolve as any).index?.nodesByType?.DECISION || [];
+                // Link most recent ERROR to most recent DECISION (the one that resolved it)
+                if (errorNodes.length > 0 && decisionNodes.length > 0) {
+                  const recentErrorId = errorNodes[errorNodes.length - 1];
+                  const recentDecisionId = decisionNodes[decisionNodes.length - 1];
+                  mgeResolve.linkErrorResolution(recentErrorId, recentDecisionId, 0.9);
+                  cadence.actions.push(`🔗 GRAPH_RESOLVED_BY: ${recentErrorId.slice(0, 8)}→${recentDecisionId.slice(0, 8)}`);
+                }
+              } catch { /* graph wiring non-fatal */ }
             }
           }
         }
@@ -1784,9 +1911,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           await fireHook("STATE-ANTI-REGRESSION-001", {
             event: "regression_detected",
             file: fullPath,
-            regressions: regrResult.regressions,
-            old_metrics: regrResult.old_metrics,
-            new_metrics: regrResult.new_metrics
+            regression_count: regrResult.regressions?.length || 0,
+            metrics_changed: !!regrResult.old_metrics && !!regrResult.new_metrics
           });
         }
       } catch {
@@ -1881,7 +2007,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         if (bridgeH.degraded > 0) cadence.actions.push(`⚠️ BRIDGE_HEALTH: ${bridgeH.degraded} degraded`);
       } catch {}
     }
-    if (callNum % 8 === 0) {
+    // H1 fix: Stagger D4/ATCS to offset-4 (fires at 4,12,20,28) to avoid spike with pressure/attention at 8,16,24
+    if (callNum > 0 && (callNum + 4) % 8 === 0) {
       try {
         const batchResult = await autoD4BatchTick(callNum);
         if (batchResult.success && batchResult.processed > 0) {
@@ -1950,6 +2077,38 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       cadence.session_recon = globalThis.__prism_recon;
       delete globalThis.__prism_recon;
     }
+    // Master Index generation — on first call (session boot), async non-blocking
+    if (callNum === 1) {
+      try {
+        import("../engines/MasterIndexGenerator.js").then(async (mig) => {
+          const idx = await mig.generate();
+          (globalThis as any).__prism_master_index = idx;
+          cadence.actions?.push(`\u{1F4CB} INDEX_REFRESHED: ${idx.totals.dispatchers} dispatchers, ${idx.totals.actions} actions, ${idx.totals.engines} engines`);
+        }).catch(() => {});
+      } catch { /* non-fatal */ }
+    }
+    // Index staleness detection — if a tracked file was edited, mark stale
+    try {
+      if ((globalThis as any).__prism_index_stale) {
+        (globalThis as any).__prism_index_stale = false;
+        import("../engines/MasterIndexGenerator.js").then(async (mig) => {
+          const idx = await mig.generate();
+          (globalThis as any).__prism_master_index = idx;
+        }).catch(() => {});
+        cadence.actions.push(`\u{1F4CB} INDEX_STALE: reindexing`);
+      }
+    } catch { /* non-fatal */ }
+    // Deferred swarm result injection — surfaces pending results for 3 calls after dispatch
+    try {
+      const swarmPending = (globalThis as any).__prism_swarm_pending;
+      if (swarmPending && swarmPending.remaining > 0) {
+        cadence.swarm_results = swarmPending.result;
+        swarmPending.remaining--;
+        if (swarmPending.remaining <= 0) {
+          delete (globalThis as any).__prism_swarm_pending;
+        }
+      }
+    } catch { /* non-fatal */ }
     // Survival checkpoint consolidated into every-10 checkpoint block (dedup)
     // Memory graph eviction — every 20 calls (prune expired nodes)
     if (callNum > 0 && callNum % 20 === 0) {
@@ -1961,6 +2120,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {}
     }
+    // GAP A: Sync failure_patterns.jsonl → memory.db pattern_history
+    try { autoFailurePatternSync(callNum); } catch { /* non-fatal */ }
     if (callNum > 0 && callNum % 25 === 0) {
       try {
         // @ts-ignore — synergyIntegration may not exist yet
@@ -1993,25 +2154,29 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {}
     }
-    try {
-      const ctxMatch = autoSkillContextMatch(callNum, toolName, action2, args[0]?.params || {});
-      if (ctxMatch.success && ctxMatch.total_matched > 0) {
-        cadence.actions.push(`\u{1F3AF} SKILL_MATCH: ${ctxMatch.total_matched} skills matched for ${ctxMatch.context_key}`);
-        cadence.skill_context_matches = ctxMatch;
+    // H3 fix: Skill matching moved from every-call to every-5 (reduces 40x→8x per session)
+    if (callNum <= 1 || (callNum - lastTodoReminder <= 1)) {
+      try {
+        const ctxMatch = autoSkillContextMatch(callNum, toolName, action2, args[0]?.params || {});
+        if (ctxMatch.success && ctxMatch.total_matched > 0) {
+          cadence.actions.push(`\u{1F3AF} SKILL_MATCH: ${ctxMatch.total_matched} skills matched for ${ctxMatch.context_key}`);
+          cadence.skill_context_matches = ctxMatch;
+        }
+      } catch {
       }
-    } catch {
-    }
-    try {
-      const hookMatch = autoSkillHookMatch(callNum, toolName, action2, args[0]?.params || {});
-      if (hookMatch.success && hookMatch.total_matched > 0) {
-        const hookNames = hookMatch.matched_hooks.map(h => h.name).join(", ");
-        cadence.actions.push(`\u{1FA9D} AUTO_HOOKS: ${hookMatch.total_matched} fired (${hookNames}), ${hookMatch.total_skills_loaded} skills`);
-        cadence.auto_skill_hooks = hookMatch;
-        recordSessionSkillInjection();
+      try {
+        const hookMatch = autoSkillHookMatch(callNum, toolName, action2, args[0]?.params || {});
+        if (hookMatch.success && hookMatch.total_matched > 0) {
+          const hookNames = hookMatch.matched_hooks.map(h => h.name).join(", ");
+          cadence.actions.push(`\u{1FA9D} AUTO_HOOKS: ${hookMatch.total_matched} fired (${hookNames}), ${hookMatch.total_skills_loaded} skills`);
+          cadence.auto_skill_hooks = hookMatch;
+          recordSessionSkillInjection();
+        }
+      } catch {
       }
-    } catch {
     }
-    if (callNum > 0 && callNum % 8 === 0) {
+    // H1 fix: NL hooks staggered to offset-4 (same tier as D4/ATCS)
+    if (callNum > 0 && (callNum + 4) % 8 === 0) {
       try {
         fs.appendFileSync(path.join(PATHS.STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] CALLSITE: call=${callNum} tool=${toolName} action=${action2}\n`);
         const nlResult = autoNLHookEvaluator(callNum, toolName, action2);
@@ -2050,11 +2215,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
-      // PFP pattern extract — every 25 calls (update failure model)
-      try {
-        const pfp = autoPfpPatternExtract(callNum);
-        if (pfp.after > pfp.before) cadence.actions.push(`PFP_PATTERNS: ${pfp.before}\u2192${pfp.after}`);
-      } catch {}
+      // H2 fix: PFP pattern extract removed from every-25 (already fires at every-10 as PFP_PATTERNS_10)
       // SLO compliance check — every 25 calls
       try {
         const slo = autoTelemetrySloCheck(callNum);

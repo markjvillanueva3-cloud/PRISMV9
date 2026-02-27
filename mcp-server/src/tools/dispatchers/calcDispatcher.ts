@@ -7,6 +7,7 @@ import { SafetyBlockError } from "../../errors/PrismError.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 import type { SafetyCalcResult } from "../../schemas/safetyCalcSchema.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+import { computationCache } from "../../engines/ComputationCache.js";
 
 // Import original handlers
 import {
@@ -240,7 +241,7 @@ const ACTIONS = [
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",
-    "Manufacturing physics calculations: cutting force, tool life, speed/feed, flow stress, surface finish, MRR, power, torque, chip load, stability, deflection, thermal, cost/multi-objective optimization, trochoidal/HSM, scallop, cycle time, chip thinning compensation, multi-pass strategy, coolant strategy, G-code generation, tolerance analysis (ISO 286), shaft/hole fit analysis, parametric G-code templates (6 controllers, 13 operations), decision trees (tool/insert/coolant/workholding/strategy/approach selection), report rendering (setup sheet, process plan, cost estimate, tool list, inspection plan, alarm report, speed/feed card), campaign orchestration (create/validate/optimize/cycle_time for batch machining campaigns with cumulative safety tracking), wear prediction (three-zone flank wear model with Taylor-based tool life), process cost calculation (speed/feed to cost chain with batch economics), uncertainty chain (GUM-compliant uncertainty propagation through Kienzle/Taylor/power/cost), controller optimization (controller-specific G-code features for Fanuc/Siemens/Haas/Mazak/Okuma/Heidenhain with roughing/finishing/contouring modes).",
+    "Manufacturing calculations: cutting force, tool life, speed/feed, power, G-code, tolerance, optimization, reports, campaigns. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional()
@@ -318,12 +319,47 @@ export function registerCalcDispatcher(server: any): void {
           }
         }
         
+        // ComputationCache: check for cached results on hot-path actions
+        const _cacheableActions = new Set(["cutting_force", "tool_life", "speed_feed", "surface_finish", "power", "mrr"]);
+        if (_cacheableActions.has(action)) {
+          // C2 fix: include material/tool context in cache key to avoid cross-material cache hits
+          const cacheParams = { ...params, _cache_material: params.material_id || params.material || "", _cache_tool: params.tool_id || params.tool_material || "" };
+          const cacheHit = computationCache.get(action, cacheParams);
+          if (cacheHit.hit) {
+            result = { ...cacheHit.value, _cached: true };
+            // Skip to post-calculation hooks
+            try {
+              await hookExecutor.execute("post-calculation", {
+                ...hookCtx,
+                metadata: { ...hookCtx.metadata, result }
+              });
+            } catch {}
+            const pressurePct = getCurrentPressurePct();
+            if (pressurePct > 50) {
+              try {
+                const extracted = calcExtractKeyValues(action, result);
+                if (extracted && Object.keys(extracted).length > 0) {
+                  return { content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true, _cached: true }, getSlimLevel(pressurePct))) }] };
+                }
+              } catch {}
+            }
+            return { content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }] };
+          }
+        }
+
+        // A1: Per-call material lookup memoization (avoids redundant registry reads)
+        const _matCache = new Map<string, any>();
+        const getMat = async (id: string) => {
+          if (!_matCache.has(id)) _matCache.set(id, await registryManager.materials.getByIdOrName(id));
+          return _matCache.get(id);
+        };
+
         switch (action) {
           case "cutting_force": {
             // Auto-derive cutting_speed from material if not provided
             let autoVc = params.cutting_speed;
             if (!autoVc && (params.material_id || params.material)) {
-              const matLookup = await registryManager.materials.getByIdOrName(params.material_id || params.material);
+              const matLookup = await getMat(params.material_id || params.material);
               if (matLookup) {
                 const cr = (matLookup as any).cutting_recommendations?.milling;
                 autoVc = cr?.speed_roughing || cr?.speed_finishing || 150;
@@ -346,7 +382,7 @@ export function registerCalcDispatcher(server: any): void {
               coefficients = { kc1_1: params.kc1_1, mc: params.mc };
             } else if (params.material_id || params.material) {
               const matId = params.material_id || params.material;
-              const mat = await registryManager.materials.getByIdOrName(matId);
+              const mat = await getMat(matId);
               if (mat?.kienzle) {
                 const k = mat.kienzle;
                 coefficients = {
@@ -372,7 +408,7 @@ export function registerCalcDispatcher(server: any): void {
               coefficients = { C: params.taylor_C, n: params.taylor_n, tool_material: params.tool_material || "Carbide" };
             } else if (params.material_id || params.material) {
               const matId = params.material_id || params.material;
-              const mat = await registryManager.materials.getByIdOrName(matId);
+              const mat = await getMat(matId);
               const toolMat = params.tool_material || "Carbide";
               if (mat?.taylor) {
                 const t = mat.taylor;
@@ -410,7 +446,7 @@ export function registerCalcDispatcher(server: any): void {
             // Auto-lookup material data if material_id provided
             if (params.material_id || params.material) {
               const matId = params.material_id || params.material;
-              const mat = await registryManager.materials.getByIdOrName(matId);
+              const mat = await getMat(matId);
               if (mat) {
                 sfInput.material_hardness = mat.mechanical?.hardness?.brinell || sfInput.material_hardness;
                 if (mat.kienzle) sfInput.kienzle = { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc };
@@ -678,7 +714,7 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           case "multi_pass": {
-            const mpMat = (params.material_id || params.material) ? await registryManager.materials.getByIdOrName(params.material_id || params.material) : null;
+            const mpMat = (params.material_id || params.material) ? await getMat(params.material_id || params.material) : null;
             const mpKc = params.kc1_1 || mpMat?.kienzle?.kc1_1 || 1800;
             const mpCr = (mpMat as any)?.cutting_recommendations?.milling || {};
             result = calculateMultiPassStrategy(params.total_stock || params.stock || 10, params.tool_diameter || 12, mpKc, params.machine_power_kw || params.max_power || 15, params.cutting_speed_rough || mpCr.speed_roughing || 150, params.cutting_speed_finish || mpCr.speed_finishing || 200, params.fz_rough || mpCr.feed_per_tooth_roughing || 0.12, params.fz_finish || mpCr.feed_per_tooth_finishing || 0.06, params.target_Ra);
@@ -686,7 +722,7 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           case "coolant_strategy": {
-            const csMat = (params.material_id || params.material) ? await registryManager.materials.getByIdOrName(params.material_id || params.material) : null;
+            const csMat = (params.material_id || params.material) ? await getMat(params.material_id || params.material) : null;
             result = recommendCoolantStrategy(params.iso_group || csMat?.iso_group || "P", params.operation || "milling", params.cutting_speed || 150, params.coolant_through || false, (csMat as any)?.physical?.thermal_conductivity);
             break;
           }
@@ -870,7 +906,7 @@ export function registerCalcDispatcher(server: any): void {
             let wpTaylorN = params.taylor_n;
             let wpIsoGroup = params.iso_group || "P";
             if ((!wpTaylorC || !wpTaylorN) && (params.material_id || params.material)) {
-              const wpMat = await registryManager.materials.getByIdOrName(params.material_id || params.material);
+              const wpMat = await getMat(params.material_id || params.material);
               if (wpMat?.taylor) {
                 wpTaylorC = wpTaylorC || (wpMat.taylor as any).C_carbide || wpMat.taylor.C;
                 wpTaylorN = wpTaylorN || (wpMat.taylor as any).n_carbide || wpMat.taylor.n;
@@ -981,7 +1017,7 @@ export function registerCalcDispatcher(server: any): void {
 
             const pcMaterial = params.material_id || params.material;
             if (pcMaterial) {
-              const pcMat = await registryManager.materials.getByIdOrName(pcMaterial);
+              const pcMat = await getMat(pcMaterial);
               if (pcMat) {
                 if (pcMat.kienzle) { pcKc = pcMat.kienzle.kc1_1 || pcKc; pcMc = pcMat.kienzle.mc || pcMc; }
                 if (pcMat.taylor) { pcTaylorC = (pcMat.taylor as any).C_carbide || pcMat.taylor.C || pcTaylorC; pcTaylorN = (pcMat.taylor as any).n_carbide || pcMat.taylor.n || pcTaylorN; }
@@ -1047,7 +1083,7 @@ export function registerCalcDispatcher(server: any): void {
 
             const ucMaterial = params.material_id || params.material;
             if (ucMaterial) {
-              const ucMat = await registryManager.materials.getByIdOrName(ucMaterial);
+              const ucMat = await getMat(ucMaterial);
               if (ucMat) {
                 if (ucMat.kienzle) { ucKc = ucMat.kienzle.kc1_1 || ucKc; ucMc = ucMat.kienzle.mc || ucMc; }
                 if (ucMat.taylor) { ucTaylorC = (ucMat.taylor as any).C_carbide || ucMat.taylor.C || ucTaylorC; ucTaylorN = (ucMat.taylor as any).n_carbide || ucMat.taylor.n || ucTaylorN; }
@@ -1238,7 +1274,15 @@ export function registerCalcDispatcher(server: any): void {
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
-        
+
+        // ComputationCache: store result for hot-path actions (C2: include material/tool context)
+        if (_cacheableActions.has(action) && result && !result.error) {
+          try {
+            const storeParams = { ...params, _cache_material: params.material_id || params.material || "", _cache_tool: params.tool_id || params.tool_material || "" };
+            computationCache.set(action, storeParams, result);
+          } catch {}
+        }
+
         // === POST-CALCULATION HOOKS (9 hooks: chip breaking, stability, power, torque, Bayesian, deflection, surface finish, MRR) ===
         try {
           await hookExecutor.execute("post-calculation", {
@@ -1256,8 +1300,22 @@ export function registerCalcDispatcher(server: any): void {
           return { content: [{ type: "text", text: JSON.stringify(leveled) }] };
         }
 
+        // Pressure-aware response slimming with key-value extraction
+        const pressurePct = getCurrentPressurePct();
+        if (pressurePct > 50) {
+          try {
+            const extracted = calcExtractKeyValues(action, result);
+            if (extracted && Object.keys(extracted).length > 0) {
+              const slimLevel = getSlimLevel(pressurePct);
+              return {
+                content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true }, slimLevel)) }]
+              };
+            }
+          } catch {}
+        }
+
         return {
-          content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(getCurrentPressurePct()))) }]
+          content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
         };
         
       } catch (error) {

@@ -41,7 +41,8 @@ import type {
   NLHookEvalResult,
   HookActivationCheckResult,
 } from "../types/prism-schema.js";
-import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
+import { classifyTask, type TaskClassification, type GroupDecomposition } from "../engines/TaskAgentClassifier.js";
+import { executeSwarmGroups, type TaskGroup, type SwarmGroupResult } from "../engines/SwarmGroupExecutor.js";
 import { PATHS } from "../constants.js";
 import { ContextBudgetEngine } from "../engines/ContextBudgetEngine.js";
 import { pfpEngine } from "../engines/PredictiveFailureEngine.js";
@@ -63,13 +64,23 @@ const TODO_FILE = path.join(STATE_DIR, "todo.md");
 const CURRENT_STATE_FILE = path.join(STATE_DIR, "CURRENT_STATE.json");
 const EVENT_LOG_FILE = path.join(STATE_DIR, "session_events.jsonl");
 
+/**
+ * C4 fix: Atomic file write — write to .tmp then rename to prevent corruption
+ * from concurrent writes to the same file.
+ */
+function writeFileAtomic(filePath: string, data: string): void {
+  const tmpPath = filePath + ".tmp";
+  fs.writeFileSync(tmpPath, data);
+  fs.renameSync(tmpPath, filePath);
+}
+
 // Ensure state dir exists
 if (!fs.existsSync(STATE_DIR)) {
   fs.mkdirSync(STATE_DIR, { recursive: true });
 }
 
 /** P2-001: Append event to immutable log (used by cadence functions) */
-function appendEventLine(type: string, data: Record<string, any>): void {
+export function appendEventLine(type: string, data: Record<string, any>): void {
   try {
     const event = { ts: new Date().toISOString(), type, ...data };
     fs.appendFileSync(EVENT_LOG_FILE, JSON.stringify(event) + "\n");
@@ -170,7 +181,7 @@ export function autoCheckpoint(callNumber: number): CheckpointResult {
     state.currentSession.progress.zone = zone;
     state.lastUpdated = new Date().toISOString();
 
-    fs.writeFileSync(CURRENT_STATE_FILE, JSON.stringify(state, null, 2));
+    writeFileAtomic(CURRENT_STATE_FILE, JSON.stringify(state, null, 2));
     appendEventLine("cadence_checkpoint", { checkpoint_id: checkpointId, zone, call_number: callNumber });
 
     // H1-MS5: Write actual checkpoint file for compaction recovery
@@ -476,6 +487,180 @@ export function autoContextCompress(
   }
 }
 
+
+// ============================================================================
+// PATTERN CACHE + MATCH — Wire GAP A (memory.db patterns → runtime)
+// ============================================================================
+
+interface CachedPattern {
+  id: string;
+  name: string;
+  pattern_type: string;
+  condition: string;
+  conditionRegex: RegExp | null;
+  action: string;
+  confidence: number;
+  success_count: number;
+  failure_count: number;
+}
+
+export interface PatternMatchResult {
+  matched: boolean;
+  pattern_id: string | null;
+  pattern_type: string | null;
+  confidence: number;
+  suggested_action: string | null;
+}
+
+let PATTERN_CACHE: CachedPattern[] = [];
+let PATTERN_CACHE_LOADED = false;
+
+/** Load all active patterns from memory.db into a pre-compiled cache */
+function loadPatternCache(): void {
+  try {
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(dbPath)) return;
+    const sql = "SELECT id, name, pattern_type, condition, action, confidence, success_count, failure_count FROM patterns WHERE status = 'active'";
+    const pyScript = `import sqlite3,json; c=sqlite3.connect(r'${dbPath}'); rows=[dict(zip(['id','name','pattern_type','condition','action','confidence','success_count','failure_count'],r)) for r in c.execute("${sql}").fetchall()]; c.close(); print(json.dumps(rows))`;
+    const { execFileSync } = require("child_process");
+    const result = execFileSync("py", ["-3", "-c", pyScript], { encoding: "utf-8", timeout: 5000 }).trim();
+    const rows: any[] = JSON.parse(result);
+    PATTERN_CACHE = rows.map(r => {
+      let conditionRegex: RegExp | null = null;
+      try { conditionRegex = new RegExp(r.condition, "i"); } catch { /* non-regex condition */ }
+      return {
+        id: r.id,
+        name: r.name,
+        pattern_type: r.pattern_type,
+        condition: r.condition,
+        conditionRegex,
+        action: r.action,
+        confidence: r.confidence || 0.5,
+        success_count: r.success_count || 0,
+        failure_count: r.failure_count || 0,
+      };
+    });
+    PATTERN_CACHE_LOADED = true;
+  } catch { /* non-fatal — patterns stay empty */ }
+}
+
+/**
+ * Match current dispatch context against cached patterns.
+ * Returns best match by confidence (or no-match).
+ */
+export function autoPatternMatch(
+  callNumber: number,
+  toolName: string,
+  action: string,
+  params: Record<string, any>,
+  errorMsg?: string,
+  filterType?: string
+): PatternMatchResult {
+  const noMatch: PatternMatchResult = { matched: false, pattern_id: null, pattern_type: null, confidence: 0, suggested_action: null };
+  try {
+    if (!PATTERN_CACHE_LOADED) loadPatternCache();
+    if (PATTERN_CACHE.length === 0) return noMatch;
+
+    // Build context string from dispatch info
+    const context = [
+      toolName, action,
+      errorMsg || "",
+      ...Object.keys(params).slice(0, 10),
+      ...Object.values(params).filter(v => typeof v === "string").map(v => (v as string).slice(0, 50)),
+    ].join(" ");
+
+    let bestMatch: CachedPattern | null = null;
+    let bestConfidence = 0;
+
+    for (const pat of PATTERN_CACHE) {
+      if (filterType && pat.pattern_type !== filterType) continue;
+      if (!pat.conditionRegex) continue;
+      if (pat.conditionRegex.test(context)) {
+        if (pat.confidence > bestConfidence) {
+          bestMatch = pat;
+          bestConfidence = pat.confidence;
+        }
+      }
+    }
+
+    if (bestMatch) {
+      return {
+        matched: true,
+        pattern_id: bestMatch.id,
+        pattern_type: bestMatch.pattern_type,
+        confidence: bestMatch.confidence,
+        suggested_action: bestMatch.action,
+      };
+    }
+
+    return noMatch;
+  } catch { return noMatch; }
+}
+
+/**
+ * Update pattern stats in memory.db after a match outcome.
+ * Adjusts confidence: +0.02 on success, -0.03 on failure.
+ */
+export function autoPatternStatsUpdate(patternId: string, success: boolean): void {
+  try {
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(dbPath)) return;
+
+    const safePid = patternId.replace(/'/g, "''");
+    const countCol = success ? "success_count" : "failure_count";
+    const lastCol = success ? "last_success_at" : "last_failure_at";
+    const confDelta = success ? 0.02 : -0.03;
+    const sql = `UPDATE patterns SET ${countCol} = ${countCol} + 1, last_matched_at = strftime('%s','now')*1000, ${lastCol} = strftime('%s','now')*1000, confidence = MIN(1.0, MAX(0.01, confidence + ${confDelta})), updated_at = strftime('%s','now')*1000 WHERE id = '${safePid}'`;
+    const pyScript = `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.execute("${sql}"); c.commit(); c.close(); print('ok')`;
+    const { execFileSync } = require("child_process");
+    execFileSync("py", ["-3", "-c", pyScript], { encoding: "utf-8", timeout: 5000 });
+
+    // Update in-memory cache too
+    const cached = PATTERN_CACHE.find(p => p.id === patternId);
+    if (cached) {
+      if (success) { cached.success_count++; cached.confidence = Math.min(1, cached.confidence + 0.02); }
+      else { cached.failure_count++; cached.confidence = Math.max(0.01, cached.confidence - 0.03); }
+    }
+  } catch { /* non-fatal */ }
+}
+
+/**
+ * Sync failure_patterns.jsonl entries → memory.db pattern_history table.
+ * Bridges JSONL error learning and SQLite pattern tracking.
+ * Runs every 25 calls.
+ */
+export function autoFailurePatternSync(callNumber: number): void {
+  try {
+    if (callNumber % 25 !== 0) return;
+    const fpPath = path.join(STATE_DIR, "failure_patterns.jsonl");
+    const dbPath = path.join("C:", "PRISM", ".swarm", "memory.db");
+    if (!fs.existsSync(fpPath) || !fs.existsSync(dbPath)) return;
+
+    const lines = fs.readFileSync(fpPath, "utf-8").trim().split("\n").filter(Boolean);
+    const patterns = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    if (patterns.length === 0) return;
+
+    // Build batch insert for pattern_history
+    const inserts: string[] = [];
+    for (const p of patterns.slice(-10)) { // last 10 entries only
+      const pid = (p.id || "unknown").replace(/'/g, "''");
+      const conf = p.confidence || 0.5;
+      const sc = p.occurrences || 1;
+      const cond = (p.context || "").replace(/'/g, "''").slice(0, 200);
+      const reason = (p.error || "").replace(/'/g, "''").slice(0, 200);
+      inserts.push(`INSERT OR IGNORE INTO pattern_history (pattern_id, version, confidence, success_count, condition, change_type, change_reason) VALUES ('${pid}', 1, ${conf}, ${sc}, '${cond}', 'failure', '${reason}')`);
+    }
+
+    if (inserts.length > 0) {
+      const batchSql = inserts.join("; ");
+      const pyScript = `import sqlite3; c=sqlite3.connect(r'${dbPath}'); c.executescript("""${batchSql}"""); c.close(); print('ok')`;
+      const { execFileSync } = require("child_process");
+      execFileSync("py", ["-3", "-c", pyScript], { encoding: "utf-8", timeout: 5000 });
+    }
+
+    appendEventLine("failure_pattern_sync", { call: callNumber, synced: inserts.length });
+  } catch { /* non-fatal */ }
+}
 
 // ============================================================================
 // GAP 1: ERROR AUTO-LEARN — Persist errors to failure_library automatically
@@ -1222,6 +1407,44 @@ const SKILL_DOMAIN_MAP: Record<string, string[]> = {
 // ============================================================================
 const TRIGGER_MAP_PATH = path.join(PATHS.SKILLS, "TRIGGER_MAP.json");
 let _triggerMapMerged = false;
+
+// Build namespace index from trigger map for O(1) lookup by namespace/domain
+let _triggerNamespaceIndex: Record<string, Array<{ trigger: string; skills: string[]; namespace: string }>> | null = null;
+
+function getTriggersByNamespace(namespace: string): Array<{ trigger: string; skills: string[]; namespace: string }> {
+  if (!_triggerNamespaceIndex) {
+    _triggerNamespaceIndex = {};
+    try {
+      if (!fs.existsSync(TRIGGER_MAP_PATH)) return [];
+      const raw = JSON.parse(fs.readFileSync(TRIGGER_MAP_PATH, "utf-8"));
+      const triggers = raw.triggers || [];
+      // Index triggers by namespace/domain/category for O(1) lookup
+      for (const entry of (Array.isArray(triggers) ? triggers : Object.values(triggers))) {
+        const e = entry as any;
+        const ns = e.namespace || e.domain || e.category || "general";
+        const trigger = e.trigger || e.name || e.id || "";
+        const skills = e.skills || e.auto_load_skills || [];
+        if (!_triggerNamespaceIndex[ns]) _triggerNamespaceIndex[ns] = [];
+        _triggerNamespaceIndex[ns].push({ trigger, skills, namespace: ns });
+      }
+      // Also index by trigger_map keys if present (flat format)
+      const map: Record<string, string[]> = raw.trigger_map || {};
+      for (const [trigger, skills] of Object.entries(map)) {
+        const ns = trigger.split("_")[0] || "general"; // e.g. "cutting_force" → "cutting"
+        if (!_triggerNamespaceIndex[ns]) _triggerNamespaceIndex[ns] = [];
+        _triggerNamespaceIndex[ns].push({ trigger, skills, namespace: ns });
+      }
+    } catch { _triggerNamespaceIndex = {}; }
+  }
+  return _triggerNamespaceIndex[namespace] || _triggerNamespaceIndex["general"] || [];
+}
+
+/** Get all namespace keys for diagnostics */
+function getTriggerNamespaces(): string[] {
+  if (!_triggerNamespaceIndex) getTriggersByNamespace("general"); // force init
+  return Object.keys(_triggerNamespaceIndex || {});
+}
+
 function mergeTriggerMap(): void {
   if (_triggerMapMerged) return;
   _triggerMapMerged = true;
@@ -1269,6 +1492,8 @@ function mergeTriggerMap(): void {
     if (added > 0) {
       appendEventLine("trigger_map_merged", { path: TRIGGER_MAP_PATH, new_routes: added, total_keys: Object.keys(SKILL_DOMAIN_MAP).length });
     }
+    // Initialize namespace index at startup (same pass as merge)
+    getTriggersByNamespace("general");
   } catch { /* non-fatal — hardcoded map still works */ }
 }
 mergeTriggerMap();
@@ -3705,10 +3930,27 @@ export function autoSkillHookMatch(
     // Normalize underscores/hyphens to spaces so "cutting_force" matches "cutting force"
     const contextStr = contextParts.join(" ").toLowerCase().replace(/[_-]/g, " ");
 
+    // Pre-filter: use namespace index to narrow candidate hooks when possible.
+    // Extract namespace hint from action (e.g. "cutting_force" → "cutting")
+    const nsHint = action.split("_")[0] || "";
+    const namespaceTriggers = nsHint ? getTriggersByNamespace(nsHint) : [];
+    // Build a Set of skill IDs from namespace-matched triggers for fast pre-filtering
+    const nsSkillSet = namespaceTriggers.length > 0
+      ? new Set(namespaceTriggers.flatMap(t => t.skills))
+      : null;
+
     const matched: AutoSkillHookMatchResult["matched_hooks"] = [];
     let totalSkills = 0;
 
     for (const hook of hooks) {
+      // Namespace pre-filter: if we have a namespace match, skip hooks whose skills
+      // have zero overlap with the namespace-relevant skill set (fast path).
+      // Falls through to full keyword scan if no namespace index or if hook has overlap.
+      if (nsSkillSet && hook.auto_load_skills.length > 0) {
+        const hasOverlap = hook.auto_load_skills.some((s: string) => nsSkillSet.has(s));
+        if (!hasOverlap) continue; // Skip — no relevant skills for this namespace
+      }
+
       // Count how many trigger keywords appear in the context
       let keywordHits = 0;
       for (const kw of hook.trigger_keywords) {
@@ -4871,100 +5113,179 @@ export function autoLearningStorePersist(callNumber: number): { success: boolean
 }
 
 // ============================================================================
-// AUTO PARALLEL DISPATCH — Fire parallel agents when auto_orchestrate=true
-// Cadence: triggered from autoAgentRecommend when classification meets threshold.
-// Requires ANTHROPIC_API_KEY. Debounced per task signature (max 1 per session).
+// AUTO GROUPED SWARM DISPATCH — Multi-group swarm orchestration
+// Replaces autoParallelDispatch. AWAITS result (45s timeout), writes synthesis
+// to SWARM_RESULTS_LATEST.json, and sets __prism_swarm_pending for deferred injection.
+// Dedup window: 5 calls (down from 20). Complexity gate: complex/critical only.
 // ============================================================================
 
-const _parallelDispatchHistory = new Map<string, number>(); // sig → call_number (expires after 20 calls)
+const _parallelDispatchHistory = new Map<string, number>();
+const SWARM_RESULTS_FILE = path.join(STATE_DIR, "SWARM_RESULTS_LATEST.json");
 
-export async function autoParallelDispatch(
+export interface GroupedSwarmResult {
+  success: boolean;
+  call_number: number;
+  dispatched: boolean;
+  mode?: string;
+  agents?: string[];
+  groupCount?: number;
+  synthesis?: string[];
+  timedOut?: boolean;
+  error?: string;
+}
+
+/** Build TaskGroup[] from classification — uses group_decomposition if available */
+function buildTaskGroups(
+  classification: TaskClassification,
+  toolName: string,
+  action: string,
+  params: Record<string, unknown>,
+  callNumber: number
+): TaskGroup[] {
+  const input: Record<string, unknown> = {
+    tool: toolName, action, params,
+    domain: classification.domain,
+    complexity: classification.complexity,
+    auto_dispatched: true,
+    call_number: callNumber
+  };
+
+  // Strategy A: Use group_decomposition from classifier
+  if (classification.group_decomposition) {
+    return classification.group_decomposition.groups.map(g => ({
+      groupId: g.groupId,
+      name: g.name,
+      pattern: g.pattern as SwarmPattern,
+      agents: g.agents,
+      input,
+      dependsOn: g.dependsOn,
+      wave: g.wave,
+      timeout_ms: 30000
+    }));
+  }
+
+  // Strategy B: Use recommended swarm as single group
+  const swarm = classification.recommended_swarm;
+  if (swarm && swarm.agents.length >= 2) {
+    return [{
+      groupId: "swarm-main",
+      name: `auto-${toolName}-${action}`,
+      pattern: swarm.pattern as SwarmPattern,
+      agents: swarm.agents,
+      input,
+      wave: 0,
+      timeout_ms: 30000
+    }];
+  }
+
+  // Strategy C: Parallel agents as single group
+  const agents = classification.recommended_agents;
+  if (agents.length >= 2) {
+    return [{
+      groupId: "agents-parallel",
+      name: `parallel-${toolName}-${action}`,
+      pattern: "parallel" as SwarmPattern,
+      agents: agents.slice(0, 5).map(a => a.agent_id),
+      input,
+      wave: 0,
+      timeout_ms: 30000
+    }];
+  }
+
+  return [];
+}
+
+export async function autoGroupedSwarmDispatch(
   callNumber: number,
   classification: TaskClassification | null,
   toolName: string,
   action: string,
   params: Record<string, unknown>
-): Promise<{ success: boolean; call_number: number; dispatched: boolean; mode?: string; agents?: string[]; error?: string }> {
+): Promise<GroupedSwarmResult> {
   try {
     if (!classification) return { success: true, call_number: callNumber, dispatched: false };
     if (!classification.auto_orchestrate) return { success: true, call_number: callNumber, dispatched: false };
     if (!hasValidApiKey()) return { success: true, call_number: callNumber, dispatched: false, error: "no_api_key" };
 
-    // Build task signature for deduplication
+    // Complexity gate: only complex or critical
+    if (classification.complexity !== "complex" && classification.complexity !== "critical") {
+      return { success: true, call_number: callNumber, dispatched: false };
+    }
+
+    // Dedup: 5 calls (down from 20)
     const sig = `${toolName}:${action}:${classification.domain}:${classification.complexity}`;
     const lastDispatched = _parallelDispatchHistory.get(sig);
-    if (lastDispatched !== undefined && (callNumber - lastDispatched) < 20) {
+    if (lastDispatched !== undefined && (callNumber - lastDispatched) < 5) {
       return { success: true, call_number: callNumber, dispatched: false };
     }
     _parallelDispatchHistory.set(sig, callNumber);
 
-    const swarm = classification.recommended_swarm;
-    const agents = classification.recommended_agents;
+    const groups = buildTaskGroups(classification, toolName, action, params, callNumber);
+    if (groups.length === 0) return { success: true, call_number: callNumber, dispatched: false };
 
-    // Build shared input context
-    const input: Record<string, unknown> = {
-      tool: toolName,
-      action,
-      params,
-      domain: classification.domain,
-      complexity: classification.complexity,
-      auto_dispatched: true,
-      call_number: callNumber
+    const totalAgents = groups.reduce((n, g) => n + g.agents.length, 0);
+    appendEventLine("auto_grouped_swarm_dispatched", {
+      call: callNumber, groups: groups.length, agents: totalAgents, tool: toolName, action
+    });
+
+    // AWAIT result with 45s timeout (not fire-and-forget)
+    const result = await executeSwarmGroups(groups, 45000);
+
+    appendEventLine("auto_grouped_swarm_completed", {
+      call: callNumber, groups: result.totalGroups, completed: result.completedGroups,
+      failed: result.failedGroups, timedOut: result.timedOut, duration_ms: result.duration_ms
+    });
+
+    // Write results to disk for persistence
+    try {
+      fs.writeFileSync(SWARM_RESULTS_FILE, JSON.stringify({
+        ts: new Date().toISOString(),
+        call: callNumber,
+        tool: toolName,
+        action,
+        groups: result.totalGroups,
+        completed: result.completedGroups,
+        synthesis: result.synthesis,
+        duration_ms: result.duration_ms,
+        timedOut: result.timedOut,
+        groupDetails: result.groups.map(g => ({
+          groupId: g.groupId, name: g.name, status: g.status,
+          findings: g.keyFindings, duration_ms: g.duration_ms
+        }))
+      }, null, 2));
+    } catch { /* non-fatal */ }
+
+    // Set deferred injection for next 3 calls
+    (globalThis as any).__prism_swarm_pending = {
+      result: {
+        synthesis: result.synthesis,
+        groups: result.completedGroups,
+        timedOut: result.timedOut,
+        duration_ms: result.duration_ms
+      },
+      injected_at: callNumber,
+      remaining: 3
     };
 
-    // Strategy A: Use recommended swarm if available
-    if (swarm && swarm.agents.length >= 2) {
-      const pattern = swarm.pattern as SwarmPattern;
-      appendEventLine("auto_parallel_swarm_dispatched", {
-        call: callNumber, pattern, agents: swarm.agents, tool: toolName, action
-      });
-      // Fire async - don't await (non-blocking background execution)
-      executeSwarm({
-        name: `auto-${toolName}-${action}-${callNumber}`,
-        pattern,
-        agents: swarm.agents,
-        input,
-        timeout_ms: 30000
-      }).then(result => {
-        appendEventLine("auto_parallel_swarm_completed", {
-          call: callNumber, pattern, successful: result.successCount,
-          failed: result.failCount, status: result.status
-        });
-      }).catch(err => {
-        appendEventLine("auto_parallel_swarm_error", { call: callNumber, error: String(err).slice(0, 200) });
-      });
-      return { success: true, call_number: callNumber, dispatched: true, mode: `swarm:${pattern}`, agents: swarm.agents };
-    }
+    const mode = groups.length > 1
+      ? `swarm_groups:${groups.length}`
+      : `swarm:${groups[0].pattern}`;
 
-    // Strategy B: Use parallel agents if 2+ recommended
-    if (agents.length >= 2) {
-      const agentTasks = agents.slice(0, 5).map(a => ({
-        agentId: a.agent_id,
-        input: { ...input, agent_role: a.name, agent_tier: a.tier }
-      }));
-      appendEventLine("auto_parallel_agents_dispatched", {
-        call: callNumber, count: agentTasks.length, tool: toolName, action
-      });
-      // Fire async - non-blocking
-      executeAgentsParallel(agentTasks).then(results => {
-        const successful = results.filter(r => r.status === "completed").length;
-        appendEventLine("auto_parallel_agents_completed", {
-          call: callNumber, total: results.length, successful
-        });
-      }).catch(err => {
-        appendEventLine("auto_parallel_agents_error", { call: callNumber, error: String(err).slice(0, 200) });
-      });
-      return {
-        success: true, call_number: callNumber, dispatched: true,
-        mode: "parallel", agents: agentTasks.map(a => a.agentId)
-      };
-    }
-
-    return { success: true, call_number: callNumber, dispatched: false };
+    return {
+      success: true, call_number: callNumber, dispatched: true,
+      mode,
+      agents: groups.flatMap(g => g.agents),
+      groupCount: groups.length,
+      synthesis: result.synthesis,
+      timedOut: result.timedOut
+    };
   } catch (err: any) {
     return { success: false, call_number: callNumber, dispatched: false, error: err.message?.slice(0, 150) };
   }
 }
+
+/** @deprecated Use autoGroupedSwarmDispatch instead */
+export const autoParallelDispatch = autoGroupedSwarmDispatch;
 
 // ============================================================================
 // AUTO ATCS BATCH PARALLEL — Upgrade sequential ATCS batches to parallel

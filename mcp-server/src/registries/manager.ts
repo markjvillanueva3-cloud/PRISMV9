@@ -105,63 +105,102 @@ export class RegistryManager {
     return this.initPromise;
   }
 
+  // Track which registries have been lazy-loaded
+  private _lazyLoaded: Set<string> = new Set();
+  // C3 fix: Promise guard prevents concurrent double-load
+  private _loadingPromises: Map<string, Promise<void>> = new Map();
+
+  /**
+   * Ensure a specific registry is loaded (lazy-load on first access).
+   * Safe to call multiple times — uses Promise guard to prevent concurrent loads.
+   */
+  async ensureLoaded(registry: any, name: string): Promise<void> {
+    if (this._lazyLoaded.has(name)) return;
+    // If already loading, await the in-flight promise
+    const existing = this._loadingPromises.get(name);
+    if (existing) return existing;
+    // Start loading with Promise guard
+    const loadPromise = (async () => {
+      try {
+        await registry.load();
+        this._lazyLoaded.add(name);
+      } catch (err) {
+        log.error(`Failed to lazy-load ${name}: ${err}`);
+      } finally {
+        this._loadingPromises.delete(name);
+      }
+    })();
+    this._loadingPromises.set(name, loadPromise);
+    return loadPromise;
+  }
+
   /**
    * Perform actual initialization
+   * Now loads only CORE registries eagerly (materials, machines, tools, formulas).
+   * Secondary registries are lazy-loaded on first access via ensureLoaded().
    */
   private async doInitialize(): Promise<void> {
-    log.info("Initializing all registries...");
+    log.info("Initializing core registries (others lazy-loaded on demand)...");
     const startTime = Date.now();
-    
+
     try {
-      // Load all registries in parallel for speed
+      // Core registries: always needed, load eagerly in parallel
       await Promise.all([
-        this.materials.load().catch(err => {
+        this.materials.load().then(() => this._lazyLoaded.add("materials")).catch(err => {
           log.error(`Failed to load materials: ${err}`);
         }),
-        this.machines.load().catch(err => {
+        this.machines.load().then(() => this._lazyLoaded.add("machines")).catch(err => {
           log.error(`Failed to load machines: ${err}`);
         }),
-        this.tools.load().catch(err => {
+        this.tools.load().then(() => this._lazyLoaded.add("tools")).catch(err => {
           log.error(`Failed to load tools: ${err}`);
         }),
-        this.alarms.load().catch(err => {
-          log.error(`Failed to load alarms: ${err}`);
-        }),
-        this.formulas.load().catch(err => {
+        this.formulas.load().then(() => this._lazyLoaded.add("formulas")).catch(err => {
           log.error(`Failed to load formulas: ${err}`);
         }),
-        this.algorithms.load().catch(err => {
+      ]);
+
+      // Secondary registries: lazy-loaded on first access
+      // Still schedule background loading after core is ready (non-blocking)
+      Promise.all([
+        this.alarms.load().then(() => this._lazyLoaded.add("alarms")).catch(err => {
+          log.error(`Failed to load alarms: ${err}`);
+        }),
+        this.algorithms.load().then(() => this._lazyLoaded.add("algorithms")).catch(err => {
           log.error(`Failed to load algorithms: ${err}`);
         }),
-        this.postProcessors.load().catch(err => {
+        this.postProcessors.load().then(() => this._lazyLoaded.add("postProcessors")).catch(err => {
           log.error(`Failed to load post processors: ${err}`);
         }),
-        this.knowledgeBases.load().catch(err => {
+        this.knowledgeBases.load().then(() => this._lazyLoaded.add("knowledgeBases")).catch(err => {
           log.error(`Failed to load knowledge bases: ${err}`);
         }),
-        this.coolants.load().catch(err => {
+        this.coolants.load().then(() => this._lazyLoaded.add("coolants")).catch(err => {
           log.error(`Failed to load coolants: ${err}`);
         }),
-        this.coatings.load().catch(err => {
+        this.coatings.load().then(() => this._lazyLoaded.add("coatings")).catch(err => {
           log.error(`Failed to load coatings: ${err}`);
         }),
-        this.agents.load().catch(err => {
+        this.agents.load().then(() => this._lazyLoaded.add("agents")).catch(err => {
           log.error(`Failed to load agents: ${err}`);
         }),
-        this.hooks.load().catch(err => {
+        this.hooks.load().then(() => this._lazyLoaded.add("hooks")).catch(err => {
           log.error(`Failed to load hooks: ${err}`);
         }),
-        this.skills.load().catch(err => {
+        this.skills.load().then(() => this._lazyLoaded.add("skills")).catch(err => {
           log.error(`Failed to load skills: ${err}`);
         }),
-        this.scripts.load().catch(err => {
+        this.scripts.load().then(() => this._lazyLoaded.add("scripts")).catch(err => {
           log.error(`Failed to load scripts: ${err}`);
         }),
-        this.databases.load().catch(err => {
+        this.databases.load().then(() => this._lazyLoaded.add("databases")).catch(err => {
           log.error(`Failed to load databases: ${err}`);
         })
-      ]);
-      
+      ]).then(() => {
+        log.info(`All secondary registries loaded in background (${this._lazyLoaded.size} total)`);
+        this.logSummary();
+      });
+
       // W5: Only mark initialized if core registries loaded successfully
       // If materials has data files but loaded 0, allow re-init
       const materialsLoaded = this.materials.size > 0;
@@ -170,13 +209,10 @@ export class RegistryManager {
         this.initPromise = null; // Allow retry
         log.warn("RegistryManager: materials registry loaded 0 entries — will retry on next call");
       }
-      
+
       const elapsed = Date.now() - startTime;
-      log.info(`All registries initialized in ${elapsed}ms`);
-      
-      // Log summary
-      this.logSummary();
-      
+      log.info(`Core registries initialized in ${elapsed}ms (secondary loading in background)`);
+
     } catch (error) {
       log.error(`Registry initialization failed: ${error}`);
       throw error;

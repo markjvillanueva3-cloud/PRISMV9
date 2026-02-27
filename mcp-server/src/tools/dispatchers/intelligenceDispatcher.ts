@@ -946,7 +946,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",
-    "Compound intelligence actions for manufacturing: job planning, setup sheets, process costing, material/tool/machine recommendations, what-if analysis, failure diagnosis, parameter optimization, cycle time estimation, quality prediction, job outcome recording & learning, algorithm selection, shop floor scheduling & machine utilization, natural language intent decomposition, persona-adaptive response formatting, pre-built workflow chains. Actions: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list",
+    "Manufacturing intelligence: job planning, setup sheets, costing, recommendations, what-if, diagnosis, optimization, scheduling. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.any()).optional(),

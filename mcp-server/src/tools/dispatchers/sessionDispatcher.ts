@@ -222,7 +222,7 @@ async function loadCurrentState(): Promise<any> {
 export function registerSessionDispatcher(server: any): void {
   server.tool(
     "prism_session",
-    `Session state + lifecycle (20 actions). Actions: ${ACTIONS.join(", ")}`,
+    "Session state management: save/load/checkpoint/diff, handoff, memory, context pressure, workflows, health. Use 'action' param.",
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_session] ${action}`);
