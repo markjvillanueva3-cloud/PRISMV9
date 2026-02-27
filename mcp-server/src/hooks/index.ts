@@ -49,6 +49,8 @@ import { agentHooks } from "./AgentHooks.js";
 import { orchestrationHooks } from "./OrchestrationHooks.js";
 import { safetyQualityHooks } from "./SafetyQualityHooks.js";
 import { cadenceHooks } from "./CadenceDefinitions.js";
+import { specialtyManufacturingHooks } from "./SpecialtyManufacturingHooks.js";
+import { specialtyCadences } from "./SpecialtyCadences.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -69,6 +71,8 @@ export * from "./AgentHooks.js";
 export * from "./OrchestrationHooks.js";
 export * from "./SafetyQualityHooks.js";
 export * from "./CadenceDefinitions.js";
+export * from "./SpecialtyManufacturingHooks.js";
+export * from "./SpecialtyCadences.js";
 export * from "./hookBridge.js";
 
 // ============================================================================
@@ -93,7 +97,9 @@ export const allHooks = [
   ...agentHooks,
   ...orchestrationHooks,
   ...safetyQualityHooks,
-  ...cadenceHooks
+  ...cadenceHooks,
+  ...specialtyManufacturingHooks,
+  ...specialtyCadences
 ];
 
 /**
@@ -115,6 +121,8 @@ export const hookCounts = {
   orchestration: orchestrationHooks.length,
   safetyQuality: safetyQualityHooks.length,
   cadence: cadenceHooks.length,
+  specialtyManufacturing: specialtyManufacturingHooks.length,
+  specialtyCadence: specialtyCadences.length,
   total: 0 // Computed below
 };
 
@@ -138,7 +146,9 @@ export const hooksByCategory = {
   agent: agentHooks,
   orchestration: orchestrationHooks,
   safetyQuality: safetyQualityHooks,
-  cadence: cadenceHooks
+  cadence: cadenceHooks,
+  specialtyManufacturing: specialtyManufacturingHooks,
+  specialtyCadence: specialtyCadences
 };
 
 // ============================================================================
@@ -170,6 +180,10 @@ export function getHooksByCategory(category: string): HookDefinition[] {
     safetyQuality: safetyQualityHooks,
     "safety-quality": safetyQualityHooks,
     cadence: cadenceHooks,
+    specialtyManufacturing: specialtyManufacturingHooks,
+    "specialty-manufacturing": specialtyManufacturingHooks,
+    specialtyCadence: specialtyCadences,
+    "specialty-cadence": specialtyCadences,
     validation: [...enforcementHooks, ...schemaHooks].filter(h => h.category === "validation" || h.tags?.includes("validation"))
   };
   
@@ -292,7 +306,9 @@ export const categoryDescriptions = {
   agent: "Agent tier selection, cost control, escalation, performance tracking, safety auto-escalation",
   orchestration: "Swarm pattern validation, pipeline quality gates, consensus integrity, ATCS bridge",
   safetyQuality: "Safety gates (5 blocking), quality gates (4), business hooks (4), system hooks (7) — L4-P0",
-  cadence: "Scheduled hooks: daily tool wear, weekly maintenance, hourly health, shift handoff, monthly cost, quarterly calibration"
+  cadence: "Scheduled hooks: daily tool wear, weekly maintenance, hourly health, shift handoff, monthly cost, quarterly calibration",
+  specialtyManufacturing: "20 PASS2 specialty hooks: 6 blocking (singularity, RTCP, envelope, crush, live tool, reach) + 14 warning (turning, EDM, grinding, finishing, quality)",
+  specialtyCadence: "6 PASS2 cadences: FRF matching, tolerance risk scoring, operator skill match, tool standardization, machine utilization, NCR trending"
 };
 
 // ============================================================================
