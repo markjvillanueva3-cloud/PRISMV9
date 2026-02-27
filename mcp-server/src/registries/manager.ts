@@ -37,6 +37,8 @@ import { agentRegistry, AgentRegistry } from "./AgentRegistry.js";
 import { hookRegistry, HookRegistry } from "./HookRegistry.js";
 import { skillRegistry, SkillRegistry } from "./SkillRegistry.js";
 import { scriptRegistry, ScriptRegistry } from "./ScriptRegistry.js";
+import { databaseRegistry, DatabaseRegistry } from "./DatabaseRegistry.js";
+import { DSL_ABBREVIATIONS, DSL_ENTRY_COUNT } from "../config/dslAbbreviations.js";
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
@@ -67,6 +69,9 @@ export class RegistryManager {
   readonly skills: SkillRegistry;
   readonly scripts: ScriptRegistry;
 
+  // Database registries (L0-P2-MS1)
+  readonly databases: DatabaseRegistry;
+
   constructor() {
     this.materials = materialRegistry;
     this.machines = machineRegistry;
@@ -82,6 +87,7 @@ export class RegistryManager {
     this.hooks = hookRegistry;
     this.skills = skillRegistry;
     this.scripts = scriptRegistry;
+    this.databases = databaseRegistry;
   }
 
   /**
@@ -150,6 +156,9 @@ export class RegistryManager {
         }),
         this.scripts.load().catch(err => {
           log.error(`Failed to load scripts: ${err}`);
+        }),
+        this.databases.load().catch(err => {
+          log.error(`Failed to load databases: ${err}`);
         })
       ]);
       
@@ -193,6 +202,8 @@ export class RegistryManager {
     log.info(`  Hooks:           ${this.hooks.size} entries`);
     log.info(`  Skills:          ${this.skills.size} entries`);
     log.info(`  Scripts:         ${this.scripts.size} entries`);
+    log.info(`  Databases:       ${this.databases.size} entries`);
+    log.info(`  DSL Abbrs:       ${DSL_ENTRY_COUNT} entries`);
     log.info(`  Total:           ${this.getTotalEntries()} entries`);
   }
 
@@ -214,7 +225,9 @@ export class RegistryManager {
       this.agents.size +
       this.hooks.size +
       this.skills.size +
-      this.scripts.size
+      this.scripts.size +
+      this.databases.size +
+      DSL_ENTRY_COUNT
     );
   }
 
@@ -264,6 +277,8 @@ export class RegistryManager {
       hooks: this.hooks.getStats(),
       skills: this.skills.getStats(),
       scripts: this.scripts.getStats(),
+      databases: this.databases.getStats(),
+      dsl: { total: DSL_ENTRY_COUNT },
       totalEntries: this.getTotalEntries()
     };
   }
@@ -293,7 +308,8 @@ export class RegistryManager {
     this.hooks.clear();
     this.skills.clear();
     this.scripts.clear();
-    
+    this.databases.clear();
+
     // Reinitialize
     await this.initialize();
   }
@@ -350,6 +366,10 @@ export class RegistryManager {
       case "scripts":
       case "script":
         return this.scripts;
+      case "databases":
+      case "database":
+      case "db":
+        return this.databases;
       default:
         return undefined;
     }
@@ -376,7 +396,10 @@ export class RegistryManager {
       { name: "hooks", size: this.hooks.size, loaded: this.hooks.isLoaded(), category: "orchestration" },
       // Knowledge registries
       { name: "skills", size: this.skills.size, loaded: this.skills.isLoaded(), category: "knowledge" },
-      { name: "scripts", size: this.scripts.size, loaded: this.scripts.isLoaded(), category: "knowledge" }
+      { name: "scripts", size: this.scripts.size, loaded: this.scripts.isLoaded(), category: "knowledge" },
+      // Database & DSL registries (L0-P2-MS1)
+      { name: "databases", size: this.databases.size, loaded: this.databases.isLoaded(), category: "database" },
+      { name: "dsl", size: DSL_ENTRY_COUNT, loaded: true, category: "config" }
     ];
   }
 
@@ -475,7 +498,23 @@ export class RegistryManager {
       const scriptResults = this.scripts.search({ query, limit });
       results.scripts = scriptResults.scripts;
     }
-    
+
+    if (registries.includes("databases")) {
+      (results as any).databases = this.databases.search(query, limit);
+    }
+
+    if (registries.includes("dsl")) {
+      const q = query.toLowerCase();
+      const dslMatches: { term: string; abbreviation: string }[] = [];
+      for (const [term, abbr] of Object.entries(DSL_ABBREVIATIONS)) {
+        if (term.toLowerCase().includes(q) || abbr.toLowerCase().includes(q)) {
+          dslMatches.push({ term, abbreviation: abbr });
+          if (dslMatches.length >= limit) break;
+        }
+      }
+      (results as any).dsl = dslMatches;
+    }
+
     return results;
   }
 
@@ -530,6 +569,96 @@ export class RegistryManager {
    */
   getScriptCommand(scriptId: string, args?: Record<string, unknown>): string | undefined {
     return this.scripts.getExecutionCommand(scriptId, args);
+  }
+
+  /**
+   * Cross-Registry Lookup (L0-P2-MS1)
+   * Maps relationships between registries:
+   * - material → compatible tools, coatings, coolants
+   * - machine → compatible alarms, controllers
+   * - iso_group → materials in that group
+   */
+  async crossLookup(params: {
+    from: string;     // source registry
+    id: string;       // source entry ID or query
+    to: string;       // target registry
+    limit?: number;
+  }): Promise<{ source: string; target: string; matches: any[]; count: number }> {
+    await this.initialize();
+    const limit = params.limit || 10;
+    const from = params.from.toLowerCase();
+    const to = params.to.toLowerCase();
+    const id = params.id;
+
+    // Material → Tools: find tools suitable for this material's ISO group
+    if (from === "material" && to === "tools") {
+      const material = (await this.materials.search({ query: id, limit: 1 }))?.materials?.[0];
+      if (material?.iso_group) {
+        const toolResults = this.tools.search({ query: material.iso_group, limit });
+        return { source: `material:${id}`, target: "tools", matches: toolResults.tools || [], count: toolResults.tools?.length || 0 };
+      }
+    }
+
+    // Material → Coatings: find coatings suitable for this material category
+    if (from === "material" && to === "coatings") {
+      const material = (await this.materials.search({ query: id, limit: 1 }))?.materials?.[0];
+      if (material) {
+        const coatingResults = this.coatings.searchCoatings({ query: material.iso_group || material.category || id, limit });
+        return { source: `material:${id}`, target: "coatings", matches: coatingResults.coatings || [], count: coatingResults.coatings?.length || 0 };
+      }
+    }
+
+    // Material → Coolants: find coolants for this material
+    if (from === "material" && to === "coolants") {
+      const coolantResults = this.coolants.searchCoolants({ query: id, limit });
+      return { source: `material:${id}`, target: "coolants", matches: coolantResults.coolants || [], count: coolantResults.coolants?.length || 0 };
+    }
+
+    // Machine → Alarms: find alarms for this machine's controller
+    if (from === "machine" && to === "alarms") {
+      const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
+      if (machine?.controller_family || machine?.controller) {
+        const controller = machine.controller_family || machine.controller;
+        const alarmResults = await this.alarms.search({ query: controller, limit });
+        return { source: `machine:${id}`, target: "alarms", matches: alarmResults.alarms || [], count: alarmResults.alarms?.length || 0 };
+      }
+    }
+
+    // Machine → PostProcessors: find post processors for this machine's controller
+    if (from === "machine" && to === "postprocessors") {
+      const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
+      if (machine) {
+        const ppResults = await this.postProcessors.search({ query: machine.controller_family || machine.controller || id, limit });
+        return { source: `machine:${id}`, target: "postprocessors", matches: ppResults || [], count: (ppResults as any)?.length || 0 };
+      }
+    }
+
+    // Generic fallback: text search in target registry
+    const targetReg = this.getRegistry(to);
+    if (targetReg && typeof targetReg.search === "function") {
+      const results = await targetReg.search({ query: id, limit });
+      const matchArray = results?.materials || results?.machines || results?.tools || results?.alarms ||
+        results?.formulas || results?.coolants || results?.coatings || results?.agents ||
+        results?.hooks || results?.skills || results?.scripts || results || [];
+      return { source: `${from}:${id}`, target: to, matches: Array.isArray(matchArray) ? matchArray.slice(0, limit) : [], count: Array.isArray(matchArray) ? matchArray.length : 0 };
+    }
+
+    return { source: `${from}:${id}`, target: to, matches: [], count: 0 };
+  }
+
+  /**
+   * DSL Lookup (L0-P2-MS1)
+   * Search DSL abbreviations by term or abbreviation
+   */
+  dslLookup(query: string): { term: string; abbreviation: string }[] {
+    const q = query.toLowerCase();
+    const results: { term: string; abbreviation: string }[] = [];
+    for (const [term, abbr] of Object.entries(DSL_ABBREVIATIONS)) {
+      if (term.toLowerCase().includes(q) || abbr.toLowerCase().includes(q)) {
+        results.push({ term, abbreviation: abbr });
+      }
+    }
+    return results;
   }
 }
 

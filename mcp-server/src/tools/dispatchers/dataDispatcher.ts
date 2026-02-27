@@ -22,7 +22,8 @@ const DataDispatcherSchema = z.object({
     "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare",
     "material_substitute",
     "coolant_search", "coolant_recommend", "coolant_get",
-    "coating_search", "coating_recommend", "coating_get"
+    "coating_search", "coating_recommend", "coating_get",
+    "cross_lookup", "dsl_lookup", "database_list", "database_search"
   ]),
   params: z.record(z.any()).optional()
 });
@@ -681,6 +682,45 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === CROSS-REGISTRY + DSL + DATABASE (L0-P2-MS1) ===
+          case "cross_lookup": {
+            const from = params.from || params.source;
+            const to = params.to || params.target;
+            const id = params.id || params.query || params.identifier;
+            if (!from || !to || !id) return jsonResponse({ error: "cross_lookup requires 'from', 'to', and 'id' params. Example: from='material', to='tools', id='AISI 4140'" });
+            result = await registryManager.crossLookup({ from, to, id, limit: params.limit || 10 });
+            break;
+          }
+
+          case "dsl_lookup": {
+            const query = params.query || params.term || params.abbreviation;
+            if (!query) return jsonResponse({ error: "dsl_lookup requires 'query' param." });
+            const matches = registryManager.dslLookup(query);
+            result = { query, matches, count: matches.length };
+            break;
+          }
+
+          case "database_list": {
+            result = { databases: registryManager.databases.list(), stats: registryManager.databases.getStats() };
+            break;
+          }
+
+          case "database_search": {
+            const dbQuery = params.query || params.q;
+            if (!dbQuery) return jsonResponse({ error: "database_search requires 'query' param." });
+            const dbId = params.database_id || params.db;
+            if (dbId) {
+              // Search specific database
+              const db = registryManager.databases.getData(dbId);
+              if (!db) return jsonResponse({ error: `Database not found: ${dbId}` });
+              const searchResults = registryManager.databases.search(dbQuery, params.limit || 10);
+              result = searchResults.filter(r => r.database_id === dbId);
+            } else {
+              result = registryManager.databases.search(dbQuery, params.limit || 10);
+            }
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -692,5 +732,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (27 actions)");
+  log.info("[dataDispatcher] Registered prism_data (31 actions)");
 }

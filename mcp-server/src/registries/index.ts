@@ -63,5 +63,8 @@ export {
   STRATEGY_COUNTS,
 } from "./ToolpathStrategyRegistry_Part1.js";
 
+// Database registry (L0-P2-MS1)
+export { DatabaseRegistry, databaseRegistry } from "./DatabaseRegistry.js";
+
 // Registry manager
 export { RegistryManager, registryManager } from "./manager.js";
