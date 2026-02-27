@@ -1,0 +1,1961 @@
+[2026-01-20T18:05:21.887Z] PROMPT
+============================================================
+Analyze this codebase for security vulnerabilities:
+- Check for hardcoded secrets (API keys, passwords)
+- Identify SQL injection risks
+- Find XSS vulnerabilities
+- Check for insecure dependencies
+- Identify authentication/authorization issues
+
+Provide a JSON report with:
+{
+  "vulnerabilities": [{ "severity": "high|medium|low", "file": "...", "line": N, "description": "..." }],
+  "riskScore": 0-100,
+  "recommendations": ["..."]
+}
+
+## Codebase Context
+
+--- .claude/helpers/github-safe.js ---
+#!/usr/bin/env node
+
+/**
+ * Safe GitHub CLI Helper
+ * Prevents timeout issues when using gh commands with special characters
+ * 
+ * Usage:
+ *   ./github-safe.js issue comment 123 "Message with `backticks`"
+ *   ./github-safe.js pr create --title "Title" --body "Complex body"
+ */
+
+import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { randomBytes } from 'crypto';
+
+const args = process.argv.slice(2);
+
+if (args.length < 2) {
+  console.log(`
+Safe GitHub CLI Helper
+
+Usage:
+  ./github-safe.js issue comment <number> <body>
+  ./github-safe.js pr comment <number> <body>
+  ./github-safe.js issue create --title <title> --body <body>
+  ./github-safe.js pr create --title <title> --body <body>
+
+This helper prevents timeout issues with special characters like:
+- Backticks in code examples
+- Command substitution \$(...)
+- Directory paths
+- Special shell characters
+`);
+  process.exit(1);
+}
+
+const [command, subcommand, ...restArgs] = args;
+
+// Handle commands that need body content
+if ((command === 'issue' || command === 'pr') && 
+    (subcommand === 'comment' || subcommand === 'create')) {
+  
+  let bodyIndex = -1;
+  let body = '';
+  
+  if (subcommand === 'comment' && restArgs.length >= 2) {
+    // Simple format: github-safe.js issue comment 123 "body"
+    body = restArgs[1];
+    bodyIndex = 1;
+  } else {
+    // Flag format: --body "content" 
+    bodyIndex = restArgs.indexOf('--body');
+    if (bodyIndex !== -1 && bodyIndex < restArgs.length - 1) {
+      body = restArgs[bodyIndex + 1];
+    }
+  }
+  
+  if (body) {
+    // Use temporary file for body content
+    const tmpFile = join(tmpdir(), `gh-body-${randomBytes(8).toString('hex')}.tmp`);
+    
+    try {
+      writeFileSync(tmpFile, body, 'utf8');
+      
+      // Build new command with --body-file
+      const newArgs = [...restArgs];
+      if (subcommand === 'comment' && bodyIndex === 1) {
+        // Replace body with --body-file
+        newArgs[1] = '--body-file';
+        newArgs.push(tmpFile);
+      } else if (bodyIndex !== -1) {
+        // Replace --body with --body-file
+        newArgs[bodyIndex] = '--body-file';
+        newArgs[bodyIndex + 1] = tmpFile;
+      }
+      
+      // Execute safely
+      const ghCommand = `gh ${command} ${subcommand} ${newArgs.join(' ')}`;
+      console.log(`Executing: ${ghCommand}`);
+      
+      const result = execSync(ghCommand, { 
+        stdio: 'inherit',
+        timeout: 30000 // 30 second timeout
+      });
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+      process.exit(1);
+    } finally {
+      // Clean up
+      try {
+        unlinkSync(tmpFile);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  } else {
+    // No body content, execute normally
+    execSync(`gh ${args.join(' ')}`, { stdio: 'inherit' });
+  }
+} else {
+  // Other commands, execute normally
+  execSync(`gh ${args.join(' ')}`, { stdio: 'inherit' });
+}
+
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_AWEA_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_AWEA_MACHINE_DATABASE_ENHANCED_v2.js
+ * ENHANCED Machine Database - AWEA Mechantronic Co., Ltd.
+ * 
+ * AWEA is a leading Taiwanese manufacturer specializing in double-column
+ * machining centers and 5-axis machines. Known for excellent rigidity,
+ * precision, and value in large-format machining.
+ * 
+ * ENHANCED FORMAT: Full kinematic chains, work envelopes, collision geometry
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.7
+ */
+
+const PRISM_AWEA_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "AWEA",
+        full_name: "AWEA Mechantronic Co., Ltd.",
+        country: "Taiwan",
+        founded: 1986,
+        headquarters: "Taichung, Taiwan",
+        specialty: "Double-column machining centers, 5-axis machines, large-format VMCs",
+        website: "https://www.awea.com",
+        version: "2.0.0-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 10
+    },
+
+    machines: [
+        // ============================================
+        // DOUBLE COLUMN - LP SERIES
+        // ============================================
+        {
+            id: "AWEA_LP_3021",
+            manufacturer: "AWEA",
+            model: "LP-3021",
+            type: "double_column_machining_center",
+            subtype: "bridge_type",
+            description: "Large double-column machining center for mold/die work",
+            
+            work_envelope: {
+                x: { min: 0, max: 3000, unit: "mm" },
+                y: { min: 0, max: 2100, unit: "mm" },
+                z: { min: 0, max: 1000, unit: "mm" },
+                table_length: 3400,
+                table_width: 2100,
+                table_load_capacity: 15000,
+                table_load_unit: "kg",
+                spindle_nose_to_table: { min: 200, max: 1200 }
+            },
+            
+            spindle: {
+                type: "gear_driven",
+                taper: "BT50",
+                max_rpm: 6000,
+                power_rating: 37,
+                power_unit: "kW",
+                torque_max: 850,
+                torque_unit: "Nm",
+                gear_ranges: 2,
+                bearing_type: "angular_contact_precision"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 3000,
+                    rapid_rate: 20000,
+                    max_feed: 10000,
+                    acceleration: 0.3,
+                    guideway_type: "box_way",
+                    guideway_width: 120,
+                    ballscrew_diameter: 63,
+                    positioning_accuracy: 0.015,
+                    repeatability: 0.008
+                },
+                y: {
+                    travel: 2100,
+                    rapid_rate: 20000,
+                    max_feed: 10000,
+                    acceleration: 0.3,
+                    guideway_type: "box_way",
+                    guideway_width: 100,
+                    ballscrew_diameter: 63,
+                    positioning_accuracy: 0.015,
+                    repeatability: 0.008
+                },
+                z: {
+                    travel: 1000,
+                    rapid_rate: 15000,
+                    max_feed: 8000,
+                    acceleration: 0.25,
+                    guideway_type: "box_way",
+                    guideway_width: 100,
+                    ballscrew_diameter: 63,
+                    positioning_accuracy: 0.015,
+                    repeatability: 0.008
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 40,
+                max_tool_diameter: 150,
+                max_tool_diameter_adjacent_empty: 250,
+                max_tool_length: 450,
+                max_tool_weight: 30,
+                tool_change_time: 8
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "31i-B5",
+                axes_count: 3,
+                look_ahead_blocks: 1000
+            },
+            
+            coolant: {
+                tank_capacity: 800,
+                through_spindle: true,
+                tsc_pressure: 20,
+                flood_coolant: true
+            },
+            
+            machine_dimensions: {
+                length: 7500,
+                width: 5200,
+                height: 4500,
+                weight: 45000,
+                weight_unit: "kg"
+            },
+            
+            kinematic_chain: {
+                type: "bridge_type",
+                structure: "fixed_table_moving_bridge",
+                chain: ["base", "table_fixed", "column_left", "column_right", "crossrail_X", "saddle_Y", "ram_Z"],
+                moving_mass_x: 3500,
+                moving_mass_y: 2000,
+                moving_mass_z: 1500
+            }
+        },
+        
+        {
+            id: "AWEA_LP_4025",
+            manufacturer: "AWEA",
+            model: "LP-4025",
+            type: "double_column_machining_center",
+            subtype: "bridge_type",
+            descri
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_BROTHER_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Brother Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Brother Industries Official Specifications 2024
+ * 
+ * Coverage:
+ * - SPEEDIO Series (High-Speed Drill/Tap)
+ * - M-Series (Compact VMC)
+ * - R-Series (5-Axis)
+ * 
+ * Total: 12+ machines with full collision geometry
+ * Note: Brother specializes in high-speed, compact machining centers
+ */
+
+const PRISM_BROTHER_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "brother",
+    manufacturerFull: "Brother Industries, Ltd.",
+    country: "Japan",
+    headquarters: "Nagoya, Japan",
+    website: "https://www.brother.com/as_oc/machtool",
+    controlSystem: "Brother CNC-C00",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // SPEEDIO SERIES - HIGH-SPEED DRILL/TAP CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "brother_s300x1": {
+            id: "brother_s300x1", manufacturer: "brother", model: "SPEEDIO S300X1", series: "SPEEDIO", type: "DRILL_TAP", subtype: "3-axis-high-speed", axes: 3, control: "Brother CNC-C00",
+            spindle: { type: "motorSpindle", maxRpm: 16000, peakHp: 7.5, continuousHp: 5.5, maxTorque_Nm: 22, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 120, headLength_mm: 260 } },
+            travels: { x: { min: 0, max: 300, rapid_mm_min: 50000 }, y: { min: 0, max: 300, rapid_mm_min: 50000 }, z: { min: 0, max: 300, rapid_mm_min: 50000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 150, y: 150, z: 300 }, tableSurface: { x: 150, y: 150, z: 0 } }, spindleToTable_mm: 300 },
+            table: { type: "fixed", length_mm: 450, width_mm: 300, thickness_mm: 50, tSlots: { count: 3, width_mm: 14, spacing_mm: 80 }, maxLoad_kg: 60 },
+            geometry: { footprint: { length_mm: 1400, width_mm: 1700, height_mm: 2200 }, workEnvelope: { x_mm: 300, y_mm: 300, z_mm: 300 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 120, length_mm: 260, offset: { x: 0, y: 0, z: -130 } },
+                table: { type: "box", dimensions: { x: 450, y: 300, z: 50 }, position: { x: 0, y: 0, z: -50 } } },
+            atc: { type: "umbrella", capacity: 14, maxToolDiameter_mm: 50, maxToolLength_mm: 150, changeTime_sec: 0.9 },
+            accuracy: { positioning_mm: 0.003, repeatability_mm: 0.002 },
+            physical: { weight_kg: 1900 }, sources: ["Brother SPEEDIO S300X1 Specifications 2024"]
+        },
+
+        "brother_s500x1": {
+            id: "brother_s500x1", manufacturer: "brother", model: "SPEEDIO S500X1", series: "SPEEDIO", type: "DRILL_TAP", subtype: "3-axis-high-speed", axes: 3, control: "Brother CNC-C00",
+            spindle: { type: "motorSpindle", maxRpm: 16000, peakHp: 7.5, continuousHp: 5.5, maxTorque_Nm: 22, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 120, headLength_mm: 260 } },
+            travels: { x: { min: 0, max: 500, rapid_mm_min: 50000 }, y: { min: 0, max: 400, rapid_mm_min: 50000 }, z: { min: 0, max: 305, rapid_mm_min: 50000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 250, y: 200, z: 305 }, tableSurface: { x: 250, y: 200, z: 0 } }, spindleToTable_mm: 305 },
+            table: { type: "fixed", length_mm: 650, width_mm: 400, thickness_mm: 55, tSlots: { count: 3, width_mm: 14, spacing_mm: 100 }, maxLoad_kg: 100 },
+            geometry: { footprint: { length_mm: 1700, width_mm: 1900, height_mm: 2300 }, workEnvelope: { x_mm: 500, y_mm: 400, z_mm: 305 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 120, length_mm: 260, offset: { x: 0, y: 0, z: -130 } },
+                table: { type: "box", dimensions: { x: 650, y: 400, z: 55 }, position: { x: 0, y: 0, z: -55 } } },
+            atc: { type: "umbrella", capacity: 21, maxToolDiameter_mm: 50, maxToolLength_mm: 150, changeTime_sec: 1.0 },
+            physical: { weight_kg: 2500 }, sources: ["Brother SPEEDIO S500X1 Specifications 2024"]
+        },
+
+        "brother_s500z1": {
+            id: "brother_s500z1", manufacturer: "brother", model: "SPEEDIO S500Z1", series: "SPEEDIO", type: "DRILL_TAP", subtype: "3-axis-high-speed", axes: 3, control: "Brother CNC-C00",
+            spindle: { type: "motorSpindle", maxRpm: 27000, peakHp: 11, continuousHp: 7.5, maxTorque_Nm: 16, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 130, headLength_mm: 280 } },
+            travels: { x: { min: 0, max: 500, rapid_mm_min:
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_CHIRON_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Chiron Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: CHIRON Group Official Specifications 2024
+ * 
+ * Coverage:
+ * - FZ Series (High-Speed VMC)
+ * - DZ Series (Double-Spindle)
+ * - MILL Series (5-Axis)
+ * 
+ * Total: 12+ machines with full collision geometry
+ * Note: Chiron specializes in high-speed, high-productivity machining
+ */
+
+const PRISM_CHIRON_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "chiron",
+    manufacturerFull: "CHIRON Group SE",
+    country: "Germany",
+    headquarters: "Tuttlingen, Germany",
+    website: "https://www.chiron-group.com",
+    controlSystem: "Siemens 840D / FANUC",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // FZ SERIES - HIGH-SPEED VMC (SINGLE SPINDLE)
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "chiron_fz08s": {
+            id: "chiron_fz08s", manufacturer: "chiron", model: "FZ 08 S", series: "FZ", type: "VMC", subtype: "3-axis-high-speed", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 20000, peakHp: 18, continuousHp: 15, maxTorque_Nm: 52, taper: "HSK-A50",
+                geometry: { noseToGageLine_mm: 76.2, headDiameter_mm: 140, headLength_mm: 300 } },
+            travels: { x: { min: 0, max: 350, rapid_mm_min: 75000 }, y: { min: 0, max: 350, rapid_mm_min: 75000 }, z: { min: 0, max: 350, rapid_mm_min: 75000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 175, y: 175, z: 350 }, tableSurface: { x: 175, y: 175, z: 0 } }, spindleToTable_mm: 350 },
+            table: { type: "fixed", length_mm: 440, width_mm: 350, thickness_mm: 50, tSlots: { count: 3, width_mm: 14, spacing_mm: 80 }, maxLoad_kg: 100 },
+            geometry: { footprint: { length_mm: 1800, width_mm: 2000, height_mm: 2400 }, workEnvelope: { x_mm: 350, y_mm: 350, z_mm: 350 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 140, length_mm: 300, offset: { x: 0, y: 0, z: -150 } },
+                table: { type: "box", dimensions: { x: 440, y: 350, z: 50 }, position: { x: 0, y: 0, z: -50 } } },
+            atc: { type: "chain", capacity: 24, maxToolDiameter_mm: 63, maxToolLength_mm: 200, changeTime_sec: 1.2 },
+            accuracy: { positioning_mm: 0.003, repeatability_mm: 0.002 },
+            physical: { weight_kg: 3800 }, sources: ["CHIRON FZ 08 S Specifications 2024"]
+        },
+
+        "chiron_fz12s": {
+            id: "chiron_fz12s", manufacturer: "chiron", model: "FZ 12 S", series: "FZ", type: "VMC", subtype: "3-axis-high-speed", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 20000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 85, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 160, headLength_mm: 340 } },
+            travels: { x: { min: 0, max: 550, rapid_mm_min: 75000 }, y: { min: 0, max: 400, rapid_mm_min: 75000 }, z: { min: 0, max: 400, rapid_mm_min: 75000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 275, y: 200, z: 400 }, tableSurface: { x: 275, y: 200, z: 0 } }, spindleToTable_mm: 400 },
+            table: { type: "fixed", length_mm: 700, width_mm: 400, thickness_mm: 55, tSlots: { count: 5, width_mm: 14, spacing_mm: 80 }, maxLoad_kg: 200 },
+            geometry: { footprint: { length_mm: 2200, width_mm: 2400, height_mm: 2600 }, workEnvelope: { x_mm: 550, y_mm: 400, z_mm: 400 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 160, length_mm: 340, offset: { x: 0, y: 0, z: -170 } },
+                table: { type: "box", dimensions: { x: 700, y: 400, z: 55 }, position: { x: 0, y: 0, z: -55 } } },
+            atc: { type: "chain", capacity: 36, maxToolDiameter_mm: 80, maxToolLength_mm: 250, changeTime_sec: 1.5 },
+            physical: { weight_kg: 5500 }, sources: ["CHIRON FZ 12 S Specifications 2024"]
+        },
+
+        "chiron_fz15s": {
+            id: "chiron_fz15s", manufacturer: "chiron", model: "FZ 15 S", series: "FZ", type: "VMC", subtype: "3-axis-high-speed", axes: 3, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 18000, peakHp: 30, continuousHp: 25, maxTorque_Nm: 119, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 175, headLength_mm: 360 } },
+            travels: { x: { min: 0, max: 750, rapid_mm_min: 70000 }, y: { min: 0, max: 500, rapid_mm_min: 70000 }, z: { min: 0, max: 450, rapid_mm_min: 70000 }, a: n
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_DMG_MORI_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_DMG_MORI_MACHINE_DATABASE_ENHANCED_v2.js
+ * LEVEL 4 ENHANCED - Full Kinematics + Collision Ready
+ * 
+ * DMG MORI is the world's largest machine tool manufacturer, formed by the
+ * merger of German Gildemeister and Japanese Mori Seiki. They produce the
+ * full range: VMCs, HMCs, 5-axis, lathes, mill-turn, and additive machines.
+ * 
+ * LEVEL 4 FORMAT: Full kinematic chains, collision zones, transformation
+ * matrices, STEP file references, and simulation-ready specifications.
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.8
+ */
+
+const PRISM_DMG_MORI_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "DMG MORI",
+        full_name: "DMG MORI AKTIENGESELLSCHAFT",
+        country: "Germany/Japan",
+        formed: 2015,
+        heritage: ["Gildemeister (Germany, 1870)", "Mori Seiki (Japan, 1948)"],
+        headquarters: ["Bielefeld, Germany", "Nagoya, Japan"],
+        specialty: "Full-line CNC machine tools, Industry 4.0 integration",
+        brands: ["DMG", "MORI SEIKI", "DECKEL", "MAHO", "GILDEMEISTER", "SAUER"],
+        website: "https://www.dmgmori.com",
+        version: "2.0.0-LEVEL4-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 18,
+        enhancement_level: 4
+    },
+
+    machines: [
+        // ============================================
+        // 5-AXIS UNIVERSAL - DMU SERIES
+        // ============================================
+        {
+            id: "DMG_DMU_50_3RD_GEN",
+            manufacturer: "DMG MORI",
+            model: "DMU 50 3rd Generation",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion",
+            description: "Compact 5-axis universal machining center with trunnion table",
+            series: "DMU",
+            generation: 3,
+            
+            work_envelope: {
+                x: { min: 0, max: 500, unit: "mm" },
+                y: { min: 0, max: 450, unit: "mm" },
+                z: { min: 0, max: 400, unit: "mm" },
+                a_axis: { min: -5, max: 110, unit: "deg" },
+                c_axis: { min: -360, max: 360, unit: "deg", continuous: true },
+                table_diameter: 630,
+                max_workpiece_diameter: 630,
+                max_workpiece_height: 500,
+                table_load_capacity: 300,
+                table_load_unit: "kg",
+                spindle_nose_to_table_min: 50,
+                spindle_nose_to_table_max: 450
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                model: "speedMASTER",
+                taper: "HSK-A63",
+                max_rpm: 15000,
+                power_rating: 21,
+                power_rating_s1: 17,
+                power_unit: "kW",
+                torque_max: 130,
+                torque_s1: 111,
+                torque_unit: "Nm",
+                bearing_type: "hybrid_ceramic",
+                bearing_arrangement: "O_arrangement",
+                bearing_preload: "spring_preload",
+                lubrication: "oil_air",
+                cooling: "spindle_jacket_cooling",
+                runout_TIR: 0.002,
+                warmup_program: true,
+                thermal_growth_compensation: true
+            },
+            
+            spindle_options: [
+                {
+                    name: "speedMASTER 15000",
+                    taper: "HSK-A63",
+                    max_rpm: 15000,
+                    power: 21,
+                    torque: 130
+                },
+                {
+                    name: "speedMASTER 20000",
+                    taper: "HSK-A63",
+                    max_rpm: 20000,
+                    power: 25,
+                    torque: 87
+                },
+                {
+                    name: "powerMASTER 12000",
+                    taper: "HSK-A63",
+                    max_rpm: 12000,
+                    power: 35,
+                    torque: 303
+                }
+            ],
+            
+            axis_specs: {
+                x: {
+                    travel: 500,
+                    rapid_rate: 42000,
+                    max_feed: 42000,
+                    acceleration: 6,
+                    acceleration_unit: "m/s²",
+                    jerk: 60,
+                    jerk_unit: "m/s³",
+                    motor_type: "servo_direct_drive",
+                    motor_power: 8.0,
+                    guideway_type: "linear_roller",
+                    guideway_brand: "THK",
+                    guideway_model: "SHS35",
+                    guideway_size: 35,
+                    guideway_preload: "medium",
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 16,
+                    ballscrew_grade: "C3",
+                    ballscrew_support: "fixed_fixed",
+                    encoder_type: "absolute_linear_scale",
+                    encoder_brand: "Heidenhain",
+                    encoder_model: "LC483",
+                    encoder_resolution: 0.001,
+                    positioning_accuracy: 0.00
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_DOOSAN_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Doosan Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Doosan Machine Tools Official Specifications 2024
+ * 
+ * Coverage:
+ * - DNM Series (Vertical Machining)
+ * - DVF Series (5-Axis)
+ * - NHP Series (Horizontal)
+ * - PUMA Series (CNC Lathes)
+ * - LYNX Series (Compact Lathes)
+ * - SMX Series (Mill-Turn)
+ * 
+ * Total: 20+ machines with full collision geometry
+ */
+
+const PRISM_DOOSAN_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "doosan",
+    manufacturerFull: "Doosan Machine Tools (DN Solutions)",
+    country: "South Korea",
+    headquarters: "Changwon, South Korea",
+    website: "https://www.dn-solutions.com",
+    controlSystem: "FANUC / Siemens",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // DNM SERIES - VERTICAL MACHINING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "doosan_dnm4500": {
+            id: "doosan_dnm4500", manufacturer: "doosan", model: "DNM 4500", series: "DNM", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 118, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 180, headLength_mm: 360 } },
+            travels: { x: { min: 0, max: 800, rapid_mm_min: 40000 }, y: { min: 0, max: 450, rapid_mm_min: 40000 }, z: { min: 0, max: 510, rapid_mm_min: 36000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 400, y: 225, z: 510 }, tableSurface: { x: 400, y: 225, z: 0 } }, spindleToTable_mm: 510 },
+            table: { type: "fixed", length_mm: 1000, width_mm: 450, thickness_mm: 70, tSlots: { count: 5, width_mm: 18, spacing_mm: 80 }, maxLoad_kg: 600 },
+            geometry: { footprint: { length_mm: 2600, width_mm: 2200, height_mm: 2850 }, workEnvelope: { x_mm: 800, y_mm: 450, z_mm: 510 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 180, length_mm: 360, offset: { x: 0, y: 0, z: -180 } },
+                table: { type: "box", dimensions: { x: 1000, y: 450, z: 70 }, position: { x: 0, y: 0, z: -70 } },
+                column: { type: "box", dimensions: { x: 500, y: 500, z: 2200 }, position: { x: 400, y: 600, z: 0 } } },
+            atc: { type: "arm", capacity: 30, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 1.8 },
+            accuracy: { positioning_mm: 0.005, repeatability_mm: 0.003 },
+            physical: { weight_kg: 6200 }, sources: ["Doosan DNM 4500 Specifications 2024"]
+        },
+
+        "doosan_dnm5700": {
+            id: "doosan_dnm5700", manufacturer: "doosan", model: "DNM 5700", series: "DNM", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 118, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 180, headLength_mm: 360 } },
+            travels: { x: { min: 0, max: 1050, rapid_mm_min: 40000 }, y: { min: 0, max: 570, rapid_mm_min: 40000 }, z: { min: 0, max: 510, rapid_mm_min: 36000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 525, y: 285, z: 510 }, tableSurface: { x: 525, y: 285, z: 0 } }, spindleToTable_mm: 510 },
+            table: { type: "fixed", length_mm: 1300, width_mm: 570, thickness_mm: 75, tSlots: { count: 5, width_mm: 18, spacing_mm: 100 }, maxLoad_kg: 1000 },
+            geometry: { footprint: { length_mm: 3000, width_mm: 2500, height_mm: 2900 }, workEnvelope: { x_mm: 1050, y_mm: 570, z_mm: 510 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 180, length_mm: 360, offset: { x: 0, y: 0, z: -180 } },
+                table: { type: "box", dimensions: { x: 1300, y: 570, z: 75 }, position: { x: 0, y: 0, z: -75 } } },
+            atc: { type: "arm", capacity: 30, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 1.8 },
+            physical: { weight_kg: 8000 }, sources: ["Doosan DNM 5700 Specifications 2024"]
+        },
+
+        "doosan_dnm6700": {
+            id: "doosan_dnm6700", manufacturer: "doosan", model: "DNM 6700", series: "DNM", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 10000, peakHp: 30, continuousHp: 25, maxTorque_Nm: 178, taper: "BBT50",
+                geometry: { noseToGageLine_mm: 139.7, headDiameter_mm: 220, headLength_mm: 420 } },
+            trave
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_FANUC_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Fanuc Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: FANUC Corporation Official Specifications 2024
+ * 
+ * Coverage:
+ * - ROBODRILL Series (Vertical Machining)
+ * - ROBOCUT (Wire EDM - included for completeness)
+ * 
+ * Total: 10+ machines with full collision geometry
+ * Note: FANUC specializes in compact, high-speed machining centers
+ */
+
+const PRISM_FANUC_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "fanuc",
+    manufacturerFull: "FANUC Corporation",
+    country: "Japan",
+    headquarters: "Yamanashi, Japan",
+    website: "https://www.fanuc.com",
+    controlSystem: "FANUC Series 31i-B5",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // ROBODRILL α-DiB SERIES - VERTICAL DRILLING/TAPPING/MILLING
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "fanuc_robodrill_d14mia5": {
+            id: "fanuc_robodrill_d14mia5", manufacturer: "fanuc", model: "α-D14MiA5", series: "ROBODRILL", type: "DRILL_TAP", subtype: "3-axis-high-speed", axes: 3, control: "FANUC 31i-B5",
+            spindle: { type: "motorSpindle", maxRpm: 24000, peakHp: 11, continuousHp: 7.5, maxTorque_Nm: 25, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 115, headLength_mm: 250 } },
+            travels: { x: { min: 0, max: 300, rapid_mm_min: 54000 }, y: { min: 0, max: 300, rapid_mm_min: 54000 }, z: { min: 0, max: 330, rapid_mm_min: 54000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 150, y: 150, z: 330 }, tableSurface: { x: 150, y: 150, z: 0 } }, spindleToTable_mm: 330 },
+            table: { type: "fixed", length_mm: 420, width_mm: 300, thickness_mm: 45, tSlots: { count: 3, width_mm: 12, spacing_mm: 75 }, maxLoad_kg: 100 },
+            geometry: { footprint: { length_mm: 1410, width_mm: 1770, height_mm: 2130 }, workEnvelope: { x_mm: 300, y_mm: 300, z_mm: 330 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 115, length_mm: 250, offset: { x: 0, y: 0, z: -125 } },
+                table: { type: "box", dimensions: { x: 420, y: 300, z: 45 }, position: { x: 0, y: 0, z: -45 } } },
+            atc: { type: "turret", capacity: 21, maxToolDiameter_mm: 50, maxToolLength_mm: 150, changeTime_sec: 0.7 },
+            accuracy: { positioning_mm: 0.002, repeatability_mm: 0.001 },
+            physical: { weight_kg: 2150 }, sources: ["FANUC ROBODRILL α-D14MiA5 Specifications 2024"]
+        },
+
+        "fanuc_robodrill_d21mia5": {
+            id: "fanuc_robodrill_d21mia5", manufacturer: "fanuc", model: "α-D21MiA5", series: "ROBODRILL", type: "DRILL_TAP", subtype: "3-axis-high-speed", axes: 3, control: "FANUC 31i-B5",
+            spindle: { type: "motorSpindle", maxRpm: 24000, peakHp: 11, continuousHp: 7.5, maxTorque_Nm: 25, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 115, headLength_mm: 250 } },
+            travels: { x: { min: 0, max: 500, rapid_mm_min: 54000 }, y: { min: 0, max: 400, rapid_mm_min: 54000 }, z: { min: 0, max: 330, rapid_mm_min: 54000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS_HIGH_SPEED", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 250, y: 200, z: 330 }, tableSurface: { x: 250, y: 200, z: 0 } }, spindleToTable_mm: 330 },
+            table: { type: "fixed", length_mm: 650, width_mm: 400, thickness_mm: 50, tSlots: { count: 3, width_mm: 14, spacing_mm: 100 }, maxLoad_kg: 200 },
+            geometry: { footprint: { length_mm: 1730, width_mm: 1980, height_mm: 2230 }, workEnvelope: { x_mm: 500, y_mm: 400, z_mm: 330 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 115, length_mm: 250, offset: { x: 0, y: 0, z: -125 } },
+                table: { type: "box", dimensions: { x: 650, y: 400, z: 50 }, position: { x: 0, y: 0, z: -50 } } },
+            atc: { type: "turret", capacity: 21, maxToolDiameter_mm: 50, maxToolLength_mm: 150, changeTime_sec: 0.7 },
+            physical: { weight_kg: 2650 }, sources: ["FANUC ROBODRILL α-D21MiA5 Specifications 2024"]
+        },
+
+        "fanuc_robodrill_d21lia5": {
+            id: "fanuc_robodrill_d21lia5", manufacturer: "fanuc", model: "α-D21LiA5", series: "ROBODRILL", type: "DRILL_TAP", subtype: "3-axis-high-speed-long", axes: 3, control: "FANUC 31i-B5",
+            spindle: { type: "motorSpindle", maxRpm: 24000, peakHp: 11, continuousHp: 7.5, maxTorque_Nm: 25, taper: "BT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 115, headLength_mm: 250 } },
+            travels: { x: { min: 0,
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_FEELER_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_FEELER_MACHINE_DATABASE_ENHANCED_v2.js
+ * ENHANCED Machine Database - Feeler (FFG Group)
+ * 
+ * Feeler is a brand of Fair Friend Group (FFG), Taiwan's largest machine tool conglomerate.
+ * Known for excellent value VMCs, HMCs, and lathes with Japanese-level quality at competitive prices.
+ * FFG also owns MAG, Jobs, Sachman, Rambaudi, Sigma, SNK, and other premium brands.
+ * 
+ * ENHANCED FORMAT: Full kinematic chains, work envelopes, collision geometry
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.7
+ */
+
+const PRISM_FEELER_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Feeler",
+        country: "Taiwan",
+        parent_company: "Fair Friend Group (FFG)",
+        founded: 1979,
+        headquarters: "Taichung, Taiwan",
+        specialty: "High-value VMCs, HMCs, and turning centers with Japanese-level quality",
+        website: "https://www.feeler.com",
+        version: "2.0.0-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 12
+    },
+
+    machines: [
+        // ============================================
+        // VERTICAL MACHINING CENTERS - VMP SERIES
+        // ============================================
+        {
+            id: "FEELER_VMP_580",
+            manufacturer: "Feeler",
+            model: "VMP-580",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc",
+            description: "Compact high-speed VMC for precision parts",
+            
+            work_envelope: {
+                x: { min: 0, max: 580, unit: "mm" },
+                y: { min: 0, max: 400, unit: "mm" },
+                z: { min: 0, max: 400, unit: "mm" },
+                table_length: 700,
+                table_width: 400,
+                table_load_capacity: 300,
+                table_load_unit: "kg",
+                spindle_nose_to_table: { min: 100, max: 500 }
+            },
+            
+            spindle: {
+                type: "direct_drive",
+                taper: "BT40",
+                max_rpm: 12000,
+                power_rating: 11,
+                power_unit: "kW",
+                torque_max: 70,
+                torque_unit: "Nm",
+                bearing_type: "angular_contact",
+                bearing_arrangement: "P4_precision",
+                spindle_bore: 70,
+                drawbar_force: 15,
+                warmup_time: 15
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 580,
+                    rapid_rate: 36000,
+                    max_feed: 10000,
+                    acceleration: 0.8,
+                    motor_power: 3.5,
+                    guideway_type: "linear_roller",
+                    guideway_size: 35,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 12,
+                    encoder_resolution: 0.001,
+                    positioning_accuracy: 0.008,
+                    repeatability: 0.005
+                },
+                y: {
+                    travel: 400,
+                    rapid_rate: 36000,
+                    max_feed: 10000,
+                    acceleration: 0.8,
+                    motor_power: 3.5,
+                    guideway_type: "linear_roller",
+                    guideway_size: 35,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 12,
+                    encoder_resolution: 0.001,
+                    positioning_accuracy: 0.008,
+                    repeatability: 0.005
+                },
+                z: {
+                    travel: 400,
+                    rapid_rate: 30000,
+                    max_feed: 10000,
+                    acceleration: 0.7,
+                    motor_power: 5.5,
+                    guideway_type: "linear_roller",
+                    guideway_size: 45,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 12,
+                    encoder_resolution: 0.001,
+                    positioning_accuracy: 0.008,
+                    repeatability: 0.005
+                }
+            },
+            
+            atc: {
+                type: "arm_type",
+                capacity: 24,
+                max_tool_diameter: 80,
+                max_tool_diameter_adjacent_empty: 130,
+                max_tool_length: 250,
+                max_tool_weight: 7,
+                tool_change_time: 2.5,
+                chip_to_chip_time: 4.0
+            },
+            
+            controller: {
+                brand: "FANUC",
+                model: "0i-MF Plus",
+                axes_count: 3,
+                simultaneous_axes: 3,
+                block_processing_time: 1,
+                look_ahead_blocks: 400,
+                memory_capacity: "2GB",
+                program_capacity: "1GB"
+            },
+            
+            coolant: {
+                tank_capacity: 250,
+                pump_output: 30,
+                through_spindle: true,
+                tsc_pressure: 20,
+                tsc_pressure_unit: "bar"
+            },
+  
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_GROB_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Grob Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: GROB-Werke GmbH Official Specifications 2024
+ * 
+ * Coverage:
+ * - G-Series Universal (5-Axis VMC)
+ * - G-Series Module (5-Axis HMC)
+ * 
+ * Total: 10+ machines with full collision geometry
+ * Note: GROB specializes in premium 5-axis universal machining centers
+ */
+
+const PRISM_GROB_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "grob",
+    manufacturerFull: "GROB-Werke GmbH & Co. KG",
+    country: "Germany",
+    headquarters: "Mindelheim, Germany",
+    website: "https://www.grobgroup.com",
+    controlSystem: "Siemens SINUMERIK 840D sl / HEIDENHAIN TNC 640",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // G-SERIES UNIVERSAL - 5-AXIS VERTICAL/HORIZONTAL
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "grob_g150": {
+            id: "grob_g150", manufacturer: "grob", model: "G150", series: "G-Universal", type: "5AXIS", subtype: "horizontal-spindle-trunnion", axes: 5, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 18000, peakHp: 35, continuousHp: 28, maxTorque_Nm: 120, taper: "HSK-A63", orientation: "horizontal",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 180, headLength_mm: 380 } },
+            travels: { x: { min: 0, max: 550, rapid_mm_min: 65000 }, y: { min: 0, max: 550, rapid_mm_min: 65000 }, z: { min: 0, max: 450, rapid_mm_min: 65000 },
+                a: { min: -45, max: 195, rapid_deg_sec: 50 }, b: { min: -360, max: 360, rapid_deg_sec: 100, continuous: true } },
+            kinematics: { type: "GROB_UNIVERSAL", chain: ["SPINDLE", "Z", "X", "A", "B", "TABLE", "PART"], fiveAxisType: "head-table",
+                configuration: "horizontal_spindle_trunnion",
+                rotaryAxes: {
+                    a: { type: "tilt", rotationVector: { i: 1, j: 0, k: 0 }, minAngle_deg: -45, maxAngle_deg: 195, pivotPoint_mm: { x: 275, y: 275, z: 165 }, onTable: true, torque_Nm: 500, clampTorque_Nm: 1200 },
+                    b: { type: "rotary", rotationVector: { i: 0, j: 1, k: 0 }, continuous: true, onTable: true, directDrive: true, torque_Nm: 350, clampTorque_Nm: 800 }
+                },
+                referencePoints: { spindleGageLine: { x: 275, y: 275, z: 450 }, tableSurface: { x: 275, y: 275, z: 165 }, aPivotPoint: { x: 275, y: 275, z: 165 } },
+                tcpcSupported: true, rtcpSupported: true },
+            table: { type: "trunnion_rotary", diameter_mm: 440, tSlots: { count: 4, width_mm: 14, pattern: "radial" }, maxLoad_kg: 200,
+                trunnion: { width_mm: 600, supportHeight_mm: 280 } },
+            geometry: { footprint: { length_mm: 3500, width_mm: 3200, height_mm: 3100 }, workEnvelope: { x_mm: 550, y_mm: 550, z_mm: 450 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 180, length_mm: 380, orientation: "horizontal", offset: { x: 0, y: 0, z: -190 } },
+                trunnionFrame: { type: "box", dimensions: { x: 700, y: 400, z: 500 }, position: { x: 275, y: 275, z: 0 } },
+                rotaryTable: { type: "cylinder", diameter_mm: 440, height_mm: 90, rotatesWith: ["a", "b"] } },
+            atc: { type: "chain", capacity: 60, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 2.8 },
+            accuracy: { positioning_mm: 0.003, repeatability_mm: 0.002, aAxisAccuracy_deg: 0.001, bAxisAccuracy_deg: 0.001 },
+            physical: { weight_kg: 12000 }, sources: ["GROB G150 Specifications 2024"]
+        },
+
+        "grob_g350": {
+            id: "grob_g350", manufacturer: "grob", model: "G350", series: "G-Universal", type: "5AXIS", subtype: "horizontal-spindle-trunnion", axes: 5, control: "Siemens 840D sl",
+            spindle: { type: "motorSpindle", maxRpm: 16000, peakHp: 45, continuousHp: 35, maxTorque_Nm: 180, taper: "HSK-A63", orientation: "horizontal",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 200, headLength_mm: 420 } },
+            travels: { x: { min: 0, max: 800, rapid_mm_min: 60000 }, y: { min: 0, max: 700, rapid_mm_min: 60000 }, z: { min: 0, max: 590, rapid_mm_min: 60000 },
+                a: { min: -45, max: 195, rapid_deg_sec: 40 }, b: { min: -360, max: 360, rapid_deg_sec: 80, continuous: true } },
+            kinematics: { type: "GROB_UNIVERSAL", chain: ["SPINDLE", "Z", "X", "A", "B", "TABLE", "PART"], fiveAxisType: "head-table",
+                configuration: "horizontal_spindle_trunnion",
+                rotaryAxes: {
+                    a: { type: "tilt", minAngle_deg: -45, maxAngle_deg: 195, pivotPoint_mm: { x: 400, y: 350, z: 220 }, torque_Nm: 800, clampTorque_Nm: 1800 },
+                    b: { type: "rotary", continuous: true, directDrive: true, torque_N
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_HAAS_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_HAAS_MACHINE_DATABASE_ENHANCED_v2.js
+ * LEVEL 4 ENHANCED - Full Kinematics + Collision Ready
+ * 
+ * Haas Automation is the largest machine tool builder in the United States,
+ * known for affordable, reliable CNC machines. Famous for the VF series VMCs,
+ * UMC 5-axis machines, ST turning centers, and EC horizontal machines.
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.9
+ */
+
+const PRISM_HAAS_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Haas",
+        full_name: "Haas Automation, Inc.",
+        country: "USA",
+        founded: 1983,
+        headquarters: "Oxnard, California, USA",
+        specialty: "Affordable, reliable VMCs, HMCs, lathes, and rotary products",
+        controller: "Haas NGC (Next Generation Control)",
+        unique: "Largest US machine tool builder, vertically integrated manufacturing",
+        website: "https://www.haascnc.com",
+        version: "2.0.0-LEVEL4-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 16,
+        enhancement_level: 4
+    },
+
+    machines: [
+        // ============================================
+        // VF SERIES VERTICAL MACHINING CENTERS
+        // ============================================
+        {
+            id: "HAAS_VF2",
+            manufacturer: "Haas",
+            model: "VF-2",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc",
+            description: "Popular mid-size vertical machining center",
+            series: "VF",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                table_length: 914,
+                table_width: 356,
+                table_load_capacity: 1361,
+                table_load_unit: "kg",
+                spindle_nose_to_table_min: 102,
+                spindle_nose_to_table_max: 610
+            },
+            
+            spindle: {
+                type: "inline_direct_drive",
+                taper: "BT40",
+                max_rpm: 8100,
+                power_rating: 22.4,
+                power_unit: "kW",
+                torque_max: 122,
+                torque_unit: "Nm",
+                torque_at_rpm: 2000,
+                bearing_type: "angular_contact",
+                cooling: "oil_cooling",
+                thrust_bearing_capacity: 15569
+            },
+            
+            spindle_options: [
+                { name: "Standard", rpm: 8100, power: 22.4, torque: 122 },
+                { name: "High-speed", rpm: 12000, power: 22.4, torque: 76 }
+            ],
+            
+            axis_specs: {
+                x: {
+                    travel: 762,
+                    rapid_rate: 25400,
+                    max_feed: 16510,
+                    max_feed_unit: "mm/min",
+                    motor_type: "brushless_servo",
+                    motor_power: 5.6,
+                    guideway_type: "hardened_box_way",
+                    guideway_width: 55,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 10,
+                    ballscrew_support: "fixed_fixed",
+                    encoder_type: "high_resolution",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                y: {
+                    travel: 406,
+                    rapid_rate: 25400,
+                    max_feed: 16510,
+                    motor_type: "brushless_servo",
+                    motor_power: 5.6,
+                    guideway_type: "hardened_box_way",
+                    guideway_width: 55,
+                    ballscrew_diameter: 40,
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                },
+                z: {
+                    travel: 508,
+                    rapid_rate: 25400,
+                    max_feed: 16510,
+                    motor_type: "brushless_servo",
+                    motor_power: 5.6,
+                    guideway_type: "hardened_box_way",
+                    guideway_width: 55,
+                    ballscrew_diameter: 40,
+                    counterbalance: "pneumatic",
+                    positioning_accuracy: 0.005,
+                    repeatability: 0.003
+                }
+            },
+            
+            atc: {
+                type: "side_mount_carousel",
+                capacity: 20,
+                capacity_options: [20, 24, 30, 40],
+                max_tool_diameter: 89,
+                max_tool_diameter_adjacent_empty: 127,
+                max_tool_length: 254,
+                max_tool_weight: 5.4,
+                tool_change_time: 4.2,
+                chip_to_chip_time: 6.0
+            },
+            
+            controller: {
+                brand: "Haas",
+                model: "NGC",
+                type: "Haas_proprietary",
+                axes_count: 3,
+                
+                haas_features: {
+     
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_HARDINGE_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Hardinge Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Hardinge Inc. Official Specifications 2024
+ * 
+ * Coverage:
+ * - Conquest Series (CNC Lathes)
+ * - Elite Series (Premium Turning)
+ * - Super-Precision Series (Ultra-precision)
+ * - GS Series (Swiss-type)
+ * 
+ * Total: 12+ machines with full collision geometry
+ * Note: Hardinge specializes in precision turning
+ */
+
+const PRISM_HARDINGE_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "hardinge",
+    manufacturerFull: "Hardinge Inc.",
+    country: "USA",
+    headquarters: "Berwyn, Pennsylvania",
+    website: "https://www.hardinge.com",
+    controlSystem: "FANUC / Siemens",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // CONQUEST SERIES - CNC LATHES
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "hardinge_conquestt42": {
+            id: "hardinge_conquestt42", manufacturer: "hardinge", model: "Conquest T42", series: "Conquest", type: "LATHE", subtype: "2-axis-precision", axes: 2, control: "FANUC 0i-TF Plus",
+            spindle: { type: "belt_drive", maxRpm: 6000, peakHp: 15, continuousHp: 12, maxTorque_Nm: 160, spindleNose: "A2-5", chuckSize_mm: 127, barCapacity_mm: 42,
+                geometry: { spindleBore_mm: 47 } },
+            travels: { x: { min: 0, max: 152, rapid_mm_min: 24000 }, z: { min: 0, max: 305, rapid_mm_min: 30000 }, a: null, b: null, c: null, y: null },
+            kinematics: { type: "LATHE_2AXIS", chain: ["SPINDLE", "CHUCK", "PART", "Z", "X", "TURRET", "TOOL"],
+                referencePoints: { spindleCenterline: { x: 0, z: 0 }, turretCenter: { x: 152, z: 152 } } },
+            turret: { type: "disc", stations: 8, toolPattern: "VDI", vdiSize: 25, indexTime_sec: 0.3, liveTooling: true, liveToolRpm: 6000, liveToolHp: 3 },
+            geometry: { swingOverBed_mm: 305, maxTurningDiameter_mm: 203, maxTurningLength_mm: 280, footprint: { length_mm: 1800, width_mm: 1400, height_mm: 1700 } },
+            collisionZones: { chuck: { type: "cylinder", diameter_mm: 127, length_mm: 65, position: { x: 0, z: 0 } },
+                turret: { type: "cylinder", diameter_mm: 260, height_mm: 120, position: { x: 152, z: 152 } } },
+            accuracy: { positioning_mm: 0.003, repeatability_mm: 0.001 },
+            physical: { weight_kg: 2000 }, sources: ["Hardinge Conquest T42 Specifications 2024"]
+        },
+
+        "hardinge_conquestt51": {
+            id: "hardinge_conquestt51", manufacturer: "hardinge", model: "Conquest T51", series: "Conquest", type: "LATHE", subtype: "2-axis-precision", axes: 2, control: "FANUC 0i-TF Plus",
+            spindle: { type: "belt_drive", maxRpm: 5000, peakHp: 20, continuousHp: 15, maxTorque_Nm: 250, spindleNose: "A2-5", chuckSize_mm: 165, barCapacity_mm: 51,
+                geometry: { spindleBore_mm: 56 } },
+            travels: { x: { min: 0, max: 178, rapid_mm_min: 24000 }, z: { min: 0, max: 381, rapid_mm_min: 30000 }, a: null, b: null, c: null, y: null },
+            kinematics: { type: "LATHE_2AXIS", chain: ["SPINDLE", "CHUCK", "PART", "Z", "X", "TURRET", "TOOL"],
+                referencePoints: { spindleCenterline: { x: 0, z: 0 }, turretCenter: { x: 178, z: 190 } } },
+            turret: { type: "disc", stations: 12, toolPattern: "VDI", vdiSize: 30, indexTime_sec: 0.25, liveTooling: true, liveToolRpm: 5000, liveToolHp: 5 },
+            tailstock: { included: true, travel_mm: 300, taperType: "MT3", thrust_kN: 12 },
+            geometry: { swingOverBed_mm: 356, maxTurningDiameter_mm: 229, maxTurningLength_mm: 356, footprint: { length_mm: 2200, width_mm: 1500, height_mm: 1800 } },
+            collisionZones: { chuck: { type: "cylinder", diameter_mm: 165, length_mm: 80, position: { x: 0, z: 0 } },
+                turret: { type: "cylinder", diameter_mm: 320, height_mm: 140, position: { x: 178, z: 190 } },
+                tailstock: { type: "cylinder", diameter_mm: 80, length_mm: 280, position: { x: 0, z: 381 } } },
+            accuracy: { positioning_mm: 0.003, repeatability_mm: 0.001 },
+            physical: { weight_kg: 2800 }, sources: ["Hardinge Conquest T51 Specifications 2024"]
+        },
+
+        "hardinge_conquestt65": {
+            id: "hardinge_conquestt65", manufacturer: "hardinge", model: "Conquest T65", series: "Conquest", type: "LATHE", subtype: "2-axis-precision", axes: 2, control: "FANUC 0i-TF Plus",
+            spindle: { type: "belt_drive", maxRpm: 4500, peakHp: 25, continuousHp: 20, maxTorque_Nm: 380, spindleNose: "A2-6", chuckSize_mm: 203, barCapacity_mm: 65 },
+            travels: { x: { min: 0, max: 203, rapid_mm_min: 24000 }, z: { min: 0, max: 508, rapid_mm_min: 30000 }, a: null, b: null, c: null, y: null },
+            kinematics: { type: "LATHE_2AXIS", chai
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_HERMLE_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_HERMLE_MACHINE_DATABASE_ENHANCED_v2.js
+ * LEVEL 4 ENHANCED - Full Kinematics + Collision Ready
+ * 
+ * Maschinenfabrik Berthold Hermle AG is a German manufacturer renowned for
+ * premium 5-axis machining centers. Famous for exceptional precision, rigidity,
+ * and the gantry-style C-series machines with modified gantry design.
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.9
+ */
+
+const PRISM_HERMLE_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Hermle",
+        full_name: "Maschinenfabrik Berthold Hermle AG",
+        country: "Germany",
+        founded: 1938,
+        headquarters: "Gosheim, Germany",
+        specialty: "Premium 5-axis machining centers, modified gantry design",
+        unique: "Mineral-cast beds, symmetrical thermal behavior, exceptional precision",
+        website: "https://www.hermle.de",
+        version: "2.0.0-LEVEL4-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 10,
+        enhancement_level: 4
+    },
+
+    machines: [
+        // ============================================
+        // C SERIES - 5-AXIS MODIFIED GANTRY
+        // ============================================
+        {
+            id: "HERMLE_C_32_U",
+            manufacturer: "Hermle",
+            model: "C 32 U",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion",
+            description: "High-performance 5-axis machining center with swivel rotary table",
+            series: "C",
+            generation: "U",
+            
+            work_envelope: {
+                x: { min: 0, max: 650, unit: "mm" },
+                y: { min: 0, max: 650, unit: "mm" },
+                z: { min: 0, max: 500, unit: "mm" },
+                a_axis: { min: -130, max: 110, unit: "deg" },
+                c_axis: { min: -360, max: 360, unit: "deg", continuous: true },
+                table_diameter: 320,
+                max_workpiece_diameter: 450,
+                max_workpiece_height: 355,
+                table_load_capacity: 450,
+                table_load_unit: "kg",
+                interference_diameter: 600
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                taper: "HSK-A63",
+                max_rpm: 18000,
+                power_rating: 29,
+                power_s1: 20,
+                power_unit: "kW",
+                torque_max: 145,
+                torque_s1: 87,
+                torque_unit: "Nm",
+                bearing_type: "hybrid_ceramic_angular_contact",
+                bearing_diameter: 70,
+                bearing_lubrication: "oil_air",
+                cooling: "spindle_core_cooling",
+                runout_TIR: 0.001,
+                growth_Z: 0.005,
+                thermal_stability: "excellent"
+            },
+            
+            spindle_options: [
+                { name: "SK40/HSK-A63 18000", max_rpm: 18000, power: 29, torque: 145 },
+                { name: "SK40/HSK-A63 15000", max_rpm: 15000, power: 35, torque: 200 },
+                { name: "HSK-E50 42000", max_rpm: 42000, power: 16, torque: 8 }
+            ],
+            
+            axis_specs: {
+                x: {
+                    travel: 650,
+                    rapid_rate: 45000,
+                    max_feed: 45000,
+                    acceleration: 6,
+                    acceleration_unit: "m/s²",
+                    jerk: 50,
+                    jerk_unit: "m/s³",
+                    motor_type: "servo_direct",
+                    motor_torque: 22,
+                    guideway_type: "linear_roller",
+                    guideway_brand: "INA",
+                    guideway_size: 45,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 16,
+                    ballscrew_grade: "C3",
+                    ballscrew_cooling: true,
+                    encoder_type: "direct_absolute_linear_scale",
+                    encoder_brand: "Heidenhain",
+                    encoder_resolution: 0.0001,
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                },
+                y: {
+                    travel: 650,
+                    rapid_rate: 45000,
+                    max_feed: 45000,
+                    acceleration: 6,
+                    motor_type: "servo_direct",
+                    guideway_type: "linear_roller",
+                    guideway_size: 45,
+                    ballscrew_diameter: 40,
+                    ballscrew_pitch: 16,
+                    ballscrew_cooling: true,
+                    encoder_type: "direct_absolute_linear_scale",
+                    positioning_accuracy: 0.003,
+                    repeatability: 0.002
+                },
+                z: {
+                    travel: 500,
+                    rapid_rate: 45000,
+                    max_feed: 45000,
+                    acceleration: 5,
+                    motor_type: "servo_direct",
+                    guideway_type: "linear_roller",
+                
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_HURCO_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Hurco Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Hurco Companies Official Specifications 2024
+ * 
+ * Coverage:
+ * - VM Series (Vertical Machining)
+ * - VMX Series (Performance VMC)
+ * - VMXi Series (5-Axis)
+ * - TM Series (CNC Lathes)
+ */
+
+const PRISM_HURCO_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "hurco",
+    manufacturerFull: "Hurco Companies, Inc.",
+    country: "USA",
+    headquarters: "Indianapolis, Indiana",
+    website: "https://www.hurco.com",
+    controlSystem: "Hurco WinMax",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // VM SERIES - VALUE VERTICAL MACHINING
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "hurco_vm10i": {
+            id: "hurco_vm10i", manufacturer: "hurco", model: "VM10i", series: "VM", type: "VMC", subtype: "3-axis-compact", axes: 3, control: "Hurco WinMax",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 15, continuousHp: 12, maxTorque_Nm: 65, taper: "BT40",
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 150, headLength_mm: 320 } },
+            travels: { x: { min: 0, max: 660, rapid_mm_min: 24000 }, y: { min: 0, max: 356, rapid_mm_min: 24000 }, z: { min: 0, max: 356, rapid_mm_min: 24000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 330, y: 178, z: 356 }, tableSurface: { x: 330, y: 178, z: 0 } }, spindleToTable_mm: 356 },
+            table: { type: "fixed", length_mm: 813, width_mm: 356, thickness_mm: 60, tSlots: { count: 3, width_mm: 16, spacing_mm: 100 }, maxLoad_kg: 340 },
+            geometry: { footprint: { length_mm: 1980, width_mm: 1700, height_mm: 2440 }, workEnvelope: { x_mm: 660, y_mm: 356, z_mm: 356 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 150, length_mm: 320, offset: { x: 0, y: 0, z: -160 } },
+                table: { type: "box", dimensions: { x: 813, y: 356, z: 60 }, position: { x: 0, y: 0, z: -60 } } },
+            atc: { type: "carousel", capacity: 20, maxToolDiameter_mm: 76, maxToolLength_mm: 254, changeTime_sec: 2.5 },
+            physical: { weight_kg: 3175 }, sources: ["Hurco VM10i Specifications 2024"]
+        },
+
+        "hurco_vm20i": {
+            id: "hurco_vm20i", manufacturer: "hurco", model: "VM20i", series: "VM", type: "VMC", subtype: "3-axis", axes: 3, control: "Hurco WinMax",
+            spindle: { type: "inline", maxRpm: 10000, peakHp: 20, continuousHp: 15, maxTorque_Nm: 119, taper: "BT40",
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 170, headLength_mm: 350 } },
+            travels: { x: { min: 0, max: 1016, rapid_mm_min: 25000 }, y: { min: 0, max: 508, rapid_mm_min: 25000 }, z: { min: 0, max: 508, rapid_mm_min: 25000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 508, y: 254, z: 508 }, tableSurface: { x: 508, y: 254, z: 0 } }, spindleToTable_mm: 508 },
+            table: { type: "fixed", length_mm: 1219, width_mm: 508, thickness_mm: 70, tSlots: { count: 5, width_mm: 16, spacing_mm: 100 }, maxLoad_kg: 680 },
+            geometry: { footprint: { length_mm: 2590, width_mm: 2130, height_mm: 2740 }, workEnvelope: { x_mm: 1016, y_mm: 508, z_mm: 508 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 170, length_mm: 350, offset: { x: 0, y: 0, z: -175 } },
+                table: { type: "box", dimensions: { x: 1219, y: 508, z: 70 }, position: { x: 0, y: 0, z: -70 } } },
+            atc: { type: "carousel", capacity: 24, maxToolDiameter_mm: 76, maxToolLength_mm: 305, changeTime_sec: 2.8 },
+            physical: { weight_kg: 5443 }, sources: ["Hurco VM20i Specifications 2024"]
+        },
+
+        "hurco_vm30i": {
+            id: "hurco_vm30i", manufacturer: "hurco", model: "VM30i", series: "VM", type: "VMC", subtype: "3-axis", axes: 3, control: "Hurco WinMax",
+            spindle: { type: "inline", maxRpm: 10000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 143, taper: "BT40",
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 180, headLength_mm: 370 } },
+            travels: { x: { min: 0, max: 1270, rapid_mm_min: 25000 }, y: { min: 0, max: 610, rapid_mm_min: 25000 }, z: { min: 0, max: 610, rapid_mm_min: 25000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 635, y: 305, z: 610 }, tableSurface: { x: 635, y: 305, z: 0 } }, spindleToTable_mm: 610 },
+  
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_HYUNDAI_WIA_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Hyundai-Wia Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Hyundai-Wia Official Specifications 2024
+ * 
+ * Coverage:
+ * - KF Series (VMC)
+ * - XF Series (5-Axis)
+ * - HS Series (HMC)
+ * - SKT Series (Lathes)
+ * - LM Series (Mill-Turn)
+ */
+
+const PRISM_HYUNDAI_WIA_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "hyundai_wia",
+    manufacturerFull: "Hyundai-Wia Corporation",
+    country: "South Korea",
+    headquarters: "Changwon, South Korea",
+    website: "https://www.hyundai-wia.com",
+    controlSystem: "FANUC / Siemens",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // KF SERIES - VERTICAL MACHINING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "hyundai_kf4600": {
+            id: "hyundai_kf4600", manufacturer: "hyundai_wia", model: "KF 4600", series: "KF", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 20, continuousHp: 15, maxTorque_Nm: 95, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 170, headLength_mm: 350 } },
+            travels: { x: { min: 0, max: 762, rapid_mm_min: 36000 }, y: { min: 0, max: 410, rapid_mm_min: 36000 }, z: { min: 0, max: 460, rapid_mm_min: 30000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 381, y: 205, z: 460 }, tableSurface: { x: 381, y: 205, z: 0 } }, spindleToTable_mm: 460 },
+            table: { type: "fixed", length_mm: 914, width_mm: 410, thickness_mm: 65, tSlots: { count: 5, width_mm: 18, spacing_mm: 80 }, maxLoad_kg: 500 },
+            geometry: { footprint: { length_mm: 2500, width_mm: 2100, height_mm: 2750 }, workEnvelope: { x_mm: 762, y_mm: 410, z_mm: 460 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 170, length_mm: 350, offset: { x: 0, y: 0, z: -175 } },
+                table: { type: "box", dimensions: { x: 914, y: 410, z: 65 }, position: { x: 0, y: 0, z: -65 } } },
+            atc: { type: "arm", capacity: 24, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 2.0 },
+            physical: { weight_kg: 5500 }, sources: ["Hyundai-Wia KF 4600 Specifications 2024"]
+        },
+
+        "hyundai_kf5600": {
+            id: "hyundai_kf5600", manufacturer: "hyundai_wia", model: "KF 5600", series: "KF", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 119, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 180, headLength_mm: 370 } },
+            travels: { x: { min: 0, max: 1016, rapid_mm_min: 36000 }, y: { min: 0, max: 510, rapid_mm_min: 36000 }, z: { min: 0, max: 510, rapid_mm_min: 30000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 508, y: 255, z: 510 }, tableSurface: { x: 508, y: 255, z: 0 } }, spindleToTable_mm: 510 },
+            table: { type: "fixed", length_mm: 1200, width_mm: 510, thickness_mm: 70, tSlots: { count: 5, width_mm: 18, spacing_mm: 100 }, maxLoad_kg: 800 },
+            geometry: { footprint: { length_mm: 2900, width_mm: 2400, height_mm: 2900 }, workEnvelope: { x_mm: 1016, y_mm: 510, z_mm: 510 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 180, length_mm: 370, offset: { x: 0, y: 0, z: -185 } },
+                table: { type: "box", dimensions: { x: 1200, y: 510, z: 70 }, position: { x: 0, y: 0, z: -70 } } },
+            atc: { type: "arm", capacity: 30, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 2.2 },
+            physical: { weight_kg: 7200 }, sources: ["Hyundai-Wia KF 5600 Specifications 2024"]
+        },
+
+        "hyundai_kf6700": {
+            id: "hyundai_kf6700", manufacturer: "hyundai_wia", model: "KF 6700", series: "KF", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 10000, peakHp: 30, continuousHp: 25, maxTorque_Nm: 178, taper: "BBT50",
+                geometry: { noseToGageLine_mm: 139.7, headDiameter_mm: 220, headLength_mm: 430 } },
+            travels: { x: { min: 0, max: 1270, rapid_mm_min: 30000 }, y: { min: 0, max: 670, rapid_mm_min: 30000 }, z: { min: 0, max: 610, rapid_mm_min: 24000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { sp
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_KERN_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Kern Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Kern Microtechnik GmbH Official Specifications 2024
+ * 
+ * Coverage:
+ * - Micro Series (Ultra-Precision 5-Axis)
+ * - Pyramid Nano (Nano-Precision)
+ * 
+ * Total: 8+ machines with full collision geometry
+ * Note: Kern specializes in ultra-precision micro-machining
+ */
+
+const PRISM_KERN_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "kern",
+    manufacturerFull: "Kern Microtechnik GmbH",
+    country: "Germany",
+    headquarters: "Eschenlohe, Germany",
+    website: "https://www.kern-microtechnik.com",
+    controlSystem: "HEIDENHAIN TNC 640 / iTNC 530",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // MICRO SERIES - ULTRA-PRECISION 5-AXIS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "kern_microevo": {
+            id: "kern_microevo", manufacturer: "kern", model: "Micro Evo", series: "Micro", type: "5AXIS", subtype: "micro-precision", axes: 5, control: "HEIDENHAIN iTNC 530",
+            spindle: { type: "motorSpindle", maxRpm: 50000, peakHp: 7.5, continuousHp: 5.5, maxTorque_Nm: 4.8, taper: "HSK-E25",
+                geometry: { noseToGageLine_mm: 45.0, headDiameter_mm: 90, headLength_mm: 180 }, airBearing: false },
+            travels: { x: { min: 0, max: 300, rapid_mm_min: 30000 }, y: { min: 0, max: 280, rapid_mm_min: 30000 }, z: { min: 0, max: 250, rapid_mm_min: 30000 },
+                a: { min: -30, max: 120, rapid_deg_sec: 30 }, c: { min: -360, max: 360, rapid_deg_sec: 60, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE_MICRO", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", rotationVector: { i: 1, j: 0, k: 0 }, minAngle_deg: -30, maxAngle_deg: 120, pivotPoint_mm: { x: 150, y: 140, z: 85 }, pivotToTable_mm: 50, torque_Nm: 100, clampTorque_Nm: 250, directDrive: true },
+                    c: { type: "rotary", rotationVector: { i: 0, j: 0, k: 1 }, continuous: true, torque_Nm: 50, clampTorque_Nm: 120, directDrive: true }
+                },
+                referencePoints: { spindleGageLine: { x: 150, y: 140, z: 250 }, tableSurface: { x: 150, y: 140, z: 85 }, aPivotPoint: { x: 150, y: 140, z: 85 } },
+                tcpcSupported: true, rtcpSupported: true },
+            table: { type: "trunnion_rotary", diameter_mm: 170, tSlots: { count: 4, width_mm: 8, pattern: "radial" }, maxLoad_kg: 20,
+                trunnion: { width_mm: 280, supportHeight_mm: 150, clearanceUnder_mm: 50 } },
+            geometry: { footprint: { length_mm: 1800, width_mm: 1600, height_mm: 2200 }, workEnvelope: { x_mm: 300, y_mm: 280, z_mm: 250 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 90, length_mm: 180, offset: { x: 0, y: 0, z: -90 } },
+                trunnionLeft: { type: "cylinder", diameter_mm: 100, length_mm: 60, position: { x: -140, y: 140, z: 85 } },
+                trunnionRight: { type: "cylinder", diameter_mm: 100, length_mm: 60, position: { x: 140, y: 140, z: 85 } },
+                rotaryTable: { type: "cylinder", diameter_mm: 170, height_mm: 40, rotatesWith: ["a", "c"] } },
+            atc: { type: "chain", capacity: 25, maxToolDiameter_mm: 35, maxToolLength_mm: 100, changeTime_sec: 6.0 },
+            accuracy: { positioning_mm: 0.0003, repeatability_mm: 0.0001, surface_finish_Ra: 0.05, aAxisAccuracy_deg: 0.0003, cAxisAccuracy_deg: 0.0002 },
+            temperatureControl: { machine: true, coolant: true, room: "recommended" },
+            physical: { weight_kg: 3500 }, sources: ["Kern Micro Evo Specifications 2024"]
+        },
+
+        "kern_microvario": {
+            id: "kern_microvario", manufacturer: "kern", model: "Micro Vario", series: "Micro", type: "5AXIS", subtype: "micro-precision", axes: 5, control: "HEIDENHAIN TNC 640",
+            spindle: { type: "motorSpindle", maxRpm: 50000, peakHp: 10, continuousHp: 7.5, maxTorque_Nm: 7.2, taper: "HSK-E32",
+                geometry: { noseToGageLine_mm: 50.0, headDiameter_mm: 100, headLength_mm: 200 } },
+            travels: { x: { min: 0, max: 350, rapid_mm_min: 32000 }, y: { min: 0, max: 300, rapid_mm_min: 32000 }, z: { min: 0, max: 280, rapid_mm_min: 32000 },
+                a: { min: -30, max: 120, rapid_deg_sec: 35 }, c: { min: -360, max: 360, rapid_deg_sec: 70, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE_MICRO", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", minAngle_deg: -30, maxAngle_deg: 120, pivotPoint_mm: { x: 175, y: 150, z: 95 }, torque_Nm: 150, directDriv
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_KITAMURA_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Kitamura Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Kitamura Machinery Official Specifications 2024
+ * 
+ * Coverage:
+ * - Mycenter Series (VMC)
+ * - Mytrunnion Series (5-Axis)
+ * - Supercell Series (HMC)
+ * - Bridgecenter Series (Bridge-type)
+ */
+
+const PRISM_KITAMURA_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "kitamura",
+    manufacturerFull: "Kitamura Machinery Co., Ltd.",
+    country: "Japan",
+    headquarters: "Nagano, Japan",
+    website: "https://www.kitamura-machinery.com",
+    controlSystem: "FANUC / Arumatik-Mi",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // MYCENTER SERIES - VERTICAL MACHINING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "kitamura_mycenter_hx300ig": {
+            id: "kitamura_mycenter_hx300ig", manufacturer: "kitamura", model: "Mycenter HX300iG", series: "Mycenter", type: "VMC", subtype: "3-axis-compact", axes: 3, control: "Arumatik-Mi",
+            spindle: { type: "motorSpindle", maxRpm: 15000, peakHp: 15, continuousHp: 12, maxTorque_Nm: 55, taper: "BBT30",
+                geometry: { noseToGageLine_mm: 70.0, headDiameter_mm: 130, headLength_mm: 280 } },
+            travels: { x: { min: 0, max: 510, rapid_mm_min: 48000 }, y: { min: 0, max: 360, rapid_mm_min: 48000 }, z: { min: 0, max: 360, rapid_mm_min: 48000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 255, y: 180, z: 360 }, tableSurface: { x: 255, y: 180, z: 0 } }, spindleToTable_mm: 360 },
+            table: { type: "fixed", length_mm: 700, width_mm: 360, thickness_mm: 55, tSlots: { count: 3, width_mm: 14, spacing_mm: 100 }, maxLoad_kg: 200 },
+            geometry: { footprint: { length_mm: 1800, width_mm: 1900, height_mm: 2300 }, workEnvelope: { x_mm: 510, y_mm: 360, z_mm: 360 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 130, length_mm: 280, offset: { x: 0, y: 0, z: -140 } },
+                table: { type: "box", dimensions: { x: 700, y: 360, z: 55 }, position: { x: 0, y: 0, z: -55 } } },
+            atc: { type: "arm", capacity: 20, maxToolDiameter_mm: 63, maxToolLength_mm: 200, changeTime_sec: 1.5 },
+            accuracy: { positioning_mm: 0.002, repeatability_mm: 0.001 },
+            physical: { weight_kg: 2800 }, sources: ["Kitamura Mycenter HX300iG Specifications 2024"]
+        },
+
+        "kitamura_mycenter_hx400ig": {
+            id: "kitamura_mycenter_hx400ig", manufacturer: "kitamura", model: "Mycenter HX400iG", series: "Mycenter", type: "VMC", subtype: "3-axis", axes: 3, control: "Arumatik-Mi",
+            spindle: { type: "motorSpindle", maxRpm: 12000, peakHp: 22, continuousHp: 18, maxTorque_Nm: 100, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 170, headLength_mm: 350 } },
+            travels: { x: { min: 0, max: 760, rapid_mm_min: 42000 }, y: { min: 0, max: 410, rapid_mm_min: 42000 }, z: { min: 0, max: 460, rapid_mm_min: 42000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 380, y: 205, z: 460 }, tableSurface: { x: 380, y: 205, z: 0 } }, spindleToTable_mm: 460 },
+            table: { type: "fixed", length_mm: 900, width_mm: 410, thickness_mm: 65, tSlots: { count: 5, width_mm: 16, spacing_mm: 80 }, maxLoad_kg: 500 },
+            geometry: { footprint: { length_mm: 2400, width_mm: 2200, height_mm: 2700 }, workEnvelope: { x_mm: 760, y_mm: 410, z_mm: 460 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 170, length_mm: 350, offset: { x: 0, y: 0, z: -175 } },
+                table: { type: "box", dimensions: { x: 900, y: 410, z: 65 }, position: { x: 0, y: 0, z: -65 } } },
+            atc: { type: "arm", capacity: 30, maxToolDiameter_mm: 80, maxToolLength_mm: 250, changeTime_sec: 1.8 },
+            physical: { weight_kg: 5200 }, sources: ["Kitamura Mycenter HX400iG Specifications 2024"]
+        },
+
+        "kitamura_mycenter_hx500ig": {
+            id: "kitamura_mycenter_hx500ig", manufacturer: "kitamura", model: "Mycenter HX500iG", series: "Mycenter", type: "VMC", subtype: "3-axis", axes: 3, control: "Arumatik-Mi",
+            spindle: { type: "motorSpindle", maxRpm: 12000, peakHp: 30, continuousHp: 25, maxTorque_Nm: 140, taper: "BBT40", bigPlus: true,
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 180, headLength_mm: 380 } },
+            travels: { x: { min: 0, max: 1020, rapid_mm_min: 40000 }, y: { min: 0, max: 510, rapid_mm_min: 40000 }, z
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_LEADWELL_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Leadwell Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Leadwell CNC Machines MFG., Corp. Official Specifications 2024
+ * 
+ * Coverage:
+ * - MCV Series (Vertical Machining)
+ * - LTC Series (CNC Lathes)
+ * - T Series (Turning Centers)
+ * - V Series (5-Axis)
+ * 
+ * Note: Leadwell is one of Taiwan's largest CNC machine manufacturers
+ */
+
+const PRISM_LEADWELL_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "leadwell",
+    manufacturerFull: "Leadwell CNC Machines MFG., Corp.",
+    country: "Taiwan",
+    headquarters: "Taichung, Taiwan",
+    website: "https://www.leadwell.com.tw",
+    controlSystem: "FANUC 0i-MF / 31i-B",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // MCV SERIES - VERTICAL MACHINING CENTERS
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "leadwell_mcv610ap": {
+            id: "leadwell_mcv610ap", manufacturer: "leadwell", model: "MCV-610AP", series: "MCV", type: "VMC", subtype: "3-axis-compact", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 12000, peakHp: 15, continuousHp: 11, maxTorque_Nm: 70, taper: "BT40",
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 150, headLength_mm: 320 } },
+            travels: { x: { min: 0, max: 610, rapid_mm_min: 36000 }, y: { min: 0, max: 410, rapid_mm_min: 36000 }, z: { min: 0, max: 460, rapid_mm_min: 30000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 305, y: 205, z: 460 }, tableSurface: { x: 305, y: 205, z: 0 } }, spindleToTable_mm: 460 },
+            table: { type: "fixed", length_mm: 760, width_mm: 410, thickness_mm: 55, tSlots: { count: 4, width_mm: 18, spacing_mm: 100 }, maxLoad_kg: 400 },
+            geometry: { footprint: { length_mm: 2200, width_mm: 2000, height_mm: 2500 }, workEnvelope: { x_mm: 610, y_mm: 410, z_mm: 460 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 150, length_mm: 320, offset: { x: 0, y: 0, z: -160 } },
+                table: { type: "box", dimensions: { x: 760, y: 410, z: 55 }, position: { x: 0, y: 0, z: -55 } } },
+            atc: { type: "arm", capacity: 24, maxToolDiameter_mm: 76, maxToolLength_mm: 250, changeTime_sec: 2.5 },
+            accuracy: { positioning_mm: 0.008, repeatability_mm: 0.005 },
+            physical: { weight_kg: 4200 }, sources: ["Leadwell MCV-610AP Specifications 2024"]
+        },
+
+        "leadwell_mcv1000b": {
+            id: "leadwell_mcv1000b", manufacturer: "leadwell", model: "MCV-1000B", series: "MCV", type: "VMC", subtype: "3-axis", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 10000, peakHp: 20, continuousHp: 15, maxTorque_Nm: 119, taper: "BT40",
+                geometry: { noseToGageLine_mm: 100.0, headDiameter_mm: 170, headLength_mm: 360 } },
+            travels: { x: { min: 0, max: 1020, rapid_mm_min: 30000 }, y: { min: 0, max: 510, rapid_mm_min: 30000 }, z: { min: 0, max: 510, rapid_mm_min: 24000 }, a: null, b: null, c: null },
+            kinematics: { type: "VMC_3AXIS", chain: ["SPINDLE", "Z", "Y", "X", "TABLE", "PART"],
+                referencePoints: { spindleGageLine: { x: 510, y: 255, z: 510 }, tableSurface: { x: 510, y: 255, z: 0 } }, spindleToTable_mm: 510 },
+            table: { type: "fixed", length_mm: 1150, width_mm: 510, thickness_mm: 65, maxLoad_kg: 700 },
+            geometry: { footprint: { length_mm: 2800, width_mm: 2500, height_mm: 2800 }, workEnvelope: { x_mm: 1020, y_mm: 510, z_mm: 510 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 170, length_mm: 360, offset: { x: 0, y: 0, z: -180 } },
+                table: { type: "box", dimensions: { x: 1150, y: 510, z: 65 }, position: { x: 0, y: 0, z: -65 } } },
+            atc: { type: "arm", capacity: 24, maxToolDiameter_mm: 80, maxToolLength_mm: 300, changeTime_sec: 2.8 },
+            physical: { weight_kg: 6800 }, sources: ["Leadwell MCV-1000B Specifications 2024"]
+        },
+
+        "leadwell_mcv1300d": {
+            id: "leadwell_mcv1300d", manufacturer: "leadwell", model: "MCV-1300D", series: "MCV", type: "VMC", subtype: "3-axis-large", axes: 3, control: "FANUC 0i-MF Plus",
+            spindle: { type: "inline", maxRpm: 8000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 180, taper: "BT50",
+                geometry: { noseToGageLine_mm: 139.7, headDiameter_mm: 200, headLength_mm: 400 } },
+            travels: { x: { min: 0, max: 1300, rapid_mm_min: 24000 }, y: { min: 0, max: 600, rapid_mm_min: 24000 }, z: { min: 0, max: 600, rapid_mm_min: 20000 }, a: null, b: null, c: null },
+            kinemati
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_MAKINO_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_MAKINO_MACHINE_DATABASE_ENHANCED_v2.js
+ * LEVEL 4 ENHANCED - Full Kinematics + Collision Ready
+ * 
+ * Makino is a Japanese machine tool manufacturer renowned for die/mold machining,
+ * aerospace, and high-precision parts. Famous for exceptional surface finish,
+ * accuracy, and the Professional series controls.
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.9
+ */
+
+const PRISM_MAKINO_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Makino",
+        full_name: "Makino Milling Machine Co., Ltd.",
+        country: "Japan",
+        founded: 1937,
+        headquarters: "Tokyo, Japan",
+        specialty: "Die/mold, aerospace, high-precision vertical/horizontal machining",
+        controller: "Professional 6 (Pro6)",
+        unique: "Industry-leading surface finish, thermal stability, HSK spindles",
+        website: "https://www.makino.com",
+        version: "2.0.0-LEVEL4-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 12,
+        enhancement_level: 4
+    },
+
+    machines: [
+        // ============================================
+        // 5-AXIS VMC - D SERIES
+        // ============================================
+        {
+            id: "MAKINO_D500",
+            manufacturer: "Makino",
+            model: "D500",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion",
+            description: "5-axis vertical machining center for aerospace and medical",
+            series: "D",
+            
+            work_envelope: {
+                x: { min: 0, max: 500, unit: "mm" },
+                y: { min: 0, max: 500, unit: "mm" },
+                z: { min: 0, max: 400, unit: "mm" },
+                a_axis: { min: -125, max: 10, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true, unit: "deg" },
+                table_diameter: 400,
+                max_workpiece_diameter: 500,
+                max_workpiece_height: 350,
+                table_load_capacity: 200,
+                table_load_unit: "kg"
+            },
+            
+            spindle: {
+                type: "built_in_motor",
+                model: "Makino_HSK",
+                taper: "HSK-A63",
+                max_rpm: 20000,
+                power_rating: 22,
+                power_unit: "kW",
+                torque_max: 120,
+                torque_unit: "Nm",
+                bearing_type: "ceramic_hybrid_angular_contact",
+                bearing_lubrication: "oil_air",
+                cooling: "core_cooling",
+                runout_TIR: 0.001,
+                thermal_stability: "excellent"
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 500,
+                    rapid_rate: 60000,
+                    max_feed: 60000,
+                    acceleration: 1.0,
+                    acceleration_unit: "g",
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    encoder_type: "linear_scale",
+                    encoder_resolution: 0.0001,
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                },
+                y: {
+                    travel: 500,
+                    rapid_rate: 60000,
+                    max_feed: 60000,
+                    acceleration: 1.0,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                },
+                z: {
+                    travel: 400,
+                    rapid_rate: 50000,
+                    max_feed: 50000,
+                    acceleration: 0.8,
+                    motor_type: "linear_motor",
+                    guideway_type: "linear_roller",
+                    counterbalance: "pneumatic",
+                    positioning_accuracy: 0.002,
+                    repeatability: 0.001
+                },
+                a: {
+                    type: "tilting_trunnion",
+                    travel: { min: -125, max: 10 },
+                    rapid_rate: 100,
+                    rapid_rate_unit: "rpm",
+                    max_torque: 800,
+                    clamping_torque: 1600,
+                    drive_type: "direct_drive_torque_motor",
+                    positioning_accuracy: 0.001,
+                    repeatability: 0.0005,
+                    rotation_center_height: 180
+                },
+                c: {
+                    type: "rotary_table",
+                    continuous: true,
+                    rapid_rate: 150,
+                    rapid_rate_unit: "rpm",
+                    max_torque: 500,
+                    clamping_torque: 1000,
+                    drive_type: "direct_drive_torque_motor",
+                    positioning_accuracy: 0.001,
+                    repeatability: 0.0005
+                }
+            },
+            
+            atc: {
+                type: "matr
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_MATSUURA_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM Matsuura Machine Database - ENHANCED v2.0
+ * Complete Geometric Dimensions & Full Kinematics for Collision Avoidance
+ * 
+ * Generated: 2026-01-20
+ * Source: Matsuura Machinery Corporation Official Specifications 2024
+ * 
+ * Coverage:
+ * - MAM72 Series (5-Axis Multi-Pallet)
+ * - MX Series (5-Axis VMC)
+ * - V.Plus Series (VMC)
+ * - H.Plus Series (HMC)
+ */
+
+const PRISM_MATSUURA_MACHINE_DATABASE_ENHANCED = {
+    manufacturer: "matsuura",
+    manufacturerFull: "Matsuura Machinery Corporation",
+    country: "Japan",
+    headquarters: "Fukui, Japan",
+    website: "https://www.matsuura.co.jp",
+    controlSystem: "FANUC 31i-B5 / MAPPS IV",
+    version: "2.0.0",
+    lastUpdated: "2026-01-20",
+    totalMachines: 0,
+    
+    machines: {
+        
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+        // MAM72 SERIES - 5-AXIS MULTI-PALLET AUTOMATION
+        // ═══════════════════════════════════════════════════════════════════════════════════════
+
+        "matsuura_mam72_25v": {
+            id: "matsuura_mam72_25v", manufacturer: "matsuura", model: "MAM72-25V", series: "MAM72", type: "5AXIS", subtype: "pallet-automation", axes: 5, control: "FANUC 31i-B5 / MAPPS IV",
+            spindle: { type: "motorSpindle", maxRpm: 20000, peakHp: 18, continuousHp: 15, maxTorque_Nm: 57, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 150, headLength_mm: 320 } },
+            travels: { x: { min: 0, max: 350, rapid_mm_min: 50000 }, y: { min: 0, max: 350, rapid_mm_min: 50000 }, z: { min: 0, max: 380, rapid_mm_min: 50000 },
+                a: { min: -120, max: 30, rapid_deg_sec: 50 }, c: { min: -360, max: 360, rapid_deg_sec: 100, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", rotationVector: { i: 1, j: 0, k: 0 }, minAngle_deg: -120, maxAngle_deg: 30, pivotPoint_mm: { x: 175, y: 175, z: 120 }, pivotToTable_mm: 80, torque_Nm: 300, clampTorque_Nm: 700 },
+                    c: { type: "rotary", rotationVector: { i: 0, j: 0, k: 1 }, continuous: true, torque_Nm: 180, clampTorque_Nm: 450 }
+                },
+                referencePoints: { spindleGageLine: { x: 175, y: 175, z: 380 }, tableSurface: { x: 175, y: 175, z: 120 }, aPivotPoint: { x: 175, y: 175, z: 120 } },
+                tcpcSupported: true, rtcpSupported: true },
+            table: { type: "trunnion_rotary_pallet", diameter_mm: 250, palletSize_mm: 250, maxLoad_kg: 50,
+                trunnion: { width_mm: 400, supportHeight_mm: 200 } },
+            palletSystem: { type: "tower", capacity: 32, loadHeight_mm: 150, palletChangeTime_sec: 25 },
+            geometry: { footprint: { length_mm: 2200, width_mm: 2800, height_mm: 3000 }, workEnvelope: { x_mm: 350, y_mm: 350, z_mm: 380 } },
+            collisionZones: { spindleHead: { type: "cylinder", diameter_mm: 150, length_mm: 320, offset: { x: 0, y: 0, z: -160 } },
+                rotaryTable: { type: "cylinder", diameter_mm: 250, height_mm: 65, rotatesWith: ["a", "c"] } },
+            atc: { type: "chain", capacity: 90, maxToolDiameter_mm: 75, maxToolLength_mm: 250, changeTime_sec: 2.5 },
+            accuracy: { positioning_mm: 0.002, repeatability_mm: 0.001, aAxisAccuracy_deg: 0.001, cAxisAccuracy_deg: 0.001 },
+            physical: { weight_kg: 8500 }, sources: ["Matsuura MAM72-25V Specifications 2024"]
+        },
+
+        "matsuura_mam72_35v": {
+            id: "matsuura_mam72_35v", manufacturer: "matsuura", model: "MAM72-35V", series: "MAM72", type: "5AXIS", subtype: "pallet-automation", axes: 5, control: "FANUC 31i-B5 / MAPPS IV",
+            spindle: { type: "motorSpindle", maxRpm: 15000, peakHp: 25, continuousHp: 20, maxTorque_Nm: 95, taper: "HSK-A63",
+                geometry: { noseToGageLine_mm: 88.9, headDiameter_mm: 170, headLength_mm: 360 } },
+            travels: { x: { min: 0, max: 500, rapid_mm_min: 50000 }, y: { min: 0, max: 510, rapid_mm_min: 50000 }, z: { min: 0, max: 480, rapid_mm_min: 50000 },
+                a: { min: -120, max: 30, rapid_deg_sec: 40 }, c: { min: -360, max: 360, rapid_deg_sec: 80, continuous: true } },
+            kinematics: { type: "TRUNNION_TABLE_TABLE", chain: ["SPINDLE", "Z", "Y", "X", "A", "C", "TABLE", "PART"], fiveAxisType: "table-table",
+                rotaryAxes: {
+                    a: { type: "tilt", minAngle_deg: -120, maxAngle_deg: 30, pivotPoint_mm: { x: 250, y: 255, z: 160 }, torque_Nm: 500 },
+                    c: { type: "rotary", continuous: true, torque_Nm: 300 }
+                },
+                referencePoints: { spindleGageLine: { x: 250, y: 255, z: 480 }, tableSurface: { x: 250, y: 255, z: 160 } },
+                tcpcSupported: true },
+            table: { type: "trunnion_rotary_pallet", diameter_mm: 350, palletSize_mm: 350, maxLoad_kg: 100 },
+            palletSystem: { type: "
+
+--- ALL_ENHANCED_MACHINES_28_MANUFACTURERS/PRISM_MAZAK_MACHINE_DATABASE_ENHANCED_v2.js (truncated) ---
+/**
+ * PRISM_MAZAK_MACHINE_DATABASE_ENHANCED_v2.js
+ * LEVEL 4 ENHANCED - Full Kinematics + Collision Ready
+ * 
+ * Mazak (Yamazaki Mazak Corporation) is one of the world's largest machine tool
+ * builders, headquartered in Japan with major production in Japan, USA, UK, Singapore.
+ * Famous for Integrex mill-turn, Variaxis 5-axis, and SMOOTH CNC control.
+ * 
+ * @version 2.0.0
+ * @created 2026-01-20
+ * @session 0.EXT.2f.9
+ */
+
+const PRISM_MAZAK_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Mazak",
+        full_name: "Yamazaki Mazak Corporation",
+        country: "Japan",
+        founded: 1919,
+        headquarters: "Oguchi, Aichi, Japan",
+        facilities: ["Japan", "USA (Kentucky)", "UK", "Singapore", "China"],
+        specialty: "Multi-tasking, 5-axis, turning centers, horizontal machining",
+        controller: "MAZATROL SmoothAi / SmoothG / SmoothX",
+        website: "https://www.mazak.com",
+        version: "2.0.0-LEVEL4-ENHANCED",
+        last_updated: "2026-01-20",
+        machine_count: 16,
+        enhancement_level: 4
+    },
+
+    machines: [
+        // ============================================
+        // INTEGREX MULTI-TASKING SERIES
+        // ============================================
+        {
+            id: "MAZAK_INTEGREX_I_200S",
+            manufacturer: "Mazak",
+            model: "INTEGREX i-200S",
+            type: "mill_turn_center",
+            subtype: "5_axis_mill_turn",
+            description: "Multi-tasking machine with milling spindle and B-axis",
+            series: "INTEGREX i",
+            
+            work_envelope: {
+                max_turning_diameter: 660,
+                max_turning_length: 1519,
+                max_bar_capacity: 80,
+                milling_spindle_travel_x: 630,
+                milling_spindle_travel_y: { min: -160, max: 160 },
+                milling_spindle_travel_z: 1569,
+                unit: "mm"
+            },
+            
+            main_spindle: {
+                type: "built_in_motor",
+                chuck_size: 10,
+                chuck_size_unit: "inch",
+                bore_diameter: 91,
+                max_rpm: 4000,
+                power_rating: 30,
+                power_unit: "kW",
+                torque_max: 795,
+                torque_unit: "Nm",
+                c_axis: true,
+                c_axis_resolution: 0.0001,
+                spindle_nose: "A2-8"
+            },
+            
+            sub_spindle: {
+                type: "built_in_motor",
+                chuck_size: 8,
+                chuck_size_unit: "inch",
+                max_rpm: 5000,
+                power_rating: 22,
+                power_unit: "kW",
+                c_axis: true,
+                travel_w2: 1569
+            },
+            
+            milling_spindle: {
+                type: "built_in_motor",
+                taper: "Capto_C6",
+                alternate_taper: "HSK-A63",
+                max_rpm: 12000,
+                power_rating: 22,
+                power_unit: "kW",
+                torque_max: 119,
+                torque_unit: "Nm",
+                b_axis: true,
+                b_axis_travel: { min: -30, max: 210 },
+                b_axis_indexing: 0.0001
+            },
+            
+            axis_specs: {
+                x: {
+                    travel: 630,
+                    rapid_rate: 40000,
+                    max_feed: 40000,
+                    acceleration: 0.6,
+                    acceleration_unit: "g",
+                    guideway_type: "linear_roller",
+                    guideway_size: 45,
+                    ballscrew_diameter: 50,
+                    encoder_type: "absolute",
+                    positioning_accuracy: 0.004,
+                    repeatability: 0.002
+                },
+                y: {
+                    travel: { min: -160, max: 160 },
+                    total_travel: 320,
+                    rapid_rate: 40000,
+                    max_feed: 40000,
+                    acceleration: 0.6,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.004,
+                    repeatability: 0.002
+                },
+                z: {
+                    travel: 1569,
+                    rapid_rate: 40000,
+                    max_feed: 40000,
+                    acceleration: 0.5,
+                    guideway_type: "linear_roller",
+                    positioning_accuracy: 0.006,
+                    repeatability: 0.003
+                },
+                b: {
+                    type: "milling_spindle_tilt",
+                    travel: { min: -30, max: 210 },
+                    rapid_rate: 100,
+                    rapid_rate_unit: "rpm",
+                    max_torque: 350,
+                    clamping_torque: 700,
+                    drive_type: "direct_drive",
+                    indexing: 0.0001,
+                    positioning_accuracy: 0.001
+                },
+                c1: {
+                    type: "main_spindle_c",
+                    continu
+
+## Instructions
+
+Analyze the above codebase context and provide your response following the format specified in the task.

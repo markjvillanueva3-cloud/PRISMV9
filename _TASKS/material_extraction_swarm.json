@@ -1,0 +1,32 @@
+{
+  "name": "material_extraction_swarm",
+  "max_parallel": 5,
+  "description": "Extract materials data from multiple monolith modules in parallel",
+  "tasks": [
+    {
+      "id": "extract-aluminum-alloys",
+      "role": "extractor",
+      "prompt": "Generate a JSON array of 10 common aluminum alloys used in CNC machining with these fields for each:\n- id (string, format: 'AL-XXXX')\n- name (string)\n- uns_number (string)\n- density_kg_m3 (number)\n- tensile_strength_mpa (number)\n- hardness_hb (number)\n- machinability_rating (number, 0-100)\n- thermal_conductivity_w_mk (number)\n- typical_applications (array of strings)\n\nInclude: 6061-T6, 7075-T6, 2024-T3, 5052-H32, 6063-T5, 7050-T7451, 2011-T3, 6082-T6, 5083-H116, 7475-T7351\n\nReturn ONLY valid JSON, no markdown backticks, no explanation."
+    },
+    {
+      "id": "extract-steel-alloys",
+      "role": "extractor", 
+      "prompt": "Generate a JSON array of 10 common steel alloys used in CNC machining with these fields for each:\n- id (string, format: 'ST-XXXX')\n- name (string)\n- aisi_number (string)\n- density_kg_m3 (number)\n- tensile_strength_mpa (number)\n- hardness_hrc (number)\n- machinability_rating (number, 0-100)\n- carbon_content_percent (number)\n- typical_applications (array of strings)\n\nInclude: 1018, 1045, 4140, 4340, A2 tool steel, D2 tool steel, O1 tool steel, 316 stainless, 304 stainless, 17-4 PH\n\nReturn ONLY valid JSON, no markdown backticks, no explanation."
+    },
+    {
+      "id": "extract-titanium-alloys",
+      "role": "extractor",
+      "prompt": "Generate a JSON array of 5 common titanium alloys used in CNC machining with these fields for each:\n- id (string, format: 'TI-XXXX')\n- name (string)\n- grade (string)\n- density_kg_m3 (number)\n- tensile_strength_mpa (number)\n- hardness_hrc (number)\n- machinability_rating (number, 0-100)\n- max_service_temp_c (number)\n- typical_applications (array of strings)\n\nInclude: Ti-6Al-4V (Grade 5), CP Titanium Grade 2, Ti-6Al-4V ELI (Grade 23), Ti-5Al-2.5Sn, Ti-6Al-2Sn-4Zr-2Mo\n\nReturn ONLY valid JSON, no markdown backticks, no explanation."
+    },
+    {
+      "id": "extract-cutting-parameters",
+      "role": "extractor",
+      "prompt": "Generate a JSON array of recommended cutting parameters for 5 material categories. Each entry should have:\n- material_category (string)\n- recommended_tool_material (string)\n- cutting_speed_range_m_min (object with min/max)\n- feed_per_tooth_range_mm (object with min/max)\n- depth_of_cut_range_mm (object with min/max)\n- coolant_recommendation (string)\n- notes (string)\n\nCategories: Aluminum Alloys, Carbon Steel, Stainless Steel, Titanium Alloys, Tool Steel\n\nReturn ONLY valid JSON, no markdown backticks, no explanation."
+    },
+    {
+      "id": "extract-tool-materials",
+      "role": "extractor",
+      "prompt": "Generate a JSON array of 6 cutting tool materials with these fields:\n- id (string)\n- name (string)\n- composition (string)\n- hardness_hv (number)\n- max_cutting_temp_c (number)\n- toughness_rating (number, 1-10)\n- wear_resistance_rating (number, 1-10)\n- cost_rating (number, 1-10, where 10 is most expensive)\n- best_for_materials (array of strings)\n- avoid_materials (array of strings)\n\nInclude: HSS, Carbide (uncoated), Carbide (TiAlN coated), Ceramic, CBN, PCD\n\nReturn ONLY valid JSON, no markdown backticks, no explanation."
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "version": "1.0.0",
+  "created": "2026-01-21",
+  "description": "Swarm agent configuration for parallel PRISM development",
+  "swarm": {
+    "id": "prism-development-swarm",
+    "maxAgents": 8,
+    "coordinationMode": "hierarchical",
+    "stateSync": "CURRENT_STATE.json",
+    "conflictResolution": "lead-architect-decides"
+  },
+  "agents": {
+    "lead-architect": {
+      "name": "Lead Architect Agent",
+      "role": "coordination",
+      "description": "Coordinates all agents, makes architectural decisions, resolves conflicts",
+      "skills": ["prism-development", "prism-state-manager", "prism-knowledge-base"],
+      "priority": 1,
+      "count": 1,
+      "capabilities": [
+        "read/write CURRENT_STATE.json",
+        "assign tasks to other agents",
+        "approve architectural decisions",
+        "resolve merge conflicts",
+        "coordinate session start/end"
+      ],
+      "constraints": [
+        "Cannot run in parallel with itself",
+        "Must approve all database migrations"
+      ]
+    },
+    "extractor-alpha": {
+      "name": "Extractor Agent Alpha",
+      "role": "extraction",
+      "description": "Extracts databases from monolith",
+      "skills": ["prism-extractor", "prism-python-tools"],
+      "priority": 2,
+      "count": 1,
+      "specialization": "databases",
+      "capabilities": [
+        "Extract database modules",
+        "Document dependencies",
+        "Generate index files"
+      ],
+      "assignedCategories": ["materials", "machines", "tools", "workholding"]
+    },
+    "extractor-beta": {
+      "name": "Extractor Agent Beta",
+      "role": "extraction",
+      "description": "Extracts engines from monolith",
+      "skills": ["prism-extractor", "prism-python-tools"],
+      "priority": 2,
+      "count": 1,
+      "specialization": "engines",
+      "capabilities": [
+        "Extract engine modules",
+        "Document inputs/outputs",
+        "Generate index files"
+      ],
+      "assignedCategories": ["physics", "ai_ml", "optimization", "signal"]
+    },
+    "extractor-gamma": {
+      "name": "Extractor Agent Gamma",
+      "role": "extraction",
+      "description": "Extracts knowledge bases and systems",
+      "skills": ["prism-extractor", "prism-python-tools"],
+      "priority": 2,
+      "count": 1,
+      "specialization": "systems",
+      "capabilities": [
+        "Extract KB modules",
+        "Extract system cores",
+        "Extract UI components"
+      ],
+      "assignedCategories": ["knowledge_bases", "systems", "ui", "business"]
+    },
+    "auditor": {
+      "name": "Auditor Agent",
+      "role": "verification",
+      "description": "Verifies extraction completeness",
+      "skills": ["prism-auditor"],
+      "priority": 3,
+      "count": 1,
+      "capabilities": [
+        "Compare extracted vs monolith",
+        "Identify missing functions",
+        "Generate audit reports",
+        "Flag incomplete extractions"
+      ],
+      "triggers": ["after-extraction-batch"]
+    },
+    "consumer-mapper": {
+      "name": "Consumer Mapper Agent",
+      "role": "wiring",
+      "description": "Maps and wires database consumers",
+      "skills": ["prism-consumer-mapper", "prism-utilization"],
+      "priority": 4,
+      "count": 1,
+      "capabilities": [
+        "Identify all consumers for each database",
+        "Generate wiring code",
+        "Verify 100% utilization",
+        "Block incomplete migrations"
+      ],
+      "triggers": ["after-database-extraction"]
+    },
+    "knowledge-specialist": {
+      "name": "Knowledge Specialist Agent",
+      "role": "knowledge",
+      "description": "Applies MIT course knowledge to development",
+      "skills": ["prism-knowledge-base"],
+      "priority": 5,
+      "count": 1,
+      "capabilities": [
+        "Suggest relevant courses for current task",
+        "Validate algorithms against theory",
+        "Provide implementation guidance",
+        "Cross-reference with ALGORITHM_REGISTRY"
+      ],
+      "mode": "advisory"
+    },
+    "hierarchy-manager": {
+      "name": "Hierarchy Manager Agent",
+      "role": "architecture",
+      "description": "Manages 4-layer database hierarchy",
+      "skills": ["prism-hierarchy-manager"],
+      "priority": 4,
+      "count": 1,
+      "capabilities": [
+        "Propagate changes between layers",
+        "Resolve inheritance conflicts",
+        "Validate layer rules",
+        "Generate layer diffs"
+      ],
+      "triggers": ["database-modification"]
+    }
+  },
+  "workflows": {
+    "extraction-parallel": {
+      "name": "Parallel Extraction Workflow",
+      "description": "Extract multiple categories simultaneously",
+      "steps": [
+        {"agent": "lead-architect", "action": "initialize", "parallel": false},
+        {"agent": ["extractor-alpha", "extractor-beta", "extractor-gamma"], "action": "extract", "parallel": true},
+        {"agent": "auditor", "action": "verify", "parallel": false},
+        {"agent": "consumer-mapper", "action": "map", "parallel": false},
+        {"agent": "lead-architect", "action": "consolidate", "parallel": false}
+      ]
+    },
+    "migration-sequential": {
+      "name": "Sequential Migration Workflow",
+      "description": "Migrate modules with full wiring verification",
+      "steps": [
+        {"agent": "lead-architect", "action": "select-module", "parallel": false},
+        {"agent": "consumer-mapper", "action": "identify-consumers", "parallel": false},
+        {"agent": "knowledge-specialist", "action": "validate-algorithms", "parallel": true},
+        {"agent": "hierarchy-manager", "action": "setup-layers", "parallel": false},
+        {"agent": "lead-architect", "action": "verify-utilization", "parallel": false},
+        {"agent": "lead-architect", "action": "approve-migration", "parallel": false}
+      ]
+    }
+  },
+  "communication": {
+    "channel": "CURRENT_STATE.json",
+    "backup": "SESSION_LOGS/",
+    "realtime": ".swarm/agent_messages.json",
+    "conflictLog": ".swarm/conflicts.json"
+  }
+}

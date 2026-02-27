@@ -1,0 +1,192 @@
+{
+  "manifestVersion": "2.0",
+  "lastUpdated": "2026-01-25",
+  "totalAgents": 56,
+  "apiScript": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\_SCRIPTS\\prism_unified_system_v4.py",
+  
+  "modelTiers": {
+    "opus": {
+      "model": "claude-opus-4-5-20251101",
+      "costPer1MOutput": 75,
+      "useCase": "Complex reasoning, architecture, critical analysis",
+      "count": 15
+    },
+    "sonnet": {
+      "model": "claude-sonnet-4-20250514",
+      "costPer1MOutput": 15,
+      "useCase": "Balanced tasks, extraction, validation",
+      "count": 32
+    },
+    "haiku": {
+      "model": "claude-haiku-4-5-20251001",
+      "costPer1MOutput": 1.25,
+      "useCase": "Fast lookups, simple formatting",
+      "count": 9
+    }
+  },
+  
+  "agentsByCategory": {
+    "CORE": {
+      "count": 8,
+      "description": "Fundamental operations",
+      "agents": [
+        {"id": "extractor", "tier": "sonnet", "purpose": "Extract data from sources"},
+        {"id": "validator", "tier": "sonnet", "purpose": "Validate data quality"},
+        {"id": "merger", "tier": "sonnet", "purpose": "Merge data sources"},
+        {"id": "coder", "tier": "sonnet", "purpose": "Write and modify code"},
+        {"id": "analyst", "tier": "sonnet", "purpose": "Analyze patterns and data"},
+        {"id": "researcher", "tier": "sonnet", "purpose": "Research and gather information"},
+        {"id": "architect", "tier": "opus", "purpose": "Design system architecture"},
+        {"id": "coordinator", "tier": "opus", "purpose": "Orchestrate multi-agent tasks"}
+      ]
+    },
+    
+    "MANUFACTURING": {
+      "count": 10,
+      "description": "Manufacturing domain expertise",
+      "agents": [
+        {"id": "materials_scientist", "tier": "opus", "purpose": "Material property analysis"},
+        {"id": "machinist", "tier": "opus", "purpose": "Machining process expertise"},
+        {"id": "tool_engineer", "tier": "sonnet", "purpose": "Cutting tool selection"},
+        {"id": "physics_validator", "tier": "opus", "purpose": "Validate physics calculations"},
+        {"id": "cam_specialist", "tier": "sonnet", "purpose": "CAM programming expertise"},
+        {"id": "quality_engineer", "tier": "sonnet", "purpose": "Quality control processes"},
+        {"id": "process_engineer", "tier": "sonnet", "purpose": "Manufacturing process design"},
+        {"id": "machine_specialist", "tier": "sonnet", "purpose": "CNC machine expertise"},
+        {"id": "gcode_expert", "tier": "sonnet", "purpose": "G-code programming"},
+        {"id": "domain_expert", "tier": "opus", "purpose": "General manufacturing expertise"}
+      ]
+    },
+    
+    "PRISM": {
+      "count": 8,
+      "description": "PRISM-specific operations",
+      "agents": [
+        {"id": "monolith_navigator", "tier": "sonnet", "purpose": "Navigate 986K line codebase"},
+        {"id": "migration_specialist", "tier": "opus", "purpose": "Code migration strategies"},
+        {"id": "schema_designer", "tier": "sonnet", "purpose": "Database schema design"},
+        {"id": "api_designer", "tier": "sonnet", "purpose": "API interface design"},
+        {"id": "completeness_auditor", "tier": "sonnet", "purpose": "Audit for completeness"},
+        {"id": "regression_checker", "tier": "sonnet", "purpose": "Check for regressions"},
+        {"id": "state_manager", "tier": "haiku", "purpose": "Manage session state"},
+        {"id": "synthesizer", "tier": "opus", "purpose": "Synthesize multiple inputs"}
+      ]
+    },
+    
+    "QUALITY": {
+      "count": 6,
+      "description": "Quality assurance",
+      "agents": [
+        {"id": "test_generator", "tier": "sonnet", "purpose": "Generate test cases"},
+        {"id": "code_reviewer", "tier": "sonnet", "purpose": "Review code quality"},
+        {"id": "optimizer", "tier": "sonnet", "purpose": "Optimize performance"},
+        {"id": "refactorer", "tier": "sonnet", "purpose": "Refactor code"},
+        {"id": "security_auditor", "tier": "sonnet", "purpose": "Security analysis"},
+        {"id": "documentation_writer", "tier": "sonnet", "purpose": "Write documentation"}
+      ]
+    },
+    
+    "CALCULATORS": {
+      "count": 4,
+      "description": "Numerical calculations",
+      "agents": [
+        {"id": "cutting_calculator", "tier": "haiku", "purpose": "Cutting parameter calculations"},
+        {"id": "thermal_calculator", "tier": "sonnet", "purpose": "Thermal analysis"},
+        {"id": "force_calculator", "tier": "sonnet", "purpose": "Cutting force calculations"},
+        {"id": "surface_calculator", "tier": "haiku", "purpose": "Surface finish calculations"}
+      ]
+    },
+    
+    "LOOKUP": {
+      "count": 4,
+      "description": "Fast data lookup",
+      "agents": [
+        {"id": "standards_expert", "tier": "haiku", "purpose": "Industry standards lookup"},
+        {"id": "formula_lookup", "tier": "haiku", "purpose": "Engineering formulas"},
+        {"id": "material_lookup", "tier": "haiku", "purpose": "Material property lookup"},
+        {"id": "tool_lookup", "tier": "haiku", "purpose": "Cutting tool specifications"}
+      ]
+    },
+    
+    "SPECIALIZED": {
+      "count": 4,
+      "description": "Specialized tasks",
+      "agents": [
+        {"id": "debugger", "tier": "opus", "purpose": "Debug complex issues"},
+        {"id": "root_cause_analyst", "tier": "opus", "purpose": "Root cause analysis"},
+        {"id": "task_decomposer", "tier": "opus", "purpose": "Break down complex tasks"},
+        {"id": "estimator", "tier": "sonnet", "purpose": "Estimate missing values"}
+      ]
+    },
+    
+    "INTELLIGENCE": {
+      "count": 12,
+      "description": "System intelligence and learning",
+      "agents": [
+        {"id": "context_builder", "tier": "sonnet", "purpose": "Build session context from state + history"},
+        {"id": "learning_extractor", "tier": "opus", "purpose": "Extract learnings after tasks"},
+        {"id": "verification_chain", "tier": "opus", "purpose": "4-level verification orchestration"},
+        {"id": "uncertainty_quantifier", "tier": "opus", "purpose": "Add confidence intervals"},
+        {"id": "cross_referencer", "tier": "sonnet", "purpose": "Validate against multiple sources"},
+        {"id": "knowledge_graph_builder", "tier": "opus", "purpose": "Build concept connections"},
+        {"id": "pattern_matcher", "tier": "sonnet", "purpose": "Find similar past work"},
+        {"id": "quality_gate", "tier": "sonnet", "purpose": "Block incomplete work"},
+        {"id": "session_continuity", "tier": "sonnet", "purpose": "Maintain cross-session state"},
+        {"id": "meta_analyst", "tier": "opus", "purpose": "Analyze and improve agents"},
+        {"id": "dependency_analyzer", "tier": "sonnet", "purpose": "Map code/data dependencies"},
+        {"id": "call_tracer", "tier": "opus", "purpose": "Trace execution paths"}
+      ]
+    }
+  },
+  
+  "swarmPatterns": {
+    "intelligent_swarm": {
+      "description": "Auto-detects skills and selects optimal agents",
+      "agents": "auto-selected based on prompt",
+      "recommended": true
+    },
+    "verified_manufacturing_swarm": {
+      "description": "Manufacturing analysis with verification",
+      "agents": ["materials_scientist", "machinist", "tool_engineer", "force_calculator", "physics_validator", "cross_referencer", "uncertainty_quantifier", "synthesizer"],
+      "count": 8
+    },
+    "deep_extraction_swarm": {
+      "description": "Extract with context and verification",
+      "agents": ["extractor", "monolith_navigator", "dependency_analyzer", "regression_checker", "context_builder", "verification_chain", "learning_extractor", "synthesizer"],
+      "count": 8
+    },
+    "code_quality_swarm": {
+      "description": "Comprehensive code review",
+      "agents": ["code_reviewer", "test_generator", "security_auditor", "optimizer", "documentation_writer"],
+      "count": 5
+    },
+    "architecture_swarm": {
+      "description": "System design",
+      "agents": ["architect", "schema_designer", "api_designer", "task_decomposer"],
+      "count": 4
+    },
+    "debug_with_tracing_swarm": {
+      "description": "Deep debugging with call tracing",
+      "agents": ["debugger", "root_cause_analyst", "call_tracer", "verification_chain", "cross_referencer", "synthesizer"],
+      "count": 6
+    },
+    "materials_enhancement_swarm": {
+      "description": "Enhance material data",
+      "agents": ["materials_scientist", "physics_validator", "estimator", "cross_referencer", "uncertainty_quantifier"],
+      "count": 5
+    },
+    "documentation_swarm": {
+      "description": "Generate comprehensive documentation",
+      "agents": ["documentation_writer", "analyst", "knowledge_graph_builder"],
+      "count": 3
+    }
+  },
+  
+  "quickCommands": {
+    "intelligent": "python prism_unified_system_v4.py --intelligent \"Your task\"",
+    "manufacturing": "python prism_unified_system_v4.py --manufacturing \"Material\" \"Operation\"",
+    "ralph": "python prism_unified_system_v4.py --ralph agent_role \"Prompt\" max_iterations",
+    "list": "python prism_unified_system_v4.py --list",
+    "swarm": "python prism_unified_system_v4.py --swarm swarm_name \"Input\""
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "version": "1.0.0",
+  "created": "2026-01-21",
+  "description": "Background workers for PRISM development automation",
+  "workers": {
+    "extractor": {
+      "name": "Module Extractor Worker",
+      "script": "scripts/extract_worker.js",
+      "description": "Extracts modules from v8.89.002 monolith",
+      "schedule": "on-demand",
+      "timeout": 300000,
+      "retries": 3,
+      "input": {
+        "monolithPath": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\_BUILD\\PRISM_v8_89_002_TRUE_100_PERCENT.html",
+        "outputDir": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\EXTRACTED\\",
+        "category": "required"
+      },
+      "output": {
+        "files": "extracted module files",
+        "manifest": "extraction_manifest.json"
+      }
+    },
+    "auditor": {
+      "name": "Module Auditor Worker",
+      "script": "scripts/audit_worker.js",
+      "description": "Verifies extraction completeness and quality",
+      "schedule": "after:extractor",
+      "timeout": 60000,
+      "retries": 2,
+      "input": {
+        "extractedDir": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\EXTRACTED\\",
+        "monolithPath": "for comparison"
+      },
+      "output": {
+        "report": "audit_report.json",
+        "gaps": "identified missing items"
+      }
+    },
+    "consumer-mapper": {
+      "name": "Consumer Mapper Worker",
+      "script": "scripts/consumer_mapper_worker.js",
+      "description": "Generates database->consumer wiring",
+      "schedule": "after:auditor",
+      "timeout": 120000,
+      "retries": 2,
+      "input": {
+        "database": "extracted database module",
+        "engines": "all extracted engines"
+      },
+      "output": {
+        "mapping": "consumer_mapping.json",
+        "wiring": "generated wiring code"
+      }
+    },
+    "knowledge-indexer": {
+      "name": "Knowledge Indexer Worker",
+      "script": "scripts/knowledge_indexer.js",
+      "description": "Indexes MIT courses and builds algorithm registry",
+      "schedule": "daily",
+      "timeout": 600000,
+      "retries": 1,
+      "input": {
+        "coursesDir": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\MIT COURSES\\"
+      },
+      "output": {
+        "index": "MIT_COURSE_INDEX.json",
+        "registry": "ALGORITHM_REGISTRY.json"
+      }
+    },
+    "state-consolidator": {
+      "name": "State Consolidator Worker",
+      "script": "scripts/consolidate_worker.js",
+      "description": "Auto-consolidates state on session end or compaction",
+      "schedule": "on-session-end",
+      "timeout": 30000,
+      "retries": 1,
+      "input": {
+        "stateFile": "CURRENT_STATE.json",
+        "sessionLogs": "SESSION_LOGS/"
+      },
+      "output": {
+        "updatedState": "CURRENT_STATE.json",
+        "sessionLog": "SESSION_[id]_LOG.md"
+      }
+    }
+  },
+  "hooks": {
+    "pre-extraction": ["state-consolidator"],
+    "post-extraction": ["auditor", "consumer-mapper"],
+    "session-end": ["state-consolidator"],
+    "daily": ["knowledge-indexer"]
+  }
+}

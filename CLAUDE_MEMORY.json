@@ -1,0 +1,47 @@
+{
+  "prism_project": {
+    "name": "PRISM Manufacturing Intelligence v9.0",
+    "type": "CAD/CAM Software Platform",
+    "owner": "Mark Villanueva",
+    "github": "markjvillanueva3-cloud/PRISMV9"
+  },
+  
+  "key_facts": [
+    "Rebuilding 986K line monolith into modular v9.0",
+    "831 total modules to extract (62 DBs, 213 engines, 14 KBs, etc.)",
+    "Currently in Stage 1: EXTRACTION",
+    "CORE machine databases complete (7 files)",
+    "ENHANCED machines complete (33 manufacturers)",
+    "Box sync folder: C:\\Users\\wompu\\Box\\PRISM REBUILD",
+    "Local home folder: C:\\PRISM REBUILD (HOME)",
+    "Local work folder: C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)"
+  ],
+  
+  "critical_rules": [
+    "IF IT EXISTS, USE IT EVERYWHERE - wire all DBs to consumers",
+    "CARRY FORWARD - all existing code/data preserved",
+    "VERIFY - check before AND after every change",
+    "NO PARTIALS - complete extractions only",
+    "UPDATE STATE - CURRENT_STATE.json every session"
+  ],
+  
+  "product_components": [
+    "Ultimate Speed & Feed Calculator",
+    "Post Processor Generator", 
+    "Shop Manager (Quoting/ERP/Business)",
+    "Auto CNC Program Generator (Print-to-Program)"
+  ],
+  
+  "tech_stack": {
+    "frontend": "HTML/JS (single file builds)",
+    "databases": "JS objects (embedded)",
+    "ai_ml": "TensorFlow.js, custom algorithms",
+    "knowledge": "MIT courses, manufacturer catalogs"
+  },
+  
+  "session_workflow": {
+    "start": "Read CURRENT_STATE.json, load 00_COMPACT_RULES.md",
+    "work": "Extract modules, verify consumers, update indexes",
+    "end": "Run update_state.py, commit to git, push to GitHub"
+  }
+}

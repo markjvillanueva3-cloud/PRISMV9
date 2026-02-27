@@ -1,0 +1,433 @@
+{
+  "name": "prism-all-skills",
+  "version": "5.0.0",
+  "description": "Complete PRISM Manufacturing Intelligence skill package containing all 68 skills for PRISM v9.0 rebuild. v5.0 MAJOR: Added Cognitive Enhancement v7.0 with 5 NEW cognitive skills (anomaly-detector, attention-focus, causal-reasoning, memory-augmentation, self-reflection), updated prism-cognitive-core to v2.0 with 30 hooks, and prism-master-equation to v2.0 with 10 components. Total: 68 skills, 30 cognitive hooks, 1.7MB+ of manufacturing intelligence.",
+  "generated": "2026-01-30",
+  "totalSkills": 68,
+  "categories": {
+    "cognitive_enhancement": {
+      "count": 7,
+      "description": "NEW v5.0: Cognitive Enhancement v7.0 - Complete cognitive optimization suite",
+      "version": "7.0",
+      "skills": [
+        {
+          "name": "prism-cognitive-core",
+          "version": "2.0.0",
+          "level": "L0",
+          "type": "ALWAYS_ON",
+          "description": "Universal cognitive enhancement with 5 patterns + 5 new components, 30 hooks total",
+          "hooks": 30
+        },
+        {
+          "name": "prism-master-equation",
+          "version": "2.0.0",
+          "level": "L2",
+          "type": "CAPSTONE",
+          "description": "Master equation Ω(x) with 10 components: R, C, P, S, L, D, A, K, M + reflection",
+          "formula": "Ω(x) = Σ(w_i·X_i) subject to S≥0.70, D≥0.30"
+        },
+        {
+          "name": "prism-anomaly-detector",
+          "version": "1.0.0",
+          "level": "L1",
+          "type": "COGNITIVE",
+          "description": "Anomaly detection with 7 types: RNG, PHY, STA, CMB, TMP, REL, MIS → D(x)",
+          "hooks": ["ANOM-001", "ANOM-002", "ANOM-003"],
+          "constraint": "D(x) ≥ 0.30"
+        },
+        {
+          "name": "prism-attention-focus",
+          "version": "1.0.0",
+          "level": "L1",
+          "type": "COGNITIVE",
+          "description": "Context prioritization and relevance scoring → A(x)",
+          "hooks": ["ATTN-001", "ATTN-002", "ATTN-003"]
+        },
+        {
+          "name": "prism-causal-reasoning",
+          "version": "1.0.0",
+          "level": "L1",
+          "type": "COGNITIVE",
+          "description": "Cause-effect relationship graphs with 50+ manufacturing chains → K(x)",
+          "hooks": ["CAUSAL-001", "CAUSAL-002", "CAUSAL-003"]
+        },
+        {
+          "name": "prism-memory-augmentation",
+          "version": "1.0.0",
+          "level": "L1",
+          "type": "COGNITIVE",
+          "description": "Session continuity with 5 memory types → M(x)",
+          "hooks": ["MEM-001", "MEM-002", "MEM-003"]
+        },
+        {
+          "name": "prism-self-reflection",
+          "version": "1.0.0",
+          "level": "L1",
+          "type": "COGNITIVE",
+          "description": "Self-assessment, error taxonomy, confidence calibration, improvement tracking",
+          "hooks": ["REFL-001", "REFL-002", "REFL-003"]
+        }
+      ],
+      "components": {
+        "R(x)": {"source": "prism-reasoning-engine", "weight": 0.18},
+        "C(x)": {"source": "prism-code-perfection", "weight": 0.14},
+        "P(x)": {"source": "prism-process-optimizer", "weight": 0.10},
+        "S(x)": {"source": "prism-safety-framework", "weight": 0.22, "constraint": "≥0.70"},
+        "L(x)": {"source": "RL hooks", "weight": 0.06},
+        "D(x)": {"source": "prism-anomaly-detector", "weight": 0.10, "constraint": "≥0.30"},
+        "A(x)": {"source": "prism-attention-focus", "weight": 0.08},
+        "K(x)": {"source": "prism-causal-reasoning", "weight": 0.07},
+        "M(x)": {"source": "prism-memory-augmentation", "weight": 0.05}
+      },
+      "hooks_summary": {
+        "original": ["BAYES-001/002/003", "OPT-001/002/003", "MULTI-001/002/003", "GRAD-001/002/003", "RL-001/002/003"],
+        "new_v7": ["ANOM-001/002/003", "ATTN-001/002/003", "CAUSAL-001/002/003", "MEM-001/002/003", "REFL-001/002/003"],
+        "total": 30
+      }
+    },
+    "core_development": {
+      "count": 9,
+      "skills": [
+        "prism-development",
+        "prism-state-manager",
+        "prism-extractor",
+        "prism-auditor",
+        "prism-utilization",
+        "prism-consumer-mapper",
+        "prism-hierarchy-manager",
+        "prism-swarm-orchestrator",
+        "prism-python-tools"
+      ]
+    },
+    "monolith_navigation": {
+      "count": 3,
+      "skills": [
+        "prism-monolith-index",
+        "prism-monolith-navigator",
+        "prism-extraction-index"
+      ]
+    },
+    "extraction_orchestration": {
+      "count": 4,
+      "description": "v4.0: Complete extraction pipeline with swarm search, module building, and AI/ML patterns",
+      "skills": [
+        {
+          "name": "prism-extraction-orchestrator",
+          "description": "Master coordinator for all extraction campaigns",
+          "integrates": ["swarm-extraction", "module-builder", "aiml-engine-patterns"]
+        },
+        {
+          "name": "prism-swarm-extraction",
+          "description": "Parallel multi-agent search and extraction for monolith mining",
+          "patterns": ["DEEP_EXTRACTION_SWARM", "STUB_DETECTION_SWARM", "PARALLEL_SEARCH_SWARM"]
+        },
+        {
+          "name": "prism-module-builder",
+          "description": "Constructing complete modules from MIT/Stanford academic specifications",
+          "sources": ["MIT 6.034", "MIT 6.036", "Stanford CS 234"]
+        },
+        {
+          "name": "prism-aiml-engine-patterns",
+          "description": "Complete algorithm templates for GA, SA, DE, PSO, RL, DQN, Neural Networks",
+          "categories": ["metaheuristic", "reinforcement_learning", "deep_learning", "ensemble"]
+        }
+      ]
+    },
+    "materials_system": {
+      "count": 5,
+      "skills": [
+        "prism-material-template",
+        "prism-material-templates",
+        "prism-material-lookup",
+        "prism-physics-formulas",
+        "prism-physics-reference"
+      ]
+    },
+    "session_management": {
+      "count": 4,
+      "skills": [
+        "prism-session-handoff",
+        "prism-session-buffer",
+        "prism-task-continuity",
+        "prism-planning"
+      ]
+    },
+    "quality_validation": {
+      "count": 6,
+      "skills": [
+        "prism-validator",
+        "prism-verification",
+        "prism-quality-gates",
+        "prism-tdd",
+        "prism-review",
+        "prism-debugging"
+      ]
+    },
+    "code_architecture": {
+      "count": 6,
+      "skills": [
+        "prism-coding-patterns",
+        "prism-algorithm-selector",
+        "prism-dependency-graph",
+        "prism-tool-selector",
+        "prism-unit-converter",
+        "prism-large-file-writer"
+      ]
+    },
+    "context_management": {
+      "count": 4,
+      "skills": [
+        "prism-context-dna",
+        "prism-context-pressure",
+        "prism-quick-start",
+        "prism-category-defaults"
+      ]
+    },
+    "knowledge_base": {
+      "count": 2,
+      "skills": [
+        "prism-knowledge-base",
+        "prism-error-recovery"
+      ]
+    },
+    "ai_expert_roles": {
+      "count": 10,
+      "skills": [
+        "prism-expert-cad-expert",
+        "prism-expert-cam-programmer",
+        "prism-expert-master-machinist",
+        "prism-expert-materials-scientist",
+        "prism-expert-mathematics",
+        "prism-expert-mechanical-engineer",
+        "prism-expert-post-processor",
+        "prism-expert-quality-control",
+        "prism-expert-quality-manager",
+        "prism-expert-thermodynamics"
+      ]
+    },
+    "reference_skills": {
+      "count": 9,
+      "skills": [
+        {
+          "name": "prism-gcode-reference",
+          "size": "87KB",
+          "description": "Complete G/M-code reference for all CNC controllers"
+        },
+        {
+          "name": "prism-fanuc-programming",
+          "size": "98KB",
+          "description": "FANUC 0i/30i/31i complete macro programming reference"
+        },
+        {
+          "name": "prism-siemens-programming",
+          "size": "85KB",
+          "description": "SINUMERIK 840D/828D complete programming reference"
+        },
+        {
+          "name": "prism-heidenhain-programming",
+          "size": "86KB",
+          "description": "HEIDENHAIN TNC 640/530 conversational programming reference"
+        },
+        {
+          "name": "prism-wiring-templates",
+          "size": "89KB",
+          "description": "Database-to-Consumer wiring patterns and templates"
+        },
+        {
+          "name": "prism-manufacturing-tables",
+          "size": "141KB",
+          "description": "Complete manufacturing lookup tables (speeds, feeds, Kienzle, Taylor, coatings)"
+        },
+        {
+          "name": "prism-product-calculators",
+          "size": "128KB",
+          "description": "Speed/Feed, Tool Life, Surface Finish, Cycle Time, Cost calculators"
+        },
+        {
+          "name": "prism-error-catalog",
+          "size": "123KB",
+          "description": "Complete error code registry (1000-9999) with resolution guides"
+        },
+        {
+          "name": "prism-api-contracts",
+          "size": "170KB",
+          "description": "All 93 gateway route API contracts with TypeScript interfaces"
+        }
+      ]
+    },
+    "utility": {
+      "count": 1,
+      "skills": [
+        "prism-derivation-helpers"
+      ]
+    }
+  },
+  "quick_selection": {
+    "session_start": ["prism-cognitive-core", "prism-state-manager", "prism-quick-start"],
+    "cognitive_work": ["prism-cognitive-core", "prism-master-equation", "prism-self-reflection"],
+    "anomaly_detection": ["prism-anomaly-detector", "prism-safety-framework", "prism-validator"],
+    "extraction": ["prism-extraction-orchestrator", "prism-swarm-extraction", "prism-monolith-index"],
+    "ai_ml_extraction": ["prism-aiml-engine-patterns", "prism-module-builder", "prism-swarm-extraction"],
+    "stub_building": ["prism-module-builder", "prism-aiml-engine-patterns"],
+    "materials": ["prism-material-template", "prism-physics-formulas", "prism-manufacturing-tables"],
+    "code_writing": ["prism-coding-patterns", "prism-large-file-writer"],
+    "troubleshooting": ["prism-debugging", "prism-expert-master-machinist", "prism-error-catalog", "prism-causal-reasoning"],
+    "gcode_generation": ["prism-gcode-reference", "prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+    "api_development": ["prism-api-contracts", "prism-wiring-templates", "prism-error-catalog"],
+    "database_wiring": ["prism-consumer-mapper", "prism-wiring-templates", "prism-utilization"],
+    "calculations": ["prism-product-calculators", "prism-physics-formulas", "prism-manufacturing-tables"],
+    "quality_checks": ["prism-quality-gates", "prism-validator", "prism-verification", "prism-anomaly-detector"],
+    "session_continuity": ["prism-memory-augmentation", "prism-state-manager", "prism-session-handoff"]
+  },
+  "cognitive_system": {
+    "description": "Cognitive Enhancement v7.0 - Complete cognitive optimization for manufacturing AI",
+    "version": "7.0",
+    "master_equation": {
+      "formula": "Ω(x) = 0.18·R + 0.14·C + 0.10·P + 0.22·S + 0.06·L + 0.10·D + 0.08·A + 0.07·K + 0.05·M",
+      "hard_constraints": {
+        "S(x)": "≥ 0.70 (Safety)",
+        "D(x)": "≥ 0.30 (Anomaly)"
+      },
+      "decisions": {
+        "RELEASE": "Ω ≥ 0.85 AND Ω_lower ≥ 0.70",
+        "WARN": "Ω ≥ 0.65",
+        "BLOCK": "Ω < 0.65 OR S < 0.70 OR D < 0.30"
+      }
+    },
+    "hooks": {
+      "original_15": {
+        "bayesian": ["BAYES-001", "BAYES-002", "BAYES-003"],
+        "optimization": ["OPT-001", "OPT-002", "OPT-003"],
+        "multi_objective": ["MULTI-001", "MULTI-002", "MULTI-003"],
+        "gradient": ["GRAD-001", "GRAD-002", "GRAD-003"],
+        "reinforcement": ["RL-001", "RL-002", "RL-003"]
+      },
+      "new_15_v7": {
+        "anomaly": ["ANOM-001", "ANOM-002", "ANOM-003"],
+        "attention": ["ATTN-001", "ATTN-002", "ATTN-003"],
+        "causal": ["CAUSAL-001", "CAUSAL-002", "CAUSAL-003"],
+        "memory": ["MEM-001", "MEM-002", "MEM-003"],
+        "reflection": ["REFL-001", "REFL-002", "REFL-003"]
+      },
+      "total": 30
+    },
+    "firing_sequence": [
+      "MEM-001 (load memories)",
+      "BAYES-001 (initialize priors)",
+      "ATTN-001 (compute relevance)",
+      "OPT-001 (set objectives)",
+      "ANOM-001 (validate data)",
+      "CAUSAL-001 (build graph)",
+      "ATTN-002 (focus attention)",
+      "[Task processing]",
+      "ANOM-002 (check patterns)",
+      "BAYES-002 (update beliefs)",
+      "CAUSAL-002 (trace predictions)",
+      "MULTI-001 (analyze conflicts)",
+      "GRAD-001 (compute gradient)",
+      "ANOM-003 (safety verify)",
+      "ATTN-003 (prioritize output)",
+      "Compute Ω(x)",
+      "REFL-001 (assess quality)",
+      "RL-001 (record action)",
+      "MEM-002 (encode learnings)",
+      "MEM-003 (compress if needed)",
+      "RL-002 (compute reward)",
+      "REFL-003 (improvement analysis)",
+      "RL-003 (update policy)"
+    ]
+  },
+  "extraction_pipeline": {
+    "description": "Complete extraction workflow from monolith to functional modules",
+    "master": "prism-extraction-orchestrator",
+    "components": {
+      "parallel_search": "prism-swarm-extraction",
+      "academic_construction": "prism-module-builder",
+      "algorithm_templates": "prism-aiml-engine-patterns"
+    },
+    "campaign_types": {
+      "targeted": "2-4 agents, 15-30 min",
+      "category_sweep": "4-8 agents, 1-2 hours",
+      "deep_mining": "8 agents, 2-4 hours"
+    },
+    "swarm_patterns": [
+      "DEEP_EXTRACTION_SWARM",
+      "STUB_DETECTION_SWARM",
+      "PARALLEL_SEARCH_SWARM"
+    ]
+  },
+  "controller_mapping": {
+    "fanuc": "prism-fanuc-programming",
+    "siemens": "prism-siemens-programming",
+    "heidenhain": "prism-heidenhain-programming",
+    "mazak": "prism-gcode-reference",
+    "haas": "prism-gcode-reference",
+    "okuma": "prism-gcode-reference"
+  },
+  "key_paths": {
+    "state_file": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\CURRENT_STATE.json",
+    "monolith": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\_BUILD\\PRISM_v8_89_002_TRUE_100_PERCENT\\",
+    "extracted": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\EXTRACTED\\",
+    "skills_container": "/mnt/skills/user/prism-*/SKILL.md",
+    "skills_local": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\_SKILLS\\",
+    "logs": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\SESSION_LOGS\\"
+  },
+  "statistics": {
+    "total_skills": 68,
+    "original_skills": 50,
+    "reference_skills": 9,
+    "extraction_skills": 4,
+    "cognitive_skills": 7,
+    "total_content_size": "1.7MB+",
+    "gateway_routes": 93,
+    "error_codes": "100+",
+    "manufacturing_tables": "15+",
+    "controller_references": 4,
+    "materials_parameters": 127,
+    "mit_courses_indexed": "220+",
+    "ai_ml_patterns": 25,
+    "swarm_patterns": 3,
+    "cognitive_hooks": 30,
+    "cognitive_components": 10,
+    "master_equation_version": "2.0"
+  },
+  "version_history": {
+    "5.0.0": {
+      "date": "2026-01-30",
+      "changes": [
+        "MAJOR: Added Cognitive Enhancement v7.0",
+        "Added prism-anomaly-detector v1.0 (D(x) with 7 anomaly types)",
+        "Added prism-attention-focus v1.0 (A(x) context prioritization)",
+        "Added prism-causal-reasoning v1.0 (K(x) with 50+ chains)",
+        "Added prism-memory-augmentation v1.0 (M(x) with 5 memory types)",
+        "Added prism-self-reflection v1.0 (error taxonomy, calibration)",
+        "Updated prism-cognitive-core to v2.0 (30 hooks, 10 components)",
+        "Updated prism-master-equation to v2.0 (10-component formula)",
+        "New cognitive_enhancement category with 7 skills",
+        "New cognitive_system configuration section",
+        "Updated quick_selection for cognitive workflows",
+        "Total skills: 63 → 68 (+5 new)"
+      ]
+    },
+    "4.0.0": {
+      "date": "2026-01-30",
+      "changes": [
+        "Added prism-extraction-orchestrator (master coordinator)",
+        "Added prism-swarm-extraction (parallel search)",
+        "Added prism-module-builder (academic construction)",
+        "Added prism-aiml-engine-patterns (algorithm templates)",
+        "New extraction_orchestration category",
+        "New extraction_pipeline configuration",
+        "Updated quick_selection for extraction workflows"
+      ]
+    },
+    "3.0.0": {
+      "date": "2026-01-24",
+      "changes": [
+        "Added 9 comprehensive reference skills",
+        "Controller-specific programming references",
+        "Manufacturing tables and calculators"
+      ]
+    }
+  }
+}

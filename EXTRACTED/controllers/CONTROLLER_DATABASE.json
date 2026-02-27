@@ -1,0 +1,350 @@
+{
+  "metadata": {
+    "name": "PRISM Controller Database",
+    "version": "1.0.0",
+    "created": "2026-01-28T04:50:00Z",
+    "total_controllers": 25,
+    "parameters_per_controller": 120
+  },
+  "controllers": [
+    {
+      "controller_id": "CTRL-FAN-001",
+      "manufacturer": "FANUC",
+      "model": "0i-MF Plus",
+      "family": "Series 0i",
+      "generation": "Plus",
+      "release_year": 2018,
+      "current_production": true,
+      "identification": {
+        "full_name": "FANUC Series 0i-MODEL F Plus",
+        "short_name": "0i-MF+",
+        "aliases": ["0i Plus", "0i-MF Plus", "0i Model F Plus"],
+        "oem_variants": ["HAAS 0i", "Hurco Fanuc"],
+        "supersedes": ["0i-MD", "0i-MC"],
+        "compatible_machines": ["VMC", "HMC", "5-axis"]
+      },
+      "gcode_dialect": {
+        "base_standard": "ISO6983",
+        "decimal_point_required": false,
+        "leading_zeros_required": false,
+        "comment_style": "( )",
+        "block_numbering": "N optional"
+      },
+      "macro_support": {
+        "macro_language": "Macro B",
+        "variable_ranges": {"local": "1-33", "common": "100-199", "permanent": "500-999", "system": "1000-9999"},
+        "custom_gcode_creation": true
+      },
+      "axis_capability": {
+        "max_axes": 8,
+        "max_simultaneous": 5,
+        "rtcp_tcpm": true,
+        "tilted_plane": true
+      },
+      "memory_limits": {
+        "program_memory_kb": 2048,
+        "tool_offsets": 200,
+        "work_offsets": 300
+      },
+      "special_features": {
+        "high_speed_machining": true,
+        "look_ahead_blocks": 200,
+        "nano_smoothing": true,
+        "collision_detection": true
+      },
+      "connectivity": {
+        "ethernet": true,
+        "usb": true,
+        "focas": true,
+        "mtconnect": true
+      },
+      "alarm_info": {
+        "alarm_count": 1500,
+        "alarm_database_ref": "FANUC_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-FAN-002",
+      "manufacturer": "FANUC",
+      "model": "30i-B Plus",
+      "family": "Series 30i",
+      "generation": "B Plus",
+      "release_year": 2019,
+      "current_production": true,
+      "identification": {
+        "full_name": "FANUC Series 30i-MODEL B Plus",
+        "short_name": "30i-B+",
+        "aliases": ["30i Plus", "30i-B Plus"],
+        "supersedes": ["30i-B", "30i-A"]
+      },
+      "gcode_dialect": {
+        "base_standard": "ISO6983",
+        "decimal_point_required": false
+      },
+      "macro_support": {
+        "macro_language": "Macro B",
+        "custom_gcode_creation": true
+      },
+      "axis_capability": {
+        "max_axes": 32,
+        "max_simultaneous": 24,
+        "rtcp_tcpm": true
+      },
+      "special_features": {
+        "high_speed_machining": true,
+        "look_ahead_blocks": 1000,
+        "aicc": true
+      },
+      "alarm_info": {
+        "alarm_count": 2000,
+        "alarm_database_ref": "FANUC_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-SIEM-001",
+      "manufacturer": "SIEMENS",
+      "model": "SINUMERIK 840D sl",
+      "family": "840D",
+      "generation": "sl",
+      "release_year": 2015,
+      "current_production": true,
+      "identification": {
+        "full_name": "SIEMENS SINUMERIK 840D sl",
+        "short_name": "840D sl",
+        "aliases": ["840Dsl", "Sinumerik 840D solution line"]
+      },
+      "gcode_dialect": {
+        "base_standard": "ISO6983",
+        "comment_style": "; or ( )"
+      },
+      "macro_support": {
+        "macro_language": "Structured Text",
+        "custom_gcode_creation": true
+      },
+      "axis_capability": {
+        "max_axes": 93,
+        "max_simultaneous": 20,
+        "rtcp_tcpm": true
+      },
+      "special_features": {
+        "high_speed_machining": true,
+        "collision_detection": true,
+        "simulation": true
+      },
+      "connectivity": {
+        "ethernet": true,
+        "profinet": true,
+        "opc_ua": true
+      },
+      "alarm_info": {
+        "alarm_count": 1200,
+        "alarm_database_ref": "SIEMENS_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-SIEM-002",
+      "manufacturer": "SIEMENS",
+      "model": "SINUMERIK ONE",
+      "family": "ONE",
+      "generation": "1.0",
+      "release_year": 2020,
+      "current_production": true,
+      "identification": {
+        "full_name": "SIEMENS SINUMERIK ONE",
+        "short_name": "ONE",
+        "supersedes": ["840D sl"]
+      },
+      "axis_capability": {
+        "max_axes": 93,
+        "rtcp_tcpm": true
+      },
+      "special_features": {
+        "digital_twin": true,
+        "ai_enabled": true
+      },
+      "alarm_info": {
+        "alarm_database_ref": "SIEMENS_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-HAAS-001",
+      "manufacturer": "HAAS",
+      "model": "NGC",
+      "family": "Next Generation Control",
+      "generation": "Current",
+      "release_year": 2016,
+      "current_production": true,
+      "identification": {
+        "full_name": "Haas Next Generation Control",
+        "short_name": "NGC",
+        "aliases": ["Haas Control", "Haas NGC"]
+      },
+      "gcode_dialect": {
+        "base_standard": "HYBRID",
+        "comment_style": "( )"
+      },
+      "macro_support": {
+        "macro_language": "Haas Macros",
+        "variable_ranges": {"local": "1-33", "common": "100-199", "permanent": "500-699"}
+      },
+      "axis_capability": {
+        "max_axes": 5,
+        "rtcp_tcpm": true
+      },
+      "special_features": {
+        "conversational": true,
+        "visual_programming": true
+      },
+      "alarm_info": {
+        "alarm_count": 1000,
+        "alarm_database_ref": "HAAS_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-HEID-001",
+      "manufacturer": "HEIDENHAIN",
+      "model": "TNC 640",
+      "family": "TNC",
+      "generation": "640",
+      "release_year": 2012,
+      "current_production": true,
+      "identification": {
+        "full_name": "HEIDENHAIN TNC 640",
+        "short_name": "TNC 640",
+        "supersedes": ["TNC 530", "TNC 430"]
+      },
+      "gcode_dialect": {
+        "base_standard": "PROPRIETARY",
+        "comment_style": ";",
+        "dialog_programming": true
+      },
+      "axis_capability": {
+        "max_axes": 18,
+        "rtcp_tcpm": true
+      },
+      "special_features": {
+        "dynamic_collision_monitoring": true,
+        "kinematic_opt": true
+      },
+      "alarm_info": {
+        "alarm_count": 800,
+        "alarm_database_ref": "HEIDENHAIN_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-HEID-002",
+      "manufacturer": "HEIDENHAIN",
+      "model": "TNC 7",
+      "family": "TNC",
+      "generation": "7",
+      "release_year": 2021,
+      "current_production": true,
+      "identification": {
+        "full_name": "HEIDENHAIN TNC 7",
+        "short_name": "TNC 7",
+        "supersedes": ["TNC 640"]
+      },
+      "special_features": {
+        "touch_interface": true,
+        "ai_process_monitoring": true
+      },
+      "alarm_info": {
+        "alarm_database_ref": "HEIDENHAIN_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-MAZK-001",
+      "manufacturer": "MAZAK",
+      "model": "Mazatrol SmoothG",
+      "family": "Mazatrol Smooth",
+      "generation": "G",
+      "release_year": 2018,
+      "current_production": true,
+      "identification": {
+        "full_name": "Mazak Mazatrol SmoothG",
+        "short_name": "SmoothG",
+        "supersedes": ["Mazatrol Matrix 2"]
+      },
+      "gcode_dialect": {
+        "base_standard": "HYBRID",
+        "mazatrol_support": true
+      },
+      "special_features": {
+        "conversational": true,
+        "mazatrol_programming": true,
+        "smooth_control": true
+      },
+      "alarm_info": {
+        "alarm_count": 1000,
+        "alarm_database_ref": "MAZAK_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-MAZK-002",
+      "manufacturer": "MAZAK",
+      "model": "Mazatrol SmoothAi",
+      "family": "Mazatrol Smooth",
+      "generation": "Ai",
+      "release_year": 2022,
+      "current_production": true,
+      "identification": {
+        "full_name": "Mazak Mazatrol SmoothAi",
+        "short_name": "SmoothAi"
+      },
+      "special_features": {
+        "ai_machining": true,
+        "voice_control": true
+      },
+      "alarm_info": {
+        "alarm_database_ref": "MAZAK_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-OKUM-001",
+      "manufacturer": "OKUMA",
+      "model": "OSP-P300",
+      "family": "OSP",
+      "generation": "P300",
+      "release_year": 2016,
+      "current_production": true,
+      "identification": {
+        "full_name": "Okuma OSP-P300",
+        "short_name": "P300",
+        "supersedes": ["OSP-P200", "OSP-P100"]
+      },
+      "gcode_dialect": {
+        "base_standard": "HYBRID",
+        "ige_support": true
+      },
+      "special_features": {
+        "thermo_friendly_concept": true,
+        "collision_avoidance": true,
+        "machining_navi": true
+      },
+      "alarm_info": {
+        "alarm_count": 800,
+        "alarm_database_ref": "OKUMA_ALARMS.json"
+      }
+    },
+    {
+      "controller_id": "CTRL-OKUM-002",
+      "manufacturer": "OKUMA",
+      "model": "OSP-P500",
+      "family": "OSP",
+      "generation": "P500",
+      "release_year": 2024,
+      "current_production": true,
+      "identification": {
+        "full_name": "Okuma OSP-P500",
+        "short_name": "P500"
+      },
+      "special_features": {
+        "connect_plan": true,
+        "smart_factory": true
+      },
+      "alarm_info": {
+        "alarm_database_ref": "OKUMA_ALARMS.json"
+      }
+    }
+  ]
+}

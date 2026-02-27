@@ -1,0 +1,586 @@
+
+======================================================================
+Task: cutting-params
+Agent: CNC Machinist Expert (machinist)
+Model: claude-sonnet-4-20250514
+Status: success
+======================================================================
+
+# Ti-6Al-4V Pocket Milling Parameters
+
+## Tool Selection
+**Primary Recommendation:** Uncoated carbide or TiAlN-coated carbide end mill
+- 3-4 flute for roughing, 2-3 flute for finishing
+- Sharp cutting edge geometry (positive rake angle)
+- Variable helix to reduce chatter
+
+## Cutting Parameters
+
+### Roughing Operation
+- **Spindle Speed:** 800-1,200 RPM (SFM 150-200)
+- **Feed Rate:** 15-25 IPM 
+- **Chip Load:** 0.003-0.005" per tooth
+- **Axial DOC:** 0.020-0.040" (5-10% of tool diameter)
+- **Radial WOC:** 10-20% of tool diameter
+- **Stepover:** 5-15% tool diameter for trochoidal milling
+
+### Finishing Operation
+- **Spindle Speed:** 1,000-1,500 RPM (SFM 180-250)
+- **Feed Rate:** 20-35 IPM
+- **Chip Load:** 0.002-0.004" per tooth
+- **Axial DOC:** 0.010-0.025"
+- **Radial WOC:** 2-5% of tool diameter
+
+## Coolant Strategy
+**High-pressure flood coolant (300+ PSI) - CRITICAL**
+- Minimum 5% synthetic or semi-synthetic
+- Direct coolant at cutting zone
+- Through-spindle coolant preferred
+- Maintain 70-80°F coolant temperature
+
+## Machining Strategy
+- **Climb milling only**
+- Trochoidal/adaptive roughing to maintain constant tool engagement
+- Avoid dwelling or stopping in cut
+- Maintain constant feed rate - no hesitation
+- Multiple spring passes on finish (0.002-0.005" stock removal)
+
+## Expected Tool Life
+- **Roughing:** 45-90 minutes (depending on material removal rate)
+- **Finishing:** 60-120 minutes
+- **Failure modes:** Built-up edge, chipping, gradual flank wear
+
+## Critical Success Factors
+1. **Never let chips re-cut** - excellent chip evacuation essential
+2. **Maintain sharp tools** - dull tools generate heat and work harden material
+3. **Consistent engagement** - avoid interrupted cuts when possible
+4. **Workholding rigidity** - minimize vibration and deflection
+
+## Troubleshooting
+- **Built-up edge:** Increase speed, improve coolant flow
+- **Chatter:** Reduce axial DOC, change tool geometry
+- **Poor surface finish:** Reduce feed per tooth, increase finishing passes
+
+These parameters assume a rigid machine setup and proper workholding. Adjust conservatively based on your specific machine capabilities and part requirements.
+
+
+======================================================================
+Task: force-calc
+Agent: Cutting Force Calculator (force_calculator)
+Model: claude-sonnet-4-20250514
+Status: success
+======================================================================
+
+# PRISM Cutting Force Calculator: Ti-6Al-4V Pocket Milling
+
+## Material Properties and Cutting Parameters
+
+**Material:** Ti-6Al-4V (Titanium Alloy)
+- Specific cutting force coefficient: kc₁ = 2800 N/mm²
+- Exponent: mc = 0.25
+- Density: 4430 kg/m³
+
+**Typical Pocket Milling Parameters:**
+- Cutter diameter: D = 12 mm
+- Number of teeth: z = 4
+- Spindle speed: n = 1200 rpm
+- Feed rate: f = 480 mm/min
+- Axial depth of cut: ap = 2 mm
+- Radial depth of cut: ae = 3 mm (25% of diameter)
+
+## Step 1: Kinematic Calculations
+
+**Feed per tooth:**
+```
+fz = f / (n × z) = 480 / (1200 × 4) = 0.1 mm/tooth
+```
+
+**Cutting speed:**
+```
+vc = π × D × n / 1000 = π × 12 × 1200 / 1000 = 45.2 m/min
+```
+
+## Step 2: Chip Thickness Calculations
+
+**Maximum uncut chip thickness (entry angle φ = 60°):**
+```
+hmax = fz × sin(φ) = 0.1 × sin(60°) = 0.1 × 0.866 = 0.0866 mm
+```
+
+**Mean chip thickness:**
+```
+hm = (2 × ae × fz) / (π × D) = (2 × 3 × 0.1) / (π × 12) = 0.0159 mm
+```
+
+## Step 3: Cross-Sectional Area of Cut
+
+**Uncut chip cross-sectional area per tooth:**
+```
+A = ap × hm = 2 × 0.0159 = 0.0318 mm²
+```
+
+## Step 4: Specific Cutting Force (Kienzle Model)
+
+**Specific cutting force:**
+```
+kc = kc₁ × hm^(-mc) = 2800 × (0.0159)^(-0.25) = 2800 × 1.68 = 4704 N/mm²
+```
+
+## Step 5: Cutting Force Components
+
+### Tangential Force (Main Cutting Force)
+```
+Fc = kc × A = 4704 × 0.0318 = 149.6 N
+```
+
+### Feed Force
+```
+Ff = 0.3 × Fc = 0.3 × 149.6 = 44.9 N
+```
+
+### Radial Force
+```
+Fr = 0.5 × Fc = 0.5 × 149.6 = 74.8 N
+```
+
+## Step 6: Resultant Force and Direction
+
+**Resultant force in feed plane:**
+```
+F_resultant = √(Ff² + Fr²) = √(44.9² + 74.8²) = √(2016 + 5595) = 87.2 N
+```
+
+**Force angle from feed direction:**
+```
+α = arctan(Fr/Ff) = arctan(74.8/44.9) = 59.0°
+```
+
+**Total resultant force (including axial component):**
+```
+F_total = √(Fc² + Ff² + Fr²) = √(149.6² + 44.9² + 74.8²) = 172.1 N
+```
+
+## Step 7: Torque and Power Calculations
+
+### Cutting Torque
+```
+M = Fc × D/2 = 149.6 × 12/2 = 897.6 N·mm = 0.898 N·m
+```
+
+### Required Spindle Power
+```
+P = M × ω = M × (2π × n/60) = 0.898 × (2π × 1200/60) = 112.9 W
+```
+
+**With efficiency factor (η = 0.8):**
+```
+P_motor = P/η = 112.9/0.8 = 141.1 W
+```
+
+## Summary of Results
+
+| Force Component | Value | Unit |
+|----------------|-------|------|
+| Tangential Force (Fc) | 149.6 | N |
+| Feed Force (Ff) | 44.9 | N |
+| Radial Force (Fr) | 74.8 | N |
+| Resultant Force | 172.1 | N |
+| Cutting Torque | 0.898 | N·m |
+| Spindle Power | 141.1 | W |
+
+## Critical Notes for Ti-6Al-4V
+
+1. **High specific cutting forces** due to titanium's strength and work hardening tendency
+2. **Tool wear considerations**: Use carbide or PCD tools with proper coatings
+3. **Thermal management**: Flood coolant recommended due to low thermal conductivity
+4. **Feed rate optimization**: Maintain consistent chip load to prevent work hardening
+5. **Vibration monitoring**: Titanium's low elastic modulus can cause chatter
+
+These calculations provide baseline expectations for force monitoring and machining parameter optimization in Ti-6Al-4V pocket milling operations.
+
+
+======================================================================
+Task: tool-selection
+Agent: Cutting Tool Engineer (tool_engineer)
+Model: claude-sonnet-4-20250514
+Status: success
+======================================================================
+
+# Cutting Tool Recommendations for Ti-6Al-4V Pocket Milling
+
+## Primary Recommendation: Solid Carbide End Mills
+
+### **1. Sandvik Coromant CoroMill Plura (Primary Choice)**
+- **Part Number**: 1P220-0600-XA 1630 (6mm) or 1P220-1000-XA 1630 (10mm)
+- **Tool Material**: Fine-grain carbide substrate (Grade 1630)
+- **Coating**: PVD TiAlN (excellent heat resistance for titanium)
+- **Geometry**:
+  - Helix angle: 30° (balanced chip evacuation/rigidity)
+  - Rake angle: Sharp positive rake for low cutting forces
+  - Relief angle: 12-15°
+  - Unequal flute spacing for chatter reduction
+- **Features**: Optimized edge preparation for titanium machining
+
+### **2. Kennametal B051A Series**
+- **Part Number**: B051A060M06050 (6mm, 4-flute)
+- **Tool Material**: K313 carbide grade
+- **Coating**: HARVI-Ultra coating (specific for titanium)
+- **Geometry**:
+  - Helix angle: 35°
+  - Variable helix design
+  - Sharp cutting edge with T-land preparation
+- **Application**: Excellent for aerospace titanium components
+
+### **3. Mitsubishi Materials IMPACT MIRACLE**
+- **Part Number**: VF2MBR0600 (6mm end mill)
+- **Tool Material**: Fine-grain carbide with enhanced toughness
+- **Coating**: MIRACLE coating (Al-Cr based)
+- **Geometry**:
+  - Low helix angle (25°) for stability
+  - Positive rake geometry
+  - Reinforced cutting edge design
+
+## Secondary Recommendation: Indexable Tools
+
+### **4. Iscar MULTI-MASTER**
+- **Holder**: MM EC080A12R0.5-6T08
+- **Insert**: ADKT 1505PDR-HM IC328
+- **Coating**: TiAlN on IC328 grade
+- **Geometry**: 
+  - Positive cutting geometry
+  - Sharp cutting edge for titanium
+  - Chip breaker optimized for Ti-alloys
+
+## Cutting Parameters for Ti-6Al-4V
+
+### Roughing Operations:
+- **Surface Speed**: 80-120 m/min (260-395 SFM)
+- **Feed per tooth**: 0.05-0.08 mm/tooth (0.002-0.003 in/tooth)
+- **Axial DOC**: 0.5-1.0 mm (0.020-0.040")
+- **Radial DOC**: 10-25% of tool diameter
+
+### Finishing Operations:
+- **Surface Speed**: 120-180 m/min (395-590 SFM)
+- **Feed per tooth**: 0.03-0.05 mm/tooth (0.001-0.002 in/tooth)
+- **Axial DOC**: 0.2-0.5 mm (0.008-0.020")
+- **Radial DOC**: 5-10% of tool diameter
+
+## Critical Success Factors
+
+### **Coolant Strategy**:
+- High-pressure flood coolant (minimum 3-5 bar)
+- Water-soluble coolant with EP additives
+- Mist cooling acceptable for light cuts only
+
+### **Machine Requirements**:
+- Minimum 15-20 HP spindle power
+- High rigidity machine tool
+- Spindle speeds: 3000-8000 RPM (depending on tool diameter)
+
+### **Programming Considerations**:
+- Trochoidal milling paths to maintain constant chip load
+- Avoid dwelling or rubbing
+- Maintain constant feed rate
+- Use ramping instead of plunge cutting
+
+## Tool Life Expectations
+
+- **Roughing**: 15-30 minutes cutting time
+- **Finishing**: 30-60 minutes cutting time
+- **Volume removal**: 50-150 cm³ per cutting edge (varies by conditions)
+
+## Alternative Grades by Application
+
+### For High-Speed Applications:
+- **Sandvik GC1020**: Uncoated grade for very high speeds
+- **Kennametal KC7325**: TiAlN coated for balanced performance
+
+### For Heavy Roughing:
+- **Sandvik GC1030**: Tough grade with TiN coating
+- **Iscar IC328**: Versatile TiAlN grade for titanium
+
+These recommendations are based on proven performance in aerospace manufacturing environments. Always verify with manufacturer technical support for specific application optimization.
+
+
+======================================================================
+Task: material-analysis
+Agent: Materials Scientist (materials_scientist)
+Model: claude-sonnet-4-20250514
+Status: success
+======================================================================
+
+# Ti-6Al-4V (Grade 5 Titanium) Complete Material Analysis
+
+## Chemical Composition
+- **Titanium**: 88-90%
+- **Aluminum**: 5.5-6.75%
+- **Vanadium**: 3.5-4.5%
+- **Iron**: ≤0.40%
+- **Oxygen**: ≤0.20%
+- **Carbon**: ≤0.10%
+- **Nitrogen**: ≤0.05%
+- **Hydrogen**: ≤0.015%
+
+## Mechanical Properties
+
+### Static Properties (Annealed Condition)
+- **Tensile Strength**: 895-930 MPa (130-135 ksi)
+- **Yield Strength**: 825-860 MPa (120-125 ksi)
+- **Elongation**: 10-15%
+- **Reduction in Area**: 25-35%
+- **Modulus of Elasticity**: 114 GPa (16.5 × 10⁶ psi)
+- **Poisson's Ratio**: 0.34
+- **Hardness**: 334-363 HB (35-38 HRC)
+
+### Dynamic Properties
+- **Fatigue Strength** (10⁷ cycles): 620 MPa
+- **Fracture Toughness**: 75-115 MPa√m
+- **Impact Strength**: 25-35 J (Charpy V-notch)
+
+### High-Temperature Properties
+- **Creep Resistance**: Excellent up to 400°C
+- **Strength Retention**: 90% at 300°C, 60% at 500°C
+
+## Thermal Properties
+
+- **Melting Point**: 1604-1660°C (2920-3020°F)
+- **Thermal Conductivity**: 6.7 W/m·K at 20°C
+- **Specific Heat**: 526 J/kg·K at 25°C
+- **Thermal Expansion**: 8.6 × 10⁻⁶/°C (20-100°C)
+- **Thermal Diffusivity**: 2.9 × 10⁻⁶ m²/s
+
+## Physical Properties
+
+- **Density**: 4.43 g/cm³ (0.160 lb/in³)
+- **Electrical Resistivity**: 1.78 × 10⁻⁶ Ω·m
+- **Magnetic Permeability**: 1.0005 (paramagnetic)
+
+## Machinability Characteristics
+
+### Machinability Rating
+- **Overall Rating**: 25-30% of free-machining steel (difficult to machine)
+- **Relative Machinability Index**: 0.25-0.30
+
+### Key Machining Challenges
+1. **Low Thermal Conductivity**: Heat concentration at cutting edge
+2. **High Chemical Reactivity**: Tool wear acceleration
+3. **Work Hardening**: Rapid strain hardening during cutting
+4. **Galling Tendency**: Adhesion to cutting tools
+5. **Spring-back**: High elastic recovery
+
+### Tool Wear Mechanisms
+- **Primary**: Chemical diffusion and adhesion
+- **Secondary**: Abrasive wear and thermal fatigue
+- **Critical**: Built-up edge formation
+
+## Recommended Machining Approaches
+
+### Turning Operations
+
+**Cutting Parameters:**
+- **Speed**: 80-150 m/min (carbide), 30-60 m/min (HSS)
+- **Feed**: 0.1-0.4 mm/rev
+- **Depth of Cut**: 0.5-3.0 mm
+- **Tool Material**: Uncoated carbide (K10-K20) or coated carbide
+
+**Geometry:**
+- **Rake Angle**: +5° to +15°
+- **Relief Angle**: 8-12°
+- **Nose Radius**: 0.4-0.8 mm
+- **Approach Angle**: 15-45°
+
+### Milling Operations
+
+**Cutting Parameters:**
+- **Speed**: 60-120 m/min
+- **Feed per Tooth**: 0.05-0.15 mm/tooth
+- **Axial Depth**: 0.5-2.0 mm
+- **Radial Depth**: 0.1-0.5 × diameter
+
+**Strategy:**
+- **Climb Milling**: Preferred to minimize work hardening
+- **Sharp Tools**: Maintain sharp cutting edges
+- **Continuous Cut**: Avoid interrupted cutting when possible
+
+### Drilling Operations
+
+**Parameters:**
+- **Speed**: 15-40 m/min
+- **Feed**: 0.05-0.25 mm/rev
+- **Point Angle**: 118-135°
+- **Drill Material**: Cobalt HSS or carbide
+
+**Technique:**
+- **Peck Drilling**: For holes >3D deep
+- **Coolant**: Flood cooling essential
+- **Pilot Holes**: For large diameters
+
+### Tool Materials Ranking
+
+1. **Best**: Uncoated carbide (WC-Co)
+2. **Good**: TiAlN coated carbide
+3. **Acceptable**: Cobalt HSS
+4. **Poor**: Standard HSS
+
+### Cutting Fluids
+
+**Flood Cooling** (Essential):
+- **Water-based**: 8-15% concentration
+- **Synthetic**: Excellent thermal properties
+- **Semi-synthetic**: Good balance of cooling/lubrication
+- **Minimum Quantity**: Only for light operations
+
+**Flow Rate**: 20-40 L/min minimum
+
+### Work Holding Considerations
+
+- **Rigid Setup**: Minimize vibration and deflection
+- **Clamping Force**: Avoid over-clamping (deformation)
+- **Support**: Use steady rests for long, thin parts
+- **Fixturing**: Design to minimize heat buildup
+
+### Quality Control Points
+
+1. **Surface Finish**: Ra 0.8-3.2 μm typical
+2. **Dimensional Accuracy**: ±0.025-0.05 mm achievable
+3. **Residual Stress**: Monitor for stress-induced distortion
+4. **Alpha Case**: Control for aerospace applications
+
+### Cost Optimization Strategies
+
+1. **Tool Life Maximization**: Conservative speeds, sharp tools
+2. **Batch Processing**: Minimize setup changes
+3. **Adaptive Control**: Monitor tool wear in real-time
+4. **Workpiece Temperature**: Maintain <150°C during cutting
+
+This comprehensive analysis provides the foundation for successful Ti-6Al-4V machining operations while maintaining quality and controlling costs.
+
+
+======================================================================
+Task: quality-plan
+Agent: Quality Engineering Expert (quality_engineer)
+Model: claude-sonnet-4-20250514
+Status: success
+======================================================================
+
+# Quality Control Plan: Pocket Milling Ti-6Al-4V
+
+## 1. CRITICAL DIMENSIONS & CHARACTERISTICS
+
+### Primary Critical Dimensions
+- **Pocket Depth**: ±0.05mm (±0.002")
+- **Pocket Length/Width**: ±0.08mm (±0.003")
+- **Wall Thickness**: ±0.05mm (±0.002") minimum
+- **Floor Flatness**: 0.025mm (0.001") TIR
+- **Corner Radii**: ±0.13mm (±0.005")
+- **Surface Roughness**: Ra 1.6μm (63μin) maximum
+
+### Secondary Critical Dimensions
+- **Perpendicularity**: 0.05mm per 25mm of depth
+- **Position Tolerance**: ±0.1mm (±0.004") relative to datum
+- **Parallelism**: 0.025mm over pocket length
+- **Edge Break**: 0.1-0.3mm uniform
+
+## 2. INSPECTION METHODS
+
+### Dimensional Inspection
+| Characteristic | Method | Equipment | Frequency |
+|----------------|--------|-----------|-----------|
+| Pocket Depth | CMM Touch Probe | Zeiss/Mitutoyo CMM | 100% first 5 pieces, then 1 per 10 |
+| Length/Width | CMM/Caliper | CMM or Mitutoyo Caliper | 1 per 5 pieces |
+| Wall Thickness | CMM/Pin Gauges | CMM with ruby probe | 100% critical walls |
+| Floor Flatness | CMM Scanning | CMM with scanning probe | 1 per batch |
+| Corner Radii | Optical/CMM | Keyence IM Series/CMM | 1 per 10 pieces |
+| Surface Finish | Profilometer | Mitutoyo SJ-210 | 1 per 20 pieces |
+
+### Surface Quality Inspection
+- **Visual Inspection**: 100% parts under 10x magnification
+- **Dye Penetrant**: Every 50th part or per customer requirement
+- **Surface Roughness**: Ra measurement per ASME B46.1
+
+## 3. SPC PARAMETERS
+
+### Control Chart Setup
+| Parameter | Chart Type | Sample Size | Frequency | UCL/LCL Calculation |
+|-----------|------------|-------------|-----------|-------------------|
+| Pocket Depth | X̄-R Chart | n=5 | Every 2 hours | ±3σ from process mean |
+| Wall Thickness | X̄-R Chart | n=3 | Every hour | ±3σ from process mean |
+| Surface Roughness | Individual-MR | n=1 | Every 4 hours | ±2.66MR̄ |
+
+### Process Capability Targets
+- **Cpk Target**: ≥1.33 (minimum 1.0)
+- **Ppk Target**: ≥1.33
+- **Cp Target**: ≥1.67
+- **Process Sigma Level**: 4σ minimum
+
+### SPC Implementation
+```
+Control Limits Calculation:
+UCL = X̄ + A₂R̄
+LCL = X̄ - A₂R̄
+Where A₂ = 0.577 (for n=5)
+
+Capability Calculation:
+Cpk = min[(USL-X̄)/3σ, (X̄-LSL)/3σ]
+```
+
+## 4. SAMPLING STRATEGY
+
+### Initial Production (First Article)
+- 100% dimensional inspection first 5 pieces
+- Full material certification review
+- Process capability study (minimum 30 consecutive pieces)
+
+### Production Sampling
+- **Level I**: 1 in 5 parts (new setup/operator)
+- **Level II**: 1 in 10 parts (stable process)
+- **Level III**: 1 in 20 parts (proven stable process)
+
+### Reduced Inspection Criteria
+- Cpk ≥1.67 for 25 consecutive subgroups
+- No process adjustments for 8 hours
+- No customer complaints for 30 days
+
+## 5. SPECIAL CONSIDERATIONS FOR Ti-6Al-4V
+
+### Tool Wear Monitoring
+- Insert wear measurement every 25 pieces
+- Surface finish degradation correlation
+- Dimensional drift tracking
+
+### Process Variables to Monitor
+- **Cutting Speed**: 50-150 SFM
+- **Feed Rate**: 0.005-0.015 IPT
+- **Coolant Flow**: 5-10% concentration
+- **Spindle Temperature**: <65°C
+- **Workpiece Temperature**: <50°C
+
+## 6. DOCUMENTATION & TRACEABILITY
+
+### Required Records
+- First article inspection report (FAIR)
+- SPC control charts
+- Material certifications
+- Tool change logs
+- Non-conformance reports
+
+### Measurement System Analysis (MSA)
+- Gage R&R studies quarterly
+- Bias and linearity studies annually
+- CMM calibration every 6 months
+
+## 7. REACTION PLANS
+
+### Out-of-Control Conditions
+1. **Single point outside control limits**: Stop production, investigate
+2. **Two consecutive points in Zone A**: Increase sampling frequency
+3. **Seven points trending**: Adjust process parameters
+4. **Cpk <1.0**: 100% inspection until corrective action
+
+### Corrective Actions
+- 8D problem-solving methodology
+- Root cause analysis using fishbone diagrams
+- PFMEA updates for process improvements
+
+This quality control plan ensures robust monitoring of Ti-6Al-4V pocket milling operations while maintaining statistical process control and meeting aerospace quality standards.
+

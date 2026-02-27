@@ -1,0 +1,345 @@
+{
+  "manifestVersion": "3.0",
+  "lastUpdated": "2026-01-25",
+  "totalSkills": 38,
+  "location": "C:\\PRISM REBUILD (UPLOAD TO BOX OCCASSIONALLY)\\_PRISM_MASTER\\SKILLS\\",
+  
+  "skillsByLevel": {
+    "level_0_always_on": {
+      "description": "Immutable laws - always active, cannot be disabled",
+      "count": 6,
+      "skills": [
+        {
+          "id": "prism-life-safety-mindset",
+          "version": "2.0",
+          "purpose": "Safety-first development for manufacturing intelligence",
+          "trigger": "ALWAYS",
+          "agents": ["all"],
+          "critical": true
+        },
+        {
+          "id": "prism-maximum-completeness",
+          "version": "1.0",
+          "purpose": "100% coverage requirement for all work",
+          "trigger": "ALWAYS",
+          "agents": ["completeness_auditor", "validator"],
+          "critical": true
+        },
+        {
+          "id": "regression_skill_v2",
+          "version": "2.0",
+          "purpose": "Prevent data/feature loss during updates",
+          "trigger": "ALWAYS",
+          "agents": ["regression_checker"],
+          "critical": true
+        },
+        {
+          "id": "prism-predictive-thinking",
+          "version": "1.0",
+          "purpose": "Anticipate failures before they occur",
+          "trigger": "ALWAYS",
+          "agents": ["all"],
+          "critical": true
+        },
+        {
+          "id": "prism-skill-orchestrator",
+          "version": "5.0",
+          "purpose": "Master integration of all skills and agents",
+          "trigger": "ALWAYS",
+          "agents": ["coordinator"],
+          "critical": true
+        },
+        {
+          "id": "prism-mandatory-microsession",
+          "version": "1.0",
+          "purpose": "Enforce microsession decomposition for ALL tasks",
+          "trigger": "ALWAYS",
+          "agents": ["task_decomposer", "coordinator", "session_continuity"],
+          "critical": true,
+          "enforcement": "HARD_BLOCK",
+          "location": "_PRISM_MASTER/SKILLS/prism-mandatory-microsession/SKILL.md"
+        }
+      ]
+    },
+    
+    "level_2_core_workflow": {
+      "description": "SP.1 Core Development Workflow",
+      "count": 8,
+      "skills": [
+        {
+          "id": "prism-sp-brainstorm",
+          "purpose": "Socratic design with chunked approval",
+          "trigger": ["brainstorm", "design", "architect", "plan"],
+          "agents": ["architect", "researcher", "domain_expert", "context_builder"]
+        },
+        {
+          "id": "prism-sp-planning",
+          "purpose": "Detailed task decomposition",
+          "trigger": ["plan", "breakdown", "tasks"],
+          "agents": ["coordinator", "task_decomposer"]
+        },
+        {
+          "id": "prism-sp-execution",
+          "purpose": "Checkpoint-based implementation",
+          "trigger": ["execute", "implement", "build"],
+          "agents": ["coder", "extractor"]
+        },
+        {
+          "id": "prism-sp-review-spec",
+          "purpose": "Verify output matches specification",
+          "trigger": ["review", "spec", "specification"],
+          "agents": ["validator", "completeness_auditor"]
+        },
+        {
+          "id": "prism-sp-review-quality",
+          "purpose": "Code quality and 10 Commandments check",
+          "trigger": ["quality", "review", "code review"],
+          "agents": ["code_reviewer", "security_auditor"]
+        },
+        {
+          "id": "prism-sp-debugging",
+          "purpose": "4-phase mandatory debug process",
+          "trigger": ["debug", "fix", "error", "bug"],
+          "agents": ["debugger", "root_cause_analyst", "call_tracer"]
+        },
+        {
+          "id": "prism-sp-verification",
+          "purpose": "Evidence-based completion proof",
+          "trigger": ["verify", "validate", "check", "complete"],
+          "agents": ["validator", "verification_chain", "quality_gate"]
+        },
+        {
+          "id": "prism-sp-handoff",
+          "purpose": "Session transition and state capture",
+          "trigger": ["handoff", "session end", "transition"],
+          "agents": ["documentation_writer", "session_continuity"]
+        }
+      ]
+    },
+    
+    "level_2_monolith": {
+      "description": "SP.2 Monolith Navigation",
+      "count": 4,
+      "skills": [
+        {
+          "id": "prism-monolith-index",
+          "purpose": "Complete map of 986,621 lines",
+          "trigger": ["monolith", "index", "map"],
+          "agents": ["monolith_navigator"]
+        },
+        {
+          "id": "prism-monolith-extractor",
+          "purpose": "Safe extraction protocols",
+          "trigger": ["extract", "pull", "parse"],
+          "agents": ["extractor", "dependency_analyzer", "regression_checker"]
+        },
+        {
+          "id": "prism-monolith-navigator",
+          "purpose": "Search strategies for finding code",
+          "trigger": ["find", "search", "locate"],
+          "agents": ["monolith_navigator", "pattern_matcher"]
+        },
+        {
+          "id": "prism-codebase-packaging",
+          "purpose": "Repomix-style codebase analysis",
+          "trigger": ["package", "analyze", "repomix"],
+          "agents": ["monolith_navigator", "analyst"]
+        }
+      ]
+    },
+    
+    "level_2_materials": {
+      "description": "SP.3 Materials System",
+      "count": 5,
+      "skills": [
+        {
+          "id": "prism-material-schema",
+          "purpose": "127-parameter material structure",
+          "trigger": ["material", "schema", "structure"],
+          "agents": ["schema_designer", "materials_scientist"]
+        },
+        {
+          "id": "prism-material-physics",
+          "purpose": "Kienzle, Johnson-Cook, Taylor equations",
+          "trigger": ["physics", "cutting", "force", "temperature"],
+          "agents": ["physics_validator", "uncertainty_quantifier", "force_calculator"]
+        },
+        {
+          "id": "prism-material-lookup",
+          "purpose": "Fast property retrieval",
+          "trigger": ["lookup", "find material", "property"],
+          "agents": ["material_lookup"]
+        },
+        {
+          "id": "prism-material-validator",
+          "purpose": "Data quality validation",
+          "trigger": ["validate material", "check material"],
+          "agents": ["validator", "cross_referencer"]
+        },
+        {
+          "id": "prism-material-enhancer",
+          "purpose": "Fill parameter gaps",
+          "trigger": ["enhance", "fill", "estimate"],
+          "agents": ["estimator", "materials_scientist"]
+        }
+      ]
+    },
+    
+    "level_2_masters": {
+      "description": "SP.4-10 Consolidated Master Skills",
+      "count": 7,
+      "skills": [
+        {
+          "id": "prism-session-master",
+          "purpose": "Unified session management",
+          "trigger": ["session", "state", "resume", "checkpoint"],
+          "agents": ["session_continuity", "state_manager", "context_builder"],
+          "consolidates": ["state-manager", "context-pressure", "context-dna", "session-handoff", "quick-start"]
+        },
+        {
+          "id": "prism-quality-master",
+          "purpose": "Unified quality management",
+          "trigger": ["quality", "gate", "validation"],
+          "agents": ["quality_gate", "verification_chain", "validator"]
+        },
+        {
+          "id": "prism-code-master",
+          "purpose": "Unified code practices",
+          "trigger": ["code", "implement", "refactor"],
+          "agents": ["coder", "code_reviewer", "refactorer", "optimizer"]
+        },
+        {
+          "id": "prism-knowledge-master",
+          "purpose": "Unified knowledge access",
+          "trigger": ["formula", "standard", "reference"],
+          "agents": ["formula_lookup", "standards_expert"]
+        },
+        {
+          "id": "prism-expert-master",
+          "purpose": "Unified domain expertise",
+          "trigger": ["expert", "machining", "manufacturing"],
+          "agents": ["domain_expert", "machinist", "tool_engineer", "synthesizer"]
+        },
+        {
+          "id": "prism-controller-quick-ref",
+          "purpose": "CNC controller reference",
+          "trigger": ["gcode", "fanuc", "siemens", "heidenhain"],
+          "agents": ["gcode_expert", "machine_specialist"]
+        },
+        {
+          "id": "prism-dev-utilities",
+          "purpose": "Development utilities",
+          "trigger": ["utility", "helper", "tool"],
+          "agents": ["optimizer", "documentation_writer"]
+        }
+      ]
+    },
+    
+    "level_2_quality_enhanced": {
+      "description": "Quality Enhancement Skills",
+      "count": 2,
+      "skills": [
+        {
+          "id": "prism-tdd-enhanced",
+          "purpose": "RED-GREEN-REFACTOR with physics tests",
+          "trigger": ["test", "tdd", "unittest"],
+          "agents": ["test_generator", "coder", "verification_chain"]
+        },
+        {
+          "id": "prism-root-cause-tracing",
+          "purpose": "Backward tracing and defense-in-depth",
+          "trigger": ["trace", "root cause", "deep debug"],
+          "agents": ["root_cause_analyst", "call_tracer", "debugger"]
+        }
+      ]
+    },
+    
+    "level_3_references": {
+      "description": "Comprehensive Reference Skills (lookup only)",
+      "count": 10,
+      "skills": [
+        {"id": "prism-api-contracts", "purpose": "API interface definitions"},
+        {"id": "prism-error-catalog", "purpose": "Error codes and handling"},
+        {"id": "prism-manufacturing-tables", "purpose": "Manufacturing lookup tables"},
+        {"id": "prism-wiring-templates", "purpose": "Module integration templates"},
+        {"id": "prism-product-calculators", "purpose": "Calculator specifications"},
+        {"id": "prism-post-processor-reference", "purpose": "Post processor documentation"},
+        {"id": "prism-fanuc-programming", "purpose": "FANUC G-code reference"},
+        {"id": "prism-siemens-programming", "purpose": "Siemens G-code reference"},
+        {"id": "prism-heidenhain-programming", "purpose": "Heidenhain reference"},
+        {"id": "prism-gcode-reference", "purpose": "Universal G-code reference"}
+      ]
+    }
+  },
+  
+  "skillTriggerIndex": {
+    "brainstorm": ["prism-sp-brainstorm"],
+    "design": ["prism-sp-brainstorm"],
+    "architect": ["prism-sp-brainstorm"],
+    "plan": ["prism-sp-brainstorm", "prism-sp-planning"],
+    "execute": ["prism-sp-execution"],
+    "implement": ["prism-sp-execution", "prism-code-master"],
+    "build": ["prism-sp-execution"],
+    "review": ["prism-sp-review-spec", "prism-sp-review-quality"],
+    "quality": ["prism-sp-review-quality", "prism-quality-master"],
+    "debug": ["prism-sp-debugging", "prism-root-cause-tracing"],
+    "fix": ["prism-sp-debugging"],
+    "error": ["prism-sp-debugging"],
+    "bug": ["prism-sp-debugging"],
+    "verify": ["prism-sp-verification"],
+    "validate": ["prism-sp-verification", "prism-material-validator"],
+    "check": ["prism-sp-verification"],
+    "handoff": ["prism-sp-handoff"],
+    "session": ["prism-session-master"],
+    "state": ["prism-session-master"],
+    "resume": ["prism-session-master"],
+    "checkpoint": ["prism-session-master"],
+    "extract": ["prism-monolith-extractor"],
+    "parse": ["prism-monolith-extractor"],
+    "pull": ["prism-monolith-extractor"],
+    "monolith": ["prism-monolith-index", "prism-monolith-navigator"],
+    "material": ["prism-material-schema", "prism-material-physics"],
+    "alloy": ["prism-material-schema"],
+    "steel": ["prism-material-schema"],
+    "aluminum": ["prism-material-schema"],
+    "titanium": ["prism-material-schema"],
+    "physics": ["prism-material-physics"],
+    "cutting": ["prism-material-physics", "prism-expert-master"],
+    "force": ["prism-material-physics"],
+    "machining": ["prism-expert-master"],
+    "milling": ["prism-expert-master"],
+    "turning": ["prism-expert-master"],
+    "drilling": ["prism-expert-master"],
+    "test": ["prism-tdd-enhanced"],
+    "tdd": ["prism-tdd-enhanced"],
+    "gcode": ["prism-controller-quick-ref", "prism-gcode-reference"],
+    "fanuc": ["prism-fanuc-programming"],
+    "siemens": ["prism-siemens-programming"],
+    "heidenhain": ["prism-heidenhain-programming"],
+    "code": ["prism-code-master"],
+    "refactor": ["prism-code-master"],
+    "microsession": ["prism-mandatory-microsession"],
+    "chunk": ["prism-mandatory-microsession"],
+    "decompose": ["prism-mandatory-microsession", "prism-sp-planning"]
+  },
+  
+  "archivedSkills": {
+    "description": "Skills replaced by consolidated masters or duplicates",
+    "count": 40,
+    "location": "C:\\PRISM REBUILD...\\_SKILLS\\_ARCHIVED\\",
+    "note": "These are kept for reference but should not be used"
+  },
+  
+  "autoLoadOrder": {
+    "description": "Order in which skills should be loaded at session start",
+    "order": [
+      "prism-life-safety-mindset",
+      "prism-mandatory-microsession",
+      "prism-maximum-completeness",
+      "regression_skill_v2",
+      "prism-predictive-thinking",
+      "prism-skill-orchestrator",
+      "prism-session-master"
+    ]
+  }
+}
