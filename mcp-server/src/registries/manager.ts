@@ -293,6 +293,8 @@ export class RegistryManager {
     hooks: any;
     skills: any;
     scripts: any;
+    databases: any;
+    dsl: { total: number };
     totalEntries: number;
   }> {
     await this.initialize();
@@ -653,9 +655,9 @@ export class RegistryManager {
     // Machine → Alarms: find alarms for this machine's controller
     if (from === "machine" && to === "alarms") {
       const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
-      if (machine?.controller_family || machine?.controller) {
-        const controller = machine.controller_family || machine.controller;
-        const alarmResults = await this.alarms.search({ query: controller, limit });
+      const controllerName = machine?.controller?.cnc_type || machine?.controller?.manufacturer;
+      if (controllerName) {
+        const alarmResults = await this.alarms.search({ query: controllerName, limit });
         return { source: `machine:${id}`, target: "alarms", matches: alarmResults.alarms || [], count: alarmResults.alarms?.length || 0 };
       }
     }
@@ -664,7 +666,8 @@ export class RegistryManager {
     if (from === "machine" && to === "postprocessors") {
       const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
       if (machine) {
-        const ppResults = await this.postProcessors.search({ query: machine.controller_family || machine.controller || id, limit });
+        const controllerName = machine.controller?.cnc_type || machine.controller?.manufacturer || id;
+        const ppResults = await this.postProcessors.search(controllerName);
         return { source: `machine:${id}`, target: "postprocessors", matches: ppResults || [], count: (ppResults as any)?.length || 0 };
       }
     }

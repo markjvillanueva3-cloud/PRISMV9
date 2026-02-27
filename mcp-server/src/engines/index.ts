@@ -838,7 +838,7 @@ export {
 export {
   predictiveMaintenance,
   type MaintenanceCategory, type SeverityLevel,
-  type DataPoint, type TrendResult, type PredictionResult,
+  type DataPoint, type TrendResult, type PredictionResult as MaintenancePredictionResult,
   type MaintenanceAlert, type MaintenanceModel,
 } from "./PredictiveMaintenanceEngine.js";
 
@@ -990,7 +990,7 @@ export {
   type ManufacturingDomain,
   type ModelMetadata,
   type PredictionInput,
-  type PredictionResult,
+  type PredictionResult as AIPredictionResult,
   type TrainingInput,
   type TrainingResult,
   type ClusterInput,
@@ -1043,10 +1043,10 @@ export {
   type ControllerType as CAMControllerType,
   type ToolSpec as CAMToolSpec,
   type ChipThinningResult,
-  type EngagementResult,
+  type EngagementResult as CAMEngagementResult,
   type EntryParams,
   type HelixEntryParams,
-  type GCodeParams,
+  type GCodeParams as CAMGCodeParams,
   type GCodeProgram,
   type CollisionCheckResult as CAMCollisionCheckResult,
   type Vec2 as CAMVec2,
@@ -1127,7 +1127,7 @@ export {
   type CuttingLoads,
   type FixtureType,
   type FixtureRecommendation,
-  type ClampForceResult,
+  type ClampForceResult as FixtureClampForceResult,
   type DeflectionResult as FixtureDeflectionResult,
   type FixtureValidationResult,
 } from "./FixtureDesignEngine.js";
@@ -1140,7 +1140,7 @@ export {
   type PartFeature,
   type ProcessPlanInput,
   type ProcessOperation,
-  type ProcessPlan,
+  type ProcessPlan as ProcessPlanResult,
   type PlanOptimization,
   type TimeEstimate as PlanTimeEstimate,
 } from "./ProcessPlanEngine.js";
@@ -1150,7 +1150,7 @@ export {
   CostEstimationEngine,
   costEstimationEngine,
   type CostInput,
-  type CostBreakdown,
+  type CostBreakdown as CostEstBreakdown,
   type CostDriver,
   type MaterialCostComparison,
 } from "./CostEstimationEngine.js";
@@ -1185,7 +1185,7 @@ export {
   type QualityInput,
   type QualityPrediction,
   type QualityFactor,
-  type CpkResult,
+  type CpkResult as QualityCpkResult,
   type SurfaceRoughnessResult,
   type QualityRiskAssessment,
 } from "./QualityPredictionEngine.js";
@@ -1217,9 +1217,9 @@ export {
 export {
   LearningPathEngine,
   learningPathEngine,
-  type SkillLevel,
+  type SkillLevel as LearningSkillLevel,
   type OperatorRole,
-  type SkillAssessment,
+  type SkillAssessment as LearningSkillAssessment,
   type LearningModule,
   type LearningPlan,
   type ProgressReport,
