@@ -2,16 +2,10 @@
  * PRISM MCP Server — Route Registry
  * Central registration for all API route modules
  *
- * 9 route modules, 42 endpoints total:
- * - SFC (7): calculate, cycle-time, engagement, deflection, power-torque, surface-finish, tool-life
- * - CAD (5): import, export, features, transform, analyze
- * - CAM (4): toolpath/generate, simulate, post-process, collision-check
- * - Quality (4): spc, cpk, measurement, tolerance-stack
- * - Schedule (4): jobs, machines, capacity, conflicts
- * - Cost (4): estimate, quote, compare, history
- * - Export (5): pdf, csv, excel, setup-sheet, speed-feed-card
- * - Data (7): material get/search, tool get/search, machine get/search, alarm decode
- * - Safety (4): validate, check-limits, collision, knowledge/search
+ * 12 route modules, 56 endpoints total:
+ * - SFC (7), CAD (5), CAM (4), Quality (4), Schedule (4), Cost (4)
+ * - Export (5), Data (7), Safety (4), Auth (6), Admin (6), OpenAPI (1)
+ * + WebSocket handler at /ws (6 channels)
  */
 import type { Express } from "express";
 import { corsMiddleware } from "../middleware/cors.js";
@@ -25,6 +19,9 @@ import { createCostRouter } from "./cost.js";
 import { createExportRouter } from "./exportRoutes.js";
 import { createDataRouter } from "./data.js";
 import { createSafetyRouter } from "./safety.js";
+import { createAuthRouter } from "./auth.js";
+import { createAdminRouter } from "./admin.js";
+import { createOpenApiRouter } from "./openapi.js";
 import { log } from "../utils/Logger.js";
 
 /** Tool call function signature — injected from index.ts */
@@ -47,9 +44,12 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/export", createExportRouter(callTool));
   app.use("/api/v1/data", createDataRouter(callTool));
   app.use("/api/v1/safety", createSafetyRouter(callTool));
+  app.use("/api/v1/auth", createAuthRouter(callTool));
+  app.use("/api/v1/admin", createAdminRouter(callTool));
+  app.use("/api", createOpenApiRouter());
 
   // Error handler — must be last
   app.use("/api", errorHandler);
 
-  log.info("[API] Registered 9 route modules (42 endpoints) under /api/v1/");
+  log.info("[API] Registered 12 route modules (56 endpoints) under /api/v1/");
 }
