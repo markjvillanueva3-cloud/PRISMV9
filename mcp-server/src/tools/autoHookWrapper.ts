@@ -47,7 +47,13 @@ import {
   autoPhaseSkillLoader, autoSkillContextMatch, autoNLHookEvaluator,
   autoHookActivationPhaseCheck, autoD4PerfSummary,
   autoSkillHookMatch, autoSuperpowerBoot,
-  autoBudgetTrack, autoMemoryExternalize, autoSessionHealthPoll, autoKvCacheStabilityCheck
+  autoBudgetTrack, autoMemoryExternalize, autoSessionHealthPoll, autoKvCacheStabilityCheck,
+  autoNextSessionPrep, autoPfpPatternExtract, autoSessionQualityTrack,
+  autoPatternDetect, autoFocusOptimize, autoRelevanceFilter,
+  autoMemoryGraphFlush, autoWipCapture, autoSessionLifecycleStart, autoSessionLifecycleEnd,
+  autoLearningQuery, autoTelemetryAnomalyCheck, autoBudgetReport, autoAttentionAnchor,
+  autoCognitiveUpdate, autoSessionHandoffGenerate, autoTelemetrySloCheck,
+  autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { PATHS } from "../constants.js";
@@ -650,6 +656,12 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
         } catch {
         }
+        // Session lifecycle start + memory graph integrity — one-time at boot
+        try { autoSessionLifecycleStart(callNum); cadence.actions.push("SESSION_LIFECYCLE_STARTED"); } catch {}
+        try {
+          const gResult = autoMemoryGraphIntegrity(callNum);
+          if (gResult.violations > 0) cadence.actions.push(`GRAPH_INTEGRITY: ${gResult.violations} violations, ${gResult.fixed} fixed`);
+        } catch {}
         // Budget engine reset for new session
         try {
           const { ContextBudgetEngine } = await import("../engines/ContextBudgetEngine.js");
@@ -1229,6 +1241,22 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         if (manifestResult.success) cadence.actions.push("\u{1F4CB} RECOVERY_MANIFEST_SAVED");
       } catch {
       }
+      // Learning query — every 5 calls (read back learned patterns)
+      try {
+        const lq = autoLearningQuery(callNum, toolName, action2);
+        if (lq.matches > 0) {
+          cadence.actions.push(`\u{1F4D6} LEARNING: ${lq.matches} lessons for ${toolName}:${action2}`);
+          cadence.learning = lq;
+        }
+      } catch {}
+      // Attention anchor — every 5 calls (structured goal hierarchy)
+      try {
+        const anchor = autoAttentionAnchor(callNum);
+        if (anchor.anchor) {
+          cadence.actions.push(`\u{1F3AF} ANCHOR: ${anchor.anchor.slice(0, 100)}`);
+          cadence.attention_anchor = anchor;
+        }
+      } catch {}
     }
     if (callNum - lastCheckpointReminder >= 10) {
       lastCheckpointReminder = callNum;
@@ -1291,6 +1319,32 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
         cadence.session_health = healthResult;
       } catch {}
+      // Session quality track — every 10 calls (resurrect dead SessionLifecycleEngine)
+      try {
+        const sqt = autoSessionQualityTrack(callNum, cadence.actions);
+        if (sqt.quality_score) cadence.actions.push(`QUALITY:${(sqt.quality_score as any).grade || "?"}`);
+        cadence.session_quality = sqt;
+      } catch {}
+      // Budget report — every 10 calls
+      try {
+        const br = autoBudgetReport(callNum);
+        if (br.over_budget.length > 0) cadence.actions.push(`\u{1F4B8} BUDGET_REPORT: ${br.utilization_pct}% used, over: ${br.over_budget.join(",")}`);
+        cadence.budget_report = br;
+      } catch {}
+      // WIP capture — every 10 calls
+      try {
+        const wip = autoWipCapture(callNum);
+        if (wip.captured) cadence.actions.push("WIP_CAPTURED");
+      } catch {}
+      // Cognitive update — every 10 calls
+      try {
+        let errCount = 0;
+        try { const ep = path.join(PATHS.STATE_DIR, "ERROR_LOG.jsonl"); if (fs.existsSync(ep)) errCount = fs.readFileSync(ep, "utf-8").trim().split("\n").filter(Boolean).length; } catch {}
+        const pPct2 = cadence.pressure?.pressure_pct || getCurrentPressurePct();
+        const cog = autoCognitiveUpdate(callNum, pPct2, errCount);
+        if (cog.omega > 0) cadence.actions.push(`\u{1F9E0} COGNITIVE: \u03A9=${cog.omega}`);
+        cadence.cognitive = cog;
+      } catch {}
     }
     if (callNum - lastPressureCheck >= 8) {
       lastPressureCheck = callNum;
@@ -1334,8 +1388,18 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.memory_externalize = extResult;
           }
         } catch {}
+        // Focus optimize — semantic trimming at pressure >= 65%
+        try {
+          const fo = autoFocusOptimize(callNum, pressureResult.pressure_pct);
+          if (fo.optimized) cadence.actions.push("FOCUS_OPTIMIZED");
+        } catch {}
       }
       if (pressureResult.pressure_pct >= 70) {
+        // Relevance filter — drop low-relevance content before compression
+        try {
+          const rf = autoRelevanceFilter(callNum, pressureResult.pressure_pct);
+          if (rf.filtered) cadence.actions.push("RELEVANCE_FILTERED");
+        } catch {}
         const compressResult = autoContextCompress(callNum, {
           task: "Active session \u2014 auto-triggered by high pressure",
           completedSteps: cadence.actions,
@@ -1577,6 +1641,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Memory graph flush — every 15 calls (prevent WAL data loss)
+      try {
+        const gf = autoMemoryGraphFlush(callNum);
+        if (gf.flushed && gf.stats) cadence.actions.push(`GRAPH_FLUSHED: ${gf.stats.nodes}n/${gf.stats.edges}e`);
+      } catch {}
     }
     if (callNum % 8 === 0) {
       try {
@@ -1614,6 +1683,18 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Telemetry anomaly check — every 15 calls
+      try {
+        const anomResult = autoTelemetryAnomalyCheck(callNum);
+        if (anomResult.critical_count > 0) cadence.actions.push(`\u{26A0}\u{FE0F} CRITICAL_ANOMALIES: ${anomResult.critical_count}`);
+      } catch {}
+      // Pattern detect — every 15 calls
+      try {
+        const pd = autoPatternDetect(callNum);
+        if (pd.patterns_found > 0) cadence.actions.push(`\u{1F50D} PATTERNS: ${pd.patterns_found} new`);
+      } catch {}
+      // Session metrics snapshot — every 15 calls
+      try { autoSessionMetricsSnapshot(callNum); } catch {}
     }
     if (callNum === 1 && globalThis.__prism_recon) {
       cadence.session_recon = globalThis.__prism_recon;
@@ -1688,6 +1769,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // PFP pattern extract — every 25 calls (update failure model)
+      try {
+        const pfp = autoPfpPatternExtract(callNum);
+        if (pfp.after > pfp.before) cadence.actions.push(`PFP_PATTERNS: ${pfp.before}\u2192${pfp.after}`);
+      } catch {}
+      // SLO compliance check — every 25 calls
+      try {
+        const slo = autoTelemetrySloCheck(callNum);
+        if (slo.breaches.length > 0) cadence.actions.push(`\u26A0\uFE0F SLO_BREACHES: ${slo.breaches.length}`);
+      } catch {}
     }
     // D4 Performance summary — cache/diff/batch stats + recommendations (every 40 calls)
     if (callNum > 0 && callNum % 40 === 0) {
@@ -1775,6 +1866,32 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Session handoff generate — once at yellow zone (quality-scored)
+      try {
+        const shg = autoSessionHandoffGenerate(callNum, cadence.actions);
+        if (shg.generated) cadence.actions.push("SESSION_HANDOFF_GENERATED");
+      } catch {}
+    }
+    // Next session prep — once at call >= 35 (pre-BLACK)
+    if (callNum >= 35) {
+      try {
+        const nsp = autoNextSessionPrep(callNum);
+        if (nsp.prepared) cadence.actions.push("NEXT_SESSION_PREP_GENERATED");
+      } catch {}
+    }
+    // Session lifecycle end — once at call >= 41 (BLACK zone)
+    if (callNum >= 41) {
+      try {
+        const sle = autoSessionLifecycleEnd(callNum);
+        if (sle.ended) cadence.actions.push("SESSION_LIFECYCLE_ENDED");
+      } catch {}
+    }
+    // State reconstruct — after compaction detected (one-time)
+    if (cadence.compaction?.risk_level === "IMMINENT" || cadence.compaction?.risk_level === "HIGH") {
+      try {
+        const sr = autoStateReconstruct(callNum);
+        if (sr.reconstructed) cadence.actions.push("STATE_RECONSTRUCTED");
+      } catch {}
     }
     if (cadence.actions.length > 0 && result?.content?.[0]?.text) {
       try {

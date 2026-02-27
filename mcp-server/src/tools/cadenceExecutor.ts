@@ -44,6 +44,13 @@ import type {
 import { classifyTask, type TaskClassification } from "../engines/TaskAgentClassifier.js";
 import { PATHS } from "../constants.js";
 import { ContextBudgetEngine } from "../engines/ContextBudgetEngine.js";
+import { pfpEngine } from "../engines/PredictiveFailureEngine.js";
+import { memoryGraphEngine } from "../engines/MemoryGraphEngine.js";
+import { telemetryEngine } from "../engines/TelemetryEngine.js";
+import {
+  getSessionQualityScore, writeSessionIncrementalPrep,
+  getSessionMetrics, generateSessionHandoff
+} from "../engines/SessionLifecycleEngine.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
@@ -4196,6 +4203,377 @@ export function autoKvCacheStabilityCheck(callNumber: number): KvCacheStabilityR
       stability_score: 0, issues_found: 0, issues: [], recommendations: [],
     };
   }
+}
+
+// ============================================================================
+// AUTO NEXT SESSION PREP — Generate handoff briefing before compaction
+// Cadence: once at call >= 35 (pre-BLACK zone). Runs next_session_prep.py
+// to ensure a comprehensive briefing exists for the next session.
+// ============================================================================
+
+let _nextSessionPrepDone = false;
+
+export function autoNextSessionPrep(callNumber: number): { success: boolean; call_number: number; prepared: boolean; file?: string } {
+  try {
+    if (_nextSessionPrepDone || callNumber < 35) return { success: true, call_number: callNumber, prepared: false };
+    _nextSessionPrepDone = true;
+    const script = path.join(SCRIPTS_DIR, "next_session_prep.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, prepared: false };
+    const stateFile = CURRENT_STATE_FILE;
+    try {
+      execSync(`${PYTHON} "${script}" generate --state "${stateFile}"`, { timeout: 8000, stdio: "pipe", cwd: STATE_DIR });
+    } catch { /* non-fatal */ }
+    const prepFile = path.join(STATE_DIR, "next_session_prep.json");
+    const prepared = fs.existsSync(prepFile);
+    if (prepared) appendEventLine("next_session_prep_generated", { call: callNumber });
+    return { success: true, call_number: callNumber, prepared, file: prepared ? prepFile : undefined };
+  } catch { return { success: false, call_number: callNumber, prepared: false }; }
+}
+
+// ============================================================================
+// AUTO PFP PATTERN EXTRACT — Update predictive failure model
+// Cadence: every 25 calls. Forces extraction of new failure patterns.
+// ============================================================================
+
+export function autoPfpPatternExtract(callNumber: number): { success: boolean; call_number: number; before: number; after: number } {
+  try {
+    const before = pfpEngine.getPatterns().length;
+    pfpEngine.forceExtraction();
+    const after = pfpEngine.getPatterns().length;
+    if (after > before) appendEventLine("pfp_patterns_extracted", { call: callNumber, before, after });
+    return { success: true, call_number: callNumber, before, after };
+  } catch { return { success: false, call_number: callNumber, before: 0, after: 0 }; }
+}
+
+// ============================================================================
+// AUTO SESSION QUALITY TRACK — Resurrect dead SessionLifecycleEngine functions
+// Cadence: every 10 calls. Gets quality score + writes incremental prep.
+// ============================================================================
+
+export function autoSessionQualityTrack(callNumber: number, recentActions: string[]): {
+  success: boolean; call_number: number; quality_score: any; prep_written: boolean
+} {
+  try {
+    const score = getSessionQualityScore();
+    let prepWritten = false;
+    try {
+      let quickResume = "";
+      try { quickResume = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+      const pending = recentActions.filter(a => a.includes("TODO") || a.includes("PENDING")).slice(-5);
+      const findings = recentActions.filter(a => a.includes("KNOWLEDGE") || a.includes("SKILL") || a.includes("HEALTH")).slice(-5);
+      writeSessionIncrementalPrep(callNumber, "active", quickResume, pending, findings, []);
+      prepWritten = true;
+    } catch {}
+    if (score) appendEventLine("session_quality_tracked", { call: callNumber, score: (score as any).score });
+    return { success: true, call_number: callNumber, quality_score: score, prep_written: prepWritten };
+  } catch { return { success: false, call_number: callNumber, quality_score: null, prep_written: false }; }
+}
+
+// ============================================================================
+// AUTO PATTERN DETECT — Dynamic error pattern discovery via Python
+// Cadence: every 15 calls. Runs pattern_detector.py on session_events.jsonl.
+// ============================================================================
+
+export function autoPatternDetect(callNumber: number): { success: boolean; call_number: number; patterns_found: number } {
+  try {
+    const script = path.join(SCRIPTS_DIR, "pattern_detector.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, patterns_found: 0 };
+    if (!fs.existsSync(EVENT_LOG_FILE)) return { success: true, call_number: callNumber, patterns_found: 0 };
+    const output = execSync(`${PYTHON} "${script}" --events "${EVENT_LOG_FILE}"`, { timeout: 5000, stdio: "pipe" }).toString().trim();
+    let count = 0;
+    try { count = JSON.parse(output).patterns?.length || 0; } catch {}
+    if (count > 0) appendEventLine("patterns_detected", { call: callNumber, count });
+    return { success: true, call_number: callNumber, patterns_found: count };
+  } catch { return { success: false, call_number: callNumber, patterns_found: 0 }; }
+}
+
+// ============================================================================
+// AUTO FOCUS OPTIMIZE — Semantic context trimming at high pressure
+// Cadence: pressure >= 65%. Runs focus_optimizer.py for semantic trimming.
+// ============================================================================
+
+export function autoFocusOptimize(callNumber: number, pressurePct: number): { success: boolean; call_number: number; optimized: boolean } {
+  try {
+    if (pressurePct < 65) return { success: true, call_number: callNumber, optimized: false };
+    const script = path.join(SCRIPTS_DIR, "focus_optimizer.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, optimized: false };
+    execSync(`${PYTHON} "${script}" --pressure ${Math.round(pressurePct)} --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    appendEventLine("focus_optimized", { call: callNumber, pressure: pressurePct });
+    return { success: true, call_number: callNumber, optimized: true };
+  } catch { return { success: false, call_number: callNumber, optimized: false }; }
+}
+
+// ============================================================================
+// AUTO RELEVANCE FILTER — Drop low-relevance content at very high pressure
+// Cadence: pressure >= 70%. Runs relevance_filter.py before compression.
+// ============================================================================
+
+export function autoRelevanceFilter(callNumber: number, pressurePct: number): { success: boolean; call_number: number; filtered: boolean } {
+  try {
+    if (pressurePct < 70) return { success: true, call_number: callNumber, filtered: false };
+    const script = path.join(SCRIPTS_DIR, "relevance_filter.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, filtered: false };
+    execSync(`${PYTHON} "${script}" --pressure ${Math.round(pressurePct)} --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    appendEventLine("relevance_filtered", { call: callNumber, pressure: pressurePct });
+    return { success: true, call_number: callNumber, filtered: true };
+  } catch { return { success: false, call_number: callNumber, filtered: false }; }
+}
+
+// ============================================================================
+// AUTO MEMORY GRAPH FLUSH — Persist MemoryGraphEngine WAL to disk
+// Cadence: every 20 calls. Prevents full graph data loss on crash.
+// ============================================================================
+
+export function autoMemoryGraphFlush(callNumber: number): { success: boolean; call_number: number; flushed: boolean; stats?: any } {
+  try {
+    memoryGraphEngine.saveCheckpoint();
+    const stats = memoryGraphEngine.getStats();
+    appendEventLine("memory_graph_flushed", { call: callNumber, nodes: stats.nodes, edges: stats.edges });
+    return { success: true, call_number: callNumber, flushed: true, stats };
+  } catch { return { success: false, call_number: callNumber, flushed: false }; }
+}
+
+// ============================================================================
+// AUTO WIP CAPTURE — Snapshot work-in-progress state via Python
+// Cadence: every 10 calls. Semantically-tagged WIP beyond basic checkpoint.
+// ============================================================================
+
+export function autoWipCapture(callNumber: number): { success: boolean; call_number: number; captured: boolean } {
+  try {
+    const script = path.join(SCRIPTS_DIR, "wip_capturer.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, captured: false };
+    execSync(`${PYTHON} "${script}" capture-task --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" });
+    appendEventLine("wip_captured", { call: callNumber });
+    return { success: true, call_number: callNumber, captured: true };
+  } catch { return { success: false, call_number: callNumber, captured: false }; }
+}
+
+// ============================================================================
+// AUTO SESSION LIFECYCLE — Start/end session lifecycle protocol via Python
+// Start: call 1 — generates context_dna, begins quality tracking
+// End: call >= 41 (BLACK zone) — full shutdown with next_session_prep
+// ============================================================================
+
+let _sessionLifecycleStarted = false;
+let _sessionLifecycleEnded = false;
+
+export function autoSessionLifecycleStart(callNumber: number): { success: boolean; call_number: number; started: boolean } {
+  try {
+    if (_sessionLifecycleStarted) return { success: true, call_number: callNumber, started: false };
+    _sessionLifecycleStarted = true;
+    const script = path.join(SCRIPTS_DIR, "session_lifecycle.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, started: false };
+    try { execSync(`${PYTHON} "${script}" start --state-dir "${STATE_DIR}"`, { timeout: 5000, stdio: "pipe" }); } catch {}
+    appendEventLine("session_lifecycle_started", { call: callNumber });
+    return { success: true, call_number: callNumber, started: true };
+  } catch { return { success: false, call_number: callNumber, started: false }; }
+}
+
+export function autoSessionLifecycleEnd(callNumber: number): { success: boolean; call_number: number; ended: boolean } {
+  try {
+    if (_sessionLifecycleEnded || callNumber < 41) return { success: true, call_number: callNumber, ended: false };
+    _sessionLifecycleEnded = true;
+    const script = path.join(SCRIPTS_DIR, "session_lifecycle.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, ended: false };
+    try { execSync(`${PYTHON} "${script}" end --state-dir "${STATE_DIR}"`, { timeout: 8000, stdio: "pipe" }); } catch {}
+    appendEventLine("session_lifecycle_ended", { call: callNumber });
+    return { success: true, call_number: callNumber, ended: true };
+  } catch { return { success: false, call_number: callNumber, ended: false }; }
+}
+
+// ============================================================================
+// AUTO LEARNING QUERY — Read back learned patterns into execution path
+// Cadence: every 5 calls. Reads LEARNING_LOG.jsonl for matching patterns.
+// ============================================================================
+
+const LEARNING_LOG = path.join(STATE_DIR, "LEARNING_LOG.jsonl");
+let _learningCache: { entries: any[]; ts: number } | null = null;
+const LEARNING_CACHE_TTL = 120_000;
+
+export function autoLearningQuery(callNumber: number, toolName: string, action: string): {
+  success: boolean; call_number: number; matches: number; lessons: string[]
+} {
+  try {
+    if (!fs.existsSync(LEARNING_LOG)) return { success: true, call_number: callNumber, matches: 0, lessons: [] };
+    const now = Date.now();
+    if (!_learningCache || now - _learningCache.ts > LEARNING_CACHE_TTL) {
+      const raw = fs.readFileSync(LEARNING_LOG, "utf-8").trim();
+      _learningCache = { entries: raw.split("\n").filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean), ts: now };
+    }
+    const key = `${toolName}:${action}`.toLowerCase();
+    const lessons: string[] = [];
+    for (const e of _learningCache.entries) {
+      const eKey = `${e.tool || e.dispatcher || ""}:${e.action || ""}`.toLowerCase();
+      if (eKey === key || (e.pattern && key.includes(e.pattern.toLowerCase()))) {
+        const lesson = e.lesson || e.suggestion || e.insight || "";
+        if (lesson && !lessons.includes(lesson)) lessons.push(lesson.slice(0, 200));
+      }
+    }
+    return { success: true, call_number: callNumber, matches: lessons.length, lessons: lessons.slice(0, 5) };
+  } catch { return { success: false, call_number: callNumber, matches: 0, lessons: [] }; }
+}
+
+// ============================================================================
+// AUTO TELEMETRY ANOMALY CHECK — Surface unacknowledged critical anomalies
+// Cadence: every 15 calls. Checks for CRITICAL anomalies in telemetry.
+// ============================================================================
+
+export function autoTelemetryAnomalyCheck(callNumber: number): { success: boolean; call_number: number; critical_count: number; anomalies: string[] } {
+  try {
+    const all = telemetryEngine.getAnomalies("CRITICAL" as any, false);
+    const summaries = all.slice(0, 5).map((a: any) => `${a.dispatcher || "?"}:${a.action || "?"} — ${(a.message || "").slice(0, 80)}`);
+    if (all.length > 0) appendEventLine("telemetry_critical_anomalies", { call: callNumber, count: all.length });
+    return { success: true, call_number: callNumber, critical_count: all.length, anomalies: summaries };
+  } catch { return { success: false, call_number: callNumber, critical_count: 0, anomalies: [] }; }
+}
+
+// ============================================================================
+// AUTO BUDGET REPORT — Full token budget utilization report
+// Cadence: every 10 calls. Surfaces over-budget categories.
+// ============================================================================
+
+export function autoBudgetReport(callNumber: number): { success: boolean; call_number: number; total_used: number; utilization_pct: number; over_budget: string[] } {
+  try {
+    const report = ContextBudgetEngine.getUsageReport();
+    return { success: true, call_number: callNumber, total_used: report.totalUsed, utilization_pct: report.utilizationPercent, over_budget: report.overBudgetCategories };
+  } catch { return { success: false, call_number: callNumber, total_used: 0, utilization_pct: 0, over_budget: [] }; }
+}
+
+// ============================================================================
+// AUTO ATTENTION ANCHOR — Structured goal hierarchy injection
+// Cadence: every 5 calls alongside todo refresh. Builds compact attention context.
+// ============================================================================
+
+export function autoAttentionAnchor(callNumber: number): { success: boolean; call_number: number; anchor: string; goals: string[] } {
+  try {
+    const goals: string[] = [];
+    if (fs.existsSync(TODO_FILE)) {
+      for (const line of fs.readFileSync(TODO_FILE, "utf-8").split("\n")) {
+        const t = line.trim();
+        if (t.startsWith("## ") || t.startsWith("### ") || t.startsWith("- [ ]") || t.startsWith("- [x]")) goals.push(t.slice(0, 120));
+      }
+    }
+    let focus = "";
+    try { focus = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+    const anchor = focus
+      ? `FOCUS: ${focus.slice(0, 150)}${goals.length > 0 ? " | GOALS: " + goals.slice(0, 3).join("; ") : ""}`
+      : goals.length > 0 ? `GOALS: ${goals.slice(0, 3).join("; ")}` : "";
+    return { success: true, call_number: callNumber, anchor, goals: goals.slice(0, 5) };
+  } catch { return { success: false, call_number: callNumber, anchor: "", goals: [] }; }
+}
+
+// ============================================================================
+// AUTO COGNITIVE UPDATE — Update Bayesian cognitive metrics (R/C/P/S/L/omega)
+// Cadence: every 10 calls. Computes cognitive state from session signals.
+// ============================================================================
+
+const COGNITIVE_STATE_FILE = path.join(STATE_DIR, "COGNITIVE_STATE.json");
+
+export function autoCognitiveUpdate(callNumber: number, pressurePct: number, errorCount: number): {
+  success: boolean; call_number: number; omega: number; metrics?: Record<string, number>
+} {
+  try {
+    let s: Record<string, number> = { R: 0.85, C: 0.90, P: 0.85, S: 1.0, L: 0.80, omega: 0.88 };
+    try { if (fs.existsSync(COGNITIVE_STATE_FILE)) s = JSON.parse(fs.readFileSync(COGNITIVE_STATE_FILE, "utf-8")); } catch {}
+    const errorRate = callNumber > 0 ? errorCount / callNumber : 0;
+    s.R = Math.max(0.5, Math.min(1.0, 1.0 - (pressurePct / 200)));
+    s.C = Math.max(0.5, Math.min(1.0, 1.0 - errorRate * 2));
+    s.P = Math.max(0.6, Math.min(1.0, 1.0 - errorRate));
+    s.S = errorRate > 0.3 ? 0.85 : 1.0;
+    s.L = Math.min(1.0, 0.7 + (callNumber / 100));
+    s.omega = Math.round(Math.pow(s.R * s.C * s.P * s.S * s.L, 0.2) * 100) / 100;
+    fs.writeFileSync(COGNITIVE_STATE_FILE, JSON.stringify(s, null, 2));
+    appendEventLine("cognitive_update", { call: callNumber, omega: s.omega });
+    return { success: true, call_number: callNumber, omega: s.omega, metrics: s };
+  } catch { return { success: false, call_number: callNumber, omega: 0 }; }
+}
+
+// ============================================================================
+// AUTO SESSION HANDOFF GENERATE — Quality-scored handoff at yellow zone
+// Cadence: once at call >= 21. Supplements autoHandoffPackage with richer data.
+// ============================================================================
+
+let _sessionHandoffGenerated = false;
+
+export function autoSessionHandoffGenerate(callNumber: number, recentActions: string[]): {
+  success: boolean; call_number: number; generated: boolean
+} {
+  try {
+    if (_sessionHandoffGenerated || callNumber < 21) return { success: true, call_number: callNumber, generated: false };
+    _sessionHandoffGenerated = true;
+    let qr = ""; try { qr = JSON.parse(fs.readFileSync(CURRENT_STATE_FILE, "utf-8")).quickResume || ""; } catch {}
+    const pending = recentActions.filter(a => a.includes("TODO") || a.includes("PENDING")).slice(-5);
+    const findings = recentActions.filter(a => !a.startsWith("PRESSURE") && !a.startsWith("CHECKPOINT")).slice(-5);
+    const handoff = generateSessionHandoff("active", qr, pending, findings);
+    if (handoff) appendEventLine("session_handoff_generated", { call: callNumber });
+    return { success: true, call_number: callNumber, generated: !!handoff };
+  } catch { return { success: false, call_number: callNumber, generated: false }; }
+}
+
+// ============================================================================
+// AUTO TELEMETRY SLO CHECK — Check SLO compliance
+// Cadence: every 25 calls. Flags any SLO target breaches.
+// ============================================================================
+
+export function autoTelemetrySloCheck(callNumber: number): { success: boolean; call_number: number; breaches: string[] } {
+  try {
+    const slos = telemetryEngine.checkSLOs();
+    const breaches: string[] = [];
+    for (const [name, slo] of Object.entries(slos)) {
+      if (!slo.met) breaches.push(`${name}: ${slo.current} (target: ${slo.target})`);
+    }
+    if (breaches.length > 0) appendEventLine("slo_breaches", { call: callNumber, count: breaches.length });
+    return { success: true, call_number: callNumber, breaches };
+  } catch { return { success: false, call_number: callNumber, breaches: [] }; }
+}
+
+// ============================================================================
+// AUTO STATE RECONSTRUCT — Richer recovery after compaction detection
+// Cadence: once after compaction detection. Multi-source state recovery.
+// ============================================================================
+
+let _stateReconstructDone = false;
+
+export function autoStateReconstruct(callNumber: number): { success: boolean; call_number: number; reconstructed: boolean } {
+  try {
+    if (_stateReconstructDone) return { success: true, call_number: callNumber, reconstructed: false };
+    _stateReconstructDone = true;
+    const script = path.join(SCRIPTS_DIR, "state_reconstructor.py");
+    if (!fs.existsSync(script)) return { success: true, call_number: callNumber, reconstructed: false };
+    execSync(`${PYTHON} "${script}" --state-dir "${STATE_DIR}"`, { timeout: 8000, stdio: "pipe" });
+    appendEventLine("state_reconstructed", { call: callNumber });
+    return { success: true, call_number: callNumber, reconstructed: true };
+  } catch { return { success: false, call_number: callNumber, reconstructed: false }; }
+}
+
+// ============================================================================
+// AUTO SESSION METRICS SNAPSHOT — Capture session metrics for trending
+// Cadence: every 15 calls. Persists SessionLifecycleEngine metrics.
+// ============================================================================
+
+export function autoSessionMetricsSnapshot(callNumber: number): { success: boolean; call_number: number; metrics?: any } {
+  try {
+    const m = getSessionMetrics();
+    if (m) appendEventLine("session_metrics_snapshot", { call: callNumber });
+    return { success: true, call_number: callNumber, metrics: m };
+  } catch { return { success: false, call_number: callNumber }; }
+}
+
+// ============================================================================
+// AUTO MEMORY GRAPH INTEGRITY — Check graph integrity at session boot
+// Cadence: once at session boot. Detects and fixes corrupted nodes/edges.
+// ============================================================================
+
+let _graphIntegrityDone = false;
+
+export function autoMemoryGraphIntegrity(callNumber: number): { success: boolean; call_number: number; violations: number; fixed: number } {
+  try {
+    if (_graphIntegrityDone) return { success: true, call_number: callNumber, violations: 0, fixed: 0 };
+    _graphIntegrityDone = true;
+    const result = memoryGraphEngine.runIntegrityCheck();
+    if (result.violations > 0) appendEventLine("graph_integrity_issues", { call: callNumber, violations: result.violations, fixed: result.fixed });
+    return { success: true, call_number: callNumber, violations: result.violations, fixed: result.fixed };
+  } catch { return { success: false, call_number: callNumber, violations: 0, fixed: 0 }; }
 }
 
 // ============================================================================
