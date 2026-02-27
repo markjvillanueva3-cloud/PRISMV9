@@ -1,7 +1,7 @@
 /**
  * PRISM Algorithm Module — Barrel Export
  *
- * All 36 standalone manufacturing physics & general-purpose algorithms, each implementing
+ * All 50 standalone manufacturing physics & general-purpose algorithms, each implementing
  * Algorithm<I, O> with typed validation, calculation, and metadata.
  *
  * Usage:
@@ -68,6 +68,21 @@ import { KalmanFilter } from "./KalmanFilter.js";
 import { PIDController } from "./PIDController.js";
 import { FEASolver2D } from "./FEASolver2D.js";
 import { FFTAnalyzer } from "./FFTAnalyzer.js";
+// L1-P1-MS2: 14 manufacturing-specific algorithms (PASS2)
+import { MinkowskiSum } from "./MinkowskiSum.js";
+import { SweptVolumeCollision } from "./SweptVolumeCollision.js";
+import { ChipVolumeRatePredictor } from "./ChipVolumeRate.js";
+import { JaegerTempField } from "./JaegerTempField.js";
+import { UsuiWearModel } from "./UsuiWearModel.js";
+import { FRFStabilityLobe } from "./FRFStabilityLobe.js";
+import { RCSA } from "./RCSA.js";
+import { CWEZBuffer } from "./CWEZBuffer.js";
+import { AntColonyTSP } from "./AntColonyTSP.js";
+import { DPMultiPass } from "./DPMultiPass.js";
+import { ILPAssignment } from "./ILPAssignment.js";
+import { CSPSetupPlan } from "./CSPSetupPlan.js";
+import { STFTChatterDetection } from "./STFTChatter.js";
+import { WaveletToolBreakage } from "./WaveletBreakage.js";
 
 // ── Safety-Critical Algorithms (Opus-reviewed) ──────────────────────
 
@@ -185,10 +200,54 @@ export type { FEASolver2DInput, FEASolver2DOutput } from "./FEASolver2D.js";
 export { FFTAnalyzer } from "./FFTAnalyzer.js";
 export type { FFTAnalyzerInput, FFTAnalyzerOutput } from "./FFTAnalyzer.js";
 
+// ── L1-P1-MS2: Manufacturing-Specific Algorithms (PASS2) ─────────────
+
+export { MinkowskiSum } from "./MinkowskiSum.js";
+export type { MinkowskiSumInput, MinkowskiSumOutput } from "./MinkowskiSum.js";
+
+export { SweptVolumeCollision } from "./SweptVolumeCollision.js";
+export type { SweptVolumeCollisionInput, SweptVolumeCollisionOutput } from "./SweptVolumeCollision.js";
+
+export { ChipVolumeRatePredictor } from "./ChipVolumeRate.js";
+export type { ChipVolumeRateInput, ChipVolumeRateOutput } from "./ChipVolumeRate.js";
+
+export { JaegerTempField } from "./JaegerTempField.js";
+export type { JaegerTempFieldInput, JaegerTempFieldOutput } from "./JaegerTempField.js";
+
+export { UsuiWearModel } from "./UsuiWearModel.js";
+export type { UsuiWearModelInput, UsuiWearModelOutput } from "./UsuiWearModel.js";
+
+export { FRFStabilityLobe } from "./FRFStabilityLobe.js";
+export type { FRFStabilityLobeInput, FRFStabilityLobeOutput } from "./FRFStabilityLobe.js";
+
+export { RCSA } from "./RCSA.js";
+export type { RCSAInput, RCSAOutput } from "./RCSA.js";
+
+export { CWEZBuffer } from "./CWEZBuffer.js";
+export type { CWEZBufferInput, CWEZBufferOutput } from "./CWEZBuffer.js";
+
+export { AntColonyTSP } from "./AntColonyTSP.js";
+export type { AntColonyTSPInput, AntColonyTSPOutput } from "./AntColonyTSP.js";
+
+export { DPMultiPass } from "./DPMultiPass.js";
+export type { DPMultiPassInput, DPMultiPassOutput } from "./DPMultiPass.js";
+
+export { ILPAssignment } from "./ILPAssignment.js";
+export type { ILPAssignmentInput, ILPAssignmentOutput } from "./ILPAssignment.js";
+
+export { CSPSetupPlan } from "./CSPSetupPlan.js";
+export type { CSPSetupPlanInput, CSPSetupPlanOutput } from "./CSPSetupPlan.js";
+
+export { STFTChatterDetection } from "./STFTChatter.js";
+export type { STFTChatterInput, STFTChatterOutput } from "./STFTChatter.js";
+
+export { WaveletToolBreakage } from "./WaveletBreakage.js";
+export type { WaveletBreakageInput, WaveletBreakageOutput } from "./WaveletBreakage.js";
+
 // ── Algorithm Registry ──────────────────────────────────────────────
 
 /**
- * All 36 algorithm classes, indexed by their metadata ID.
+ * All 50 algorithm classes, indexed by their metadata ID.
  * Useful for dynamic dispatch and introspection.
  */
 export const ALGORITHM_REGISTRY = {
@@ -231,6 +290,21 @@ export const ALGORITHM_REGISTRY = {
   "pid-controller": PIDController,
   "fea-solver-2d": FEASolver2D,
   "fft-analyzer": FFTAnalyzer,
+  // L1-P1-MS2: 14 manufacturing-specific algorithms (PASS2)
+  "minkowski-sum": MinkowskiSum,
+  "swept-volume-collision": SweptVolumeCollision,
+  "chip-volume-rate": ChipVolumeRatePredictor,
+  "jaeger-temp-field": JaegerTempField,
+  "usui-wear-model": UsuiWearModel,
+  "frf-stability-lobe": FRFStabilityLobe,
+  "rcsa": RCSA,
+  "cwe-z-buffer": CWEZBuffer,
+  "ant-colony-tsp": AntColonyTSP,
+  "dp-multi-pass": DPMultiPass,
+  "ilp-assignment": ILPAssignment,
+  "csp-setup-plan": CSPSetupPlan,
+  "stft-chatter": STFTChatterDetection,
+  "wavelet-breakage": WaveletToolBreakage,
 } as const;
 
 export type AlgorithmId = keyof typeof ALGORITHM_REGISTRY;

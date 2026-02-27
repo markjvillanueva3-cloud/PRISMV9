@@ -51,7 +51,7 @@ export interface AlgorithmMeta {
   /** Safety classification. */
   safety_class: "critical" | "standard" | "informational";
   /** Which physical domain. */
-  domain: "force" | "tool_life" | "material" | "surface" | "stability" | "thermal" | "power" | "geometry" | "optimization" | "signal" | "control" | "ml" | "numerical";
+  domain: "force" | "tool_life" | "material" | "surface" | "stability" | "thermal" | "power" | "geometry" | "optimization" | "signal" | "control" | "ml" | "numerical" | "collision" | "wear" | "dynamics" | "planning";
   /** Input field names and units. */
   inputs: Record<string, string>;
   /** Output field names and units. */
