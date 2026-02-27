@@ -451,7 +451,17 @@ export class AgentRegistry extends BaseRegistry<Agent> {
   }
 
   /**
-   * Get agent by ID
+   * Get agent by ID — checks entries (from load()) then builtInAgents fallback
+   */
+  override get(id: string): Agent | undefined {
+    // entries (via base) are populated after load(), builtInAgents always available
+    const fromBase = super.get(id);
+    if (fromBase) return fromBase;
+    return this.builtInAgents.get(id);
+  }
+
+  /**
+   * Get agent by ID (alias)
    */
   getAgent(id: string): Agent | undefined {
     return this.get(id);

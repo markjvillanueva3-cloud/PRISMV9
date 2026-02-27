@@ -174,13 +174,88 @@ export function slimJsonResponse(jsonStr: string, level?: SlimLevel): string {
  *   "normal"    → current behavior (all actions, pressure-slimmed)
  */
 const CRITICAL_PATTERNS = [
+  // Compaction & recovery
   "COMPACTION_DETECTED", "RECOVERY_TRIGGERED", "CONTEXT_REHYDRATED",
+  "COMPACTION_IMMINENT", "PYTHON_COMPACTION_IMMINENT", "STATE_RECONSTRUCTED",
+  // Safety & blocking
   "PFP_BLOCKED", "PFP_WARNING", "SAFETY_BLOCK", "INPUT_BLOCKED",
-  "SAFETY BLOCK", "INPUT_VALIDATION_BLOCKED",
-  "OVER_BUDGET", "QUALITY_GATE_BLOCKED", "GRAPH_INTEGRITY",
-  "PARALLEL_DISPATCH", "ATCS_PARALLEL", "REPEATED_ERROR",
-  "COMPACTION_IMMINENT", "PYTHON_COMPACTION_IMMINENT"
+  "SAFETY BLOCK", "INPUT_VALIDATION_BLOCKED", "OUTPUT_BLOCKED",
+  // Budget & quality
+  "OVER_BUDGET", "QUALITY_GATE_BLOCKED", "QUALITY_BLOCKED",
+  // Parallel & ATCS
+  "PARALLEL_DISPATCH", "ATCS_PARALLEL", "ATCS_EMERGENCY",
+  // Error & regression
+  "REPEATED_ERROR", "ANTI-REGRESSION", "DOC_ANTI_REGRESSION",
+  "KNOWN_ERROR", "ERROR_LEARNED", "D3_ERROR",
+  // Engine health
+  "ENGINE_HEALTH", "BRIDGE_DEGRADED", "NL_HOOKS_BROKEN",
+  "CRITICAL_ANOMALIES", "SLO_BREACHES", "HOOK_PHASE_GAP",
+  // Score captures
+  "COMPLIANCE_BOOT", "GRAPH_INTEGRITY",
+  // High-value state changes
+  "REGISTRY_REFRESHED", "COGNITIVE_STATE_RESTORED", "SUPERPOWERS",
+  "KNOWLEDGE_ENGINE_PREWARMED", "OMEGA_HISTORY_RESTORED",
 ];
+
+/** Actions that are always routine — never surface in response even in "normal" mode */
+const ROUTINE_PATTERNS = [
+  "TODO_AUTO_REFRESHED", "CHECKPOINT_AUTO_SAVED", "CHECKPOINT_FAILED",
+  "D3_LKG_UPDATED", "SURVIVAL_SAVED", "SURVIVAL_CHECKPOINT",
+  "COMPACTION_SURVIVAL_SAVED", "RECOVERY_MANIFEST_SAVED",
+  "WIP_CAPTURED", "SESSION_LIFECYCLE_STARTED", "SESSION_LIFECYCLE_ENDED",
+  "STATE_AUTO_SAVED", "GRAPH_FLUSHED", "FOCUS_OPTIMIZED",
+  "RELEVANCE_FILTERED", "CONTEXT_AUTO_COMPRESSED",
+  "PRESSURE_CHECK:🟢 LOW", "ROADMAP_HEARTBEAT", "SESSION_HANDOFF_GENERATED",
+  "NEXT_SESSION_PREP_GENERATED",
+];
+
+/** Write full cadence to disk for monitoring; return alert-only summary for response */
+export function persistCadenceToDisk(fullCadence: Record<string, any>, stateDir: string): { alerts: string[]; alert_count: number; routine_count: number } {
+  const actions: string[] = fullCadence.actions || [];
+
+  // Classify actions
+  const alerts = actions.filter((a: string) =>
+    typeof a === "string" && !ROUTINE_PATTERNS.some(p => a.includes(p))
+  );
+  const routineCount = actions.length - alerts.length;
+
+  // Write full cadence to disk (non-blocking, non-fatal)
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const cadencePath = path.join(stateDir, "CADENCE_LATEST.json");
+    const diskData = {
+      ...fullCadence,
+      _persisted_at: new Date().toISOString(),
+      _total_actions: actions.length,
+      _alert_count: alerts.length,
+      _routine_count: routineCount,
+    };
+    fs.writeFileSync(cadencePath, JSON.stringify(diskData, null, 2));
+
+    // Also append to rolling cadence log (keep last 50 entries)
+    const logPath = path.join(stateDir, "CADENCE_LOG.jsonl");
+    const logEntry = {
+      call: fullCadence.call_number,
+      ts: new Date().toISOString(),
+      alerts: alerts.length,
+      routine: routineCount,
+      zone: fullCadence.pressure?.zone || "?",
+      top_alerts: alerts.slice(0, 3),
+    };
+    fs.appendFileSync(logPath, JSON.stringify(logEntry) + "\n");
+    // Prune log if too large
+    try {
+      const stat = fs.statSync(logPath);
+      if (stat.size > 50000) {
+        const lines = fs.readFileSync(logPath, "utf-8").trim().split("\n");
+        fs.writeFileSync(logPath, lines.slice(-50).join("\n") + "\n");
+      }
+    } catch {}
+  } catch { /* disk write non-fatal */ }
+
+  return { alerts, alert_count: alerts.length, routine_count: routineCount };
+}
 
 function getCadenceVerbosity(): string {
   return (process.env.CADENCE_VERBOSITY || "critical").toLowerCase();
@@ -188,51 +263,46 @@ function getCadenceVerbosity(): string {
 
 export function slimCadence(cadence: Record<string, any>, pressurePct: number): Record<string, any> {
   const verbosity = getCadenceVerbosity();
-  
+
   // SILENT: return bare minimum — just call number for tracking
   if (verbosity === "silent") {
     return { call_number: cadence.call_number };
   }
-  
-  // CRITICAL: only safety/compaction/blocking messages + key warnings
+
+  // CRITICAL (default): only critical alerts + key scalar warnings
   if (verbosity === "critical") {
     const criticalActions = (cadence.actions || []).filter((a: string) =>
       typeof a === "string" && CRITICAL_PATTERNS.some(p => a.includes(p))
     );
-    const result: Record<string, any> = { call_number: cadence.call_number };
-    if (criticalActions.length > 0) result.actions = criticalActions;
-    // Surface budget violations even in critical mode
-    if (cadence.budget?.over_budget?.length > 0) {
-      result.budget_warn = cadence.budget.over_budget;
-    }
-    // Surface omega degradation warning
-    if (cadence.cognitive?.omega != null && cadence.cognitive.omega < 0.7) {
-      result.omega_warn = cadence.cognitive.omega;
-    }
+    const result: Record<string, any> = { c: cadence.call_number };
+    if (criticalActions.length > 0) result.a = criticalActions.map((a: string) => a.slice(0, 80));
+    // Surface budget violations
+    if (cadence.budget?.over_budget?.length > 0) result.bw = cadence.budget.over_budget;
+    // Surface omega degradation
+    if (cadence.cognitive?.omega != null && cadence.cognitive.omega < 0.7) result.ow = cadence.cognitive.omega;
     // Surface quality gate blocks
-    if (cadence.quality_gate?.blocked) {
-      result.quality_blocked = cadence.quality_gate.blocked_reason;
-    }
-    if (criticalActions.length === 0 && !result.budget_warn && !result.omega_warn && !result.quality_blocked) {
-      return { call_number: cadence.call_number };
-    }
+    if (cadence.quality_gate?.blocked) result.qb = cadence.quality_gate.blocked_reason;
+    // Surface compaction recovery data
+    if (cadence.rehydrated) result.rh = { task: cadence.rehydrated.previous_task, resume: cadence.rehydrated.quick_resume?.slice(0, 200) };
+    // Surface skill/knowledge hints only when present
+    if (cadence.skill_hints?.hints?.length > 0) result.sh = cadence.skill_hints.hints.slice(0, 2);
+    if (cadence.knowledge?.total_enrichments > 0) result.kh = cadence.knowledge.total_enrichments;
+    // If nothing noteworthy, return minimal
+    if (Object.keys(result).length <= 1) return { c: cadence.call_number };
     return result;
   }
-  
-  // NORMAL: original behavior with pressure-based slimming
+
+  // NORMAL: alert-filtered with pressure-based slimming (no routine noise)
+  const filtered = (cadence.actions || []).filter((a: string) =>
+    typeof a === "string" && !ROUTINE_PATTERNS.some(p => a.includes(p))
+  );
   if (pressurePct < 50) {
-    const slim: Record<string, any> = { call_number: cadence.call_number, actions: cadence.actions?.slice(0, 5) };
-    if (cadence.pressure) slim.pressure_zone = cadence.pressure.zone;
+    const slim: Record<string, any> = { c: cadence.call_number, a: filtered.slice(0, 5).map((a: string) => a.slice(0, 80)) };
+    if (cadence.pressure) slim.z = cadence.pressure.zone;
     return slim;
   }
   if (pressurePct < 70) {
-    return {
-      call_number: cadence.call_number,
-      actions: cadence.actions?.slice(0, 3),
-    };
+    return { c: cadence.call_number, a: filtered.slice(0, 3).map((a: string) => a.slice(0, 60)) };
   }
-  return {
-    call_number: cadence.call_number,
-    actions: cadence.actions?.length ? [cadence.actions[cadence.actions.length - 1]] : [],
-  };
+  return { c: cadence.call_number, a: filtered.length ? [filtered[filtered.length - 1].slice(0, 60)] : [] };
 }

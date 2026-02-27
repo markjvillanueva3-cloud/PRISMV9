@@ -57,9 +57,15 @@ import {
   autoParallelDispatch, autoATCSParallelUpgrade,
   autoPriorityScore, autoSkillPreload, autoKvStabilityPeriodic,
   autoContextPressureRecommend, autoMemoryGraphEvict, autoCompactionTrend,
-  autoDispatcherByteTrack
+  autoDispatcherByteTrack,
+  autoComplianceAuditBoot, autoSLBConsume, autoBridgeHealthCheck, autoRegistryRefresh,
+  autoGsdAccessSummary, autoSwarmPatternDecay, autoNLHookValidate, autoOmegaHistoryPersist,
+  autoOmegaHistoryRestore, autoCognitiveStatePersist, autoCognitiveStateRestore,
+  autoConversationalMemorySave, autoTelemetryResolve, autoScriptQueueDrain,
+  autoRoadmapHeartbeat, autoCalcPreEnrich, autoKnowledgePreWarm, autoJobLearningPersist,
+  autoATCSCheckpointScan, autoRalphScoreCapture
 } from "./cadenceExecutor.js";
-import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
+import { slimJsonResponse, slimCadence, persistCadenceToDisk, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { compactJsonValues, getDslLegend } from "../config/dslAbbreviations.js";
 import { PATHS } from "../constants.js";
 import { autoResponseTemplate, getResponseTemplateStats } from "../engines/ResponseTemplateEngine.js";
@@ -751,6 +757,33 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           }
         } catch { /* non-fatal */ }
 
+        // === NEW AUTO-FIRES: Session boot (Opp 1,2,3,9,10,11,17) ===
+        try {
+          const compAudit = autoComplianceAuditBoot(callNum);
+          if (compAudit.gaps_found > 0) cadence.actions.push(`📋 COMPLIANCE_BOOT: ${compAudit.templates_audited} templates, ${compAudit.gaps_found} gaps`);
+        } catch {}
+        try {
+          const slb = autoSLBConsume(callNum);
+          if (slb.patterns_consumed > 0) cadence.actions.push(`🔄 SLB_CONSUMED: ${slb.patterns_consumed} patterns`);
+        } catch {}
+        try {
+          const bridge = autoBridgeHealthCheck(callNum);
+          if (bridge.degraded > 0) cadence.actions.push(`⚠️ BRIDGE_DEGRADED: ${bridge.degraded}/${bridge.endpoints_checked} endpoints`);
+          else if (bridge.endpoints_checked > 0) cadence.actions.push(`✅ BRIDGE_HEALTHY: ${bridge.endpoints_checked} endpoints`);
+        } catch {}
+        try {
+          const omRestore = autoOmegaHistoryRestore(callNum);
+          if (omRestore.entries_restored > 0) cadence.actions.push(`📊 OMEGA_HISTORY_RESTORED: ${omRestore.entries_restored} entries`);
+        } catch {}
+        try {
+          const cogRestore = autoCognitiveStateRestore(callNum);
+          if (cogRestore.restored) cadence.actions.push("🧠 COGNITIVE_STATE_RESTORED");
+        } catch {}
+        try {
+          const kwResult = autoKnowledgePreWarm(callNum);
+          if (kwResult.warmed) cadence.actions.push("🔥 KNOWLEDGE_ENGINE_PREWARMED");
+        } catch {}
+
         globalThis.__prism_recon = {
           recon: recon.warnings,
           warmStart: warmStart.session_info,
@@ -868,6 +901,17 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         result = cacheResult.value;
         cadence.actions.push(`\u26A1 CACHE_HIT: ${cacheKey} (${cacheResult.tier} tier)`);
       } else {
+          // Opp 19: Pre-enrich calc dispatchers with material+machine context
+          if (toolName === "prism_calc" && ["speed_feed_calc", "cutting_force", "tool_life", "speed_feed"].includes(action2)) {
+            try {
+              const enrichResult = autoCalcPreEnrich(callNum, args[0]?.params || {});
+              if (enrichResult.enriched) {
+                cadence.material_context = enrichResult.material_context;
+                cadence.machine_context = enrichResult.machine_context;
+                cadence.actions.push("🔧 CALC_PRE_ENRICHED");
+              }
+            } catch {}
+          }
         try {
           result = await handler.apply(this, args);
             // FIX 5: Slim main tool response based on pressure
@@ -907,6 +951,8 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             }
           } catch {
           }
+          // Opp 6: PFP re-extract after error chain
+          try { pfpEngine.extractPatterns?.(); } catch {}
           try {
             await hookExecutor.execute("on-error", {
               operation: action2,
@@ -1015,6 +1061,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Opp 7: Auto-acknowledge resolved telemetry anomalies
+      try {
+        const telResolve = autoTelemetryResolve(callNum, toolName, action2);
+        if (telResolve.resolved > 0) cadence.actions.push(`📉 ANOMALY_RESOLVED: ${telResolve.resolved} for ${toolName}:${action2}`);
+      } catch {}
     }
     if (toolName === "prism_dev" && action2 === "build" && !error) {
       try {
@@ -1077,6 +1128,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           if (toolName === "prism_safety" && parsed.safety_score !== undefined) {
             scoreField = "safety_score";
             scoreValue = parsed.safety_score;
+          }
+          // Opp 12: Ralph → Omega/Safety score feed
+          if (toolName === "prism_ralph") {
+            try {
+              const ralphCapture = autoRalphScoreCapture(callNum, txt);
+              if (ralphCapture.quality_score !== null) { scoreField = "omega_score"; scoreValue = ralphCapture.quality_score; }
+              if (ralphCapture.safety_score !== null && !scoreField) { scoreField = "safety_score"; scoreValue = ralphCapture.safety_score; }
+            } catch {}
           }
           if (scoreField && scoreValue !== null) {
             const stateFile = path.join(PATHS.STATE_DIR, "CURRENT_STATE.json");
@@ -1283,13 +1342,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         success: todoResult.success,
         preview: todoResult.todo_preview
       });
-      try {
-        const currentTask = buildCurrentTaskDescription(cadence, toolName, action2);
-        const pct = cadence.pressure?.pressure_pct || 0;
-        const manifestResult = autoRecoveryManifest(callNum, pct, cadence.actions, currentTask);
-        if (manifestResult.success) cadence.actions.push("\u{1F4CB} RECOVERY_MANIFEST_SAVED");
-      } catch {
-      }
+      // Recovery manifest moved to every-10 checkpoint block (dedup)
       // Learning query — every 5 calls (read back learned patterns)
       try {
         const lq = autoLearningQuery(callNum, toolName, action2);
@@ -1344,6 +1397,14 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             fs.writeFileSync(hrPath, hotContent);
           } catch {}
       cadence.checkpoint = cpResult;
+      // Opp 13: Include ATCS manifests in session checkpoints
+      try {
+        const atcsScan = autoATCSCheckpointScan(callNum);
+        if (atcsScan.active_tasks > 0) {
+          cadence.actions.push(`📋 ATCS_IN_CHECKPOINT: ${atcsScan.active_tasks} active tasks`);
+          cadence.atcs_checkpoint = atcsScan.tasks;
+        }
+      } catch {}
       await fireHook("STATE-CHECKPOINT-CREATE-001", {
         event: "cadence_checkpoint_executed",
         call_number: callNum,
@@ -1393,6 +1454,18 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const cog = autoCognitiveUpdate(callNum, pPct2, errCount);
         if (cog.omega > 0) cadence.actions.push(`\u{1F9E0} COGNITIVE: \u03A9=${cog.omega}`);
         cadence.cognitive = cog;
+      } catch {}
+      // === NEW AUTO-FIRES: Every-10 (Opp 5,6,8,12,17,20) ===
+      try {
+        const omPersist = autoOmegaHistoryPersist(callNum);
+        if (omPersist.entries_saved > 0) cadence.actions.push(`📊 OMEGA_HISTORY_SAVED: ${omPersist.entries_saved}`);
+      } catch {}
+      try { autoCognitiveStatePersist(callNum); } catch {}
+      try { autoConversationalMemorySave(callNum, recentToolCalls); } catch {}
+      // Opp 6: PFP pattern extract moved from every-25 to every-10
+      try {
+        const pfp10 = autoPfpPatternExtract(callNum);
+        if (pfp10.after > pfp10.before) cadence.actions.push(`PFP_PATTERNS_10: ${pfp10.before}→${pfp10.after}`);
       } catch {}
       // KV cache stability — every 10 calls
       try {
@@ -1711,6 +1784,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const gf = autoMemoryGraphFlush(callNum);
         if (gf.flushed && gf.stats) cadence.actions.push(`GRAPH_FLUSHED: ${gf.stats.nodes}n/${gf.stats.edges}e`);
       } catch {}
+      // === NEW AUTO-FIRES: Every-15 (Opp 3, 5, 7, 10) ===
+      try {
+        const gi15 = autoMemoryGraphIntegrity(callNum);
+        if (gi15.violations > 0) cadence.actions.push(`GRAPH_INTEGRITY_15: ${gi15.violations} violations, ${gi15.fixed} fixed`);
+      } catch {}
+      try {
+        const regRefresh = autoRegistryRefresh(callNum);
+        if (regRefresh.refreshed) cadence.actions.push("🔄 REGISTRY_REFRESHED");
+      } catch {}
+      try {
+        const bridgeH = autoBridgeHealthCheck(callNum);
+        if (bridgeH.degraded > 0) cadence.actions.push(`⚠️ BRIDGE_HEALTH: ${bridgeH.degraded} degraded`);
+      } catch {}
     }
     if (callNum % 8 === 0) {
       try {
@@ -1736,6 +1822,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.actions.push(`\u{26A1} ATCS_PARALLEL: batch upgraded to parallel execution`);
         }
       } catch { /* non-fatal */ }
+      // === NEW AUTO-FIRES: Every-8 (Opp 9, 15, 18) ===
+      try {
+        const sqd = autoScriptQueueDrain(callNum);
+        if (sqd.processed > 0) cadence.actions.push(`📜 SCRIPT_QUEUE: ${sqd.processed} processed, ${sqd.remaining} remaining`);
+      } catch {}
+      try {
+        const hb = autoRoadmapHeartbeat(callNum);
+        if (hb.beat) cadence.actions.push("💓 ROADMAP_HEARTBEAT");
+      } catch {}
     }
     if (callNum % 15 === 0) {
       try {
@@ -1772,15 +1867,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       cadence.session_recon = globalThis.__prism_recon;
       delete globalThis.__prism_recon;
     }
-    if (callNum > 0 && callNum % 15 === 0) {
-      try {
-        const currentTask = cadence.todo?.currentFocus || cadence.todo?.taskName || "unknown";
-        const pct = cadence.pressure?.pressure_pct || 50;
-        const survResult = autoCompactionSurvival(callNum, pct, cadence.actions, currentTask);
-        if (survResult.success) cadence.actions.push("SURVIVAL_CHECKPOINT_15");
-      } catch {
-      }
-    }
+    // Survival checkpoint consolidated into every-10 checkpoint block (dedup)
     // Memory graph eviction — every 20 calls (prune expired nodes)
     if (callNum > 0 && callNum % 20 === 0) {
       try {
@@ -1882,6 +1969,23 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const slo = autoTelemetrySloCheck(callNum);
         if (slo.breaches.length > 0) cadence.actions.push(`\u26A0\uFE0F SLO_BREACHES: ${slo.breaches.length}`);
+      } catch {}
+      // === NEW AUTO-FIRES: Every-25 (Opp 2, 5, 6, 7, 14, 15) ===
+      try {
+        const slb25 = autoSLBConsume(callNum);
+        if (slb25.patterns_consumed > 0) cadence.actions.push(`🔄 SLB_DRAINED: ${slb25.patterns_consumed}`);
+      } catch {}
+      try {
+        const gsd25 = autoGsdAccessSummary(callNum);
+        if (gsd25.entries_before > 200) cadence.actions.push(`📋 GSD_PRUNED: ${gsd25.entries_before}→${gsd25.entries_after}`);
+      } catch {}
+      try {
+        const decay = autoSwarmPatternDecay(callNum);
+        if (decay.patterns_decayed > 0) cadence.actions.push(`⏳ SWARM_DECAY: ${decay.patterns_decayed} decayed`);
+      } catch {}
+      try {
+        const nlVal = autoNLHookValidate(callNum);
+        if (nlVal.hooks_broken > 0) cadence.actions.push(`⚠️ NL_HOOKS_BROKEN: ${nlVal.hooks_broken} (${nlVal.broken_names.join(", ")})`);
       } catch {}
     }
     // D4 Performance summary — cache/diff/batch stats + recommendations (every 40 calls)
@@ -1989,6 +2093,11 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const sle = autoSessionLifecycleEnd(callNum);
         if (sle.ended) cadence.actions.push("SESSION_LIFECYCLE_ENDED");
       } catch {}
+      // Opp 18: Persist job learning on session end
+      try {
+        const jlp = autoJobLearningPersist(callNum);
+        if (jlp.persisted) cadence.actions.push("📚 JOB_LEARNING_PERSISTED");
+      } catch {}
     }
     // State reconstruct — after compaction detected (one-time)
     if (cadence.compaction?.risk_level === "IMMINENT" || cadence.compaction?.risk_level === "HIGH") {
@@ -2000,13 +2109,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     if (cadence.actions.length > 0 && result?.content?.[0]?.text) {
       try {
         const parsed = JSON.parse(result.content[0].text);
-        const fullCadence = { call_number: cadence.call_number, actions: cadence.actions };
+        const fullCadence: any = { call_number: cadence.call_number, actions: cadence.actions };
         for (const [k, v] of Object.entries(cadence)) {
           if (k === "call_number" || k === "actions") continue;
           if (v != null && v !== "" && !(Array.isArray(v) && v.length === 0)) fullCadence[k] = v;
         }
+        // CADENCE-TO-DISK: Persist full cadence for monitoring, return alert-only for response
+        const { alerts, alert_count, routine_count } = persistCadenceToDisk(fullCadence, STATE_DIR12);
         const pressurePct = cadence.pressure?.pressure_pct ?? 0;
-        parsed._cadence = slimCadence(fullCadence, pressurePct);
+        parsed._cadence = slimCadence({ ...fullCadence, actions: alerts }, pressurePct);
         try {
           const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
           let fires: any = {};
@@ -2038,6 +2149,20 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             else if (action3.includes("COMPACTION_PREDICT")) fires["autoCompactionPredict"] = (fires["autoCompactionPredict"] || 0) + 1;
             else if (action3.includes("TELEMETRY_SNAP")) fires["autoTelemetrySnapshot"] = (fires["autoTelemetrySnapshot"] || 0) + 1;
             else if (action3.includes("COMPLIANCE_AUDIT")) fires["autoComplianceAudit"] = (fires["autoComplianceAudit"] || 0) + 1;
+            else if (action3.includes("SLB_")) fires["autoSLBConsume"] = (fires["autoSLBConsume"] || 0) + 1;
+            else if (action3.includes("BRIDGE_")) fires["autoBridgeHealthCheck"] = (fires["autoBridgeHealthCheck"] || 0) + 1;
+            else if (action3.includes("REGISTRY_REFRESHED")) fires["autoRegistryRefresh"] = (fires["autoRegistryRefresh"] || 0) + 1;
+            else if (action3.includes("OMEGA_HISTORY")) fires["autoOmegaHistory"] = (fires["autoOmegaHistory"] || 0) + 1;
+            else if (action3.includes("COGNITIVE_STATE")) fires["autoCognitiveState"] = (fires["autoCognitiveState"] || 0) + 1;
+            else if (action3.includes("SCRIPT_QUEUE")) fires["autoScriptQueueDrain"] = (fires["autoScriptQueueDrain"] || 0) + 1;
+            else if (action3.includes("ROADMAP_HEARTBEAT")) fires["autoRoadmapHeartbeat"] = (fires["autoRoadmapHeartbeat"] || 0) + 1;
+            else if (action3.includes("SWARM_DECAY")) fires["autoSwarmPatternDecay"] = (fires["autoSwarmPatternDecay"] || 0) + 1;
+            else if (action3.includes("NL_HOOKS_BROKEN")) fires["autoNLHookValidate"] = (fires["autoNLHookValidate"] || 0) + 1;
+            else if (action3.includes("GSD_PRUNED")) fires["autoGsdAccessSummary"] = (fires["autoGsdAccessSummary"] || 0) + 1;
+            else if (action3.includes("ATCS_IN_CHECKPOINT")) fires["autoATCSCheckpointScan"] = (fires["autoATCSCheckpointScan"] || 0) + 1;
+            else if (action3.includes("CALC_PRE_ENRICHED")) fires["autoCalcPreEnrich"] = (fires["autoCalcPreEnrich"] || 0) + 1;
+            else if (action3.includes("ANOMALY_RESOLVED")) fires["autoTelemetryResolve"] = (fires["autoTelemetryResolve"] || 0) + 1;
+            else if (action3.includes("JOB_LEARNING")) fires["autoJobLearningPersist"] = (fires["autoJobLearningPersist"] || 0) + 1;
           }
           fires._last_call = callNum;
           fires._updated = (/* @__PURE__ */ new Date()).toISOString();

@@ -54,6 +54,7 @@ import {
 import { executeAgentsParallel } from "../engines/AgentExecutor.js";
 import { executeSwarm, type SwarmPattern } from "../engines/SwarmExecutor.js";
 import { hasValidApiKey } from "../config/api-config.js";
+import { fuzzyGet, fuzzyGetAll, normalize } from "./fuzzyResolver.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
@@ -1215,11 +1216,12 @@ function mergeTriggerMap(): void {
     const map: Record<string, string[]> = raw.trigger_map || {};
     let added = 0;
     for (const [trigger, skills] of Object.entries(map)) {
-      // Normalize trigger to lowercase single-word key (match SKILL_DOMAIN_MAP style)
+      // Normalize trigger to lowercase key (match SKILL_DOMAIN_MAP style)
       const key = trigger.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
       if (!key || key.length < 2) continue;
+
+      // Merge into main key
       if (SKILL_DOMAIN_MAP[key]) {
-        // Merge new skills into existing entry (deduplicated)
         for (const s of skills) {
           if (!SKILL_DOMAIN_MAP[key].includes(s)) {
             SKILL_DOMAIN_MAP[key].push(s);
@@ -1229,6 +1231,24 @@ function mergeTriggerMap(): void {
       } else {
         SKILL_DOMAIN_MAP[key] = [...skills];
         added++;
+      }
+
+      // For multi-word triggers, also index each significant word individually
+      // so "cutting force calculation" is reachable via "cutting", "force", or "calculation"
+      const words = key.split("_").filter(w => w.length > 3);
+      if (words.length >= 2) {
+        for (const word of words) {
+          if (!SKILL_DOMAIN_MAP[word]) {
+            SKILL_DOMAIN_MAP[word] = [...skills];
+            added++;
+          } else {
+            for (const s of skills) {
+              if (!SKILL_DOMAIN_MAP[word].includes(s)) {
+                SKILL_DOMAIN_MAP[word].push(s);
+              }
+            }
+          }
+        }
       }
     }
     if (added > 0) {
@@ -1405,8 +1425,8 @@ function autoLoadForDomain(domain: string, action: string, pressurePct: number):
   const excerpts: Array<{ skill_id: string; title: string; content: string }> = [];
   let loaded = 0;
 
-  // Load skills from chain, prioritizing action-specific skills first
-  const actionSkills = SKILL_DOMAIN_MAP[action] || [];
+  // Load skills from chain, prioritizing action-specific skills first (fuzzy-resolved)
+  const actionSkills = SKILL_DOMAIN_MAP[action] || fuzzyGetAll(action, SKILL_DOMAIN_MAP);
   const chainSkills = chainConfig.skills;
   // Merge: action-specific first, then chain skills (deduplicated)
   const orderedSkills = [...new Set([...actionSkills, ...chainSkills])];
@@ -1524,7 +1544,7 @@ export function autoSkillHint(
     const maxCharsPerHint = pressurePct > 60 ? 100 : 200;
 
     const lookupKey = action || toolName;
-    const relevantSkills = SKILL_DOMAIN_MAP[lookupKey] || [];
+    const relevantSkills = SKILL_DOMAIN_MAP[lookupKey] || fuzzyGetAll(lookupKey, SKILL_DOMAIN_MAP);
 
     if (relevantSkills.length === 0) {
       return { success: true, call_number: callNumber, hints: [], skill_ids: [], loaded_excerpts: 0 };
@@ -1578,7 +1598,7 @@ export function autoSkillHint(
       "resume_session": "session-recovery",
       "state_load": "session-recovery",
     };
-    const fallbackChain = CHAIN_TRIGGERS[lookupKey];
+    const fallbackChain = CHAIN_TRIGGERS[lookupKey] || fuzzyGet(lookupKey, CHAIN_TRIGGERS);
     if (fallbackChain) {
       hints.push(`🔗 Chain available: skill_chain chain_name="${fallbackChain}"`);
       chainSuggestion = fallbackChain;
@@ -4734,7 +4754,7 @@ export function autoDispatcherByteTrack(callNumber: number, toolName: string, re
 // Requires ANTHROPIC_API_KEY. Debounced per task signature (max 1 per session).
 // ============================================================================
 
-const _parallelDispatchHistory = new Set<string>();
+const _parallelDispatchHistory = new Map<string, number>(); // sig → call_number (expires after 20 calls)
 
 export async function autoParallelDispatch(
   callNumber: number,
@@ -4750,8 +4770,11 @@ export async function autoParallelDispatch(
 
     // Build task signature for deduplication
     const sig = `${toolName}:${action}:${classification.domain}:${classification.complexity}`;
-    if (_parallelDispatchHistory.has(sig)) return { success: true, call_number: callNumber, dispatched: false };
-    _parallelDispatchHistory.add(sig);
+    const lastDispatched = _parallelDispatchHistory.get(sig);
+    if (lastDispatched !== undefined && (callNumber - lastDispatched) < 20) {
+      return { success: true, call_number: callNumber, dispatched: false };
+    }
+    _parallelDispatchHistory.set(sig, callNumber);
 
     const swarm = classification.recommended_swarm;
     const agents = classification.recommended_agents;
