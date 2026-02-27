@@ -1,12 +1,15 @@
-L9-P0-MS1: API Integration Phase Gate — OpenAPI parity + PFPEngine fix
+L10-P1-MS1: Quality, Scoring & DevTools Products — 24 new endpoints
 
-Phase gate fixes:
-- openapi.ts: Added 14 missing path definitions (Export 5, Safety 1,
-  Auth 4, Admin 4) + Export tag. Now 150 operations matching 150 routes.
-- PFPEngine.ts: Fixed crc32→sha256 import, removed invalid
-  .toString(16) on string return (was hidden by tsbuildinfo cache).
+New route modules:
+- validate.ts (7): material, kienzle, taylor, johnson-cook,
+  safety, completeness, anti-regression
+- omega.ts (5): compute, breakdown, validate, optimize, history
+- ralph.ts (3): loop, scrutinize, assess
+- dev.ts (9): session-boot, build, code/template, code/search,
+  file/read, file/write, server-info, test/smoke, test/results
 
-API surface verified: 20 route modules, 150 REST endpoints + WebSocket.
-Build: 6.4MB clean, 0 TS errors. Tests: 1080 passed (32 suites).
+Updated routes/index.ts: 26 modules, 232 endpoints total.
+Updated openapi.ts: Validate + Omega + Ralph + Dev tags with 24 paths.
+Build: 6.5MB clean. Tests: 1080 passed (32 suites).
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
