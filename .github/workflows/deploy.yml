@@ -55,6 +55,13 @@ jobs:
           con = load_json('.claude-flow/metrics/consolidation.json',
               {'patternsConsolidated': 0, 'memoryCleaned': 0, 'duplicatesRemoved': 0})
 
+          # Roadmap queue snapshot
+          rq = load_json('ROADMAP_QUEUE.json', {
+              'exported_at': None, 'total_milestones': 0,
+              'columns': {'done': [], 'available': [], 'claimed': [], 'blocked': []},
+              'instances': [], 'summary': {'done': 0, 'available': 0, 'claimed': 0, 'blocked': 0}
+          })
+
           # Replace between sentinel comments (use lambda to avoid backreference issues with \u escapes)
           def inject(tag, data, target):
               repl = '/*__' + tag + '__*/ ' + data + ' /*__END_' + tag + '__*/'
@@ -66,6 +73,7 @@ jobs:
           html = inject('CURRENT_STATE', cs, html)
           html = inject('DAEMON', dm_slim, html)
           html = inject('CONSOLIDATION', con, html)
+          html = inject('ROADMAP_QUEUE', rq, html)
 
           # Inject build timestamp
           build_time = json.dumps(datetime.now(timezone.utc).isoformat())

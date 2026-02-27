@@ -186,6 +186,45 @@
   .product-card .pname { font-weight: 600; }
   .product-card .pdesc { font-size: 12px; color: var(--text-muted); }
   .detail-text { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  /* Kanban board */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .kanban { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .kanban { grid-template-columns: 1fr; } }
+  .kanban-col { min-height: 120px; }
+  .kanban-header {
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .kanban-header.done { background: rgba(63,185,80,0.2); color: var(--green); }
+  .kanban-header.available { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .kanban-header.claimed { background: rgba(210,153,34,0.2); color: var(--yellow); }
+  .kanban-header.blocked { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .kanban-list {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .kanban-card:last-child { margin-bottom: 0; }
+  .kanban-card .kc-id { font-weight: 700; color: var(--accent); }
+  .kanban-card .kc-title { margin-top: 2px; }
+  .kanban-card .kc-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .kanban-card .kc-blocked-by { font-size: 11px; color: var(--red); margin-top: 4px; }
+  .kanban-empty { color: var(--text-muted); font-size: 12px; text-align: center; padding: 16px 0; }
   footer {
     margin-top: 24px;
     padding-top: 16px;
@@ -221,6 +260,8 @@
   <div class="stat"><div class="value" id="totalLayers"></div><div class="label">Layers (L0-L10)</div></div>
   <div class="stat"><div class="value" id="totalMilestones"></div><div class="label">Total Milestones</div></div>
   <div class="stat"><div class="value" id="overallPct"></div><div class="label">Overall Progress</div></div>
+  <div class="stat"><div class="value" id="availableTasks">—</div><div class="label">Available Tasks</div></div>
+  <div class="stat"><div class="value" id="activeInstances">—</div><div class="label">Active Instances</div></div>
 </div>
 
 <div class="grid">
@@ -233,6 +274,11 @@
   <div class="card">
     <h2>Product & Phase Progress</h2>
     <div id="productBars"></div>
+  </div>
+
+  <div class="card full-width">
+    <h2>Roadmap Task Board (Multi-Claude Coordination)</h2>
+    <div class="kanban" id="kanbanBoard"></div>
   </div>
 
   <div class="card full-width">
@@ -337,7 +383,15 @@ var METRICS = {
   "patternsConsolidated": 0,
   "memoryCleaned": 0,
   "duplicatesRemoved": 0
-} /*__END_CONSOLIDATION__*/
+} /*__END_CONSOLIDATION__*/,
+
+  roadmapQueue: /*__ROADMAP_QUEUE__*/ {
+  "exported_at": null,
+  "total_milestones": 0,
+  "columns": {"done": [], "available": [], "claimed": [], "blocked": []},
+  "instances": [],
+  "summary": {"done": 0, "available": 0, "claimed": 0, "blocked": 0}
+} /*__END_ROADMAP_QUEUE__*/
 };
 
 // === HELPERS ===
@@ -585,6 +639,58 @@ function el(tag, cls, txt) {
     cd.appendChild(el('div', 'value', cItems[ci].value));
     cd.appendChild(el('div', 'label', cItems[ci].label));
     conStats.appendChild(cd);
+  }
+
+  // Roadmap kanban board
+  var RQ = METRICS.roadmapQueue || {};
+  var rqSummary = RQ.summary || {};
+  setText('availableTasks', rqSummary.available || 0);
+  setText('activeInstances', (RQ.instances || []).length);
+
+  var kanbanBoard = document.getElementById('kanbanBoard');
+  var colDefs = [
+    {key: 'done', label: 'Done', cls: 'done'},
+    {key: 'available', label: 'Available', cls: 'available'},
+    {key: 'claimed', label: 'Claimed', cls: 'claimed'},
+    {key: 'blocked', label: 'Blocked', cls: 'blocked'}
+  ];
+  var rqCols = RQ.columns || {};
+  for (var ki = 0; ki < colDefs.length; ki++) {
+    var cdef = colDefs[ki];
+    var items = rqCols[cdef.key] || [];
+    var col = el('div', 'kanban-col');
+    var hdr = el('div', 'kanban-header ' + cdef.cls, cdef.label + ' (' + items.length + ')');
+    col.appendChild(hdr);
+    var list = el('div', 'kanban-list');
+    if (items.length === 0) {
+      list.appendChild(el('div', 'kanban-empty', 'None'));
+    } else {
+      var showMax = cdef.key === 'blocked' ? 5 : items.length;
+      for (var kj = 0; kj < Math.min(items.length, showMax); kj++) {
+        var it = items[kj];
+        var card = el('div', 'kanban-card');
+        var idLine = el('div');
+        var trackTag = el('span', 'layer-tag infra', it.track || '');
+        idLine.appendChild(trackTag);
+        idLine.appendChild(el('span', 'kc-id', ' ' + it.id));
+        card.appendChild(idLine);
+        card.appendChild(el('div', 'kc-title', it.title || ''));
+        var metaParts = [];
+        if (it.units) metaParts.push(it.units + ' units');
+        if (it.sessions) metaParts.push('~' + it.sessions + ' sessions');
+        if (it.instance) metaParts.push('Instance: ' + it.instance);
+        if (metaParts.length) card.appendChild(el('div', 'kc-meta', metaParts.join(' | ')));
+        if (it.blocked_by && it.blocked_by.length) {
+          card.appendChild(el('div', 'kc-blocked-by', 'Blocked by: ' + it.blocked_by.join(', ')));
+        }
+        list.appendChild(card);
+      }
+      if (cdef.key === 'blocked' && items.length > showMax) {
+        list.appendChild(el('div', 'kanban-empty', '...+' + (items.length - showMax) + ' more'));
+      }
+    }
+    col.appendChild(list);
+    kanbanBoard.appendChild(col);
   }
 
   // Build timestamp

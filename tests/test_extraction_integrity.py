@@ -296,6 +296,24 @@ class TestProjectIndex(unittest.TestCase):
         )
 
 
+class TestRoadmapQueue(unittest.TestCase):
+    """Verify ROADMAP_QUEUE.json is valid."""
+
+    ROADMAP_QUEUE = PROJ_ROOT / "ROADMAP_QUEUE.json"
+
+    def test_roadmap_queue_valid_json(self):
+        self.assertTrue(self.ROADMAP_QUEUE.exists(), "ROADMAP_QUEUE.json missing")
+        with open(self.ROADMAP_QUEUE) as f:
+            data = json.load(f)
+        self.assertIn("columns", data)
+        self.assertIn("summary", data)
+        self.assertIn("total_milestones", data)
+        cols = data["columns"]
+        for key in ["done", "available", "claimed", "blocked"]:
+            self.assertIn(key, cols, f"Missing column: {key}")
+            self.assertIsInstance(cols[key], list)
+
+
 class TestDashboard(unittest.TestCase):
     """Verify dashboard HTML is well-formed."""
 
@@ -307,7 +325,7 @@ class TestDashboard(unittest.TestCase):
     def test_dashboard_has_sentinel_markers(self):
         with open(self.DASHBOARD, encoding="utf-8") as f:
             content = f.read()
-        markers = ["CURRENT_STATE", "DAEMON", "CONSOLIDATION"]
+        markers = ["CURRENT_STATE", "DAEMON", "CONSOLIDATION", "ROADMAP_QUEUE"]
         for m in markers:
             self.assertIn(f"/*__{m}__*/", content, f"Missing sentinel: {m}")
             self.assertIn(f"/*__END_{m}__*/", content, f"Missing end sentinel: {m}")
@@ -315,7 +333,7 @@ class TestDashboard(unittest.TestCase):
     def test_dashboard_has_required_sections(self):
         with open(self.DASHBOARD, encoding="utf-8") as f:
             content = f.read()
-        sections = ["Worker Health", "Session Archives", "Verified Baseline"]
+        sections = ["Worker Health", "Session Archives", "Verified Baseline", "Roadmap Task Board"]
         for s in sections:
             self.assertIn(s, content, f"Missing section: {s}")
 
