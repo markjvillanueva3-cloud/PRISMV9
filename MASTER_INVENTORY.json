@@ -1,15 +1,19 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2026-01-20T18:00:00Z",
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-27T12:00:00Z",
   "project": "PRISM Manufacturing Intelligence",
   "sourceMonolith": {
     "version": "v8.89.002",
     "lines": 986621,
-    "modules": 831,
-    "size": "~48MB",
-    "location": "_BUILD/PRISM_v8_89_002_TRUE_100_PERCENT.zip"
+    "files": 830,
+    "size": "~13MB",
+    "location": "extracted_modules/complete_extraction/"
   },
-  "extracted": {
+  "extractedData": {
+    "extracted": {"files": 714, "size": "65MB", "location": "extracted/"},
+    "extractedModules": {"files": 1061, "size": "151MB", "location": "extracted_modules/"},
+    "totalFiles": 1775,
+    "totalSize": "216MB",
     "machines": {
       "enhanced": {
         "count": 33,
@@ -22,110 +26,74 @@
         ],
         "estimatedMachines": 310,
         "location": "EXTRACTED/machines/ENHANCED/"
-      },
-      "basic": {
-        "count": 0,
-        "location": "EXTRACTED/machines/BASIC/"
       }
-    },
-    "materials": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/materials/"
-    },
-    "tools": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/tools/"
-    },
-    "engines": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/engines/"
-    },
-    "systems": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/systems/"
-    },
-    "knowledgeBases": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/knowledge_bases/"
-    },
-    "learning": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/learning/"
-    },
-    "business": {
-      "count": 0,
-      "status": "NOT_STARTED",
-      "location": "EXTRACTED/business/"
     }
   },
-  "sessionArchives": [
-    {
-      "id": "0.EXT.1",
-      "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION",
-      "file": "SESSION 0.EXT.1 (PRISM REBUILD LIVING SYSTEM-FIRST ACTUAL SESSION).zip",
-      "status": "ARCHIVED"
-    },
-    {
-      "id": "0.EXT.1b",
-      "name": "MATERIALS DATABASE",
-      "file": "Session 0.EXT.1 (MATERIALS DATABASE).zip",
-      "status": "ARCHIVED"
-    },
-    {
-      "id": "0.EXT.2",
-      "name": "MACHINES DATABASE",
-      "file": "SESSION 0.EXT.2 (MACHINES DATABASE).zip",
-      "status": "ARCHIVED"
-    }
+  "verifiedBaseline": {
+    "frozenAt": "S0-MS1",
+    "verifiedDate": "2026-02-25",
+    "dispatchers": 32,
+    "actions": 670,
+    "engines": 75,
+    "formulas": {"registered": 109, "target": 509},
+    "algorithms": 17,
+    "registryEntries": 29569,
+    "registries": 14,
+    "ccSkills": 57,
+    "prismSkills": 96,
+    "scripts": 48,
+    "hooks": 112,
+    "ccHooks": 18,
+    "hookEvents": 15,
+    "toolpathStrategies": 680,
+    "reportTemplates": 7,
+    "featureSystems": 8,
+    "postProcessors": 8,
+    "decisionTrees": 6,
+    "knowledgeBundles": 6,
+    "tscErrors": 0,
+    "tests": "152/152",
+    "omega": 1.0
+  },
+  "layerTargets": {
+    "L0": {"name": "Data Foundation", "new": 24, "existing": 14, "total": 38},
+    "L1": {"name": "Algorithm Foundation", "new": 27, "existing": 17, "total": 44},
+    "L2": {"name": "Engine Foundation", "new": 112, "existing": 75, "total": 187},
+    "L3": {"name": "Dispatcher Layer", "new": 12, "existing": 32, "total": 44},
+    "L4": {"name": "Hooks & Safety", "new": 40, "existing": 112, "total": 152},
+    "L5": {"name": "Skills & Scripts", "new": 68, "existing": 201, "total": 269},
+    "L6": {"name": "API Layer", "new": 50, "existing": 0, "total": 50},
+    "L7": {"name": "SFC Product", "milestones": 4},
+    "L8": {"name": "Products 2-4", "milestones": 7},
+    "L9": {"name": "CAD/CAM Kernel", "milestones": 3},
+    "L10": {"name": "Enterprise & Production", "milestones": 4},
+    "CC": {"name": "Knowledge Engine", "milestones": 12},
+    "CC-EXT": {"name": "Extended Learning", "milestones": 6}
+  },
+  "products": [
+    {"id": "SFC", "name": "Speed & Feed Calculator", "layer": "L7", "priority": 1},
+    {"id": "PPG", "name": "Post Processor Generator", "layer": "L8", "priority": 2},
+    {"id": "CADCAM", "name": "CAD/CAM Learning & Help", "layer": "L8", "priority": 3},
+    {"id": "ERP", "name": "ERP/Quoting/Business Management", "layer": "L8", "priority": 4}
   ],
-  "sessionLogs": [
-    {
-      "id": "0.EXT.2f.6",
-      "file": "SESSION_LOGS/SESSION_0_EXT_2f_6_LOG.md",
-      "date": "2026-01-20",
-      "topic": "Machine Database ENHANCED Expansion"
-    }
+  "sessionArchives": [
+    {"id": "0.EXT.1", "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION", "status": "ARCHIVED"},
+    {"id": "0.EXT.1b", "name": "MATERIALS DATABASE", "status": "ARCHIVED"},
+    {"id": "0.EXT.2", "name": "MACHINES DATABASE", "status": "ARCHIVED"}
   ],
   "documentation": {
-    "current": "PRISM_ULTIMATE_DEVELOPMENT_MASTER_v4.1.md",
-    "audit": "PRISM_MASTER_AUDIT.md",
-    "archived": [
-      "PRISM_DEVELOPMENT_PROMPT_BOX_ENABLED_v1.0.md",
-      "PRISM_HYBRID_DEVELOPMENT_PROMPT_v1.0.md",
-      "PRISM_HYBRID_REBUILD_ROADMAP.md",
-      "PRISM_ULTIMATE_DEVELOPMENT_MASTER_v3.1.md",
-      "PRISM_ULTIMATE_DEVELOPMENT_MASTER_v4.0.md"
-    ]
+    "current": "sleepy-chasing-prism.md",
+    "baselineInventory": "BASELINE_INVENTORY.json"
   },
   "claudeFlow": {
     "installed": true,
     "version": "3.0.0-alpha.86",
-    "swarmId": "swarm-1768931643887",
-    "topology": "hierarchical-mesh",
-    "note": "Autonomous agents not functional in alpha; using hybrid approach"
+    "topology": "hierarchical-mesh"
   },
-  "moduleTargets": {
-    "databases": 62,
-    "engines": 213,
-    "knowledgeBases": 14,
-    "systems": 31,
-    "learning": 30,
-    "business": 22,
-    "ui": 16,
-    "lookups": 20,
-    "manufacturers": 44,
-    "phase": 46,
-    "total": 831
-  },
-  "nextSession": {
-    "id": "1.A.5",
-    "topic": "Physics Models Extraction",
-    "prerequisite": "Continue from v4.1 roadmap"
+  "nextMilestone": {
+    "id": "L0-NEW-MS0",
+    "name": "Data Consolidation & Deduplication",
+    "sessions": "2-3",
+    "prerequisite": "Start bottom-up: complete L0 before L1"
   }
 }

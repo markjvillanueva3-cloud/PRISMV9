@@ -17,6 +17,8 @@
     --yellow: #d29922;
     --red: #f85149;
     --purple: #bc8cff;
+    --cyan: #39d2c0;
+    --orange: #f0883e;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -48,6 +50,9 @@
     border-radius: 8px;
     padding: 20px;
   }
+  .card.full-width {
+    grid-column: 1 / -1;
+  }
   .card h2 {
     font-size: 15px;
     font-weight: 600;
@@ -56,14 +61,15 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .progress-item { margin-bottom: 12px; }
+  .progress-item { margin-bottom: 10px; }
   .progress-item:last-child { margin-bottom: 0; }
   .progress-label {
     display: flex;
     justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 4px;
+    font-size: 13px;
+    margin-bottom: 3px;
   }
+  .progress-label .name { font-weight: 500; }
   .progress-label .count { color: var(--text-muted); }
   .progress-track {
     height: 8px;
@@ -79,6 +85,9 @@
   .progress-fill.green { background: var(--green); }
   .progress-fill.yellow { background: var(--yellow); }
   .progress-fill.red { background: var(--red); }
+  .progress-fill.accent { background: var(--accent); }
+  .progress-fill.purple { background: var(--purple); }
+  .progress-fill.cyan { background: var(--cyan); }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th {
     text-align: left;
@@ -100,32 +109,35 @@
   .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
   .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
   .badge-muted { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .badge-accent { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .badge-purple { background: rgba(188,140,255,0.15); color: var(--purple); }
   .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 12px;
   }
   .stat {
     text-align: center;
-    padding: 12px;
+    padding: 12px 8px;
     background: var(--bg);
     border-radius: 6px;
   }
-  .stat .value { font-size: 28px; font-weight: 700; color: var(--accent); }
-  .stat .label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .module-grid {
+  .stat .value { font-size: 26px; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .resource-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 8px;
   }
-  .module-item {
-    padding: 8px;
+  .resource-item {
+    padding: 10px 8px;
     background: var(--bg);
     border-radius: 6px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
   }
-  .module-item .num { font-size: 20px; font-weight: 600; color: var(--purple); }
+  .resource-item .num { font-size: 22px; font-weight: 600; color: var(--purple); }
+  .resource-item .lbl { color: var(--text-muted); margin-top: 2px; }
   .session-list { list-style: none; }
   .session-list li {
     padding: 8px 0;
@@ -137,12 +149,43 @@
   .badges { display: flex; gap: 8px; align-items: center; }
   .badges img { height: 20px; }
   .build-ts { color: var(--text-muted); font-size: 11px; margin-left: 8px; }
-  .trend-bar { display: flex; align-items: flex-end; gap: 2px; height: 40px; }
-  .trend-col { width: 24px; border-radius: 2px 2px 0 0; background: var(--accent); min-height: 2px; }
-  .trend-label { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 2px; }
+  .layer-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .layer-tag.infra { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .layer-tag.product { background: rgba(57,210,192,0.2); color: var(--cyan); }
+  .layer-tag.phase { background: rgba(188,140,255,0.2); color: var(--purple); }
   .extraction-log { font-size: 13px; }
   .extraction-log .entry { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
   .extraction-log .entry:last-child { border-bottom: none; }
+  .product-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .product-card:last-child { margin-bottom: 0; }
+  .product-card .rank {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-right: 14px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .product-card .pname { font-weight: 600; }
+  .product-card .pdesc { font-size: 12px; color: var(--text-muted); }
+  .detail-text { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   footer {
     margin-top: 24px;
     padding-top: 16px;
@@ -166,22 +209,42 @@
   </div>
   <div class="meta">
     <span id="lastUpdated"></span> |
-    Source: v<span id="sourceVersion"></span> to v<span id="targetVersion"></span>
+    v<span id="sourceVersion"></span> &rarr; v<span id="targetVersion"></span> |
+    <span id="nextMs"></span>
   </div>
 </header>
 
 <div class="stats" style="margin-bottom: 16px;">
   <div class="stat"><div class="value" id="monolithLines"></div><div class="label">Monolith Lines</div></div>
-  <div class="stat"><div class="value" id="totalModules"></div><div class="label">Target Modules</div></div>
-  <div class="stat"><div class="value" id="extractedCount"></div><div class="label">Extracted</div></div>
+  <div class="stat"><div class="value" id="monolithFiles"></div><div class="label">Monolith JS Files</div></div>
+  <div class="stat"><div class="value" id="extractedFiles"></div><div class="label">Extracted Files</div></div>
+  <div class="stat"><div class="value" id="totalLayers"></div><div class="label">Layers (L0-L10)</div></div>
+  <div class="stat"><div class="value" id="totalMilestones"></div><div class="label">Total Milestones</div></div>
   <div class="stat"><div class="value" id="overallPct"></div><div class="label">Overall Progress</div></div>
 </div>
 
 <div class="grid">
+
   <div class="card">
-    <h2>Extraction Progress</h2>
-    <div id="extractionBars"></div>
+    <h2>Infrastructure Layers (L0-L6)</h2>
+    <div id="infraBars"></div>
   </div>
+
+  <div class="card">
+    <h2>Product & Phase Progress</h2>
+    <div id="productBars"></div>
+  </div>
+
+  <div class="card full-width">
+    <h2>Verified Baseline (S0-MS1)</h2>
+    <div class="resource-grid" id="baselineGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Launch Products</h2>
+    <div id="productList"></div>
+  </div>
+
   <div class="card">
     <h2>Worker Health</h2>
     <table>
@@ -189,76 +252,72 @@
       <tbody id="workerBody"></tbody>
     </table>
   </div>
-  <div class="card">
-    <h2>Module Targets</h2>
-    <div class="module-grid" id="moduleGrid"></div>
-  </div>
+
   <div class="card">
     <h2>Session Archives</h2>
     <ul class="session-list" id="sessionList"></ul>
   </div>
+
   <div class="card">
     <h2>Completed Extractions</h2>
     <div class="extraction-log" id="extractionLog"></div>
   </div>
+
   <div class="card">
     <h2>Consolidation Metrics</h2>
     <div class="stats" id="consolidationStats"></div>
   </div>
-  <div class="card">
-    <h2>Current Stage</h2>
-    <div class="stats" id="stageStats"></div>
-  </div>
+
 </div>
 
-<footer>PRISM Manufacturing Intelligence | Dashboard auto-generated by CI | Data from project JSON metrics</footer>
+<footer>PRISM Manufacturing Intelligence | Dashboard auto-generated by CI | Roadmap: Comprehensive Layered Architecture v3</footer>
 
 <script>
-// === EMBEDDED METRICS (injected by CI, or default snapshot) ===
 var METRICS = {
-  currentState: /*__CURRENT_STATE__*/ {
-  "version": "1.0.0",
-  "lastUpdated": "2026-01-20T17:15:00",
-  "currentSession": null,
+  state: /*__CURRENT_STATE__*/ {
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-27T12:00:00Z",
   "prism": {
     "sourceVersion": "8.89.002",
     "targetVersion": "9.0.0",
-    "monolithLines": 986000
+    "monolithLines": 986621,
+    "monolithFiles": 830,
+    "extractedFiles": 1775
   },
-  "extraction": {
-    "stage": "1",
-    "phase": "A",
-    "progress": {
-      "databases": {"total": 62, "extracted": 7, "verified": 7},
-      "engines": {"total": 213, "extracted": 0, "verified": 0},
-      "knowledgeBases": {"total": 14, "extracted": 0, "verified": 0},
-      "systems": {"total": 31, "extracted": 0, "verified": 0}
-    }
+  "layers": {
+    "L0": {"name": "Data Foundation", "target": 38, "existing": 14, "status": "not_started", "milestones": 5, "milestonesComplete": 0, "sessions": "10-14", "details": "14 existing registries + 12 core + 12 specialty databases."},
+    "L1": {"name": "Algorithm Foundation", "target": 44, "existing": 17, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "6-8", "details": "17 existing + 14 monolith port + 13 new."},
+    "L2": {"name": "Engine Foundation", "target": 187, "existing": 75, "status": "not_started", "milestones": 5, "milestonesComplete": 0, "sessions": "20-26", "details": "75 existing + 112 new engines."},
+    "L3": {"name": "Dispatcher Layer", "target": 44, "existing": 32, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "4-6", "details": "32 existing (670 actions) + 12 new."},
+    "L4": {"name": "Hooks & Safety", "target": 152, "existing": 112, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "3-4", "details": "112 existing + 40 new + 12 cadences."},
+    "L5": {"name": "Skills & Scripts", "target": 269, "existing": 201, "status": "not_started", "milestones": 3, "milestonesComplete": 0, "sessions": "4-6", "details": "153 skills + 48 scripts + 68 new."},
+    "L6": {"name": "API Layer", "target": 50, "existing": 0, "status": "not_started", "milestones": 2, "milestonesComplete": 0, "sessions": "3-4", "details": "50+ REST/WebSocket endpoints."},
+    "L7": {"name": "SFC Product", "target": 4, "existing": 0, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "7-10", "details": "Speed & Feed Calculator."},
+    "L8": {"name": "Products 2-4", "target": 7, "existing": 0, "status": "not_started", "milestones": 7, "milestonesComplete": 0, "sessions": "30-42", "details": "PPG, CAD/CAM Learning, ERP/Business."},
+    "L9": {"name": "CAD/CAM Kernel", "target": 3, "existing": 0, "status": "not_started", "milestones": 3, "milestonesComplete": 0, "sessions": "10-15", "details": "Full monolith kernel port + WebGL."},
+    "L10": {"name": "Enterprise & Production", "target": 4, "existing": 0, "status": "not_started", "milestones": 4, "milestonesComplete": 0, "sessions": "8-12", "details": "Security, CI/CD, monitoring."}
+  },
+  "phases": {
+    "CC": {"name": "Knowledge Engine", "milestones": 12, "milestonesComplete": 0, "status": "not_started", "sessions": "35-40"},
+    "CC-EXT": {"name": "Extended Learning", "milestones": 6, "milestonesComplete": 0, "status": "not_started", "sessions": "18-24"}
+  },
+  "verified": {
+    "dispatchers": 32, "actions": 670, "engines": 75, "formulas": 109, "formulasTarget": 509,
+    "algorithms": 17, "registryEntries": 29569, "registries": 14,
+    "ccSkills": 57, "prismSkills": 96, "scripts": 48, "hooks": 112, "ccHooks": 18,
+    "toolpathStrategies": 680, "tscErrors": 0, "testsPassing": 152, "testsTotal": 152, "omega": 1.0
   },
   "completedExtractions": [
-    {"category": "machines/CORE", "files": 8, "totalLines": 4489, "date": "2026-01-20"}
+    {"category": "machines/CORE", "files": 8, "totalLines": 4489, "date": "2026-01-20"},
+    {"category": "machines/ENHANCED", "manufacturers": 33, "machines": 310, "date": "2026-01-20"}
   ],
-  "history": []
-} /*__END_CURRENT_STATE__*/,
-
-  inventory: /*__INVENTORY__*/ {
-  "sourceMonolith": {"version": "v8.89.002", "lines": 986621, "modules": 831, "size": "~48MB"},
-  "extracted": {
-    "machines": {"enhanced": {"count": 33, "estimatedMachines": 310}},
-    "materials": {"count": 0}, "tools": {"count": 0}, "engines": {"count": 0},
-    "systems": {"count": 0}, "knowledgeBases": {"count": 0}, "learning": {"count": 0}, "business": {"count": 0}
-  },
   "sessionArchives": [
     {"id": "0.EXT.1", "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION", "status": "ARCHIVED"},
     {"id": "0.EXT.1b", "name": "MATERIALS DATABASE", "status": "ARCHIVED"},
     {"id": "0.EXT.2", "name": "MACHINES DATABASE", "status": "ARCHIVED"}
   ],
-  "moduleTargets": {
-    "databases": 62, "engines": 213, "knowledgeBases": 14, "systems": 31,
-    "learning": 30, "business": 22, "ui": 16, "lookups": 20, "manufacturers": 44, "phase": 46, "total": 831
-  },
-  "nextSession": {"id": "1.A.5", "topic": "Physics Models Extraction"}
-} /*__END_INVENTORY__*/,
+  "nextMilestone": {"id": "L0-NEW-MS0", "name": "Data Consolidation & Deduplication", "sessions": "2-3"}
+} /*__END_CURRENT_STATE__*/,
 
   daemon: /*__DAEMON__*/ {
   "running": true,
@@ -281,172 +340,260 @@ var METRICS = {
 } /*__END_CONSOLIDATION__*/
 };
 
-// === SAFE DOM HELPERS ===
-function setText(id, text) {
-  document.getElementById(id).textContent = String(text);
-}
-
-function createEl(tag, className, textContent) {
-  var el = document.createElement(tag);
-  if (className) el.className = className;
-  if (textContent !== undefined) el.textContent = String(textContent);
-  return el;
+// === HELPERS ===
+function setText(id, t) { document.getElementById(id).textContent = String(t); }
+function el(tag, cls, txt) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined) e.textContent = String(txt);
+  return e;
 }
 
 // === RENDER ===
 (function() {
-  var cs = METRICS.currentState;
-  var inv = METRICS.inventory;
-  var dm = METRICS.daemon;
-  var con = METRICS.consolidation;
+  var S = METRICS.state;
+  var DM = METRICS.daemon;
+  var CON = METRICS.consolidation;
+  var layers = S.layers || {};
+  var phases = S.phases || {};
+  var verified = S.verified || {};
 
   // Header
-  setText('lastUpdated', cs.lastUpdated ? new Date(cs.lastUpdated).toLocaleDateString() : '—');
-  setText('sourceVersion', cs.prism ? cs.prism.sourceVersion : '—');
-  setText('targetVersion', cs.prism ? cs.prism.targetVersion : '—');
+  setText('lastUpdated', S.lastUpdated ? new Date(S.lastUpdated).toLocaleDateString() : '—');
+  setText('sourceVersion', S.prism ? S.prism.sourceVersion : '—');
+  setText('targetVersion', S.prism ? S.prism.targetVersion : '—');
+  var nm = S.nextMilestone;
+  if (nm) {
+    setText('nextMs', 'Next: ' + nm.id + ' (' + nm.name + ')');
+  }
 
   // Overview stats
-  var monolith = (inv.sourceMonolith ? inv.sourceMonolith.lines : 0) || (cs.prism ? cs.prism.monolithLines : 0) || 0;
-  setText('monolithLines', monolith.toLocaleString());
-  setText('totalModules', inv.moduleTargets ? inv.moduleTargets.total : '—');
+  var prism = S.prism || {};
+  setText('monolithLines', (prism.monolithLines || 0).toLocaleString());
+  setText('monolithFiles', (prism.monolithFiles || 0).toLocaleString());
+  setText('extractedFiles', (prism.extractedFiles || 0).toLocaleString());
+  setText('totalLayers', '11');
 
-  var prog = (cs.extraction ? cs.extraction.progress : {}) || {};
-  var totalExtracted = 0, totalTarget = 0;
-  var keys = Object.keys(prog);
-  for (var i = 0; i < keys.length; i++) {
-    totalExtracted += prog[keys[i]].extracted || 0;
-    totalTarget += prog[keys[i]].total || 0;
+  // Count milestones
+  var totalMs = 0, completedMs = 0;
+  var lk = Object.keys(layers);
+  for (var i = 0; i < lk.length; i++) {
+    totalMs += layers[lk[i]].milestones || 0;
+    completedMs += layers[lk[i]].milestonesComplete || 0;
   }
-  setText('extractedCount', totalExtracted + ' / ' + totalTarget);
-  var pct = totalTarget > 0 ? ((totalExtracted / totalTarget) * 100).toFixed(1) : '0';
-  setText('overallPct', pct + '%');
+  var pk = Object.keys(phases);
+  for (var j = 0; j < pk.length; j++) {
+    totalMs += phases[pk[j]].milestones || 0;
+    completedMs += phases[pk[j]].milestonesComplete || 0;
+  }
+  setText('totalMilestones', totalMs);
+  var overallPct = totalMs > 0 ? ((completedMs / totalMs) * 100).toFixed(1) : '0';
+  setText('overallPct', overallPct + '%');
 
-  // Extraction progress bars
-  var barContainer = document.getElementById('extractionBars');
-  var categories = [
-    ['databases', 'Databases'], ['engines', 'Engines'],
-    ['knowledgeBases', 'Knowledge Bases'], ['systems', 'Systems']
-  ];
-  for (var c = 0; c < categories.length; c++) {
-    var key = categories[c][0], label = categories[c][1];
-    var d = prog[key] || {total: 0, extracted: 0};
-    var p = d.total > 0 ? (d.extracted / d.total * 100) : 0;
-    var colorClass = p >= 50 ? 'green' : (p > 0 ? 'yellow' : 'red');
+  // Infrastructure layers (L0-L6) — show existing/target progress bars
+  var infraContainer = document.getElementById('infraBars');
+  var infraLayers = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6'];
+  for (var li = 0; li < infraLayers.length; li++) {
+    var key = infraLayers[li];
+    var layer = layers[key];
+    if (!layer) continue;
+    var pct = layer.target > 0 ? (layer.existing / layer.target * 100) : 0;
+    var colorCls = pct >= 80 ? 'green' : (pct >= 30 ? 'yellow' : (pct > 0 ? 'accent' : 'red'));
+    var statusBadge = layer.status === 'complete' ? 'badge-green' :
+                      layer.status === 'in_progress' ? 'badge-yellow' : 'badge-muted';
+    var statusText = layer.status === 'complete' ? 'Done' :
+                     layer.status === 'in_progress' ? 'Active' : 'Pending';
 
-    var item = createEl('div', 'progress-item');
-    var labelRow = createEl('div', 'progress-label');
-    labelRow.appendChild(createEl('span', null, label));
-    labelRow.appendChild(createEl('span', 'count', d.extracted + ' / ' + d.total + ' (' + p.toFixed(1) + '%)'));
+    var item = el('div', 'progress-item');
+    var labelRow = el('div', 'progress-label');
+    var nameSpan = el('span', 'name');
+    var tag = el('span', 'layer-tag infra', key);
+    nameSpan.appendChild(tag);
+    nameSpan.appendChild(document.createTextNode(layer.name));
+    labelRow.appendChild(nameSpan);
+    var countSpan = el('span', 'count', layer.existing + ' / ' + layer.target + ' (' + pct.toFixed(0) + '%)');
+    labelRow.appendChild(countSpan);
     item.appendChild(labelRow);
 
-    var track = createEl('div', 'progress-track');
-    var fill = createEl('div', 'progress-fill ' + colorClass);
-    fill.style.width = p + '%';
+    var track = el('div', 'progress-track');
+    var fill = el('div', 'progress-fill ' + colorCls);
+    fill.style.width = Math.max(pct, 1) + '%';
     track.appendChild(fill);
     item.appendChild(track);
-    barContainer.appendChild(item);
+
+    var detail = el('div', 'detail-text', layer.milestones + ' milestones | ' + layer.sessions + ' sessions | ');
+    var badge = el('span', 'badge ' + statusBadge, statusText);
+    detail.appendChild(badge);
+    item.appendChild(detail);
+    infraContainer.appendChild(item);
   }
 
-  // Worker health table
+  // Product & Phase progress (L7-L10, CC, CC-EXT) — milestone-based bars
+  var prodContainer = document.getElementById('productBars');
+  var prodLayers = [
+    {key: 'L7', type: 'product'},
+    {key: 'L8', type: 'product'},
+    {key: 'L9', type: 'product'},
+    {key: 'L10', type: 'product'},
+    {key: 'CC', type: 'phase', src: phases},
+    {key: 'CC-EXT', type: 'phase', src: phases}
+  ];
+  for (var pi = 0; pi < prodLayers.length; pi++) {
+    var pk2 = prodLayers[pi].key;
+    var src = prodLayers[pi].src || layers;
+    var pl = src[pk2];
+    if (!pl) continue;
+    var msDone = pl.milestonesComplete || 0;
+    var msTotal = pl.milestones || 1;
+    var msPct = (msDone / msTotal) * 100;
+    var msColor = msPct >= 100 ? 'green' : (msPct > 0 ? 'cyan' : 'red');
+    var tagType = prodLayers[pi].type === 'phase' ? 'phase' : 'product';
+    var msStatus = pl.status === 'complete' ? 'badge-green' :
+                   pl.status === 'in_progress' ? 'badge-yellow' : 'badge-muted';
+    var msStatusTxt = pl.status === 'complete' ? 'Done' :
+                      pl.status === 'in_progress' ? 'Active' : 'Pending';
+
+    var pItem = el('div', 'progress-item');
+    var pLabel = el('div', 'progress-label');
+    var pName = el('span', 'name');
+    var pTag = el('span', 'layer-tag ' + tagType, pk2);
+    pName.appendChild(pTag);
+    pName.appendChild(document.createTextNode(pl.name));
+    pLabel.appendChild(pName);
+    pLabel.appendChild(el('span', 'count', msDone + ' / ' + msTotal + ' milestones'));
+    pItem.appendChild(pLabel);
+
+    var pTrack = el('div', 'progress-track');
+    var pFill = el('div', 'progress-fill ' + msColor);
+    pFill.style.width = Math.max(msPct, 1) + '%';
+    pTrack.appendChild(pFill);
+    pItem.appendChild(pTrack);
+
+    var pDetail = el('div', 'detail-text');
+    pDetail.textContent = (pl.sessions || '?') + ' sessions | ';
+    pDetail.appendChild(el('span', 'badge ' + msStatus, msStatusTxt));
+    pItem.appendChild(pDetail);
+    prodContainer.appendChild(pItem);
+  }
+
+  // Verified baseline grid
+  var baseGrid = document.getElementById('baselineGrid');
+  var baseItems = [
+    {n: verified.dispatchers, l: 'Dispatchers'},
+    {n: verified.actions, l: 'Actions'},
+    {n: verified.engines, l: 'Engines'},
+    {n: verified.formulas, l: 'Formulas'},
+    {n: verified.algorithms, l: 'Algorithms'},
+    {n: verified.registryEntries, l: 'Registry Entries'},
+    {n: verified.ccSkills + verified.prismSkills, l: 'Skills (CC+PRISM)'},
+    {n: verified.scripts, l: 'Scripts'},
+    {n: verified.hooks + verified.ccHooks, l: 'Hooks (All)'},
+    {n: verified.toolpathStrategies, l: 'Toolpath Strategies'},
+    {n: verified.testsPassing + '/' + verified.testsTotal, l: 'Tests Passing'},
+    {n: verified.tscErrors, l: 'TSC Errors'}
+  ];
+  for (var bi = 0; bi < baseItems.length; bi++) {
+    var bItem = el('div', 'resource-item');
+    var bNum = el('div', 'num', typeof baseItems[bi].n === 'number' ? baseItems[bi].n.toLocaleString() : baseItems[bi].n);
+    if (baseItems[bi].l === 'TSC Errors') bNum.style.color = 'var(--green)';
+    bItem.appendChild(bNum);
+    bItem.appendChild(el('div', 'lbl', baseItems[bi].l));
+    baseGrid.appendChild(bItem);
+  }
+
+  // Products list
+  var productList = document.getElementById('productList');
+  var products = [
+    {rank: '#1', name: 'SFC', desc: 'Speed & Feed Calculator', layer: 'L7'},
+    {rank: '#2', name: 'PPG', desc: 'Post Processor Generator', layer: 'L8'},
+    {rank: '#3', name: 'CAD/CAM', desc: 'Learning & Help', layer: 'L8'},
+    {rank: '#4', name: 'ERP', desc: 'Quoting/Business Mgmt', layer: 'L8'}
+  ];
+  for (var pr = 0; pr < products.length; pr++) {
+    var pc = el('div', 'product-card');
+    pc.appendChild(el('span', 'rank', products[pr].rank));
+    var pInfo = el('div');
+    pInfo.appendChild(el('div', 'pname', products[pr].name));
+    var pDescLine = el('div', 'pdesc');
+    pDescLine.appendChild(el('span', 'badge badge-accent', products[pr].layer));
+    pDescLine.appendChild(document.createTextNode(' ' + products[pr].desc));
+    pInfo.appendChild(pDescLine);
+    pc.appendChild(pInfo);
+    productList.appendChild(pc);
+  }
+
+  // Worker health
   var workerBody = document.getElementById('workerBody');
-  var workerKeys = Object.keys(dm.workers || {});
-  for (var w = 0; w < workerKeys.length; w++) {
-    var name = workerKeys[w];
-    var wk = dm.workers[name];
+  var wKeys = Object.keys(DM.workers || {});
+  for (var w = 0; w < wKeys.length; w++) {
+    var wn = wKeys[w];
+    var wk = DM.workers[wn];
     var rate = wk.runCount > 0 ? ((wk.successCount / wk.runCount) * 100).toFixed(0) : '—';
-    var badgeClass = 'badge-muted', statusText = 'Idle';
-    if (wk.isRunning) { badgeClass = 'badge-green'; statusText = 'Running'; }
-    else if (wk.runCount > 0 && wk.failureCount === 0) { badgeClass = 'badge-green'; statusText = 'Healthy'; }
-    else if (wk.failureCount > 0) { badgeClass = 'badge-red'; statusText = 'Errors'; }
+    var badgeCls = 'badge-muted', sTxt = 'Idle';
+    if (wk.isRunning) { badgeCls = 'badge-green'; sTxt = 'Running'; }
+    else if (wk.runCount > 0 && wk.failureCount === 0) { badgeCls = 'badge-green'; sTxt = 'Healthy'; }
+    else if (wk.failureCount > 0) { badgeCls = 'badge-red'; sTxt = 'Errors'; }
 
     var tr = document.createElement('tr');
-    var tdName = createEl('td'); var strong = createEl('strong', null, name); tdName.appendChild(strong); tr.appendChild(tdName);
-    tr.appendChild(createEl('td', null, wk.runCount));
-    tr.appendChild(createEl('td', null, rate + '%'));
-    tr.appendChild(createEl('td', null, wk.averageDurationMs.toFixed(1)));
-    var tdStatus = createEl('td'); tdStatus.appendChild(createEl('span', 'badge ' + badgeClass, statusText)); tr.appendChild(tdStatus);
+    var tdN = el('td'); tdN.appendChild(el('strong', null, wn)); tr.appendChild(tdN);
+    tr.appendChild(el('td', null, wk.runCount));
+    tr.appendChild(el('td', null, rate + '%'));
+    tr.appendChild(el('td', null, wk.averageDurationMs.toFixed(1)));
+    var tdS = el('td'); tdS.appendChild(el('span', 'badge ' + badgeCls, sTxt)); tr.appendChild(tdS);
     workerBody.appendChild(tr);
-  }
-
-  // Module targets
-  var moduleGrid = document.getElementById('moduleGrid');
-  var targets = inv.moduleTargets || {};
-  var tKeys = Object.keys(targets);
-  for (var m = 0; m < tKeys.length; m++) {
-    if (tKeys[m] === 'total') continue;
-    var mi = createEl('div', 'module-item');
-    mi.appendChild(createEl('div', 'num', targets[tKeys[m]]));
-    mi.appendChild(createEl('div', null, tKeys[m]));
-    moduleGrid.appendChild(mi);
   }
 
   // Session archives
   var sessionList = document.getElementById('sessionList');
-  var archives = inv.sessionArchives || [];
+  var archives = S.sessionArchives || [];
   for (var s = 0; s < archives.length; s++) {
-    var li = createEl('li');
-    li.appendChild(createEl('span', 'session-id', archives[s].id));
-    li.appendChild(document.createTextNode(archives[s].name + ' '));
-    li.appendChild(createEl('span', 'badge badge-muted', archives[s].status));
-    sessionList.appendChild(li);
+    var sli = el('li');
+    sli.appendChild(el('span', 'session-id', archives[s].id));
+    sli.appendChild(document.createTextNode(archives[s].name + ' '));
+    sli.appendChild(el('span', 'badge badge-muted', archives[s].status));
+    sessionList.appendChild(sli);
+  }
+
+  // Completed extractions
+  var exLog = document.getElementById('extractionLog');
+  var completed = S.completedExtractions || [];
+  if (completed.length === 0) {
+    exLog.appendChild(el('div', 'count', 'No extractions recorded yet.'));
+  } else {
+    for (var e = 0; e < completed.length; e++) {
+      var ent = el('div', 'entry');
+      ent.appendChild(el('span', null, completed[e].category));
+      var mInfo = '';
+      if (completed[e].files) mInfo += completed[e].files + ' files';
+      if (completed[e].manufacturers) mInfo += completed[e].manufacturers + ' mfgs, ' + completed[e].machines + ' machines';
+      if (completed[e].totalLines) mInfo += ', ' + completed[e].totalLines.toLocaleString() + ' lines';
+      mInfo += ' — ' + completed[e].date;
+      ent.appendChild(el('span', 'count', mInfo));
+      exLog.appendChild(ent);
+    }
   }
 
   // Consolidation stats
   var conStats = document.getElementById('consolidationStats');
-  var conItems = [
-    {label: 'Patterns', value: con.patternsConsolidated},
-    {label: 'Memory Cleaned', value: con.memoryCleaned},
-    {label: 'Duplicates Removed', value: con.duplicatesRemoved}
+  var cItems = [
+    {label: 'Patterns', value: CON.patternsConsolidated || 0},
+    {label: 'Memory Cleaned', value: CON.memoryCleaned || 0},
+    {label: 'Duplicates Removed', value: CON.duplicatesRemoved || 0}
   ];
-  for (var ci = 0; ci < conItems.length; ci++) {
-    var sd = createEl('div', 'stat');
-    sd.appendChild(createEl('div', 'value', conItems[ci].value));
-    sd.appendChild(createEl('div', 'label', conItems[ci].label));
-    conStats.appendChild(sd);
+  for (var ci = 0; ci < cItems.length; ci++) {
+    var cd = el('div', 'stat');
+    cd.appendChild(el('div', 'value', cItems[ci].value));
+    cd.appendChild(el('div', 'label', cItems[ci].label));
+    conStats.appendChild(cd);
   }
 
-  // Build timestamp (injected by CI)
+  // Build timestamp
   var buildTs = document.getElementById('buildTimestamp');
   var BUILD_TIME = /*__BUILD_TIME__*/ null /*__END_BUILD_TIME__*/;
   if (BUILD_TIME) {
     buildTs.textContent = 'Built: ' + new Date(BUILD_TIME).toLocaleString();
   } else {
     buildTs.textContent = 'Local build';
-  }
-
-  // Completed extractions log
-  var extractionLog = document.getElementById('extractionLog');
-  var completed = cs.completedExtractions || [];
-  if (completed.length === 0) {
-    extractionLog.appendChild(createEl('div', 'count', 'No extractions recorded yet.'));
-  } else {
-    for (var e = 0; e < completed.length; e++) {
-      var entry = createEl('div', 'entry');
-      entry.appendChild(createEl('span', null, completed[e].category));
-      var meta = createEl('span', 'count',
-        completed[e].files + ' files, ' +
-        (completed[e].totalLines || 0).toLocaleString() + ' lines — ' +
-        completed[e].date);
-      entry.appendChild(meta);
-      extractionLog.appendChild(entry);
-    }
-  }
-
-  // Stage info
-  var stageStats = document.getElementById('stageStats');
-  var stageItems = [
-    {label: 'Stage', value: cs.extraction ? cs.extraction.stage : '—'},
-    {label: 'Phase', value: cs.extraction ? cs.extraction.phase : '—'},
-    {label: 'Next Session', value: inv.nextSession ? inv.nextSession.id : '—'},
-    {label: 'Next Topic', value: inv.nextSession ? inv.nextSession.topic : '—'}
-  ];
-  for (var si = 0; si < stageItems.length; si++) {
-    var stD = createEl('div', 'stat');
-    var valDiv = createEl('div', 'value', stageItems[si].value);
-    if (stageItems[si].value.length > 10) valDiv.style.fontSize = '14px';
-    stD.appendChild(valDiv);
-    stD.appendChild(createEl('div', 'label', stageItems[si].label));
-    stageStats.appendChild(stD);
   }
 })();
 </script>
