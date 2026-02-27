@@ -7,9 +7,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -48,27 +50,28 @@
         "shear_strength": 162.0
       },
       "kienzle": {
-        "kc1_1": 550,
-        "mc": 0.25,
-        "kc1_1_milling": 484,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 633,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 578,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 468,
-        "mc_reaming": 0.22,
+        "kc1_1": 674.7,
+        "mc": 0.23,
+        "kc1_1_milling": 708.5,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 775.9,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 688.2,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 728.7,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -170,11 +173,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -182,13 +193,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -196,38 +213,45 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
         "material_class": "Carbon/Alloy Steel"
       },
       "taylor": {
-        "C": 800,
-        "n": 0.3,
+        "C": 900,
+        "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1112,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 1962,
         "n_ceramic": 0.32,
-        "C_hss": 392,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 3924,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 136.4,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 146.4,
+        "B": 175.0,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -242,11 +266,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 668,
-          "speed_finishing": 1240,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -262,28 +286,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 572,
-          "speed_finishing": 1049,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 429,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -308,15 +339,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -344,6 +375,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     },
     {
@@ -353,9 +434,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -394,27 +477,28 @@
         "shear_strength": 190.0
       },
       "kienzle": {
-        "kc1_1": 580,
-        "mc": 0.25,
-        "kc1_1_milling": 510,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 667,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 609,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 493,
-        "mc_reaming": 0.22,
+        "kc1_1": 692.5,
+        "mc": 0.23,
+        "kc1_1_milling": 727.1,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 796.4,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 706.4,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 747.9,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -516,11 +600,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -528,13 +620,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -542,38 +640,45 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
         "material_class": "Carbon/Alloy Steel"
       },
       "taylor": {
-        "C": 800,
-        "n": 0.3,
+        "C": 900,
+        "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1066,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 1881,
         "n_ceramic": 0.32,
-        "C_hss": 376,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 3762,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 138.2,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 155.9,
+        "B": 182.5,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -588,11 +693,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 649,
-          "speed_finishing": 1205,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -608,28 +713,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 556,
-          "speed_finishing": 1020,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 417,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -654,15 +766,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -690,6 +802,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     },
     {
@@ -699,9 +861,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -740,27 +904,28 @@
         "shear_strength": 167.0
       },
       "kienzle": {
-        "kc1_1": 550,
-        "mc": 0.25,
-        "kc1_1_milling": 484,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 633,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 578,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 468,
-        "mc_reaming": 0.22,
+        "kc1_1": 655.4,
+        "mc": 0.23,
+        "kc1_1_milling": 688.2,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 753.7,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 668.5,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 707.8,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -862,11 +1027,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -874,13 +1047,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -888,9 +1067,16 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
@@ -901,25 +1087,25 @@
         "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1158,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 2043,
         "n_ceramic": 0.32,
-        "C_hss": 409,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 4086,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 134.6,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 136.6,
+        "B": 167.1,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -934,11 +1120,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 687,
-          "speed_finishing": 1275,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -954,28 +1140,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 589,
-          "speed_finishing": 1079,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 441,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -1000,15 +1193,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -1036,6 +1229,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     },
     {
@@ -1045,9 +1288,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -1086,27 +1331,28 @@
         "shear_strength": 179.0
       },
       "kienzle": {
-        "kc1_1": 570,
-        "mc": 0.25,
-        "kc1_1_milling": 502,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 656,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 599,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 485,
-        "mc_reaming": 0.22,
+        "kc1_1": 624.0,
+        "mc": 0.23,
+        "kc1_1_milling": 655.2,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 717.6,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 636.5,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 674.0,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -1208,11 +1454,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -1220,13 +1474,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -1234,9 +1494,16 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
@@ -1247,25 +1514,25 @@
         "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1224,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 2160,
         "n_ceramic": 0.32,
-        "C_hss": 432,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 4320,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 132,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 121.4,
+        "B": 154.5,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -1280,11 +1547,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 714,
-          "speed_finishing": 1326,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -1300,28 +1567,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 612,
-          "speed_finishing": 1122,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 459,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -1346,15 +1620,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -1382,6 +1656,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     },
     {
@@ -1391,9 +1715,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -1432,27 +1758,28 @@
         "shear_strength": 219.0
       },
       "kienzle": {
-        "kc1_1": 620,
-        "mc": 0.25,
-        "kc1_1_milling": 546,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 713,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 651,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 527,
-        "mc_reaming": 0.22,
+        "kc1_1": 674.7,
+        "mc": 0.23,
+        "kc1_1_milling": 708.5,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 775.9,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 688.2,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 728.7,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -1554,11 +1881,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -1566,13 +1901,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -1580,9 +1921,16 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
@@ -1593,25 +1941,25 @@
         "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1112,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 1962,
         "n_ceramic": 0.32,
-        "C_hss": 392,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 3924,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 136.4,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 146.4,
+        "B": 175.0,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -1626,11 +1974,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 668,
-          "speed_finishing": 1240,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -1646,28 +1994,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 572,
-          "speed_finishing": 1049,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 429,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -1692,15 +2047,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -1728,6 +2083,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     },
     {
@@ -1737,9 +2142,11 @@
       "material_type": "NONFERROUS",
       "subcategory": "magnesium",
       "condition": "unknown",
-      "data_quality": "enriched",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_gen_v5_consolidated"
+        "PRISM_gen_v5_consolidated",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2700,
@@ -1778,27 +2185,28 @@
         "shear_strength": 162.0
       },
       "kienzle": {
-        "kc1_1": 620,
-        "mc": 0.25,
-        "kc1_1_milling": 546,
-        "mc_milling": 0.23,
-        "kc1_1_drilling": 713,
-        "mc_drilling": 0.28,
-        "kc1_1_boring": 651,
-        "mc_boring": 0.26,
-        "kc1_1_reaming": 527,
-        "mc_reaming": 0.22,
+        "kc1_1": 680.8,
+        "mc": 0.23,
+        "kc1_1_milling": 714.8,
+        "mc_milling": 0.2346,
+        "kc1_1_drilling": 782.9,
+        "mc_drilling": 0.2415,
+        "kc1_1_boring": 694.4,
+        "mc_boring": 0.23,
+        "kc1_1_reaming": 735.3,
+        "mc_reaming": 0.2369,
         "_enriched": "R1-MS6-phase3"
       },
       "chip_formation": {
-        "chip_type": "SEGMENTED",
-        "chip_breaking": "FAIR",
-        "built_up_edge_tendency": "MEDIUM",
+        "chip_type": "continuous",
+        "chip_breaking": "poor",
+        "built_up_edge_tendency": "very_high",
         "work_hardening_severity": "LOW",
         "adhesion_tendency": "high",
         "segmentation_frequency": "low",
-        "shear_angle": 38,
-        "chip_compression_ratio": 2.0
+        "shear_angle": 35,
+        "chip_compression_ratio": 1.6,
+        "edge_radius_sensitivity": "moderate"
       },
       "machinability": {
         "aisi_rating": null,
@@ -1900,11 +2308,19 @@
       },
       "tribology": {
         "sliding_friction": 0.45,
-        "adhesion_tendency": "moderate",
-        "galling_tendency": "low",
+        "adhesion_tendency": "very_high",
+        "galling_tendency": "high",
         "welding_temperature": 1150,
         "oxide_stability": "moderate",
-        "lubricity_response": "good"
+        "lubricity_response": "good",
+        "friction_coefficient": 0.65,
+        "friction_coefficient_dry": 0.65,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "none",
+        "crater_wear_coefficient": 0.0005,
+        "flank_wear_coefficient": 0.0004,
+        "wear_coefficient": 0.00045
       },
       "surface_integrity": {
         "achievable_roughness": {
@@ -1912,13 +2328,19 @@
           "Ra_typical": 1.6,
           "Ra_max": 3.2
         },
-        "residual_stress_tendency": "compressive",
+        "residual_stress_tendency": "tensile",
         "white_layer_tendency": "low",
-        "work_hardening_depth": 0.08,
+        "work_hardening_depth": 0.05,
         "microstructure_stability": "good",
         "burr_formation": "moderate",
         "surface_defect_sensitivity": "low",
-        "polishability": "good"
+        "polishability": "good",
+        "white_layer_risk": "none",
+        "surface_roughness_achievable": 0.4,
+        "burr_formation_tendency": "very_high",
+        "minimum_uncut_chip_thickness": 0.003,
+        "ploughing_force_coefficient": 0.15,
+        "microstructure_sensitivity": "moderate"
       },
       "thermal_machining": {
         "cutting_temperature_coefficient": 0.85,
@@ -1926,38 +2348,45 @@
         "heat_partition_to_tool": 0.12,
         "heat_partition_to_workpiece": 0.13,
         "thermal_softening_onset": 450,
-        "recrystallization_temperature": 650,
+        "recrystallization_temperature": 270.0,
         "hot_hardness_retention": "moderate",
-        "thermal_shock_sensitivity": "low"
+        "thermal_shock_sensitivity": "low",
+        "heat_partition_coefficient": 0.717,
+        "maximum_cutting_temperature": 450,
+        "emissivity": 0.08,
+        "heat_transfer_coefficient": 19335.3,
+        "thermal_diffusivity": 37.037,
+        "critical_temperature": 450,
+        "phase_transformation_temperature": 240.0
       },
       "designation": {
         "iso_group": "P",
         "material_class": "Carbon/Alloy Steel"
       },
       "taylor": {
-        "C": 800,
-        "n": 0.3,
+        "C": 900,
+        "n": 0.35,
         "tool_material": "Carbide",
         "_generated": true,
-        "C_carbide": 1096,
-        "n_carbide": 0.24,
+        "C_carbide": 900,
+        "n_carbide": 0.35,
         "C_ceramic": 1935,
         "n_ceramic": 0.32,
-        "C_hss": 387,
-        "n_hss": 0.18,
+        "C_hss": 250,
+        "n_hss": 0.2,
         "C_pcd": 3870,
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 137,
-        "B": 300,
-        "n": 0.35,
-        "C": 0.025,
+        "A": 149.6,
+        "B": 177.5,
+        "n": 0.3,
+        "C": 0.013,
         "m": 1.2,
         "T_melt": 660,
-        "T_ref": 20,
+        "T_ref": 25,
         "_generated": true,
-        "epsilon_dot_ref": 0.001,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 145
       },
       "cutting_recommendations": {
@@ -1972,11 +2401,11 @@
             "fn_mm": 0.1,
             "ap_max_mm": 0.5
           },
-          "speed_roughing": 662,
-          "speed_finishing": 1228,
-          "feed_roughing": 0.25,
-          "feed_finishing": 0.1,
-          "doc_roughing": 3.0,
+          "speed_roughing": 448.0,
+          "speed_finishing": 806.4,
+          "feed_roughing": 0.3,
+          "feed_finishing": 0.12,
+          "doc_roughing": 5.0,
           "doc_finishing": 0.5,
           "coolant_type": "flood_emulsion",
           "coolant_pressure": 10
@@ -1992,28 +2421,35 @@
             "fz_mm": 0.1,
             "ap_max_factor": 0.3
           },
-          "speed_roughing": 567,
-          "speed_finishing": 1040,
-          "feed_per_tooth_roughing": 0.12,
-          "feed_per_tooth_finishing": 0.06,
-          "doc_roughing": 2.5,
-          "doc_finishing": 0.5,
+          "speed_roughing": 515.2,
+          "speed_finishing": 927.3,
+          "feed_per_tooth_roughing": 0.105,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 4.0,
+          "doc_finishing": 0.4,
           "ae_roughing_pct": 50,
-          "ae_finishing_pct": 10
+          "ae_finishing_pct": 10,
+          "woc_roughing": 2.0,
+          "woc_finishing": 0.2
         },
         "_enriched": "R1-MS6-phase2",
         "drilling": {
-          "speed": 425,
-          "feed_per_rev": 0.1,
-          "peck_depth_ratio": 1.0,
+          "speed": 291.2,
+          "feed_per_rev": 0.105,
+          "peck_depth_ratio": 0.5,
           "point_angle": 130,
           "coolant_type": "flood_emulsion",
           "coolant_through": false
         },
         "tool_material": {
-          "recommended_grade": "K10 Uncoated or PCD",
-          "coating_recommendation": "Uncoated polished or DLC",
-          "geometry_recommendation": "High positive rake 12-20°, polished flutes"
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "_enrichment": [
@@ -2038,15 +2474,15 @@
         "achievable_ra_turning": 0.4,
         "achievable_ra_milling": 0.8,
         "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
+        "surface_integrity_sensitivity": "moderate",
         "white_layer_risk": "none"
       },
       "thermal": {
-        "cutting_temperature_factor": 1.0,
-        "heat_partition_ratio": 0.25,
+        "cutting_temperature_factor": 1.4,
+        "heat_partition_ratio": 0.283,
         "thermal_softening_onset": 200,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -2074,6 +2510,56 @@
         "params": 211,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "none",
+        "match_method": "subcategory_only",
+        "match_quality": 0.5,
+        "subcategory_resolved": "magnesium",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Al"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_magnesium_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_magnesium"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     }
   ]

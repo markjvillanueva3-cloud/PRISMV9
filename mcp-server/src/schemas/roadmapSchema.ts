@@ -416,8 +416,10 @@ export const MilestoneEntry = z.object({
   sessions: z.string().default("1"),
   /** Relative path to the milestone envelope JSON (from data/). */
   envelope_path: z.string().min(1),
-  /** Relative path to position.json (from data/). */
-  position_path: z.string().min(1),
+  /** Relative path to position.json (from data/). Optional for not_started milestones. */
+  position_path: z.string().min(1).optional(),
+  /** Freeform notes (e.g. deferred units). */
+  notes: z.string().optional(),
 });
 export type MilestoneEntry = z.infer<typeof MilestoneEntry>;
 

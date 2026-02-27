@@ -24,8 +24,8 @@
           "model": "sonnet-4.6",
           "effort": 15,
           "tools": [
-            { "tool": "prism_dev", "actions": ["file_read", "code_search"] },
-            { "tool": "prism_manus", "actions": ["web_research"] }
+            { "tool": "prism_dev", "action": "file_read" },
+            { "tool": "prism_manus", "action": "web_research" }
           ],
           "skills": [],
           "scripts": [],
@@ -49,8 +49,8 @@
             { "number": 4, "instruction": "Generate inventory report: data/consolidation-inventory.json" }
           ],
           "deliverables": [
-            "data/consolidation-inventory.json",
-            "data/consolidation-report.md"
+            { "path": "data/consolidation-inventory.json", "type": "data", "description": "Complete file inventory with categories and priorities" },
+            { "path": "data/consolidation-report.md", "type": "doc", "description": "Deduplication and categorization report" }
           ]
         },
         {
@@ -63,9 +63,9 @@
           "model": "sonnet-4.6",
           "effort": 20,
           "tools": [
-            { "tool": "prism_dev", "actions": ["file_read", "file_write", "build"] },
-            { "tool": "prism_validate", "actions": ["completeness"] },
-            { "tool": "prism_data", "actions": ["material_search", "tool_search"] }
+            { "tool": "prism_dev", "action": "file_read" },
+            { "tool": "prism_validate", "action": "completeness" },
+            { "tool": "prism_data", "action": "material_search" }
           ],
           "skills": [],
           "scripts": [],
@@ -89,8 +89,8 @@
             { "number": 5, "instruction": "Build and test to ensure registry loading works" }
           ],
           "deliverables": [
-            "Updated data/registries/ files",
-            "Migration verification report"
+            { "path": "data/registries/", "type": "data", "description": "Updated registry files with migrated CRITICAL data" },
+            { "path": "data/migration-report.md", "type": "doc", "description": "Migration verification report" }
           ]
         },
         {
@@ -103,8 +103,8 @@
           "model": "sonnet-4.6",
           "effort": 20,
           "tools": [
-            { "tool": "prism_dev", "actions": ["file_read", "file_write", "build"] },
-            { "tool": "prism_validate", "actions": ["completeness", "anti_regression"] }
+            { "tool": "prism_dev", "action": "file_read" },
+            { "tool": "prism_validate", "action": "completeness" }
           ],
           "skills": [],
           "scripts": [],
@@ -129,9 +129,9 @@
             { "number": 6, "instruction": "Full build + test pass" }
           ],
           "deliverables": [
-            "Updated data/registries/",
-            "data/archive/ (LOW priority files)",
-            "Final consolidation report with file counts"
+            { "path": "data/registries/", "type": "data", "description": "Updated registries with HIGH priority data" },
+            { "path": "data/archive/", "type": "data", "description": "Archived LOW priority files" },
+            { "path": "data/consolidation-final-report.md", "type": "doc", "description": "Final consolidation report with file counts" }
           ]
         }
       ],
@@ -173,16 +173,16 @@
     { "tool": "Desktop Commander", "phases": ["P0"], "purpose": "bulk file scanning across 1,775 files (external)" }
   ],
   "deliverables_index": [
-    "data/consolidation-inventory.json",
-    "data/consolidation-report.md",
-    "Updated data/registries/",
-    "data/archive/"
+    { "path": "data/consolidation-inventory.json", "type": "data", "description": "Complete file inventory" },
+    { "path": "data/consolidation-report.md", "type": "doc", "description": "Deduplication report" },
+    { "path": "data/registries/", "type": "data", "description": "Updated registry files" },
+    { "path": "data/archive/", "type": "data", "description": "Archived LOW priority files" }
   ],
   "existing_leverage": [
-    "R15 extraction gap analysis (536 files categorized by priority)",
-    "Existing data/registries/ structure",
-    "prism_data material/tool databases for merge validation",
-    "Desktop Commander for bulk file operations"
+    { "asset": "R15 extraction gap analysis", "type": "data", "count": 536, "usage": "536 files categorized by priority" },
+    { "asset": "data/registries/ structure", "type": "data", "usage": "Existing registry layout for merge targets" },
+    { "asset": "prism_data material/tool databases", "type": "source", "usage": "Merge validation against existing data" },
+    { "asset": "Desktop Commander", "type": "source", "usage": "Bulk file scanning across 1,775 files" }
   ],
   "r15_extraction_inventory": {
     "total_files": 536,

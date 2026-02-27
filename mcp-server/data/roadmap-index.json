@@ -1,7 +1,9 @@
 {
-  "version": "3.1.0",
-  "title": "PRISM App - Comprehensive Layered Roadmap v3.1 (Bottom-Up)",
-  "updated_at": "2026-02-26T20:14:19Z",
+  "version": "4.0.0",
+  "title": "PRISM App — Comprehensive Layered Roadmap",
+  "updated_at": "2026-02-27T00:00:00Z",
+  "total_milestones": 65,
+  "completed_milestones": 38,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -16,58 +18,143 @@
       "position_path": "state/S0-MS1/position.json"
     },
     {
+      "id": "S1-MS1",
+      "title": "Registry Enrichment for SFC",
+      "track": "S1",
+      "dependencies": ["S0-MS1"],
+      "status": "complete",
+      "total_units": 18,
+      "completed_units": 18,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S1-MS1.json",
+      "position_path": "state/S1-MS1/position.json"
+    },
+    {
+      "id": "S1-MS2",
+      "title": "Port Core Monolith Algorithms",
+      "track": "S1",
+      "dependencies": ["S1-MS1"],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S1-MS2.json",
+      "position_path": "state/S1-MS2/position.json"
+    },
+    {
+      "id": "S2-MS1",
+      "title": "Verify & Extend ProductEngine SFC Actions",
+      "track": "S2",
+      "dependencies": ["S1-MS2"],
+      "status": "complete",
+      "total_units": 6,
+      "completed_units": 6,
+      "sessions": "1",
+      "envelope_path": "milestones/S2-MS1.json",
+      "position_path": "state/S2-MS1/position.json"
+    },
+    {
+      "id": "S2-MS2",
+      "title": "SFC API Routes + Thin-Client Calculator",
+      "track": "S2",
+      "dependencies": ["S2-MS1"],
+      "status": "complete",
+      "total_units": 6,
+      "completed_units": 6,
+      "sessions": "1-2",
+      "envelope_path": "milestones/S2-MS2.json",
+      "position_path": "state/S2-MS2/position.json"
+    },
+    {
+      "id": "S3-MS1",
+      "title": "SFC Calculator Core UI",
+      "track": "S3",
+      "dependencies": ["L6-P1-MS1"],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S3-MS1.json"
+    },
+    {
+      "id": "S3-MS2",
+      "title": "SFC Smart Selectors",
+      "track": "S3",
+      "dependencies": ["S3-MS1"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/S3-MS2.json"
+    },
+    {
+      "id": "S3-MS3",
+      "title": "SFC Advanced Features",
+      "track": "S3",
+      "dependencies": ["S3-MS2"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/S3-MS3.json"
+    },
+    {
+      "id": "S4-MS1",
+      "title": "Testing, Polish & Ship",
+      "track": "S4",
+      "dependencies": ["S3-MS3"],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/S4-MS1.json"
+    },
+    {
       "id": "L0-NEW-MS0",
       "title": "Data Consolidation & Deduplication",
       "track": "L0",
-      "dependencies": [
-        "S0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["S2-MS2"],
+      "status": "complete",
       "total_units": 12,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "completed_units": 10,
+      "sessions": "2",
       "envelope_path": "milestones/L0-NEW-MS0.json",
-      "position_path": "state/L0-NEW-MS0/position.json"
+      "position_path": "state/L0-NEW-MS0/position.json",
+      "notes": "10/12 units complete. P2-U05 deferred to L1. P3-U01 deferred."
     },
     {
       "id": "L0-P0-MS1",
       "title": "Create 12 Core Databases",
       "track": "L0",
-      "dependencies": [
-        "L0-NEW-MS0"
-      ],
-      "status": "not_started",
-      "total_units": 12,
-      "completed_units": 0,
-      "sessions": "3-4",
+      "dependencies": ["L0-NEW-MS0"],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1",
       "envelope_path": "milestones/L0-P0-MS1.json",
       "position_path": "state/L0-P0-MS1/position.json"
     },
     {
       "id": "L0-P0-MS2",
-      "title": "Create 12 Specialty Databases from PASS2",
+      "title": "Create 12 Specialty Databases",
       "track": "L0",
-      "dependencies": [
-        "L0-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L0-P0-MS1"],
+      "status": "complete",
       "total_units": 12,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "completed_units": 12,
+      "sessions": "2",
       "envelope_path": "milestones/L0-P0-MS2.json",
       "position_path": "state/L0-P0-MS2/position.json"
     },
     {
       "id": "L0-P1-MS1",
-      "title": "Registry Enrichment - Full Coverage",
+      "title": "Registry Enrichment — Full Coverage + DSL Integration",
       "track": "L0",
-      "dependencies": [
-        "L0-P0-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 18,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L0-P0-MS2"],
+      "status": "complete",
+      "total_units": 11,
+      "completed_units": 11,
+      "sessions": "1",
       "envelope_path": "milestones/L0-P1-MS1.json",
       "position_path": "state/L0-P1-MS1/position.json"
     },
@@ -75,13 +162,11 @@
       "id": "L0-P2-MS1",
       "title": "Registry Infrastructure + Cross-Registry Index + DSL Registration",
       "track": "L0",
-      "dependencies": [
-        "L0-P1-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L0-P1-MS1"],
+      "status": "complete",
       "total_units": 11,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "completed_units": 11,
+      "sessions": "1",
       "envelope_path": "milestones/L0-P2-MS1.json",
       "position_path": "state/L0-P2-MS1/position.json"
     },
@@ -89,13 +174,11 @@
       "id": "L1-P0-MS1",
       "title": "Port ALL 14 Monolith Algorithms",
       "track": "L1",
-      "dependencies": [
-        "L0-P2-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L0-P2-MS1"],
+      "status": "complete",
       "total_units": 14,
-      "completed_units": 0,
-      "sessions": "3-4",
+      "completed_units": 14,
+      "sessions": "1",
       "envelope_path": "milestones/L1-P0-MS1.json",
       "position_path": "state/L1-P0-MS1/position.json"
     },
@@ -103,13 +186,11 @@
       "id": "L1-P1-MS1",
       "title": "New General-Purpose Algorithms",
       "track": "L1",
-      "dependencies": [
-        "L1-P0-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 18,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L1-P0-MS1"],
+      "status": "complete",
+      "total_units": 20,
+      "completed_units": 20,
+      "sessions": "1",
       "envelope_path": "milestones/L1-P1-MS1.json",
       "position_path": "state/L1-P1-MS1/position.json"
     },
@@ -117,13 +198,11 @@
       "id": "L1-P1-MS2",
       "title": "New Manufacturing-Specific Algorithms from PASS2",
       "track": "L1",
-      "dependencies": [
-        "L1-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L1-P1-MS1"],
+      "status": "complete",
       "total_units": 14,
-      "completed_units": 0,
-      "sessions": "2",
+      "completed_units": 14,
+      "sessions": "1",
       "envelope_path": "milestones/L1-P1-MS2.json",
       "position_path": "state/L1-P1-MS2/position.json"
     },
@@ -131,13 +210,10 @@
       "id": "L1-P2-MS1",
       "title": "Algorithm Engine & Wiring",
       "track": "L1",
-      "dependencies": [
-        "L1-P1-MS1",
-        "L1-P1-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 5,
-      "completed_units": 0,
+      "dependencies": ["L1-P1-MS2"],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
       "sessions": "1",
       "envelope_path": "milestones/L1-P2-MS1.json",
       "position_path": "state/L1-P2-MS1/position.json"
@@ -146,13 +222,11 @@
       "id": "L2-P0-MS1",
       "title": "Port 8 Monolith Engines",
       "track": "L2",
-      "dependencies": [
-        "L1-P2-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L1-P2-MS1"],
+      "status": "complete",
+      "total_units": 11,
+      "completed_units": 11,
+      "sessions": "2",
       "envelope_path": "milestones/L2-P0-MS1.json",
       "position_path": "state/L2-P0-MS1/position.json"
     },
@@ -160,13 +234,11 @@
       "id": "L2-P1-MS1",
       "title": "20 Manufacturing Intelligence Engines",
       "track": "L2",
-      "dependencies": [
-        "L2-P0-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 20,
-      "completed_units": 0,
-      "sessions": "4",
+      "dependencies": ["L2-P0-MS1"],
+      "status": "complete",
+      "total_units": 22,
+      "completed_units": 22,
+      "sessions": "1",
       "envelope_path": "milestones/L2-P1-MS1.json",
       "position_path": "state/L2-P1-MS1/position.json"
     },
@@ -174,13 +246,11 @@
       "id": "L2-P2-MS1",
       "title": "16 CAD/CAM Engines",
       "track": "L2",
-      "dependencies": [
-        "L2-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L2-P1-MS1"],
+      "status": "complete",
       "total_units": 16,
-      "completed_units": 0,
-      "sessions": "3",
+      "completed_units": 16,
+      "sessions": "1",
       "envelope_path": "milestones/L2-P2-MS1.json",
       "position_path": "state/L2-P2-MS1/position.json"
     },
@@ -188,43 +258,35 @@
       "id": "L2-P3-MS1",
       "title": "16 Infrastructure Engines",
       "track": "L2",
-      "dependencies": [
-        "L2-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L2-P2-MS1"],
+      "status": "complete",
       "total_units": 16,
-      "completed_units": 0,
-      "sessions": "3",
+      "completed_units": 16,
+      "sessions": "1",
       "envelope_path": "milestones/L2-P3-MS1.json",
       "position_path": "state/L2-P3-MS1/position.json"
     },
     {
       "id": "L2-P4-MS1",
-      "title": "44 PASS2 Specialty Engines",
+      "title": "52 PASS2 Specialty Engines",
       "track": "L2",
-      "dependencies": [
-        "L2-P1-MS1",
-        "L2-P2-MS1",
-        "L2-P3-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 44,
-      "completed_units": 0,
-      "sessions": "8-10",
+      "dependencies": ["L2-P3-MS1"],
+      "status": "complete",
+      "total_units": 52,
+      "completed_units": 52,
+      "sessions": "2",
       "envelope_path": "milestones/L2-P4-MS1.json",
       "position_path": "state/L2-P4-MS1/position.json"
     },
     {
       "id": "L3-P0-MS1",
-      "title": "6 Core New Dispatchers",
+      "title": "6 Core New Dispatchers + 12 Actions on Existing",
       "track": "L3",
-      "dependencies": [
-        "L2-P4-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L2-P4-MS1"],
+      "status": "complete",
+      "total_units": 8,
+      "completed_units": 8,
+      "sessions": "1",
       "envelope_path": "milestones/L3-P0-MS1.json",
       "position_path": "state/L3-P0-MS1/position.json"
     },
@@ -232,27 +294,23 @@
       "id": "L3-P1-MS1",
       "title": "6 PASS2 Specialty Dispatchers",
       "track": "L3",
-      "dependencies": [
-        "L3-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L3-P0-MS1"],
+      "status": "complete",
       "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "completed_units": 6,
+      "sessions": "1",
       "envelope_path": "milestones/L3-P1-MS1.json",
       "position_path": "state/L3-P1-MS1/position.json"
     },
     {
       "id": "L4-P0-MS1",
-      "title": "Safety + Quality + Business + System Hooks",
+      "title": "20 Core Hooks + 6 Cadences",
       "track": "L4",
-      "dependencies": [
-        "L3-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 20,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L3-P1-MS1"],
+      "status": "complete",
+      "total_units": 26,
+      "completed_units": 26,
+      "sessions": "1",
       "envelope_path": "milestones/L4-P0-MS1.json",
       "position_path": "state/L4-P0-MS1/position.json"
     },
@@ -260,13 +318,11 @@
       "id": "L4-P1-MS1",
       "title": "20 PASS2 Specialty Hooks + 6 Cadences",
       "track": "L4",
-      "dependencies": [
-        "L4-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L4-P0-MS1"],
+      "status": "complete",
       "total_units": 26,
-      "completed_units": 0,
-      "sessions": "1-2",
+      "completed_units": 26,
+      "sessions": "1",
       "envelope_path": "milestones/L4-P1-MS1.json",
       "position_path": "state/L4-P1-MS1/position.json"
     },
@@ -274,13 +330,11 @@
       "id": "L5-P0-MS1",
       "title": "22 Core Product/Feature Skills",
       "track": "L5",
-      "dependencies": [
-        "L4-P1-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L4-P1-MS1"],
+      "status": "complete",
       "total_units": 22,
-      "completed_units": 0,
-      "sessions": "2",
+      "completed_units": 22,
+      "sessions": "1",
       "envelope_path": "milestones/L5-P0-MS1.json",
       "position_path": "state/L5-P0-MS1/position.json"
     },
@@ -288,482 +342,152 @@
       "id": "L5-P0-MS2",
       "title": "22 PASS2 Specialty Skills",
       "track": "L5",
-      "dependencies": [
-        "L5-P0-MS1"
-      ],
-      "status": "not_started",
+      "dependencies": ["L5-P0-MS1"],
+      "status": "complete",
       "total_units": 22,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "completed_units": 22,
+      "sessions": "1",
       "envelope_path": "milestones/L5-P0-MS2.json",
       "position_path": "state/L5-P0-MS2/position.json"
     },
     {
       "id": "L5-P1-MS1",
-      "title": "14 Core Scripts + 14 PASS2 Scripts",
+      "title": "28 Scripts (14 Core + 14 PASS2)",
       "track": "L5",
-      "dependencies": [
-        "L5-P0-MS2"
-      ],
-      "status": "not_started",
+      "dependencies": ["L5-P0-MS2"],
+      "status": "complete",
       "total_units": 28,
-      "completed_units": 0,
-      "sessions": "1-2",
+      "completed_units": 28,
+      "sessions": "1",
       "envelope_path": "milestones/L5-P1-MS1.json",
       "position_path": "state/L5-P1-MS1/position.json"
     },
     {
       "id": "L6-P0-MS1",
-      "title": "Core REST API Routes",
+      "title": "Core REST API — 9 Route Modules, 42 Endpoints",
       "track": "L6",
-      "dependencies": [
-        "L5-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 7,
-      "completed_units": 0,
-      "sessions": "2",
+      "dependencies": ["L5-P1-MS1"],
+      "status": "complete",
+      "total_units": 9,
+      "completed_units": 9,
+      "sessions": "1",
       "envelope_path": "milestones/L6-P0-MS1.json",
       "position_path": "state/L6-P0-MS1/position.json"
     },
     {
       "id": "L6-P1-MS1",
-      "title": "Auth, Admin, WebSocket & OpenAPI",
+      "title": "Auth, Admin, WebSocket, OpenAPI",
       "track": "L6",
-      "dependencies": [
-        "L6-P0-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "1-2",
+      "dependencies": ["L6-P0-MS1"],
+      "status": "complete",
+      "total_units": 14,
+      "completed_units": 14,
+      "sessions": "1",
       "envelope_path": "milestones/L6-P1-MS1.json",
       "position_path": "state/L6-P1-MS1/position.json"
     },
     {
-      "id": "S3-MS1",
-      "title": "SFC Calculator Core UI",
-      "track": "S3",
-      "dependencies": [
-        "L6-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/S3-MS1.json",
-      "position_path": "state/S3-MS1/position.json"
-    },
-    {
-      "id": "S3-MS2",
-      "title": "SFC Smart Selectors",
-      "track": "S3",
-      "dependencies": [
-        "S3-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "1-2",
-      "envelope_path": "milestones/S3-MS2.json",
-      "position_path": "state/S3-MS2/position.json"
-    },
-    {
-      "id": "S3-MS3",
-      "title": "SFC Advanced Features",
-      "track": "S3",
-      "dependencies": [
-        "S3-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2",
-      "envelope_path": "milestones/S3-MS3.json",
-      "position_path": "state/S3-MS3/position.json"
-    },
-    {
-      "id": "S4-MS1",
-      "title": "Testing, Polish & Ship",
-      "track": "S4",
-      "dependencies": [
-        "S3-MS3"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/S4-MS1.json",
-      "position_path": "state/S4-MS1/position.json"
+      "id": "L7-P0-MS1",
+      "title": "Phase Gate — Zero TS Errors",
+      "track": "L7",
+      "dependencies": ["L6-P1-MS1"],
+      "status": "complete",
+      "total_units": 1,
+      "completed_units": 1,
+      "sessions": "1",
+      "envelope_path": "milestones/L7-P0-MS1.json",
+      "position_path": "state/L7-P0-MS1/position.json"
     },
     {
       "id": "L8-P0-MS1",
-      "title": "Post Processor Generator (PPG) - Engine + API",
+      "title": "PPG Product — Post Processor Generator",
       "track": "L8",
-      "dependencies": [
-        "L6-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 10,
-      "completed_units": 0,
-      "sessions": "3-4",
+      "dependencies": ["L7-P0-MS1"],
+      "status": "complete",
+      "total_units": 8,
+      "completed_units": 8,
+      "sessions": "1",
       "envelope_path": "milestones/L8-P0-MS1.json",
       "position_path": "state/L8-P0-MS1/position.json"
     },
     {
-      "id": "L8-P0-MS2",
-      "title": "PPG Web UI",
+      "id": "L8-P1-MS1",
+      "title": "Learning & ERP Products",
       "track": "L8",
-      "dependencies": [
-        "L8-P0-MS1"
-      ],
+      "dependencies": ["L8-P0-MS1"],
+      "status": "complete",
+      "total_units": 20,
+      "completed_units": 20,
+      "sessions": "1",
+      "envelope_path": "milestones/L8-P1-MS1.json",
+      "position_path": "state/L8-P1-MS1/position.json"
+    },
+    {
+      "id": "L8-P2-MS1",
+      "title": "Thread, Compliance & Telemetry Products",
+      "track": "L8",
+      "dependencies": ["L8-P1-MS1"],
+      "status": "complete",
+      "total_units": 27,
+      "completed_units": 27,
+      "sessions": "1",
+      "envelope_path": "milestones/L8-P2-MS1.json",
+      "position_path": "state/L8-P2-MS1/position.json"
+    },
+    {
+      "id": "L8-P3-MS1",
+      "title": "Orchestration & Bridge Products",
+      "track": "L8",
+      "dependencies": ["L8-P2-MS1"],
+      "status": "complete",
+      "total_units": 39,
+      "completed_units": 39,
+      "sessions": "1",
+      "envelope_path": "milestones/L8-P3-MS1.json",
+      "position_path": "state/L8-P3-MS1/position.json"
+    },
+    {
+      "id": "L8-P0-MS2",
+      "title": "PPG Web UI — Post Processor Generator Interface",
+      "track": "L8",
+      "dependencies": ["L8-P0-MS1"],
       "status": "not_started",
       "total_units": 12,
       "completed_units": 0,
-      "sessions": "5-6",
-      "envelope_path": "milestones/L8-P0-MS2.json",
-      "position_path": "state/L8-P0-MS2/position.json"
-    },
-    {
-      "id": "L8-P1-MS1",
-      "title": "CAD/CAM Learning - Engine + API",
-      "track": "L8",
-      "dependencies": [
-        "L6-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
       "sessions": "2-3",
-      "envelope_path": "milestones/L8-P1-MS1.json",
-      "position_path": "state/L8-P1-MS1/position.json"
+      "envelope_path": "milestones/L8-P0-MS2.json"
     },
     {
       "id": "L8-P1-MS2",
       "title": "CAD/CAM Learning Web UI",
       "track": "L8",
-      "dependencies": [
-        "L8-P1-MS1"
-      ],
+      "dependencies": ["L8-P1-MS1"],
       "status": "not_started",
       "total_units": 15,
       "completed_units": 0,
-      "sessions": "7-9",
-      "envelope_path": "milestones/L8-P1-MS2.json",
-      "position_path": "state/L8-P1-MS2/position.json"
-    },
-    {
-      "id": "L8-P2-MS1",
-      "title": "ERP/Business - Engine + API",
-      "track": "L8",
-      "dependencies": [
-        "L6-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 10,
-      "completed_units": 0,
       "sessions": "3-4",
-      "envelope_path": "milestones/L8-P2-MS1.json",
-      "position_path": "state/L8-P2-MS1/position.json"
+      "envelope_path": "milestones/L8-P1-MS2.json"
     },
     {
       "id": "L8-P2-MS2",
       "title": "ERP/Business Web UI",
       "track": "L8",
-      "dependencies": [
-        "L8-P2-MS1"
-      ],
+      "dependencies": ["L8-P2-MS1"],
       "status": "not_started",
       "total_units": 15,
       "completed_units": 0,
-      "sessions": "8-11",
-      "envelope_path": "milestones/L8-P2-MS2.json",
-      "position_path": "state/L8-P2-MS2/position.json"
-    },
-    {
-      "id": "L8-P3-MS1",
-      "title": "PASS2 Additional Pages",
-      "track": "L8",
-      "dependencies": [
-        "L8-P2-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/L8-P3-MS1.json",
-      "position_path": "state/L8-P3-MS1/position.json"
-    },
-    {
-      "id": "CC-MS0",
-      "title": "Foundation: CadQuery + CAD Kernel",
-      "track": "CC",
-      "dependencies": [
-        "L8-P1-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
       "sessions": "3-4",
-      "envelope_path": "milestones/CC-MS0.json",
-      "position_path": "state/CC-MS0/position.json"
-    },
-    {
-      "id": "CC-MS1",
-      "title": "Video Ingestion Pipeline + Vision Analysis",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS0"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "5-6",
-      "envelope_path": "milestones/CC-MS1.json",
-      "position_path": "state/CC-MS1/position.json"
-    },
-    {
-      "id": "CC-MS2",
-      "title": "Knowledge Extraction Engine (All 3 Domains)",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "4-5",
-      "envelope_path": "milestones/CC-MS2.json",
-      "position_path": "state/CC-MS2/position.json"
-    },
-    {
-      "id": "CC-MS3",
-      "title": "Parametric Code Generator (CAD DRAW)",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 4,
-      "completed_units": 0,
-      "sessions": "3",
-      "envelope_path": "milestones/CC-MS3.json",
-      "position_path": "state/CC-MS3/position.json"
-    },
-    {
-      "id": "CC-MS4",
-      "title": "Feature Primitive Library (CAD LEARN)",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 4,
-      "completed_units": 0,
-      "sessions": "2",
-      "envelope_path": "milestones/CC-MS4.json",
-      "position_path": "state/CC-MS4/position.json"
-    },
-    {
-      "id": "CC-MS5",
-      "title": "CAM Strategy Learning Engine",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 5,
-      "completed_units": 0,
-      "sessions": "3",
-      "envelope_path": "milestones/CC-MS5.json",
-      "position_path": "state/CC-MS5/position.json"
-    },
-    {
-      "id": "CC-MS6",
-      "title": "Machining Practice Knowledge Base",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "4",
-      "envelope_path": "milestones/CC-MS6.json",
-      "position_path": "state/CC-MS6/position.json"
-    },
-    {
-      "id": "CC-MS7",
-      "title": "Persistent Memory + Boot Integration",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 4,
-      "completed_units": 0,
-      "sessions": "3",
-      "envelope_path": "milestones/CC-MS7.json",
-      "position_path": "state/CC-MS7/position.json"
-    },
-    {
-      "id": "CC-MS8",
-      "title": "Cross-Platform Operation Mapping",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 3,
-      "completed_units": 0,
-      "sessions": "2",
-      "envelope_path": "milestones/CC-MS8.json",
-      "position_path": "state/CC-MS8/position.json"
-    },
-    {
-      "id": "CC-MS9",
-      "title": "Manufacturability Validation Bridge",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS3",
-        "CC-MS5",
-        "CC-MS6"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "4",
-      "envelope_path": "milestones/CC-MS9.json",
-      "position_path": "state/CC-MS9/position.json"
-    },
-    {
-      "id": "CC-MS10",
-      "title": "Operator Guidance Interface",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS7",
-        "CC-MS8"
-      ],
-      "status": "not_started",
-      "total_units": 4,
-      "completed_units": 0,
-      "sessions": "2",
-      "envelope_path": "milestones/CC-MS10.json",
-      "position_path": "state/CC-MS10/position.json"
-    },
-    {
-      "id": "CC-MS11",
-      "title": "Integration Testing + Safety Certification",
-      "track": "CC",
-      "dependencies": [
-        "CC-MS9",
-        "CC-MS10"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "4-5",
-      "envelope_path": "milestones/CC-MS11.json",
-      "position_path": "state/CC-MS11/position.json"
-    },
-    {
-      "id": "CC-EXT-MS1",
-      "title": "PDF/Manual Knowledge Extraction Engine",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-MS11"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "4-5",
-      "envelope_path": "milestones/CC-EXT-MS1.json",
-      "position_path": "state/CC-EXT-MS1/position.json"
-    },
-    {
-      "id": "CC-EXT-MS2",
-      "title": "Operator Feedback Loop Engine",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-MS11"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "4-5",
-      "envelope_path": "milestones/CC-EXT-MS2.json",
-      "position_path": "state/CC-EXT-MS2/position.json"
-    },
-    {
-      "id": "CC-EXT-MS3",
-      "title": "Sensor-Based Learning Engine",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-MS11"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "3-4",
-      "envelope_path": "milestones/CC-EXT-MS3.json",
-      "position_path": "state/CC-EXT-MS3/position.json"
-    },
-    {
-      "id": "CC-EXT-MS4",
-      "title": "Quality Feedback Learning",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-MS11"
-      ],
-      "status": "not_started",
-      "total_units": 5,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/CC-EXT-MS4.json",
-      "position_path": "state/CC-EXT-MS4/position.json"
-    },
-    {
-      "id": "CC-EXT-MS5",
-      "title": "Cross-Source Knowledge Synthesis",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-EXT-MS1",
-        "CC-EXT-MS2",
-        "CC-EXT-MS3",
-        "CC-EXT-MS4"
-      ],
-      "status": "not_started",
-      "total_units": 5,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/CC-EXT-MS5.json",
-      "position_path": "state/CC-EXT-MS5/position.json"
-    },
-    {
-      "id": "CC-EXT-MS6",
-      "title": "CC-EXT Integration Testing + Safety Certification",
-      "track": "CC-EXT",
-      "dependencies": [
-        "CC-EXT-MS5"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2-3",
-      "envelope_path": "milestones/CC-EXT-MS6.json",
-      "position_path": "state/CC-EXT-MS6/position.json"
+      "envelope_path": "milestones/L8-P2-MS2.json"
     },
     {
       "id": "L9-P0-MS1",
-      "title": "Port CAD Geometry Kernel",
+      "title": "API Integration Phase Gate",
       "track": "L9",
-      "dependencies": [
-        "L8-P2-MS2"
-      ],
-      "status": "not_started",
-      "total_units": 10,
-      "completed_units": 0,
-      "sessions": "4-5",
+      "dependencies": ["L8-P3-MS1"],
+      "status": "complete",
+      "total_units": 1,
+      "completed_units": 1,
+      "sessions": "1",
       "envelope_path": "milestones/L9-P0-MS1.json",
       "position_path": "state/L9-P0-MS1/position.json"
     },
@@ -771,87 +495,269 @@
       "id": "L9-P1-MS1",
       "title": "Port CAM Toolpath Algorithms",
       "track": "L9",
-      "dependencies": [
-        "L9-P0-MS1"
-      ],
+      "dependencies": ["L9-P0-MS1"],
       "status": "not_started",
       "total_units": 8,
       "completed_units": 0,
-      "sessions": "3-4",
-      "envelope_path": "milestones/L9-P1-MS1.json",
-      "position_path": "state/L9-P1-MS1/position.json"
+      "sessions": "2-3",
+      "envelope_path": "milestones/L9-P1-MS1.json"
     },
     {
       "id": "L9-P2-MS1",
       "title": "WebGL 3D Viewer",
       "track": "L9",
-      "dependencies": [
-        "L9-P1-MS1"
-      ],
+      "dependencies": ["L9-P1-MS1"],
       "status": "not_started",
       "total_units": 8,
       "completed_units": 0,
-      "sessions": "3-4",
-      "envelope_path": "milestones/L9-P2-MS1.json",
-      "position_path": "state/L9-P2-MS1/position.json"
+      "sessions": "2-3",
+      "envelope_path": "milestones/L9-P2-MS1.json"
     },
     {
       "id": "L10-P0-MS1",
-      "title": "Security Middleware Stack",
+      "title": "Session & Context Products",
       "track": "L10",
-      "dependencies": [
-        "L9-P2-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 6,
-      "completed_units": 0,
-      "sessions": "2-3",
+      "dependencies": ["L9-P0-MS1"],
+      "status": "complete",
+      "total_units": 58,
+      "completed_units": 58,
+      "sessions": "1",
       "envelope_path": "milestones/L10-P0-MS1.json",
       "position_path": "state/L10-P0-MS1/position.json"
     },
     {
       "id": "L10-P1-MS1",
-      "title": "Monitoring, CI/CD & Deployment",
+      "title": "Quality, Scoring & DevTools Products",
       "track": "L10",
-      "dependencies": [
-        "L10-P0-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 8,
-      "completed_units": 0,
-      "sessions": "3-4",
+      "dependencies": ["L10-P0-MS1"],
+      "status": "complete",
+      "total_units": 24,
+      "completed_units": 24,
+      "sessions": "1",
       "envelope_path": "milestones/L10-P1-MS1.json",
       "position_path": "state/L10-P1-MS1/position.json"
     },
     {
       "id": "L10-P2-MS1",
-      "title": "Cross-Cutting Features from PASS2",
+      "title": "SP, SkillScript & Doc Products",
       "track": "L10",
-      "dependencies": [
-        "L10-P1-MS1"
-      ],
-      "status": "not_started",
-      "total_units": 10,
-      "completed_units": 0,
-      "sessions": "3-5",
+      "dependencies": ["L10-P1-MS1"],
+      "status": "complete",
+      "total_units": 53,
+      "completed_units": 53,
+      "sessions": "1",
       "envelope_path": "milestones/L10-P2-MS1.json",
       "position_path": "state/L10-P2-MS1/position.json"
     },
     {
       "id": "L10-P3-MS1",
-      "title": "CAD/CAM Features - Additional Items",
+      "title": "Hook, GSD & Manus Products",
       "track": "L10",
-      "dependencies": [
-        "L10-P2-MS1"
-      ],
+      "dependencies": ["L10-P2-MS1"],
+      "status": "complete",
+      "total_units": 37,
+      "completed_units": 37,
+      "sessions": "1",
+      "envelope_path": "milestones/L10-P3-MS1.json",
+      "position_path": "state/L10-P3-MS1/position.json"
+    },
+    {
+      "id": "CC-MS0",
+      "title": "Foundation — CadQuery Integration + CAD Kernel",
+      "track": "CC",
+      "dependencies": ["L8-P1-MS1"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS0.json"
+    },
+    {
+      "id": "CC-MS1",
+      "title": "Video Ingestion Pipeline + Vision Analysis",
+      "track": "CC",
+      "dependencies": ["CC-MS0"],
       "status": "not_started",
       "total_units": 8,
       "completed_units": 0,
+      "sessions": "5-6",
+      "envelope_path": "milestones/CC-MS1.json"
+    },
+    {
+      "id": "CC-MS2",
+      "title": "Knowledge Extraction Engine (All 3 Domains)",
+      "track": "CC",
+      "dependencies": ["CC-MS1"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "4-5",
+      "envelope_path": "milestones/CC-MS2.json"
+    },
+    {
+      "id": "CC-MS3",
+      "title": "Parametric Code Generator (CAD DRAW)",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS3.json"
+    },
+    {
+      "id": "CC-MS4",
+      "title": "Feature Primitive Library (CAD LEARN)",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
       "sessions": "2-3",
-      "envelope_path": "milestones/L10-P3-MS1.json",
-      "position_path": "state/L10-P3-MS1/position.json"
+      "envelope_path": "milestones/CC-MS4.json"
+    },
+    {
+      "id": "CC-MS5",
+      "title": "CAM Strategy Learning Engine",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS5.json"
+    },
+    {
+      "id": "CC-MS6",
+      "title": "Machining Practice Knowledge Base (SHOP LEARN)",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS6.json"
+    },
+    {
+      "id": "CC-MS7",
+      "title": "Persistent Memory + Boot Integration (RETAIN)",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CC-MS7.json"
+    },
+    {
+      "id": "CC-MS8",
+      "title": "MCP Tool Surface (CONNECT)",
+      "track": "CC",
+      "dependencies": ["CC-MS2"],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CC-MS8.json"
+    },
+    {
+      "id": "CC-MS9",
+      "title": "Manufacturability Validation Bridge",
+      "track": "CC",
+      "dependencies": ["CC-MS3", "CC-MS5", "CC-MS6"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS9.json"
+    },
+    {
+      "id": "CC-MS10",
+      "title": "Operator Guidance Interface",
+      "track": "CC",
+      "dependencies": ["CC-MS7", "CC-MS8"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CC-MS10.json"
+    },
+    {
+      "id": "CC-MS11",
+      "title": "Integration Testing + Safety Certification",
+      "track": "CC",
+      "dependencies": ["CC-MS9", "CC-MS10"],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-MS11.json"
+    },
+    {
+      "id": "CC-EXT-MS1",
+      "title": "PDF/Manual Knowledge Extraction Engine",
+      "track": "CC-EXT",
+      "dependencies": ["CC-MS11"],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "4-5",
+      "envelope_path": "milestones/CC-EXT-MS1.json"
+    },
+    {
+      "id": "CC-EXT-MS2",
+      "title": "Operator Feedback Loop Engine",
+      "track": "CC-EXT",
+      "dependencies": ["CC-MS11"],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "4-5",
+      "envelope_path": "milestones/CC-EXT-MS2.json"
+    },
+    {
+      "id": "CC-EXT-MS3",
+      "title": "Sensor-Based Learning Engine",
+      "track": "CC-EXT",
+      "dependencies": ["CC-MS11"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CC-EXT-MS3.json"
+    },
+    {
+      "id": "CC-EXT-MS4",
+      "title": "Quality Feedback Learning",
+      "track": "CC-EXT",
+      "dependencies": ["CC-MS11"],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CC-EXT-MS4.json"
+    },
+    {
+      "id": "CC-EXT-MS5",
+      "title": "Cross-Source Knowledge Synthesis",
+      "track": "CC-EXT",
+      "dependencies": ["CC-EXT-MS1", "CC-EXT-MS2", "CC-EXT-MS3", "CC-EXT-MS4"],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CC-EXT-MS5.json"
+    },
+    {
+      "id": "CC-EXT-MS6",
+      "title": "CC-EXT Integration Testing + Safety Certification",
+      "track": "CC-EXT",
+      "dependencies": ["CC-EXT-MS5"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CC-EXT-MS6.json"
     }
-  ],
-  "total_milestones": 60,
-  "completed_milestones": 1
+  ]
 }

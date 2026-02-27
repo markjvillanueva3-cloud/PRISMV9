@@ -730,6 +730,7 @@ export function registerGuardDispatcher(server: any): void {
           }
 
           default:
+            return ok({ error: `Unknown action: ${action}` });
         }
       } catch (err: any) {
         return dispatcherError(err, action, "prism_guard");

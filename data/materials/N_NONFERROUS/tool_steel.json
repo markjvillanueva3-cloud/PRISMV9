@@ -54,83 +54,83 @@
         "shear_strength": 340.0
       },
       "kienzle": {
-        "kc1_1": 618.9,
-        "mc": 0.2566,
-        "kc1_1_milling": 803.2,
-        "mc_milling": 0.1789,
-        "kc1_1_drilling": 764.2,
-        "mc_drilling": 0.2385,
-        "kc1_1_boring": 1233,
-        "mc_boring": 0.236,
-        "kc1_1_reaming": 998,
-        "mc_reaming": 0.204
+        "kc1_1": 1464.1,
+        "mc": 0.25,
+        "kc1_1_milling": 1537.4,
+        "mc_milling": 0.255,
+        "kc1_1_drilling": 1683.8,
+        "mc_drilling": 0.2625,
+        "kc1_1_boring": 1493.4,
+        "mc_boring": 0.25,
+        "kc1_1_reaming": 1581.3,
+        "mc_reaming": 0.2575
       },
       "johnson_cook": {
-        "A": 319.6,
-        "B": 672.5,
-        "n": 0.4956,
-        "C": 0.0249,
-        "m": 0.7421,
+        "A": 395.0,
+        "B": 478.5,
+        "n": 0.24,
+        "C": 0.017,
+        "m": 1.0,
         "T_melt": 896.6,
-        "T_ref": 301.3,
-        "epsilon_dot_ref": 0.0022,
+        "T_ref": 25,
+        "epsilon_dot_ref": 1.0,
         "T_transition": 197
       },
       "taylor": {
-        "C": 1403.9,
-        "n": 0.2214,
-        "C_carbide": 1470.8,
-        "n_carbide": 0.3857,
-        "C_ceramic": 2045.1,
-        "n_ceramic": 0.3861,
+        "C": 383.5,
+        "n": 0.24,
+        "C_carbide": 383.5,
+        "n_carbide": 0.24,
+        "C_ceramic": 890.2,
+        "n_ceramic": 0.36,
         "C_cbn": null,
         "n_cbn": null,
-        "C_hss": 165,
-        "n_hss": 0.18,
+        "C_hss": 82.2,
+        "n_hss": 0.11,
         "C_pcd": 1653,
         "n_pcd": 0.39
       },
       "chip_formation": {
         "chip_type": "continuous",
         "chip_breaking": "moderate",
-        "shear_angle": 31.3033576415,
-        "chip_compression_ratio": 2.1625734803,
-        "built_up_edge_tendency": "high",
-        "segmentation_frequency": null,
-        "min_chip_thickness": 0.003646292,
-        "edge_radius_sensitivity": 0.9394751308
+        "shear_angle": 28.0,
+        "chip_compression_ratio": 2.36,
+        "built_up_edge_tendency": "moderate",
+        "segmentation_frequency": "low",
+        "min_chip_thickness": 0.008,
+        "edge_radius_sensitivity": "moderate"
       },
       "tribology": {
-        "friction_coefficient": 0.4819425533,
-        "friction_coefficient_dry": 0.4364124177,
-        "friction_coefficient_flood": 0.1807723921,
-        "friction_coefficient_mql": 0.3070981784,
-        "wear_coefficient": 5.7869800725,
-        "adhesion_tendency": "high",
+        "friction_coefficient": 0.53,
+        "friction_coefficient_dry": 0.53,
+        "friction_coefficient_flood": 0.297,
+        "friction_coefficient_mql": 0.212,
+        "wear_coefficient": 0.00126,
+        "adhesion_tendency": "moderate",
         "abrasiveness": "moderate",
         "galling_tendency": "low",
-        "crater_wear_coefficient": 6.7211400338706e-05,
-        "flank_wear_coefficient": 6.8211402512821e-05
+        "crater_wear_coefficient": 0.0012,
+        "flank_wear_coefficient": 0.00131
       },
       "thermal_machining": {
-        "thermal_diffusivity": 125.2125234239,
-        "heat_partition_coefficient": 0.6142338256,
-        "critical_temperature": 358.6248340007,
-        "recrystallization_temperature": 313.7967396521,
-        "phase_transformation_temperature": null,
-        "maximum_cutting_temperature": 582.765313744,
-        "emissivity": 0.7418700832,
-        "heat_transfer_coefficient": 10130.6472068585
+        "thermal_diffusivity": 220.926,
+        "heat_partition_coefficient": 0.738,
+        "critical_temperature": 820,
+        "recrystallization_temperature": 492.0,
+        "phase_transformation_temperature": 624.0,
+        "maximum_cutting_temperature": 820,
+        "emissivity": 0.3,
+        "heat_transfer_coefficient": 19764.9
       },
       "surface_integrity": {
-        "residual_stress_tendency": "compressive",
-        "work_hardening_depth": 0.2184655519,
+        "residual_stress_tendency": "neutral",
+        "work_hardening_depth": 0.12,
         "white_layer_risk": "low",
-        "surface_roughness_achievable": 0.3319581644,
+        "surface_roughness_achievable": 0.6,
         "burr_formation_tendency": "moderate",
         "microstructure_sensitivity": "moderate",
-        "minimum_uncut_chip_thickness": 0.0046427035,
-        "ploughing_force_coefficient": 0.3438042651
+        "minimum_uncut_chip_thickness": 0.008,
+        "ploughing_force_coefficient": 0.4
       },
       "machinability": {
         "aisi_rating": 183.6439077035,
@@ -141,37 +141,37 @@
       },
       "cutting_recommendations": {
         "turning": {
-          "speed_roughing": 216.0074122187,
-          "speed_finishing": 458.9011861125,
-          "feed_roughing": 0.414715806,
-          "feed_finishing": 0.1385507499,
-          "doc_roughing": 1.1466103579,
-          "doc_finishing": 0.6263671577
+          "speed_roughing": 210.3,
+          "speed_finishing": 371.1,
+          "feed_roughing": 0.28,
+          "feed_finishing": 0.12,
+          "doc_roughing": 3.5,
+          "doc_finishing": 0.4
         },
         "milling": {
-          "speed_roughing": 291.8804340917,
-          "speed_finishing": 207.9366011479,
-          "feed_per_tooth_roughing": 0.074660756,
-          "feed_per_tooth_finishing": 0.0486373359,
-          "doc_roughing": 2.873722585,
-          "doc_finishing": 0.3388029501,
-          "woc_roughing": 0.9052264165,
-          "woc_finishing": 0.2985241198
+          "speed_roughing": 241.8,
+          "speed_finishing": 426.7,
+          "feed_per_tooth_roughing": 0.098,
+          "feed_per_tooth_finishing": 0.042,
+          "doc_roughing": 2.8,
+          "doc_finishing": 0.32,
+          "woc_roughing": 1.4,
+          "woc_finishing": 0.16
         },
         "drilling": {
-          "speed": 195.6655458768,
-          "feed_per_rev": 0.303727585,
-          "peck_depth_ratio": 0.4282829196
+          "speed": 136.7,
+          "feed_per_rev": 0.098,
+          "peck_depth_ratio": 0.5
         },
         "tool_material": {
           "recommended_grade": "Coated carbide",
-          "coating_recommendation": "DLC",
-          "geometry_recommendation": "Positive rake"
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
         },
         "coolant": {
           "type": "Flood emulsion",
-          "pressure": 43.6032778146,
-          "flow_rate": 41.7156109269
+          "pressure": 40,
+          "flow_rate": 45
         }
       },
       "process_specific": {
@@ -184,23 +184,25 @@
       "material_id": "NF-A201-T7-HIGH-STRENGTH-CAST-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "estimated",
+      "data_quality": "calculated",
       "data_sources": [
-        "PRISM_enhanced_v10"
+        "PRISM_enhanced_v10",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "surface": {
-        "achievable_ra_turning": 0.4,
-        "achievable_ra_milling": 0.8,
-        "achievable_ra_grinding": 0.1,
-        "surface_integrity_sensitivity": "low",
-        "white_layer_risk": "none"
+        "achievable_ra_turning": 0.6,
+        "achievable_ra_milling": 1.2,
+        "achievable_ra_grinding": 0.15,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "low"
       },
       "thermal": {
-        "cutting_temperature_factor": 0.15,
-        "heat_partition_ratio": 0.5,
-        "thermal_softening_onset": 200,
+        "cutting_temperature_factor": 1.35,
+        "heat_partition_ratio": 0.262,
+        "thermal_softening_onset": 520,
         "hot_hardness_retention": "low",
-        "cryogenic_machinability": "marginal"
+        "cryogenic_machinability": "moderate"
       },
       "weldability": {
         "rating": "good",
@@ -234,6 +236,56 @@
         "params": 164,
         "prior_method": null,
         "prior_params": null
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "A201",
+        "match_method": "name_parse_subcategory",
+        "match_quality": 0.7,
+        "subcategory_resolved": "general",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_general"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_general_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_general"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_general"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "multi_factor_general"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_general"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_general"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_general"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        }
       }
     }
   ],

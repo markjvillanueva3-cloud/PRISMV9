@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — All counts verified against actual dispatcher code
 
-## 1. DISPATCHERS (32 dispatchers, 395+ verified actions)
+## 1. DISPATCHERS (45 dispatchers, 684 verified actions)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan

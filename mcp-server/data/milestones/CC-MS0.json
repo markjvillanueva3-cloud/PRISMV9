@@ -10,11 +10,9 @@
       "id": "P0",
       "title": "Foundation: CadQuery Integration + CAD Kernel",
       "description": "Install CadQuery 2.x, build CAD kernel wrapper, geometry validator, export module, and test with 10 reference parts. Architecture review of API surface.",
-      "sessions": 2,
+      "sessions": "2",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
-      "review_model": "opus-4.6",
-      "execution_split": "CC 80% / MCP 20%",
       "units": [
         {
           "id": "P0-U01",
@@ -33,9 +31,9 @@
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["L8-P1-MS2"],
+          "dependencies": ["L8-P1-MS1"],
           "entry_conditions": [
-            "L8-P1-MS2 complete",
+            "L8-P1-MS1 complete",
             "Python 3.10+ available",
             "npm run build passes"
           ],
@@ -84,11 +82,11 @@
             }
           ],
           "deliverables": [
-            "cad-engine/src/cad_kernel.py",
-            "cad-engine/src/geo_validator.py",
-            "cad-engine/src/cad_export.py",
-            "cad-engine/tests/test_reference_parts.py",
-            "cad-engine/reference_parts/*.step"
+            { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module with CAD operations" },
+            { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module (manifold, volume, wall thickness)" },
+            { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module (STEP, DXF, STL, IGES)" },
+            { "path": "cad-engine/tests/test_reference_parts.py", "type": "test", "description": "Test harness for 10 reference parts" },
+            { "path": "cad-engine/reference_parts/", "type": "data", "description": "10 reference STEP parts for validation" }
           ],
           "index_in_master": false,
           "creates_skill": false,
@@ -118,14 +116,13 @@
     }
   ],
   "total_units": 1,
-  "total_sessions": 2,
+  "total_sessions": "2",
   "role_matrix": [
     {
       "code": "R2",
       "name": "Platform Engineer",
       "model": "sonnet-4.6",
-      "review_model": "opus-4.6",
-      "effort": 160
+      "effort": 80
     }
   ],
   "tool_map": [
@@ -133,9 +130,9 @@
     { "tool": "prism_validate", "phases": ["P0"] }
   ],
   "deliverables_index": [
-    "cad-engine/src/cad_kernel.py",
-    "cad-engine/src/geo_validator.py",
-    "cad-engine/src/cad_export.py"
+    { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module" },
+    { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module" },
+    { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module" }
   ],
   "existing_leverage": [],
   "scrutiny_config": {

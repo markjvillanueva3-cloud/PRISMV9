@@ -16,6 +16,7 @@
  */
 
 import * as fs from "fs";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 import * as path from "path";
 
 const TEST_RESULTS_DIR = "C:\\PRISM\\state\\test-results";
@@ -201,8 +202,8 @@ export async function runSmokeTests(
   };
 
   // Persist
-  fs.writeFileSync(path.join(TEST_RESULTS_DIR, `${runId}.json`), JSON.stringify(report, null, 2));
-  fs.writeFileSync(path.join(TEST_RESULTS_DIR, "LATEST_SMOKE.json"), JSON.stringify({
+  safeWriteSync(path.join(TEST_RESULTS_DIR, `${runId}.json`), JSON.stringify(report, null, 2));
+  safeWriteSync(path.join(TEST_RESULTS_DIR, "LATEST_SMOKE.json"), JSON.stringify({
     run_id: runId, timestamp: report.timestamp,
     total: report.total, passed, failed, errors, skipped,
     pass_rate: report.pass_rate,

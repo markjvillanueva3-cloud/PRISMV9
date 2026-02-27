@@ -330,7 +330,7 @@ async function registerTools(): Promise<void> {
   let autoHookCount = 0;
   let universalHookCount = 0;
   
-  const originalTool = server.tool.bind(server);
+  const originalTool: (...a: any[]) => any = server.tool.bind(server);
   const proxiedTool = function(...args: any[]) {
     const toolName = args[0];
     

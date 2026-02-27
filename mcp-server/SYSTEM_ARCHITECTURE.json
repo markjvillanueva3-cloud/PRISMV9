@@ -1,0 +1,589 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "generated": "2026-02-27T23:45:00Z",
+    "server_version": "2.10.0",
+    "description": "PRISM v9 Master System Architecture — Single Source of Truth",
+    "purpose": "Comprehensive index of every component in the PRISM manufacturing intelligence platform"
+  },
+  "summary": {
+    "dispatchers": 45,
+    "total_actions": 684,
+    "engines": 102,
+    "algorithms": 54,
+    "registries": 22,
+    "hooks_ts": 22,
+    "utils": 16,
+    "schemas": 6,
+    "config": 5,
+    "types": 12,
+    "tests": 32,
+    "dsl_abbreviations": 300,
+    "total_ts_files": 522,
+    "total_loc_estimate": 135000,
+    "skills": 153,
+    "scripts": 275,
+    "agent_definitions": 70,
+    "extracted_assets": 522,
+    "state_files": 240,
+    "knowledge_files": 58,
+    "coordination_files": 13,
+    "docs": 157
+  },
+  "dispatchers": {
+    "prism_safety": {
+      "file": "safetyDispatcher.ts",
+      "actions": ["check_toolpath_collision","validate_rapid_moves","check_fixture_clearance","calculate_safe_approach","detect_near_miss","generate_collision_report","validate_tool_clearance","check_5axis_head_clearance","validate_coolant_flow","check_through_spindle_coolant","calculate_chip_evacuation","validate_mql_parameters","get_coolant_recommendations","check_spindle_torque","check_spindle_power","validate_spindle_speed","monitor_spindle_thermal","get_spindle_safe_envelope","predict_tool_breakage","calculate_tool_stress","check_chip_load_limits","estimate_tool_fatigue","get_safe_cutting_limits","calculate_clamp_force_required","validate_workholding_setup","check_pullout_resistance","analyze_liftoff_moment","calculate_part_deflection","validate_vacuum_fixture"],
+      "category": "manufacturing"
+    },
+    "prism_data": {
+      "file": "dataDispatcher.ts",
+      "actions": ["material_get","material_search","material_compare","machine_get","machine_search","machine_capabilities","tool_get","tool_search","tool_recommend","tool_facets","alarm_decode","alarm_search","alarm_fix","formula_get","formula_calculate","cross_query","machine_toolholder_match","alarm_diagnose","speed_feed_calc","tool_compare","material_substitute","coolant_search","coolant_recommend","coolant_get","coating_search","coating_recommend","coating_get","cross_lookup","dsl_lookup","database_list","database_search","workholding_get","workholding_search","insert_get","insert_search"],
+      "category": "manufacturing"
+    },
+    "prism_calc": {
+      "file": "calcDispatcher.ts",
+      "actions": ["mrr","speeds_feeds","force_power","tool_life","surface_finish","coolant_volume"],
+      "category": "manufacturing"
+    },
+    "prism_thread": {
+      "file": "threadDispatcher.ts",
+      "actions": ["calculate_tap_drill","calculate_thread_mill_params","calculate_thread_depth","calculate_engagement_percent","get_thread_specifications","get_go_nogo_gauges","calculate_pitch_diameter","calculate_minor_major_diameter","select_thread_insert","calculate_thread_cutting_params","validate_thread_fit_class","generate_thread_gcode"],
+      "category": "manufacturing"
+    },
+    "prism_toolpath": {
+      "file": "toolpathDispatcher.ts",
+      "actions": ["strategy_select","params_calculate","strategy_search","strategy_list","strategy_info","stats","material_strategies","prism_novel"],
+      "category": "manufacturing"
+    },
+    "prism_validate": {
+      "file": "validationDispatcher.ts",
+      "actions": ["material","kienzle","taylor","johnson_cook","safety","completeness","anti_regression"],
+      "category": "validation"
+    },
+    "prism_omega": {
+      "file": "omegaDispatcher.ts",
+      "actions": ["compute","breakdown","validate","optimize","history"],
+      "category": "validation"
+    },
+    "prism_ralph": {
+      "file": "ralphDispatcher.ts",
+      "actions": ["loop","scrutinize","assess"],
+      "category": "validation"
+    },
+    "prism_session": {
+      "file": "sessionDispatcher.ts",
+      "actions": ["state_load","state_save","state_checkpoint","state_diff","handoff_prepare","resume_session","memory_save","memory_recall","context_pressure","context_size","context_compress","context_expand","compaction_detect","transcript_read","state_reconstruct","session_recover","quick_resume","session_start","session_end","auto_checkpoint","wip_capture","wip_list","wip_restore","state_rollback","resume_score"],
+      "category": "session"
+    },
+    "prism_context": {
+      "file": "contextDispatcher.ts",
+      "actions": ["get_all","get_key","set_key","push_list","pop_list","increment_counter","todo_list","todo_update","reset"],
+      "category": "session"
+    },
+    "prism_gsd": {
+      "file": "gsdDispatcher.ts",
+      "actions": ["core","quick","get","dev_protocol","resources_summary","quick_resume"],
+      "category": "session"
+    },
+    "prism_dev": {
+      "file": "devDispatcher.ts",
+      "actions": ["session_boot","build_check","find_files","search_code","write_file","read_file","git_status","git_commit","git_diff","run_command","test_runner","test_coverage","lint_check","format_check","analyze_ast"],
+      "category": "development"
+    },
+    "prism_doc": {
+      "file": "documentDispatcher.ts",
+      "actions": ["list","read","write","append","roadmap_status","action_tracker","migrate"],
+      "category": "development"
+    },
+    "prism_sp": {
+      "file": "spDispatcher.ts",
+      "actions": ["brainstorm","plan","execute","review_spec","review_quality","debug","cognitive_init","cognitive_check","cognitive_bayes","cognitive_rl","combination_ilp","context_kv_optimize","context_attention_anchor","context_error_preserve","session_start_full","session_end_full","evidence_level","validate_gates_full","validate_mathplan"],
+      "category": "development"
+    },
+    "prism_guard": {
+      "file": "guardDispatcher.ts",
+      "actions": ["check_all","check_linting","check_types","check_unused","check_imports","check_regression","enable_guard","disable_guard","guard_status"],
+      "category": "development"
+    },
+    "prism_orchestrate": {
+      "file": "orchestrationDispatcher.ts",
+      "actions": ["agent_execute","agent_parallel","agent_pipeline","plan_create","plan_execute","plan_status","queue_stats","session_list","swarm_execute","swarm_parallel","swarm_consensus","swarm_pipeline","swarm_status","swarm_patterns","swarm_quick","roadmap_plan","roadmap_next_batch","roadmap_advance","roadmap_gate","roadmap_list","roadmap_load","roadmap_claim","roadmap_release","roadmap_heartbeat","roadmap_discover","roadmap_register","roadmap_populate_context"],
+      "category": "orchestration"
+    },
+    "prism_autopilot_d": {
+      "file": "autoPilotDispatcher.ts",
+      "actions": ["autopilot","autopilot_quick","brainstorm_lenses","ralph_loop_lite","formula_optimize","autopilot_v2","registry_status","working_tools"],
+      "category": "orchestration"
+    },
+    "prism_manus": {
+      "file": "manusDispatcher.ts",
+      "actions": ["create_task","task_status","task_result","cancel_task","list_tasks","web_research","code_sandbox","hook_trigger","hook_list","hook_chain","hook_stats"],
+      "category": "orchestration"
+    },
+    "prism_atcs": {
+      "file": "atcsDispatcher.ts",
+      "actions": ["task_init","task_resume","task_status","queue_next","unit_complete","batch_validate","checkpoint","replan","assemble","stub_scan"],
+      "category": "orchestration"
+    },
+    "prism_skill_script": {
+      "file": "skillScriptDispatcher.ts",
+      "actions": ["skill_list","skill_get","skill_search","skill_find_for_task","skill_content","skill_stats","script_list","script_get","script_search","script_command","script_execute","script_stats","skill_load","skill_recommend","skill_analyze","skill_chain","skill_search_v2","skill_stats_v2","script_execute_v2","script_queue","script_recommend","script_search_v2","script_history","bundle_list","bundle_get","bundle_for_action","bundle_for_domain"],
+      "category": "knowledge"
+    },
+    "prism_knowledge": {
+      "file": "knowledgeDispatcher.ts",
+      "actions": ["search","cross_query","formula","relations","stats"],
+      "category": "knowledge"
+    },
+    "prism_hook": {
+      "file": "hookDispatcher.ts",
+      "actions": ["list","get","execute","chain","toggle","emit","event_list","event_history","fire","chain_v2","status","history","enable","disable","coverage","gaps","performance","failures","subscribe","reactive_chains"],
+      "category": "knowledge"
+    },
+    "prism_generator": {
+      "file": "generatorDispatcher.ts",
+      "actions": ["stats","list_domains","generate","generate_batch","validate","get_template"],
+      "category": "knowledge"
+    },
+    "prism_autonomous": {
+      "file": "autonomousDispatcher.ts",
+      "actions": ["discover_agents","auto_enable","capability_check","status","enable","disable","restart"],
+      "category": "autonomous"
+    },
+    "prism_intelligence": {
+      "file": "intelligenceDispatcher.ts",
+      "actions": ["job_plan","setup_sheet","process_cost","material_recommend","tool_recommend","machine_recommend","what_if","failure_diagnose","parameter_optimize","cycle_time_estimate","quality_predict","job_record","job_insights","algorithm_select","shop_schedule","machine_utilization","decompose_intent","format_response","workflow_match","workflow_get","workflow_list","onboarding_welcome","onboarding_state","onboarding_record","onboarding_suggestion","onboarding_reset","setup_sheet_format"],
+      "category": "intelligence"
+    },
+    "prism_l2": {
+      "file": "l2EngineDispatcher.ts",
+      "actions": ["aiml_predict","aiml_classify","aiml_anomaly","aiml_cluster","aiml_models","cad_geometry","cad_mesh","cad_curve","cad_capabilities","cam_toolpath","cam_gcode","cam_collision","cam_chip_thinning","cam_capabilities","file_parse","file_generate","file_formats","sim_gcode","sim_cycle_time","sim_verify","sim_capabilities","viz_scene","viz_toolpath","viz_heatmap","viz_presets","report_setup_sheet","report_cost","report_tool_list","report_speed_feed","report_alarm","report_inspection","report_templates","settings_get","settings_update","settings_convert","settings_presets","settings_safety","settings_apply_preset"],
+      "category": "l2_engines"
+    },
+    "prism_cad": {
+      "file": "cadDispatcher.ts",
+      "actions": ["geometry_create","geometry_transform","geometry_analyze","mesh_generate","mesh_import","mesh_export","feature_recognize","feature_edit","stock_model","wcs_setup"],
+      "category": "cad_cam"
+    },
+    "prism_cam": {
+      "file": "camDispatcher.ts",
+      "actions": ["toolpath_generate","toolpath_simulate","toolpath_optimize","post_process","collision_check_full","stock_update","tool_assembly","fixture_setup","nesting_optimize"],
+      "category": "cad_cam"
+    },
+    "prism_quality": {
+      "file": "qualityDispatcher.ts",
+      "actions": ["spc_calculate","cpk_predict","cmm_plan","measurement_analyze","tolerance_stack","gdt_validate","bias_correct","gauge_rr"],
+      "category": "quality"
+    },
+    "prism_export": {
+      "file": "exportDispatcher.ts",
+      "actions": ["render_pdf","render_csv","render_excel","render_dxf","render_step","render_gcode","render_setup_sheet","batch_export"],
+      "category": "export"
+    },
+    "prism_scheduling": {
+      "file": "schedulingDispatcher.ts",
+      "actions": ["job_schedule","machine_assign","capacity_plan","priority_queue","bottleneck_find","lead_time_estimate","due_date_track","resource_balance"],
+      "category": "scheduling"
+    },
+    "prism_turning": {
+      "file": "turningDispatcher.ts",
+      "actions": ["chuck_force","tailstock","steady_rest","live_tool","bar_pull","thread_single_point"],
+      "category": "specialty"
+    },
+    "prism_5axis": {
+      "file": "fiveAxisDispatcher.ts",
+      "actions": ["rtcp_calc","singularity_check","tilt_optimize","work_envelope","inverse_kin"],
+      "category": "specialty"
+    },
+    "prism_edm": {
+      "file": "edmDispatcher.ts",
+      "actions": ["electrode_design","wire_settings","surface_integrity","micro_edm"],
+      "category": "specialty"
+    },
+    "prism_grinding": {
+      "file": "grindingDispatcher.ts",
+      "actions": ["wheel_select","dress_params","burn_threshold","surface_integrity"],
+      "category": "specialty"
+    },
+    "prism_industry": {
+      "file": "industryDispatcher.ts",
+      "actions": ["aerospace_check","medical_check","automotive_check","oil_gas_check"],
+      "category": "specialty"
+    },
+    "prism_automation": {
+      "file": "automationDispatcher.ts",
+      "actions": ["oee_calc","bottleneck","digital_thread","work_instructions","shift_handoff"],
+      "category": "specialty"
+    },
+    "prism_telemetry": {
+      "file": "telemetryDispatcher.ts",
+      "actions": ["get_dashboard","get_detail","get_anomalies","get_optimization","acknowledge","freeze_weights","unfreeze_weights"],
+      "category": "monitoring"
+    },
+    "prism_pfp": {
+      "file": "pfpDispatcher.ts",
+      "actions": ["get_dashboard","assess_risk","get_patterns","get_history","force_extract","update_config"],
+      "category": "monitoring"
+    },
+    "prism_memory": {
+      "file": "memoryDispatcher.ts",
+      "actions": ["get_health","trace_decision","find_similar","get_session","get_node","run_integrity"],
+      "category": "monitoring"
+    },
+    "prism_compliance": {
+      "file": "complianceDispatcher.ts",
+      "actions": ["apply_template","remove_template","list_templates","audit_status","check_compliance","resolve_conflicts","gap_analysis","config"],
+      "category": "compliance"
+    },
+    "prism_bridge": {
+      "file": "bridgeDispatcher.ts",
+      "actions": ["register_endpoint","remove_endpoint","set_status","list_endpoints","create_key","revoke_key","validate_key","list_keys","route","route_map","health","stats","config"],
+      "category": "integration"
+    },
+    "prism_tenant": {
+      "file": "tenantDispatcher.ts",
+      "actions": ["create","get","list","suspend","reactivate","delete","get_context","check_limit","publish_pattern","consume_patterns","promote_pattern","quarantine_pattern","slb_stats","stats","config"],
+      "category": "integration"
+    },
+    "prism_auth": {
+      "file": "authDispatcher.ts",
+      "actions": ["login","register","refresh_token","change_password","role_assign","permission_check","session_manage","mfa_setup"],
+      "category": "integration"
+    },
+    "prism_nl_hook": {
+      "file": "nlHookDispatcher.ts",
+      "actions": ["create","parse","approve","remove","list","get","stats","config"],
+      "category": "hooks"
+    }
+  },
+  "engines": [
+    {"name": "AIMLEngine", "file": "AIMLEngine.ts", "category": "machine_learning"},
+    {"name": "AdaptiveControlEngine", "file": "AdaptiveControlEngine.ts", "category": "control"},
+    {"name": "AdvancedCalculations", "file": "AdvancedCalculations.ts", "category": "calculations"},
+    {"name": "AgentExecutor", "file": "AgentExecutor.ts", "category": "execution"},
+    {"name": "AlgorithmEngine", "file": "AlgorithmEngine.ts", "category": "optimization"},
+    {"name": "AlgorithmGatewayEngine", "file": "AlgorithmGatewayEngine.ts", "category": "gateway"},
+    {"name": "ApprenticeEngine", "file": "ApprenticeEngine.ts", "category": "training"},
+    {"name": "BatchOptimizationEngine", "file": "BatchOptimizationEngine.ts", "category": "optimization"},
+    {"name": "CADKernelEngine", "file": "CADKernelEngine.ts", "category": "cad"},
+    {"name": "CAMIntegrationEngine", "file": "CAMIntegrationEngine.ts", "category": "cam"},
+    {"name": "CAMKernelEngine", "file": "CAMKernelEngine.ts", "category": "cam"},
+    {"name": "CampaignEngine", "file": "CampaignEngine.ts", "category": "workflow"},
+    {"name": "ClampingSimEngine", "file": "ClampingSimEngine.ts", "category": "simulation"},
+    {"name": "CollisionDetectionEngine", "file": "CollisionDetectionEngine.ts", "category": "simulation"},
+    {"name": "CollisionEngine", "file": "CollisionEngine.ts", "category": "collision"},
+    {"name": "ContextBudgetEngine", "file": "ContextBudgetEngine.ts", "category": "context"},
+    {"name": "ConversationalMemoryEngine", "file": "ConversationalMemoryEngine.ts", "category": "memory"},
+    {"name": "CoolantValidationEngine", "file": "CoolantValidationEngine.ts", "category": "validation"},
+    {"name": "CostEstimationEngine", "file": "CostEstimationEngine.ts", "category": "costing"},
+    {"name": "DNCTransferEngine", "file": "DNCTransferEngine.ts", "category": "transfer"},
+    {"name": "DecisionTreeEngine", "file": "DecisionTreeEngine.ts", "category": "decision"},
+    {"name": "DigitalTwinEngine", "file": "DigitalTwinEngine.ts", "category": "digital_twin"},
+    {"name": "ERPIntegrationEngine", "file": "ERPIntegrationEngine.ts", "category": "integration"},
+    {"name": "EnergyOptimizationEngine", "file": "EnergyOptimizationEngine.ts", "category": "optimization"},
+    {"name": "EventBus", "file": "EventBus.ts", "category": "event_system"},
+    {"name": "FailureForensicsEngine", "file": "FailureForensicsEngine.ts", "category": "diagnostics"},
+    {"name": "FeatureRecognitionEngine", "file": "FeatureRecognitionEngine.ts", "category": "cad"},
+    {"name": "FederatedLearningEngine", "file": "FederatedLearningEngine.ts", "category": "machine_learning"},
+    {"name": "FileIOEngine", "file": "FileIOEngine.ts", "category": "io"},
+    {"name": "FixtureDesignEngine", "file": "FixtureDesignEngine.ts", "category": "design"},
+    {"name": "GCodeTemplateEngine", "file": "GCodeTemplateEngine.ts", "category": "cnc"},
+    {"name": "GenerativeProcessEngine", "file": "GenerativeProcessEngine.ts", "category": "generation"},
+    {"name": "GeometryEngine", "file": "GeometryEngine.ts", "category": "geometry"},
+    {"name": "HookEngine", "file": "HookEngine.ts", "category": "hooks"},
+    {"name": "HookExecutor", "file": "HookExecutor.ts", "category": "execution"},
+    {"name": "IntentDecompositionEngine", "file": "IntentDecompositionEngine.ts", "category": "decomposition"},
+    {"name": "IntelligenceEngine", "file": "IntelligenceEngine.ts", "category": "ai"},
+    {"name": "InverseSolverEngine", "file": "InverseSolverEngine.ts", "category": "solving"},
+    {"name": "JobLearningEngine", "file": "JobLearningEngine.ts", "category": "learning"},
+    {"name": "KnowledgeGraphEngine", "file": "KnowledgeGraphEngine.ts", "category": "knowledge"},
+    {"name": "KnowledgeQueryEngine", "file": "KnowledgeQueryEngine.ts", "category": "query"},
+    {"name": "LearningPathEngine", "file": "LearningPathEngine.ts", "category": "learning"},
+    {"name": "MachineConnectivityEngine", "file": "MachineConnectivityEngine.ts", "category": "connectivity"},
+    {"name": "MachineSelectionEngine", "file": "MachineSelectionEngine.ts", "category": "selection"},
+    {"name": "ManufacturingCalculations", "file": "ManufacturingCalculations.ts", "category": "calculations"},
+    {"name": "ManufacturingGenomeEngine", "file": "ManufacturingGenomeEngine.ts", "category": "genome"},
+    {"name": "ManusATCSBridge", "file": "ManusATCSBridge.ts", "category": "bridge"},
+    {"name": "MaterialSelectionEngine", "file": "MaterialSelectionEngine.ts", "category": "selection"},
+    {"name": "MeasurementIntegrationEngine", "file": "MeasurementIntegrationEngine.ts", "category": "integration"},
+    {"name": "MeshEngine", "file": "MeshEngine.ts", "category": "mesh"},
+    {"name": "MobileInterfaceEngine", "file": "MobileInterfaceEngine.ts", "category": "ui"},
+    {"name": "NestingEngine", "file": "NestingEngine.ts", "category": "nesting"},
+    {"name": "OnboardingEngine", "file": "OnboardingEngine.ts", "category": "onboarding"},
+    {"name": "OptimizationEngine", "file": "OptimizationEngine.ts", "category": "optimization"},
+    {"name": "PhysicsPredictionEngine", "file": "PhysicsPredictionEngine.ts", "category": "physics"},
+    {"name": "PostProcessorEngine", "file": "PostProcessorEngine.ts", "category": "post_processing"},
+    {"name": "PredictiveMaintenanceEngine", "file": "PredictiveMaintenanceEngine.ts", "category": "maintenance"},
+    {"name": "ProbeRoutineEngine", "file": "ProbeRoutineEngine.ts", "category": "probing"},
+    {"name": "ProcessPlanEngine", "file": "ProcessPlanEngine.ts", "category": "planning"},
+    {"name": "ProductEngine", "file": "ProductEngine.ts", "category": "product"},
+    {"name": "QualityPredictionEngine", "file": "QualityPredictionEngine.ts", "category": "quality"},
+    {"name": "QuoteEngine", "file": "QuoteEngine.ts", "category": "quoting"},
+    {"name": "ReportEngine", "file": "ReportEngine.ts", "category": "reporting"},
+    {"name": "ReportRenderer", "file": "ReportRenderer.ts", "category": "rendering"},
+    {"name": "ResponseFormatterEngine", "file": "ResponseFormatterEngine.ts", "category": "formatting"},
+    {"name": "ResponseTemplateEngine", "file": "ResponseTemplateEngine.ts", "category": "templating"},
+    {"name": "RoadmapExecutor", "file": "RoadmapExecutor.ts", "category": "execution"},
+    {"name": "SchedulingEngine", "file": "SchedulingEngine.ts", "category": "scheduling"},
+    {"name": "ScriptExecutor", "file": "ScriptExecutor.ts", "category": "execution"},
+    {"name": "SessionLifecycleEngine", "file": "SessionLifecycleEngine.ts", "category": "session"},
+    {"name": "SetupSheetEngine", "file": "SetupSheetEngine.ts", "category": "setup"},
+    {"name": "SettingsEngine", "file": "SettingsEngine.ts", "category": "configuration"},
+    {"name": "ShopSchedulerEngine", "file": "ShopSchedulerEngine.ts", "category": "scheduling"},
+    {"name": "SimulationEngine", "file": "SimulationEngine.ts", "category": "simulation"},
+    {"name": "SkillAutoLoader", "file": "SkillAutoLoader.ts", "category": "skills"},
+    {"name": "SkillBundleEngine", "file": "SkillBundleEngine.ts", "category": "skills"},
+    {"name": "SkillExecutor", "file": "SkillExecutor.ts", "category": "execution"},
+    {"name": "SourceCatalogAggregator", "file": "SourceCatalogAggregator.ts", "category": "catalog"},
+    {"name": "SpindleProtectionEngine", "file": "SpindleProtectionEngine.ts", "category": "protection"},
+    {"name": "StockModelEngine", "file": "StockModelEngine.ts", "category": "stock"},
+    {"name": "SurfaceFinishEngine", "file": "SurfaceFinishEngine.ts", "category": "surface_finish"},
+    {"name": "SustainabilityEngine", "file": "SustainabilityEngine.ts", "category": "sustainability"},
+    {"name": "SwarmExecutor", "file": "SwarmExecutor.ts", "category": "swarm"},
+    {"name": "SwarmGroupExecutor", "file": "SwarmGroupExecutor.ts", "category": "swarm"},
+    {"name": "TaskAgentClassifier", "file": "TaskAgentClassifier.ts", "category": "classification"},
+    {"name": "ThermalSimEngine", "file": "ThermalSimEngine.ts", "category": "thermal"},
+    {"name": "ThreadCalculationEngine", "file": "ThreadCalculationEngine.ts", "category": "thread"},
+    {"name": "ToolAssemblyEngine", "file": "ToolAssemblyEngine.ts", "category": "tool"},
+    {"name": "ToolBreakageEngine", "file": "ToolBreakageEngine.ts", "category": "tool_breakage"},
+    {"name": "ToolCribEngine", "file": "ToolCribEngine.ts", "category": "tool_management"},
+    {"name": "ToolSelectionEngine", "file": "ToolSelectionEngine.ts", "category": "selection"},
+    {"name": "ToolpathCalculations", "file": "ToolpathCalculations.ts", "category": "toolpath"},
+    {"name": "ToolpathGenerationEngine", "file": "ToolpathGenerationEngine.ts", "category": "toolpath"},
+    {"name": "ToleranceEngine", "file": "ToleranceEngine.ts", "category": "tolerance"},
+    {"name": "TribalKnowledgeEngine", "file": "TribalKnowledgeEngine.ts", "category": "knowledge"},
+    {"name": "TroubleshootingEngine", "file": "TroubleshootingEngine.ts", "category": "troubleshooting"},
+    {"name": "UserAssistanceSkillsEngine", "file": "UserAssistanceSkillsEngine.ts", "category": "assistance"},
+    {"name": "UserWorkflowSkillsEngine", "file": "UserWorkflowSkillsEngine.ts", "category": "workflow"},
+    {"name": "VisualizationEngine", "file": "VisualizationEngine.ts", "category": "visualization"},
+    {"name": "WorkflowChainsEngine", "file": "WorkflowChainsEngine.ts", "category": "workflow"},
+    {"name": "WorkholdingEngine", "file": "WorkholdingEngine.ts", "category": "workholding"},
+    {"name": "WorkholdingIntelligenceEngine", "file": "WorkholdingIntelligenceEngine.ts", "category": "workholding"}
+  ],
+  "algorithms": [
+    {"name": "AdaptiveControllerModel", "file": "AdaptiveControllerModel.ts", "category": "control"},
+    {"name": "AnomalyDetector", "file": "AnomalyDetector.ts", "category": "anomaly_detection"},
+    {"name": "AntColonyTSP", "file": "AntColonyTSP.ts", "category": "optimization"},
+    {"name": "BayesianOptimizer", "file": "BayesianOptimizer.ts", "category": "optimization"},
+    {"name": "BayesianWearModel", "file": "BayesianWearModel.ts", "category": "wear"},
+    {"name": "ChipBreakingModel", "file": "ChipBreakingModel.ts", "category": "chip_physics"},
+    {"name": "ChipEvacuationModel", "file": "ChipEvacuationModel.ts", "category": "chip_physics"},
+    {"name": "ChipThinningCompensation", "file": "ChipThinningCompensation.ts", "category": "compensation"},
+    {"name": "ChipVolumeRatePredictor", "file": "ChipVolumeRate.ts", "category": "material_removal"},
+    {"name": "ClusteringEngine", "file": "ClusteringEngine.ts", "category": "machine_learning"},
+    {"name": "CoolantFlowModel", "file": "CoolantFlowModel.ts", "category": "coolant"},
+    {"name": "CSPSetupPlan", "file": "CSPSetupPlan.ts", "category": "setup_planning"},
+    {"name": "CWEZBuffer", "file": "CWEZBuffer.ts", "category": "collision_detection"},
+    {"name": "DecisionTreeClassifier", "file": "DecisionTreeClassifier.ts", "category": "machine_learning"},
+    {"name": "DigitalTwinEstimator", "file": "DigitalTwinEstimator.ts", "category": "digital_twin"},
+    {"name": "DPMultiPass", "file": "DPMultiPass.ts", "category": "optimization"},
+    {"name": "EnsemblePredictorModel", "file": "EnsemblePredictorModel.ts", "category": "machine_learning"},
+    {"name": "ExtendedTaylorModel", "file": "ExtendedTaylorModel.ts", "category": "tool_life"},
+    {"name": "FEASolver2D", "file": "FEASolver2D.ts", "category": "fea"},
+    {"name": "FFTAnalyzer", "file": "FFTAnalyzer.ts", "category": "signal_processing"},
+    {"name": "FRFStabilityLobe", "file": "FRFStabilityLobe.ts", "category": "stability"},
+    {"name": "FuzzyController", "file": "FuzzyController.ts", "category": "control"},
+    {"name": "GeneticOptimizer", "file": "GeneticOptimizer.ts", "category": "optimization"},
+    {"name": "GilbertMRRModel", "file": "GilbertMRRModel.ts", "category": "material_removal"},
+    {"name": "ILPAssignment", "file": "ILPAssignment.ts", "category": "optimization"},
+    {"name": "InterpolationEngine", "file": "InterpolationEngine.ts", "category": "interpolation"},
+    {"name": "JaegerTempField", "file": "JaegerTempField.ts", "category": "thermal"},
+    {"name": "JohnsonCookModel", "file": "JohnsonCookModel.ts", "category": "material_model"},
+    {"name": "KalmanFilter", "file": "KalmanFilter.ts", "category": "filtering"},
+    {"name": "KienzleForceModel", "file": "KienzleForceModel.ts", "category": "cutting_forces"},
+    {"name": "MinkowskiSum", "file": "MinkowskiSum.ts", "category": "geometry"},
+    {"name": "MonteCarlo", "file": "MonteCarlo.ts", "category": "uncertainty"},
+    {"name": "NeuralInference", "file": "NeuralInference.ts", "category": "neural_network"},
+    {"name": "ParticleSwarm", "file": "ParticleSwarm.ts", "category": "optimization"},
+    {"name": "PIDController", "file": "PIDController.ts", "category": "control"},
+    {"name": "RCSA", "file": "RCSA.ts", "category": "structural_analysis"},
+    {"name": "RegressionEngine", "file": "RegressionEngine.ts", "category": "machine_learning"},
+    {"name": "SimulatedAnnealing", "file": "SimulatedAnnealing.ts", "category": "optimization"},
+    {"name": "SpindleVibFFTModel", "file": "SpindleVibFFTModel.ts", "category": "vibration"},
+    {"name": "StabilityLobeDiagram", "file": "StabilityLobeDiagram.ts", "category": "stability"},
+    {"name": "STFTChatterDetection", "file": "STFTChatter.ts", "category": "chatter_detection"},
+    {"name": "SurfaceFinishPredictor", "file": "SurfaceFinishPredictor.ts", "category": "surface_finish"},
+    {"name": "SweptVolumeCollision", "file": "SweptVolumeCollision.ts", "category": "collision_detection"},
+    {"name": "ThermalFEAModel", "file": "ThermalFEAModel.ts", "category": "thermal"},
+    {"name": "ThermalPartitionModel", "file": "ThermalPartitionModel.ts", "category": "thermal"},
+    {"name": "TimeSeriesPredictor", "file": "TimeSeriesPredictor.ts", "category": "forecasting"},
+    {"name": "ToolDeflectionModel", "file": "ToolDeflectionModel.ts", "category": "tool_mechanics"},
+    {"name": "ToolWearPrediction", "file": "ToolWearPrediction.ts", "category": "wear"},
+    {"name": "UsuiWearModel", "file": "UsuiWearModel.ts", "category": "wear"},
+    {"name": "WaveletToolBreakage", "file": "WaveletBreakage.ts", "category": "tool_breakage"}
+  ],
+  "registries": [
+    {"name": "BaseRegistry", "file": "BaseRegistry.ts", "purpose": "Base registry interface and types"},
+    {"name": "RegistryManager", "file": "manager.ts", "purpose": "Central registry coordination"},
+    {"name": "AlgorithmRegistry", "file": "AlgorithmRegistry.ts", "purpose": "Algorithm definitions and safety classes"},
+    {"name": "AgentRegistry", "file": "AgentRegistry.ts", "purpose": "Agent definitions and capabilities"},
+    {"name": "AlarmRegistry", "file": "AlarmRegistry.ts", "purpose": "Alarm definitions and fixes"},
+    {"name": "CoatingRegistry", "file": "CoatingRegistry.ts", "purpose": "Coating specifications (PVD/CVD)"},
+    {"name": "CoolantRegistry", "file": "CoolantRegistry.ts", "purpose": "Coolant types and delivery methods"},
+    {"name": "DatabaseRegistry", "file": "DatabaseRegistry.ts", "purpose": "Database connection management"},
+    {"name": "FormulaRegistry", "file": "FormulaRegistry.ts", "purpose": "Cutting formulas and calculations"},
+    {"name": "HookRegistry", "file": "HookRegistry.ts", "purpose": "Hook definitions and metadata"},
+    {"name": "KnowledgeBaseRegistry", "file": "KnowledgeBaseRegistry.ts", "purpose": "Knowledge base entries"},
+    {"name": "MachineRegistry", "file": "MachineRegistry.ts", "purpose": "CNC machine definitions and specs"},
+    {"name": "MaterialRegistry", "file": "MaterialRegistry.ts", "purpose": "Material library and properties"},
+    {"name": "PostProcessorRegistry", "file": "PostProcessorRegistry.ts", "purpose": "Post-processor definitions"},
+    {"name": "ScriptRegistry", "file": "ScriptRegistry.ts", "purpose": "Script repository"},
+    {"name": "SkillRegistry", "file": "SkillRegistry.ts", "purpose": "Skill/capability registry"},
+    {"name": "ToolRegistry", "file": "ToolRegistry.ts", "purpose": "Cutting tool library"},
+    {"name": "ToolpathStrategyRegistry", "file": "ToolpathStrategyRegistry.ts", "purpose": "Toolpath strategies (6 categories)"},
+    {"name": "MachineSpindleDefaults", "file": "MachineSpindleDefaults.ts", "purpose": "Spindle defaults by machine type"},
+    {"name": "ToolGeometryDefaults", "file": "ToolGeometryDefaults.ts", "purpose": "Tool geometry defaults"}
+  ],
+  "hooks": [
+    {"name": "advancedManufacturingHooks", "file": "AdvancedManufacturingHooks.ts"},
+    {"name": "cognitiveHooks", "file": "CognitiveHooks.ts"},
+    {"name": "controllerHooks", "file": "ControllerHooks.ts"},
+    {"name": "lifecycleHooks", "file": "LifecycleHooks.ts"},
+    {"name": "recoveryHooks", "file": "RecoveryHooks.ts"},
+    {"name": "schemaHooks", "file": "SchemaHooks.ts"},
+    {"name": "cadenceHooks", "file": "CadenceDefinitions.ts"},
+    {"name": "observabilityHooks", "file": "ObservabilityHooks.ts"},
+    {"name": "automationHooks", "file": "AutomationHooks.ts"},
+    {"name": "orchestrationHooks", "file": "OrchestrationHooks.ts"},
+    {"name": "manufacturingHooks", "file": "ManufacturingHooks.ts"},
+    {"name": "crossReferenceHooks", "file": "CrossReferenceHooks.ts"},
+    {"name": "agentHooks", "file": "AgentHooks.ts"},
+    {"name": "enforcementHooks", "file": "EnforcementHooks.ts"},
+    {"name": "safetyQualityHooks", "file": "SafetyQualityHooks.ts"},
+    {"name": "specialtyManufacturingHooks", "file": "SpecialtyManufacturingHooks.ts"},
+    {"name": "specialtyCadences", "file": "SpecialtyCadences.ts"},
+    {"name": "hookRegistration", "file": "hookRegistration.ts"},
+    {"name": "hookBridge", "file": "hookBridge.ts"},
+    {"name": "hookIndex", "file": "index.ts"},
+    {"name": "postRoadmapUnit", "file": "post-roadmap-unit.ts"},
+    {"name": "preRoadmapExecute", "file": "pre-roadmap-execute.ts"}
+  ],
+  "types": [
+    {"file": "nl-hook-types.ts", "domain": "Natural language hook parsing"},
+    {"file": "ResponseLevel.ts", "domain": "Response granularity levels"},
+    {"file": "graph-types.ts", "domain": "Knowledge graph structures"},
+    {"file": "telemetry-types.ts", "domain": "Telemetry and monitoring"},
+    {"file": "pfp-types.ts", "domain": "Predictive failure patterns"},
+    {"file": "bridge-types.ts", "domain": "Protocol bridge integration"},
+    {"file": "compliance-types.ts", "domain": "Regulatory compliance"},
+    {"file": "certificate-types.ts", "domain": "Verification certificates"},
+    {"file": "CompoundActions.ts", "domain": "Complex action parameters"},
+    {"file": "tenant-types.ts", "domain": "Multi-tenant support"},
+    {"file": "prism-schema.ts", "domain": "Master PRISM schema definitions"}
+  ],
+  "tests": [
+    "unit/envParsing.test.ts", "unit/atomicWrite.test.ts", "unit/getEffort.test.ts", "unit/apiTimeout.test.ts",
+    "health.test.ts", "stressTest.test.ts", "memoryProfile.test.ts", "securityAudit.test.ts",
+    "safetyMatrix.test.ts", "scrutinize-roadmap.test.ts", "roadmap-hooks.test.ts", "roadmap-executor.test.ts",
+    "roadmap-loader.test.ts", "registryEnrichment.test.ts", "algorithms.test.ts",
+    "algorithm-calculate-audit.test.ts", "algorithm-benchmarks.test.ts",
+    "l2-engines.test.ts", "l2-mfg-intelligence.test.ts", "l2-cadcam-engines.test.ts",
+    "l2-infrastructure-engines.test.ts", "l2-pass2-specialty-engines.test.ts",
+    "l3-core-dispatchers.test.ts", "l3-specialty-dispatchers.test.ts",
+    "l4-hooks-cadences.test.ts", "l4-pass2-hooks.test.ts",
+    "system-comprehensive.test.ts", "safety-actions.test.ts", "calc-actions.test.ts",
+    "data-actions.test.ts", "integration-chain.test.ts", "input-validation.test.ts"
+  ],
+  "external_assets": {
+    "skills": {
+      "path": "C:/PRISM/skills-consolidated",
+      "count": 153,
+      "index_file": "SKILL_INDEX.json",
+      "trigger_map": "TRIGGER_MAP.json",
+      "auto_hooks": "AUTO_SKILL_HOOKS.json",
+      "superpowers": "SUPERPOWERS_REGISTRY.json"
+    },
+    "scripts": {
+      "path": "C:/PRISM/scripts",
+      "count": 275,
+      "subdirectories": ["core","validation","extraction","audit","batch","testing","agents","automation","tools"]
+    },
+    "agents": {
+      "path": "C:/PRISM/data/agents",
+      "count": 70,
+      "tiers": {"OPUS": 14, "SONNET": 35, "HAIKU": 9},
+      "schema": "AGENT_CAPABILITY_SCHEMA.json"
+    },
+    "hooks_data": {
+      "path": "C:/PRISM/data/hooks",
+      "count": 8,
+      "files": ["OPERATION_HOOKS_COMPLETE.json","HOOK_AGENT_MATRIX.json","HOOK_PERFORMANCE_CONFIG.json","R10_REVOLUTION_HOOKS.json"]
+    },
+    "coordination": {
+      "path": "C:/PRISM/data/coordination",
+      "count": 13,
+      "key_files": ["AGENT_REGISTRY.json","CAPABILITY_MATRIX.json","SYNERGY_MATRIX.json","UNIFIED_WIRING_MATRIX.json","SKILL_TRIGGER_MAP.json","GSD_BUNDLES.json"]
+    },
+    "extracted": {
+      "path": "C:/PRISM/extracted",
+      "total_files": 522,
+      "subdirectories": {
+        "algorithms": 52,
+        "business": 7,
+        "catalogs": 6,
+        "controllers": 117,
+        "core": 11,
+        "engines": 257,
+        "formulas": 12,
+        "infrastructure": 5,
+        "integration": 14,
+        "knowledge_bases": 12,
+        "learning": 6,
+        "machines": 110,
+        "materials": 48,
+        "materials_complete": 2,
+        "materials_enhanced": 14,
+        "materials_v9_complete": 17,
+        "mit": 5,
+        "systems": 7,
+        "tools": 2,
+        "units": 3,
+        "workholding": 3
+      }
+    },
+    "knowledge": {
+      "path": "C:/PRISM/knowledge",
+      "count": 58,
+      "subdirectories": ["Skills","Sessions","decisions","errors","observations","data-index","code-index"]
+    },
+    "state": {
+      "path": "C:/PRISM/state",
+      "count": 240,
+      "subdirectories": ["checkpoints","decisions","errors","events","externalized","indexes","memory","ralph_loops","results","snapshots","test-results","wip"]
+    },
+    "mcp_data": {
+      "path": "C:/PRISM/mcp-server/data",
+      "count": 156,
+      "subdirectories": ["chats","docs","materials"]
+    }
+  },
+  "data_paths": {
+    "PRISM_ROOT": "C:/PRISM",
+    "MCP_SERVER": "C:/PRISM/mcp-server",
+    "SKILLS": "C:/PRISM/skills-consolidated",
+    "SCRIPTS": "C:/PRISM/scripts",
+    "DATA": "C:/PRISM/data",
+    "STATE": "C:/PRISM/state",
+    "EXTRACTED": "C:/PRISM/extracted",
+    "KNOWLEDGE": "C:/PRISM/knowledge",
+    "MATERIALS_DB": "C:/PRISM/data/materials",
+    "MACHINES_DB": "C:/PRISM/extracted/machines",
+    "TOOLS_DB": "C:/PRISM/extracted/tools",
+    "CONTROLLERS_DB": "C:/PRISM/extracted/controllers",
+    "FORMULAS_DB": "C:/PRISM/extracted/formulas",
+    "ALGORITHMS_DB": "C:/PRISM/extracted/algorithms",
+    "ENGINES_DB": "C:/PRISM/extracted/engines"
+  },
+  "dsl_coverage": {
+    "total_abbreviations": 300,
+    "categories": [
+      "operations", "cutting_parameters", "materials_iso", "tool_types",
+      "tool_materials", "coatings", "machine_types", "controllers",
+      "spindle_bearings", "coolant_workholding", "thread_types",
+      "alarm_categories", "formula_domains", "quality_safety",
+      "system_components", "dispatchers", "algorithms", "engine_categories",
+      "system_terms"
+    ]
+  }
+}

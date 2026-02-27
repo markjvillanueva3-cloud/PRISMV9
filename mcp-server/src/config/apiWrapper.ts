@@ -14,6 +14,7 @@
  */
 
 import { randomUUID } from 'crypto';
+import { log } from '../utils/Logger.js';
 import { getAnthropicClient, getModelForTier, hasValidApiKey } from './api-config.js';
 import { getEffort, type EffortLevel } from './effortTiers.js';
 import { apiCallWithTimeout } from '../utils/apiTimeout.js';
@@ -64,7 +65,7 @@ export async function prismAPICall(options: PrismAPICallOptions): Promise<PrismA
   const timeout = EFFORT_TIMEOUTS[effort];
   const startTime = Date.now();
 
-  console.error(JSON.stringify({
+  log.info(JSON.stringify({
     timestamp: new Date().toISOString(),
     level: 'info',
     dispatcher: 'api_wrapper',
@@ -130,7 +131,7 @@ export async function prismAPICall(options: PrismAPICallOptions): Promise<PrismA
       `${options.action} [effort=${effort}]`,
     );
 
-    console.error(JSON.stringify({
+    log.info(JSON.stringify({
       timestamp: new Date().toISOString(),
       level: 'info',
       dispatcher: 'api_wrapper',
@@ -146,7 +147,7 @@ export async function prismAPICall(options: PrismAPICallOptions): Promise<PrismA
     const duration = Date.now() - startTime;
     const errorMsg = err instanceof Error ? err.message : String(err);
 
-    console.error(JSON.stringify({
+    log.error(JSON.stringify({
       timestamp: new Date().toISOString(),
       level: 'error',
       dispatcher: 'api_wrapper',

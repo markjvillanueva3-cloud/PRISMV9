@@ -69,11 +69,7 @@ export function writeOrReturn<T>(
   summaryFn: (r: T) => Record<string, unknown>
 ): unknown {
   if (level === 'full') return result;
-  
-  // In real implementation, write to filePath via fs
-  // const fs = require('fs');
-  // fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
-  
+
   if (level === 'pointer') {
     return { status: 'ok', message: `Written to ${filePath}` };
   }

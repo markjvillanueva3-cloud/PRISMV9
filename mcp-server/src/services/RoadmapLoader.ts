@@ -92,7 +92,7 @@ export async function saveEnvelope(milestoneId: string, envelope: RoadmapEnvelop
 
 export async function loadPosition(milestoneId: string): Promise<PositionTracker | null> {
   const entry = await getMilestoneEntry(milestoneId);
-  if (!entry) return null;
+  if (!entry || !entry.position_path) return null;
   const posPath = path.join(DATA_BASE, entry.position_path);
   if (!(await fileExists(posPath))) return null;
   return readJsonFile<PositionTracker>(posPath);
@@ -101,6 +101,7 @@ export async function loadPosition(milestoneId: string): Promise<PositionTracker
 export async function savePosition(milestoneId: string, position: PositionTracker): Promise<void> {
   const entry = await getMilestoneEntry(milestoneId);
   if (!entry) throw new Error(`Milestone not found in index: ${milestoneId}`);
+  if (!entry.position_path) throw new Error(`Milestone ${milestoneId} has no position_path`);
   const posPath = path.join(DATA_BASE, entry.position_path);
   await writeJsonFile(posPath, position);
 }
