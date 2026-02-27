@@ -35,6 +35,13 @@ if [[ "$cmd" == *"vitest"* || "$cmd" == *"npm test"* || "$cmd" == *"npm run test
 fi
 
 # ============================================================
+# TSC --noEmit — mark successful type check timestamp
+# ============================================================
+if [[ "$cmd" == *"tsc --noEmit"* || "$cmd" == *"tsc -noEmit"* ]]; then
+  touch "/tmp/prism-tsc-cache"
+fi
+
+# ============================================================
 # GIT STATUS — cache output for 10s deduplication
 # ============================================================
 if [[ "$cmd" == "git status"* ]]; then

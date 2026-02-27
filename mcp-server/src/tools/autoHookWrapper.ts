@@ -53,7 +53,8 @@ import {
   autoMemoryGraphFlush, autoWipCapture, autoSessionLifecycleStart, autoSessionLifecycleEnd,
   autoLearningQuery, autoTelemetryAnomalyCheck, autoBudgetReport, autoAttentionAnchor,
   autoCognitiveUpdate, autoSessionHandoffGenerate, autoTelemetrySloCheck,
-  autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity
+  autoStateReconstruct, autoSessionMetricsSnapshot, autoMemoryGraphIntegrity,
+  autoParallelDispatch, autoATCSParallelUpgrade
 } from "./cadenceExecutor.js";
 import { slimJsonResponse, slimCadence, getSlimLevel, getCurrentPressurePct } from "../utils/responseSlimmer.js";
 import { PATHS } from "../constants.js";
@@ -691,6 +692,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             cadence.actions.push(`\u{1F916} AGENT_REC: ${agentRec.hint}`);
             cadence.agent_recommend = agentRec;
           }
+          // Auto-dispatch parallel agents when auto_orchestrate=true
+          if (agentRec.classification?.auto_orchestrate) {
+            try {
+              const pd = await autoParallelDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
+              if (pd.dispatched) {
+                cadence.actions.push(`\u{26A1} PARALLEL_DISPATCH: ${pd.mode} → [${pd.agents?.join(", ")}]`);
+                cadence.parallel_dispatch = pd;
+              }
+            } catch { /* non-fatal */ }
+          }
         } catch {
         }
         let rehydrated: any = null;
@@ -1181,6 +1192,16 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           cadence.agent_recommend = agentRec;
         }
         classifiedDomain = agentRec.classification?.domain;
+        // Auto-dispatch parallel agents for manufacturing tasks
+        if (agentRec.classification?.auto_orchestrate) {
+          try {
+            const pd = await autoParallelDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {});
+            if (pd.dispatched) {
+              cadence.actions.push(`\u{26A1} PARALLEL_DISPATCH: ${pd.mode} → [${pd.agents?.join(", ")}]`);
+              cadence.parallel_dispatch = pd;
+            }
+          } catch { /* non-fatal */ }
+        }
       } catch {
       }
       try {
@@ -1664,6 +1685,13 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch {
       }
+      // Auto-upgrade ATCS batches to parallel execution
+      try {
+        const atcsUpgrade = autoATCSParallelUpgrade(callNum);
+        if (atcsUpgrade.upgraded) {
+          cadence.actions.push(`\u{26A1} ATCS_PARALLEL: batch upgraded to parallel execution`);
+        }
+      } catch { /* non-fatal */ }
     }
     if (callNum % 15 === 0) {
       try {

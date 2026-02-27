@@ -3,7 +3,9 @@
  * Tool: prism_orchestrate
  * Actions: agent_execute, agent_parallel, agent_pipeline, plan_create, plan_execute, plan_status,
  *          queue_stats, session_list, swarm_execute, swarm_parallel, swarm_consensus, swarm_pipeline,
- *          swarm_status, swarm_patterns, roadmap_plan, roadmap_next_batch, roadmap_advance, roadmap_gate
+ *          swarm_status, swarm_patterns, roadmap_plan, roadmap_next_batch, roadmap_advance, roadmap_gate,
+ *          roadmap_claim, roadmap_release, roadmap_heartbeat, roadmap_discover,
+ *          roadmap_register, roadmap_populate_context
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -28,7 +30,12 @@ import {
   resolvePosition,
   savePosition,
   updateMilestoneStatus,
+  loadClaimedIds,
+  loadRegistry,
+  saveEnvelope,
+  registerInRegistry,
 } from "../../services/RoadmapLoader.js";
+import * as TaskClaimService from "../../services/TaskClaimService.js";
 import { agentRegistry } from "../../registries/AgentRegistry.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
@@ -38,7 +45,9 @@ const ACTIONS = [
   "swarm_execute", "swarm_parallel", "swarm_consensus", "swarm_pipeline",
   "swarm_status", "swarm_patterns",
   "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate",
-  "roadmap_list", "roadmap_load"
+  "roadmap_list", "roadmap_load",
+  "roadmap_claim", "roadmap_release", "roadmap_heartbeat", "roadmap_discover",
+  "roadmap_register", "roadmap_populate_context"
 ] as const;
 
 function ok(data: any) {
@@ -48,7 +57,7 @@ function ok(data: any) {
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",
-    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}. Use milestone_id for modular roadmap loading (saves tokens vs full envelope).`,
+    `Agent orchestration & swarm coordination (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}. Use milestone_id for modular roadmap loading (saves tokens vs full envelope). Multi-Claude: roadmap_claim/release/heartbeat/discover for coordinated parallel execution.`,
     { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
     async ({ action, params = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);
@@ -352,6 +361,169 @@ export function registerOrchestrationDispatcher(server: any): void {
               return ok({ error: `roadmap_load failed: ${err.message}` });
             }
           }
+          // === MULTI-CLAUDE COORDINATION ===
+          case "roadmap_claim": {
+            // Claim a unit for this instance (atomic mkdir-based locking)
+            // params: { milestone_id, unit_id, instance_id, worktree? }
+            if (!params.milestone_id || !params.unit_id || !params.instance_id) {
+              return ok({ error: "milestone_id, unit_id, and instance_id required" });
+            }
+            try {
+              const claimed = await TaskClaimService.claim(
+                params.milestone_id, params.unit_id, params.instance_id, params.worktree,
+              );
+              return ok({ claimed, milestone_id: params.milestone_id, unit_id: params.unit_id });
+            } catch (err: any) {
+              return ok({ error: `roadmap_claim failed: ${err.message}` });
+            }
+          }
+          case "roadmap_release": {
+            // Release a claimed unit
+            // params: { milestone_id, unit_id, instance_id }
+            if (!params.milestone_id || !params.unit_id || !params.instance_id) {
+              return ok({ error: "milestone_id, unit_id, and instance_id required" });
+            }
+            try {
+              await TaskClaimService.release(params.milestone_id, params.unit_id, params.instance_id);
+              return ok({ released: true, milestone_id: params.milestone_id, unit_id: params.unit_id });
+            } catch (err: any) {
+              return ok({ error: `roadmap_release failed: ${err.message}` });
+            }
+          }
+          case "roadmap_heartbeat": {
+            // Update heartbeat on a claimed unit
+            // params: { milestone_id, unit_id, instance_id }
+            if (!params.milestone_id || !params.unit_id || !params.instance_id) {
+              return ok({ error: "milestone_id, unit_id, and instance_id required" });
+            }
+            try {
+              const timestamp = await TaskClaimService.heartbeat(
+                params.milestone_id, params.unit_id, params.instance_id,
+              );
+              return ok({ heartbeat: true, timestamp });
+            } catch (err: any) {
+              return ok({ error: `roadmap_heartbeat failed: ${err.message}` });
+            }
+          }
+          case "roadmap_discover": {
+            // Discover available roadmaps, active claims, and instances
+            // params: { category?: "main"|"secondary"|"archived", reap_stale?: boolean }
+            try {
+              const index = await loadIndex();
+              const registry = await loadRegistry();
+
+              // Optionally filter by category
+              let milestones = index.milestones;
+              if (params.category) {
+                const categoryMsIds = new Set(
+                  registry.roadmaps
+                    .filter(r => r.category === params.category)
+                    .flatMap(r => r.milestone_ids)
+                );
+                milestones = milestones.filter(m => categoryMsIds.has(m.id));
+              }
+
+              const results = await Promise.all(milestones.map(async (m) => {
+                // Reap stale claims if requested
+                if (params.reap_stale) {
+                  await TaskClaimService.reapStaleClaims(m.id);
+                }
+                const claimedIds = await TaskClaimService.getClaimedUnitIds(m.id);
+                const instances = await TaskClaimService.getActiveInstances(m.id);
+
+                // Find category from registry
+                const regEntry = registry.roadmaps.find(r => r.milestone_ids.includes(m.id));
+
+                return {
+                  id: m.id,
+                  title: m.title,
+                  track: m.track,
+                  status: m.status,
+                  category: regEntry?.category || "main",
+                  total_units: m.total_units,
+                  completed_units: m.completed_units,
+                  active_claims: claimedIds.size,
+                  claimed_unit_ids: [...claimedIds],
+                  active_instances: instances.length,
+                };
+              }));
+
+              return ok({
+                total_roadmaps: results.length,
+                roadmaps: results,
+                registry_version: registry.version,
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_discover failed: ${err.message}` });
+            }
+          }
+          case "roadmap_populate_context": {
+            // Auto-populate context_files for all units in a milestone envelope
+            // params: { milestone_id: string, save?: boolean }
+            if (!params.milestone_id) {
+              return ok({ error: "milestone_id required" });
+            }
+            try {
+              const { envelope } = await resolveEnvelope(params);
+              // Collect all units across phases
+              const allUnits = envelope.phases.flatMap(p => p.units);
+              let populated = 0;
+              for (const phase of envelope.phases) {
+                for (const unit of phase.units) {
+                  const contextFiles = buildContextFilesForUnit(unit, allUnits);
+                  if (contextFiles.length > 0) {
+                    (unit as any).context_files = contextFiles;
+                    populated++;
+                  }
+                }
+              }
+              // Optionally save back to disk
+              if (params.save !== false) {
+                await saveEnvelope(params.milestone_id, envelope);
+              }
+              return ok({
+                milestone_id: params.milestone_id,
+                total_units: allUnits.length,
+                units_populated: populated,
+                saved: params.save !== false,
+                sample: allUnits.slice(0, 3).map(u => ({
+                  id: u.id,
+                  title: u.title,
+                  context_files: (u as any).context_files || [],
+                })),
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_populate_context failed: ${err.message}` });
+            }
+          }
+          case "roadmap_register": {
+            // Register milestone(s) into roadmap-registry.json for multi-Claude coordination
+            // params: { milestone_id?: string, milestone_ids?: string[], roadmap_title?: string,
+            //           category?: "main"|"secondary"|"archived", priority?: number }
+            try {
+              const ids: string[] = params.milestone_ids
+                || (params.milestone_id ? [params.milestone_id] : []);
+              if (ids.length === 0) {
+                return ok({ error: "milestone_id or milestone_ids required" });
+              }
+              const opts = {
+                roadmapTitle: params.roadmap_title,
+                category: params.category,
+                priority: params.priority,
+              };
+              for (const msId of ids) {
+                await registerInRegistry(msId, opts);
+              }
+              const registry = await loadRegistry();
+              return ok({
+                registered: ids,
+                total_roadmaps: registry.roadmaps.length,
+                total_milestones: registry.roadmaps.reduce((s, r) => s + r.milestone_ids.length, 0),
+              });
+            } catch (err: any) {
+              return ok({ error: `roadmap_register failed: ${err.message}` });
+            }
+          }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
       } catch (err: any) {
@@ -359,4 +531,82 @@ export function registerOrchestrationDispatcher(server: any): void {
       }
     }
   );
+}
+
+/**
+ * Build context_files for a unit by analyzing its deliverables, tools, skills, and dependencies.
+ * Maps known PRISM dispatcher names → source file paths so workers start with warm context.
+ */
+function buildContextFilesForUnit(unit: any, allUnits: any[]): string[] {
+  const files = new Set<string>();
+
+  // 1. Deliverable paths — files this unit creates/modifies
+  for (const d of unit.deliverables || []) {
+    if (d.path) files.add(d.path);
+  }
+
+  // 2. Dispatcher source files — map tool names to source locations
+  const dispatcherMap: Record<string, string> = {
+    prism_calc: "src/tools/dispatchers/calcDispatcher.ts",
+    prism_data: "src/tools/dispatchers/dataDispatcher.ts",
+    prism_hook: "src/tools/dispatchers/hookDispatcher.ts",
+    prism_orchestrate: "src/tools/dispatchers/orchestrationDispatcher.ts",
+    prism_session: "src/tools/dispatchers/sessionDispatcher.ts",
+    prism_validate: "src/tools/dispatchers/validationDispatcher.ts",
+    prism_context: "src/tools/dispatchers/contextDispatcher.ts",
+    prism_guard: "src/tools/dispatchers/guardDispatcher.ts",
+    prism_skill_script: "src/tools/dispatchers/skillScriptDispatcher.ts",
+    prism_intelligence: "src/tools/dispatchers/intelligenceDispatcher.ts",
+    prism_safety: "src/tools/dispatchers/safetyDispatcher.ts",
+    prism_thread: "src/tools/dispatchers/threadDispatcher.ts",
+    prism_toolpath: "src/tools/dispatchers/toolpathDispatcher.ts",
+    prism_omega: "src/tools/dispatchers/omegaDispatcher.ts",
+    prism_ralph: "src/tools/dispatchers/ralphDispatcher.ts",
+    prism_sp: "src/tools/dispatchers/spDispatcher.ts",
+    prism_gsd: "src/tools/dispatchers/gsdDispatcher.ts",
+    prism_dev: "src/tools/dispatchers/devDispatcher.ts",
+    prism_doc: "src/tools/dispatchers/docDispatcher.ts",
+    prism_bridge: "src/tools/dispatchers/bridgeDispatcher.ts",
+    prism_tenant: "src/tools/dispatchers/tenantDispatcher.ts",
+    prism_compliance: "src/tools/dispatchers/complianceDispatcher.ts",
+    prism_nl_hook: "src/tools/dispatchers/nlHookDispatcher.ts",
+    prism_memory: "src/tools/dispatchers/memoryDispatcher.ts",
+    prism_pfp: "src/tools/dispatchers/pfpDispatcher.ts",
+    prism_telemetry: "src/tools/dispatchers/telemetryDispatcher.ts",
+    prism_atcs: "src/tools/dispatchers/atcsDispatcher.ts",
+    prism_autonomous: "src/tools/dispatchers/autonomousDispatcher.ts",
+    prism_generator: "src/tools/dispatchers/generatorDispatcher.ts",
+    prism_manus: "src/tools/dispatchers/manusDispatcher.ts",
+  };
+  for (const t of unit.tools || []) {
+    const dispName = typeof t === "string" ? t.split("->")[0] : t?.tool?.split("->")[0];
+    if (dispName && dispatcherMap[dispName]) {
+      files.add(dispatcherMap[dispName]);
+    }
+  }
+
+  // 3. Skill files
+  for (const skillId of unit.skills || []) {
+    files.add(`data/skills/${skillId}.md`);
+  }
+
+  // 4. Dependency context — pull deliverables from units this one depends on
+  const depIds = new Set(unit.dependencies || []);
+  for (const dep of allUnits) {
+    if (depIds.has(dep.id)) {
+      for (const d of dep.deliverables || []) {
+        if (d.path) files.add(d.path);
+      }
+    }
+  }
+
+  // 5. Schema file (always useful if unit touches any schema)
+  if ((unit.tools || []).some((t: any) => {
+    const n = typeof t === "string" ? t : t?.tool;
+    return n && n.includes("roadmap");
+  })) {
+    files.add("src/schemas/roadmapSchema.ts");
+  }
+
+  return [...files].sort();
 }

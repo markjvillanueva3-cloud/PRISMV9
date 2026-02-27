@@ -157,6 +157,85 @@ export async function resolvePosition(
   return createInitialPosition(envelope);
 }
 
+// ── Multi-Claude Coordination ────────────────────────────────────
+
+import * as TaskClaimService from "./TaskClaimService.js";
+import type { RoadmapRegistry } from "../schemas/coordinationTypes.js";
+
+const REGISTRY_PATH = path.join(DATA_BASE, "roadmap-registry.json");
+
+/**
+ * Load claimed unit IDs for a milestone (delegates to TaskClaimService).
+ */
+export async function loadClaimedIds(milestoneId: string): Promise<Set<string>> {
+  return TaskClaimService.getClaimedUnitIds(milestoneId);
+}
+
+/**
+ * Load the roadmap registry (categories, priorities).
+ */
+export async function loadRegistry(): Promise<RoadmapRegistry> {
+  try {
+    return await readJsonFile<RoadmapRegistry>(REGISTRY_PATH);
+  } catch {
+    return { version: "1.0.0", roadmaps: [], updated_at: new Date().toISOString() };
+  }
+}
+
+/**
+ * Save the roadmap registry.
+ */
+export async function saveRegistry(registry: RoadmapRegistry): Promise<void> {
+  registry.updated_at = new Date().toISOString();
+  await writeJsonFile(REGISTRY_PATH, registry);
+}
+
+/**
+ * Auto-register a milestone into the roadmap registry.
+ * If a roadmap entry with matching title exists, adds the milestone ID.
+ * Otherwise creates a new entry. Idempotent — won't duplicate IDs.
+ */
+export async function registerInRegistry(
+  milestoneId: string,
+  opts: {
+    roadmapTitle?: string;
+    category?: "main" | "secondary" | "archived";
+    priority?: number;
+  } = {},
+): Promise<void> {
+  const registry = await loadRegistry();
+  const title = opts.roadmapTitle || milestoneId.replace(/-MS\d+$/, "");
+  const category = opts.category || "main";
+  const priority = opts.priority || (category === "main" ? 1 : 10);
+
+  // Find existing entry by title or create new one
+  let entry = registry.roadmaps.find(r => r.title === title);
+  if (!entry) {
+    entry = {
+      id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      title,
+      category,
+      priority,
+      milestone_ids: [],
+      created_at: new Date().toISOString(),
+    };
+    registry.roadmaps.push(entry);
+  }
+
+  // Add milestone ID if not already present
+  if (!entry.milestone_ids.includes(milestoneId)) {
+    entry.milestone_ids.push(milestoneId);
+    entry.updated_at = new Date().toISOString();
+  }
+
+  // Update category/priority if explicitly provided
+  if (opts.category) entry.category = opts.category;
+  if (opts.priority) entry.priority = opts.priority;
+
+  await saveRegistry(registry);
+  log.info(`[RoadmapLoader] Registered ${milestoneId} in registry under "${title}" (${category})`);
+}
+
 // ── Cache Control ────────────────────────────────────────────────
 
 export function clearRoadmapCache(): void {

@@ -116,7 +116,7 @@
           },
           {
             "type": "command",
-            "command": "fp=\"$TOOL_INPUT_file_path\"; echo \"$fp\" | grep -q 'mcp-server/src/' && rm -f /tmp/prism-build-cache /tmp/prism-test-cache 2>/dev/null; echo \"$fp\" | grep -q '\\.test\\.' && rm -f /tmp/prism-test-cache 2>/dev/null; true",
+            "command": "fp=\"$TOOL_INPUT_file_path\"; echo \"$fp\" | grep -q 'mcp-server/src/' && rm -f /tmp/prism-build-cache /tmp/prism-test-cache /tmp/prism-tsc-cache 2>/dev/null; echo \"$fp\" | grep -q '\\.test\\.' && rm -f /tmp/prism-test-cache 2>/dev/null; true",
             "timeout": 1000,
             "continueOnError": true
           }

@@ -88,6 +88,21 @@ if [[ "$cmd" == *"vitest"* || "$cmd" == *"npm test"* || "$cmd" == *"npm run test
 fi
 
 # ============================================================
+# TSC --noEmit — cache until source files change (like build)
+# ============================================================
+if [[ "$cmd" == *"tsc --noEmit"* || "$cmd" == *"tsc -noEmit"* || "$cmd" == *"npx tsc --noEmit"* ]]; then
+  TSC_CACHE="/tmp/prism-tsc-cache"
+  if [[ -f "$TSC_CACHE" ]]; then
+    changed=$(find "$SRC_DIR" -name "*.ts" -newer "$TSC_CACHE" -print -quit 2>/dev/null)
+    if [[ -z "$changed" ]]; then
+      echo "tsc --noEmit already passed — no .ts files changed since last check. To force: rm $TSC_CACHE" >&2
+      exit 2
+    fi
+  fi
+  exit 0
+fi
+
+# ============================================================
 # GIT STATUS — cache for 10 seconds (rapid re-checks)
 # ============================================================
 if [[ "$cmd" == "git status"* ]]; then

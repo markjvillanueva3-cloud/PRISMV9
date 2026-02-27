@@ -21,6 +21,17 @@
             "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\pre-edit-safety-gate.ps1"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$TOOL_INPUT_command\" | grep -q 'git commit' && { STAGED=$(cd /c/PRISM/mcp-server && git diff --cached --stat 2>/dev/null); [ -n \"$STAGED\" ] && python3 -c \"import json,sys; print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','additionalContext':'STAGED FILES: '+sys.argv[1]}}))\" \"$STAGED\" || true; } || true",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -30,6 +41,17 @@
           {
             "type": "command",
             "command": "powershell -File C:\\PRISM\\mcp-server\\scripts\\hooks\\post-build-verify.ps1"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fp=\"$TOOL_INPUT_file_path\"; echo \"$fp\" | grep -qE 'mcp-server/src/.*\\.ts$' && ! echo \"$fp\" | grep -qE '\\.(test|spec)\\.ts$' && { TSC_LAST=/tmp/prism-tsc-lastrun; [ -f \"$TSC_LAST\" ] && AGE=$(python3 -c \"import os,time; print(int(time.time()-os.path.getmtime('$TSC_LAST')))\" 2>/dev/null) && [ \"$AGE\" -lt 30 ] 2>/dev/null && exit 0; touch \"$TSC_LAST\"; ERR=$(cd /c/PRISM/mcp-server && npx tsc --noEmit --pretty false 2>&1 | grep 'error TS' | head -3); [ -n \"$ERR\" ] && python3 -c \"import json,sys; print(json.dumps({'hookSpecificOutput':{'hookEventName':'PostToolUse','additionalContext':'TSC ERRORS: '+sys.argv[1][:300]+' — Fix type errors.'}}))\" \"$ERR\"; } || true",
+            "timeout": 15000,
+            "continueOnError": true
           }
         ]
       }

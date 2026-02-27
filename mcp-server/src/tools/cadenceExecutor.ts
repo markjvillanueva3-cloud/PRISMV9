@@ -51,6 +51,9 @@ import {
   getSessionQualityScore, writeSessionIncrementalPrep,
   getSessionMetrics, generateSessionHandoff
 } from "../engines/SessionLifecycleEngine.js";
+import { executeAgentsParallel } from "../engines/AgentExecutor.js";
+import { executeSwarm, type SwarmPattern } from "../engines/SwarmExecutor.js";
+import { hasValidApiKey } from "../config/api-config.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
 const SCRIPTS_DIR = PATHS.SCRIPTS_CORE;
@@ -4574,6 +4577,127 @@ export function autoMemoryGraphIntegrity(callNumber: number): { success: boolean
     if (result.violations > 0) appendEventLine("graph_integrity_issues", { call: callNumber, violations: result.violations, fixed: result.fixed });
     return { success: true, call_number: callNumber, violations: result.violations, fixed: result.fixed };
   } catch { return { success: false, call_number: callNumber, violations: 0, fixed: 0 }; }
+}
+
+// ============================================================================
+// AUTO PARALLEL DISPATCH — Fire parallel agents when auto_orchestrate=true
+// Cadence: triggered from autoAgentRecommend when classification meets threshold.
+// Requires ANTHROPIC_API_KEY. Debounced per task signature (max 1 per session).
+// ============================================================================
+
+const _parallelDispatchHistory = new Set<string>();
+
+export async function autoParallelDispatch(
+  callNumber: number,
+  classification: TaskClassification | null,
+  toolName: string,
+  action: string,
+  params: Record<string, unknown>
+): Promise<{ success: boolean; call_number: number; dispatched: boolean; mode?: string; agents?: string[]; error?: string }> {
+  try {
+    if (!classification) return { success: true, call_number: callNumber, dispatched: false };
+    if (!classification.auto_orchestrate) return { success: true, call_number: callNumber, dispatched: false };
+    if (!hasValidApiKey()) return { success: true, call_number: callNumber, dispatched: false, error: "no_api_key" };
+
+    // Build task signature for deduplication
+    const sig = `${toolName}:${action}:${classification.domain}:${classification.complexity}`;
+    if (_parallelDispatchHistory.has(sig)) return { success: true, call_number: callNumber, dispatched: false };
+    _parallelDispatchHistory.add(sig);
+
+    const swarm = classification.recommended_swarm;
+    const agents = classification.recommended_agents;
+
+    // Build shared input context
+    const input: Record<string, unknown> = {
+      tool: toolName,
+      action,
+      params,
+      domain: classification.domain,
+      complexity: classification.complexity,
+      auto_dispatched: true,
+      call_number: callNumber
+    };
+
+    // Strategy A: Use recommended swarm if available
+    if (swarm && swarm.agents.length >= 2) {
+      const pattern = swarm.pattern as SwarmPattern;
+      appendEventLine("auto_parallel_swarm_dispatched", {
+        call: callNumber, pattern, agents: swarm.agents, tool: toolName, action
+      });
+      // Fire async - don't await (non-blocking background execution)
+      executeSwarm({
+        name: `auto-${toolName}-${action}-${callNumber}`,
+        pattern,
+        agents: swarm.agents,
+        input,
+        timeout_ms: 30000
+      }).then(result => {
+        appendEventLine("auto_parallel_swarm_completed", {
+          call: callNumber, pattern, successful: result.successCount,
+          failed: result.failCount, status: result.status
+        });
+      }).catch(err => {
+        appendEventLine("auto_parallel_swarm_error", { call: callNumber, error: String(err).slice(0, 200) });
+      });
+      return { success: true, call_number: callNumber, dispatched: true, mode: `swarm:${pattern}`, agents: swarm.agents };
+    }
+
+    // Strategy B: Use parallel agents if 2+ recommended
+    if (agents.length >= 2) {
+      const agentTasks = agents.slice(0, 5).map(a => ({
+        agentId: a.agent_id,
+        input: { ...input, agent_role: a.name, agent_tier: a.tier }
+      }));
+      appendEventLine("auto_parallel_agents_dispatched", {
+        call: callNumber, count: agentTasks.length, tool: toolName, action
+      });
+      // Fire async - non-blocking
+      executeAgentsParallel(agentTasks).then(results => {
+        const successful = results.filter(r => r.status === "completed").length;
+        appendEventLine("auto_parallel_agents_completed", {
+          call: callNumber, total: results.length, successful
+        });
+      }).catch(err => {
+        appendEventLine("auto_parallel_agents_error", { call: callNumber, error: String(err).slice(0, 200) });
+      });
+      return {
+        success: true, call_number: callNumber, dispatched: true,
+        mode: "parallel", agents: agentTasks.map(a => a.agentId)
+      };
+    }
+
+    return { success: true, call_number: callNumber, dispatched: false };
+  } catch (err: any) {
+    return { success: false, call_number: callNumber, dispatched: false, error: err.message?.slice(0, 150) };
+  }
+}
+
+// ============================================================================
+// AUTO ATCS BATCH PARALLEL — Upgrade sequential ATCS batches to parallel
+// When ATCS runs batch execution, this enables Promise.all for independent units
+// within the same batch, instead of the default sequential loop.
+// Cadence: fires once when ATCS batch detected with >= 3 independent units.
+// ============================================================================
+
+let _atcsParallelUpgraded = false;
+
+export function autoATCSParallelUpgrade(callNumber: number): { success: boolean; call_number: number; upgraded: boolean } {
+  try {
+    if (_atcsParallelUpgraded) return { success: true, call_number: callNumber, upgraded: false };
+    // Check if ATCS is active by looking for active batch state
+    const batchState = path.join(STATE_DIR, "atcs_batch_state.json");
+    if (!fs.existsSync(batchState)) return { success: true, call_number: callNumber, upgraded: false };
+    const state = JSON.parse(fs.readFileSync(batchState, "utf-8"));
+    if (!state.active || (state.units?.length || 0) < 3) return { success: true, call_number: callNumber, upgraded: false };
+    // Mark that parallel mode is preferred
+    state.execution_mode = "parallel";
+    state.parallel_enabled = true;
+    state.parallel_upgraded_at = callNumber;
+    fs.writeFileSync(batchState, JSON.stringify(state, null, 2), "utf-8");
+    _atcsParallelUpgraded = true;
+    appendEventLine("atcs_parallel_upgraded", { call: callNumber, units: state.units.length });
+    return { success: true, call_number: callNumber, upgraded: true };
+  } catch { return { success: false, call_number: callNumber, upgraded: false }; }
 }
 
 // ============================================================================
