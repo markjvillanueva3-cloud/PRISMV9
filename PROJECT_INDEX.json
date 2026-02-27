@@ -2,7 +2,7 @@
   "_meta": {
     "description": "Unified PRISM project index \u2014 single-read bootstrap for AI agents",
     "version": "1.0.0",
-    "generatedAt": "2026-02-27T14:27:23.446231+00:00",
+    "generatedAt": "2026-02-27T14:53:45.867252+00:00",
     "generatedBy": "rebuild_project_index.py",
     "sources": [
       "CURRENT_STATE.json",
@@ -283,5 +283,24 @@
     "0.EXT.2f.6 - ENHANCED Machine Expansion",
     "REORG.1 - Folder Reorganization",
     "1.A.2 \u2014 Extract Machine Databases (7 core databases) (CURRENT)"
-  ]
+  ],
+  "milestones": {
+    "unifiedDSL": {
+      "name": "Unified DSL Command Router",
+      "status": "PLANNED",
+      "trigger": "When 3+ extraction indexes exist and SPARC workflows are active",
+      "description": "Build a single CLI entry point (cli <command>) that routes to all tools: extraction scripts, session management, index queries, SPARC modes, CI workflows, and dashboard. Currently 5 separate command surfaces (npx, npm, python, bash helpers, MCP tools) with no unified interface. DSL maturity is 4/10 \u2014 hooks work but discovery and cohesion are missing.",
+      "components": [
+        "Command router (.claude/commands/dsl-router.sh or Python equivalent)",
+        "PROJECT_INDEX.json query mode (--query progress/rules/session)",
+        "SPARC mode invocation via CLI (cli sparc run <mode> <task>)",
+        "Session management DSL (cli session start/end/status)",
+        "Extraction DSL (cli extract/validate/index)",
+        "CI workflow triggers (cli workflow run <name>)",
+        "State-to-memory sync hook"
+      ],
+      "blockedBy": "Need more extraction indexes (1/8 exist), active SPARC usage, and more daemon workers running before router adds value",
+      "estimatedPhase": "Phase 2+"
+    }
+  }
 }

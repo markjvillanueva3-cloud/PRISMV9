@@ -268,6 +268,13 @@ def build_index():
         "sessionHistory": history,
     }
 
+    # Preserve manually-added sections (milestones, etc.) from existing index
+    if OUTPUT_FILE.exists():
+        existing = load_json(OUTPUT_FILE)
+        for key in ("milestones",):
+            if key in existing and key not in index:
+                index[key] = existing[key]
+
     return index
 
 
