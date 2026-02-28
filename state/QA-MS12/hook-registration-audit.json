@@ -1,0 +1,162 @@
+{
+  "unit": "QA-MS12-U00",
+  "title": "Hook Registration System Inventory & Reconciliation",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "All hook registration sources: hooks/ directory, HookEngine.ts Phase 0, HookExecutor.ts, autoHookWrapper cadences",
+  "hook_counts": {
+    "total_registered": 220,
+    "domain_hooks": 179,
+    "phase0_built_in": 41,
+    "qa_ms0_baseline_claim": 157,
+    "envelope_claim": 112,
+    "discrepancy": "+63 above QA-MS0 baseline (179 domain + 41 Phase0 = 220 actual)"
+  },
+  "domain_hook_breakdown": {
+    "EnforcementHooks": {
+      "count": 17,
+      "type": "Pre/post-action blocking",
+      "priority": "critical"
+    },
+    "LifecycleHooks": {
+      "count": 14,
+      "type": "Session/checkpoint/pressure",
+      "priority": "high"
+    },
+    "ManufacturingHooks": {
+      "count": 9,
+      "type": "Force/thermal/deflection/MRR",
+      "priority": "normal"
+    },
+    "CognitiveHooks": {
+      "count": 10,
+      "type": "Bayesian/pattern/learning",
+      "priority": "normal"
+    },
+    "ObservabilityHooks": {
+      "count": 11,
+      "type": "Performance/usage/audit",
+      "priority": "low"
+    },
+    "AutomationHooks": {
+      "count": 11,
+      "type": "Index/cache/backup/sync",
+      "priority": "low"
+    },
+    "CrossReferenceHooks": {
+      "count": 12,
+      "type": "Integrity/compatibility/batch",
+      "priority": "high"
+    },
+    "AdvancedManufacturingHooks": {
+      "count": 8,
+      "type": "Chip/chatter/power/G-code",
+      "priority": "normal"
+    },
+    "RecoveryHooks": {
+      "count": 9,
+      "type": "Circuit breaker/retry/rollback",
+      "priority": "high"
+    },
+    "SchemaHooks": {
+      "count": 7,
+      "type": "Version/deprecation/migration",
+      "priority": "normal"
+    },
+    "ControllerHooks": {
+      "count": 5,
+      "type": "FANUC/SIEMENS/HAAS specific",
+      "priority": "normal"
+    },
+    "AgentHooks": {
+      "count": 7,
+      "type": "Tier selection/cost/escalation",
+      "priority": "high"
+    },
+    "OrchestrationHooks": {
+      "count": 7,
+      "type": "Swarm/pipeline/consensus/ATCS",
+      "priority": "high"
+    },
+    "SafetyQualityHooks": {
+      "count": 20,
+      "type": "Spindle/collision/workholding/SPC",
+      "priority": "critical"
+    },
+    "CadenceDefinitions": {
+      "count": 6,
+      "type": "Daily/weekly/hourly/shift/monthly/quarterly",
+      "priority": "low"
+    },
+    "SpecialtyManufacturingHooks": {
+      "count": 20,
+      "type": "Turning/5-axis/EDM/grinding",
+      "priority": "normal"
+    },
+    "SpecialtyCadences": {
+      "count": 6,
+      "type": "M97-M102 automation cadences",
+      "priority": "low"
+    }
+  },
+  "phase0_hooks": {
+    "count": 41,
+    "categories": "CALC(12), FILE(8), STATE(6), AGENT(5), BATCH(6), FORMULA(4), plus INTEL, DISPATCH, ORCH, SESSION, CONTEXT, REFL",
+    "blocking_hooks": [
+      "CALC-SAFETY-VIOLATION-001 (HARD BLOCK)",
+      "STATE-ANTI-REGRESSION-001 (HARD BLOCK)",
+      "FILE-GCODE-VALIDATE-001 (HARD BLOCK)"
+    ]
+  },
+  "registration_mechanism": {
+    "entry_point": "registerDomainHooks() called from index.ts line 314 at server startup",
+    "loading": "allHooks array from hooks/index.ts -> hookExecutor.register(hook) for each",
+    "guard": "Single-call registration flag prevents duplicate registration",
+    "fallback": "Domain hooks also loaded from HOOK_REGISTRY.json \u2014 if file missing, domain hooks silently fail to load"
+  },
+  "hook_modes": {
+    "blocking": "~7 hooks (enforcement, hard blocks \u2014 stops execution on failure)",
+    "warning": "~80 hooks (validation with advisory \u2014 logs warning, continues)",
+    "silent": "~130+ hooks (background telemetry \u2014 no output)"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "220 hooks registered across 17 categories covering enforcement, lifecycle, manufacturing, cognitive, observability, and more"
+    },
+    {
+      "severity": "OK",
+      "finding": "Phase 0 built-in hooks (41) include 3 HARD BLOCK hooks for safety/anti-regression/G-code validation"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Hook count discrepancy: QA-MS0 claimed 157, envelope claimed 112, actual is 220 \u2014 inventory tracking severely outdated"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Domain hooks loaded from HOOK_REGISTRY.json with silent failure \u2014 if file missing/corrupt, 179 domain hooks don't load"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "index.ts header comment says '32 dispatchers' \u2014 actual is 45 (stale comment)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "No verification that TypeScript hook definitions match JSON registry contents"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 5,
+    "composite": "4.25",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "exact_hook_count_determined": true,
+    "registered_vs_unregistered_identified": true,
+    "hook_type_distribution_documented": true
+  }
+}

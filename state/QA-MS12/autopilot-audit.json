@@ -1,0 +1,69 @@
+{
+  "unit": "QA-MS12-U03",
+  "title": "prism_autopilot_d: Autopilot Action Verification",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:00:00Z",
+  "status": "PASS",
+  "scope": "autoPilotDispatcher.ts (166 lines) \u2014 7 actions, AutoPilot + AutoPilotV2 integration",
+  "file": "src/tools/dispatchers/autoPilotDispatcher.ts",
+  "lines": 166,
+  "actions": 7,
+  "action_list": [
+    "autopilot",
+    "autopilot_quick",
+    "brainstorm_lenses",
+    "formula_optimize",
+    "autopilot_v2",
+    "registry_status",
+    "working_tools"
+  ],
+  "deprecated_removed": {
+    "ralph_loop_lite": "Removed from ACTIONS enum per QA-MS8 finding \u2014 was generating fake incrementing scores via math formula, violating Law 2 ('Lives depend on real scores')"
+  },
+  "decision_logic": {
+    "autopilot": "Full mode \u2014 enableSwarms:true, enableRalphLoops:3, enableFormulaOptimization:true",
+    "autopilot_quick": "Minimal mode \u2014 enableSwarms:false, enableRalphLoops:1, enableFormulaOptimization:false",
+    "brainstorm_lenses": "7 lenses: assumptions, alternatives, inversions, fusions, tenX, simplifications, futureProof",
+    "formula_optimize": "Queries FormulaRegistry for top 5 matching formulas, falls back to prism_knowledge or prism_calc"
+  },
+  "safety_guardrails": {
+    "hook_integration": "Can trigger on-decision and on-outcome events (via HookExecutor) but no direct hook.execute() calls in dispatcher",
+    "configuration_safety": "Swarm/Ralph/Formula toggles are per-invocation configuration",
+    "modular_design": "AutoPilot and AutoPilotV2 classes loaded with try/catch \u2014 graceful fallback if unavailable"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "7 actions covering full/quick autopilot, brainstorm lenses, formula optimization, registry status, and tool discovery"
+    },
+    {
+      "severity": "OK",
+      "finding": "ralph_loop_lite correctly removed per QA-MS8 finding \u2014 no fake score generation"
+    },
+    {
+      "severity": "OK",
+      "finding": "Modular design with try/catch loading of AutoPilot/AutoPilotV2 \u2014 graceful degradation"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "No direct hook.execute() calls \u2014 relies on EventBus events for hook triggering (indirect)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Formula optimizer falls back to alternative tools if FormulaRegistry unavailable \u2014 degraded but functional"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "decision_logic_verified": true,
+    "safety_guardrails_verified": true
+  }
+}
