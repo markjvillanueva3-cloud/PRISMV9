@@ -1,0 +1,73 @@
+{
+  "audit_id": "QA-MS7-P0-U05",
+  "title": "Registry Loader Performance & Caching Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Eager/lazy split is well-designed. Core 4 loaded in parallel, 11 lazy-loaded with Promise guard preventing concurrent double-loads.",
+
+  "loading_architecture": {
+    "manager": "src/registries/manager.ts",
+    "total_registries": 15,
+    "eager_loaded": {
+      "count": 4,
+      "registries": ["materials", "machines", "tools", "formulas"],
+      "pattern": "Promise.all([...]) in init() — loads all 4 in parallel",
+      "rationale": "Core registries needed for most intelligence actions"
+    },
+    "lazy_loaded": {
+      "count": 11,
+      "registries": ["alarms", "alarm_responses", "process_templates", "knowledge_graph", "quality_rules", "maintenance_models", "sustainability_factors", "compliance_rules", "vendor_catalog", "federated_models", "database"],
+      "pattern": "Loaded in background after core init, with on-demand fallback",
+      "guard": "_loadingPromises Map prevents concurrent double-load via shared Promise"
+    }
+  },
+
+  "caching_strategy": {
+    "in_memory": "All registries use Map<string, RegistryEntry<T>> — full dataset in memory",
+    "indexes": "Secondary indexes (byName, byISO, byCategory, byController, bySeverity, byCode) built post-load",
+    "persistence": "File-backed JSON via save() method in base.ts",
+    "invalidation": "No automatic invalidation — registries are load-once per server lifecycle"
+  },
+
+  "safety_guards": {
+    "W5_empty_check": {
+      "applies_to": ["MaterialRegistry", "AlarmRegistry"],
+      "behavior": "loaded=false if entries.size === 0, logs warning, retries on next access",
+      "rationale": "Prevents serving empty data if filesystem read fails"
+    },
+    "double_load_prevention": {
+      "mechanism": "this.loaded boolean check at top of load()",
+      "concurrent_protection": "_loadingPromises Map in RegistryManager ensures same Promise shared across concurrent callers"
+    }
+  },
+
+  "performance_characteristics": {
+    "startup_blocking": "Only core 4 registries block server startup",
+    "lazy_background": "Remaining 11 load in background — no user-facing latency",
+    "memory_model": "Full dataset in memory — O(1) lookups via indexes, trades memory for speed",
+    "estimated_memory": {
+      "materials": "~6K entries x ~2KB each ≈ 12MB",
+      "machines": "~2K entries x ~3KB each ≈ 6MB",
+      "tools": "~16K entries x ~1KB each ≈ 16MB",
+      "alarms": "~2.5K entries x ~500B each ≈ 1.3MB",
+      "formulas": "109 entries x ~2KB each ≈ 0.2MB",
+      "total_estimate": "~36MB for core 5 registries"
+    }
+  },
+
+  "log_summary": {
+    "method": "logSummary() in manager.ts",
+    "reports": "All 15 registry sizes with DSL abbreviations",
+    "purpose": "Startup health check — operators can verify expected counts"
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "eager_lazy_split_documented": true,
+    "caching_strategy_reviewed": true,
+    "safety_guards_verified": true,
+    "performance_characteristics_estimated": true
+  }
+}

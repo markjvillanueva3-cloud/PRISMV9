@@ -1,0 +1,75 @@
+{
+  "audit_id": "QA-MS7-P0-U06",
+  "title": "Cross-Registry Referential Integrity Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS with NOTE — Cross-references are search-based (not FK-based), which is appropriate for the registry's data model but means no hard integrity constraints",
+
+  "cross_reference_patterns": {
+    "material_to_tools": {
+      "mechanism": "CuttingTool.material_groups[] contains ISO group codes (P/M/K/N/S/H/X)",
+      "lookup": "ToolRegistry search by material_groups includes ISO group",
+      "integrity": "Implicit — no FK constraint. Tool references non-existent ISO group = silently returns empty results"
+    },
+    "tool_to_performance": {
+      "mechanism": "CuttingTool.performance.recommendations keyed by ISO material group",
+      "lookup": "Direct object property access",
+      "integrity": "Embedded — recommendations are part of the tool record"
+    },
+    "machine_to_alarms": {
+      "mechanism": "Machine.controller.manufacturer maps to AlarmRegistry.indexByController",
+      "lookup": "AlarmRegistry.getByController(family) returns alarm list",
+      "integrity": "Implicit — no FK. Machine references controller family not in alarm DB = empty results"
+    },
+    "formula_to_consumers": {
+      "mechanism": "Formula.consumers[] lists consuming engine/tool names",
+      "lookup": "Informational only — no runtime enforcement",
+      "integrity": "Documentation-level — consumer list not validated against actual engine registry"
+    },
+    "alarm_to_related": {
+      "mechanism": "Alarm.related_alarms[] references other alarm_id values",
+      "lookup": "AlarmRegistry.get(alarm_id)",
+      "integrity": "Self-referential — within same registry. Not validated at load time."
+    }
+  },
+
+  "integrity_assessment": {
+    "fk_constraints": "NONE — registries use search-based cross-references",
+    "orphan_detection": "Not implemented — no mechanism to detect tools referencing non-existent ISO groups or alarms referencing non-existent related_alarms",
+    "design_rationale": "Search-based refs are appropriate because: (1) registries load independently, (2) data comes from heterogeneous sources, (3) graceful degradation (empty results) is better than hard failures, (4) ISO groups are stable enumerations"
+  },
+
+  "count_consistency": {
+    "finding_id": "F42",
+    "severity": "LOW",
+    "title": "Registry counts inconsistent across documentation layers",
+    "details": {
+      "materials": { "registry_header": "6,346+", "manager_header": "6,346+", "qa_ms0": 3533 },
+      "machines": { "registry_header": 824, "manager_header": "2,107+", "qa_ms0": 1016 },
+      "tools": { "registry_header": "500+", "manager_header": "15,912+", "qa_ms0": 13967 },
+      "alarms": { "registry_header": "2,500+", "manager_header": "2,500+", "qa_ms0": 10033 },
+      "formulas": { "registry_header": 109, "manager_header": 109, "qa_ms0": 109 }
+    },
+    "explanation": "Counts evolved through enrichment waves W3-W6. File headers frozen at write time, manager.ts updated more recently, QA-MS0 was a runtime snapshot. Only formulas are consistent across all layers.",
+    "impact": "Documentation confusion only — runtime counts from logSummary() are authoritative",
+    "fix": "Update file headers to match current runtime counts or add 'approximate' qualifier"
+  },
+
+  "findings": [
+    {
+      "id": "F42",
+      "severity": "LOW",
+      "title": "Registry counts inconsistent across documentation layers",
+      "impact": "Documentation confusion only — runtime logSummary() is authoritative",
+      "fix": "Update file headers or qualify with 'approximate'"
+    }
+  ],
+
+  "exit_conditions_met": {
+    "all_cross_references_mapped": true,
+    "integrity_model_documented": true,
+    "count_consistency_checked": true,
+    "design_rationale_explained": true
+  }
+}

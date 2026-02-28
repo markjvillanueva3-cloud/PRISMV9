@@ -1,0 +1,62 @@
+{
+  "audit_id": "QA-MS7-P0-U04",
+  "title": "FormulaRegistry Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - FormulaRegistry has 109 formulas across 20 domains, 12 source modules (2,112 lines), rich metadata with consumer tracking",
+
+  "registry_overview": {
+    "class": "FormulaRegistry extends BaseRegistry<Formula>",
+    "file": "src/registries/FormulaRegistry.ts",
+    "count": "109 formulas (consistent across all documentation layers)",
+    "domains": "20 domains: physics, manufacturing, ai_ml, optimization, etc."
+  },
+
+  "formula_schema": {
+    "interface": "Formula (lines 34-73)",
+    "identification": ["formula_id", "name", "domain", "category"],
+    "mathematical": {
+      "equation": "LaTeX or symbolic math representation",
+      "equation_plain": "Plain text version for non-LaTeX contexts"
+    },
+    "parameters": {
+      "interface": "FormulaParameter",
+      "fields": ["name", "symbol", "unit", "description", "type (input|output|constant)", "range", "default"]
+    },
+    "validation": {
+      "interface": "FormulaValidation",
+      "fields": ["required_inputs[]", "output_range", "constraints[]", "safety_checks[]"]
+    },
+    "documentation": ["description", "theory", "assumptions[]", "limitations[]", "references[]"],
+    "usage_tracking": {
+      "consumers": "string[] — tools/engines that use this formula",
+      "examples": "Array of {inputs, output, description} test cases"
+    }
+  },
+
+  "source_catalog": {
+    "total_modules": 12,
+    "total_lines": 2112,
+    "safety_distribution": {
+      "CRITICAL": ["PRISM_FORCE_LOOKUP", "PRISM_MFG_PHYSICS"],
+      "HIGH": ["PRISM_MATERIAL_PHYSICS", "PRISM_STRESS", "PRISM_STRESS_ANALYSIS", "PRISM_TOOL_LIFE_ESTIMATOR", "PRISM_TOOL_WEAR_MODELS"],
+      "MEDIUM": ["PRISM_STANDALONE_CALCULATOR_API", "PRISM_THERMAL_COMPENSATION", "PRISM_THERMAL_LOOKUP", "PRISM_THERMAL_PROPERTIES", "PRISM_WEAR_LOOKUP"]
+    },
+    "key_formulas_provided": ["F-KIENZLE-001", "F-POWER-001", "F-DEFLECT-001", "F-CHATTER-001", "F-MRR-001", "F-TAYLOR-001", "F-CHIPTHK-001", "F-CALC-001 through F-CALC-009"]
+  },
+
+  "consumer_wiring": {
+    "primary_consumers": ["ManufacturingCalculations", "FormulaRegistry", "OptimizationEngine", "ComplianceEngine", "ToleranceEngine"],
+    "note": "Each formula declares its consumers[] array, enabling reverse lookups"
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "schema_reviewed": true,
+    "domain_coverage_documented": true,
+    "consumer_wiring_verified": true,
+    "source_catalog_audited": true
+  }
+}
