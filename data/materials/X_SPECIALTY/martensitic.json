@@ -10,18 +10,18 @@
       "iso_p_equivalent": "M",
       "physical": {
         "density": 7780.8,
-        "melting_point": 1698.0,
+        "melting_point": 1480,
         "boiling_point": 3216.3,
-        "liquidus_temperature": 1732.0,
-        "solidus_temperature": 1613.1,
+        "liquidus_temperature": 1530,
+        "solidus_temperature": 1480,
         "latent_heat_fusion": 299.3,
-        "specific_heat": 954.0,
-        "thermal_conductivity": 180.2,
+        "specific_heat": 480,
+        "thermal_conductivity": 30,
         "thermal_expansion": 11.8,
         "electrical_resistivity": 7.77,
         "magnetic_permeability": 387.3,
         "poisson_ratio": 0.399,
-        "elastic_modulus": 358.8,
+        "elastic_modulus": 190,
         "shear_modulus": 39.7,
         "bulk_modulus": 69.9
       },
@@ -71,7 +71,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1698.0,
+        "T_melt": 1480,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 374
@@ -185,7 +185,7 @@
       "material_id": "XS-PM-SS-410-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -211,7 +211,10 @@
         "postweld_treatment": "not_applicable"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.08,
+        "Mn": 0.5,
+        "Cr": 12.5,
+        "Si": 0.5
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -281,14 +284,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 168
     }
   ],
   "enhanced_date": "2026-01-26T10:46:00.332218",

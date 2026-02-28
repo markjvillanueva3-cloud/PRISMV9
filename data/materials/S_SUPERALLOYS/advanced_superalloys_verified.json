@@ -7,7 +7,7 @@
       "material_type": "superalloy",
       "subcategory": "nickel_base",
       "condition": "solution_aged",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Sandvik_Technical_Guide",
@@ -24,7 +24,8 @@
         "elastic_modulus": 219,
         "poisson_ratio": 0.3,
         "shear_modulus": 84.2,
-        "bulk_modulus": 182.5
+        "bulk_modulus": 182.5,
+        "liquidus_temperature": 1370
       },
       "mechanical": {
         "hardness": {
@@ -301,14 +302,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 190
     },
     {
       "material_id": "SN-HAYNES230-ANN",
@@ -317,7 +319,7 @@
       "material_type": "superalloy",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Sandvik_Technical_Guide",
@@ -334,7 +336,8 @@
         "elastic_modulus": 211,
         "poisson_ratio": 0.31,
         "shear_modulus": 80.5,
-        "bulk_modulus": 185.1
+        "bulk_modulus": 185.1,
+        "liquidus_temperature": 1371
       },
       "mechanical": {
         "hardness": {
@@ -544,8 +547,10 @@
         "Mo": 2.0,
         "Fe": 3.0,
         "Co": 5.0,
-        "Al": 0.3,
-        "C": 0.1
+        "Mn": 0.5,
+        "C": 0.1,
+        "La": 0.02,
+        "Al": 0.3
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -609,14 +614,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 190
     },
     {
       "material_id": "SC-MP35N-AGED",
@@ -625,7 +631,7 @@
       "material_type": "superalloy",
       "subcategory": "cobalt_nickel",
       "condition": "aged",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Sandvik_Technical_Guide",
@@ -642,7 +648,8 @@
         "elastic_modulus": 228,
         "poisson_ratio": 0.3,
         "shear_modulus": 87.7,
-        "bulk_modulus": 190
+        "bulk_modulus": 190,
+        "liquidus_temperature": 1370
       },
       "mechanical": {
         "hardness": {
@@ -930,14 +937,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 193
     },
     {
       "material_id": "SN-INCONEL617-ANN",
@@ -946,7 +954,7 @@
       "material_type": "superalloy",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Sandvik_Technical_Guide",
@@ -963,7 +971,8 @@
         "elastic_modulus": 211,
         "poisson_ratio": 0.31,
         "shear_modulus": 80.5,
-        "bulk_modulus": 185.1
+        "bulk_modulus": 185.1,
+        "liquidus_temperature": 1377
       },
       "mechanical": {
         "hardness": {
@@ -1238,14 +1247,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 188
     },
     {
       "material_id": "SN-HASTELLOYX-ANN",
@@ -1580,7 +1590,8 @@
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 200
     }
   ]
 }

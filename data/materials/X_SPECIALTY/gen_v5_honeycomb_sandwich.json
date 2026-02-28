@@ -229,7 +229,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 4.2,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -415,13 +415,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-001",
@@ -430,22 +431,24 @@
       "material_type": "HONEYCOMB",
       "subcategory": "honeycomb_sandwich",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8450.0,
-        "melting_point": 1650,
-        "specific_heat": 500,
-        "thermal_conductivity": 50,
+        "density": 2700.0,
+        "melting_point": 610,
+        "specific_heat": 880,
+        "thermal_conductivity": 140,
         "thermal_expansion": 12,
-        "elastic_modulus": 0.5,
+        "elastic_modulus": 70,
         "poisson_ratio": 0.3,
         "shear_modulus": 0.2,
-        "bulk_modulus": 0.4
+        "bulk_modulus": 0.4,
+        "solidus_temperature": 610,
+        "liquidus_temperature": 650
       },
       "mechanical": {
         "hardness": {
@@ -653,12 +656,12 @@
         "material_class": "Aluminum Alloy"
       },
       "johnson_cook": {
-        "A": 30,
-        "B": 50,
+        "A": 2.5,
+        "B": 203.8,
         "n": 0.15,
         "C": 0.005,
         "m": 0.5,
-        "T_melt": 1650,
+        "T_melt": 610,
         "T_ref": 25,
         "_generated": true,
         "epsilon_dot_ref": 1.0,
@@ -838,14 +841,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 236
     },
     {
       "material_id": "X-SAND-002",
@@ -854,22 +858,24 @@
       "material_type": "HONEYCOMB",
       "subcategory": "honeycomb_sandwich",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8450.0,
-        "melting_point": 1650,
-        "specific_heat": 500,
-        "thermal_conductivity": 50,
+        "density": 2700.0,
+        "melting_point": 610,
+        "specific_heat": 880,
+        "thermal_conductivity": 140,
         "thermal_expansion": 12,
-        "elastic_modulus": 0.3,
+        "elastic_modulus": 70,
         "poisson_ratio": 0.3,
         "shear_modulus": 0.1,
-        "bulk_modulus": 0.2
+        "bulk_modulus": 0.2,
+        "solidus_temperature": 610,
+        "liquidus_temperature": 650
       },
       "mechanical": {
         "hardness": {
@@ -1077,12 +1083,12 @@
         "material_class": "Aluminum Alloy"
       },
       "johnson_cook": {
-        "A": 30,
-        "B": 50,
+        "A": 1.7,
+        "B": 203.8,
         "n": 0.15,
         "C": 0.005,
         "m": 0.5,
-        "T_melt": 1650,
+        "T_melt": 610,
         "T_ref": 25,
         "_generated": true,
         "epsilon_dot_ref": 1.0,
@@ -1262,14 +1268,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 236
     },
     {
       "material_id": "X-SAND-003",
@@ -1278,26 +1285,28 @@
       "material_type": "HONEYCOMB",
       "subcategory": "honeycomb_sandwich",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8450.0,
-        "melting_point": 1650,
-        "specific_heat": 500,
-        "thermal_conductivity": 50,
+        "density": 2700.0,
+        "melting_point": 610,
+        "specific_heat": 880,
+        "thermal_conductivity": 140,
         "thermal_expansion": 12,
-        "elastic_modulus": 350.2,
+        "elastic_modulus": 70,
         "poisson_ratio": 0.3,
         "shear_modulus": 134.7,
-        "bulk_modulus": 291.9
+        "bulk_modulus": 291.9,
+        "solidus_temperature": 610,
+        "liquidus_temperature": 650
       },
       "mechanical": {
         "hardness": {
-          "brinell": 0,
+          "brinell": 47,
           "vickers": 0.0,
           "rockwell_c": null,
           "_enriched": "R1-MS6-hb-from-tensile",
@@ -1501,12 +1510,12 @@
         "material_class": "Aluminum Alloy"
       },
       "johnson_cook": {
-        "A": 30,
-        "B": 50,
+        "A": 1.3,
+        "B": 203.8,
         "n": 0.15,
         "C": 0.005,
         "m": 0.5,
-        "T_melt": 1650,
+        "T_melt": 610,
         "T_ref": 25,
         "_generated": true,
         "epsilon_dot_ref": 1.0,
@@ -1686,14 +1695,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 236
     },
     {
       "material_id": "X-SAND-004",
@@ -1702,22 +1712,24 @@
       "material_type": "HONEYCOMB",
       "subcategory": "honeycomb_sandwich",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8450.0,
-        "melting_point": 1650,
-        "specific_heat": 500,
-        "thermal_conductivity": 50,
+        "density": 2640.0,
+        "melting_point": 570,
+        "specific_heat": 900,
+        "thermal_conductivity": 117,
         "thermal_expansion": 12,
-        "elastic_modulus": 0.6,
+        "elastic_modulus": 71,
         "poisson_ratio": 0.3,
         "shear_modulus": 0.2,
-        "bulk_modulus": 0.5
+        "bulk_modulus": 0.5,
+        "solidus_temperature": 570,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -1925,12 +1937,12 @@
         "material_class": "Aluminum Alloy"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 3.4,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
         "m": 0.5,
-        "T_melt": 1650,
+        "T_melt": 570,
         "T_ref": 25,
         "_generated": true,
         "epsilon_dot_ref": 1.0,
@@ -2110,14 +2122,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 236
     },
     {
       "material_id": "X-SAND-005",
@@ -2349,7 +2362,7 @@
         "material_class": "Aluminum Alloy"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 4.2,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -2535,13 +2548,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-006",
@@ -2773,7 +2787,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 1.7,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -2959,13 +2973,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-007",
@@ -3197,7 +3212,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 2.5,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -3383,13 +3398,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-008",
@@ -3621,7 +3637,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 3.4,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -3807,13 +3823,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-009",
@@ -4045,7 +4062,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 2.1,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -4231,13 +4248,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-010",
@@ -4655,13 +4673,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 233
     },
     {
       "material_id": "X-SAND-011",
@@ -4893,7 +4912,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 1.3,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -5079,13 +5098,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-015",
@@ -5503,13 +5523,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-016",
@@ -5933,7 +5954,8 @@
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-017",
@@ -6351,13 +6373,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 233
     },
     {
       "material_id": "X-SAND-018",
@@ -6589,7 +6612,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 1.4,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -6775,13 +6798,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-019",
@@ -7013,7 +7037,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 3.0,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -7199,13 +7223,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-SAND-020",
@@ -7437,7 +7462,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 8.5,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -7623,13 +7648,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-POLY-111",
@@ -8046,13 +8072,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 233
     },
     {
       "material_id": "X-POLY-112",
@@ -8283,7 +8310,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 1.3,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -8469,13 +8496,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-POLY-113",
@@ -8706,7 +8734,7 @@
         "material_class": "Carbon/Alloy Steel"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 1.7,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -8892,13 +8920,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     },
     {
       "material_id": "X-POLY-114",
@@ -9129,7 +9158,7 @@
         "material_class": "Nickel-Based Superalloy"
       },
       "johnson_cook": {
-        "A": 30,
+        "A": 2.5,
         "B": 50,
         "n": 0.15,
         "C": 0.005,
@@ -9315,13 +9344,14 @@
           "source": "existing"
         },
         "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "PARAMETRIC_MODEL",
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 234
     }
   ]
 }

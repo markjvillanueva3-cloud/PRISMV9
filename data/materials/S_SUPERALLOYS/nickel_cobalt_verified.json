@@ -301,13 +301,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 188
     },
     {
       "material_id": "SN-INCONEL600-ANNEALED",
@@ -609,13 +610,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 187
     },
     {
       "material_id": "SN-WASPALOY-AGED",
@@ -920,13 +922,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 190
     },
     {
       "material_id": "SN-HASTELLOYC276-ANNEALED",
@@ -1157,37 +1160,15 @@
         "phase_transformation_temperature": 780.0
       },
       "composition": {
-        "C": {
-          "max": 0.01,
-          "typical": 0.005
-        },
-        "Cr": {
-          "min": 14.5,
-          "max": 16.5,
-          "typical": 15.5
-        },
-        "Mo": {
-          "min": 15,
-          "max": 17,
-          "typical": 16
-        },
-        "Fe": {
-          "min": 4,
-          "max": 7,
-          "typical": 5.5
-        },
-        "W": {
-          "min": 3,
-          "max": 4.5,
-          "typical": 3.75
-        },
-        "Co": {
-          "max": 2.5,
-          "typical": 1.25
-        },
-        "Ni": {
-          "typical": 57
-        }
+        "Ni": 57.0,
+        "Mo": 16.0,
+        "Cr": 15.5,
+        "Fe": 5.5,
+        "W": 3.75,
+        "Co": 1.0,
+        "Mn": 0.5,
+        "V": 0.2,
+        "C": 0.01
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -1257,8 +1238,9 @@
           "confidence": "VERIFIED",
           "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 189
     },
     {
       "material_id": "SN-MONEL400-ANNEALED",
@@ -1267,7 +1249,7 @@
       "material_type": "superalloy",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol16",
         "Special_Metals_Datasheet",
@@ -1284,7 +1266,8 @@
         "elastic_modulus": 179,
         "poisson_ratio": 0.32,
         "shear_modulus": 67.8,
-        "bulk_modulus": 165.7
+        "bulk_modulus": 165.7,
+        "liquidus_temperature": 1350
       },
       "mechanical": {
         "hardness": {
@@ -1325,7 +1308,7 @@
       },
       "johnson_cook": {
         "A": 441.6,
-        "B": 706.5,
+        "B": 122.9,
         "n": 0.48,
         "C": 0.007,
         "m": 1.15,
@@ -1557,14 +1540,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 186
     },
     {
       "material_id": "SC-STELLITE6-ASCAST",
@@ -1573,7 +1557,7 @@
       "material_type": "superalloy",
       "subcategory": "cobalt_base",
       "condition": "as_cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol16",
         "Kennametal_Stellite_Guide",
@@ -1590,7 +1574,8 @@
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175
+        "bulk_modulus": 175,
+        "liquidus_temperature": 1355
       },
       "mechanical": {
         "hardness": {
@@ -1794,32 +1779,15 @@
         "phase_transformation_temperature": 768.0
       },
       "composition": {
-        "Co": {
-          "typical": 58
-        },
-        "Cr": {
-          "min": 27,
-          "max": 32,
-          "typical": 29.5
-        },
-        "W": {
-          "min": 4,
-          "max": 6,
-          "typical": 5
-        },
-        "C": {
-          "min": 0.9,
-          "max": 1.4,
-          "typical": 1.15
-        },
-        "Ni": {
-          "max": 3,
-          "typical": 1.5
-        },
-        "Fe": {
-          "max": 3,
-          "typical": 1.5
-        }
+        "Co": 57.0,
+        "Cr": 29.0,
+        "W": 4.5,
+        "C": 1.2,
+        "Ni": 3.0,
+        "Fe": 3.0,
+        "Mo": 1.5,
+        "Mn": 1.0,
+        "Si": 1.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -1883,14 +1851,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 189
     },
     {
       "material_id": "SN-NIMONIC80A-AGED",
@@ -1899,7 +1868,7 @@
       "material_type": "superalloy",
       "subcategory": "nickel_base",
       "condition": "solution_aged",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol16",
         "Special_Metals_Datasheet",
@@ -1916,7 +1885,8 @@
         "elastic_modulus": 222,
         "poisson_ratio": 0.3,
         "shear_modulus": 85.4,
-        "bulk_modulus": 185
+        "bulk_modulus": 185,
+        "liquidus_temperature": 1365
       },
       "mechanical": {
         "hardness": {
@@ -2192,14 +2162,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 189
     }
   ]
 }

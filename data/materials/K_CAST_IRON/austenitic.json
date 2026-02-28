@@ -9,11 +9,11 @@
       "material_type": "stainless",
       "iso_p_equivalent": "M",
       "physical": {
-        "density": 7930.8,
-        "melting_point": 1732.7,
+        "density": 7300.0,
+        "melting_point": 1150,
         "boiling_point": 3027.6,
-        "liquidus_temperature": 1767.3,
-        "solidus_temperature": 1646.0,
+        "liquidus_temperature": 1200,
+        "solidus_temperature": 1150,
         "latent_heat_fusion": 339.3,
         "specific_heat": 449.7,
         "thermal_conductivity": 37.5,
@@ -21,7 +21,7 @@
         "electrical_resistivity": 7.13,
         "magnetic_permeability": 239.9,
         "poisson_ratio": 0.3741,
-        "elastic_modulus": 303.6,
+        "elastic_modulus": 170,
         "shear_modulus": 48.8,
         "bulk_modulus": 69.9
       },
@@ -66,12 +66,12 @@
         "mc_reaming": 0.2575
       },
       "johnson_cook": {
-        "A": 832.7,
-        "B": 786.8,
+        "A": 265.2,
+        "B": 161.0,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1732.7,
+        "T_melt": 1150,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 381
@@ -182,7 +182,7 @@
       "material_id": "CI-MALLEABLE-IRON-M3210-FERRITIC--ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -208,7 +208,12 @@
         "postweld_treatment": "stress_relief_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 2.5,
+        "Si": 1.5,
+        "Mn": 0.4,
+        "P": 0.05,
+        "S": 0.06,
+        "Fe": 95.2
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -278,14 +283,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 167
     }
   ],
   "enhanced_date": "2026-01-26T10:45:58.259719",

@@ -7,7 +7,7 @@
       "material_type": "Malleable Cast Iron - Ferritic",
       "subcategory": "austenitic",
       "condition": "Malleabilized (Blackheart)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -15,20 +15,19 @@
       ],
       "physical": {
         "density": 7300,
-        "melting_point": {
-          "solidus": 1140,
-          "liquidus": 1230
-        },
+        "melting_point": 1150,
         "specific_heat": 460,
-        "thermal_conductivity": 50,
+        "thermal_conductivity": 38,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 180,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 69000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1150,
+        "liquidus_temperature": 1200
       },
       "mechanical": {
         "hardness": {
@@ -107,7 +106,7 @@
       },
       "johnson_cook": {
         "A": 255.0,
-        "B": 877.9,
+        "B": 164.7,
         "n": 0.65,
         "C": 0.07,
         "m": 1.0,
@@ -513,14 +512,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 300
     },
     {
       "material_id": "K-CI-043",
@@ -536,7 +536,7 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 4500.0,
+        "density": 6800.0,
         "melting_point": 1610,
         "specific_heat": 460,
         "thermal_conductivity": 19,
@@ -1045,13 +1045,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 0,
+        "v2_corrections": 2,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 306
     },
     {
       "material_id": "K-CI-044",
@@ -1067,20 +1068,20 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 4500.0,
-        "melting_point": 1610,
+        "density": 6800.0,
+        "melting_point": 1140,
         "specific_heat": 460,
-        "thermal_conductivity": 19,
+        "thermal_conductivity": 38.0,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 260,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 110,
+        "elastic_modulus": 145,
         "shear_modulus": 63000,
         "poisson_ratio": 0.27,
         "bulk_modulus": 97.8,
-        "solidus_temperature": 1610,
-        "liquidus_temperature": 1660
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1220
       },
       "mechanical": {
         "hardness": {
@@ -1581,8 +1582,9 @@
           "confidence": "VERIFIED",
           "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 306
     },
     {
       "material_id": "K-CI-037",
@@ -1591,7 +1593,7 @@
       "material_type": "Malleable Cast Iron - Ferritic",
       "subcategory": "ferritic",
       "condition": "Malleabilized (Higher Strength)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -1599,20 +1601,19 @@
       ],
       "physical": {
         "density": 7300,
-        "melting_point": {
-          "solidus": 1145,
-          "liquidus": 1235
-        },
+        "melting_point": 1150,
         "specific_heat": 460,
-        "thermal_conductivity": 48,
+        "thermal_conductivity": 38,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 200,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 71000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1150,
+        "liquidus_temperature": 1200
       },
       "mechanical": {
         "hardness": {
@@ -1691,7 +1692,7 @@
       },
       "johnson_cook": {
         "A": 382.9,
-        "B": 517.1,
+        "B": 50,
         "n": 0.28,
         "C": 0.02,
         "m": 1.0,
@@ -2097,14 +2098,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 300
     },
     {
       "material_id": "K-CI-041",
@@ -2113,28 +2115,27 @@
       "material_type": "Compacted Graphite Iron",
       "subcategory": "ferritic",
       "condition": "As-Cast Ferritic",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7100,
-        "melting_point": {
-          "solidus": 1130,
-          "liquidus": 1175
-        },
+        "density": 6800.0,
+        "melting_point": 1610,
         "specific_heat": 460,
-        "thermal_conductivity": 40,
+        "thermal_conductivity": 20,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 170,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 110,
         "shear_modulus": 57000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1610,
+        "liquidus_temperature": 1660
       },
       "mechanical": {
         "hardness": {
@@ -2630,14 +2631,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 307
     },
     {
       "material_id": "K-CI-042",
@@ -2646,28 +2648,27 @@
       "material_type": "Compacted Graphite Iron",
       "subcategory": "ferritic",
       "condition": "As-Cast Ferritic-Pearlitic",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7100,
-        "melting_point": {
-          "solidus": 1130,
-          "liquidus": 1175
-        },
+        "density": 6800.0,
+        "melting_point": 1610,
         "specific_heat": 460,
-        "thermal_conductivity": 38,
+        "thermal_conductivity": 20,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 200,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 110,
         "shear_modulus": 59000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1610,
+        "liquidus_temperature": 1660
       },
       "mechanical": {
         "hardness": {
@@ -3162,14 +3163,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 306
     },
     {
       "material_id": "K-CI-010",
@@ -3178,7 +3180,7 @@
       "material_type": "Gray Cast Iron - Engineered",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -3186,20 +3188,19 @@
       ],
       "physical": {
         "density": 7280,
-        "melting_point": {
-          "solidus": 1155,
-          "liquidus": 1245
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 44,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 260,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 50000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -3278,7 +3279,7 @@
         "n_cbn": 0.24
       },
       "johnson_cook": {
-        "A": 510.4,
+        "A": 229.5,
         "B": 50,
         "n": 0.24,
         "C": 0.017,
@@ -3685,14 +3686,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-011",
@@ -3701,7 +3703,7 @@
       "material_type": "Gray Cast Iron - Engineered",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -3709,20 +3711,19 @@
       ],
       "physical": {
         "density": 7350,
-        "melting_point": {
-          "solidus": 1160,
-          "liquidus": 1240
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 42,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 280,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 56000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -3801,7 +3802,7 @@
         "n_cbn": 0.24
       },
       "johnson_cook": {
-        "A": 559.2,
+        "A": 284.8,
         "B": 50,
         "n": 0.24,
         "C": 0.017,
@@ -4208,14 +4209,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-045",
@@ -4224,7 +4226,7 @@
       "material_type": "White Cast Iron - Ni-Hard",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -4232,20 +4234,19 @@
       ],
       "physical": {
         "density": 7650,
-        "melting_point": {
-          "solidus": 1180,
-          "liquidus": 1290
-        },
+        "melting_point": 1130,
         "specific_heat": 450,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 30.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.1,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 170,
         "shear_modulus": 71000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1130,
+        "liquidus_temperature": 1230
       },
       "mechanical": {
         "hardness": {
@@ -4735,14 +4736,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 305
     },
     {
       "material_id": "K-CI-046",
@@ -4751,7 +4753,7 @@
       "material_type": "White Cast Iron - Ni-Hard",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -4759,20 +4761,19 @@
       ],
       "physical": {
         "density": 7700,
-        "melting_point": {
-          "solidus": 1200,
-          "liquidus": 1320
-        },
+        "melting_point": 1140,
         "specific_heat": 450,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 30.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.05,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 175,
         "shear_modulus": 73000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1240
       },
       "mechanical": {
         "hardness": {
@@ -5262,14 +5263,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 1,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 305
     },
     {
       "material_id": "K-CI-047",
@@ -5278,7 +5280,7 @@
       "material_type": "White Cast Iron - High Chrome",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -5286,20 +5288,19 @@
       ],
       "physical": {
         "density": 7550,
-        "melting_point": {
-          "solidus": 1220,
-          "liquidus": 1350
-        },
+        "melting_point": 1140,
         "specific_heat": 450,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 30.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.02,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 175,
         "shear_modulus": 75000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1240
       },
       "mechanical": {
         "hardness": {
@@ -5789,14 +5790,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 305
     },
     {
       "material_id": "K-CI-048",
@@ -5805,7 +5807,7 @@
       "material_type": "White Cast Iron - High Chrome",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -5813,20 +5815,19 @@
       ],
       "physical": {
         "density": 7600,
-        "melting_point": {
-          "solidus": 1250,
-          "liquidus": 1380
-        },
+        "melting_point": 1140,
         "specific_heat": 450,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 30.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.01,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 175,
         "shear_modulus": 77000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1240
       },
       "mechanical": {
         "hardness": {
@@ -6316,14 +6317,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 305
     },
     {
       "material_id": "K-CI-049",
@@ -6332,28 +6334,27 @@
       "material_type": "Chilled Cast Iron",
       "subcategory": "general",
       "condition": "Chilled Surface",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7450,
-        "melting_point": {
-          "solidus": 1140,
-          "liquidus": 1230
-        },
+        "density": 7500.0,
+        "melting_point": 1140,
         "specific_heat": 460,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 22.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 200,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 175,
         "shear_modulus": 67000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1240
       },
       "mechanical": {
         "hardness": {
@@ -6434,8 +6435,8 @@
         "n_cbn": 0.11
       },
       "johnson_cook": {
-        "A": 1260.0,
-        "B": 738.9,
+        "A": 480.0,
+        "B": 284.5,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -6850,14 +6851,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 310
     },
     {
       "material_id": "K-CI-050",
@@ -6866,28 +6868,27 @@
       "material_type": "Indefinite Chill Cast Iron",
       "subcategory": "general",
       "condition": "Indefinite Chill",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7500,
-        "melting_point": {
-          "solidus": 1160,
-          "liquidus": 1280
-        },
+        "density": 7900.0,
+        "melting_point": 1420,
         "specific_heat": 460,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 52,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.1,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 190,
         "shear_modulus": 69000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1420,
+        "liquidus_temperature": 1460
       },
       "mechanical": {
         "hardness": {
@@ -7376,14 +7377,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 1,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 304
     },
     {
       "material_id": "K-CI-001",
@@ -7392,7 +7394,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -7400,20 +7402,19 @@
       ],
       "physical": {
         "density": 7150,
-        "melting_point": {
-          "solidus": 1140,
-          "liquidus": 1260
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 46,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 200,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 40000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -7899,14 +7900,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-002",
@@ -7915,7 +7917,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -7923,20 +7925,19 @@
       ],
       "physical": {
         "density": 7200,
-        "melting_point": {
-          "solidus": 1145,
-          "liquidus": 1255
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 48,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 220,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 44000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -8422,14 +8423,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-003",
@@ -8438,7 +8440,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -8446,20 +8448,19 @@
       ],
       "physical": {
         "density": 7250,
-        "melting_point": {
-          "solidus": 1150,
-          "liquidus": 1250
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 46,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 240,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 48000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -8945,14 +8946,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-004",
@@ -8961,7 +8963,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -8969,20 +8971,19 @@
       ],
       "physical": {
         "density": 7300,
-        "melting_point": {
-          "solidus": 1155,
-          "liquidus": 1245
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 44,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 260,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 52000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -9468,14 +9469,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-005",
@@ -9484,7 +9486,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -9492,20 +9494,19 @@
       ],
       "physical": {
         "density": 7350,
-        "melting_point": {
-          "solidus": 1160,
-          "liquidus": 1240
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 42,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 280,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 56000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -9991,14 +9992,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-006",
@@ -10007,7 +10009,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -10015,20 +10017,19 @@
       ],
       "physical": {
         "density": 7400,
-        "melting_point": {
-          "solidus": 1165,
-          "liquidus": 1235
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 40,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 300,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 185,
         "shear_modulus": 60000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -10514,14 +10515,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-007",
@@ -10530,7 +10532,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -10538,20 +10540,19 @@
       ],
       "physical": {
         "density": 7450,
-        "melting_point": {
-          "solidus": 1170,
-          "liquidus": 1230
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 38,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 320,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 185,
         "shear_modulus": 62000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -11037,14 +11038,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-008",
@@ -11053,7 +11055,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -11061,20 +11063,19 @@
       ],
       "physical": {
         "density": 7500,
-        "melting_point": {
-          "solidus": 1175,
-          "liquidus": 1225
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 35,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 340,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 190,
         "shear_modulus": 66000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -11560,14 +11561,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-009",
@@ -11576,7 +11578,7 @@
       "material_type": "Gray Cast Iron - Damping Grade",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -11584,20 +11586,19 @@
       ],
       "physical": {
         "density": 7150,
-        "melting_point": {
-          "solidus": 1120,
-          "liquidus": 1240
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 50,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 200,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 38000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -12083,14 +12084,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-012",
@@ -12099,7 +12101,7 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "Stress Relieved",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -12107,20 +12109,19 @@
       ],
       "physical": {
         "density": 7250,
-        "melting_point": {
-          "solidus": 1150,
-          "liquidus": 1250
-        },
+        "melting_point": 1180,
         "specific_heat": 460,
         "thermal_conductivity": 46,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 240,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 180,
         "shear_modulus": 48000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -12606,14 +12607,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 301
     },
     {
       "material_id": "K-CI-013",
@@ -12622,28 +12624,27 @@
       "material_type": "Gray Cast Iron - Surface Hardened",
       "subcategory": "gray_iron",
       "condition": "Flame Hardened",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7350,
-        "melting_point": {
-          "solidus": 1160,
-          "liquidus": 1240
-        },
+        "density": 7500.0,
+        "melting_point": 1180,
         "specific_heat": 460,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 46,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 280,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 180,
         "shear_modulus": 56000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -13140,14 +13141,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 310
     },
     {
       "material_id": "K-CI-014",
@@ -13156,28 +13158,27 @@
       "material_type": "Gray Cast Iron - Surface Hardened",
       "subcategory": "gray_iron",
       "condition": "Induction Hardened",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7350,
-        "melting_point": {
-          "solidus": 1160,
-          "liquidus": 1240
-        },
+        "density": 7500.0,
+        "melting_point": 1180,
         "specific_heat": 460,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 46,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 280,
         "poissons_ratio": 0.26,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 180,
         "shear_modulus": 56000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1180,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -13674,14 +13675,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 310
     },
     {
       "material_id": "K-CI-015",
@@ -13690,7 +13692,7 @@
       "material_type": "Gray Cast Iron - High Chrome",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -13698,20 +13700,19 @@
       ],
       "physical": {
         "density": 7600,
-        "melting_point": {
-          "solidus": 1230,
-          "liquidus": 1350
-        },
+        "melting_point": 1140,
         "specific_heat": 450,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 22.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1.1,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 210.0,
+        "elastic_modulus": 175,
         "shear_modulus": 76000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 152.2
+        "bulk_modulus": 152.2,
+        "solidus_temperature": 1140,
+        "liquidus_temperature": 1240
       },
       "mechanical": {
         "hardness": {
@@ -14201,14 +14202,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 305
     },
     {
       "material_id": "K-CI-038",
@@ -14217,7 +14219,7 @@
       "material_type": "Malleable Cast Iron - Pearlitic",
       "subcategory": "malleable_iron",
       "condition": "Malleabilized Pearlitic",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -14225,20 +14227,19 @@
       ],
       "physical": {
         "density": 7350,
-        "melting_point": {
-          "solidus": 1150,
-          "liquidus": 1240
-        },
+        "melting_point": 1150,
         "specific_heat": 460,
         "thermal_conductivity": 42,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 250,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 73000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1150,
+        "liquidus_temperature": 1200
       },
       "mechanical": {
         "hardness": {
@@ -14722,14 +14723,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 299
     },
     {
       "material_id": "K-CI-039",
@@ -14738,7 +14740,7 @@
       "material_type": "Malleable Cast Iron - Pearlitic",
       "subcategory": "malleable_iron",
       "condition": "Malleabilized Pearlitic + Temper",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -14746,20 +14748,19 @@
       ],
       "physical": {
         "density": 7400,
-        "melting_point": {
-          "solidus": 1155,
-          "liquidus": 1245
-        },
+        "melting_point": 1150,
         "specific_heat": 460,
         "thermal_conductivity": 38,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 280,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 75000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1150,
+        "liquidus_temperature": 1200
       },
       "mechanical": {
         "hardness": {
@@ -14838,7 +14839,7 @@
       },
       "johnson_cook": {
         "A": 271.2,
-        "B": 422.3,
+        "B": 153.2,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -15243,14 +15244,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 299
     },
     {
       "material_id": "K-CI-040",
@@ -15259,7 +15261,7 @@
       "material_type": "Malleable Cast Iron - Whiteheart",
       "subcategory": "malleable_iron",
       "condition": "Decarburized Surface",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -15267,20 +15269,19 @@
       ],
       "physical": {
         "density": 7400,
-        "melting_point": {
-          "solidus": 1135,
-          "liquidus": 1220
-        },
+        "melting_point": 1150,
         "specific_heat": 460,
         "thermal_conductivity": 35,
         "thermal_expansion": 11.5,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 220,
         "poissons_ratio": 0.27,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 71000,
         "poisson_ratio": 0.27,
-        "bulk_modulus": 97.8
+        "bulk_modulus": 97.8,
+        "solidus_temperature": 1150,
+        "liquidus_temperature": 1200
       },
       "mechanical": {
         "hardness": {
@@ -15765,14 +15766,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 300
     }
   ]
 }

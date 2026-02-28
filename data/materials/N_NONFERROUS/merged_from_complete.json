@@ -7,7 +7,7 @@
       "material_type": "Aluminum - Free Machining",
       "subcategory": "free_machining",
       "condition": "T3 (Solution Heat Treated + Cold Worked)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -15,10 +15,7 @@
       ],
       "physical": {
         "density": 2830,
-        "melting_point": {
-          "solidus": 535,
-          "liquidus": 640
-        },
+        "melting_point": 535,
         "specific_heat": 864,
         "thermal_conductivity": 151,
         "thermal_expansion": 19.0,
@@ -26,10 +23,12 @@
         "electrical_conductivity_iacs": 39,
         "magnetic_permeability": 1,
         "poissons_ratio": 0.33,
-        "elastic_modulus": 85.0,
+        "elastic_modulus": 70,
         "shear_modulus": 26400,
         "poisson_ratio": 0.33,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "solidus_temperature": 535,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -108,7 +107,7 @@
       },
       "johnson_cook": {
         "A": 268.0,
-        "B": 396.2,
+        "B": 104.0,
         "n": 0.27,
         "C": 0.022,
         "m": 1.0,
@@ -545,14 +544,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 320
     },
     {
       "material_id": "N-AL-012",
@@ -561,7 +561,7 @@
       "material_type": "Aluminum - Free Machining",
       "subcategory": "free_machining",
       "condition": "T8 (Solution + Cold Work + Artificial Age)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -569,10 +569,7 @@
       ],
       "physical": {
         "density": 2830,
-        "melting_point": {
-          "solidus": 535,
-          "liquidus": 640
-        },
+        "melting_point": 535,
         "specific_heat": 864,
         "thermal_conductivity": 172,
         "thermal_expansion": 19.0,
@@ -580,10 +577,12 @@
         "electrical_conductivity_iacs": 45,
         "magnetic_permeability": 1,
         "poissons_ratio": 0.33,
-        "elastic_modulus": 85.0,
+        "elastic_modulus": 70,
         "shear_modulus": 26400,
         "poisson_ratio": 0.33,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "solidus_temperature": 535,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -1098,14 +1097,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 319
     },
     {
       "material_id": "N-AL-013",
@@ -1213,7 +1213,7 @@
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 290,
+        "A": 157.2,
         "B": 50,
         "n": 0.34,
         "C": 0.015,
@@ -1641,13 +1641,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 312
     },
     {
       "material_id": "N-AL-014",
@@ -2182,13 +2183,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 312
     },
     {
       "material_id": "N-AL-015",
@@ -2729,7 +2731,8 @@
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 312
     },
     {
       "material_id": "N-AL-016",
@@ -2738,7 +2741,7 @@
       "material_type": "Aluminum - Structural",
       "subcategory": "structural_steel",
       "condition": "T4 (Solution + Natural Age)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -2746,10 +2749,7 @@
       ],
       "physical": {
         "density": 2790,
-        "melting_point": {
-          "solidus": 513,
-          "liquidus": 640
-        },
+        "melting_point": 510,
         "specific_heat": 880,
         "thermal_conductivity": 134,
         "thermal_expansion": 19.0,
@@ -2757,10 +2757,12 @@
         "electrical_conductivity_iacs": 38,
         "magnetic_permeability": 1,
         "poissons_ratio": 0.33,
-        "elastic_modulus": 85.0,
+        "elastic_modulus": 72,
         "shear_modulus": 27200,
         "poisson_ratio": 0.33,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "solidus_temperature": 510,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -2838,8 +2840,8 @@
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 280,
-        "B": 410,
+        "A": 84.0,
+        "B": 164.6,
         "n": 0.35,
         "C": 0.015,
         "m": 1.0,
@@ -3264,14 +3266,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 312
     },
     {
       "material_id": "N-AL-045",
@@ -3280,7 +3283,7 @@
       "material_type": "Aluminum - Aerospace Structural",
       "subcategory": "structural_steel",
       "condition": "T651 (Solution + Stretch + Artificial Age)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
@@ -3289,20 +3292,19 @@
       "physical": {
         "density": 2710,
         "thermal_conductivity": 163,
-        "elastic_modulus": 85.0,
+        "elastic_modulus": 69,
         "specific_heat": 900,
         "specific_heat_source": "class_default",
-        "melting_point": {
-          "solidus": 500,
-          "liquidus": 650
-        },
+        "melting_point": 575,
         "thermal_expansion": 19.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1,
         "poissons_ratio": 0.33,
         "shear_modulus": 26000,
         "poisson_ratio": 0.33,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "solidus_temperature": 575,
+        "liquidus_temperature": 645
       },
       "mechanical": {
         "hardness": {
@@ -3365,7 +3367,7 @@
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 319.5,
+        "A": 78.0,
         "A_source": "class_default",
         "B": 162.6,
         "B_source": "class_default",
@@ -3772,14 +3774,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 290
     },
     {
       "material_id": "N-AL-049",
@@ -3788,29 +3791,28 @@
       "material_type": "Aluminum - High Strength Structural",
       "subcategory": "structural_steel",
       "condition": "T6 (Solution + Artificial Age)",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "materials_complete",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 2710,
-        "thermal_conductivity": 172,
-        "elastic_modulus": 85.0,
-        "specific_heat": 900,
+        "density": 8670.0,
+        "thermal_conductivity": 19.9,
+        "elastic_modulus": 90.0,
+        "specific_heat": 420,
         "specific_heat_source": "class_default",
-        "melting_point": {
-          "solidus": 500,
-          "liquidus": 650
-        },
+        "melting_point": 1260,
         "thermal_expansion": 19.0,
         "electrical_resistivity": 0.0,
         "magnetic_permeability": 1,
         "poissons_ratio": 0.33,
         "shear_modulus": 26000,
         "poisson_ratio": 0.33,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "solidus_temperature": 1260,
+        "liquidus_temperature": 1370
       },
       "mechanical": {
         "hardness": {
@@ -3872,7 +3874,7 @@
         "n_pcd": 0.39
       },
       "johnson_cook": {
-        "A": 319.5,
+        "A": 376.0,
         "A_source": "class_default",
         "B": 139.3,
         "B_source": "class_default",
@@ -4279,14 +4281,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 289
     }
   ]
 }

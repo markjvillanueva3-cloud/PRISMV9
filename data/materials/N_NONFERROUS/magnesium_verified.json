@@ -7,7 +7,7 @@
       "material_type": "magnesium_alloy",
       "subcategory": "magnesium_wrought",
       "condition": "H24",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Magnesium_Elektron_Datasheet",
@@ -16,15 +16,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 1770,
-        "melting_point": 605,
-        "specific_heat": 1025,
-        "thermal_conductivity": 96,
+        "density": 8670.0,
+        "melting_point": 1260,
+        "specific_heat": 420,
+        "thermal_conductivity": 26.0,
         "thermal_expansion": 26,
-        "elastic_modulus": 45,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.35,
         "shear_modulus": 16.7,
-        "bulk_modulus": 50
+        "bulk_modulus": 50,
+        "solidus_temperature": 1260,
+        "liquidus_temperature": 1360
       },
       "mechanical": {
         "hardness": {
@@ -64,12 +66,12 @@
         "mc_reaming": 0.2369
       },
       "johnson_cook": {
-        "A": 136.6,
+        "A": 368.0,
         "B": 167.1,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 605,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -308,14 +310,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 190
     },
     {
       "material_id": "NMG-AZ91D-ASCAST",
@@ -324,7 +327,7 @@
       "material_type": "magnesium_alloy",
       "subcategory": "magnesium_cast",
       "condition": "as_cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Magnesium_Elektron_Datasheet",
@@ -333,14 +336,16 @@
       ],
       "physical": {
         "density": 1810,
-        "melting_point": 596,
+        "melting_point": 470,
         "specific_heat": 1025,
         "thermal_conductivity": 72,
         "thermal_expansion": 26,
         "elastic_modulus": 45,
         "poisson_ratio": 0.35,
         "shear_modulus": 16.7,
-        "bulk_modulus": 50
+        "bulk_modulus": 50,
+        "solidus_temperature": 470,
+        "liquidus_temperature": 595
       },
       "mechanical": {
         "hardness": {
@@ -385,7 +390,7 @@
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 596,
+        "T_melt": 470,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -623,14 +628,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 188
     },
     {
       "material_id": "NMG-ZE41A-T5",
@@ -639,7 +645,7 @@
       "material_type": "magnesium_alloy",
       "subcategory": "magnesium_cast",
       "condition": "T5",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "AMS_4439",
@@ -647,15 +653,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 1840,
-        "melting_point": 640,
-        "specific_heat": 960,
-        "thermal_conductivity": 113,
+        "density": 8670.0,
+        "melting_point": 1260,
+        "specific_heat": 420,
+        "thermal_conductivity": 19.9,
         "thermal_expansion": 26,
-        "elastic_modulus": 45,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.35,
         "shear_modulus": 16.7,
-        "bulk_modulus": 50
+        "bulk_modulus": 50,
+        "solidus_temperature": 1260,
+        "liquidus_temperature": 1370
       },
       "mechanical": {
         "hardness": {
@@ -695,12 +703,12 @@
         "mc_reaming": 0.2369
       },
       "johnson_cook": {
-        "A": 133.2,
-        "B": 164.3,
+        "A": 174.2,
+        "B": 786.1,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 640,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -922,14 +930,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 180
     }
   ]
 }

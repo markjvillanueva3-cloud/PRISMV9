@@ -7,7 +7,7 @@
       "material_type": "stainless_steel",
       "subcategory": "super_austenitic",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -19,12 +19,13 @@
         "density": 8000,
         "melting_point": 1350,
         "specific_heat": 500,
-        "thermal_conductivity": 31.03,
+        "thermal_conductivity": 12,
         "thermal_expansion": 15,
         "elastic_modulus": 190,
         "poisson_ratio": 0.29,
         "shear_modulus": 74,
-        "bulk_modulus": 151
+        "bulk_modulus": 151,
+        "liquidus_temperature": 1380
       },
       "mechanical": {
         "hardness": {
@@ -303,14 +304,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 190
     }
   ]
 }

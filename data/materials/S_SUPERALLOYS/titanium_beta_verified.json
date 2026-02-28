@@ -7,7 +7,7 @@
       "material_type": "titanium_alloy",
       "subcategory": "titanium_beta",
       "condition": "STA",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -24,7 +24,8 @@
         "elastic_modulus": 110,
         "poisson_ratio": 0.33,
         "shear_modulus": 41,
-        "bulk_modulus": 108
+        "bulk_modulus": 108,
+        "liquidus_temperature": 1650
       },
       "mechanical": {
         "hardness": {
@@ -313,14 +314,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 192
     },
     {
       "material_id": "ST-TI-10-2-3-ANNEALED",
@@ -329,7 +331,7 @@
       "material_type": "titanium_alloy",
       "subcategory": "titanium_beta",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -346,7 +348,8 @@
         "elastic_modulus": 110,
         "poisson_ratio": 0.33,
         "shear_modulus": 41,
-        "bulk_modulus": 108
+        "bulk_modulus": 108,
+        "liquidus_temperature": 1650
       },
       "mechanical": {
         "hardness": {
@@ -633,14 +636,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 190
     }
   ]
 }

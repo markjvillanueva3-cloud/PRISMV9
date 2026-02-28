@@ -10,18 +10,18 @@
       "iso_p_equivalent": "K",
       "physical": {
         "density": 7257.5,
-        "melting_point": 1416.2,
+        "melting_point": 1150,
         "boiling_point": 2812.4,
-        "liquidus_temperature": 1444.6,
-        "solidus_temperature": 1345.4,
+        "liquidus_temperature": 1200,
+        "solidus_temperature": 1150,
         "latent_heat_fusion": 348.1,
         "specific_heat": 518.7,
-        "thermal_conductivity": 49.4,
+        "thermal_conductivity": 38,
         "thermal_expansion": 26.3,
         "electrical_resistivity": 9.68,
         "magnetic_permeability": 332.4,
         "poisson_ratio": 0.2799,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 170,
         "shear_modulus": 80.8,
         "bulk_modulus": 327.6
       },
@@ -67,11 +67,11 @@
       },
       "johnson_cook": {
         "A": 543.7,
-        "B": 592.2,
+        "B": 50,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1416.2,
+        "T_melt": 1150,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 312
@@ -182,7 +182,7 @@
       "material_id": "CI-MALLEABLE-IRON-M4504-FERRITIC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -208,7 +208,12 @@
         "postweld_treatment": "stress_relief_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 2.5,
+        "Si": 1.5,
+        "Mn": 0.4,
+        "P": 0.05,
+        "S": 0.06,
+        "Fe": 95.2
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -278,33 +283,34 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 169
     },
     {
       "iso_group": "K",
       "material_type": "cast_iron",
       "iso_p_equivalent": "K",
       "physical": {
-        "density": 7091.9,
-        "melting_point": 1482.5,
+        "density": 6800.0,
+        "melting_point": 1610,
         "boiling_point": 2460.7,
-        "liquidus_temperature": 1512.1,
-        "solidus_temperature": 1408.3,
+        "liquidus_temperature": 1660,
+        "solidus_temperature": 1610,
         "latent_heat_fusion": 348.4,
-        "specific_heat": 441.2,
-        "thermal_conductivity": 37.5,
+        "specific_heat": 540,
+        "thermal_conductivity": 20,
         "thermal_expansion": 26.1,
         "electrical_resistivity": 7.23,
         "magnetic_permeability": 8.94,
         "poisson_ratio": 0.2567,
-        "elastic_modulus": 221.7,
+        "elastic_modulus": 110,
         "shear_modulus": 68.8,
         "bulk_modulus": 232.8
       },
@@ -465,7 +471,7 @@
       "material_id": "CI-CGI-GRADE-300--VERMICULAR--FER-ENH",
       "subcategory": "compacted_graphite",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -491,7 +497,12 @@
         "postweld_treatment": "stress_relief_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 3.6,
+        "Si": 2.2,
+        "Mn": 0.3,
+        "Mg": 0.012,
+        "S": 0.01,
+        "Fe": 93.5
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -561,33 +572,34 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 169
     },
     {
       "iso_group": "K",
       "material_type": "cast_iron",
       "iso_p_equivalent": "K",
       "physical": {
-        "density": 7398.9,
-        "melting_point": 1501.7,
+        "density": 6800.0,
+        "melting_point": 1610,
         "boiling_point": 2819.0,
-        "liquidus_temperature": 1531.8,
-        "solidus_temperature": 1426.6,
+        "liquidus_temperature": 1660,
+        "solidus_temperature": 1610,
         "latent_heat_fusion": 408.0,
-        "specific_heat": 726.6,
-        "thermal_conductivity": 37.5,
+        "specific_heat": 540,
+        "thermal_conductivity": 20,
         "thermal_expansion": 18.1,
         "electrical_resistivity": 3.45,
         "magnetic_permeability": 240.9,
         "poisson_ratio": 0.2635,
-        "elastic_modulus": 135.0,
+        "elastic_modulus": 110,
         "shear_modulus": 64.2,
         "bulk_modulus": 350.0
       },
@@ -633,7 +645,7 @@
       },
       "johnson_cook": {
         "A": 475.2,
-        "B": 551.8,
+        "B": 152.5,
         "n": 0.25,
         "C": 0.015,
         "m": 0.85,
@@ -748,7 +760,7 @@
       "material_id": "CI-CGI-GRADE-350-FERRITIC-PEARLIT-ENH",
       "subcategory": "compacted_graphite",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -774,7 +786,12 @@
         "postweld_treatment": "stress_relief_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 3.5,
+        "Si": 2.3,
+        "Mn": 0.4,
+        "Mg": 0.015,
+        "S": 0.01,
+        "Fe": 93.4
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -844,14 +861,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 169
     }
   ],
   "enhanced_date": "2026-01-26T10:45:58.306691",

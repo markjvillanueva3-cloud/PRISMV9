@@ -7,7 +7,7 @@
       "material_type": "stainless_steel",
       "subcategory": "lean_duplex",
       "condition": "solution_annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -19,12 +19,13 @@
         "density": 7800,
         "melting_point": 1395,
         "specific_heat": 475,
-        "thermal_conductivity": 45.6,
+        "thermal_conductivity": 17,
         "thermal_expansion": 13,
         "elastic_modulus": 200,
         "poisson_ratio": 0.29,
         "shear_modulus": 77,
-        "bulk_modulus": 159
+        "bulk_modulus": 159,
+        "liquidus_temperature": 1400
       },
       "mechanical": {
         "hardness": {
@@ -66,7 +67,7 @@
       },
       "johnson_cook": {
         "A": 520,
-        "B": 830,
+        "B": 200.1,
         "n": 0.46,
         "C": 0.04,
         "m": 1.0,
@@ -304,14 +305,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 191
     },
     {
       "material_id": "MD-LDX2101-SOLUTIONANNEALED",
@@ -320,7 +322,7 @@
       "material_type": "stainless_steel",
       "subcategory": "lean_duplex",
       "condition": "solution_annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -329,15 +331,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7800,
-        "melting_point": 1400,
-        "specific_heat": 475,
-        "thermal_conductivity": 46.46,
+        "density": 7500.0,
+        "melting_point": 540,
+        "specific_heat": 880,
+        "thermal_conductivity": 150,
         "thermal_expansion": 13,
-        "elastic_modulus": 200,
+        "elastic_modulus": 195.0,
         "poisson_ratio": 0.29,
         "shear_modulus": 77,
-        "bulk_modulus": 159
+        "bulk_modulus": 159,
+        "solidus_temperature": 540,
+        "liquidus_temperature": 645
       },
       "mechanical": {
         "hardness": {
@@ -378,12 +382,12 @@
         "mc_reaming": 0.2575
       },
       "johnson_cook": {
-        "A": 429.3,
-        "B": 786.2,
+        "A": 90.0,
+        "B": 147.9,
         "n": 0.4,
         "C": 0.03,
         "m": 1.0,
-        "T_melt": 1400,
+        "T_melt": 540,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 300
@@ -629,14 +633,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 5,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 196
     }
   ]
 }

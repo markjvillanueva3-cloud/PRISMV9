@@ -65,7 +65,7 @@
         "mc_reaming": 0.2678
       },
       "johnson_cook": {
-        "A": 1050,
+        "A": 552.5,
         "B": 50,
         "n": 0.15,
         "C": 0.01,
@@ -380,13 +380,14 @@
           "source": "existing_validated"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 235
     },
     {
       "material_id": "TS-S1-ANNEALED",
@@ -395,7 +396,7 @@
       "material_type": "tool_steel",
       "subcategory": "shock_resistant",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -407,12 +408,13 @@
         "density": 7880,
         "melting_point": 1440,
         "specific_heat": 460,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 27.0,
         "thermal_expansion": 11,
         "elastic_modulus": 207,
         "poisson_ratio": 0.3,
         "shear_modulus": 80,
-        "bulk_modulus": 172
+        "bulk_modulus": 172,
+        "liquidus_temperature": 1470
       },
       "mechanical": {
         "hardness": {
@@ -761,14 +763,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 232
     }
   ]
 }

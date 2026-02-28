@@ -7,7 +7,7 @@
       "material_type": "steel",
       "subcategory": "case_hardening",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -17,14 +17,16 @@
       ],
       "physical": {
         "density": 7850,
-        "melting_point": 1505,
+        "melting_point": 1420,
         "specific_heat": 475,
-        "thermal_conductivity": 75.55,
+        "thermal_conductivity": 46,
         "thermal_expansion": 11.2,
         "elastic_modulus": 205,
         "poisson_ratio": 0.29,
         "shear_modulus": 80,
-        "bulk_modulus": 163
+        "bulk_modulus": 163,
+        "solidus_temperature": 1420,
+        "liquidus_temperature": 1460
       },
       "mechanical": {
         "hardness": {
@@ -379,14 +381,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 237
     },
     {
       "material_id": "AS-8620-ANNEALED",
@@ -775,13 +778,14 @@
           "source": "existing_validated"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 240
     },
     {
       "material_id": "AS-8620-NORMALIZED",
@@ -1087,13 +1091,14 @@
           "source": "existing_validated"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 2,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 189
     },
     {
       "material_id": "AS-8622-ANNEALED",
@@ -1102,7 +1107,7 @@
       "material_type": "steel",
       "subcategory": "case_hardening",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -1112,14 +1117,16 @@
       ],
       "physical": {
         "density": 7850,
-        "melting_point": 1505,
+        "melting_point": 1420,
         "specific_heat": 477,
-        "thermal_conductivity": 76.33,
+        "thermal_conductivity": 39,
         "thermal_expansion": 11.5,
         "elastic_modulus": 205,
         "poisson_ratio": 0.29,
         "shear_modulus": 80,
-        "bulk_modulus": 163
+        "bulk_modulus": 163,
+        "solidus_temperature": 1420,
+        "liquidus_temperature": 1460
       },
       "mechanical": {
         "hardness": {
@@ -1474,14 +1481,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 237
     },
     {
       "material_id": "AS-9310-ANNEALED",
@@ -1490,7 +1498,7 @@
       "material_type": "steel",
       "subcategory": "case_hardening",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -1500,14 +1508,16 @@
       ],
       "physical": {
         "density": 7850,
-        "melting_point": 1505,
+        "melting_point": 1420,
         "specific_heat": 475,
-        "thermal_conductivity": 80.0,
+        "thermal_conductivity": 38,
         "thermal_expansion": 11.2,
         "elastic_modulus": 205,
         "poisson_ratio": 0.29,
         "shear_modulus": 80,
-        "bulk_modulus": 163
+        "bulk_modulus": 163,
+        "solidus_temperature": 1420,
+        "liquidus_temperature": 1460
       },
       "mechanical": {
         "hardness": {
@@ -1548,7 +1558,7 @@
       },
       "johnson_cook": {
         "A": 498.9,
-        "B": 524.8,
+        "B": 180.4,
         "n": 0.24,
         "C": 0.018,
         "m": 1.02,
@@ -1865,14 +1875,15 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 238
     }
   ]
 }

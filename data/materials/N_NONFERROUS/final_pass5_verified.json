@@ -7,7 +7,7 @@
       "material_type": "aluminum_electrical",
       "subcategory": "aluminum_electrical",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -15,15 +15,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 2700,
-        "melting_point": 657,
+        "density": 2700.0,
+        "melting_point": 646,
         "specific_heat": 900,
         "thermal_conductivity": 234,
         "thermal_expansion": 23,
         "elastic_modulus": 69,
         "poisson_ratio": 0.33,
         "shear_modulus": 25.9,
-        "bulk_modulus": 67.6
+        "bulk_modulus": 67.6,
+        "solidus_temperature": 646,
+        "liquidus_temperature": 657
       },
       "mechanical": {
         "hardness": {
@@ -63,12 +65,12 @@
         "mc_reaming": 0.2369
       },
       "johnson_cook": {
-        "A": 95.2,
-        "B": 131.3,
+        "A": 33.6,
+        "B": 82.8,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 657,
+        "T_melt": 646,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -226,7 +228,9 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Al": 99.5,
+        "Si": 0.06,
+        "Fe": 0.18
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -289,14 +293,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-ZN-004",
@@ -305,7 +310,7 @@
       "material_type": "zinc_aluminum",
       "subcategory": "zinc_aluminum",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -314,14 +319,16 @@
       ],
       "physical": {
         "density": 6300,
-        "melting_point": 404,
-        "specific_heat": 900,
+        "melting_point": 375,
+        "specific_heat": 435,
         "thermal_conductivity": 115,
         "thermal_expansion": 23,
         "elastic_modulus": 86,
         "poisson_ratio": 0.33,
         "shear_modulus": 32.3,
-        "bulk_modulus": 84.3
+        "bulk_modulus": 84.3,
+        "solidus_temperature": 375,
+        "liquidus_temperature": 404
       },
       "mechanical": {
         "hardness": {
@@ -524,7 +531,10 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Zn": 87.0,
+        "Al": 8.4,
+        "Cu": 1.0,
+        "Mg": 0.02
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -587,14 +597,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-ZN-005",
@@ -603,7 +614,7 @@
       "material_type": "zinc_aluminum",
       "subcategory": "zinc_aluminum",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -612,14 +623,16 @@
       ],
       "physical": {
         "density": 6030,
-        "melting_point": 432,
-        "specific_heat": 900,
+        "melting_point": 377,
+        "specific_heat": 450,
         "thermal_conductivity": 116,
         "thermal_expansion": 23,
         "elastic_modulus": 83,
         "poisson_ratio": 0.33,
         "shear_modulus": 31.2,
-        "bulk_modulus": 81.4
+        "bulk_modulus": 81.4,
+        "solidus_temperature": 377,
+        "liquidus_temperature": 432
       },
       "mechanical": {
         "hardness": {
@@ -664,7 +677,7 @@
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 432,
+        "T_melt": 377,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -822,7 +835,10 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Zn": 83.5,
+        "Al": 11.0,
+        "Cu": 1.0,
+        "Mg": 0.02
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -885,14 +901,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-ZN-006",
@@ -901,7 +918,7 @@
       "material_type": "zinc_aluminum",
       "subcategory": "zinc_aluminum",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -910,14 +927,16 @@
       ],
       "physical": {
         "density": 5000,
-        "melting_point": 484,
-        "specific_heat": 900,
+        "melting_point": 375,
+        "specific_heat": 525,
         "thermal_conductivity": 125,
         "thermal_expansion": 23,
         "elastic_modulus": 78,
         "poisson_ratio": 0.33,
         "shear_modulus": 29.3,
-        "bulk_modulus": 76.5
+        "bulk_modulus": 76.5,
+        "solidus_temperature": 375,
+        "liquidus_temperature": 484
       },
       "mechanical": {
         "hardness": {
@@ -962,7 +981,7 @@
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 484,
+        "T_melt": 375,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -1202,14 +1221,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 190
     },
     {
       "material_id": "N-ZN-007",
@@ -1218,7 +1238,7 @@
       "material_type": "zinc",
       "subcategory": "zinc",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -1228,13 +1248,14 @@
       "physical": {
         "density": 6600,
         "melting_point": 387,
-        "specific_heat": 900,
+        "specific_heat": 419,
         "thermal_conductivity": 113,
         "thermal_expansion": 23,
         "elastic_modulus": 85,
         "poisson_ratio": 0.33,
         "shear_modulus": 32,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "liquidus_temperature": 387
       },
       "mechanical": {
         "hardness": {
@@ -1586,14 +1607,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 232
     },
     {
       "material_id": "N-ZN-008",
@@ -1602,7 +1624,7 @@
       "material_type": "zinc",
       "subcategory": "zinc",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -1610,15 +1632,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7130,
-        "melting_point": 419,
-        "specific_heat": 900,
+        "density": 6600.0,
+        "melting_point": 381,
+        "specific_heat": 419,
         "thermal_conductivity": 113,
         "thermal_expansion": 23,
-        "elastic_modulus": 97,
+        "elastic_modulus": 86,
         "poisson_ratio": 0.33,
         "shear_modulus": 36.5,
-        "bulk_modulus": 95.1
+        "bulk_modulus": 95.1,
+        "solidus_temperature": 381,
+        "liquidus_temperature": 387
       },
       "mechanical": {
         "hardness": {
@@ -1970,14 +1994,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 233
     },
     {
       "material_id": "N-AL-062",
@@ -1986,7 +2011,7 @@
       "material_type": "aluminum",
       "subcategory": "aluminum",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -1994,15 +2019,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 2780,
-        "melting_point": 500,
-        "specific_heat": 900,
-        "thermal_conductivity": 140,
+        "density": 8670.0,
+        "melting_point": 1260,
+        "specific_heat": 420,
+        "thermal_conductivity": 19.9,
         "thermal_expansion": 23,
-        "elastic_modulus": 72,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 27.1,
-        "bulk_modulus": 70.6
+        "bulk_modulus": 70.6,
+        "solidus_temperature": 1260,
+        "liquidus_temperature": 1370
       },
       "mechanical": {
         "hardness": {
@@ -2043,11 +2070,11 @@
       },
       "johnson_cook": {
         "A": 259.4,
-        "B": 256.2,
+        "B": 663.8,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 500,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -2371,14 +2398,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 244
     },
     {
       "material_id": "N-ZN-003",
@@ -2387,7 +2415,7 @@
       "material_type": "zinc",
       "subcategory": "zinc",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -2397,13 +2425,14 @@
       "physical": {
         "density": 6600,
         "melting_point": 387,
-        "specific_heat": 900,
+        "specific_heat": 419,
         "thermal_conductivity": 113,
         "thermal_expansion": 23,
         "elastic_modulus": 85,
         "poisson_ratio": 0.33,
         "shear_modulus": 32,
-        "bulk_modulus": 83.3
+        "bulk_modulus": 83.3,
+        "liquidus_temperature": 387
       },
       "mechanical": {
         "hardness": {
@@ -2760,14 +2789,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 235
     },
     {
       "material_id": "N-TI-008",
@@ -2776,7 +2806,7 @@
       "material_type": "titanium",
       "subcategory": "titanium",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -2786,13 +2816,14 @@
       "physical": {
         "density": 4480,
         "melting_point": 1660,
-        "specific_heat": 900,
-        "thermal_conductivity": 225.0,
+        "specific_heat": 530,
+        "thermal_conductivity": 8.3,
         "thermal_expansion": 23,
         "elastic_modulus": 105,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 1660
       },
       "mechanical": {
         "hardness": {
@@ -3142,14 +3173,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 232
     },
     {
       "material_id": "N-TI-011",
@@ -3158,7 +3190,7 @@
       "material_type": "titanium_beta",
       "subcategory": "titanium_beta",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -3168,13 +3200,14 @@
       "physical": {
         "density": 4710,
         "melting_point": 1590,
-        "specific_heat": 900,
-        "thermal_conductivity": 225.0,
+        "specific_heat": 500,
+        "thermal_conductivity": 8.1,
         "thermal_expansion": 23,
         "elastic_modulus": 80,
         "poisson_ratio": 0.33,
         "shear_modulus": 30.1,
-        "bulk_modulus": 78.4
+        "bulk_modulus": 78.4,
+        "liquidus_temperature": 1650
       },
       "mechanical": {
         "hardness": {
@@ -3528,14 +3561,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 234
     },
     {
       "material_id": "N-TI-012",
@@ -3544,7 +3578,7 @@
       "material_type": "titanium_beta",
       "subcategory": "titanium_beta",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "PRISM_final_pass5",
@@ -3554,13 +3588,14 @@
       "physical": {
         "density": 4650,
         "melting_point": 1600,
-        "specific_heat": 900,
-        "thermal_conductivity": 225.0,
+        "specific_heat": 500,
+        "thermal_conductivity": 8.1,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 87,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "liquidus_temperature": 1650
       },
       "mechanical": {
         "hardness": {
@@ -3909,14 +3944,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 231
     }
   ]
 }

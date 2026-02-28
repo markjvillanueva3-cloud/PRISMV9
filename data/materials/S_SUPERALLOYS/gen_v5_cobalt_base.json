@@ -7,22 +7,23 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8400,
+        "density": 9000.0,
         "melting_point": 1350,
-        "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "specific_heat": 403,
+        "thermal_conductivity": 10.0,
         "thermal_expansion": 12,
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "liquidus_temperature": 1330
       },
       "mechanical": {
         "hardness": {
@@ -420,14 +421,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 240
     },
     {
       "material_id": "S-SA-EXP-021",
@@ -436,7 +438,7 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
@@ -446,12 +448,13 @@
         "density": 8400,
         "melting_point": 1350,
         "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "thermal_conductivity": 11,
         "thermal_expansion": 12,
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "liquidus_temperature": 1360
       },
       "mechanical": {
         "hardness": {
@@ -849,14 +852,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 240
     },
     {
       "material_id": "S-SA-EXP-022",
@@ -865,22 +869,23 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8400,
+        "density": 9000.0,
         "melting_point": 1350,
-        "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "specific_heat": 397,
+        "thermal_conductivity": 8.9,
         "thermal_expansion": 12,
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "liquidus_temperature": 1371
       },
       "mechanical": {
         "hardness": {
@@ -1278,14 +1283,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 240
     },
     {
       "material_id": "S-SA-EXP-023",
@@ -1294,22 +1300,24 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8400,
-        "melting_point": 1350,
-        "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "density": 9000.0,
+        "melting_point": 1301,
+        "specific_heat": 397,
+        "thermal_conductivity": 8.9,
         "thermal_expansion": 12,
-        "elastic_modulus": 210,
+        "elastic_modulus": 211,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "solidus_temperature": 1301,
+        "liquidus_temperature": 1371
       },
       "mechanical": {
         "hardness": {
@@ -1531,12 +1539,12 @@
         "n_cbn": 0.14
       },
       "johnson_cook": {
-        "A": 704.2,
-        "B": 791.1,
+        "A": 150.0,
+        "B": 826.2,
         "n": 0.38,
         "C": 0.009,
         "m": 0.95,
-        "T_melt": 1350,
+        "T_melt": 1301,
         "T_ref": 25,
         "_generated": true,
         "epsilon_dot_ref": 1.0,
@@ -1707,14 +1715,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 241
     },
     {
       "material_id": "S-SA-EXP-024",
@@ -1723,7 +1732,7 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
@@ -1733,12 +1742,13 @@
         "density": 8400,
         "melting_point": 1350,
         "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "thermal_conductivity": 11,
         "thermal_expansion": 12,
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "liquidus_temperature": 1360
       },
       "mechanical": {
         "hardness": {
@@ -2136,14 +2146,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 240
     },
     {
       "material_id": "S-SA-EXP-025",
@@ -2152,7 +2163,7 @@
       "material_type": "SUPERALLOY",
       "subcategory": "cobalt_base",
       "condition": "unknown",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_gen_v5_consolidated",
         "deep_accuracy_v1",
@@ -2162,12 +2173,13 @@
         "density": 8400,
         "melting_point": 1350,
         "specific_heat": 500,
-        "thermal_conductivity": 14.0,
+        "thermal_conductivity": 11,
         "thermal_expansion": 12,
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175.0
+        "bulk_modulus": 175.0,
+        "liquidus_temperature": 1360
       },
       "mechanical": {
         "hardness": {
@@ -2565,14 +2577,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 240
     }
   ]
 }

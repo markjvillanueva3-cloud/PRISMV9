@@ -10,18 +10,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7810.0,
-        "melting_point": 1733.0,
+        "melting_point": 1260,
         "boiling_point": 2873.2,
-        "liquidus_temperature": 1767.7,
-        "solidus_temperature": 1646.4,
+        "liquidus_temperature": 1350,
+        "solidus_temperature": 1260,
         "latent_heat_fusion": 327.7,
-        "specific_heat": 703.6,
-        "thermal_conductivity": 30.0,
+        "specific_heat": 450,
+        "thermal_conductivity": 19.0,
         "thermal_expansion": 8.9,
         "electrical_resistivity": 2.79,
         "magnetic_permeability": 39.9,
         "poisson_ratio": 0.3421,
-        "elastic_modulus": 332.3,
+        "elastic_modulus": 220,
         "shear_modulus": 114.1,
         "bulk_modulus": 162.9
       },
@@ -71,7 +71,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1733.0,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 381
@@ -183,7 +183,7 @@
       "material_id": "HS-M42-HSS-65-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -286,14 +286,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 172
     },
     {
       "iso_group": "H",
@@ -301,18 +302,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7830.5,
-        "melting_point": 1786.5,
+        "melting_point": 1260,
         "boiling_point": 2699.2,
-        "liquidus_temperature": 1822.2,
-        "solidus_temperature": 1697.2,
+        "liquidus_temperature": 1350,
+        "solidus_temperature": 1260,
         "latent_heat_fusion": 499.9,
-        "specific_heat": 975.1,
-        "thermal_conductivity": 30.0,
+        "specific_heat": 450,
+        "thermal_conductivity": 19.0,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 0.6376,
         "magnetic_permeability": 47.2,
         "poisson_ratio": 0.3403,
-        "elastic_modulus": 397.7,
+        "elastic_modulus": 220,
         "shear_modulus": 116.6,
         "bulk_modulus": 90.1
       },
@@ -362,7 +363,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1786.5,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 393
@@ -474,7 +475,7 @@
       "material_id": "HS-M42-HSS-67-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -577,28 +578,29 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 172
     },
     {
       "iso_group": "H",
       "material_type": "hardened_steel",
       "iso_p_equivalent": "H",
       "physical": {
-        "density": 7754.2,
-        "melting_point": 1753.5,
+        "density": 8500.0,
+        "melting_point": 1260,
         "boiling_point": 2875.2,
-        "liquidus_temperature": 1788.5,
-        "solidus_temperature": 1665.8,
+        "liquidus_temperature": 1370,
+        "solidus_temperature": 1260,
         "latent_heat_fusion": 204.2,
-        "specific_heat": 618.6,
-        "thermal_conductivity": 30.0,
+        "specific_heat": 420,
+        "thermal_conductivity": 19.9,
         "thermal_expansion": 12.0,
         "electrical_resistivity": 2.51,
         "magnetic_permeability": 298.8,
@@ -653,7 +655,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1753.5,
+        "T_melt": 1260,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 386
@@ -765,7 +767,7 @@
       "material_id": "HS-T1-HSS-63-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -791,7 +793,12 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.75,
+        "Mn": 0.3,
+        "Cr": 4.0,
+        "W": 18.0,
+        "V": 1.1,
+        "Si": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -861,33 +868,34 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
       "material_type": "hardened_steel",
       "iso_p_equivalent": "H",
       "physical": {
-        "density": 7761.6,
-        "melting_point": 1738.1,
+        "density": 8189.999999999999,
+        "melting_point": 1230,
         "boiling_point": 3087.4,
-        "liquidus_temperature": 1772.9,
-        "solidus_temperature": 1651.2,
+        "liquidus_temperature": 1350,
+        "solidus_temperature": 1230,
         "latent_heat_fusion": 275.4,
-        "specific_heat": 863.0,
-        "thermal_conductivity": 30.0,
+        "specific_heat": 420,
+        "thermal_conductivity": 21.0,
         "thermal_expansion": 17.9,
         "electrical_resistivity": 2.59,
         "magnetic_permeability": 96.6,
         "poisson_ratio": 0.3124,
-        "elastic_modulus": 175.0,
+        "elastic_modulus": 230,
         "shear_modulus": 56.5,
         "bulk_modulus": 165.8
       },
@@ -937,7 +945,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1738.1,
+        "T_melt": 1230,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 382
@@ -1049,7 +1057,7 @@
       "material_id": "HS-T15-HSS-66-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -1075,7 +1083,14 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 1.55,
+        "Mn": 0.3,
+        "Cr": 4.0,
+        "W": 12.5,
+        "Mo": 0.5,
+        "V": 5.0,
+        "Co": 5.0,
+        "Si": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -1145,14 +1160,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 172
     },
     {
       "iso_group": "H",
@@ -1434,13 +1450,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 169
     },
     {
       "iso_group": "H",
@@ -1722,13 +1739,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 169
     },
     {
       "iso_group": "H",
@@ -2010,13 +2028,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 169
     },
     {
       "iso_group": "H",
@@ -2300,13 +2319,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 171
     },
     {
       "iso_group": "H",
@@ -2590,13 +2610,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 171
     },
     {
       "iso_group": "H",
@@ -2879,13 +2900,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -3168,13 +3190,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -3457,13 +3480,14 @@
           "source": "existing"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -3471,18 +3495,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7852.3,
-        "melting_point": 1724.2,
+        "melting_point": 1390,
         "boiling_point": 3258.1,
-        "liquidus_temperature": 1758.7,
-        "solidus_temperature": 1638.0,
+        "liquidus_temperature": 1440,
+        "solidus_temperature": 1390,
         "latent_heat_fusion": 248.9,
-        "specific_heat": 831.8,
+        "specific_heat": 480,
         "thermal_conductivity": 30.0,
         "thermal_expansion": 16.0,
         "electrical_resistivity": 8.6,
         "magnetic_permeability": 163.5,
         "poisson_ratio": 0.3716,
-        "elastic_modulus": 391.8,
+        "elastic_modulus": 205.0,
         "shear_modulus": 109.7,
         "bulk_modulus": 143.2
       },
@@ -3532,7 +3556,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1724.2,
+        "T_melt": 1390,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 379
@@ -3644,7 +3668,7 @@
       "material_id": "HS-VANADIS-4E-62-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -3670,7 +3694,12 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 1.4,
+        "Mn": 0.4,
+        "Cr": 4.7,
+        "Mo": 3.5,
+        "V": 3.7,
+        "Si": 0.4
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -3740,14 +3769,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -3755,18 +3785,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7787.7,
-        "melting_point": 1734.4,
+        "melting_point": 1370,
         "boiling_point": 2982.9,
-        "liquidus_temperature": 1769.0,
-        "solidus_temperature": 1647.6,
+        "liquidus_temperature": 1480,
+        "solidus_temperature": 1370,
         "latent_heat_fusion": 276.0,
-        "specific_heat": 791.2,
-        "thermal_conductivity": 30.0,
+        "specific_heat": 480,
+        "thermal_conductivity": 22,
         "thermal_expansion": 19.5,
         "electrical_resistivity": 5.59,
         "magnetic_permeability": 448.7,
         "poisson_ratio": 0.3741,
-        "elastic_modulus": 139.6,
+        "elastic_modulus": 200,
         "shear_modulus": 165.4,
         "bulk_modulus": 186.1
       },
@@ -3816,7 +3846,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1734.4,
+        "T_melt": 1370,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 382
@@ -3928,7 +3958,7 @@
       "material_id": "HS-ELMAX-60-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -3954,7 +3984,12 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 1.7,
+        "Mn": 0.3,
+        "Cr": 18.0,
+        "Mo": 1.0,
+        "V": 3.0,
+        "Si": 0.8
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4024,14 +4059,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -4039,18 +4075,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7833.4,
-        "melting_point": 1785.5,
+        "melting_point": 1390,
         "boiling_point": 2912.2,
-        "liquidus_temperature": 1821.3,
-        "solidus_temperature": 1696.3,
+        "liquidus_temperature": 1440,
+        "solidus_temperature": 1390,
         "latent_heat_fusion": 234.7,
-        "specific_heat": 976.1,
+        "specific_heat": 480,
         "thermal_conductivity": 30.0,
         "thermal_expansion": 11.8,
         "electrical_resistivity": 5.47,
         "magnetic_permeability": 413.0,
         "poisson_ratio": 0.3628,
-        "elastic_modulus": 365.2,
+        "elastic_modulus": 205.0,
         "shear_modulus": 73.3,
         "bulk_modulus": 315.4
       },
@@ -4100,7 +4136,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1785.5,
+        "T_melt": 1390,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 393
@@ -4212,7 +4248,7 @@
       "material_id": "HS-BOHLER-K340-60-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -4238,7 +4274,12 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 1.1,
+        "Mn": 0.4,
+        "Cr": 8.3,
+        "Mo": 2.1,
+        "V": 0.5,
+        "Si": 0.9
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4308,14 +4349,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     },
     {
       "iso_group": "H",
@@ -4323,18 +4365,18 @@
       "iso_p_equivalent": "H",
       "physical": {
         "density": 7823.2,
-        "melting_point": 1788.2,
+        "melting_point": 1390,
         "boiling_point": 3538.0,
-        "liquidus_temperature": 1824.0,
-        "solidus_temperature": 1698.8,
+        "liquidus_temperature": 1440,
+        "solidus_temperature": 1390,
         "latent_heat_fusion": 372.2,
-        "specific_heat": 660.8,
+        "specific_heat": 480,
         "thermal_conductivity": 30.0,
         "thermal_expansion": 12.9,
         "electrical_resistivity": 1.55,
         "magnetic_permeability": 12.2,
         "poisson_ratio": 0.3926,
-        "elastic_modulus": 163.8,
+        "elastic_modulus": 190,
         "shear_modulus": 166.3,
         "bulk_modulus": 275.4
       },
@@ -4384,7 +4426,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 1788.2,
+        "T_melt": 1390,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 393
@@ -4496,7 +4538,7 @@
       "material_id": "HS-CALDIE-62-HRC-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -4522,7 +4564,12 @@
         "postweld_treatment": "full_anneal_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.7,
+        "Mn": 0.5,
+        "Cr": 5.0,
+        "Mo": 2.3,
+        "V": 0.5,
+        "Si": 0.2
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4592,14 +4639,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     }
   ],
   "enhanced_date": "2026-01-26T10:45:58.229882",

@@ -7,7 +7,7 @@
       "material_type": "nickel_base",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -24,7 +24,8 @@
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 80.8,
-        "bulk_modulus": 175
+        "bulk_modulus": 175,
+        "liquidus_temperature": 1355
       },
       "mechanical": {
         "hardness": {
@@ -372,14 +373,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 1,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 231
     },
     {
       "material_id": "S-CO-002",
@@ -388,7 +390,7 @@
       "material_type": "nickel_base",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -398,14 +400,16 @@
       ],
       "physical": {
         "density": 8330,
-        "melting_point": 1325,
+        "melting_point": 1260,
         "specific_heat": 460,
         "thermal_conductivity": 15,
         "thermal_expansion": 12,
         "elastic_modulus": 230,
         "poisson_ratio": 0.3,
         "shear_modulus": 88.5,
-        "bulk_modulus": 191.7
+        "bulk_modulus": 191.7,
+        "solidus_temperature": 1260,
+        "liquidus_temperature": 1355
       },
       "mechanical": {
         "hardness": {
@@ -753,14 +757,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 232
     },
     {
       "material_id": "S-CO-003",
@@ -769,7 +774,7 @@
       "material_type": "nickel_base",
       "subcategory": "nickel_base",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -778,15 +783,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 9070,
-        "melting_point": 1410,
+        "density": 9000.0,
+        "melting_point": 1330,
         "specific_heat": 460,
         "thermal_conductivity": 10,
         "thermal_expansion": 12,
         "elastic_modulus": 230,
         "poisson_ratio": 0.3,
         "shear_modulus": 88.5,
-        "bulk_modulus": 191.7
+        "bulk_modulus": 191.7,
+        "solidus_temperature": 1330,
+        "liquidus_temperature": 1410
       },
       "mechanical": {
         "hardness": {
@@ -1134,14 +1141,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 232
     }
   ]
 }

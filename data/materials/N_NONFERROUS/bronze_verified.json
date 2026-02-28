@@ -7,7 +7,7 @@
       "material_type": "copper_alloy",
       "subcategory": "bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -16,15 +16,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 380,
-        "thermal_conductivity": 67,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 14,
         "thermal_expansion": 18.2,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.34,
         "shear_modulus": 41,
-        "bulk_modulus": 115
+        "bulk_modulus": 115,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -64,12 +66,12 @@
         "mc_reaming": 0.2369
       },
       "johnson_cook": {
-        "A": 133.2,
-        "B": 164.3,
+        "A": 289.0,
+        "B": 948.6,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -307,14 +309,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "NBZ-C510-HARD",
@@ -323,7 +326,7 @@
       "material_type": "copper_alloy",
       "subcategory": "bronze",
       "condition": "hard",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -332,15 +335,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 380,
-        "thermal_conductivity": 67,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 14,
         "thermal_expansion": 18.2,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.34,
         "shear_modulus": 41,
-        "bulk_modulus": 115
+        "bulk_modulus": 115,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -385,7 +390,7 @@
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -623,14 +628,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "NBZ-C630-ANNEALED",
@@ -639,7 +645,7 @@
       "material_type": "copper_alloy",
       "subcategory": "bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -651,12 +657,13 @@
         "density": 7450,
         "melting_point": 1045,
         "specific_heat": 420,
-        "thermal_conductivity": 59,
+        "thermal_conductivity": 39,
         "thermal_expansion": 16.2,
         "elastic_modulus": 117,
         "poisson_ratio": 0.32,
         "shear_modulus": 44,
-        "bulk_modulus": 108
+        "bulk_modulus": 108,
+        "liquidus_temperature": 1060
       },
       "mechanical": {
         "hardness": {
@@ -944,14 +951,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 193
     },
     {
       "material_id": "NBZ-C630-TQ50",
@@ -960,7 +968,7 @@
       "material_type": "copper_alloy",
       "subcategory": "bronze",
       "condition": "TQ50",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -972,12 +980,13 @@
         "density": 7450,
         "melting_point": 1045,
         "specific_heat": 420,
-        "thermal_conductivity": 59,
+        "thermal_conductivity": 39,
         "thermal_expansion": 16.2,
         "elastic_modulus": 117,
         "poisson_ratio": 0.32,
         "shear_modulus": 44,
-        "bulk_modulus": 108
+        "bulk_modulus": 108,
+        "liquidus_temperature": 1060
       },
       "mechanical": {
         "hardness": {
@@ -1265,14 +1274,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 193
     },
     {
       "material_id": "NBZ-C932-ASCAST",
@@ -1281,7 +1291,7 @@
       "material_type": "copper_alloy",
       "subcategory": "bronze",
       "condition": "as_cast",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -1298,7 +1308,8 @@
         "elastic_modulus": 76,
         "poisson_ratio": 0.34,
         "shear_modulus": 28,
-        "bulk_modulus": 79
+        "bulk_modulus": 79,
+        "liquidus_temperature": 1000
       },
       "mechanical": {
         "hardness": {
@@ -1586,14 +1597,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 193
     }
   ]
 }

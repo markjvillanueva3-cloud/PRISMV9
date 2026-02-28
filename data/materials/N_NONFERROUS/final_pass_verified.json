@@ -7,7 +7,7 @@
       "material_type": "aluminum_cast",
       "subcategory": "aluminum_cast",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -16,15 +16,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 2800,
-        "melting_point": 570,
-        "specific_heat": 900,
-        "thermal_conductivity": 130,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 500,
+        "thermal_conductivity": 16,
         "thermal_expansion": 23,
-        "elastic_modulus": 72,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 27.1,
-        "bulk_modulus": 70.6
+        "bulk_modulus": 70.6,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1450
       },
       "mechanical": {
         "hardness": {
@@ -69,7 +71,7 @@
         "n": 0.28,
         "C": 0.013,
         "m": 1.0,
-        "T_melt": 570,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -382,14 +384,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 238
     },
     {
       "material_id": "N-CU-016",
@@ -398,7 +401,7 @@
       "material_type": "aluminum_bronze_cast",
       "subcategory": "aluminum_bronze_cast",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -409,13 +412,14 @@
       "physical": {
         "density": 7450,
         "melting_point": 1040,
-        "specific_heat": 900,
-        "thermal_conductivity": 59,
+        "specific_heat": 380,
+        "thermal_conductivity": 39,
         "thermal_expansion": 23,
         "elastic_modulus": 110,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "liquidus_temperature": 1040
       },
       "mechanical": {
         "hardness": {
@@ -701,14 +705,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-CU-159",
@@ -717,7 +722,7 @@
       "material_type": "aluminum_bronze_cast",
       "subcategory": "aluminum_bronze_cast",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -728,13 +733,14 @@
       "physical": {
         "density": 7450,
         "melting_point": 1040,
-        "specific_heat": 900,
-        "thermal_conductivity": 59,
+        "specific_heat": 380,
+        "thermal_conductivity": 39,
         "thermal_expansion": 23,
         "elastic_modulus": 110,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "liquidus_temperature": 1040
       },
       "mechanical": {
         "hardness": {
@@ -1020,14 +1026,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-MG-009",
@@ -1036,7 +1043,7 @@
       "material_type": "magnesium",
       "subcategory": "magnesium",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -1046,14 +1053,16 @@
       ],
       "physical": {
         "density": 1830,
-        "melting_point": 590,
+        "melting_point": 545,
         "specific_heat": 900,
-        "thermal_conductivity": 51,
+        "thermal_conductivity": 100,
         "thermal_expansion": 23,
         "elastic_modulus": 45,
         "poisson_ratio": 0.33,
         "shear_modulus": 16.9,
-        "bulk_modulus": 44.1
+        "bulk_modulus": 44.1,
+        "solidus_temperature": 545,
+        "liquidus_temperature": 647
       },
       "mechanical": {
         "hardness": {
@@ -1420,14 +1429,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 243
     },
     {
       "material_id": "N-MG-010",
@@ -1436,7 +1446,7 @@
       "material_type": "magnesium",
       "subcategory": "magnesium",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -1453,7 +1463,8 @@
         "elastic_modulus": 45,
         "poisson_ratio": 0.33,
         "shear_modulus": 16.9,
-        "bulk_modulus": 44.1
+        "bulk_modulus": 44.1,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -1820,14 +1831,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 242
     },
     {
       "material_id": "N-CU-164",
@@ -1836,7 +1848,7 @@
       "material_type": "beryllium_copper",
       "subcategory": "beryllium_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -1847,13 +1859,15 @@
       "physical": {
         "density": 8620,
         "melting_point": 870,
-        "specific_heat": 900,
-        "thermal_conductivity": 210,
+        "specific_heat": 390,
+        "thermal_conductivity": 110,
         "thermal_expansion": 23,
         "elastic_modulus": 131,
         "poisson_ratio": 0.33,
         "shear_modulus": 49.2,
-        "bulk_modulus": 128.4
+        "bulk_modulus": 128.4,
+        "solidus_temperature": 870,
+        "liquidus_temperature": 980
       },
       "mechanical": {
         "hardness": {
@@ -2056,7 +2070,9 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 98.0,
+        "Be": 1.9,
+        "Co": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -2120,14 +2136,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 183
     },
     {
       "material_id": "N-CU-165",
@@ -2136,7 +2153,7 @@
       "material_type": "beryllium_copper",
       "subcategory": "beryllium_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -2147,13 +2164,15 @@
       "physical": {
         "density": 8620,
         "melting_point": 870,
-        "specific_heat": 900,
-        "thermal_conductivity": 210,
+        "specific_heat": 390,
+        "thermal_conductivity": 110,
         "thermal_expansion": 23,
         "elastic_modulus": 131,
         "poisson_ratio": 0.33,
         "shear_modulus": 49.2,
-        "bulk_modulus": 128.4
+        "bulk_modulus": 128.4,
+        "solidus_temperature": 870,
+        "liquidus_temperature": 980
       },
       "mechanical": {
         "hardness": {
@@ -2356,7 +2375,9 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 98.0,
+        "Be": 1.9,
+        "Co": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -2420,14 +2441,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 183
     },
     {
       "material_id": "N-CU-166",
@@ -2436,7 +2458,7 @@
       "material_type": "beryllium_copper",
       "subcategory": "beryllium_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -2447,13 +2469,15 @@
       "physical": {
         "density": 8620,
         "melting_point": 870,
-        "specific_heat": 900,
-        "thermal_conductivity": 210,
+        "specific_heat": 390,
+        "thermal_conductivity": 110,
         "thermal_expansion": 23,
         "elastic_modulus": 131,
         "poisson_ratio": 0.33,
         "shear_modulus": 49.2,
-        "bulk_modulus": 128.4
+        "bulk_modulus": 128.4,
+        "solidus_temperature": 870,
+        "liquidus_temperature": 980
       },
       "mechanical": {
         "hardness": {
@@ -2656,7 +2680,9 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 98.0,
+        "Be": 1.9,
+        "Co": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -2720,14 +2746,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 183
     },
     {
       "material_id": "N-CU-167",
@@ -2736,7 +2763,7 @@
       "material_type": "beryllium_copper",
       "subcategory": "beryllium_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -2747,13 +2774,15 @@
       "physical": {
         "density": 8620,
         "melting_point": 870,
-        "specific_heat": 900,
-        "thermal_conductivity": 210,
+        "specific_heat": 390,
+        "thermal_conductivity": 110,
         "thermal_expansion": 23,
         "elastic_modulus": 131,
         "poisson_ratio": 0.33,
         "shear_modulus": 49.2,
-        "bulk_modulus": 128.4
+        "bulk_modulus": 128.4,
+        "solidus_temperature": 870,
+        "liquidus_temperature": 980
       },
       "mechanical": {
         "hardness": {
@@ -2956,7 +2985,9 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 98.0,
+        "Be": 1.9,
+        "Co": 0.25
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -3020,14 +3051,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 183
     },
     {
       "material_id": "N-CU-005",
@@ -3036,7 +3068,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -3047,13 +3079,14 @@
       "physical": {
         "density": 8470,
         "melting_point": 940,
-        "specific_heat": 900,
+        "specific_heat": 380,
         "thermal_conductivity": 115,
         "thermal_expansion": 23,
         "elastic_modulus": 105,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 935
       },
       "mechanical": {
         "hardness": {
@@ -3256,7 +3289,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -3320,14 +3354,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-006",
@@ -3336,7 +3371,7 @@
       "material_type": "red_brass",
       "subcategory": "red_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -3347,13 +3382,14 @@
       "physical": {
         "density": 8750,
         "melting_point": 1000,
-        "specific_heat": 900,
+        "specific_heat": 380,
         "thermal_conductivity": 159,
         "thermal_expansion": 23,
         "elastic_modulus": 110,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "liquidus_temperature": 1030
       },
       "mechanical": {
         "hardness": {
@@ -3556,7 +3592,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 85.0,
+        "Zn": 15.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -3620,14 +3657,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-122",
@@ -3636,7 +3674,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -3647,13 +3685,14 @@
       "physical": {
         "density": 8470,
         "melting_point": 940,
-        "specific_heat": 900,
+        "specific_heat": 380,
         "thermal_conductivity": 115,
         "thermal_expansion": 23,
         "elastic_modulus": 105,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 935
       },
       "mechanical": {
         "hardness": {
@@ -3856,7 +3895,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -3920,14 +3960,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-123",
@@ -3936,7 +3977,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -3945,15 +3986,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8470,
-        "melting_point": 940,
-        "specific_heat": 900,
-        "thermal_conductivity": 115,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 105,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -3994,11 +4037,11 @@
       },
       "johnson_cook": {
         "A": 157.9,
-        "B": 184.0,
+        "B": 700.4,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 940,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -4156,7 +4199,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4220,14 +4264,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-124",
@@ -4236,7 +4281,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -4245,15 +4290,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8470,
-        "melting_point": 940,
-        "specific_heat": 900,
-        "thermal_conductivity": 115,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 105,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -4294,11 +4341,11 @@
       },
       "johnson_cook": {
         "A": 157.9,
-        "B": 184.0,
+        "B": 700.4,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 940,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -4456,7 +4503,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4520,14 +4568,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-125",
@@ -4536,7 +4585,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -4545,15 +4594,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8470,
-        "melting_point": 940,
-        "specific_heat": 900,
-        "thermal_conductivity": 115,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 105,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -4594,11 +4645,11 @@
       },
       "johnson_cook": {
         "A": 157.9,
-        "B": 184.0,
+        "B": 700.4,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 940,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -4756,7 +4807,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -4820,14 +4872,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-126",
@@ -4836,7 +4889,7 @@
       "material_type": "yellow_brass",
       "subcategory": "yellow_brass",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -4845,15 +4898,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8470,
-        "melting_point": 940,
-        "specific_heat": 900,
-        "thermal_conductivity": 115,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 105,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 39.5,
-        "bulk_modulus": 102.9
+        "bulk_modulus": 102.9,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -4894,11 +4949,11 @@
       },
       "johnson_cook": {
         "A": 157.9,
-        "B": 184.0,
+        "B": 700.4,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 940,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -5056,7 +5111,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 65.0,
+        "Zn": 35.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -5120,14 +5176,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-012",
@@ -5136,7 +5193,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -5145,15 +5202,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 14,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -5194,11 +5253,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -5304,21 +5363,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -5434,14 +5482,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-018",
@@ -5450,7 +5499,7 @@
       "material_type": "manganese_bronze",
       "subcategory": "manganese_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -5459,15 +5508,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 7830,
-        "melting_point": 940,
-        "specific_heat": 900,
-        "thermal_conductivity": 42,
+        "density": 8260.0,
+        "melting_point": 880,
+        "specific_heat": 380,
+        "thermal_conductivity": 105,
         "thermal_expansion": 23,
-        "elastic_modulus": 100,
+        "elastic_modulus": 115,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "solidus_temperature": 880,
+        "liquidus_temperature": 920
       },
       "mechanical": {
         "hardness": {
@@ -5670,7 +5721,11 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 61.0,
+        "Al": 6.0,
+        "Fe": 3.0,
+        "Mn": 3.5,
+        "Zn": 26.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -5734,14 +5789,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 185
     },
     {
       "material_id": "N-CU-141",
@@ -5750,7 +5806,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -5759,15 +5815,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 14,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -5808,11 +5866,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -5918,21 +5976,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -6048,14 +6095,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-142",
@@ -6064,7 +6112,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -6073,15 +6121,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -6122,11 +6172,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -6232,21 +6282,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -6362,14 +6401,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-143",
@@ -6378,7 +6418,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -6387,15 +6427,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -6436,11 +6478,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -6546,21 +6588,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -6676,14 +6707,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-144",
@@ -6692,7 +6724,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -6701,15 +6733,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -6750,11 +6784,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -6860,21 +6894,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -6990,14 +7013,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-145",
@@ -7006,7 +7030,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -7015,15 +7039,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -7064,11 +7090,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -7174,21 +7200,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -7304,14 +7319,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-146",
@@ -7320,7 +7336,7 @@
       "material_type": "phosphor_bronze",
       "subcategory": "phosphor_bronze",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -7329,15 +7345,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8860,
-        "melting_point": 1000,
-        "specific_heat": 900,
-        "thermal_conductivity": 50,
+        "density": 7800.0,
+        "melting_point": 1400,
+        "specific_heat": 480,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 110,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 41.4,
-        "bulk_modulus": 107.8
+        "bulk_modulus": 107.8,
+        "solidus_temperature": 1400,
+        "liquidus_temperature": 1440
       },
       "mechanical": {
         "hardness": {
@@ -7378,11 +7396,11 @@
       },
       "johnson_cook": {
         "A": 211.2,
-        "B": 223.4,
+        "B": 1060.2,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1000,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -7488,21 +7506,10 @@
         "prior_params": 122
       },
       "composition": {
-        "C": {
-          "min": 0.98,
-          "max": 1.1,
-          "typical": 1.04
-        },
-        "Mn": {
-          "min": 0.25,
-          "max": 0.45,
-          "typical": 0.35
-        },
-        "Cr": {
-          "min": 1.3,
-          "max": 1.6,
-          "typical": 1.45
-        }
+        "C": 1.0,
+        "Mn": 0.35,
+        "Cr": 1.45,
+        "Si": 0.25
       },
       "tribology": {
         "sliding_friction": 0.5,
@@ -7618,14 +7625,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 184
     },
     {
       "material_id": "N-CU-004",
@@ -7634,7 +7642,7 @@
       "material_type": "muntz_metal",
       "subcategory": "muntz_metal",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -7645,13 +7653,14 @@
       "physical": {
         "density": 8390,
         "melting_point": 905,
-        "specific_heat": 900,
+        "specific_heat": 380,
         "thermal_conductivity": 123,
         "thermal_expansion": 23,
         "elastic_modulus": 100,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "liquidus_temperature": 900
       },
       "mechanical": {
         "hardness": {
@@ -7854,7 +7863,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 60.0,
+        "Zn": 40.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -7918,14 +7928,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-023",
@@ -7934,7 +7945,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -7945,13 +7956,14 @@
       "physical": {
         "density": 8940,
         "melting_point": 1083,
-        "specific_heat": 900,
+        "specific_heat": 385,
         "thermal_conductivity": 391,
         "thermal_expansion": 23,
         "elastic_modulus": 117,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1083
       },
       "mechanical": {
         "hardness": {
@@ -8238,14 +8250,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 190
     },
     {
       "material_id": "N-CU-101",
@@ -8254,7 +8267,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -8265,13 +8278,14 @@
       "physical": {
         "density": 8940,
         "melting_point": 1083,
-        "specific_heat": 900,
+        "specific_heat": 385,
         "thermal_conductivity": 398,
         "thermal_expansion": 23,
         "elastic_modulus": 117,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1083
       },
       "mechanical": {
         "hardness": {
@@ -8538,14 +8552,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 180
     },
     {
       "material_id": "N-CU-102",
@@ -8554,7 +8569,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -8563,15 +8578,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 398,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -8612,11 +8629,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -8838,14 +8855,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-103",
@@ -8854,7 +8872,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -8863,15 +8881,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 398,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -8912,11 +8932,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -9138,14 +9158,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-104",
@@ -9154,7 +9175,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -9163,15 +9184,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 398,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -9212,11 +9235,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -9438,14 +9461,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-105",
@@ -9454,7 +9478,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -9465,13 +9489,14 @@
       "physical": {
         "density": 8940,
         "melting_point": 1083,
-        "specific_heat": 900,
+        "specific_heat": 385,
         "thermal_conductivity": 391,
         "thermal_expansion": 23,
         "elastic_modulus": 117,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1083
       },
       "mechanical": {
         "hardness": {
@@ -9758,14 +9783,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 190
     },
     {
       "material_id": "N-CU-106",
@@ -9774,7 +9800,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -9783,15 +9809,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 391,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -9832,11 +9860,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -10078,14 +10106,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-CU-107",
@@ -10094,7 +10123,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -10103,15 +10132,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 391,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -10152,11 +10183,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -10398,14 +10429,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-CU-108",
@@ -10414,7 +10446,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -10423,15 +10455,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 391,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -10472,11 +10506,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -10718,14 +10752,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-CU-109",
@@ -10734,7 +10769,7 @@
       "material_type": "pure_copper",
       "subcategory": "pure_copper",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -10743,15 +10778,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8940,
-        "melting_point": 1083,
-        "specific_heat": 900,
-        "thermal_conductivity": 391,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 117,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 44,
-        "bulk_modulus": 114.7
+        "bulk_modulus": 114.7,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -10792,11 +10829,11 @@
       },
       "johnson_cook": {
         "A": 126.2,
-        "B": 158.5,
+        "B": 745.9,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 1083,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -11038,14 +11075,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     },
     {
       "material_id": "N-CU-127",
@@ -11054,7 +11092,7 @@
       "material_type": "muntz_metal",
       "subcategory": "muntz_metal",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -11065,13 +11103,14 @@
       "physical": {
         "density": 8390,
         "melting_point": 905,
-        "specific_heat": 900,
+        "specific_heat": 380,
         "thermal_conductivity": 123,
         "thermal_expansion": 23,
         "elastic_modulus": 100,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "liquidus_temperature": 900
       },
       "mechanical": {
         "hardness": {
@@ -11274,7 +11313,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 60.0,
+        "Zn": 40.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -11338,14 +11378,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 181
     },
     {
       "material_id": "N-CU-128",
@@ -11354,7 +11395,7 @@
       "material_type": "muntz_metal",
       "subcategory": "muntz_metal",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -11363,15 +11404,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8390,
-        "melting_point": 905,
-        "specific_heat": 900,
-        "thermal_conductivity": 123,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 100,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -11412,11 +11455,11 @@
       },
       "johnson_cook": {
         "A": 171.8,
-        "B": 194.7,
+        "B": 680.5,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 905,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -11574,7 +11617,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 60.0,
+        "Zn": 40.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -11638,14 +11682,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-129",
@@ -11654,7 +11699,7 @@
       "material_type": "muntz_metal",
       "subcategory": "muntz_metal",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -11663,15 +11708,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8390,
-        "melting_point": 905,
-        "specific_heat": 900,
-        "thermal_conductivity": 123,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 100,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -11712,11 +11759,11 @@
       },
       "johnson_cook": {
         "A": 171.8,
-        "B": 194.7,
+        "B": 680.5,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 905,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -11874,7 +11921,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 60.0,
+        "Zn": 40.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -11938,14 +11986,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     },
     {
       "material_id": "N-CU-130",
@@ -11954,7 +12003,7 @@
       "material_type": "muntz_metal",
       "subcategory": "muntz_metal",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machinerys_Handbook",
@@ -11963,15 +12012,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 8390,
-        "melting_point": 905,
-        "specific_heat": 900,
-        "thermal_conductivity": 123,
+        "density": 7800.0,
+        "melting_point": 1420,
+        "specific_heat": 470,
+        "thermal_conductivity": 28,
         "thermal_expansion": 23,
-        "elastic_modulus": 100,
+        "elastic_modulus": 90.0,
         "poisson_ratio": 0.33,
         "shear_modulus": 37.6,
-        "bulk_modulus": 98
+        "bulk_modulus": 98,
+        "liquidus_temperature": 1460,
+        "solidus_temperature": 1420
       },
       "mechanical": {
         "hardness": {
@@ -12012,11 +12063,11 @@
       },
       "johnson_cook": {
         "A": 171.8,
-        "B": 194.7,
+        "B": 680.5,
         "n": 0.3,
         "C": 0.013,
         "m": 1.2,
-        "T_melt": 905,
+        "T_melt": 1420,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 150
@@ -12174,7 +12225,8 @@
         "phase_transformation_temperature": 240.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "Cu": 60.0,
+        "Zn": 40.0
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -12238,14 +12290,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 182
     }
   ]
 }

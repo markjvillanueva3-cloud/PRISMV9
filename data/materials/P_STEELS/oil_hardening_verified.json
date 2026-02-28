@@ -380,13 +380,14 @@
           "source": "existing_validated"
         },
         "overall_confidence": "SUBCATEGORY_SPECIFIC",
-        "v2_corrections": 1,
+        "v2_corrections": 0,
         "physical_properties": {
           "confidence": "VERIFIED",
           "source": "web_database"
         },
         "has_composition": true
-      }
+      },
+      "param_count": 235
     },
     {
       "material_id": "TS-O2-ANNEALED",
@@ -395,7 +396,7 @@
       "material_type": "tool_steel",
       "subcategory": "oil_hardening",
       "condition": "annealed",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook",
         "Machining_Data_Handbook",
@@ -412,7 +413,8 @@
         "elastic_modulus": 210,
         "poisson_ratio": 0.3,
         "shear_modulus": 81,
-        "bulk_modulus": 175
+        "bulk_modulus": 175,
+        "liquidus_temperature": 1460
       },
       "mechanical": {
         "hardness": {
@@ -618,7 +620,13 @@
         "phase_transformation_temperature": 624.0
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.9,
+        "Mn": 1.6,
+        "Cr": 0.25,
+        "Mo": 0.3,
+        "W": 0.2,
+        "V": 0.25,
+        "Si": 0.3
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -682,14 +690,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 187
     }
   ]
 }

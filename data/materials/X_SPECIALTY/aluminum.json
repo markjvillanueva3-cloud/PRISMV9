@@ -9,19 +9,19 @@
       "material_type": "aluminum",
       "iso_p_equivalent": "N",
       "physical": {
-        "density": 2811.1,
-        "melting_point": 887.6,
+        "density": 7800.0,
+        "melting_point": 1400,
         "boiling_point": 1538.5,
-        "liquidus_temperature": 905.3,
-        "solidus_temperature": 843.2,
+        "liquidus_temperature": 1450,
+        "solidus_temperature": 1400,
         "latent_heat_fusion": 348.4,
         "specific_heat": 542.9,
-        "thermal_conductivity": 238.5,
+        "thermal_conductivity": 16,
         "thermal_expansion": 11.1,
         "electrical_resistivity": 5.0,
         "magnetic_permeability": 1.0,
         "poisson_ratio": 0.3973,
-        "elastic_modulus": 318.4,
+        "elastic_modulus": 200,
         "shear_modulus": 74.1,
         "bulk_modulus": 248.2
       },
@@ -66,12 +66,12 @@
         "mc_reaming": 0.2575
       },
       "johnson_cook": {
-        "A": 879.0,
+        "A": 312.0,
         "B": 815.7,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 887.6,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 195
@@ -185,7 +185,7 @@
       "material_id": "XS-PM-ALUMINUM-201AB-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -211,7 +211,12 @@
         "postweld_treatment": "not_applicable"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.08,
+        "Mn": 6.5,
+        "Cr": 17.0,
+        "Ni": 4.5,
+        "N": 0.15,
+        "Si": 0.5
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -281,14 +286,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 170
     },
     {
       "iso_group": "X",
@@ -574,7 +580,8 @@
           "source": "composition_or_group"
         },
         "has_composition": false
-      }
+      },
+      "param_count": 165
     }
   ],
   "enhanced_date": "2026-01-26T10:45:59.989978",

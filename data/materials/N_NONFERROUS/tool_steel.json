@@ -9,19 +9,19 @@
       "material_type": "aluminum",
       "iso_p_equivalent": "N",
       "physical": {
-        "density": 2655.9,
-        "melting_point": 896.6,
+        "density": 7800.0,
+        "melting_point": 1400,
         "boiling_point": 1699.5,
-        "liquidus_temperature": 914.5,
-        "solidus_temperature": 851.7,
+        "liquidus_temperature": 1450,
+        "solidus_temperature": 1400,
         "latent_heat_fusion": 343.2,
-        "specific_heat": 581.5,
-        "thermal_conductivity": 341.2,
+        "specific_heat": 500,
+        "thermal_conductivity": 16,
         "thermal_expansion": 25.7,
         "electrical_resistivity": 8.46,
         "magnetic_permeability": 1.0,
         "poisson_ratio": 0.311,
-        "elastic_modulus": 85.0,
+        "elastic_modulus": 90.0,
         "shear_modulus": 77.0,
         "bulk_modulus": 216.0
       },
@@ -71,7 +71,7 @@
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
-        "T_melt": 896.6,
+        "T_melt": 1400,
         "T_ref": 25,
         "epsilon_dot_ref": 1.0,
         "T_transition": 197
@@ -184,7 +184,7 @@
       "material_id": "NF-A201-T7-HIGH-STRENGTH-CAST-ENH",
       "subcategory": "general",
       "condition": "as_supplied",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "PRISM_enhanced_v10",
         "deep_accuracy_v1",
@@ -210,7 +210,12 @@
         "postweld_treatment": "none_required"
       },
       "composition": {
-        "note": "composition_data_pending"
+        "C": 0.08,
+        "Mn": 6.5,
+        "Cr": 17.0,
+        "Ni": 4.5,
+        "N": 0.15,
+        "Si": 0.5
       },
       "standards": {
         "note": "cross_reference_pending"
@@ -280,14 +285,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
-        "v2_corrections": 0,
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 2,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 169
     }
   ],
   "enhanced_date": "2026-01-26T10:45:58.937268",

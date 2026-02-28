@@ -7,7 +7,7 @@
       "material_type": "aluminum_alloy",
       "subcategory": "aluminum_lithium",
       "condition": "T8",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -16,15 +16,17 @@
         "deep_accuracy_v2"
       ],
       "physical": {
-        "density": 2710,
+        "density": 2710.0,
         "melting_point": 540,
-        "specific_heat": 900,
-        "thermal_conductivity": 75,
+        "specific_heat": 890,
+        "thermal_conductivity": 90,
         "thermal_expansion": 22,
         "elastic_modulus": 78,
         "poisson_ratio": 0.33,
         "shear_modulus": 29,
-        "bulk_modulus": 76
+        "bulk_modulus": 76,
+        "solidus_temperature": 540,
+        "liquidus_temperature": 635
       },
       "mechanical": {
         "hardness": {
@@ -320,14 +322,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 198
     },
     {
       "material_id": "NA-2090-T83",
@@ -336,7 +339,7 @@
       "material_type": "aluminum_alloy",
       "subcategory": "aluminum_lithium",
       "condition": "T83",
-      "data_quality": "calculated",
+      "data_quality": "reference",
       "data_sources": [
         "ASM_Metals_Handbook_Vol2",
         "Machining_Data_Handbook",
@@ -353,7 +356,8 @@
         "elastic_modulus": 77,
         "poisson_ratio": 0.33,
         "shear_modulus": 29,
-        "bulk_modulus": 75
+        "bulk_modulus": 75,
+        "liquidus_temperature": 640
       },
       "mechanical": {
         "hardness": {
@@ -639,14 +643,15 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "PARAMETRIC_MODEL",
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
         "v2_corrections": 0,
         "physical_properties": {
-          "confidence": "PARAMETRIC_MODEL",
-          "source": "composition_or_group"
+          "confidence": "VERIFIED",
+          "source": "web_database"
         },
-        "has_composition": false
-      }
+        "has_composition": true
+      },
+      "param_count": 191
     }
   ]
 }
