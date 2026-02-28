@@ -38,7 +38,7 @@ function loadAutoPilot() {
     } catch (e) { log.warn("[autoPilotDispatcher] AutoPilotV2 not available"); }
   }
   if (!registryMgr) {
-    try { registryMgr = require("../../registries/index.js").registryManager; } catch (e) {}
+    try { registryMgr = require("../../registries/index.js").registryManager; } catch (e: any) { log.debug(`[autoPilotDispatcher] registryManager not available: ${e?.message?.slice(0, 80)}`); }
   }
 }
 
