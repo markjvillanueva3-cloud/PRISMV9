@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Card, Input, Button } from "../ui";
+import { Card, Input, Select, Button } from "../ui";
 import type { OperationType } from "../../data/operations";
 
 export interface SfcParams {
@@ -90,6 +90,7 @@ export default function ParameterPanel({
       <div className="mb-4 flex items-center gap-2">
         <button
           type="button"
+          aria-pressed={!imperial}
           onClick={onToggleUnits}
           className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
             !imperial
@@ -101,6 +102,7 @@ export default function ParameterPanel({
         </button>
         <button
           type="button"
+          aria-pressed={imperial}
           onClick={onToggleUnits}
           className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
             imperial
@@ -163,42 +165,21 @@ export default function ParameterPanel({
           value={displayVal(params.width)}
           onChange={(e) => set("width", e.target.value)}
         />
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Tool Material
-          </label>
-          <select
-            value={params.tool_material}
-            onChange={(e) => set("tool_material", e.target.value)}
-            className="block w-full rounded-md border border-slate-300 px-3 py-2
-              text-sm focus:border-primary-500 focus:outline-none focus:ring-2
-              focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800
-              dark:text-slate-100"
-          >
-            {TOOL_MATERIALS.map((tm) => (
-              <option key={tm} value={tm}>{tm}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Coolant
-          </label>
-          <select
-            value={params.coolant}
-            onChange={(e) => set("coolant", e.target.value)}
-            className="block w-full rounded-md border border-slate-300 px-3 py-2
-              text-sm focus:border-primary-500 focus:outline-none focus:ring-2
-              focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800
-              dark:text-slate-100"
-          >
-            {COOLANTS.map((c) => (
-              <option key={c} value={c}>
-                {c.replace(/_/g, " ").toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Tool Material"
+          value={params.tool_material}
+          onChange={(e) => set("tool_material", e.target.value)}
+          options={TOOL_MATERIALS.map((tm) => ({ value: tm, label: tm }))}
+        />
+        <Select
+          label="Coolant"
+          value={params.coolant}
+          onChange={(e) => set("coolant", e.target.value)}
+          options={COOLANTS.map((c) => ({
+            value: c,
+            label: c.replace(/_/g, " ").toUpperCase(),
+          }))}
+        />
       </div>
     </Card>
   );

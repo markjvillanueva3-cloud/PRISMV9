@@ -5,6 +5,7 @@ interface Props {
   result: SfcCalculateResult | null;
   loading: boolean;
   error: string | null;
+  imperial?: boolean;
 }
 
 function safetyColor(score: number): "green" | "yellow" | "red" {
@@ -14,15 +15,18 @@ function safetyColor(score: number): "green" | "yellow" | "red" {
 }
 
 function fmt(n: number | undefined, decimals = 1): string {
-  if (n == null) return "—";
+  if (n == null) return "\u2014";
   return n.toFixed(decimals);
 }
 
-export default function ResultsDisplay({ result, loading, error }: Props) {
+const mmToIn = (mm: number) => mm / 25.4;
+const mToFt = (m: number) => m * 3.28084;
+
+export default function ResultsDisplay({ result, loading, error, imperial = false }: Props) {
   if (loading) {
     return (
       <Card title="Results">
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center py-12" role="status" aria-label="Calculating">
           <Spinner size="lg" />
           <span className="ml-3 text-sm text-slate-500">Calculating...</span>
         </div>
@@ -57,6 +61,14 @@ export default function ResultsDisplay({ result, loading, error }: Props) {
 
   const safety = result.safety;
 
+  // Unit conversion for display
+  const feedRate = imperial ? mmToIn(result.feed_rate) : result.feed_rate;
+  const feedUnit = imperial ? "in/min" : "mm/min";
+  const cuttingSpeed = imperial ? mToFt(result.cutting_speed) : result.cutting_speed;
+  const speedUnit = imperial ? "SFM" : "m/min";
+  const fpt = imperial ? mmToIn(result.feed_per_tooth) : result.feed_per_tooth;
+  const fptUnit = imperial ? "in/tooth" : "mm/tooth";
+
   return (
     <Card title="Results">
       {/* Safety badge */}
@@ -80,18 +92,18 @@ export default function ResultsDisplay({ result, loading, error }: Props) {
         />
         <ResultCard
           label="Feed Rate"
-          value={fmt(result.feed_rate, 1)}
-          unit="mm/min"
+          value={fmt(feedRate, imperial ? 3 : 1)}
+          unit={feedUnit}
         />
         <ResultCard
           label="Cutting Speed"
-          value={fmt(result.cutting_speed, 0)}
-          unit="m/min"
+          value={fmt(cuttingSpeed, 0)}
+          unit={speedUnit}
         />
         <ResultCard
           label="Feed per Tooth"
-          value={fmt(result.feed_per_tooth, 3)}
-          unit="mm/tooth"
+          value={fmt(fpt, imperial ? 4 : 3)}
+          unit={fptUnit}
         />
       </div>
 

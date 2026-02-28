@@ -74,6 +74,8 @@ export default function MaterialSelector({ value, onChange }: Props) {
           type="text"
           role="combobox"
           aria-expanded={open}
+          aria-controls="material-listbox"
+          aria-activedescendant={activeIdx >= 0 ? `material-opt-${activeIdx}` : undefined}
           aria-label="Search materials"
           placeholder={value ? value.name : "Search materials..."}
           value={query}
@@ -94,6 +96,7 @@ export default function MaterialSelector({ value, onChange }: Props) {
         {open && flatItems.length > 0 && (
           <div
             ref={listRef}
+            id="material-listbox"
             role="listbox"
             className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto
               rounded-md border border-slate-200 bg-white shadow-lg
@@ -116,6 +119,7 @@ export default function MaterialSelector({ value, onChange }: Props) {
                   return (
                     <div
                       key={m.id}
+                      id={`material-opt-${idx}`}
                       role="option"
                       data-idx={idx}
                       aria-selected={idx === activeIdx}

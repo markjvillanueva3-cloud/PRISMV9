@@ -28,6 +28,7 @@ export default function OperationSelector({ value, onChange }: Props) {
             {/* Category tile */}
             <button
               type="button"
+              aria-expanded={expandedCat === cat.id}
               onClick={() => toggleCategory(cat)}
               className={`flex w-full items-center gap-2 rounded-md px-3 py-2
                 text-left text-sm font-medium transition-colors ${
@@ -94,6 +95,7 @@ function ChevronIcon({ open }: { open: boolean }) {
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2}
+      aria-hidden="true"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
     </svg>

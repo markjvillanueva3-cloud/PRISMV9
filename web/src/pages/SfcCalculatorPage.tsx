@@ -113,6 +113,11 @@ export default function SfcCalculatorPage() {
           >
             {calc.loading ? "Calculating..." : "Calculate"}
           </Button>
+          {(!material || !operation) && (
+            <p className="text-center text-xs text-slate-400">
+              Select a material and operation to enable calculation
+            </p>
+          )}
         </div>
 
         {/* Right column — results + history */}
@@ -121,6 +126,7 @@ export default function SfcCalculatorPage() {
             result={calc.data}
             loading={calc.loading}
             error={calc.error}
+            imperial={imperial}
           />
 
           {/* Calculation history */}
