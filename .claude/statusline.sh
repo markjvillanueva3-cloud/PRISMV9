@@ -304,7 +304,7 @@ if [ "$DOMAINS_COMPLETED" -eq 0 ]; then
 fi
 
 PERF_COLOR="${BRIGHT_YELLOW}"
-if [[ "$PERF_CURRENT" =~ ^[0-9]+\.[0-9]+x$ ]] && [[ "${PERF_CURRENT%x}" > "2.0" ]]; then
+if [[ "$PERF_CURRENT" =~ ^[0-9]+\.[0-9]+x$ ]] && awk "BEGIN{exit(!(${PERF_CURRENT%x} > 2.0))}"; then
   PERF_COLOR="${BRIGHT_GREEN}"
 fi
 
