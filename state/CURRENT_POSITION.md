@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS8 COMPLETE, QA-MS9 next
+**Phase:** QA Audit Track -- QA-MS0-MS9 COMPLETE, QA-MS10 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS9 (Infrastructure Dispatchers) -- not started
-**Next:** QA-MS9-U00 -> U01 -> U02 -> U03 -> U04 -> U05 -> U06
+**Active:** QA-MS10 (Manufacturing Engines) -- not started
+**Next:** QA-MS10-U00 -> U01 -> U02 -> U03 -> U04 -> U05
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -102,10 +102,23 @@
 - **Key findings:** drilling force orphaned, thread stripping orphaned, toolpath Part1+extended dead code, manus naming misleading, param normalization inconsistent
 - **Composite OQA:** (4.00+4.25+4.00+3.75+4.00)/5*0.8 + test_pass*0.2 = 4.00*0.8 + 1.0 = 4.20 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS9 Infrastructure & Enterprise Dispatchers Results (2026-02-28)
+- **U00 (prism_compliance):** 8 actions (7 distinct), 6 regulatory frameworks (ITAR/FDA/AS9100/ISO13485/SOC2/HIPAA), check_compliance aliases gap_analysis (OQA=4.50 PASS)
+- **U01 (prism_tenant):** 15 actions, namespace isolation + SLB anonymization, 2 MAJOR: promote/quarantine lack tenant auth, config allows unscoped global mutation (OQA=4.00 COND PASS)
+- **U02 (prism_bridge):** 13 actions, 1 CRITICAL: setDispatchHandler() never called — ALL route calls return _simulated:true (OQA=3.75 COND PASS)
+- **U03 (prism_data+context):** 35+26=61 actions, data is read-only via registryManager, context implements 6 Manus Laws (OQA=4.75 PASS)
+- **U04 (prism_session+dev):** 32+9=41 actions, full session lifecycle + compaction recovery + 7 workflow types (OQA=4.75 PASS)
+- **U05 (prism_doc+nl_hook):** 7+8=15 actions, NL-to-hook pipeline with approval workflow (OQA=5.00 PASS)
+- **U06 (Remaining 24 dispatchers):** 263 actions across 24 dispatchers, all engine wiring verified, prism_l2 largest (38), 2 inline-only (grinding/industry) (OQA=5.00 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** Bridge dispatch handler never wired (CRITICAL), tenant auth gap on pattern ops, appendFileSync not covered by atomic write sweep (3 files)
+- **Composite OQA:** (4.50+4.00+3.75+4.75+4.75+5.00+5.00)/7*0.8 + test_pass*0.2 = 4.54*0.8 + 1.0 = 4.63 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 48 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS8)
+- Complete: 49 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS9)
 - In Progress: 0
-- Not Started: 32 milestones (QA-MS9-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 31 milestones (QA-MS10-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -119,7 +132,7 @@
 | QA-MS6 | Intelligence Mega-Dispatcher | 8 | **COMPLETE** (shop_schedule conflict, OQA=4.95) |
 | QA-MS7 | Registry & Data Quality | 7 | **COMPLETE** (ToolRegistry dup handling, no TTL, OQA=4.74) |
 | QA-MS8 | Manufacturing Dispatchers | 5 | **COMPLETE** (drilling/stripping orphaned, toolpath dead code, OQA=4.20) |
-| QA-MS9 | Infrastructure Dispatchers | 7 | not started |
+| QA-MS9 | Infrastructure Dispatchers | 7 | **COMPLETE** (bridge CRITICAL, tenant auth gap, OQA=4.63) |
 | QA-MS10 | Manufacturing Engines | 6 | not started |
 | QA-MS11 | Intelligence Engines | 6 | not started |
 | QA-MS12 | Hook & Orchestration | 5 | not started |

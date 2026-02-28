@@ -1,0 +1,96 @@
+{
+  "unit": "QA-MS9-U03",
+  "title": "prism_data + prism_context Pipeline Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T12:00:00Z",
+  "status": "PASS",
+  "scope": "dataDispatcher.ts (35 actions) + contextDispatcher.ts (26 actions)",
+  "dispatchers": [
+    {
+      "name": "prism_data",
+      "file": "src/tools/dispatchers/dataDispatcher.ts",
+      "action_count": 35,
+      "nature": "Pure read+compute dispatcher — NO write/create/delete/import/export",
+      "domains": [
+        "material(4)",
+        "machine(3)",
+        "tool(5)",
+        "alarm(3)",
+        "formula(2)",
+        "coolant(3)",
+        "coating(3)",
+        "workholding(2)",
+        "insert(2)",
+        "cross_domain(3)",
+        "meta(3)",
+        "compute(2)"
+      ],
+      "engine": "registryManager exclusively (8 sub-registries)",
+      "key_finding": "Header comment says '27 actions' but actual count is 35 (8-action undercount)"
+    },
+    {
+      "name": "prism_context",
+      "file": "src/tools/dispatchers/contextDispatcher.ts",
+      "action_count": 26,
+      "nature": "Context engineering dispatcher — KV stability, tool masking, memory, teams, budget, attention",
+      "groups": [
+        "kv_cache(2)",
+        "tool_lifecycle(1)",
+        "memory(2)",
+        "todo(2)",
+        "error(2)",
+        "anti_mimicry(1)",
+        "teams(4)",
+        "budget(4)",
+        "context_intelligence(4)",
+        "catalog(4)"
+      ],
+      "engines": [
+        "ContextBudgetEngine",
+        "SourceCatalogAggregator",
+        "4 Python scripts (attention/focus/relevance/monitor)",
+        "filesystem direct"
+      ],
+      "key_finding": "Embodies '6 Manus Laws' of context engineering — each action cites governing law in response"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "prism_data provides comprehensive read access across 8 domain registries with cross-domain queries"
+    },
+    {
+      "severity": "OK",
+      "finding": "prism_context implements 10 distinct context management capabilities including multi-agent teams"
+    },
+    {
+      "severity": "OK",
+      "finding": "Pressure-aware response slimming in prism_data (slimResponse based on getCurrentPressurePct)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "prism_data header comment says 27 actions, actual is 35"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Python D2 scripts use temp files for content passing — small I/O race window"
+    },
+    {
+      "severity": "INFO",
+      "finding": "prism_data is read-only — no write paths. All mutations go through domain-specific dispatchers."
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_data_actions_inventoried": true,
+    "data_flow_documented": true,
+    "context_lifecycle_verified": true
+  }
+}

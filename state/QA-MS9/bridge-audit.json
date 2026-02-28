@@ -1,0 +1,76 @@
+{
+  "unit": "QA-MS9-U02",
+  "title": "prism_bridge External Integration Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T12:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "bridgeDispatcher.ts — 13 actions, ProtocolBridgeEngine, protocol gateway",
+  "file": "src/tools/dispatchers/bridgeDispatcher.ts",
+  "action_count": 13,
+  "actions": [
+    "register_endpoint",
+    "remove_endpoint",
+    "set_status",
+    "list_endpoints",
+    "create_key",
+    "revoke_key",
+    "validate_key",
+    "list_keys",
+    "route",
+    "route_map",
+    "health",
+    "stats",
+    "config"
+  ],
+  "engine": "ProtocolBridgeEngine (singleton)",
+  "protocols_supported": [
+    "rest",
+    "grpc",
+    "graphql",
+    "websocket"
+  ],
+  "security": {
+    "api_key_management": "create/revoke/validate with SHA-256 hashing, scope-based access, rate limiting",
+    "input_sanitization": "DANGEROUS regex blocks injection chars, path traversal, null bytes",
+    "key_storage": "In-memory Map with key_hash (not raw key), list_keys strips hash from output"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Protocol gateway with API key management, input sanitization, and rate limiting"
+    },
+    {
+      "severity": "OK",
+      "finding": "DANGEROUS regex blocks injection chars (;|&`$\\<>{}), path traversal (..), and null bytes"
+    },
+    {
+      "severity": "CRITICAL",
+      "finding": "setDispatchHandler() NEVER called anywhere in codebase — ALL route calls return _simulated:true. Bridge cannot route real requests."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "health.uptime_ms is Date.now() (timestamp) not actual uptime duration — semantically wrong"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "No circuit breaker or retry on dispatch failures — high-frequency errors increment counter silently"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "appendFileSync on request_log.jsonl (not covered by atomic write sweep)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 4,
+    "composite": "3.75",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "external_integration_documented": true,
+    "error_handling_verified": true
+  }
+}

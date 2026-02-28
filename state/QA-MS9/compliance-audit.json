@@ -1,0 +1,99 @@
+{
+  "unit": "QA-MS9-U00",
+  "title": "prism_compliance Dispatcher Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T12:00:00Z",
+  "status": "PASS",
+  "scope": "complianceDispatcher.ts — 8 actions (7 distinct behaviors), ComplianceEngine",
+  "file": "src/tools/dispatchers/complianceDispatcher.ts",
+  "action_count": 8,
+  "actions": [
+    "apply_template",
+    "remove_template",
+    "list_templates",
+    "audit_status",
+    "check_compliance",
+    "resolve_conflicts",
+    "gap_analysis",
+    "config"
+  ],
+  "engine": "ComplianceEngine (singleton)",
+  "regulatory_standards": {
+    "ISO_13485": {
+      "template": "iso_13485_v2016",
+      "scope": "Medical Devices QMS",
+      "strictness": 2,
+      "retain_days": 365
+    },
+    "AS9100": {
+      "template": "as9100_rev_d",
+      "scope": "Aerospace QMS",
+      "strictness": 3,
+      "retain_days": 730
+    },
+    "ITAR": {
+      "template": "itar_22cfr",
+      "scope": "Export Control (22 CFR 120-130)",
+      "strictness": 1,
+      "retain_days": 1825
+    },
+    "SOC2": {
+      "template": "soc2_type2",
+      "scope": "Trust Services",
+      "strictness": 5,
+      "retain_days": 365
+    },
+    "HIPAA": {
+      "template": "hipaa_security",
+      "scope": "Security Rule",
+      "strictness": 4,
+      "retain_days": 2190
+    },
+    "FDA_21CFR11": {
+      "template": "fda_21cfr11",
+      "scope": "Electronic Records",
+      "strictness": 1,
+      "retain_days": 2555
+    },
+    "NOT_COVERED": [
+      "ISO 9001",
+      "OSHA",
+      "IATF 16949"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "6 regulatory frameworks with structured templates, strictness ranking, and retention policies"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "check_compliance aliases gap_analysis — same engine method, 8 declared but 7 distinct behaviors"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Audit hook check uses some() — if ANY hook alive, ALL requirements with hook_spec pass. Per-requirement mapping lost."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "appendFileSync on audit log (not covered by atomic write sweep) — risk for FDA/ITAR immutable audit trails"
+    },
+    {
+      "severity": "INFO",
+      "finding": "ISO 9001 and OSHA not covered — scope is advanced compliance only"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 5,
+    "composite": "4.50",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "regulatory_coverage_documented": true,
+    "engine_wiring_verified": true
+  }
+}
