@@ -1,0 +1,575 @@
+{
+  "unit": "QA-MS6-U00",
+  "title": "prism_intelligence Action Inventory",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T08:00:00Z",
+  "status": "PASS",
+  "action_count": {
+    "array_entries": 251,
+    "unique_actions": 250,
+    "duplicate": "shop_schedule (in both SCHEDULER_ACTIONS and SHOP_ACTIONS)",
+    "envelope_claimed": 238,
+    "delta": "+12 (5.0% undercount in envelope)"
+  },
+  "dispatcher": {
+    "file": "src/tools/dispatchers/intelligenceDispatcher.ts",
+    "lines": 1227,
+    "lazy_loaded_engines": 31,
+    "inline_handlers": 1,
+    "total_engine_bindings": 32
+  },
+  "action_groups": [
+    {
+      "group": "core_intelligence",
+      "engine": "IntelligenceEngine",
+      "lines": 2564,
+      "count": 11,
+      "actions": [
+        "job_plan",
+        "setup_sheet",
+        "process_cost",
+        "material_recommend",
+        "tool_recommend",
+        "machine_recommend",
+        "what_if",
+        "failure_diagnose",
+        "parameter_optimize",
+        "cycle_time_estimate",
+        "quality_predict"
+      ]
+    },
+    {
+      "group": "job_learning",
+      "engine": "JobLearningEngine",
+      "count": 2,
+      "actions": [
+        "job_record",
+        "job_insights"
+      ]
+    },
+    {
+      "group": "algorithm_gateway",
+      "engine": "AlgorithmGatewayEngine",
+      "count": 1,
+      "actions": [
+        "algorithm_select"
+      ]
+    },
+    {
+      "group": "shop_scheduler",
+      "engine": "ShopSchedulerEngine",
+      "count": 2,
+      "actions": [
+        "shop_schedule",
+        "machine_utilization"
+      ],
+      "note": "shop_schedule is DEAD here -- SHOP_ACTIONS checked first in routing chain"
+    },
+    {
+      "group": "intent_decomposition",
+      "engine": "IntentDecompositionEngine",
+      "lines": 692,
+      "count": 1,
+      "actions": [
+        "decompose_intent"
+      ]
+    },
+    {
+      "group": "response_formatter",
+      "engine": "ResponseFormatterEngine",
+      "lines": 676,
+      "count": 1,
+      "actions": [
+        "format_response"
+      ]
+    },
+    {
+      "group": "workflow_chains",
+      "engine": "WorkflowChainsEngine",
+      "lines": 478,
+      "count": 3,
+      "actions": [
+        "workflow_match",
+        "workflow_get",
+        "workflow_list"
+      ]
+    },
+    {
+      "group": "onboarding",
+      "engine": "OnboardingEngine",
+      "lines": 265,
+      "count": 5,
+      "actions": [
+        "onboarding_welcome",
+        "onboarding_state",
+        "onboarding_record",
+        "onboarding_suggestion",
+        "onboarding_reset"
+      ]
+    },
+    {
+      "group": "setup_sheet",
+      "engine": "SetupSheetEngine",
+      "lines": 566,
+      "count": 2,
+      "actions": [
+        "setup_sheet_format",
+        "setup_sheet_template"
+      ]
+    },
+    {
+      "group": "conversational_memory",
+      "engine": "ConversationalMemoryEngine",
+      "lines": 453,
+      "count": 8,
+      "actions": [
+        "conversation_context",
+        "conversation_transition",
+        "job_start",
+        "job_update",
+        "job_find",
+        "job_resume",
+        "job_complete",
+        "job_list_recent"
+      ]
+    },
+    {
+      "group": "user_workflow_skills",
+      "engine": "UserWorkflowSkillsEngine",
+      "lines": 606,
+      "count": 6,
+      "actions": [
+        "skill_list",
+        "skill_get",
+        "skill_search",
+        "skill_match",
+        "skill_steps",
+        "skill_for_persona"
+      ]
+    },
+    {
+      "group": "user_assistance",
+      "engine": "UserAssistanceSkillsEngine",
+      "lines": 541,
+      "count": 8,
+      "actions": [
+        "assist_list",
+        "assist_get",
+        "assist_search",
+        "assist_match",
+        "assist_explain",
+        "assist_confidence",
+        "assist_mistakes",
+        "assist_safety"
+      ]
+    },
+    {
+      "group": "machine_connectivity",
+      "engine": "MachineConnectivityEngine",
+      "lines": 809,
+      "count": 16,
+      "actions": [
+        "machine_register",
+        "machine_unregister",
+        "machine_list",
+        "machine_connect",
+        "machine_disconnect",
+        "machine_live_status",
+        "machine_all_status",
+        "machine_ingest",
+        "chatter_detect_live",
+        "tool_wear_start",
+        "tool_wear_update",
+        "tool_wear_status",
+        "thermal_update",
+        "thermal_status",
+        "alert_acknowledge",
+        "alert_history"
+      ]
+    },
+    {
+      "group": "cam_integration",
+      "engine": "CAMIntegrationEngine",
+      "lines": 1230,
+      "count": 6,
+      "actions": [
+        "cam_recommend",
+        "cam_export",
+        "cam_analyze_op",
+        "cam_tool_library",
+        "cam_tool_get",
+        "cam_systems"
+      ]
+    },
+    {
+      "group": "dnc_transfer",
+      "engine": "DNCTransferEngine",
+      "lines": 518,
+      "count": 8,
+      "actions": [
+        "dnc_generate",
+        "dnc_send",
+        "dnc_compare",
+        "dnc_verify",
+        "dnc_qr",
+        "dnc_systems",
+        "dnc_history",
+        "dnc_get"
+      ]
+    },
+    {
+      "group": "mobile_interface",
+      "engine": "MobileInterfaceEngine",
+      "lines": 396,
+      "count": 8,
+      "actions": [
+        "mobile_lookup",
+        "mobile_voice",
+        "mobile_alarm",
+        "mobile_timer_start",
+        "mobile_timer_check",
+        "mobile_timer_reset",
+        "mobile_timer_list",
+        "mobile_cache"
+      ]
+    },
+    {
+      "group": "erp_integration",
+      "engine": "ERPIntegrationEngine",
+      "lines": 592,
+      "count": 10,
+      "actions": [
+        "erp_import_wo",
+        "erp_get_plan",
+        "erp_cost_feedback",
+        "erp_cost_history",
+        "erp_quality_import",
+        "erp_quality_history",
+        "erp_tool_inventory",
+        "erp_tool_update",
+        "erp_systems",
+        "erp_wo_list"
+      ]
+    },
+    {
+      "group": "measurement",
+      "engine": "MeasurementIntegrationEngine",
+      "lines": 562,
+      "count": 10,
+      "actions": [
+        "measure_cmm_import",
+        "measure_cmm_history",
+        "measure_cmm_get",
+        "measure_surface",
+        "measure_surface_history",
+        "measure_probe_record",
+        "measure_probe_drift",
+        "measure_probe_history",
+        "measure_bias_detect",
+        "measure_summary"
+      ]
+    },
+    {
+      "group": "inverse_solver",
+      "engine": "InverseSolverEngine",
+      "lines": 741,
+      "count": 8,
+      "actions": [
+        "inverse_solve",
+        "inverse_surface",
+        "inverse_tool_life",
+        "inverse_dimensional",
+        "inverse_chatter",
+        "inverse_troubleshoot",
+        "inverse_history",
+        "inverse_get"
+      ]
+    },
+    {
+      "group": "failure_forensics",
+      "engine": "FailureForensicsEngine",
+      "lines": 527,
+      "count": 10,
+      "actions": [
+        "forensic_tool_autopsy",
+        "forensic_chip_analysis",
+        "forensic_surface_defect",
+        "forensic_crash",
+        "forensic_failure_modes",
+        "forensic_chip_types",
+        "forensic_surface_types",
+        "forensic_crash_types",
+        "forensic_history",
+        "forensic_get"
+      ]
+    },
+    {
+      "group": "apprentice",
+      "engine": "ApprenticeEngine",
+      "lines": 621,
+      "count": 10,
+      "actions": [
+        "apprentice_explain",
+        "apprentice_lesson",
+        "apprentice_lessons",
+        "apprentice_assess",
+        "apprentice_capture",
+        "apprentice_knowledge",
+        "apprentice_challenge",
+        "apprentice_materials",
+        "apprentice_history",
+        "apprentice_get"
+      ]
+    },
+    {
+      "group": "manufacturing_genome",
+      "engine": "ManufacturingGenomeEngine",
+      "lines": 445,
+      "count": 10,
+      "actions": [
+        "genome_lookup",
+        "genome_predict",
+        "genome_similar",
+        "genome_compare",
+        "genome_list",
+        "genome_fingerprint",
+        "genome_behavioral",
+        "genome_search",
+        "genome_history",
+        "genome_get"
+      ]
+    },
+    {
+      "group": "predictive_maintenance",
+      "engine": "PredictiveMaintenanceEngine",
+      "lines": 739,
+      "count": 10,
+      "actions": [
+        "maint_analyze",
+        "maint_trend",
+        "maint_predict",
+        "maint_schedule",
+        "maint_models",
+        "maint_thresholds",
+        "maint_alerts",
+        "maint_status",
+        "maint_history",
+        "maint_get"
+      ]
+    },
+    {
+      "group": "sustainability",
+      "engine": "SustainabilityEngine",
+      "lines": 862,
+      "count": 10,
+      "actions": [
+        "sustain_optimize",
+        "sustain_compare",
+        "sustain_energy",
+        "sustain_carbon",
+        "sustain_coolant",
+        "sustain_nearnet",
+        "sustain_report",
+        "sustain_materials",
+        "sustain_history",
+        "sustain_get"
+      ]
+    },
+    {
+      "group": "generative_process",
+      "engine": "GenerativeProcessEngine",
+      "lines": 1147,
+      "count": 10,
+      "actions": [
+        "genplan_plan",
+        "genplan_features",
+        "genplan_setups",
+        "genplan_operations",
+        "genplan_optimize",
+        "genplan_tools",
+        "genplan_cycle",
+        "genplan_cost",
+        "genplan_risk",
+        "genplan_get"
+      ]
+    },
+    {
+      "group": "knowledge_graph",
+      "engine": "KnowledgeGraphEngine",
+      "lines": 919,
+      "count": 10,
+      "actions": [
+        "graph_query",
+        "graph_infer",
+        "graph_discover",
+        "graph_predict",
+        "graph_traverse",
+        "graph_add",
+        "graph_search",
+        "graph_stats",
+        "graph_history",
+        "graph_get"
+      ]
+    },
+    {
+      "group": "federated_learning",
+      "engine": "FederatedLearningEngine",
+      "lines": 826,
+      "count": 10,
+      "actions": [
+        "learn_contribute",
+        "learn_query",
+        "learn_aggregate",
+        "learn_anonymize",
+        "learn_network_stats",
+        "learn_opt_control",
+        "learn_correction",
+        "learn_transparency",
+        "learn_history",
+        "learn_get"
+      ]
+    },
+    {
+      "group": "adaptive_control",
+      "engine": "AdaptiveControlEngine",
+      "lines": 672,
+      "count": 10,
+      "actions": [
+        "adaptive_chipload",
+        "adaptive_chatter",
+        "adaptive_wear",
+        "adaptive_thermal",
+        "adaptive_override",
+        "adaptive_status",
+        "adaptive_config",
+        "adaptive_log",
+        "adaptive_history",
+        "adaptive_get"
+      ]
+    },
+    {
+      "group": "sfc_product",
+      "engine": "ProductEngine.productSFC",
+      "lines": 2590,
+      "count": 10,
+      "actions": [
+        "sfc_calculate",
+        "sfc_compare",
+        "sfc_optimize",
+        "sfc_quick",
+        "sfc_materials",
+        "sfc_tools",
+        "sfc_formulas",
+        "sfc_safety",
+        "sfc_history",
+        "sfc_get"
+      ]
+    },
+    {
+      "group": "ppg_product",
+      "engine": "ProductEngine.productPPG",
+      "count": 10,
+      "actions": [
+        "ppg_validate",
+        "ppg_translate",
+        "ppg_templates",
+        "ppg_generate",
+        "ppg_controllers",
+        "ppg_compare",
+        "ppg_syntax",
+        "ppg_batch",
+        "ppg_history",
+        "ppg_get"
+      ]
+    },
+    {
+      "group": "shop_manager",
+      "engine": "ProductEngine.productShop",
+      "count": 10,
+      "actions": [
+        "shop_job",
+        "shop_cost",
+        "shop_quote",
+        "shop_schedule",
+        "shop_dashboard",
+        "shop_report",
+        "shop_compare",
+        "shop_materials",
+        "shop_history",
+        "shop_get"
+      ]
+    },
+    {
+      "group": "acnc_product",
+      "engine": "ProductEngine.productACNC",
+      "count": 10,
+      "actions": [
+        "acnc_program",
+        "acnc_feature",
+        "acnc_simulate",
+        "acnc_output",
+        "acnc_tools",
+        "acnc_strategy",
+        "acnc_validate",
+        "acnc_batch",
+        "acnc_history",
+        "acnc_get"
+      ]
+    },
+    {
+      "group": "l3_industry_4_0",
+      "engine": "inline l3IndustryAction",
+      "count": 4,
+      "actions": [
+        "tool_crib_status",
+        "digital_twin_state",
+        "predictive_maintenance_alert",
+        "energy_report"
+      ],
+      "note": "Inline handler returns synthetic/demo data"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "All 250 unique actions mapped to handler engines with lazy loading"
+    },
+    {
+      "severity": "OK",
+      "finding": "Every action has extractKeyValues case for response slimming (970 lines of extractor logic)"
+    },
+    {
+      "severity": "OK",
+      "finding": "Pre/post hook integration via hookExecutor for all actions"
+    },
+    {
+      "severity": "OK",
+      "finding": "Context-pressure-aware response slimming at >50% pressure"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "shop_schedule routing conflict: in both SCHEDULER_ACTIONS (->ShopSchedulerEngine) and SHOP_ACTIONS (->ProductEngine.productShop). SHOP_ACTIONS checked first, so ShopSchedulerEngine.shop_schedule is unreachable dead code"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "L3 Industry 4.0 actions (4) return synthetic data from inline function, not backed by dedicated engine"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Actual count 250 vs envelope 238 (+5% undercount)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "complete_action_list": true,
+    "exact_count_verified": true,
+    "handler_methods_identified": true
+  }
+}

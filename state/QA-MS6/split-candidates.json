@@ -1,0 +1,182 @@
+{
+  "unit": "QA-MS6-U02",
+  "title": "Dispatcher Split Candidates",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T08:20:00Z",
+  "status": "PASS",
+  "current_state": {
+    "dispatcher": "prism_intelligence",
+    "actions": 250,
+    "file_lines": 1227,
+    "engines": 31,
+    "problem": "Single 1227-line dispatcher routing 250 actions to 31 engines is a maintenance bottleneck and cognitive overload"
+  },
+  "split_candidates": [
+    {
+      "proposed_name": "prism_product",
+      "actions": 40,
+      "groups": [
+        "sfc_product(10)",
+        "ppg_product(10)",
+        "shop_manager(10)",
+        "acnc_product(10)"
+      ],
+      "engines": [
+        "ProductEngine (4 variants)"
+      ],
+      "priority": "HIGH",
+      "complexity": "LOW",
+      "rationale": "Single engine with 4 clear variants, already has separate UI routes, zero cross-dependencies",
+      "migration_risk": "LOW -- all 40 actions self-contained in ProductEngine"
+    },
+    {
+      "proposed_name": "prism_machine_live",
+      "actions": 40,
+      "groups": [
+        "machine_connectivity(16)",
+        "adaptive_control(10)",
+        "predictive_maintenance(10)",
+        "l3_industry_4_0(4)"
+      ],
+      "engines": [
+        "MachineConnectivityEngine",
+        "AdaptiveControlEngine",
+        "PredictiveMaintenanceEngine",
+        "inline l3IndustryAction"
+      ],
+      "priority": "HIGH",
+      "complexity": "LOW",
+      "rationale": "IoT/real-time subsystem -- live machine state, sensor feedback, maintenance. Natural boundary.",
+      "migration_risk": "LOW -- engines are independent, no cross-references to other intelligence actions"
+    },
+    {
+      "proposed_name": "prism_integration",
+      "actions": 42,
+      "groups": [
+        "cam_integration(6)",
+        "dnc_transfer(8)",
+        "erp_integration(10)",
+        "measurement(10)",
+        "mobile_interface(8)"
+      ],
+      "engines": [
+        "CAMIntegrationEngine",
+        "DNCTransferEngine",
+        "ERPIntegrationEngine",
+        "MeasurementIntegrationEngine",
+        "MobileInterfaceEngine"
+      ],
+      "priority": "MEDIUM",
+      "complexity": "LOW",
+      "rationale": "5 external system integrations. Each engine is independent. Could split further (prism_cam, prism_erp, etc.) but grouping reduces dispatcher count.",
+      "migration_risk": "LOW -- each engine is self-contained"
+    },
+    {
+      "proposed_name": "prism_knowledge",
+      "actions": 40,
+      "groups": [
+        "knowledge_graph(10)",
+        "federated_learning(10)",
+        "apprentice(10)",
+        "manufacturing_genome(10)"
+      ],
+      "engines": [
+        "KnowledgeGraphEngine",
+        "FederatedLearningEngine",
+        "ApprenticeEngine",
+        "ManufacturingGenomeEngine"
+      ],
+      "priority": "MEDIUM",
+      "complexity": "LOW",
+      "rationale": "Knowledge management subsystem. Note: prism_knowledge (knowledgeDispatcher) already exists with 14 actions -- would need merge or rename.",
+      "migration_risk": "MEDIUM -- existing knowledgeDispatcher overlap needs resolution"
+    },
+    {
+      "proposed_name": "prism_diagnosis",
+      "actions": 38,
+      "groups": [
+        "inverse_solver(8)",
+        "failure_forensics(10)",
+        "sustainability(10)",
+        "generative_process(10)"
+      ],
+      "engines": [
+        "InverseSolverEngine",
+        "FailureForensicsEngine",
+        "SustainabilityEngine",
+        "GenerativeProcessEngine"
+      ],
+      "priority": "LOW",
+      "complexity": "LOW",
+      "rationale": "Analysis engines that solve inverse problems, diagnose failures, optimize sustainability, and generate process plans.",
+      "migration_risk": "LOW -- engines are independent"
+    }
+  ],
+  "keep_in_prism_intelligence": {
+    "actions": 50,
+    "groups": [
+      "core_intelligence(11)",
+      "conversational_memory(8)",
+      "onboarding(5)",
+      "setup_sheet(2)",
+      "user_workflow_skills(6)",
+      "user_assistance(8)",
+      "intent_decomposition(1)",
+      "response_formatter(1)",
+      "workflow_chains(3)",
+      "job_learning(2)",
+      "algorithm_gateway(1)",
+      "shop_scheduler(2)"
+    ],
+    "rationale": "Core orchestration + UX/conversation + small utility groups. 50 actions is manageable for a single dispatcher."
+  },
+  "migration_summary": {
+    "before": {
+      "dispatchers": 1,
+      "actions": 250,
+      "file_lines": 1227
+    },
+    "after": {
+      "dispatchers": 6,
+      "actions_per_dispatcher": "11-50",
+      "avg_file_lines": "~200"
+    },
+    "backward_compatible": true,
+    "strategy": "Create new dispatchers, move action groups, add deprecation aliases in prism_intelligence that forward to new dispatchers"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "5 clean split candidates identified totaling 200 actions"
+    },
+    {
+      "severity": "OK",
+      "finding": "Remaining 50 actions form coherent core intelligence dispatcher"
+    },
+    {
+      "severity": "OK",
+      "finding": "All splits are LOW complexity -- engines are already self-contained"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Existing knowledgeDispatcher (14 actions) overlaps with proposed prism_knowledge split -- needs merge strategy"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Could split further (prism_cam, prism_erp, prism_measure as separate dispatchers) but 6 dispatchers is good balance"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "split_candidates_identified": true,
+    "proposed_dispatcher_names": true,
+    "migration_complexity_estimated": true
+  }
+}

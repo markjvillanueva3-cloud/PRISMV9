@@ -1,0 +1,225 @@
+{
+  "unit": "QA-MS6-U07",
+  "title": "Mega-Dispatcher Decomposition Refactoring Plan",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T09:10:00Z",
+  "status": "PASS",
+  "current_architecture": {
+    "dispatcher": "prism_intelligence",
+    "actions": 250,
+    "engines": 31,
+    "file_lines": 1227,
+    "problems": [
+      "1227-line single file is maintenance bottleneck",
+      "250 actions in one z.enum() creates large schema payload",
+      "970 lines of extractKeyValues switch cases",
+      "Cognitive overload for developers",
+      "shop_schedule routing conflict (dead code path)",
+      "4 inline L3 Industry actions not backed by engine"
+    ]
+  },
+  "target_architecture": {
+    "dispatchers": [
+      {
+        "name": "prism_intelligence",
+        "actions": 50,
+        "role": "Core orchestration + UX/conversation",
+        "groups": [
+          "core_intelligence(11)",
+          "conversational_memory(8)",
+          "onboarding(5)",
+          "setup_sheet(2)",
+          "user_workflow_skills(6)",
+          "user_assistance(8)",
+          "intent_decomposition(1)",
+          "response_formatter(1)",
+          "workflow_chains(3)",
+          "job_learning(2)",
+          "algorithm_gateway(1)",
+          "shop_scheduler(2)"
+        ]
+      },
+      {
+        "name": "prism_product",
+        "actions": 40,
+        "role": "4 product tiers (SFC/PPG/Shop/ACNC)",
+        "groups": [
+          "sfc_product(10)",
+          "ppg_product(10)",
+          "shop_manager(10)",
+          "acnc_product(10)"
+        ]
+      },
+      {
+        "name": "prism_machine_live",
+        "actions": 40,
+        "role": "Real-time machine monitoring & control",
+        "groups": [
+          "machine_connectivity(16)",
+          "adaptive_control(10)",
+          "predictive_maintenance(10)",
+          "l3_industry_4_0(4)"
+        ]
+      },
+      {
+        "name": "prism_integration",
+        "actions": 42,
+        "role": "External system integrations",
+        "groups": [
+          "cam_integration(6)",
+          "dnc_transfer(8)",
+          "erp_integration(10)",
+          "measurement(10)",
+          "mobile_interface(8)"
+        ]
+      },
+      {
+        "name": "prism_knowledge_ext",
+        "actions": 40,
+        "role": "Knowledge management subsystem",
+        "groups": [
+          "knowledge_graph(10)",
+          "federated_learning(10)",
+          "apprentice(10)",
+          "manufacturing_genome(10)"
+        ],
+        "note": "Named _ext to avoid conflict with existing knowledgeDispatcher"
+      },
+      {
+        "name": "prism_diagnosis",
+        "actions": 38,
+        "role": "Analysis & diagnostic engines",
+        "groups": [
+          "inverse_solver(8)",
+          "failure_forensics(10)",
+          "sustainability(10)",
+          "generative_process(10)"
+        ]
+      }
+    ],
+    "total_dispatchers": 6,
+    "actions_per_dispatcher": "38-50",
+    "estimated_lines_per_file": "200-300"
+  },
+  "migration_sequence": [
+    {
+      "step": 1,
+      "action": "Create prism_product dispatcher",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Extract 40 product actions + extractKeyValues to new file. Single engine (ProductEngine). No cross-dependencies.",
+      "estimated_effort": "1 session"
+    },
+    {
+      "step": 2,
+      "action": "Create prism_machine_live dispatcher",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Extract 40 monitoring actions. Move l3IndustryAction inline handler to PredictiveMaintenanceEngine.",
+      "estimated_effort": "1 session"
+    },
+    {
+      "step": 3,
+      "action": "Create prism_integration dispatcher",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Extract 42 integration actions. 5 independent engines, no cross-references.",
+      "estimated_effort": "1 session"
+    },
+    {
+      "step": 4,
+      "action": "Create prism_knowledge_ext dispatcher",
+      "complexity": "MEDIUM",
+      "risk": "MEDIUM",
+      "details": "Extract 40 knowledge actions. Resolve naming with existing knowledgeDispatcher (14 actions). Options: merge or keep separate.",
+      "estimated_effort": "1 session"
+    },
+    {
+      "step": 5,
+      "action": "Create prism_diagnosis dispatcher",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Extract 38 analysis actions. 4 independent engines.",
+      "estimated_effort": "1 session"
+    },
+    {
+      "step": 6,
+      "action": "Fix shop_schedule conflict + cleanup",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Remove shop_schedule from SCHEDULER_ACTIONS (dead code). Update smoke tests. Update INTEGRATION_MAP.json.",
+      "estimated_effort": "0.5 sessions"
+    },
+    {
+      "step": 7,
+      "action": "Add backward-compat aliases",
+      "complexity": "LOW",
+      "risk": "LOW",
+      "details": "Keep prism_intelligence accepting all 250 actions with deprecation forwarding to new dispatchers. Log warnings for migrated actions.",
+      "estimated_effort": "0.5 sessions"
+    }
+  ],
+  "backward_compatibility": {
+    "strategy": "Deprecation forwarding -- prism_intelligence continues to accept all 250 actions but forwards migrated ones to new dispatchers with deprecation warning",
+    "removal_timeline": "After 2 release cycles, remove forwarding and update all callers",
+    "testing": "Existing smoke tests continue passing throughout migration"
+  },
+  "risk_assessment": {
+    "highest_risk": "Step 4 (knowledge dispatcher naming conflict)",
+    "mitigation": "Use prism_knowledge_ext name to avoid conflict; merge later if desired",
+    "rollback": "Each step is independently reversible via git revert",
+    "total_estimated_effort": "5-6 sessions"
+  },
+  "immediate_fixes": [
+    {
+      "fix": "Remove shop_schedule from SCHEDULER_ACTIONS",
+      "reason": "Dead code -- SHOP_ACTIONS checked first",
+      "effort": "1 line change"
+    },
+    {
+      "fix": "Move l3IndustryAction to PredictiveMaintenanceEngine",
+      "reason": "Inline handler should be in engine",
+      "effort": "~50 lines"
+    },
+    {
+      "fix": "Update envelope count 238 -> 250",
+      "reason": "QA-MS6 envelope undercounts by 12 actions",
+      "effort": "1 line change"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Decomposition plan produces 6 dispatchers with 38-50 actions each (from 1 x 250)"
+    },
+    {
+      "severity": "OK",
+      "finding": "Each migration step is independently reversible"
+    },
+    {
+      "severity": "OK",
+      "finding": "Backward compatibility maintained via deprecation forwarding"
+    },
+    {
+      "severity": "OK",
+      "finding": "Total effort estimated at 5-6 sessions"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Could alternatively keep mega-dispatcher and just fix the 3 immediate issues -- decomposition is OPTIONAL improvement"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "detailed_refactoring_plan": true,
+    "migration_sequence_defined": true,
+    "effort_and_risk_estimated": true
+  }
+}

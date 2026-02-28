@@ -1,0 +1,163 @@
+{
+  "unit": "QA-MS6-U01",
+  "title": "Action Categorization and Decomposition Analysis",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T08:10:00Z",
+  "status": "PASS",
+  "categories": [
+    {
+      "category": "Core Intelligence",
+      "actions": 11,
+      "pct": 4.4,
+      "engines": [
+        "IntelligenceEngine"
+      ],
+      "description": "High-level orchestration: job planning, costing, recommendations, what-if, diagnosis"
+    },
+    {
+      "category": "Knowledge & Learning",
+      "actions": 40,
+      "pct": 16.0,
+      "engines": [
+        "KnowledgeGraphEngine",
+        "FederatedLearningEngine",
+        "ApprenticeEngine",
+        "ManufacturingGenomeEngine"
+      ],
+      "description": "Graph queries, federated corrections, training lessons, genome fingerprints"
+    },
+    {
+      "category": "Products (SFC/PPG/Shop/ACNC)",
+      "actions": 40,
+      "pct": 16.0,
+      "engines": [
+        "ProductEngine (4 variants)"
+      ],
+      "description": "4 product tiers: speed-feed calculator, post-processor, shop manager, auto-CNC"
+    },
+    {
+      "category": "Machine Monitoring & Control",
+      "actions": 40,
+      "pct": 16.0,
+      "engines": [
+        "MachineConnectivityEngine",
+        "AdaptiveControlEngine",
+        "PredictiveMaintenanceEngine",
+        "l3IndustryAction"
+      ],
+      "description": "Live machine state, sensor feedback, maintenance prediction, Industry 4.0"
+    },
+    {
+      "category": "External Integration",
+      "actions": 42,
+      "pct": 16.8,
+      "engines": [
+        "CAMIntegrationEngine",
+        "DNCTransferEngine",
+        "ERPIntegrationEngine",
+        "MeasurementIntegrationEngine",
+        "MobileInterfaceEngine"
+      ],
+      "description": "CAM systems, DNC transfer, ERP work orders, CMM measurement, mobile interface"
+    },
+    {
+      "category": "Analysis & Diagnosis",
+      "actions": 38,
+      "pct": 15.2,
+      "engines": [
+        "InverseSolverEngine",
+        "FailureForensicsEngine",
+        "SustainabilityEngine",
+        "GenerativeProcessEngine"
+      ],
+      "description": "Root cause analysis, failure forensics, sustainability optimization, process generation"
+    },
+    {
+      "category": "UX & Conversation",
+      "actions": 39,
+      "pct": 15.6,
+      "engines": [
+        "ConversationalMemoryEngine",
+        "OnboardingEngine",
+        "SetupSheetEngine",
+        "UserWorkflowSkillsEngine",
+        "UserAssistanceSkillsEngine",
+        "IntentDecompositionEngine",
+        "ResponseFormatterEngine",
+        "WorkflowChainsEngine",
+        "JobLearningEngine",
+        "AlgorithmGatewayEngine",
+        "ShopSchedulerEngine"
+      ],
+      "description": "Conversation state, onboarding, skills, intent parsing, formatting, workflows"
+    }
+  ],
+  "decomposition_boundaries": [
+    {
+      "boundary": "Products",
+      "actions": 40,
+      "rationale": "4 product tiers are self-contained with own ProductEngine variants, already have separate UI routes"
+    },
+    {
+      "boundary": "Machine Monitoring",
+      "actions": 40,
+      "rationale": "Real-time machine state + adaptive control + maintenance forms natural IoT subsystem"
+    },
+    {
+      "boundary": "External Integration",
+      "actions": 42,
+      "rationale": "CAM/DNC/ERP/Measurement/Mobile are 5 distinct external system integrations"
+    },
+    {
+      "boundary": "Knowledge & Learning",
+      "actions": 40,
+      "rationale": "Graph + federated + apprentice + genome form knowledge management subsystem"
+    },
+    {
+      "boundary": "Analysis & Diagnosis",
+      "actions": 38,
+      "rationale": "Inverse solving + forensics + sustainability + generative process share analysis patterns"
+    },
+    {
+      "boundary": "UX & Conversation",
+      "actions": 39,
+      "rationale": "All user interaction, memory, formatting engines -- could split further"
+    },
+    {
+      "boundary": "Core Intelligence",
+      "actions": 11,
+      "rationale": "Keep as prism_intelligence -- the orchestration layer that composes other engines"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "7 natural decomposition boundaries identified with roughly equal sizes (11-42 actions each)"
+    },
+    {
+      "severity": "OK",
+      "finding": "No category depends on another category's internal state -- clean boundaries"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Product actions (40) already have dedicated UI routes, strongest split candidate"
+    },
+    {
+      "severity": "INFO",
+      "finding": "External integration (42) is the largest category -- 5 distinct external systems"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_categorized": true,
+    "category_sizes_calculated": true,
+    "decomposition_boundaries_identified": true
+  }
+}

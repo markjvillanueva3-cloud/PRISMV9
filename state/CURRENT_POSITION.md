@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS5 COMPLETE, QA-MS6 next
+**Phase:** QA Audit Track -- QA-MS0-MS6 COMPLETE, QA-MS7 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS6 (Intelligence Mega-Dispatcher) -- not started
-**Next:** QA-MS6-U00 -> U01 -> U02 -> U03 -> U04 -> U05 -> U06 -> U07
+**Active:** QA-MS7 (Registry & Data Quality) -- not started
+**Next:** QA-MS7-U00 -> U01 -> U02 -> U03 -> U04 -> U05 -> U06
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -65,10 +65,24 @@
 - **Fixes applied:** 0 code changes (all algorithms clean)
 - **Composite OQA:** (5.00+4.60+4.60+4.75+4.75+5.00+4.75+5.00)/8*0.8 + test_pass*0.2 = 4.81*0.8 + 1.0 = 4.85 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS6 Intelligence Mega-Dispatcher Results (2026-02-28)
+- **U00 (Action Inventory):** 250 unique actions (envelope claimed 238), 31 lazy-loaded engines + 1 inline handler, 33 action groups, 1 MAJOR: shop_schedule routing conflict (OQA=4.75 PASS)
+- **U01 (Categorization):** 7 decomposition boundaries identified: Core(11), Knowledge(40), Products(40), Monitoring(40), Integration(42), Analysis(38), UX(39) (OQA=5.00 PASS)
+- **U02 (Split Candidates):** 5 split candidates: prism_product(40), prism_machine_live(40), prism_integration(42), prism_knowledge_ext(40), prism_diagnosis(38). Keep 50 in prism_intelligence. (OQA=5.00 PASS)
+- **U03 (Knowledge Subset):** 40 actions across 4 engines (KnowledgeGraph, FederatedLearning, Apprentice, Genome) -- all real implementations, 0 stubs (OQA=5.00 PASS)
+- **U04 (Memory Subset):** 18 actions across 4 engines (ConversationalMemory, Onboarding, WorkflowChains, JobLearning) -- state machine verified, 0 stubs (OQA=5.00 PASS)
+- **U05 (PFP/Product Subset):** 40 actions across ProductEngine (4 variants: SFC/PPG/Shop/ACNC) -- physics composition verified, tier access control OK (OQA=5.00 PASS)
+- **U06 (Telemetry Subset):** 40 actions across 4 engines (MachineConnectivity, AdaptiveControl, PredictiveMaintenance, L3 Industry) -- 36 real + 4 synthetic demo (OQA=4.75 PASS)
+- **U07 (Refactoring Plan):** 7-step migration from 1x250 to 6x(38-50), backward-compatible via deprecation forwarding, 5-6 sessions estimated (OQA=5.00 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** shop_schedule dead code path, L3 Industry inline handler should migrate to engine, knowledgeDispatcher naming overlap
+- **Composite OQA:** (4.75+5+5+5+5+5+4.75+5)/8*0.8 + test_pass*0.2 = 4.94*0.8 + 1.0 = 4.95 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 45 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5)
+- Complete: 46 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5, QA-MS6)
 - In Progress: 0
-- Not Started: 35 milestones (QA-MS6-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 34 milestones (QA-MS7-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -79,7 +93,7 @@
 | QA-MS3 | Core Calculation Engines | 7 | **COMPLETE** (SpeedFeed fix, 1 code change) |
 | QA-MS4 | Physics Algorithms | 6 | **COMPLETE** (Merchant gap, J-C eps_dot mismatch, 1 code fix) |
 | QA-MS5 | Optimization & ML | 8 | **COMPLETE** (0 code fixes, OQA=4.85) |
-| QA-MS6 | Intelligence Mega-Dispatcher | 8 | not started |
+| QA-MS6 | Intelligence Mega-Dispatcher | 8 | **COMPLETE** (shop_schedule conflict, OQA=4.95) |
 | QA-MS7 | Registry & Data Quality | 7 | not started |
 | QA-MS8 | Manufacturing Dispatchers | 5 | not started |
 | QA-MS9 | Infrastructure Dispatchers | 7 | not started |

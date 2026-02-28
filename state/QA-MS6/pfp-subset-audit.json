@@ -1,0 +1,111 @@
+{
+  "unit": "QA-MS6-U05",
+  "title": "PFP/Product Engine Action Subset Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T08:50:00Z",
+  "status": "PASS",
+  "scope": "40 product actions across 4 ProductEngine variants",
+  "engines_audited": [
+    {
+      "engine": "ProductEngine.productSFC",
+      "file": "src/engines/ProductEngine.ts",
+      "lines": 2590,
+      "actions": 10,
+      "implementation": "REAL -- composes ManufacturingCalculations (SpeedFeed, Kienzle, Taylor) with safety scoring",
+      "key_features": [
+        "sfcCalculate() calls real physics engines",
+        "sfcCompare() multi-approach comparison",
+        "sfcOptimize() parameter optimization",
+        "sfcQuick() simplified mode",
+        "Tier-based filtering (free/pro/enterprise)"
+      ],
+      "dead_actions": [],
+      "quality": "HIGHEST -- real physics composition"
+    },
+    {
+      "engine": "ProductEngine.productPPG",
+      "actions": 10,
+      "implementation": "REAL -- G-code post-processor with controller-specific templates",
+      "key_features": [
+        "ppg_validate() syntax checking",
+        "ppg_translate() cross-controller translation",
+        "ppg_generate() from parameters",
+        "ppg_batch() multi-target generation",
+        "6+ controller families supported"
+      ],
+      "dead_actions": [],
+      "quality": "HIGH"
+    },
+    {
+      "engine": "ProductEngine.productShop",
+      "actions": 10,
+      "implementation": "REAL -- job planning, costing, quoting, scheduling, dashboard, reporting",
+      "key_features": [
+        "shop_job() full job composition",
+        "shop_cost() per-part costing",
+        "shop_quote() quote generation with markup",
+        "shop_dashboard() fleet summary",
+        "shop_report() sustainability metrics"
+      ],
+      "dead_actions": [],
+      "quality": "HIGH"
+    },
+    {
+      "engine": "ProductEngine.productACNC",
+      "actions": 10,
+      "implementation": "REAL -- automated CNC programming from part features",
+      "key_features": [
+        "acnc_program() feature-to-gcode pipeline",
+        "acnc_feature() feature recognition",
+        "acnc_simulate() cycle time estimation",
+        "acnc_strategy() machining strategy selection",
+        "acnc_validate() program verification"
+      ],
+      "dead_actions": [],
+      "quality": "HIGH"
+    }
+  ],
+  "cross_references": {
+    "note": "ProductEngine composes 6+ sub-engines: ManufacturingCalculations, AdvancedCalculations, ToolpathCalculations, GCodeTemplateEngine, DNCTransferEngine, DecisionTreeEngine",
+    "business_catalog": "BUSINESS_SOURCE_FILE_CATALOG maps 19 extracted JS business files with safety classes (CRITICAL/HIGH/MEDIUM/LOW)"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "All 40 product actions route to real implementations with physics-backed calculations"
+    },
+    {
+      "severity": "OK",
+      "finding": "ProductEngine correctly composes 6+ dependent engines for full manufacturing pipeline"
+    },
+    {
+      "severity": "OK",
+      "finding": "All 4 product variants maintain history tracking (sfc_history, ppg_history, shop_history, acnc_history)"
+    },
+    {
+      "severity": "OK",
+      "finding": "Tier-based access control (free/pro/enterprise) properly implemented"
+    },
+    {
+      "severity": "INFO",
+      "finding": "ProductEngine at 2590 lines is the largest single engine file -- could benefit from splitting into 4 files"
+    },
+    {
+      "severity": "INFO",
+      "finding": "shop_schedule in ProductEngine.productShop shadows ShopSchedulerEngine.shop_schedule (confirmed in U00)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_pfp_actions_audited": true,
+    "engine_method_coverage_verified": true,
+    "dead_or_duplicate_actions_identified": true
+  }
+}
