@@ -1462,6 +1462,42 @@ def _build_comp_lookup():
         "F91": "F91",
         "C93200": "C93200", "C18150": "C18150", "C97600": "C97600",
         "RAMOR600": "Ramor600",
+        # Round 5
+        "HY-80": "HY-80", "HY-100": "HY-100", "HY-130": "HY-130",
+        "HP9-4-30": "HP9-4-30", "HP 9-4-30": "HP9-4-30",
+        "FERRIUMS53": "FerriumS53", "FERRIUM S53": "FerriumS53",
+        "HMX": "HMX",
+        "SA387-11": "SA387-11", "SA387-22": "SA387-22",
+        "F22": "F22", "F6NM": "F6NM", "F11": "F11", "F9": "F9",
+        "50B44": "50B44",
+        "TRIP590": "TRIP590",
+        "PHS1900": "PHS1900", "PHS 1900": "PHS1900",
+        "M19": "M19", "M33": "M33", "M36": "M36", "M47": "M47",
+        "A607-50": "A607-50", "A656-80": "A656-80",
+        "F138": "F138", "34CRNIMO6": "34CrNiMo6",
+        "ASP2030": "ASP2030", "ASP 2030": "ASP2030",
+        "X70MNALSI": "X70MnAlSi",
+        "CT15C": "CT15C",
+        "12CRVALVE": "12CrValve",
+        "PRESSHARDENED1500": "PressHardened1500",
+        "330": "330",
+        "DUPLEX2003": "Duplex2003", "DUPLEX2101": "Duplex2101",
+        "SAF2906": "SAF2906",
+        "FERRALIUM255": "Ferralium255",
+        "S32760": "S32760", "ZERON100": "S32760",
+        "EBRITE26-1": "EBrite26-1",
+        "SEACURE": "SeaCure",
+        "S31266": "S31266",
+        "AA2124": "AA2124", "AA6070": "AA6070", "AA6201": "AA6201",
+        "AA7150": "AA7150", "AA7175": "AA7175",
+        "TI-3AL-8V-6CR-4MO-4ZR": "Ti-3Al-8V-6Cr-4Mo-4Zr",
+        "TI-15V-3CR-3SN-3AL": "Ti-15V-3Cr-3Sn-3Al",
+        "TI-15MO-3NB-3AL-0.2SI": "Ti-15Mo-3Nb-3Al-0.2Si",
+        "TI-5AL-2SN-2ZR-4MO-4CR": "Ti-5Al-2Sn-2Zr-4Mo-4Cr",
+        "TI-6AL-7NB": "Ti-6Al-7Nb",
+        "TI-35NB-7ZR-5TA": "Ti-35Nb-7Zr-5Ta",
+        "HIGHCHROMEGRAYIRON": "HighChromeGrayIron",
+        "HIGHPHOSPHORUSGRAYIRON": "HighPhosphorusGrayIron",
     }
     for alias, target in _xref.items():
         if target in ALLOY_COMPOSITIONS:
@@ -1580,6 +1616,78 @@ _TRADE_NAME_MAP = {
     "XM-19": "XM-19", "XM19": "XM-19",
     "S31277": "S31277", "27-7MO": "S31277",
     "MIC-6": "AA356", "MIC 6": "AA356", "ALCA5": "AA356",
+    # Round 5 — comprehensive gap closure
+    "CPM 10V": "CPM10V", "CPM-10V": "CPM10V", "CPM10V": "CPM10V",
+    "CPM 3V": "CPM3V", "CPM-3V": "CPM3V", "CPM3V": "CPM3V",
+    "CPM S30V": "CPMS30V", "CPM-S30V": "CPMS30V",
+    "CPM S90V": "CPMS90V", "CPM-S90V": "CPMS90V",
+    "AERMET 100": "AERMET100", "AERMET100": "AERMET100",
+    "AF1410": "AF1410",
+    "HY-80": "HY-80", "HY80": "HY-80", "HY 80": "HY-80",
+    "HY-100": "HY-100", "HY100": "HY-100", "HY 100": "HY-100",
+    "HY-130": "HY-130", "HY130": "HY-130", "HY 130": "HY-130",
+    "HP 9-4-30": "HP9-4-30", "HP9-4-30": "HP9-4-30", "HP 9-4": "HP9-4-30",
+    "ASP 2030": "ASP2030", "ASP2030": "ASP2030",
+    "ASP 2060": "ASP2060", "ASP2060": "ASP2060",
+    "SA387": "SA387-22",
+    "A607": "A607-50", "A607-50": "A607-50",
+    "A656": "A656-80", "A656-80": "A656-80",
+    "F138": "F138", "ASTM F138": "F138", "SURGICAL STEEL": "F138",
+    "F6NM": "F6NM", "CA6NM": "F6NM",
+    "FERRIUM S53": "FerriumS53", "FERRIUMS53": "FerriumS53",
+    "HMX": "HMX",
+    "M33": "M33",
+    "M19": "M19",
+    "34CRNIMO6": "34CrNiMo6", "34CRNIMO6": "34CrNiMo6",
+    "PRESS HARDENED": "PressHardened1500", "PHS 1500": "PressHardened1500",
+    "PHS 1900": "PHS1900", "PHS1900": "PHS1900",
+    "TRIP 590": "TRIP590", "TRIP590": "TRIP590",
+    "X70MNALSI": "X70MnAlSi", "TRIPLEX": "X70MnAlSi",
+    "CARBIDE-FREE BAINITIC": "Bainitic300", "CARBIDE FREE BAINITIC": "Bainitic300",
+    "CT15C": "CT15C", "CARPENTER CT15C": "CT15C",
+    "12% CR VALVE": "12CrValve", "12 CR VALVE": "12CrValve",
+    "50B44": "50B44",
+    "254 SMO": "254SMO", "254SMO": "254SMO",
+    "AL-6XN": "AL-6XN", "AL6XN": "AL-6XN",
+    "A-286": "A-286", "A286": "A-286",
+    "FERRALIUM 255": "Ferralium255", "FERRALIUM255": "Ferralium255",
+    "FERRALIUM": "Ferralium255",
+    "E-BRITE": "EBrite26-1", "EBRITE": "EBrite26-1",
+    "SEA-CURE": "SeaCure", "SEACURE": "SeaCure", "SC-1": "SeaCure",
+    "ZERON 100": "S32760", "ZERON100": "S32760",
+    "S32760": "S32760",
+    "S31266": "S31266", "UR 66": "S31266", "UR66": "S31266",
+    "SAF 2906": "SAF2906", "SAF2906": "SAF2906",
+    "LDX 2101": "Duplex2101", "LDX2101": "Duplex2101", "LEAN DUPLEX 2101": "Duplex2101",
+    "DUPLEX 2003": "Duplex2003", "DUPLEX2003": "Duplex2003",
+    "DUPLEX 2101": "Duplex2101", "DUPLEX2101": "Duplex2101",
+    "BETA-C": "Ti-3Al-8V-6Cr-4Mo-4Zr", "BETA C": "Ti-3Al-8V-6Cr-4Mo-4Zr",
+    "BETA 21S": "Ti-15Mo-3Nb-3Al-0.2Si",
+    "TI-15-3-3-3": "Ti-15V-3Cr-3Sn-3Al", "TI-15-3": "Ti-15V-3Cr-3Sn-3Al",
+    "TI-17": "Ti-5Al-2Sn-2Zr-4Mo-4Cr",
+    "TI-6AL-7NB": "Ti-6Al-7Nb",
+    "TNZT": "Ti-35Nb-7Zr-5Ta",
+    "HIGH-CHROME WEAR": "HighChromeGrayIron", "HIGH CHROME WEAR": "HighChromeGrayIron",
+    "HIGH-PHOSPHORUS GRAY": "HighPhosphorusGrayIron", "HIGH PHOSPHORUS GRAY": "HighPhosphorusGrayIron",
+    # Round 5b — final gaps
+    "18CRNIMO7-6": "18CrNiMo7-6", "18CRNIMO7": "18CrNiMo7-6",
+    "1.6587": "18CrNiMo7-6",
+    "TWIP STEEL 980": "TWIP", "TWIP STEEL": "TWIP", "TWIP980": "TWIP",
+    "PRESS HARDENED STEEL": "PressHardened1500",
+    "TI-6246": "Ti-6Al-2Sn-4Zr-6Mo", "TI 6246": "Ti-6Al-2Sn-4Zr-6Mo",
+    "TI-6AL-2SN-4ZR-6MO": "Ti-6Al-2Sn-4Zr-6Mo",
+    # Round 5c — final remaining
+    "TI-5553": "Ti-5Al-5V-5Mo-3Cr", "TI-5AL-5V-5MO-3CR": "Ti-5Al-5V-5Mo-3Cr",
+    "360 DIE CAST": "AA360", "383 DIE CAST": "AA383",
+    "ADC12": "AA383",
+    "PURE LEAD": "PureLead", "PURE ZINC": "PureZinc",
+    "PURE MAGNESIUM": "PureMagnesium",
+    "ZINC 99": "PureZinc",
+    "WE43": "Mg WE43A", "WE43A": "Mg WE43A",
+    "ZE41": "Mg ZE41A", "ZE41A": "Mg ZE41A",
+    "ZIRCONIUM 702": "Zr702", "ZR702": "Zr702", "ZR 702": "Zr702",
+    "ZIRCONIUM 705": "Zr705", "ZR705": "Zr705", "ZR 705": "Zr705",
+    "ILZRO 12": "ILZRO12", "ILZRO12": "ILZRO12",
 }
 
 # Cast iron name -> comp DB key mapping
@@ -1703,11 +1811,16 @@ def find_composition(mat: dict) -> dict:
         r = _comp(ph_key)
         if r:
             return r
+        # 13-8PH is also known as 13-8Mo
+        if ph_key == "13-8PH":
+            r = _comp("13-8Mo")
+            if r:
+                return r
 
-    # ── Strategy 8: Duplex stainless (2205, 2507, 2304) ─────────────
-    for d in ["2205", "2507", "2304"]:
+    # ── Strategy 8: Duplex stainless (2205, 2507, 2304, 2003, 2101) ─
+    for d in ["2205", "2507", "2304", "2003", "2101", "2906"]:
         if d in name:
-            r = _comp(d)
+            r = _comp(d) or _comp(f"Duplex{d}") or _comp(f"SAF{d}")
             if r:
                 return r
 
@@ -1795,16 +1908,30 @@ def find_composition(mat: dict) -> dict:
             r = _comp(f"Ti CP Grade {cp_m.group(1)}")
             if r:
                 return r
-        # Ti-XAl-YV etc.
+        # Complex Ti designation: Ti-XAl-YV-ZCr-... (full multi-element designation)
+        ti_full = re.search(r"(TI[- ]\d+\w+(?:[- ]\d+\.?\d*\w+)+)", name)
+        if ti_full:
+            desig = ti_full.group(1).replace(" ", "-")
+            if desig.upper().startswith("TI-"):
+                desig = "Ti-" + desig[3:]
+            r = _comp(desig)
+            if r:
+                return r
+            r = _comp(desig.upper())
+            if r:
+                return r
+        # Simple Ti-XAl-YV
         ti_m = re.search(r"TI[- ]*(\d+AL[- ]\d+V(?:[- ]\d+\w+)*)", name)
         if ti_m:
             ti_desig = f"Ti-{ti_m.group(1).replace(' ','-')}"
             r = _comp(ti_desig)
             if r:
                 return r
-        # Generic Ti-alloy name from original
-        for tk in COMP_LOOKUP:
-            if tk.upper().startswith("TI") and tk.upper() in name:
+        # Generic Ti-alloy name from original (longest match first)
+        ti_keys = sorted([tk for tk in COMP_LOOKUP if tk.upper().startswith("TI")],
+                         key=len, reverse=True)
+        for tk in ti_keys:
+            if tk.upper() in name:
                 return ALLOY_COMPOSITIONS[COMP_LOOKUP[tk]]
 
     # ── Strategy 13: Magnesium by designation ────────────────────────
@@ -1915,7 +2042,8 @@ def find_composition(mat: dict) -> dict:
         "EN36": "9310", "EN40B": "4140", "EN41B": "4140",
         "EN43": "1050", "EN47": "6150",
         "42CRMO4": "4140", "34CRMO4": "4135", "25CRMO4": "4130",
-        "16MNCR5": "5120", "20MNCR5": "5120", "18CRNIMO7-6": "9310",
+        "16MNCR5": "5120", "20MNCR5": "5120",
+        "18CRNIMO76": "18CrNiMo7-6", "18CRNIMO7-6": "18CrNiMo7-6",
         "C45": "1045", "CK45": "1045", "C60": "1060",
         "ST37": "A36", "ST52": "A572-50",
         "X5CRNI18-10": "304", "X2CRNI19-11": "304L",
@@ -2034,8 +2162,8 @@ def find_composition(mat: dict) -> dict:
             return r
 
     # ── Strategy 30: SA/ASME pressure vessel grades ──────────────
-    # "SA-516 Grade 70", "SA516 GR 60", "ASME SA-516-70"
-    sa_m = re.search(r"SA[- ]?(\d{3})[- ]*(?:GR(?:ADE)?\s*)?(\d{2,3})?", name)
+    # "SA-516 Grade 70", "SA516 GR 60", "ASME SA-516-70", "SA387 Grade 22"
+    sa_m = re.search(r"SA[- ]?(\d{3})[- ]*(?:GR(?:ADE)?\s*)?(\d{1,3})?", name)
     if sa_m:
         spec = sa_m.group(1)
         grade = sa_m.group(2)
@@ -2043,9 +2171,10 @@ def find_composition(mat: dict) -> dict:
             r = _comp(f"SA{spec}-{grade}")
             if r:
                 return r
-        # Without grade -> default to -70 for SA516
-        if spec == "516":
-            r = _comp("SA516-70")
+        # Without grade -> defaults
+        defaults = {"516": "SA516-70", "387": "SA387-22"}
+        if spec in defaults:
+            r = _comp(defaults[spec])
             if r:
                 return r
 
