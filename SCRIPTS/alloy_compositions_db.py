@@ -1099,6 +1099,58 @@ ALLOY_COMPOSITIONS = {
     "Zr702": {"Zr": 99.2, "Hf": 0.50, "Fe": 0.20, "O": 0.10},
     "Zr705": {"Zr": 95.5, "Nb": 2.50, "Hf": 0.50, "Fe": 0.20, "O": 0.18},
     "ILZRO12": {"Zn": 98.0, "Cu": 1.00, "Ti": 0.15, "Cr": 0.02},
+
+    # ── Round 5d: X_SPECIALTY metals ─────────────────────────────────────────
+    # Controlled expansion alloys (Fe-Ni)
+    "Alloy42": {"Ni": 42.0, "Mn": 0.50, "Si": 0.30, "C": 0.05, "Fe": 57.2},
+    "Alloy48": {"Ni": 48.0, "Mn": 0.50, "Si": 0.30, "C": 0.05, "Fe": 51.2},
+    "Alloy52": {"Ni": 52.0, "Mn": 0.50, "Si": 0.30, "C": 0.05, "Fe": 47.2},
+    "SuperInvar": {"Ni": 31.0, "Co": 5.0, "Mn": 0.40, "Si": 0.20, "C": 0.05, "Fe": 63.4},
+    "Supermalloy": {"Ni": 79.0, "Mo": 5.0, "Mn": 0.30, "Si": 0.20, "Fe": 15.5},
+    "Permalloy80": {"Ni": 80.0, "Mo": 4.0, "Mn": 0.50, "Si": 0.30, "Fe": 15.2},
+    # Refractory pure metals
+    "PureTungsten": {"W": 99.95},
+    "PureMolybdenum": {"Mo": 99.95},
+    # Tungsten heavy alloys
+    "W-90": {"W": 90.0, "Ni": 6.0, "Fe": 4.0},
+    "W-95": {"W": 95.0, "Ni": 3.0, "Fe": 2.0},
+    # AM-specific
+    "Scalmalloy": {"Al": 93.5, "Mg": 4.50, "Sc": 0.70, "Zr": 0.30, "Mn": 0.50, "Si": 0.50},
+    "MaragingMS1": {"Ni": 18.0, "Co": 9.0, "Mo": 5.0, "Ti": 0.60, "Al": 0.10, "C": 0.03, "Fe": 67.3},
+    # PM/sintered base compositions
+    "SinteredIronF0000": {"Fe": 99.5, "C": 0.01, "Mn": 0.20, "Si": 0.15},
+    "SinteredIronF0005": {"Fe": 99.0, "C": 0.05, "Mn": 0.30, "Si": 0.20},
+    "SinteredIronF0008": {"Fe": 98.8, "C": 0.08, "Mn": 0.30, "Si": 0.20},
+    "SinteredSteelFC0205": {"Fe": 96.0, "Cu": 2.00, "C": 0.50, "Mn": 0.50, "Si": 0.30},
+    "SinteredSteelFC0208": {"Fe": 95.5, "Cu": 2.00, "C": 0.80, "Mn": 0.50, "Si": 0.30},
+    "SinteredSteelFN0205": {"Fe": 95.0, "Ni": 2.00, "C": 0.50, "Mn": 0.50, "Si": 0.30},
+    "PMBronzeSAE841": {"Cu": 90.0, "Sn": 10.0},
+    "PMBronzeSAE863": {"Cu": 87.5, "Sn": 9.50, "C": 1.75, "Fe": 1.00},
+    # Silicon iron (electrical steel variants)
+    "SiliconIronGO": {"Si": 3.25, "Mn": 0.08, "C": 0.005, "Fe": 96.7},
+    "SiliconIronNGO": {"Si": 2.80, "Mn": 0.08, "C": 0.005, "Al": 0.02, "Fe": 97.1},
+
+    # ── Round 5e: Precious metals and remaining ──────────────────────────────
+    # Gold karats (Au-Cu-Ag standard alloys)
+    "24KGold": {"Au": 99.9},
+    "22KGold": {"Au": 91.7, "Cu": 5.0, "Ag": 3.3},
+    "18KGold": {"Au": 75.0, "Cu": 15.0, "Ag": 10.0},
+    "14KGold": {"Au": 58.3, "Cu": 25.0, "Ag": 16.7},
+    "10KGold": {"Au": 41.7, "Cu": 35.0, "Ag": 23.3},
+    "DentalGold": {"Au": 60.0, "Ag": 15.0, "Cu": 13.0, "Pd": 5.0, "Pt": 4.0, "Zn": 3.0},
+    "PdWhiteGold": {"Au": 75.0, "Pd": 15.0, "Ag": 10.0},
+    "White18KGold": {"Au": 75.0, "Pd": 10.0, "Ni": 10.0, "Zn": 5.0},
+    # Silver
+    "PureSilver": {"Ag": 99.9},
+    "SterlingSilver": {"Ag": 92.5, "Cu": 7.5},
+    "CoinSilver": {"Ag": 90.0, "Cu": 10.0},
+    "ArgentiumSilver": {"Ag": 93.5, "Cu": 5.5, "Ge": 1.0},
+    # Platinum group
+    "PurePlatinum": {"Pt": 99.95},
+    "PurePalladium": {"Pd": 99.95},
+    "AgPdAlloy": {"Ag": 60.0, "Pd": 40.0},
+    # Bronze CuSn10 (tin bronze 90/10)
+    "CuSn10": {"Cu": 90.0, "Sn": 10.0},
 }
 
 # Thermal conductivity model: k = k_iron - sum(beta_i * wt%_i)
