@@ -1,26 +1,247 @@
 {
   "id": "CC-MS0",
-  "version": "3.1.0",
-  "title": "Foundation: CadQuery Integration + CAD Kernel",
-  "brief": "Python cad_kernel.py, geo_validator.py, cad_export.py; CadQuery integration; 10 reference STEP parts.",
-  "created_at": "2026-02-26T20:14:19Z",
-  "created_by": "claude-opus-4.6",
+  "version": "4.0.0",
+  "title": "Foundation: CadQuery Integration + CAD Kernel Bridge",
+  "brief": "Install CadQuery 2.x, build Python CAD kernel wrapper, geometry validator, multi-format export, TypeScript bridge, and validate with 10 reference STEP parts. Leverage existing 5,700+ lines of TS CAD/CAM engines.",
+  "created_at": "2026-02-28T19:00:00Z",
+  "created_by": "roadmap-generator v3.0 (Opus 4.6) via RGS pipeline",
   "phases": [
     {
       "id": "P0",
-      "title": "Foundation: CadQuery Integration + CAD Kernel",
-      "description": "Install CadQuery 2.x, build CAD kernel wrapper, geometry validator, export module, and test with 10 reference parts. Architecture review of API surface.",
-      "sessions": "2",
+      "title": "Python Environment + CadQuery Installation",
+      "description": "Set up the Python CAD engine environment, install CadQuery 2.x with OCP/build123d, create directory structure, and verify the installation works.",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "CadQuery Installation + CAD Kernel Wrapper",
+          "title": "Create cad-engine directory structure + Python project",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
           "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            { "tool": "prism_dev" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "Python 3.10+ available on system",
+            "npm run build passes (current TS codebase clean)"
+          ],
+          "exit_conditions": [
+            "C:\\PRISM\\cad-engine\\ directory structure created: src/, tests/, reference_parts/, exports/",
+            "pyproject.toml created with project metadata and dependency declarations",
+            "src/__init__.py, src/cad_kernel.py, src/geo_validator.py, src/cad_export.py stubs exist",
+            "tests/__init__.py and tests/conftest.py exist",
+            ".gitignore covers __pycache__, *.pyc, .venv/"
+          ],
+          "rollback": "rm -rf cad-engine/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cad-engine/ directory with subdirs: src/, tests/, reference_parts/, exports/, docs/"
+            },
+            {
+              "number": 2,
+              "instruction": "Create pyproject.toml with [project] metadata (name=prism-cad-engine, version=0.1.0, python_requires>=3.10) and [project.dependencies] placeholder for cadquery"
+            },
+            {
+              "number": 3,
+              "instruction": "Create Python package stubs: src/__init__.py, src/cad_kernel.py, src/geo_validator.py, src/cad_export.py, src/bridge.py"
+            },
+            {
+              "number": 4,
+              "instruction": "Create test infrastructure: tests/__init__.py, tests/conftest.py with shared fixtures"
+            },
+            {
+              "number": 5,
+              "instruction": "Create .gitignore for Python artifacts (__pycache__, *.pyc, .venv/, *.egg-info/)"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/pyproject.toml", "type": "config", "description": "Python project configuration" },
+            { "path": "cad-engine/src/__init__.py", "type": "source", "description": "Package init" },
+            { "path": "cad-engine/tests/conftest.py", "type": "test", "description": "Shared test fixtures" },
+            { "path": "cad-engine/.gitignore", "type": "config", "description": "Python gitignore" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Install CadQuery 2.x + OCP dependencies",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "tools": [
+            { "tool": "prism_dev" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": [
+            "cad-engine/ directory structure exists",
+            "pyproject.toml exists with dependency declarations"
+          ],
+          "exit_conditions": [
+            "CadQuery 2.x installed and importable (python -c 'import cadquery; print(cadquery.__version__)')",
+            "OCP (Open Cascade Python bindings) available",
+            "build123d available for higher-level CAD ops",
+            "pytest installed for test execution",
+            "python -m pytest cad-engine/tests/ runs (even if 0 tests yet)",
+            "pyproject.toml dependencies finalized"
+          ],
+          "rollback": "pip uninstall cadquery build123d -y",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Install CadQuery 2.x via pip (pip install cadquery). If OCP wheel fails, try conda or pre-built wheel."
+            },
+            {
+              "number": 2,
+              "instruction": "Install build123d for higher-level parametric CAD API (pip install build123d)"
+            },
+            {
+              "number": 3,
+              "instruction": "Install test dependencies: pytest, pytest-cov"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify installation: python -c 'import cadquery as cq; box = cq.Workplane().box(10,10,10); print(box.val().Volume())'"
+            },
+            {
+              "number": 5,
+              "instruction": "Update pyproject.toml with pinned dependency versions"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/pyproject.toml", "type": "config", "description": "Finalized Python dependencies with pinned versions" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": false,
+        "test_required": false,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": false,
+        "custom_checks": [
+          "CadQuery importable and can create a 10x10x10 box",
+          "pytest runner executes without errors"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    },
+    {
+      "id": "P1",
+      "title": "Python CAD Modules: Kernel, Validator, Export",
+      "description": "Build the three core Python modules: cad_kernel.py (CadQuery wrapper with parametric operations), geo_validator.py (manifold/volume/wall thickness checks), and cad_export.py (STEP/DXF/STL/IGES export). Test with 10 reference parts.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Build cad_kernel.py — CadQuery wrapper module",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 85,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": [
+            "CadQuery 2.x installed and importable",
+            "cad-engine/src/ directory exists"
+          ],
+          "exit_conditions": [
+            "cad_kernel.py implements: create_sketch(), extrude(), revolve(), fillet(), chamfer(), hole(), pattern(), shell(), mirror(), loft()",
+            "Each operation returns a CadQuery Workplane or Solid",
+            "Error handling: invalid geometry raises CadKernelError with descriptive message",
+            "Type hints on all public functions",
+            "Docstrings with parameter descriptions",
+            "API surface mirrors existing TS GeometryEngine operations where applicable"
+          ],
+          "rollback": "git checkout -- cad-engine/src/cad_kernel.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing TS GeometryEngine.ts and CADKernelEngine.ts to understand the API surface and operation signatures"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement create_sketch() — 2D sketch creation (rectangle, circle, polygon, spline) on specified workplane"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement 3D operations: extrude(sketch, height), revolve(sketch, angle), loft(profiles), sweep(profile, path)"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement feature operations: fillet(edges, radius), chamfer(edges, distance), hole(diameter, depth), shell(thickness)"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement transform operations: mirror(plane), pattern(count, spacing), translate(vec), rotate(axis, angle)"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement boolean operations: union(a, b), subtract(a, b), intersect(a, b)"
+            },
+            {
+              "number": 7,
+              "instruction": "Add CadKernelError exception class and input validation on all public methods"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module with parametric CAD operations", "line_count_est": 400 }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U02",
+          "title": "Build geo_validator.py — Geometry validation module",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
@@ -31,62 +252,196 @@
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["L8-P1-MS1"],
+          "dependencies": ["P1-U01"],
           "entry_conditions": [
-            "L8-P1-MS1 complete",
-            "Python 3.10+ available",
-            "npm run build passes"
+            "cad_kernel.py exists and can create basic 3D geometry"
           ],
           "exit_conditions": [
-            "CadQuery 2.x installed with OCP and build123d dependencies",
-            "C:\\PRISM\\cad-engine\\ directory structure created",
-            "cad_kernel.py implements: create_sketch(), extrude(), revolve(), fillet(), chamfer(), hole(), pattern(), shell(), export()",
-            "geo_validator.py implements: manifold check, volume calculation, bounding box, min wall thickness detection",
-            "cad_export.py implements: STEP, DXF, STL, IGES export",
-            "10 reference parts pass: cube, cylinder, flanged plate, bracket, bearing block, shaft collar, gusset, spacer, bushing, manifold block",
-            "Validator detects intentional geometric defects",
-            "All 4 export formats produce valid files",
-            "API surface documented and matches planned dispatcher actions",
-            "Build passes",
-            "Tests pass"
+            "geo_validator.py implements: check_manifold(), calculate_volume(), bounding_box(), min_wall_thickness(), check_watertight()",
+            "check_manifold() detects non-manifold edges and vertices",
+            "calculate_volume() returns volume in mm^3 with accuracy to 0.01mm^3",
+            "bounding_box() returns min/max/size/center as dict matching TS BoundingBox3D interface",
+            "min_wall_thickness() uses ray-casting or section analysis to detect thin walls",
+            "check_watertight() verifies no open edges in shell",
+            "validate_geometry() combines all checks into a single ValidationReport",
+            "Detects intentional geometric defects (non-manifold, zero-volume, inverted normals)"
           ],
-          "rollback": "git checkout -- cad-engine/",
+          "rollback": "git checkout -- cad-engine/src/geo_validator.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Install CadQuery 2.x + dependencies (OCP, build123d) into Python environment"
+              "instruction": "Read existing TS MeshEngine.ts MeshQuality interface for reference on validation metrics"
             },
             {
               "number": 2,
-              "instruction": "Create C:\\PRISM\\cad-engine\\ directory structure (src/, tests/, reference_parts/, exports/)"
+              "instruction": "Implement check_manifold() — use OCP topology explorer to detect non-manifold edges (edge shared by != 2 faces)"
             },
             {
               "number": 3,
-              "instruction": "Build CadQuery wrapper module (cad_kernel.py): create_sketch(), extrude(), revolve(), fillet(), chamfer(), hole(), pattern(), shell(), export()"
+              "instruction": "Implement calculate_volume() and surface_area() — use CadQuery .val().Volume() and face area summation"
             },
             {
               "number": 4,
-              "instruction": "Build geometry validator module (geo_validator.py): manifold check, volume calculation, bounding box computation, minimum wall thickness detection"
+              "instruction": "Implement bounding_box() — extract BRepBndLib bounding box, return dict with min, max, size, center, volume_mm3"
             },
             {
               "number": 5,
-              "instruction": "Build export module (cad_export.py): STEP, DXF, STL, IGES format export with validation"
+              "instruction": "Implement min_wall_thickness() — cast rays from face centroids inward, measure minimum distance to opposing face"
             },
             {
               "number": 6,
-              "instruction": "Build test harness: 10 reference parts (cube, cylinder, flanged plate, bracket, bearing block, shaft collar, gusset, spacer, bushing, manifold block)"
+              "instruction": "Implement check_watertight() — verify all edges shared by exactly 2 faces, no free edges"
             },
             {
               "number": 7,
-              "instruction": "Architecture review (Opus): verify API surface matches planned dispatcher actions, review extensibility and error handling"
+              "instruction": "Implement validate_geometry() — orchestrate all checks, return ValidationReport with pass/fail per check and overall status"
             }
           ],
           "deliverables": [
-            { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module with CAD operations" },
-            { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module (manifold, volume, wall thickness)" },
-            { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module (STEP, DXF, STL, IGES)" },
-            { "path": "cad-engine/tests/test_reference_parts.py", "type": "test", "description": "Test harness for 10 reference parts" },
-            { "path": "cad-engine/reference_parts/", "type": "data", "description": "10 reference STEP parts for validation" }
+            { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module (manifold, volume, wall thickness)", "line_count_est": 300 }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U03",
+          "title": "Build cad_export.py — Multi-format export module",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 75,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "cad_kernel.py exists and can create 3D geometry"
+          ],
+          "exit_conditions": [
+            "cad_export.py implements: export_step(), export_dxf(), export_stl(), export_iges()",
+            "export_step() produces valid AP214 STEP files readable by FreeCAD/Fusion360",
+            "export_stl() produces valid binary STL with correct normals",
+            "export_dxf() produces valid DXF with 2D projection or 3D wireframe",
+            "export_iges() produces valid IGES 5.3 files",
+            "All exporters accept output_path parameter and return ExportResult with file_size_bytes and format_version",
+            "import_step() can read STEP files back into CadQuery solids"
+          ],
+          "rollback": "git checkout -- cad-engine/src/cad_export.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing TS exportDispatcher.ts to understand the export action patterns (render_step, render_dxf)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement export_step() — use CadQuery exportStep() with AP214 protocol"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement export_stl() — use CadQuery exportStl() with binary format and configurable tolerance"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement export_dxf() — project 3D solid to 2D sections or wireframe, write DXF via ezdxf or OCP"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement export_iges() — use OCP IGESControl_Writer for IGES 5.3 export"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement import_step() — use CadQuery importStep() to read STEP files back"
+            },
+            {
+              "number": 7,
+              "instruction": "Add ExportResult dataclass with file_size_bytes, format, format_version, output_path fields"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module (STEP, DXF, STL, IGES)", "line_count_est": 250 }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U04",
+          "title": "Build 10 reference parts + test harness",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Test Writer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P1-U01", "P1-U02", "P1-U03"],
+          "entry_conditions": [
+            "cad_kernel.py implements all parametric operations",
+            "geo_validator.py implements all validation checks",
+            "cad_export.py implements all 4 export formats"
+          ],
+          "exit_conditions": [
+            "10 reference parts defined as Python functions: cube, cylinder, flanged_plate, bracket, bearing_block, shaft_collar, gusset, spacer, bushing, manifold_block",
+            "Each part generates valid geometry (passes validate_geometry())",
+            "Each part exports to all 4 formats without error",
+            "STEP round-trip test: export → import → volume comparison within 0.1%",
+            "Intentional defect test: non-manifold, zero-thickness, open-shell parts detected by validator",
+            "pytest test_reference_parts.py passes with 10+ test cases",
+            "pytest test_defect_detection.py passes with 5+ defect detection tests",
+            "Reference STEP files saved to cad-engine/reference_parts/"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/ cad-engine/reference_parts/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create reference_parts.py with 10 factory functions that build parametric parts using cad_kernel.py"
+            },
+            {
+              "number": 2,
+              "instruction": "Create test_reference_parts.py — test each part: create, validate geometry, export STEP/STL/DXF/IGES"
+            },
+            {
+              "number": 3,
+              "instruction": "Create test_defect_detection.py — build intentionally broken parts (non-manifold edges, zero-volume, inverted normals, open shells)"
+            },
+            {
+              "number": 4,
+              "instruction": "Create test_roundtrip.py — export each part to STEP, re-import, compare volumes within tolerance"
+            },
+            {
+              "number": 5,
+              "instruction": "Generate reference STEP files for each of the 10 parts and save to reference_parts/"
+            },
+            {
+              "number": 6,
+              "instruction": "Run full pytest suite and verify all tests pass"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/reference_parts.py", "type": "source", "description": "10 parametric reference part definitions", "line_count_est": 300 },
+            { "path": "cad-engine/tests/test_reference_parts.py", "type": "test", "description": "Reference part creation and export tests", "line_count_est": 200 },
+            { "path": "cad-engine/tests/test_defect_detection.py", "type": "test", "description": "Intentional defect detection tests", "line_count_est": 100 },
+            { "path": "cad-engine/tests/test_roundtrip.py", "type": "test", "description": "STEP round-trip accuracy tests", "line_count_est": 80 },
+            { "path": "cad-engine/reference_parts/", "type": "data", "description": "10 reference STEP files" }
           ],
           "index_in_master": false,
           "creates_skill": false,
@@ -108,33 +463,309 @@
         "custom_checks": [
           "All 10 reference STEP parts generate valid geometry",
           "Validator detects defects in intentionally broken test parts",
-          "All 4 export formats produce valid output"
+          "All 4 export formats produce valid output",
+          "STEP round-trip volume accuracy within 0.1%"
         ]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Geometry validation accuracy — does min_wall_thickness actually work?",
+        "Export format compatibility — can FreeCAD/Fusion360 open the STEP files?",
+        "Error handling — what happens with degenerate inputs?"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "TypeScript Bridge + Integration",
+      "description": "Build the TypeScript-to-Python bridge that lets the MCP server invoke CadQuery operations, wire it into existing dispatchers, add CI integration, and run architecture review.",
+      "sessions": "1",
+      "primary_role": "R6",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Build bridge.py — Python-side JSON-RPC server",
+          "phase": "P2",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P1-U01", "P1-U02", "P1-U03"],
+          "entry_conditions": [
+            "All 3 Python CAD modules exist and pass tests",
+            "hookBridge.ts reference pattern reviewed"
+          ],
+          "exit_conditions": [
+            "bridge.py implements JSON-RPC over stdin/stdout (subprocess communication)",
+            "Supports methods: create_geometry, validate_geometry, export_geometry, import_step",
+            "Each method accepts JSON params, returns JSON result",
+            "Error responses include error code and descriptive message",
+            "Timeout handling: operations killed after configurable timeout (default 30s)",
+            "Graceful shutdown on SIGTERM/SIGINT"
+          ],
+          "rollback": "git checkout -- cad-engine/src/bridge.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing hookBridge.ts to understand the TS↔Python IPC pattern (HTTP POST to localhost:8765)"
+            },
+            {
+              "number": 2,
+              "instruction": "Design JSON-RPC protocol: stdin receives {method, params, id}, stdout sends {result, id} or {error: {code, message}, id}"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement bridge.py main loop: read JSON lines from stdin, dispatch to cad_kernel/geo_validator/cad_export, write JSON response to stdout"
+            },
+            {
+              "number": 4,
+              "instruction": "Add method routing: create_geometry → cad_kernel, validate → geo_validator, export → cad_export, import_step → cad_export.import_step"
+            },
+            {
+              "number": 5,
+              "instruction": "Add error handling: CadKernelError → {error: {code: 'CAD_ERROR', message}}, unexpected exceptions → {error: {code: 'INTERNAL', message}}"
+            },
+            {
+              "number": 6,
+              "instruction": "Add timeout protection: signal.alarm() or threading.Timer to kill long operations"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/bridge.py", "type": "source", "description": "Python JSON-RPC bridge for TS subprocess communication", "line_count_est": 200 }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U02",
+          "title": "Build CadBridge.ts — TypeScript bridge client",
+          "phase": "P2",
+          "sequence": 1,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P2-U01"],
+          "entry_conditions": [
+            "bridge.py exists and handles JSON-RPC over stdin/stdout",
+            "Python path available in constants.ts"
+          ],
+          "exit_conditions": [
+            "CadBridge.ts spawns Python bridge.py as child process",
+            "Sends JSON-RPC requests via stdin, receives responses via stdout",
+            "Implements: createGeometry(), validateGeometry(), exportGeometry(), importStep()",
+            "Handles Python process lifecycle: start, health check, restart on crash",
+            "Timeout: kills and restarts Python process if response takes >30s",
+            "TypeScript interfaces match Python method signatures",
+            "Singleton pattern consistent with other engines (getCadBridge())",
+            "Build passes with no new TS errors"
+          ],
+          "rollback": "git checkout -- mcp-server/src/engines/CadBridge.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read constants.ts for Python path, review child_process patterns in cadenceExecutor.ts"
+            },
+            {
+              "number": 2,
+              "instruction": "Create CadBridge.ts with child_process.spawn() to launch bridge.py"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement JSON-RPC request/response protocol over stdin/stdout with Promise-based async API"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement process lifecycle: lazy start, health check ping, auto-restart on crash, cleanup on server shutdown"
+            },
+            {
+              "number": 5,
+              "instruction": "Add TypeScript interfaces: CadGeometryRequest, CadValidationResult, CadExportResult matching Python types"
+            },
+            {
+              "number": 6,
+              "instruction": "Wire into existing cadDispatcher.ts — add new actions that route through CadBridge for real STEP I/O"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build and verify 0 new TS errors"
+            }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/CadBridge.ts", "type": "source", "description": "TypeScript-to-Python CAD bridge client", "line_count_est": 250 }
+          ],
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U03",
+          "title": "Integration tests + CI integration",
+          "phase": "P2",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Test Writer",
+          "model": "sonnet-4.6",
+          "effort": 75,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P2-U02"],
+          "entry_conditions": [
+            "CadBridge.ts exists and can invoke Python operations",
+            "cadDispatcher.ts updated with CadBridge actions"
+          ],
+          "exit_conditions": [
+            "Integration test: TS creates geometry via CadBridge → validates → exports STEP → re-imports → verifies volume",
+            "Integration test: TS sends invalid geometry → receives CadKernelError",
+            "Integration test: Python bridge timeout → TS restarts bridge and retries",
+            "CI workflow updated: Python deps installed, pytest runs in parallel with vitest",
+            "All existing tests still pass (anti-regression)",
+            "npm run build passes",
+            "npm run test passes"
+          ],
+          "rollback": "git checkout -- mcp-server/src/__tests__/ .github/workflows/ci.yml",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cad-bridge.test.ts — integration tests for CadBridge TS↔Python round-trip"
+            },
+            {
+              "number": 2,
+              "instruction": "Test happy path: create box → validate → export STEP → import STEP → compare volume"
+            },
+            {
+              "number": 3,
+              "instruction": "Test error path: invalid geometry params → CadKernelError propagated to TS"
+            },
+            {
+              "number": 4,
+              "instruction": "Test resilience: simulate Python crash → bridge auto-restarts"
+            },
+            {
+              "number": 5,
+              "instruction": "Update .github/workflows/ci.yml: add Python setup step, install cad-engine deps, run pytest"
+            },
+            {
+              "number": 6,
+              "instruction": "Run full test suite: npm run test (vitest) + pytest cad-engine/tests/ and verify all pass"
+            }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/__tests__/cad-bridge.test.ts", "type": "test", "description": "CadBridge integration tests", "line_count_est": 150 },
+            { "path": ".github/workflows/ci.yml", "type": "config", "description": "CI updated with Python test step" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.80,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "CadBridge TS→Python round-trip works for create→validate→export→import",
+          "Python bridge auto-restarts after crash",
+          "CI runs both vitest and pytest",
+          "All 1115+ existing tests still pass"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Bridge reliability — what happens if Python OOM kills?",
+        "Performance — is subprocess IPC fast enough for interactive use?",
+        "Security — can malicious JSON-RPC params cause code execution?",
+        "CI — does CadQuery install reliably on ubuntu-latest?"
+      ]
     }
   ],
-  "total_units": 1,
-  "total_sessions": "2",
+  "total_units": 7,
+  "total_sessions": "2-3",
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Platform Engineer",
+      "name": "Implementer / Platform Engineer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    },
+    {
+      "code": "R3",
+      "name": "Test Writer",
+      "model": "sonnet-4.6",
+      "effort": 75
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    { "tool": "prism_dev", "phases": ["P0"] },
-    { "tool": "prism_validate", "phases": ["P0"] }
+    { "tool": "prism_dev", "phases": ["P0", "P1", "P2"] },
+    { "tool": "prism_validate", "phases": ["P1", "P2"] }
   ],
   "deliverables_index": [
-    { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module" },
-    { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module" },
-    { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module" }
+    { "path": "cad-engine/pyproject.toml", "type": "config", "description": "Python project configuration with pinned deps" },
+    { "path": "cad-engine/src/__init__.py", "type": "source", "description": "Package init" },
+    { "path": "cad-engine/src/cad_kernel.py", "type": "source", "description": "CadQuery wrapper module (~400 lines)" },
+    { "path": "cad-engine/src/geo_validator.py", "type": "source", "description": "Geometry validation module (~300 lines)" },
+    { "path": "cad-engine/src/cad_export.py", "type": "source", "description": "Multi-format export module (~250 lines)" },
+    { "path": "cad-engine/src/reference_parts.py", "type": "source", "description": "10 parametric reference parts (~300 lines)" },
+    { "path": "cad-engine/src/bridge.py", "type": "source", "description": "Python JSON-RPC bridge (~200 lines)" },
+    { "path": "cad-engine/reference_parts/", "type": "data", "description": "10 reference STEP files" },
+    { "path": "cad-engine/tests/test_reference_parts.py", "type": "test", "description": "Reference part tests" },
+    { "path": "cad-engine/tests/test_defect_detection.py", "type": "test", "description": "Defect detection tests" },
+    { "path": "cad-engine/tests/test_roundtrip.py", "type": "test", "description": "STEP round-trip tests" },
+    { "path": "mcp-server/src/engines/CadBridge.ts", "type": "source", "description": "TS→Python bridge client (~250 lines)" },
+    { "path": "mcp-server/src/__tests__/cad-bridge.test.ts", "type": "test", "description": "Bridge integration tests" },
+    { "path": ".github/workflows/ci.yml", "type": "config", "description": "CI with Python test step" }
   ],
-  "existing_leverage": [],
+  "existing_leverage": [
+    { "path": "mcp-server/src/engines/CADKernelEngine.ts", "lines": 758, "relevance": "Pure TS math library — reference for API surface design" },
+    { "path": "mcp-server/src/engines/GeometryEngine.ts", "lines": 224, "relevance": "TS primitive ops — Python API should mirror these" },
+    { "path": "mcp-server/src/engines/MeshEngine.ts", "lines": 286, "relevance": "STL/mesh I/O patterns — reference for export module" },
+    { "path": "mcp-server/src/engines/FeatureRecognitionEngine.ts", "lines": 247, "relevance": "22 feature types — validation targets for reference parts" },
+    { "path": "mcp-server/src/engines/CAMKernelEngine.ts", "lines": 874, "relevance": "Multi-controller G-code gen — downstream consumer of CAD geometry" },
+    { "path": "mcp-server/src/tools/dispatchers/cadDispatcher.ts", "lines": 113, "relevance": "10-action dispatcher — integration point for CadBridge" },
+    { "path": "mcp-server/src/hooks/hookBridge.ts", "lines": 100, "relevance": "TS↔Python IPC reference pattern" },
+    { "path": "mcp-server/src/__tests__/l2-cadcam-engines.test.ts", "lines": 412, "relevance": "Test pattern reference for CAD engine tests" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
@@ -148,7 +779,14 @@
       "missing_deps",
       "missing_exit_conditions",
       "missing_rollback",
-      "sequence_errors"
+      "sequence_errors",
+      "role_mismatch",
+      "effort_mismatch",
+      "missing_indexing",
+      "missing_skills",
+      "orphaned_deliverables",
+      "underspecified_steps",
+      "missing_tests"
     ],
     "improvement_threshold": 0.92
   }
