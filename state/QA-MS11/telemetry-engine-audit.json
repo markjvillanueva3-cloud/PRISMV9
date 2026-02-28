@@ -1,0 +1,261 @@
+{
+  "unit": "QA-MS11-U01",
+  "title": "TelemetryEngine: Data Collection & Aggregation Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T14:00:00Z",
+  "status": "PASS",
+  "scope": "4 telemetry/monitoring engines (TelemetryEngine 606, MachineConnectivityEngine 809, PredictiveMaintenanceEngine 739, PredictiveFailureEngine 793) \u2014 2,947 total lines",
+  "engines": [
+    {
+      "name": "TelemetryEngine",
+      "file": "src/engines/TelemetryEngine.ts",
+      "lines": 606,
+      "architecture": "Per-dispatcher ring buffer (100-10K records), 4 time windows (1m/5m/1h/24h), EMA anomaly detection",
+      "data_collection": {
+        "record_format": "id, timestamp, dispatcher, action, startMs, endMs, latencyMs, outcome, errorClass, tokenEstimate, payloadSizeBytes, contextDepthPercent, SHA-256 checksum",
+        "validation": "latency 0-600K ms, payload <100MB, context 0-100%",
+        "storage": "In-memory ring buffer (overwrites oldest when full)"
+      },
+      "aggregation": {
+        "functions": [
+          "count",
+          "avg",
+          "p50",
+          "p95",
+          "p99",
+          "error_rate",
+          "error_distribution",
+          "action_breakdown",
+          "token_estimation"
+        ],
+        "cycle": "30s default aggregation interval, min 3 samples"
+      },
+      "anomaly_detection": {
+        "method": "Exponential moving average (alpha=0.2) + sigma-based deviation",
+        "thresholds": {
+          "general": "2.0 sigma",
+          "safety_critical": "1.5 sigma"
+        },
+        "triggers": [
+          "latency_spike: avg > baseline + sigma*stdDev",
+          "error_rate_increase: rate > baseline*2"
+        ],
+        "dedup": "60s window on dispatcher:type key"
+      },
+      "retention": "Ring buffer (bounded, no persistence except snapshots to state/telemetry/telemetry_snapshot.json)",
+      "strengths": [
+        "Efficient O(1) ring buffer",
+        "EMA baseline accounts for drift",
+        "SHA-256 integrity checksums",
+        "4-tier window aggregation",
+        "SLO compliance checking"
+      ],
+      "issues": [
+        {
+          "severity": "MINOR",
+          "finding": "No correlation analysis \u2014 cannot detect cascading failures across dispatchers"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Route optimizer disabled \u2014 weights calculated but never applied"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Token estimation rough (payload/4) \u2014 ignores actual tokenization"
+        }
+      ]
+    },
+    {
+      "name": "MachineConnectivityEngine",
+      "file": "src/engines/MachineConnectivityEngine.ts",
+      "lines": 809,
+      "actions": 14,
+      "architecture": "Machine registry + live data store + alerts + tool wear monitor + thermal drift tracking",
+      "data_collection": {
+        "live_data": "Partial merge with previous state (position, tool, spindle state)",
+        "spindle_load_history": "100-sample rolling buffer for trend analysis",
+        "alerts": "Max 50 per machine, severity-graded"
+      },
+      "chatter_detection": {
+        "method": "Variance-based (coefficient of variation threshold 0.15)",
+        "limitation": "NO FFT \u2014 cannot detect spindle/tooth harmonics or true chatter frequency",
+        "recommendations": "Heuristic RPM pockets (80% and 65% of current) \u2014 NOT stability-diagram based"
+      },
+      "tool_wear": {
+        "model": "Linear slope: wear_rate = load_change / time",
+        "prediction": "Remaining life = (90% - current_load) / slope",
+        "limitation": "Linear model ignores flank vs crater wear phases"
+      },
+      "thermal_drift": {
+        "model": "Linear: drift_mm = (spindle_temp - ambient) * 0.001",
+        "limitation": "Ignores Z-drive, ballscrew, structural drift and nonlinear warmup curve"
+      },
+      "strengths": [
+        "Real-time live data pipeline",
+        "Tool wear remaining-life estimation",
+        "Alert severity system"
+      ],
+      "issues": [
+        {
+          "severity": "MAJOR",
+          "finding": "Chatter detection has NO FFT \u2014 variance proxy loses phase information critical for SLD avoidance"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Tool wear model is linear \u2014 ignores flank/crater wear phase transitions"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Thermal drift oversimplified \u2014 0.001mm/deg ignores ballscrew and structural expansion"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Alert deduplication missing \u2014 load oscillating around 85% threshold generates repeated alerts"
+        }
+      ]
+    },
+    {
+      "name": "PredictiveMaintenanceEngine",
+      "file": "src/engines/PredictiveMaintenanceEngine.ts",
+      "lines": 739,
+      "actions": 10,
+      "architecture": "5 maintenance models (spindle_bearing, ballscrew, way_lube, coolant, tool_holder), simulated trend data, linear regression",
+      "models": {
+        "spindle_bearing": {
+          "signal": "Vibration 1x/2x RPM",
+          "warning": "4.5 mm/s",
+          "critical": "7.0 mm/s",
+          "life": "10,000 hrs",
+          "cost": "$8,000"
+        },
+        "ballscrew": {
+          "signal": "Backlash TIR",
+          "warning": "0.015 mm",
+          "critical": "0.025 mm",
+          "life": "20,000 hrs",
+          "cost": "$5,000"
+        },
+        "way_lube": {
+          "signal": "Servo current at rapids",
+          "warning": "+15%",
+          "critical": "+30%",
+          "life": "4,000 hrs",
+          "cost": "$500"
+        },
+        "coolant": {
+          "signal": "Ra degradation",
+          "warning": "+15%",
+          "critical": "+25%",
+          "life": "2,000 hrs",
+          "cost": "$200"
+        },
+        "tool_holder": {
+          "signal": "Runout TIR growth",
+          "warning": "0.012 mm",
+          "critical": "0.020 mm",
+          "life": "8,000 hrs",
+          "cost": "$300"
+        }
+      },
+      "analysis": "OLS regression on 12 simulated data points, severity assessment (normal/watch/warning/critical), remaining life prediction",
+      "strengths": [
+        "Physics-based thresholds (ISO 10816)",
+        "Cost-of-delay quantification",
+        "Multi-component holistic health view"
+      ],
+      "issues": [
+        {
+          "severity": "MAJOR",
+          "finding": "Simulated data only \u2014 no real MTConnect/OPC-UA sensor integration"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Linear regression assumes constant wear slope \u2014 ignores run-in and wear-out phases"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Remaining life is point estimate with no confidence interval"
+        }
+      ]
+    },
+    {
+      "name": "PredictiveFailureEngine (F1)",
+      "file": "src/engines/PredictiveFailureEngine.ts",
+      "lines": 793,
+      "architecture": "Ring buffer (5K records default), chi-squared pattern extraction, 5 pattern types, exponential decay",
+      "pattern_types": [
+        "ACTION_ERROR_RATE \u2014 chi-squared significance on failure rates",
+        "PARAM_COMBO_FAILURE \u2014 param signature failure rate vs overall",
+        "CONTEXT_DEPTH_FAILURE \u2014 failure rate above depth thresholds (50/60/70/80%)",
+        "TEMPORAL_FAILURE \u2014 failure rate after N calls (15/20/25/30)",
+        "SEQUENCE_FAILURE \u2014 failure rate after specific preceding action"
+      ],
+      "risk_scoring": "Sum of pattern contributions (clamped 0-1): GREEN (<0.4), YELLOW (0.4-0.7), RED (>=0.7)",
+      "safety": "Pre-filter ONLY \u2014 never blocks, never overrides S(x) >= 0.70 hard threshold",
+      "strengths": [
+        "Statistical rigor (chi-squared + Bonferroni correction)",
+        "Wilson score confidence intervals",
+        "Exponential decay (old patterns fade)",
+        "5 diverse pattern types",
+        "Safety-aware (pre-filter only)"
+      ],
+      "issues": [
+        {
+          "severity": "MINOR",
+          "finding": "Bonferroni correction too conservative \u2014 alpha/500 means only extreme patterns detected"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "PARAM_COMBO only matches param key signature hash, not actual values"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Risk scoring is linear accumulation \u2014 no interaction terms between pattern types"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "4 complementary monitoring engines covering telemetry, connectivity, maintenance, and failure prediction"
+    },
+    {
+      "severity": "OK",
+      "finding": "TelemetryEngine has proper statistical baselines (EMA) and bounded memory (ring buffers)"
+    },
+    {
+      "severity": "OK",
+      "finding": "PredictiveFailureEngine uses chi-squared significance testing with Bonferroni correction \u2014 statistically rigorous"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "MachineConnectivityEngine chatter detection has NO FFT \u2014 variance proxy only"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "PredictiveMaintenanceEngine uses simulated data only \u2014 no real sensor integration"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Tool wear model is linear (ignores wear phase transitions)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Thermal drift model oversimplified (single coefficient, ignores structural expansion)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "4.50",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "data_collection_pipeline_verified": true,
+    "aggregation_functions_verified": true,
+    "data_retention_policies_documented": true
+  }
+}

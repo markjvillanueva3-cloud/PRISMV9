@@ -1,0 +1,184 @@
+{
+  "unit": "QA-MS11-U00",
+  "title": "KnowledgeEngine: Search & Retrieval Logic Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T14:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "3 knowledge engines (KnowledgeGraphEngine 919 lines, KnowledgeQueryEngine 1030 lines, TribalKnowledgeEngine 156 lines) \u2014 2,105 total lines",
+  "engines": [
+    {
+      "name": "KnowledgeGraphEngine",
+      "file": "src/engines/KnowledgeGraphEngine.ts",
+      "lines": 919,
+      "actions": 10,
+      "action_list": [
+        "graph_query",
+        "graph_infer",
+        "graph_discover",
+        "graph_predict",
+        "graph_traverse",
+        "graph_add",
+        "graph_search",
+        "graph_stats",
+        "graph_history",
+        "graph_get"
+      ],
+      "architecture": "In-memory Map-based graph (40+ seeded nodes, 60+ weighted edges, 4 history arrays)",
+      "search_algorithm": "Keyword-based substring matching (findNodeByName, searchNodes) \u2014 NO semantic similarity",
+      "retrieval_ranking": "Prediction: sqrt(machinability)*55+28 base, tool/strategy bonuses from edge weights",
+      "inference": "Name-pattern matching for unknown materials (e.g. 'inconel' -> nickel_superalloy family), similarity 0.7-0.85",
+      "traversal": "BFS to configurable depth, max 5 neighbors per node, weight-sorted",
+      "strengths": [
+        "Rich domain knowledge (40 nodes, 60+ edges with evidence strings and job_count metadata up to 1,247 jobs)",
+        "Prediction combines machinability base + tool/strategy bonuses from weighted edges",
+        "Fanout limiting (max 5 neighbors/node) prevents combinatorial explosion"
+      ],
+      "issues": [
+        {
+          "severity": "MAJOR",
+          "finding": "No semantic search \u2014 pure keyword matching, vulnerable to typos/synonyms/abbreviations"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Inference relies on exact name-pattern matching for unknown materials \u2014 no fuzzy matching or NLP"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "BFS traversal does not decay relevance by distance \u2014 top-5 by weight ignores path depth"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "4 separate history arrays (query/infer/discover/predict) \u2014 no cross-query correlation possible"
+        }
+      ]
+    },
+    {
+      "name": "KnowledgeQueryEngine",
+      "file": "src/engines/KnowledgeQueryEngine.ts",
+      "lines": 1030,
+      "actions": 9,
+      "action_list": [
+        "unifiedSearch",
+        "searchRegistry",
+        "crossRegistryQuery",
+        "findFormulas",
+        "findRelatedFormulas",
+        "buildRelationships",
+        "generateWorkflow",
+        "getStats",
+        "clearCache"
+      ],
+      "architecture": "Cross-registry search over 9 registries with LRU cache (TTL 5min, max 100 entries)",
+      "search_algorithm": "Registry-detection via keyword regex patterns, then per-registry substring matching",
+      "retrieval_ranking": "Relevance scoring: exact=1.0, starts_with=0.9, contains=0.7, description=0.5, partial_word=0.3-0.6",
+      "cross_registry": "REGISTRY_RELATIONSHIPS directed graph: materials->[formulas,tools,machines,alarms], etc.",
+      "workflow_generation": "Naive fixed order: Material->Machine->Tool->Formula->Skills->Scripts",
+      "strengths": [
+        "Practical registry-detection via keyword patterns across 9 registries",
+        "Clean LRU cache with TTL and configurable limits",
+        "Workflow generation (Material->Machine->Tool->Formula) matches manufacturing process flow"
+      ],
+      "issues": [
+        {
+          "severity": "MAJOR",
+          "finding": "Shallow relevance scoring \u2014 no TF-IDF, BM25, or embedding-based ranking; 'contains' always scores 0.7 regardless of context"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Cache key uses JSON.stringify(options) \u2014 order-dependent, different option key order = cache miss"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Formula search loads ALL formulas then filters (up to 500-item memory cost per query)"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Workflow generation is rigid \u2014 always Material->Machine->Tool order, does not adapt to actual query context"
+        }
+      ]
+    },
+    {
+      "name": "TribalKnowledgeEngine",
+      "file": "src/engines/TribalKnowledgeEngine.ts",
+      "lines": 156,
+      "actions": 4,
+      "action_list": [
+        "capture",
+        "search",
+        "suggest",
+        "stats"
+      ],
+      "architecture": "12 hardcoded tips in KNOWLEDGE_BASE array with category/material/operation metadata",
+      "search_algorithm": "Simple filtering: category -> material_group -> operation_type -> substring match in title/body/tags",
+      "retrieval_ranking": "confidence * log2(usage_count + 2) \u2014 favors validated, frequently-used tips",
+      "strengths": [
+        "Lightweight human-readable knowledge capture with usage-weighted ranking",
+        "Gap detection identifies missing categories",
+        "Operators as knowledge sources (real shop-floor expertise)"
+      ],
+      "issues": [
+        {
+          "severity": "MAJOR",
+          "finding": "HARDCODED \u2014 only 12 tips, would need code changes to add more. Zero scalability."
+        },
+        {
+          "severity": "MINOR",
+          "finding": "No fuzzy or semantic matching \u2014 'work hardening prevention' won't match 'hardened surface' tips"
+        },
+        {
+          "severity": "MINOR",
+          "finding": "Confidence is single-scale (0-100) \u2014 doesn't distinguish validated (5+ incidents) from anecdotal"
+        }
+      ]
+    }
+  ],
+  "knowledge_bases": {
+    "count": 12,
+    "total_lines": 5400,
+    "key_files": [
+      "PRISM_ALGORITHMS_KB.js (2,292 lines)",
+      "PRISM_UNIVERSITY_ALGORITHMS.js (4,935 lines)",
+      "PRISM_KNOWLEDGE_BASE.js (620 lines)",
+      "9 other KB modules (materials, data structures, AI, fusion, integration, systems)"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "3 complementary knowledge engines covering graph, registry-search, and tribal knowledge domains"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "No semantic search in any engine \u2014 all use keyword/substring matching only, no embeddings or NLP"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "TribalKnowledgeEngine has 12 hardcoded tips \u2014 cannot scale without code changes"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "KnowledgeQueryEngine relevance scoring is shallow (no TF-IDF/BM25), 'contains' always 0.7"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "KnowledgeGraphEngine inference relies on exact name patterns for unknown materials"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Cross-registry workflow generation is rigid (always Material->Machine->Tool order)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "search_algorithm_verified": true,
+    "retrieval_ranking_verified": true,
+    "knowledge_base_integration_documented": true
+  }
+}

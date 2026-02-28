@@ -1,0 +1,133 @@
+{
+  "unit": "QA-MS11-U02",
+  "title": "ComplianceEngine: Regulatory Rule Evaluation Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T14:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "ComplianceEngine.ts (785 lines) \u2014 6 regulatory templates, 14 requirements, gap analysis, audit trail",
+  "file": "src/engines/ComplianceEngine.ts",
+  "lines": 785,
+  "templates": {
+    "count": 6,
+    "frameworks": [
+      {
+        "id": "iso_13485_v2016",
+        "name": "ISO 13485:2016",
+        "scope": "Medical Devices QMS",
+        "requirements": 3,
+        "strictness": 2,
+        "retain_days": 365
+      },
+      {
+        "id": "as9100_rev_d",
+        "name": "AS9100 Rev D",
+        "scope": "Aerospace QMS",
+        "requirements": 2,
+        "strictness": 3,
+        "retain_days": 730
+      },
+      {
+        "id": "itar_22cfr",
+        "name": "ITAR 22 CFR 120-130",
+        "scope": "Export Control",
+        "requirements": 2,
+        "strictness": 1,
+        "retain_days": 1825
+      },
+      {
+        "id": "soc2_type2",
+        "name": "SOC2 Type II",
+        "scope": "Trust Services",
+        "requirements": 2,
+        "strictness": 5,
+        "retain_days": 365
+      },
+      {
+        "id": "hipaa_security",
+        "name": "HIPAA Security Rule",
+        "scope": "Healthcare",
+        "requirements": 2,
+        "strictness": 4,
+        "retain_days": 2190
+      },
+      {
+        "id": "fda_21cfr11",
+        "name": "FDA 21 CFR Part 11",
+        "scope": "Electronic Records",
+        "requirements": 3,
+        "strictness": 1,
+        "retain_days": 2555
+      }
+    ]
+  },
+  "rule_evaluation": {
+    "template_system": "Each requirement has hook_spec (natural_language, phase, mode:block/warning/log) for auto-provisioning via F6 NLHookEngine",
+    "gap_analysis": "Per-requirement check: if hook exists and active -> compliant, if missing -> non_compliant, if no hook_spec -> partial (manual review)",
+    "audit_scoring": "passing/total \u2014 does NOT weight by severity (mandatory counts same as optional)"
+  },
+  "strictness_lattice": {
+    "conflict_resolution": "3 strategies: retain_days=MAX, certificate_signing=TRUE-wins, strictness=MIN-rank-wins",
+    "example": "ISO13485 (rank 2) + ITAR (rank 1): ITAR wins strictness, retention=max(365,1825)=1825 days"
+  },
+  "audit_trail": {
+    "mechanism": "Append-only JSONL at state/compliance/audit.jsonl",
+    "fields": "id, timestamp, framework, template_id, requirement_id, regulation_clause, status, details, session_id, dispatcher, action, certificate_id, hook_id, disclaimer",
+    "immutability": "appendFileSync \u2014 never overwrites, never compacted"
+  },
+  "integration_points": [
+    "F6 NLHookEngine (hook auto-provisioning from natural language)",
+    "F4 CertificateEngine (auto-configure certs)",
+    "complianceDispatcher (8 actions)"
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "6 production regulatory frameworks with real compliance clauses and strictness lattice for multi-template conflicts"
+    },
+    {
+      "severity": "OK",
+      "finding": "Append-only audit trail prevents tampering \u2014 compliant with FDA/ITAR immutable record requirements"
+    },
+    {
+      "severity": "OK",
+      "finding": "Disclaimer present in EVERY output (legal safety)"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Hook provisioning NOT idempotent \u2014 each applyTemplate() tries to create NEW hooks, no dedup check on hook_ids"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Audit score does not weight by severity \u2014 failing 1 mandatory requirement counts same as 1 optional requirement"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Access control conflict resolution INCOMPLETE \u2014 ITAR requires itar_authorized, HIPAA requires hipaa_authorized, no UNION/INTERSECT strategy defined"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Retention policy declared but NEVER enforced \u2014 audit log grows unbounded with no cleanup mechanism"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Hook verification checks existence but not ACTIVE/ENABLED state \u2014 disabled hook still counts as compliant"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "QUALITY_SOURCE_FILE_CATALOG declares 3 legacy JS files (988 lines) \u2014 NEVER imported or used, dead code"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 5,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "rule_evaluation_verified": true,
+    "regulatory_standard_mapping_verified": true,
+    "compliance_reporting_validated": true
+  }
+}

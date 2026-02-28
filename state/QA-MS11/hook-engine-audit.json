@@ -1,0 +1,135 @@
+{
+  "unit": "QA-MS11-U03",
+  "title": "HookEngine: Execution Chain Correctness Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T14:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "HookEngine.ts (802 lines) + HookExecutor.ts (841 lines) \u2014 dual hook system, 1,643 total lines",
+  "engines": [
+    {
+      "name": "HookEngine",
+      "file": "src/engines/HookEngine.ts",
+      "lines": 802,
+      "classes": [
+        "EventBus (lines 178-264)",
+        "HookEngine (lines 270-742)"
+      ],
+      "methods": 12,
+      "method_list": [
+        "registerHook",
+        "unregisterHook",
+        "executeHook",
+        "executeHookChain",
+        "wrapWithHooks",
+        "emit",
+        "getHook",
+        "listHooks",
+        "getHooksForEvent",
+        "getHooksByPattern",
+        "setHookEnabled",
+        "getStats"
+      ],
+      "execution_order": {
+        "priority_system": "5 levels: critical(0), high(1), normal(2), low(3), background(4)",
+        "within_phase": "Hooks sorted by priority, executed sequentially in order",
+        "context_chaining": "Each hook receives previousResults from prior hooks in chain"
+      },
+      "pre_post_semantics": {
+        "wrapWithHooks": "before -> operation -> after/on_success/on_error",
+        "halt_signal": "If before hook returns halt=true, operation is skipped (respects stopOnHalt option)",
+        "error_handling": "Configurable: stopOnError (fail-fast) vs continue-on-error"
+      },
+      "built_in_hooks": [
+        "BAYES-001: Bayesian Prior Init (before: task.started)",
+        "BAYES-002: Bayesian Change Detection (after: validation.completed)",
+        "OPT-001: Parameter Optimization (after: calculation.completed)",
+        "MULTI-001: Pareto Frontier Analysis (after: calculation.completed, low priority)",
+        "SAFETY-001: Safety Validation (before: task.started, critical priority)",
+        "LOG-001: Execution Logger (after: task.completed, background)"
+      ],
+      "retry_mechanism": "Exponential backoff via Promise.race() with configurable timeout (default 5000ms)"
+    },
+    {
+      "name": "HookExecutor",
+      "file": "src/engines/HookExecutor.ts",
+      "lines": 841,
+      "architecture": "Lower-level hook execution with different phase naming convention",
+      "phases": [
+        "pre-file-read",
+        "post-calculation",
+        "pre-agent-execute",
+        "on-tool-call",
+        "pre-calculation",
+        "post-output"
+      ],
+      "note": "SEPARATE from HookEngine \u2014 uses different phase system, different execution model"
+    }
+  ],
+  "dual_hook_system": {
+    "issue": "Two independent hook systems coexist: HookEngine (event-based, 8 phases) and HookExecutor (phase-based, 6+ phases)",
+    "hookengine_phases": [
+      "before",
+      "after",
+      "on_error",
+      "on_success",
+      "on_start",
+      "on_complete",
+      "on_cancel",
+      "on_timeout"
+    ],
+    "hookexecutor_phases": [
+      "pre-calculation",
+      "post-calculation",
+      "pre-file-read",
+      "on-tool-call",
+      "pre-agent-execute",
+      "post-output"
+    ],
+    "overlap": "Both handle pre/post execution hooks with priority ordering but with incompatible phase naming",
+    "risk": "Developer confusion \u2014 which hook system to use for new hooks?"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Clean priority ordering (5 levels) with configurable halt signals and error handling modes"
+    },
+    {
+      "severity": "OK",
+      "finding": "Context chaining passes previousResults through hook chain \u2014 enables data flow between hooks"
+    },
+    {
+      "severity": "OK",
+      "finding": "Retry mechanism with exponential backoff and timeout handling via Promise.race()"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "DUAL HOOK SYSTEM \u2014 HookEngine and HookExecutor are independent with incompatible phase naming conventions"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Filter evaluation returns SKIP but context is still updated before next iteration \u2014 filter result does not prevent context pollution"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "MAX_TIMEOUT_MS (30000ms) not enforced during hook registration \u2014 can register hooks with arbitrarily high timeout"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "No deadlock detection for circular hook data modifications (unlikely but theoretically possible)"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 4,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "hook_execution_chain_verified": true,
+    "pre_post_semantics_verified": true,
+    "error_handling_verified": true,
+    "hook_priority_mechanism_documented": true
+  }
+}

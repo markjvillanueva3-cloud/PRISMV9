@@ -1,0 +1,136 @@
+{
+  "unit": "QA-MS11-U04",
+  "title": "SkillExecutor + AgentExecutor: Orchestration Logic Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T14:00:00Z",
+  "status": "PASS",
+  "scope": "6 orchestration engines (SkillExecutor 862, SkillBundleEngine 239, SkillAutoLoader 434, AgentExecutor 836, SwarmGroupExecutor 358, ManusATCSBridge 306) \u2014 3,035 total lines",
+  "skill_execution": {
+    "engines": [
+      {
+        "name": "SkillExecutor",
+        "file": "src/engines/SkillExecutor.ts",
+        "lines": 862,
+        "pipeline": "analyzeTask (pattern matching) -> recommendSkills (ranked) -> buildSkillChain (toposort) -> executeSkillChain (sequential load)",
+        "task_analysis": "10 domain patterns (materials, machines, tools, alarms, calculations, programming, session, quality, code, ai), action detection, complexity classification",
+        "chains": [
+          "speed-feed-full",
+          "toolpath-optimize",
+          "material-complete",
+          "alarm-diagnose",
+          "quality-release",
+          "session-recovery"
+        ],
+        "caching": "LRU cache (50 entries, 5min TTL) with usage tracking"
+      },
+      {
+        "name": "SkillBundleEngine",
+        "file": "src/engines/SkillBundleEngine.ts",
+        "lines": 239,
+        "bundles": 9,
+        "bundle_list": [
+          "speed-feed",
+          "toolpath-strategy",
+          "material-analysis",
+          "alarm-diagnosis",
+          "safety-validation",
+          "threading",
+          "quality-release",
+          "session-recovery",
+          "optimization"
+        ],
+        "design": "Zero registry imports \u2014 pure static data. 5 skills per bundle with trigger_domains/trigger_actions."
+      },
+      {
+        "name": "SkillAutoLoader",
+        "file": "src/engines/SkillAutoLoader.ts",
+        "lines": 434,
+        "domain_chain_map": "11 domains -> predefined chains (calculations->speed-feed-full, safety->safety-validate, etc.)",
+        "action_skill_map": "66 actions -> primary skill for deep excerpts",
+        "pressure_adaptive": "Excerpt length adapts: <50% pressure=80 lines, 50-70%=40, 70-85%=15, >85%=skip",
+        "smart_excerpt": "Extracts KEY SECTIONS: headers, formulas (= <- ->), tables (|), decision points (IF/WHEN/WARNING/CRITICAL)"
+      }
+    ]
+  },
+  "agent_execution": {
+    "engines": [
+      {
+        "name": "AgentExecutor",
+        "file": "src/engines/AgentExecutor.ts",
+        "lines": 836,
+        "execution_modes": [
+          "sequential",
+          "parallel",
+          "pipeline",
+          "swarm"
+        ],
+        "priority_scheduling": "Weight-based queue (critical=100, high=75, normal=50, low=25, background=10)",
+        "retry": "Configurable retries with exponential delay (default 2 retries, 1000ms delay)",
+        "api_integration": "Real Claude API calls (model based on agent tier, temperature 0.3)",
+        "hook_lifecycle": [
+          "task_queued",
+          "task_started",
+          "task_completed",
+          "task_failed",
+          "plan_started",
+          "plan_completed"
+        ]
+      },
+      {
+        "name": "SwarmGroupExecutor",
+        "file": "src/engines/SwarmGroupExecutor.ts",
+        "lines": 358,
+        "architecture": "Two-pass execution: independent groups parallel, dependent groups sequential by wave",
+        "fault_tolerance": "Promise.allSettled for parallel pass \u2014 individual group failures don't stop batch",
+        "synthesis": "Top 3 key findings extracted from all group results"
+      },
+      {
+        "name": "ManusATCSBridge",
+        "file": "src/engines/ManusATCSBridge.ts",
+        "lines": 306,
+        "delegation_flow": "ATCS queue_next(delegate:true) -> bridge.delegateUnits() -> Claude API (async) -> pollResults() -> unit_complete",
+        "persistence": "In-memory only \u2014 delegated tasks lost on restart",
+        "safety": "System prompt enforces real verified manufacturing data only, no placeholders/stubs"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Skill pipeline: pattern-based analysis -> ranked recommendations -> topological chain building -> pressure-adaptive loading"
+    },
+    {
+      "severity": "OK",
+      "finding": "Agent pipeline: 4 execution modes (sequential/parallel/pipeline/swarm) with priority scheduling and retry logic"
+    },
+    {
+      "severity": "OK",
+      "finding": "SwarmGroupExecutor uses Promise.allSettled for fault tolerance \u2014 individual failures don't stop batch"
+    },
+    {
+      "severity": "OK",
+      "finding": "ManusATCSBridge enforces 'real verified manufacturing data only' in system prompt"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "ManusATCSBridge delegated tasks are in-memory only \u2014 lost on restart with no recovery mechanism"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "AgentExecutor pipeline mode passes output via _pipelineInput field \u2014 fragile coupling between task stages"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.50",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "skill_execution_pipeline_verified": true,
+    "agent_orchestration_verified": true,
+    "error_recovery_verified": true
+  }
+}

@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS10 COMPLETE, QA-MS11 next
+**Phase:** QA Audit Track -- QA-MS0-MS11 COMPLETE, QA-MS12 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS11 (Intelligence Engines) -- not started
-**Next:** QA-MS11-U00 -> U01 -> U02 -> U03 -> U04 -> U05
+**Active:** QA-MS12 (Hook & Orchestration) -- not started
+**Next:** QA-MS12-U00 -> U01 -> U02 -> U03 -> U04
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -127,10 +127,22 @@
 - **Key findings:** 5-axis C-axis limits unchecked (CRITICAL), post-processor drops tap/bore cycles (CRITICAL), WireEDM skim formula inverted (MAJOR), no dedicated grinding engine
 - **Composite OQA:** (4.25+3.55+3.30+3.30+4.00+4.40)/6*0.8 + test_pass*0.2 = 3.80*0.8 + 1.0 = 3.24 (COND PASS, gate omega_floor=0.75 met)
 
+## QA-MS11 Intelligence & Infrastructure Engines Results (2026-02-28)
+- **U00 (Knowledge Engines):** 3 engines (KnowledgeGraph 919, KnowledgeQuery 1030, TribalKnowledge 156 = 2,105 lines), 3 MAJOR: no semantic search anywhere, TribalKnowledge hardcoded 12 tips, relevance scoring shallow (OQA=4.00 COND PASS)
+- **U01 (Telemetry Engines):** 4 engines (Telemetry 606, MachineConnectivity 809, PredictiveMaintenance 739, PredictiveFailure 793 = 2,947 lines), chatter detection has NO FFT (MAJOR), maintenance simulated data only (MAJOR) (OQA=4.50 PASS)
+- **U02 (ComplianceEngine):** 785 lines, 6 regulatory templates (14 requirements), 3 MAJOR: hook provisioning not idempotent, audit score unweighted by severity, access control conflict resolution incomplete (OQA=4.00 COND PASS)
+- **U03 (HookEngine):** 802 lines + HookExecutor 841 lines = 1,643 total, 1 MAJOR: DUAL hook systems with incompatible phase naming (HookEngine vs HookExecutor) (OQA=4.00 COND PASS)
+- **U04 (Executors):** 6 engines (SkillExecutor 862, SkillBundle 239, SkillAutoLoader 434, AgentExecutor 836, SwarmGroup 358, ManusATCSBridge 306 = 3,035 lines), 4 execution modes, pressure-adaptive skill loading (OQA=4.50 PASS)
+- **U05 (Engine Count):** 232 .ts files, 171 true engine classes — QA-MS0 baseline of 169 was 98.8% accurate (OQA=5.00 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** No semantic search in knowledge engines, dual hook systems, compliance hook idempotency gap, chatter detection lacks FFT, maintenance uses simulated data
+- **Composite OQA:** (4.00+4.50+4.00+4.00+4.50+5.00)/6*0.8 + test_pass*0.2 = 4.33*0.8 + 1.0 = 3.67+0.2 = 3.87 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 50 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS10)
+- Complete: 51 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS11)
 - In Progress: 0
-- Not Started: 30 milestones (QA-MS11-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 29 milestones (QA-MS12-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -146,7 +158,7 @@
 | QA-MS8 | Manufacturing Dispatchers | 5 | **COMPLETE** (drilling/stripping orphaned, toolpath dead code, OQA=4.20) |
 | QA-MS9 | Infrastructure Dispatchers | 7 | **COMPLETE** (bridge CRITICAL, tenant auth gap, OQA=4.63) |
 | QA-MS10 | Manufacturing Engines | 6 | **COMPLETE** (5-axis CRITICAL, post-proc CRITICAL, OQA=3.24) |
-| QA-MS11 | Intelligence Engines | 6 | not started |
+| QA-MS11 | Intelligence Engines | 6 | **COMPLETE** (dual hook system, no semantic search, OQA=3.87) |
 | QA-MS12 | Hook & Orchestration | 5 | not started |
 | QA-MS13 | Cross-Cutting Concerns | 6 | not started |
 | QA-MS14 | Enhancement Synthesis | 4 | not started |
