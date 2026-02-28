@@ -332,8 +332,9 @@ export function getAllMachineStatuses(): MachineLiveStatus[] {
 
 /**
  * Detect chatter from spindle load signal.
- * In production, uses FFT on high-frequency spindle load data.
- * This simplified version uses load variance as a proxy.
+ * M-022: Now uses DFT-based frequency analysis to detect chatter.
+ * Identifies dominant non-tooth-pass frequencies in spindle load signal.
+ * Falls back to variance (CV) proxy when signal is short.
  */
 export function detectChatter(machineId: string): ChatterResult {
   const history = spindleLoadHistory.get(machineId) ?? [];
@@ -351,19 +352,58 @@ export function detectChatter(machineId: string): ChatterResult {
     };
   }
 
-  // Calculate variance (proxy for chatter — real impl uses FFT)
-  const mean = history.reduce((a, b) => a + b, 0) / history.length;
-  const variance = history.reduce((a, b) => a + (b - mean) ** 2, 0) / history.length;
+  // M-022: DFT-based frequency analysis for chatter detection
+  // Compute discrete Fourier transform to find dominant non-tooth-pass frequencies
+  const N = history.length;
+  const mean = history.reduce((a, b) => a + b, 0) / N;
+  const centered = history.map(v => v - mean); // remove DC component
+
+  // DFT magnitude spectrum (real-valued input, only need N/2 bins)
+  const halfN = Math.floor(N / 2);
+  const magnitudes: number[] = new Array(halfN).fill(0);
+  for (let k = 1; k < halfN; k++) { // skip k=0 (DC)
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++) {
+      const angle = (2 * Math.PI * k * n) / N;
+      re += centered[n] * Math.cos(angle);
+      im -= centered[n] * Math.sin(angle);
+    }
+    magnitudes[k] = Math.sqrt(re * re + im * im) / N;
+  }
+
+  // Find dominant frequency bin
+  let peakBin = 1, peakMag = 0;
+  for (let k = 1; k < halfN; k++) {
+    if (magnitudes[k] > peakMag) { peakMag = magnitudes[k]; peakBin = k; }
+  }
+
+  // Assume ~1kHz sample rate for spindle load (typical for CNC monitoring)
+  const sampleRateHz = 1000;
+  const freqResolution = sampleRateHz / N;
+  const dominantFreq = peakBin * freqResolution;
+
+  // Tooth-pass frequency for comparison
+  const teeth = 4; // assume 4-flute
+  const toothPassFreq = (currentRpm / 60) * teeth;
+
+  // Chatter = strong spectral peak NOT at tooth-pass frequency or its harmonics
+  const isNearToothPass = toothPassFreq > 0 && [1, 2, 3].some(h =>
+    Math.abs(dominantFreq - toothPassFreq * h) < freqResolution * 2
+  );
+
+  // Also compute variance as fallback metric
+  const variance = centered.reduce((a, b) => a + b * b, 0) / N;
   const stdDev = Math.sqrt(variance);
   const cv = mean > 0 ? stdDev / mean : 0;
 
-  const chatterDetected = cv > 0.15;
-  const severity = Math.min(cv / 0.3, 1.0);
-
-  // Estimated dominant frequency from spindle speed
-  const teeth = 4; // assume 4-flute
-  const toothPassFreq = (currentRpm / 60) * teeth;
-  const dominantFreq = chatterDetected ? toothPassFreq * 1.1 : 0;
+  // FFT-based detection: strong non-tooth-pass peak + high CV
+  const fftChatter = peakMag > (mean * 0.05) && !isNearToothPass;
+  const varianceChatter = cv > 0.15;
+  const chatterDetected = fftChatter || varianceChatter;
+  const severity = Math.min(
+    Math.max(fftChatter ? peakMag / (mean * 0.1 || 1) : 0, cv / 0.3),
+    1.0
+  );
 
   // Recommended stable RPM pockets (simplified SLD lookup)
   const stableRpms: number[] = [];

@@ -1,7 +1,24 @@
 /**
  * PRISM MCP Server - Hook Execution Engine
  * Event-driven hook system with lifecycle management
- * 
+ *
+ * ARCHITECTURE NOTE (M-020): PRISM has a DUAL hook system by design:
+ *
+ * 1. **HookEngine** (this file) — Event-bus-based, EventEmitter pub/sub.
+ *    Used for: cognitive patterns (Bayesian, RL, optimization), lifecycle
+ *    events, and fine-grained event subscriptions. Phase names: event strings.
+ *
+ * 2. **HookExecutor** (HookExecutor.ts) — Phase-chain-based, synchronous enforcement.
+ *    Used for: safety gates (pre/post-calculation, pre-output), compliance hooks,
+ *    and dispatcher auto-fire cadences. Phase names: HookPhase enum.
+ *
+ * Both systems coexist because they serve different execution models:
+ * - HookEngine: async, event-driven, many-to-many subscriptions
+ * - HookExecutor: sync-first, phase-gated, chain-ordered, blocking-capable
+ *
+ * Future consolidation would require unifying phase naming (event strings vs
+ * HookPhase enum) and merging execution semantics. Tracked as M-020.
+ *
  * Features:
  * - Event Bus for pub/sub messaging
  * - Lifecycle Hooks (before/after task, on error, etc.)
@@ -10,7 +27,7 @@
  * - Async/Sync Hook Execution
  * - Hook Chains & Middleware
  * - Error Handling & Recovery
- * 
+ *
  * SAFETY CRITICAL: Hooks may modify manufacturing parameters.
  * All hook executions must be logged and reversible.
  */

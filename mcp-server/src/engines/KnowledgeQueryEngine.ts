@@ -126,6 +126,18 @@ const DEFAULT_CONFIG: KnowledgeEngineConfig = {
   max_cache_entries: 100
 };
 
+// M-021: Stop words excluded from TF-IDF tokenization (common English + manufacturing filler)
+const STOP_WORDS = new Set([
+  "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+  "have", "has", "had", "do", "does", "did", "will", "would", "shall",
+  "should", "may", "might", "must", "can", "could", "of", "in", "to",
+  "for", "with", "on", "at", "from", "by", "as", "or", "and", "but",
+  "if", "not", "no", "so", "it", "its", "this", "that", "these", "those",
+  "all", "any", "each", "every", "both", "few", "more", "most", "other",
+  "some", "such", "than", "too", "very", "just", "also", "only", "then",
+  "about", "up", "out", "into", "over", "after", "before", "between",
+]);
+
 // Registry search patterns
 const REGISTRY_PATTERNS: Record<RegistryType, RegExp[]> = {
   materials: [/material/i, /steel/i, /aluminum/i, /alloy/i, /titanium/i, /inconel/i, /hardness/i],
@@ -284,6 +296,12 @@ export class KnowledgeQueryEngine {
   private cache: Map<string, { result: unknown; timestamp: number }>;
   private initialized: boolean = false;
 
+  /** M-021: TF-IDF inverse document frequency cache — maps term → log(N/df) */
+  private idfCache: Map<string, number> = new Map();
+  private idfCorpusSize: number = 0;
+  private idfBuiltAt: number = 0;
+  private static readonly IDF_TTL_MS = 600000; // 10 min
+
   constructor(config: Partial<KnowledgeEngineConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.cache = new Map();
@@ -322,6 +340,7 @@ export class KnowledgeQueryEngine {
     }
   ): Promise<UnifiedSearchResult[]> {
     await this.initialize();
+    await this.ensureIdfIndex();  // M-021: lazy-build TF-IDF corpus
 
     const cacheKey = `unified:${query}:${JSON.stringify(options)}`;
     const cached = this.getFromCache<UnifiedSearchResult[]>(cacheKey);
@@ -570,6 +589,7 @@ export class KnowledgeQueryEngine {
    */
   async crossRegistryQuery(query: CrossRegistryQuery): Promise<CrossRegistryResult> {
     await this.initialize();
+    await this.ensureIdfIndex();  // M-021: TF-IDF corpus
 
     const result: CrossRegistryResult = {
       task: query.task,
@@ -863,43 +883,189 @@ export class KnowledgeQueryEngine {
   /**
    * Calculate relevance score
    */
+  /**
+   * M-021: TF-IDF relevance scoring with exact-match boosters.
+   * Combines cosine-like TF-IDF similarity with positional bonuses
+   * (exact name match, prefix match, containment) for robust ranking.
+   */
   private calculateRelevance(query: string, name: string, description: string): number {
     const queryLower = query.toLowerCase();
     const nameLower = name.toLowerCase();
     const descLower = description.toLowerCase();
 
-    let score = 0;
-
-    // Exact name match
+    // --- Positional bonus (0–0.4) for exact/prefix/substring matches ---
+    let positionalBonus = 0;
     if (nameLower === queryLower) {
-      score = 1.0;
-    }
-    // Name starts with query
-    else if (nameLower.startsWith(queryLower)) {
-      score = 0.9;
-    }
-    // Name contains query
-    else if (nameLower.includes(queryLower)) {
-      score = 0.7;
-    }
-    // Description contains query
-    else if (descLower.includes(queryLower)) {
-      score = 0.5;
-    }
-    // Partial word match
-    else {
-      const queryWords = queryLower.split(/\s+/);
-      const matchedWords = queryWords.filter(w => 
-        nameLower.includes(w) || descLower.includes(w)
-      );
-      // Use max of ratio-based and count-based scoring
-      // At least 1 word match = minimum 0.3
-      const ratioScore = matchedWords.length / queryWords.length * 0.6;
-      const countBonus = matchedWords.length > 0 ? 0.3 : 0;
-      score = Math.max(ratioScore, countBonus);
+      positionalBonus = 0.4;
+    } else if (nameLower.startsWith(queryLower)) {
+      positionalBonus = 0.3;
+    } else if (nameLower.includes(queryLower)) {
+      positionalBonus = 0.2;
+    } else if (descLower.includes(queryLower)) {
+      positionalBonus = 0.1;
     }
 
-    return Math.round(score * 100) / 100;
+    // --- TF-IDF cosine similarity (0–0.6 range) ---
+    const queryTokens = this.tokenize(queryLower);
+    if (queryTokens.length === 0) return positionalBonus;
+
+    // Document = name (weighted 2x) + description
+    const docTokens = this.tokenize(nameLower + " " + nameLower + " " + descLower);
+    if (docTokens.length === 0) return positionalBonus;
+
+    // Build doc term frequency map
+    const docTf = new Map<string, number>();
+    for (const t of docTokens) {
+      docTf.set(t, (docTf.get(t) || 0) + 1);
+    }
+    const docLen = docTokens.length;
+
+    // Compute TF-IDF dot product (query · doc) and magnitudes
+    let dotProduct = 0;
+    let queryMag = 0;
+    let docMag = 0;
+
+    // Unique query terms with their TF
+    const queryTf = new Map<string, number>();
+    for (const t of queryTokens) {
+      queryTf.set(t, (queryTf.get(t) || 0) + 1);
+    }
+    const queryLen = queryTokens.length;
+
+    for (const [term, qCount] of queryTf) {
+      const idf = this.getIdf(term);
+      const qTfIdf = (qCount / queryLen) * idf;
+      const dTfIdf = ((docTf.get(term) || 0) / docLen) * idf;
+
+      dotProduct += qTfIdf * dTfIdf;
+      queryMag += qTfIdf * qTfIdf;
+      docMag += dTfIdf * dTfIdf;
+    }
+
+    // Add remaining doc terms to docMag for proper normalization
+    for (const [term, dCount] of docTf) {
+      if (!queryTf.has(term)) {
+        const idf = this.getIdf(term);
+        const dTfIdf = (dCount / docLen) * idf;
+        docMag += dTfIdf * dTfIdf;
+      }
+    }
+
+    const magnitude = Math.sqrt(queryMag) * Math.sqrt(docMag);
+    const cosineSim = magnitude > 0 ? dotProduct / magnitude : 0;
+
+    // Scale cosine similarity to 0–0.6 range
+    const tfidfScore = cosineSim * 0.6;
+
+    const total = Math.min(1.0, tfidfScore + positionalBonus);
+    return Math.round(total * 100) / 100;
+  }
+
+  /** Tokenize text into lowercase word stems (simple whitespace + punctuation split) */
+  private tokenize(text: string): string[] {
+    return text
+      .split(/[\s\-_/\\.,;:!?()[\]{}'"]+/)
+      .filter(t => t.length > 1)  // Drop single chars
+      .filter(t => !STOP_WORDS.has(t));
+  }
+
+  /** Get IDF for a term. Uses pre-built corpus cache. */
+  private getIdf(term: string): number {
+    const cached = this.idfCache.get(term);
+    if (cached !== undefined) return cached;
+    // Unknown term = max IDF (very rare = very discriminating)
+    return Math.log(this.idfCorpusSize + 1);
+  }
+
+  /** Ensure IDF index is built and fresh. Called from async search entry points. */
+  private async ensureIdfIndex(): Promise<void> {
+    if (this.idfCorpusSize > 0 && Date.now() - this.idfBuiltAt < KnowledgeQueryEngine.IDF_TTL_MS) {
+      return; // Cache is fresh
+    }
+    await this.buildIdfIndex();
+  }
+
+  /** Build IDF index from all registry entries */
+  private async buildIdfIndex(): Promise<void> {
+    const docFreq = new Map<string, number>();
+    let totalDocs = 0;
+
+    // Collect documents from each registry
+    const collectDoc = (text: string) => {
+      const tokens = new Set(this.tokenize(text.toLowerCase()));
+      for (const t of tokens) {
+        docFreq.set(t, (docFreq.get(t) || 0) + 1);
+      }
+      totalDocs++;
+    };
+
+    // Materials
+    try {
+      const mats = await materialRegistry.list();
+      for (const m of mats) collectDoc(`${(m as any).name || ""} ${(m as any).category || ""} ${(m as any).iso_group || ""}`);
+    } catch { /* registry may not be initialized */ }
+
+    // Machines
+    try {
+      const machines = await machineRegistry.list();
+      for (const m of machines) collectDoc(`${(m as any).name || ""} ${(m as any).manufacturer || ""} ${(m as any).type || ""}`);
+    } catch { /* */ }
+
+    // Tools
+    try {
+      const tools = await toolRegistry.list();
+      for (const t of tools) collectDoc(`${(t as any).name || ""} ${(t as any).type || ""} ${(t as any).substrate || ""}`);
+    } catch { /* */ }
+
+    // Alarms
+    try {
+      const alarms = await alarmRegistry.list();
+      for (const a of alarms) collectDoc(`${(a as any).name || ""} ${(a as any).code || ""} ${(a as any).description || ""}`);
+    } catch { /* */ }
+
+    // Formulas (list() returns { formulas, total })
+    try {
+      const fResult = await formulaRegistry.list();
+      const formulas = Array.isArray(fResult) ? fResult : (fResult as any).formulas || [];
+      for (const f of formulas) collectDoc(`${(f as any).name || ""} ${(f as any).category || ""} ${(f as any).description || ""}`);
+    } catch { /* */ }
+
+    // Skills
+    try {
+      const skills = await skillRegistry.list();
+      for (const s of skills) collectDoc(`${(s as any).name || ""} ${(s as any).category || ""} ${(s as any).description || ""}`);
+    } catch { /* */ }
+
+    // Scripts
+    try {
+      const scripts = await scriptRegistry.list();
+      for (const s of scripts) collectDoc(`${(s as any).name || ""} ${(s as any).category || ""} ${(s as any).description || ""}`);
+    } catch { /* */ }
+
+    // Agents
+    try {
+      const agents = await agentRegistry.list();
+      for (const a of agents) collectDoc(`${(a as any).name || ""} ${(a as any).category || ""} ${(a as any).description || ""}`);
+    } catch { /* */ }
+
+    // Hooks
+    try {
+      const hooks = await hookRegistry.list();
+      for (const h of hooks) collectDoc(`${(h as any).name || ""} ${(h as any).phase || ""} ${(h as any).description || ""}`);
+    } catch { /* */ }
+
+    // Fallback: if no registries loaded, set reasonable defaults
+    if (totalDocs === 0) totalDocs = 1;
+
+    // Compute IDF: log(N / df) for each term
+    this.idfCache.clear();
+    for (const [term, df] of docFreq) {
+      this.idfCache.set(term, Math.log(totalDocs / df));
+    }
+    this.idfCorpusSize = totalDocs;
+    this.idfBuiltAt = Date.now();
+
+    log.debug(`KnowledgeQueryEngine: IDF index built — ${totalDocs} docs, ${docFreq.size} terms`);
   }
 
   /**

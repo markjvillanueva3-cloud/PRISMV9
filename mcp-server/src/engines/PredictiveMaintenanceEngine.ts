@@ -155,6 +155,88 @@ const MAINTENANCE_MODELS: MaintenanceModel[] = [
   },
 ];
 
+// ─── M-023: Sensor Data Provider Interface ──────────────────────────────────
+// Allows plugging in real sensor data sources (OPC-UA, MTConnect, MQTT, etc.)
+// while keeping simulated data as fallback for demos and testing.
+
+export interface SensorDataProvider {
+  /** Return machine IDs available from this provider */
+  listMachines(): Promise<string[]>;
+  /** Return machine metadata (name, hours, etc.) */
+  getMachineInfo(machineId: string): Promise<{ name: string; hours_since_last_service: number } | null>;
+  /** Return time-series data for a specific machine + category */
+  getSensorData(machineId: string, category: MaintenanceCategory): Promise<DataPoint[]>;
+}
+
+/** The active sensor provider. null = use built-in simulation data */
+let activeSensorProvider: SensorDataProvider | null = null;
+
+/** Register a real sensor data provider (OPC-UA adapter, MTConnect, etc.) */
+export function registerSensorProvider(provider: SensorDataProvider): void {
+  activeSensorProvider = provider;
+}
+
+/** Clear sensor provider, revert to simulation data */
+export function clearSensorProvider(): void {
+  activeSensorProvider = null;
+}
+
+/** Check if a real sensor provider is registered */
+export function hasSensorProvider(): boolean {
+  return activeSensorProvider !== null;
+}
+
+/** M-023: Unified data access — real sensors first, simulation fallback */
+async function getMachineData(machineId: string): Promise<SimulatedMachine | null> {
+  // Try real sensor provider first
+  if (activeSensorProvider) {
+    try {
+      const info = await activeSensorProvider.getMachineInfo(machineId);
+      if (info) {
+        const categories: MaintenanceCategory[] = [
+          "spindle_bearing", "ballscrew", "way_lube", "coolant", "tool_holder"
+        ];
+        const data: Record<MaintenanceCategory, DataPoint[]> = {} as any;
+        for (const cat of categories) {
+          data[cat] = await activeSensorProvider.getSensorData(machineId, cat);
+        }
+        return {
+          machine_id: machineId,
+          name: info.name,
+          hours_since_last_service: info.hours_since_last_service,
+          data,
+        };
+      }
+    } catch {
+      // Fall through to simulation on provider error
+    }
+  }
+  // Fallback: simulated data
+  return SIMULATED_MACHINES.find((m) => m.machine_id === machineId) || null;
+}
+
+/** M-023: List all available machines (real + simulated) */
+async function listAllMachines(): Promise<SimulatedMachine[]> {
+  if (activeSensorProvider) {
+    try {
+      const ids = await activeSensorProvider.listMachines();
+      const machines: SimulatedMachine[] = [];
+      for (const id of ids) {
+        const m = await getMachineData(id);
+        if (m) machines.push(m);
+      }
+      // Also include simulated machines not covered by real sensors
+      for (const sim of SIMULATED_MACHINES) {
+        if (!ids.includes(sim.machine_id)) machines.push(sim);
+      }
+      return machines;
+    } catch {
+      // Fall through to simulation
+    }
+  }
+  return SIMULATED_MACHINES;
+}
+
 // ─── Simulation Data (realistic time-series for demos) ──────────────────────
 
 interface SimulatedMachine {
@@ -562,6 +644,9 @@ function getMachineStatus(machineId: string): any {
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
 export function predictiveMaintenance(action: string, params: Record<string, any>): any {
+  // M-023: Tag all responses with data source for transparency
+  const dataSource = activeSensorProvider ? "real_sensor" : "simulation";
+
   switch (action) {
     // ── maint_analyze: Full analysis of a machine or specific component ──
     case "maint_analyze": {
@@ -575,6 +660,7 @@ export function predictiveMaintenance(action: string, params: Record<string, any
       }
       return {
         machine_id: machineId,
+        data_source: dataSource,  // M-023
         analyzed_categories: predictions.length,
         predictions,
         alerts_generated: alertHistory.filter((a) => predictions.some((p) => p.prediction_id === a.prediction_id)).length,

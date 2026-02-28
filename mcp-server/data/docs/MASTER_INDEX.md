@@ -374,6 +374,7 @@ Health: prism_bridge→health
 - bridge-types.ts (143L) — F7
 - certificate-types.ts (106L) — F4
 - compliance-types.ts (211L) — F8
+- coordinationTypes.ts (73L) — Multi-Claude schemas (ClaimRecord, InstanceRecord, CoordinationMessage, RoadmapRegistry)
 - graph-types.ts (193L) — F2
 - nl-hook-types.ts (216L) — F6
 - pfp-types.ts (186L) — F1
@@ -406,25 +407,54 @@ Total skill files: 119
 - W4_ASSESSMENT.md
 - W6_ROADMAP.md
 
-## 14. SUMMARY (Updated 2026-02-27)
+## 14. SERVICES & MULTI-CLAUDE COORDINATION
 
-- Dispatchers: 45 (684 verified actions)
-- Engines: 102 TypeScript engine files (see SYSTEM_ARCHITECTURE.json)
-- Algorithms: 54 standalone Algorithm<I,O> implementations
-- Registries: 22 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath, coating, coolant, database, post-processor, knowledge-base, + defaults)
+### TaskClaimService (services/TaskClaimService.ts, 404L)
+- Atomic `mkdir`-based locking (NTFS + ext4 safe)
+- Protocol: claim -> heartbeat (60s) -> release; stale reap at 5min
+- Functions: claim(), release(), heartbeat(), reapStaleClaims(), getClaimedUnitIds(), claimBatch(), releaseAll()
+- Instance management: registerInstance(), getActiveInstances()
+- Messaging: postMessage(), getMessages()
+- Activity logging: logActivity() (rolling 500-entry per milestone)
+- Data dir: mcp-server/data/claims/ + mcp-server/data/coordination/
+
+### RoadmapLoader (services/RoadmapLoader.ts, ~230L)
+- TTL-cached I/O for roadmap-index.json + milestone envelopes
+- loadIndex(), loadMilestone(), loadRegistry(), registerInRegistry()
+- Integration: loadClaimedIds() bridges to TaskClaimService
+
+### Orchestration Dispatcher Actions (prism_orchestrate)
+- roadmap_claim: Atomic unit claim via TaskClaimService
+- roadmap_release: Release claimed unit
+- roadmap_heartbeat: Renew claim timestamp
+- roadmap_discover: List roadmaps, active claims, instances; reap stale
+- roadmap_register: Register milestones into registry
+
+### Cadence Integration (cadenceExecutor.ts, function 15)
+- autoRoadmapHeartbeat: Reads ACTIVE_CLAIM.json, auto-fires heartbeat()
+- Zero-config keep-alive for long-running sessions
+
+### Coordination Schemas (schemas/coordinationTypes.ts, 73L)
+- ClaimRecord, InstanceRecord, CoordinationMessage, RoadmapRegistry, RoadmapRegistryEntry
+
+## 15. SUMMARY (Updated 2026-02-28)
+
+- Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
+- Engines: 171 TypeScript engine classes (QA-MS11 verified)
+- Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
+- Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
+- Services: 2 (TaskClaimService, RoadmapLoader) — multi-Claude coordination
 - Skills: 153 with SKILL.md (C:\PRISM\skills-consolidated)
 - Scripts: 275 Python/PowerShell (C:\PRISM\scripts)
 - Agents: 70 definitions (14 OPUS, 35 SONNET, 9 HAIKU)
-- DSL Abbreviations: 300 entries across 19 categories
-- Tests: 32 test files, 1080 passing
-- Hooks (TS): 22 hook modules
-- Type definitions: 12 files
-- Extracted assets: 522 files across 23 directories
-- State/checkpoint files: 240
-- Knowledge base files: 58
-- Coordination files: 13
-- Build: npm run build (esbuild) → dist/index.js
-- Master schema: SYSTEM_ARCHITECTURE.json (single source of truth)
+- Cadences: 103 functions (QA-MS13 verified)
+- Hooks: 220 total (179 domain + 41 Phase0) — QA-MS12 verified
+- Tests: 37 test files, 1115 passing
+- Type definitions: 13 files (including coordinationTypes.ts)
+- Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
+- Coordination files: TaskClaimService + 5 orchestration actions
+- Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
+- Roadmap: v5.2.0, 82 milestones, 57 complete
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

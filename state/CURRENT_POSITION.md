@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 through REM-MS3 COMPLETE (11 units, 31 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 58 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 40 code fixes total
-**Next Recommended:** REM-MS4 (Architecture Evolution) or S3 (SFC Calculator UI)
+**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 through REM-MS4 COMPLETE (15 units, 37 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 59 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes total
+**Next Recommended:** REM-MS5 (Test Coverage Expansion) or S3 (SFC Calculator UI)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -38,6 +38,16 @@
 - **Files modified:** calcDispatcher.ts, manusDispatcher.ts, MASTER_INDEX.md
 - **Tests:** 9 new tests, all PASS
 - **Composite OQA:** 4.85 (all 2 units PASS)
+
+## REM-MS4 Architecture Evolution (2026-02-28)
+- **U00 (Dual Hook Docs):** M-020 documented dual hook system (HookEngine event-bus vs HookExecutor phase-chain) with architecture notes and cross-references
+- **U01 (FFT Chatter):** M-019/M-022 added real DFT frequency analysis to detectChatter() — magnitude spectrum, tooth-pass exclusion, combined FFT+variance detection
+- **U02 (TF-IDF Search):** M-021 replaced flat substring scoring with TF-IDF cosine similarity in KnowledgeQueryEngine — lazy IDF index from 9 registries, STOP_WORDS, positional bonuses preserved
+- **U03 (Sensors + TTL):** M-023 added SensorDataProvider interface + registerSensorProvider() for real sensor integration pathway, M-025 added TTL support to BaseRegistry (setTtl/isStale/auto-reload on expiry)
+- **Findings resolved:** 6 (M-019, M-020, M-021, M-022, M-023, M-025)
+- **Files modified:** HookEngine.ts, HookExecutor.ts, MachineConnectivityEngine.ts, KnowledgeQueryEngine.ts, PredictiveMaintenanceEngine.ts, BaseRegistry.ts
+- **Tests:** 15 new tests, all PASS
+- **Composite OQA:** 4.88 (all 4 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks

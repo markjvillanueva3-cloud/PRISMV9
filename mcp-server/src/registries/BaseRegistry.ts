@@ -44,6 +44,10 @@ export abstract class BaseRegistry<T extends RegistryItem> {
   protected layerPaths: Record<DataLayer, string>;
   protected initialized: boolean = false;
 
+  /** M-025: TTL for cache invalidation in daemon mode (0 = no TTL, never expires) */
+  protected ttlMs: number = 0;
+  protected loadedAt: number = 0;
+
   constructor(name: string) {
     this.name = name;
     this.logger = new Logger(`Registry:${name}`);
@@ -98,7 +102,8 @@ export abstract class BaseRegistry<T extends RegistryItem> {
     }
 
     this.initialized = true;
-    const duration = Date.now() - startTime;
+    this.loadedAt = Date.now();  // M-025: record for TTL check
+    const duration = this.loadedAt - startTime;
     this.logger.info(`Initialized with ${this.items.size} items in ${duration}ms`);
   }
 
@@ -305,9 +310,27 @@ export abstract class BaseRegistry<T extends RegistryItem> {
    * Ensure registry is initialized
    */
   protected async ensureInitialized(): Promise<void> {
+    // M-025: Re-initialize if TTL expired (daemon mode cache invalidation)
+    if (this.initialized && this.ttlMs > 0 && Date.now() - this.loadedAt > this.ttlMs) {
+      this.logger.info(`TTL expired (${this.ttlMs}ms) — reloading registry`);
+      this.initialized = false;
+      this.items.clear();
+    }
     if (!this.initialized) {
       await this.initialize();
     }
+  }
+
+  /** M-025: Set TTL for cache invalidation. 0 = no TTL (default). */
+  setTtl(ttlMs: number): void {
+    this.ttlMs = ttlMs;
+    this.logger.info(`TTL set to ${ttlMs}ms`);
+  }
+
+  /** M-025: Check if registry data is stale */
+  isStale(): boolean {
+    if (!this.initialized || this.ttlMs === 0) return false;
+    return Date.now() - this.loadedAt > this.ttlMs;
   }
 
   /**

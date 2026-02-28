@@ -1,0 +1,81 @@
+{
+  "id": "REM-MS4",
+  "title": "Architecture Evolution",
+  "priority": "P2",
+  "status": "COMPLETE",
+  "completed_at": "2026-02-28",
+  "units": [
+    {
+      "id": "REM-MS4-U00",
+      "title": "Dual hook system documentation",
+      "findings": ["M-020"],
+      "status": "PASS",
+      "changes": [
+        "M-020: Added architecture documentation to HookEngine.ts explaining dual system design",
+        "M-020: Added cross-reference in HookExecutor.ts to dual-system docs"
+      ],
+      "files_modified": [
+        "src/engines/HookEngine.ts",
+        "src/engines/HookExecutor.ts"
+      ]
+    },
+    {
+      "id": "REM-MS4-U01",
+      "title": "FFT chatter detection",
+      "findings": ["M-019", "M-022"],
+      "status": "PASS",
+      "changes": [
+        "M-022: Added real DFT-based frequency analysis to MachineConnectivityEngine.detectChatter()",
+        "M-019: Computes magnitude spectrum, finds dominant non-tooth-pass frequencies",
+        "M-019: Keeps variance (CV) as fallback, uses both FFT + variance for detection decision"
+      ],
+      "files_modified": [
+        "src/engines/MachineConnectivityEngine.ts"
+      ]
+    },
+    {
+      "id": "REM-MS4-U02",
+      "title": "TF-IDF knowledge search",
+      "findings": ["M-021"],
+      "status": "PASS",
+      "changes": [
+        "M-021: Replaced flat substring scoring with TF-IDF cosine similarity in calculateRelevance()",
+        "M-021: Added lazy IDF index built from all 9 registries with 10-min TTL",
+        "M-021: Added STOP_WORDS set for tokenization (common English + manufacturing filler)",
+        "M-021: Preserved positional bonuses (exact=0.4, prefix=0.3, contains=0.2, desc=0.1)",
+        "M-021: TF-IDF cosine similarity scaled to 0-0.6 range, combined with positional for 0-1.0 total"
+      ],
+      "files_modified": [
+        "src/engines/KnowledgeQueryEngine.ts"
+      ]
+    },
+    {
+      "id": "REM-MS4-U03",
+      "title": "Sensor interface + registry TTL",
+      "findings": ["M-023", "M-025"],
+      "status": "PASS",
+      "changes": [
+        "M-023: Added SensorDataProvider interface to PredictiveMaintenanceEngine",
+        "M-023: Added registerSensorProvider/clearSensorProvider/hasSensorProvider exports",
+        "M-023: Added async getMachineData() — tries real provider first, falls back to simulation",
+        "M-023: Added data_source field to dispatcher responses for transparency",
+        "M-025: Added ttlMs + loadedAt to BaseRegistry for cache invalidation",
+        "M-025: ensureInitialized() now checks TTL and re-loads if stale",
+        "M-025: Added setTtl() and isStale() public methods"
+      ],
+      "files_modified": [
+        "src/engines/PredictiveMaintenanceEngine.ts",
+        "src/registries/BaseRegistry.ts"
+      ]
+    }
+  ],
+  "tests": {
+    "file": "src/__tests__/rem-ms4-architecture.test.ts",
+    "count": 15,
+    "status": "ALL PASS"
+  },
+  "findings_resolved": {
+    "count": 6,
+    "ids": ["M-019", "M-020", "M-021", "M-022", "M-023", "M-025"]
+  }
+}

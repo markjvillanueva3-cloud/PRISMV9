@@ -1,7 +1,11 @@
 /**
  * PRISM MCP Server - Hook Executor Engine
  * Session 6.2A: Core Hook Infrastructure
- * 
+ *
+ * ARCHITECTURE NOTE (M-020): See HookEngine.ts for dual-system documentation.
+ * This is the ENFORCEMENT system (phase-chain-based, blocking-capable).
+ * HookEngine.ts is the EVENT system (EventEmitter-based, async pub/sub).
+ *
  * The Ultimate Enforcement System - Hooks run as CODE, not prompts.
  * 100% reliability, 0 tokens, impossible to bypass.
  * 
