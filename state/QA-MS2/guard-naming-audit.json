@@ -1,0 +1,114 @@
+{
+  "unit": "P0-U01",
+  "title": "GuardEngine Naming Confusion Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:05:00Z",
+  "status": "PASS",
+
+  "source_file": "src/tools/dispatchers/guardDispatcher.ts",
+  "source_lines": 740,
+  "dispatcher_name": "prism_guard",
+  "total_actions": 14,
+
+  "naming_analysis": {
+    "convention_used": "snake_case verb_noun pattern",
+    "categories": {
+      "reasoning_enforcement": {
+        "actions": ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test"],
+        "count": 8,
+        "naming_quality": "GOOD — verbs are descriptive (log, capture, validate, check)"
+      },
+      "d3_learning_pattern": {
+        "actions": ["pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"],
+        "count": 6,
+        "naming_quality": "GOOD — consistent noun_verb pattern"
+      }
+    }
+  },
+
+  "naming_patterns_across_system": {
+    "guard_vs_validate_vs_check": [
+      {
+        "pattern": "guard",
+        "occurrences": "prism_guard dispatcher (14 actions)",
+        "behavior": "Reasoning layer — NOT a blocking guard. Logs decisions, captures errors, validates pre-write plans. Only pre_write_gate has actual BLOCK behavior (>50 lines without approval).",
+        "mismatch": "MINOR — 'guard' implies blocking/enforcement, but most actions are logging/diagnostic. Only 1/14 actions actually guards (blocks)."
+      },
+      {
+        "pattern": "validate",
+        "occurrences": "prism_validate dispatcher (7 actions), pre_call_validate in guard",
+        "behavior": "prism_validate: Material/formula validation with scores. pre_call_validate: Checks tool rename map.",
+        "mismatch": "NONE — validate consistently means 'check and return pass/fail with details'"
+      },
+      {
+        "pattern": "check",
+        "occurrences": "prism_safety (check_toolpath_collision, check_fixture_clearance, check_spindle_*, check_chip_load_limits, check_pullout_resistance, check_5axis_head_clearance)",
+        "behavior": "Safety checks that return structured analysis. Some could throw SafetyBlockError.",
+        "mismatch": "NONE — check consistently means 'analyze and report'"
+      }
+    ],
+    "naming_consistency_score": "0.85 — mostly consistent, one dispatcher name misleading"
+  },
+
+  "mismatches_found": [
+    {
+      "id": "NM-001",
+      "severity": "MINOR",
+      "location": "prism_guard dispatcher name",
+      "issue": "'Guard' implies active blocking/enforcement, but 12/14 actions are passive (logging, querying, diagnostics). Only pre_write_gate has blocking behavior.",
+      "recommendation": "Not worth renaming (too many references in KNOWN_RENAMES map, smoke tests, skills). Document the naming intent: 'guard' here means 'guardrails' (advisory), not 'gate' (blocking).",
+      "action_required": false
+    },
+    {
+      "id": "NM-002",
+      "severity": "INFO",
+      "location": "prism_guard.pre_call_validate vs prism_validate",
+      "issue": "pre_call_validate in guard dispatcher overlaps semantically with prism_validate. One validates tool names, the other validates materials/formulas.",
+      "recommendation": "Acceptable — different domains. Could be renamed to 'pre_call_rename_check' for clarity.",
+      "action_required": false
+    },
+    {
+      "id": "NM-003",
+      "severity": "INFO",
+      "location": "D3 actions in guard dispatcher",
+      "issue": "6 learning/pattern actions (pattern_scan, learning_query, etc.) are in the 'guard' dispatcher but are not guard-related. They're learning subsystem functions.",
+      "recommendation": "Could be split into a dedicated prism_learning dispatcher. However, 14 total actions is within comfortable range. Low priority.",
+      "action_required": false
+    }
+  ],
+
+  "cross_dispatcher_naming": {
+    "consistent_patterns": [
+      "All dispatchers use ACTIONS const with z.enum() — consistent",
+      "All use action: z.enum(ACTIONS) in schema — consistent",
+      "All follow registerXxxDispatcher() naming — consistent",
+      "Tool names: prism_{domain} — consistent across all 45 dispatchers"
+    ],
+    "inconsistent_patterns": [
+      "Sub-action pattern: guard uses params.action for nested dispatch (decision_log, failure_library, pre_write_gate), while most dispatchers use flat action enum. Not a bug but adds a level of indirection."
+    ]
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Guard dispatcher naming is internally consistent — snake_case throughout" },
+    { "severity": "OK", "finding": "validate/check patterns used consistently across the system" },
+    { "severity": "MINOR", "finding": "'Guard' dispatcher name implies blocking but is mostly advisory/diagnostic" },
+    { "severity": "INFO", "finding": "D3 learning actions could be in separate dispatcher but count (14) is manageable" },
+    { "severity": "INFO", "finding": "Sub-action pattern (params.action) adds nesting complexity in decision_log, failure_library, pre_write_gate" }
+  ],
+
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*4 + 0.25*4 + 0.25*5 + 0.15*5 = 1.40 + 1.00 + 1.25 + 0.75 = 4.40",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "all_naming_patterns_cataloged": true,
+    "inconsistencies_identified": true,
+    "naming_convention_documented": true
+  }
+}

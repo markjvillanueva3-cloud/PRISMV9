@@ -377,7 +377,7 @@ CVE remediation, input validation, path security:
 ### Testing & Validation
 `tdd-london-swarm`, `production-validator`
 
-## 🪝 V3 Hooks System (27 Hooks + 12 Workers)
+## 🪝 V3 Hooks System (157 Hooks across 17 Categories, 22 hook files)
 
 ### All Available Hooks
 
@@ -684,7 +684,7 @@ For a comprehensive overview of all Claude Flow V3 features, agents, commands, a
 This includes:
 - All 60+ agent types with routing recommendations
 - All 26 CLI commands with 140+ subcommands
-- All 27 hooks + 12 background workers
+- All 157 hooks across 17 categories (22 hook files)
 - RuVector intelligence system details
 - Hive-Mind consensus mechanisms
 - Integration ecosystem (agentic-flow, agentdb, ruv-swarm, flow-nexus, agentic-jujutsu)

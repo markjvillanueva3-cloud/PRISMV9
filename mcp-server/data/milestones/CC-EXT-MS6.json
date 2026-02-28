@@ -9,55 +9,434 @@
     {
       "id": "P0",
       "title": "CC-EXT Integration Testing + Safety Certification",
-      "description": "Full integration testing of all CC-EXT engines with safety certification.",
+      "description": "SAFETY-CRITICAL PHASE GATE: Full end-to-end integration testing of all CC-EXT engines (PDF extraction, operator feedback, sensor learning, quality feedback, cross-source synthesis), safety audit verifying zero unsafe recommendations, anti-regression suite, performance benchmarks, documentation, and mandatory Omega/Ralph certification.",
       "sessions": "2-3",
-      "primary_role": "R2",
-      "primary_model": "sonnet-4.6",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "execution_split": "MCP 80% / CC 20%",
+      "safety_critical": true,
+      "phase_gate": true,
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute CC-EXT Integration Testing + Safety Certification",
+          "title": "E2E Pipeline Test (PDF -> Feedback -> Sensor -> Quality -> Synthesis)",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_ralph"
-            },
-            {
-              "tool": "prism_omega"
-            },
-            {
-              "tool": "prism_validate"
-            },
-            {
-              "tool": "prism_safety"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-EXT-MS5"],
           "entry_conditions": [
-            "CC-EXT-MS5 complete"
+            "CC-EXT-MS5 complete (all CC-EXT engines operational)",
+            "All CC-EXT-MS1 through CC-EXT-MS5 passing their own integration tests"
           ],
           "exit_conditions": [
-            "CC-EXT Integration Testing + Safety Certification complete",
+            "Full E2E pipeline test passes: PDF manual -> extraction -> operator feedback ingestion -> sensor data processing -> quality inspection import -> cross-source synthesis -> unified knowledge graph",
+            "Test with 3 complete scenarios: (1) milling 4140 steel, (2) turning 6061 aluminum, (3) drilling Ti-6Al-4V",
+            "Each scenario exercises all 5 CC-EXT engines in sequence",
+            "Final knowledge graph contains entries from all 4 input sources with correct confidence scores",
+            "Graph recommendations are actionable and match expert expectations",
+            "No data loss or corruption throughout pipeline",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS6]",
+          "rollback": "git checkout -- cad-engine/tests/e2e/test_ccext_pipeline.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute CC-EXT Integration Testing + Safety Certification per roadmap spec"
+              "instruction": "Build comprehensive E2E test harness: orchestrate all 5 CC-EXT engines in sequence for a single machining scenario"
+            },
+            {
+              "number": 2,
+              "instruction": "Scenario 1 (milling 4140): ingest Sandvik catalog PDF -> collect 3 operator feedback entries -> process 10-min simulated sensor stream -> import CMM results -> synthesize"
+            },
+            {
+              "number": 3,
+              "instruction": "Scenario 2 (turning 6061): ingest Machinery's Handbook section -> collect 5 operator feedback entries -> process sensor data with chatter event -> import quality results with surface finish -> synthesize"
+            },
+            {
+              "number": 4,
+              "instruction": "Scenario 3 (drilling Ti-6Al-4V): ingest technical paper PDF -> collect 2 operator feedback entries -> process sensor data with tool wear -> import CMM hole position data -> synthesize"
+            },
+            {
+              "number": 5,
+              "instruction": "Verify final knowledge graph: check node counts, edge counts, confidence distribution, recommendation quality for each scenario"
+            },
+            {
+              "number": 6,
+              "instruction": "Verify data integrity: no data loss, no corruption, all provenance chains intact from source to graph node"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/tests/e2e/test_ccext_pipeline.py", "type": "test", "description": "Full E2E pipeline test across 3 machining scenarios" },
+            { "path": "cad-engine/tests/e2e/scenario_data/", "type": "data", "description": "Complete test data for 3 E2E scenarios" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Safety Audit (Zero Unsafe Recommendations)",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R4",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 120,
+          "tools": [
+            { "tool": "prism_safety" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS6:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "E2E pipeline verified functional",
+            "prism_safety available for full audit"
+          ],
+          "exit_conditions": [
+            "Safety audit: ZERO unsafe cutting recommendations can emerge from the pipeline",
+            "All parameter recommendations validated against prism_calc physics models before output",
+            "No bypass path: impossible to get an unvalidated recommendation from any CC-EXT engine",
+            "Boundary testing: extreme inputs (0 feed, max RPM, invalid materials) handled safely with clear rejections",
+            "Poisoned input testing: intentionally bad PDF data, malicious operator feedback, corrupt sensor data all caught and rejected",
+            "S(x) >= 0.99 enforced across all safety-critical code paths",
+            "Safety check coverage: every recommendation endpoint has a physics validation gate",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/e2e/test_ccext_safety.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "SAFETY AUDIT: Trace every code path from knowledge input to recommendation output, verify physics validation gate exists on each path"
+            },
+            {
+              "number": 2,
+              "instruction": "Bypass path analysis: attempt to circumvent validation gates (skip physics check, bypass confidence threshold, inject directly into graph), verify all attempts fail"
+            },
+            {
+              "number": 3,
+              "instruction": "Boundary testing: submit extreme parameter values (feed=0, feed=100mm/rev, RPM=0, RPM=999999, DOC=workpiece_height, negative values), verify safe rejection"
+            },
+            {
+              "number": 4,
+              "instruction": "Poisoned input testing: submit PDF with dangerous recommendations (10x safe speed), operator feedback with physics-violating values, corrupt sensor data, verify all caught"
+            },
+            {
+              "number": 5,
+              "instruction": "Verify S(x) >= 0.99 on all safety-critical paths: compute safety score per module, identify any gaps"
+            },
+            {
+              "number": 6,
+              "instruction": "Generate safety audit report: coverage matrix showing every recommendation path and its validation gate"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/e2e/test_ccext_safety.py", "type": "test", "description": "Safety audit tests: bypass attempts, boundary testing, poisoned inputs" },
+            { "path": "cad-engine/tests/e2e/test_ccext_boundary.py", "type": "test", "description": "Extreme value boundary tests" },
+            { "path": "cad-engine/docs/ccext-safety-audit-report.md", "type": "data", "description": "Safety audit coverage report" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Anti-Regression Suite",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS6:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "All CC-EXT engines functional"
+          ],
+          "exit_conditions": [
+            "Anti-regression suite verifies all existing PRISM dispatchers remain functional after CC-EXT additions",
+            "npm run build passes with zero errors",
+            "Existing PRISM test suite passes (all 45 dispatchers functional)",
+            "No new TypeScript errors introduced",
+            "CC-EXT Python modules do not interfere with PRISM MCP server operation",
+            "Memory/knowledge system from CC-MS8/MS9 unaffected by CC-EXT additions",
+            "Boot integration: PRISM server starts successfully with CC-EXT modules present",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/e2e/test_ccext_regression.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Run npm run build and verify zero errors, zero new warnings"
+            },
+            {
+              "number": 2,
+              "instruction": "Run full existing PRISM test suite, verify all 45 dispatchers pass"
+            },
+            {
+              "number": 3,
+              "instruction": "Verify no TypeScript compilation errors introduced by CC-EXT configuration or integration points"
+            },
+            {
+              "number": 4,
+              "instruction": "Test PRISM MCP server startup with CC-EXT Python modules present: verify server starts, tools register, no import errors"
+            },
+            {
+              "number": 5,
+              "instruction": "Test CC-MS8/MS9 memory system: verify boot_manifest loads, SQLite queries work, no interference from CC-EXT"
+            },
+            {
+              "number": 6,
+              "instruction": "Build anti-regression test file that can be re-run after any CC-EXT change"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/e2e/test_ccext_regression.py", "type": "test", "description": "Anti-regression suite for PRISM + CC-EXT coexistence" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Performance Benchmarks",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS6:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "Full pipeline operational"
+          ],
+          "exit_conditions": [
+            "PDF extraction: average 50-page PDF processed in <60 seconds",
+            "Operator feedback: 100 entries processed through full validation pipeline in <30 seconds",
+            "Sensor processing: sustains 10kHz 4-channel real-time processing without data loss",
+            "CMM import: 1000 inspection features imported and correlated in <10 seconds",
+            "Cross-source synthesis: 10K entries aggregated, scored, resolved, and graphed in <120 seconds",
+            "Knowledge graph query: recommendation returned in <100ms",
+            "Memory usage: full pipeline peak <2GB RAM",
+            "All benchmarks documented with median, P95, and P99 latencies",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/e2e/test_ccext_performance.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build performance benchmark harness with timing decorators and memory profiling"
+            },
+            {
+              "number": 2,
+              "instruction": "Benchmark CC-EXT-MS1: process 5 PDFs of varying sizes (10, 50, 100, 200, 500 pages), measure throughput and memory"
+            },
+            {
+              "number": 3,
+              "instruction": "Benchmark CC-EXT-MS2: process 10, 100, 1000 feedback entries through full pipeline, measure throughput"
+            },
+            {
+              "number": 4,
+              "instruction": "Benchmark CC-EXT-MS3: sensor processing at 1kHz, 5kHz, 10kHz, verify no data loss at each rate"
+            },
+            {
+              "number": 5,
+              "instruction": "Benchmark CC-EXT-MS4: import and correlate 100, 1000, 5000 inspection features"
+            },
+            {
+              "number": 6,
+              "instruction": "Benchmark CC-EXT-MS5: synthesis with 1K, 10K, 50K entries from mixed sources"
+            },
+            {
+              "number": 7,
+              "instruction": "Generate benchmark report with median/P95/P99 latencies and memory peaks per engine"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/e2e/test_ccext_performance.py", "type": "test", "description": "Performance benchmarks for all CC-EXT engines" },
+            { "path": "cad-engine/docs/ccext-benchmark-report.md", "type": "data", "description": "Performance benchmark results with latency and memory data" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "CC-EXT Documentation",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS6:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "All CC-EXT engines functional and tested"
+          ],
+          "exit_conditions": [
+            "API documentation: every public function in all CC-EXT modules documented with docstrings and type hints",
+            "Architecture document: CC-EXT system diagram showing data flow between all 5 engines",
+            "Integration guide: how to add new knowledge sources to the CC-EXT pipeline",
+            "Operator guide: how operators submit feedback, check recommendations, review conflicts",
+            "Troubleshooting guide: common issues, error messages, resolution steps for each CC-EXT engine",
+            "All documentation reviewed for accuracy against implementation",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- cad-engine/docs/ccext/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Generate API documentation: run doc generator across all CC-EXT Python modules, verify all public functions have docstrings and type hints"
+            },
+            {
+              "number": 2,
+              "instruction": "Write architecture document: CC-EXT system diagram, data flow (PDF/Feedback/Sensor/Quality -> Synthesis -> Graph), module interfaces"
+            },
+            {
+              "number": 3,
+              "instruction": "Write integration guide: how to add a new source engine (implement SourceAdapter, register with aggregator, add confidence factor)"
+            },
+            {
+              "number": 4,
+              "instruction": "Write operator guide: feedback submission format, querying recommendations, reviewing conflict resolutions, interpreting confidence scores"
+            },
+            {
+              "number": 5,
+              "instruction": "Write troubleshooting guide: error catalog per engine, common failures (PDF parse errors, sensor connection drops, CMM format mismatches), resolution steps"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/docs/ccext/api-reference.md", "type": "data", "description": "API documentation for all CC-EXT modules" },
+            { "path": "cad-engine/docs/ccext/architecture.md", "type": "data", "description": "CC-EXT system architecture and data flow diagram" },
+            { "path": "cad-engine/docs/ccext/integration-guide.md", "type": "data", "description": "Guide for adding new knowledge sources" },
+            { "path": "cad-engine/docs/ccext/operator-guide.md", "type": "data", "description": "Operator guide for feedback and recommendations" },
+            { "path": "cad-engine/docs/ccext/troubleshooting.md", "type": "data", "description": "Troubleshooting guide for common CC-EXT issues" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "Omega/Ralph Certification Gate",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 120,
+          "tools": [
+            { "tool": "prism_ralph" },
+            { "tool": "prism_omega" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_safety" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS6:P0-U02", "CC-EXT-MS6:P0-U03", "CC-EXT-MS6:P0-U04", "CC-EXT-MS6:P0-U05"],
+          "entry_conditions": [
+            "P0-U02 safety audit complete with S(x) >= 0.99",
+            "P0-U03 anti-regression suite passing",
+            "P0-U04 performance benchmarks meeting targets",
+            "P0-U05 documentation complete"
+          ],
+          "exit_conditions": [
+            "Omega computation: Omega >= 0.75 for CC-EXT phase (MANDATORY for release)",
+            "Ralph validation: 4-phase SCRUTINIZE -> IMPROVE -> VALIDATE -> ASSESS completed with grade >= B (MANDATORY)",
+            "S(x) >= 0.99 enforced across all safety-critical CC-EXT paths",
+            "Safety floor: 0.99 verified and certified",
+            "All CC-EXT engines pass final validation sweep",
+            "Certification artifact generated: CC-EXT-certification.json with scores, dates, model versions",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/e2e/test_ccext_certification.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Run prism_omega compute for CC-EXT phase: aggregate all quality metrics from MS1-MS5, require Omega >= 0.75"
+            },
+            {
+              "number": 2,
+              "instruction": "Run prism_ralph loop (MANDATORY): 4-phase SCRUTINIZE -> IMPROVE -> VALIDATE -> ASSESS with Opus, require grade >= B"
+            },
+            {
+              "number": 3,
+              "instruction": "Final safety verification: confirm S(x) >= 0.99 on all safety-critical paths, zero bypass paths, zero unsafe recommendation possibilities"
+            },
+            {
+              "number": 4,
+              "instruction": "Final validation sweep: run all CC-EXT test suites (unit + integration + E2E + safety + performance), require 100% pass"
+            },
+            {
+              "number": 5,
+              "instruction": "Generate certification artifact: CC-EXT-certification.json with Omega score, Ralph grade, S(x) scores, test pass counts, benchmark results, model versions, certification date"
+            },
+            {
+              "number": 6,
+              "instruction": "Sign-off: record final certification status, archive all test results and audit reports"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/e2e/test_ccext_certification.py", "type": "test", "description": "Omega/Ralph certification gate tests" },
+            { "path": "cad-engine/data/CC-EXT-certification.json", "type": "data", "description": "CC-EXT certification artifact with all scores and metadata" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -67,18 +446,27 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
+        "safety_floor": 0.99,
+        "ralph_required": true,
         "ralph_grade_floor": "B",
         "anti_regression": true,
         "test_required": true,
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "E2E pipeline passes for all 3 machining scenarios",
+          "Zero unsafe recommendations possible (safety audit verified)",
+          "Zero bypass paths confirmed",
+          "S(x) >= 0.99 on all safety-critical paths",
+          "All 45 PRISM dispatchers pass anti-regression",
+          "Performance benchmarks meet all targets",
+          "Omega >= 0.75 computed and certified",
+          "Ralph 4-phase loop grade >= B"
+        ]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["safety_certification", "zero_bypass_audit", "anti_regression", "omega_certification", "ralph_certification", "cross_source_integrity"]
     }
   ],
   "total_units": 6,
@@ -86,39 +474,42 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
+    },
+    {
+      "code": "R4",
+      "name": "Architect",
+      "model": "opus-4.6",
+      "effort": 120
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_ralph",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_omega",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_validate",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_safety",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_safety", "phases": ["P0"] },
+    { "tool": "prism_ralph", "phases": ["P0"] },
+    { "tool": "prism_omega", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/tests/e2e/test_ccext_pipeline.py", "type": "test", "description": "Full E2E pipeline integration test" },
+    { "path": "cad-engine/tests/e2e/test_ccext_safety.py", "type": "test", "description": "Safety audit and bypass testing" },
+    { "path": "cad-engine/tests/e2e/test_ccext_regression.py", "type": "test", "description": "Anti-regression suite" },
+    { "path": "cad-engine/tests/e2e/test_ccext_performance.py", "type": "test", "description": "Performance benchmarks" },
+    { "path": "cad-engine/data/CC-EXT-certification.json", "type": "data", "description": "Certification artifact" },
+    { "path": "cad-engine/docs/ccext/", "type": "data", "description": "CC-EXT documentation suite" }
+  ],
+  "existing_leverage": [
+    { "asset": "CC-EXT-MS1 through MS5", "type": "engine", "description": "All 5 CC-EXT knowledge extraction engines" },
+    { "asset": "prism_ralph", "type": "tool", "description": "4-phase validation loop with Opus" },
+    { "asset": "prism_omega", "type": "tool", "description": "Quality equation computation" },
+    { "asset": "prism_safety", "type": "tool", "description": "29 safety check actions" },
+    { "asset": "prism_validate", "type": "tool", "description": "Safety/anti-regression/completeness validation" },
+    { "asset": "prism_calc", "type": "tool", "description": "Physics models for safety arbitration" },
+    { "asset": "Existing PRISM test infrastructure", "type": "infrastructure", "description": "45 dispatcher test suite for anti-regression" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
@@ -132,7 +523,10 @@
       "missing_deps",
       "missing_exit_conditions",
       "missing_rollback",
-      "sequence_errors"
+      "sequence_errors",
+      "safety_bypass_paths",
+      "omega_score_gap",
+      "ralph_grade_gap"
     ],
     "improvement_threshold": 0.92
   }

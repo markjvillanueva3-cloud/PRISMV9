@@ -1,25 +1,26 @@
 /**
  * PRISM RGS -- Roadmap Scrutinizer
  *
- * Implements the 12-category gap analysis and adaptive improvement loop
+ * Implements the 13-checker gap analysis and adaptive improvement loop
  * for validating RGS-format roadmaps. Each checker is a pure function
  * that returns an array of gaps. The orchestrator runs all checkers in
  * an adaptive loop, auto-fixing what it can, until convergence or the
  * max-pass safety cap is reached.
  *
  * Checkers:
- *   1. checkSchemaCompleteness   -- mandatory fields present and non-placeholder
- *   2. checkToolValidity         -- tool names match known dispatcher prefixes
- *   3. checkSkillValidity        -- skill IDs match known skill registry
- *   4. checkDependencyIntegrity  -- no missing targets or cycles
- *   5. checkRoleModelAlignment   -- role codes map to expected models
- *   6. checkExitConditionQuality -- conditions are concrete, not vague
- *   7. checkStepSpecificity      -- steps are imperative and actionable
- *   8. checkDeliverableCoverage  -- deliverables present and cross-referenced
- *   9. checkIndexFlags           -- indexing booleans match deliverable content
- *  10. checkSequenceOptimization -- flag parallelizable consecutive units
- *  11. checkGateCoverage         -- phase gates have required fields
- *  12. checkRollbackCoverage     -- rollback instructions are specific
+ *   1.  checkSchemaCompleteness    -- mandatory fields present and non-placeholder
+ *   2.  checkToolValidity          -- tool names match known dispatcher prefixes (45)
+ *   3.  checkSkillValidity         -- skill IDs match known skill registry
+ *   4.  checkDependencyIntegrity   -- no missing targets or cycles
+ *   5.  checkRoleModelAlignment    -- role codes map to expected models
+ *   5b. checkEffortModelAlignment  -- effort values match model tier expectations
+ *   6.  checkExitConditionQuality  -- conditions are concrete, not vague
+ *   7.  checkStepSpecificity       -- steps are imperative and actionable
+ *   8.  checkDeliverableCoverage   -- deliverables present and cross-referenced
+ *   9.  checkIndexFlags            -- indexing booleans match deliverable content
+ *  10.  checkSequenceOptimization  -- flag parallelizable consecutive units
+ *  11.  checkGateCoverage          -- phase gates have required fields
+ *  12.  checkRollbackCoverage      -- rollback instructions are specific
  *
  * Orchestrator:
  *   scrutinizeRoadmap()  -- adaptive loop with scoring + auto-fix
@@ -60,17 +61,36 @@ type SPass = z.infer<typeof ScrutinyPass>;
 
 // ─── Constants ───────────────────────────────────────────────────
 
-/** 32 recognized PRISM dispatcher prefixes. */
+/** 45 recognized PRISM dispatcher prefixes (all registered tools). */
 const DEFAULT_KNOWN_TOOL_PREFIXES: string[] = [
-  'prism_omega', 'prism_ralph', 'prism_dev', 'prism_sp',
-  'prism_guard', 'prism_session', 'prism_skill_script', 'prism_knowledge',
-  'prism_hook', 'prism_validate', 'prism_intelligence', 'prism_prompt',
-  'prism_mfg', 'prism_memory', 'prism_health', 'prism_metrics',
-  'prism_cost', 'prism_cadence', 'prism_config', 'prism_state',
-  'prism_model', 'prism_safety', 'prism_cli', 'prism_tool',
-  'prism_admin', 'prism_checkpoint', 'prism_auth', 'prism_telemetry',
-  'prism_circuit', 'prism_rate', 'prism_audit', 'prism_cache',
-  'prism_debug',
+  // Manufacturing (9)
+  'prism_calc', 'prism_data', 'prism_safety', 'prism_thread', 'prism_toolpath',
+  'prism_turning', 'prism_5axis', 'prism_edm', 'prism_grinding',
+  // CAD/CAM (2)
+  'prism_cad', 'prism_cam',
+  // Quality & Validation (4)
+  'prism_omega', 'prism_ralph', 'prism_validate', 'prism_quality',
+  // Session & Context (3)
+  'prism_session', 'prism_context', 'prism_gsd',
+  // Development & Docs (3)
+  'prism_dev', 'prism_doc', 'prism_sp',
+  // Orchestration & Agents (4)
+  'prism_orchestrate', 'prism_autopilot_d', 'prism_manus', 'prism_atcs',
+  // Knowledge & Skills (4)
+  'prism_skill_script', 'prism_knowledge', 'prism_hook', 'prism_generator',
+  // Intelligence & L2 (2)
+  'prism_intelligence', 'prism_l2',
+  // Autonomous (1)
+  'prism_autonomous',
+  // Guard (1)
+  'prism_guard',
+  // Industry & Automation (2)
+  'prism_industry', 'prism_automation',
+  // Infrastructure (6)
+  'prism_auth', 'prism_bridge', 'prism_tenant', 'prism_compliance',
+  'prism_export', 'prism_scheduling',
+  // Telemetry, NL, PFP, Memory (4)
+  'prism_nl_hook', 'prism_pfp', 'prism_telemetry', 'prism_memory',
 ];
 
 /** Additional standalone tool names accepted as valid. */
@@ -512,6 +532,49 @@ export function checkRoleModelAlignment(roadmap: Envelope): GapItem[] {
         unit.id,
         `Unit "${unit.id}" has role ${unit.role} but model "${unit.model}" (expected ${expectedFamily}-family)`,
         `Change model to ${expectedFamily}-4.6 or reassign role`,
+      ));
+    }
+  }
+
+  return gaps;
+}
+
+// ─── Checker 5b: Effort-Model Alignment ──────────────────────────
+
+/**
+ * Validate effort values against role/model expectations.
+ * Opus units should have effort >= 60 (complex work justifies the model).
+ * Haiku units should have effort <= 60 (high effort doesn't belong on haiku).
+ *
+ * @param roadmap - The roadmap envelope to check.
+ * @returns Array of gaps for misaligned effort/model pairs.
+ */
+export function checkEffortModelAlignment(roadmap: Envelope): GapItem[] {
+  const gaps: GapItem[] = [];
+
+  for (const unit of allUnits(roadmap)) {
+    const modelLower = unit.model.toLowerCase();
+    const effort = unit.effort;
+
+    // Opus with low effort — wasteful model choice
+    if (modelLower.includes('opus') && effort < 60) {
+      gaps.push(makeGap(
+        'effort_mismatch',
+        'MINOR',
+        unit.id,
+        `Unit "${unit.id}" uses opus model but effort=${effort} (<60). Low-effort work doesn't justify opus cost.`,
+        `Downgrade model to sonnet or increase effort if task complexity warrants opus`,
+      ));
+    }
+
+    // Haiku with high effort — underpowered model
+    if (modelLower.includes('haiku') && effort > 60) {
+      gaps.push(makeGap(
+        'effort_mismatch',
+        'MAJOR',
+        unit.id,
+        `Unit "${unit.id}" uses haiku model but effort=${effort} (>60). High-effort tasks need a more capable model.`,
+        `Upgrade model to sonnet or opus for effort>${60} tasks`,
       ));
     }
   }
@@ -1057,7 +1120,7 @@ export function autoFixGaps(
 // ─── Orchestrator ────────────────────────────────────────────────
 
 /**
- * Run all 12 checkers against a roadmap and collect gaps.
+ * Run all 13 checkers against a roadmap and collect gaps.
  *
  * @param roadmap - The roadmap envelope.
  * @param knownTools - Optional tool prefix overrides.
@@ -1075,6 +1138,7 @@ function runAllCheckers(
     ...checkSkillValidity(roadmap, knownSkills),
     ...checkDependencyIntegrity(roadmap),
     ...checkRoleModelAlignment(roadmap),
+    ...checkEffortModelAlignment(roadmap),
     ...checkExitConditionQuality(roadmap),
     ...checkStepSpecificity(roadmap),
     ...checkDeliverableCoverage(roadmap),
@@ -1088,7 +1152,7 @@ function runAllCheckers(
 /**
  * Scrutinize a roadmap using the adaptive improvement loop.
  *
- * The loop runs all 12 checkers, scores the result, auto-fixes what
+ * The loop runs all 13 checkers, scores the result, auto-fixes what
  * it can, and re-runs until convergence or the max-pass safety cap.
  *
  * Default config:

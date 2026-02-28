@@ -9,52 +9,374 @@
     {
       "id": "P0",
       "title": "Cross-Source Knowledge Synthesis",
-      "description": "Synthesize knowledge across all input sources with confidence scoring and conflict resolution.",
+      "description": "Build the cross-source synthesis engine that aggregates knowledge from PDF extraction (MS1), operator feedback (MS2), sensor learning (MS3), and quality feedback (MS4), computes unified confidence scores, detects and resolves cross-source conflicts, and builds a unified knowledge graph.",
       "sessions": "2-3",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Cross-Source Knowledge Synthesis",
+          "title": "Multi-Source Aggregation Engine",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_knowledge"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-EXT-MS1", "CC-EXT-MS2", "CC-EXT-MS3", "CC-EXT-MS4"],
           "entry_conditions": [
-            "CC-EXT-MS1 complete",
-            "CC-EXT-MS2 complete",
-            "CC-EXT-MS3 complete",
-            "CC-EXT-MS4 complete"
+            "CC-EXT-MS1 complete (PDF extraction producing KnowledgeEntry objects)",
+            "CC-EXT-MS2 complete (operator feedback producing consensus results)",
+            "CC-EXT-MS3 complete (sensor learning producing condition correlations and wear predictions)",
+            "CC-EXT-MS4 complete (quality feedback producing tolerance/surface/dimensional models)"
           ],
           "exit_conditions": [
-            "Cross-Source Knowledge Synthesis complete",
+            "source_aggregator.py collects knowledge from all 4 CC-EXT sources into unified store",
+            "Source adapters: PDF adapter, Feedback adapter, Sensor adapter, Quality adapter -- each normalizes source-specific output to common KnowledgeEntry format",
+            "Duplicate detection: same knowledge from multiple sources identified and linked",
+            "Source provenance preserved: every entry traceable to originating source(s)",
+            "Incremental aggregation: new data from any source merges into existing store without full rebuild",
+            "Aggregation handles 100K+ entries without performance degradation",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS5]",
+          "rollback": "git checkout -- cad-engine/src/synthesis/source_aggregator.py cad-engine/tests/test_source_aggregator.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Cross-Source Knowledge Synthesis per roadmap spec"
+              "instruction": "Create cad-engine/src/synthesis/ directory structure"
+            },
+            {
+              "number": 2,
+              "instruction": "Build source adapters: PDFSourceAdapter (wraps CC-EXT-MS1 KnowledgeEntry), FeedbackSourceAdapter (wraps CC-EXT-MS2 consensus), SensorSourceAdapter (wraps CC-EXT-MS3 correlations), QualitySourceAdapter (wraps CC-EXT-MS4 predictions)"
+            },
+            {
+              "number": 3,
+              "instruction": "Build source_aggregator.py: aggregate(sources: List[SourceAdapter]) -> UnifiedKnowledgeStore, with incremental merge support"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement duplicate detection: fuzzy matching on (parameter_type, material, operation, tool) with configurable similarity threshold"
+            },
+            {
+              "number": 5,
+              "instruction": "Add provenance tracking: each unified entry stores list of (source_type, source_id, extraction_date) for all contributing sources"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: aggregate from 4 sources with overlapping and unique entries, verify dedup and provenance"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/src/synthesis/__init__.py", "type": "source", "description": "Synthesis package init" },
+            { "path": "cad-engine/src/synthesis/source_aggregator.py", "type": "source", "description": "Multi-source aggregation with adapters, dedup, and provenance" },
+            { "path": "cad-engine/src/synthesis/source_adapters.py", "type": "source", "description": "Source adapters for PDF, Feedback, Sensor, and Quality engines" },
+            { "path": "cad-engine/tests/test_source_aggregator.py", "type": "test", "description": "Tests for multi-source aggregation and deduplication" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Confidence Scoring Model",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS5:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "Aggregated knowledge store populated from all sources"
+          ],
+          "exit_conditions": [
+            "confidence_scorer.py computes unified confidence score (0.0-1.0) for every knowledge entry",
+            "Score factors: source count (multi-source corroboration bonus), source authority (PDF manual > blog post), physics agreement (validated by prism_calc), recency (newer data weighted higher), consistency (low variance across sources)",
+            "Factor weights learned from historical accuracy data when available, defaults to expert-tuned priors",
+            "Confidence breakdown available: per-factor scores visible for explainability",
+            "High confidence threshold: >= 0.8 (auto-approve for knowledge base)",
+            "Low confidence threshold: < 0.4 (quarantine for review)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/synthesis/confidence_scorer.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build confidence_scorer.py: compute_confidence(entry: UnifiedEntry) -> ConfidenceScore(total, breakdown)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement source_count factor: 1 source=0.3, 2 sources=0.6, 3+=0.9, scaled by source diversity (different source types count more)"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement source_authority factor: manufacturer manual=1.0, handbook=0.95, experienced operator=0.8, sensor correlation=0.75, single operator=0.5, unverified source=0.3"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement physics_agreement factor: validate entry against prism_calc, score based on deviation (0%=1.0, 10%=0.8, 20%=0.6, 50%=0.2)"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement recency and consistency factors, combine all factors with weighted geometric mean"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: high-confidence multi-source entry, low-confidence single-source entry, physics-disagreeing entry"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/synthesis/confidence_scorer.py", "type": "source", "description": "Multi-factor confidence scoring with explainable breakdown" },
+            { "path": "cad-engine/tests/test_confidence_scorer.py", "type": "test", "description": "Tests for confidence scoring across source combinations" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Conflict Detection and Resolution",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS5:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Confidence scoring operational"
+          ],
+          "exit_conditions": [
+            "cross_source_resolver.py detects conflicts between different CC-EXT sources",
+            "Conflict types: PDF-vs-operator, PDF-vs-sensor, operator-vs-sensor, operator-vs-quality, any-vs-physics",
+            "Detection: identifies entries for same parameter/condition with values differing by >20%",
+            "Resolution hierarchy: (1) physics model arbitration, (2) multi-source consensus, (3) highest-confidence source wins, (4) escalate to human review",
+            "Special handling: sensor-derived corrections take precedence over static PDF data when sensor confidence is high",
+            "Resolution audit trail: every conflict logged with type, sources involved, resolution strategy, outcome",
+            "Unresolved conflicts quarantined with full context for human review",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/synthesis/cross_source_resolver.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build cross_source_resolver.py: scan unified store for conflicting entries (same parameter/condition, different values > threshold)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement conflict classification: categorize by source pair, severity (minor 20-30%, major 30-50%, critical >50%), and parameter type"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement resolution hierarchy: (1) check prism_calc physics, (2) count supporting sources, (3) compare confidence scores, (4) escalate"
+            },
+            {
+              "number": 4,
+              "instruction": "Add sensor-precedence rule: when sensor data with confidence >0.8 conflicts with static PDF data, sensor wins (real measured data > published data)"
+            },
+            {
+              "number": 5,
+              "instruction": "Build audit trail and quarantine queue for unresolved conflicts"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: PDF-vs-operator conflict (physics resolves), sensor-vs-PDF (sensor wins), three-way conflict (escalation)"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/synthesis/cross_source_resolver.py", "type": "source", "description": "Cross-source conflict detection and multi-strategy resolution" },
+            { "path": "cad-engine/tests/test_cross_source_resolver.py", "type": "test", "description": "Tests for cross-source conflict scenarios and resolution" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Unified Knowledge Graph Builder",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_knowledge" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS5:P0-U03"],
+          "entry_conditions": [
+            "P0-U03 complete",
+            "Conflict resolution operational",
+            "Aggregated, scored, conflict-resolved knowledge available"
+          ],
+          "exit_conditions": [
+            "knowledge_graph.py builds a unified knowledge graph from all resolved knowledge",
+            "Graph nodes: materials, tools, operations, parameters, machines, quality outcomes",
+            "Graph edges: relationships (material-requires-tool, operation-produces-finish, parameter-affects-tolerance, etc.)",
+            "Edge weights: confidence scores from synthesis",
+            "Query support: traverse graph for recommendations (given material+operation -> best tools and parameters with confidence)",
+            "Graph persistence: serializable to JSON-LD or NetworkX format for storage and reload",
+            "Incremental update: new knowledge merges into existing graph without full rebuild",
+            "Graph statistics: node count, edge count, average confidence, weakest links (low confidence edges)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/synthesis/knowledge_graph.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build knowledge_graph.py: define node types (Material, Tool, Operation, Parameter, Machine, QualityOutcome) and edge types (requires, produces, affects, correlates, recommends)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement graph construction: iterate resolved knowledge store, create nodes and edges with confidence-weighted relationships"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement query engine: path_query(start_node, target_type) -> ranked results with cumulative confidence along path"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement recommendation query: recommend(material, operation) -> (tools, parameters, expected_quality) ranked by confidence"
+            },
+            {
+              "number": 5,
+              "instruction": "Add graph persistence: serialize to JSON-LD with NetworkX backend, load/save with incremental merge"
+            },
+            {
+              "number": 6,
+              "instruction": "Add graph analytics: compute statistics, identify weakest links (low confidence edges), find knowledge gaps (missing expected edges)"
+            },
+            {
+              "number": 7,
+              "instruction": "Write tests: build graph from synthetic knowledge, query recommendations, verify incremental update, check gap detection"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/synthesis/knowledge_graph.py", "type": "source", "description": "Unified knowledge graph with query engine, persistence, and analytics" },
+            { "path": "cad-engine/tests/test_knowledge_graph.py", "type": "test", "description": "Tests for graph construction, querying, and analytics" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Synthesis Quality Integration Tests",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_knowledge" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS5:P0-U04"],
+          "entry_conditions": [
+            "P0-U04 complete",
+            "Full synthesis pipeline operational: aggregate -> score -> resolve -> graph"
+          ],
+          "exit_conditions": [
+            "E2E test: all 4 sources -> aggregation -> confidence scoring -> conflict resolution -> knowledge graph",
+            "Scenario: 4140 steel face milling -- PDF recommends speed range, 3 operators refine it, sensor data confirms, quality data validates tolerance -- graph produces optimal recommendation",
+            "Confidence scoring accuracy: high-confidence entries (multi-source, physics-validated) score >0.8, single-source unvalidated entries score <0.5",
+            "Conflict resolution: all test conflicts resolved correctly per hierarchy rules",
+            "Knowledge graph: recommendations match expert expectations for 5+ test scenarios",
+            "Graph query performance: recommendations returned in <100ms",
+            "Synthesis handles data from all 4 sources simultaneously without errors",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/integration/test_synthesis_e2e.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build comprehensive test data: synthetic outputs from all 4 CC-EXT engines for 5 common machining scenarios (face milling 4140, turning aluminum 6061, drilling Ti-6Al-4V, slot milling 304SS, boring cast iron)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build E2E integration test: ingest from all 4 sources -> aggregate -> score -> resolve conflicts -> build graph -> query recommendations"
+            },
+            {
+              "number": 3,
+              "instruction": "Validate confidence scoring: verify multi-source corroborated entries score higher than single-source entries"
+            },
+            {
+              "number": 4,
+              "instruction": "Validate conflict resolution: introduce deliberate cross-source conflicts, verify resolution per hierarchy"
+            },
+            {
+              "number": 5,
+              "instruction": "Validate graph recommendations: compare graph output against expert-curated expected recommendations for each scenario"
+            },
+            {
+              "number": 6,
+              "instruction": "Performance test: measure graph query latency, verify <100ms for recommendation queries"
+            },
+            {
+              "number": 7,
+              "instruction": "Stress test: large dataset (10K+ entries from all sources), verify synthesis completes without errors and graph remains queryable"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/integration/test_synthesis_e2e.py", "type": "test", "description": "End-to-end integration tests for full cross-source synthesis pipeline" },
+            { "path": "cad-engine/tests/integration/test_synthesis_scenarios.py", "type": "test", "description": "5 machining scenario tests with expected recommendations" },
+            { "path": "cad-engine/tests/integration/test_synthesis_performance.py", "type": "test", "description": "Performance and stress tests for synthesis and graph queries" },
+            { "path": "cad-engine/data/test_synthesis/", "type": "data", "description": "Synthetic multi-source test data for 5 machining scenarios" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -64,7 +386,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -72,7 +394,13 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "All 4 CC-EXT sources aggregated and synthesized successfully",
+          "Multi-source entries score higher confidence than single-source",
+          "Cross-source conflicts resolved correctly per hierarchy",
+          "Knowledge graph recommendations match expert expectations for 5+ scenarios",
+          "Graph query latency < 100ms"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -83,27 +411,32 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_knowledge",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_knowledge", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/src/synthesis/source_aggregator.py", "type": "source", "description": "Multi-source aggregation with adapters and dedup" },
+    { "path": "cad-engine/src/synthesis/confidence_scorer.py", "type": "source", "description": "Multi-factor confidence scoring" },
+    { "path": "cad-engine/src/synthesis/cross_source_resolver.py", "type": "source", "description": "Cross-source conflict detection and resolution" },
+    { "path": "cad-engine/src/synthesis/knowledge_graph.py", "type": "source", "description": "Unified knowledge graph with query engine" }
+  ],
+  "existing_leverage": [
+    { "asset": "CC-EXT-MS1 PDF extraction", "type": "engine", "description": "KnowledgeEntry objects from PDF/manual extraction" },
+    { "asset": "CC-EXT-MS2 operator feedback", "type": "engine", "description": "Consensus results from operator feedback loop" },
+    { "asset": "CC-EXT-MS3 sensor learning", "type": "engine", "description": "Condition correlations and wear predictions from sensor data" },
+    { "asset": "CC-EXT-MS4 quality feedback", "type": "engine", "description": "Tolerance/surface/dimensional models from CMM data" },
+    { "asset": "prism_calc", "type": "tool", "description": "Physics models for confidence scoring and conflict arbitration" },
+    { "asset": "prism_knowledge", "type": "tool", "description": "Existing knowledge storage infrastructure" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,

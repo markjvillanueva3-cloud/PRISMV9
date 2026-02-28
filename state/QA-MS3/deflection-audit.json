@@ -1,0 +1,122 @@
+{
+  "unit": "P0-U04",
+  "title": "DeflectionEngine: Beam/Tool Deflection Calculations",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:30:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "algorithm": "src/algorithms/ToolDeflectionModel.ts (231 lines)",
+    "engine_function": "src/engines/AdvancedCalculations.ts:268 (calculateToolDeflection)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:565 (case 'deflection')",
+    "also_used_by": ["src/engines/IntelligenceEngine.ts:2328", "src/engines/ToolBreakageEngine.ts:492", "src/engines/ProductEngine.ts:35"]
+  },
+
+  "dual_implementation": {
+    "algorithm_class": {
+      "file": "src/algorithms/ToolDeflectionModel.ts",
+      "class": "ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolDeflectionOutput>",
+      "features": ["Separate shank_diameter", "Configurable dynamic_factor", "Bending stress calculation", "L/D validation (>6 warning)", "Multiple deflection thresholds (0.5mm, 1.0mm)"],
+      "registered_in": "algorithms/index.ts as 'tool-deflection'"
+    },
+    "engine_function": {
+      "file": "src/engines/AdvancedCalculations.ts:268",
+      "function": "calculateToolDeflection(force, diameter, overhang, E?, runout?)",
+      "features": ["Hardcoded dynamic_factor=1.5", "No shank_diameter (uses tool_diameter for I)", "Simpler warnings", "L/D threshold at 4:1 (vs 6 in algorithm)"],
+      "used_by": "calcDispatcher (line 566) -- THIS IS THE LIVE PATH"
+    },
+    "consistency": "FORMULAS IDENTICAL -- both compute delta = F*L^3/(3EI) with I = pi*D^4/64. Algorithm class has richer features."
+  },
+
+  "formula_verification": {
+    "euler_bernoulli_cantilever": {
+      "formula": "delta = F * L^3 / (3 * E * I)",
+      "reference": "Standard beam theory; Altintas (2012) Ch.2; Schmitz & Smith (2019)",
+      "implementation_correct": true,
+      "verified_at": ["ToolDeflectionModel.ts line 149", "AdvancedCalculations.ts line 284"]
+    },
+    "moment_of_inertia": {
+      "formula": "I = pi * D^4 / 64",
+      "for": "Circular cross-section",
+      "implementation_correct": true,
+      "note": "Algorithm class uses shank_diameter if provided; engine function always uses tool_diameter"
+    },
+    "youngs_modulus_conversion": {
+      "conversion": "GPa to N/mm2: E_calc = E_GPa * 1000",
+      "default_E": "600 GPa (cemented carbide -- correct: WC-Co typically 580-630 GPa)",
+      "implementation_correct": true
+    },
+    "dynamic_amplification": {
+      "factor": 1.5,
+      "note": "Conservative estimate for typical machining Q~20 systems. Algorithm class allows custom factor; engine function hardcodes 1.5."
+    },
+    "stiffness": {
+      "formula": "k = 3 * E * I / L^3 [N/mm]",
+      "implementation_correct": true,
+      "only_in": "ToolDeflectionModel"
+    },
+    "bending_stress": {
+      "formula": "sigma = F * L * (D/2) / I = M * c / I",
+      "implementation_correct": true,
+      "only_in": "ToolDeflectionModel"
+    },
+    "max_force_before_yield": {
+      "formula": "F_max = sigma_yield * I / (L * D/2)",
+      "yield_strength": "3000 MPa (carbide -- correct for WC-Co transverse rupture)",
+      "implementation_correct": true
+    },
+    "safety_factor": {
+      "formula": "SF = F_max / F_applied",
+      "zero_guard": "cutting_force > 0 check (line 168 in algorithm class)",
+      "engine_function_zero_guard": "NONE -- divides by zero if cutting_force=0",
+      "implementation": "Mostly correct but engine function has div-by-zero risk"
+    },
+    "surface_error": {
+      "formula": "error = dynamic_deflection + runout",
+      "implementation_correct": true,
+      "runout_default": "0.005 mm (5 um -- typical for good quality setup)"
+    }
+  },
+
+  "spot_check": {
+    "scenario": "F=500N, D=10mm, L=40mm, E=600GPa, runout=0.005mm",
+    "manual_calculation": {
+      "I": "pi * 10^4 / 64 = 490.87 mm^4",
+      "E_Nmm2": "600 * 1000 = 600000 N/mm2",
+      "static_deflection": "500 * 40^3 / (3 * 600000 * 490.87) = 500 * 64000 / 883566000 = 0.0362 mm",
+      "dynamic_deflection": "0.0362 * 1.5 = 0.0543 mm",
+      "surface_error": "0.0543 + 0.005 = 0.0593 mm",
+      "L_D_ratio": "40/10 = 4.0"
+    },
+    "result": "REASONABLE -- 36um static deflection for a 10mm carbide endmill at 4:1 L/D is typical"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Euler-Bernoulli cantilever formula delta = F*L^3/(3EI) correctly implemented in both paths" },
+    { "severity": "OK", "finding": "Moment of inertia I = pi*D^4/64 correctly computed for circular cross-section" },
+    { "severity": "OK", "finding": "Young's modulus default 600 GPa correct for cemented carbide (WC-Co)" },
+    { "severity": "OK", "finding": "Yield strength 3000 MPa reasonable for carbide transverse rupture" },
+    { "severity": "OK", "finding": "L/D ratio warnings at appropriate thresholds (4:1 warning in engine, 5:1/8:1 in algorithm)" },
+    { "severity": "OK", "finding": "Widely used -- calculateToolDeflection referenced by IntelligenceEngine, ToolBreakageEngine, ProductEngine" },
+    { "severity": "MINOR", "finding": "Engine function (live path) had no zero-guard on cutting_force for safety_factor -- FIXED: added ternary guard (cutting_force > 0 ? ... : 999)" },
+    { "severity": "MINOR", "finding": "Engine function does not support separate shank_diameter -- assumes tool_diameter for I calculation. For reduced-shank tools, this underestimates deflection." },
+    { "severity": "INFO", "finding": "Euler-Bernoulli beam model assumes uniform cross-section. Tapered or stepped tools have different deflection behavior. Adequate for most endmill applications." },
+    { "severity": "INFO", "finding": "Q_factor=20 declared at line 287 (AdvancedCalculations) but not used -- dynamic_factor=1.5 is hardcoded separately. Dead constant." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*4 + 0.15*5 = 1.75 + 1.00 + 1.00 + 0.75 = 4.50",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "deflection_formula_verified": true,
+    "beam_theory_assumptions_documented": true,
+    "safety_factor_calculation_verified": true,
+    "dispatcher_wiring_traced": true
+  }
+}

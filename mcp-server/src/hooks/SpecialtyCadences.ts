@@ -28,6 +28,7 @@ const autoFRFLibraryMatch: HookDefinition = {
     "On tool assembly creation, matches frequency response function " +
     "from library to predict chatter stability without tap testing.",
   phase: "post-output",
+  event: "phase.post-toolpath",
   category: "automation",
   mode: "warning",
   priority: "normal",
@@ -71,6 +72,7 @@ const autoToleranceRiskScore: HookDefinition = {
     "On job plan creation, scores tolerance non-conformance risk " +
     "based on feature complexity, Cpk history, and machine capability.",
   phase: "post-output",
+  event: "phase.post-validation",
   category: "automation",
   mode: "warning",
   priority: "normal",
@@ -113,6 +115,7 @@ const autoOperatorSkillMatch: HookDefinition = {
     "On job assignment, validates operator skill level matches job " +
     "difficulty. Warns if mismatch detected.",
   phase: "post-output",
+  event: "phase.post-data-query",
   category: "automation",
   mode: "warning",
   priority: "normal",
@@ -153,6 +156,7 @@ const autoToolStandardization: HookDefinition = {
     "After 100 tool changes, analyzes tool crib for consolidation " +
     "opportunities — reduce unique tools, simplify inventory.",
   phase: "on-session-checkpoint",
+  event: "phase.post-calculation",
   category: "automation",
   mode: "logging",
   priority: "low",

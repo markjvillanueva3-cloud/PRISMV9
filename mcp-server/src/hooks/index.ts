@@ -5,21 +5,25 @@
  * Central export point for ALL hook modules.
  * 
  * HOOK INVENTORY:
- * - EnforcementHooks: 18 hooks (anti-regression, safety, quality gates, skill quality)
+ * - EnforcementHooks: 17 hooks (anti-regression, safety, quality gates, skill quality)
  * - LifecycleHooks: 14 hooks (session, checkpoint, context pressure)
  * - ManufacturingHooks: 9 hooks (force, thermal, deflection, MRR)
  * - CognitiveHooks: 10 hooks (Bayesian, patterns, learning)
  * - ObservabilityHooks: 11 hooks (performance, usage, audit)
- * - AutomationHooks: 12 hooks (indexing, cache, backup, sync)
+ * - AutomationHooks: 11 hooks (indexing, cache, backup, sync)
  * - CrossReferenceHooks: 12 hooks (integrity, compatibility, batch)
  * - AdvancedManufacturingHooks: 8 hooks (chip, chatter, power, G-code)
- * - RecoveryHooks: 10 hooks (circuit breaker, retry, rollback)
+ * - RecoveryHooks: 9 hooks (circuit breaker, retry, rollback)
  * - SchemaHooks: 7 hooks (version, deprecation, migration)
  * - ControllerHooks: 5 hooks (FANUC, SIEMENS, HAAS specific)
  * - AgentHooks: 7 hooks (tier selection, cost, escalation, safety)
  * - OrchestrationHooks: 7 hooks (swarm patterns, pipeline, consensus, ATCS bridge)
- * 
- * TOTAL: 130 hooks across 13 categories
+ * - SafetyQualityHooks: 20 hooks (spindle, collision, workholding, SPC)
+ * - CadenceHooks: 6 hooks (daily, weekly, hourly, shift, monthly, quarterly)
+ * - SpecialtyManufacturingHooks: 20 hooks (turning, 5-axis, EDM, grinding)
+ * - SpecialtyCadences: 6 hooks (M97-M102 automation cadences)
+ *
+ * TOTAL: 179 hooks across 17 categories
  * 
  * @version 3.0.0
  * @author PRISM Development Team

@@ -26,15 +26,25 @@
           "model": "sonnet-4.6",
           "effort": 240,
           "tools": [
-            { "tool": "prism_dev" },
-            { "tool": "prism_validate" },
-            { "tool": "prism_manus", "action": "web_research", "purpose": "video metadata retrieval" }
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_validate"
+            },
+            {
+              "tool": "prism_manus",
+              "action": "web_research",
+              "purpose": "video metadata retrieval"
+            }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["CC-MS0"],
+          "dependencies": [
+            "CC-MS0"
+          ],
           "entry_conditions": [
             "CC-MS0 complete",
             "yt-dlp installed and functional",
@@ -101,7 +111,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.70,
+        "safety_floor": 0.7,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -131,17 +141,56 @@
     }
   ],
   "tool_map": [
-    { "tool": "prism_dev", "phases": ["P0"] },
-    { "tool": "prism_validate", "phases": ["P0"] },
-    { "tool": "prism_manus", "phases": ["P0"] }
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_manus",
+      "phases": [
+        "P0"
+      ]
+    }
   ],
   "deliverables_index": [
-    "cad-engine/src/video_ingest.py",
-    "cad-engine/src/frame_extract.py",
-    "cad-engine/src/ui_ocr.py",
-    "cad-engine/src/vision_analyze.py",
-    "cad-engine/src/domain_classify.py",
-    "cad-engine/src/platform_detect.py"
+    {
+      "path": "cad-engine/src/video_ingest.py",
+      "type": "source",
+      "description": "YouTube video download + transcript extraction via yt-dlp"
+    },
+    {
+      "path": "cad-engine/src/frame_extract.py",
+      "type": "source",
+      "description": "Scene-change frame sampling via ffmpeg"
+    },
+    {
+      "path": "cad-engine/src/ui_ocr.py",
+      "type": "source",
+      "description": "Frame OCR pipeline via Tesseract"
+    },
+    {
+      "path": "cad-engine/src/vision_analyze.py",
+      "type": "source",
+      "description": "Vision analysis pipeline via Opus API (CAD/CAM/SHOP modes)"
+    },
+    {
+      "path": "cad-engine/src/domain_classify.py",
+      "type": "source",
+      "description": "Domain classifier (CAD/CAM/SHOP/multi) with confidence scores"
+    },
+    {
+      "path": "cad-engine/src/platform_detect.py",
+      "type": "source",
+      "description": "Software platform + version detector from frames and transcript"
+    }
   ],
   "existing_leverage": [],
   "scrutiny_config": {

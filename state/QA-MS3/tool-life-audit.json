@@ -1,0 +1,140 @@
+{
+  "unit": "P0-U01",
+  "title": "ToolLifeEngine: Taylor Equation (C, n exponents) Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:15:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "algorithm": "src/algorithms/ExtendedTaylorModel.ts (228 lines)",
+    "engine_function": "src/engines/ManufacturingCalculations.ts:433 (calculateTaylorToolLife)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:418 (case 'tool_life')",
+    "validation": "src/tools/dispatchers/validationDispatcher.ts:51 (case 'taylor')",
+    "defaults": "src/engines/ManufacturingCalculations.ts:769 (getDefaultTaylor -- 9 material/tool combos)"
+  },
+
+  "dual_implementation": {
+    "algorithm_class": {
+      "file": "src/algorithms/ExtendedTaylorModel.ts",
+      "class": "ExtendedTaylorModel implements Algorithm<TaylorInput, TaylorOutput>",
+      "features": ["Configurable feed/depth exponents", "Reference feed/depth baselines", "Temperature correction factor", "Speed for 60-min target", "Inverse Taylor calculation"],
+      "registered_in": "src/algorithms/index.ts line 256: 'taylor': ExtendedTaylorModel"
+    },
+    "engine_function": {
+      "file": "src/engines/ManufacturingCalculations.ts:433",
+      "function": "calculateTaylorToolLife(cutting_speed, coefficients, feed?, depth?)",
+      "features": ["Hardcoded feed exponent=0.35, depth exponent=0.20, ref_feed=0.2, ref_depth=2.0", "No temperature correction", "No speed_for_60min inverse calculation"],
+      "used_by": "calcDispatcher (line 438) -- THIS IS THE LIVE PATH"
+    },
+    "consistency": "FORMULA IDENTICAL -- both compute T = (C/V)^(1/n) * (ref_feed/feed)^a * (ref_depth/depth)^b. Algorithm class has more features (configurable exponents, temperature factor, inverse calc).",
+    "severity": "INFO"
+  },
+
+  "formula_verification": {
+    "basic_taylor": {
+      "formula": "V * T^n = C, so T = (C/V)^(1/n)",
+      "reference": "Taylor, F.W. (1907) 'On the Art of Cutting Metals'",
+      "implementation_correct": true,
+      "verified_at": "ExtendedTaylorModel.ts line 141, ManufacturingCalculations.ts line 451"
+    },
+    "extended_taylor": {
+      "formula": "T = (C/V)^(1/n) * (ref_feed/feed)^a * (ref_depth/depth)^b",
+      "equivalence": "V * T^n * f^a * d^b = C_ext (generalized form)",
+      "reference": "Altintas 'Manufacturing Automation' (2012) Ch.3",
+      "implementation_correct": true,
+      "defaults": { "feed_exponent_a": 0.35, "depth_exponent_b": 0.20, "ref_feed": 0.2, "ref_depth": 2.0 },
+      "note": "Exponent defaults (a=0.35, b=0.20) match standard values in machining handbooks"
+    },
+    "inverse_taylor": {
+      "formula": "V_60 = (C / 60^n) * ((ref_feed/feed)^a)^n * ((ref_depth/depth)^b)^n",
+      "note": "The algorithm class applies (a*n) and (b*n) exponents when converting from tool-life domain to speed domain -- this is CORRECT",
+      "verified_algebraically": true,
+      "only_in": "ExtendedTaylorModel (not in engine function)"
+    },
+    "temperature_correction": {
+      "formula": "T_corrected = T * temperature_factor (0-1)",
+      "note": "Linear derating -- simple but effective. Only in algorithm class.",
+      "only_in": "ExtendedTaylorModel"
+    }
+  },
+
+  "spot_check": {
+    "scenario": "Steel carbide, C=200, n=0.25, Vc=150 m/min, feed=0.1mm, depth=3mm",
+    "manual_calculation": {
+      "basic_taylor": "T = (200/150)^(1/0.25) = 1.333^4 = 3.16 min",
+      "feed_correction": "(0.2/0.1)^0.35 = 2^0.35 = 1.274",
+      "depth_correction": "(2.0/3.0)^0.20 = 0.667^0.20 = 0.922",
+      "extended_tool_life": "3.16 * 1.274 * 0.922 = 3.72 min",
+      "optimal_speed": "150 * 0.85 = 127 m/min"
+    },
+    "result": "REASONABLE -- short tool life at Vc=150 near C=200 triggers TAYLOR_CLIFF warning as expected"
+  },
+
+  "taylor_cliff_warnings": {
+    "short_life_threshold": "T < 5 min -> 'TAYLOR_CLIFF: dangerously short'",
+    "near_C_threshold": "Vc > 0.9*C -> 'Operating on exponential curve'",
+    "implementation_correct": true,
+    "safety_value": "HIGH -- these warnings prevent the most common Taylor-related machining failure"
+  },
+
+  "safety_limits": {
+    "MAX_TOOL_LIFE": { "value": 10000, "unit": "min", "enforced": true, "method": "clamp + warning" },
+    "MIN_TOOL_LIFE": { "value": 0.1, "unit": "min", "enforced": true, "method": "clamp + warning" },
+    "MAX_CUTTING_SPEED": { "value": 2000, "unit": "m/min", "enforced": true },
+    "MAX_C": { "value": 5000, "enforced": "validation only" },
+    "MAX_N": { "value": 0.8, "enforced": "validation only" }
+  },
+
+  "default_coefficients": {
+    "total_combos": 9,
+    "groups": [
+      { "key": "steel_hss", "C": 70, "n": 0.125 },
+      { "key": "steel_carbide", "C": 200, "n": 0.25 },
+      { "key": "steel_ceramic", "C": 400, "n": 0.30 },
+      { "key": "stainless_hss", "C": 50, "n": 0.12 },
+      { "key": "stainless_carbide", "C": 150, "n": 0.22 },
+      { "key": "cast_iron_carbide", "C": 180, "n": 0.25 },
+      { "key": "aluminum_carbide", "C": 800, "n": 0.30 },
+      { "key": "titanium_carbide", "C": 100, "n": 0.20 },
+      { "key": "inconel_carbide", "C": 80, "n": 0.18 }
+    ],
+    "values_reasonable": true,
+    "reference_check": "HSS n=0.125 matches classic 1/8 exponent. Carbide n=0.25 matches standard. C values reasonable for each combination."
+  },
+
+  "dispatcher_wiring": {
+    "route": "prism_calc action=tool_life -> calcDispatcher.ts line 418 -> calculateTaylorToolLife()",
+    "material_lookup": "If material_id provided, looks up taylor.C and taylor.n from MaterialRegistry with tool_material override (C_carbide/n_carbide)",
+    "fallback_chain": "1. Explicit taylor_C+taylor_n -> 2. Material registry taylor data -> 3. getDefaultTaylor(material_group, tool_material)",
+    "wiring_verified": true
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Taylor equation T = (C/V)^(1/n) correctly implemented in both algorithm class and engine function" },
+    { "severity": "OK", "finding": "Extended model (feed/depth correction) uses correct exponents (a=0.35, b=0.20) matching handbook values" },
+    { "severity": "OK", "finding": "Taylor cliff warnings implemented: T<5min and Vc>0.9C -- critical safety feature" },
+    { "severity": "OK", "finding": "Inverse Taylor (speed_for_60min) algebra verified: a*n exponent correctly converts from tool-life to speed domain" },
+    { "severity": "OK", "finding": "9 default Taylor coefficient sets with reasonable values matching reference literature" },
+    { "severity": "OK", "finding": "Tool life clamped to [0.1, 10000] min range -- prevents unreasonable predictions" },
+    { "severity": "MINOR", "finding": "Dual implementation: ExtendedTaylorModel (algorithm, rich features) vs calculateTaylorToolLife (engine function, hardcoded exponents). Live path uses simpler function -- configurable exponents and temperature correction unavailable from dispatcher." },
+    { "severity": "MINOR", "finding": "Engine function optimal_speed is simply 0.85*Vc (fixed 15% reduction). Not derived from cost optimization or Taylor-curve analysis. Misleadingly named." },
+    { "severity": "INFO", "finding": "Validation cross-check (Vc > 1.2*C) only in algorithm class validate(). calcDispatcher path has no pre-validation -- user gets warnings but no error." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "taylor_equation_verified": true,
+    "C_n_exponent_ranges_checked": true,
+    "extended_model_corrections_verified": true,
+    "cliff_warnings_verified": true,
+    "dispatcher_wiring_traced": true
+  }
+}

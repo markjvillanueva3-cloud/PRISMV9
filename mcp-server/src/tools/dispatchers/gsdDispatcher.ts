@@ -21,6 +21,33 @@ import { safeWriteSync } from "../../utils/atomicWrite.js";
 const STATE_DIR = PATHS.STATE_DIR;
 const GSD_DIR = PATHS.GSD_DIR;
 const GSD_SECTIONS_DIR = path.join(GSD_DIR, "sections");
+const MCP_SRC = path.join(PATHS.MCP_SERVER, "src");
+
+/**
+ * Compute live system counts from the filesystem.
+ * Cached for 60s to avoid repeated fs scans.
+ */
+let _countsCache: { ts: number; counts: Record<string, number> } | null = null;
+function getSystemCounts(): Record<string, number> {
+  const now = Date.now();
+  if (_countsCache && now - _countsCache.ts < 60_000) return _countsCache.counts;
+  try {
+    const dispDir = path.join(MCP_SRC, "tools", "dispatchers");
+    const engDir = path.join(MCP_SRC, "engines");
+    const hookDir = path.join(MCP_SRC, "hooks");
+    const dispatchers = fs.existsSync(dispDir)
+      ? fs.readdirSync(dispDir).filter(f => f.endsWith("Dispatcher.ts")).length : 45;
+    const engines = fs.existsSync(engDir)
+      ? fs.readdirSync(engDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 185;
+    const hooks = fs.existsSync(hookDir)
+      ? fs.readdirSync(hookDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 179;
+    const counts = { dispatchers, engines, hooks };
+    _countsCache = { ts: now, counts };
+    return counts;
+  } catch {
+    return { dispatchers: 45, engines: 185, hooks: 179 };
+  }
+}
 const ACTIONS = ["core", "quick", "get", "dev_protocol", "resources_summary", "quick_resume"] as const;
 const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manus", "evidence", "gates", "start", "end", "d1", "d2", "d3", "d4"] as const;
 
@@ -29,7 +56,7 @@ const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manu
 // These are safety nets, not the primary source. Edit the .md files instead.
 // ============================================================================
 
-const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 32 dispatchers | 382+ verified actions | 73 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
+const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 45 dispatchers | 1060 verified actions | 185 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
 
 const FALLBACK_DEV_PROTOCOL = "# Dev Protocol\n## Files not found — edit data/docs/gsd/DEV_PROTOCOL.md";
 
@@ -153,24 +180,26 @@ export function registerGsdDispatcher(server: any): void {
 
           case "resources_summary": {
             try {
+              const liveCounts = getSystemCounts();
               const statePath = path.join(STATE_DIR, "CURRENT_STATE.json");
               if (fs.existsSync(statePath)) {
                 const state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
                 const ri = state.resourceInventory || {};
                 result = {
-                  mcp_tools: ri.mcpTools || 324,
+                  dispatchers: liveCounts.dispatchers,
+                  engines: liveCounts.engines,
+                  hooks: liveCounts.hooks,
                   materials: ri.materials?.total || 3518,
                   machines: ri.machines?.total || 824,
                   alarms: ri.alarms?.total || 18942,
                   skills: ri.skills?.total || 119,
                   formulas: ri.formulas || 490,
                   agents: ri.agents?.total || 56,
-                  hooks: ri.hooks?.total || 112,
                   scripts: ri.scripts?.total || 74,
-                  source: "CURRENT_STATE.json"
+                  source: "CURRENT_STATE.json + live_fs_scan"
                 };
               } else {
-                result = { mcp_tools: 324, materials: 3518, alarms: 18942, skills: 119, formulas: 490, agents: 56, hooks: 112, scripts: 74, source: "defaults" };
+                result = { dispatchers: liveCounts.dispatchers, engines: liveCounts.engines, hooks: liveCounts.hooks, materials: 3518, alarms: 18942, skills: 119, formulas: 490, agents: 56, scripts: 74, source: "live_fs_scan + defaults" };
               }
             } catch { result = { source: "error", fallback: true }; }
             break;
@@ -181,11 +210,12 @@ export function registerGsdDispatcher(server: any): void {
               const statePath = path.join(STATE_DIR, "CURRENT_STATE.json");
               if (!fs.existsSync(statePath)) { result = { status: "NO_STATE_FILE", action: "Start fresh" }; break; }
               const state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
+              const resumeCounts = getSystemCounts();
               result = {
                 status: "RESUME_READY",
                 session: state.currentSession || state.session,
                 quick_resume: state.quickResume || state.quick_resume,
-                mcp_tools: state.resourceInventory?.mcpTools || 324,
+                dispatchers: resumeCounts.dispatchers,
                 last_updated: state.timestamp
               };
             } catch (e: any) { result = { status: "ERROR", message: e.message }; }

@@ -1,0 +1,160 @@
+{
+  "id": "QA-MS4",
+  "version": "1.0.0",
+  "title": "Algorithm Suite Part 1 — Physics Models",
+  "brief": "Audit physics algorithm implementations: Johnson-Cook flow stress model, Merchant's circle force decomposition, stability lobe diagrams, chip formation models, thermal partition algorithms, and uncertainty propagation (RSS) correctness.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Physics Algorithm Audit",
+      "description": "Verify physics algorithm implementations against their theoretical foundations, check parameter ranges, and validate numerical stability.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "Johnson-Cook flow stress model (A,B,C,m,n params)",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — J-C model underpins all flow stress calculations",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS3 calc engine audit complete"],
+          "exit_conditions": ["J-C formula verified: sigma = (A+B*eps^n)(1+C*ln(eps_dot*))(1-(T*)^m)", "Parameter ranges for common materials validated", "Strain rate and temperature normalization verified"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate Johnson-Cook algorithm implementation" },
+            { "number": 2, "instruction": "Verify formula: sigma = (A + B*eps^n)(1 + C*ln(eps_dot*))(1 - (T*)^m)" },
+            { "number": 3, "instruction": "Validate A,B,C,m,n parameters for steel, aluminum, titanium" },
+            { "number": 4, "instruction": "Verify temperature and strain rate normalization" },
+            { "number": 5, "instruction": "Document in state/QA-MS4/johnson-cook-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/johnson-cook-audit.json", "type": "data", "description": "Johnson-Cook model verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Merchant's circle / force decomposition",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — force decomposition is fundamental to cutting mechanics",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["J-C audit complete"],
+          "exit_conditions": ["Merchant's circle geometry verified", "Force component decomposition (Fc, Ft, Fn, Ff) verified", "Rake angle and friction angle relationships verified"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate Merchant's circle / force decomposition algorithm" },
+            { "number": 2, "instruction": "Verify geometric relationships in force circle" },
+            { "number": 3, "instruction": "Verify force component calculations (cutting, thrust, normal, friction)" },
+            { "number": 4, "instruction": "Document in state/QA-MS4/merchants-circle-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/merchants-circle-audit.json", "type": "data", "description": "Merchant's circle verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Stability lobe diagram algorithm",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — chatter prediction is safety-critical for machine tool operations",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Force decomposition audit complete"],
+          "exit_conditions": ["SLD algorithm verified against Altintas/Budak analytical solution", "Frequency response function handling verified", "Lobe boundary calculation correct for N=0,1,2+ lobes"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate stability lobe diagram algorithm" },
+            { "number": 2, "instruction": "Verify against Altintas/Budak analytical SLD solution" },
+            { "number": 3, "instruction": "Check FRF (frequency response function) processing" },
+            { "number": 4, "instruction": "Verify lobe boundaries for multiple harmonics" },
+            { "number": 5, "instruction": "Document in state/QA-MS4/stability-lobe-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/stability-lobe-audit.json", "type": "data", "description": "Stability lobe diagram verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Chip formation / chip thickness models",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — supporting model verification",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["SLD audit complete"],
+          "exit_conditions": ["Chip thickness model verified", "Chip compression ratio formula verified", "Shear plane angle calculation verified"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate chip formation / thickness algorithms" },
+            { "number": 2, "instruction": "Verify undeformed chip thickness: h = f * sin(kappa)" },
+            { "number": 3, "instruction": "Verify chip compression ratio and shear plane angle" },
+            { "number": 4, "instruction": "Document in state/QA-MS4/chip-formation-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/chip-formation-audit.json", "type": "data", "description": "Chip formation model verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Thermal partition algorithms",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — heat partition verification",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Chip formation audit complete"],
+          "exit_conditions": ["Heat partition ratios verified (tool, chip, workpiece sum to 1.0)", "Temperature-dependent partition model verified if present", "Coolant effect on partition verified"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate thermal partition algorithms" },
+            { "number": 2, "instruction": "Verify partition ratios sum to 1.0" },
+            { "number": 3, "instruction": "Verify material-dependent partition logic" },
+            { "number": 4, "instruction": "Document in state/QA-MS4/thermal-partition-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/thermal-partition-audit.json", "type": "data", "description": "Thermal partition algorithm verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Uncertainty propagation (RSS) correctness",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — uncertainty propagation affects safety factor application",
+          "tools": [{ "tool": "prism_calc" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Thermal partition audit complete"],
+          "exit_conditions": ["RSS formula verified: u_combined = sqrt(sum(u_i^2))", "Partial derivative propagation verified for complex expressions", "Correlation handling verified (if present)"],
+          "rollback": "git checkout -- state/QA-MS4/",
+          "steps": [
+            { "number": 1, "instruction": "Locate uncertainty propagation (RSS) implementation" },
+            { "number": 2, "instruction": "Verify RSS formula: u_c = sqrt(sum((df/dxi * u_xi)^2))" },
+            { "number": 3, "instruction": "Verify propagation through multi-step calculations" },
+            { "number": 4, "instruction": "Check for correlation handling between inputs" },
+            { "number": 5, "instruction": "Document in state/QA-MS4/uncertainty-propagation-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS4/uncertainty-propagation-audit.json", "type": "data", "description": "Uncertainty propagation (RSS) verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All physics formulas verified against references", "Uncertainty propagation correct"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 6,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_calc", "phases": ["P0"], "purpose": "Verify physics calculations" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Validate implementations" }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS4/johnson-cook-audit.json", "type": "data", "description": "J-C model audit" },
+    { "path": "state/QA-MS4/merchants-circle-audit.json", "type": "data", "description": "Merchant's circle audit" },
+    { "path": "state/QA-MS4/stability-lobe-audit.json", "type": "data", "description": "SLD audit" },
+    { "path": "state/QA-MS4/chip-formation-audit.json", "type": "data", "description": "Chip formation audit" },
+    { "path": "state/QA-MS4/thermal-partition-audit.json", "type": "data", "description": "Thermal partition audit" },
+    { "path": "state/QA-MS4/uncertainty-propagation-audit.json", "type": "data", "description": "Uncertainty (RSS) audit" }
+  ],
+  "existing_leverage": [
+    { "asset": "Algorithm suite", "type": "source", "count": 52, "usage": "Physics algorithm implementations" },
+    { "asset": "MaterialRegistry", "type": "data", "count": 3533, "usage": "Material property reference" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_tests", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

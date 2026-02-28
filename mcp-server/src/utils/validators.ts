@@ -591,7 +591,7 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
     components.thermal_safety.score = 1.0;
     components.thermal_safety.pass = true;
   } else {
-    components.thermal_safety.score = 0.5;  // Partial credit
+    components.thermal_safety.score = 0.0;  // QA-MS1 FIX: Missing data = unknown safety, not partial credit
     issues.push("Missing thermal properties (conductivity, specific heat)");
   }
 
@@ -618,7 +618,7 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
     components.machine_capability.score = 1.0;
     components.machine_capability.pass = true;
   } else {
-    components.machine_capability.score = 0.5;
+    components.machine_capability.score = 0.0;  // QA-MS1 FIX: Missing data = unknown safety
     issues.push("Missing speed recommendations (V30 or recommended_cutting_speed)");
   }
 
@@ -634,7 +634,7 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
       issues.push(`Hardness range invalid: max ${hardnessMax} < min ${hardnessMin}`);
     }
   } else {
-    components.edge_cases.score = 0.5;
+    components.edge_cases.score = 0.0;  // QA-MS1 FIX: Missing data = unknown safety
     issues.push("Missing hardness range");
   }
 
@@ -644,12 +644,23 @@ export function computeSafetyScore(material: Record<string, unknown>): SafetyRes
     totalScore += comp.score * comp.weight;
   }
 
-  // Determine status
+  // QA-MS1 FIX: Hard block for missing critical safety data
+  // Force/tool-life data is mandatory for safe manufacturing
+  if (components.force_safety.score === 0) {
+    issues.push("HARD BLOCK: No cutting force data (kc1_1, mc) — cannot validate safe cutting parameters");
+  }
+  if (components.tool_life.score === 0) {
+    issues.push("HARD BLOCK: No tool life data (Taylor C, n) — cannot validate tool longevity");
+  }
+  const criticalDataMissing = components.force_safety.score === 0 || components.tool_life.score === 0;
+
+  // Determine status — S(x) >= 0.70 is a HARD BLOCK, no WARNING zone
+  // QA-MS1 FIX: Removed WARNING zone that allowed S(x) in [0.595, 0.699] to pass
   let status: SafetyResult["status"];
-  if (totalScore >= SAFETY_THRESHOLD) {
+  if (criticalDataMissing) {
+    status = "BLOCKED";
+  } else if (totalScore >= SAFETY_THRESHOLD) {
     status = "APPROVED";
-  } else if (totalScore >= SAFETY_THRESHOLD * 0.85) {
-    status = "WARNING";
   } else {
     status = "BLOCKED";
   }

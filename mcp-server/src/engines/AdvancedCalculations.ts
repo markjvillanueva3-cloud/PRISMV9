@@ -296,8 +296,8 @@ export function calculateToolDeflection(
   const yield_strength = 3000; // MPa for carbide
   const max_stress_force = (yield_strength * I) / (overhang_length * tool_diameter / 2);
   
-  // Safety factor
-  const safety_factor = max_stress_force / cutting_force;
+  // QA-MS3 FIX: Guard against division by zero when cutting_force=0
+  const safety_factor = cutting_force > 0 ? max_stress_force / cutting_force : 999;
   
   // Warnings
   if (static_deflection > 0.05) {

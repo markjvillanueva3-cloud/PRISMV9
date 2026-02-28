@@ -518,6 +518,15 @@ async function registerTools(): Promise<void> {
   } else {
     log.info(`[HEALTH] All ${moduleChecks.length} lazy-loaded modules verified OK`);
   }
+
+  // MS2: Emit system startup event for lifecycle hooks
+  try {
+    const { eventBus, EventTypes } = await import("./engines/EventBus.js");
+    eventBus.publish(EventTypes.SYSTEM_STARTUP, {
+      timestamp: new Date().toISOString(),
+      dispatchers_registered: true,
+    }, { category: "system", priority: "high", source: "index" });
+  } catch { /* startup event is best-effort */ }
 }
 
 // ============================================================================

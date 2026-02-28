@@ -2,59 +2,337 @@
   "id": "S3-MS1",
   "version": "3.1.0",
   "title": "SFC Calculator Core UI",
-  "brief": "SFC core calculator page: MaterialSelector, OperationSelector, ParameterPanel, ResultsDisplay.",
+  "brief": "React/Vite frontend scaffold with SFC calculator page: MaterialSelector, OperationSelector, ParameterPanel, ResultsDisplay — wired to 7 SFC API endpoints.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "SFC Calculator Core UI",
-      "description": "SFC core calculator page: MaterialSelector, OperationSelector, ParameterPanel, ResultsDisplay.",
+      "description": "Build the PRISM web frontend scaffold and the SFC Calculator page with four core components connected to the /api/v1/sfc/* REST endpoints.",
       "sessions": "2-3",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute SFC Calculator Core UI",
+          "title": "Frontend Scaffold — React + Vite + Tailwind",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Frontend Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            }
-          ],
+          "tools": [{ "tool": "prism_dev" }],
           "skills": [],
           "scripts": [],
           "hooks": [],
-          "features": [
-            "Claude Preview",
-            "Context7"
-          ],
+          "features": ["Context7"],
           "dependencies": [],
           "entry_conditions": [
-            "L6-P1-MS1 complete"
+            "L6-P1-MS1 complete",
+            "Node.js 18+ available"
           ],
           "exit_conditions": [
-            "SFC Calculator Core UI complete",
-            "Build passes",
-            "Tests pass"
+            "C:\\PRISM\\web\\ directory created with React 18 + Vite + TypeScript + Tailwind CSS",
+            "Dev server starts on localhost:5173 and proxies /api/* to MCP server",
+            "Base layout renders: sidebar nav, header bar, main content area",
+            "React Router configured with /sfc route",
+            "Shared UI primitives: Button, Input, Select, Card, Badge, Spinner exported from components/ui/",
+            "npm run build produces zero errors",
+            "npm run lint passes"
           ],
-          "rollback": "git checkout -- [files modified by S3-MS1]",
+          "rollback": "rm -rf C:\\PRISM\\web\\",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute SFC Calculator Core UI per roadmap spec"
-            }
+            { "number": 1, "instruction": "Create C:\\PRISM\\web\\ with Vite React-TS template: npm create vite@latest web -- --template react-ts" },
+            { "number": 2, "instruction": "Install Tailwind CSS 4, React Router 7, and configure PostCSS + Tailwind config with PRISM design tokens (blue-600 primary, slate-800 sidebar)" },
+            { "number": 3, "instruction": "Create base layout: AppShell with sidebar nav (logo, nav links), header (breadcrumb, user area), main content <Outlet/>" },
+            { "number": 4, "instruction": "Create shared UI primitives in web/src/components/ui/: Button, Input, Select, Card, Badge, Spinner with Tailwind variants" },
+            { "number": 5, "instruction": "Configure Vite proxy: /api/* → http://localhost:3000/api/*, /ws → ws://localhost:3000/ws" },
+            { "number": 6, "instruction": "Verify dev server starts, layout renders, proxy forwards to MCP server" }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "web/package.json", "type": "config", "description": "Frontend package with React, Vite, Tailwind dependencies" },
+            { "path": "web/src/App.tsx", "type": "source", "description": "Root app with React Router and AppShell layout" },
+            { "path": "web/src/components/ui/", "type": "source", "description": "Shared UI primitive components" },
+            { "path": "web/vite.config.ts", "type": "config", "description": "Vite config with API proxy" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "SFC API Client Layer",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Frontend scaffold complete"],
+          "exit_conditions": [
+            "Typed API client at web/src/api/sfc.ts with functions for all 7 SFC endpoints",
+            "TypeScript interfaces match server-side SFC request/response types",
+            "Error handling wrapper with typed error responses",
+            "Loading state hooks: useSfcCalculate, useSfcCycleTime, etc."
+          ],
+          "rollback": "git checkout -- web/src/api/",
+          "steps": [
+            { "number": 1, "instruction": "Create web/src/api/client.ts — base fetch wrapper with error handling, JSON parsing, AbortController timeout" },
+            { "number": 2, "instruction": "Create web/src/api/sfc.ts — typed functions: calculate(), cycleTime(), engagement(), deflection(), powerTorque(), surfaceFinish(), toolLife()" },
+            { "number": 3, "instruction": "Create web/src/types/sfc.ts — TypeScript interfaces for SFC request params and response shapes matching server types" },
+            { "number": 4, "instruction": "Create web/src/hooks/useSfc.ts — React hooks wrapping each API call with loading/error/data state" }
+          ],
+          "deliverables": [
+            { "path": "web/src/api/client.ts", "type": "source", "description": "Base API client with error handling" },
+            { "path": "web/src/api/sfc.ts", "type": "source", "description": "Typed SFC endpoint functions" },
+            { "path": "web/src/types/sfc.ts", "type": "source", "description": "SFC TypeScript interfaces" },
+            { "path": "web/src/hooks/useSfc.ts", "type": "source", "description": "React hooks for SFC API calls" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "MaterialSelector Component",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["API client layer complete"],
+          "exit_conditions": [
+            "MaterialSelector renders searchable dropdown with 500+ materials from registry",
+            "Fuzzy search filters materials by name, grade, or category",
+            "Selected material displays key properties: hardness, tensile strength, machinability rating",
+            "Material groups collapsible: Steels, Aluminum, Titanium, Plastics, etc.",
+            "Selection emits typed onChange event with full material object"
+          ],
+          "rollback": "git checkout -- web/src/components/sfc/MaterialSelector.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create MaterialSelector.tsx with combobox pattern: input + dropdown + grouped list" },
+            { "number": 2, "instruction": "Implement fuzzy search using string similarity matching on material name/grade/category" },
+            { "number": 3, "instruction": "Add material property summary card below selector showing hardness, UTS, machinability" },
+            { "number": 4, "instruction": "Add keyboard navigation: arrow keys, Enter to select, Escape to close" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/sfc/MaterialSelector.tsx", "type": "source", "description": "Material selection combobox with fuzzy search" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "OperationSelector Component",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["API client layer complete"],
+          "exit_conditions": [
+            "OperationSelector renders operation categories: Milling, Turning, Drilling, Grinding, Threading",
+            "Sub-operations shown per category (e.g., Milling → Face, Slot, Pocket, Profile, 3D)",
+            "Selection auto-populates default parameters for chosen operation",
+            "Visual icon per operation type for quick recognition",
+            "Selection emits typed onChange with operation config object"
+          ],
+          "rollback": "git checkout -- web/src/components/sfc/OperationSelector.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create OperationSelector.tsx with two-level picker: category tiles → sub-operation list" },
+            { "number": 2, "instruction": "Map each operation to its required parameters and default values" },
+            { "number": 3, "instruction": "Add operation icons (SVG) for visual identification of each type" },
+            { "number": 4, "instruction": "Wire onChange to emit full operation config including default params" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/sfc/OperationSelector.tsx", "type": "source", "description": "Two-level operation type picker" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "ParameterPanel Component",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Claude Preview"],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": ["OperationSelector emits typed operation config"],
+          "exit_conditions": [
+            "ParameterPanel dynamically renders input fields based on selected operation",
+            "Fields include: cutting speed, feed rate, depth of cut, tool diameter, tool material, coolant type",
+            "Units toggle: metric (mm, m/min) ↔ imperial (in, sfm)",
+            "Input validation: min/max ranges per parameter, real-time error messages",
+            "Preset buttons for Conservative / Standard / Aggressive parameter sets"
+          ],
+          "rollback": "git checkout -- web/src/components/sfc/ParameterPanel.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ParameterPanel.tsx with dynamic form fields driven by operation config schema" },
+            { "number": 2, "instruction": "Implement metric/imperial unit toggle with conversion functions" },
+            { "number": 3, "instruction": "Add validation: min/max ranges per parameter with inline error display" },
+            { "number": 4, "instruction": "Add preset buttons (Conservative/Standard/Aggressive) that populate parameter values" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/sfc/ParameterPanel.tsx", "type": "source", "description": "Dynamic parameter input form with validation and presets" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "ResultsDisplay Component",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Claude Preview"],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["ParameterPanel provides validated input data"],
+          "exit_conditions": [
+            "ResultsDisplay shows primary results: RPM, feed rate (mm/min), MRR, power required",
+            "Safety indicator: green/yellow/red badge with S(x) score",
+            "Secondary results expandable: cycle time, tool life, surface finish Ra, deflection",
+            "Results update on Calculate button click, not on every keystroke",
+            "Loading spinner during API call, error state display on failure"
+          ],
+          "rollback": "git checkout -- web/src/components/sfc/ResultsDisplay.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ResultsDisplay.tsx with primary results cards (RPM, feed, MRR, power) and safety badge" },
+            { "number": 2, "instruction": "Add collapsible secondary results section: cycle time, tool life, surface finish, deflection" },
+            { "number": 3, "instruction": "Implement safety indicator: S(x) score → color mapping (>=0.90 green, >=0.70 yellow, <0.70 red)" },
+            { "number": 4, "instruction": "Add loading and error states with appropriate UI feedback" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/sfc/ResultsDisplay.tsx", "type": "source", "description": "Calculation results display with safety indicators" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U07",
+          "title": "SFC Calculator Page Integration",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Claude Preview"],
+          "dependencies": ["P0-U03", "P0-U04", "P0-U05", "P0-U06"],
+          "entry_conditions": ["All 4 SFC components complete"],
+          "exit_conditions": [
+            "SfcCalculatorPage.tsx wires all 4 components with shared state",
+            "Calculate button calls POST /api/v1/sfc/calculate with assembled params",
+            "Page layout responsive: side-by-side on desktop, stacked on mobile",
+            "Calculation history panel shows last 10 calculations with recall",
+            "URL state sync: material and operation encoded in query params for shareability"
+          ],
+          "rollback": "git checkout -- web/src/pages/SfcCalculatorPage.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create SfcCalculatorPage.tsx with grid layout: left column (Material + Operation + Params), right column (Results)" },
+            { "number": 2, "instruction": "Wire state: material selection → operation options filtering → parameter defaults → calculate → results" },
+            { "number": 3, "instruction": "Add calculation history sidebar: last 10 calculations stored in localStorage, click to recall" },
+            { "number": 4, "instruction": "Add responsive breakpoints: 2-column >= 1024px, single column < 1024px" },
+            { "number": 5, "instruction": "Sync material + operation to URL query params for bookmark/share support" }
+          ],
+          "deliverables": [
+            { "path": "web/src/pages/SfcCalculatorPage.tsx", "type": "source", "description": "Full SFC calculator page integrating all components" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U08",
+          "title": "Testing & Accessibility",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U07"],
+          "entry_conditions": ["SFC Calculator page fully integrated"],
+          "exit_conditions": [
+            "Vitest component tests for MaterialSelector, OperationSelector, ParameterPanel, ResultsDisplay",
+            "Integration test: full calculate flow with mocked API",
+            "Keyboard navigation works for all interactive elements (Tab, Enter, Escape, Arrow keys)",
+            "ARIA labels on all form controls, roles on dynamic regions",
+            "npm run build produces zero errors, npm run test passes"
+          ],
+          "rollback": "git checkout -- web/src/__tests__/",
+          "steps": [
+            { "number": 1, "instruction": "Install Vitest + React Testing Library + MSW for API mocking" },
+            { "number": 2, "instruction": "Write component tests for each SFC component: render, interaction, state changes" },
+            { "number": 3, "instruction": "Write integration test: select material → select operation → set params → calculate → verify results" },
+            { "number": 4, "instruction": "Audit and fix accessibility: ARIA labels, keyboard nav, focus management, screen reader announcements" }
+          ],
+          "deliverables": [
+            { "path": "web/src/__tests__/sfc/", "type": "test", "description": "Component and integration tests for SFC calculator" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -72,7 +350,11 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "SFC calculate flow returns correct results for test material+operation",
+          "Safety badge correctly colors based on S(x) threshold",
+          "Metric/imperial toggle converts values without precision loss"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -83,41 +365,34 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Frontend Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    },
-    {
-      "tool": "Context7",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" },
+    { "tool": "Context7", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/package.json", "type": "config", "description": "Frontend package manifest" },
+    { "path": "web/src/App.tsx", "type": "source", "description": "Root app with routing and layout" },
+    { "path": "web/src/components/ui/", "type": "source", "description": "Shared UI primitives" },
+    { "path": "web/src/api/sfc.ts", "type": "source", "description": "Typed SFC API client" },
+    { "path": "web/src/components/sfc/MaterialSelector.tsx", "type": "source", "description": "Material selection combobox" },
+    { "path": "web/src/components/sfc/OperationSelector.tsx", "type": "source", "description": "Operation type picker" },
+    { "path": "web/src/components/sfc/ParameterPanel.tsx", "type": "source", "description": "Dynamic parameter form" },
+    { "path": "web/src/components/sfc/ResultsDisplay.tsx", "type": "source", "description": "Results display with safety indicators" },
+    { "path": "web/src/pages/SfcCalculatorPage.tsx", "type": "source", "description": "SFC calculator page" },
+    { "path": "web/src/__tests__/sfc/", "type": "test", "description": "SFC component and integration tests" }
+  ],
+  "existing_leverage": [
+    { "asset": "routes/sfc.ts", "type": "api_route", "description": "7 SFC REST endpoints (calculate, cycle-time, engagement, deflection, power-torque, surface-finish, tool-life)" },
+    { "asset": "engines/SfcEngine.ts", "type": "engine", "description": "Core SFC calculation engine" },
+    { "asset": "engines/SafetyEngine.ts", "type": "engine", "description": "S(x) safety scoring for result display" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
@@ -126,13 +401,7 @@
     "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
     "scrutinizer_model": "opus-4.6",
     "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

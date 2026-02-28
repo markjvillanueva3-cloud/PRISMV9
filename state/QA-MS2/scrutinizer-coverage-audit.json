@@ -1,0 +1,209 @@
+{
+  "unit": "P0-U04",
+  "title": "Scrutinizer 12-Checker Coverage Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:20:00Z",
+  "status": "PASS",
+
+  "source_file": "src/scripts/scrutinize-roadmap.ts",
+  "schema_file": "src/schemas/roadmapSchema.ts",
+
+  "gap_categories_schema": {
+    "source": "roadmapSchema.ts line 46-51",
+    "categories": [
+      "missing_tools", "missing_deps", "missing_exit_conditions",
+      "missing_rollback", "sequence_errors", "role_mismatch",
+      "effort_mismatch", "missing_indexing", "missing_skills",
+      "orphaned_deliverables", "underspecified_steps", "missing_tests"
+    ],
+    "total": 12
+  },
+
+  "checkers": [
+    {
+      "number": 1,
+      "function": "checkSchemaCompleteness",
+      "line": 222,
+      "categories_emitted": ["missing_tools", "underspecified_steps", "orphaned_deliverables", "missing_exit_conditions", "role_mismatch", "missing_rollback", "sequence_errors"],
+      "checks": "Mandatory fields present and non-placeholder (id, title, role, steps, deliverables, entry/exit conditions, model, rollback, phase)",
+      "severity_range": "CRITICAL-MAJOR",
+      "implemented": true
+    },
+    {
+      "number": 2,
+      "function": "checkToolValidity",
+      "line": 324,
+      "categories_emitted": ["missing_tools"],
+      "checks": "Tool names match known dispatcher prefixes (45 prefixes) or standalone tools",
+      "severity_range": "MAJOR",
+      "implemented": true
+    },
+    {
+      "number": 3,
+      "function": "checkSkillValidity",
+      "line": 365,
+      "categories_emitted": ["missing_skills"],
+      "checks": "Skill IDs match known skill registry (17 default known skills)",
+      "severity_range": "MINOR",
+      "implemented": true
+    },
+    {
+      "number": 4,
+      "function": "checkDependencyIntegrity",
+      "line": 398,
+      "categories_emitted": ["missing_deps", "sequence_errors"],
+      "checks": "No missing dependency targets, no circular dependencies, sequence ordering valid",
+      "severity_range": "CRITICAL-MAJOR",
+      "implemented": true
+    },
+    {
+      "number": 5,
+      "function": "checkRoleModelAlignment",
+      "line": 485,
+      "categories_emitted": ["role_mismatch"],
+      "checks": "Role codes map to expected models (R1→opus, R2→sonnet, R4→opus, etc.)",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    },
+    {
+      "number": 6,
+      "function": "checkExitConditionQuality",
+      "line": 532,
+      "categories_emitted": ["missing_exit_conditions"],
+      "checks": "Exit conditions are concrete (not vague: 'good', 'proper', 'appropriate'), entry conditions present",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    },
+    {
+      "number": 7,
+      "function": "checkStepSpecificity",
+      "line": 592,
+      "categories_emitted": ["underspecified_steps"],
+      "checks": "Steps use imperative verbs (not hedge words: 'consider', 'maybe', 'possibly'), steps are non-trivial length",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    },
+    {
+      "number": 8,
+      "function": "checkDeliverableCoverage",
+      "line": 663,
+      "categories_emitted": ["orphaned_deliverables"],
+      "checks": "Deliverables have path/type/description, paths are valid, deliverables cross-referenced in deliverables_index",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    },
+    {
+      "number": 9,
+      "function": "checkIndexFlags",
+      "line": 748,
+      "categories_emitted": ["missing_indexing"],
+      "checks": "Boolean flags (creates_skill, creates_script, creates_hook, creates_command, index_in_master) match deliverable content",
+      "severity_range": "MINOR",
+      "implemented": true
+    },
+    {
+      "number": 10,
+      "function": "checkSequenceOptimization",
+      "line": 829,
+      "categories_emitted": ["sequence_errors"],
+      "checks": "Consecutive units with no dependencies flagged as parallelizable opportunities",
+      "severity_range": "INFO",
+      "implemented": true
+    },
+    {
+      "number": 11,
+      "function": "checkGateCoverage",
+      "line": 865,
+      "categories_emitted": ["missing_tests"],
+      "checks": "Phase gates have required fields (omega_floor, safety_floor, build_required, test_required, checkpoint)",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    },
+    {
+      "number": 12,
+      "function": "checkRollbackCoverage",
+      "line": 933,
+      "categories_emitted": ["missing_rollback"],
+      "checks": "Rollback instructions are specific (contain path or command), not generic",
+      "severity_range": "MAJOR-MINOR",
+      "implemented": true
+    }
+  ],
+
+  "category_coverage_matrix": {
+    "missing_tools": { "checkers": [1, 2], "covered": true },
+    "missing_deps": { "checkers": [4], "covered": true },
+    "missing_exit_conditions": { "checkers": [1, 6], "covered": true },
+    "missing_rollback": { "checkers": [1, 12], "covered": true },
+    "sequence_errors": { "checkers": [1, 4, 10], "covered": true },
+    "role_mismatch": { "checkers": [1, 5], "covered": true },
+    "effort_mismatch": { "checkers": ["5b"], "covered": true, "note": "checkEffortModelAlignment added — validates effort vs model tier" },
+    "missing_indexing": { "checkers": [9], "covered": true },
+    "missing_skills": { "checkers": [3], "covered": true },
+    "orphaned_deliverables": { "checkers": [1, 8], "covered": true },
+    "underspecified_steps": { "checkers": [1, 7], "covered": true },
+    "missing_tests": { "checkers": [11], "covered": true }
+  },
+
+  "coverage_gaps": [],
+  "coverage_gaps_resolved": [
+    {
+      "category": "effort_mismatch",
+      "status": "FIXED",
+      "resolution": "Added checkEffortModelAlignment (Checker 5b): opus with effort<60 → MINOR, haiku with effort>60 → MAJOR"
+    }
+  ],
+
+  "orchestrator_functions": {
+    "scoreGaps": {
+      "line": 979,
+      "logic": "Weighted score: sum(severity_weight * count) / (unitCount * max_possible). Weights: CRITICAL=3, MAJOR=2, MINOR=1, INFO=0",
+      "output": "0.0 (perfect) to 1.0 (worst)",
+      "verified": true
+    },
+    "autoFixGaps": {
+      "line": 1010,
+      "logic": "Clones roadmap, applies auto-fixable patches (fill empty rollback, add missing gate fields, normalize sequences)",
+      "verified": true
+    },
+    "scrutinizeRoadmap": {
+      "line": 1112,
+      "logic": "Adaptive loop: run all 12 checkers, score, auto-fix if possible, re-run until delta < convergence_rule or max_passes reached",
+      "convergence": "delta < 2 gaps between passes (configurable via scrutiny_config.convergence_rule)",
+      "max_passes": "Default 7 (configurable)",
+      "verified": true
+    }
+  },
+
+  "severity_distribution": {
+    "CRITICAL": "Schema completeness (id, title, role empty), circular dependencies",
+    "MAJOR": "Missing steps, deliverables, conditions, rollback; unknown tools; bad role-model mapping; weak gates",
+    "MINOR": "Unknown skills, vague conditions, hedge words, generic rollback, index flag mismatches",
+    "INFO": "Parallelization opportunities"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "All 12 checker functions implemented as exported pure functions" },
+    { "severity": "OK", "finding": "12/12 gap categories covered by at least one checker (effort_mismatch added)" },
+    { "severity": "OK", "finding": "Adaptive loop with convergence detection and auto-fix capability" },
+    { "severity": "OK", "finding": "Severity weighting (CRITICAL=3x, MAJOR=2x, MINOR=1x, INFO=0x) is reasonable" },
+    { "severity": "FIXED", "finding": "effort_mismatch checker added (checkEffortModelAlignment) — validates effort vs opus/haiku tier expectations" },
+    { "severity": "FIXED", "finding": "DEFAULT_KNOWN_TOOL_PREFIXES updated from 33 to 45 prefixes — all dispatchers now in scrutinizer allowlist" }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*5 + 0.25*5 + 0.15*5 = 1.75 + 1.25 + 1.25 + 0.75 = 5.00",
+    "pass_fail": "PASS",
+    "note": "Upgraded completeness 4→5: all 12 gap categories covered, tool prefixes updated to 45"
+  },
+
+  "exit_conditions_met": {
+    "all_12_categories_verified": true,
+    "each_checker_implementation_located": true,
+    "coverage_gaps_identified": true
+  }
+}

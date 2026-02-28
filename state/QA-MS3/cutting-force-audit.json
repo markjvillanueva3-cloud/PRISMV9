@@ -1,0 +1,239 @@
+{
+  "unit": "P0-U00",
+  "title": "CuttingForceEngine: Kienzle Model (kc1.1, mc) Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:00:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "algorithm": "src/algorithms/KienzleForceModel.ts (269 lines)",
+    "engine_function": "src/engines/ManufacturingCalculations.ts:236 (calculateKienzleCuttingForce)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:371 (case 'cutting_force')",
+    "validation": "src/tools/dispatchers/validationDispatcher.ts:46 (case 'kienzle')",
+    "defaults": "src/engines/ManufacturingCalculations.ts:746 (getDefaultKienzle -- 14 material groups)",
+    "tests": "src/__tests__/algorithms.test.ts:31 (5 test cases)"
+  },
+
+  "dual_implementation": {
+    "note": "Two parallel implementations of the same Kienzle equation exist",
+    "algorithm_class": {
+      "file": "src/algorithms/KienzleForceModel.ts",
+      "class": "KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>",
+      "interface": "validate() + calculate() + getMetadata()",
+      "registered_in": "src/algorithms/index.ts line 255: 'kienzle': KienzleForceModel",
+      "used_by": "tests, algorithm registry"
+    },
+    "engine_function": {
+      "file": "src/engines/ManufacturingCalculations.ts:236",
+      "function": "calculateKienzleCuttingForce(conditions, coefficients)",
+      "used_by": "calcDispatcher (line 414) -- THIS IS THE LIVE PATH"
+    },
+    "consistency": "IDENTICAL -- Both implementations use the same formula, same constants, same force ratios, same safety limits, same rake angle correction. The engine function is the canonical path for MCP tool calls; the algorithm class is the registry-compliant wrapper.",
+    "severity": "INFO"
+  },
+
+  "formula_verification": {
+    "kienzle_equation": {
+      "formula": "Fc = kc1.1 * b * h^(1-mc)",
+      "expanded": "kc = kc1.1 * h^(-mc), then Fc_single = kc * b * h * rake_correction",
+      "equivalent": "Fc_single = kc1.1 * b * h^(1-mc) * (1 - 0.01*gamma)",
+      "reference": "Kienzle, O. (1952) 'Die Bestimmung von Kraeften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen'",
+      "implementation_correct": true,
+      "verified_at": "KienzleForceModel.ts lines 174-188, ManufacturingCalculations.ts lines 264-296"
+    },
+
+    "martellotti_mean_chip_thickness": {
+      "formula": "h_mean = fz * (1 - cos(phi_e)) / phi_e, where phi_e = arccos(1 - 2*ae/D)",
+      "reference": "Martellotti (1941); Altintas 'Manufacturing Automation' (2012) Ch.2",
+      "implementation_correct": true,
+      "edge_cases": {
+        "full_engagement": "ae=D: phi_e=pi, h_mean = fz*2/pi ~ 0.637*fz (correct)",
+        "half_engagement": "ae=D/2: phi_e=pi/2, h_mean = fz*1/(pi/2) ~ 0.637*fz (correct)",
+        "tiny_engagement": "phi_e < 0.001: falls back to fz (avoids NaN, correct)",
+        "single_tooth": "z=1: h_mean = fz directly (turning/boring, correct)"
+      },
+      "minimum_clamp": "h = max(h_mean, 0.001) -- prevents zero/negative chip thickness"
+    },
+
+    "engaged_teeth": {
+      "formula": "z_e = z * phi_e / (2*pi)",
+      "reference": "Altintas Eq 2.27",
+      "implementation_correct": true,
+      "minimum_clamp": "z_e = max(z_e, 0.1) -- prevents zero multiplication",
+      "note": "Only applied for multi-tooth (z > 1); single-tooth uses z_e = 1"
+    },
+
+    "rake_angle_correction": {
+      "formula": "factor = 1 - 0.01 * gamma",
+      "reference": "Sandvik Coromant Technical Guide",
+      "implementation_correct": true,
+      "default_rake": 6,
+      "at_default": "factor = 0.94 (6% force reduction for positive 6 deg rake)",
+      "note": "Linear approximation valid for gamma in [-10, +20] deg. No bounds check on gamma -- extreme values could produce negative correction factor."
+    },
+
+    "force_decomposition": {
+      "method": "ISO group-based fixed ratios applied to Fc",
+      "ratios": {
+        "N (aluminum)": { "Ff_Fc": 0.3, "Fp_Fc": 0.2 },
+        "P (steel)": { "Ff_Fc": 0.4, "Fp_Fc": 0.3 },
+        "M (stainless)": { "Ff_Fc": 0.45, "Fp_Fc": 0.35 },
+        "K (cast iron)": { "Ff_Fc": 0.35, "Fp_Fc": 0.25 },
+        "S (superalloy)": { "Ff_Fc": 0.5, "Fp_Fc": 0.4 },
+        "H (hardened)": { "Ff_Fc": 0.35, "Fp_Fc": 0.4 },
+        "X (unknown)": { "Ff_Fc": 0.4, "Fp_Fc": 0.3 }
+      },
+      "reference": "Altintas Table 2.2",
+      "resultant": "F_resultant = sqrt(Fc^2 + Ff^2 + Fp^2)",
+      "implementation_correct": true,
+      "note": "Fixed ratios are a simplification -- actual ratios depend on geometry, wear, and process. Adequate for estimation."
+    },
+
+    "power_and_torque": {
+      "power_formula": "P = Fc * Vc / 60000 [kW]",
+      "torque_formula": "T = Fc * D / 2000 [Nm]",
+      "power_correct": true,
+      "torque_correct": true,
+      "note": "Power uses capped Fc (not Fc_raw) -- if force is capped, power is also capped. Torque similarly uses capped Fc."
+    }
+  },
+
+  "spot_check": {
+    "scenario": "AISI-1045 Steel, 20mm 4-flute endmill, ae=10mm, ap=3mm, fz=0.1mm/tooth, Vc=150m/min, gamma=6 deg",
+    "kc1_1": 1800,
+    "mc": 0.25,
+    "manual_calculation": {
+      "engagement_ratio": "10/20 = 0.5",
+      "phi_e": "arccos(1-2*0.5) = arccos(0) = pi/2 = 1.5708 rad",
+      "h_mean": "0.1 * (1-cos(pi/2))/(pi/2) = 0.1 * 1/1.5708 = 0.0637 mm",
+      "kc": "1800 * 0.0637^(-0.25) = 1800/0.5024 = 3583 N/mm2",
+      "rake_correction": "1 - 0.01*6 = 0.94",
+      "z_e": "4 * (pi/2)/(2*pi) = 4 * 0.25 = 1.0",
+      "Fc_single": "3583 * 3 * 0.0637 * 0.94 = 643 N",
+      "Fc": "643 * 1.0 = 643 N",
+      "power": "643 * 150 / 60000 = 1.61 kW",
+      "torque": "643 * 20 / 2000 = 6.43 Nm"
+    },
+    "result": "REASONABLE -- 643N for a 20mm endmill in 1045 steel at 50% radial engagement is typical"
+  },
+
+  "input_validation": {
+    "algorithm_class": {
+      "validates": true,
+      "fields_checked": ["kc1_1", "mc", "feed_per_tooth", "axial_depth", "radial_depth", "tool_diameter", "number_of_teeth", "cutting_speed"],
+      "range_checks": {
+        "kc1_1": "50-10000 N/mm2",
+        "mc": "0-1",
+        "feed_per_tooth": "0.001-2.0 mm/tooth",
+        "axial_depth": "0.01-100 mm",
+        "radial_depth": ">= 0.01 mm",
+        "tool_diameter": "> 0 mm",
+        "number_of_teeth": ">= 1",
+        "cutting_speed": "1-2000 m/min"
+      },
+      "cross_field": "radial_depth > tool_diameter produces warning (not error)",
+      "note": "Validation is thorough for the algorithm class"
+    },
+    "engine_function": {
+      "validates": true,
+      "method": "validateCuttingConditions() called at line 242",
+      "note": "Separate validation function -- less granular than algorithm class but present"
+    },
+    "dispatcher_level": {
+      "validates": false,
+      "note": "calcDispatcher does NOT validate inputs before calling calculateKienzleCuttingForce -- relies on function-level validation. Missing values (e.g., undefined feed_per_tooth) will propagate as NaN."
+    }
+  },
+
+  "safety_limits": {
+    "MAX_FORCE": { "value": 50000, "unit": "N", "enforced": true, "method": "Math.min cap + warning" },
+    "MAX_POWER": { "value": 200, "unit": "kW", "enforced": true, "method": "Math.min cap" },
+    "MAX_CUTTING_SPEED": { "value": 2000, "unit": "m/min", "enforced": "validation only" },
+    "MAX_FEED": { "value": 2.0, "unit": "mm/tooth", "enforced": "validation only" },
+    "MAX_DEPTH": { "value": 100, "unit": "mm", "enforced": "validation only" },
+    "MAX_KC1_1": { "value": 10000, "unit": "N/mm2", "enforced": "validation only" },
+    "note": "Force and power are hard-capped (output never exceeds limit). Other limits are validation-only -- the calculation proceeds with out-of-range values if called through the engine function path."
+  },
+
+  "dispatcher_wiring": {
+    "route": "prism_calc action=cutting_force -> calcDispatcher.ts line 371 -> calculateKienzleCuttingForce()",
+    "material_lookup": "If material_id/material provided, looks up kienzle coefficients from MaterialRegistry",
+    "fallback_chain": "1. Explicit kc1_1+mc params -> 2. Material registry kienzle data -> 3. getDefaultKienzle(material_group) -> 4. DEFAULT_KIENZLE (steel, kc1_1=1800, mc=0.25)",
+    "cutting_speed_auto": "If not provided, derives from material cutting_recommendations.milling.speed_roughing -> speed_finishing -> 150 m/min default",
+    "rake_angle_default": "6 deg if not provided",
+    "wiring_verified": true
+  },
+
+  "default_coefficients": {
+    "total_groups": 14,
+    "groups": ["steel_low_carbon", "steel_medium_carbon", "steel_high_carbon", "steel_alloy", "stainless_austenitic", "stainless_martensitic", "cast_iron_gray", "cast_iron_ductile", "aluminum_wrought", "aluminum_cast", "titanium", "inconel", "copper", "brass"],
+    "kc1_1_range": "600 (brass/cast_aluminum) to 2800 (inconel)",
+    "mc_range": "0.20 (inconel) to 0.30 (aluminum/copper)",
+    "values_reasonable": true,
+    "reference_check": "kc1_1=1800 for medium carbon steel matches Sandvik handbook +/-10%. Aluminum 600-700 matches reference. Inconel 2800 is at upper end but within range for high-Ni alloys."
+  },
+
+  "uncertainty_model": {
+    "verified_data": "+/-15% (confidence 0.85)",
+    "estimated_data": "+/-25% (confidence 0.70)",
+    "output_format": {
+      "algorithm_class": "{ nominal, low, high, confidence, source }",
+      "engine_function": "{ Fc_range: [low, high] }"
+    },
+    "note": "Uncertainty percentages are reasonable for Kienzle model. Verified data (lab-measured kc1_1) typically +/-10-20%. Estimated data from handbooks +/-20-30%."
+  },
+
+  "test_coverage": {
+    "test_file": "src/__tests__/algorithms.test.ts:31",
+    "tests": [
+      { "name": "validates correct input", "type": "validation", "covers": "happy path" },
+      { "name": "rejects invalid kc1_1", "type": "validation", "covers": "negative kc1_1" },
+      { "name": "calculates AISI-1045 force correctly", "type": "calculation", "covers": "standard steel scenario" },
+      { "name": "produces 3-component force decomposition", "type": "calculation", "covers": "Ff, Fp, F_resultant, force_ratios" },
+      { "name": "warns on full slotting", "type": "warnings", "covers": "ae>=D detection" }
+    ],
+    "total": 5,
+    "gaps": [
+      "No test for single-tooth (turning) path",
+      "No test for tiny engagement (phi_e < 0.001 fallback)",
+      "No test for safety cap trigger (Fc > 50000N)",
+      "No test for KC_INFLATED warning",
+      "No test for verified vs estimated uncertainty difference",
+      "No test for the engine function (calculateKienzleCuttingForce) -- only algorithm class tested"
+    ]
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Kienzle equation Fc = kc1.1 * b * h^(1-mc) implemented correctly -- verified algebraically and by spot-check" },
+    { "severity": "OK", "finding": "Martellotti mean chip thickness for multi-tooth milling correctly implemented with proper edge cases (full engagement, tiny engagement, single-tooth)" },
+    { "severity": "OK", "finding": "Rake angle correction (Sandvik: 1 - 0.01*gamma) correctly applied" },
+    { "severity": "OK", "finding": "ISO group force ratios match Altintas Table 2.2 reference" },
+    { "severity": "OK", "finding": "Safety caps enforced on output force (50kN) and power (200kW)" },
+    { "severity": "OK", "finding": "14 default material groups with reasonable kc1_1/mc values matching handbook references" },
+    { "severity": "OK", "finding": "Dispatcher wiring verified: calcDispatcher line 371 -> calculateKienzleCuttingForce with proper material lookup fallback chain" },
+    { "severity": "MINOR", "finding": "Dual implementation (KienzleForceModel class + calculateKienzleCuttingForce function) -- formulas identical but maintenance risk if one is updated without the other" },
+    { "severity": "MINOR", "finding": "No bounds check on rake_angle -- extreme values (e.g., gamma=200) produce negative rake_correction factor, giving negative forces. Recommendation: clamp gamma to [-20, +30] range." },
+    { "severity": "MINOR", "finding": "calcDispatcher does not validate cutting_force inputs before calling engine function -- NaN propagation possible for missing feed_per_tooth, axial_depth, etc." },
+    { "severity": "INFO", "finding": "Force capping uses Fc (capped) for power/torque but F_resultant uses Fc_raw -- if Fc_raw > 50kN, F_resultant reflects uncapped force while Fc/power/torque are capped. Minor inconsistency." },
+    { "severity": "INFO", "finding": "Test coverage is algorithm-class only (5 tests). No tests for the engine function path that calcDispatcher actually uses." },
+    { "severity": "INFO", "finding": "Uncertainty model is appropriate (+/-15%/+/-25%) but the engine function returns Fc_range array format while algorithm class returns structured UncertaintyBand -- different output shapes." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "kienzle_formula_verified": true,
+    "kc1_1_mc_ranges_checked": true,
+    "chip_thickness_model_verified": true,
+    "force_decomposition_verified": true,
+    "safety_limits_verified": true,
+    "dispatcher_wiring_traced": true
+  }
+}

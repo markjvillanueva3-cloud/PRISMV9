@@ -1434,6 +1434,34 @@ def _build_comp_lookup():
         "22-13-5": "22-13-5",
         "NIHARD4": "NiHard4", "CHILLED": "ChilledCastIron",
         "AA518": "AA518", "518": "AA518",
+        # Round 4
+        "22MNB5": "22MnB5", "22 MNB5": "22MnB5",
+        "SA516-70": "SA516-70", "SA516-60": "SA516-60",
+        "SA-516-70": "SA516-70", "SA-516-60": "SA516-60",
+        "R260": "R260", "R350HT": "R350HT",
+        "9NI": "9Ni", "5NI": "5Ni", "3.5NI": "3.5Ni",
+        "API-5L-X100": "API-5L-X100",
+        "154CM": "154CM", "VG-10": "VG-10",
+        "CPMS35VN": "CPMS35VN", "CPM-S35VN": "CPMS35VN",
+        "CPM20CV": "CPM20CV", "CPM-20CV": "CPM20CV",
+        "QP980": "QP980", "QP1180": "QP1180",
+        "TRIP780": "TRIP780", "TRIP980": "TRIP980",
+        "TWIP": "TWIP", "CP800": "CP800",
+        "DUALPHASE1180": "DualPhase1180", "DP1180": "DualPhase1180",
+        "MS1500": "MS1500",
+        "BAINITIC300": "Bainitic300",
+        "M6": "M6",
+        "422": "422", "440F": "440F",
+        "XM-29": "XM-29", "XM29": "XM-29",
+        "XM-11": "XM-11", "XM11": "XM-11",
+        "XM-19": "XM-19", "XM19": "XM-19",
+        "S31277": "S31277",
+        "REX734": "Rex734", "REX 734": "Rex734",
+        "BISALLOY360": "Bisalloy360", "BISALLOY400": "Bisalloy400",
+        "BISALLOY500": "Bisalloy500",
+        "F91": "F91",
+        "C93200": "C93200", "C18150": "C18150", "C97600": "C97600",
+        "RAMOR600": "Ramor600",
     }
     for alias, target in _xref.items():
         if target in ALLOY_COMPOSITIONS:
@@ -1529,6 +1557,29 @@ _TRADE_NAME_MAP = {
     "22-13-5": "22-13-5",
     "HASTELLOY G-30": "HastelloyG-30", "HASTELLOYG-30": "HastelloyG-30",
     "INCOLOY 925": "Incoloy925", "INCOLOY925": "Incoloy925",
+    # Round 4
+    "22MNB5": "22MnB5", "22 MNB5": "22MnB5",
+    "SA516": "SA516-70", "SA-516": "SA516-70",
+    "RAIL STEEL R260": "R260", "RAIL R260": "R260",
+    "RAIL STEEL R350HT": "R350HT", "RAIL R350HT": "R350HT",
+    "154CM": "154CM", "ATS-34": "154CM",
+    "VG-10": "VG-10", "VG10": "VG-10",
+    "CPM S35VN": "CPMS35VN", "CPMS35VN": "CPMS35VN", "CPM-S35VN": "CPMS35VN",
+    "CPM 20CV": "CPM20CV", "CPM20CV": "CPM20CV", "CPM-20CV": "CPM20CV",
+    "REX 734": "Rex734", "REX734": "Rex734",
+    "MLX-17": "17-4PH",  # MLX-17 is a variant of 17-4PH
+    "BISALLOY 360": "Bisalloy360", "BISALLOY360": "Bisalloy360",
+    "BISALLOY 400": "Bisalloy400", "BISALLOY400": "Bisalloy400",
+    "BISALLOY 500": "Bisalloy500", "BISALLOY500": "Bisalloy500",
+    "RAMOR 600": "Ramor600", "RAMOR600": "Ramor600",
+    "F91": "F91",
+    "BAINITIC STEEL 300": "Bainitic300", "BAINITIC 300": "Bainitic300",
+    "M6 ELECTRICAL": "M6",
+    "XM-29": "XM-29", "XM29": "XM-29", "S24000": "XM-29",
+    "XM-11": "XM-11", "XM11": "XM-11", "S21904": "XM-11",
+    "XM-19": "XM-19", "XM19": "XM-19",
+    "S31277": "S31277", "27-7MO": "S31277",
+    "MIC-6": "AA356", "MIC 6": "AA356", "ALCA5": "AA356",
 }
 
 # Cast iron name -> comp DB key mapping
@@ -1981,6 +2032,125 @@ def find_composition(mat: dict) -> dict:
         r = _comp(key)
         if r:
             return r
+
+    # ── Strategy 30: SA/ASME pressure vessel grades ──────────────
+    # "SA-516 Grade 70", "SA516 GR 60", "ASME SA-516-70"
+    sa_m = re.search(r"SA[- ]?(\d{3})[- ]*(?:GR(?:ADE)?\s*)?(\d{2,3})?", name)
+    if sa_m:
+        spec = sa_m.group(1)
+        grade = sa_m.group(2)
+        if grade:
+            r = _comp(f"SA{spec}-{grade}")
+            if r:
+                return r
+        # Without grade -> default to -70 for SA516
+        if spec == "516":
+            r = _comp("SA516-70")
+            if r:
+                return r
+
+    # ── Strategy 31: Cryogenic nickel steels ──────────────────────
+    # "9% Nickel Steel", "3.5 Ni Steel", "5 Nickel Cryogenic"
+    cryo_m = re.search(r"(\d+\.?\d*)\s*%?\s*(?:NI(?:CKEL)?)\b", name)
+    if cryo_m:
+        pct = cryo_m.group(1)
+        for key in [f"{pct}Ni", pct + "Ni", f"{int(float(pct))}Ni"]:
+            r = _comp(key)
+            if r:
+                return r
+
+    # ── Strategy 32: Q&P / TRIP / CP / MS AHSS steels ────────────
+    # "Q&P 980", "QP-1180", "TRIP 780", "CP 800", "MS 1500"
+    ahss_m = re.search(r"(Q&?P|TRIP|CP|MS|COMPLEX\s*PHASE|MARTENSITIC\s*STEEL)\s*[-_ ]?\s*(\d{3,4})", name)
+    if ahss_m:
+        prefix_raw = ahss_m.group(1).strip()
+        grade = ahss_m.group(2)
+        prefix_map = {"Q&P": "QP", "QP": "QP", "TRIP": "TRIP", "CP": "CP",
+                      "MS": "MS", "COMPLEX PHASE": "CP", "MARTENSITIC STEEL": "MS",
+                      "COMPLEXPHASE": "CP", "MARTENSITICSTEEL": "MS"}
+        pfx = prefix_map.get(prefix_raw.replace(" ", ""), prefix_raw.replace("&", "").replace(" ", ""))
+        r = _comp(f"{pfx}{grade}")
+        if r:
+            return r
+
+    # ── Strategy 33: Copper short CDA codes (C110 -> Cu C11000) ──
+    # Materials dir uses "C110", "C360", "C172" etc. (3-digit CDA shorthand)
+    cu_short_m = re.search(r"\bC(\d{3})\b", name)
+    if cu_short_m and ("COPPER" in name or "BRONZE" in name or "BRASS" in name
+                       or mat.get("iso_group", "") == "N_NONFERROUS"):
+        short = cu_short_m.group(1)
+        # Expand: C360 -> C36000, C172 -> C17200
+        expanded = f"Cu C{short}00"
+        r = _comp(expanded)
+        if r:
+            return r
+        # Also try direct
+        r = _comp(f"C{short}00")
+        if r:
+            return r
+
+    # ── Strategy 34: Rail steel grades ────────────────────────────
+    # "Rail Steel R260", "Rail R350HT", "UIC 900A"
+    rail_m = re.search(r"(?:RAIL|UIC)\s*(?:STEEL\s*)?([A-Z]?\d{3,4}[A-Z]*)", name)
+    if rail_m:
+        rcode = rail_m.group(1)
+        r = _comp(rcode)
+        if r:
+            return r
+
+    # ── Strategy 35: 12% Cr valve/turbine steels (F91, 422, X20) ─
+    if "VALVE" in name or "TURBINE" in name or "STEAM" in name or "CREEP" in name:
+        for vk in ["F91", "422", "F22", "F11", "F9"]:
+            if vk in base:
+                r = _comp(vk)
+                if r:
+                    return r
+
+    # ── Strategy 36: Electrical / silicon steel (M6, M19, M36) ───
+    elec_m = re.search(r"\bM(\d+)\b", name)
+    if elec_m and ("ELECTRIC" in name or "SILICON" in name or "GRAIN" in name
+                   or "LAMINATION" in name or "TRANSFORMER" in name):
+        r = _comp(f"M{elec_m.group(1)}")
+        if r:
+            return r
+
+    # ── Strategy 37: Armor/ballistic plate brands ─────────────────
+    for brand in ["BISALLOY", "ARMOX", "RAMOR", "HARDOX"]:
+        bm = re.search(rf"{brand}\s*(\d{{3,4}}[A-Z]?)", name)
+        if bm:
+            r = _comp(f"{brand.capitalize()}{bm.group(1)}")
+            if r:
+                return r
+
+    # ── Strategy 38: Knife / blade steel by name ──────────────────
+    for ks_name, ks_key in [("154CM", "154CM"), ("154 CM", "154CM"),
+                            ("ATS-34", "154CM"), ("ATS34", "154CM"),
+                            ("VG-10", "VG-10"), ("VG10", "VG-10"),
+                            ("CPM S35VN", "CPMS35VN"), ("S35VN", "CPMS35VN"),
+                            ("CPM 20CV", "CPM20CV"), ("20CV", "CPM20CV"),
+                            ("M390", "CPM20CV"),  # Bohler M390 ≈ CPM 20CV
+                            ("CTS-204P", "CPM20CV"),
+                            ("ELMAX", "Elmax")]:
+        if ks_name in name:
+            r = _comp(ks_key)
+            if r:
+                return r
+
+    # ── Strategy 39: Generic numeric fallback for stainless (3xx) ─
+    # Catches "STAINLESS 321H" etc. that didn't match earlier
+    if "STAINLESS" in name or "SS " in name or mat.get("iso_group", "") == "M_STAINLESS":
+        ss_m = re.search(r"\b([2-5]\d{2}[A-Z]{0,3})\b", base)
+        if ss_m:
+            code = ss_m.group(1)
+            r = _comp(code)
+            if r:
+                return r
+            # Strip all trailing letters
+            digits_only = re.match(r"(\d+)", code)
+            if digits_only:
+                r = _comp(digits_only.group(1))
+                if r:
+                    return r
 
     return None
 

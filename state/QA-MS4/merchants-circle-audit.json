@@ -1,0 +1,95 @@
+{
+  "unit": "QA-MS4-U01",
+  "title": "Merchant's Circle / Force Decomposition",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T06:05:00Z",
+  "status": "CONDITIONAL PASS",
+
+  "source_files": {
+    "inline_implementation": "src/engines/PhysicsPredictionEngine.ts:748-752 (force decomposition in coupled solver)",
+    "algorithm_class": "NONE -- no dedicated Merchant's Circle algorithm class exists",
+    "dispatcher_routing": "No direct dispatcher action -- forces computed inline by PhysicsPredictionEngine"
+  },
+
+  "implementation_analysis": {
+    "location": "PhysicsPredictionEngine.ts, predictCoupledResponse() method",
+    "force_decomposition": {
+      "tangential": "Fc = kc1_1 * h^(1-mc) * ap * wearFactor (Kienzle-based, line 750)",
+      "feed": "Ff = Fc * 0.4 (line 751)",
+      "radial": "Fr = Fc * 0.25 (line 752)",
+      "note": "These are FIXED RATIOS, not Merchant's circle trigonometric decomposition"
+    },
+    "merchants_circle_theory": {
+      "description": "Merchant's circle relates Fc, Ft, R, Fs through shear angle phi, rake angle alpha, and friction angle beta",
+      "key_relations": [
+        "R = Fc / cos(beta - alpha) -- resultant force",
+        "Ft = R * sin(beta - alpha) -- thrust force",
+        "Fs = R * cos(phi + beta - alpha) -- shear force",
+        "tan(phi) = (r*cos(alpha))/(1 - r*sin(alpha)) -- from chip ratio r",
+        "Merchant's optimum: phi = pi/4 - beta/2 + alpha/2"
+      ],
+      "implemented": false,
+      "note": "The codebase uses Kienzle for Fc and fixed ratios for Ff/Fr rather than trigonometric Merchant decomposition"
+    },
+    "fixed_ratio_assessment": {
+      "Ff_Fc_ratio": {
+        "value": 0.4,
+        "typical_range": "0.3-0.6 depending on rake angle and friction",
+        "verdict": "Reasonable default for general turning with neutral rake"
+      },
+      "Fr_Fc_ratio": {
+        "value": 0.25,
+        "typical_range": "0.2-0.5 depending on nose radius and depth",
+        "verdict": "Reasonable for moderate depth of cut"
+      }
+    }
+  },
+
+  "spot_check": {
+    "scenario": "Fc=1000N from Kienzle, fixed ratios",
+    "manual_calculation": {
+      "Ff": "1000 * 0.4 = 400 N",
+      "Fr": "1000 * 0.25 = 250 N",
+      "resultant": "sqrt(1000^2 + 400^2 + 250^2) = sqrt(1000000 + 160000 + 62500) = sqrt(1222500) = 1106 N"
+    },
+    "comparison_with_merchant": {
+      "scenario": "alpha=6deg, beta=30deg (friction coeff ~0.577)",
+      "Ft_merchant": "Fc * tan(beta - alpha) = 1000 * tan(24deg) = 1000 * 0.445 = 445 N",
+      "note": "Fixed ratio Ff=400N vs Merchant Ft=445N -- ~10% difference, acceptable for estimation"
+    },
+    "result": "REASONABLE -- fixed ratios are within 10-15% of Merchant's circle for typical conditions"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Tangential force (Fc) correctly computed via Kienzle equation with wear factor" },
+    { "severity": "OK", "finding": "Force ratios Ff/Fc=0.4 and Fr/Fc=0.25 are within physically reasonable ranges" },
+    { "severity": "OK", "finding": "Forces used correctly downstream for thermal (P=Fc*Vc), deflection, and surface quality coupling" },
+    { "severity": "MAJOR", "finding": "No actual Merchant's circle trigonometric decomposition exists anywhere in codebase. Forces use FIXED RATIOS instead of phi/alpha/beta-dependent trigonometry. This means force predictions do not adapt to rake angle or friction conditions." },
+    { "severity": "MINOR", "finding": "Wear factor (1 + VB/300 * 0.4) applied to Fc only -- Ff and Fr should also increase with wear, potentially at different rates" },
+    { "severity": "MINOR", "finding": "No distinction between orthogonal and oblique cutting -- oblique cutting adds an inclination angle that affects force components" },
+    { "severity": "INFO", "finding": "For a full Merchant implementation, inputs would need: rake angle alpha, chip ratio r (or shear angle phi), friction coefficient mu. Currently none of these are in the PhysicsPredictionEngine input interface." },
+    { "severity": "INFO", "finding": "The fixed-ratio approach is used by Sandvik and other tooling manufacturers in quick-estimation contexts. It is adequate for process planning but insufficient for FEM-level force prediction." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 5,
+    "composite": "0.35*3 + 0.25*3 + 0.25*4 + 0.15*5 = 1.05 + 0.75 + 1.00 + 0.75 = 3.55",
+    "pass_fail": "CONDITIONAL PASS",
+    "note": "Deducted for correctness and completeness because the 'Merchant circle' capability is actually fixed-ratio estimation, not the real trigonometric model"
+  },
+
+  "exit_conditions_met": {
+    "force_decomposition_verified": true,
+    "merchant_theory_compared": true,
+    "ratio_reasonableness_checked": true,
+    "dispatcher_wiring_traced": true
+  },
+
+  "enhancement_recommendation": {
+    "priority": "LOW",
+    "description": "Implement true Merchant's circle with rake angle (alpha) and friction angle (beta) inputs. This would enable force prediction that adapts to tool geometry and workpiece friction. Current fixed-ratio approach is adequate for quick estimation."
+  }
+}

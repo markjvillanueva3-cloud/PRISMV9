@@ -2,59 +2,484 @@
   "id": "L9-P1-MS1",
   "version": "3.1.0",
   "title": "Port CAM Toolpath Algorithms",
-  "brief": "Port CAM toolpath algorithms: 680 strategies across roughing, finishing, drilling, threading, 5-axis.",
+  "brief": "Port CAM toolpath algorithms: 762+ strategies across roughing, finishing, drilling, threading, turning, 5-axis, and PRISM-novel categories. Build ToolpathStrategyRegistry, 3 CAM dispatchers (toolpath, cam, 5axis), 13+ CAM engines, and CAM API routes.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "Port CAM Toolpath Algorithms",
-      "description": "Port CAM toolpath algorithms: 680 strategies across roughing, finishing, drilling, threading, 5-axis.",
-      "sessions": "3-4",
+      "title": "Toolpath Strategy Registry + Algorithms",
+      "description": "Build ToolpathStrategyRegistry with 762+ strategies across 6 categories, port cutting physics algorithms, and establish the strategy selection pipeline.",
+      "sessions": "2",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Port CAM Toolpath Algorithms",
+          "title": "ToolpathStrategyRegistry — Roughing + Finishing Strategies",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Platform Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_toolpath"
-            },
-            {
-              "tool": "prism_safety"
-            },
-            {
-              "tool": "prism_calc"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_toolpath", "action": "strategy_select, strategy_search, strategy_list" },
+            { "tool": "prism_dev", "action": "code_template, build" },
+            { "tool": "prism_validate", "action": "completeness" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["L9-P0-MS1"],
           "entry_conditions": [
-            "L9-P0-MS1 complete"
+            "L9-P0-MS1 complete (API Integration Phase Gate)",
+            "L1 algorithms available (Kienzle, Taylor, stability, thermal)"
           ],
           "exit_conditions": [
-            "Port CAM Toolpath Algorithms complete",
-            "Build passes",
-            "Tests pass"
+            "ToolpathStrategyRegistry created with 127+ milling roughing strategies (HSM/Adaptive, Traditional, Entry)",
+            "156+ milling finishing strategies (2D, 3D, Edge, Specialized)",
+            "Strategy selection by feature type, material, and priority functional",
+            "prism_toolpath dispatcher routes strategy_select, strategy_search, strategy_list, strategy_info actions",
+            "Build passes"
           ],
-          "rollback": "git checkout -- [files modified by L9-P1-MS1]",
+          "rollback": "git checkout -- src/registries/ToolpathStrategyRegistry.ts src/tools/dispatchers/toolpathDispatcher.ts",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Port CAM Toolpath Algorithms per roadmap spec"
+              "instruction": "Create ToolpathStrategyRegistry with milling roughing strategies: HSM/Adaptive (trochoidal, Volumill-style, dynamic chip load), Traditional (face, pocket, slot, contour, step-down), Entry (ramp, helix, plunge)"
+            },
+            {
+              "number": 2,
+              "instruction": "Add milling finishing strategies: 2D (contour, profile, chamfer), 3D (scallop, pencil, flow, steep/shallow, geodesic), Edge (deburr, break-edge), Specialized (rest milling, high-feed)"
+            },
+            {
+              "number": 3,
+              "instruction": "Build strategy selection engine: match feature type + material + priority to best-fit strategy with confidence score"
+            },
+            {
+              "number": 4,
+              "instruction": "Create toolpathDispatcher with strategy_select, strategy_search, strategy_list, strategy_info, stats actions"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/registries/ToolpathStrategyRegistry.ts", "type": "source", "description": "762+ toolpath strategies across 6 categories" },
+            { "path": "src/tools/dispatchers/toolpathDispatcher.ts", "type": "source", "description": "Toolpath strategy dispatcher (8 actions)" },
+            { "path": "src/tools/toolpathTools.ts", "type": "source", "description": "Toolpath tool definitions" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "ToolpathStrategyRegistry — Hole Making + Turning + Multi-Axis + Novel",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_toolpath", "action": "strategy_list, material_strategies, prism_novel" },
+            { "tool": "prism_dev", "action": "code_template, build" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": [
+            "Registry framework from P0-U01 exists"
+          ],
+          "exit_conditions": [
+            "98+ hole making strategies (drilling, boring, reaming, threading, tapping)",
+            "124+ turning strategies (roughing, finishing, grooving, threading, parting)",
+            "157+ multi-axis strategies (4-axis indexed, 5-axis simultaneous, swarf, port milling)",
+            "50+ PRISM novel strategies (AI-optimized, hybrid, physics-based)",
+            "Total registry count >= 762 strategies",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/registries/ToolpathStrategyRegistry_Part1.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add hole making strategies: drilling (spot, peck, chip-break, gun), boring (line, back), reaming, threading (single-point, form tap, roll tap, thread mill)"
+            },
+            {
+              "number": 2,
+              "instruction": "Add turning strategies: roughing (facing, OD, ID, contour), finishing (OD, ID, profile), grooving (external, internal, face), threading (external, internal), parting"
+            },
+            {
+              "number": 3,
+              "instruction": "Add multi-axis strategies: 4-axis indexed, 5-axis simultaneous (swarf, flow, multi-blade, impeller, port, trimming)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add PRISM novel strategies: AI-optimized adaptive clearing, hybrid roughing-finishing, physics-driven chip-thinning, topology-aware scallop"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/registries/ToolpathStrategyRegistry_Part1.ts", "type": "source", "description": "Extended strategy registry (hole making, turning, multi-axis, novel)" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "CAM Core Engines — ToolpathGeneration + CAMKernel + StockModel",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_cam", "action": "toolpath_generate, toolpath_simulate, stock_update" },
+            { "tool": "prism_calc", "action": "cutting_force, surface_finish, mrr" },
+            { "tool": "prism_dev", "action": "code_template, build" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": [
+            "Strategy registry functional",
+            "L1 algorithms available (Kienzle, Taylor, SurfaceFinish)"
+          ],
+          "exit_conditions": [
+            "ToolpathGenerationEngine implements strategy selection, stepover/stepdown calculation, operation sequencing",
+            "CAMKernelEngine implements 2D/3D toolpath generation, G-code serialization, chip thinning compensation, engagement angle control",
+            "StockModelEngine implements material removal tracking, remaining stock analysis, volume computation",
+            "Engines cross-validated against prism_calc cutting_force and surface_finish models",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/engines/ToolpathGenerationEngine.ts src/engines/CAMKernelEngine.ts src/engines/StockModelEngine.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build ToolpathGenerationEngine: strategy selection from registry, stepover/stepdown calculation using scallop height model, operation sequencing with dependency ordering"
+            },
+            {
+              "number": 2,
+              "instruction": "Build CAMKernelEngine: 2D/3D toolpath point generation, G-code serialization (Fanuc/Haas/Siemens/Heidenhain), chip thinning compensation, helical ramping, peck drilling"
+            },
+            {
+              "number": 3,
+              "instruction": "Build StockModelEngine: Z-buffer stock representation, material removal simulation, remaining stock volume analysis"
+            },
+            {
+              "number": 4,
+              "instruction": "Cross-validate outputs against prism_calc: cutting forces match Kienzle, surface finish matches SurfaceFinishPredictor"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/engines/ToolpathGenerationEngine.ts", "type": "source", "description": "Toolpath generation with strategy selection and parameter calculation" },
+            { "path": "src/engines/CAMKernelEngine.ts", "type": "source", "description": "CAM kernel: toolpath generation, G-code serialization, chip thinning" },
+            { "path": "src/engines/StockModelEngine.ts", "type": "source", "description": "Stock material tracking and volume analysis" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Safety-Critical Engines — Collision Detection + PostProcessor",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_cam", "action": "collision_check_full, post_process" },
+            { "tool": "prism_safety", "action": "check_spindle_torque, predict_tool_breakage" },
+            { "tool": "prism_dev", "action": "code_template, build" },
+            { "tool": "prism_validate", "action": "safety" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": [
+            "ToolpathGeneration and CAMKernel engines exist"
+          ],
+          "exit_conditions": [
+            "CollisionDetectionEngine implements AABB broad-phase + OBB narrow-phase collision checking",
+            "PostProcessorEngine supports 6 controllers: Fanuc, Haas, Siemens, Heidenhain, Mazak, Okuma",
+            "Collision engine validated S(x) >= 0.990 (safety-critical: missed collision = crash)",
+            "Post-processor output validated against controller syntax specifications",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/engines/CollisionDetectionEngine.ts src/engines/PostProcessorEngine.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build CollisionDetectionEngine: AABB broad-phase spatial indexing, OBB narrow-phase intersection testing, tool holder/spindle envelope checking. SAFETY-CRITICAL: validate S(x) >= 0.990"
+            },
+            {
+              "number": 2,
+              "instruction": "Build PostProcessorEngine: G-code output for 6 controller types with format-specific syntax, modal group handling, canned cycle translation, tool change sequencing"
+            },
+            {
+              "number": 3,
+              "instruction": "Safety validation: test collision detection against known collision/clearance scenarios, verify no false negatives"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/engines/CollisionDetectionEngine.ts", "type": "source", "description": "AABB + OBB collision detection (safety-critical)" },
+            { "path": "src/engines/PostProcessorEngine.ts", "type": "source", "description": "Multi-controller G-code post-processor (6 controllers)" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "5-Axis Kinematics Engines",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_5axis", "action": "rtcp_calc, singularity_check, tilt_optimize, work_envelope, inverse_kin" },
+            { "tool": "prism_safety", "action": "check_spindle_torque" },
+            { "tool": "prism_dev", "action": "code_template, build" },
+            { "tool": "prism_validate", "action": "safety" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": [
+            "Core CAM engines exist",
+            "prism_calc stability and thermal models available"
+          ],
+          "exit_conditions": [
+            "RTCP_CompensationEngine calculates rotary tool center point offsets for table-table, table-head, head-head configs",
+            "SingularityAvoidanceEngine detects gimbal lock zones and plans avoidance paths",
+            "TiltAngleOptimizationEngine optimizes tool inclination for chip evacuation and cutting force balance",
+            "WorkEnvelopeValidatorEngine validates toolpaths against machine kinematic limits",
+            "InverseKinematicsSolverEngine solves A/B/C axis positions from tool vector orientation",
+            "fiveAxisDispatcher routes all 5 actions correctly",
+            "All 5-axis engines validated S(x) >= 0.990 (safety-critical: kinematic errors = crash)",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/engines/RTCP_CompensationEngine.ts src/engines/SingularityAvoidanceEngine.ts src/engines/TiltAngleOptimizationEngine.ts src/engines/WorkEnvelopeValidatorEngine.ts src/engines/InverseKinematicsSolverEngine.ts src/tools/dispatchers/fiveAxisDispatcher.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build RTCP_CompensationEngine: calculate TCP offsets for 3 machine configurations (table-table, table-head, head-head), handle pivot point geometry"
+            },
+            {
+              "number": 2,
+              "instruction": "Build SingularityAvoidanceEngine: detect gimbal lock regions (A≈0 or A≈180), plan smooth avoidance trajectories with velocity limiting"
+            },
+            {
+              "number": 3,
+              "instruction": "Build TiltAngleOptimizationEngine: optimize lead/tilt angles for cutting force balance, chip evacuation, and surface finish quality"
+            },
+            {
+              "number": 4,
+              "instruction": "Build WorkEnvelopeValidatorEngine and InverseKinematicsSolverEngine: validate against machine travel limits, solve axis positions from tool vectors"
+            },
+            {
+              "number": 5,
+              "instruction": "Create fiveAxisDispatcher with rtcp_calc, singularity_check, tilt_optimize, work_envelope, inverse_kin actions. Safety validation S(x) >= 0.990"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/engines/RTCP_CompensationEngine.ts", "type": "source", "description": "Rotary TCP compensation (3 configs)" },
+            { "path": "src/engines/SingularityAvoidanceEngine.ts", "type": "source", "description": "Gimbal lock detection and avoidance" },
+            { "path": "src/engines/TiltAngleOptimizationEngine.ts", "type": "source", "description": "Lead/tilt angle optimization" },
+            { "path": "src/engines/WorkEnvelopeValidatorEngine.ts", "type": "source", "description": "Machine kinematic limit validation" },
+            { "path": "src/engines/InverseKinematicsSolverEngine.ts", "type": "source", "description": "5-axis inverse kinematics solver" },
+            { "path": "src/tools/dispatchers/fiveAxisDispatcher.ts", "type": "source", "description": "5-axis dispatcher (5 actions)" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "Supporting CAM Engines — Nesting + ToolAssembly + CAMIntegration",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            { "tool": "prism_cam", "action": "nesting_optimize, tool_assembly, fixture_setup" },
+            { "tool": "prism_dev", "action": "code_template, build" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": [
+            "Core CAM engines and collision detection exist"
+          ],
+          "exit_conditions": [
+            "NestingEngine optimizes part placement on stock for material utilization",
+            "ToolAssemblyEngine manages tool holder specs, runout budgeting, assembly validation",
+            "CAMIntegrationEngine supports Fusion 360, Mastercam, SolidCAM, NX, HyperMILL import/export",
+            "camDispatcher routes nesting_optimize, tool_assembly, fixture_setup actions",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/engines/NestingEngine.ts src/engines/ToolAssemblyEngine.ts src/engines/CAMIntegrationEngine.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build NestingEngine: 2D part nesting with rotation, spacing constraints, and material utilization reporting"
+            },
+            {
+              "number": 2,
+              "instruction": "Build ToolAssemblyEngine: tool + holder assembly management, runout stack-up, overhang calculation, tool life tracking"
+            },
+            {
+              "number": 3,
+              "instruction": "Build CAMIntegrationEngine: parameter export/import for Fusion 360, Mastercam, SolidCAM, NX, HyperMILL; tool library synchronization"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/engines/NestingEngine.ts", "type": "source", "description": "Part nesting optimization" },
+            { "path": "src/engines/ToolAssemblyEngine.ts", "type": "source", "description": "Tool assembly and holder management" },
+            { "path": "src/engines/CAMIntegrationEngine.ts", "type": "source", "description": "Multi-CAM-system integration (5 platforms)" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U07",
+          "title": "CAM Dispatcher Wiring + API Route",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Platform Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            { "tool": "prism_dev", "action": "build, code_search" },
+            { "tool": "prism_validate", "action": "completeness, anti_regression" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Serena"],
+          "dependencies": ["P0-U05", "P0-U06"],
+          "entry_conditions": [
+            "All CAM engines created",
+            "All 3 dispatchers created (toolpath, cam, 5axis)"
+          ],
+          "exit_conditions": [
+            "camDispatcher routes all 9 actions to correct engines",
+            "toolpathDispatcher routes all 8 actions to ToolpathStrategyRegistry",
+            "fiveAxisDispatcher routes all 5 actions to 5-axis engines",
+            "CAM API route (src/routes/cam.ts) exposes REST endpoints",
+            "22 total dispatcher actions verified end-to-end",
+            "No regression in existing dispatchers",
+            "Build passes"
+          ],
+          "rollback": "git checkout -- src/tools/dispatchers/camDispatcher.ts src/routes/cam.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wire camDispatcher: toolpath_generate→ToolpathGenerationEngine, toolpath_simulate→CAMKernelEngine, toolpath_optimize→ToolpathGenerationEngine, post_process→PostProcessorEngine, collision_check_full→CollisionDetectionEngine, stock_update→StockModelEngine, tool_assembly→ToolAssemblyEngine, fixture_setup→FixtureEngine, nesting_optimize→NestingEngine"
+            },
+            {
+              "number": 2,
+              "instruction": "Create CAM REST API route with endpoints for strategy search, toolpath generation, simulation, post-processing"
+            },
+            {
+              "number": 3,
+              "instruction": "Run anti-regression: verify existing dispatchers unaffected, all 22 CAM actions route correctly"
+            }
+          ],
+          "deliverables": [
+            { "path": "src/tools/dispatchers/camDispatcher.ts", "type": "source", "description": "CAM dispatcher (9 actions)" },
+            { "path": "src/routes/cam.ts", "type": "source", "description": "CAM REST API route" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U08",
+          "title": "Safety Gate — Full L9-P1 CAM Validation",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_validate", "action": "safety, completeness, anti_regression" },
+            { "tool": "prism_safety", "action": "check_spindle_torque, check_chip_load_limits, predict_tool_breakage" },
+            { "tool": "prism_omega", "action": "compute" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U07"],
+          "entry_conditions": [
+            "All CAM engines, dispatchers, registry, and API route complete"
+          ],
+          "exit_conditions": [
+            "Safety-critical engines (CollisionDetection, 5-axis kinematic, PostProcessor) pass S(x) >= 0.990",
+            "All 13+ CAM engines pass S(x) >= 0.70",
+            "762+ strategies accessible via prism_toolpath dispatcher",
+            "22 dispatcher actions verified end-to-end",
+            "Omega quality >= 0.75",
+            "Zero regression in existing L1-L8 engines and dispatchers",
+            "Full test suite green",
+            "Build passes"
+          ],
+          "rollback": "If safety gate fails, revert to pre-L9-P1 state",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Run prism_validate→safety on all CAM engines, flag any S(x) < 0.70"
+            },
+            {
+              "number": 2,
+              "instruction": "Run enhanced safety on safety-critical engines (Collision, 5-axis, PostProcessor): require S(x) >= 0.990"
+            },
+            {
+              "number": 3,
+              "instruction": "Verify 762+ strategies searchable: test strategy_select for each category (roughing, finishing, drilling, turning, multi-axis, novel)"
+            },
+            {
+              "number": 4,
+              "instruction": "Run prism_validate→anti_regression to verify L1-L8 unaffected"
+            },
+            {
+              "number": 5,
+              "instruction": "Run prism_omega→compute for overall L9-P1 quality score, require >= 0.75"
             }
           ],
           "deliverables": [],
@@ -67,7 +492,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -75,50 +500,71 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "762+ toolpath strategies accessible via registry",
+          "Collision detection passes zero false-negative validation",
+          "Post-processor output valid for all 6 controller types",
+          "5-axis kinematics validated for table-table, table-head, head-head configs"
+        ]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["safety-critical engines", "5-axis kinematics accuracy", "collision detection completeness"]
     }
   ],
   "total_units": 8,
-  "total_sessions": "3-4",
+  "total_sessions": "2",
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Platform Engineer",
       "model": "sonnet-4.6",
+      "effort": 80
+    },
+    {
+      "code": "R1",
+      "name": "Architect",
+      "model": "opus-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_toolpath",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_safety",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_calc",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_toolpath", "phases": ["P0"], "purpose": "Strategy selection and search (762+ strategies)" },
+    { "tool": "prism_cam", "phases": ["P0"], "purpose": "Toolpath generation, simulation, post-processing, collision, nesting" },
+    { "tool": "prism_5axis", "phases": ["P0"], "purpose": "5-axis kinematics: RTCP, singularity, tilt, envelope, IK" },
+    { "tool": "prism_safety", "phases": ["P0"], "purpose": "Safety validation for collision and kinematic engines" },
+    { "tool": "prism_calc", "phases": ["P0"], "purpose": "Cutting force, surface finish, MRR cross-validation" },
+    { "tool": "prism_dev", "phases": ["P0"], "purpose": "Code scaffolding and build verification" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Safety, completeness, anti-regression" },
+    { "tool": "prism_omega", "phases": ["P0"], "purpose": "Final quality gate computation" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "src/registries/ToolpathStrategyRegistry.ts", "type": "source", "description": "762+ toolpath strategies across 6 categories" },
+    { "path": "src/registries/ToolpathStrategyRegistry_Part1.ts", "type": "source", "description": "Extended strategy registry" },
+    { "path": "src/engines/ToolpathGenerationEngine.ts", "type": "source", "description": "Toolpath generation engine" },
+    { "path": "src/engines/CAMKernelEngine.ts", "type": "source", "description": "CAM kernel (161KB)" },
+    { "path": "src/engines/CollisionDetectionEngine.ts", "type": "source", "description": "AABB + OBB collision detection (safety-critical)" },
+    { "path": "src/engines/PostProcessorEngine.ts", "type": "source", "description": "Multi-controller G-code post-processor" },
+    { "path": "src/engines/StockModelEngine.ts", "type": "source", "description": "Stock material tracking" },
+    { "path": "src/engines/RTCP_CompensationEngine.ts", "type": "source", "description": "Rotary TCP compensation" },
+    { "path": "src/engines/SingularityAvoidanceEngine.ts", "type": "source", "description": "Gimbal lock avoidance" },
+    { "path": "src/engines/TiltAngleOptimizationEngine.ts", "type": "source", "description": "Lead/tilt angle optimizer" },
+    { "path": "src/engines/WorkEnvelopeValidatorEngine.ts", "type": "source", "description": "Machine envelope validator" },
+    { "path": "src/engines/InverseKinematicsSolverEngine.ts", "type": "source", "description": "5-axis IK solver" },
+    { "path": "src/engines/NestingEngine.ts", "type": "source", "description": "Part nesting optimization" },
+    { "path": "src/engines/ToolAssemblyEngine.ts", "type": "source", "description": "Tool assembly management" },
+    { "path": "src/engines/CAMIntegrationEngine.ts", "type": "source", "description": "Multi-CAM-system integration" },
+    { "path": "src/tools/dispatchers/toolpathDispatcher.ts", "type": "source", "description": "Toolpath dispatcher (8 actions)" },
+    { "path": "src/tools/dispatchers/camDispatcher.ts", "type": "source", "description": "CAM dispatcher (9 actions)" },
+    { "path": "src/tools/dispatchers/fiveAxisDispatcher.ts", "type": "source", "description": "5-axis dispatcher (5 actions)" },
+    { "path": "src/routes/cam.ts", "type": "source", "description": "CAM REST API route" }
+  ],
+  "existing_leverage": [
+    { "asset": "L1 algorithms: Kienzle, Taylor, StabilityLobe, SurfaceFinish, ToolDeflection, ChipThinning", "type": "code" },
+    { "asset": "L2 engines: FeatureRecognitionEngine, ProcessPlanEngine, CostEstimationEngine", "type": "code" },
+    { "asset": "prism_safety workholding/spindle/tool safety checks", "type": "tool" },
+    { "asset": "prism_calc physics models for cross-validation", "type": "tool" },
+    { "asset": "Engine singleton pattern from L2", "type": "pattern" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
@@ -132,7 +578,9 @@
       "missing_deps",
       "missing_exit_conditions",
       "missing_rollback",
-      "sequence_errors"
+      "sequence_errors",
+      "underspecified_steps",
+      "missing_tests"
     ],
     "improvement_threshold": 0.92
   }

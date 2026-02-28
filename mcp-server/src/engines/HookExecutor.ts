@@ -229,26 +229,29 @@ export interface HookDefinition {
   id: string;
   name: string;
   description: string;
-  
+
   phase: HookPhase;
   category: HookCategory;
   mode: HookMode;
   priority: HookPriority;
-  
+
   enabled: boolean;
-  
+
+  // MS2: EventBus event name for phase-based hook triggering via HookEngine
+  event?: string;
+
   // Execution
   handler: (context: HookContext) => Promise<HookResult> | HookResult;
-  
+
   // Conditions
   condition?: (context: HookContext) => boolean;
-  
+
   // Timeout
   timeoutMs?: number;
-  
+
   // Tags for filtering
   tags?: string[];
-  
+
   // Statistics
   stats?: {
     executions: number;

@@ -2,128 +2,222 @@
   "id": "L9-P2-MS1",
   "version": "3.1.0",
   "title": "WebGL 3D Viewer",
-  "brief": "WebGL 3D viewer: Three.js/react-three-fiber, model loading, toolpath animation, measurement tools.",
+  "brief": "Three.js/react-three-fiber 3D viewer: toolpath rendering, stock visualization, tool assembly display, heatmap overlays, camera controls — consuming VisualizationEngine scene graphs.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "WebGL 3D Viewer",
-      "description": "WebGL 3D viewer: Three.js/react-three-fiber, model loading, toolpath animation, measurement tools.",
-      "sessions": "3-4",
+      "description": "Build a WebGL 3D viewer using react-three-fiber that renders scene graphs from VisualizationEngine: toolpaths, stock meshes, tool assemblies, heatmap overlays.",
+      "sessions": "2-3",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute WebGL 3D Viewer",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview",
-            "Context7"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "L9-P1-MS1 complete"
-          ],
+          "id": "P0-U01", "title": "Three.js Scaffold & Scene Setup",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Context7"],
+          "dependencies": ["S3-MS1:P0-U01"],
+          "entry_conditions": ["L9-P1-MS1 complete", "Frontend scaffold from S3-MS1 exists"],
           "exit_conditions": [
-            "WebGL 3D Viewer complete",
-            "Build passes",
-            "Tests pass"
+            "@react-three/fiber and @react-three/drei installed",
+            "Viewer3D component renders Canvas with orbit controls, grid helper, axis helper",
+            "Camera presets: front, top, isometric with smooth transitions",
+            "/viewer route registered in React Router"
           ],
-          "rollback": "git checkout -- [files modified by L9-P2-MS1]",
+          "rollback": "git checkout -- web/src/components/viewer/",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute WebGL 3D Viewer per roadmap spec"
-            }
+            { "number": 1, "instruction": "Install @react-three/fiber, @react-three/drei, three" },
+            { "number": 2, "instruction": "Create web/src/components/viewer/Viewer3D.tsx with Canvas, OrbitControls, Grid, AxesHelper" },
+            { "number": 3, "instruction": "Add camera preset buttons using drei CameraControls" },
+            { "number": 4, "instruction": "Configure scene lighting: ambient 0.4, directional 0.8 at 45deg" }
           ],
-          "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "deliverables": [{ "path": "web/src/components/viewer/Viewer3D.tsx", "type": "source", "description": "Base 3D viewer" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Scene Graph API Client & Parser",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Viewer3D renders"],
+          "exit_conditions": [
+            "API client fetches scene graph JSON from VisualizationEngine",
+            "TypeScript types for SceneNode, MeshData, ToolpathData, HeatmapData",
+            "Parser converts JSON to Three.js BufferGeometry/LineSegments/Mesh"
+          ],
+          "rollback": "git checkout -- web/src/api/viewer.ts web/src/utils/sceneParser.ts",
+          "steps": [
+            { "number": 1, "instruction": "Create web/src/api/viewer.ts and web/src/types/viewer.ts" },
+            { "number": 2, "instruction": "Create web/src/utils/sceneParser.ts — JSON to Three.js converter" }
+          ],
+          "deliverables": [
+            { "path": "web/src/api/viewer.ts", "type": "source", "description": "Visualization API client" },
+            { "path": "web/src/utils/sceneParser.ts", "type": "source", "description": "Scene graph parser" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Toolpath Renderer",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 100,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["Scene graph parser available"],
+          "exit_conditions": [
+            "ToolpathLayer renders lines with color modes: by_type, by_feed, by_speed, by_tool",
+            "Rapid moves dashed, cutting moves solid",
+            "Toolpath animation: marker follows path at adjustable speed",
+            "Toggle individual operations visible/hidden"
+          ],
+          "rollback": "git checkout -- web/src/components/viewer/ToolpathLayer.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ToolpathLayer.tsx with Line2 geometry from segments" },
+            { "number": 2, "instruction": "Implement vertex colors for color modes" },
+            { "number": 3, "instruction": "Add rapid/cutting line styles and playback animation" }
+          ],
+          "deliverables": [{ "path": "web/src/components/viewer/ToolpathLayer.tsx", "type": "source", "description": "Toolpath renderer" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Stock Mesh & Tool Assembly",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["Scene graph parser available"],
+          "exit_conditions": [
+            "StockMesh renders workpiece with solid/wireframe/transparent/xray modes",
+            "ToolAssembly renders tool+holder at current toolpath position",
+            "Stock removal animation synced with toolpath progress"
+          ],
+          "rollback": "git checkout -- web/src/components/viewer/StockMesh.tsx web/src/components/viewer/ToolAssembly.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create StockMesh.tsx with render mode switching" },
+            { "number": 2, "instruction": "Create ToolAssembly.tsx — tool+holder mesh at animated position" },
+            { "number": 3, "instruction": "Sync stock removal with toolpath playback progress" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/viewer/StockMesh.tsx", "type": "source", "description": "Stock mesh renderer" },
+            { "path": "web/src/components/viewer/ToolAssembly.tsx", "type": "source", "description": "Tool 3D model" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Heatmap Overlay",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": ["Stock mesh rendering"],
+          "exit_conditions": [
+            "Heatmap overlay toggleable: thermal, force, wear, stress, deflection",
+            "Color scale legend with min/max values",
+            "Overlay applied as vertex colors on stock/toolpath geometry"
+          ],
+          "rollback": "git checkout -- web/src/components/viewer/HeatmapOverlay.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create HeatmapOverlay.tsx with vertex color mapping" },
+            { "number": 2, "instruction": "Add color scale legend component" },
+            { "number": 3, "instruction": "Wire toggle buttons for each heatmap type" }
+          ],
+          "deliverables": [{ "path": "web/src/components/viewer/HeatmapOverlay.tsx", "type": "source", "description": "Heatmap overlay" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Viewer Controls & Toolbar",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["All 3D layers rendering"],
+          "exit_conditions": [
+            "Toolbar: layer toggles, color mode dropdown, render mode dropdown",
+            "View presets: front, back, top, bottom, left, right, iso, iso-rear",
+            "Playback controls: play/pause, speed slider, scrub bar"
+          ],
+          "rollback": "git checkout -- web/src/components/viewer/ViewerToolbar.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ViewerToolbar.tsx with toggle buttons and dropdowns" },
+            { "number": 2, "instruction": "Add view preset buttons for all 8 presets" },
+            { "number": 3, "instruction": "Add playback controls: play/pause, speed 0.1x-10x, timeline scrubber" }
+          ],
+          "deliverables": [{ "path": "web/src/components/viewer/ViewerToolbar.tsx", "type": "source", "description": "Viewer controls" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Viewer Page Integration",
+          "phase": "P0", "sequence": 6, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U06"],
+          "entry_conditions": ["All viewer components and toolbar complete"],
+          "exit_conditions": [
+            "ViewerPage at /viewer wires all components",
+            "Side panel: operation list, toolpath stats",
+            "Screenshot export (PNG) and scene data download (JSON)",
+            "60fps for toolpaths under 100K segments"
+          ],
+          "rollback": "git checkout -- web/src/pages/ViewerPage.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ViewerPage.tsx with Viewer3D + toolbar + side panel" },
+            { "number": 2, "instruction": "Add screenshot and JSON export" },
+            { "number": 3, "instruction": "Profile and optimize: instancing, LOD for dense paths" }
+          ],
+          "deliverables": [{ "path": "web/src/pages/ViewerPage.tsx", "type": "source", "description": "3D viewer page" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U08", "title": "Viewer Testing",
+          "phase": "P0", "sequence": 7, "role": "R2", "role_name": "3D Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U07"],
+          "entry_conditions": ["Viewer page fully integrated"],
+          "exit_conditions": [
+            "Unit tests for sceneParser.ts",
+            "Component tests: toolbar toggles, camera presets, color modes",
+            "Performance benchmark: 60fps with 50K segment toolpath"
+          ],
+          "rollback": "git checkout -- web/src/__tests__/viewer/",
+          "steps": [
+            { "number": 1, "instruction": "Write sceneParser unit tests with mock scene data" },
+            { "number": 2, "instruction": "Write component tests for toolbar and controls" },
+            { "number": 3, "instruction": "Create 50K-segment benchmark test" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/viewer/", "type": "test", "description": "Viewer tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
-        "anti_regression": true,
-        "test_required": true,
-        "build_required": true,
-        "checkpoint": true,
-        "learning_save": true,
-        "custom_checks": []
+        "omega_floor": 0.75, "safety_floor": 0.7, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Toolpath renders in all 6 color modes", "Stock removal syncs with playback", "60fps with 50K segments"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
     }
   ],
   "total_units": 8,
-  "total_sessions": "3-4",
-  "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
-  ],
+  "total_sessions": "2-3",
+  "role_matrix": [{ "code": "R2", "name": "3D Engineer", "model": "sonnet-4.6", "effort": 80 }],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    },
-    {
-      "tool": "Context7",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" },
+    { "tool": "Context7", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/components/viewer/Viewer3D.tsx", "type": "source", "description": "Base 3D scene" },
+    { "path": "web/src/components/viewer/ToolpathLayer.tsx", "type": "source", "description": "Toolpath renderer" },
+    { "path": "web/src/components/viewer/StockMesh.tsx", "type": "source", "description": "Stock mesh" },
+    { "path": "web/src/components/viewer/ToolAssembly.tsx", "type": "source", "description": "Tool model" },
+    { "path": "web/src/components/viewer/HeatmapOverlay.tsx", "type": "source", "description": "Heatmap overlay" },
+    { "path": "web/src/components/viewer/ViewerToolbar.tsx", "type": "source", "description": "Controls" },
+    { "path": "web/src/pages/ViewerPage.tsx", "type": "source", "description": "Viewer page" }
+  ],
+  "existing_leverage": [
+    { "asset": "engines/VisualizationEngine.ts", "type": "engine", "description": "Scene graph generator with toolpath, stock, tool, heatmap support" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

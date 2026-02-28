@@ -34,6 +34,7 @@ const dailyToolWearCheck: HookDefinition = {
   description:
     "Reviews flank wear, crater wear, and remaining life for all active tools. Flags any needing replacement within next shift.",
   phase: "on-tool-life-warning",
+  event: "phase.post-safety-check",
   category: "manufacturing",
   mode: "warning",
   priority: "high",
@@ -72,6 +73,7 @@ const weeklyMaintenanceForecast: HookDefinition = {
   description:
     "Forecasts maintenance requirements for the coming week based on machine hours, vibration trends, and historical failure data.",
   phase: "on-session-checkpoint",
+  event: "phase.post-calculation",
   category: "automation",
   mode: "warning",
   priority: "normal",
@@ -110,6 +112,7 @@ const hourlyMachineHealth: HookDefinition = {
   description:
     "Captures machine health snapshot: spindle temperature, vibration level, axis backlash, coolant level.",
   phase: "on-session-checkpoint",
+  event: "phase.post-data-query",
   category: "observability",
   mode: "logging",
   priority: "normal",
@@ -141,6 +144,7 @@ const shiftChangeHandoff: HookDefinition = {
   description:
     "Generates shift handoff report: active jobs, machine status, pending issues, tool changes needed.",
   phase: "on-session-end",
+  event: "phase.post-export",
   category: "automation",
   mode: "logging",
   priority: "normal",
@@ -172,6 +176,7 @@ const monthlyCostAnalysis: HookDefinition = {
   description:
     "Aggregates monthly cost data: tooling spend, machine time, material waste, energy consumption.",
   phase: "on-session-checkpoint",
+  event: "phase.post-calculation",
   category: "observability",
   mode: "logging",
   priority: "low",
@@ -199,6 +204,7 @@ const quarterlyCalibrationReminder: HookDefinition = {
   description:
     "Checks machine calibration dates and flags those overdue or due within 30 days.",
   phase: "on-session-checkpoint",
+  event: "phase.post-quality-check",
   category: "validation",
   mode: "warning",
   priority: "normal",

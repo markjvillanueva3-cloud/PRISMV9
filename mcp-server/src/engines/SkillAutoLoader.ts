@@ -64,18 +64,18 @@ const DOMAIN_CHAIN_MAP: Record<string, { chain: string; priority: "high" | "medi
   calculations:    { chain: "speed-feed-full",     priority: "high" },
   materials:       { chain: "material-complete",   priority: "high" },
   tooling:         { chain: "speed-feed-full",     priority: "medium" },
-  safety:          { chain: "speed-feed-full",     priority: "high" },
+  safety:          { chain: "safety-validate",     priority: "high" },
   physics:         { chain: "speed-feed-full",     priority: "high" },
   toolpath:        { chain: "toolpath-optimize",   priority: "high" },
   alarms:          { chain: "alarm-diagnose",      priority: "high" },
-  threading:       { chain: "speed-feed-full",     priority: "medium" },
+  threading:       { chain: "threading-full",      priority: "high" },
   // Quality/validation domains
   quality:         { chain: "quality-release",     priority: "high" },
   validation:      { chain: "quality-release",     priority: "medium" },
   // Session/context domains
   session:         { chain: "session-recovery",    priority: "low" },
   // Optimization
-  optimization:    { chain: "toolpath-optimize",   priority: "medium" },
+  optimization:    { chain: "optimize-plan",       priority: "high" },
 };
 
 // Chain definitions (mirrors SkillExecutor.PREDEFINED_CHAINS but readable here)
@@ -103,6 +103,18 @@ const CHAIN_SKILLS: Record<string, { skills: string[]; purpose: string }> = {
   "session-recovery": {
     skills: ["prism-state-manager", "prism-session-handoff", "prism-task-continuity", "prism-context-engineering", "prism-context-pressure"],
     purpose: "Session recovery and context reconstruction"
+  },
+  "safety-validate": {
+    skills: ["prism-safety-framework", "prism-life-safety-mindset", "prism-quality-gates", "prism-cutting-tools", "prism-physics-formulas"],
+    purpose: "Comprehensive safety checks for machining operations"
+  },
+  "threading-full": {
+    skills: ["prism-universal-formulas", "prism-cutting-mechanics", "prism-gcode-reference", "prism-fanuc-programming", "prism-expert-quality-control"],
+    purpose: "Thread cutting parameters, specs, and G-code generation"
+  },
+  "optimize-plan": {
+    skills: ["prism-mathematical-planning", "prism-ai-optimization", "prism-process-optimizer", "prism-cognitive-core", "prism-reasoning-engine"],
+    purpose: "Multi-objective optimization and mathematical planning"
   }
 };
 
@@ -121,20 +133,24 @@ const ACTION_PRIMARY_SKILL: Record<string, string> = {
   "mrr": "prism-cutting-mechanics",
   "power": "prism-cutting-mechanics",
   "chip_load": "prism-cutting-mechanics",
-  "stability": "prism-cutting-mechanics",
-  "deflection": "prism-cutting-tools",
-  "thermal": "prism-expert-thermodynamics",
-  "cost_optimize": "prism-process-optimizer",
+  "stability": "prism-safety-framework",
+  "deflection": "prism-safety-framework",
+  "thermal": "prism-mathematical-planning",
+  "cost_optimize": "prism-mathematical-planning",
   "multi_optimize": "prism-mathematical-planning",
   "trochoidal": "prism-cam-strategies",
   "hsm": "prism-cam-strategies",
   // Safety actions → primary skill
   "check_toolpath_collision": "prism-safety-framework",
-  "predict_tool_breakage": "prism-cutting-tools",
-  "check_spindle_torque": "prism-cutting-mechanics",
+  "predict_tool_breakage": "prism-safety-framework",
+  "check_spindle_torque": "prism-safety-framework",
+  "check_spindle_power": "prism-safety-framework",
+  "validate_spindle_speed": "prism-safety-framework",
   "validate_workholding_setup": "prism-safety-framework",
   // Thread actions → primary skill
   "calculate_tap_drill": "prism-universal-formulas",
+  "calculate_thread_mill_params": "prism-universal-formulas",
+  "calculate_thread_depth": "prism-universal-formulas",
   "generate_thread_gcode": "prism-gcode-reference",
   // Toolpath actions → primary skill
   "strategy_select": "prism-cam-strategies",

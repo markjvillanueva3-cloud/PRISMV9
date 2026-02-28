@@ -2,129 +2,291 @@
   "id": "L8-P2-MS2",
   "version": "3.1.0",
   "title": "ERP/Business Web UI",
-  "brief": "ERP web interface: WorkOrderList, CostTracker, QualityDashboard, ToolInventory, ScheduleView, ReportBuilder.",
+  "brief": "ERP web interface: quoting, job tracking, scheduling, capacity analytics, OEE dashboard, predictive maintenance — wired to 10 ERP API endpoints.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "ERP/Business Web UI",
-      "description": "ERP web interface: WorkOrderList, CostTracker, QualityDashboard, ToolInventory, ScheduleView, ReportBuilder.",
-      "sessions": "8-11",
+      "description": "Build the ERP web interface with quoting workflow, job management, scheduling view, and analytics dashboards.",
+      "sessions": "3-4",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute ERP/Business Web UI",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "L8-P2-MS1 complete"
-          ],
-          "exit_conditions": [
-            "ERP/Business Web UI complete",
-            "Build passes",
-            "Tests pass"
-          ],
-          "rollback": "git checkout -- [files modified by L8-P2-MS2]",
+          "id": "P0-U01", "title": "ERP API Client & Types",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["S3-MS1:P0-U01"],
+          "entry_conditions": ["L8-P2-MS1 complete", "Frontend scaffold exists"],
+          "exit_conditions": ["Typed API client for all 10 ERP endpoints", "React hooks for each endpoint"],
+          "rollback": "git checkout -- web/src/api/erp.ts",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute ERP/Business Web UI per roadmap spec"
-            }
+            { "number": 1, "instruction": "Create web/src/api/erp.ts with typed functions for quote/generate, quote/breakdown, quote/compare, job/plan, job/schedule, job/track, analytics/capacity, analytics/bottleneck, analytics/oee, analytics/predictive" },
+            { "number": 2, "instruction": "Create web/src/types/erp.ts with TypeScript interfaces" },
+            { "number": 3, "instruction": "Create web/src/hooks/useErp.ts with React hooks" }
           ],
-          "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "deliverables": [{ "path": "web/src/api/erp.ts", "type": "source", "description": "ERP API client" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Quote Generator",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 100,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API client available"],
+          "exit_conditions": ["Quote wizard: part details → operations → materials → generate quote", "Cost breakdown tree: material, labor, overhead, margin", "Quote comparison view for different strategies"],
+          "rollback": "git checkout -- web/src/components/erp/QuoteGenerator.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create QuoteGenerator.tsx with multi-step wizard" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/erp/quote/generate and /quote/breakdown" },
+            { "number": 3, "instruction": "Add comparison view from POST /api/v1/erp/quote/compare" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/QuoteGenerator.tsx", "type": "source", "description": "Quote wizard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Job Planner",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API client available"],
+          "exit_conditions": ["Job planning form: part, quantity, deadline, priority", "Generated routing display: operation sequence with machines/times", "Routing edit: drag-reorder operations, adjust machines"],
+          "rollback": "git checkout -- web/src/components/erp/JobPlanner.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create JobPlanner.tsx with planning form" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/erp/job/plan, display routing" },
+            { "number": 3, "instruction": "Add drag-reorder for operation sequence editing" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/JobPlanner.tsx", "type": "source", "description": "Job planner" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Schedule View",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 100,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["Job planner provides routing data"],
+          "exit_conditions": ["Gantt chart view: machines on Y-axis, time on X-axis, jobs as bars", "Job bars color-coded by priority/status", "Drag-to-reschedule with constraint validation", "Timeline zoom: hour/day/week views"],
+          "rollback": "git checkout -- web/src/components/erp/ScheduleView.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ScheduleView.tsx with Gantt chart (CSS grid or canvas)" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/erp/job/schedule" },
+            { "number": 3, "instruction": "Add drag-to-reschedule and zoom controls" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/ScheduleView.tsx", "type": "source", "description": "Gantt schedule" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Job Tracker",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API client available"],
+          "exit_conditions": ["Job list with status badges: Queued, In Progress, Complete, On Hold", "Job detail: progress %, current operation, ETA", "Real-time OEE indicator per machine"],
+          "rollback": "git checkout -- web/src/components/erp/JobTracker.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create JobTracker.tsx with filterable job list table" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/erp/job/track" },
+            { "number": 3, "instruction": "Add job detail panel with progress and OEE" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/JobTracker.tsx", "type": "source", "description": "Job tracker" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Capacity Analytics Dashboard",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API analytics endpoints available"],
+          "exit_conditions": ["Capacity utilization bar chart per machine", "Bottleneck identification with highlighted constraints", "OEE gauges: availability, performance, quality"],
+          "rollback": "git checkout -- web/src/components/erp/CapacityDashboard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create CapacityDashboard.tsx with utilization bars from /analytics/capacity" },
+            { "number": 2, "instruction": "Add bottleneck panel from /analytics/bottleneck" },
+            { "number": 3, "instruction": "Add OEE gauges from /analytics/oee" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/CapacityDashboard.tsx", "type": "source", "description": "Capacity dashboard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Predictive Maintenance Panel",
+          "phase": "P0", "sequence": 6, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API available"],
+          "exit_conditions": ["Predictive maintenance cards: machine, next service, risk level", "Trend charts: vibration, temperature, tool wear over time", "Alert system: upcoming maintenance needs highlighted"],
+          "rollback": "git checkout -- web/src/components/erp/PredictiveMaintenance.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create PredictiveMaintenance.tsx from /analytics/predictive" },
+            { "number": 2, "instruction": "Add trend sparklines and risk color coding" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/PredictiveMaintenance.tsx", "type": "source", "description": "Predictive maintenance" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U08", "title": "ERP Overview Page",
+          "phase": "P0", "sequence": 7, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02", "P0-U05", "P0-U06"],
+          "entry_conditions": ["Quote, tracker, and analytics components available"],
+          "exit_conditions": ["ERP dashboard page with KPI summary cards", "Active jobs count, pending quotes, OEE average", "Quick links to Quote, Schedule, Analytics"],
+          "rollback": "git checkout -- web/src/pages/ErpDashboard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ErpDashboard.tsx with KPI cards and quick links" },
+            { "number": 2, "instruction": "Add recent activity feed: latest quotes, completed jobs" }
+          ],
+          "deliverables": [{ "path": "web/src/pages/ErpDashboard.tsx", "type": "source", "description": "ERP dashboard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U09", "title": "ERP Layout & Navigation",
+          "phase": "P0", "sequence": 8, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U08"],
+          "entry_conditions": ["All ERP components complete"],
+          "exit_conditions": ["ERP section nav: Dashboard, Quoting, Jobs, Schedule, Analytics, Maintenance", "Sub-routes under /erp/*", "Breadcrumb and responsive layout"],
+          "rollback": "git checkout -- web/src/layouts/ErpLayout.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ErpLayout.tsx with section sidebar and nested Outlet" },
+            { "number": 2, "instruction": "Configure sub-routes and breadcrumbs" }
+          ],
+          "deliverables": [{ "path": "web/src/layouts/ErpLayout.tsx", "type": "source", "description": "ERP layout" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U10", "title": "Quote PDF Export",
+          "phase": "P0", "sequence": 9, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["Quote generator produces quote data"],
+          "exit_conditions": ["PDF export of completed quote with company header", "Cost breakdown table, terms, validity period", "Download as PDF button"],
+          "rollback": "git checkout -- web/src/utils/quotePdf.ts",
+          "steps": [
+            { "number": 1, "instruction": "Install jsPDF or react-pdf, create quote template" },
+            { "number": 2, "instruction": "Create quotePdf.ts with generateQuotePdf(quoteData) function" },
+            { "number": 3, "instruction": "Wire download button on QuoteGenerator component" }
+          ],
+          "deliverables": [{ "path": "web/src/utils/quotePdf.ts", "type": "source", "description": "Quote PDF generator" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U11", "title": "ERP State & WebSocket Updates",
+          "phase": "P0", "sequence": 10, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U09"],
+          "entry_conditions": ["ERP layout integrates all components"],
+          "exit_conditions": ["ErpContext with shared state: activeJobs, pendingQuotes, machineStatus", "WebSocket connection for real-time job status updates", "Optimistic UI updates for schedule changes"],
+          "rollback": "git checkout -- web/src/contexts/ErpContext.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ErpContext.tsx with shared ERP state" },
+            { "number": 2, "instruction": "Connect to /ws WebSocket for live job/machine updates" },
+            { "number": 3, "instruction": "Add optimistic updates for drag-to-reschedule" }
+          ],
+          "deliverables": [{ "path": "web/src/contexts/ErpContext.tsx", "type": "source", "description": "ERP state + WS" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U12", "title": "Report Builder",
+          "phase": "P0", "sequence": 11, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U06"],
+          "entry_conditions": ["Analytics data available"],
+          "exit_conditions": ["Report builder: select metrics, date range, machines", "Chart type selector: bar, line, pie, table", "Export report as PDF or CSV"],
+          "rollback": "git checkout -- web/src/components/erp/ReportBuilder.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ReportBuilder.tsx with metric/date/machine selectors" },
+            { "number": 2, "instruction": "Add chart type switching and preview" },
+            { "number": 3, "instruction": "Add PDF/CSV export" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/ReportBuilder.tsx", "type": "source", "description": "Report builder" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U13", "title": "Tool & Material Inventory",
+          "phase": "P0", "sequence": 12, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["ERP API available"],
+          "exit_conditions": ["Tool inventory table: tool, quantity, location, condition, last used", "Material inventory: material, stock level, reorder point", "Low stock alerts highlighted"],
+          "rollback": "git checkout -- web/src/components/erp/Inventory.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create Inventory.tsx with tabbed tool/material tables" },
+            { "number": 2, "instruction": "Add sortable columns, search filter, low-stock highlighting" }
+          ],
+          "deliverables": [{ "path": "web/src/components/erp/Inventory.tsx", "type": "source", "description": "Inventory management" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U14", "title": "Cross-Links to SFC & Learning",
+          "phase": "P0", "sequence": 13, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 40,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U11"],
+          "entry_conditions": ["ERP context established"],
+          "exit_conditions": ["Quote operations link to SFC for recalculation", "Job operations link to PPG for G-code generation", "Tool inventory links to learning tool wizard"],
+          "rollback": "git checkout -- web/src/utils/erpCrossLinks.ts",
+          "steps": [
+            { "number": 1, "instruction": "Add 'Recalculate in SFC' links on quote operations" },
+            { "number": 2, "instruction": "Add 'Generate G-code' links on job operations → PPG" }
+          ],
+          "deliverables": [{ "path": "web/src/utils/erpCrossLinks.ts", "type": "source", "description": "ERP cross-links" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U15", "title": "ERP Testing & Polish",
+          "phase": "P0", "sequence": 14, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U14"],
+          "entry_conditions": ["All ERP components integrated"],
+          "exit_conditions": ["Component tests for QuoteGenerator, JobPlanner, ScheduleView, CapacityDashboard", "Integration test: create quote → plan job → schedule → track → view analytics", "npm run build/test passes"],
+          "rollback": "git checkout -- web/src/__tests__/erp/",
+          "steps": [
+            { "number": 1, "instruction": "Write component tests with mocked API" },
+            { "number": 2, "instruction": "Write integration test for full ERP flow" },
+            { "number": 3, "instruction": "Polish: loading states, empty states, error boundaries" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/erp/", "type": "test", "description": "ERP tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
-        "anti_regression": true,
-        "test_required": true,
-        "build_required": true,
-        "checkpoint": true,
-        "learning_save": true,
-        "custom_checks": []
+        "omega_floor": 0.75, "safety_floor": 0.7, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Quote generates valid cost breakdown", "Gantt schedule renders correctly", "WebSocket updates reflect in real-time"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
     }
   ],
   "total_units": 15,
-  "total_sessions": "8-11",
-  "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
-  ],
+  "total_sessions": "3-4",
+  "role_matrix": [{ "code": "R2", "name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80 }],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] }, { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/api/erp.ts", "type": "source", "description": "ERP API client" },
+    { "path": "web/src/components/erp/QuoteGenerator.tsx", "type": "source", "description": "Quote wizard" },
+    { "path": "web/src/components/erp/JobPlanner.tsx", "type": "source", "description": "Job planner" },
+    { "path": "web/src/components/erp/ScheduleView.tsx", "type": "source", "description": "Gantt schedule" },
+    { "path": "web/src/components/erp/JobTracker.tsx", "type": "source", "description": "Job tracker" },
+    { "path": "web/src/components/erp/CapacityDashboard.tsx", "type": "source", "description": "Capacity analytics" },
+    { "path": "web/src/components/erp/PredictiveMaintenance.tsx", "type": "source", "description": "Maintenance panel" },
+    { "path": "web/src/components/erp/ReportBuilder.tsx", "type": "source", "description": "Report builder" },
+    { "path": "web/src/components/erp/Inventory.tsx", "type": "source", "description": "Inventory management" },
+    { "path": "web/src/pages/ErpDashboard.tsx", "type": "source", "description": "ERP dashboard" }
+  ],
+  "existing_leverage": [
+    { "asset": "routes/erp.ts", "type": "api_route", "description": "10 ERP REST endpoints" },
+    { "asset": "engines/QuotingEngine.ts", "type": "engine", "description": "Manufacturing quote generation" },
+    { "asset": "engines/SchedulingEngine.ts", "type": "engine", "description": "Job scheduling" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

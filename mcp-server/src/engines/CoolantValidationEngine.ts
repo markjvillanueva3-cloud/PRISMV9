@@ -292,23 +292,37 @@ class CoolantValidationEngine {
 
     // Dry or air blast
     if (system.delivery === 'DRY' || system.delivery === 'AIR_BLAST') {
+      const dryWarnings: string[] = [];
+      const dryRecs: string[] = [];
+      let dryAdequate = true;
+
+      if (system.delivery === 'DRY') {
+        dryWarnings.push('Dry machining - ensure material/operation is suitable');
+      }
+
+      // QA-MS1 FIX: Block dry machining for fire-hazard materials
+      if (params.materialType === 'TITANIUM' || params.materialType === 'SUPERALLOY') {
+        dryAdequate = false;
+        dryWarnings.push(`FIRE RISK: Dry/${system.delivery} machining ${params.materialType} — chips can ignite spontaneously`);
+        dryRecs.push('Use flood or through-spindle coolant for titanium/superalloy');
+      }
+
       return {
         requiredFlow: 0,
         availableFlow: 0,
         flowMargin: 0,
-        isAdequate: true,
+        isAdequate: dryAdequate,
         utilizationPercent: 0,
-        warnings: system.delivery === 'DRY' 
-          ? ['Dry machining - ensure material/operation is suitable'] 
-          : [],
-        recommendations: []
+        warnings: dryWarnings,
+        recommendations: dryRecs
       };
     }
 
     const availableFlow = system.flowRate;
     const flowMargin = availableFlow - requiredFlow;
     const isAdequate = availableFlow >= requiredFlow;
-    const utilizationPercent = (requiredFlow / availableFlow) * 100;
+    // QA-MS1 FIX: Guard against division by zero when availableFlow = 0
+    const utilizationPercent = availableFlow > 0 ? (requiredFlow / availableFlow) * 100 : 999;
 
     if (!isAdequate) {
       warnings.push(`Insufficient flow: need ${requiredFlow.toFixed(1)} L/min, have ${availableFlow.toFixed(1)} L/min`);
@@ -651,7 +665,8 @@ class CoolantValidationEngine {
     // MQL validation (if applicable)
     let mql: MQLValidationResult | undefined;
     if (system.delivery === 'MQL') {
-      mql = this.validateMQLParameters(params, system.flowRate * 60, 6);
+      // QA-MS1 FIX: Convert L/min → mL/hr (×60000), not L/hr (×60)
+      mql = this.validateMQLParameters(params, system.flowRate * 60000, 6);
       warnings.push(...mql.warnings);
       recommendations.push(...mql.recommendations);
     }

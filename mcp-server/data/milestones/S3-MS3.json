@@ -2,129 +2,148 @@
   "id": "S3-MS3",
   "version": "3.1.0",
   "title": "SFC Advanced Features",
-  "brief": "Multi-operation comparison, PDF report export, save/load presets, parameter history, advanced charts.",
+  "brief": "Multi-operation comparison, PDF report export, save/load presets, parameter history, advanced charts (tool life curves, power envelopes).",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "SFC Advanced Features",
-      "description": "Multi-operation comparison, PDF report export, save/load presets, parameter history, advanced charts.",
-      "sessions": "2",
+      "description": "Add power-user features to the SFC calculator: multi-op comparison, PDF reports, presets, history, and advanced visualization charts.",
+      "sessions": "1-2",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute SFC Advanced Features",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "S3-MS2 complete"
-          ],
-          "exit_conditions": [
-            "SFC Advanced Features complete",
-            "Build passes",
-            "Tests pass"
-          ],
-          "rollback": "git checkout -- [files modified by S3-MS3]",
+          "id": "P0-U01", "title": "Multi-Operation Comparison",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["S3-MS2"],
+          "entry_conditions": ["S3-MS2 complete", "Smart selectors working"],
+          "exit_conditions": ["Side-by-side comparison of 2-4 calculations", "Table view: rows=parameters, columns=calculations", "Highlight best/worst values per row", "Add to comparison from any calculation result"],
+          "rollback": "git checkout -- web/src/components/sfc/ComparisonView.tsx",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute SFC Advanced Features per roadmap spec"
-            }
+            { "number": 1, "instruction": "Create ComparisonView.tsx with multi-column comparison table" },
+            { "number": 2, "instruction": "Add 'Add to Comparison' button on ResultsDisplay" },
+            { "number": 3, "instruction": "Highlight min/max values with color coding" }
           ],
-          "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "deliverables": [{ "path": "web/src/components/sfc/ComparisonView.tsx", "type": "source", "description": "Multi-op comparison" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "PDF Report Export",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Comparison view available"],
+          "exit_conditions": ["PDF report includes: parameters, results, safety score, comparison if active", "Company header/logo placeholder, date, operator name field", "Charts embedded as images in PDF", "Download button on results and comparison views"],
+          "rollback": "git checkout -- web/src/utils/sfcReport.ts",
+          "steps": [
+            { "number": 1, "instruction": "Create sfcReport.ts using jsPDF with calculation report template" },
+            { "number": 2, "instruction": "Embed chart screenshots via canvas.toDataURL()" },
+            { "number": 3, "instruction": "Add download buttons on ResultsDisplay and ComparisonView" }
+          ],
+          "deliverables": [{ "path": "web/src/utils/sfcReport.ts", "type": "source", "description": "SFC PDF report generator" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Save/Load Presets",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["S3-MS2"],
+          "entry_conditions": ["SFC calculator with smart selectors working"],
+          "exit_conditions": ["Save current configuration as named preset", "Preset library with search and categories", "Load preset restores all selections and parameters", "Import/export presets as JSON for sharing"],
+          "rollback": "git checkout -- web/src/components/sfc/PresetManager.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create PresetManager.tsx with save/load/delete/rename UI" },
+            { "number": 2, "instruction": "Persist presets in localStorage with JSON schema" },
+            { "number": 3, "instruction": "Add import/export JSON buttons for preset sharing" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/PresetManager.tsx", "type": "source", "description": "Preset management" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Calculation History & Trends",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["S3-MS2"],
+          "entry_conditions": ["SFC calculator working"],
+          "exit_conditions": ["Full calculation history with timestamp, params, results", "History search and filter by material, operation, date range", "Trend charts: how parameters changed over time for same material", "Click history entry to reload exact calculation"],
+          "rollback": "git checkout -- web/src/components/sfc/CalculationHistory.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create CalculationHistory.tsx with searchable history table" },
+            { "number": 2, "instruction": "Store history in localStorage with configurable retention (default 100)" },
+            { "number": 3, "instruction": "Add trend line chart for selected parameter across history" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/CalculationHistory.tsx", "type": "source", "description": "Calculation history" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Advanced Charts",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Results and comparison data available"],
+          "exit_conditions": ["Tool life curve: Taylor tool life vs cutting speed chart", "Power envelope: required vs available power chart", "Surface finish prediction: Ra vs feed rate chart", "Stability lobe diagram: depth of cut vs spindle speed (if data available)", "Charts interactive: hover for values, zoom, export as PNG"],
+          "rollback": "git checkout -- web/src/components/sfc/AdvancedCharts.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create AdvancedCharts.tsx with tabbed chart views using Recharts" },
+            { "number": 2, "instruction": "Build ToolLifeChart: Taylor curve with current operating point marked" },
+            { "number": 3, "instruction": "Build PowerChart: required vs available with safety margin zone" },
+            { "number": 4, "instruction": "Build SurfaceFinishChart: Ra vs feed with target line" },
+            { "number": 5, "instruction": "Add chart export: save as PNG button per chart" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/AdvancedCharts.tsx", "type": "source", "description": "Advanced visualization charts" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Advanced Features Testing",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["All advanced features integrated"],
+          "exit_conditions": ["Tests: comparison table highlights correct best/worst values", "Tests: preset save/load roundtrip preserves all data", "Tests: history entries load exact previous calculations", "Tests: PDF export produces valid file", "npm run build/test passes"],
+          "rollback": "git checkout -- web/src/__tests__/sfc/advanced/",
+          "steps": [
+            { "number": 1, "instruction": "Write tests for comparison, presets, history, PDF export" },
+            { "number": 2, "instruction": "Write chart rendering tests (snapshot or visual)" },
+            { "number": 3, "instruction": "Integration test: calculate → compare → export PDF" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/sfc/advanced/", "type": "test", "description": "Advanced feature tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
-        "anti_regression": true,
-        "test_required": true,
-        "build_required": true,
-        "checkpoint": true,
-        "learning_save": true,
-        "custom_checks": []
+        "omega_floor": 0.75, "safety_floor": 0.7, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Comparison correctly highlights best values", "Preset save/load preserves all fields", "PDF contains all calculation data and charts"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
     }
   ],
   "total_units": 6,
-  "total_sessions": "2",
-  "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
-  ],
+  "total_sessions": "1-2",
+  "role_matrix": [{ "code": "R2", "name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80 }],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] }, { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/components/sfc/ComparisonView.tsx", "type": "source", "description": "Multi-op comparison" },
+    { "path": "web/src/utils/sfcReport.ts", "type": "source", "description": "PDF report generator" },
+    { "path": "web/src/components/sfc/PresetManager.tsx", "type": "source", "description": "Preset management" },
+    { "path": "web/src/components/sfc/CalculationHistory.tsx", "type": "source", "description": "Calculation history" },
+    { "path": "web/src/components/sfc/AdvancedCharts.tsx", "type": "source", "description": "Advanced charts" }
+  ],
+  "existing_leverage": [
+    { "asset": "S3-MS1 + S3-MS2 components", "type": "source", "description": "SFC calculator page with smart selectors" },
+    { "asset": "web/src/components/charts/", "type": "source", "description": "Shared chart components from L8-P1-MS2" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

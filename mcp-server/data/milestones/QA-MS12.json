@@ -1,0 +1,144 @@
+{
+  "id": "QA-MS12",
+  "version": "1.0.0",
+  "title": "Hook System & Orchestration",
+  "brief": "Audit the hook system and orchestration layer: hook registration (112 hooks inventory vs code), auto-hook proxy universal wrapping, prism_orchestrate/prism_atcs/prism_autonomous swarm logic, prism_autopilot_d autopilot actions, and hook-to-dispatcher interaction audit.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Hook System & Orchestration Audit",
+      "description": "Verify hook registration, auto-hook proxy wrapping, orchestration/swarm logic, autopilot actions, and hook-to-dispatcher interactions.",
+      "sessions": "2",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "Hook registration system: 112 hooks inventory vs code",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — hook count reconciliation",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS10/QA-MS11 engine audits complete"],
+          "exit_conditions": ["Exact hook count from code determined", "Registered vs unregistered hooks identified", "Hook type distribution documented (pre, post, cadence, etc.)"],
+          "rollback": "git checkout -- state/QA-MS12/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all hook registrations in code" },
+            { "number": 2, "instruction": "Compare against claimed 112 hooks" },
+            { "number": 3, "instruction": "Categorize by type (pre, post, cadence, event)" },
+            { "number": 4, "instruction": "Identify unregistered or orphaned hooks" },
+            { "number": 5, "instruction": "Document in state/QA-MS12/hook-registration-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS12/hook-registration-audit.json", "type": "data", "description": "Hook registration audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Auto-hook proxy: universal hook wrapping verification",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — proxy wrapping verification",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Hook registration audit complete"],
+          "exit_conditions": ["Auto-hook proxy wrapping confirmed for all dispatcher actions", "Proxy bypass paths identified (if any)", "Performance impact of proxy assessed"],
+          "rollback": "git checkout -- state/QA-MS12/",
+          "steps": [
+            { "number": 1, "instruction": "Read auto-hook proxy implementation" },
+            { "number": 2, "instruction": "Verify all dispatcher actions are wrapped" },
+            { "number": 3, "instruction": "Identify any bypass paths" },
+            { "number": 4, "instruction": "Document in state/QA-MS12/auto-hook-proxy-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS12/auto-hook-proxy-audit.json", "type": "data", "description": "Auto-hook proxy audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "prism_orchestrate + prism_atcs + prism_autonomous: swarm logic",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — orchestration and swarm logic is architecturally complex",
+          "tools": [{ "tool": "prism_orchestrate" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Auto-hook proxy audit complete"],
+          "exit_conditions": ["Orchestration workflow engine verified", "ATCS task scheduling logic verified", "Autonomous agent coordination verified", "Deadlock/livelock prevention verified"],
+          "rollback": "git checkout -- state/QA-MS12/",
+          "steps": [
+            { "number": 1, "instruction": "Read prism_orchestrate workflow engine logic" },
+            { "number": 2, "instruction": "Read prism_atcs task scheduling and coordination" },
+            { "number": 3, "instruction": "Read prism_autonomous agent coordination logic" },
+            { "number": 4, "instruction": "Verify deadlock/livelock prevention mechanisms" },
+            { "number": 5, "instruction": "Document in state/QA-MS12/orchestration-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS12/orchestration-audit.json", "type": "data", "description": "Orchestration/swarm logic audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "prism_autopilot_d: autopilot action verification",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — autopilot action review",
+          "tools": [{ "tool": "prism_autopilot_d" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Orchestration audit complete"],
+          "exit_conditions": ["All autopilot actions inventoried", "Auto-pilot decision logic verified", "Safety guardrails in autopilot verified"],
+          "rollback": "git checkout -- state/QA-MS12/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_autopilot_d actions" },
+            { "number": 2, "instruction": "Verify autopilot decision-making logic" },
+            { "number": 3, "instruction": "Verify safety guardrails and human-in-the-loop mechanisms" },
+            { "number": 4, "instruction": "Document in state/QA-MS12/autopilot-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS12/autopilot-audit.json", "type": "data", "description": "Autopilot action audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Hook-to-dispatcher interaction audit",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — interaction pattern analysis",
+          "tools": [{ "tool": "prism_validate" }, { "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Autopilot audit complete"],
+          "exit_conditions": ["Hook-dispatcher interaction matrix documented", "Circular dependency detection verified", "Hook ordering conflicts identified"],
+          "rollback": "git checkout -- state/QA-MS12/",
+          "steps": [
+            { "number": 1, "instruction": "Build hook → dispatcher interaction matrix" },
+            { "number": 2, "instruction": "Check for circular dependencies between hooks and dispatchers" },
+            { "number": 3, "instruction": "Identify ordering conflicts" },
+            { "number": 4, "instruction": "Document in state/QA-MS12/hook-dispatcher-interaction-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS12/hook-dispatcher-interaction-audit.json", "type": "data", "description": "Hook-dispatcher interaction audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Hook count reconciled", "Orchestration deadlock-free verified"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_orchestrate", "phases": ["P0"] },
+    { "tool": "prism_autopilot_d", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS12/hook-registration-audit.json", "type": "data", "description": "Hook registration" },
+    { "path": "state/QA-MS12/auto-hook-proxy-audit.json", "type": "data", "description": "Auto-hook proxy" },
+    { "path": "state/QA-MS12/orchestration-audit.json", "type": "data", "description": "Orchestration audit" },
+    { "path": "state/QA-MS12/autopilot-audit.json", "type": "data", "description": "Autopilot audit" },
+    { "path": "state/QA-MS12/hook-dispatcher-interaction-audit.json", "type": "data", "description": "Hook-dispatcher interaction" }
+  ],
+  "existing_leverage": [
+    { "asset": "Hook system", "type": "source", "count": 112, "usage": "Hook registration audit" },
+    { "asset": "Orchestration dispatchers", "type": "source", "count": 3, "usage": "Swarm logic targets" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "unit": "QA-MS5-U00",
+  "title": "AlgorithmRegistry Reconciliation: Two Registries + 52 Files",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T07:00:00Z",
+  "status": "PASS",
+
+  "discovery": {
+    "note": "PRISM has TWO algorithm registries serving different purposes",
+    "registry_1": {
+      "name": "ALGORITHM_REGISTRY",
+      "location": "src/algorithms/index.ts",
+      "type": "TypeScript barrel export with runtime dispatch",
+      "entries": 50,
+      "format": "Record<string, AlgorithmClass> with createAlgorithm() factory",
+      "waves": {
+        "original_7": ["kienzle", "taylor", "johnson-cook", "surface-finish", "stability-lobe", "chip-thinning", "thermal-power"],
+        "L1_P0_MS1_11": ["gilbert-mrr", "tool-deflection", "chip-breaking", "coolant-flow", "tool-wear-prediction", "spindle-vib-fft", "chip-evacuation", "thermal-fea", "bayesian-wear", "ensemble-predictor", "adaptive-controller"],
+        "L1_P1_MS1_18": ["genetic-optimizer", "simulated-annealing", "particle-swarm", "monte-carlo", "neural-inference", "bayesian-optimizer", "fuzzy-controller", "digital-twin-estimator", "time-series-predictor", "anomaly-detector", "clustering-engine", "decision-tree-classifier", "regression-engine", "interpolation-engine", "kalman-filter", "pid-controller", "fea-solver-2d", "fft-analyzer"],
+        "L1_P1_MS2_14": ["minkowski-sum", "swept-volume-collision", "chip-volume-rate", "jaeger-temp-field", "usui-wear-model", "frf-stability-lobe", "rcsa", "cwe-z-buffer", "ant-colony-tsp", "dp-multi-pass", "ilp-assignment", "csp-setup-plan", "stft-chatter", "wavelet-breakage"]
+      }
+    },
+    "registry_2": {
+      "name": "AlgorithmRegistry (class)",
+      "location": "src/registries/AlgorithmRegistry.ts",
+      "type": "BaseRegistry<AlgorithmEntry> with indexes and search",
+      "built_in_entries": 10,
+      "runtime_entries": "Additional entries loaded from scan files + extracted/algorithms/ dir",
+      "built_in_ids": [
+        "ALG-SIGNAL-001", "ALG-FFT-CHATTER-001", "ALG-CONTROL-001", "ALG-JACOBIAN-001",
+        "ALG-ACO-001", "ALG-NURBS-001", "ALG-TOOLPATH-001",
+        "ALG-SEARCH-001", "ALG-OPT-001", "ALG-GRAPH-001"
+      ],
+      "note": "References legacy extracted .js modules (PRISM_SIGNAL_ALGORITHMS.js etc.), not the TypeScript algorithm classes"
+    }
+  },
+
+  "file_inventory": {
+    "directory": "src/algorithms/",
+    "total_files": 52,
+    "algorithm_files": 50,
+    "infrastructure_files": 2,
+    "infrastructure": [
+      { "file": "types.ts", "purpose": "Algorithm<I,O>, ValidationResult, UncertaintyBand type definitions" },
+      { "file": "index.ts", "purpose": "Barrel export + ALGORITHM_REGISTRY + createAlgorithm() factory" }
+    ]
+  },
+
+  "reconciliation": {
+    "ALGORITHM_REGISTRY_coverage": {
+      "registered": 50,
+      "files": 50,
+      "coverage": "100%",
+      "all_50_files_have_registry_entries": true,
+      "all_50_registry_entries_have_files": true
+    },
+    "AlgorithmRegistry_coverage": {
+      "built_in": 10,
+      "note": "These 10 entries reference extracted JS modules (different codebase layer), not the 50 TypeScript algorithm classes",
+      "gap": "The 50 TypeScript algorithm classes are NOT registered in AlgorithmRegistry",
+      "impact": "LOW — AlgorithmRegistry serves a different purpose (legacy JS module catalog for the intelligence dispatcher)"
+    }
+  },
+
+  "categorization_for_QA_MS5": {
+    "genetic_evolutionary_U01": ["GeneticOptimizer", "SimulatedAnnealing", "ParticleSwarm", "AntColonyTSP"],
+    "gradient_optimization_U02": ["BayesianOptimizer", "RegressionEngine", "InterpolationEngine"],
+    "monte_carlo_U03": ["MonteCarlo"],
+    "neural_ml_inference_U04": ["NeuralInference", "EnsemblePredictorModel", "DecisionTreeClassifier", "ClusteringEngine", "TimeSeriesPredictor", "AnomalyDetector"],
+    "spc_U05": ["AdaptiveControllerModel", "KalmanFilter", "PIDController", "FuzzyController"],
+    "cost_multi_objective_U06": ["DPMultiPass", "ILPAssignment", "CSPSetupPlan"],
+    "manufacturing_physics": ["KienzleForceModel", "ExtendedTaylorModel", "JohnsonCookModel", "StabilityLobeDiagram", "SurfaceFinishPredictor", "ChipThinningCompensation", "ThermalPartitionModel", "GilbertMRRModel", "ToolDeflectionModel", "ChipBreakingModel", "CoolantFlowModel", "ToolWearPrediction", "SpindleVibFFTModel", "ChipEvacuationModel", "ThermalFEAModel", "BayesianWearModel"],
+    "manufacturing_advanced": ["MinkowskiSum", "SweptVolumeCollision", "ChipVolumeRatePredictor", "JaegerTempField", "UsuiWearModel", "FRFStabilityLobe", "RCSA", "CWEZBuffer", "STFTChatterDetection", "WaveletToolBreakage"],
+    "numerical_signal": ["FEASolver2D", "FFTAnalyzer", "DigitalTwinEstimator"]
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "ALGORITHM_REGISTRY has 100% coverage — all 50 .ts files have registry entries and vice versa" },
+    { "severity": "OK", "finding": "All 50 algorithms implement Algorithm<I,O> interface with validate() + calculate()" },
+    { "severity": "OK", "finding": "Barrel export provides both class and type exports for all 50 algorithms" },
+    { "severity": "INFO", "finding": "AlgorithmRegistry (registries/) has only 10 built-in entries for legacy JS modules — separate concern from the 50 TS classes" },
+    { "severity": "INFO", "finding": "The milestone envelope claimed '17 registered vs 52 files' — actual count is 50 registered in ALGORITHM_REGISTRY + 10 in AlgorithmRegistry + 50 algorithm files + 2 infra files" },
+    { "severity": "MINOR", "finding": "No crosswalk exists between AlgorithmRegistry (10 legacy JS entries) and ALGORITHM_REGISTRY (50 TS classes). Some cover the same algorithms (e.g., ACO, PID, FFT) in different implementations." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "exact_count_registered_algorithms": true,
+    "exact_count_algorithm_files": true,
+    "gap_explained": true
+  }
+}

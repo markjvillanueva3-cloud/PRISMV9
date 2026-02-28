@@ -24,16 +24,36 @@
           "model": "sonnet-4.6",
           "effort": 20,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["shop_dashboard", "shop_job", "mobile_lookup", "mobile_voice", "mobile_alarm"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] },
-            { "tool": "prism_data", "actions": ["machine_search", "alarm_decode"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "shop_dashboard, shop_job, mobile_lookup, mobile_voice, mobile_alarm"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            },
+            {
+              "tool": "prism_data",
+              "action": "machine_search, alarm_decode"
+            }
           ],
-          "skills": ["mfg-shop-floor", "mfg-mobile-field"],
+          "skills": [
+            "mfg-shop-floor",
+            "mfg-mobile-field"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["L2-P0-MS1", "L2-P1-MS1", "L2-P2-MS1", "L2-P3-MS1"],
+          "dependencies": [
+            "L2-P0-MS1",
+            "L2-P1-MS1",
+            "L2-P2-MS1",
+            "L2-P3-MS1"
+          ],
           "entry_conditions": [
             "L2-P3-MS1 complete (16 infrastructure engines exist)",
             "Engine<I,O> pattern established",
@@ -47,16 +67,44 @@
           ],
           "rollback": "git checkout -- src/engines/shop-floor/ src/engines/mobile-field/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/shop-floor/ directory with 6 engines: Dashboard, Job, Cost, Quote, Schedule, Report. Each implements Engine<I,O>, uses prism_intelligence→shop_* actions" },
-            { "number": 2, "instruction": "Create src/engines/mobile-field/ directory with 5 engines: Lookup, Voice, Alarm, Timer, Cache. Each implements Engine<I,O>, uses prism_intelligence→mobile_* actions" },
-            { "number": 3, "instruction": "Register all 11 engines in prism_intelligence dispatcher routing" },
-            { "number": 4, "instruction": "Write tests for all 11 engines, verify build passes" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/shop-floor/ directory with 6 engines: Dashboard, Job, Cost, Quote, Schedule, Report. Each implements Engine<I,O>, uses prism_intelligence\u00e2\u2020\u2019shop_* actions"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/mobile-field/ directory with 5 engines: Lookup, Voice, Alarm, Timer, Cache. Each implements Engine<I,O>, uses prism_intelligence\u00e2\u2020\u2019mobile_* actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 11 engines in prism_intelligence dispatcher routing"
+            },
+            {
+              "number": 4,
+              "instruction": "Write tests for all 11 engines, verify build passes"
+            }
           ],
           "deliverables": [
-            "src/engines/shop-floor/*.ts",
-            "src/engines/mobile-field/*.ts",
-            "tests/engines/test-shop-floor.test.ts",
-            "tests/engines/test-mobile-field.test.ts"
+            {
+              "path": "src/engines/shop-floor/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "src/engines/mobile-field/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-shop-floor.test.ts",
+              "type": "test",
+              "description": "test-shop-floor tests"
+            },
+            {
+              "path": "tests/engines/test-mobile-field.test.ts",
+              "type": "test",
+              "description": "test-mobile-field tests"
+            }
           ]
         },
         {
@@ -69,16 +117,32 @@
           "model": "sonnet-4.6",
           "effort": 20,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["erp_import_wo", "erp_cost_feedback", "measure_cmm_import", "measure_surface", "measure_probe_record"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "erp_import_wo, erp_cost_feedback, measure_cmm_import, measure_surface, measure_probe_record"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            }
           ],
-          "skills": ["mfg-erp-bridge", "mfg-measurement-qc"],
+          "skills": [
+            "mfg-erp-bridge",
+            "mfg-measurement-qc"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U01"],
-          "entry_conditions": ["Batch 1-2 complete"],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Batch 1-2 complete"
+          ],
           "exit_conditions": [
             "ERPImportEngine, ERPCostEngine, ERPQualityEngine, ERPToolInventoryEngine, ERPWorkOrderEngine created",
             "CMMImportEngine, CMMHistoryEngine, SurfaceMeasureEngine, ProbeRecordEngine, ProbeDriftEngine, MeasureSummaryEngine created",
@@ -86,15 +150,40 @@
           ],
           "rollback": "git checkout -- src/engines/erp-bridge/ src/engines/measurement-qc/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/erp-bridge/ with 5 engines using prism_intelligence→erp_* actions" },
-            { "number": 2, "instruction": "Create src/engines/measurement-qc/ with 6 engines using prism_intelligence→measure_* actions" },
-            { "number": 3, "instruction": "Register all 11 engines, write tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/erp-bridge/ with 5 engines using prism_intelligence\u00e2\u2020\u2019erp_* actions"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/measurement-qc/ with 6 engines using prism_intelligence\u00e2\u2020\u2019measure_* actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 11 engines, write tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/erp-bridge/*.ts",
-            "src/engines/measurement-qc/*.ts",
-            "tests/engines/test-erp-bridge.test.ts",
-            "tests/engines/test-measurement-qc.test.ts"
+            {
+              "path": "src/engines/erp-bridge/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "src/engines/measurement-qc/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-erp-bridge.test.ts",
+              "type": "test",
+              "description": "test-erp-bridge tests"
+            },
+            {
+              "path": "tests/engines/test-measurement-qc.test.ts",
+              "type": "test",
+              "description": "test-measurement-qc tests"
+            }
           ]
         },
         {
@@ -107,17 +196,36 @@
           "model": "sonnet-4.6",
           "effort": 20,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["dnc_generate", "dnc_send", "dnc_verify", "cam_recommend", "cam_export", "cam_analyze_op"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] },
-            { "tool": "prism_safety", "purpose": "DNC engines are safety-critical" }
+            {
+              "tool": "prism_intelligence",
+              "action": "dnc_generate, dnc_send, dnc_verify, cam_recommend, cam_export, cam_analyze_op"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            },
+            {
+              "tool": "prism_safety",
+              "purpose": "DNC engines are safety-critical"
+            }
           ],
-          "skills": ["mfg-dnc-post", "mfg-cam-export"],
+          "skills": [
+            "mfg-dnc-post",
+            "mfg-cam-export"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U02"],
-          "entry_conditions": ["Batch 3-4 complete"],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Batch 3-4 complete"
+          ],
           "exit_conditions": [
             "DNCGenerateEngine, DNCSendEngine, DNCCompareEngine, DNCVerifyEngine, DNCQREngine created",
             "CAMRecommendEngine, CAMExportEngine, CAMAnalyzeEngine, CAMToolLibraryEngine, CAMToolGetEngine created",
@@ -126,20 +234,45 @@
           ],
           "rollback": "git checkout -- src/engines/dnc-post/ src/engines/cam-export/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/dnc-post/ with 5 DNC engines. SAFETY-CRITICAL: validate with prism_safety, require S(x) >= 0.990" },
-            { "number": 2, "instruction": "Create src/engines/cam-export/ with 5 CAM export engines using prism_intelligence→cam_* actions" },
-            { "number": 3, "instruction": "Register all 10 engines, write tests including safety validation tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/dnc-post/ with 5 DNC engines. SAFETY-CRITICAL: validate with prism_safety, require S(x) >= 0.990"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/cam-export/ with 5 CAM export engines using prism_intelligence\u00e2\u2020\u2019cam_* actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 10 engines, write tests including safety validation tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/dnc-post/*.ts",
-            "src/engines/cam-export/*.ts",
-            "tests/engines/test-dnc-post.test.ts",
-            "tests/engines/test-cam-export.test.ts"
+            {
+              "path": "src/engines/dnc-post/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "src/engines/cam-export/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-dnc-post.test.ts",
+              "type": "test",
+              "description": "test-dnc-post tests"
+            },
+            {
+              "path": "tests/engines/test-cam-export.test.ts",
+              "type": "test",
+              "description": "test-cam-export tests"
+            }
           ]
         },
         {
           "id": "P0-U04",
-          "title": "Batch 7: Adaptive Control (5 engines) — SAFETY-CRITICAL",
+          "title": "Batch 7: Adaptive Control (5 engines) \u00e2\u20ac\u201d SAFETY-CRITICAL",
           "phase": "P0",
           "sequence": 3,
           "role": "R2",
@@ -147,18 +280,39 @@
           "model": "sonnet-4.6",
           "effort": 12,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override"] },
-            { "tool": "prism_safety", "actions": ["check_spindle_torque", "check_chip_load_limits", "predict_tool_breakage"] },
-            { "tool": "prism_calc", "actions": ["cutting_force", "stability", "thermal"] },
-            { "tool": "prism_validate", "actions": ["safety"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "adaptive_chipload, adaptive_chatter, adaptive_wear, adaptive_thermal, adaptive_override"
+            },
+            {
+              "tool": "prism_safety",
+              "action": "check_spindle_torque, check_chip_load_limits, predict_tool_breakage"
+            },
+            {
+              "tool": "prism_calc",
+              "action": "cutting_force, stability, thermal"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            }
           ],
-          "skills": ["mfg-adaptive-control"],
+          "skills": [
+            "mfg-adaptive-control"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U03"],
-          "entry_conditions": ["Batch 5-6 complete"],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Batch 5-6 complete"
+          ],
           "exit_conditions": [
             "AdaptiveChiploadEngine, AdaptiveChatterEngine, AdaptiveWearEngine, AdaptiveThermalEngine, AdaptiveOverrideEngine created",
             "ALL adaptive engines validated S(x) >= 0.990 (real-time machine control)",
@@ -167,15 +321,39 @@
           ],
           "rollback": "git checkout -- src/engines/adaptive-control/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/adaptive-control/ with 5 engines. SAFETY-CRITICAL: these control real-time machine parameters. Every output must be validated against prism_safety limits" },
-            { "number": 2, "instruction": "Add safety boundary tests: verify engines reject out-of-range inputs, clamp outputs to safe limits, never exceed spindle/tool ratings" },
-            { "number": 3, "instruction": "Cross-validate against prism_calc: cutting_force, stability, thermal models must agree with engine outputs" },
-            { "number": 4, "instruction": "Register all 5 engines, run full safety validation suite" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/adaptive-control/ with 5 engines. SAFETY-CRITICAL: these control real-time machine parameters. Every output must be validated against prism_safety limits"
+            },
+            {
+              "number": 2,
+              "instruction": "Add safety boundary tests: verify engines reject out-of-range inputs, clamp outputs to safe limits, never exceed spindle/tool ratings"
+            },
+            {
+              "number": 3,
+              "instruction": "Cross-validate against prism_calc: cutting_force, stability, thermal models must agree with engine outputs"
+            },
+            {
+              "number": 4,
+              "instruction": "Register all 5 engines, run full safety validation suite"
+            }
           ],
           "deliverables": [
-            "src/engines/adaptive-control/*.ts",
-            "tests/engines/test-adaptive-control.test.ts",
-            "tests/engines/test-adaptive-safety.test.ts"
+            {
+              "path": "src/engines/adaptive-control/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-adaptive-control.test.ts",
+              "type": "test",
+              "description": "test-adaptive-control tests"
+            },
+            {
+              "path": "tests/engines/test-adaptive-safety.test.ts",
+              "type": "test",
+              "description": "test-adaptive-safety tests"
+            }
           ]
         },
         {
@@ -188,34 +366,78 @@
           "model": "sonnet-4.6",
           "effort": 10,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["sfc_calculate", "sfc_optimize", "sustain_optimize", "sustain_energy", "sustain_carbon"] },
-            { "tool": "prism_calc", "actions": ["surface_finish", "mrr", "power"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "sfc_calculate, sfc_optimize, sustain_optimize, sustain_energy, sustain_carbon"
+            },
+            {
+              "tool": "prism_calc",
+              "action": "surface_finish, mrr, power"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            }
           ],
-          "skills": ["mfg-surface-finish", "mfg-sustainability"],
+          "skills": [
+            "mfg-surface-finish",
+            "mfg-sustainability"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U04"],
-          "entry_conditions": ["Batch 7 complete"],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "Batch 7 complete"
+          ],
           "exit_conditions": [
             "SFCCalculateEngine, SFCCompareEngine, SFCOptimizeEngine created",
             "SustainOptimizeEngine, SustainEnergyEngine, SustainCarbonEngine created",
-            "SFC engines cross-validated against prism_calc→surface_finish",
+            "SFC engines cross-validated against prism_calc\u00e2\u2020\u2019surface_finish",
             "Build passes, tests pass"
           ],
           "rollback": "git checkout -- src/engines/surface-finish/ src/engines/sustainability/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/surface-finish/ with 3 SFC engines. Cross-validate against prism_calc→surface_finish" },
-            { "number": 2, "instruction": "Create src/engines/sustainability/ with 3 sustainability engines using prism_intelligence→sustain_* actions" },
-            { "number": 3, "instruction": "Register all 6 engines, write tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/surface-finish/ with 3 SFC engines. Cross-validate against prism_calc\u00e2\u2020\u2019surface_finish"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/sustainability/ with 3 sustainability engines using prism_intelligence\u00e2\u2020\u2019sustain_* actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 6 engines, write tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/surface-finish/*.ts",
-            "src/engines/sustainability/*.ts",
-            "tests/engines/test-surface-finish.test.ts",
-            "tests/engines/test-sustainability.test.ts"
+            {
+              "path": "src/engines/surface-finish/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "src/engines/sustainability/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-surface-finish.test.ts",
+              "type": "test",
+              "description": "test-surface-finish tests"
+            },
+            {
+              "path": "tests/engines/test-sustainability.test.ts",
+              "type": "test",
+              "description": "test-sustainability tests"
+            }
           ]
         },
         {
@@ -228,31 +450,66 @@
           "model": "sonnet-4.6",
           "effort": 10,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_strategy"] },
-            { "tool": "prism_calc", "actions": ["gcode_generate", "controller_optimize"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "acnc_program, acnc_feature, acnc_simulate, acnc_strategy"
+            },
+            {
+              "tool": "prism_calc",
+              "action": "gcode_generate, controller_optimize"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            }
           ],
-          "skills": ["mfg-advanced-cnc"],
+          "skills": [
+            "mfg-advanced-cnc"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U05"],
-          "entry_conditions": ["Batch 8-9 complete"],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Batch 8-9 complete"
+          ],
           "exit_conditions": [
             "ACNCProgramEngine, ACNCFeatureEngine, ACNCSimulateEngine, ACNCStrategyEngine created",
-            "Cross-validated against prism_calc→gcode_generate and controller_optimize",
+            "Cross-validated against prism_calc\u00e2\u2020\u2019gcode_generate and controller_optimize",
             "Build passes, tests pass"
           ],
           "rollback": "git checkout -- src/engines/advanced-cnc/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/advanced-cnc/ with 4 engines using prism_intelligence→acnc_* actions" },
-            { "number": 2, "instruction": "Cross-validate G-code output against prism_calc→gcode_generate for controller compatibility" },
-            { "number": 3, "instruction": "Register all 4 engines, write tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/advanced-cnc/ with 4 engines using prism_intelligence\u00e2\u2020\u2019acnc_* actions"
+            },
+            {
+              "number": 2,
+              "instruction": "Cross-validate G-code output against prism_calc\u00e2\u2020\u2019gcode_generate for controller compatibility"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 4 engines, write tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/advanced-cnc/*.ts",
-            "tests/engines/test-advanced-cnc.test.ts"
+            {
+              "path": "src/engines/advanced-cnc/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-advanced-cnc.test.ts",
+              "type": "test",
+              "description": "test-advanced-cnc tests"
+            }
           ]
         },
         {
@@ -265,31 +522,67 @@
           "model": "sonnet-4.6",
           "effort": 6,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["material_recommend", "genome_lookup", "genome_predict"] },
-            { "tool": "prism_data", "actions": ["material_search", "material_compare"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["material", "completeness"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "material_recommend, genome_lookup, genome_predict"
+            },
+            {
+              "tool": "prism_data",
+              "action": "material_search, material_compare"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "material, completeness"
+            }
           ],
-          "skills": ["mfg-ref-materials", "mfg-material-recommend"],
+          "skills": [
+            "mfg-ref-materials",
+            "mfg-material-recommend"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U06"],
-          "entry_conditions": ["Batch 10 complete"],
+          "dependencies": [
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "Batch 10 complete"
+          ],
           "exit_conditions": [
             "HardnessConversionEngine (M71), TensileToMachinabilityEngine (M72), MaterialEquivalenceEngine (M73) created",
-            "Cross-validated against prism_data→material_compare for conversion accuracy",
+            "Cross-validated against prism_data\u00e2\u2020\u2019material_compare for conversion accuracy",
             "Build passes, tests pass"
           ],
           "rollback": "git checkout -- src/engines/material-testing/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/material-testing/ with 3 engines: HardnessConversion (Rockwell/Brinell/Vickers), TensileToMachinability (map tensile strength to machinability rating), MaterialEquivalence (cross-reference international material standards)" },
-            { "number": 2, "instruction": "Validate conversions against prism_data→material_compare and prism_validate→material" },
-            { "number": 3, "instruction": "Register all 3 engines, write tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/material-testing/ with 3 engines: HardnessConversion (Rockwell/Brinell/Vickers), TensileToMachinability (map tensile strength to machinability rating), MaterialEquivalence (cross-reference international material standards)"
+            },
+            {
+              "number": 2,
+              "instruction": "Validate conversions against prism_data\u00e2\u2020\u2019material_compare and prism_validate\u00e2\u2020\u2019material"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 3 engines, write tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/material-testing/*.ts",
-            "tests/engines/test-material-testing.test.ts"
+            {
+              "path": "src/engines/material-testing/*.ts",
+              "type": "test",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-material-testing.test.ts",
+              "type": "test",
+              "description": "test-material-testing tests"
+            }
           ]
         },
         {
@@ -302,33 +595,73 @@
           "model": "sonnet-4.6",
           "effort": 10,
           "tools": [
-            { "tool": "prism_intelligence", "actions": ["fixture_recommend"] },
-            { "tool": "prism_safety", "actions": ["calculate_clamp_force_required", "validate_workholding_setup", "check_pullout_resistance"] },
-            { "tool": "prism_calc", "actions": ["cutting_force", "deflection"] },
-            { "tool": "prism_dev", "actions": ["code_template", "build"] },
-            { "tool": "prism_validate", "actions": ["safety", "completeness"] }
+            {
+              "tool": "prism_intelligence",
+              "action": "fixture_recommend"
+            },
+            {
+              "tool": "prism_safety",
+              "action": "calculate_clamp_force_required, validate_workholding_setup, check_pullout_resistance"
+            },
+            {
+              "tool": "prism_calc",
+              "action": "cutting_force, deflection"
+            },
+            {
+              "tool": "prism_dev",
+              "action": "code_template, build"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness"
+            }
           ],
-          "skills": ["mfg-fixture-recommend", "mfg-clamp-force", "mfg-ref-workholding"],
+          "skills": [
+            "mfg-fixture-recommend",
+            "mfg-clamp-force",
+            "mfg-ref-workholding"
+          ],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U07"],
-          "entry_conditions": ["Batch 11 complete"],
+          "dependencies": [
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "Batch 11 complete"
+          ],
           "exit_conditions": [
             "ModularFixtureLayoutEngine (M74), SoftJawProfileEngine (M75), 3DPrintedFixtureEngine (M76), MagneticChuckEngine (M77), TombstoneLayoutEngine (M78) created",
-            "All fixture engines validated against prism_safety→calculate_clamp_force_required",
-            "Workholding setups validated against prism_safety→validate_workholding_setup",
+            "All fixture engines validated against prism_safety\u00e2\u2020\u2019calculate_clamp_force_required",
+            "Workholding setups validated against prism_safety\u00e2\u2020\u2019validate_workholding_setup",
             "Build passes, tests pass"
           ],
           "rollback": "git checkout -- src/engines/jig-fixture/",
           "steps": [
-            { "number": 1, "instruction": "Create src/engines/jig-fixture/ with 5 engines: ModularFixtureLayout (modular fixture plate optimization), SoftJawProfile (soft jaw geometry for round/hex/irregular parts), 3DPrintedFixture (AM fixture design constraints), MagneticChuck (magnetic workholding calculations), TombstoneLayout (multi-face tombstone fixture optimization)" },
-            { "number": 2, "instruction": "Validate all fixture forces against prism_safety→calculate_clamp_force_required and prism_calc→cutting_force" },
-            { "number": 3, "instruction": "Register all 5 engines, write tests including safety boundary tests, verify build" }
+            {
+              "number": 1,
+              "instruction": "Create src/engines/jig-fixture/ with 5 engines: ModularFixtureLayout (modular fixture plate optimization), SoftJawProfile (soft jaw geometry for round/hex/irregular parts), 3DPrintedFixture (AM fixture design constraints), MagneticChuck (magnetic workholding calculations), TombstoneLayout (multi-face tombstone fixture optimization)"
+            },
+            {
+              "number": 2,
+              "instruction": "Validate all fixture forces against prism_safety\u00e2\u2020\u2019calculate_clamp_force_required and prism_calc\u00e2\u2020\u2019cutting_force"
+            },
+            {
+              "number": 3,
+              "instruction": "Register all 5 engines, write tests including safety boundary tests, verify build"
+            }
           ],
           "deliverables": [
-            "src/engines/jig-fixture/*.ts",
-            "tests/engines/test-jig-fixture.test.ts"
+            {
+              "path": "src/engines/jig-fixture/*.ts",
+              "type": "source",
+              "description": "engines"
+            },
+            {
+              "path": "tests/engines/test-jig-fixture.test.ts",
+              "type": "test",
+              "description": "test-jig-fixture tests"
+            }
           ]
         },
         {
@@ -341,15 +674,27 @@
           "model": "sonnet-4.6",
           "effort": 8,
           "tools": [
-            { "tool": "prism_dev", "actions": ["build", "code_search"] },
-            { "tool": "prism_validate", "actions": ["completeness", "anti_regression"] }
+            {
+              "tool": "prism_dev",
+              "action": "build, code_search"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "completeness, anti_regression"
+            }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
-          "features": ["Serena"],
-          "dependencies": ["P0-U08"],
-          "entry_conditions": ["All 52 engine files created (Batches 1-12)"],
+          "features": [
+            "Serena"
+          ],
+          "dependencies": [
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "All 52 engine files created (Batches 1-12)"
+          ],
           "exit_conditions": [
             "52 engines x 9 wiring points = 468 registrations verified",
             "Wiring checklist: EngineRegistry, dispatcher routing, action mapping, input schema, output schema, error handling, test coverage, docs, MASTER_INDEX",
@@ -358,16 +703,43 @@
           ],
           "rollback": "git checkout -- src/dispatchers/ src/registries/",
           "steps": [
-            { "number": 1, "instruction": "Verify all 52 engines are registered in EngineRegistry" },
-            { "number": 2, "instruction": "Verify all 52 engines are routed from their target dispatchers (prism_intelligence primarily)" },
-            { "number": 3, "instruction": "Run completeness validation: prism_validate→completeness on all engine registrations" },
-            { "number": 4, "instruction": "Run anti-regression: prism_validate→anti_regression to ensure no existing engines broken" },
-            { "number": 5, "instruction": "Full build + test pass" }
+            {
+              "number": 1,
+              "instruction": "Verify all 52 engines are registered in EngineRegistry"
+            },
+            {
+              "number": 2,
+              "instruction": "Verify all 52 engines are routed from their target dispatchers (prism_intelligence primarily)"
+            },
+            {
+              "number": 3,
+              "instruction": "Run completeness validation: prism_validate\u00e2\u2020\u2019completeness on all engine registrations"
+            },
+            {
+              "number": 4,
+              "instruction": "Run anti-regression: prism_validate\u00e2\u2020\u2019anti_regression to ensure no existing engines broken"
+            },
+            {
+              "number": 5,
+              "instruction": "Full build + test pass"
+            }
           ],
           "deliverables": [
-            "Updated dispatcher routing files",
-            "Updated EngineRegistry",
-            "Wiring verification report"
+            {
+              "path": "Updated dispatcher routing files",
+              "type": "source",
+              "description": "Updated dispatcher routing files"
+            },
+            {
+              "path": "Updated EngineRegistry",
+              "type": "source",
+              "description": "Updated EngineRegistry"
+            },
+            {
+              "path": "Wiring verification report",
+              "type": "source",
+              "description": "Wiring verification report"
+            }
           ]
         },
         {
@@ -380,16 +752,29 @@
           "model": "opus-4.6",
           "effort": 5,
           "tools": [
-            { "tool": "prism_validate", "actions": ["safety", "completeness", "anti_regression"] },
-            { "tool": "prism_safety", "actions": ["check_spindle_torque", "check_chip_load_limits", "predict_tool_breakage", "calculate_clamp_force_required"] },
-            { "tool": "prism_omega", "actions": ["compute"] }
+            {
+              "tool": "prism_validate",
+              "action": "safety, completeness, anti_regression"
+            },
+            {
+              "tool": "prism_safety",
+              "action": "check_spindle_torque, check_chip_load_limits, predict_tool_breakage, calculate_clamp_force_required"
+            },
+            {
+              "tool": "prism_omega",
+              "action": "compute"
+            }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": ["P0-U09"],
-          "entry_conditions": ["Wiring complete, all 52 engines registered and tested"],
+          "dependencies": [
+            "P0-U09"
+          ],
+          "entry_conditions": [
+            "Wiring complete, all 52 engines registered and tested"
+          ],
           "exit_conditions": [
             "Safety-critical engines (Adaptive Control: 5, DNC: 5, Jig & Fixture: 5) pass S(x) >= 0.990",
             "All 52 engines pass S(x) >= 0.70",
@@ -399,20 +784,39 @@
           ],
           "rollback": "If safety gate fails, revert to pre-L2-P4 state: git checkout -- src/engines/",
           "steps": [
-            { "number": 1, "instruction": "Run prism_validate→safety on all 52 new engines, flag any S(x) < 0.70" },
-            { "number": 2, "instruction": "Run enhanced safety on 15 safety-critical engines (Adaptive + DNC + Fixture), require S(x) >= 0.990" },
-            { "number": 3, "instruction": "Run prism_validate→anti_regression to verify 60 existing engines unaffected" },
-            { "number": 4, "instruction": "Run prism_omega→compute for overall L2-P4 quality score, require >= 0.75" },
-            { "number": 5, "instruction": "Generate safety gate report with pass/fail per engine" }
+            {
+              "number": 1,
+              "instruction": "Run prism_validate\u00e2\u2020\u2019safety on all 52 new engines, flag any S(x) < 0.70"
+            },
+            {
+              "number": 2,
+              "instruction": "Run enhanced safety on 15 safety-critical engines (Adaptive + DNC + Fixture), require S(x) >= 0.990"
+            },
+            {
+              "number": 3,
+              "instruction": "Run prism_validate\u00e2\u2020\u2019anti_regression to verify 60 existing engines unaffected"
+            },
+            {
+              "number": 4,
+              "instruction": "Run prism_omega\u00e2\u2020\u2019compute for overall L2-P4 quality score, require >= 0.75"
+            },
+            {
+              "number": 5,
+              "instruction": "Generate safety gate report with pass/fail per engine"
+            }
           ],
           "deliverables": [
-            "L2-P4-safety-gate-report.md"
+            {
+              "path": "L2-P4-safety-gate-report.md",
+              "type": "source",
+              "description": "L2-P4-safety-gate-report.md"
+            }
           ]
         }
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.70,
+        "safety_floor": 0.7,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -447,35 +851,146 @@
     }
   ],
   "tool_map": [
-    { "tool": "prism_intelligence", "phases": ["P0"], "purpose": "52 engine action routing (shop_*, mobile_*, erp_*, measure_*, dnc_*, cam_*, adaptive_*, sfc_*, sustain_*, acnc_*, genome_*, fixture_*)" },
-    { "tool": "prism_dev", "phases": ["P0"], "purpose": "code_template for engine scaffolding, build verification" },
-    { "tool": "prism_validate", "phases": ["P0"], "purpose": "safety, completeness, anti_regression, material validation" },
-    { "tool": "prism_safety", "phases": ["P0"], "purpose": "spindle/tool/clamp/workholding safety for safety-critical engines" },
-    { "tool": "prism_calc", "phases": ["P0"], "purpose": "cutting_force, stability, thermal, surface_finish, gcode_generate cross-validation" },
-    { "tool": "prism_data", "phases": ["P0"], "purpose": "material_search, material_compare, machine_search, alarm_decode" },
-    { "tool": "prism_omega", "phases": ["P0"], "purpose": "final quality gate computation" },
-    { "tool": "Serena", "phases": ["P0"], "purpose": "find_symbol/replace_symbol_body for wiring integration (external)" }
+    {
+      "tool": "prism_intelligence",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "52 engine action routing (shop_*, mobile_*, erp_*, measure_*, dnc_*, cam_*, adaptive_*, sfc_*, sustain_*, acnc_*, genome_*, fixture_*)"
+    },
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "code_template for engine scaffolding, build verification"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "safety, completeness, anti_regression, material validation"
+    },
+    {
+      "tool": "prism_safety",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "spindle/tool/clamp/workholding safety for safety-critical engines"
+    },
+    {
+      "tool": "prism_calc",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "cutting_force, stability, thermal, surface_finish, gcode_generate cross-validation"
+    },
+    {
+      "tool": "prism_data",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "material_search, material_compare, machine_search, alarm_decode"
+    },
+    {
+      "tool": "prism_omega",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "final quality gate computation"
+    },
+    {
+      "tool": "Serena",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "find_symbol/replace_symbol_body for wiring integration (external)"
+    }
   ],
   "deliverables_index": [
-    "src/engines/shop-floor/*.ts",
-    "src/engines/mobile-field/*.ts",
-    "src/engines/erp-bridge/*.ts",
-    "src/engines/measurement-qc/*.ts",
-    "src/engines/dnc-post/*.ts",
-    "src/engines/cam-export/*.ts",
-    "src/engines/adaptive-control/*.ts",
-    "src/engines/surface-finish/*.ts",
-    "src/engines/sustainability/*.ts",
-    "src/engines/advanced-cnc/*.ts",
-    "src/engines/material-testing/*.ts",
-    "src/engines/jig-fixture/*.ts"
+    {
+      "path": "src/engines/shop-floor/*.ts",
+      "type": "source",
+      "description": "6 Shop Floor engines"
+    },
+    {
+      "path": "src/engines/mobile-field/*.ts",
+      "type": "source",
+      "description": "5 Mobile Field engines"
+    },
+    {
+      "path": "src/engines/erp-bridge/*.ts",
+      "type": "source",
+      "description": "5 ERP Bridge engines"
+    },
+    {
+      "path": "src/engines/measurement-qc/*.ts",
+      "type": "source",
+      "description": "6 Measurement & QC engines"
+    },
+    {
+      "path": "src/engines/dnc-post/*.ts",
+      "type": "source",
+      "description": "5 DNC & Post-Processing engines"
+    },
+    {
+      "path": "src/engines/cam-export/*.ts",
+      "type": "source",
+      "description": "5 CAM Export engines"
+    },
+    {
+      "path": "src/engines/adaptive-control/*.ts",
+      "type": "source",
+      "description": "5 Adaptive Control engines (safety-critical)"
+    },
+    {
+      "path": "src/engines/surface-finish/*.ts",
+      "type": "source",
+      "description": "3 Surface Finish engines"
+    },
+    {
+      "path": "src/engines/sustainability/*.ts",
+      "type": "source",
+      "description": "3 Sustainability engines"
+    },
+    {
+      "path": "src/engines/advanced-cnc/*.ts",
+      "type": "source",
+      "description": "4 Advanced CNC engines"
+    },
+    {
+      "path": "src/engines/material-testing/*.ts",
+      "type": "source",
+      "description": "3 Material Testing engines"
+    },
+    {
+      "path": "src/engines/jig-fixture/*.ts",
+      "type": "source",
+      "description": "5 Jig & Fixture engines"
+    }
   ],
   "existing_leverage": [
-    "prism_intelligence compound actions (shop_*, mobile_*, erp_*, measure_*, dnc_*, cam_*, adaptive_*, sfc_*, sustain_*, acnc_*, genome_*, fixture_*)",
-    "prism_safety workholding/spindle/tool safety checks",
-    "prism_calc physics models (Kienzle, Taylor, thermal, stability)",
-    "Engine<I,O> pattern from L2-P0",
-    "60 existing engines from L2 P0-P3"
+    {
+      "asset": "prism_intelligence compound actions (shop_*, mobile_*, erp_*, measure_*, dnc_*, cam_*, adaptive_*, sfc_*, sustain_*, acnc_*, genome_*, fixture_*)",
+      "type": "tool"
+    },
+    {
+      "asset": "prism_safety workholding/spindle/tool safety checks",
+      "type": "tool"
+    },
+    {
+      "asset": "prism_calc physics models (Kienzle, Taylor, thermal, stability)",
+      "type": "tool"
+    },
+    {
+      "asset": "Engine<I,O> pattern from L2-P0",
+      "type": "pattern"
+    },
+    {
+      "asset": "60 existing engines from L2 P0-P3",
+      "type": "code"
+    }
   ],
   "scrutiny_config": {
     "pass_mode": "adaptive",

@@ -1,0 +1,182 @@
+{
+  "id": "QA-MS9",
+  "version": "1.0.0",
+  "title": "Infrastructure & Enterprise Dispatchers",
+  "brief": "Audit infrastructure and enterprise dispatchers: prism_compliance (regulatory), prism_tenant (multi-tenancy), prism_bridge (external integration), prism_data/prism_context (data pipeline), prism_session/prism_dev (session management), prism_doc/prism_nl_hook (documentation/NL), and remaining L6/L8/L9/L10 route dispatchers.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Infrastructure & Enterprise Dispatchers Audit",
+      "description": "Verify infrastructure dispatchers for compliance, multi-tenancy, integrations, data pipelines, sessions, documentation, and remaining route dispatchers.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "prism_compliance: regulatory action coverage",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — compliance action coverage check",
+          "tools": [{ "tool": "prism_compliance" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS7 registry audit complete"],
+          "exit_conditions": ["All compliance actions inventoried", "Regulatory standard coverage documented", "Engine wiring verified"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_compliance actions" },
+            { "number": 2, "instruction": "Document regulatory standard coverage (ISO, OSHA, etc.)" },
+            { "number": 3, "instruction": "Verify engine wiring" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/compliance-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/compliance-audit.json", "type": "data", "description": "Compliance dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "prism_tenant: multi-tenancy isolation verification",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — multi-tenancy isolation is security-critical",
+          "tools": [{ "tool": "prism_tenant" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Compliance audit complete"],
+          "exit_conditions": ["Tenant isolation boundaries verified", "Data partition strategy verified", "Cross-tenant access prevention confirmed"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_tenant actions" },
+            { "number": 2, "instruction": "Verify tenant isolation at data level" },
+            { "number": 3, "instruction": "Check for cross-tenant access paths" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/tenant-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/tenant-audit.json", "type": "data", "description": "Multi-tenancy isolation audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "prism_bridge: external system integration actions",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — integration point audit",
+          "tools": [{ "tool": "prism_bridge" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Tenant audit complete"],
+          "exit_conditions": ["All bridge actions inventoried", "External system integration points documented", "Error handling for external failures verified"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_bridge actions" },
+            { "number": 2, "instruction": "Document external system integration points" },
+            { "number": 3, "instruction": "Verify error handling for external system failures" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/bridge-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/bridge-audit.json", "type": "data", "description": "Bridge integration audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "prism_data + prism_context: data pipeline actions",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — data pipeline review",
+          "tools": [{ "tool": "prism_data" }, { "tool": "prism_context" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Bridge audit complete"],
+          "exit_conditions": ["All data pipeline actions inventoried", "Data flow paths documented", "Context management actions verified"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate prism_data and prism_context actions" },
+            { "number": 2, "instruction": "Document data flow paths" },
+            { "number": 3, "instruction": "Verify context management lifecycle" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/data-context-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/data-context-audit.json", "type": "data", "description": "Data/context pipeline audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "prism_session + prism_dev: session management audit",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — session management review",
+          "tools": [{ "tool": "prism_session" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Data/context audit complete"],
+          "exit_conditions": ["Session lifecycle actions verified", "Dev tooling actions inventoried", "State persistence verified"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate prism_session and prism_dev actions" },
+            { "number": 2, "instruction": "Verify session lifecycle (create, restore, checkpoint, destroy)" },
+            { "number": 3, "instruction": "Verify state persistence mechanisms" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/session-dev-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/session-dev-audit.json", "type": "data", "description": "Session/dev management audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "prism_doc + prism_nl_hook: documentation/NL actions",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "haiku-4.5", "effort": 50,
+          "rationale": "HAIKU/LOW — documentation dispatcher is lower risk",
+          "tools": [{ "tool": "prism_doc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Session/dev audit complete"],
+          "exit_conditions": ["Documentation actions inventoried", "NL hook actions inventoried", "Engine wiring verified"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate prism_doc and prism_nl_hook actions" },
+            { "number": 2, "instruction": "Verify engine wiring for both dispatchers" },
+            { "number": 3, "instruction": "Document in state/QA-MS9/doc-nl-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/doc-nl-audit.json", "type": "data", "description": "Documentation/NL dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Remaining L6/L8/L9/L10 route dispatchers (14 dispatchers)",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — bulk dispatcher inventory and wiring check",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"], "entry_conditions": ["Doc/NL audit complete"],
+          "exit_conditions": ["All remaining dispatchers inventoried", "Action counts verified per dispatcher", "Engine wiring coverage calculated for each"],
+          "rollback": "git checkout -- state/QA-MS9/",
+          "steps": [
+            { "number": 1, "instruction": "Identify the ~14 remaining dispatchers not yet audited" },
+            { "number": 2, "instruction": "For each: enumerate actions, map to engines, calculate coverage" },
+            { "number": 3, "instruction": "Produce summary table of all dispatchers + action counts" },
+            { "number": 4, "instruction": "Document in state/QA-MS9/remaining-dispatchers-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS9/remaining-dispatchers-audit.json", "type": "data", "description": "Remaining dispatchers bulk audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All infrastructure dispatchers audited", "Tenant isolation verified"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 7,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 },
+    { "code": "R4", "name": "Auditor", "model": "haiku-4.5", "effort": 50 }
+  ],
+  "tool_map": [
+    { "tool": "prism_compliance", "phases": ["P0"] },
+    { "tool": "prism_tenant", "phases": ["P0"] },
+    { "tool": "prism_bridge", "phases": ["P0"] },
+    { "tool": "prism_data", "phases": ["P0"] },
+    { "tool": "prism_context", "phases": ["P0"] },
+    { "tool": "prism_session", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_doc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS9/compliance-audit.json", "type": "data", "description": "Compliance audit" },
+    { "path": "state/QA-MS9/tenant-audit.json", "type": "data", "description": "Tenant audit" },
+    { "path": "state/QA-MS9/bridge-audit.json", "type": "data", "description": "Bridge audit" },
+    { "path": "state/QA-MS9/data-context-audit.json", "type": "data", "description": "Data/context audit" },
+    { "path": "state/QA-MS9/session-dev-audit.json", "type": "data", "description": "Session/dev audit" },
+    { "path": "state/QA-MS9/doc-nl-audit.json", "type": "data", "description": "Doc/NL audit" },
+    { "path": "state/QA-MS9/remaining-dispatchers-audit.json", "type": "data", "description": "Remaining dispatchers" }
+  ],
+  "existing_leverage": [
+    { "asset": "Infrastructure dispatchers", "type": "source", "count": 14, "usage": "Primary audit targets" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

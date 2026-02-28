@@ -1,0 +1,111 @@
+{
+  "unit": "QA-MS5-U07",
+  "title": "Algorithm-to-Engine Wiring Verification",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T07:35:00Z",
+  "status": "PASS",
+
+  "wiring_architecture": {
+    "summary": "All 50 TypeScript algorithms are wired through a single production engine (AlgorithmEngine) that uses ALGORITHM_REGISTRY + createAlgorithm() factory for dispatch by ID.",
+    "primary_chain": "Dispatcher → AlgorithmEngine → ALGORITHM_REGISTRY → Algorithm<I,O> class",
+    "secondary_consumers": "IntelligenceEngine, ProductEngine, ToolpathCalculations reference ALGORITHM_REGISTRY for domain-specific queries"
+  },
+
+  "engine_consumers": [
+    {
+      "engine": "AlgorithmEngine",
+      "file": "src/engines/AlgorithmEngine.ts",
+      "imports": ["ALGORITHM_REGISTRY", "createAlgorithm", "listAlgorithms", "AlgorithmId", "AlgorithmMeta", "ValidationResult"],
+      "actions": ["algorithm_calculate", "algorithm_validate", "algorithm_list", "algorithm_info", "algorithm_batch", "algorithm_benchmark"],
+      "coverage": "All 50 algorithms accessible via algorithm_id dispatch",
+      "role": "PRIMARY — unified typed algorithm management"
+    },
+    {
+      "engine": "IntelligenceEngine",
+      "file": "src/engines/IntelligenceEngine.ts",
+      "imports": ["ALGORITHM_REGISTRY"],
+      "role": "SECONDARY — intelligence queries can reference algorithm catalog"
+    },
+    {
+      "engine": "ProductEngine",
+      "file": "src/engines/ProductEngine.ts",
+      "imports": ["createAlgorithm"],
+      "role": "SECONDARY — product calculations can invoke specific algorithms"
+    },
+    {
+      "engine": "ToolpathCalculations",
+      "file": "src/engines/ToolpathCalculations.ts",
+      "imports": ["ALGORITHM_REGISTRY"],
+      "role": "SECONDARY — toolpath engine references algorithm registry"
+    },
+    {
+      "engine": "AlgorithmGatewayEngine",
+      "file": "src/engines/AlgorithmGatewayEngine.ts",
+      "imports": ["ALGORITHM_REGISTRY"],
+      "role": "LEGACY — 65KB gateway with 10 inline algorithms, also references registry",
+      "note": "Overlaps with AlgorithmEngine but provides legacy JS module bridging"
+    }
+  ],
+
+  "dispatcher_chain": {
+    "primary": {
+      "dispatcher": "calcDispatcher",
+      "file": "src/tools/dispatchers/calcDispatcher.ts",
+      "wiring": "Imports AlgorithmEngine, exposes algorithm_calculate and related actions via prism_calc"
+    }
+  },
+
+  "test_coverage": {
+    "test_files": [
+      "src/__tests__/algorithms.test.ts",
+      "src/__tests__/algorithm-calculate-audit.test.ts",
+      "src/__tests__/algorithm-benchmarks.test.ts"
+    ],
+    "note": "3 test suites cover algorithm functionality, calculation verification, and performance benchmarks"
+  },
+
+  "wiring_matrix": {
+    "total_algorithms": 50,
+    "wired_to_AlgorithmEngine": 50,
+    "wired_percentage": "100%",
+    "unwired_algorithms": [],
+    "note": "All 50 algorithms are accessible through AlgorithmEngine.algorithm_calculate by passing algorithm_id"
+  },
+
+  "secondary_wiring": {
+    "IntelligenceEngine": "Registry lookup for algorithm metadata in intelligence queries",
+    "ProductEngine": "Direct algorithm invocation for product-specific calculations",
+    "ToolpathCalculations": "Registry reference for toolpath-related algorithm discovery"
+  },
+
+  "legacy_overlap": {
+    "AlgorithmGatewayEngine_algorithms": 10,
+    "overlap_with_TS_registry": ["ACO (ant-colony-tsp)", "PID (pid-controller)", "FFT (fft-analyzer)"],
+    "note": "3 algorithms exist in both the 50 TS classes and the 10 legacy gateway entries. The TS implementations are the production versions; legacy gateway serves extracted JS modules."
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "100% wiring coverage — all 50 TypeScript algorithms accessible via AlgorithmEngine.algorithm_calculate" },
+    { "severity": "OK", "finding": "Single entry point (AlgorithmEngine) with consistent dispatch pattern via createAlgorithm() factory" },
+    { "severity": "OK", "finding": "calcDispatcher properly imports and exposes AlgorithmEngine actions" },
+    { "severity": "OK", "finding": "3 secondary engines (Intelligence, Product, Toolpath) also reference registry for domain-specific use" },
+    { "severity": "OK", "finding": "3 test suites provide algorithm coverage" },
+    { "severity": "INFO", "finding": "AlgorithmGatewayEngine (65KB legacy) overlaps with AlgorithmEngine for 3 algorithms (ACO, PID, FFT). Legacy engine maintained for JS module bridging." },
+    { "severity": "INFO", "finding": "Algorithms are not directly imported by other engines — all access goes through the registry/factory pattern. This is good architectural practice." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "every_registered_algorithm_mapped_to_engine": true,
+    "unwired_algorithms_identified": true,
+    "wiring_coverage_percentage_calculated": true
+  }
+}

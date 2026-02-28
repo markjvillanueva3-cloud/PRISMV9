@@ -1,0 +1,131 @@
+{
+  "id": "QA-MS14",
+  "version": "1.0.0",
+  "title": "Enhancement Synthesis & Remediation",
+  "brief": "Synthesize all QA findings into a prioritized enhancement backlog, generate remediation milestones for critical issues, update all system documentation, and perform final omega score recalculation with roadmap index update.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Enhancement Synthesis & Remediation",
+      "description": "Compile all QA findings, generate remediation milestones, update documentation, and recalculate system scores.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "Compile all findings into prioritized enhancement backlog",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — requires synthesis across all 14 prior milestones",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS13 cross-cutting audit complete", "All prior QA milestones (QA-MS0 through QA-MS13) complete"],
+          "exit_conditions": ["All findings from QA-MS0 through QA-MS13 compiled", "Each finding prioritized (P0-critical, P1-high, P2-medium, P3-low)", "Enhancement backlog sorted by priority and effort", "Estimated total remediation effort calculated"],
+          "rollback": "git checkout -- state/QA-MS14/",
+          "steps": [
+            { "number": 1, "instruction": "Read all audit deliverables from QA-MS0 through QA-MS13" },
+            { "number": 2, "instruction": "Extract all findings, issues, and recommendations" },
+            { "number": 3, "instruction": "Prioritize by impact: P0 (safety/correctness), P1 (completeness), P2 (quality), P3 (polish)" },
+            { "number": 4, "instruction": "Estimate effort for each item" },
+            { "number": 5, "instruction": "Document in state/QA-MS14/enhancement-backlog.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS14/enhancement-backlog.json", "type": "data", "description": "Prioritized enhancement backlog from all QA findings" }],
+          "index_in_master": true, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Generate remediation milestones for critical issues",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — translating findings into actionable milestones",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Enhancement backlog compiled"],
+          "exit_conditions": ["Remediation milestones generated for P0 and P1 issues", "Each milestone has units, steps, and deliverables", "Dependency graph between remediation milestones established"],
+          "rollback": "git checkout -- state/QA-MS14/",
+          "steps": [
+            { "number": 1, "instruction": "Group P0/P1 backlog items into logical remediation milestones" },
+            { "number": 2, "instruction": "Generate milestone envelope stubs (REM-MS0, REM-MS1, etc.)" },
+            { "number": 3, "instruction": "Define dependency graph for remediation milestones" },
+            { "number": 4, "instruction": "Document in state/QA-MS14/remediation-milestones.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS14/remediation-milestones.json", "type": "data", "description": "Remediation milestone definitions" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Update all system docs (CLAUDE.md, MASTER_INDEX, GSD, memories)",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — documentation updates from audit findings",
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Remediation milestones generated"],
+          "exit_conditions": ["CLAUDE.md updated with corrected system counts", "MASTER_INDEX.md updated with QA audit results", "GSD state updated with audit findings", "Session memories updated with key audit learnings"],
+          "rollback": "git checkout -- mcp-server/data/docs/ state/",
+          "steps": [
+            { "number": 1, "instruction": "Update CLAUDE.md with corrected counts from QA-MS0 baseline" },
+            { "number": 2, "instruction": "Update MASTER_INDEX.md with QA audit summary" },
+            { "number": 3, "instruction": "Update GSD state with accurate component counts" },
+            { "number": 4, "instruction": "Update session memories with key architectural findings" }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/data/docs/MASTER_INDEX.md", "type": "doc", "description": "Updated MASTER_INDEX with QA results" },
+            { "path": "state/QA-MS14/doc-updates-log.json", "type": "data", "description": "Log of all documentation updates" }
+          ],
+          "index_in_master": true, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Final omega score recalculation + roadmap index update",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — final system score and roadmap integration",
+          "tools": [{ "tool": "prism_validate" }, { "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["All docs updated"],
+          "exit_conditions": ["Final omega score calculated post-QA", "Score compared against pre-QA baseline", "Roadmap index updated with QA track completion status", "QA audit officially closed"],
+          "rollback": "git checkout -- mcp-server/data/roadmap-index.json state/QA-MS14/",
+          "steps": [
+            { "number": 1, "instruction": "Calculate final omega score using corrected data from QA audit" },
+            { "number": 2, "instruction": "Compare against QA-MS0 baseline score" },
+            { "number": 3, "instruction": "Update roadmap-index.json with QA milestone completion statuses" },
+            { "number": 4, "instruction": "Add remediation milestones to roadmap-index.json if generated" },
+            { "number": 5, "instruction": "Document final audit summary in state/QA-MS14/final-audit-summary.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS14/final-audit-summary.json", "type": "data", "description": "Final QA audit summary with omega scores" },
+            { "path": "mcp-server/data/roadmap-index.json", "type": "config", "description": "Updated roadmap index with QA track" }
+          ],
+          "index_in_master": true, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.80, "safety_floor": 0.70, "ralph_required": true, "ralph_grade_floor": "A",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Enhancement backlog complete", "All system docs updated", "Final omega score calculated", "Roadmap index updated"]
+      },
+      "scrutiny_checkpoint": true, "scrutiny_focus": ["missing_exit_conditions", "orphaned_deliverables", "underspecified_steps"]
+    }
+  ],
+  "total_units": 4,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90, "description": "Synthesis and remediation planning" },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70, "description": "Documentation updates" }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"], "purpose": "Query findings and system state" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Score calculation and validation" },
+    { "tool": "prism_dev", "phases": ["P0"], "purpose": "Documentation and build tools" }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS14/enhancement-backlog.json", "type": "data", "description": "Enhancement backlog" },
+    { "path": "state/QA-MS14/remediation-milestones.json", "type": "data", "description": "Remediation milestones" },
+    { "path": "state/QA-MS14/doc-updates-log.json", "type": "data", "description": "Doc updates log" },
+    { "path": "state/QA-MS14/final-audit-summary.json", "type": "data", "description": "Final audit summary" }
+  ],
+  "existing_leverage": [
+    { "asset": "All QA-MS0 through QA-MS13 findings", "type": "data", "usage": "Synthesis input" },
+    { "asset": "OmegaEngine", "type": "source", "usage": "Score recalculation" },
+    { "asset": "roadmap-index.json", "type": "config", "usage": "Roadmap integration" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "orphaned_deliverables", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

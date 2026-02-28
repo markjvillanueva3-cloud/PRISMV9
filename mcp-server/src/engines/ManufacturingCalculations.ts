@@ -671,12 +671,11 @@ export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
     "HSS": 30, "Carbide": 150, "Ceramic": 300, "CBN": 200, "Diamond": 500
   };
 
-  // Case-insensitive lookup — tool types may come in as "carbide", "Carbide", or "CARBIDE"
-  // Normalize to Title Case to match base_speeds keys (HSS, Carbide, Ceramic, CBN, Diamond)
-  const normalizedTool = tool_material?.trim()
-    ? tool_material.trim().charAt(0).toUpperCase() + tool_material.trim().slice(1).toLowerCase()
-    : "Carbide";
-  let cutting_speed = base_speeds[normalizedTool] || base_speeds[tool_material] || 100;
+  // QA-MS3 FIX: Case-insensitive lookup using lowercased map (Title Case broke HSS->Hss, CBN->Cbn)
+  const lowerSpeeds: Record<string, number> = {};
+  for (const [k, v] of Object.entries(base_speeds)) lowerSpeeds[k.toLowerCase()] = v;
+  const normalizedTool = tool_material?.trim()?.toLowerCase() || "carbide";
+  let cutting_speed = lowerSpeeds[normalizedTool] || 100;
   cutting_speed *= Math.pow(200 / material_hardness, 0.3);
   
   const operation_factors: Record<string, number> = { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 };

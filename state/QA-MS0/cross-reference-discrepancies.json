@@ -1,0 +1,130 @@
+{
+  "id": "QA-MS0-U03-U04",
+  "title": "Cross-Reference: Code Inventory vs Documentation Claims",
+  "generated_at": "2026-02-27T15:00:00Z",
+  "generated_by": "claude-opus-4.6",
+  "sources_compared": {
+    "code_inventory": ["state/QA-MS0/inventory-dispatchers-engines.json", "state/QA-MS0/inventory-algorithms-registries-hooks.json"],
+    "doc_sources": ["mcp-server/data/docs/MASTER_INDEX.md", "CLAUDE.md", "state/CURRENT_POSITION.md"]
+  },
+
+  "headline_findings": {
+    "doc_claimed_total_actions": 684,
+    "code_actual_total_actions": 1060,
+    "delta": "+376 actions undocumented (55% inflation gap)",
+    "intelligence_note": "If counting intelligence main z.enum only (250 vs 489), total is 821 (+137 vs docs)",
+    "dispatchers_match": true,
+    "dispatchers_count": 45,
+    "engines_doc_claim": 74,
+    "engines_code_actual": 169,
+    "engines_delta": "+95 engine files undocumented",
+    "hooks_claude_md_claim": "27 hooks + 12 workers",
+    "hooks_code_actual": "157 hooks in 22 files across 17 categories",
+    "hooks_delta": "MASSIVE — 27 claimed vs 157 actual (482% undercount)",
+    "algorithms_match": true,
+    "algorithms_count": 50
+  },
+
+  "per_dispatcher_comparison": [
+    { "tool": "prism_intelligence", "doc": 27, "code": 489, "delta": "+462", "severity": "CRITICAL", "note": "Mega-dispatcher: doc lists 27 core actions, code has 250 main + 239 sub-array actions. 96% of actions undocumented." },
+    { "tool": "prism_calc", "doc": 21, "code": 56, "delta": "+35", "severity": "MAJOR", "note": "35 actions added since last doc update — 63% undocumented" },
+    { "tool": "prism_orchestrate", "doc": 14, "code": 27, "delta": "+13", "severity": "MAJOR", "note": "13 roadmap/swarm actions added — swarm_quick, roadmap_claim/release/heartbeat/discover/register/populate_context" },
+    { "tool": "prism_context", "doc": 18, "code": 26, "delta": "+8", "severity": "MAJOR", "note": "8 undocumented context actions" },
+    { "tool": "prism_data", "doc": 27, "code": 35, "delta": "+8", "severity": "MAJOR", "note": "cross_lookup, dsl_lookup, database_list, database_search, workholding_get, workholding_search, insert_get, insert_search — all undocumented" },
+    { "tool": "prism_skill_script", "doc": 23, "code": 27, "delta": "+4", "severity": "MINOR", "note": "bundle_list, bundle_get, bundle_for_action, bundle_for_domain added" },
+    { "tool": "prism_atcs", "doc": 10, "code": 12, "delta": "+2", "severity": "MINOR", "note": "2 actions added since doc" },
+    { "tool": "prism_hook", "doc": 18, "code": 20, "delta": "+2", "severity": "MINOR", "note": "subscribe, reactive_chains added" },
+    { "tool": "prism_session", "doc": 30, "code": 32, "delta": "+2", "severity": "MINOR", "note": "health_check, dsl_mode added" },
+    { "tool": "prism_autopilot_d", "doc": 8, "code": 7, "delta": "-1", "severity": "MINOR", "note": "Doc inflated or action removed — needs verification" },
+    { "tool": "prism_safety", "doc": 29, "code": 29, "delta": "0", "severity": "OK" },
+    { "tool": "prism_l2", "doc": 38, "code": 38, "delta": "0", "severity": "OK" },
+    { "tool": "prism_cad", "doc": 10, "code": 10, "delta": "0", "severity": "OK" },
+    { "tool": "prism_cam", "doc": 9, "code": 9, "delta": "0", "severity": "OK" },
+    { "tool": "prism_quality", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_export", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_scheduling", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_turning", "doc": 6, "code": 6, "delta": "0", "severity": "OK" },
+    { "tool": "prism_5axis", "doc": 5, "code": 5, "delta": "0", "severity": "OK" },
+    { "tool": "prism_edm", "doc": 4, "code": 4, "delta": "0", "severity": "OK" },
+    { "tool": "prism_grinding", "doc": 4, "code": 4, "delta": "0", "severity": "OK" },
+    { "tool": "prism_industry", "doc": 4, "code": 4, "delta": "0", "severity": "OK" },
+    { "tool": "prism_automation", "doc": 5, "code": 5, "delta": "0", "severity": "OK" },
+    { "tool": "prism_auth", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_autonomous", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_dev", "doc": 9, "code": 9, "delta": "0", "severity": "OK" },
+    { "tool": "prism_doc", "doc": 7, "code": 7, "delta": "0", "severity": "OK" },
+    { "tool": "prism_generator", "doc": 6, "code": 6, "delta": "0", "severity": "OK" },
+    { "tool": "prism_gsd", "doc": 6, "code": 6, "delta": "0", "severity": "OK" },
+    { "tool": "prism_guard", "doc": 14, "code": 14, "delta": "0", "severity": "OK" },
+    { "tool": "prism_knowledge", "doc": 5, "code": 5, "delta": "0", "severity": "OK" },
+    { "tool": "prism_manus", "doc": 11, "code": 11, "delta": "0", "severity": "OK" },
+    { "tool": "prism_memory", "doc": 6, "code": 6, "delta": "0", "severity": "OK" },
+    { "tool": "prism_omega", "doc": 5, "code": 5, "delta": "0", "severity": "OK" },
+    { "tool": "prism_pfp", "doc": 6, "code": 6, "delta": "0", "severity": "OK" },
+    { "tool": "prism_ralph", "doc": 3, "code": 3, "delta": "0", "severity": "OK" },
+    { "tool": "prism_sp", "doc": 19, "code": 19, "delta": "0", "severity": "OK" },
+    { "tool": "prism_telemetry", "doc": 7, "code": 7, "delta": "0", "severity": "OK" },
+    { "tool": "prism_thread", "doc": 12, "code": 12, "delta": "0", "severity": "OK" },
+    { "tool": "prism_toolpath", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_validate", "doc": 7, "code": 7, "delta": "0", "severity": "OK" },
+    { "tool": "prism_nl_hook", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_compliance", "doc": 8, "code": 8, "delta": "0", "severity": "OK" },
+    { "tool": "prism_tenant", "doc": 15, "code": 15, "delta": "0", "severity": "OK" },
+    { "tool": "prism_bridge", "doc": 13, "code": 13, "delta": "0", "severity": "OK" }
+  ],
+
+  "match_summary": {
+    "exact_match": 35,
+    "code_higher": 9,
+    "doc_higher": 1,
+    "total": 45
+  },
+
+  "systemic_patterns": [
+    {
+      "pattern": "Intelligence mega-dispatcher underdocumented",
+      "description": "MASTER_INDEX lists only 27 of prism_intelligence's ~489 action paths. The dispatcher grew through 31 sub-engine integrations (learning, scheduler, PFP, memory, telemetry, etc.) that were never reflected in docs.",
+      "severity": "CRITICAL",
+      "remediation": "QA-MS6 will audit and propose decomposition. Docs should list all main z.enum entries."
+    },
+    {
+      "pattern": "Post-milestone action additions not synced to MASTER_INDEX",
+      "description": "prism_calc grew from 21→56, prism_orchestrate from 14→27, prism_context from 18→26, prism_data from 27→35. These were added during S-series and L-series milestones without updating MASTER_INDEX.",
+      "severity": "MAJOR",
+      "remediation": "Update MASTER_INDEX.md with verified counts from this audit."
+    },
+    {
+      "pattern": "Engine count massively underdocumented",
+      "description": "MASTER_INDEX and CLAUDE.md claim ~74 engines. Code has 169 *Engine.ts files (191 total .ts in engines/). 95 engine files completely undocumented.",
+      "severity": "MAJOR",
+      "remediation": "Full engine inventory needed in docs. Many engines may be ported-monolith L2 engines."
+    },
+    {
+      "pattern": "Hook count in CLAUDE.md severely outdated",
+      "description": "CLAUDE.md claims '27 hooks + 12 workers'. Code has 157 hooks across 17 categories in 22 files. The hook system expanded dramatically during L4-L7 milestones.",
+      "severity": "MAJOR",
+      "remediation": "Update CLAUDE.md hook section with actual counts from QA-MS0-U02 inventory."
+    },
+    {
+      "pattern": "Registry counts stable and accurate",
+      "description": "Material (3022/6338), Tool (1731/13967), Machine (1015) counts match across CURRENT_POSITION.md and code. These were verified during R1-R2 phases.",
+      "severity": "OK",
+      "remediation": "None needed — registry counts are well-maintained."
+    }
+  ],
+
+  "doc_fixes_required": [
+    { "file": "MASTER_INDEX.md", "fix": "Update total from '684 actions' to actual code count", "priority": "P0" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_intelligence entry from 27 to full action list", "priority": "P0" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_calc from 21 to 56 actions", "priority": "P1" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_orchestrate from 14 to 27 actions", "priority": "P1" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_context from 18 to 26 actions", "priority": "P1" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_data from 27 to 35 actions", "priority": "P1" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_skill_script from 23 to 27 actions", "priority": "P2" },
+    { "file": "MASTER_INDEX.md", "fix": "Update prism_session from 30 to 32, prism_hook from 18 to 20, prism_atcs from 10 to 12", "priority": "P2" },
+    { "file": "MASTER_INDEX.md", "fix": "Verify prism_autopilot_d (doc=8, code=7)", "priority": "P2" },
+    { "file": "MASTER_INDEX.md", "fix": "Add engine inventory section (169 engines)", "priority": "P1" },
+    { "file": "CLAUDE.md", "fix": "Update hook count from '27 hooks + 12 workers' to '157 hooks across 17 categories'", "priority": "P1" },
+    { "file": "CLAUDE.md", "fix": "Update action count references", "priority": "P1" }
+  ]
+}

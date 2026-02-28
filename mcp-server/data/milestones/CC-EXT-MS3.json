@@ -9,49 +9,449 @@
     {
       "id": "P0",
       "title": "Sensor-Based Learning Engine",
-      "description": "Ingest and learn from CNC sensor data: vibration, power, temperature, acoustic emission.",
+      "description": "Build a sensor data ingestion and learning pipeline covering MTConnect/OPC-UA protocols, signal processing, anomaly detection, cutting condition correlation, and tool wear prediction from vibration, power, temperature, and acoustic emission data.",
       "sessions": "3-4",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Sensor-Based Learning Engine",
+          "title": "Sensor Data Ingestion (MTConnect/OPC-UA)",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-MS11"],
           "entry_conditions": [
-            "CC-MS11 complete"
+            "CC-MS11 complete",
+            "Python 3.10+ available",
+            "mtconnect-python and opcua libraries installed"
           ],
           "exit_conditions": [
-            "Sensor-Based Learning Engine complete",
+            "sensor_ingestion.py connects to MTConnect agents and OPC-UA servers",
+            "Real-time data streaming: vibration (3-axis accelerometer), spindle power, temperature (tool/workpiece/coolant), acoustic emission",
+            "Batch import: ingest historical sensor logs in CSV/HDF5/TDMS formats",
+            "Data normalization: all signals resampled to common time base with configurable sample rate",
+            "Metadata capture: machine ID, operation type, tool ID, material, timestamp, sample rate",
+            "Data storage: time-series database (HDF5 or SQLite) with indexed retrieval",
+            "Handles connection drops gracefully with auto-reconnect",
             "Build passes",
-            "Tests pass"
+            "Tests pass with simulated MTConnect/OPC-UA data"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS3]",
+          "rollback": "git checkout -- cad-engine/src/sensors/sensor_ingestion.py cad-engine/tests/test_sensor_ingestion.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Sensor-Based Learning Engine per roadmap spec"
+              "instruction": "Create cad-engine/src/sensors/ directory structure"
+            },
+            {
+              "number": 2,
+              "instruction": "Build sensor_ingestion.py: MTConnect client (HTTP/XML agent polling), OPC-UA client (subscription-based), unified data model for both protocols"
+            },
+            {
+              "number": 3,
+              "instruction": "Add batch import: parse CSV (time,channel,value), HDF5 (datasets per channel), TDMS (National Instruments format) into unified SensorStream objects"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement data normalization: resample all channels to common time base using interpolation, handle missing samples, align multi-rate sensors"
+            },
+            {
+              "number": 5,
+              "instruction": "Add metadata capture and time-series storage with indexed retrieval (by time range, machine, operation)"
+            },
+            {
+              "number": 6,
+              "instruction": "Add connection resilience: auto-reconnect on drop, buffer data during outages, backfill on reconnect"
+            },
+            {
+              "number": 7,
+              "instruction": "Write tests with simulated MTConnect XML responses and OPC-UA data points"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/src/sensors/__init__.py", "type": "source", "description": "Sensors package init" },
+            { "path": "cad-engine/src/sensors/sensor_ingestion.py", "type": "source", "description": "MTConnect/OPC-UA data ingestion with batch import and normalization" },
+            { "path": "cad-engine/src/sensors/sensor_schema.py", "type": "source", "description": "SensorStream dataclass and storage schema" },
+            { "path": "cad-engine/tests/test_sensor_ingestion.py", "type": "test", "description": "Tests for sensor data ingestion across protocols and formats" },
+            { "path": "cad-engine/data/test_sensors/", "type": "data", "description": "Simulated sensor data files for testing" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Signal Processing Pipeline",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS3:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "Sensor ingestion producing SensorStream objects",
+            "scipy/numpy installed for signal processing"
+          ],
+          "exit_conditions": [
+            "signal_processor.py implements time-domain features: RMS, peak, crest factor, kurtosis, skewness per window",
+            "Frequency-domain features: FFT, PSD, dominant frequencies, harmonic analysis",
+            "Time-frequency features: STFT, wavelet decomposition for non-stationary signals",
+            "Configurable window size and overlap for all feature extractors",
+            "Feature output as structured arrays with timestamp alignment",
+            "Processing handles 100K+ samples/second without bottleneck",
+            "Build passes",
+            "Tests pass with known synthetic signals"
+          ],
+          "rollback": "git checkout -- cad-engine/src/sensors/signal_processor.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build signal_processor.py: windowed feature extraction framework with configurable window size (default 1024 samples) and overlap (default 50%)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement time-domain features: RMS, peak amplitude, crest factor, kurtosis, skewness, zero-crossing rate per window"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement frequency-domain features: FFT magnitude spectrum, PSD via Welch method, dominant frequency extraction, harmonic ratio analysis"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement time-frequency features: STFT spectrogram, continuous wavelet transform (CWT) with Morlet wavelet for non-stationary chatter detection"
+            },
+            {
+              "number": 5,
+              "instruction": "Optimize for throughput: vectorized numpy operations, pre-allocated output buffers, >100K samples/sec sustained"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: known sinusoidal input (verify FFT peaks), known impulsive signal (verify kurtosis), known chirp (verify STFT)"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/sensors/signal_processor.py", "type": "source", "description": "Time/frequency/time-frequency feature extraction pipeline" },
+            { "path": "cad-engine/tests/test_signal_processor.py", "type": "test", "description": "Tests with synthetic signals of known characteristics" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Anomaly Detection",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS3:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Signal processing features available",
+            "scikit-learn installed for ML models"
+          ],
+          "exit_conditions": [
+            "anomaly_detector.py identifies abnormal cutting conditions from sensor features",
+            "Chatter detection: frequency-domain analysis identifies regenerative chatter onset",
+            "Tool breakage detection: sudden vibration/force spike with acoustic emission burst",
+            "Thermal anomaly: temperature exceeding material-specific thresholds",
+            "Power anomaly: spindle power deviation beyond 2-sigma from baseline",
+            "Real-time alerting: anomaly detected within 500ms of onset",
+            "False positive rate < 5% on test data set",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/sensors/anomaly_detector.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build anomaly_detector.py: baseline learning phase (establish normal operating ranges per operation type), then detect deviations"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement chatter detection: monitor vibration FFT for emergent peaks at tooth-passing frequency harmonics, compare against stability lobe diagram predictions"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement tool breakage detection: sudden vibration RMS spike (>5x baseline) coinciding with acoustic emission burst and power drop"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement thermal anomaly detection: track temperature trends, alert when exceeding material-specific thresholds (stored in knowledge base)"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement statistical process control: CUSUM and EWMA on power/vibration features for slow drift detection"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: synthetic chatter signal, synthetic breakage event, normal operation (verify no false alarms), gradual drift scenario"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/sensors/anomaly_detector.py", "type": "source", "description": "Multi-mode anomaly detection for chatter, breakage, thermal, and power anomalies" },
+            { "path": "cad-engine/tests/test_anomaly_detector.py", "type": "test", "description": "Tests for each anomaly type with synthetic data" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Cutting Condition Correlation",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS3:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Signal processing features available",
+            "prism_calc available for physics cross-check"
+          ],
+          "exit_conditions": [
+            "condition_correlator.py links sensor signatures to cutting conditions",
+            "Vibration signature -> depth of cut and feed rate correlation (R-squared > 0.7)",
+            "Power consumption -> material removal rate correlation",
+            "Temperature profile -> tool wear state mapping",
+            "Acoustic emission -> surface finish quality correlation",
+            "Cross-validation against prism_calc physics predictions",
+            "Correlation models stored as reusable knowledge for future predictions",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/sensors/condition_correlator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build condition_correlator.py: multi-variate regression framework linking sensor features to cutting parameters"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement vibration-to-cutting-condition model: map vibration RMS, kurtosis, and spectral features to DOC/feed combinations"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement power-to-MRR model: calibrate spindle power against known material removal rates, detect deviations indicating tool dulling"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement temperature-wear mapping: correlate temperature trends with progressive tool wear states (fresh, worn, end-of-life)"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement AE-surface-finish correlation: link acoustic emission RMS to achieved surface roughness (Ra)"
+            },
+            {
+              "number": 6,
+              "instruction": "Cross-validate all models against prism_calc predictions, flag significant deviations"
+            },
+            {
+              "number": 7,
+              "instruction": "Write tests with labeled sensor data sets (known cutting conditions and outcomes)"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/sensors/condition_correlator.py", "type": "source", "description": "Sensor-to-cutting-condition correlation models" },
+            { "path": "cad-engine/tests/test_condition_correlator.py", "type": "test", "description": "Tests for correlation accuracy with labeled data" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Tool Wear Prediction Model",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS3:P0-U03", "CC-EXT-MS3:P0-U04"],
+          "entry_conditions": [
+            "P0-U03 and P0-U04 complete",
+            "Anomaly detection and condition correlation operational",
+            "Taylor tool life model from prism_calc available as baseline"
+          ],
+          "exit_conditions": [
+            "wear_predictor.py predicts remaining useful tool life from sensor data",
+            "Integrates Taylor model baseline with sensor-derived corrections",
+            "Sensor features used: vibration trend, power trend, temperature trend, AE energy trend",
+            "Prediction output: estimated remaining life (minutes), confidence interval, recommended action (continue/monitor/change)",
+            "Prediction accuracy within 20% of actual tool life on test data",
+            "Updates predictions in real-time as new sensor data arrives",
+            "Stores learned wear curves per tool-material-operation combination",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/sensors/wear_predictor.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build wear_predictor.py: hybrid model combining Taylor baseline (analytical) with sensor-derived correction factor (data-driven)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement feature fusion: combine vibration trend slope, power increase rate, temperature trajectory, AE energy growth into unified wear index"
+            },
+            {
+              "number": 3,
+              "instruction": "Build remaining life estimator: map current wear index to remaining life using learned wear curves, output with confidence interval"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement action recommender: CONTINUE (>50% life remaining), MONITOR (20-50% life remaining), CHANGE (< 20% or anomaly detected)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add wear curve learning: store and refine wear curves per tool-material-operation combination from accumulated sensor data"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: simulated wear progression (fresh to end-of-life), sudden breakage event, multi-tool comparison"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/sensors/wear_predictor.py", "type": "source", "description": "Hybrid tool wear prediction combining Taylor model with sensor learning" },
+            { "path": "cad-engine/tests/test_wear_predictor.py", "type": "test", "description": "Tests for wear prediction accuracy across tool life stages" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "Integration Tests with Simulated Sensor Streams",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS3:P0-U05"],
+          "entry_conditions": [
+            "P0-U05 complete",
+            "Full sensor pipeline operational: ingest -> process -> detect -> correlate -> predict"
+          ],
+          "exit_conditions": [
+            "E2E test: sensor stream -> signal processing -> anomaly detection -> condition correlation -> wear prediction",
+            "Simulated normal machining: no false alarms, correct condition correlation, reasonable wear prediction",
+            "Simulated chatter onset: detected within 500ms, correct frequency identification",
+            "Simulated tool wear progression: wear prediction within 20% of actual at 50% and 80% life points",
+            "Simulated breakage: detected within 100ms of event",
+            "Multi-sensor fusion: all 4 sensor types (vibration, power, temperature, AE) contribute to predictions",
+            "Pipeline throughput: processes real-time sensor streams at 10kHz without data loss",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/integration/test_sensor_e2e.py cad-engine/data/test_sensors/simulated/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build sensor stream simulator: generate realistic multi-channel sensor data for normal machining, chatter, wear progression, and breakage scenarios"
+            },
+            {
+              "number": 2,
+              "instruction": "Build E2E integration test: ingest simulated stream -> process signals -> detect anomalies -> correlate conditions -> predict wear"
+            },
+            {
+              "number": 3,
+              "instruction": "Test normal machining scenario: 10-minute simulated cut, verify no false alarms, condition correlation matches programmed values"
+            },
+            {
+              "number": 4,
+              "instruction": "Test chatter onset scenario: gradually increasing chatter, verify detection within 500ms and correct frequency identification"
+            },
+            {
+              "number": 5,
+              "instruction": "Test tool wear progression: simulate full tool life, verify prediction accuracy at 50% and 80% life checkpoints"
+            },
+            {
+              "number": 6,
+              "instruction": "Test breakage scenario: sudden catastrophic event, verify detection within 100ms"
+            },
+            {
+              "number": 7,
+              "instruction": "Throughput test: sustain 10kHz 4-channel data stream, verify zero data loss and processing keeps up in real-time"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/integration/test_sensor_e2e.py", "type": "test", "description": "End-to-end integration tests for full sensor pipeline" },
+            { "path": "cad-engine/tests/integration/test_sensor_scenarios.py", "type": "test", "description": "Scenario tests: normal, chatter, wear, breakage" },
+            { "path": "cad-engine/tests/integration/test_sensor_performance.py", "type": "test", "description": "Throughput and real-time processing tests" },
+            { "path": "cad-engine/src/sensors/stream_simulator.py", "type": "source", "description": "Realistic multi-channel sensor data simulator for testing" },
+            { "path": "cad-engine/data/test_sensors/simulated/", "type": "data", "description": "Pre-generated simulated sensor datasets" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -61,7 +461,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -69,7 +469,13 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "Chatter detected within 500ms of onset",
+          "Tool breakage detected within 100ms",
+          "Wear prediction within 20% of actual",
+          "False positive rate < 5%",
+          "10kHz throughput sustained without data loss"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -80,27 +486,31 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/src/sensors/sensor_ingestion.py", "type": "source", "description": "MTConnect/OPC-UA data ingestion" },
+    { "path": "cad-engine/src/sensors/signal_processor.py", "type": "source", "description": "Signal processing feature extraction" },
+    { "path": "cad-engine/src/sensors/anomaly_detector.py", "type": "source", "description": "Multi-mode anomaly detection" },
+    { "path": "cad-engine/src/sensors/condition_correlator.py", "type": "source", "description": "Sensor-to-cutting-condition correlation" },
+    { "path": "cad-engine/src/sensors/wear_predictor.py", "type": "source", "description": "Hybrid tool wear prediction" },
+    { "path": "cad-engine/src/sensors/stream_simulator.py", "type": "source", "description": "Sensor data simulator for testing" }
+  ],
+  "existing_leverage": [
+    { "asset": "prism_calc Taylor model", "type": "tool", "description": "Analytical tool life baseline for hybrid wear prediction" },
+    { "asset": "prism_calc Kienzle model", "type": "tool", "description": "Force/power predictions for sensor correlation validation" },
+    { "asset": "CC-MS11 knowledge base", "type": "data", "description": "Material-specific thresholds and cutting condition ranges" },
+    { "asset": "prism_validate", "type": "tool", "description": "Safety validation for anomaly detection thresholds" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,

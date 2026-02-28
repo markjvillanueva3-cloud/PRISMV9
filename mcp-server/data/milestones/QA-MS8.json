@@ -1,0 +1,144 @@
+{
+  "id": "QA-MS8",
+  "version": "1.0.0",
+  "title": "Manufacturing Dispatchers",
+  "brief": "Audit manufacturing dispatchers: prism_calc (all calculation actions vs engine methods), prism_thread (threading actions + ThreadEngine), prism_toolpath (680 strategies, action routing), prism_manus (manufacturing-specific actions), and parameter normalization consistency.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Manufacturing Dispatchers Audit",
+      "description": "Verify manufacturing dispatcher actions are correctly wired to engines, strategies are accessible, and parameter normalization is consistent.",
+      "sessions": "2",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "prism_calc: all calculation actions vs engine methods",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — core calculation dispatcher",
+          "tools": [{ "tool": "prism_calc" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS7 registry audit complete"],
+          "exit_conditions": ["All prism_calc actions mapped to engine methods", "Unwired actions identified", "Engine methods without dispatcher actions identified"],
+          "rollback": "git checkout -- state/QA-MS8/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_calc dispatcher actions" },
+            { "number": 2, "instruction": "Map each action to its calculation engine method" },
+            { "number": 3, "instruction": "Identify actions without engine implementations" },
+            { "number": 4, "instruction": "Identify engine methods without dispatcher actions" },
+            { "number": 5, "instruction": "Document in state/QA-MS8/prism-calc-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS8/prism-calc-audit.json", "type": "data", "description": "prism_calc dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "prism_thread: threading actions + ThreadEngine coverage",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — threading dispatcher audit",
+          "tools": [{ "tool": "prism_thread" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["prism_calc audit complete"],
+          "exit_conditions": ["All threading actions mapped", "Thread standard coverage assessed (ISO, UNC, UNF, etc.)", "ThreadEngine method coverage verified"],
+          "rollback": "git checkout -- state/QA-MS8/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_thread actions" },
+            { "number": 2, "instruction": "Map to ThreadEngine methods" },
+            { "number": 3, "instruction": "Verify thread standard coverage" },
+            { "number": 4, "instruction": "Document in state/QA-MS8/prism-thread-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS8/prism-thread-audit.json", "type": "data", "description": "prism_thread dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "prism_toolpath: 680 strategies, action routing verification",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — 680 strategies is a large surface area",
+          "tools": [{ "tool": "prism_toolpath" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["prism_thread audit complete"],
+          "exit_conditions": ["Strategy count verified (680)", "Action routing to strategy engines verified", "Strategy category distribution documented"],
+          "rollback": "git checkout -- state/QA-MS8/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_toolpath actions and strategy routes" },
+            { "number": 2, "instruction": "Verify strategy count matches claimed 680" },
+            { "number": 3, "instruction": "Verify routing from actions to strategy engine methods" },
+            { "number": 4, "instruction": "Document category distribution" },
+            { "number": 5, "instruction": "Document in state/QA-MS8/prism-toolpath-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS8/prism-toolpath-audit.json", "type": "data", "description": "prism_toolpath dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "prism_manus: manufacturing-specific actions audit",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — manufacturing dispatcher review",
+          "tools": [{ "tool": "prism_manus" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["prism_toolpath audit complete"],
+          "exit_conditions": ["All prism_manus actions inventoried", "Engine coverage verified", "Manufacturing process coverage assessed"],
+          "rollback": "git checkout -- state/QA-MS8/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all prism_manus actions" },
+            { "number": 2, "instruction": "Map to manufacturing engine methods" },
+            { "number": 3, "instruction": "Assess manufacturing process coverage" },
+            { "number": 4, "instruction": "Document in state/QA-MS8/prism-manus-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS8/prism-manus-audit.json", "type": "data", "description": "prism_manus dispatcher audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Parameter normalization consistency across manufacturing dispatchers",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — cross-dispatcher consistency check",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["All manufacturing dispatcher audits complete"],
+          "exit_conditions": ["Parameter naming conventions consistent across dispatchers", "Unit systems consistent (metric/imperial handling)", "Default value policies consistent"],
+          "rollback": "git checkout -- state/QA-MS8/",
+          "steps": [
+            { "number": 1, "instruction": "Compare parameter naming across prism_calc, prism_thread, prism_toolpath, prism_manus" },
+            { "number": 2, "instruction": "Verify unit handling consistency (metric/imperial)" },
+            { "number": 3, "instruction": "Check default value policies across dispatchers" },
+            { "number": 4, "instruction": "Document in state/QA-MS8/parameter-normalization-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS8/parameter-normalization-audit.json", "type": "data", "description": "Parameter normalization consistency audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All manufacturing dispatchers audited", "Parameter normalization consistent"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_thread", "phases": ["P0"] },
+    { "tool": "prism_toolpath", "phases": ["P0"] },
+    { "tool": "prism_manus", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS8/prism-calc-audit.json", "type": "data", "description": "prism_calc audit" },
+    { "path": "state/QA-MS8/prism-thread-audit.json", "type": "data", "description": "prism_thread audit" },
+    { "path": "state/QA-MS8/prism-toolpath-audit.json", "type": "data", "description": "prism_toolpath audit" },
+    { "path": "state/QA-MS8/prism-manus-audit.json", "type": "data", "description": "prism_manus audit" },
+    { "path": "state/QA-MS8/parameter-normalization-audit.json", "type": "data", "description": "Parameter normalization" }
+  ],
+  "existing_leverage": [
+    { "asset": "Manufacturing dispatchers", "type": "source", "count": 4, "usage": "Primary audit targets" },
+    { "asset": "Toolpath strategies", "type": "data", "count": 680, "usage": "Strategy verification" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

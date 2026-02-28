@@ -1,9 +1,11 @@
 # PRISM MCP Server — Master Index
-# Verified: 2026-02-25 (S1-MS1 Registry Enrichment Complete)
+# Verified: 2026-02-27 (QA-MS0 Baseline Audit Complete)
 # Source: C:\PRISM\mcp-server\src
-# TRUTH SOURCE — All counts verified against actual dispatcher code
+# TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (45 dispatchers, 684 verified actions)
+## 1. DISPATCHERS (45 dispatchers, 1060 verified actions)
+## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
+## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
 ### prism_atcs (atcsDispatcher.ts, 1077L)
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
@@ -98,8 +100,9 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-### prism_intelligence (intelligenceDispatcher.ts)
-Actions (27): job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format
+### prism_intelligence (intelligenceDispatcher.ts) — MEGA-DISPATCHER
+Actions (489 total = 250 main + 239 sub-engine): MAIN: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format, setup_sheet_template, skill_list, skill_get, skill_search, skill_match, skill_steps, skill_for_persona, conversation_context, conversation_transition, job_start, job_update, job_find, job_resume, job_complete, job_list_recent, assist_list, assist_get, assist_search, assist_match, assist_explain, assist_confidence, assist_mistakes, assist_safety, + ~200 more main actions + 31 sub-engine arrays (LEARNING_ACTIONS, SCHEDULER_ACTIONS, PFP_ACTIONS, MEMORY_ACTIONS, TELEMETRY_ACTIONS, etc.)
+NOTE: Full action list requires QA-MS6 decomposition audit. This dispatcher holds 46% of all system actions.
 
 ### prism_l2 (l2EngineDispatcher.ts)
 Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_models, cad_geometry, cad_mesh, cad_curve, cad_capabilities, cam_toolpath, cam_gcode, cam_collision, cam_chip_thinning, cam_capabilities, file_parse, file_generate, file_formats, sim_gcode, sim_cycle_time, sim_verify, sim_capabilities, viz_scene, viz_toolpath, viz_heatmap, viz_presets, report_setup_sheet, report_cost, report_tool_list, report_speed_feed, report_alarm, report_inspection, report_templates, settings_get, settings_update, settings_convert, settings_presets, settings_safety, settings_apply_preset
@@ -140,7 +143,7 @@ Actions (5): oee_calc, bottleneck, digital_thread, work_instructions, shift_hand
 ### prism_auth (authDispatcher.ts)
 Actions (8): login, register, refresh_token, change_password, role_assign, permission_check, session_manage, mfa_setup
 
-**Total: 45 dispatchers, 684 actions**
+**Total: 45 dispatchers, 1060 actions** (verified QA-MS0 2026-02-27)
 
 ---
 

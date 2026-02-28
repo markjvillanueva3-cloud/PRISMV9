@@ -1,0 +1,198 @@
+{
+  "id": "QA-MS5",
+  "version": "1.0.0",
+  "title": "Algorithm Suite Part 2 — Optimization & ML",
+  "brief": "Audit optimization and ML algorithms: AlgorithmRegistry reconciliation (17 registered vs 52 files), genetic/evolutionary optimization, gradient descent, Monte Carlo simulations, neural network inference, statistical process control, cost optimization, and algorithm-to-engine wiring verification.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Optimization & ML Algorithm Audit",
+      "description": "Verify optimization algorithms, ML models, statistical methods, and reconcile the AlgorithmRegistry against actual algorithm files. Verify wiring to engines.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "AlgorithmRegistry: 17 registered vs 52 files reconciliation",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — foundational count reconciliation for algorithm suite",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS4 physics algorithm audit complete"],
+          "exit_conditions": ["Exact count of registered algorithms determined", "Exact count of algorithm files determined", "Gap between registered and file counts explained (helpers, utilities, tests, etc.)"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all entries in AlgorithmRegistry" },
+            { "number": 2, "instruction": "Enumerate all .ts files in src/algorithms/" },
+            { "number": 3, "instruction": "Categorize unregistered files (helpers, index, types, tests)" },
+            { "number": 4, "instruction": "Identify algorithms that should be registered but aren't" },
+            { "number": 5, "instruction": "Document in state/QA-MS5/algorithm-registry-reconciliation.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/algorithm-registry-reconciliation.json", "type": "data", "description": "AlgorithmRegistry reconciliation report" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Genetic/evolutionary optimization algorithms",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — optimization algorithm review",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Registry reconciliation complete"],
+          "exit_conditions": ["Selection, crossover, mutation operators verified", "Fitness function wiring verified", "Convergence criteria and population size parameters validated"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate genetic/evolutionary algorithm implementations" },
+            { "number": 2, "instruction": "Verify selection, crossover, mutation operator correctness" },
+            { "number": 3, "instruction": "Verify fitness function integration with PRISM engines" },
+            { "number": 4, "instruction": "Document in state/QA-MS5/genetic-algorithm-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/genetic-algorithm-audit.json", "type": "data", "description": "Genetic/evolutionary algorithm audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Gradient descent / parameter optimization",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — gradient method review",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Genetic algorithm audit complete"],
+          "exit_conditions": ["Learning rate scheduling verified", "Gradient computation verified", "Convergence detection and early stopping verified"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate gradient descent / optimization implementations" },
+            { "number": 2, "instruction": "Verify gradient computation and update rules" },
+            { "number": 3, "instruction": "Check learning rate scheduling and convergence detection" },
+            { "number": 4, "instruction": "Document in state/QA-MS5/gradient-descent-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/gradient-descent-audit.json", "type": "data", "description": "Gradient descent audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Monte Carlo simulation implementations",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — stochastic simulation review",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Gradient descent audit complete"],
+          "exit_conditions": ["Random sampling distribution correctness verified", "Sample size adequacy logic verified", "Confidence interval calculation verified"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate Monte Carlo simulation implementations" },
+            { "number": 2, "instruction": "Verify random sampling distributions match specifications" },
+            { "number": 3, "instruction": "Verify confidence interval calculation" },
+            { "number": 4, "instruction": "Document in state/QA-MS5/monte-carlo-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/monte-carlo-audit.json", "type": "data", "description": "Monte Carlo simulation audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Neural network / ML inference engines",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — ML models require careful validation",
+          "tools": [{ "tool": "prism_calc" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Monte Carlo audit complete"],
+          "exit_conditions": ["Network architecture verification", "Weight loading and inference pipeline verified", "Input normalization and output denormalization verified"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate all neural network / ML inference implementations" },
+            { "number": 2, "instruction": "Verify network architectures and layer configurations" },
+            { "number": 3, "instruction": "Verify weight loading and inference pipeline" },
+            { "number": 4, "instruction": "Verify input/output normalization" },
+            { "number": 5, "instruction": "Document in state/QA-MS5/ml-inference-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/ml-inference-audit.json", "type": "data", "description": "ML inference engine audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Statistical process control algorithms",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — SPC algorithm review",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["ML inference audit complete"],
+          "exit_conditions": ["Control chart limit calculations verified", "Capability indices (Cp, Cpk) verified", "Out-of-control detection rules verified"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate SPC algorithm implementations" },
+            { "number": 2, "instruction": "Verify control limit calculations (UCL, LCL, CL)" },
+            { "number": 3, "instruction": "Verify Cp and Cpk calculations" },
+            { "number": 4, "instruction": "Document in state/QA-MS5/spc-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/spc-audit.json", "type": "data", "description": "SPC algorithm audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Cost optimization / multi-objective algorithms",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — cost/optimization review",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"], "entry_conditions": ["SPC audit complete"],
+          "exit_conditions": ["Cost function formulation verified", "Multi-objective Pareto logic verified", "Constraint handling verified"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "Locate cost optimization and multi-objective algorithms" },
+            { "number": 2, "instruction": "Verify cost function components and weights" },
+            { "number": 3, "instruction": "Verify Pareto front computation if present" },
+            { "number": 4, "instruction": "Document in state/QA-MS5/cost-optimization-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/cost-optimization-audit.json", "type": "data", "description": "Cost optimization audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Algorithm-to-engine wiring verification",
+          "phase": "P0", "sequence": 7, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — wiring completeness check",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U06"], "entry_conditions": ["All algorithm audits complete"],
+          "exit_conditions": ["Every registered algorithm mapped to consuming engine(s)", "Unwired algorithms identified", "Wiring coverage percentage calculated"],
+          "rollback": "git checkout -- state/QA-MS5/",
+          "steps": [
+            { "number": 1, "instruction": "For each registered algorithm, find engine imports/calls" },
+            { "number": 2, "instruction": "Build algorithm → engine dependency graph" },
+            { "number": 3, "instruction": "Identify algorithms with no engine consumers" },
+            { "number": 4, "instruction": "Calculate wiring coverage %" },
+            { "number": 5, "instruction": "Document in state/QA-MS5/algorithm-wiring-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS5/algorithm-wiring-audit.json", "type": "data", "description": "Algorithm-to-engine wiring verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Algorithm registry reconciled", "All wiring gaps documented"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 8,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS5/algorithm-registry-reconciliation.json", "type": "data", "description": "Registry reconciliation" },
+    { "path": "state/QA-MS5/genetic-algorithm-audit.json", "type": "data", "description": "GA audit" },
+    { "path": "state/QA-MS5/gradient-descent-audit.json", "type": "data", "description": "Gradient descent audit" },
+    { "path": "state/QA-MS5/monte-carlo-audit.json", "type": "data", "description": "Monte Carlo audit" },
+    { "path": "state/QA-MS5/ml-inference-audit.json", "type": "data", "description": "ML inference audit" },
+    { "path": "state/QA-MS5/spc-audit.json", "type": "data", "description": "SPC audit" },
+    { "path": "state/QA-MS5/cost-optimization-audit.json", "type": "data", "description": "Cost optimization audit" },
+    { "path": "state/QA-MS5/algorithm-wiring-audit.json", "type": "data", "description": "Wiring verification" }
+  ],
+  "existing_leverage": [
+    { "asset": "AlgorithmRegistry", "type": "source", "count": 17, "usage": "Registry reconciliation target" },
+    { "asset": "Algorithm files", "type": "source", "count": 52, "usage": "File inventory target" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

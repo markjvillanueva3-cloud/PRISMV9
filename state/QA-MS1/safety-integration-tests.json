@@ -1,0 +1,235 @@
+{
+  "unit": "P0-U06",
+  "title": "Safety Chain Integration Test Design",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+
+  "test_suite": "safety-chain-integration",
+  "total_tests": 24,
+  "priority_levels": { "P0_critical": 10, "P1_important": 8, "P2_coverage": 6 },
+
+  "tests": [
+    {
+      "id": "SCT-001", "priority": "P0", "category": "S(x) Boundary",
+      "title": "S(x) = 0.69 must BLOCK",
+      "setup": "Material with all components scored to produce totalScore = 0.69",
+      "action": "computeSafetyScore(material)",
+      "assert": "status === 'BLOCKED' AND score < 0.70"
+    },
+    {
+      "id": "SCT-002", "priority": "P0", "category": "S(x) Boundary",
+      "title": "S(x) = 0.70 must APPROVE",
+      "setup": "Material with all components scored to produce totalScore = 0.70",
+      "action": "computeSafetyScore(material)",
+      "assert": "status === 'APPROVED' AND score >= 0.70"
+    },
+    {
+      "id": "SCT-003", "priority": "P0", "category": "S(x) Critical Data",
+      "title": "Missing kc1_1/mc forces BLOCK even with high total score",
+      "setup": "Material with perfect thermal/capability/hardness but NO kc1_1 or mc",
+      "action": "computeSafetyScore(material)",
+      "assert": "status === 'BLOCKED' AND issues includes 'HARD BLOCK'"
+    },
+    {
+      "id": "SCT-004", "priority": "P0", "category": "S(x) Critical Data",
+      "title": "Missing Taylor C/n forces BLOCK even with high total score",
+      "setup": "Material with perfect physical/force but NO taylor_C or taylor_n",
+      "action": "computeSafetyScore(material)",
+      "assert": "status === 'BLOCKED' AND issues includes 'HARD BLOCK'"
+    },
+    {
+      "id": "SCT-005", "priority": "P0", "category": "S(x) Weight Sum",
+      "title": "Component weights sum to exactly 1.0",
+      "setup": "Extract weights from components object",
+      "action": "Sum all component.weight values",
+      "assert": "total === 1.0 (not 0.99 or 1.01)"
+    },
+    {
+      "id": "SCT-006", "priority": "P0", "category": "SafetyBlockError",
+      "title": "SafetyBlockError propagates through calcDispatcher",
+      "setup": "Mock crossFieldPhysics to throw SafetyBlockError",
+      "action": "Call prism_calc with params that trigger cross-field physics check",
+      "assert": "Error propagates — not caught by dispatcher catch block"
+    },
+    {
+      "id": "SCT-007", "priority": "P0", "category": "Coolant Speed Bracket",
+      "title": "Speed > 300 m/min applies 1.4x flow multiplier",
+      "setup": "CoolantValidation with cuttingSpeed=350, known toolDiameter and operation",
+      "action": "validateCoolantFlow(params)",
+      "assert": "requiredFlow === baseFlow × diameter × materialFactor × 1.4"
+    },
+    {
+      "id": "SCT-008", "priority": "P0", "category": "Coolant Speed Bracket",
+      "title": "Speed 200-300 m/min applies 1.2x flow multiplier",
+      "setup": "CoolantValidation with cuttingSpeed=250",
+      "action": "validateCoolantFlow(params)",
+      "assert": "requiredFlow === baseFlow × diameter × materialFactor × 1.2"
+    },
+    {
+      "id": "SCT-009", "priority": "P0", "category": "Coolant Pressure",
+      "title": "L/D=20 boundary produces 100 bar (not 150)",
+      "setup": "Drilling with L/D ratio exactly 19.99",
+      "action": "checkThroughSpindleCoolant(params)",
+      "assert": "requiredPressure === 100 (LD<20 bracket)"
+    },
+    {
+      "id": "SCT-010", "priority": "P0", "category": "Coolant Pressure",
+      "title": "L/D=20.0 produces 150 bar (gundrilling)",
+      "setup": "Drilling with L/D ratio exactly 20.0",
+      "action": "checkThroughSpindleCoolant(params)",
+      "assert": "requiredPressure === 150 (LD>=20 bracket)"
+    },
+    {
+      "id": "SCT-011", "priority": "P1", "category": "Lambda Validation",
+      "title": "Negative speed triggers Lambda deduction",
+      "setup": "Calculation result with cutting_speed = -100",
+      "action": "validateSafetyProof(context)",
+      "assert": "validity_score <= 0.70 AND issues includes 'Negative'"
+    },
+    {
+      "id": "SCT-012", "priority": "P1", "category": "Lambda Validation",
+      "title": "Lambda < 0.50 injects _safety_warning",
+      "setup": "Calculation result with multiple physics violations",
+      "action": "Full autoHookWrapper proxy execution",
+      "assert": "result._safety_warning exists AND lambda_score < 0.50"
+    },
+    {
+      "id": "SCT-013", "priority": "P1", "category": "Phi Validation",
+      "title": "Content with claim indicators triggers Phi check",
+      "setup": "Web search result containing 'studies show' and 'research indicates'",
+      "action": "verifyFactualClaims(content)",
+      "assert": "phi_score < 1.0 AND caveats.length > 0"
+    },
+    {
+      "id": "SCT-014", "priority": "P1", "category": "Phi Validation",
+      "title": "Manufacturing calc results don't trigger Phi",
+      "setup": "prism_calc result (not in webTools list)",
+      "action": "Full autoHookWrapper proxy execution",
+      "assert": "result._fact_verification is undefined (not applied)"
+    },
+    {
+      "id": "SCT-015", "priority": "P1", "category": "Safety Dispatcher",
+      "title": "All 29 safety actions return without crash",
+      "setup": "Minimal valid params for each action category",
+      "action": "Call prism_safety with each of 29 actions",
+      "assert": "No uncaught exceptions, each returns structured result"
+    },
+    {
+      "id": "SCT-016", "priority": "P1", "category": "Coolant Material",
+      "title": "Titanium applies 1.5x material factor to flow",
+      "setup": "CoolantValidation with materialType=TITANIUM, MILLING_GENERAL, diameter=12",
+      "action": "validateCoolantFlow(params)",
+      "assert": "requiredFlow includes 1.5x material factor"
+    },
+    {
+      "id": "SCT-017", "priority": "P1", "category": "Coolant MQL",
+      "title": "MQL + GRINDING returns NOT_RECOMMENDED",
+      "setup": "MQL validation with operation=GRINDING",
+      "action": "validateMqlParameters(params)",
+      "assert": "compatibility === NOT_RECOMMENDED"
+    },
+    {
+      "id": "SCT-018", "priority": "P1", "category": "Chip Evacuation",
+      "title": "L/D > 20 requires GUNDRILLING strategy",
+      "setup": "Chip evacuation with L/D = 25",
+      "action": "calculateChipEvacuation(params)",
+      "assert": "evacuationType === GUNDRILLING AND pressure >= 150"
+    },
+    {
+      "id": "SCT-019", "priority": "P2", "category": "S(x) Density",
+      "title": "Density in kg/m³ auto-normalizes to g/cm³",
+      "setup": "Material with density=7850 (kg/m³ for steel)",
+      "action": "computeSafetyScore(material)",
+      "assert": "physical_limits.score includes 0.5 for valid density (7.85 g/cm³)"
+    },
+    {
+      "id": "SCT-020", "priority": "P2", "category": "S(x) Edge Cases",
+      "title": "Inverted hardness range produces score=0",
+      "setup": "Material with hardness_min=60, hardness_max=40",
+      "action": "computeSafetyScore(material)",
+      "assert": "edge_cases.score === 0 AND issues includes 'invalid'"
+    },
+    {
+      "id": "SCT-021", "priority": "P2", "category": "Safety Factor Order",
+      "title": "ChuckJawForce SF computed from force result, not as input",
+      "setup": "Inspect ChuckJawForceEngine.calculate() output",
+      "action": "Calculate with known inputs",
+      "assert": "safety_factor = holding_force / required_force (output ratio, not input multiplier)"
+    },
+    {
+      "id": "SCT-022", "priority": "P2", "category": "Safety Factor Order",
+      "title": "ClampingSim applies SF after force calculation",
+      "setup": "Trace ClampingSimEngine.calculate() execution order",
+      "action": "Verify F_required uses F_cutting (calculated) × SF",
+      "assert": "SF appears in formula after F_cutting computation"
+    },
+    {
+      "id": "SCT-023", "priority": "P2", "category": "Coolant Pressure Boundary",
+      "title": "L/D=3 boundary transitions from 10 to 20 bar",
+      "setup": "Two calls: L/D=2.99 and L/D=3.0",
+      "action": "checkThroughSpindleCoolant for each",
+      "assert": "2.99 → 10 bar, 3.0 → 20 bar"
+    },
+    {
+      "id": "SCT-024", "priority": "P2", "category": "Thermal Status",
+      "title": "Inadequate flow triggers RISK thermal status",
+      "setup": "CoolantValidation where availableFlow < requiredFlow",
+      "action": "Full coolant validation",
+      "assert": "thermalStatus === 'RISK'"
+    }
+  ],
+
+  "addendum_tests_from_deep_audit": [
+    {
+      "id": "SCT-025", "priority": "P0", "category": "Coolant MQL Unit Bug",
+      "title": "MQL flow through validateCoolant uses correct mL/hr units",
+      "setup": "CoolantSystem with delivery=MQL, flowRate=0.0005 L/min (30 mL/hr)",
+      "action": "validateCoolant(system, params)",
+      "assert": "mql.oilFlowRate === 30 (not 0.03)"
+    },
+    {
+      "id": "SCT-026", "priority": "P0", "category": "Coolant Division Safety",
+      "title": "Zero-flow FLOOD system produces valid utilizationPercent",
+      "setup": "CoolantSystem with delivery=FLOOD, flowRate=0",
+      "action": "validateCoolantFlow(system, params)",
+      "assert": "utilizationPercent === 999 AND !isAdequate (not NaN/Infinity)"
+    },
+    {
+      "id": "SCT-027", "priority": "P0", "category": "Coolant Fire Safety",
+      "title": "DRY + TITANIUM returns isAdequate=false with fire warning",
+      "setup": "CoolantSystem with delivery=DRY, materialType=TITANIUM",
+      "action": "validateCoolantFlow(system, params)",
+      "assert": "isAdequate === false AND warnings includes 'FIRE RISK'"
+    },
+    {
+      "id": "SCT-028", "priority": "P0", "category": "SafetyBlockError",
+      "title": "SafetyBlockError propagates through safetyDispatcher (not just calcDispatcher)",
+      "setup": "Mock handler to throw SafetyBlockError",
+      "action": "Call prism_safety with action that triggers the mock",
+      "assert": "Error propagates — not caught by catch-all"
+    },
+    {
+      "id": "SCT-029", "priority": "P1", "category": "S(x) Missing Data",
+      "title": "Missing thermal/machine/edge data gives score 0.0 (not 0.5)",
+      "setup": "Material with NO thermal_conductivity, NO V30, NO hardness",
+      "action": "computeSafetyScore(material)",
+      "assert": "thermal_safety.score === 0.0 AND machine_capability.score === 0.0 AND edge_cases.score === 0.0"
+    }
+  ],
+
+  "total_tests_updated": 29,
+
+  "implementation_notes": [
+    "Tests SCT-001 through SCT-005 can be unit tests calling computeSafetyScore directly",
+    "Tests SCT-006, SCT-012, SCT-014 require integration with autoHookWrapper — need mock MCP server",
+    "Tests SCT-007 through SCT-010, SCT-016-018 need CoolantValidationEngine instantiation",
+    "All tests should be added to src/tests/ alongside existing smokeTests.ts"
+  ],
+
+  "exit_conditions_met": {
+    "boundary_tests_designed": true,
+    "failure_mode_tests_designed": true,
+    "priority_ranked": true
+  }
+}

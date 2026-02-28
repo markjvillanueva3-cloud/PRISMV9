@@ -19,6 +19,7 @@
 import { log } from "../utils/Logger.js";
 import { agentExecutor, type TaskResult, type TaskPriority } from "./AgentExecutor.js";
 import { agentRegistry } from "../registries/AgentRegistry.js";
+import { eventBus, EventTypes } from "./EventBus.js";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -257,6 +258,17 @@ export class SwarmExecutor {
 
     log.info(`[SwarmExecutor] Swarm ${swarmId} ${result.status}: ${result.successCount}/${validAgents.length} succeeded in ${result.duration_ms}ms`);
 
+    // MS4: Emit swarm completion event
+    try {
+      eventBus.publish(EventTypes.SWARM_COMPLETED, {
+        swarm_id: result.swarmId,
+        status: result.status,
+        success_count: result.successCount,
+        fail_count: result.failCount,
+        duration_ms: result.duration_ms,
+      }, { category: "swarm", priority: "normal", source: "SwarmExecutor" });
+    } catch { /* best-effort */ }
+
     return result;
   }
 
@@ -458,6 +470,19 @@ export class SwarmExecutor {
     if (!reached) {
       result.warnings.push(`Consensus not reached: ${(actualAgreement * 100).toFixed(0)}% < ${(threshold * 100).toFixed(0)}%`);
     }
+
+    // MS4: Emit consensus event
+    try {
+      const eventType = reached ? EventTypes.SWARM_CONSENSUS_REACHED : EventTypes.SWARM_CONSENSUS_FAILED;
+      eventBus.publish(eventType, {
+        swarm_id: result.swarmId,
+        pattern: config.pattern,
+        reached,
+        threshold,
+        actual_agreement: actualAgreement,
+        agents: agents.length,
+      }, { category: "swarm", priority: reached ? "normal" : "high", source: "SwarmExecutor" });
+    } catch { /* event emission is best-effort */ }
   }
 
   // ==========================================================================

@@ -68,9 +68,17 @@ export function registerKnowledgeDispatcher(server: any): void {
             break;
           }
           case "relations": {
-            if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
-            // Relations not yet implemented in engine — return stub
-            result = { error: "relations action not yet implemented in KnowledgeQueryEngine", source_id: params.source_id };
+            let kgEngine: any = null;
+            try {
+              const kgMod = require("../../engines/KnowledgeGraphEngine.js");
+              kgEngine = kgMod.knowledgeGraph;
+            } catch { /* KnowledgeGraphEngine not available */ }
+            if (!kgEngine) { result = { error: "KnowledgeGraphEngine not loaded" }; break; }
+            result = kgEngine("graph_traverse", {
+              start_node: params.source_id || params.node_id || "",
+              edge_types: params.edge_types,
+              depth: params.depth || 2,
+            });
             break;
           }
           case "stats": {

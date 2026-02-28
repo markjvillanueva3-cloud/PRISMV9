@@ -110,6 +110,7 @@ const BUNDLES: SkillBundle[] = [
     name: "Safety Validation Bundle",
     purpose: "Comprehensive safety checks for machining operations",
     skills: ["prism-safety-framework", "prism-life-safety-mindset", "prism-quality-gates", "prism-cutting-tools", "prism-physics-formulas"],
+    chain_name: "safety-validate",
     digest: [
       "S(x)≥0.70 HARD BLOCK — no output below this threshold",
       "Collision: check tool/fixture/workpiece clearance in all axes",
@@ -134,6 +135,7 @@ const BUNDLES: SkillBundle[] = [
     name: "Threading Operations Bundle",
     purpose: "Thread cutting parameters, specs, and G-code generation",
     skills: ["prism-universal-formulas", "prism-cutting-mechanics", "prism-gcode-reference", "prism-fanuc-programming", "prism-expert-quality-control"],
+    chain_name: "threading-full",
     digest: [
       "Tap drill: Ø=major-(pitch×%engagement/76.98), standard 75% engagement",
       "Thread mill: single-point or multi-form, climb cut, helical interpolation",
@@ -186,6 +188,7 @@ const BUNDLES: SkillBundle[] = [
     name: "Optimization & Planning Bundle",
     purpose: "Multi-objective optimization and mathematical planning",
     skills: ["prism-mathematical-planning", "prism-ai-optimization", "prism-process-optimizer", "prism-cognitive-core", "prism-reasoning-engine"],
+    chain_name: "optimize-plan",
     digest: [
       "MATHPLAN gate: prove scope→decompose→constraints→success criteria BEFORE code",
       "Multi-objective: Pareto frontier for competing goals (cost vs time vs quality)",

@@ -1,0 +1,137 @@
+{
+  "unit": "P0-U05",
+  "title": "Omega/Guard/Ralph/GSD Dispatcher Action Coverage",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:25:00Z",
+  "status": "PASS",
+
+  "dispatchers_audited": [
+    {
+      "name": "prism_omega",
+      "file": "src/tools/dispatchers/omegaDispatcher.ts",
+      "actions": ["compute", "breakdown", "validate", "optimize", "history", "auto_score"],
+      "total": 6,
+      "all_implemented": true,
+      "implementation_type": "Inline functions in dispatcher (computeOmega, auto_score with SP/Safety integration)",
+      "stub_actions": [],
+      "dead_actions": [],
+      "engine_dependency": "SP cog.metrics (R/C/P/L), computeSafetyScore (S), EventBus (quality events)"
+    },
+    {
+      "name": "prism_ralph",
+      "file": "src/tools/dispatchers/ralphDispatcher.ts",
+      "actions": ["loop", "scrutinize", "assess"],
+      "total": 3,
+      "all_implemented": true,
+      "implementation_type": "Inline functions calling Claude API (executeValidator, executeAssessment)",
+      "stub_actions": [],
+      "dead_actions": [],
+      "engine_dependency": "External — Claude API via fetch()"
+    },
+    {
+      "name": "prism_guard",
+      "file": "src/tools/dispatchers/guardDispatcher.ts",
+      "actions": ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test", "pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"],
+      "total": 14,
+      "all_implemented": true,
+      "implementation_type": "Mixed — inline logic for reasoning (8), Python script delegation for D3 (6)",
+      "sub_action_actions": {
+        "decision_log": ["record", "search", "list"],
+        "failure_library": ["record", "check", "search", "stats"],
+        "pre_write_gate": ["approve", "check", "status"],
+        "pre_write_diff": ["register_read", "check_write", "status"]
+      },
+      "effective_action_count": "14 top-level + 14 sub-actions = 28 effective endpoints",
+      "stub_actions": [],
+      "dead_actions": [],
+      "engine_dependency": "HookExecutor (for fireHook), Python scripts (pattern_detector.py, learning_store.py, lkg_tracker.py, priority_scorer.py)"
+    },
+    {
+      "name": "prism_gsd",
+      "file": "src/tools/dispatchers/gsdDispatcher.ts",
+      "actions": ["core", "quick", "get", "dev_protocol", "resources_summary", "quick_resume"],
+      "total": 6,
+      "all_implemented": true,
+      "implementation_type": "File-based reads with fallback constants",
+      "stub_actions": [],
+      "dead_actions": [],
+      "engine_dependency": "None — reads from data/docs/gsd/ directory"
+    },
+    {
+      "name": "prism_validate",
+      "file": "src/tools/dispatchers/validationDispatcher.ts",
+      "actions": ["material", "kienzle", "taylor", "johnson_cook", "safety", "completeness", "anti_regression"],
+      "total": 7,
+      "all_implemented": true,
+      "implementation_type": "Delegates to validators.ts functions (validateKienzle, validateTaylor, etc.)",
+      "stub_actions": [],
+      "dead_actions": [],
+      "engine_dependency": "utils/validators.ts (computeSafetyScore, checkMaterialCompleteness, etc.)"
+    }
+  ],
+
+  "coverage_summary": {
+    "total_quality_dispatchers": 5,
+    "total_top_level_actions": 36,
+    "total_effective_endpoints": 49,
+    "actions_with_handlers": 36,
+    "actions_stubbed": 0,
+    "actions_dead": 0,
+    "coverage_percentage": 100,
+    "all_actions_routed": true
+  },
+
+  "cross_dispatcher_relationships": {
+    "omega_uses_validate": "No — Omega computes independently. prism_validate→safety calls computeSafetyScore which produces the S component that Omega consumes.",
+    "ralph_uses_omega": "No — Ralph requests Omega scoring in its assessment prompt text, but the LLM computes it, not code.",
+    "guard_uses_validate": "Indirect — guard's pre_call_validate checks tool rename map, not validation functions.",
+    "gsd_references_omega": "Yes — GSD fallback sections include Omega equation: 'Omega(x) = 0.25R + 0.20C + 0.15P + 0.30S + 0.10L'",
+    "validate_computes_safety": "Yes — prism_validate→safety calls computeSafetyScore which produces S(x) for Omega"
+  },
+
+  "integration_flow": {
+    "typical_quality_workflow": [
+      "1. prism_validate→material → computes S(x) safety score",
+      "2. prism_omega→compute with S=<safety_score> → computes Omega",
+      "3. prism_ralph→assess with content → LLM-based quality assessment",
+      "4. prism_guard→decision_log→record → logs quality decision",
+      "5. prism_gsd→get→equation → reference Omega formula"
+    ],
+    "anti_regression_flow": [
+      "1. prism_validate→anti_regression with old_count/new_count → checks New≥Old",
+      "2. prism_guard→failure_library→record → logs if regression detected"
+    ]
+  },
+
+  "response_format_consistency": {
+    "all_use_slimResponse": true,
+    "all_use_dispatcherError": true,
+    "all_use_paramNormalizer": true,
+    "all_use_zod_schema": true,
+    "pattern": "Consistent middleware stack across all 5 quality dispatchers"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "100% action coverage — all 36 top-level actions across 5 quality dispatchers have implementations" },
+    { "severity": "OK", "finding": "No stub or dead actions found in any quality dispatcher" },
+    { "severity": "OK", "finding": "Consistent middleware pattern: slimResponse + dispatcherError + paramNormalizer across all 5" },
+    { "severity": "OK", "finding": "Clear separation of concerns: Omega=scoring, Ralph=LLM assessment, Guard=reasoning/logging, GSD=protocol reference, Validate=material/formula validation" },
+    { "severity": "INFO", "finding": "Guard has 28 effective endpoints (14 top-level × sub-actions) — most complex quality dispatcher" },
+    { "severity": "INFO", "finding": "Ralph is the only quality dispatcher requiring external API calls (Claude API)" }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*5 + 0.25*5 + 0.15*5 = 5.00",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "all_actions_mapped_to_engine_methods": true,
+    "unwired_actions_identified": true,
+    "coverage_report_produced": true
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "id": "QA-MS11",
+  "version": "1.0.0",
+  "title": "Intelligence & Infrastructure Engines",
+  "brief": "Audit intelligence and infrastructure engines: KnowledgeEngine search/retrieval, TelemetryEngine data collection, ComplianceEngine regulatory rules, HookEngine execution chain, SkillExecutor/AgentExecutor orchestration, and engine file count reconciliation (74 claimed vs ~175 .ts files).",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Intelligence & Infrastructure Engines Audit",
+      "description": "Verify intelligence and infrastructure engine implementations, correctness, and reconcile the engine file count discrepancy.",
+      "sessions": "2",
+      "primary_role": "R4",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "KnowledgeEngine: search/retrieval logic audit",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — knowledge search logic review",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS10 manufacturing engines audit complete"],
+          "exit_conditions": ["Search algorithm logic verified", "Retrieval ranking logic verified", "Knowledge base integration points documented"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Read KnowledgeEngine search implementation" },
+            { "number": 2, "instruction": "Verify search algorithm (keyword, semantic, hybrid)" },
+            { "number": 3, "instruction": "Verify retrieval ranking and relevance scoring" },
+            { "number": 4, "instruction": "Document in state/QA-MS11/knowledge-engine-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/knowledge-engine-audit.json", "type": "data", "description": "KnowledgeEngine audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "TelemetryEngine: data collection + aggregation",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — telemetry pipeline review",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Knowledge engine audit complete"],
+          "exit_conditions": ["Data collection pipeline verified", "Aggregation functions verified", "Data retention policies documented"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Read TelemetryEngine data collection logic" },
+            { "number": 2, "instruction": "Verify aggregation functions (count, avg, sum, percentile)" },
+            { "number": 3, "instruction": "Document data retention and cleanup policies" },
+            { "number": 4, "instruction": "Document in state/QA-MS11/telemetry-engine-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/telemetry-engine-audit.json", "type": "data", "description": "TelemetryEngine audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "ComplianceEngine: regulatory rule evaluation",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — compliance rule engine review",
+          "tools": [{ "tool": "prism_compliance" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Telemetry engine audit complete"],
+          "exit_conditions": ["Rule evaluation logic verified", "Regulatory standard mapping verified", "Compliance reporting format validated"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Read ComplianceEngine rule evaluation logic" },
+            { "number": 2, "instruction": "Verify regulatory standard coverage (ISO, OSHA)" },
+            { "number": 3, "instruction": "Verify compliance reporting output" },
+            { "number": 4, "instruction": "Document in state/QA-MS11/compliance-engine-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/compliance-engine-audit.json", "type": "data", "description": "ComplianceEngine audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "HookEngine: hook execution chain correctness",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — hook execution order affects system behavior",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Compliance engine audit complete"],
+          "exit_conditions": ["Hook execution chain order verified", "Pre/post hook semantics verified", "Error handling in hook chain verified", "Hook priority/ordering mechanism documented"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Read HookEngine execution chain logic" },
+            { "number": 2, "instruction": "Verify pre/post hook ordering and execution semantics" },
+            { "number": 3, "instruction": "Verify error handling (fail-fast vs continue)" },
+            { "number": 4, "instruction": "Document hook priority mechanism" },
+            { "number": 5, "instruction": "Document in state/QA-MS11/hook-engine-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/hook-engine-audit.json", "type": "data", "description": "HookEngine execution chain audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "SkillExecutor + AgentExecutor: orchestration logic",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — orchestration logic review",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Hook engine audit complete"],
+          "exit_conditions": ["Skill execution pipeline verified", "Agent orchestration logic verified", "Error recovery and retry logic verified"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Read SkillExecutor pipeline logic" },
+            { "number": 2, "instruction": "Read AgentExecutor orchestration logic" },
+            { "number": 3, "instruction": "Verify error recovery and retry mechanisms" },
+            { "number": 4, "instruction": "Document in state/QA-MS11/executor-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/executor-audit.json", "type": "data", "description": "SkillExecutor/AgentExecutor audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Engine file count reconciliation (74 claimed vs ~175 .ts files)",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — significant count discrepancy to reconcile",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["All engine audits complete"],
+          "exit_conditions": ["Exact engine file count determined", "Files categorized (core engine, helper, index, type, test)", "True engine count established and documented", "Discrepancy explained"],
+          "rollback": "git checkout -- state/QA-MS11/",
+          "steps": [
+            { "number": 1, "instruction": "Count all .ts files in src/engines/" },
+            { "number": 2, "instruction": "Categorize each file: engine class, helper, index, types, tests" },
+            { "number": 3, "instruction": "Determine true engine count (files containing engine classes)" },
+            { "number": 4, "instruction": "Explain discrepancy between 74 claimed and actual count" },
+            { "number": 5, "instruction": "Document in state/QA-MS11/engine-count-reconciliation.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS11/engine-count-reconciliation.json", "type": "data", "description": "Engine file count reconciliation" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Engine count reconciled", "Hook execution chain verified"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 6,
+  "total_sessions": "2",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_compliance", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS11/knowledge-engine-audit.json", "type": "data", "description": "Knowledge audit" },
+    { "path": "state/QA-MS11/telemetry-engine-audit.json", "type": "data", "description": "Telemetry audit" },
+    { "path": "state/QA-MS11/compliance-engine-audit.json", "type": "data", "description": "Compliance audit" },
+    { "path": "state/QA-MS11/hook-engine-audit.json", "type": "data", "description": "Hook engine audit" },
+    { "path": "state/QA-MS11/executor-audit.json", "type": "data", "description": "Executor audit" },
+    { "path": "state/QA-MS11/engine-count-reconciliation.json", "type": "data", "description": "Engine count reconciliation" }
+  ],
+  "existing_leverage": [
+    { "asset": "Engine files", "type": "source", "count": 175, "usage": "File count reconciliation" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

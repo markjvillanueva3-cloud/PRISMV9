@@ -62,7 +62,7 @@ export interface SmokeReport {
 }
 
 // ============================================================================
-// 24 SMOKE TESTS — One per dispatcher, minimal valid read-only params
+// 46 SMOKE TESTS — One per dispatcher + auto_score, minimal valid read-only params
 // ============================================================================
 
 export const SMOKE_TESTS: SmokeTest[] = [
@@ -86,6 +86,8 @@ export const SMOKE_TESTS: SmokeTest[] = [
     params: { content: "test", context: "smoke" }, description: "Safety validation", expect: "success" },
   { id: "SMK-007", dispatcher: "prism_omega", action: "history",
     params: {}, description: "Omega history", expect: "success" },
+  { id: "SMK-007b", dispatcher: "prism_omega", action: "auto_score",
+    params: {}, description: "Omega auto_score from SP cog", expect: "success" },
   { id: "SMK-008", dispatcher: "prism_ralph", action: "scrutinize",
     params: { content: "test" }, description: "Ralph scrutinize", expect: "error_ok" },
 
@@ -130,6 +132,66 @@ export const SMOKE_TESTS: SmokeTest[] = [
   // AUTONOMOUS (1)
   { id: "SMK-024", dispatcher: "prism_autonomous", action: "auto_status",
     params: {}, description: "Autonomous status", expect: "success" },
+
+  // ── MS5: 21 new smoke tests for full dispatcher coverage (45/45) ──
+
+  // INTELLIGENCE & L2 (2)
+  { id: "SMK-025", dispatcher: "prism_intelligence", action: "workflow_list",
+    params: {}, description: "Intelligence workflow list", expect: "error_ok" },
+  { id: "SMK-026", dispatcher: "prism_l2", action: "aiml_models",
+    params: {}, description: "L2 AI/ML models", expect: "error_ok" },
+
+  // CAD/CAM (2)
+  { id: "SMK-027", dispatcher: "prism_cad", action: "geometry_analyze",
+    params: {}, description: "CAD geometry analyze", expect: "error_ok" },
+  { id: "SMK-028", dispatcher: "prism_cam", action: "toolpath_simulate",
+    params: {}, description: "CAM toolpath simulate", expect: "error_ok" },
+
+  // QUALITY & SCHEDULING (2)
+  { id: "SMK-029", dispatcher: "prism_quality", action: "spc_calculate",
+    params: { values: [10.01, 10.02, 9.99, 10.00, 10.01] }, description: "SPC calculation", expect: "error_ok" },
+  { id: "SMK-030", dispatcher: "prism_scheduling", action: "capacity_plan",
+    params: {}, description: "Scheduling capacity plan", expect: "error_ok" },
+
+  // EXPORT (1)
+  { id: "SMK-031", dispatcher: "prism_export", action: "render_pdf",
+    params: { title: "Smoke Test", data: { test: true } }, description: "Export PDF render", expect: "error_ok" },
+
+  // SPECIALTY MACHINING (4)
+  { id: "SMK-032", dispatcher: "prism_turning", action: "chuck_force",
+    params: { diameter: 50, speed: 3000 }, description: "Turning chuck force", expect: "error_ok" },
+  { id: "SMK-033", dispatcher: "prism_5axis", action: "work_envelope",
+    params: {}, description: "5-axis work envelope", expect: "error_ok" },
+  { id: "SMK-034", dispatcher: "prism_edm", action: "electrode_design",
+    params: {}, description: "EDM electrode design", expect: "error_ok" },
+  { id: "SMK-035", dispatcher: "prism_grinding", action: "wheel_select",
+    params: { material: "steel", operation: "surface" }, description: "Grinding wheel select", expect: "error_ok" },
+
+  // INDUSTRY & AUTOMATION (2)
+  { id: "SMK-036", dispatcher: "prism_industry", action: "aerospace_check",
+    params: { part_number: "SMOKE-001" }, description: "Industry aerospace check", expect: "error_ok" },
+  { id: "SMK-037", dispatcher: "prism_automation", action: "oee_calc",
+    params: { availability: 0.9, performance: 0.85, quality: 0.95 }, description: "Automation OEE calc", expect: "error_ok" },
+
+  // INFRASTRUCTURE (4)
+  { id: "SMK-038", dispatcher: "prism_auth", action: "permission_check",
+    params: { user: "smoke_test", resource: "test" }, description: "Auth permission check", expect: "error_ok" },
+  { id: "SMK-039", dispatcher: "prism_bridge", action: "health",
+    params: {}, description: "Bridge health", expect: "error_ok" },
+  { id: "SMK-040", dispatcher: "prism_tenant", action: "stats",
+    params: {}, description: "Tenant stats", expect: "error_ok" },
+  { id: "SMK-041", dispatcher: "prism_compliance", action: "list_templates",
+    params: {}, description: "Compliance list templates", expect: "error_ok" },
+
+  // TELEMETRY, NL, PFP, MEMORY (4)
+  { id: "SMK-042", dispatcher: "prism_nl_hook", action: "list",
+    params: {}, description: "NL hook list", expect: "error_ok" },
+  { id: "SMK-043", dispatcher: "prism_pfp", action: "get_dashboard",
+    params: {}, description: "PFP dashboard", expect: "error_ok" },
+  { id: "SMK-044", dispatcher: "prism_telemetry", action: "get_dashboard",
+    params: {}, description: "Telemetry dashboard", expect: "error_ok" },
+  { id: "SMK-045", dispatcher: "prism_memory", action: "get_health",
+    params: {}, description: "Memory health", expect: "error_ok" },
 ];
 
 // ============================================================================

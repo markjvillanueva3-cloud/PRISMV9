@@ -6,7 +6,7 @@
 // Server identification
 export const SERVER_NAME = "prism-mcp-server";
 export const SERVER_VERSION = "2.10.0";
-export const SERVER_DESCRIPTION = "PRISM Manufacturing Intelligence - 45 dispatchers, 684 actions, 74 engines, 52 algorithms, 18 registries, 12 schemas — CNC machining intelligence platform";
+export const SERVER_DESCRIPTION = "PRISM Manufacturing Intelligence - 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 9 registries, 157 hooks — CNC machining intelligence platform";
 
 // Response limits
 export const CHARACTER_LIMIT = 50000;

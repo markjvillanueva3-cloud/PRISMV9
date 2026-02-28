@@ -38,7 +38,7 @@
 
   "toolIntegrations": {
     "data_access": {
-      "prism_material_get": {
+      "prism_data→material_get": {
         "description": "Retrieve material by ID or name",
         "databases": ["materials"],
         "dataLayers": ["CORE", "ENHANCED", "USER", "LEARNED"],
@@ -46,7 +46,7 @@
         "hooks": ["BAYES-001"],
         "skills": ["prism-material-physics", "prism-material-lookup"],
         "outputFormat": ["json", "markdown"],
-        "consumers": ["prism_speed_feed", "prism_cutting_force", "prism_tool_life"]
+        "consumers": ["prism_calc→speed_feed", "prism_calc→cutting_force", "prism_calc→tool_life"]
       },
       "prism_material_search": {
         "description": "Search materials with filters",
@@ -56,7 +56,7 @@
         "hooks": [],
         "skills": ["prism-material-lookup"],
         "pagination": true,
-        "consumers": ["prism_material_get", "prism_material_compare"]
+        "consumers": ["prism_data→material_get", "prism_material_compare"]
       },
       "prism_material_compare": {
         "description": "Compare 2-5 materials",
@@ -90,7 +90,7 @@
         "formulas": [],
         "hooks": [],
         "skills": ["prism-monolith-index"],
-        "consumers": ["prism_speed_feed", "prism_post_generate"]
+        "consumers": ["prism_calc→speed_feed", "prism_post_generate"]
       },
       "prism_machine_search": {
         "description": "Search machines by criteria",
@@ -107,7 +107,7 @@
         "formulas": ["F-KINEMATICS-001"],
         "hooks": [],
         "skills": ["prism-monolith-index"],
-        "consumers": ["prism_speed_feed"]
+        "consumers": ["prism_calc→speed_feed"]
       },
       "prism_tool_get": {
         "description": "Get cutting tool data",
@@ -115,7 +115,7 @@
         "formulas": [],
         "hooks": [],
         "skills": ["prism-cutting-tools"],
-        "consumers": ["prism_speed_feed", "prism_tool_life"]
+        "consumers": ["prism_calc→speed_feed", "prism_calc→tool_life"]
       },
       "prism_tool_search": {
         "description": "Search cutting tools",
@@ -166,7 +166,7 @@
         "formulas": [],
         "hooks": [],
         "skills": [],
-        "consumers": ["prism_speed_feed"]
+        "consumers": ["prism_calc→speed_feed"]
       },
       "prism_fixture_search": {
         "description": "Search fixtures",
@@ -179,7 +179,7 @@
     },
 
     "calculations": {
-      "prism_speed_feed": {
+      "prism_calc→speed_feed": {
         "description": "Calculate optimal cutting parameters",
         "databases": ["materials", "tools", "machines"],
         "formulas": ["F-KIENZLE-001", "F-TAYLOR-001", "F-MRR-001", "F-POWER-001"],
@@ -189,7 +189,7 @@
         "optimizationTargets": ["mrr", "surface_finish", "tool_life", "balanced"],
         "safetyGate": "S(x) >= 0.70"
       },
-      "prism_cutting_force": {
+      "prism_calc→cutting_force": {
         "description": "Kienzle cutting force calculation",
         "databases": ["materials"],
         "formulas": ["F-KIENZLE-001", "F-KIENZLE-002", "F-KIENZLE-003"],
@@ -198,7 +198,7 @@
         "requiredParams": ["kc1_1", "mc"],
         "outputs": ["Fc", "Ff", "Fp", "power"]
       },
-      "prism_tool_life": {
+      "prism_calc→tool_life": {
         "description": "Taylor tool life estimation",
         "databases": ["materials", "tools"],
         "formulas": ["F-TAYLOR-001", "F-TAYLOR-002"],
@@ -771,14 +771,14 @@
   },
 
   "crossToolDependencies": {
-    "prism_speed_feed": {
-      "requires": ["prism_material_get", "prism_tool_get"],
+    "prism_calc→speed_feed": {
+      "requires": ["prism_data→material_get", "prism_tool_get"],
       "optional": ["prism_machine_get", "prism_fixture_get"],
       "uses_formulas": ["F-KIENZLE-001", "F-TAYLOR-001", "F-MRR-001"],
       "triggers_hooks": ["OPT-001", "SYS-LAW1"]
     },
-    "prism_cutting_force": {
-      "requires": ["prism_material_get"],
+    "prism_calc→cutting_force": {
+      "requires": ["prism_data→material_get"],
       "uses_formulas": ["F-KIENZLE-001"],
       "outputTo": ["prism_power_calc", "prism_deflection_calc"]
     },
@@ -798,12 +798,12 @@
   "databaseConsumers": {
     "materials": {
       "consumers": [
-        "prism_material_get",
+        "prism_data→material_get",
         "prism_material_search",
         "prism_material_compare",
-        "prism_speed_feed",
-        "prism_cutting_force",
-        "prism_tool_life",
+        "prism_calc→speed_feed",
+        "prism_calc→cutting_force",
+        "prism_calc→tool_life",
         "prism_surface_finish",
         "prism_thermal_calc",
         "prism_chip_calc",
@@ -818,7 +818,7 @@
         "prism_machine_get",
         "prism_machine_search",
         "prism_machine_capabilities",
-        "prism_speed_feed",
+        "prism_calc→speed_feed",
         "prism_power_calc",
         "prism_chatter_predict",
         "prism_collision_check",
@@ -832,8 +832,8 @@
         "prism_tool_get",
         "prism_tool_search",
         "prism_tool_recommend",
-        "prism_speed_feed",
-        "prism_tool_life",
+        "prism_calc→speed_feed",
+        "prism_calc→tool_life",
         "prism_surface_finish",
         "prism_deflection_calc",
         "prism_collision_check",
@@ -852,24 +852,24 @@
   },
 
   "formulaConsumers": {
-    "F-KIENZLE-001": ["prism_cutting_force", "prism_speed_feed", "prism_power_calc"],
-    "F-TAYLOR-001": ["prism_tool_life", "prism_speed_feed"],
-    "F-MRR-001": ["prism_mrr_calc", "prism_speed_feed"],
-    "F-POWER-001": ["prism_power_calc", "prism_speed_feed"],
+    "F-KIENZLE-001": ["prism_calc→cutting_force", "prism_calc→speed_feed", "prism_power_calc"],
+    "F-TAYLOR-001": ["prism_calc→tool_life", "prism_calc→speed_feed"],
+    "F-MRR-001": ["prism_mrr_calc", "prism_calc→speed_feed"],
+    "F-POWER-001": ["prism_power_calc", "prism_calc→speed_feed"],
     "F-PSI-001": ["prism_ilp_optimize", "prism_agent_swarm"]
   },
 
   "skillConsumers": {
-    "prism-material-physics": ["prism_material_get", "prism_speed_feed", "prism_cutting_force", "prism_tool_life"],
-    "prism-cutting-mechanics": ["prism_cutting_force", "prism_chip_calc", "prism_chatter_predict"],
-    "prism-universal-formulas": ["prism_formula_calc", "prism_speed_feed", "prism_cutting_force"],
+    "prism-material-physics": ["prism_data→material_get", "prism_calc→speed_feed", "prism_calc→cutting_force", "prism_calc→tool_life"],
+    "prism-cutting-mechanics": ["prism_calc→cutting_force", "prism_chip_calc", "prism_chatter_predict"],
+    "prism-universal-formulas": ["prism_formula_calc", "prism_calc→speed_feed", "prism_calc→cutting_force"],
     "prism-cognitive-core": ["prism_hook_list", "prism_hook_trigger", "prism_quality_compute"],
     "prism-skill-orchestrator": ["prism_agent_list", "prism_agent_invoke", "prism_agent_swarm", "prism_ilp_optimize"]
   },
 
   "safetyGates": {
     "hardBlocks": [
-      { "tool": "prism_speed_feed", "gate": "S(x) >= 0.70", "reason": "Cutting parameters affect operator safety" },
+      { "tool": "prism_calc→speed_feed", "gate": "S(x) >= 0.70", "reason": "Cutting parameters affect operator safety" },
       { "tool": "prism_alarm_fix", "gate": "S(x) >= 0.70", "reason": "Fix procedures must be verified" },
       { "tool": "prism_power_calc", "gate": "power <= machine.spindle.power", "reason": "Prevent spindle damage" },
       { "tool": "prism_chatter_predict", "gate": "stability_ratio > 1.0", "reason": "Prevent resonance failures" },

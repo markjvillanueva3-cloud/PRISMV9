@@ -7,6 +7,7 @@ import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import { computationCache } from "../../engines/ComputationCache.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
+import { eventBus, EventTypes } from "../../engines/EventBus.js";
 
 // Import original handlers
 import {
@@ -278,7 +279,8 @@ export function registerCalcDispatcher(server: any): void {
       if (params.feedRate !== undefined && params.feed_rate === undefined) params.feed_rate = params.feedRate;
       
       let result: any;
-      
+      const calcStart = Date.now();
+
       // Map actions to specific pre-hook phases
       const SPECIFIC_HOOKS: Record<string, string> = {
         cutting_force: "pre-kienzle",
@@ -477,7 +479,7 @@ export function registerCalcDispatcher(server: any): void {
               C: params.C,
               m: params.m,
               T_melt: params.T_melt,
-              T_ref: params.T_ref || 20
+              T_ref: params.T_ref || 25
             };
             
             result = calculateJohnsonCookStress(
@@ -1380,12 +1382,25 @@ export function registerCalcDispatcher(server: any): void {
           } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
         }
 
+        // MS4: Emit calc completed event
+        try {
+          eventBus.publish(EventTypes.CALC_COMPLETED, {
+            action, duration_ms: Date.now() - calcStart,
+          }, { category: "calculation", priority: "normal", source: "calcDispatcher" });
+        } catch { /* best-effort */ }
+
         return {
           content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
         };
-        
+
       } catch (error) {
         log.error(`[prism_calc] Error in ${action}:`, error);
+        // MS4: Emit calc error event
+        try {
+          eventBus.publish(EventTypes.CALC_ERROR, {
+            action, error: (error as any)?.message?.slice(0, 200),
+          }, { category: "calculation", priority: "high", source: "calcDispatcher" });
+        } catch { /* best-effort */ }
         return dispatcherError(error, action, "prism_calc");
       }
     }

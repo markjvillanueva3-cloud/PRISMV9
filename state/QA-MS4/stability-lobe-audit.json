@@ -1,0 +1,120 @@
+{
+  "unit": "QA-MS4-U02",
+  "title": "Stability Lobe Diagram Algorithm",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T06:10:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "algorithm_sdof": "src/algorithms/StabilityLobeDiagram.ts (286 lines)",
+    "algorithm_frf": "src/algorithms/FRFStabilityLobe.ts (264 lines)",
+    "engine": "src/engines/RegenerativeChatterPredictor (referenced by AlgorithmGatewayEngine)",
+    "dispatcher_routing": "No direct calcDispatcher action -- accessed via algorithm registry or AlgorithmGatewayEngine"
+  },
+
+  "dual_implementation": {
+    "sdof_model": {
+      "file": "src/algorithms/StabilityLobeDiagram.ts",
+      "class": "StabilityLobeDiagram implements Algorithm<StabilityLobeInput, StabilityLobeOutput>",
+      "model": "SDOF (Single Degree of Freedom) analytical model",
+      "inputs": ["natural_frequency", "damping_ratio", "stiffness", "specific_cutting_force", "num_teeth", "radial_immersion"],
+      "method": "Sweep omega_c from 1.001*omega_n to 2.5*omega_n, compute SDOF FRF analytically, find stability boundary",
+      "registered_as": "stability-lobe"
+    },
+    "frf_model": {
+      "file": "src/algorithms/FRFStabilityLobe.ts",
+      "class": "FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFStabilityLobeOutput>",
+      "model": "Multi-mode FRF-based model from measured compliance data",
+      "inputs": ["frf_data (array of frequency+compliance)", "n_flutes", "Kt", "radial_immersion"],
+      "method": "Interpolate measured FRF at each candidate chatter frequency, compute b_lim from real part",
+      "registered_as": "frf-stability-lobe"
+    },
+    "consistency": "Both use Altintas-Budak (1995) core formula. SDOF generates FRF analytically; FRF model uses measured data. Appropriate separation of concerns."
+  },
+
+  "formula_verification": {
+    "stability_limit": {
+      "formula": "b_lim = -1 / (2 * Ks * N_t * alpha_xx * Re[G(omega_c)] / k)",
+      "reference": "Altintas & Budak (1995), Eq. 11; Altintas (2012) Ch. 4",
+      "sdof_implementation": "StabilityLobeDiagram.ts line 191: b_lim = -1 / (2 * Ks * alpha_xx * num_teeth * (G_real / k_Nmm))",
+      "frf_implementation": "FRFStabilityLobe.ts line 155: aLim = -1 / (2 * Kt * Nt * alphaxx * realG_mm)",
+      "implementation_correct": true,
+      "note": "SDOF divides G_real by k_Nmm (stiffness in N/mm) to get dimensional FRF. FRF model already has dimensional data."
+    },
+    "directional_factor": {
+      "formula": "alpha_xx = (1/2*pi) * (phi_s - sin(2*phi_s)/2), where phi_s = arccos(1 - 2*ae/D)",
+      "sdof_implementation": "Line 164: alpha_xx = (1 / (2 * Math.PI)) * (phi_s - Math.sin(2 * phi_s) / 2)",
+      "frf_implementation": "Line 208: simplified to ae_ratio / 2 (linear approximation)",
+      "implementation_correct": true,
+      "note": "SDOF uses full trigonometric formula (correct). FRF uses linear approximation (adequate for ae/D > 0.1, diverges for very light radial cuts)."
+    },
+    "frf_sdof": {
+      "formula": "G(r) = (1 - r^2) / [(1 - r^2)^2 + (2*zeta*r)^2] + j * (-2*zeta*r) / [(1 - r^2)^2 + (2*zeta*r)^2]",
+      "where": "r = omega_c / omega_n, zeta = damping_ratio",
+      "implementation_correct": true,
+      "verified_at": "StabilityLobeDiagram.ts lines 183-185"
+    },
+    "spindle_speed_lobe": {
+      "formula": "N = 60 * omega_c / (2*pi * (k + epsilon/(2*pi)) * N_t)",
+      "where": "epsilon = pi - 2*atan2(G_imag, G_real), k = lobe number",
+      "implementation_correct": true,
+      "verified_at": "StabilityLobeDiagram.ts lines 194-197"
+    },
+    "stiffness_conversion": {
+      "conversion": "k_Nmm = stiffness / 1000 (N/m to N/mm)",
+      "implementation_correct": true,
+      "note": "Ensures dimensional consistency: Ks [N/mm^2] * G/k [mm/N] = 1/mm -> b_lim in mm"
+    },
+    "frf_interpolation": {
+      "method": "Linear interpolation between adjacent FRF data points",
+      "implementation_correct": true,
+      "verified_at": "FRFStabilityLobe.ts lines 218-237"
+    }
+  },
+
+  "spot_check": {
+    "scenario": "fn=1000 Hz, zeta=0.03, k=5e6 N/m, Ks=2000 N/mm^2, N_t=4, ae/D=1.0 (full slot)",
+    "manual_calculation": {
+      "omega_n": "2*pi*1000 = 6283.2 rad/s",
+      "k_Nmm": "5e6 / 1000 = 5000 N/mm",
+      "phi_s": "arccos(1 - 2*1.0) = arccos(-1) = pi rad",
+      "alpha_xx": "(1/2*pi) * (pi - sin(2*pi)/2) = (1/2*pi) * pi = 0.5",
+      "at_resonance_r_1.001": "G_real = (1-1.002)/(0.004 + 0.0036) = -0.002/0.0076 = -0.263 (nondim)",
+      "G_real_dim": "-0.263/5000 = -5.26e-5 mm/N",
+      "b_lim": "-1 / (2 * 2000 * 0.5 * 4 * (-5.26e-5)) = -1 / (-0.4208) = 2.38 mm",
+      "unconditional_limit_approx": "~2.4 mm (at resonance peak)"
+    },
+    "result": "REASONABLE -- 2.4mm stable depth for a 1kHz system with 3% damping, 4-flute cutter in full slot is typical for endmilling"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Altintas-Budak b_lim formula correctly implemented in both SDOF and FRF models" },
+    { "severity": "OK", "finding": "Directional factor alpha_xx uses correct trigonometric formula (SDOF) per Altintas (2012)" },
+    { "severity": "OK", "finding": "SDOF FRF (real + imaginary parts) correctly computed from damped harmonic oscillator transfer function" },
+    { "severity": "OK", "finding": "Lobe phase angle epsilon = pi - 2*atan2(Im,Re) correctly maps chatter frequency to spindle speed" },
+    { "severity": "OK", "finding": "Sweet spots (local maxima) correctly identified and sorted by max_depth descending" },
+    { "severity": "OK", "finding": "FRF model supports multi-mode systems via measured compliance data -- essential for real machine tools" },
+    { "severity": "OK", "finding": "Both models properly handle edge cases: very low damping warning, no-lobe-in-range warning, chatter-prone warning" },
+    { "severity": "MINOR", "finding": "FRF model directional factor simplified to ae_ratio/2 instead of full trigonometric formula. At ae/D=1.0 and 0.5: both give identical results (0.5 and 0.25). At ae/D=0.25: full=0.0977, linear=0.125 (28% error). At ae/D=0.1: full=0.0259, linear=0.05 (93% error). Significant only for light radial engagement." },
+    { "severity": "MINOR", "finding": "SDOF model sweeps r from 1.001 to 2.501 -- misses sub-resonance behavior (r < 1) that can be relevant for low-speed machining with flexible tools" },
+    { "severity": "INFO", "finding": "Both models assume 1D (X-direction only). Cross-FRF terms (G_xy, G_yx) ignored. For most milling operations this is adequate; 5-axis operations may need 2D treatment." },
+    { "severity": "INFO", "finding": "Process damping (significant at low speeds, high tooth passing frequencies) not modeled. This is a known limitation of the Altintas-Budak zero-order method." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 4,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*5 + 0.25*4 + 0.15*5 = 1.75 + 1.25 + 1.00 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "sld_formula_verified": true,
+    "directional_factor_checked": true,
+    "frf_model_reviewed": true,
+    "sweet_spot_logic_verified": true,
+    "dispatcher_wiring_traced": true
+  }
+}

@@ -1,65 +1,316 @@
 {
   "id": "L8-P0-MS2",
   "version": "3.1.0",
-  "title": "PPG Web UI",
-  "brief": "PPG web interface: Monaco code editor, controller selector, template browser, G-code preview, diff comparison.",
+  "title": "PPG Web UI — Post Processor Generator Interface",
+  "brief": "PPG web interface: Monaco G-code editor, controller selector, template browser, G-code preview, diff comparison, validation panel — wired to 8 PPG API endpoints.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "PPG Web UI",
-      "description": "PPG web interface: Monaco code editor, controller selector, template browser, G-code preview, diff comparison.",
-      "sessions": "5-6",
+      "description": "Build the Post Processor Generator web interface with Monaco editor, controller management, template browsing, and G-code comparison tools.",
+      "sessions": "3-4",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute PPG Web UI",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview",
-            "Context7"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "L8-P0-MS1 complete"
-          ],
+          "title": "PPG Page Shell & Routing",
+          "phase": "P0", "sequence": 0,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [],
+          "features": [],
+          "dependencies": ["S3-MS1:P0-U01"],
+          "entry_conditions": ["L8-P0-MS1 complete", "Frontend scaffold from S3-MS1 exists"],
           "exit_conditions": [
-            "PPG Web UI complete",
-            "Build passes",
-            "Tests pass"
+            "PPG page route /ppg registered in React Router",
+            "PPG layout: left sidebar (controller + templates), center (editor), right (preview/validation)",
+            "Responsive: 3-column >= 1280px, 2-column >= 768px, tabbed < 768px"
           ],
-          "rollback": "git checkout -- [files modified by L8-P0-MS2]",
+          "rollback": "git checkout -- web/src/pages/PpgPage.tsx",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute PPG Web UI per roadmap spec"
-            }
+            { "number": 1, "instruction": "Create web/src/pages/PpgPage.tsx with 3-panel resizable layout using CSS grid" },
+            { "number": 2, "instruction": "Add /ppg route to React Router in App.tsx" },
+            { "number": 3, "instruction": "Implement responsive breakpoints with panel collapse/tab switching" }
           ],
-          "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "deliverables": [{ "path": "web/src/pages/PpgPage.tsx", "type": "source", "description": "PPG page layout shell" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "PPG API Client",
+          "phase": "P0", "sequence": 1,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Base API client exists from S3-MS1"],
+          "exit_conditions": [
+            "Typed API client at web/src/api/ppg.ts for all 8 PPG endpoints",
+            "React hooks: usePpgGenerate, usePpgValidate, usePpgCompare, usePpgControllers, usePpgOperations"
+          ],
+          "rollback": "git checkout -- web/src/api/ppg.ts",
+          "steps": [
+            { "number": 1, "instruction": "Create web/src/api/ppg.ts — typed functions: generate(), template(), program(), validate(), compare(), optimize(), getControllers(), getOperations()" },
+            { "number": 2, "instruction": "Create web/src/types/ppg.ts — interfaces for G-code requests/responses, controller definitions, template configs" },
+            { "number": 3, "instruction": "Create web/src/hooks/usePpg.ts — React hooks wrapping each API call" }
+          ],
+          "deliverables": [
+            { "path": "web/src/api/ppg.ts", "type": "source", "description": "Typed PPG API client" },
+            { "path": "web/src/types/ppg.ts", "type": "source", "description": "PPG TypeScript interfaces" },
+            { "path": "web/src/hooks/usePpg.ts", "type": "source", "description": "PPG React hooks" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Controller Selector",
+          "phase": "P0", "sequence": 2,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["PPG API client provides getControllers()"],
+          "exit_conditions": [
+            "ControllerSelector fetches and displays all supported CNC controllers",
+            "Grouped by manufacturer: Fanuc, Siemens, Haas, Mazak, Okuma, etc.",
+            "Search/filter by controller name or model",
+            "Selection updates editor syntax rules and generation target"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/ControllerSelector.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ControllerSelector.tsx with grouped list fetched from GET /api/v1/ppg/controllers" },
+            { "number": 2, "instruction": "Add search filter and manufacturer grouping" },
+            { "number": 3, "instruction": "Emit onChange with full controller config for downstream components" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/ControllerSelector.tsx", "type": "source", "description": "CNC controller picker" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Template Browser",
+          "phase": "P0", "sequence": 3,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["PPG API client provides template()"],
+          "exit_conditions": [
+            "TemplateBrowser shows categorized G-code templates: Facing, Drilling, Pocketing, Profiling, Threading, etc.",
+            "Template preview shows parametric code with highlighted placeholders",
+            "Click template → populates editor with generated code for selected controller",
+            "Template parameters editable before generation"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/TemplateBrowser.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create TemplateBrowser.tsx with categorized template cards" },
+            { "number": 2, "instruction": "Add template preview panel showing parametric code with placeholder highlights" },
+            { "number": 3, "instruction": "Wire template selection to POST /api/v1/ppg/template with controller + params" },
+            { "number": 4, "instruction": "Add parameter override form for template customization before generation" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/TemplateBrowser.tsx", "type": "source", "description": "G-code template browser with preview" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Monaco G-Code Editor",
+          "phase": "P0", "sequence": 4,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 100,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": ["Context7"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["Controller selector provides active controller config"],
+          "exit_conditions": [
+            "Monaco editor integrated with G-code syntax highlighting",
+            "Custom language definition: G/M codes, coordinates, comments, line numbers",
+            "Controller-specific keyword highlighting based on selected controller",
+            "Line numbers, minimap, bracket matching, code folding for subroutines",
+            "Undo/redo, find/replace, go-to-line functional"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/GcodeEditor.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Install @monaco-editor/react, create GcodeEditor.tsx wrapper component" },
+            { "number": 2, "instruction": "Define G-code language: tokenizer for G/M codes, X/Y/Z/F/S params, comments (parentheses and semicolons), line numbers (N-words)" },
+            { "number": 3, "instruction": "Add controller-specific token rules (e.g., Fanuc macro variables #, Siemens R-parameters)" },
+            { "number": 4, "instruction": "Configure editor options: line numbers, minimap, bracket matching, word wrap toggle" }
+          ],
+          "deliverables": [
+            { "path": "web/src/components/ppg/GcodeEditor.tsx", "type": "source", "description": "Monaco editor with G-code syntax highlighting" },
+            { "path": "web/src/components/ppg/gcode-language.ts", "type": "source", "description": "G-code language definition for Monaco" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "G-Code Preview Panel",
+          "phase": "P0", "sequence": 5,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Monaco editor provides G-code content"],
+          "exit_conditions": [
+            "Preview panel renders formatted G-code output from POST /api/v1/ppg/generate",
+            "Block-by-block breakdown: setup, tool changes, operations, coolant, end",
+            "Line count and estimated run time displayed",
+            "Copy-to-clipboard button for generated code"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/GcodePreview.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create GcodePreview.tsx with section-highlighted G-code display" },
+            { "number": 2, "instruction": "Add metadata bar: line count, estimated cycle time, tool count" },
+            { "number": 3, "instruction": "Add copy-to-clipboard and download-as-file buttons" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/GcodePreview.tsx", "type": "source", "description": "Formatted G-code preview panel" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07",
+          "title": "Diff Comparison View",
+          "phase": "P0", "sequence": 6,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Monaco editor available"],
+          "exit_conditions": [
+            "Side-by-side diff view comparing G-code for two different controllers",
+            "Uses Monaco diff editor for inline change highlighting",
+            "Controller A / Controller B selector dropdowns",
+            "Summary: lines added, removed, changed between outputs"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/GcodeDiff.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create GcodeDiff.tsx using Monaco DiffEditor component" },
+            { "number": 2, "instruction": "Add dual controller selectors to choose comparison targets" },
+            { "number": 3, "instruction": "Wire to POST /api/v1/ppg/compare, display diff with change summary" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/GcodeDiff.tsx", "type": "source", "description": "Side-by-side G-code diff viewer" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U08",
+          "title": "Operation Builder",
+          "phase": "P0", "sequence": 7,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["PPG API client provides program() and getOperations()"],
+          "exit_conditions": [
+            "Visual operation sequence builder with drag-and-drop reordering",
+            "Operations fetched from GET /api/v1/ppg/operations",
+            "Each operation card shows: type, tool, params, estimated time",
+            "Generate Program button calls POST /api/v1/ppg/program with operation sequence"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/OperationBuilder.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create OperationBuilder.tsx with sortable operation card list" },
+            { "number": 2, "instruction": "Add operation from available types via dropdown/button" },
+            { "number": 3, "instruction": "Wire Generate Program to POST /api/v1/ppg/program, output to editor" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/OperationBuilder.tsx", "type": "source", "description": "Visual operation sequence builder" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U09",
+          "title": "Validation Panel",
+          "phase": "P0", "sequence": 8,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Editor provides G-code content, controller selected"],
+          "exit_conditions": [
+            "Validation panel calls POST /api/v1/ppg/validate on editor content",
+            "Displays issues list: errors (red), warnings (yellow), info (blue) with line numbers",
+            "Click issue → jumps to line in Monaco editor",
+            "Auto-validate on save (Ctrl+S) or manual validate button"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/ValidationPanel.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ValidationPanel.tsx with categorized issue list" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/ppg/validate with current editor content + controller" },
+            { "number": 3, "instruction": "Add Monaco marker integration: underline errors in editor gutter" },
+            { "number": 4, "instruction": "Add auto-validate on Ctrl+S and manual validate button" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/ValidationPanel.tsx", "type": "source", "description": "G-code validation issue display" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U10",
+          "title": "Optimize & Download",
+          "phase": "P0", "sequence": 9,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Editor and validation working"],
+          "exit_conditions": [
+            "Optimize button calls POST /api/v1/ppg/optimize on editor content",
+            "Shows optimization report: rapids merged, redundant codes removed, estimated savings",
+            "Download button exports .nc/.tap/.gcode file with proper controller extension",
+            "Filename auto-generated from program number and controller name"
+          ],
+          "rollback": "git checkout -- web/src/components/ppg/OptimizeDownload.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create OptimizeDownload.tsx with optimize button and report display" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/ppg/optimize, show before/after stats" },
+            { "number": 3, "instruction": "Add download button with file extension based on controller (.nc, .tap, .gcode)" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ppg/OptimizeDownload.tsx", "type": "source", "description": "Optimization and file export controls" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U11",
+          "title": "PPG State Management",
+          "phase": "P0", "sequence": 10,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U08", "P0-U09", "P0-U10"],
+          "entry_conditions": ["All PPG components complete"],
+          "exit_conditions": [
+            "PpgContext provides shared state: activeController, editorContent, operations, validationResults",
+            "Editor autosave to localStorage every 30 seconds",
+            "Undo/redo stack for operation builder changes",
+            "Session restore on page reload"
+          ],
+          "rollback": "git checkout -- web/src/contexts/PpgContext.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create web/src/contexts/PpgContext.tsx with React Context for shared PPG state" },
+            { "number": 2, "instruction": "Add localStorage persistence with 30s autosave interval" },
+            { "number": 3, "instruction": "Wire all PPG components to use PpgContext instead of local state" }
+          ],
+          "deliverables": [{ "path": "web/src/contexts/PpgContext.tsx", "type": "source", "description": "PPG shared state context" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U12",
+          "title": "PPG Testing & Polish",
+          "phase": "P0", "sequence": 11,
+          "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }],
+          "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U11"],
+          "entry_conditions": ["All PPG components wired with shared state"],
+          "exit_conditions": [
+            "Component tests for ControllerSelector, TemplateBrowser, GcodeEditor, ValidationPanel",
+            "Integration test: select controller → pick template → generate → validate → optimize → download",
+            "Keyboard shortcuts: Ctrl+S (save/validate), Ctrl+Shift+G (generate), Ctrl+D (diff)",
+            "npm run build zero errors, npm run test passes"
+          ],
+          "rollback": "git checkout -- web/src/__tests__/ppg/",
+          "steps": [
+            { "number": 1, "instruction": "Write component tests for each PPG component with mocked API" },
+            { "number": 2, "instruction": "Write E2E integration test for full PPG workflow" },
+            { "number": 3, "instruction": "Add keyboard shortcuts and document them in PPG page help tooltip" },
+            { "number": 4, "instruction": "Final polish: loading states, error boundaries, empty states" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/ppg/", "type": "test", "description": "PPG component and integration tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
@@ -72,52 +323,43 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "G-code generates correctly for at least 3 different controllers",
+          "Monaco syntax highlighting works for Fanuc and Siemens dialects",
+          "Diff view correctly shows controller-specific differences"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
     }
   ],
   "total_units": 12,
-  "total_sessions": "5-6",
+  "total_sessions": "3-4",
   "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
+    { "code": "R2", "name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80 }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    },
-    {
-      "tool": "Context7",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" },
+    { "tool": "Context7", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/pages/PpgPage.tsx", "type": "source", "description": "PPG page layout" },
+    { "path": "web/src/api/ppg.ts", "type": "source", "description": "PPG API client" },
+    { "path": "web/src/components/ppg/ControllerSelector.tsx", "type": "source", "description": "CNC controller picker" },
+    { "path": "web/src/components/ppg/TemplateBrowser.tsx", "type": "source", "description": "Template browser" },
+    { "path": "web/src/components/ppg/GcodeEditor.tsx", "type": "source", "description": "Monaco G-code editor" },
+    { "path": "web/src/components/ppg/GcodePreview.tsx", "type": "source", "description": "G-code preview" },
+    { "path": "web/src/components/ppg/GcodeDiff.tsx", "type": "source", "description": "Diff comparison" },
+    { "path": "web/src/components/ppg/OperationBuilder.tsx", "type": "source", "description": "Operation sequence builder" },
+    { "path": "web/src/components/ppg/ValidationPanel.tsx", "type": "source", "description": "Validation issue display" },
+    { "path": "web/src/components/ppg/OptimizeDownload.tsx", "type": "source", "description": "Optimize and export" }
+  ],
+  "existing_leverage": [
+    { "asset": "routes/ppg.ts", "type": "api_route", "description": "8 PPG REST endpoints" },
+    { "asset": "engines/PostProcessorEngine.ts", "type": "engine", "description": "G-code generation engine" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
@@ -126,13 +368,7 @@
     "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
     "scrutinizer_model": "opus-4.6",
     "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

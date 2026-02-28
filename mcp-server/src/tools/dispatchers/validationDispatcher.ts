@@ -7,6 +7,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { eventBus, EventTypes } from "../../engines/EventBus.js";
 import {
   validateKienzle, validateTaylor, validateJohnsonCook,
   computeSafetyScore, checkMaterialCompleteness, checkAntiRegression, validateMaterial,
@@ -79,6 +80,12 @@ Params vary by action - see individual action docs.`,
         return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
       } catch (error: any) {
         log.error(`[prism_validate] Error: ${error.message}`);
+        // MS4: Emit validation error event
+        try {
+          eventBus.publish(EventTypes.DATA_VALIDATION_ERROR, {
+            action, error: error?.message?.slice(0, 200),
+          }, { category: "data", priority: "high", source: "validationDispatcher" });
+        } catch { /* best-effort */ }
         return dispatcherError(error, action, "prism_validate");
       }
     }

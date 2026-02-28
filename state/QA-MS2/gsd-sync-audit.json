@@ -1,0 +1,134 @@
+{
+  "unit": "P0-U03",
+  "title": "GSD Sync State Accuracy vs Live System",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T03:15:00Z",
+  "status": "CONDITIONAL PASS",
+
+  "source_files": {
+    "gsd_dispatcher": "src/tools/dispatchers/gsdDispatcher.ts (202 lines)",
+    "gsd_quick": "data/docs/gsd/GSD_QUICK.md",
+    "fallback_counts": "gsdDispatcher.ts lines 32, 161-174",
+    "baseline": "state/QA-MS0/baseline-audit-report.json"
+  },
+
+  "count_comparison": {
+    "dispatchers": {
+      "gsd_claims": 32,
+      "baseline_actual": 45,
+      "match": false,
+      "delta": "-13 (29% understated)",
+      "severity": "MAJOR"
+    },
+    "actions": {
+      "gsd_claims": 541,
+      "baseline_actual": 1060,
+      "match": false,
+      "delta": "-519 (49% understated)",
+      "severity": "MAJOR",
+      "note": "GSD_QUICK.md sums action counts from decision tree: 91+29+238+14+12+8+30+18+7+23+18+14+6+9+19+6+11+5 = ~577 (inconsistent with header's 541)"
+    },
+    "engines": {
+      "gsd_claims": 73,
+      "baseline_actual": 185,
+      "match": false,
+      "delta": "-112 (60% understated)",
+      "severity": "MAJOR",
+      "note": "engines/index.ts header updated to 185 in health audit MS7"
+    },
+    "hooks": {
+      "gsd_claims": 112,
+      "baseline_actual": 179,
+      "match": false,
+      "delta": "-67 (37% understated)",
+      "severity": "MEDIUM",
+      "note": "hooks/index.ts updated to 179 in health audit MS7"
+    },
+    "algorithms": {
+      "gsd_claims": "not specified in GSD",
+      "baseline_actual": 50,
+      "match": "N/A"
+    }
+  },
+
+  "fallback_values_audit": {
+    "location": "gsdDispatcher.ts lines 161-174 (resources_summary fallback)",
+    "values": {
+      "mcp_tools": { "fallback": 324, "actual": "~45 dispatchers", "note": "324 may count individual actions, not tools" },
+      "materials": { "fallback": 3518, "actual": "3022 typed + 6338 knowledge", "note": "Stale — typed count was 3022 as of 2026-02-22" },
+      "machines": { "fallback": "not in fallback", "actual": 1015, "note": "machines missing from fallback entirely" },
+      "alarms": { "fallback": 18942, "actual": "unverified", "note": "Alarm count not in QA-MS0 baseline" },
+      "skills": { "fallback": 119, "actual": "unverified", "note": "Not in QA-MS0 baseline scope" },
+      "formulas": { "fallback": 490, "actual": "unverified" },
+      "agents": { "fallback": 56, "actual": "unverified" },
+      "hooks": { "fallback": 112, "actual": 179, "stale": true },
+      "scripts": { "fallback": 74, "actual": "unverified" }
+    },
+    "stale_entries": 3,
+    "stale_items": ["hooks (112→179)", "materials (3518 vs 3022 typed)", "engines (73 vs 185)"]
+  },
+
+  "gsd_quick_internal_consistency": {
+    "header_claims": "32 dispatchers | 541 verified actions | 40 cadence auto-functions | 73 engines | 112 hooks",
+    "decision_tree_action_sum": "91+29+238+14+12+8+30+18+7+23+18+14+6+9+19+6+11+5 = 577 (from decision tree entries)",
+    "header_vs_tree_match": false,
+    "delta": "Header says 541, tree sums to ~577 — internal inconsistency of 36 actions"
+  },
+
+  "sync_accuracy": {
+    "dimensions_checked": 4,
+    "dimensions_matching": 0,
+    "accuracy_percentage": "0%",
+    "note": "All 4 comparable dimensions (dispatchers, actions, engines, hooks) are stale. GSD underreports across the board.",
+    "root_cause": "GSD_QUICK.md counts were set during an earlier project phase and never updated as new dispatchers/engines were added."
+  },
+
+  "gsd_file_based_architecture": {
+    "design": "GOOD — v3.0 file-based with fallback (line 65-76)",
+    "canonical_source": "data/docs/gsd/GSD_QUICK.md + DEV_PROTOCOL.md",
+    "section_files": "data/docs/gsd/sections/{section}.md (14 valid sections)",
+    "path_traversal_protection": "VALID_SECTIONS whitelist at line 25 (line 80 check)",
+    "telemetry": "gsd_access_log.json tracks usage (line 47-59, capped at 200 entries)",
+    "finding": "Architecture is sound — stale data is a content issue, not a code issue"
+  },
+
+  "findings": [
+    { "severity": "MAJOR", "finding": "All 4 comparable GSD counts are stale: dispatchers (32→45), actions (541→1060), engines (73→185), hooks (112→179)" },
+    { "severity": "MAJOR", "finding": "GSD_QUICK.md header action count (541) inconsistent with its own decision tree sum (~577)" },
+    { "severity": "MEDIUM", "finding": "gsdDispatcher.ts fallback values stale: hooks (112→179), materials count differs" },
+    { "severity": "OK", "finding": "GSD file-based architecture (v3.0) is well-designed with fallbacks and path traversal protection" },
+    { "severity": "OK", "finding": "Access telemetry properly implemented and capped" },
+    { "severity": "INFO", "finding": "CURRENT_STATE.json may not exist — resources_summary falls back to hardcoded defaults" }
+  ],
+
+  "recommended_fixes": [
+    {
+      "priority": "P1",
+      "file": "data/docs/gsd/GSD_QUICK.md",
+      "fix": "Update header to: 45 dispatchers | 1060 verified actions | 185 engines | 179 hooks",
+      "impact": "Eliminates primary source of count drift"
+    },
+    {
+      "priority": "P2",
+      "file": "src/tools/dispatchers/gsdDispatcher.ts",
+      "line": "161-174",
+      "fix": "Update fallback values: hooks→179, remove stale materials count or mark as approximate",
+      "impact": "resources_summary returns accurate data when CURRENT_STATE.json missing"
+    }
+  ],
+
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 2,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*3 + 0.25*2 + 0.25*5 + 0.15*5 = 1.05 + 0.50 + 1.25 + 0.75 = 3.55",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+
+  "exit_conditions_met": {
+    "gsd_state_compared_against_live": true,
+    "stale_entries_identified": true,
+    "sync_accuracy_calculated": true
+  }
+}

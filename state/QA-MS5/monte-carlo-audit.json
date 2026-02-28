@@ -1,0 +1,111 @@
+{
+  "unit": "P0-U03",
+  "title": "Monte Carlo Simulation Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T14:00:00Z",
+  "status": "PASS",
+  "algorithms_audited": [
+    {
+      "name": "MonteCarlo",
+      "file": "src/algorithms/MonteCarlo.ts",
+      "lines": 186,
+      "registry_id": "monte-carlo",
+      "approach": "Monte Carlo simulation with multi-distribution sampling and sensitivity analysis",
+      "distributions": {
+        "normal": {
+          "method": "Box-Muller transform",
+          "formula": "z = sqrt(-2*ln(u1)) * cos(2*pi*u2)",
+          "verified": true
+        },
+        "uniform": {
+          "method": "Direct: min + rand * (max - min)",
+          "verified": true
+        },
+        "triangular": {
+          "method": "Inverse CDF with mode-based split",
+          "verified": true
+        },
+        "lognormal": {
+          "method": "exp(Box-Muller normal) with log-space parameters",
+          "verified": true
+        }
+      },
+      "sample_size": {
+        "parameter": "n_samples (configurable, default 10000)",
+        "adequacy_check": "Standard error of mean",
+        "verified": true
+      },
+      "confidence_intervals": {
+        "method": "z * (sigma / sqrt(n))",
+        "z_values": {
+          "0.90": 1.645,
+          "0.95": 1.96,
+          "0.99": 2.576
+        },
+        "verified": true
+      },
+      "sensitivity_analysis": {
+        "method": "Sobol first-order indices",
+        "formula": "S_i = Var(E[Y|X_i]) / Var(Y)",
+        "verified": true
+      },
+      "statistics_output": {
+        "mean": true,
+        "std_dev": true,
+        "percentiles": "5th, 25th, 50th, 75th, 95th",
+        "histogram": true,
+        "confidence_interval": true,
+        "verified": true
+      },
+      "prng": "mulberry32 seeded PRNG",
+      "safety_class": "standard"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Box-Muller transform correctly produces Gaussian samples from uniform pairs"
+    },
+    {
+      "severity": "OK",
+      "finding": "All 4 distributions (normal/uniform/triangular/lognormal) correctly implemented"
+    },
+    {
+      "severity": "OK",
+      "finding": "Confidence intervals use correct z-values for 90%/95%/99% levels with CLT-based standard error"
+    },
+    {
+      "severity": "OK",
+      "finding": "Sobol first-order sensitivity indices correctly decompose output variance by input factor"
+    },
+    {
+      "severity": "OK",
+      "finding": "Comprehensive output statistics: mean, std, percentiles, histogram, CI"
+    },
+    {
+      "severity": "OK",
+      "finding": "Seeded PRNG ensures reproducible simulation results"
+    },
+    {
+      "severity": "INFO",
+      "finding": "No stratified or Latin Hypercube sampling -- pure MC. Adequate for 10K+ samples."
+    },
+    {
+      "severity": "INFO",
+      "finding": "Only first-order Sobol indices (no total-effect). Sufficient for manufacturing sensitivity ranking."
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "random_sampling_distribution_correctness_verified": true,
+    "sample_size_adequacy_logic_verified": true,
+    "confidence_interval_calculation_verified": true
+  }
+}

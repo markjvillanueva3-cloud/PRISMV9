@@ -9,49 +9,567 @@
     {
       "id": "P0",
       "title": "PDF/Manual Knowledge Extraction Engine",
-      "description": "Extract machining knowledge from PDF manuals, technical documents, and catalogs.",
+      "description": "Build a complete pipeline to ingest PDF manuals and technical documents, extract tables/charts/parameters, parse machining practices, map to knowledge schema, and validate against physics. Covers catalog data, tooling recommendations, and manufacturer specifications.",
       "sessions": "4-5",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute PDF/Manual Knowledge Extraction Engine",
+          "title": "PDF Ingestion Pipeline",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-MS11"],
           "entry_conditions": [
-            "CC-MS11 complete"
+            "CC-MS11 complete",
+            "Python 3.10+ available",
+            "PyMuPDF/pdfplumber/camelot installed"
           ],
           "exit_conditions": [
-            "PDF/Manual Knowledge Extraction Engine complete",
+            "pdf_ingestion.py accepts PDF file paths and URLs",
+            "Text extraction handles single-column, multi-column, and mixed layouts",
+            "OCR fallback for scanned PDFs via Tesseract integration",
+            "Page segmentation classifies regions as text, table, figure, header/footer",
+            "Metadata extraction: title, author, date, page count, document type",
+            "Handles PDFs up to 500 pages without memory overflow",
             "Build passes",
-            "Tests pass"
+            "Tests pass with 5+ sample PDFs of varying formats"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS1]",
+          "rollback": "git checkout -- cad-engine/src/extraction/pdf_ingestion.py cad-engine/tests/test_pdf_ingestion.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute PDF/Manual Knowledge Extraction Engine per roadmap spec"
+              "instruction": "Create cad-engine/src/extraction/ directory structure for all CC-EXT-MS1 modules"
+            },
+            {
+              "number": 2,
+              "instruction": "Build pdf_ingestion.py: PDF loading (file path + URL), text extraction via PyMuPDF primary + pdfplumber fallback, OCR path via Tesseract for scanned pages"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement page segmentation: classify regions as text/table/figure/header/footer using layout analysis heuristics (column detection, whitespace analysis, ruling line detection)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add metadata extraction (title, author, date, document type classification: manual/catalog/datasheet/technical-note)"
+            },
+            {
+              "number": 5,
+              "instruction": "Write tests: 5+ PDFs covering single-column manual, multi-column catalog, scanned document, mixed text+table, large (100+ page) document"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/pdf_ingestion.py", "type": "source", "description": "PDF loading, text extraction, OCR fallback, page segmentation" },
+            { "path": "cad-engine/src/extraction/__init__.py", "type": "source", "description": "Extraction package init" },
+            { "path": "cad-engine/tests/test_pdf_ingestion.py", "type": "test", "description": "Tests for PDF ingestion across format variants" },
+            { "path": "cad-engine/data/test_pdfs/", "type": "data", "description": "Sample PDFs for testing (5+ documents)" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Table and Chart Extraction",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "PDF ingestion pipeline operational",
+            "camelot-py or tabula-py installed for table extraction"
+          ],
+          "exit_conditions": [
+            "table_extractor.py extracts tables from PDFs with >90% cell accuracy on test set",
+            "Handles merged cells, multi-line cells, headerless tables",
+            "chart_extractor.py extracts data from bar charts, line graphs, scatter plots",
+            "Extracted tables output as structured DataFrames with column headers",
+            "Chart data output as (x, y) series with axis labels and units",
+            "Unit detection for table columns (mm, in, RPM, m/min, etc.)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/table_extractor.py cad-engine/src/extraction/chart_extractor.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build table_extractor.py: detect table boundaries using camelot (lattice + stream modes), extract cell contents, reconstruct grid structure, handle merged cells and multi-line cells"
+            },
+            {
+              "number": 2,
+              "instruction": "Add header inference: detect header rows (bold, separator lines, repeated patterns), assign column names, handle headerless tables with positional heuristics"
+            },
+            {
+              "number": 3,
+              "instruction": "Add unit detection for table columns: parse column headers and cell values for engineering units (mm, in, RPM, m/min, SFM, IPR, IPT, HRC, Ra, etc.)"
+            },
+            {
+              "number": 4,
+              "instruction": "Build chart_extractor.py: detect chart regions from page segmentation, extract data points from bar/line/scatter plots using image analysis, capture axis labels and units"
+            },
+            {
+              "number": 5,
+              "instruction": "Write tests: speed/feed tables from Machinery's Handbook format, tooling catalogs with merged cells, cutting data charts"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/table_extractor.py", "type": "source", "description": "Table detection, extraction, header inference, unit parsing" },
+            { "path": "cad-engine/src/extraction/chart_extractor.py", "type": "source", "description": "Chart/graph data extraction with axis label parsing" },
+            { "path": "cad-engine/tests/test_table_chart_extraction.py", "type": "test", "description": "Tests for table and chart extraction accuracy" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Technical Parameter Parsing",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Table and chart extraction operational",
+            "prism_calc available for unit conversion validation"
+          ],
+          "exit_conditions": [
+            "param_parser.py extracts cutting parameters: speed, feed, DOC, WOC, RPM, chipload",
+            "Unit normalization: all values converted to SI base + imperial equivalents",
+            "Range detection: parses 'X-Y', 'X to Y', 'X~Y', 'min X max Y' patterns",
+            "Material-conditional parameters: links params to material grades (e.g., 'for 4140 steel: ...')",
+            "Tool-conditional parameters: links params to tool types/sizes",
+            "Tolerance parsing: extracts +/- values, fits/clearances",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/param_parser.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build param_parser.py: regex + NLP patterns for cutting parameters (speed, feed, DOC, WOC, RPM, chipload, stepover, step-down)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement unit normalization: detect input units, convert to SI (m/min, mm/rev, mm) and imperial (SFM, IPR, in), store both representations"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement range detection: parse range patterns ('100-200 SFM', '0.005 to 0.010 IPR', 'min 80 max 120 m/min'), output as (min, typical, max) tuples"
+            },
+            {
+              "number": 4,
+              "instruction": "Add conditional parameter linking: associate extracted params with material context (grade, hardness) and tool context (type, diameter, flute count, coating)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add tolerance parsing: +/- values, H7/g6 fit notation, surface finish (Ra, Rz), GD&T callouts"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests using known Machinery's Handbook values and tooling catalog specifications"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/param_parser.py", "type": "source", "description": "Technical parameter extraction, unit normalization, range detection" },
+            { "path": "cad-engine/tests/test_param_parser.py", "type": "test", "description": "Tests for parameter parsing against known reference values" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Machining Practice Extraction",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U03"],
+          "entry_conditions": [
+            "P0-U03 complete",
+            "Parameter parser operational"
+          ],
+          "exit_conditions": [
+            "practice_extractor.py identifies machining practice sections in text",
+            "Extracts structured practices: setup procedures, fixturing guidance, cutting strategies, coolant recommendations",
+            "Captures conditional logic: 'when machining X, do Y' patterns",
+            "Extracts safety warnings and constraints",
+            "Links practices to specific operations (turning, milling, drilling, grinding, EDM)",
+            "Confidence scoring per extracted practice based on source specificity",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/practice_extractor.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build practice_extractor.py: NLP-based section identification for machining practices (setup, fixturing, strategy, coolant, safety)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement structured practice extraction: parse procedural text into step sequences with parameters, tools, and conditions"
+            },
+            {
+              "number": 3,
+              "instruction": "Add conditional logic extraction: identify 'when/if X then Y' patterns, material-dependent recommendations, machine-dependent adjustments"
+            },
+            {
+              "number": 4,
+              "instruction": "Extract safety warnings and hard constraints (max RPM, min coolant pressure, mandatory PPE, never-do items)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add operation type classification and practice-to-operation linking"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement confidence scoring: higher for specific quantitative advice, lower for vague/general guidance"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/practice_extractor.py", "type": "source", "description": "Machining practice extraction with conditional logic and safety warnings" },
+            { "path": "cad-engine/tests/test_practice_extractor.py", "type": "test", "description": "Tests for practice extraction from manual text" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Catalog Data Extraction",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_data" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Table extraction operational",
+            "prism_data tool DB available for cross-reference"
+          ],
+          "exit_conditions": [
+            "catalog_extractor.py parses tooling catalogs (Sandvik, Kennametal, Iscar, etc.)",
+            "Extracts tool specifications: geometry, grade, coating, application range",
+            "Parses recommended cutting data tables per insert/tool grade and workpiece material",
+            "Extracts tool ordering information: part numbers, ISO designations",
+            "Cross-references extracted tools against existing prism_data tool DB",
+            "Handles multi-page catalog layouts with repeated headers",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/catalog_extractor.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build catalog_extractor.py: detect catalog page layouts (tool images, spec tables, cutting data tables, application guides)"
+            },
+            {
+              "number": 2,
+              "instruction": "Extract tool specifications: geometry (nose radius, rake angle, clearance), grade (carbide, cermet, ceramic, CBN, PCD), coating (TiAlN, TiCN, CVD, PVD), application range"
+            },
+            {
+              "number": 3,
+              "instruction": "Parse cutting data recommendation tables: map tool grade x workpiece material -> speed/feed ranges, handle footnotes and condition modifiers"
+            },
+            {
+              "number": 4,
+              "instruction": "Extract part numbers, ISO insert designations (CNMG, WNMG, etc.), and link to tool geometry"
+            },
+            {
+              "number": 5,
+              "instruction": "Cross-reference extracted tools against prism_data tool DB, flag new tools not in DB, flag discrepancies in existing entries"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests using sample pages from major tooling catalogs"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/catalog_extractor.py", "type": "source", "description": "Tooling catalog parser for specifications and cutting data" },
+            { "path": "cad-engine/tests/test_catalog_extractor.py", "type": "test", "description": "Tests for catalog data extraction" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "Knowledge Schema Mapping",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U03", "CC-EXT-MS1:P0-U04", "CC-EXT-MS1:P0-U05"],
+          "entry_conditions": [
+            "P0-U03, P0-U04, P0-U05 complete",
+            "All extractors producing raw output",
+            "CC-MS11 knowledge schema available"
+          ],
+          "exit_conditions": [
+            "schema_mapper.py maps all extracted data to CC knowledge schema",
+            "Unified output format: KnowledgeEntry objects with source provenance",
+            "Deduplication: identical knowledge from multiple pages/sections merged",
+            "Provenance tracking: every entry links back to source PDF, page, region",
+            "Schema validation: all output entries pass JSON schema validation",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/schema_mapper.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define KnowledgeEntry schema: type (parameter/practice/tool/material), value, units, conditions, confidence, source provenance (pdf, page, region, extraction_method)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build schema_mapper.py: transform raw extractor output (params, practices, catalog data) into KnowledgeEntry objects"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement deduplication: detect and merge duplicate entries from overlapping extractions (same parameter from table vs. text vs. chart)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add provenance tracking: link every KnowledgeEntry to source PDF path, page number, bounding region, extraction method used"
+            },
+            {
+              "number": 5,
+              "instruction": "Add JSON schema validation for output entries, reject malformed entries with detailed error messages"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/schema_mapper.py", "type": "source", "description": "Maps extracted data to unified knowledge schema with provenance" },
+            { "path": "cad-engine/src/extraction/knowledge_schema.py", "type": "source", "description": "KnowledgeEntry dataclass and JSON schema definitions" },
+            { "path": "cad-engine/tests/test_schema_mapper.py", "type": "test", "description": "Tests for schema mapping and deduplication" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U07",
+          "title": "Physics Validation of Extracted Knowledge",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U06"],
+          "entry_conditions": [
+            "P0-U06 complete",
+            "Schema mapper producing KnowledgeEntry objects",
+            "prism_calc operational (Kienzle, Taylor, speed/feed models)"
+          ],
+          "exit_conditions": [
+            "physics_validator.py validates all extracted cutting parameters against prism_calc",
+            "Speed/feed values checked against material-appropriate ranges (Kienzle model)",
+            "Tool life values checked against Taylor model predictions",
+            "Power/force values checked against machine capability limits",
+            "Flagging system: VALID (within 20% of model), SUSPECT (20-50% deviation), INVALID (>50% deviation or physically impossible)",
+            "Invalid entries quarantined with deviation details, not stored in knowledge base",
+            "Validation report generated per PDF showing pass/suspect/fail counts",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/extraction/physics_validator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build physics_validator.py: accept KnowledgeEntry objects, route to appropriate prism_calc model based on parameter type"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement speed/feed validation: check against Kienzle model for given material, flag deviations with percentage and direction"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement tool life validation: check against Taylor model for given conditions, flag unrealistic life predictions"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement power/force validation: check against machine capability limits, detect impossible cutting force claims"
+            },
+            {
+              "number": 5,
+              "instruction": "Build flagging system: VALID/SUSPECT/INVALID classification with deviation details, quarantine INVALID entries"
+            },
+            {
+              "number": 6,
+              "instruction": "Generate per-PDF validation report: pass/suspect/fail counts, worst deviations, quarantined entries"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/extraction/physics_validator.py", "type": "source", "description": "Physics-based validation of extracted parameters against prism_calc models" },
+            { "path": "cad-engine/tests/test_physics_validator.py", "type": "test", "description": "Tests with known-good and intentionally-bad parameter sets" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U08",
+          "title": "Integration Tests with 20+ Real PDFs",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS1:P0-U07"],
+          "entry_conditions": [
+            "P0-U07 complete",
+            "Full pipeline operational: ingest -> extract -> parse -> map -> validate",
+            "20+ test PDFs collected (manuals, catalogs, datasheets)"
+          ],
+          "exit_conditions": [
+            "E2E pipeline test: PDF file -> KnowledgeEntry objects with validation status",
+            "20+ real PDFs processed successfully (Machinery's Handbook sections, Sandvik/Kennametal catalogs, machine manuals, technical papers)",
+            "Table extraction accuracy >= 90% on test set",
+            "Parameter extraction recall >= 85% on annotated ground truth",
+            "Physics validation catches >= 95% of intentionally inserted bad values",
+            "No crashes or hangs on any test PDF",
+            "Pipeline processes average PDF (50 pages) in under 60 seconds",
+            "All extracted knowledge entries pass schema validation",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/integration/test_pdf_e2e.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Collect 20+ test PDFs: 5 tooling catalogs (Sandvik, Kennametal, Iscar, Walter, Mitsubishi), 5 Machinery's Handbook sections, 5 machine manuals, 5 technical papers/datasheets"
+            },
+            {
+              "number": 2,
+              "instruction": "Create ground truth annotations for 5 representative PDFs: manually mark expected tables, parameters, practices"
+            },
+            {
+              "number": 3,
+              "instruction": "Build E2E integration test: ingest PDF -> extract tables/charts -> parse parameters -> extract practices -> map to schema -> validate against physics -> output KnowledgeEntry set"
+            },
+            {
+              "number": 4,
+              "instruction": "Run accuracy metrics: table extraction accuracy, parameter recall vs ground truth, practice extraction completeness"
+            },
+            {
+              "number": 5,
+              "instruction": "Insert intentionally bad values into test PDFs, verify physics validator catches >= 95%"
+            },
+            {
+              "number": 6,
+              "instruction": "Performance test: measure processing time per PDF, ensure <60s average for 50-page documents"
+            },
+            {
+              "number": 7,
+              "instruction": "Stress test: process all 20+ PDFs sequentially and in parallel, verify no crashes, hangs, or memory leaks"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/integration/test_pdf_e2e.py", "type": "test", "description": "End-to-end integration tests for full PDF extraction pipeline" },
+            { "path": "cad-engine/tests/integration/test_pdf_accuracy.py", "type": "test", "description": "Accuracy and recall metrics against ground truth" },
+            { "path": "cad-engine/tests/integration/test_pdf_performance.py", "type": "test", "description": "Performance and stress tests" },
+            { "path": "cad-engine/data/test_pdfs/ground_truth/", "type": "data", "description": "Ground truth annotations for 5 representative PDFs" },
+            { "path": "cad-engine/data/test_pdfs/corpus/", "type": "data", "description": "20+ test PDFs from diverse sources" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -61,7 +579,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -69,7 +587,13 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "20+ real PDFs processed without errors",
+          "Table extraction accuracy >= 90%",
+          "Parameter extraction recall >= 85%",
+          "Physics validator catches >= 95% of bad values",
+          "All KnowledgeEntry outputs pass schema validation"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -80,27 +604,34 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_data", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/src/extraction/pdf_ingestion.py", "type": "source", "description": "PDF loading, text extraction, OCR fallback" },
+    { "path": "cad-engine/src/extraction/table_extractor.py", "type": "source", "description": "Table detection and extraction" },
+    { "path": "cad-engine/src/extraction/chart_extractor.py", "type": "source", "description": "Chart/graph data extraction" },
+    { "path": "cad-engine/src/extraction/param_parser.py", "type": "source", "description": "Technical parameter parsing and unit normalization" },
+    { "path": "cad-engine/src/extraction/practice_extractor.py", "type": "source", "description": "Machining practice extraction" },
+    { "path": "cad-engine/src/extraction/catalog_extractor.py", "type": "source", "description": "Tooling catalog parser" },
+    { "path": "cad-engine/src/extraction/schema_mapper.py", "type": "source", "description": "Knowledge schema mapping with provenance" },
+    { "path": "cad-engine/src/extraction/physics_validator.py", "type": "source", "description": "Physics-based parameter validation" }
+  ],
+  "existing_leverage": [
+    { "asset": "prism_calc", "type": "tool", "description": "Kienzle/Taylor models for physics validation of extracted parameters" },
+    { "asset": "prism_data tool DB", "type": "data", "description": "1,944+ tool database for cross-reference of catalog extractions" },
+    { "asset": "CC-MS11 knowledge schema", "type": "schema", "description": "Unified knowledge schema from integration testing phase" },
+    { "asset": "prism_validate", "type": "tool", "description": "Validation framework for safety and completeness checks" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,

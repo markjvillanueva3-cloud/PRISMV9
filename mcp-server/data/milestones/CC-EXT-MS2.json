@@ -9,49 +9,569 @@
     {
       "id": "P0",
       "title": "Operator Feedback Loop Engine",
-      "description": "Capture, validate, and integrate real-world operator feedback into knowledge bases.",
+      "description": "Build a complete feedback loop system to collect operator input, validate against physics models, score by experience, build consensus from multiple operators, resolve conflicts, update knowledge bases, and track feedback quality metrics.",
       "sessions": "4-5",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Operator Feedback Loop Engine",
+          "title": "Feedback Collection API",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-MS11"],
           "entry_conditions": [
-            "CC-MS11 complete"
+            "CC-MS11 complete",
+            "Python 3.10+ available",
+            "Knowledge base schema from CC-MS11 available"
           ],
           "exit_conditions": [
-            "Operator Feedback Loop Engine complete",
+            "feedback_api.py exposes collect_feedback() accepting structured operator input",
+            "Feedback schema: operator_id, experience_level, operation_type, material, tool, parameters_used, outcome (success/failure/modified), notes, timestamp",
+            "Input validation: reject incomplete or malformed submissions with clear error messages",
+            "Supports batch submission for historical data import",
+            "Feedback stored in SQLite with full audit trail",
+            "REST-compatible interface for future UI integration",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS2]",
+          "rollback": "git checkout -- cad-engine/src/feedback/feedback_api.py cad-engine/tests/test_feedback_api.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Operator Feedback Loop Engine per roadmap spec"
+              "instruction": "Create cad-engine/src/feedback/ directory structure"
+            },
+            {
+              "number": 2,
+              "instruction": "Define feedback schema dataclass: OperatorFeedback with operator_id, experience_level (years + specializations), operation_type, material, tool, parameters_used (dict), outcome, modifications_made, notes, timestamp"
+            },
+            {
+              "number": 3,
+              "instruction": "Build feedback_api.py: collect_feedback() with input validation, batch_import() for historical data, SQLite storage with audit trail"
+            },
+            {
+              "number": 4,
+              "instruction": "Add query interface: get_feedback_by_operation(), get_feedback_by_material(), get_feedback_by_operator(), get_feedback_summary()"
+            },
+            {
+              "number": 5,
+              "instruction": "Write tests: valid submission, malformed rejection, batch import, query interface"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/__init__.py", "type": "source", "description": "Feedback package init" },
+            { "path": "cad-engine/src/feedback/feedback_api.py", "type": "source", "description": "Feedback collection API with SQLite storage and audit trail" },
+            { "path": "cad-engine/src/feedback/feedback_schema.py", "type": "source", "description": "OperatorFeedback dataclass and validation rules" },
+            { "path": "cad-engine/tests/test_feedback_api.py", "type": "test", "description": "Tests for feedback collection, validation, and querying" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Physics Model Validation of Feedback",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_validate" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "Feedback API operational",
+            "prism_calc available"
+          ],
+          "exit_conditions": [
+            "feedback_validator.py checks all submitted parameters against physics models",
+            "Speed/feed values validated via Kienzle model for given material/tool combo",
+            "Tool life claims validated against Taylor model",
+            "Force/power claims validated against machine capability",
+            "Three-tier result: CONFIRMED (physics agrees), NOVEL (plausible but outside model range), IMPLAUSIBLE (violates physics)",
+            "NOVEL feedback flagged for human review rather than auto-rejected",
+            "Validation runs in <2 seconds per feedback entry",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/feedback_validator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build feedback_validator.py: accept OperatorFeedback, extract parameter claims, route to appropriate prism_calc models"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement speed/feed validation: compare operator-reported values against Kienzle model predictions for material/tool combination"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement tool life validation: compare reported tool life against Taylor model, account for reported conditions"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement three-tier classification: CONFIRMED (<20% deviation), NOVEL (20-100% deviation but physically plausible), IMPLAUSIBLE (>100% deviation or violates conservation laws)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add human review queue for NOVEL feedback: store with flag, expose get_pending_reviews()"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests with known-good operator data, edge-case novel techniques, and intentionally implausible claims"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/feedback_validator.py", "type": "source", "description": "Physics-based validation of operator feedback with three-tier classification" },
+            { "path": "cad-engine/tests/test_feedback_validator.py", "type": "test", "description": "Tests for feedback validation against physics models" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Experience Weight Scoring",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Feedback validation operational"
+          ],
+          "exit_conditions": [
+            "experience_scorer.py computes credibility weight for each operator's feedback",
+            "Scoring factors: years of experience, specialization match, historical accuracy, feedback consistency",
+            "Historical accuracy: track what percentage of operator's past feedback proved correct",
+            "Specialization matching: higher weight when feedback matches operator's declared expertise",
+            "Score range 0.0-1.0 with transparent breakdown available",
+            "New operators start at 0.5 neutral weight, adjust over time",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/experience_scorer.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build experience_scorer.py: compute_weight(operator_id, feedback) -> ExperienceScore(total, breakdown)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement factor weights: years_of_experience (0-0.25), specialization_match (0-0.25), historical_accuracy (0-0.30), consistency (0-0.20)"
+            },
+            {
+              "number": 3,
+              "instruction": "Build historical accuracy tracker: store outcome of past feedback, compute rolling accuracy percentage"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement specialization matching: compare feedback operation/material against operator's declared expertise areas"
+            },
+            {
+              "number": 5,
+              "instruction": "Add consistency checker: detect operators who contradict their own previous feedback, reduce weight for inconsistency"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: new operator (neutral), experienced specialist (high weight), inconsistent operator (declining weight)"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/experience_scorer.py", "type": "source", "description": "Operator credibility scoring with transparent factor breakdown" },
+            { "path": "cad-engine/tests/test_experience_scorer.py", "type": "test", "description": "Tests for experience weight scoring across operator profiles" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Consensus Building from Multiple Operators",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U03"],
+          "entry_conditions": [
+            "P0-U03 complete",
+            "Experience scoring operational"
+          ],
+          "exit_conditions": [
+            "consensus_builder.py aggregates feedback from multiple operators for same operation/material/tool",
+            "Weighted parameter averaging using experience scores",
+            "Consensus confidence: higher when multiple high-weight operators agree",
+            "Minimum operator threshold: require N>=3 agreeing operators for high confidence",
+            "Outlier detection: identify feedback that deviates significantly from consensus",
+            "Consensus output: recommended parameters with confidence interval and contributing operator count",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/consensus_builder.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build consensus_builder.py: group feedback by operation+material+tool combination, compute weighted statistics"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement weighted averaging: parameter consensus = sum(weight_i * value_i) / sum(weight_i) for each parameter dimension"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement confidence scoring: base on number of contributors, weight distribution, agreement tightness (low stddev = high confidence)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add outlier detection: flag feedback >2 weighted standard deviations from consensus, report outlier details"
+            },
+            {
+              "number": 5,
+              "instruction": "Output ConsensusResult: recommended_params (with CI), confidence (0-1), num_contributors, outlier_count, contributing_operators"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: 5 agreeing operators (high confidence), 3 disagreeing (low confidence), 1 outlier among 4 agreeing"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/consensus_builder.py", "type": "source", "description": "Multi-operator consensus aggregation with confidence scoring" },
+            { "path": "cad-engine/tests/test_consensus_builder.py", "type": "test", "description": "Tests for consensus building across operator agreement scenarios" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Conflict Resolution",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U04"],
+          "entry_conditions": [
+            "P0-U04 complete",
+            "Consensus builder operational"
+          ],
+          "exit_conditions": [
+            "conflict_resolver.py detects and resolves conflicting feedback",
+            "Conflict types: operator-vs-operator, operator-vs-physics, operator-vs-existing-knowledge",
+            "Resolution strategies: weighted voting, physics arbitration, experience-based tiebreak",
+            "Operator-vs-physics conflicts: physics wins unless 3+ high-weight operators consistently disagree (flag for review)",
+            "Unresolvable conflicts escalated to human review queue with full context",
+            "Conflict resolution audit trail: every resolution logged with rationale",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/conflict_resolver.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build conflict_resolver.py: detect conflicts when new feedback contradicts existing consensus, physics models, or other recent feedback"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement conflict classification: operator-vs-operator (different values for same conditions), operator-vs-physics (feedback contradicts model), operator-vs-knowledge (feedback contradicts stored knowledge)"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement resolution strategies: weighted voting (experience-based), physics arbitration (prism_calc as tiebreaker), experience tiebreak (highest-weight operator wins)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add special handling for operator-vs-physics: if 3+ operators with weight >0.7 consistently report values outside model range, flag as potential model gap rather than operator error"
+            },
+            {
+              "number": 5,
+              "instruction": "Build escalation queue: unresolvable conflicts queued for human review with full context (all feedback, physics check, operator profiles)"
+            },
+            {
+              "number": 6,
+              "instruction": "Add audit trail: every conflict resolution logged with conflict type, strategy used, rationale, outcome"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/conflict_resolver.py", "type": "source", "description": "Conflict detection and resolution with multiple strategies and escalation" },
+            { "path": "cad-engine/tests/test_conflict_resolver.py", "type": "test", "description": "Tests for conflict detection, resolution strategies, and escalation" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U06",
+          "title": "Knowledge Base Update Pipeline",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U05"],
+          "entry_conditions": [
+            "P0-U05 complete",
+            "Conflict resolution operational",
+            "Knowledge base from CC-MS11 accessible"
+          ],
+          "exit_conditions": [
+            "kb_updater.py applies validated, consensus-approved feedback to the knowledge base",
+            "Atomic updates: knowledge base never left in inconsistent state",
+            "Version tracking: every KB entry has version history with change provenance",
+            "Rollback capability: any KB update can be reversed to previous version",
+            "Update modes: NEW (add entry), REFINE (narrow parameter range), OVERRIDE (replace with operator consensus), DEPRECATE (mark as outdated)",
+            "Change log: human-readable summary of what changed and why",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/kb_updater.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build kb_updater.py: apply_update(consensus_result, conflict_resolution) -> KB modification with atomic transaction"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement update modes: NEW (insert), REFINE (tighten ranges based on operator data), OVERRIDE (replace value when consensus is strong), DEPRECATE (mark old entries)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add version tracking: every KB entry gets version number, change timestamp, change source (operator consensus), previous value"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement rollback: rollback_update(entry_id, target_version) restores previous state"
+            },
+            {
+              "number": 5,
+              "instruction": "Build change log generator: human-readable summary per update batch (what changed, why, who contributed, confidence level)"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: new entry creation, range refinement, override with rollback, deprecation"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/kb_updater.py", "type": "source", "description": "Knowledge base update pipeline with versioning and rollback" },
+            { "path": "cad-engine/tests/test_kb_updater.py", "type": "test", "description": "Tests for KB update modes, versioning, and rollback" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U07",
+          "title": "Feedback Quality Metrics",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U06"],
+          "entry_conditions": [
+            "P0-U06 complete",
+            "Full feedback pipeline operational"
+          ],
+          "exit_conditions": [
+            "feedback_metrics.py computes quality metrics for the feedback system",
+            "Per-operator metrics: accuracy rate, consistency score, contribution count, specialization coverage",
+            "System-wide metrics: total feedback count, validation pass rate, consensus convergence rate, conflict rate",
+            "Knowledge improvement metrics: parameter range tightening over time, new knowledge entries from feedback",
+            "Dashboard-ready JSON output for all metrics",
+            "Anomaly detection: flag sudden changes in operator accuracy or system-wide patterns",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/feedback/feedback_metrics.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build feedback_metrics.py: compute per-operator quality metrics (accuracy_rate, consistency_score, contribution_count, specialization_coverage)"
+            },
+            {
+              "number": 2,
+              "instruction": "Add system-wide metrics: total_feedback_count, validation_pass_rate, consensus_convergence_rate, conflict_rate, escalation_rate"
+            },
+            {
+              "number": 3,
+              "instruction": "Add knowledge improvement tracking: measure parameter range tightening, new entries added, entries refined vs time"
+            },
+            {
+              "number": 4,
+              "instruction": "Build JSON output formatter for dashboard integration"
+            },
+            {
+              "number": 5,
+              "instruction": "Add anomaly detection: sudden accuracy drops per operator, unusual conflict spikes, feedback volume anomalies"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: metrics computation with synthetic feedback data, anomaly detection triggers"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/feedback/feedback_metrics.py", "type": "source", "description": "Feedback quality metrics with anomaly detection" },
+            { "path": "cad-engine/tests/test_feedback_metrics.py", "type": "test", "description": "Tests for metrics computation and anomaly detection" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U08",
+          "title": "Feedback Loop Integration Tests",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS2:P0-U07"],
+          "entry_conditions": [
+            "P0-U07 complete",
+            "All feedback modules operational"
+          ],
+          "exit_conditions": [
+            "E2E test: operator submits feedback -> validation -> scoring -> consensus -> conflict resolution -> KB update -> metrics updated",
+            "Multi-operator scenario: 5 operators submit feedback for same operation, consensus forms correctly",
+            "Conflict scenario: operator contradicts physics, correct resolution applied",
+            "Rollback scenario: bad consensus applied, rolled back successfully",
+            "Performance: full pipeline processes 100 feedback entries in under 30 seconds",
+            "No data corruption after concurrent feedback submissions",
+            "Metrics accurately reflect all pipeline activity",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/integration/test_feedback_e2e.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build E2E integration test: full pipeline from feedback submission through KB update"
+            },
+            {
+              "number": 2,
+              "instruction": "Build multi-operator scenario: simulate 5 operators with varying experience submitting feedback for same milling operation on 4140 steel"
+            },
+            {
+              "number": 3,
+              "instruction": "Build conflict scenarios: operator-vs-physics, operator-vs-operator, operator-vs-existing-knowledge"
+            },
+            {
+              "number": 4,
+              "instruction": "Build rollback test: apply bad consensus, verify KB state, rollback, verify restoration"
+            },
+            {
+              "number": 5,
+              "instruction": "Performance test: 100 feedback entries processed, measure throughput and latency"
+            },
+            {
+              "number": 6,
+              "instruction": "Concurrent submission test: 10 simultaneous feedback submissions, verify no data corruption"
+            },
+            {
+              "number": 7,
+              "instruction": "Verify metrics pipeline: confirm all E2E activity reflected in feedback_metrics output"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/integration/test_feedback_e2e.py", "type": "test", "description": "End-to-end integration tests for full feedback loop" },
+            { "path": "cad-engine/tests/integration/test_feedback_multi_operator.py", "type": "test", "description": "Multi-operator consensus and conflict scenarios" },
+            { "path": "cad-engine/tests/integration/test_feedback_performance.py", "type": "test", "description": "Performance and concurrency tests" },
+            { "path": "cad-engine/data/test_feedback/synthetic_operators.json", "type": "data", "description": "Synthetic operator profiles and feedback data for testing" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -61,7 +581,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -69,7 +589,13 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "Full E2E feedback pipeline operational",
+          "Multi-operator consensus forms correctly with 5+ operators",
+          "Conflict resolution correctly handles all three conflict types",
+          "KB rollback restores previous state without data loss",
+          "Metrics accurately reflect pipeline activity"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -80,27 +606,32 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/src/feedback/feedback_api.py", "type": "source", "description": "Feedback collection API with SQLite storage" },
+    { "path": "cad-engine/src/feedback/feedback_validator.py", "type": "source", "description": "Physics-based feedback validation" },
+    { "path": "cad-engine/src/feedback/experience_scorer.py", "type": "source", "description": "Operator credibility scoring" },
+    { "path": "cad-engine/src/feedback/consensus_builder.py", "type": "source", "description": "Multi-operator consensus aggregation" },
+    { "path": "cad-engine/src/feedback/conflict_resolver.py", "type": "source", "description": "Conflict detection and resolution" },
+    { "path": "cad-engine/src/feedback/kb_updater.py", "type": "source", "description": "Knowledge base update pipeline" },
+    { "path": "cad-engine/src/feedback/feedback_metrics.py", "type": "source", "description": "Feedback quality metrics" }
+  ],
+  "existing_leverage": [
+    { "asset": "prism_calc", "type": "tool", "description": "Kienzle/Taylor models for physics validation of operator claims" },
+    { "asset": "CC-MS11 knowledge base", "type": "data", "description": "Existing knowledge base to receive operator feedback updates" },
+    { "asset": "prism_validate", "type": "tool", "description": "Validation framework for safety and completeness checks" },
+    { "asset": "SQLite infrastructure", "type": "infrastructure", "description": "Existing SQLite patterns from CC-MS8/MS9 memory system" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,

@@ -22,7 +22,7 @@ import { log } from "../utils/Logger.js";
 // ============================================================================
 
 export type EventPriority = "critical" | "high" | "normal" | "low";
-export type EventCategory = 
+export type EventCategory =
   | "system"
   | "task"
   | "agent"
@@ -31,6 +31,7 @@ export type EventCategory =
   | "data"
   | "hook"
   | "error"
+  | "quality"
   | "audit";
 
 export interface PrismEvent<T = unknown> {
@@ -192,6 +193,11 @@ export const EventTypes = {
   HOOK_COMPLETED: "hook.completed",
   HOOK_ERROR: "hook.error",
   
+  // Quality events
+  QUALITY_SCORE_UPDATED: "quality.score.updated",
+  QUALITY_GATE_PASSED: "quality.gate.passed",
+  QUALITY_GATE_FAILED: "quality.gate.failed",
+
   // Audit events
   AUDIT_ACTION: "audit.action",
   AUDIT_ACCESS: "audit.access",
@@ -490,6 +496,7 @@ export class EventBus {
       data: "data",
       hook: "hook",
       error: "error",
+      quality: "quality",
       audit: "audit"
     };
     return categoryMap[prefix] || "system";
@@ -581,7 +588,7 @@ export class EventBus {
   getStats(): EventStats {
     const eventsByCategory: Record<EventCategory, number> = {
       system: 0, task: 0, agent: 0, swarm: 0,
-      calculation: 0, data: 0, hook: 0, error: 0, audit: 0
+      calculation: 0, data: 0, hook: 0, error: 0, quality: 0, audit: 0
     };
 
     const eventsByType: Record<string, number> = {};

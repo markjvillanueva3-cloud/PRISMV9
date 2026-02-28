@@ -1,0 +1,139 @@
+{
+  "unit": "QA-MS5-U06",
+  "title": "Cost Optimization / Multi-Objective Algorithms Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T07:30:00Z",
+  "status": "PASS",
+
+  "algorithms_audited": [
+    {
+      "name": "DPMultiPass",
+      "file": "src/algorithms/DPMultiPass.ts",
+      "lines": 259,
+      "registry_id": "dp-multi-pass",
+      "approach": "Dynamic programming optimal depth allocation for multi-pass turning",
+      "dp_formulation": {
+        "state": "dp[k][s] = minimum time to remove s steps of stock using k passes",
+        "transition": "dp[k][s] = min over d: dp[k-1][s-d] + machining_time(d, diameter_at_s)",
+        "verified": true,
+        "note": "Classic DP with discrete stock steps — correct Bellman equation"
+      },
+      "constraints": {
+        "power": "P = Kc × ap × f × Vc / 60000 ≤ Pmax — infeasible cuts rejected",
+        "depth": "min_depth ≤ ap ≤ max_depth per pass",
+        "passes": "1 ≤ k ≤ max_passes",
+        "verified": true,
+        "note": "Power constraint correctly eliminates infeasible depth allocations"
+      },
+      "machining_time": {
+        "formula": "t = L / (f × n) where n = (Vc × 1000) / (π × D)",
+        "verified": true,
+        "note": "Correct turning time calculation accounting for changing diameter"
+      },
+      "optimization": {
+        "pass_selection": "Optimal k chosen by min(dp[k][total] + (k-1)×t_change)",
+        "tool_change_overhead": "Included in total cost — correct",
+        "comparison": "Equal-depth baseline for savings calculation",
+        "verified": true
+      },
+      "safety_class": "standard"
+    },
+    {
+      "name": "ILPAssignment",
+      "file": "src/algorithms/ILPAssignment.ts",
+      "lines": 346,
+      "registry_id": "ilp-assignment",
+      "approach": "Job-machine assignment via Hungarian method + greedy local search",
+      "hungarian_method": {
+        "row_reduction": "Subtract row minimum — correct",
+        "column_reduction": "Subtract column minimum — correct",
+        "assignment": "Greedy on reduced cost matrix — approximation, not full Kuhn-Munkres",
+        "verified": true,
+        "note": "Simplified Hungarian (greedy on reduced matrix) — gives good solutions but not guaranteed optimal for all cases"
+      },
+      "general_solver": {
+        "method": "Greedy assignment + pairwise swap local search",
+        "initialization": "Assign each job to least-loaded feasible machine",
+        "improvement": "Iterate pairwise swaps until no improvement found",
+        "max_iterations": "Configurable (default 10000)",
+        "verified": true
+      },
+      "objectives": {
+        "min_time": "Minimize total processing time",
+        "balance_load": "Minimize load variance across machines",
+        "min_tardiness": "Minimize weighted tardiness + small time penalty",
+        "verified": true,
+        "note": "All 3 objectives correctly formulated in evalCost()"
+      },
+      "output_metrics": {
+        "makespan": "Max completion time across all machines",
+        "load_balance_cv": "Coefficient of variation of machine loads",
+        "n_tardy": "Jobs exceeding due dates",
+        "utilization": "Load vs capacity per machine",
+        "verified": true
+      },
+      "safety_class": "standard"
+    },
+    {
+      "name": "CSPSetupPlan",
+      "file": "src/algorithms/CSPSetupPlan.ts",
+      "lines": 336,
+      "registry_id": "csp-setup-plan",
+      "approach": "Constraint satisfaction for minimum-setup feature assignment",
+      "constraint_handling": {
+        "access_directions": "Features assigned only to orientations they can access — hard constraint",
+        "tolerance_groups": "Features in same tolerance group kept in same setup — soft constraint with warning on split",
+        "precedence": "Features with precedence_before constraints ordered via topological sort",
+        "max_per_setup": "Configurable limit on features per setup",
+        "verified": true
+      },
+      "solving_phases": {
+        "phase_1": "Tolerance group assignment — find common orientations, prefer most-populated",
+        "phase_2": "Remaining feature assignment — prefer existing groups to minimize setup count",
+        "phase_3": "Topological sort of setups using Kahn's algorithm on precedence graph",
+        "verified": true,
+        "note": "Greedy constructive heuristic with constraint propagation — not full CSP backtracking"
+      },
+      "topological_sort": {
+        "method": "Kahn's algorithm with greedy tie-breaking (most features first)",
+        "cycle_handling": "Remaining nodes appended if cycle detected",
+        "verified": true
+      },
+      "output_metrics": {
+        "n_setups": "Number of workpiece orientations",
+        "total_time": "Machining time + setup change time",
+        "precedence_violations": "Should be 0 for valid plans",
+        "tolerance_splits": "Groups split across setups",
+        "unassigned": "Features that couldn't be placed",
+        "verified": true
+      },
+      "safety_class": "standard"
+    }
+  ],
+
+  "findings": [
+    { "severity": "OK", "finding": "DPMultiPass: Correct Bellman DP with power constraint, changing diameter, and tool-change overhead" },
+    { "severity": "OK", "finding": "DPMultiPass: Equal-depth baseline comparison provides meaningful savings metric" },
+    { "severity": "OK", "finding": "ILPAssignment: 3 objectives (min_time, balance_load, min_tardiness) correctly formulated" },
+    { "severity": "OK", "finding": "CSPSetupPlan: 3-phase constructive heuristic with topological sort correctly handles precedence and tolerance constraints" },
+    { "severity": "OK", "finding": "All 3 algorithms implement Algorithm<I,O> interface with comprehensive output metrics" },
+    { "severity": "INFO", "finding": "ILPAssignment Hungarian method is simplified (greedy on reduced matrix, not full Kuhn-Munkres augmenting paths). Near-optimal for most manufacturing job-shop sizes." },
+    { "severity": "INFO", "finding": "CSPSetupPlan uses constructive heuristic, not full CSP backtracking search. Adequate for manufacturing feature counts (< 200) with good constraint satisfaction." },
+    { "severity": "INFO", "finding": "No explicit Pareto front computation in cost optimization — multi-objective handled via GeneticOptimizer (U01). These algorithms are single-objective solvers." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "cost_function_formulation_verified": true,
+    "multi_objective_pareto_logic_verified": "N/A — Pareto handled by GeneticOptimizer; these are single-objective solvers",
+    "constraint_handling_verified": true
+  }
+}

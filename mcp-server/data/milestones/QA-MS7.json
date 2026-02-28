@@ -1,0 +1,183 @@
+{
+  "id": "QA-MS7",
+  "version": "1.0.0",
+  "title": "Registry & Data Quality",
+  "brief": "Audit all registries: MaterialRegistry (3,533 materials), MachineRegistry (1,016 machines), ToolRegistry (13,967 tools), AlarmRegistry (10,033 alarms), FormulaRegistry (109 formulas), loader performance/caching, and cross-registry referential integrity.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Registry & Data Quality Audit",
+      "description": "Verify data quality, schema compliance, and referential integrity across all PRISM registries. Check loader performance and caching.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "MaterialRegistry: 3,533 materials — schema compliance + coverage",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — material data drives all calculations",
+          "tools": [{ "tool": "prism_data" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS0 baseline complete"],
+          "exit_conditions": ["Entry count verified (3,533)", "Schema compliance checked (required fields present)", "Material category coverage assessed", "Duplicate entries identified"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Load MaterialRegistry and verify entry count" },
+            { "number": 2, "instruction": "Check schema compliance for required fields on sample (100 entries)" },
+            { "number": 3, "instruction": "Assess material category coverage (ferrous, non-ferrous, composites, etc.)" },
+            { "number": 4, "instruction": "Scan for duplicate entries by name/grade" },
+            { "number": 5, "instruction": "Document in state/QA-MS7/material-registry-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/material-registry-audit.json", "type": "data", "description": "MaterialRegistry audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "MachineRegistry: 1,016 machines — data completeness",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — data completeness check",
+          "tools": [{ "tool": "prism_data" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Material registry audit complete"],
+          "exit_conditions": ["Entry count verified (1,016)", "Required fields completeness assessed", "Machine type distribution documented"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Load MachineRegistry and verify entry count" },
+            { "number": 2, "instruction": "Check required field completeness on sample" },
+            { "number": 3, "instruction": "Document machine type distribution" },
+            { "number": 4, "instruction": "Document in state/QA-MS7/machine-registry-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/machine-registry-audit.json", "type": "data", "description": "MachineRegistry audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "ToolRegistry: 13,967 tools — data integrity spot checks",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — largest registry, integrity critical for calculations",
+          "tools": [{ "tool": "prism_data" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Machine registry audit complete"],
+          "exit_conditions": ["Entry count verified (13,967)", "Spot checks on 200 random entries pass schema", "Cross-reference to material registry validated", "Duplicate detection completed"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Load ToolRegistry and verify entry count" },
+            { "number": 2, "instruction": "Spot-check 200 random entries for schema compliance" },
+            { "number": 3, "instruction": "Verify material references point to valid MaterialRegistry entries" },
+            { "number": 4, "instruction": "Scan for duplicates by tool ID and geometry" },
+            { "number": 5, "instruction": "Document in state/QA-MS7/tool-registry-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/tool-registry-audit.json", "type": "data", "description": "ToolRegistry audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "AlarmRegistry: 10,033 alarms — severity/action mapping",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — alarm severity verification",
+          "tools": [{ "tool": "prism_data" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Tool registry audit complete"],
+          "exit_conditions": ["Entry count verified (10,033)", "Severity distribution documented", "All critical alarms have defined actions"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Load AlarmRegistry and verify entry count" },
+            { "number": 2, "instruction": "Document severity distribution (critical, warning, info)" },
+            { "number": 3, "instruction": "Verify all critical alarms have associated corrective actions" },
+            { "number": 4, "instruction": "Document in state/QA-MS7/alarm-registry-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/alarm-registry-audit.json", "type": "data", "description": "AlarmRegistry audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "FormulaRegistry: 109 formulas — wiring to dispatchers",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — formula-to-dispatcher wiring check",
+          "tools": [{ "tool": "prism_data" }, { "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Alarm registry audit complete"],
+          "exit_conditions": ["Entry count verified (109)", "Each formula mapped to consuming dispatcher action(s)", "Unwired formulas identified"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Load FormulaRegistry and verify entry count" },
+            { "number": 2, "instruction": "Map each formula to its consuming dispatcher actions" },
+            { "number": 3, "instruction": "Identify formulas with no dispatcher consumers" },
+            { "number": 4, "instruction": "Document in state/QA-MS7/formula-registry-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/formula-registry-audit.json", "type": "data", "description": "FormulaRegistry audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Registry loader performance + caching verification",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — performance and caching review",
+          "tools": [{ "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Formula registry audit complete"],
+          "exit_conditions": ["Registry load times measured", "Caching strategy verified (TTL, invalidation)", "Memory usage estimated for all registries loaded"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Review registry loader implementation for caching strategy" },
+            { "number": 2, "instruction": "Verify TTL-based cache invalidation" },
+            { "number": 3, "instruction": "Estimate memory footprint for all registries" },
+            { "number": 4, "instruction": "Document in state/QA-MS7/registry-performance-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/registry-performance-audit.json", "type": "data", "description": "Registry loader performance audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Cross-registry referential integrity",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — referential integrity across registries is critical",
+          "tools": [{ "tool": "prism_data" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"], "entry_conditions": ["All individual registry audits complete"],
+          "exit_conditions": ["Tool→Material references validated", "Machine→Tool compatibility references validated", "Alarm→Machine references validated", "Broken references cataloged"],
+          "rollback": "git checkout -- state/QA-MS7/",
+          "steps": [
+            { "number": 1, "instruction": "Check ToolRegistry material references against MaterialRegistry" },
+            { "number": 2, "instruction": "Check Machine-Tool compatibility cross-references" },
+            { "number": 3, "instruction": "Check Alarm-Machine cross-references" },
+            { "number": 4, "instruction": "Catalog all broken references" },
+            { "number": 5, "instruction": "Document in state/QA-MS7/cross-registry-integrity.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS7/cross-registry-integrity.json", "type": "data", "description": "Cross-registry referential integrity report" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All registry counts verified", "Cross-registry integrity checked"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 7,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_data", "phases": ["P0"], "purpose": "Registry data access" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Schema validation" },
+    { "tool": "prism_intelligence", "phases": ["P0"], "purpose": "Query system state" },
+    { "tool": "prism_dev", "phases": ["P0"], "purpose": "Performance analysis" }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS7/material-registry-audit.json", "type": "data", "description": "Material audit" },
+    { "path": "state/QA-MS7/machine-registry-audit.json", "type": "data", "description": "Machine audit" },
+    { "path": "state/QA-MS7/tool-registry-audit.json", "type": "data", "description": "Tool audit" },
+    { "path": "state/QA-MS7/alarm-registry-audit.json", "type": "data", "description": "Alarm audit" },
+    { "path": "state/QA-MS7/formula-registry-audit.json", "type": "data", "description": "Formula audit" },
+    { "path": "state/QA-MS7/registry-performance-audit.json", "type": "data", "description": "Performance audit" },
+    { "path": "state/QA-MS7/cross-registry-integrity.json", "type": "data", "description": "Cross-registry integrity" }
+  ],
+  "existing_leverage": [
+    { "asset": "MaterialRegistry", "type": "data", "count": 3533, "usage": "Material data audit" },
+    { "asset": "ToolRegistry", "type": "data", "count": 13967, "usage": "Tool data audit" },
+    { "asset": "MachineRegistry", "type": "data", "count": 1016, "usage": "Machine data audit" },
+    { "asset": "AlarmRegistry", "type": "data", "count": 10033, "usage": "Alarm data audit" },
+    { "asset": "FormulaRegistry", "type": "data", "count": 109, "usage": "Formula data audit" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

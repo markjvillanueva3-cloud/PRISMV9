@@ -1,6 +1,6 @@
 /**
  * PRISM MCP Server - Engines Index v11
- * Re-exports all 36 calculation, orchestration, and infrastructure engines
+ * Re-exports all 185 calculation, orchestration, and infrastructure engines
  * Updated: R1-AUDIT-T1 — Added 19 missing barrel exports
  */
 

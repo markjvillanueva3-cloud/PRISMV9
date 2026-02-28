@@ -2,129 +2,146 @@
   "id": "S3-MS2",
   "version": "3.1.0",
   "title": "SFC Smart Selectors",
-  "brief": "Smart tool/material/machine selectors with fuzzy search, recommendations, cross-compatibility validation.",
+  "brief": "Smart tool/material/machine selectors with fuzzy search, recommendations, cross-compatibility validation, and registry-backed autocomplete.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "SFC Smart Selectors",
-      "description": "Smart tool/material/machine selectors with fuzzy search, recommendations, cross-compatibility validation.",
+      "description": "Enhance SFC calculator with intelligent selectors that query registries, recommend compatible combinations, and validate cross-compatibility.",
       "sessions": "1-2",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute SFC Smart Selectors",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "S3-MS1 complete"
-          ],
-          "exit_conditions": [
-            "SFC Smart Selectors complete",
-            "Build passes",
-            "Tests pass"
-          ],
-          "rollback": "git checkout -- [files modified by S3-MS2]",
+          "id": "P0-U01", "title": "Smart Material Selector",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["S3-MS1"],
+          "entry_conditions": ["S3-MS1 complete", "MaterialSelector from S3-MS1 exists"],
+          "exit_conditions": ["Registry-backed fuzzy search with ranked results by relevance", "Material recommendations based on selected operation", "Material property tooltips with machinability hints", "Recent materials list and favorites"],
+          "rollback": "git checkout -- web/src/components/sfc/SmartMaterialSelector.tsx",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute SFC Smart Selectors per roadmap spec"
-            }
+            { "number": 1, "instruction": "Enhance MaterialSelector with registry API integration for ranked fuzzy search" },
+            { "number": 2, "instruction": "Add recommendation engine: given operation, suggest top 5 materials" },
+            { "number": 3, "instruction": "Add property tooltips and machinability hint badges" },
+            { "number": 4, "instruction": "Add recent/favorites persistence via localStorage" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/SmartMaterialSelector.tsx", "type": "source", "description": "Enhanced material selector" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Smart Tool Selector",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Smart material selector available"],
+          "exit_conditions": ["Tool selector recommends tools compatible with selected material+operation", "Shows tool geometry, coating, flute count, recommended params", "Filters: manufacturer, coating type, diameter range", "Incompatible tools grayed out with reason tooltip"],
+          "rollback": "git checkout -- web/src/components/sfc/SmartToolSelector.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create SmartToolSelector.tsx with compatibility-filtered tool list" },
+            { "number": 2, "instruction": "Show tool specs: geometry icon, coating badge, flute count, diameter" },
+            { "number": 3, "instruction": "Gray out incompatible tools with hover reason: 'Not suited for titanium at this speed'" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/SmartToolSelector.tsx", "type": "source", "description": "Smart tool selector" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Smart Machine Selector",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["Tool selector available"],
+          "exit_conditions": ["Machine selector checks: spindle speed range covers required RPM", "Power check: machine power sufficient for calculated cutting power", "Machine capability badges: 3-axis, 4-axis, 5-axis, turning", "Insufficient machines warned with specific limit exceeded"],
+          "rollback": "git checkout -- web/src/components/sfc/SmartMachineSelector.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create SmartMachineSelector.tsx with capability validation" },
+            { "number": 2, "instruction": "Check spindle RPM range and power against calculated requirements" },
+            { "number": 3, "instruction": "Show capability badges and warnings for insufficient machines" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/SmartMachineSelector.tsx", "type": "source", "description": "Smart machine selector" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Cross-Compatibility Validator",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["All 3 smart selectors available"],
+          "exit_conditions": ["Real-time validation banner: green (all compatible), yellow (warnings), red (incompatible)", "Specific incompatibility messages: 'Tool coating not suited for this material at >200 SFM'", "Auto-suggest fixes: 'Consider switching to AlTiN coating'"],
+          "rollback": "git checkout -- web/src/components/sfc/CompatibilityValidator.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create CompatibilityValidator.tsx that checks material+tool+machine+operation combination" },
+            { "number": 2, "instruction": "Display validation banner with specific messages" },
+            { "number": 3, "instruction": "Add auto-suggest fix buttons that update selectors" }
+          ],
+          "deliverables": [{ "path": "web/src/components/sfc/CompatibilityValidator.tsx", "type": "source", "description": "Cross-compatibility validator" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "SFC Page Integration & State",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": ["All smart selectors and validator complete"],
+          "exit_conditions": ["Smart selectors replace basic selectors on SFC calculator page", "Selection cascade: material change → re-validate tool → re-validate machine", "State preserved across tab navigation"],
+          "rollback": "git checkout -- web/src/pages/SfcCalculatorPage.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Replace basic selectors with smart selectors on SFC page" },
+            { "number": 2, "instruction": "Wire cascading validation: material→tool→machine" },
+            { "number": 3, "instruction": "Persist selection state in URL params for bookmarkability" }
           ],
           "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Smart Selectors Testing",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Smart selectors integrated"],
+          "exit_conditions": ["Tests: fuzzy search returns ranked results", "Tests: incompatible combinations show warnings", "Tests: auto-suggest fixes update selections correctly", "npm run build/test passes"],
+          "rollback": "git checkout -- web/src/__tests__/sfc/smart-selectors/",
+          "steps": [
+            { "number": 1, "instruction": "Write tests for each smart selector with mocked registry data" },
+            { "number": 2, "instruction": "Write compatibility validator tests with known incompatible combinations" },
+            { "number": 3, "instruction": "Write integration test: select incompatible combo → see warning → apply fix → see green" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/sfc/smart-selectors/", "type": "test", "description": "Smart selector tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
-        "anti_regression": true,
-        "test_required": true,
-        "build_required": true,
-        "checkpoint": true,
-        "learning_save": true,
-        "custom_checks": []
+        "omega_floor": 0.75, "safety_floor": 0.7, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Fuzzy search ranks exact matches first", "Incompatible tool+material flagged with specific reason", "Auto-suggest produces valid alternative"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
     }
   ],
   "total_units": 6,
   "total_sessions": "1-2",
-  "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
-  ],
+  "role_matrix": [{ "code": "R2", "name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80 }],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] }, { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/components/sfc/SmartMaterialSelector.tsx", "type": "source", "description": "Smart material selector" },
+    { "path": "web/src/components/sfc/SmartToolSelector.tsx", "type": "source", "description": "Smart tool selector" },
+    { "path": "web/src/components/sfc/SmartMachineSelector.tsx", "type": "source", "description": "Smart machine selector" },
+    { "path": "web/src/components/sfc/CompatibilityValidator.tsx", "type": "source", "description": "Cross-compatibility validator" }
+  ],
+  "existing_leverage": [
+    { "asset": "S3-MS1 components", "type": "source", "description": "Basic MaterialSelector and OperationSelector from S3-MS1" },
+    { "asset": "registries/", "type": "data", "description": "Material, tool, machine registries for lookup" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

@@ -2,146 +2,291 @@
   "id": "L8-P1-MS2",
   "version": "3.1.0",
   "title": "CAD/CAM Learning Web UI",
-  "brief": "Learning web interface: LessonViewer, FormulaExplorer (KaTeX), TroubleshootingWizard, ProgressDashboard.",
+  "brief": "Learning platform UI: skill assessment, personalized learning paths, progress tracking, knowledge search, material/tool/machine selection wizards — wired to 10 learning API endpoints.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "CAD/CAM Learning Web UI",
-      "description": "Learning web interface: LessonViewer, FormulaExplorer (KaTeX), TroubleshootingWizard, ProgressDashboard.",
-      "sessions": "7-9",
+      "description": "Build the learning platform web interface with assessment, learning paths, progress tracking, knowledge search, and selection wizards.",
+      "sessions": "3-4",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute CAD/CAM Learning Web UI",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_memory"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview",
-            "Context7"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "L8-P1-MS1 complete"
-          ],
-          "exit_conditions": [
-            "CAD/CAM Learning Web UI complete",
-            "Build passes",
-            "Tests pass"
-          ],
-          "rollback": "git checkout -- [files modified by L8-P1-MS2]",
+          "id": "P0-U01", "title": "Learning API Client & Types",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["S3-MS1:P0-U01"],
+          "entry_conditions": ["L8-P1-MS1 complete", "Frontend scaffold exists"],
+          "exit_conditions": ["Typed API client for all 10 learning endpoints", "React hooks for each endpoint"],
+          "rollback": "git checkout -- web/src/api/learning.ts",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute CAD/CAM Learning Web UI per roadmap spec"
-            }
+            { "number": 1, "instruction": "Create web/src/api/learning.ts with typed functions for all 10 endpoints" },
+            { "number": 2, "instruction": "Create web/src/types/learning.ts with TypeScript interfaces" },
+            { "number": 3, "instruction": "Create web/src/hooks/useLearning.ts with React hooks" }
           ],
-          "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "deliverables": [
+            { "path": "web/src/api/learning.ts", "type": "source", "description": "Learning API client" },
+            { "path": "web/src/types/learning.ts", "type": "source", "description": "Learning types" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Learning Dashboard",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API client available"],
+          "exit_conditions": ["Dashboard at /learning with skill radar chart", "Progress bar, level indicator", "Quick-action cards"],
+          "rollback": "git checkout -- web/src/pages/LearningDashboard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create LearningDashboard.tsx with skill radar chart" },
+            { "number": 2, "instruction": "Add progress summary and quick-action cards" }
+          ],
+          "deliverables": [{ "path": "web/src/pages/LearningDashboard.tsx", "type": "source", "description": "Learning dashboard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Skill Assessment Wizard",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API assess() available"],
+          "exit_conditions": ["Multi-step wizard: domain selection, questions, results", "4 domains: CAD, CAM, Shop Practice, Machine Operation", "Per-domain scores with strength/weakness breakdown"],
+          "rollback": "git checkout -- web/src/components/learning/Assessment.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create Assessment.tsx with step wizard flow" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/assess" },
+            { "number": 3, "instruction": "Display results with radar chart and text summary" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/Assessment.tsx", "type": "source", "description": "Assessment wizard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Learning Path View",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["Assessment provides skill levels"],
+          "exit_conditions": ["Personalized learning path as vertical timeline", "Module cards: title, domain, time, difficulty, prerequisites", "Current and next recommended modules highlighted"],
+          "rollback": "git checkout -- web/src/components/learning/LearningPath.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create LearningPath.tsx from POST /api/v1/learning/plan" },
+            { "number": 2, "instruction": "Highlight current + next from POST /api/v1/learning/recommend" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/LearningPath.tsx", "type": "source", "description": "Learning path" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Progress Tracker",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": ["Learning path view available"],
+          "exit_conditions": ["Per-domain completion bars", "Time chart daily/weekly", "Achievement badges, streak counter"],
+          "rollback": "git checkout -- web/src/components/learning/ProgressTracker.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ProgressTracker.tsx from POST /api/v1/learning/progress" },
+            { "number": 2, "instruction": "Add time chart and badges gallery" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/ProgressTracker.tsx", "type": "source", "description": "Progress tracker" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Knowledge Search",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API search/tribal available"],
+          "exit_conditions": ["Search page with text input, domain filter, source filter", "Results: title, excerpt, domain badge, relevance score", "Detail view for full content"],
+          "rollback": "git checkout -- web/src/components/learning/KnowledgeSearch.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create KnowledgeSearch.tsx with search bar and filters" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/knowledge/search and /tribal" },
+            { "number": 3, "instruction": "Result cards with match highlighting, detail modal" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/KnowledgeSearch.tsx", "type": "source", "description": "Knowledge search" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Material Selection Wizard",
+          "phase": "P0", "sequence": 6, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API selectMaterial available"],
+          "exit_conditions": ["Wizard: requirements → recommendations → comparison → selection", "Match scores and property comparison table", "'Calculate with this' links to SFC"],
+          "rollback": "git checkout -- web/src/components/learning/MaterialWizard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create MaterialWizard.tsx with step flow" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/select/material" },
+            { "number": 3, "instruction": "Add comparison table and SFC link" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/MaterialWizard.tsx", "type": "source", "description": "Material wizard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U08", "title": "Tool Selection Wizard",
+          "phase": "P0", "sequence": 7, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API selectTool available"],
+          "exit_conditions": ["Wizard: operation+material → tool recommendations → specs → selection", "Tool specs: flute count, helix angle, recommended params"],
+          "rollback": "git checkout -- web/src/components/learning/ToolWizard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ToolWizard.tsx with operation+material input" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/select/tool" },
+            { "number": 3, "instruction": "Tool spec cards with geometry info" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/ToolWizard.tsx", "type": "source", "description": "Tool wizard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U09", "title": "Machine Selection Wizard",
+          "phase": "P0", "sequence": 8, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API selectMachine available"],
+          "exit_conditions": ["Wizard: part requirements → machine recommendations → comparison", "Machine specs: axes, table, spindle, power, accuracy"],
+          "rollback": "git checkout -- web/src/components/learning/MachineWizard.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create MachineWizard.tsx with requirement inputs" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/select/machine" },
+            { "number": 3, "instruction": "Comparison view with capability match scores" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/MachineWizard.tsx", "type": "source", "description": "Machine wizard" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U10", "title": "Digital Twin Panel",
+          "phase": "P0", "sequence": 9, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Learning API twin() available"],
+          "exit_conditions": ["Live status gauges: spindle RPM, feed, position XYZ", "Alert indicators for out-of-spec", "History sparkline chart"],
+          "rollback": "git checkout -- web/src/components/learning/DigitalTwin.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create DigitalTwin.tsx with status gauges" },
+            { "number": 2, "instruction": "Wire to POST /api/v1/learning/twin" },
+            { "number": 3, "instruction": "Add alerts and history chart" }
+          ],
+          "deliverables": [{ "path": "web/src/components/learning/DigitalTwin.tsx", "type": "source", "description": "Digital twin panel" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U11", "title": "Learning Layout & Sub-Navigation",
+          "phase": "P0", "sequence": 10, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02", "P0-U06", "P0-U10"],
+          "entry_conditions": ["All learning components complete"],
+          "exit_conditions": ["Section nav: Dashboard, Assessment, Path, Knowledge, Wizards, Twin", "Sub-routes under /learning/*", "Breadcrumb nav, responsive layout"],
+          "rollback": "git checkout -- web/src/layouts/LearningLayout.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create LearningLayout.tsx with sidebar nav and nested Outlet" },
+            { "number": 2, "instruction": "Configure sub-routes and breadcrumbs" }
+          ],
+          "deliverables": [{ "path": "web/src/layouts/LearningLayout.tsx", "type": "source", "description": "Learning layout" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U12", "title": "Shared Chart Components",
+          "phase": "P0", "sequence": 11, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"],
+          "entry_conditions": ["Progress data available"],
+          "exit_conditions": ["RadarChart, BarChart, ProgressRing, Sparkline components", "PRISM color palette, accessible contrast"],
+          "rollback": "git checkout -- web/src/components/charts/",
+          "steps": [
+            { "number": 1, "instruction": "Install Recharts, create shared chart wrapper components" },
+            { "number": 2, "instruction": "Build RadarChart, BarChart, ProgressRing, Sparkline" }
+          ],
+          "deliverables": [{ "path": "web/src/components/charts/", "type": "source", "description": "Chart components" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U13", "title": "Cross-Links to SFC & PPG",
+          "phase": "P0", "sequence": 12, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 40,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U11"],
+          "entry_conditions": ["Learning context and SFC/PPG pages exist"],
+          "exit_conditions": ["Material wizard 'Calculate' navigates to /sfc pre-filled", "Knowledge entries link to PPG templates"],
+          "rollback": "git checkout -- web/src/utils/crossLinks.ts",
+          "steps": [
+            { "number": 1, "instruction": "Create crossLinks.ts: buildSfcUrl(material), buildPpgUrl(operation)" },
+            { "number": 2, "instruction": "Wire wizard buttons to navigate with query params" }
+          ],
+          "deliverables": [{ "path": "web/src/utils/crossLinks.ts", "type": "source", "description": "Cross-page nav utils" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U14", "title": "Learning State Context",
+          "phase": "P0", "sequence": 13, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U13"],
+          "entry_conditions": ["All learning components integrated"],
+          "exit_conditions": ["LearningContext: currentSkills, activePath, searchHistory", "LocalStorage persistence for cross-session"],
+          "rollback": "git checkout -- web/src/contexts/LearningContext.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create LearningContext.tsx with shared state" },
+            { "number": 2, "instruction": "Add localStorage persistence" }
+          ],
+          "deliverables": [{ "path": "web/src/contexts/LearningContext.tsx", "type": "source", "description": "Learning state" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U15", "title": "Learning Testing & Polish",
+          "phase": "P0", "sequence": 14, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U14"],
+          "entry_conditions": ["All learning components integrated"],
+          "exit_conditions": ["Component tests for all learning components", "Integration test: assess → path → search → select material → SFC link", "npm run build/test passes"],
+          "rollback": "git checkout -- web/src/__tests__/learning/",
+          "steps": [
+            { "number": 1, "instruction": "Write component tests with mocked API" },
+            { "number": 2, "instruction": "Write integration test for full flow" },
+            { "number": 3, "instruction": "Polish: loading skeletons, empty states, error boundaries" }
+          ],
+          "deliverables": [{ "path": "web/src/__tests__/learning/", "type": "test", "description": "Learning tests" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
-        "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
-        "anti_regression": true,
-        "test_required": true,
-        "build_required": true,
-        "checkpoint": true,
-        "learning_save": true,
-        "custom_checks": []
+        "omega_floor": 0.75, "safety_floor": 0.7, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Assessment produces valid scores for 4 domains", "Learning path personalizes based on assessment", "Cross-links to SFC work"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
     }
   ],
   "total_units": 15,
-  "total_sessions": "7-9",
-  "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
-  ],
+  "total_sessions": "3-4",
+  "role_matrix": [{ "code": "R2", "name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80 }],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_memory",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    },
-    {
-      "tool": "Context7",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] }, { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" }, { "tool": "Context7", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/src/api/learning.ts", "type": "source", "description": "Learning API client" },
+    { "path": "web/src/pages/LearningDashboard.tsx", "type": "source", "description": "Dashboard" },
+    { "path": "web/src/components/learning/Assessment.tsx", "type": "source", "description": "Assessment" },
+    { "path": "web/src/components/learning/LearningPath.tsx", "type": "source", "description": "Learning path" },
+    { "path": "web/src/components/learning/KnowledgeSearch.tsx", "type": "source", "description": "Knowledge search" },
+    { "path": "web/src/components/learning/MaterialWizard.tsx", "type": "source", "description": "Material wizard" },
+    { "path": "web/src/components/learning/ToolWizard.tsx", "type": "source", "description": "Tool wizard" },
+    { "path": "web/src/components/learning/MachineWizard.tsx", "type": "source", "description": "Machine wizard" },
+    { "path": "web/src/components/learning/DigitalTwin.tsx", "type": "source", "description": "Digital twin" }
+  ],
+  "existing_leverage": [
+    { "asset": "routes/learning.ts", "type": "api_route", "description": "10 learning REST endpoints" },
+    { "asset": "engines/LearningEngine.ts", "type": "engine", "description": "Assessment and path generation" },
+    { "asset": "engines/KnowledgeEngine.ts", "type": "engine", "description": "Knowledge search" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

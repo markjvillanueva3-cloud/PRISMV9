@@ -1,0 +1,159 @@
+{
+  "id": "QA-MS13",
+  "version": "1.0.0",
+  "title": "Cross-Cutting Concerns & Test Coverage",
+  "brief": "Audit cross-cutting concerns: TypeScript error audit (28 known errors), wiring gap analysis (86% D2F gap), test coverage assessment, error handling consistency, cadence function audit (40 cadences), and build health/bundle size regression check.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cross-Cutting Concerns & Test Coverage",
+      "description": "Audit system-wide cross-cutting concerns: TS errors, wiring gaps, test coverage, error handling patterns, cadence functions, and build health.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "TypeScript error audit (28 known errors) + fix plan",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — TS errors indicate type safety gaps",
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["All component audits (QA-MS1 through QA-MS12) complete"],
+          "exit_conditions": ["Current TS error count verified (28 or current)", "Each error categorized by type and severity", "Fix plan with priority ordering produced"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Run tsc --noEmit and capture all errors" },
+            { "number": 2, "instruction": "Categorize errors: type mismatch, missing import, unused, structural" },
+            { "number": 3, "instruction": "Rank by severity (blocks functionality > type looseness > style)" },
+            { "number": 4, "instruction": "Create prioritized fix plan" },
+            { "number": 5, "instruction": "Document in state/QA-MS13/ts-error-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/ts-error-audit.json", "type": "data", "description": "TypeScript error audit and fix plan" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Wiring gap analysis (86% gap in D2F mapping)",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — 86% wiring gap is the biggest systemic issue",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["TS error audit complete"],
+          "exit_conditions": ["D2F (dispatcher-to-function) wiring matrix complete", "Current wiring gap % calculated", "Gap categorized: intentional vs accidental vs placeholder", "Remediation priority list produced"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Build complete D2F wiring matrix from QA-MS0 inventories" },
+            { "number": 2, "instruction": "Calculate wiring percentage: wired actions / total actions" },
+            { "number": 3, "instruction": "Categorize unwired actions: intentional placeholder, accidental gap, stub" },
+            { "number": 4, "instruction": "Produce remediation priority list" },
+            { "number": 5, "instruction": "Document in state/QA-MS13/wiring-gap-analysis.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/wiring-gap-analysis.json", "type": "data", "description": "D2F wiring gap analysis" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Test coverage assessment + critical gap identification",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — test coverage assessment",
+          "tools": [{ "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Wiring gap analysis complete"],
+          "exit_conditions": ["Test file inventory completed", "Coverage by component type assessed", "Critical untested components identified", "Test strategy recommendations produced"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all test files" },
+            { "number": 2, "instruction": "Map test coverage to component types (engines, dispatchers, algorithms)" },
+            { "number": 3, "instruction": "Identify critical components with no tests" },
+            { "number": 4, "instruction": "Document in state/QA-MS13/test-coverage-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/test-coverage-audit.json", "type": "data", "description": "Test coverage assessment" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Error handling patterns consistency review",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — error handling pattern review",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Test coverage audit complete"],
+          "exit_conditions": ["Error handling patterns cataloged", "Inconsistencies identified", "Silent failure paths identified", "Error propagation verified"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Search for try/catch, .catch, error handler patterns across codebase" },
+            { "number": 2, "instruction": "Catalog error handling approaches by component" },
+            { "number": 3, "instruction": "Identify silent failures (empty catch, swallowed errors)" },
+            { "number": 4, "instruction": "Document in state/QA-MS13/error-handling-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/error-handling-audit.json", "type": "data", "description": "Error handling consistency review" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Cadence function audit (40 cadences)",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — cadence function inventory and verification",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Error handling audit complete"],
+          "exit_conditions": ["All 40 cadences inventoried", "Trigger conditions verified per cadence", "Cadence-to-hook wiring verified"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all cadence function registrations" },
+            { "number": 2, "instruction": "Verify count matches claimed 40" },
+            { "number": 3, "instruction": "Verify trigger conditions (schedule, event, threshold)" },
+            { "number": 4, "instruction": "Document in state/QA-MS13/cadence-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/cadence-audit.json", "type": "data", "description": "Cadence function audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Build health + bundle size regression check",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — build health verification",
+          "tools": [{ "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Cadence audit complete"],
+          "exit_conditions": ["Build succeeds with current codebase", "Build warnings cataloged", "Bundle/output size documented for regression baseline"],
+          "rollback": "git checkout -- state/QA-MS13/",
+          "steps": [
+            { "number": 1, "instruction": "Run npm run build and capture output" },
+            { "number": 2, "instruction": "Catalog all build warnings" },
+            { "number": 3, "instruction": "Measure output size for regression baseline" },
+            { "number": 4, "instruction": "Document in state/QA-MS13/build-health-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS13/build-health-audit.json", "type": "data", "description": "Build health and bundle size baseline" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["TS error count verified", "Wiring gap quantified", "Build health verified"]
+      },
+      "scrutiny_checkpoint": true, "scrutiny_focus": ["underspecified_steps", "missing_exit_conditions"]
+    }
+  ],
+  "total_units": 6,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS13/ts-error-audit.json", "type": "data", "description": "TS error audit" },
+    { "path": "state/QA-MS13/wiring-gap-analysis.json", "type": "data", "description": "Wiring gap analysis" },
+    { "path": "state/QA-MS13/test-coverage-audit.json", "type": "data", "description": "Test coverage" },
+    { "path": "state/QA-MS13/error-handling-audit.json", "type": "data", "description": "Error handling" },
+    { "path": "state/QA-MS13/cadence-audit.json", "type": "data", "description": "Cadence audit" },
+    { "path": "state/QA-MS13/build-health-audit.json", "type": "data", "description": "Build health" }
+  ],
+  "existing_leverage": [
+    { "asset": "All prior QA milestone findings", "type": "data", "usage": "Cross-cutting analysis input" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_tests", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

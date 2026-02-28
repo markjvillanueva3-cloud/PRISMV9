@@ -20,6 +20,7 @@ import { formulaRegistry } from "../../registries/FormulaRegistry.js";
 import type { CogState, BrainstormConfig, BrainstormResult } from "../../types/prism-schema.js";
 import { PATHS } from "../../constants.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
+import { omegaQuick } from "./omegaDispatcher.js";
 
 const ACTIONS = [
   "brainstorm", "plan", "execute", "review_spec", "review_quality", "debug",
@@ -43,7 +44,12 @@ async function fireHook(id: string, ctx: Record<string, any>) {
 // CogState — imported from prism-schema
 let cog: CogState = { bayes_priors:{}, opt_objectives:[], rl_policy:{},
   metrics:{R:0.8,C:0.8,P:0.8,S:0.9,L:0.7,omega:0.82}, decisions:[], errors:[] };
-function omega(m: CogState["metrics"]) { return 0.25*m.R+0.20*m.C+0.15*m.P+0.30*m.S+0.10*m.L; }
+function omega(m: CogState["metrics"]) { return omegaQuick(m.R, m.C, m.P, m.S, m.L); }
+
+/** Expose cog.metrics for cross-dispatcher auto-scoring (used by prism_omega auto_score) */
+export function getCogMetrics(): { R: number; C: number; P: number; S: number; L: number; omega: number } {
+  return { ...cog.metrics };
+}
 function safetyGate(S: number) { return S>=0.70 ? {pass:true,msg:`S(x)=${S.toFixed(2)}≥0.70`} : {pass:false,msg:`⛔ S(x)=${S.toFixed(2)}<0.70 BLOCKED`}; }
 
 // ============================================================================

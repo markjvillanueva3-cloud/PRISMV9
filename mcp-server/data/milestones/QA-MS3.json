@@ -1,0 +1,179 @@
+{
+  "id": "QA-MS3",
+  "version": "1.0.0",
+  "title": "Core Calculation Engines",
+  "brief": "Deep audit of core calculation engines: CuttingForceEngine Kienzle model, ToolLifeEngine Taylor equation, SpeedFeedEngine recommendations, ThermalEngine heat models, DeflectionEngine beam calculations, SurfaceFinishEngine Ra/Rz predictions, and AtomicValue compliance across all calc engines.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Core Calculation Engines Audit",
+      "description": "Verify mathematical correctness of all core calculation engines against their theoretical models, check edge cases, and verify AtomicValue compliance.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "CuttingForceEngine: Kienzle model (kc1_1, mc) validation",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — foundational manufacturing physics model",
+          "tools": [{ "tool": "prism_calc", "action": "cutting_force" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS0 baseline complete"],
+          "exit_conditions": ["Kienzle model formula verified: Fc = kc1_1 * h^(-mc) * b * f(geometry)", "Material-specific kc1_1 and mc constants validated against references", "Unit conversion correctness verified"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read CuttingForceEngine and extract Kienzle model implementation" },
+            { "number": 2, "instruction": "Verify formula against Kienzle reference: Fc = kc1_1 * h^(-mc) * b" },
+            { "number": 3, "instruction": "Spot-check kc1_1 and mc values for common materials (steel, aluminum, titanium)" },
+            { "number": 4, "instruction": "Verify unit conversions (N, mm, MPa)" },
+            { "number": 5, "instruction": "Document in state/QA-MS3/cutting-force-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/cutting-force-audit.json", "type": "data", "description": "CuttingForceEngine Kienzle model verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "ToolLifeEngine: Taylor equation (C, n exponents) verification",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — tool life prediction is critical for cost optimization",
+          "tools": [{ "tool": "prism_calc", "action": "tool_life" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Cutting force audit complete"],
+          "exit_conditions": ["Taylor equation verified: VT^n = C", "Extended Taylor (with feed, depth) verified if present", "C and n constants validated for common tool-material pairs"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read ToolLifeEngine and extract Taylor equation implementation" },
+            { "number": 2, "instruction": "Verify basic Taylor: VT^n = C or T = C^(1/n) / V^(1/n)" },
+            { "number": 3, "instruction": "Check extended Taylor parameters if implemented" },
+            { "number": 4, "instruction": "Validate C and n values for HSS, carbide, ceramic tools" },
+            { "number": 5, "instruction": "Document in state/QA-MS3/tool-life-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/tool-life-audit.json", "type": "data", "description": "ToolLifeEngine Taylor equation verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "SpeedFeedEngine: recommendation logic + material coverage",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — speed/feed recommendations are the most-used calculation",
+          "tools": [{ "tool": "prism_calc", "action": "speed_feed" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Tool life audit complete"],
+          "exit_conditions": ["Recommendation algorithm logic verified", "Material coverage assessed (% of registry materials supported)", "Fallback logic for unknown materials verified"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read SpeedFeedEngine recommendation algorithm" },
+            { "number": 2, "instruction": "Verify speed calculation: Vc = pi*D*n/1000" },
+            { "number": 3, "instruction": "Check material lookup coverage against MaterialRegistry" },
+            { "number": 4, "instruction": "Verify fallback behavior for materials without specific data" },
+            { "number": 5, "instruction": "Document in state/QA-MS3/speed-feed-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/speed-feed-audit.json", "type": "data", "description": "SpeedFeedEngine recommendation logic verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "ThermalEngine: heat generation models",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — thermal models are important but less frequently called",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Speed/feed audit complete"],
+          "exit_conditions": ["Heat generation formula verified", "Temperature partition model checked", "Thermal limits for tool materials verified"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read ThermalEngine and extract heat generation models" },
+            { "number": 2, "instruction": "Verify heat generation: Q = Fc * Vc" },
+            { "number": 3, "instruction": "Verify temperature partition between tool, chip, workpiece" },
+            { "number": 4, "instruction": "Document in state/QA-MS3/thermal-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/thermal-audit.json", "type": "data", "description": "ThermalEngine heat model verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "DeflectionEngine: beam/tool deflection calculations",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — beam theory verification",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Thermal audit complete"],
+          "exit_conditions": ["Cantilever beam deflection formula verified", "L/D ratio limits checked", "Multi-section tool deflection verified if present"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read DeflectionEngine and extract deflection formulas" },
+            { "number": 2, "instruction": "Verify cantilever beam: delta = FL^3/(3EI)" },
+            { "number": 3, "instruction": "Verify moment of inertia calculations for round/rectangular sections" },
+            { "number": 4, "instruction": "Document in state/QA-MS3/deflection-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/deflection-audit.json", "type": "data", "description": "DeflectionEngine beam calculation verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "SurfaceFinishEngine: Ra/Rz prediction accuracy",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — surface finish prediction verification",
+          "tools": [{ "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Deflection audit complete"],
+          "exit_conditions": ["Ra theoretical formula verified: Ra = f^2/(32*r)", "Ra-to-Rz conversion verified", "Tool nose radius effect verified"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Read SurfaceFinishEngine and extract Ra/Rz prediction formulas" },
+            { "number": 2, "instruction": "Verify theoretical Ra: Ra_th = f^2 / (32 * r_epsilon)" },
+            { "number": 3, "instruction": "Verify Ra-to-Rz conversion factor" },
+            { "number": 4, "instruction": "Document in state/QA-MS3/surface-finish-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/surface-finish-audit.json", "type": "data", "description": "SurfaceFinishEngine Ra/Rz prediction verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "AtomicValue compliance check across all calc engines",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — AtomicValue is the safety wrapper for all numeric outputs",
+          "tools": [{ "tool": "prism_validate" }, { "tool": "prism_calc" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"], "entry_conditions": ["All individual engine audits complete"],
+          "exit_conditions": ["All calc engine outputs wrapped in AtomicValue verified", "Unit tracking through AtomicValue verified", "Uncertainty propagation through AtomicValue verified"],
+          "rollback": "git checkout -- state/QA-MS3/",
+          "steps": [
+            { "number": 1, "instruction": "Search all calc engines for AtomicValue usage patterns" },
+            { "number": 2, "instruction": "Verify every numeric output is wrapped in AtomicValue" },
+            { "number": 3, "instruction": "Verify unit tracking is correct through calculation chains" },
+            { "number": 4, "instruction": "Verify uncertainty propagation (if attached)" },
+            { "number": 5, "instruction": "Document compliance in state/QA-MS3/atomic-value-compliance.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS3/atomic-value-compliance.json", "type": "data", "description": "AtomicValue compliance audit across all calc engines" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All core formulas verified against references", "AtomicValue compliance > 95%"]
+      },
+      "scrutiny_checkpoint": true, "scrutiny_focus": ["underspecified_steps", "missing_tests"]
+    }
+  ],
+  "total_units": 7,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_calc", "phases": ["P0"], "purpose": "Verify calculation formulas" },
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Validate compliance" }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS3/cutting-force-audit.json", "type": "data", "description": "CuttingForce audit" },
+    { "path": "state/QA-MS3/tool-life-audit.json", "type": "data", "description": "ToolLife audit" },
+    { "path": "state/QA-MS3/speed-feed-audit.json", "type": "data", "description": "SpeedFeed audit" },
+    { "path": "state/QA-MS3/thermal-audit.json", "type": "data", "description": "Thermal audit" },
+    { "path": "state/QA-MS3/deflection-audit.json", "type": "data", "description": "Deflection audit" },
+    { "path": "state/QA-MS3/surface-finish-audit.json", "type": "data", "description": "SurfaceFinish audit" },
+    { "path": "state/QA-MS3/atomic-value-compliance.json", "type": "data", "description": "AtomicValue compliance" }
+  ],
+  "existing_leverage": [
+    { "asset": "CuttingForceEngine", "type": "source", "usage": "Kienzle model target" },
+    { "asset": "MaterialRegistry", "type": "data", "count": 3533, "usage": "Material constants reference" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_tests", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

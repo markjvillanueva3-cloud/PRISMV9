@@ -1,0 +1,123 @@
+{
+  "unit": "QA-MS4-U04",
+  "title": "Thermal Partition Algorithms",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T06:20:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "algorithm_class": "src/algorithms/ThermalPartitionModel.ts (256 lines)",
+    "fea_model": "src/algorithms/ThermalFEAModel.ts (referenced in registry)",
+    "engine_empirical": "src/engines/AdvancedCalculations.ts:347 (calculateCuttingTemperature -- Shaw model)",
+    "physics_coupled": "src/engines/PhysicsPredictionEngine.ts:754-771 (thermal partition in coupled solver)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:576 (case 'thermal')"
+  },
+
+  "multi_implementation": {
+    "tier_1_empirical": {
+      "file": "src/engines/AdvancedCalculations.ts:347",
+      "model": "Shaw empirical: T = C * Vc^0.4 * f^0.2 * d^0.1 / sqrt(k)",
+      "used_by": "calcDispatcher -- THIS IS THE LIVE PATH",
+      "note": "Covered in QA-MS3 U03 thermal-audit.json"
+    },
+    "tier_2_trigger_chao": {
+      "file": "src/algorithms/ThermalPartitionModel.ts",
+      "class": "ThermalPartitionModel implements Algorithm<ThermalPartitionInput, ThermalPartitionOutput>",
+      "model": "Trigger-Chao shear plane temperature + chip-tool interface model",
+      "key_formulas": {
+        "shear_plane_temp": "T_shear = T_ambient + (1-gamma) * Fs*Vs / (rho*cp*Ac*Vs_eff)",
+        "thermal_number": "R_t = V_s * L / alpha (determines high/low speed regime)",
+        "partition_ratio": "R = k_w / (k_w + k_t) (workpiece thermal conductivity fraction)",
+        "power": "P = Fc * Vc / 60000 [kW]",
+        "torque": "M = P * 9549 / N [Nm]"
+      },
+      "registered_as": "thermal-partition"
+    },
+    "tier_3_coupled": {
+      "file": "src/engines/PhysicsPredictionEngine.ts:754-771",
+      "model": "Contact-zone thermal resistance with partition ratio R = k_w/(k_w+k_t)",
+      "features": ["Coolant factor applied to heat flux", "Tool/workpiece/chip temperature separation", "Temperature-dependent wear coupling (Arrhenius)", "Iterative convergence with force/wear"],
+      "note": "Most physically complete but not directly accessible via dispatcher"
+    }
+  },
+
+  "formula_verification": {
+    "thermal_number": {
+      "formula": "R_t = V_s * L / alpha, where alpha = k / (rho * cp)",
+      "reference": "Trigger & Chao (1951); Shaw (2005) Ch.12",
+      "implementation_correct": true,
+      "note": "R_t > 10 indicates high-speed regime (most heat carried by chip). R_t < 10 is low-speed (conduction-dominated). Correct regime detection at line ~100 of ThermalPartitionModel."
+    },
+    "partition_ratio": {
+      "formula": "R = k_workpiece / (k_workpiece + k_tool)",
+      "reference": "Standard thermal partition -- fraction of heat into workpiece",
+      "implementation_correct": true,
+      "physics_coupled_impl": "PhysicsPredictionEngine.ts line 758: R_partition = mat.thermal_conductivity / (mat.thermal_conductivity + k_tool)",
+      "note": "Simple conductivity-based partition. More sophisticated models use sqrt(k*rho*cp) ratio. Adequate for estimation."
+    },
+    "power_torque": {
+      "power_formula": "P = Fc * Vc / 60000 [kW]",
+      "torque_formula": "M = P * 9549 / N [Nm]",
+      "hp_conversion": "HP = kW * 1.341",
+      "implementation_correct": true,
+      "note": "9549 = 60000/(2*pi) -- correct conversion constant. 1.341 HP/kW correct."
+    },
+    "shaw_exponents": {
+      "formula": "T = C * Vc^0.4 * f^0.2 * d^0.1 / sqrt(k_thermal)",
+      "reference": "Shaw (2005), empirical correlation",
+      "exponents_correct": true,
+      "note": "Covered in QA-MS3 thermal-audit.json. Exponents 0.4/0.2/0.1 match Shaw's published values."
+    },
+    "contact_zone_model": {
+      "tool_temp": "T_tool = 20 + Q_tool / (G_tool + 1e-10)",
+      "workpiece_temp": "T_wp = 20 + Q_wp / (G_wp + 1e-10), clamped at 0.8*T_melt",
+      "chip_temp": "T_chip = 20 + Q_total * 0.15 / (m_dot * cp + 1e-10), clamped at 0.95*T_melt",
+      "implementation_correct": true,
+      "note": "Epsilon guards (1e-10) prevent div-by-zero. Temperature clamping is physically motivated."
+    }
+  },
+
+  "spot_check": {
+    "scenario": "Steel, Fc=1000N, Vc=150 m/min, k_w=50 W/mK, k_t=80 W/mK (carbide)",
+    "manual_calculation": {
+      "R_partition": "50 / (50 + 80) = 0.385 (38.5% to workpiece)",
+      "power_kW": "1000 * 150 / 60000 = 2.5 kW",
+      "power_HP": "2.5 * 1.341 = 3.35 HP",
+      "torque_at_5000rpm": "2.5 * 9549 / 5000 = 4.77 Nm"
+    },
+    "result": "REASONABLE -- 2.5 kW cutting power for 1000N at 150 m/min is typical for medium-duty milling. 38.5% workpiece partition reasonable for steel-carbide pair."
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Thermal number R_t = V_s*L/alpha correctly computed for regime detection (high-speed vs conduction)" },
+    { "severity": "OK", "finding": "Partition ratio R = k_w/(k_w+k_t) correctly implemented in both ThermalPartitionModel and PhysicsPredictionEngine" },
+    { "severity": "OK", "finding": "Power P=Fc*Vc/60000 and torque M=P*9549/N conversion constants correct" },
+    { "severity": "OK", "finding": "HP conversion factor 1.341 correct (1 kW = 1.341 HP)" },
+    { "severity": "OK", "finding": "Temperature clamping at 0.8*T_melt (workpiece) and 0.95*T_melt (chip) prevents non-physical results" },
+    { "severity": "OK", "finding": "Epsilon guards (1e-10) throughout prevent division by zero" },
+    { "severity": "OK", "finding": "Three-tier architecture (empirical/analytical/coupled) provides appropriate fidelity levels" },
+    { "severity": "MINOR", "finding": "Partition ratio uses simple k_w/(k_w+k_t) rather than sqrt(k*rho*cp) effusivity ratio. The effusivity-based partition is more physically accurate for transient contact. For steady-state estimation, conductivity ratio is adequate." },
+    { "severity": "MINOR", "finding": "PhysicsPredictionEngine chip temperature uses fixed 15% of total power (line 771: *0.15). In reality, chip carries 60-80% of heat at high speeds. The 0.15 factor appears to be a scaling for temperature rise, not energy fraction." },
+    { "severity": "INFO", "finding": "No explicit modeling of tool coating thermal barrier effect (e.g., TiAlN, Al2O3). Coatings can reduce tool temperature by 100-200 degC. Would enhance accuracy for coated inserts." },
+    { "severity": "INFO", "finding": "Coolant factor applied as a multiplier to heat flux. Real coolant effectiveness depends on pressure, flow rate, nozzle position, and Leidenfrost point. Current approach is a useful simplification." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "partition_formula_verified": true,
+    "partition_ratios_sum_to_one": "CLARIFICATION -- the system uses a 2-way partition (R + (1-R) = 1.0 by definition) for the tool-workpiece interface. Chip heat is computed separately from energy balance (P=Fc*Vc), not as a fraction of total. The 3-way split (tool+chip+workpiece=total) is enforced implicitly by energy conservation, not by an explicit summation check.",
+    "thermal_number_checked": true,
+    "power_torque_constants_verified": true,
+    "coolant_effect_verified": true,
+    "multi_tier_architecture_reviewed": true,
+    "dispatcher_wiring_traced": true
+  }
+}

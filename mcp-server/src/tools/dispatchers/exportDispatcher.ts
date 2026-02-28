@@ -93,17 +93,50 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "batch_export": {
             const items = params.items || [];
-            const results = items.map((item: any, i: number) => ({
-              index: i,
-              format: item.format || "pdf",
-              template: item.template || "default",
-              status: "queued",
-            }));
+            if (items.length === 0) {
+              result = { error: "No items provided for batch export", hint: "Pass items: [{format: 'pdf', title: '...', data: {...}}, ...]" };
+              break;
+            }
+            const batchId = `batch_${Date.now().toString(36)}`;
+            const engine = await getEngine("export");
+            const batchResults: any[] = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              const format = item.format || "pdf";
+              const title = item.title || `Export_${i + 1}`;
+              const data = item.data || item;
+              try {
+                const job = engine.render(format, title, "batch_export", data);
+                batchResults.push({
+                  index: i,
+                  format,
+                  title,
+                  status: job.status || "rendered",
+                  job_id: job.id,
+                });
+                successCount++;
+              } catch (itemErr: any) {
+                batchResults.push({
+                  index: i,
+                  format,
+                  title,
+                  status: "error",
+                  error: (itemErr.message || "render failed").slice(0, 200),
+                });
+                errorCount++;
+              }
+            }
+
             result = {
-              batch_id: `batch_${Date.now().toString(36)}`,
+              batch_id: batchId,
               total_items: items.length,
-              items: results,
-              status: "processing",
+              success: successCount,
+              errors: errorCount,
+              items: batchResults,
+              status: errorCount === 0 ? "completed" : "completed_with_errors",
             };
             break;
           }

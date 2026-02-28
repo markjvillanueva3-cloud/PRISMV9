@@ -1,0 +1,103 @@
+{
+  "unit": "P0-U06",
+  "title": "AtomicValue Compliance Check Across All Calc Engines",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:40:00Z",
+  "status": "CONDITIONAL PASS",
+
+  "scope": "Check whether calculation engines use an AtomicValue wrapper pattern for typed, unit-aware numeric outputs",
+
+  "search_results": {
+    "AtomicValue_pattern_search": {
+      "searched_dirs": ["src/engines/", "src/algorithms/", "src/types/"],
+      "patterns_searched": ["AtomicValue", "atomicValue", "atomic_value", "ValueWithUnit", "TypedValue"],
+      "matches": "NONE -- no AtomicValue type or wrapper pattern exists anywhere in the calculation engine codebase"
+    }
+  },
+
+  "current_output_patterns": {
+    "kienzle_force": {
+      "output_type": "CuttingForceResult / KienzleOutput",
+      "example_fields": { "Fc": "number (N)", "power": "number (kW)", "torque": "number (Nm)" },
+      "units_in_type": "Implicit -- documented in JSDoc/comments only",
+      "unit_safe": false
+    },
+    "taylor_tool_life": {
+      "output_type": "ToolLifeResult / TaylorOutput",
+      "example_fields": { "tool_life_minutes": "number (min)", "optimal_speed": "number (m/min)" },
+      "units_in_type": "Partially explicit via field name suffix (_minutes)",
+      "unit_safe": "partial"
+    },
+    "speed_feed": {
+      "output_type": "SpeedFeedResult",
+      "example_fields": { "cutting_speed": "number (m/min)", "feed_per_tooth": "number (mm/tooth)", "spindle_speed": "number (RPM)" },
+      "units_in_type": "Implicit",
+      "unit_safe": false
+    },
+    "thermal": {
+      "output_type": "ThermalResult / ThermalOutput",
+      "example_fields": { "power_cutting_kw": "number", "torque_nm": "number", "shear_zone_temp": "number (degC)" },
+      "units_in_type": "Partially explicit via field name suffix (_kw, _nm)",
+      "unit_safe": "partial"
+    },
+    "deflection": {
+      "output_type": "DeflectionResult / ToolDeflectionOutput",
+      "example_fields": { "static_deflection": "number (mm)", "stiffness": "number (N/mm)", "bending_stress": "number (MPa)" },
+      "units_in_type": "Implicit",
+      "unit_safe": false
+    },
+    "surface_finish": {
+      "output_type": "SurfaceFinishResult",
+      "example_fields": { "Ra": "number (um)", "Rz": "number (um)" },
+      "units_in_type": "Implicit -- standard names (Ra, Rz) imply um but not enforced",
+      "unit_safe": false
+    }
+  },
+
+  "compliance_assessment": {
+    "has_atomic_value_type": false,
+    "unit_confusion_risk": "MEDIUM -- all engines use bare numbers. A consumer receiving Fc=643 has no programmatic way to know if this is N, kN, or lbf without reading documentation.",
+    "existing_mitigations": [
+      "Field naming conventions: some fields encode units in name (power_cutting_kw, torque_nm, tool_life_minutes)",
+      "JSDoc comments on interface fields include unit annotations (e.g., '/** Cutting force [N] */')",
+      "calculation_method string in outputs provides context"
+    ],
+    "recommendation": "Consider introducing a lightweight AtomicValue<T> wrapper: { value: number, unit: string, precision: number } for safety-critical outputs (forces, temperatures, tool life). Low priority -- current convention works for internal use but would improve external API safety."
+  },
+
+  "unit_consistency_check": {
+    "force_units": "All engines use N consistently (not kN or lbf)",
+    "speed_units": "All engines use m/min consistently",
+    "feed_units": "mm/tooth or mm/rev consistently",
+    "temperature_units": "degC consistently",
+    "power_units": "kW consistently (HP conversion only in thermal output)",
+    "length_units": "mm consistently",
+    "surface_finish_units": "um consistently",
+    "conclusion": "GOOD -- unit consistency across engines is strong despite lack of type enforcement"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "All calculation engines use consistent SI units internally (N, m/min, mm, kW, degC, um)" },
+    { "severity": "OK", "finding": "Some engines use unit-suffixed field names (power_cutting_kw, torque_nm, tool_life_minutes) as partial mitigation" },
+    { "severity": "OK", "finding": "All algorithm-class interfaces have JSDoc unit annotations on every field" },
+    { "severity": "MINOR", "finding": "No AtomicValue or typed unit wrapper exists -- all numeric outputs are bare 'number' types. Unit confusion risk is medium." },
+    { "severity": "MINOR", "finding": "Unit naming convention is inconsistent: some fields encode units in name (power_cutting_kw) while others don't (Fc, Ra, cutting_speed). No enforced standard." },
+    { "severity": "INFO", "finding": "For internal MCP server use, bare numbers with JSDoc are adequate. An AtomicValue wrapper would add value if outputs are consumed by external systems or APIs." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 5,
+    "composite": "0.35*4 + 0.25*3 + 0.25*4 + 0.15*5 = 1.40 + 0.75 + 1.00 + 0.75 = 3.90",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+
+  "exit_conditions_met": {
+    "atomicvalue_pattern_searched": true,
+    "unit_consistency_verified": true,
+    "compliance_gap_identified": true,
+    "recommendation_provided": true
+  }
+}

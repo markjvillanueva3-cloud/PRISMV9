@@ -1,0 +1,120 @@
+{
+  "unit": "QA-MS4-U03",
+  "title": "Chip Formation / Chip Thickness Models",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T06:15:00Z",
+  "status": "PASS",
+
+  "source_files": {
+    "chip_breaking": "src/algorithms/ChipBreakingModel.ts (260 lines)",
+    "chip_thinning": "src/algorithms/ChipThinningCompensation.ts (203 lines)",
+    "chip_volume": "src/algorithms/ChipVolumeRate.ts (referenced in registry)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:724 (case 'chip_thinning')"
+  },
+
+  "triple_implementation": {
+    "chip_breaking_model": {
+      "file": "src/algorithms/ChipBreakingModel.ts",
+      "class": "ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreakingOutput>",
+      "features": ["Chip thickness h = fz * sin(kappa_r)", "Chip width w = ap / sin(kappa_r)", "Chip compression ratio xi with speed/rake corrections", "ISO 3685 chip form classification (codes 1-8)", "BUE risk assessment per ISO group P/M/K/N/S/H", "Chip volume rate = h * w * Vc"],
+      "registered_as": "chip-breaking"
+    },
+    "chip_thinning_model": {
+      "file": "src/algorithms/ChipThinningCompensation.ts",
+      "class": "ChipThinningCompensation implements Algorithm<ChipThinningInput, ChipThinningOutput>",
+      "features": ["Martellotti mean chip thickness hex = fz * (1 - cos(phi_e)) / phi_e", "Engagement angle phi_e = arccos(1 - 2*ae/D)", "Chip thinning factor = fz/hex (>= 1.0)", "Compensated feed fz_comp = fz * thinning_factor", "Safety cap at 5x compensation", "Full slot (ae=D) bypass"],
+      "registered_as": "chip-thinning"
+    },
+    "dispatcher_chip_thinning": {
+      "file": "src/tools/dispatchers/calcDispatcher.ts:724",
+      "function": "calculateChipThinning(tool_diameter, radial_depth, feed_per_tooth, num_teeth, cutting_speed)",
+      "note": "Separate inline function, not the algorithm class -- LIVE PATH"
+    }
+  },
+
+  "formula_verification": {
+    "chip_thickness_turning": {
+      "formula": "h = fz * sin(kappa_r)",
+      "reference": "Standard cutting theory; Altintas (2012) Ch.2; ISO 3002-1",
+      "implementation_correct": true,
+      "verified_at": "ChipBreakingModel.ts (calculate method)",
+      "note": "kappa_r is the tool entering angle (approach angle). For kappa_r=90deg, h=fz."
+    },
+    "chip_thickness_milling": {
+      "formula": "hex = fz * (1 - cos(phi_e)) / phi_e (Martellotti mean)",
+      "reference": "Martellotti (1941); Altintas (2012) Ch.2; Sandvik Technical Guide",
+      "implementation_correct": true,
+      "verified_at": "ChipThinningCompensation.ts line 123",
+      "note": "This is the arc-average chip thickness for partial radial engagement. Singularity guard at phi_e < 0.001."
+    },
+    "engagement_angle": {
+      "formula": "phi_e = arccos(1 - 2 * ae/D)",
+      "reference": "Standard milling geometry",
+      "implementation_correct": true,
+      "verified_at": "ChipThinningCompensation.ts line 117",
+      "note": "Clamped via max(-1, ...) to avoid NaN from arccos domain violations"
+    },
+    "chip_compression_ratio": {
+      "formula": "xi = h_chip / h_uncut, corrected by speed_factor and rake_factor",
+      "implementation": "xi_base=2.5, speed_factor = max(0.6, 1 - 0.002*(Vc-100)), rake_factor = 1 - 0.02*alpha",
+      "implementation_correct": true,
+      "note": "xi decreases with higher speed (less deformation) and more positive rake (easier shearing). Base value 2.5 typical for medium-carbon steel."
+    },
+    "chip_form_classification": {
+      "method": "ISO 3685 chip form codes 1-8 based on h and chip_breaking_ratio",
+      "categories": "1=ribbon (worst), 2=snarled, 3=long tubular, 4=short tubular, 5=conical spiral, 6=flat spiral, 7=connected arc, 8=loose arc (best)",
+      "implementation_correct": true,
+      "note": "Classification thresholds reasonable: thin chips (h<0.1mm) tend to ribbon; thick chips (h>0.3mm) tend to break"
+    },
+    "bue_risk": {
+      "method": "Speed-based BUE risk assessment per ISO material group",
+      "speed_ranges": "P: 20-60 m/min, M: 15-40, K: 10-30, N: 50-150 (aluminum), S: 10-25, H: 20-50",
+      "implementation_correct": true,
+      "note": "BUE forms at intermediate speeds. Below range = too cold to adhere, above range = too hot to survive."
+    }
+  },
+
+  "spot_check": {
+    "chip_thinning_scenario": "fz=0.1 mm/tooth, ae=3mm, D=12mm (25% radial engagement)",
+    "manual_calculation": {
+      "engagement_ratio": "3/12 = 0.25",
+      "phi_e": "arccos(1 - 2*0.25) = arccos(0.5) = 1.0472 rad (60 deg)",
+      "hex": "0.1 * (1 - cos(1.0472)) / 1.0472 = 0.1 * (1 - 0.5) / 1.0472 = 0.1 * 0.4775 = 0.04775 mm",
+      "thinning_factor": "0.1 / 0.04775 = 2.094",
+      "fz_compensated": "0.1 * 2.094 = 0.2094 mm/tooth"
+    },
+    "result": "CORRECT -- at 25% radial engagement, chip thinning factor ~2x is expected. Compensated feed doubles to maintain target chip load."
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Martellotti mean chip thickness formula hex = fz*(1-cos(phi_e))/phi_e correctly implemented" },
+    { "severity": "OK", "finding": "Engagement angle phi_e = arccos(1 - 2*ae/D) correctly computed with domain clamping" },
+    { "severity": "OK", "finding": "Chip thinning compensation factor correctly computed and capped at 5x" },
+    { "severity": "OK", "finding": "Full slot (ae/D >= 0.999) correctly bypasses thinning (factor=1.0)" },
+    { "severity": "OK", "finding": "ISO 3685 chip form classification with 8 categories correctly implemented" },
+    { "severity": "OK", "finding": "BUE risk assessment per ISO material group with appropriate speed ranges" },
+    { "severity": "OK", "finding": "Chip compression ratio includes speed and rake angle correction factors" },
+    { "severity": "MINOR", "finding": "Dispatcher chip_thinning action (line 724) calls a separate calculateChipThinning function, not the ChipThinningCompensation algorithm class. Two separate implementations of the same formula exist." },
+    { "severity": "MINOR", "finding": "ChipBreakingModel chip thickness uses h = fz * sin(kappa_r) (turning) but does not integrate Martellotti mean for milling. Two different chip thickness models for different operations with no unification." },
+    { "severity": "INFO", "finding": "Chip breaking is highly dependent on chipbreaker geometry (insert groove shape) which is not modeled. The classification is based purely on uncut chip geometry." },
+    { "severity": "INFO", "finding": "No serrated/segmented chip model for difficult-to-machine materials (Ti-6Al-4V, Inconel). These materials form segmented chips through adiabatic shear, not addressed by current models." }
+  ],
+
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
+    "pass_fail": "PASS"
+  },
+
+  "exit_conditions_met": {
+    "chip_thickness_formulas_verified": true,
+    "thinning_compensation_checked": true,
+    "chip_compression_ratio_verified": true,
+    "shear_plane_angle_verified": "PARTIAL -- no explicit shear angle phi calculation exists in code. Chip compression ratio xi is used as a proxy (related via xi = cos(phi-alpha)/sin(phi)). ISO 3685 chip classification addresses chip form but not shear mechanics.",
+    "iso_classification_reviewed": true,
+    "dispatcher_wiring_traced": true
+  }
+}

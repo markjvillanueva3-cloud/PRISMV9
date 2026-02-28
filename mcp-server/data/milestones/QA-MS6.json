@@ -1,0 +1,194 @@
+{
+  "id": "QA-MS6",
+  "version": "1.0.0",
+  "title": "Intelligence Mega-Dispatcher Audit",
+  "brief": "Audit the prism_intelligence mega-dispatcher (238 actions, 44% of system): full action inventory, categorization, decomposition analysis, subset audits (knowledge, memory, PFP, telemetry), and refactoring plan for decomposition.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Intelligence Mega-Dispatcher Audit",
+      "description": "Comprehensively audit the prism_intelligence dispatcher — the largest single dispatcher at 238 actions (44% of system). Categorize, analyze subsets, and propose decomposition.",
+      "sessions": "3-4",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "prism_intelligence action inventory (238 actions)",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — must enumerate all 238 actions accurately",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS5 algorithm audit complete"],
+          "exit_conditions": ["Complete list of all prism_intelligence actions", "Exact action count verified", "Each action's handler method identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Read prism_intelligence dispatcher source to enumerate all registered actions" },
+            { "number": 2, "instruction": "Verify exact count matches claimed 238" },
+            { "number": 3, "instruction": "Map each action to its handler function/method" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/intelligence-action-inventory.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/intelligence-action-inventory.json", "type": "data", "description": "Complete prism_intelligence action inventory" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "Action categorization and decomposition analysis",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — requires deep analysis to categorize 238 actions",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Action inventory complete"],
+          "exit_conditions": ["All 238 actions categorized into functional groups", "Category sizes calculated", "Natural decomposition boundaries identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Group actions by functional category (knowledge, memory, PFP, telemetry, etc.)" },
+            { "number": 2, "instruction": "Calculate category sizes and identify largest groups" },
+            { "number": 3, "instruction": "Identify natural boundaries for dispatcher decomposition" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/action-categorization.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/action-categorization.json", "type": "data", "description": "Action categorization and decomposition analysis" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Identify actions that should split to dedicated dispatchers",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — architectural recommendation with broad impact",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Categorization complete"],
+          "exit_conditions": ["Split candidates identified with rationale", "Proposed new dispatcher names and action assignments", "Migration complexity estimated per split"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Analyze each category for standalone dispatcher viability" },
+            { "number": 2, "instruction": "Identify categories with >20 actions as split candidates" },
+            { "number": 3, "instruction": "Propose new dispatcher names and map actions to them" },
+            { "number": 4, "instruction": "Estimate migration complexity" },
+            { "number": 5, "instruction": "Document in state/QA-MS6/split-candidates.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/split-candidates.json", "type": "data", "description": "Dispatcher split candidate analysis" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Knowledge engine action subset audit",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — subset audit within intelligence dispatcher",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Split analysis complete"],
+          "exit_conditions": ["All knowledge-related actions audited", "Engine method coverage verified", "Dead or duplicate actions identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Extract knowledge-category actions from categorization" },
+            { "number": 2, "instruction": "Verify each action maps to a KnowledgeEngine method" },
+            { "number": 3, "instruction": "Identify dead or duplicate actions" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/knowledge-subset-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/knowledge-subset-audit.json", "type": "data", "description": "Knowledge engine subset audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Memory engine action subset audit",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — memory subset audit",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["Knowledge subset audit complete"],
+          "exit_conditions": ["All memory-related actions audited", "Engine method coverage verified", "Dead or duplicate actions identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Extract memory-category actions from categorization" },
+            { "number": 2, "instruction": "Verify each action maps to a MemoryEngine method" },
+            { "number": 3, "instruction": "Identify dead or duplicate actions" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/memory-subset-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/memory-subset-audit.json", "type": "data", "description": "Memory engine subset audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "PFP engine action subset audit",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — PFP subset audit",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Memory subset audit complete"],
+          "exit_conditions": ["All PFP-related actions audited", "Engine method coverage verified", "Dead or duplicate actions identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Extract PFP-category actions from categorization" },
+            { "number": 2, "instruction": "Verify each action maps to PFP engine methods" },
+            { "number": 3, "instruction": "Identify dead or duplicate actions" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/pfp-subset-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/pfp-subset-audit.json", "type": "data", "description": "PFP engine subset audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Telemetry engine action subset audit",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — telemetry subset audit",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05"], "entry_conditions": ["PFP subset audit complete"],
+          "exit_conditions": ["All telemetry-related actions audited", "Engine method coverage verified", "Dead or duplicate actions identified"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Extract telemetry-category actions from categorization" },
+            { "number": 2, "instruction": "Verify each action maps to TelemetryEngine methods" },
+            { "number": 3, "instruction": "Identify dead or duplicate actions" },
+            { "number": 4, "instruction": "Document in state/QA-MS6/telemetry-subset-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/telemetry-subset-audit.json", "type": "data", "description": "Telemetry engine subset audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Refactoring plan for mega-dispatcher decomposition",
+          "phase": "P0", "sequence": 7, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — architectural refactoring plan with system-wide impact",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U06"], "entry_conditions": ["All subset audits complete"],
+          "exit_conditions": ["Detailed refactoring plan produced", "Migration sequence defined (backward-compatible)", "Estimated effort and risk per decomposition step"],
+          "rollback": "git checkout -- state/QA-MS6/",
+          "steps": [
+            { "number": 1, "instruction": "Synthesize findings from all subset audits" },
+            { "number": 2, "instruction": "Define target dispatcher architecture (proposed new dispatchers)" },
+            { "number": 3, "instruction": "Create migration sequence maintaining backward compatibility" },
+            { "number": 4, "instruction": "Estimate effort and risk per step" },
+            { "number": 5, "instruction": "Document in state/QA-MS6/refactoring-plan.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS6/refactoring-plan.json", "type": "data", "description": "Mega-dispatcher decomposition refactoring plan" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["All 238 actions inventoried and categorized", "Decomposition plan reviewed"]
+      },
+      "scrutiny_checkpoint": true, "scrutiny_focus": ["underspecified_steps", "missing_exit_conditions"]
+    }
+  ],
+  "total_units": 8,
+  "total_sessions": "3-4",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS6/intelligence-action-inventory.json", "type": "data", "description": "Action inventory" },
+    { "path": "state/QA-MS6/action-categorization.json", "type": "data", "description": "Categorization" },
+    { "path": "state/QA-MS6/split-candidates.json", "type": "data", "description": "Split candidates" },
+    { "path": "state/QA-MS6/knowledge-subset-audit.json", "type": "data", "description": "Knowledge subset" },
+    { "path": "state/QA-MS6/memory-subset-audit.json", "type": "data", "description": "Memory subset" },
+    { "path": "state/QA-MS6/pfp-subset-audit.json", "type": "data", "description": "PFP subset" },
+    { "path": "state/QA-MS6/telemetry-subset-audit.json", "type": "data", "description": "Telemetry subset" },
+    { "path": "state/QA-MS6/refactoring-plan.json", "type": "data", "description": "Refactoring plan" }
+  ],
+  "existing_leverage": [
+    { "asset": "prism_intelligence dispatcher", "type": "source", "count": 238, "usage": "Primary audit target" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

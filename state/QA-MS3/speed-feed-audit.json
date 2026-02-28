@@ -1,0 +1,112 @@
+{
+  "unit": "P0-U02",
+  "title": "SpeedFeedEngine: Recommendation Logic + Material Coverage",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:20:00Z",
+  "status": "CONDITIONAL PASS",
+
+  "source_files": {
+    "engine_function": "src/engines/ManufacturingCalculations.ts:664 (calculateSpeedFeed)",
+    "dispatcher_routing": "src/tools/dispatchers/calcDispatcher.ts:447 (case 'speed_feed')",
+    "material_integration": "calcDispatcher.ts lines 460-467 (auto-lookup material hardness, kienzle, taylor)"
+  },
+
+  "implementation_type": "Single function -- no algorithm-class counterpart",
+
+  "formula_verification": {
+    "speed_calculation": {
+      "method": "Hardness-adjusted base speed with operation factor",
+      "formula": "Vc = base_speed[tool_material] * (200/hardness)^0.3 * operation_factor",
+      "base_speeds": { "HSS": 30, "Carbide": 150, "Ceramic": 300, "CBN": 200, "Diamond": 500 },
+      "operation_factors": { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 },
+      "hardness_correction": "(200/HB)^0.3 -- reasonable inverse relationship",
+      "note": "Simple empirical model -- adequate for initial recommendations but not physics-based"
+    },
+    "spindle_speed": {
+      "formula": "N = 1000 * Vc / (pi * D)",
+      "correct": true
+    },
+    "feed_calculation": {
+      "method": "Diameter-proportional with operation adjustment",
+      "formula": "fz = D * 0.02, clamped to [0.02, 0.5], then *0.5 (finishing) or *1.2 (roughing)",
+      "note": "Simplified model -- does not account for material properties, tool geometry, or stability"
+    },
+    "depth_recommendations": {
+      "roughing": { "axial": "min(D*1.0, 10mm)", "radial": "D*0.5" },
+      "finishing": { "axial": "min(D*0.5, 3mm)", "radial": "D*0.1" },
+      "semi_finishing": { "axial": "min(D*0.75, 5mm)", "radial": "D*0.3" },
+      "note": "Generic diameter-based rules -- reasonable starting points"
+    }
+  },
+
+  "spot_check": {
+    "scenario": "Carbide tool, D=12mm, z=4, HB=200, semi-finishing",
+    "manual_calculation": {
+      "base_speed": "150 m/min (Carbide)",
+      "hardness_correction": "(200/200)^0.3 = 1.0",
+      "operation_factor": "1.0 (semi-finishing)",
+      "Vc": "150 m/min",
+      "N": "1000*150/(pi*12) = 3979 RPM",
+      "fz": "12*0.02 = 0.24 mm/tooth (within [0.02, 0.5])",
+      "vf": "0.24 * 4 * 3979 = 3820 mm/min",
+      "ap": "min(12*0.75, 5) = 5mm",
+      "ae": "12*0.3 = 3.6mm"
+    },
+    "result": "REASONABLE -- typical values for a 12mm carbide endmill in 200HB steel"
+  },
+
+  "material_coverage": {
+    "tool_materials": ["HSS", "Carbide", "Ceramic", "CBN", "Diamond"],
+    "tool_normalization": "Case-insensitive via Title Case conversion (line 676-678)",
+    "normalization_bug": "Title Case normalization converts 'HSS' to 'Hss', 'CBN' to 'Cbn' -- these DON'T match base_speeds keys. Fallback to original tool_material catches it (line 679 '|| base_speeds[tool_material]'), but only if original casing is exact.",
+    "normalization_bug_severity": "MINOR -- works for properly-cased inputs, breaks silently for lowercase 'hss', 'cbn' (gets fallback 100 m/min)",
+    "operations": ["roughing", "finishing", "semi-finishing"],
+    "material_hardness": "Accepted as continuous parameter, no ISO group binning"
+  },
+
+  "dispatcher_integration": {
+    "auto_lookup": "calcDispatcher enriches SpeedFeedInput with material data from registry",
+    "enrichment_fields": ["material_hardness (from mechanical.hardness.brinell)", "kienzle (kc1_1, mc)", "taylor (C, n)"],
+    "kienzle_usage": "SpeedFeedInput accepts kienzle but calculateSpeedFeed DOES NOT USE IT -- kienzle field is accepted but ignored in the function",
+    "taylor_usage": "Same -- taylor field accepted but ignored",
+    "finding": "MINOR -- calcDispatcher enriches kienzle/taylor data for SpeedFeed but the function doesn't use it. Wasted lookup."
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Speed calculation formula is physically reasonable -- hardness inverse scaling matches machining theory" },
+    { "severity": "OK", "finding": "Spindle speed N = 1000*Vc/(pi*D) correctly implemented" },
+    { "severity": "OK", "finding": "Feed and depth recommendations are reasonable starting points" },
+    { "severity": "MAJOR", "finding": "Tool material normalization bug: Title Case conversion turns 'HSS' to 'Hss', 'CBN' to 'Cbn' which don't match base_speeds keys (expected 'HSS','CBN'). Falls back to original casing OR 100 m/min default. Lowercase inputs like 'hss' or 'cbn' get wrong speed." },
+    { "severity": "MINOR", "finding": "kienzle and taylor fields in SpeedFeedInput are populated by dispatcher but unused by calculateSpeedFeed -- dead data flow" },
+    { "severity": "MINOR", "finding": "No material-specific feed recommendations -- fz is only diameter-based, ignoring machinability differences between aluminum (high fz) and titanium (low fz)" },
+    { "severity": "MINOR", "finding": "No algorithm-class counterpart -- calculateSpeedFeed is a standalone function with no validate() method, no uncertainty bounds, no algorithm registry integration" },
+    { "severity": "INFO", "finding": "Operation type limited to 3 options (roughing/semi-finishing/finishing) -- no HSM, trochoidal, or adaptive strategy support" },
+    { "severity": "INFO", "finding": "Base speed table has 5 tool materials -- covers common cases but misses PCD, cermet, coated carbide variants" }
+  ],
+
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 5,
+    "composite": "0.35*3 + 0.25*3 + 0.25*4 + 0.15*5 = 1.05 + 0.75 + 1.00 + 0.75 = 3.55",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+
+  "recommended_fixes": [
+    {
+      "priority": "P1",
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "line": "676-679",
+      "fix": "Use toUpperCase() for HSS/CBN/Diamond or use case-insensitive lookup instead of Title Case conversion",
+      "impact": "Fixes incorrect speed for lowercase tool material inputs"
+    }
+  ],
+
+  "exit_conditions_met": {
+    "speed_feed_formula_verified": true,
+    "material_coverage_assessed": true,
+    "dispatcher_wiring_traced": true,
+    "recommendation_logic_reviewed": true
+  }
+}

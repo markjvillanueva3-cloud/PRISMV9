@@ -1,0 +1,124 @@
+{
+  "id": "QA-MS1-U02",
+  "title": "Safety Dispatcher Actions: Completeness vs Engine Coverage",
+  "generated_at": "2026-02-27T17:30:00Z",
+  "generated_by": "claude-opus-4.6",
+  "supersedes": "P0-U02 shallow coverage audit",
+  "files_audited": [
+    "mcp-server/src/tools/dispatchers/safetyDispatcher.ts (168 lines, full read)",
+    "mcp-server/src/errors/PrismError.ts (SafetyBlockError grep)",
+    "mcp-server/src/validation/crossFieldPhysics.ts (SafetyBlockError throw site)",
+    "mcp-server/src/tools/dispatchers/calcDispatcher.ts:1359 (SafetyBlockError re-throw)"
+  ],
+
+  "dispatcher": {
+    "tool_name": "prism_safety",
+    "file": "src/tools/dispatchers/safetyDispatcher.ts",
+    "total_actions": 29,
+    "handler_modules": 5,
+    "imports": ["handleCollisionTool", "handleCoolantValidationTool", "handleSpindleProtectionTool", "handleToolBreakageTool", "handleWorkholdingTool", "SafetyBlockError"]
+  },
+
+  "action_groups": {
+    "COLLISION (8)": {
+      "handler": "handleCollisionTool (collisionTools.ts)",
+      "actions": ["check_toolpath_collision", "validate_rapid_moves", "check_fixture_clearance", "calculate_safe_approach", "detect_near_miss", "generate_collision_report", "validate_tool_clearance", "check_5axis_head_clearance"],
+      "wired": true
+    },
+    "COOLANT (5)": {
+      "handler": "handleCoolantValidationTool (coolantValidationTools.ts)",
+      "actions": ["validate_coolant_flow", "check_through_spindle_coolant", "calculate_chip_evacuation", "validate_mql_parameters", "get_coolant_recommendations"],
+      "wired": true
+    },
+    "SPINDLE (5)": {
+      "handler": "handleSpindleProtectionTool (spindleProtectionTools.ts)",
+      "actions": ["check_spindle_torque", "check_spindle_power", "validate_spindle_speed", "monitor_spindle_thermal", "get_spindle_safe_envelope"],
+      "wired": true
+    },
+    "BREAKAGE (5)": {
+      "handler": "handleToolBreakageTool (toolBreakageTools.ts)",
+      "actions": ["predict_tool_breakage", "calculate_tool_stress", "check_chip_load_limits", "estimate_tool_fatigue", "get_safe_cutting_limits"],
+      "wired": true
+    },
+    "WORKHOLDING (6)": {
+      "handler": "handleWorkholdingTool (workholdingTools.ts)",
+      "actions": ["calculate_clamp_force_required", "validate_workholding_setup", "check_pullout_resistance", "analyze_liftoff_moment", "calculate_part_deflection", "validate_vacuum_fixture"],
+      "wired": true
+    }
+  },
+
+  "coverage": {
+    "total_actions": 29,
+    "actions_with_handlers": 29,
+    "coverage_pct": 100,
+    "unwired_actions": [],
+    "stub_actions": []
+  },
+
+  "findings": [
+    {
+      "id": "SD-MAJOR-001",
+      "severity": "MAJOR",
+      "dimension": "safety",
+      "title": "SafetyBlockError caught and swallowed by catch-all",
+      "description": "safetyDispatcher.ts line 162 catches ALL errors including SafetyBlockError and converts them to a soft JSON error response. SafetyBlockError is meant to be a HARD BLOCK that halts execution. The calcDispatcher correctly re-throws it (line 1359: `if (physicsErr?.name === 'SafetyBlockError') throw physicsErr;`), but safetyDispatcher does not.",
+      "evidence": "safetyDispatcher.ts:162: `catch (error: any) { return { content: [...], isError: true }; }` — catches everything. SafetyBlockError imported at line 7 but never used for re-throw logic.",
+      "impact": "If crossFieldPhysics or any sub-engine throws SafetyBlockError during a safety tool call, the hard block is silently converted to a soft error response. Currently mitigated because safety handlers return data objects rather than throwing, but this is a latent bug.",
+      "remediation": "Add re-throw before catch-all: `if (error instanceof SafetyBlockError || error?.name === 'SafetyBlockError') throw error;`",
+      "effort": "2m code fix"
+    },
+    {
+      "id": "SD-MINOR-001",
+      "severity": "MINOR",
+      "dimension": "completeness",
+      "title": "SafetyValidator class not used in safety dispatcher",
+      "description": "SafetyValidator (from utils/SafetyValidator.ts) validates tool call inputs for injection prevention and parameter bounds, but is not invoked in safetyDispatcher. Only used in CollisionEngine, devDispatcher (safeRegex), and NLHookEngine (safeRegex).",
+      "evidence": "Grep for SafetyValidator in safetyDispatcher: 0 results. SafetyValidator has 5 rules (SF-001 through SF-005) that could pre-validate safety tool params.",
+      "impact": "Safety tool params not validated for injection or bounds before processing. Low risk since MCP schema validation catches most issues.",
+      "remediation": "Consider adding SafetyValidator.validate() as pre-check in dispatcher's try block."
+    },
+    {
+      "id": "SD-INFO-001",
+      "severity": "INFO",
+      "dimension": "correctness",
+      "title": "100% action coverage — all 29 actions wired",
+      "description": "All 29 actions across 5 groups (collision, coolant, spindle, breakage, workholding) have handler functions. No unwired or stub actions.",
+      "evidence": "safetyDispatcher.ts:50-74 (action sets), :134-146 (routing)"
+    },
+    {
+      "id": "SD-INFO-002",
+      "severity": "INFO",
+      "dimension": "correctness",
+      "title": "Parameter normalization and auto-population",
+      "description": "Good UX: auto-normalizes snake_case params (lines 90-98), auto-populates tool geometry defaults (lines 110-117), auto-derives forces from cutting_force (lines 119-121), and auto-derives conditions from aliases (lines 123-131).",
+      "evidence": "safetyDispatcher.ts:90-131"
+    },
+    {
+      "id": "SD-INFO-003",
+      "severity": "INFO",
+      "dimension": "correctness",
+      "title": "Response level formatting supported",
+      "description": "R2-MS1 T5 response_level formatting correctly applied with domain-specific key extraction via safetyExtractKeyValues().",
+      "evidence": "safetyDispatcher.ts:148-155"
+    }
+  ],
+
+  "rubric_scores": {
+    "correctness": { "score": 4, "rationale": "Clean routing, 100% action coverage, good param normalization." },
+    "completeness": { "score": 4, "rationale": "All 5 handler modules wired. SafetyValidator not integrated but not strictly required." },
+    "safety": { "score": 3, "rationale": "SafetyBlockError swallowed by catch-all — latent risk. Otherwise well-structured." },
+    "performance": { "score": 5, "rationale": "Set-based routing, no performance issues." },
+    "composite_omega_qa": "0.35*4 + 0.25*4 + 0.25*3 + 0.15*5 = 1.40 + 1.00 + 0.75 + 0.75 = 3.90",
+    "pass_fail": "PASS"
+  },
+
+  "recommended_fixes": [
+    {
+      "priority": "P1",
+      "file": "mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+      "line": 162,
+      "fix": "Add SafetyBlockError re-throw before catch-all: `if (error instanceof SafetyBlockError || error?.name === 'SafetyBlockError') throw error;`",
+      "impact": "Safety hard blocks propagate correctly instead of being swallowed"
+    }
+  ]
+}

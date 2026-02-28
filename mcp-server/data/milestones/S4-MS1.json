@@ -2,155 +2,201 @@
   "id": "S4-MS1",
   "version": "3.1.0",
   "title": "Testing, Polish & Ship",
-  "brief": "E2E testing with Playwright, accessibility audit, performance optimization, deployment configuration, launch checklist.",
+  "brief": "E2E testing with Playwright, accessibility audit (WCAG 2.1 AA), performance optimization (Lighthouse 90+), deployment configuration, launch checklist.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
       "title": "Testing, Polish & Ship",
-      "description": "E2E testing with Playwright, accessibility audit, performance optimization, deployment configuration, launch checklist.",
+      "description": "Final testing, accessibility, performance, and deployment preparation for the PRISM web application.",
       "sessions": "2-3",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
-          "id": "P0-U01",
-          "title": "Execute Testing, Polish & Ship",
-          "phase": "P0",
-          "sequence": 0,
-          "role": "R2",
-          "role_name": "Implementer",
-          "model": "sonnet-4.6",
-          "effort": 80,
-          "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_validate"
-            },
-            {
-              "tool": "prism_ralph"
-            },
-            {
-              "tool": "prism_omega"
-            }
-          ],
-          "skills": [],
-          "scripts": [],
-          "hooks": [],
-          "features": [
-            "Claude Preview",
-            "Playwright"
-          ],
-          "dependencies": [],
-          "entry_conditions": [
-            "S3-MS3 complete"
-          ],
-          "exit_conditions": [
-            "Testing, Polish & Ship complete",
-            "Build passes",
-            "Tests pass"
-          ],
-          "rollback": "git checkout -- [files modified by S4-MS1]",
+          "id": "P0-U01", "title": "E2E Test Suite — Playwright",
+          "phase": "P0", "sequence": 0, "role": "R2", "role_name": "QA Engineer", "model": "sonnet-4.6", "effort": 100,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": ["Context7"],
+          "dependencies": ["S3-MS3"],
+          "entry_conditions": ["S3-MS3 complete", "All web pages functional"],
+          "exit_conditions": ["Playwright installed and configured", "E2E tests for SFC flow: select material → operation → params → calculate → verify results", "E2E tests for PPG flow: select controller → pick template → generate → validate → download", "E2E tests for Learning flow: assess → path → search → wizard", "E2E tests for ERP flow: quote → job → schedule → track", "All E2E tests pass in CI headless mode"],
+          "rollback": "git checkout -- web/e2e/",
           "steps": [
-            {
-              "number": 1,
-              "instruction": "Execute Testing, Polish & Ship per roadmap spec"
-            }
+            { "number": 1, "instruction": "Install Playwright, configure for Chromium headless" },
+            { "number": 2, "instruction": "Write SFC E2E: full calculate flow, comparison, PDF export" },
+            { "number": 3, "instruction": "Write PPG E2E: generate G-code, validate, diff two controllers" },
+            { "number": 4, "instruction": "Write Learning E2E: assessment wizard, search, material wizard" },
+            { "number": 5, "instruction": "Write ERP E2E: quote generation, job scheduling, analytics" }
+          ],
+          "deliverables": [{ "path": "web/e2e/", "type": "test", "description": "Playwright E2E test suite" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "Accessibility Audit (WCAG 2.1 AA)",
+          "phase": "P0", "sequence": 1, "role": "R2", "role_name": "QA Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["S3-MS3"],
+          "entry_conditions": ["All pages complete"],
+          "exit_conditions": ["axe-core audit produces zero violations on all pages", "Keyboard navigation: Tab order logical, focus visible, Escape closes modals", "Screen reader: all interactive elements have labels, dynamic content announced", "Color contrast: all text meets 4.5:1 ratio, large text 3:1", "Reduced motion: animations respect prefers-reduced-motion"],
+          "rollback": "git checkout -- web/src/",
+          "steps": [
+            { "number": 1, "instruction": "Run axe-core on every page, catalog violations" },
+            { "number": 2, "instruction": "Fix all ARIA violations: labels, roles, live regions" },
+            { "number": 3, "instruction": "Verify keyboard navigation flow on every page" },
+            { "number": 4, "instruction": "Check and fix color contrast ratios" },
+            { "number": 5, "instruction": "Add prefers-reduced-motion media query for all animations" }
           ],
           "deliverables": [],
-          "index_in_master": false,
-          "creates_skill": false,
-          "creates_script": false,
-          "creates_hook": false,
-          "creates_command": false
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "Performance Optimization",
+          "phase": "P0", "sequence": 2, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 80,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["S3-MS3"],
+          "entry_conditions": ["All pages complete"],
+          "exit_conditions": ["Lighthouse Performance score >= 90 on all pages", "First Contentful Paint < 1.5s, Largest Contentful Paint < 2.5s", "Bundle size < 500KB gzipped (excluding Three.js which lazy-loads)", "Code splitting: each section (SFC, PPG, Learning, ERP, Viewer) lazy-loaded", "Images optimized, fonts subset"],
+          "rollback": "git checkout -- web/src/ web/vite.config.ts",
+          "steps": [
+            { "number": 1, "instruction": "Run Lighthouse audit on all pages, identify bottlenecks" },
+            { "number": 2, "instruction": "Add React.lazy() + Suspense for section-level code splitting" },
+            { "number": 3, "instruction": "Configure Vite build: tree-shaking, chunk splitting, compression" },
+            { "number": 4, "instruction": "Optimize Three.js loading: lazy-load viewer only when /viewer route accessed" },
+            { "number": 5, "instruction": "Re-audit: verify Lighthouse >= 90, FCP < 1.5s, LCP < 2.5s" }
+          ],
+          "deliverables": [],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Error Handling & Offline Support",
+          "phase": "P0", "sequence": 3, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["E2E tests identify error scenarios"],
+          "exit_conditions": ["Global error boundary catches unhandled errors with recovery UI", "API errors show user-friendly messages, not stack traces", "Network offline banner with auto-retry on reconnect", "SFC calculations work offline using cached registry data"],
+          "rollback": "git checkout -- web/src/components/ErrorBoundary.tsx",
+          "steps": [
+            { "number": 1, "instruction": "Create ErrorBoundary.tsx with crash recovery UI" },
+            { "number": 2, "instruction": "Add offline detection banner and auto-retry" },
+            { "number": 3, "instruction": "Cache registry data in localStorage for offline SFC calculations" }
+          ],
+          "deliverables": [{ "path": "web/src/components/ErrorBoundary.tsx", "type": "source", "description": "Error boundary" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Deployment Configuration",
+          "phase": "P0", "sequence": 4, "role": "R2", "role_name": "DevOps Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["Performance optimized build available"],
+          "exit_conditions": ["Dockerfile for web frontend (nginx serving static build)", "Docker Compose: frontend + MCP server + optional DB", "Environment variable config: API_URL, WS_URL, feature flags", "CI/CD: GitHub Actions workflow for build + test + deploy", "HTTPS configuration with self-signed cert for development"],
+          "rollback": "git checkout -- web/Dockerfile docker-compose.yml",
+          "steps": [
+            { "number": 1, "instruction": "Create web/Dockerfile: multi-stage build (node build → nginx serve)" },
+            { "number": 2, "instruction": "Create docker-compose.yml: frontend + mcp-server services" },
+            { "number": 3, "instruction": "Add .env.example with environment variables" },
+            { "number": 4, "instruction": "Create .github/workflows/web.yml: lint → test → build → E2E → deploy" }
+          ],
+          "deliverables": [
+            { "path": "web/Dockerfile", "type": "config", "description": "Frontend Docker image" },
+            { "path": "docker-compose.yml", "type": "config", "description": "Multi-service compose" },
+            { "path": ".github/workflows/web.yml", "type": "config", "description": "CI/CD workflow" }
+          ],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U06", "title": "Visual Polish & Design Consistency",
+          "phase": "P0", "sequence": 5, "role": "R2", "role_name": "Frontend Engineer", "model": "sonnet-4.6", "effort": 60,
+          "tools": [{ "tool": "prism_dev" }], "skills": [], "scripts": [], "hooks": [], "features": ["Claude Preview"],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["Accessibility fixes applied"],
+          "exit_conditions": ["Consistent spacing, typography, and color usage across all pages", "Loading skeletons on all data-dependent sections", "Empty states with helpful messages on all list/table views", "Smooth transitions between page navigations", "Favicon, page titles, meta tags for all routes"],
+          "rollback": "git checkout -- web/src/",
+          "steps": [
+            { "number": 1, "instruction": "Audit visual consistency across all pages, fix spacing/typography/color" },
+            { "number": 2, "instruction": "Add loading skeleton components for all data-loading sections" },
+            { "number": 3, "instruction": "Add empty state illustrations and messages" },
+            { "number": 4, "instruction": "Add page transitions, favicons, meta tags" }
+          ],
+          "deliverables": [],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U07", "title": "Documentation & Launch Checklist",
+          "phase": "P0", "sequence": 6, "role": "R4", "role_name": "Architect", "model": "opus-4.6", "effort": 90,
+          "tools": [{ "tool": "prism_dev" }, { "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U05", "P0-U06"],
+          "entry_conditions": ["All fixes applied, deployment configured"],
+          "exit_conditions": ["Developer setup guide: prerequisites, install, dev server, test, build", "Architecture doc: component tree, state flow, API integration map", "Launch checklist verified: E2E pass, a11y pass, Lighthouse 90+, Docker builds, env vars documented"],
+          "rollback": "N/A (documentation only)",
+          "steps": [
+            { "number": 1, "instruction": "Write web/README.md: setup, development, testing, deployment instructions" },
+            { "number": 2, "instruction": "Generate component tree diagram and state flow documentation" },
+            { "number": 3, "instruction": "Execute launch checklist: verify all quality gates pass" }
+          ],
+          "deliverables": [{ "path": "web/README.md", "type": "doc", "description": "Frontend developer guide" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U08", "title": "Ship Gate — Final Verification",
+          "phase": "P0", "sequence": 7, "role": "R4", "role_name": "Architect", "model": "opus-4.6", "effort": 90,
+          "tools": [{ "tool": "prism_validate" }], "skills": [], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U07"],
+          "entry_conditions": ["Documentation complete, all fixes applied"],
+          "exit_conditions": ["npm run build: zero errors", "npm run test: all pass", "npm run e2e: all pass", "Lighthouse: all pages >= 90", "axe-core: zero violations", "Docker: both images build and run", "Manual smoke test: all 5 main flows work end-to-end"],
+          "rollback": "N/A (verification only)",
+          "steps": [
+            { "number": 1, "instruction": "Run full build, test, E2E, Lighthouse, axe-core pipeline" },
+            { "number": 2, "instruction": "Docker build and run both images, verify connectivity" },
+            { "number": 3, "instruction": "Manual smoke test: SFC calculate, PPG generate, Learning assess, ERP quote, Viewer toolpath" },
+            { "number": 4, "instruction": "Sign off: if all pass, mark S4-MS1 complete" }
+          ],
+          "deliverables": [],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
+        "omega_floor": 0.90,
         "safety_floor": 0.7,
-        "ralph_required": false,
-        "ralph_grade_floor": "B",
+        "ralph_required": true,
+        "ralph_grade_floor": "A",
         "anti_regression": true,
         "test_required": true,
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": ["Lighthouse >= 90 all pages", "axe-core zero violations", "All E2E tests pass", "Docker builds succeed"]
       },
-      "scrutiny_checkpoint": false,
-      "scrutiny_focus": []
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["accessibility", "performance", "deployment_readiness"]
     }
   ],
   "total_units": 8,
   "total_sessions": "2-3",
   "role_matrix": [
-    {
-      "code": "R2",
-      "name": "Implementer",
-      "model": "sonnet-4.6",
-      "effort": 80
-    }
+    { "code": "R2", "name": "Frontend/QA Engineer", "model": "sonnet-4.6", "effort": 80 },
+    { "code": "R4", "name": "Architect", "model": "opus-4.6", "effort": 90 }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_validate",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_ralph",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_omega",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "Claude Preview",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    },
-    {
-      "tool": "Playwright",
-      "phases": [
-        "P0"
-      ],
-      "purpose": "external"
-    }
+    { "tool": "prism_dev", "phases": ["P0"] }, { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "Claude Preview", "phases": ["P0"], "purpose": "external" }, { "tool": "Context7", "phases": ["P0"], "purpose": "external" }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "web/e2e/", "type": "test", "description": "Playwright E2E suite" },
+    { "path": "web/Dockerfile", "type": "config", "description": "Frontend Docker image" },
+    { "path": "docker-compose.yml", "type": "config", "description": "Docker Compose" },
+    { "path": ".github/workflows/web.yml", "type": "config", "description": "CI/CD pipeline" },
+    { "path": "web/README.md", "type": "doc", "description": "Developer guide" }
+  ],
+  "existing_leverage": [
+    { "asset": "All S3 + L8-MS2 + L9-P2 web components", "type": "source", "description": "Complete web application" }
+  ],
   "scrutiny_config": {
-    "pass_mode": "adaptive",
-    "min_passes": 3,
-    "max_passes": 7,
-    "convergence_rule": "delta < 2",
-    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
-    "scrutinizer_model": "opus-4.6",
-    "scrutinizer_effort": 90,
-    "gap_categories": [
-      "missing_tools",
-      "missing_deps",
-      "missing_exit_conditions",
-      "missing_rollback",
-      "sequence_errors"
-    ],
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2", "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
     "improvement_threshold": 0.92
   }
 }

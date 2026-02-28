@@ -160,6 +160,8 @@ export function registerSafetyDispatcher(server: any): void {
         }
         return result;
       } catch (error: any) {
+        // QA-MS1 FIX: Re-throw SafetyBlockError — hard blocks must propagate, not be swallowed
+        if (error instanceof SafetyBlockError || error?.name === 'SafetyBlockError') throw error;
         return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Safety tool error: ${error.message}`, action }) }], isError: true };
       }
     }

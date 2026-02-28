@@ -1,6 +1,6 @@
 /**
- * AutoPilot Dispatcher - Consolidates 8 autopilot tools → 1
- * Actions: autopilot, autopilot_quick, brainstorm_lenses, ralph_loop_lite, formula_optimize,
+ * AutoPilot Dispatcher - Consolidates 7 autopilot tools → 1
+ * Actions: autopilot, autopilot_quick, brainstorm_lenses, formula_optimize,
  *          autopilot_v2, registry_status, working_tools
  */
 import { z } from "zod";
@@ -8,7 +8,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-const ACTIONS = ["autopilot", "autopilot_quick", "brainstorm_lenses", "ralph_loop_lite", "formula_optimize", "autopilot_v2", "registry_status", "working_tools"] as const;
+const ACTIONS = ["autopilot", "autopilot_quick", "brainstorm_lenses", "formula_optimize", "autopilot_v2", "registry_status", "working_tools"] as const;
 
 let AutoPilotClass: any = null;
 let getSevenLenses: any = null;

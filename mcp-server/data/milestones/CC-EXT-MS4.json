@@ -9,49 +9,373 @@
     {
       "id": "P0",
       "title": "Quality Feedback Learning",
-      "description": "Learn from CMM/quality inspection results to improve parameter predictions.",
+      "description": "Build a quality feedback learning system that imports CMM/inspection data in DMIS/QIF formats, correlates tolerance outcomes to cutting parameters, refines surface finish predictions, and builds a dimensional accuracy model linking process inputs to quality outputs.",
       "sessions": "2-3",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Quality Feedback Learning",
+          "title": "CMM Data Import (DMIS/QIF Formats)",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
-          "role_name": "Implementer",
+          "role_name": "Data/ML Engineer",
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
           "hooks": [],
           "features": [],
-          "dependencies": [],
+          "dependencies": ["CC-MS11"],
           "entry_conditions": [
-            "CC-MS11 complete"
+            "CC-MS11 complete",
+            "Python 3.10+ available",
+            "DMIS and QIF format specifications available"
           ],
           "exit_conditions": [
-            "Quality Feedback Learning complete",
+            "cmm_importer.py parses DMIS (Dimensional Measuring Interface Standard) result files",
+            "QIF (Quality Information Framework) XML import supported",
+            "Parses measured features: points, circles, planes, cylinders, cones, spheres",
+            "Extracts deviation data: nominal vs actual, tolerance zone, in/out of tolerance status",
+            "Extracts surface finish measurements: Ra, Rz, Rmax from profilometer data sections",
+            "Links inspection results to part ID, operation ID, and machine ID for traceability",
+            "Handles multiple CMM software output formats (PC-DMIS, Calypso, MCOSMOS)",
             "Build passes",
-            "Tests pass"
+            "Tests pass with sample DMIS/QIF files"
           ],
-          "rollback": "git checkout -- [files modified by CC-EXT-MS4]",
+          "rollback": "git checkout -- cad-engine/src/quality/cmm_importer.py cad-engine/tests/test_cmm_importer.py",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Quality Feedback Learning per roadmap spec"
+              "instruction": "Create cad-engine/src/quality/ directory structure"
+            },
+            {
+              "number": 2,
+              "instruction": "Build cmm_importer.py: DMIS result file parser (parse FEAT, MEAS, TOL, ENDMES blocks) extracting feature type, nominal geometry, actual geometry, deviations"
+            },
+            {
+              "number": 3,
+              "instruction": "Add QIF XML import: parse QIF MeasurementResults, extract CharacteristicActuals, link to CharacteristicNominals"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement unified InspectionResult dataclass: feature_type, nominal, actual, deviation, tolerance_zone, status (pass/fail), surface_finish, part_id, operation_id"
+            },
+            {
+              "number": 5,
+              "instruction": "Add surface finish data parsing: Ra, Rz, Rmax values from profilometer data sections or separate roughness measurement files"
+            },
+            {
+              "number": 6,
+              "instruction": "Add vendor adaptation: handle PC-DMIS (.PRG/.RPT), Calypso (.xml), MCOSMOS output format variations"
+            },
+            {
+              "number": 7,
+              "instruction": "Write tests with sample DMIS and QIF files covering various feature types and tolerance outcomes"
             }
           ],
-          "deliverables": [],
+          "deliverables": [
+            { "path": "cad-engine/src/quality/__init__.py", "type": "source", "description": "Quality package init" },
+            { "path": "cad-engine/src/quality/cmm_importer.py", "type": "source", "description": "DMIS/QIF CMM data importer with vendor adaptation" },
+            { "path": "cad-engine/src/quality/inspection_schema.py", "type": "source", "description": "InspectionResult dataclass and format definitions" },
+            { "path": "cad-engine/tests/test_cmm_importer.py", "type": "test", "description": "Tests for DMIS/QIF import across formats" },
+            { "path": "cad-engine/data/test_quality/", "type": "data", "description": "Sample DMIS and QIF files for testing" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Tolerance-to-Parameter Correlation",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS4:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "CMM import producing InspectionResult objects",
+            "Cutting parameter records available from knowledge base"
+          ],
+          "exit_conditions": [
+            "tolerance_correlator.py links inspection outcomes to cutting parameters used",
+            "Maps parameter combinations to achieved tolerance classes (IT6, IT7, IT8, etc.)",
+            "Identifies parameter sensitivities: which parameters most affect which dimensions",
+            "Builds tolerance prediction model: given parameters -> predicted tolerance capability",
+            "Model accuracy: predicts correct IT class >= 80% of the time on validation set",
+            "Captures material-specific tolerance behavior (e.g., aluminum vs steel spring-back differences)",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/quality/tolerance_correlator.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build tolerance_correlator.py: join InspectionResults with cutting parameter records by part_id + operation_id"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement IT class mapping: convert measured deviations to ISO tolerance grades (IT6-IT12) per feature dimension"
+            },
+            {
+              "number": 3,
+              "instruction": "Build sensitivity analysis: use correlation matrix and feature importance ranking to identify which parameters (speed, feed, DOC, tool wear state) most affect each dimension"
+            },
+            {
+              "number": 4,
+              "instruction": "Build tolerance prediction model: gradient boosted regression from parameters -> predicted deviation, output as predicted IT class with confidence"
+            },
+            {
+              "number": 5,
+              "instruction": "Add material stratification: separate models per material family (steel, aluminum, titanium, etc.) to capture material-specific behavior"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests with synthetic parameter-tolerance datasets covering known machining relationships"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/quality/tolerance_correlator.py", "type": "source", "description": "Tolerance-to-parameter correlation and IT class prediction" },
+            { "path": "cad-engine/tests/test_tolerance_correlator.py", "type": "test", "description": "Tests for tolerance correlation and prediction accuracy" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Surface Finish Prediction Refinement",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS4:P0-U01"],
+          "entry_conditions": [
+            "P0-U01 complete",
+            "CMM import with surface finish data available",
+            "prism_calc surface finish theoretical model available"
+          ],
+          "exit_conditions": [
+            "surface_finish_model.py refines Ra/Rz predictions using actual CMM measurements",
+            "Baseline: theoretical Ra = f^2 / (32 * r) augmented with empirical correction factors",
+            "Correction factors learned from actual measurements: material hardness effect, tool wear effect, vibration effect, coolant effect",
+            "Prediction accuracy: within 20% of measured Ra for 80%+ of test cases",
+            "Model captures non-linear effects that theoretical formula misses (BUE, chatter marks, thermal damage)",
+            "Stores learned correction factors per material-operation-tool combination",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/quality/surface_finish_model.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build surface_finish_model.py: start with theoretical Ra = f^2/(32*r) baseline from prism_calc"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement empirical correction factor learning: compare theoretical prediction vs actual measured Ra, learn multiplicative correction as function of (material_hardness, tool_wear_state, vibration_level, coolant_type)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add non-linear effect models: BUE (built-up edge) correction for soft materials at low speeds, chatter mark model for unstable cuts, thermal damage model for hard materials at high speeds"
+            },
+            {
+              "number": 4,
+              "instruction": "Build Rz prediction: extend Ra model to predict Rz using learned Ra/Rz ratio per surface type"
+            },
+            {
+              "number": 5,
+              "instruction": "Store learned correction factors per material-operation-tool combination for future predictions"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: compare model predictions against known machining handbooks values and CMM measurements"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/quality/surface_finish_model.py", "type": "source", "description": "Empirically-refined surface finish prediction (Ra, Rz) with correction factors" },
+            { "path": "cad-engine/tests/test_surface_finish_model.py", "type": "test", "description": "Tests for surface finish prediction accuracy" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Dimensional Accuracy Model",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_calc" },
+            { "tool": "prism_intelligence" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS4:P0-U02"],
+          "entry_conditions": [
+            "P0-U02 complete",
+            "Tolerance-to-parameter correlation operational"
+          ],
+          "exit_conditions": [
+            "dimensional_accuracy.py predicts achievable dimensional accuracy for given parameter set",
+            "Accounts for systematic errors: thermal expansion, tool deflection, machine positioning",
+            "Thermal compensation model: predicts dimensional shift from temperature rise during cutting",
+            "Tool deflection model: predicts dimensional error from cutting forces and tool overhang",
+            "Machine positioning model: accounts for backlash and geometric errors from machine calibration data",
+            "Combined prediction: given parameters + conditions -> expected deviation per dimension with uncertainty bounds",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/quality/dimensional_accuracy.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build dimensional_accuracy.py: framework for combining multiple error sources into total dimensional prediction"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement thermal expansion model: predict dimensional change from workpiece temperature rise (CTE * delta_T * nominal_dimension)"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement tool deflection model: predict radial deflection from cutting force and tool stiffness (force from prism_calc, stiffness from tool geometry)"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement machine positioning model: incorporate backlash compensation and geometric error data when available, default to typical machine class accuracy"
+            },
+            {
+              "number": 5,
+              "instruction": "Build combined predictor: root-sum-square combination of error sources with uncertainty propagation, output as predicted_deviation +/- uncertainty per dimension"
+            },
+            {
+              "number": 6,
+              "instruction": "Write tests: known thermal expansion scenario, known deflection case, combined prediction vs actual CMM data"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/src/quality/dimensional_accuracy.py", "type": "source", "description": "Multi-factor dimensional accuracy prediction (thermal, deflection, positioning)" },
+            { "path": "cad-engine/tests/test_dimensional_accuracy.py", "type": "test", "description": "Tests for dimensional accuracy model against known error scenarios" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Integration Tests with Real CMM Data",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Data/ML Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_calc" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["CC-EXT-MS4:P0-U03", "CC-EXT-MS4:P0-U04"],
+          "entry_conditions": [
+            "P0-U03 and P0-U04 complete",
+            "Full quality pipeline operational: import -> correlate -> predict",
+            "Test CMM data available (real or high-fidelity synthetic)"
+          ],
+          "exit_conditions": [
+            "E2E test: CMM data import -> tolerance correlation -> surface finish refinement -> dimensional accuracy prediction",
+            "Test with 10+ inspection result sets covering turning, milling, and drilling operations",
+            "Tolerance prediction accuracy: correct IT class >= 80% on held-out test set",
+            "Surface finish prediction: within 20% of measured Ra for 80%+ of test cases",
+            "Dimensional accuracy: predicted deviation within 50% of actual for 75%+ of features",
+            "Model retraining: demonstrate improvement when new CMM data is added",
+            "No crashes or incorrect predictions on edge cases (zero deviation, maximum deviation, missing data)",
+            "Build passes",
+            "All tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/integration/test_quality_e2e.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Generate or collect 10+ CMM result sets: 4 turning operations (various diameters/tolerances), 4 milling operations (pocket/surface/profile), 2 drilling operations (hole position/diameter)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build E2E integration test: import CMM data -> run tolerance correlation -> refine surface finish model -> predict dimensional accuracy"
+            },
+            {
+              "number": 3,
+              "instruction": "Validate tolerance prediction: use k-fold cross-validation, report IT class prediction accuracy per operation type"
+            },
+            {
+              "number": 4,
+              "instruction": "Validate surface finish prediction: compare refined model vs theoretical-only, measure improvement in Ra prediction"
+            },
+            {
+              "number": 5,
+              "instruction": "Validate dimensional accuracy: compare multi-factor model predictions vs actual CMM deviations"
+            },
+            {
+              "number": 6,
+              "instruction": "Test model retraining: add new CMM data, retrain, verify prediction accuracy improves"
+            },
+            {
+              "number": 7,
+              "instruction": "Edge case tests: zero deviation features, maximum deviation (out of tolerance), missing sensor/parameter data"
+            }
+          ],
+          "deliverables": [
+            { "path": "cad-engine/tests/integration/test_quality_e2e.py", "type": "test", "description": "End-to-end integration tests for quality feedback learning pipeline" },
+            { "path": "cad-engine/tests/integration/test_quality_accuracy.py", "type": "test", "description": "Prediction accuracy validation across operation types" },
+            { "path": "cad-engine/tests/integration/test_quality_retraining.py", "type": "test", "description": "Model retraining improvement verification" },
+            { "path": "cad-engine/data/test_quality/cmm_results/", "type": "data", "description": "10+ CMM result sets for integration testing" }
+          ],
           "index_in_master": false,
           "creates_skill": false,
           "creates_script": false,
@@ -61,7 +385,7 @@
       ],
       "gate": {
         "omega_floor": 0.75,
-        "safety_floor": 0.7,
+        "safety_floor": 0.70,
         "ralph_required": false,
         "ralph_grade_floor": "B",
         "anti_regression": true,
@@ -69,7 +393,12 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "DMIS and QIF import tested with multiple vendor formats",
+          "Tolerance prediction correct IT class >= 80%",
+          "Surface finish Ra prediction within 20% for 80%+ of cases",
+          "Model retraining shows measurable improvement"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
@@ -80,27 +409,29 @@
   "role_matrix": [
     {
       "code": "R2",
-      "name": "Implementer",
+      "name": "Data/ML Engineer",
       "model": "sonnet-4.6",
       "effort": 80
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_calc", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] }
   ],
-  "deliverables_index": [],
-  "existing_leverage": [],
+  "deliverables_index": [
+    { "path": "cad-engine/src/quality/cmm_importer.py", "type": "source", "description": "DMIS/QIF CMM data importer" },
+    { "path": "cad-engine/src/quality/tolerance_correlator.py", "type": "source", "description": "Tolerance-to-parameter correlation and IT class prediction" },
+    { "path": "cad-engine/src/quality/surface_finish_model.py", "type": "source", "description": "Empirically-refined surface finish prediction" },
+    { "path": "cad-engine/src/quality/dimensional_accuracy.py", "type": "source", "description": "Multi-factor dimensional accuracy prediction" }
+  ],
+  "existing_leverage": [
+    { "asset": "prism_calc surface finish model", "type": "tool", "description": "Theoretical Ra = f^2/(32*r) baseline for refinement" },
+    { "asset": "prism_calc force model", "type": "tool", "description": "Cutting force predictions for tool deflection model" },
+    { "asset": "CC-MS11 knowledge base", "type": "data", "description": "Material properties (CTE, hardness) and tool geometry data" },
+    { "asset": "prism_validate", "type": "tool", "description": "Validation framework for prediction accuracy checks" }
+  ],
   "scrutiny_config": {
     "pass_mode": "adaptive",
     "min_passes": 3,
