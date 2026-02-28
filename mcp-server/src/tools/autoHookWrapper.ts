@@ -2603,6 +2603,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       const hrPath = path.join(STATE_DIR12, "HOT_RESUME.md");
       const recentStr = recentToolCalls.slice(-8).map(t => `- ${t}`).join("\n");
       safeWriteSync(hrPath, `# HOT_RESUME (call ${callNum} — ${new Date().toISOString()})\nLast: ${toolName}:${action2} (${durationMs}ms, ${error ? "FAIL" : "OK"})\n## Recent\n${recentStr}\n`);
+      // CONSOLIDATED SESSION_STATE.md — single file for boot (saves 2 tool calls)
+      try {
+        const todoSnap = (() => { try { return fs.readFileSync(path.join(STATE_DIR12, "todo.md"), "utf-8").split("\n").filter(l => l.trim()).slice(0, 15).join("\n"); } catch { return "No active tasks"; } })();
+        const sessionState = [
+          `# SESSION STATE (call ${callNum} — ${new Date().toISOString()})`,
+          `Last: ${toolName}:${action2} (${durationMs}ms, ${error ? "FAIL" : "OK"})`,
+          `Phase: ${survivalData.phase}`,
+          `## Recent Calls`, recentStr,
+          `## Active Tasks`, todoSnap,
+          `## Key Findings`, cadence.actions.filter((a: string) => a.includes("\u2705") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5).map(f => `- ${f}`).join("\n") || "- none yet",
+        ].join("\n");
+        safeWriteSync(path.join(STATE_DIR12, "SESSION_STATE.md"), sessionState);
+      } catch { /* non-fatal */ }
       // SESSION_DIGEST: every 10 calls, write concise summary (~500 tokens)
       if (callNum % 10 === 0 && callNum > 0) {
         const digestPath = path.join(STATE_DIR12, "SESSION_DIGEST.md");

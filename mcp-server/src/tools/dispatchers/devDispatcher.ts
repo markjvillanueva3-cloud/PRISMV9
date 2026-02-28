@@ -15,6 +15,7 @@ import { resetReconFlag } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
 import { PATHS } from "../../constants.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
+import * as TaskClaimService from "../../services/TaskClaimService.js";
 
 // __dirname at runtime = C:\PRISM\mcp-server\dist (esbuild bundles to single file)
 const MCP_ROOT = path.join(__dirname, "..");        // C:\PRISM\mcp-server (for build/src/dist)
@@ -81,6 +82,29 @@ export function registerDevDispatcher(server: any): void {
         switch (action) {
           case "session_boot": {
             result = { timestamp: new Date().toISOString() };
+            // Multi-chat coordination: register this instance and reap stale claims
+            try {
+              const instanceId = `claude-${process.pid}-${Date.now()}`;
+              const worktree = process.cwd();
+              await TaskClaimService.registerInstance(instanceId, worktree);
+              safeWriteSync(path.join(STATE_DIR, "INSTANCE_ID.txt"), instanceId);
+              result.instance_id = instanceId;
+              result.coordination = "registered";
+              // Reap stale claims across all milestones
+              const claimsDir = path.join(MCP_ROOT, "data", "claims");
+              if (fs.existsSync(claimsDir)) {
+                const msDirs = fs.readdirSync(claimsDir, { withFileTypes: true }).filter(d => d.isDirectory() && !d.name.startsWith("."));
+                let totalReaped = 0;
+                for (const msDir of msDirs) {
+                  const reaped = await TaskClaimService.reapStaleClaims(msDir.name);
+                  totalReaped += reaped.length;
+                }
+                if (totalReaped > 0) result.stale_claims_reaped = totalReaped;
+              }
+              // List active instances for visibility
+              const instances = await TaskClaimService.getActiveInstances();
+              result.active_instances = instances.length;
+            } catch (e: any) { log.debug(`[session_boot] coordination: ${e?.message?.slice(0, 80)}`); }
             try {
               const statePath = path.join(STATE_DIR, "CURRENT_STATE.json");
               if (fs.existsSync(statePath)) {

@@ -10,6 +10,7 @@ import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
 import { PATHS } from "../../constants.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
+import * as TaskClaimService from "../../services/TaskClaimService.js";
 
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {
@@ -732,7 +733,17 @@ export function registerSessionDispatcher(server: any): void {
               }
             } catch { /* enhanced shutdown non-fatal */ }
 
-            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep, enhanced_shutdown: enhancedShutdown });
+            // Multi-chat coordination: release all claims held by this instance
+            let claimsReleased = 0;
+            try {
+              const instanceIdPath = path.join(PATHS.STATE_DIR || path.resolve("C:\\PRISM\\state"), "INSTANCE_ID.txt");
+              if (fs.existsSync(instanceIdPath)) {
+                const instanceId = fs.readFileSync(instanceIdPath, "utf-8").trim();
+                claimsReleased = await TaskClaimService.releaseAll(instanceId);
+              }
+            } catch (e: any) { log.debug(`[session_end] claim release: ${e?.message?.slice(0, 80)}`); }
+
+            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep, enhanced_shutdown: enhancedShutdown, claims_released: claimsReleased });
           }
           
           case "auto_checkpoint": {

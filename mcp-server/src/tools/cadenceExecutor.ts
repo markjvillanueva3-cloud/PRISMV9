@@ -6171,10 +6171,16 @@ export function autoScriptQueueDrain(callNumber: number): { success: boolean; ca
 /** 15. Fire roadmap heartbeat for multi-Claude coordination */
 export function autoRoadmapHeartbeat(callNumber: number): { success: boolean; call_number: number; beat: boolean } {
   try {
-    const TaskClaimService = require("../engines/TaskClaimService.js").TaskClaimService || require("../engines/TaskClaimService.js").default;
-    const service = typeof TaskClaimService === "function" ? new TaskClaimService() : TaskClaimService;
-    service.heartbeat?.() || service.sendHeartbeat?.();
-    return { success: true, call_number: callNumber, beat: true };
+    const tcs = require("../services/TaskClaimService.js");
+    const claimStatePath = path.join(STATE_DIR, "ACTIVE_CLAIM.json");
+    if (fs.existsSync(claimStatePath)) {
+      const claim = JSON.parse(fs.readFileSync(claimStatePath, "utf-8"));
+      if (claim.milestone_id && claim.unit_id && claim.instance_id) {
+        tcs.heartbeat(claim.milestone_id, claim.unit_id, claim.instance_id);
+        return { success: true, call_number: callNumber, beat: true };
+      }
+    }
+    return { success: true, call_number: callNumber, beat: false };
   } catch { return { success: true, call_number: callNumber, beat: false }; }
 }
 
