@@ -174,6 +174,83 @@
     { "severity": "INFO", "finding": "PIDController Ziegler-Nichols tuning often produces aggressive gains -- in practice, manual tuning adjustment is typical" }
   ],
 
+  "cpk_cross_reference": {
+    "summary": "Two Cpk implementations exist in PRISM. AnomalyDetector's is tautological; ToleranceEngine's is correct.",
+    "anomaly_detector_cpk": {
+      "file": "src/algorithms/AnomalyDetector.ts",
+      "line": 149,
+      "formula": "min((UCL-μ)/(3σ), (μ-LCL)/(3σ)) where UCL=μ+kσ, LCL=μ-kσ",
+      "simplification": "= min(kσ/(3σ), kσ/(3σ)) = k/3",
+      "result": "Always returns 1.0 for default k=3 — TAUTOLOGICAL",
+      "verdict": "Cannot distinguish capable from incapable processes. Output is decorative only."
+    },
+    "tolerance_engine_cpk": {
+      "file": "src/engines/ToleranceEngine.ts",
+      "lines": "453-504",
+      "formula": "Cp = 2*tolerance/(6*σ), Cpk = min((USL-μ)/(3σ), (μ-LSL)/(3σ)) where USL=nominal+tolerance, LSL=nominal-tolerance",
+      "result": "Varies with process sigma and centering — CORRECT implementation",
+      "rating_scale": "≥2.0 excellent, ≥1.33 good, ≥1.0 adequate, <1.0 inadequate"
+    },
+    "recommendation": "AnomalyDetector should either (a) accept external USL/LSL or (b) remove Cpk output to avoid misleading users"
+  },
+
+  "spot_checks": [
+    {
+      "algorithm": "AdaptiveControllerModel",
+      "description": "Chipload mode feed override calculation",
+      "inputs": {
+        "target_chipload_mm": 0.15,
+        "RPM": 8000,
+        "flutes": 4,
+        "current_feed_mmpm": 3600,
+        "engagement_angle_deg": 90
+      },
+      "manual_trace": {
+        "ideal_feed": "0.15 * 8000 * 4 = 4800 mm/min",
+        "engagement_correction": "sin(π/4) / sin(90°/2) = 0.7071 / 0.7071 = 1.0",
+        "override_pct": "(4800 * 1.0) / 3600 * 100 = 133.3%",
+        "clamped": "min(133.3, 150) = 133.3% (within 40-150% limits)"
+      },
+      "status": "VERIFIED"
+    },
+    {
+      "algorithm": "PIDController",
+      "description": "Ziegler-Nichols PID auto-tune calculation",
+      "inputs": {
+        "Ku": 10.0,
+        "Tu": 0.5,
+        "type": "PID"
+      },
+      "manual_trace": {
+        "Kp": "0.6 * 10.0 = 6.0",
+        "Ki": "6.0 / (0.5/2) = 6.0 / 0.25 = 24.0",
+        "Kd": "6.0 * 0.5/8 = 6.0 * 0.0625 = 0.375"
+      },
+      "status": "VERIFIED"
+    },
+    {
+      "algorithm": "AnomalyDetector Cpk tautology (cross-ref from U04)",
+      "description": "Numerical proof that Cpk = k/3 = 1.0 always for AnomalyDetector",
+      "inputs": {
+        "data": [10, 10.5, 9.8, 11.0, 10.2],
+        "k": 3
+      },
+      "manual_trace": {
+        "mean": 10.30,
+        "sigma": 0.4796,
+        "UCL": "10.30 + 3*0.4796 = 11.739",
+        "LCL": "10.30 - 3*0.4796 = 8.861",
+        "cpk": "min(1.439/1.439, 1.439/1.439) = 1.000",
+        "algebraic_proof": "UCL-μ = kσ, μ-LCL = kσ → Cpk = min(kσ/3σ, kσ/3σ) = k/3 = 1.0"
+      },
+      "comparison_with_ToleranceEngine": {
+        "nominal": 10, "tolerance": 0.5, "sigma": 0.15,
+        "Cpk": "min(0.5/(3*0.15), 0.5/(3*0.15)) = 1.111 — varies with σ, meaningful"
+      },
+      "status": "VERIFIED — tautology confirmed"
+    }
+  ],
+
   "rubric_scores": {
     "correctness": 5,
     "completeness": 5,
@@ -185,7 +262,7 @@
 
   "exit_conditions_met": {
     "control_chart_limit_calculations_verified": true,
-    "capability_indices_verified": "Cpk audited in U04 (AnomalyDetector). PID settling/overshoot metrics verified here.",
+    "capability_indices_verified": "Cpk exists in 2 implementations: AnomalyDetector (TAUTOLOGICAL — cpk=k/3=1.0 always, documented as MINOR in U04) and ToleranceEngine (CORRECT — uses external USL/LSL). Cross-reference section added above.",
     "out_of_control_detection_rules_verified": true
   }
 }

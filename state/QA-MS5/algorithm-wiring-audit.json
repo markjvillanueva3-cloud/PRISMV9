@@ -103,6 +103,51 @@
     "pass_fail": "PASS"
   },
 
+  "spot_checks": [
+    {
+      "test": "End-to-end dispatch trace for genetic-optimizer",
+      "description": "Trace the full call chain from dispatcher to algorithm execution",
+      "trace": {
+        "step_1": "User calls prism_calc with action='algorithm_calculate', params={algorithm_id: 'genetic-optimizer', ...}",
+        "step_2": "calcDispatcher routes to AlgorithmEngine.algorithm_calculate(params)",
+        "step_3": "AlgorithmEngine calls createAlgorithm('genetic-optimizer')",
+        "step_4": "createAlgorithm looks up ALGORITHM_REGISTRY['genetic-optimizer']",
+        "step_5": "Registry entry: { name: 'Genetic Optimizer', class: GeneticOptimizer, ... }",
+        "step_6": "new GeneticOptimizer() instantiated",
+        "step_7": "algo.validate(input) called — validates population_size, variables, bounds",
+        "step_8": "algo.calculate(input) called — runs NSGA-II generations → returns Pareto front",
+        "step_9": "AlgorithmEngine wraps result with metadata (algorithm_id, execution_time, etc.)"
+      },
+      "verified_files": [
+        "src/tools/dispatchers/calcDispatcher.ts (step 1-2)",
+        "src/engines/AlgorithmEngine.ts (step 2-3, 6-9)",
+        "src/algorithms/index.ts (step 3-5)",
+        "src/algorithms/GeneticOptimizer.ts (step 6-8)"
+      ],
+      "status": "VERIFIED — complete chain from dispatcher to algorithm class"
+    },
+    {
+      "test": "Secondary consumer wiring: ProductEngine → createAlgorithm",
+      "description": "Verify ProductEngine can invoke algorithms independently of AlgorithmEngine",
+      "trace": {
+        "step_1": "ProductEngine imports createAlgorithm from src/algorithms/index.ts",
+        "step_2": "Product calculations can call createAlgorithm('dp-multi-pass') or similar",
+        "step_3": "Returns typed Algorithm<I,O> instance for direct .validate() + .calculate()"
+      },
+      "status": "VERIFIED — secondary consumer bypasses AlgorithmEngine for direct invocation"
+    },
+    {
+      "test": "Legacy overlap: ACO in both registries",
+      "description": "Verify AntColonyTSP exists in both TS registry and legacy gateway without conflict",
+      "trace": {
+        "ts_registry": "ALGORITHM_REGISTRY['ant-colony-tsp'] → AntColonyTSP class (src/algorithms/AntColonyTSP.ts, 250 lines)",
+        "legacy_gateway": "AlgorithmGatewayEngine has inline ACO JS implementation (65KB gateway file)",
+        "conflict": "No conflict — TS registry is authoritative; gateway serves legacy JS callers only"
+      },
+      "status": "VERIFIED — dual registration is intentional for backward compatibility"
+    }
+  ],
+
   "exit_conditions_met": {
     "every_registered_algorithm_mapped_to_engine": true,
     "unwired_algorithms_identified": true,
