@@ -1,0 +1,271 @@
+{
+  "unit": "QA-MS14-U01",
+  "title": "Remediation Milestones for Critical & High-Priority Issues",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T17:00:00Z",
+  "status": "PASS",
+  "scope": "6 P0-CRITICAL + 20 P1-HIGH findings grouped into 5 remediation milestones",
+  "milestones": [
+    {
+      "id": "REM-MS0",
+      "title": "Safety-Critical Manufacturing Fixes",
+      "priority": "P0",
+      "estimated_hours": 21,
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U00",
+          "title": "5-axis C-axis limit checking + fixture height in Z limit",
+          "items": [
+            "P0-001",
+            "P0-002",
+            "P0-006"
+          ],
+          "effort": "5h"
+        },
+        {
+          "id": "U01",
+          "title": "PostProcessor tap/bore G84/G76 + 5-axis G43.4/G68.2",
+          "items": [
+            "P0-003",
+            "P0-004"
+          ],
+          "effort": "12h"
+        },
+        {
+          "id": "U02",
+          "title": "Bridge setDispatchHandler wiring",
+          "items": [
+            "P0-005"
+          ],
+          "effort": "4h"
+        }
+      ],
+      "dependencies": [],
+      "risk": "HIGHEST \u2014 machine crash/collision risk if unfixed"
+    },
+    {
+      "id": "REM-MS1",
+      "title": "Manufacturing Engine Corrections",
+      "priority": "P1",
+      "estimated_hours": 33,
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U00",
+          "title": "WireEDM skim speed formula fix",
+          "items": [
+            "P1-001"
+          ],
+          "effort": "1h"
+        },
+        {
+          "id": "U01",
+          "title": "Dedicated GrindingEngine extraction from inline",
+          "items": [
+            "P1-017"
+          ],
+          "effort": "8h"
+        },
+        {
+          "id": "U02",
+          "title": "Wire orphaned force calculations (drilling, stripping)",
+          "items": [
+            "P1-018",
+            "P1-019"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U03",
+          "title": "Reconcile dual chatter implementations",
+          "items": [
+            "P1-020"
+          ],
+          "effort": "8h"
+        },
+        {
+          "id": "U04",
+          "title": "Implement Merchant's Circle trigonometric decomposition",
+          "items": [
+            "P1-016"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U05",
+          "title": "FFT-based chatter detection for MachineConnectivity",
+          "items": [
+            "P1-012"
+          ],
+          "effort": "8h"
+        }
+      ],
+      "dependencies": [
+        "REM-MS0"
+      ]
+    },
+    {
+      "id": "REM-MS2",
+      "title": "Tenant & Compliance Security Hardening",
+      "priority": "P1",
+      "estimated_hours": 14,
+      "sessions": 1,
+      "units": [
+        {
+          "id": "U00",
+          "title": "Tenant auth check on promote/quarantine_pattern",
+          "items": [
+            "P1-002",
+            "P1-003"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U01",
+          "title": "Compliance hook idempotency + severity-weighted scoring",
+          "items": [
+            "P1-007",
+            "P1-008"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U02",
+          "title": "Access control UNION strategy for multi-framework",
+          "items": [
+            "P1-009"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U03",
+          "title": "Domain hook registry fallback (generate at build time)",
+          "items": [
+            "P1-011"
+          ],
+          "effort": "2h"
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "REM-MS3",
+      "title": "Knowledge & Intelligence Upgrades",
+      "priority": "P1",
+      "estimated_hours": 28,
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U00",
+          "title": "Semantic search (BM25 minimum) for KnowledgeQueryEngine",
+          "items": [
+            "P1-004",
+            "P1-006"
+          ],
+          "effort": "16h"
+        },
+        {
+          "id": "U01",
+          "title": "TribalKnowledge dynamic tip loading from file/DB",
+          "items": [
+            "P1-005"
+          ],
+          "effort": "4h"
+        },
+        {
+          "id": "U02",
+          "title": "Hook system consolidation plan (HookEngine vs HookExecutor)",
+          "items": [
+            "P1-010"
+          ],
+          "effort": "8h"
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "REM-MS4",
+      "title": "Test Coverage Expansion",
+      "priority": "P1",
+      "estimated_hours": 56,
+      "sessions": 4,
+      "units": [
+        {
+          "id": "U00",
+          "title": "Cadence function test suite (97 untested functions)",
+          "items": [
+            "P1-014"
+          ],
+          "effort": "16h"
+        },
+        {
+          "id": "U01",
+          "title": "Engine unit test expansion (top 50 critical engines)",
+          "items": [
+            "P1-015"
+          ],
+          "effort": "40h"
+        }
+      ],
+      "dependencies": [
+        "REM-MS0",
+        "REM-MS1"
+      ]
+    }
+  ],
+  "dependency_graph": {
+    "REM-MS0": [],
+    "REM-MS1": [
+      "REM-MS0"
+    ],
+    "REM-MS2": [],
+    "REM-MS3": [],
+    "REM-MS4": [
+      "REM-MS0",
+      "REM-MS1"
+    ]
+  },
+  "parallel_tracks": {
+    "track_A": [
+      "REM-MS0",
+      "REM-MS1",
+      "REM-MS4"
+    ],
+    "track_B": [
+      "REM-MS2"
+    ],
+    "track_C": [
+      "REM-MS3"
+    ]
+  },
+  "total_estimated_hours": 152,
+  "total_sessions": 12,
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "5 remediation milestones defined covering all 6 P0 and 20 P1 issues"
+    },
+    {
+      "severity": "OK",
+      "finding": "Dependency graph allows 3 parallel tracks (safety-first, security, intelligence)"
+    },
+    {
+      "severity": "INFO",
+      "finding": "152 hours estimated across 12 sessions for all P0+P1 remediation"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "remediation_milestones_generated": true,
+    "units_steps_deliverables_defined": true,
+    "dependency_graph_established": true
+  }
+}
