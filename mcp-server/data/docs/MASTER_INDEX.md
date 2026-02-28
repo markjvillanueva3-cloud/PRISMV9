@@ -11,7 +11,7 @@
 Actions (10): task_init, task_resume, task_status, queue_next, unit_complete, batch_validate, checkpoint, replan, assemble, stub_scan
 
 ### prism_autopilot_d (autoPilotDispatcher.ts, 143L)
-Actions (8): autopilot, autopilot_quick, brainstorm_lenses, ralph_loop_lite, formula_optimize, autopilot_v2, registry_status, working_tools
+Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, autopilot_v2, registry_status, working_tools
 
 ### prism_autonomous (autonomousDispatcher.ts, 1070L)
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume

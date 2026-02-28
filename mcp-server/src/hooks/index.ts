@@ -23,7 +23,7 @@
  * - SpecialtyManufacturingHooks: 20 hooks (turning, 5-axis, EDM, grinding)
  * - SpecialtyCadences: 6 hooks (M97-M102 automation cadences)
  *
- * TOTAL: 179 hooks across 17 categories
+ * TOTAL: 220 hooks (179 domain across 17 categories + 41 Phase 0 infrastructure)
  * 
  * @version 3.0.0
  * @author PRISM Development Team
