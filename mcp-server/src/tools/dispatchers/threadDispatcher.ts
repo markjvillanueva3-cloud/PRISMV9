@@ -7,7 +7,7 @@ import { log } from "../../utils/Logger.js";
 const CALC_ACTIONS = new Set([
   "calculate_tap_drill", "calculate_thread_mill_params", "calculate_thread_depth",
   "calculate_engagement_percent", "calculate_pitch_diameter", "calculate_minor_major_diameter",
-  "calculate_thread_cutting_params"
+  "calculate_thread_cutting_params", "calculate_thread_stripping"
 ]);
 const CODE_ACTIONS = new Set(["generate_thread_gcode"]);
 
@@ -28,7 +28,8 @@ export function registerThreadDispatcher(server: any): void {
         "select_thread_insert",
         "calculate_thread_cutting_params",
         "validate_thread_fit_class",
-        "generate_thread_gcode"
+        "generate_thread_gcode",
+        "calculate_thread_stripping"
       ]),
       params: z.record(z.any()).optional()
     },
