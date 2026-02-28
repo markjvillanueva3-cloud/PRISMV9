@@ -3,8 +3,8 @@
 
 **Phase:** QA AUDIT TRACK COMPLETE -- 15 milestones, 94 units, 82 deliverables
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Omega:** 3.50 (pre-audit) → 4.29 (post-audit) = +22.6% improvement
-**Next Recommended:** REM-MS0 (Safety-Critical Manufacturing Fixes) — 21h, 2 sessions
+**Aggregate OQA:** 4.32 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 15 code fixes
+**Next Recommended:** REM-MS0 (Safety-Critical Remediation — 5 open CRITICAL, 2-3 sessions)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks

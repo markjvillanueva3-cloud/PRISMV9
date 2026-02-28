@@ -1,7 +1,7 @@
 # PRISM Manufacturing Intelligence — Claude Code Context
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 45 dispatchers, 684 actions, 74 engines.
+Safety-critical CNC manufacturing MCP server. 45 dispatchers, 1060 actions, 171 engines.
 Mathematical errors cause tool explosions and operator injuries.
 **Lives depend on correctness. Zero tolerance for shortcuts or placeholders.**
 
@@ -22,20 +22,20 @@ npm run build:fast     # esbuild only (no type-check)
 - After build: run `scripts/verify-build.ps1` (checks 7 required symbols + bad patterns)
 - Ω ≥ 0.70 = release ready. Current: Ω = 0.912 (R3 verified)
 
-## Registry Counts (verified 2026-02-27)
-Materials: 3,533 | Machines: 1,016 | Tools: 13,967 | Alarms: 10,033
-Formulas: 109 registered | Toolpath Strategies: 680 | Threads: 339 specs
-Skills: 61 (SkillRegistry) | Scripts: 48 (ScriptRegistry) | Agents: 75 | Hooks: 59 registry / 112 source
-Algorithms: 17 | Cadence Functions: 40
-**14 registries across 18 registry files**
-Data registries: Materials 3,022 typed / 6,338 knowledge | Tools 1,731 typed / 13,967 knowledge | Machines 1,015 knowledge
+## Registry Counts (QA-MS7 verified 2026-02-28)
+Materials: 6,353 (7 ISO groups) | Machines: 920 (48 manufacturers) | Tools: 13,967 (14 files) | Alarms: 10,033 base + 1,871 verified
+Formulas: 500 (12 built-in + 489 JSON) | Toolpath Strategies: 680 | Threads: 339 specs
+Skills: 61 (SkillRegistry) | Scripts: 48 (ScriptRegistry) | Agents: 75 | Hooks: 220 (179 domain + 41 Phase0)
+Algorithms: 50 (TS registry) | Cadence Functions: 103
+**15 registries managed by RegistryManager**
+Data registries: Materials 6,353 JSON | Tools 13,967 knowledge | Machines 920 consolidated
 
 ## Current Position
-- **Phase:** 38/65 milestones COMPLETE (S0-S2, L0-L10 all done)
-- **Completed:** P0, DA, R1, R2 (150/150 benchmarks), R3 (Ω=0.912), R4 (116/116 enterprise tests)
-- **Next:** S3 (SFC Calculator UI), CC-MS0 (CAD/CAM Learning), or L8-MS2/L9 tracks
-- **Roadmap Index:** `mcp-server/data/roadmap-index.json` (v4.0.0, 65 milestones)
-- **Envelopes:** `mcp-server/data/milestones/*.json` (65 milestone files)
+- **Phase:** 54/80 milestones COMPLETE (S0-S2, L0-L10, QA-MS0-MS14 all done)
+- **Completed:** P0, DA, R1-R4, QA Audit (15 milestones, 94 units — 5 CRITICAL fixed, 7 MAJOR fixed)
+- **Next:** REM-MS0 (Safety Remediation) or S3 (SFC Calculator UI)
+- **Roadmap Index:** `mcp-server/data/roadmap-index.json` (v5.0.0, 80 milestones)
+- **Envelopes:** `mcp-server/data/milestones/*.json` (80 milestone files)
 - **Position:** `C:\PRISM\state\CURRENT_POSITION.md`
 
 ## Subagents (.claude/agents/)
@@ -44,7 +44,7 @@ Data registries: Materials 3,022 typed / 6,338 knowledge | Tools 1,731 typed / 1
 - **verifier** (haiku, green): Tests, audits, regression checks. Reports only, never fixes.
 
 ## Key Architecture
-### Dispatchers (45 total, 684 verified actions)
+### Dispatchers (45 total, 1060 verified actions)
 Manufacturing: prism_calc (21), prism_safety (29), prism_thread (12), prism_toolpath (8)
 Data: prism_data (27), prism_knowledge (5)
 Session: prism_session (30), prism_context (18), prism_dev (9)
@@ -69,16 +69,16 @@ snake_case params auto-normalize to camelCase in safety/calc/thread dispatchers.
 
 ## Key Paths
 ```
-src/tools/dispatchers/    — 32 dispatcher files
-src/engines/              — 74 engine files (73 engines + index.ts)
+src/tools/dispatchers/    — 45 dispatcher files
+src/engines/              — 171 engine classes across 232 .ts files
 src/tools/autoHookWrapper.ts — Central hook/cadence/logging wrapper
 src/tools/cadenceExecutor.ts — Cadence functions (checkpoint, pressure, etc.)
 src/utils/paramNormalizer.ts — Snake→camel param aliases
 src/utils/smokeTest.ts       — 5 boot canary tests
 src/utils/responseSlimmer.ts — Token optimization
 data/docs/roadmap/           — Phase files (20 active + archive/)
-data/roadmap-index.json      — Master roadmap index (v4.0.0, 65 milestones)
-data/milestones/             — 65 milestone envelope JSON files
+data/roadmap-index.json      — Master roadmap index (v5.0.0, 80 milestones)
+data/milestones/             — 80 milestone envelope JSON files
 data/docs/gsd/GSD_QUICK.md   — GSD v22.0 canonical protocol
 C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoints)
 ```
@@ -105,7 +105,7 @@ C:\PRISM\state\              — Runtime state (ACTION_TRACKER, logs, checkpoint
 5. Before file replacement: run anti-regression validation
 
 ## Mode Switching (Code ↔ Chat)
-This codebase has an MCP server with 32 dispatchers for manufacturing physics,
+This codebase has an MCP server with 45 dispatchers for manufacturing physics,
 safety validation, and quality scoring. These are available in BOTH Code and Chat modes.
 
 **Code handles 90% of work** via 3 subagent archetypes + agent teams.

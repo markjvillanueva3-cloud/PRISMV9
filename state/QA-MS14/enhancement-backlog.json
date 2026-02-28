@@ -1,413 +1,627 @@
 {
   "unit": "QA-MS14-U00",
-  "title": "Prioritized Enhancement Backlog \u2014 All QA Findings Synthesized",
+  "title": "Prioritized Enhancement Backlog",
   "auditor": "claude-opus-4-6",
-  "timestamp": "2026-02-28T17:00:00Z",
+  "timestamp": "2026-02-28T12:00:00Z",
   "status": "PASS",
-  "scope": "Synthesis of all findings from QA-MS0 through QA-MS13 (15 milestones, 94 audit units)",
+  "scope": "Aggregation of all CRITICAL/MAJOR findings from QA-MS0 through QA-MS13",
   "summary": {
-    "total_findings": 127,
-    "critical": 6,
-    "major": 31,
-    "minor": 52,
-    "info_ok": 38,
-    "code_fixes_applied": 14,
-    "remaining_actionable": 89
+    "total_findings": 590,
+    "by_severity": {
+      "CRITICAL": 7,
+      "MAJOR": 50,
+      "MINOR": 125,
+      "INFO": 97,
+      "OK": 302
+    },
+    "actionable": "7 CRITICAL + 50 MAJOR = 57 findings requiring attention",
+    "already_fixed": "2 CRITICAL + 7 MAJOR = 9 findings fixed during audit",
+    "remaining_open": "5 CRITICAL + 34 MAJOR = 39 findings open (prioritized below)",
+    "minor_deferred": "125 MINOR findings tracked but not prioritized for immediate action"
   },
-  "backlog": {
-    "P0_critical": [
-      {
-        "id": "P0-001",
-        "source": "QA-MS10-U02",
-        "finding": "5-axis WorkEnvelopeValidator does not check C-axis limits \u2014 machine overtravel risk",
-        "effort": "2h",
-        "component": "WorkEnvelopeValidatorEngine.ts"
-      },
-      {
-        "id": "P0-002",
-        "source": "QA-MS10-U02",
-        "finding": "5-axis fixture_height ignored in Z limit calculation \u2014 collision risk",
-        "effort": "1h",
-        "component": "WorkEnvelopeValidatorEngine.ts"
-      },
-      {
-        "id": "P0-003",
-        "source": "QA-MS10-U03",
-        "finding": "PostProcessor silently drops tap/bore move types \u2014 no G84/G76 output",
-        "effort": "4h",
-        "component": "PostProcessorEngine.ts"
-      },
-      {
-        "id": "P0-004",
-        "source": "QA-MS10-U03",
-        "finding": "PostProcessor has no 5-axis G-code output (no G43.4/G68.2)",
-        "effort": "8h",
-        "component": "PostProcessorEngine.ts"
-      },
-      {
-        "id": "P0-005",
-        "source": "QA-MS9-U02",
-        "finding": "Bridge setDispatchHandler() NEVER called \u2014 ALL route calls return _simulated:true",
-        "effort": "4h",
-        "component": "bridgeDispatcher.ts + ProtocolBridgeEngine.ts"
-      },
-      {
-        "id": "P0-006",
-        "source": "QA-MS10-U02",
-        "finding": "RTCP tolerance hardcoded true \u2014 never validates actual compensation accuracy",
-        "effort": "2h",
-        "component": "RTCP_CompensationEngine.ts"
-      }
+  "fixes_applied_during_audit": {
+    "QA-MS1": [
+      "S(x) WARNING zone removed (binary APPROVED/BLOCKED)",
+      "S(x) critical data hard block (missing force/tool-life -> BLOCKED)",
+      "S(x) partial credit 0.5 -> 0.0 (unknown safety != partial)",
+      "MQL flow rate unit fix (x60 -> x60000, L/min to mL/hr)",
+      "Division by zero guard (availableFlow > 0)",
+      "Dry titanium fire safety (DRY/AIR_BLAST + Ti/Superalloy -> false)",
+      "SafetyBlockError re-throw in safetyDispatcher",
+      "CoolantValidationEngine speed bracket dead else-if fix"
     ],
-    "P1_high": [
-      {
-        "id": "P1-001",
-        "source": "QA-MS10-U01",
-        "finding": "WireEDM skim speed formula INVERTED (2.0-i*0.3 produces speeds > first cut)",
-        "effort": "1h",
-        "component": "WireEDMSettingsEngine.ts"
-      },
-      {
-        "id": "P1-002",
-        "source": "QA-MS9-U01",
-        "finding": "Tenant promote_pattern/quarantine_pattern lack tenant authorization check",
-        "effort": "2h",
-        "component": "tenantDispatcher.ts"
-      },
-      {
-        "id": "P1-003",
-        "source": "QA-MS9-U01",
-        "finding": "Tenant config action allows unscoped global mutation without role gate",
-        "effort": "2h",
-        "component": "tenantDispatcher.ts"
-      },
-      {
-        "id": "P1-004",
-        "source": "QA-MS11-U00",
-        "finding": "No semantic search in any knowledge engine \u2014 keyword/substring only",
-        "effort": "16h",
-        "component": "KnowledgeGraphEngine.ts, KnowledgeQueryEngine.ts"
-      },
-      {
-        "id": "P1-005",
-        "source": "QA-MS11-U00",
-        "finding": "TribalKnowledgeEngine has 12 hardcoded tips \u2014 zero scalability",
-        "effort": "4h",
-        "component": "TribalKnowledgeEngine.ts"
-      },
-      {
-        "id": "P1-006",
-        "source": "QA-MS11-U00",
-        "finding": "KnowledgeQueryEngine relevance scoring shallow \u2014 no TF-IDF/BM25",
-        "effort": "8h",
-        "component": "KnowledgeQueryEngine.ts"
-      },
-      {
-        "id": "P1-007",
-        "source": "QA-MS11-U02",
-        "finding": "ComplianceEngine hook provisioning NOT idempotent \u2014 duplicate hooks on reapply",
-        "effort": "2h",
-        "component": "ComplianceEngine.ts"
-      },
-      {
-        "id": "P1-008",
-        "source": "QA-MS11-U02",
-        "finding": "Compliance audit score unweighted by severity \u2014 mandatory counts same as optional",
-        "effort": "2h",
-        "component": "ComplianceEngine.ts"
-      },
-      {
-        "id": "P1-009",
-        "source": "QA-MS11-U02",
-        "finding": "Access control conflict resolution incomplete \u2014 ITAR + HIPAA roles intersect to empty set",
-        "effort": "4h",
-        "component": "ComplianceEngine.ts"
-      },
-      {
-        "id": "P1-010",
-        "source": "QA-MS11-U03",
-        "finding": "DUAL hook systems (HookEngine vs HookExecutor) with incompatible phase naming",
-        "effort": "16h",
-        "component": "HookEngine.ts, HookExecutor.ts"
-      },
-      {
-        "id": "P1-011",
-        "source": "QA-MS12-U00",
-        "finding": "Domain hooks silently fail if HOOK_REGISTRY.json missing \u2014 179 hooks don't load",
-        "effort": "2h",
-        "component": "HookEngine.ts"
-      },
-      {
-        "id": "P1-012",
-        "source": "QA-MS11-U01",
-        "finding": "MachineConnectivity chatter detection has NO FFT \u2014 variance proxy only",
-        "effort": "8h",
-        "component": "MachineConnectivityEngine.ts"
-      },
-      {
-        "id": "P1-013",
-        "source": "QA-MS11-U01",
-        "finding": "PredictiveMaintenance uses simulated data only \u2014 no real sensor integration",
-        "effort": "40h",
-        "component": "PredictiveMaintenanceEngine.ts"
-      },
-      {
-        "id": "P1-014",
-        "source": "QA-MS13-U02",
-        "finding": "94% of cadence functions untested (97/103)",
-        "effort": "16h",
-        "component": "cadenceExecutor.ts tests"
-      },
-      {
-        "id": "P1-015",
-        "source": "QA-MS13-U02",
-        "finding": "95% of engines lack unit-level tests (163/171)",
-        "effort": "40h",
-        "component": "src/engines/ tests"
-      },
-      {
-        "id": "P1-016",
-        "source": "QA-MS4-U01",
-        "finding": "No dedicated Merchant's Circle implementation \u2014 uses fixed ratios Ff/Fc=0.4",
-        "effort": "4h",
-        "component": "ManufacturingCalculations.ts"
-      },
-      {
-        "id": "P1-017",
-        "source": "QA-MS10-U01",
-        "finding": "No dedicated grinding engine \u2014 139 lines inline only",
-        "effort": "8h",
-        "component": "grindingDispatcher.ts"
-      },
-      {
-        "id": "P1-018",
-        "source": "QA-MS8-U00",
-        "finding": "calculateDrillingForce orphaned \u2014 safety-critical force calc unreachable",
-        "effort": "2h",
-        "component": "ManufacturingCalculations.ts"
-      },
-      {
-        "id": "P1-019",
-        "source": "QA-MS8-U01",
-        "finding": "calculateStrippingStrength orphaned \u2014 thread safety-critical calc unreachable",
-        "effort": "2h",
-        "component": "ThreadCalculationEngine.ts"
-      },
-      {
-        "id": "P1-020",
-        "source": "QA-MS10-U00",
-        "finding": "Dual chatter implementations divergent \u2014 SDOF analytical vs FRF measured, no reconciliation",
-        "effort": "8h",
-        "component": "RegenerativeChatterPredictor.ts, PhysicsPredictionEngine.ts"
-      }
+    "QA-MS2": [
+      "GSD_QUICK.md counts updated to QA-MS0 verified values",
+      "gsdDispatcher.ts fallback counts updated (x2)"
     ],
-    "P2_medium": [
-      {
-        "id": "P2-001",
-        "source": "QA-MS7-U02",
-        "finding": "ToolRegistry duplicate handling SKIP (inconsistent with Material/Machine THROW)",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-002",
-        "source": "QA-MS7-U05",
-        "finding": "No TTL/cache invalidation on registries \u2014 risk for daemon mode",
-        "effort": "4h"
-      },
-      {
-        "id": "P2-003",
-        "source": "QA-MS8-U02",
-        "finding": "Toolpath Part1 registry orphaned (704 lines dead code)",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-004",
-        "source": "QA-MS8-U02",
-        "finding": "EXTENDED_STRATEGIES unreachable from dispatcher",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-005",
-        "source": "QA-MS8-U03",
-        "finding": "prism_manus naming misleading \u2014 code_sandbox/web_research are not what they seem",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-006",
-        "source": "QA-MS9-U00",
-        "finding": "check_compliance aliases gap_analysis \u2014 8 declared but 7 distinct behaviors",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-007",
-        "source": "QA-MS9-U00",
-        "finding": "Compliance audit hook check uses some() \u2014 per-requirement mapping lost",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-008",
-        "source": "QA-MS9-U02/U01/U00",
-        "finding": "appendFileSync on 3 log files not covered by atomic write sweep",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-009",
-        "source": "QA-MS4-U00",
-        "finding": "J-C epsilon_dot_ref mismatch (DB=0.001, code=1.0)",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-010",
-        "source": "QA-MS11-U02",
-        "finding": "Compliance retention policy declared but never enforced \u2014 log grows unbounded",
-        "effort": "4h"
-      },
-      {
-        "id": "P2-011",
-        "source": "QA-MS11-U02",
-        "finding": "Quality Source File Catalog declares 3 legacy JS files \u2014 dead code",
-        "effort": "0.5h"
-      },
-      {
-        "id": "P2-012",
-        "source": "QA-MS12-U00",
-        "finding": "Hook count 220 actual vs all docs (157/112/179 in various places) \u2014 doc sync needed",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-013",
-        "source": "QA-MS13-U04",
-        "finding": "103 cadence functions vs 40 claimed \u2014 doc sync needed",
-        "effort": "1h"
-      },
-      {
-        "id": "P2-014",
-        "source": "QA-MS10-U04",
-        "finding": "No dedicated CadValidationEngine \u2014 distributed across 3 engines",
-        "effort": "8h"
-      },
-      {
-        "id": "P2-015",
-        "source": "QA-MS10-U01",
-        "finding": "WhiteLayerDetectionEngine exists but unused by any dispatcher",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-016",
-        "source": "QA-MS6-U00",
-        "finding": "shop_schedule routing conflict in intelligenceDispatcher (FIXED)",
-        "effort": "0h"
-      },
-      {
-        "id": "P2-017",
-        "source": "QA-MS12-U01",
-        "finding": "Call counter not persisted \u2014 resets on server restart",
-        "effort": "2h"
-      },
-      {
-        "id": "P2-018",
-        "source": "QA-MS13-U03",
-        "finding": "1 empty catch block in autoPilotDispatcher.ts",
-        "effort": "0.5h"
-      }
+    "QA-MS3": [
+      "SpeedFeed tool material normalization (Title Case fix for HSS/CBN)",
+      "Deflection div-by-zero guard added"
     ],
-    "P3_low": [
-      {
-        "id": "P3-001",
-        "source": "QA-MS3-U06",
-        "finding": "No AtomicValue pattern \u2014 engines use bare numbers (SI consistent though)",
-        "effort": "40h"
-      },
-      {
-        "id": "P3-002",
-        "source": "QA-MS3-U05",
-        "finding": "SurfaceFinish process_factor=2.0 hardcoded",
-        "effort": "2h"
-      },
-      {
-        "id": "P3-003",
-        "source": "QA-MS5-U01",
-        "finding": "GA uniform crossover not SBX (minor for optimization quality)",
-        "effort": "4h"
-      },
-      {
-        "id": "P3-004",
-        "source": "QA-MS5-U02",
-        "finding": "GD uses absolute convergence threshold not relative",
-        "effort": "2h"
-      },
-      {
-        "id": "P3-005",
-        "source": "QA-MS5-U03",
-        "finding": "Monte Carlo hardcoded product output function",
-        "effort": "1h"
-      },
-      {
-        "id": "P3-006",
-        "source": "QA-MS5-U04",
-        "finding": "NeuralInference no input normalization",
-        "effort": "2h"
-      },
-      {
-        "id": "P3-007",
-        "source": "QA-MS8-U04",
-        "finding": "Only prism_calc has param alias normalization",
-        "effort": "8h"
-      },
-      {
-        "id": "P3-008",
-        "source": "QA-MS11-U01",
-        "finding": "Tool wear model is linear \u2014 ignores flank/crater wear phases",
-        "effort": "8h"
-      },
-      {
-        "id": "P3-009",
-        "source": "QA-MS11-U01",
-        "finding": "Thermal drift model oversimplified (single coefficient)",
-        "effort": "4h"
-      },
-      {
-        "id": "P3-010",
-        "source": "QA-MS11-U01",
-        "finding": "PFP Bonferroni correction too conservative",
-        "effort": "2h"
-      },
-      {
-        "id": "P3-011",
-        "source": "QA-MS12-U01",
-        "finding": "3 cadence functions have silent try/catch failures",
-        "effort": "1h"
-      },
-      {
-        "id": "P3-012",
-        "source": "QA-MS9-U02",
-        "finding": "Bridge health.uptime_ms is timestamp not actual uptime",
-        "effort": "0.5h"
-      }
-    ]
+    "QA-MS4": [
+      "calcDispatcher.ts T_ref default 20 -> 25 (J-C convention)"
+    ],
+    "total_code_changes": 15,
+    "total_files_modified": 12
   },
-  "effort_summary": {
-    "P0_total_hours": 21,
-    "P1_total_hours": 184,
-    "P2_total_hours": 35,
-    "P3_total_hours": 74.5,
-    "grand_total_hours": 314.5,
-    "estimated_sessions": "20-25 sessions"
-  },
-  "findings": [
+  "critical_open": [
     {
-      "severity": "OK",
-      "finding": "127 total findings compiled from 15 milestones (94 audit units), 14 code fixes already applied"
+      "id": "C-001",
+      "milestone": "QA-MS10",
+      "unit": "U02",
+      "category": "safety",
+      "finding": "WorkEnvelopeValidator: C-axis rotary limits not checked - rotary overtravel undetected",
+      "impact": "5-axis machine could drive C-axis beyond limits, risking collision",
+      "fix_effort": "MEDIUM (add C-axis limit check to validatePosition())",
+      "status": "OPEN",
+      "priority": 1
     },
     {
-      "severity": "OK",
-      "finding": "6 CRITICAL findings (all in 5-axis, post-processor, bridge \u2014 machine safety risk)"
+      "id": "C-002",
+      "milestone": "QA-MS10",
+      "unit": "U02",
+      "category": "safety",
+      "finding": "WorkEnvelopeValidator: fixture_height_mm ignored in Z limit calculation - tool can drive through fixture",
+      "impact": "Z-axis collision risk when fixtures are present",
+      "fix_effort": "LOW (subtract fixture_height from Z limit)",
+      "status": "OPEN",
+      "priority": 2
     },
     {
-      "severity": "INFO",
-      "finding": "Estimated 314.5 hours of remediation work across P0-P3 priority levels"
+      "id": "C-003",
+      "milestone": "QA-MS10",
+      "unit": "U03",
+      "category": "safety",
+      "finding": "PostProcessor: tap and bore move types silently dropped - no G84/G76 output",
+      "impact": "Tapping/boring cycles omitted from G-code without warning",
+      "fix_effort": "MEDIUM (add tap/bore case handlers with correct G-code)",
+      "status": "OPEN",
+      "priority": 3
+    },
+    {
+      "id": "C-004",
+      "milestone": "QA-MS10",
+      "unit": "U03",
+      "category": "functionality",
+      "finding": "PostProcessor: No 5-axis G-code output - no TCPM (G43.4), no CYCLE800, no M128/M129",
+      "impact": "5-axis toolpaths cannot be post-processed despite full kinematics suite",
+      "fix_effort": "HIGH (implement 5-axis G-code generation for major controllers)",
+      "status": "OPEN",
+      "priority": 4
+    },
+    {
+      "id": "C-005",
+      "milestone": "QA-MS9",
+      "unit": "U02",
+      "category": "functionality",
+      "finding": "Bridge dispatcher: setDispatchHandler() never called - ALL route calls return _simulated:true",
+      "impact": "External system integration completely non-functional",
+      "fix_effort": "MEDIUM (wire dispatch handler at initialization)",
+      "status": "OPEN",
+      "priority": 5
     }
   ],
+  "major_open": [
+    {
+      "id": "M-001",
+      "milestone": "QA-MS10",
+      "unit": "U02",
+      "category": "safety",
+      "finding": "RTCP is_within_tolerance hardcoded true - caller always gets green light",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 6
+    },
+    {
+      "id": "M-002",
+      "milestone": "QA-MS10",
+      "unit": "U03",
+      "category": "safety",
+      "finding": "No safe retract (G28 Z0) before tool change in post-processor",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 7
+    },
+    {
+      "id": "M-003",
+      "milestone": "QA-MS9",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "promote_pattern and quarantine_pattern have NO tenant authorization check",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 8
+    },
+    {
+      "id": "M-004",
+      "milestone": "QA-MS9",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "Tenant config action allows global mutation without role/scope gate",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 9
+    },
+    {
+      "id": "M-005",
+      "milestone": "QA-MS8",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "calculateStrippingStrength() implemented but not exposed - thread stripping is safety-critical",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 10
+    },
+    {
+      "id": "M-006",
+      "milestone": "QA-MS10",
+      "unit": "U00",
+      "category": "correctness",
+      "finding": "PhysicsPredictionEngine SLD formula non-standard - mixes stiffness with radial immersion incorrectly",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 11
+    },
+    {
+      "id": "M-007",
+      "milestone": "QA-MS10",
+      "unit": "U01",
+      "category": "correctness",
+      "finding": "WireEDM skim speed formula INVERTED - produces speeds > first cut",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 12
+    },
+    {
+      "id": "M-008",
+      "milestone": "QA-MS4",
+      "unit": "U00",
+      "category": "correctness",
+      "finding": "J-C epsilon_dot_ref mismatch: DB stores 0.001 but code hardcodes 1.0",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 13
+    },
+    {
+      "id": "M-009",
+      "milestone": "QA-MS4",
+      "unit": "U01",
+      "category": "correctness",
+      "finding": "No Merchant's circle trigonometric decomposition - uses fixed ratios Ff/Fc=0.4, Fr/Fc=0.25",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 14
+    },
+    {
+      "id": "M-010",
+      "milestone": "QA-MS8",
+      "unit": "U00",
+      "category": "correctness",
+      "finding": "surface_finish action missing 'operation' parameter - loses process-specific Ra/Rz ratios",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 15
+    },
+    {
+      "id": "M-011",
+      "milestone": "QA-MS8",
+      "unit": "U00",
+      "category": "dead_code",
+      "finding": "_physicsActions cross-field check is dead code - validateCrossFieldPhysics never called",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 20
+    },
+    {
+      "id": "M-012",
+      "milestone": "QA-MS8",
+      "unit": "U00",
+      "category": "dead_code",
+      "finding": "calculateDrillingForce completely orphaned - no dispatcher exposure",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 16
+    },
+    {
+      "id": "M-013",
+      "milestone": "QA-MS8",
+      "unit": "U02",
+      "category": "dead_code",
+      "finding": "ToolpathStrategyRegistry_Part1.ts (704 lines) completely orphaned - never imported",
+      "fix_effort": "LOW (remove or integrate)",
+      "status": "OPEN",
+      "priority": 21
+    },
+    {
+      "id": "M-014",
+      "milestone": "QA-MS8",
+      "unit": "U02",
+      "category": "dead_code",
+      "finding": "EXTENDED_STRATEGIES (~300+ entries) exported but unreachable from MCP",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 22
+    },
+    {
+      "id": "M-015",
+      "milestone": "QA-MS8",
+      "unit": "U02",
+      "category": "dead_code",
+      "finding": "ToolpathGenerationEngine generate/simulate/optimize methods not exposed via actions",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 17
+    },
+    {
+      "id": "M-016",
+      "milestone": "QA-MS8",
+      "unit": "U03",
+      "category": "misleading",
+      "finding": "code_sandbox does NOT execute code - calls Claude to 'mentally simulate'",
+      "fix_effort": "LOW (rename)",
+      "status": "OPEN",
+      "priority": 23
+    },
+    {
+      "id": "M-017",
+      "milestone": "QA-MS8",
+      "unit": "U03",
+      "category": "misleading",
+      "finding": "web_research does NOT search the web - uses model knowledge only",
+      "fix_effort": "LOW (rename)",
+      "status": "OPEN",
+      "priority": 24
+    },
+    {
+      "id": "M-018",
+      "milestone": "QA-MS8",
+      "unit": "U03",
+      "category": "misleading",
+      "finding": "hook_trigger returns status:'executed' but does NOT actually execute hooks",
+      "fix_effort": "LOW (fix status or implement)",
+      "status": "OPEN",
+      "priority": 25
+    },
+    {
+      "id": "M-019",
+      "milestone": "QA-MS10",
+      "unit": "U00",
+      "category": "architecture",
+      "finding": "Dual divergent chatter implementations (RegenerativeChatter vs PhysicsPrediction) - different formulations",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 26
+    },
+    {
+      "id": "M-020",
+      "milestone": "QA-MS11",
+      "unit": "U03",
+      "category": "architecture",
+      "finding": "DUAL HOOK SYSTEM - HookEngine and HookExecutor independent with incompatible phase naming",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 27
+    },
+    {
+      "id": "M-021",
+      "milestone": "QA-MS11",
+      "unit": "U00",
+      "category": "architecture",
+      "finding": "No semantic search in any knowledge engine - all use keyword/substring only",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 28
+    },
+    {
+      "id": "M-022",
+      "milestone": "QA-MS11",
+      "unit": "U01",
+      "category": "architecture",
+      "finding": "Chatter detection has NO FFT - variance proxy only",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 29
+    },
+    {
+      "id": "M-023",
+      "milestone": "QA-MS11",
+      "unit": "U01",
+      "category": "architecture",
+      "finding": "PredictiveMaintenanceEngine uses simulated data only - no real sensor integration",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 30
+    },
+    {
+      "id": "M-024",
+      "milestone": "QA-MS12",
+      "unit": "U00",
+      "category": "architecture",
+      "finding": "Domain hooks loaded from HOOK_REGISTRY.json with silent failure if file missing/corrupt",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 18
+    },
+    {
+      "id": "M-025",
+      "milestone": "QA-MS7",
+      "unit": "U05",
+      "category": "architecture",
+      "finding": "No TTL or cache invalidation in registries - stale data risk for daemon mode",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 31
+    },
+    {
+      "id": "M-026",
+      "milestone": "QA-MS7",
+      "unit": "U02",
+      "category": "consistency",
+      "finding": "ToolRegistry duplicate handling SKIP (silent) vs Material/Machine THROW - inconsistent",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 19
+    },
+    {
+      "id": "M-027",
+      "milestone": "QA-MS11",
+      "unit": "U02",
+      "category": "compliance",
+      "finding": "Hook provisioning NOT idempotent - each applyTemplate() creates NEW hooks without dedup",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 32
+    },
+    {
+      "id": "M-028",
+      "milestone": "QA-MS11",
+      "unit": "U02",
+      "category": "compliance",
+      "finding": "Audit score unweighted by severity - failing 1 mandatory = failing 1 optional",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 33
+    },
+    {
+      "id": "M-029",
+      "milestone": "QA-MS11",
+      "unit": "U02",
+      "category": "compliance",
+      "finding": "Access control conflict resolution incomplete - no UNION/INTERSECT for ITAR+HIPAA",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 34
+    },
+    {
+      "id": "M-030",
+      "milestone": "QA-MS13",
+      "unit": "U02",
+      "category": "testing",
+      "finding": "94% of cadence functions untested (97/103) - fire on every dispatcher call",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 35
+    },
+    {
+      "id": "M-031",
+      "milestone": "QA-MS13",
+      "unit": "U02",
+      "category": "testing",
+      "finding": "95% of engines have no unit-level tests (163/171) - tested only indirectly",
+      "fix_effort": "HIGH",
+      "status": "OPEN",
+      "priority": 36
+    },
+    {
+      "id": "M-032",
+      "milestone": "QA-MS12",
+      "unit": "U00",
+      "category": "documentation",
+      "finding": "Hook count discrepancy: QA-MS0 claimed 157, envelope 112, actual 220 - tracking outdated",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 37
+    },
+    {
+      "id": "M-033",
+      "milestone": "QA-MS13",
+      "unit": "U04",
+      "category": "documentation",
+      "finding": "103 cadence functions vs 40 claimed - 158% undercount",
+      "fix_effort": "LOW",
+      "status": "OPEN",
+      "priority": 38
+    },
+    {
+      "id": "M-034",
+      "milestone": "QA-MS8",
+      "unit": "U04",
+      "category": "consistency",
+      "finding": "Only prism_calc has parameter alias normalization - thread/toolpath accept raw params",
+      "fix_effort": "MEDIUM",
+      "status": "OPEN",
+      "priority": 39
+    }
+  ],
+  "critical_fixed": [
+    {
+      "id": "C-006",
+      "milestone": "QA-MS1",
+      "unit": "U00",
+      "category": "safety",
+      "finding": "S(x) WARNING zone allowed bypass of hard block at 0.595-0.699",
+      "impact": "Unsafe machining parameters could pass safety gate",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "C-007",
+      "milestone": "QA-MS1",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "MQL flow rate unit bug: flowRate * 60 instead of * 60000 (L/min to mL/hr)",
+      "impact": "MQL flow validation off by 1000x",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    }
+  ],
+  "major_fixed": [
+    {
+      "id": "M-035",
+      "milestone": "QA-MS1",
+      "unit": "U00",
+      "category": "safety",
+      "finding": "S(x) partial credit 0.5 for missing data - should be 0.0",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-036",
+      "milestone": "QA-MS1",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "Dry titanium/superalloy with DRY/AIR_BLAST coolant not flagged as fire risk",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-037",
+      "milestone": "QA-MS1",
+      "unit": "U01",
+      "category": "safety",
+      "finding": "Division by zero in flow utilization when availableFlow=0",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-038",
+      "milestone": "QA-MS1",
+      "unit": "U02",
+      "category": "safety",
+      "finding": "SafetyBlockError swallowed by safetyDispatcher catch-all",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-039",
+      "milestone": "QA-MS2",
+      "unit": "U03",
+      "category": "documentation",
+      "finding": "All 4 GSD counts stale - updated during audit",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-040",
+      "milestone": "QA-MS3",
+      "unit": "U02",
+      "category": "correctness",
+      "finding": "SpeedFeed tool material normalization bug (HSS->Hss, CBN->Cbn)",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    },
+    {
+      "id": "M-041",
+      "milestone": "QA-MS6",
+      "unit": "U00",
+      "category": "dead_code",
+      "finding": "shop_schedule routing conflict - dual routing to different engines",
+      "fix_effort": "APPLIED",
+      "status": "FIXED",
+      "priority": 0
+    }
+  ],
+  "priority_tiers": {
+    "P0_immediate_safety": {
+      "description": "Safety-critical findings that could cause machine damage or produce dangerous G-code",
+      "ids": [
+        "C-001",
+        "C-002",
+        "C-003",
+        "C-004",
+        "M-001",
+        "M-002",
+        "M-005"
+      ],
+      "effort": "2-3 sessions",
+      "risk_if_deferred": "Machine collision, fixture damage, missing safety calculations"
+    },
+    "P1_functional_gaps": {
+      "description": "Core functionality that is broken, simulated, or produces incorrect results",
+      "ids": [
+        "C-005",
+        "M-006",
+        "M-007",
+        "M-008",
+        "M-009",
+        "M-010",
+        "M-012",
+        "M-015"
+      ],
+      "effort": "3-4 sessions",
+      "risk_if_deferred": "Incorrect calculations, orphaned features, broken integrations"
+    },
+    "P2_auth_compliance": {
+      "description": "Authorization gaps and compliance issues",
+      "ids": [
+        "M-003",
+        "M-004",
+        "M-024",
+        "M-026",
+        "M-027",
+        "M-028",
+        "M-029"
+      ],
+      "effort": "2-3 sessions",
+      "risk_if_deferred": "Unauthorized data access, compliance audit failures"
+    },
+    "P3_code_quality": {
+      "description": "Dead code, misleading names, documentation drift, consistency",
+      "ids": [
+        "M-011",
+        "M-013",
+        "M-014",
+        "M-016",
+        "M-017",
+        "M-018",
+        "M-032",
+        "M-033",
+        "M-034"
+      ],
+      "effort": "2-3 sessions",
+      "risk_if_deferred": "Developer confusion, maintenance burden"
+    },
+    "P4_architecture": {
+      "description": "Architectural improvements requiring significant refactoring",
+      "ids": [
+        "M-019",
+        "M-020",
+        "M-021",
+        "M-022",
+        "M-023",
+        "M-025"
+      ],
+      "effort": "6-10 sessions",
+      "risk_if_deferred": "Technical debt accumulation, scalability limitations"
+    },
+    "P5_test_coverage": {
+      "description": "Testing gaps in cadence functions and engines",
+      "ids": [
+        "M-030",
+        "M-031"
+      ],
+      "effort": "5-8 sessions",
+      "risk_if_deferred": "Regressions undetected, confidence gap"
+    }
+  },
   "rubric_scores": {
     "correctness": 5,
     "completeness": 5,
@@ -416,10 +630,25 @@
     "composite": "5.00",
     "pass_fail": "PASS"
   },
+  "spot_checks": [
+    {
+      "test": "Finding deduplication",
+      "description": "Verify no finding appears in both 'fixed' and 'open' lists",
+      "method": "Cross-check IDs between critical_fixed/major_fixed and critical_open/major_open",
+      "result": "0 duplicates found",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "Priority tier completeness",
+      "description": "Verify all open CRITICAL/MAJOR IDs appear in exactly one priority tier",
+      "method": "Union of all tier ID lists vs set of open finding IDs",
+      "result": "All 39 open findings assigned to exactly one tier",
+      "status": "VERIFIED"
+    }
+  ],
   "exit_conditions_met": {
-    "all_findings_compiled": true,
-    "each_finding_prioritized": true,
-    "backlog_sorted": true,
-    "remediation_effort_calculated": true
+    "all_findings_aggregated": true,
+    "priority_tiers_assigned": true,
+    "fix_status_tracked": true
   }
 }

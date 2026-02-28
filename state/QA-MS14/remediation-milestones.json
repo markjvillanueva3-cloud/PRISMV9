@@ -1,260 +1,407 @@
 {
   "unit": "QA-MS14-U01",
-  "title": "Remediation Milestones for Critical & High-Priority Issues",
+  "title": "Remediation Milestone Proposals",
   "auditor": "claude-opus-4-6",
-  "timestamp": "2026-02-28T17:00:00Z",
+  "timestamp": "2026-02-28T12:30:00Z",
   "status": "PASS",
-  "scope": "6 P0-CRITICAL + 20 P1-HIGH findings grouped into 5 remediation milestones",
-  "milestones": [
+  "scope": "Remediation plan for 5 CRITICAL + 34 MAJOR open findings from QA audit",
+  "proposed_milestones": [
     {
       "id": "REM-MS0",
-      "title": "Safety-Critical Manufacturing Fixes",
-      "priority": "P0",
-      "estimated_hours": 21,
-      "sessions": 2,
+      "title": "Safety-Critical Remediation",
+      "priority": "P0 \u2014 IMMEDIATE",
+      "estimated_sessions": "2-3",
+      "findings_addressed": [
+        "C-001",
+        "C-002",
+        "C-003",
+        "C-004",
+        "M-001",
+        "M-002",
+        "M-005"
+      ],
       "units": [
         {
-          "id": "U00",
-          "title": "5-axis C-axis limit checking + fixture height in Z limit",
-          "items": [
-            "P0-001",
-            "P0-002",
-            "P0-006"
+          "id": "REM-MS0-U00",
+          "title": "5-Axis WorkEnvelopeValidator: C-axis limits + fixture height",
+          "findings": [
+            "C-001",
+            "C-002"
           ],
-          "effort": "5h"
+          "changes": [
+            "Add C-axis min/max limit check to validatePosition()",
+            "Subtract fixture_height_mm from Z maximum limit",
+            "Add unit tests for C-axis overtravel detection",
+            "Add unit test for fixture collision prevention"
+          ],
+          "files": [
+            "src/engines/WorkEnvelopeValidator.ts"
+          ],
+          "smart_config": "OPUS/HIGH"
         },
         {
-          "id": "U01",
-          "title": "PostProcessor tap/bore G84/G76 + 5-axis G43.4/G68.2",
-          "items": [
-            "P0-003",
-            "P0-004"
+          "id": "REM-MS0-U01",
+          "title": "PostProcessor: Add tap/bore cycles + safe retract",
+          "findings": [
+            "C-003",
+            "M-002"
           ],
-          "effort": "12h"
+          "changes": [
+            "Add G84 (tapping) and G76 (boring) case handlers to move type switch",
+            "Add G28 Z0 safe retract before M6 tool change",
+            "Add unit tests for tap/bore G-code output"
+          ],
+          "files": [
+            "src/engines/PostProcessorEngine.ts"
+          ],
+          "smart_config": "OPUS/HIGH"
         },
         {
-          "id": "U02",
-          "title": "Bridge setDispatchHandler wiring",
-          "items": [
-            "P0-005"
+          "id": "REM-MS0-U02",
+          "title": "PostProcessor: 5-axis G-code foundation",
+          "findings": [
+            "C-004"
           ],
-          "effort": "4h"
+          "changes": [
+            "Add TCPM output (G43.4 for Fanuc, CYCLE800 for Siemens, G234 for Heidenhain)",
+            "Add A/B/C axis coordinate output for 5-axis moves",
+            "Add M128/M129 (TCPM on/off) for Heidenhain",
+            "Add unit tests for each controller dialect"
+          ],
+          "files": [
+            "src/engines/PostProcessorEngine.ts"
+          ],
+          "smart_config": "OPUS/HIGH"
+        },
+        {
+          "id": "REM-MS0-U03",
+          "title": "RTCP tolerance fix + thread stripping exposure",
+          "findings": [
+            "M-001",
+            "M-005"
+          ],
+          "changes": [
+            "Replace hardcoded is_within_tolerance=true with actual tolerance check",
+            "Add thread_stripping_strength action to prism_thread dispatcher",
+            "Wire calculateStrippingStrength() to dispatcher action"
+          ],
+          "files": [
+            "src/engines/RTCPEngine.ts",
+            "src/tools/dispatchers/threadDispatcher.ts"
+          ],
+          "smart_config": "OPUS/HIGH"
         }
-      ],
-      "dependencies": [],
-      "risk": "HIGHEST \u2014 machine crash/collision risk if unfixed"
+      ]
     },
     {
       "id": "REM-MS1",
-      "title": "Manufacturing Engine Corrections",
-      "priority": "P1",
-      "estimated_hours": 33,
-      "sessions": 3,
+      "title": "Functional Gap Remediation",
+      "priority": "P1 \u2014 HIGH",
+      "estimated_sessions": "3-4",
+      "findings_addressed": [
+        "C-005",
+        "M-006",
+        "M-007",
+        "M-008",
+        "M-009",
+        "M-010",
+        "M-012",
+        "M-015"
+      ],
       "units": [
         {
-          "id": "U00",
-          "title": "WireEDM skim speed formula fix",
-          "items": [
-            "P1-001"
+          "id": "REM-MS1-U00",
+          "title": "Bridge dispatcher wiring + SLD formula fix",
+          "findings": [
+            "C-005",
+            "M-006"
           ],
-          "effort": "1h"
+          "changes": [
+            "Wire setDispatchHandler() at bridge initialization",
+            "Fix PhysicsPredictionEngine SLD formula to standard Altintas-Budak",
+            "Add integration test for bridge routing"
+          ],
+          "files": [
+            "src/tools/dispatchers/bridgeDispatcher.ts",
+            "src/engines/PhysicsPredictionEngine.ts"
+          ],
+          "smart_config": "OPUS/HIGH"
         },
         {
-          "id": "U01",
-          "title": "Dedicated GrindingEngine extraction from inline",
-          "items": [
-            "P1-017"
+          "id": "REM-MS1-U01",
+          "title": "WireEDM + J-C + surface_finish fixes",
+          "findings": [
+            "M-007",
+            "M-008",
+            "M-010"
           ],
-          "effort": "8h"
+          "changes": [
+            "Invert WireEDM skim speed formula (should decrease per skim pass)",
+            "Add strain_rate_ref field to JohnsonCookParams interface, read from DB",
+            "Add 'operation' parameter to surface_finish action in calcDispatcher"
+          ],
+          "files": [
+            "src/engines/WireEDMEngine.ts",
+            "src/algorithms/JohnsonCookModel.ts",
+            "src/tools/dispatchers/calcDispatcher.ts"
+          ],
+          "smart_config": "SONNET/MEDIUM"
         },
         {
-          "id": "U02",
-          "title": "Wire orphaned force calculations (drilling, stripping)",
-          "items": [
-            "P1-018",
-            "P1-019"
+          "id": "REM-MS1-U02",
+          "title": "Merchant decomposition + drilling force + toolpath exposure",
+          "findings": [
+            "M-009",
+            "M-012",
+            "M-015"
           ],
-          "effort": "4h"
-        },
-        {
-          "id": "U03",
-          "title": "Reconcile dual chatter implementations",
-          "items": [
-            "P1-020"
+          "changes": [
+            "Implement trigonometric Merchant's circle force decomposition (replace fixed ratios)",
+            "Expose calculateDrillingForce via prism_calc action",
+            "Expose ToolpathGenerationEngine generate/simulate/optimize via prism_toolpath actions"
           ],
-          "effort": "8h"
-        },
-        {
-          "id": "U04",
-          "title": "Implement Merchant's Circle trigonometric decomposition",
-          "items": [
-            "P1-016"
+          "files": [
+            "src/engines/ManufacturingCalculations.ts",
+            "src/tools/dispatchers/calcDispatcher.ts",
+            "src/tools/dispatchers/toolpathDispatcher.ts"
           ],
-          "effort": "4h"
-        },
-        {
-          "id": "U05",
-          "title": "FFT-based chatter detection for MachineConnectivity",
-          "items": [
-            "P1-012"
-          ],
-          "effort": "8h"
+          "smart_config": "OPUS/HIGH"
         }
-      ],
-      "dependencies": [
-        "REM-MS0"
       ]
     },
     {
       "id": "REM-MS2",
-      "title": "Tenant & Compliance Security Hardening",
-      "priority": "P1",
-      "estimated_hours": 14,
-      "sessions": 1,
+      "title": "Auth, Compliance & Consistency",
+      "priority": "P2 \u2014 MEDIUM",
+      "estimated_sessions": "2-3",
+      "findings_addressed": [
+        "M-003",
+        "M-004",
+        "M-024",
+        "M-026",
+        "M-027",
+        "M-028",
+        "M-029"
+      ],
       "units": [
         {
-          "id": "U00",
-          "title": "Tenant auth check on promote/quarantine_pattern",
-          "items": [
-            "P1-002",
-            "P1-003"
+          "id": "REM-MS2-U00",
+          "title": "Tenant authorization + registry consistency",
+          "findings": [
+            "M-003",
+            "M-004",
+            "M-026"
           ],
-          "effort": "4h"
+          "changes": [
+            "Add tenant authorization check to promote_pattern/quarantine_pattern",
+            "Add role/scope gate to tenant config mutation",
+            "Change ToolRegistry duplicate handling from silent SKIP to THROW"
+          ],
+          "files": [
+            "src/tools/dispatchers/tenantDispatcher.ts",
+            "src/registries/ToolRegistry.ts"
+          ],
+          "smart_config": "SONNET/MEDIUM"
         },
         {
-          "id": "U01",
-          "title": "Compliance hook idempotency + severity-weighted scoring",
-          "items": [
-            "P1-007",
-            "P1-008"
+          "id": "REM-MS2-U01",
+          "title": "Compliance fixes + hook registry resilience",
+          "findings": [
+            "M-024",
+            "M-027",
+            "M-028",
+            "M-029"
           ],
-          "effort": "4h"
-        },
-        {
-          "id": "U02",
-          "title": "Access control UNION strategy for multi-framework",
-          "items": [
-            "P1-009"
+          "changes": [
+            "Add fallback/warning when HOOK_REGISTRY.json missing (not silent failure)",
+            "Add dedup check to applyTemplate() before creating hooks",
+            "Weight audit score by requirement severity",
+            "Define UNION/INTERSECT strategy for multi-framework access control"
           ],
-          "effort": "4h"
-        },
-        {
-          "id": "U03",
-          "title": "Domain hook registry fallback (generate at build time)",
-          "items": [
-            "P1-011"
+          "files": [
+            "src/registries/HookRegistry.ts",
+            "src/engines/ComplianceEngine.ts"
           ],
-          "effort": "2h"
+          "smart_config": "SONNET/MEDIUM"
         }
-      ],
-      "dependencies": []
+      ]
     },
     {
       "id": "REM-MS3",
-      "title": "Knowledge & Intelligence Upgrades",
-      "priority": "P1",
-      "estimated_hours": 28,
-      "sessions": 2,
+      "title": "Code Quality & Documentation Cleanup",
+      "priority": "P3 \u2014 LOW",
+      "estimated_sessions": "2-3",
+      "findings_addressed": [
+        "M-011",
+        "M-013",
+        "M-014",
+        "M-016",
+        "M-017",
+        "M-018",
+        "M-032",
+        "M-033",
+        "M-034"
+      ],
       "units": [
         {
-          "id": "U00",
-          "title": "Semantic search (BM25 minimum) for KnowledgeQueryEngine",
-          "items": [
-            "P1-004",
-            "P1-006"
+          "id": "REM-MS3-U00",
+          "title": "Dead code removal + misleading name fixes",
+          "findings": [
+            "M-011",
+            "M-013",
+            "M-014",
+            "M-016",
+            "M-017",
+            "M-018"
           ],
-          "effort": "16h"
+          "changes": [
+            "Remove _physicsActions dead code",
+            "Remove or integrate ToolpathStrategyRegistry_Part1.ts",
+            "Integrate or document EXTENDED_STRATEGIES",
+            "Rename code_sandbox -> code_reasoning",
+            "Rename web_research -> knowledge_lookup",
+            "Fix hook_trigger to either execute hooks or return correct status"
+          ],
+          "smart_config": "SONNET/MEDIUM"
         },
         {
-          "id": "U01",
-          "title": "TribalKnowledge dynamic tip loading from file/DB",
-          "items": [
-            "P1-005"
+          "id": "REM-MS3-U01",
+          "title": "Documentation corrections + param normalization",
+          "findings": [
+            "M-032",
+            "M-033",
+            "M-034"
           ],
-          "effort": "4h"
-        },
-        {
-          "id": "U02",
-          "title": "Hook system consolidation plan (HookEngine vs HookExecutor)",
-          "items": [
-            "P1-010"
+          "changes": [
+            "Update hook count documentation (157 -> 220)",
+            "Update cadence function count (40 -> 103)",
+            "Add parameter alias normalization to prism_thread and prism_toolpath"
           ],
-          "effort": "8h"
+          "smart_config": "SONNET/MEDIUM"
         }
-      ],
-      "dependencies": []
+      ]
     },
     {
       "id": "REM-MS4",
-      "title": "Test Coverage Expansion",
-      "priority": "P1",
-      "estimated_hours": 56,
-      "sessions": 4,
+      "title": "Architecture Evolution",
+      "priority": "P4 \u2014 BACKLOG",
+      "estimated_sessions": "6-10",
+      "findings_addressed": [
+        "M-019",
+        "M-020",
+        "M-021",
+        "M-022",
+        "M-023",
+        "M-025"
+      ],
       "units": [
         {
-          "id": "U00",
-          "title": "Cadence function test suite (97 untested functions)",
-          "items": [
-            "P1-014"
+          "id": "REM-MS4-U00",
+          "title": "Unify dual hook system",
+          "findings": [
+            "M-020"
           ],
-          "effort": "16h"
+          "changes": [
+            "Consolidate HookEngine and HookExecutor into single system with unified phase naming"
+          ],
+          "smart_config": "OPUS/HIGH"
         },
         {
-          "id": "U01",
-          "title": "Engine unit test expansion (top 50 critical engines)",
-          "items": [
-            "P1-015"
+          "id": "REM-MS4-U01",
+          "title": "Unify chatter implementations + add FFT",
+          "findings": [
+            "M-019",
+            "M-022"
           ],
-          "effort": "40h"
+          "changes": [
+            "Consolidate RegenerativeChatter + PhysicsPrediction into single authoritative SLD engine",
+            "Add FFT-based chatter detection to replace variance proxy"
+          ],
+          "smart_config": "OPUS/HIGH"
+        },
+        {
+          "id": "REM-MS4-U02",
+          "title": "Knowledge engine semantic search",
+          "findings": [
+            "M-021"
+          ],
+          "changes": [
+            "Add embedding-based semantic search capability to KnowledgeQueryEngine"
+          ],
+          "smart_config": "OPUS/HIGH"
+        },
+        {
+          "id": "REM-MS4-U03",
+          "title": "Predictive maintenance real sensor integration + registry TTL",
+          "findings": [
+            "M-023",
+            "M-025"
+          ],
+          "changes": [
+            "Add real sensor data integration pathway to PredictiveMaintenanceEngine",
+            "Add optional TTL to base registry with configurable expiration"
+          ],
+          "smart_config": "OPUS/HIGH"
         }
+      ]
+    },
+    {
+      "id": "REM-MS5",
+      "title": "Test Coverage Expansion",
+      "priority": "P5 \u2014 ONGOING",
+      "estimated_sessions": "5-8",
+      "findings_addressed": [
+        "M-030",
+        "M-031"
       ],
-      "dependencies": [
-        "REM-MS0",
-        "REM-MS1"
+      "units": [
+        {
+          "id": "REM-MS5-U00",
+          "title": "Cadence function test suite",
+          "findings": [
+            "M-030"
+          ],
+          "changes": [
+            "Write unit tests for all 103 cadence functions (batch by dispatcher family)"
+          ],
+          "smart_config": "SONNET/MEDIUM"
+        },
+        {
+          "id": "REM-MS5-U01",
+          "title": "Engine unit test expansion (Phase 1: safety-critical engines)",
+          "findings": [
+            "M-031"
+          ],
+          "changes": [
+            "Write unit tests for safety-critical engines first (SafetyEngine, PostProcessor, WorkEnvelope, RTCP)"
+          ],
+          "smart_config": "SONNET/MEDIUM"
+        },
+        {
+          "id": "REM-MS5-U02",
+          "title": "Engine unit test expansion (Phase 2: calculation engines)",
+          "findings": [
+            "M-031"
+          ],
+          "changes": [
+            "Write unit tests for core calculation engines (CuttingForce, ToolLife, SpeedFeed, Thermal, Deflection, SurfaceFinish)"
+          ],
+          "smart_config": "SONNET/MEDIUM"
+        }
       ]
     }
   ],
-  "dependency_graph": {
-    "REM-MS0": [],
-    "REM-MS1": [
-      "REM-MS0"
-    ],
-    "REM-MS2": [],
-    "REM-MS3": [],
-    "REM-MS4": [
-      "REM-MS0",
-      "REM-MS1"
-    ]
+  "total_effort": {
+    "rem_ms0_safety": "2-3 sessions",
+    "rem_ms1_functional": "3-4 sessions",
+    "rem_ms2_auth": "2-3 sessions",
+    "rem_ms3_cleanup": "2-3 sessions",
+    "rem_ms4_architecture": "6-10 sessions",
+    "rem_ms5_testing": "5-8 sessions",
+    "total_minimum": "20 sessions",
+    "total_maximum": "31 sessions",
+    "recommended_order": "REM-MS0 -> REM-MS1 -> REM-MS2 -> REM-MS3 -> REM-MS4/MS5 (parallel)"
   },
-  "parallel_tracks": {
-    "track_A": [
-      "REM-MS0",
-      "REM-MS1",
-      "REM-MS4"
-    ],
-    "track_B": [
-      "REM-MS2"
-    ],
-    "track_C": [
-      "REM-MS3"
-    ]
-  },
-  "total_estimated_hours": 152,
-  "total_sessions": 12,
-  "findings": [
-    {
-      "severity": "OK",
-      "finding": "5 remediation milestones defined covering all 6 P0 and 20 P1 issues"
-    },
-    {
-      "severity": "OK",
-      "finding": "Dependency graph allows 3 parallel tracks (safety-first, security, intelligence)"
-    },
-    {
-      "severity": "INFO",
-      "finding": "152 hours estimated across 12 sessions for all P0+P1 remediation"
-    }
-  ],
   "rubric_scores": {
     "correctness": 5,
     "completeness": 5,
@@ -263,9 +410,28 @@
     "composite": "5.00",
     "pass_fail": "PASS"
   },
+  "spot_checks": [
+    {
+      "test": "Finding coverage verification",
+      "description": "Verify all 39 open findings are assigned to exactly one remediation milestone",
+      "method": "Union of all milestone finding_addressed lists",
+      "covered": 39,
+      "uncovered": 0,
+      "status": "VERIFIED"
+    },
+    {
+      "test": "Session estimate reasonableness",
+      "description": "Verify effort estimates are calibrated against QA audit session productivity",
+      "qa_audit_rate": "1 milestone per session (7 units avg)",
+      "remediation_rate": "Expected slower due to code changes + testing",
+      "calibration": "REM-MS0 (4 units, all safety) ~ 2-3 sessions is reasonable",
+      "status": "VERIFIED"
+    }
+  ],
   "exit_conditions_met": {
-    "remediation_milestones_generated": true,
-    "units_steps_deliverables_defined": true,
-    "dependency_graph_established": true
+    "all_critical_findings_have_remediation_plan": true,
+    "all_major_findings_have_remediation_plan": true,
+    "effort_estimates_provided": true,
+    "priority_ordering_defined": true
   }
 }
