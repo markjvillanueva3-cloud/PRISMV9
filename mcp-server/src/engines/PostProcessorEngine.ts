@@ -26,6 +26,7 @@ export interface PostConfig {
   safe_start_block: boolean;
   program_end: "M30" | "M02" | "%";
   max_line_length?: number;
+  five_axis_mode?: "tcpm" | "none";  // C-004: 5-axis TCPM/TCP support
 }
 
 export interface PostInput {
@@ -41,6 +42,7 @@ export interface PostInput {
 export interface PostMove {
   type: "rapid" | "feed" | "arc_cw" | "arc_ccw" | "drill" | "tap" | "bore" | "comment";
   x?: number; y?: number; z?: number;
+  a?: number; b?: number; c?: number;  // rotary axes for 5-axis moves
   i?: number; j?: number;
   feed?: number;
   dwell_sec?: number;
@@ -79,6 +81,8 @@ interface ControllerDialect {
   arcCW: (x?: number, y?: number, i?: number, j?: number, f?: number, dp?: number) => string;
   arcCCW: (x?: number, y?: number, i?: number, j?: number, f?: number, dp?: number) => string;
   drillCanned: (z: number, r: number, f: number) => string;
+  tcpmOn: (toolNum: number) => string;   // C-004: 5-axis TCPM activation
+  tcpmOff: () => string;                 // C-004: 5-axis TCPM deactivation
   programEnd: string;
   comment: (text: string) => string;
 }
@@ -89,6 +93,15 @@ function fmt(v: number | undefined, dp: number): string {
 
 function coord(prefix: string, v: number | undefined, dp: number): string {
   return v !== undefined ? `${prefix}${fmt(v, dp)}` : "";
+}
+
+/** C-004: Append rotary axis coordinates (A/B/C) to a G-code line */
+function rotaryCoords(move: PostMove, dp: number): string {
+  const parts: string[] = [];
+  if (move.a !== undefined) parts.push(`A${fmt(move.a, dp)}`);
+  if (move.b !== undefined) parts.push(`B${fmt(move.b, dp)}`);
+  if (move.c !== undefined) parts.push(`C${fmt(move.c, dp)}`);
+  return parts.join(" ");
 }
 
 const DIALECTS: Record<PostController, ControllerDialect> = {
@@ -103,6 +116,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
+    tcpmOn: (t) => `G43.4 H${t}`,
+    tcpmOff: () => "G49",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -117,6 +132,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
+    tcpmOn: (t) => `G234 H${t}`,
+    tcpmOff: () => "G49",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -131,6 +148,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 3) => `G2 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 3) => `G3 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `CYCLE81(${r.toFixed(3)},0,${z.toFixed(3)})`,
+    tcpmOn: () => "TRAORI\nG43.4",
+    tcpmOff: () => "TRAFOOF",
     programEnd: "M30",
     comment: (text) => `; ${text}`,
   },
@@ -145,6 +164,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR- ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR+ ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `CYCL DEF 1.0 DRILLING\nCYCL DEF 1.1 SET UP ${r.toFixed(3)}\nCYCL DEF 1.2 DEPTH ${z.toFixed(3)}\nCYCL DEF 1.3 FEED ${f}`,
+    tcpmOn: () => "M128",
+    tcpmOff: () => "M129",
     programEnd: "END PGM PART MM",
     comment: (text) => `; ${text}`,
   },
@@ -159,6 +180,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
+    tcpmOn: (t) => `G43.4 H${t}`,
+    tcpmOff: () => "G49",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -173,6 +196,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
+    tcpmOn: (t) => `G43.4 H${t}`,
+    tcpmOff: () => "G49",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -216,8 +241,13 @@ export class PostProcessorEngine {
     // Tool change
     addLine(dialect.toolChange(input.tool_number, input.spindle_rpm, "cw"));
 
-    // Tool length comp
-    if (config.use_tool_length_comp) addLine(`G43 H${input.tool_number}`);
+    // Tool length comp (skip if TCPM — TCPM replaces G43)
+    if (config.five_axis_mode === "tcpm") {
+      addLine(dialect.comment("5-AXIS TCPM MODE ACTIVE"));
+      addLine(dialect.tcpmOn(input.tool_number));
+    } else if (config.use_tool_length_comp) {
+      addLine(`G43 H${input.tool_number}`);
+    }
 
     // Coolant
     if (input.coolant !== "none") addLine(dialect.coolantOn(input.coolant));
@@ -226,13 +256,21 @@ export class PostProcessorEngine {
     let totalFeedDist = 0;
     for (const move of input.moves) {
       switch (move.type) {
-        case "rapid":
-          addLine(dialect.rapid(move.x, move.y, move.z, dp));
+        case "rapid": {
+          let line = dialect.rapid(move.x, move.y, move.z, dp);
+          const rRot = rotaryCoords(move, dp);
+          if (rRot) line = `${line} ${rRot}`.trim();
+          addLine(line);
           break;
-        case "feed":
-          addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin, dp));
+        }
+        case "feed": {
+          let line = dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin, dp);
+          const fRot = rotaryCoords(move, dp);
+          if (fRot) line = `${line} ${fRot}`.trim();
+          addLine(line);
           totalFeedDist += 10; // simplified
           break;
+        }
         case "arc_cw":
           addLine(dialect.arcCW(move.x, move.y, move.i, move.j, move.feed || input.feed_rate_mmmin, dp));
           totalFeedDist += 15;
@@ -279,6 +317,11 @@ export class PostProcessorEngine {
           addLine(dialect.comment(`UNSUPPORTED: ${(move as any).type}`));
           break;
       }
+    }
+
+    // TCPM off before coolant off (C-004: must cancel before tool change/end)
+    if (config.five_axis_mode === "tcpm") {
+      addLine(dialect.tcpmOff());
     }
 
     // Coolant off + program end

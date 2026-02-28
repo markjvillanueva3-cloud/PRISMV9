@@ -1,0 +1,50 @@
+{
+  "unit": "REM-MS0-U01",
+  "title": "PostProcessor Tap/Bore Cycles + Safe Retract",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:00:00Z",
+  "status": "PASS",
+  "scope": "Fix C-003 (tap/bore cycles dropped) and M-002 (safe retract before tool change)",
+  "findings": [
+    {
+      "id": "C-003",
+      "severity": "CRITICAL",
+      "title": "Tap and bore canned cycles silently dropped by PostProcessor",
+      "status": "FIXED",
+      "fix": "Added G84 tapping cycle (lines 253-262) and G76 boring cycle (lines 264-273)",
+      "file": "src/engines/PostProcessorEngine.ts",
+      "lines": "253-273"
+    },
+    {
+      "id": "M-002",
+      "severity": "MAJOR",
+      "title": "No safe retract (G28 Z0) before tool change",
+      "status": "FIXED",
+      "fix": "Added G28 Z0 before tool change at line 214",
+      "file": "src/engines/PostProcessorEngine.ts",
+      "lines": "214"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "spot_checks": [
+    {
+      "test": "Tap cycle generates G84",
+      "expected": "move.type === 'tap' produces G84 with pitch-based feed",
+      "actual": "Line 257: G84 Z{z} R2.000 F{rpm*pitch}",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "Safe retract before tool change",
+      "expected": "G28 Z0 appears before T{n} M06",
+      "actual": "Line 214: addLine('G28 Z0') before dialect.toolChange()",
+      "status": "VERIFIED"
+    }
+  ]
+}

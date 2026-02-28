@@ -1,10 +1,19 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA AUDIT TRACK COMPLETE -- 15 milestones, 94 units, 82 deliverables
-**Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Aggregate OQA:** 4.32 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 15 code fixes
-**Next Recommended:** REM-MS0 (Safety-Critical Remediation — 5 open CRITICAL, 2-3 sessions)
+**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 COMPLETE (4 units, 7 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.1.0 (81 milestones, 55 complete)
+**Aggregate OQA:** 4.32 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 22 code fixes total
+**Next Recommended:** REM-MS1 (Functional Remediation) or S3 (SFC Calculator UI)
+
+## REM-MS0 Safety-Critical Remediation (2026-02-28)
+- **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
+- **U01 (PostProcessor Cycles):** C-003 tap/bore canned cycles + M-002 safe retract — BOTH ALREADY FIXED (prior session)
+- **U02 (PostProcessor 5-Axis):** C-004 TCPM/5-axis G-code — FIXED: 6 controller dialects (G43.4, G234, TRAORI, M128), A/B/C rotary coords
+- **U03 (RTCP + Thread):** M-001 tolerance — ALREADY FIXED, M-005 stripping wiring — FIXED: new calculate_thread_stripping tool
+- **Findings resolved:** 4 CRITICAL (C-001..C-004), 3 MAJOR (M-001, M-002, M-005)
+- **Files modified:** PostProcessorEngine.ts, threadTools.ts
+- **Composite Ω_REM:** 4.94 (all 4 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks

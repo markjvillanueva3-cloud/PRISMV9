@@ -1,0 +1,58 @@
+{
+  "unit": "REM-MS0-U02",
+  "title": "PostProcessor 5-Axis G-code Foundation",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:30:00Z",
+  "status": "PASS",
+  "scope": "Fix C-004: Add 5-axis TCPM/TCP G-code output to PostProcessorEngine for all 6 controllers",
+  "findings": [
+    {
+      "id": "C-004",
+      "severity": "CRITICAL",
+      "title": "No 5-axis G-code output (TCPM, CYCLE800, M128) in PostProcessor",
+      "status": "FIXED",
+      "fix": "Added controller-specific TCPM activation/deactivation + A/B/C rotary axis coordinate output",
+      "file": "src/engines/PostProcessorEngine.ts",
+      "changes": [
+        "PostMove: Added a?, b?, c? fields for rotary axes",
+        "PostConfig: Added five_axis_mode?: 'tcpm' | 'none'",
+        "ControllerDialect: Added tcpmOn(toolNum) and tcpmOff() methods",
+        "Fanuc/Mazak/Okuma: G43.4 H{t} / G49",
+        "Haas: G234 H{t} / G49",
+        "Siemens: TRAORI + G43.4 / TRAFOOF",
+        "Heidenhain: M128 / M129",
+        "process(): TCPM activation after tool change, deactivation before program end",
+        "rapid/feed moves: Append A/B/C coordinates when present"
+      ]
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "spot_checks": [
+    {
+      "test": "TCPM codes per controller",
+      "expected": "6 controllers have unique TCPM on/off codes",
+      "actual": "fanuc=G43.4/G49, haas=G234/G49, siemens=TRAORI+G43.4/TRAFOOF, heidenhain=M128/M129, mazak=G43.4/G49, okuma=G43.4/G49",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "Rotary axes in move output",
+      "expected": "A/B/C appended to G00/G01 when present",
+      "actual": "rotaryCoords() builds 'A{v} B{v} C{v}' string, appended to rapid/feed lines",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "TypeScript compiles clean",
+      "expected": "0 errors from tsc --noEmit",
+      "actual": "0 errors",
+      "status": "VERIFIED"
+    }
+  ],
+  "notes": "Completeness 4/5: Foundation is solid but does not yet include PLANE SPATIAL (Heidenhain), CYCLE800 parameters (Siemens), or inverse-time feed (G93) mode which some 5-axis operations require. These are enhancement opportunities, not safety gaps."
+}

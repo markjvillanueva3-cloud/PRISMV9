@@ -1,0 +1,52 @@
+{
+  "id": "REM-MS0",
+  "title": "Safety-Critical Remediation",
+  "track": "REM",
+  "status": "complete",
+  "description": "Fix all CRITICAL and safety-related MAJOR findings from QA audit",
+  "units": [
+    {
+      "id": "REM-MS0-U00",
+      "title": "WorkEnvelopeValidator C-axis Limits + Fixture Height",
+      "status": "complete",
+      "findings_resolved": ["C-001", "C-002"],
+      "files": ["src/engines/WorkEnvelopeValidatorEngine.ts"]
+    },
+    {
+      "id": "REM-MS0-U01",
+      "title": "PostProcessor Tap/Bore Cycles + Safe Retract",
+      "status": "complete",
+      "findings_resolved": ["C-003", "M-002"],
+      "files": ["src/engines/PostProcessorEngine.ts"]
+    },
+    {
+      "id": "REM-MS0-U02",
+      "title": "PostProcessor 5-Axis G-code Foundation",
+      "status": "complete",
+      "findings_resolved": ["C-004"],
+      "files": ["src/engines/PostProcessorEngine.ts"]
+    },
+    {
+      "id": "REM-MS0-U03",
+      "title": "RTCP Tolerance Fix + Thread Stripping Wiring",
+      "status": "complete",
+      "findings_resolved": ["M-001", "M-005"],
+      "files": ["src/engines/RTCP_CompensationEngine.ts", "src/tools/threadTools.ts"]
+    }
+  ],
+  "dependencies": ["QA-MS14"],
+  "deliverables": [
+    "state/REM-MS0/work-envelope-fix.json",
+    "state/REM-MS0/postprocessor-canned-cycles.json",
+    "state/REM-MS0/postprocessor-5axis.json",
+    "state/REM-MS0/rtcp-thread-stripping.json"
+  ],
+  "aggregate": {
+    "critical_fixed": 4,
+    "major_fixed": 3,
+    "total_findings_resolved": 7,
+    "files_modified": 2,
+    "files_verified": 2,
+    "typescript_errors": 0
+  }
+}

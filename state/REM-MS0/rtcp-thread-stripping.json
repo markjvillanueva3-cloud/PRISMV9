@@ -1,0 +1,56 @@
+{
+  "unit": "REM-MS0-U03",
+  "title": "RTCP Tolerance Fix + Thread Stripping Wiring",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:30:00Z",
+  "status": "PASS",
+  "scope": "Fix M-001 (RTCP hardcoded tolerance) and M-005 (thread stripping unwired)",
+  "findings": [
+    {
+      "id": "M-001",
+      "severity": "MAJOR",
+      "title": "RTCP is_within_tolerance hardcoded to true",
+      "status": "FIXED",
+      "fix": "Already properly computed: errorMm <= toleranceMm (line 146), tolerance_mm defaults to 0.01mm",
+      "file": "src/engines/RTCP_CompensationEngine.ts",
+      "lines": "145-146",
+      "notes": "Was fixed in a prior session \u2014 verified correct this session"
+    },
+    {
+      "id": "M-005",
+      "severity": "MAJOR",
+      "title": "Thread stripping strength calculation exists in engine but not wired to any tool",
+      "status": "FIXED",
+      "fix": "Added calculate_thread_stripping tool definition + handler in threadTools.ts",
+      "file": "src/tools/threadTools.ts",
+      "changes": [
+        "Added tool definition with thread_designation, engagement_length, tensile_strength_mpa params",
+        "Added handler case calling threadEngine.calculateStrippingStrength()",
+        "Tool marked SAFETY CRITICAL in description",
+        "Tool count: 12 -> 13"
+      ]
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "spot_checks": [
+    {
+      "test": "RTCP tolerance properly computed",
+      "expected": "is_within_tolerance = errorMm <= tolerance_mm",
+      "actual": "Line 146: const withinTol = errorMm <= toleranceMm; Line 174: is_within_tolerance: withinTol",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "Thread stripping tool callable",
+      "expected": "calculate_thread_stripping in threadTools array + switch case",
+      "actual": "Tool def at index 11, handler case calls threadEngine.calculateStrippingStrength()",
+      "status": "VERIFIED"
+    }
+  ]
+}

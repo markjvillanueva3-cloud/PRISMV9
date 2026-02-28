@@ -196,6 +196,23 @@ export const threadTools = [
     }
   },
   {
+    name: 'calculate_thread_stripping',
+    description: 'SAFETY CRITICAL: Calculate thread stripping strength to determine if thread engagement is sufficient to prevent failure. Returns internal/external stripping forces, safety factor, and minimum engagement length.',
+    inputSchema: {
+      type: 'object',
+      required: ['thread_designation', 'engagement_length'],
+      properties: {
+        thread_designation: { type: 'string', description: 'Thread specification (e.g., M10x1.5, 1/4-20 UNC)' },
+        engagement_length: { type: 'number', description: 'Thread engagement length in mm' },
+        tensile_strength_mpa: {
+          type: 'number',
+          default: 400,
+          description: 'Material tensile strength in MPa (default 400 for mild steel)'
+        }
+      }
+    }
+  },
+  {
     name: 'generate_thread_gcode',
     description: 'Generate G-code for tapping or thread milling operations.',
     inputSchema: {
@@ -405,6 +422,22 @@ export async function handleThreadTool(name: string, args: Record<string, any>):
         return validation;
       }
       
+      case 'calculate_thread_stripping': {
+        const designation = args.thread_designation;
+        if (!designation) {
+          return { error: "Missing required param: thread_designation" };
+        }
+        const result = threadEngine.calculateStrippingStrength(
+          designation,
+          args.engagement_length,
+          args.tensile_strength_mpa || 400
+        );
+        if (!result) {
+          return { error: `Could not find thread: ${designation}` };
+        }
+        return result;
+      }
+
       case 'generate_thread_gcode': {
         if (args.operation === 'tap') {
           return {
@@ -589,7 +622,7 @@ function validateFitClass(designation: string, fitClass: string): any {
   };
 }
 
-console.log(`[ThreadTools] Loaded ${threadTools.length} thread calculation tools`);
+console.log(`[ThreadTools] Loaded ${threadTools.length} thread calculation tools (includes stripping strength)`);
 
 /**
  * Register all thread calculation tools with the MCP server

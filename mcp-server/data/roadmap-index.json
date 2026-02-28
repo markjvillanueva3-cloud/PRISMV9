@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0",
+  "version": "5.1.0",
   "title": "PRISM App \u00e2\u20ac\u201d Comprehensive Layered Roadmap",
   "updated_at": "2026-02-27T12:00:00Z",
   "total_milestones": 80,
@@ -1102,6 +1102,18 @@
       "completed_units": 4,
       "sessions": "2-3",
       "envelope_path": "milestones/QA-MS14.json"
+    },
+    {
+      "id": "REM-MS0",
+      "title": "Safety-Critical Remediation",
+      "track": "REM",
+      "status": "complete",
+      "units": 4,
+      "envelope": "milestones/REM-MS0.json",
+      "dependencies": [
+        "QA-MS14"
+      ],
+      "description": "Fix all CRITICAL and safety-related MAJOR findings from QA audit: 5-axis work envelope, post-processor canned cycles + 5-axis G-code, RTCP tolerance, thread stripping wiring"
     }
   ]
 }
