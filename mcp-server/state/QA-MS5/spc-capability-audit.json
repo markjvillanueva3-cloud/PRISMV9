@@ -1,0 +1,60 @@
+{
+  "audit_id": "QA-MS5-P0-U05",
+  "title": "Statistical Process Control (SPC) Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - SPC implemented via hooks and scripts, not as standalone algorithm (appropriate architecture)",
+
+  "spc_implementations": {
+    "postMeasurementSpc_hook": {
+      "file": "src/hooks/SafetyQualityHooks.ts",
+      "hook_id": "post-measurement-spc",
+      "name": "Post-Measurement SPC Check",
+      "checks": [
+        "Cpk < 1.33 threshold (process capability)",
+        "Western Electric rules (out-of-control detection)",
+        "Trend detection (7+ consecutive points in one direction)"
+      ],
+      "cpk_threshold": 1.33,
+      "correct": true
+    },
+    "specialtyCadences_hook": {
+      "file": "src/hooks/SpecialtyCadences.ts",
+      "uses_cpk": true,
+      "risk_score": "tightFeatures * (1.33 / max(historicalCpk, 0.5))",
+      "cpk_warning": "historicalCpk < 1.33 triggers warning",
+      "correct": true
+    },
+    "auto_spc_update_script": {
+      "registered_in": "src/registries/ScriptRegistry.ts",
+      "script_id": "auto_spc_update",
+      "capabilities": "X-bar/R charts, Cp/Cpk calculation, Western Electric rules",
+      "tags": ["spc", "quality", "measurement", "control-chart"]
+    },
+    "cpk_study_script": {
+      "registered_in": "src/registries/ScriptRegistry.ts",
+      "capabilities": "Cp/Cpk/Pp/Ppk with confidence intervals, capability report generation",
+      "tags": ["cpk", "capability", "study", "quality", "spc"]
+    }
+  },
+
+  "spc_in_dispatchers": {
+    "prism_quality_dispatcher": {
+      "action": "spc_calculate",
+      "smoke_test": "SMK-029 in smokeTests.ts",
+      "expect": "error_ok (script-based)"
+    }
+  },
+
+  "not_standalone_algorithm_rationale": "SPC is a monitoring/analysis workflow (collect data, compute control limits, check rules) rather than a single-shot calculation. Implemented as hooks (real-time checks) and scripts (batch analysis) — architecturally appropriate.",
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "cpk_threshold_correct": true,
+    "western_electric_rules_implemented": true,
+    "trend_detection_implemented": true,
+    "control_chart_support": true
+  }
+}

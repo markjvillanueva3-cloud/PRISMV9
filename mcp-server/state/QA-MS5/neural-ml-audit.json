@@ -1,0 +1,66 @@
+{
+  "audit_id": "QA-MS5-P0-U04",
+  "title": "Neural Network / ML Inference Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Feedforward MLP inference engine correctly implemented with topology validation",
+
+  "implementation": {
+    "file": "src/algorithms/NeuralInference.ts",
+    "class": "NeuralInference",
+    "type": "Forward-pass only (inference, not training)",
+    "reference": "Rumelhart et al. (1986); Tansel et al. (2000)",
+    "safety_class": "informational"
+  },
+
+  "network_architecture": {
+    "topology": "Configurable via layer_sizes array (e.g. [4, 8, 4, 1])",
+    "weight_layout": "Flat arrays (weights + biases), concatenated per layer",
+    "weight_indexing": "w[j*nIn + i] for output neuron j, input i (row-major)",
+    "correct": true
+  },
+
+  "activation_functions": {
+    "relu": "max(0, x)",
+    "sigmoid": "1/(1+exp(-x)) with clamp to [-500, 500] to prevent overflow",
+    "tanh": "Math.tanh(x)",
+    "linear": "x (identity)",
+    "hidden_default": "relu",
+    "output_default": "linear",
+    "all_correct": true
+  },
+
+  "validation": {
+    "feature_count_check": "layer_sizes[0] must match features.length",
+    "weight_count_check": "Sum of (layer[i-1] * layer[i]) must match weights.length",
+    "bias_count_check": "Sum of layer[i] for i>0 must match biases.length",
+    "thorough": true
+  },
+
+  "confidence_estimation": {
+    "sigmoid_output": "Average |output - 0.5| * 2 (distance from decision boundary)",
+    "multi_class": "Softmax of top prediction",
+    "single_linear": "Fixed 1.0",
+    "adequate_for_informational_use": true
+  },
+
+  "related_ml_algorithms_in_registry": [
+    "bayesian-wear (BayesianWearModel)",
+    "ensemble-predictor (EnsemblePredictorModel)",
+    "time-series-predictor (TimeSeriesPredictor)",
+    "anomaly-detector (AnomalyDetector)",
+    "clustering-engine (ClusteringEngine)",
+    "decision-tree-classifier (DecisionTreeClassifier)",
+    "regression-engine (RegressionEngine)"
+  ],
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "forward_pass_correct": true,
+    "activation_functions_verified": true,
+    "weight_indexing_verified": true,
+    "overflow_protection": true
+  }
+}
