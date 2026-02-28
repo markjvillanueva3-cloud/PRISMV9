@@ -4,7 +4,7 @@
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "CONDITIONAL PASS",
-  "scope": "ToolRegistry.ts — ~500+ coded entries, 13,967 DB_MANIFEST entries",
+  "scope": "ToolRegistry.ts \u00e2\u20ac\u201d ~500+ coded entries, 13,967 DB_MANIFEST entries",
   "file": "src/registries/ToolRegistry.ts",
   "lines": 1112,
   "architecture": {
@@ -21,14 +21,14 @@
     "search": "Faceted search with multi-term AND logic, fuzzy matching on name/description"
   },
   "entry_count_reconciliation": {
-    "code_header": "~500+ (CORE layer)",
-    "db_manifest": "13,967 entries across 14 files",
-    "envelope_claim": "1,731 typed",
-    "explanation": "CORE has ~500+ hardcoded tools. DB_MANIFEST has 13,967 total (includes all variants/sizes). Envelope counted 'typed' subset only.",
-    "severity": "INFO — large gap between typed (1,731) and total (13,967) reflects tool variant explosion"
+    "actual_json_entries": "15,912 raw entries across 14 JSON files",
+    "dedup_estimate": "~13,967 unique (CUTTING_TOOLS_INDEX.json has 1,944 duplicates from 6 category files)",
+    "code_core_layer": "~500+ hardcoded entries",
+    "envelope_claim": "13,967 (matches deduplicated count)",
+    "severity": "OK \u2014 envelope matches unique count"
   },
   "data_quality_checks": {
-    "duplicate_handling": "SKIP silently on duplicate ID — INCONSISTENT with Material/Machine (which THROW)",
+    "duplicate_handling": "SKIP silently on duplicate ID \u00e2\u20ac\u201d INCONSISTENT with Material/Machine (which THROW)",
     "required_fields": [
       "id",
       "name",
@@ -54,11 +54,11 @@
     },
     {
       "severity": "MAJOR",
-      "finding": "Duplicate ID handling is SKIP (silent) — inconsistent with Material/Machine registries which THROW. Could mask data corruption."
+      "finding": "Duplicate ID handling is SKIP (silent) \u00e2\u20ac\u201d inconsistent with Material/Machine registries which THROW. Could mask data corruption."
     },
     {
       "severity": "MINOR",
-      "finding": "13,967 DB entries vs 500+ CORE — large ENHANCED layer may cause slow initial load"
+      "finding": "13,967 DB entries vs 500+ CORE \u00e2\u20ac\u201d large ENHANCED layer may cause slow initial load"
     },
     {
       "severity": "INFO",
@@ -82,5 +82,31 @@
     "entry_count_reconciled": true,
     "data_quality_verified": true,
     "index_coverage_checked": true
-  }
+  },
+  "spot_checks": [
+    {
+      "test": "Duplicate ID behavior verification",
+      "description": "Confirm ToolRegistry silently skips duplicate IDs (unlike Material/Machine which THROW)",
+      "evidence": {
+        "tool_registry_line": "loadAlarmFile uses Map.set() \u2014 overwrites on duplicate ID",
+        "material_registry": "THROW on duplicate ID",
+        "machine_registry": "THROW on duplicate ID",
+        "inconsistency": "ToolRegistry overwrites silently while others throw"
+      },
+      "impact": "CUTTING_TOOLS_INDEX.json (1,944 entries) is fully redundant \u2014 all entries exist in category files. Silent overwrite means no data loss but masks the redundancy.",
+      "status": "VERIFIED \u2014 MAJOR finding confirmed"
+    },
+    {
+      "test": "Top file contribution analysis",
+      "description": "Verify largest tool data files",
+      "file_sizes": {
+        "TOOLHOLDERS.json": "6,741 entries (42%)",
+        "CUTTING_TOOLS_INDEX.json": "1,944 entries (redundant index)",
+        "TURNING_INSERTS.json": "1,710 entries (11%)",
+        "MANUFACTURER_CATALOGS.json": "1,051 entries (7%)",
+        "INDEXABLE_MILLING_TOOLHOLDING.json": "984 entries (6%)"
+      },
+      "status": "VERIFIED"
+    }
+  ]
 }

@@ -18,12 +18,12 @@
     "PostProcessorRegistry (14 controller families)"
   ],
   "cross_registry_relationships": {
-    "material_to_tools": "Material ISO group → compatible tool coatings/geometries via crossLookup()",
-    "material_to_coolants": "Material properties (heat sensitivity, reactivity) → coolant recommendations",
-    "machine_to_alarms": "Machine controller family → AlarmRegistry controller index",
-    "machine_to_post_processors": "Machine controller → PostProcessorRegistry for G-code generation",
-    "tool_to_coatings": "Tool substrate → CoatingRegistry compatibility matrix",
-    "tool_to_geometry": "Tool type → ToolGeometryDefaults for default dimensions"
+    "material_to_tools": "Material ISO group \u00e2\u2020\u2019 compatible tool coatings/geometries via crossLookup()",
+    "material_to_coolants": "Material properties (heat sensitivity, reactivity) \u00e2\u2020\u2019 coolant recommendations",
+    "machine_to_alarms": "Machine controller family \u00e2\u2020\u2019 AlarmRegistry controller index",
+    "machine_to_post_processors": "Machine controller \u00e2\u2020\u2019 PostProcessorRegistry for G-code generation",
+    "tool_to_coatings": "Tool substrate \u00e2\u2020\u2019 CoatingRegistry compatibility matrix",
+    "tool_to_geometry": "Tool type \u00e2\u2020\u2019 ToolGeometryDefaults for default dimensions"
   },
   "key_consistency": {
     "iso_group_keys": "P/M/K/N/S/H/X used consistently across Material, Coating, and SFC calculations",
@@ -37,49 +37,49 @@
       "file": "src/registries/CoatingRegistry.ts",
       "lines": 505,
       "entries": 30,
-      "quality": "HIGH — SFC performance factors, ISO group compatibility matrix, temperature ratings"
+      "quality": "HIGH \u00e2\u20ac\u201d SFC performance factors, ISO group compatibility matrix, temperature ratings"
     },
     {
       "registry": "CoolantRegistry",
       "file": "src/registries/CoolantRegistry.ts",
       "lines": 599,
       "entries": 26,
-      "quality": "HIGH — environmental tracking (VOC, pH, disposal), pressure ratings, material compatibility"
+      "quality": "HIGH \u00e2\u20ac\u201d environmental tracking (VOC, pH, disposal), pressure ratings, material compatibility"
     },
     {
       "registry": "ToolGeometryDefaults",
       "file": "src/registries/ToolGeometryDefaults.ts",
       "lines": 519,
       "entries": 39,
-      "quality": "HIGH — 3-tier fuzzy matching (exact → partial → category), ISO 13399 attribute mapping"
+      "quality": "HIGH \u00e2\u20ac\u201d 3-tier fuzzy matching (exact \u00e2\u2020\u2019 partial \u00e2\u2020\u2019 category), ISO 13399 attribute mapping"
     },
     {
       "registry": "MachineSpindleDefaults",
       "file": "src/registries/MachineSpindleDefaults.ts",
       "lines": 447,
       "entries": 24,
-      "quality": "HIGH — torque/power estimation curves, speed ranges, bearing type tracking"
+      "quality": "HIGH \u00e2\u20ac\u201d torque/power estimation curves, speed ranges, bearing type tracking"
     },
     {
       "registry": "DatabaseRegistry",
       "file": "src/registries/DatabaseRegistry.ts",
       "lines": 230,
       "entries": 24,
-      "quality": "MEDIUM — thin wrapper over DB_MANIFEST.json, minimal validation"
+      "quality": "MEDIUM \u00e2\u20ac\u201d thin wrapper over DB_MANIFEST.json, minimal validation"
     },
     {
       "registry": "KnowledgeBaseRegistry",
       "file": "src/registries/KnowledgeBaseRegistry.ts",
       "lines": 786,
       "entries": 12,
-      "quality": "HIGH — hybrid inline+filesystem, relevance scoring, domain classification"
+      "quality": "HIGH \u00e2\u20ac\u201d hybrid inline+filesystem, relevance scoring, domain classification"
     },
     {
       "registry": "PostProcessorRegistry",
       "file": "src/registries/PostProcessorRegistry.ts",
       "lines": "~400",
       "entries": 14,
-      "quality": "HIGH — SAFETY CRITICAL: G-code formatting rules per controller family"
+      "quality": "HIGH \u00e2\u20ac\u201d SAFETY CRITICAL: G-code formatting rules per controller family"
     }
   ],
   "findings": [
@@ -93,7 +93,7 @@
     },
     {
       "severity": "OK",
-      "finding": "crossLookup() correctly bridges Material → Tool/Coating/Coolant relationships"
+      "finding": "crossLookup() correctly bridges Material \u00e2\u2020\u2019 Tool/Coating/Coolant relationships"
     },
     {
       "severity": "OK",
@@ -105,15 +105,15 @@
     },
     {
       "severity": "MINOR",
-      "finding": "KnowledgeBaseRegistry has 1 stub entry (kb-ai-structures) with enabled=true — stub should be disabled or implemented"
+      "finding": "KnowledgeBaseRegistry has 1 stub entry (kb-ai-structures) with enabled=true \u00e2\u20ac\u201d stub should be disabled or implemented"
     },
     {
       "severity": "MINOR",
-      "finding": "DatabaseRegistry is thin wrapper with minimal validation — acceptable for internal use"
+      "finding": "DatabaseRegistry is thin wrapper with minimal validation \u00e2\u20ac\u201d acceptable for internal use"
     },
     {
       "severity": "INFO",
-      "finding": "15 registries total managed by registryManager — comprehensive coverage of manufacturing domain"
+      "finding": "15 registries total managed by registryManager \u00e2\u20ac\u201d comprehensive coverage of manufacturing domain"
     }
   ],
   "rubric_scores": {
@@ -128,5 +128,34 @@
     "cross_registry_keys_verified": true,
     "relationship_integrity_checked": true,
     "supplementary_registries_audited": true
-  }
+  },
+  "spot_checks": [
+    {
+      "test": "ISO group key consistency across registries",
+      "description": "Verify P/M/K/N/S/H/X keys match between Material and Coating registries",
+      "material_groups": [
+        "P_STEELS",
+        "M_STAINLESS",
+        "K_CAST_IRON",
+        "N_NONFERROUS",
+        "S_SUPERALLOYS",
+        "H_HARDENED",
+        "X_SPECIALTY"
+      ],
+      "coating_compatibility": "Each coating entry has iso_group_compatibility array using same P/M/K/N/S/H/X keys",
+      "mismatches": 0,
+      "status": "VERIFIED \u2014 perfect key consistency"
+    },
+    {
+      "test": "Machine-to-Alarm controller family bridge",
+      "description": "Verify machine controller field maps to alarm registry controller index",
+      "sample_bridges": {
+        "Haas_NGC": "Maps to HAAS_ALARMS_VERIFIED (219 alarms)",
+        "FANUC_0i": "Maps to FANUC_ALARMS_VERIFIED (369 alarms)",
+        "Siemens_840D": "Maps to SIEMENS_ALARMS_VERIFIED (216 alarms)"
+      },
+      "coverage": "12 controller families in AlarmRegistry cover all machine controller types",
+      "status": "VERIFIED \u2014 controller family bridge works correctly"
+    }
+  ]
 }

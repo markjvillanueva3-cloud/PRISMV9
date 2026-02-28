@@ -4,7 +4,7 @@
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "CONDITIONAL PASS",
-  "scope": "registryManager.ts + base.ts + BaseRegistry.ts — initialization, caching, memory lifecycle",
+  "scope": "registryManager.ts + base.ts + BaseRegistry.ts \u00e2\u20ac\u201d initialization, caching, memory lifecycle",
   "files_audited": [
     {
       "file": "src/registries/manager.ts",
@@ -47,23 +47,23 @@
     "idempotent": true
   },
   "caching": {
-    "strategy": "In-memory Map — entries persist for lifetime of process",
-    "ttl": "NONE — no TTL or cache invalidation mechanism",
-    "eviction": "NONE — entries never evicted once loaded",
+    "strategy": "In-memory Map \u00e2\u20ac\u201d entries persist for lifetime of process",
+    "ttl": "NONE \u00e2\u20ac\u201d no TTL or cache invalidation mechanism",
+    "eviction": "NONE \u00e2\u20ac\u201d entries never evicted once loaded",
     "memory_estimate": {
-      "materials": "~1,047 entries × ~2KB each ≈ 2MB",
-      "tools": "~500+ entries × ~3KB each ≈ 1.5MB (CORE only; 13,967 ENHANCED would be ~42MB)",
-      "machines": "~824 entries × ~2KB each ≈ 1.6MB",
-      "alarms": "~2,500 entries × ~1KB each ≈ 2.5MB",
-      "formulas": "~500 entries × ~1KB each ≈ 0.5MB",
+      "materials": "~1,047 entries \u00c3\u2014 ~2KB each \u00e2\u2030\u02c6 2MB",
+      "tools": "~500+ entries \u00c3\u2014 ~3KB each \u00e2\u2030\u02c6 1.5MB (CORE only; 13,967 ENHANCED would be ~42MB)",
+      "machines": "~824 entries \u00c3\u2014 ~2KB each \u00e2\u2030\u02c6 1.6MB",
+      "alarms": "~2,500 entries \u00c3\u2014 ~1KB each \u00e2\u2030\u02c6 2.5MB",
+      "formulas": "~500 entries \u00c3\u2014 ~1KB each \u00e2\u2030\u02c6 0.5MB",
       "total_core": "~8MB (CORE layers only)",
       "total_with_enhanced": "~50-60MB if all ENHANCED layers loaded"
     }
   },
   "cross_registry_operations": {
-    "crossLookup": "registryManager.crossLookup(materialId) → compatible tools, coatings, coolants",
-    "globalSearch": "registryManager.globalSearch(query) → results across all registries",
-    "performance_note": "globalSearch does linear scan across all registries — acceptable for <50K total entries"
+    "crossLookup": "registryManager.crossLookup(materialId) \u00e2\u2020\u2019 compatible tools, coatings, coolants",
+    "globalSearch": "registryManager.globalSearch(query) \u00e2\u2020\u2019 results across all registries",
+    "performance_note": "globalSearch does linear scan across all registries \u00e2\u20ac\u201d acceptable for <50K total entries"
   },
   "findings": [
     {
@@ -80,19 +80,19 @@
     },
     {
       "severity": "MAJOR",
-      "finding": "No TTL or cache invalidation — entries persist indefinitely. For MCP server (short-lived per request), this is acceptable. For long-running daemon mode, stale data risk."
+      "finding": "No TTL or cache invalidation \u00e2\u20ac\u201d entries persist indefinitely. For MCP server (short-lived per request), this is acceptable. For long-running daemon mode, stale data risk."
     },
     {
       "severity": "MINOR",
-      "finding": "If all ENHANCED layers load simultaneously, memory usage could reach ~50-60MB — may be excessive for constrained environments"
+      "finding": "If all ENHANCED layers load simultaneously, memory usage could reach ~50-60MB \u00e2\u20ac\u201d may be excessive for constrained environments"
     },
     {
       "severity": "MINOR",
-      "finding": "Two base class patterns coexist (base.ts + BaseRegistry.ts) — should consolidate to one"
+      "finding": "Two base class patterns coexist (base.ts + BaseRegistry.ts) \u00e2\u20ac\u201d should consolidate to one"
     },
     {
       "severity": "INFO",
-      "finding": "globalSearch linear scan is O(n) across all entries — acceptable at current scale (<50K) but won't scale to 100K+"
+      "finding": "globalSearch linear scan is O(n) across all entries \u00e2\u20ac\u201d acceptable at current scale (<50K) but won't scale to 100K+"
     }
   ],
   "rubric_scores": {
@@ -121,5 +121,24 @@
     "initialization_lifecycle_verified": true,
     "caching_strategy_audited": true,
     "memory_footprint_estimated": true
-  }
+  },
+  "spot_checks": [
+    {
+      "test": "Concurrency guard verification",
+      "description": "Verify Promise-based guard prevents double initialization",
+      "code_location": "src/registries/base.ts, line ~45",
+      "mechanism": "If load() is called while already loading, returns existing Promise instead of starting new load",
+      "race_condition_safe": true,
+      "status": "VERIFIED \u2014 idempotent loading confirmed in code"
+    },
+    {
+      "test": "Dual-phase initialization order",
+      "description": "Verify core registries load before secondary",
+      "code_location": "src/registries/manager.ts, doInitialize()",
+      "core_phase": "await Promise.all([materials, tools, machines, alarms, formulas]) \u2014 BLOCKING",
+      "secondary_phase": "Promise.all([coatings, coolants, ...]) \u2014 NOT awaited (background)",
+      "implication": "Core data guaranteed available before any request. Secondary may still be loading during first few requests.",
+      "status": "VERIFIED \u2014 correct initialization ordering"
+    }
+  ]
 }
