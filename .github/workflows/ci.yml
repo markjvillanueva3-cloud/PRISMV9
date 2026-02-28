@@ -25,7 +25,7 @@ jobs:
             -not -path './state/ralph_loops/*' \
             -not -path '*/node_modules/*' \
             | while read f; do
-            if python3 -c "import json; json.load(open('$f', encoding='utf-8'))" 2>/dev/null; then
+            if python3 -c "import json; json.load(open('$f', encoding='utf-8-sig'))" 2>/dev/null; then
               echo "  OK: $f"
             else
               echo "  FAIL: $f"
