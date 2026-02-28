@@ -1,14 +1,19 @@
 import { useState, useCallback } from "react";
-import MaterialSelector from "../components/sfc/MaterialSelector";
+import SmartMaterialSelector from "../components/sfc/SmartMaterialSelector";
 import OperationSelector from "../components/sfc/OperationSelector";
-import ParameterPanel, {
-  type SfcParams,
-} from "../components/sfc/ParameterPanel";
+import SmartToolSelector from "../components/sfc/SmartToolSelector";
+import SmartMachineSelector from "../components/sfc/SmartMachineSelector";
+import ParameterPanel, { type SfcParams } from "../components/sfc/ParameterPanel";
 import ResultsDisplay from "../components/sfc/ResultsDisplay";
+import CompatibilityValidator, {
+  type Suggestion,
+} from "../components/sfc/CompatibilityValidator";
 import { Button } from "../components/ui";
 import { useSfcCalculate } from "../hooks/useSfc";
 import type { MaterialEntry } from "../data/materials";
 import type { OperationType } from "../data/operations";
+import type { CuttingToolEntry } from "../data/tools";
+import type { MachineEntry } from "../data/machines";
 
 const DEFAULT_PARAMS: SfcParams = {
   tool_diameter: 12,
@@ -30,11 +35,8 @@ interface HistoryEntry {
 const HISTORY_KEY = "prism-sfc-history";
 
 function loadHistory(): HistoryEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }
+  catch { return []; }
 }
 
 function saveHistory(entries: HistoryEntry[]) {
@@ -44,6 +46,8 @@ function saveHistory(entries: HistoryEntry[]) {
 export default function SfcCalculatorPage() {
   const [material, setMaterial] = useState<MaterialEntry | null>(null);
   const [operation, setOperation] = useState<OperationType | null>(null);
+  const [tool, setTool] = useState<CuttingToolEntry | null>(null);
+  const [machine, setMachine] = useState<MachineEntry | null>(null);
   const [params, setParams] = useState<SfcParams>(DEFAULT_PARAMS);
   const [imperial, setImperial] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistory);
@@ -51,6 +55,7 @@ export default function SfcCalculatorPage() {
 
   const handleOperationChange = useCallback((op: OperationType) => {
     setOperation(op);
+    setTool(null); // Reset tool when operation changes
     setParams({
       tool_diameter: op.defaults.tool_diameter,
       number_of_teeth: op.defaults.number_of_teeth,
@@ -59,6 +64,32 @@ export default function SfcCalculatorPage() {
       tool_material: op.defaults.tool_material,
       coolant: op.defaults.coolant,
     });
+  }, []);
+
+  const handleMaterialChange = useCallback((mat: MaterialEntry) => {
+    setMaterial(mat);
+    setTool(null); // Reset tool when material changes (compatibility may shift)
+  }, []);
+
+  const handleToolChange = useCallback((t: CuttingToolEntry) => {
+    setTool(t);
+    // Sync tool params into the parameter panel
+    setParams((prev) => ({
+      ...prev,
+      tool_diameter: t.diameter,
+      number_of_teeth: t.fluteCount,
+      tool_material: t.substrate,
+    }));
+  }, []);
+
+  const handleSuggestion = useCallback((suggestion: Suggestion) => {
+    if (suggestion.type === "params") {
+      // Reduce aggressiveness
+      setParams((prev) => ({
+        ...prev,
+        depth: +(prev.depth * 0.7).toFixed(2),
+      }));
+    }
   }, []);
 
   const handleCalculate = async () => {
@@ -88,15 +119,43 @@ export default function SfcCalculatorPage() {
     }
   };
 
+  // Derived values for machine validation
+  const requiredRpm = calc.data?.spindle_speed ?? 0;
+  const requiredPowerKw = 0; // Would come from power-torque calc
+  const requiredAxes = operation?.category === "milling" ? 3 : 2;
+
   return (
     <div className="mx-auto max-w-7xl">
+      {/* Compatibility banner */}
+      <div className="mb-4">
+        <CompatibilityValidator
+          material={material}
+          tool={tool}
+          machine={machine}
+          operationId={operation?.id ?? null}
+          requiredRpm={requiredRpm}
+          requiredPowerKw={requiredPowerKw}
+          onSuggest={handleSuggestion}
+        />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         {/* Left column — inputs */}
         <div className="space-y-4">
-          <MaterialSelector value={material} onChange={setMaterial} />
+          <SmartMaterialSelector
+            value={material}
+            onChange={handleMaterialChange}
+            operationId={operation?.id}
+          />
           <OperationSelector
             value={operation}
             onChange={handleOperationChange}
+          />
+          <SmartToolSelector
+            materialGroup={material?.group ?? null}
+            operationId={operation?.id ?? null}
+            value={tool}
+            onChange={handleToolChange}
           />
           <ParameterPanel
             operation={operation}
@@ -120,13 +179,21 @@ export default function SfcCalculatorPage() {
           )}
         </div>
 
-        {/* Right column — results + history */}
+        {/* Right column — results + machine + history */}
         <div className="space-y-4">
           <ResultsDisplay
             result={calc.data}
             loading={calc.loading}
             error={calc.error}
             imperial={imperial}
+          />
+
+          <SmartMachineSelector
+            requiredRpm={requiredRpm}
+            requiredPowerKw={requiredPowerKw}
+            requiredAxes={requiredAxes}
+            value={machine}
+            onChange={setMachine}
           />
 
           {/* Calculation history */}
@@ -141,9 +208,7 @@ export default function SfcCalculatorPage() {
                     key={h.ts}
                     className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400"
                   >
-                    <span>
-                      {h.material} / {h.operation}
-                    </span>
+                    <span>{h.material} / {h.operation}</span>
                     <span>
                       {h.rpm.toFixed(0)} RPM &middot;{" "}
                       {h.feedRate.toFixed(1)} mm/min
