@@ -87,18 +87,6 @@ export function registerAutoPilotDispatcher(server: any): void {
               futureProof: r.futureProof, approach: r.optimizedApproach, formula: r.formulaUsed };
             break;
           }
-          case "ralph_loop_lite": {
-            // DEPRECATED: Was generating fake incrementing scores (Law 2 violation).
-            // Real validation requires API calls via prism_ralph→loop.
-            log.warn("[autoPilotDispatcher] ralph_loop_lite called — action is deprecated, use prism_ralph→loop");
-            result = {
-              deprecated: true,
-              message: "ralph_loop_lite has been deprecated — use prism_ralph→loop for real validation",
-              alternative: "prism_ralph action=loop params={target: '...', loops: 3}",
-              reason: "Was generating fake scores via math formula, not actual validation. Lives depend on real scores."
-            };
-            break;
-          }
           case "formula_optimize": {
             // Query real formula registry if available
             let formulas: any[] = [];

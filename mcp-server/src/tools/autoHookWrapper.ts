@@ -1113,6 +1113,12 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         duration_ms: durationMs,
         call_number: callNum,
       }, { category: "hook", priority: "normal", source: "autoHookWrapper" });
+      // Bridge: route phase event to HookExecutor so phase-based cadences fire
+      await hookExecutor.execute(phase as any, {
+        phase: phase as any,
+        operation: `${toolName}:${action2}`,
+        target: { type: "calculation", data: { tool: toolName, action: action2, duration_ms: durationMs, call_number: callNum } },
+      }).catch(() => { /* phase hooks are best-effort — must not block dispatchers */ });
     } catch { /* phase event emission is best-effort */ }
     try {
       const { memoryGraphEngine: memoryGraphEngine2 } = await import("../engines/MemoryGraphEngine.js");
