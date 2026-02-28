@@ -1151,6 +1151,29 @@ ALLOY_COMPOSITIONS = {
     "AgPdAlloy": {"Ag": 60.0, "Pd": 40.0},
     # Bronze CuSn10 (tin bronze 90/10)
     "CuSn10": {"Cu": 90.0, "Sn": 10.0},
+
+    # ── Round 6: Final completeness — remaining X_SPECIALTY metals ───────────
+    # Shape memory / smart alloys
+    "Nitinol": {"Ni": 55.0, "Ti": 45.0},
+    # High-permeability alloys
+    "MuMetal": {"Ni": 77.0, "Cu": 5.0, "Cr": 2.0, "Mo": 0.50, "Mn": 0.30, "Fe": 15.2},
+    # Bulk metallic glass (Vitreloy 1 / Liquidmetal)
+    "Liquidmetal": {"Zr": 41.2, "Ti": 13.8, "Cu": 12.5, "Ni": 10.0, "Be": 22.5},
+    # Pure refractory metals
+    "PureChromium": {"Cr": 99.5, "Fe": 0.20, "Si": 0.15, "C": 0.02},
+    "PureNiobium": {"Nb": 99.8, "Ta": 0.10, "O": 0.05},
+    "PureTantalum": {"Ta": 99.9, "Nb": 0.05, "O": 0.03},
+    # Refractory alloys
+    "HfTaAlloy": {"Hf": 90.0, "Ta": 10.0},
+    "ReMoAlloy": {"Mo": 52.5, "Re": 47.5},
+    # PM/sintered bearing metals
+    "PMBronzeCZ0000": {"Cu": 90.0, "Sn": 10.0},
+    "PorousBronzeFilter": {"Cu": 89.0, "Sn": 10.0, "P": 0.50, "Fe": 0.50},
+    "IronBronzeBearing": {"Fe": 60.0, "Cu": 30.0, "Sn": 10.0},
+    "PMSoftMagFeP": {"Fe": 99.5, "P": 0.45, "C": 0.01, "Mn": 0.04},
+    # Metal-matrix composites (matrix composition only)
+    "AlSiCMatrix": {"Al": 93.5, "Si": 4.50, "Cu": 1.00, "Mg": 0.50, "Fe": 0.50},
+    "MgSiCMatrix": {"Mg": 91.0, "Al": 6.00, "Zn": 1.00, "Mn": 0.30},
 }
 
 # Thermal conductivity model: k = k_iron - sum(beta_i * wt%_i)

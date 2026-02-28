@@ -1674,6 +1674,7 @@ _TRADE_NAME_MAP = {
     "1.6587": "18CrNiMo7-6",
     "TWIP STEEL 980": "TWIP", "TWIP STEEL": "TWIP", "TWIP980": "TWIP",
     "PRESS HARDENED STEEL": "PressHardened1500",
+    "PRESS ANNEALED": "PressHardened1500",
     "TI-6246": "Ti-6Al-2Sn-4Zr-6Mo", "TI 6246": "Ti-6Al-2Sn-4Zr-6Mo",
     "TI-6AL-2SN-4ZR-6MO": "Ti-6Al-2Sn-4Zr-6Mo",
     # Round 5c — final remaining
@@ -1732,6 +1733,23 @@ _TRADE_NAME_MAP = {
     "PURE PALLADIUM": "PurePalladium",
     "AG-PD": "AgPdAlloy", "AGPD": "AgPdAlloy",
     "CUSN10": "CuSn10", "CU SN10": "CuSn10",
+    # Round 6 — final completeness
+    "NITINOL": "Nitinol", "NITI": "Nitinol",
+    "MU-METAL": "MuMetal", "MU METAL": "MuMetal", "MUMETAL": "MuMetal",
+    "LIQUIDMETAL": "Liquidmetal", "VITRELOY": "Liquidmetal",
+    "PURE CHROMIUM": "PureChromium", "PURE CR": "PureChromium",
+    "PURE NIOBIUM": "PureNiobium", "PURE NB": "PureNiobium",
+    "PURE TANTALUM": "PureTantalum", "PURE TA": "PureTantalum",
+    "HF-TA": "HfTaAlloy", "HFTA": "HfTaAlloy",
+    "RE-MO": "ReMoAlloy", "REMO": "ReMoAlloy",
+    "CZ-0000": "PMBronzeCZ0000", "CZ0000": "PMBronzeCZ0000",
+    "POROUS BRONZE": "PorousBronzeFilter",
+    "IRON-BRONZE BEARING": "IronBronzeBearing", "IRON BRONZE BEARING": "IronBronzeBearing",
+    "SOFT MAGNETIC FE-P": "PMSoftMagFeP", "SOFT MAGNETIC FE": "PMSoftMagFeP",
+    "AL-SIC": "AlSiCMatrix", "AL SIC": "AlSiCMatrix",
+    "MG-SIC": "MgSiCMatrix", "MG SIC": "MgSiCMatrix",
+    "STEEL-TIC": "SinteredSteelFC0208",  # cermet, approximate as high-C sintered steel matrix
+    "TA CLAD": "PureTantalum",  # clad layer composition
 }
 
 # Cast iron name -> comp DB key mapping
