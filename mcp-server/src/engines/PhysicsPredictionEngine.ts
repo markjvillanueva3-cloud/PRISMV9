@@ -549,6 +549,9 @@ export function predictChatter(input: ChatterInput): ChatterResult {
     ks = input.radial_depth_mm / D; // Side milling
   }
 
+  // Guard: ks must be > 0 for valid SLD computation (radial engagement required)
+  if (ks <= 0) ks = 0.01; // Clamp to minimal engagement rather than divide-by-zero
+
   // Stability lobe diagram — Altintas-Budak (1995) single-DOF model
   // M-006 fix: replaced incorrect Lambda_R/epsilon approach with proper FRF-based computation
   const sld_rpm: number[] = [];

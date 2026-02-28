@@ -380,7 +380,7 @@ export function calculateDrillingForce(
 
   // Mean chip thickness per lip (Sandvik formula)
   const hex = (fn / 2) * Math.sin(kr);
-  const h = Math.max(hex, 0.001);
+  const h = Number.isFinite(hex) && hex > 0 ? hex : 0.001;
 
   // Specific cutting force via Kienzle
   const kc = kc1_1 * Math.pow(h, -mc);

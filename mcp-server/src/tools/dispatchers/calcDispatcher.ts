@@ -596,6 +596,9 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           case "drilling_force": {
+            if (!params.feed_per_rev || !params.cutting_speed || !(params.drill_diameter || params.tool_diameter)) {
+              throw new Error("drilling_force requires: drill_diameter (or tool_diameter), feed_per_rev, cutting_speed");
+            }
             const drillCond: DrillingConditions = {
               drill_diameter: params.drill_diameter || params.tool_diameter,
               feed_per_rev: params.feed_per_rev,

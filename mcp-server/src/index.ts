@@ -495,10 +495,9 @@ async function registerTools(): Promise<void> {
 
   // C-005 FIX: Wire bridge dispatch handler for live routing to PRISM dispatchers
   protocolBridgeEngine.setDispatchHandler(async (dispatcher: string, action: string, params: Record<string, unknown>) => {
-    const tools = (server as any)._registeredTools;
-    const tool = tools?.[dispatcher];
+    const tool = (server as any)._registeredTools?.get(dispatcher);
     if (!tool) throw new Error(`Bridge routing failed: dispatcher '${dispatcher}' not registered`);
-    const result = await (server as any).executeToolHandler(tool, { action, params }, {});
+    const result = await tool.callback({ action, params });
     const text = result?.content?.[0]?.text;
     return text ? JSON.parse(text) : result;
   });
