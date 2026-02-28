@@ -1,0 +1,49 @@
+{
+  "audit_id": "QA-MS6-P0-U04",
+  "title": "Memory Engine Action Subset Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 10 memory/conversation actions across 2 engines, all properly routed",
+
+  "scope": "ConversationalMemoryEngine (8) + JobLearningEngine (2) = 10 actions",
+
+  "conversational_memory_actions": {
+    "engine": "ConversationalMemoryEngine",
+    "routing_line": 1162,
+    "actions": {
+      "conversation_context":    { "kv_extracted": ["from", "to"] },
+      "conversation_transition": { "kv_extracted": ["from", "to"] },
+      "job_start":               { "kv_extracted": ["id", "state", "material", "machine", "tools.length", "operations.length"] },
+      "job_update":              { "kv_extracted": "same as job_start" },
+      "job_find":                { "kv_extracted": ["found", "id", "material"] },
+      "job_resume":              { "kv_extracted": "same as job_start" },
+      "job_complete":            { "kv_extracted": "same as job_start" },
+      "job_list_recent":         { "kv_extracted": ["count"] }
+    },
+    "note": "job_start/update/resume/complete share a single kv extraction block (lines 557-568)",
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "job_learning_actions": {
+    "engine": "JobLearningEngine",
+    "routing_line": 1166,
+    "actions": {
+      "job_record":  { "kv_extracted": ["id", "stored", "total_jobs_for_key", "learning_available", "safety.score"] },
+      "job_insights": { "kv_extracted": ["sample_size", "patterns.length", "adjustments.length", "top_finding", "failures", "safety.score"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "observation": "ConversationalMemoryEngine handles stateful session context (job lifecycle) while JobLearningEngine handles persistent cross-session learning. Clean separation of concerns.",
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_memory_actions_audited": true,
+    "engine_method_coverage_verified": true,
+    "no_dead_or_duplicate_actions": true
+  }
+}

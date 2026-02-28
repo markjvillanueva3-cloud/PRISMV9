@@ -1,0 +1,67 @@
+{
+  "audit_id": "QA-MS6-P0-U07",
+  "title": "Mega-Dispatcher Decomposition Refactoring Plan",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "DEFER decomposition. Dispatcher is already a thin routing layer over 32 isolated engines. Physical split adds complexity with minimal benefit.",
+
+  "current_state_summary": {
+    "total_actions": 250,
+    "total_engines": 32,
+    "file_size": "1227 lines",
+    "routing_pattern": "Cascading ternary with const action arrays",
+    "engine_loading": "Lazy (on-demand import)",
+    "key_value_extraction": "244/250 actions have explicit extraction (6 missing = F41)",
+    "hook_integration": "pre-calculation + post-calculation",
+    "response_slimming": "Context-pressure-aware + response_level parameter"
+  },
+
+  "key_insight": "The intelligence dispatcher is NOT a monolith. It is a thin routing layer (250 lines of routing + 700 lines of key-value extraction + 250 lines of infrastructure). The actual business logic lives in 32 separate engines that are already independently testable and maintainable.",
+
+  "decomposition_assessment": {
+    "code_smell_severity": "LOW - the file is long (1227 lines) but simple (routing + extraction)",
+    "coupling": "NONE between engine groups. Each action group is independently routable.",
+    "cohesion": "HIGH within groups, LOW across groups (good for decomposition if needed)",
+    "testability": "Already good - engines are tested independently",
+    "maintainability": "Moderate - adding new actions requires touching this file but the pattern is clear"
+  },
+
+  "if_decomposition_is_pursued": {
+    "target_architecture": {
+      "prism_intelligence": "Core 11 actions + small utility groups (workflow, onboarding, formatting, intent, etc.) = ~30 actions",
+      "prism_products": "SFC + PPG + Shop + ACNC = 40 actions (already share ProductEngine.ts)",
+      "prism_machine": "Machine connectivity + adaptive control = 26 actions",
+      "prism_integration": "ERP + CAM + DNC + Mobile + Measurement = 42 actions",
+      "prism_analytics": "Genome + Maintenance + Sustainability + Knowledge Graph + Federated Learning = 50 actions",
+      "prism_diagnostics": "Forensics + Inverse + Apprentice = 28 actions",
+      "prism_planning": "GenPlan + core intelligence + setup sheet + job lifecycle = 34 actions"
+    },
+
+    "migration_sequence": [
+      { "step": 1, "action": "Extract prism_products (40 actions)", "risk": "LOW", "effort": "2 hours", "reason": "Single source engine, clear boundary" },
+      { "step": 2, "action": "Extract prism_integration (42 actions)", "risk": "LOW", "effort": "3 hours", "reason": "External system boundary, no internal deps" },
+      { "step": 3, "action": "Extract prism_machine (26 actions)", "risk": "MEDIUM", "effort": "2 hours", "reason": "Real-time monitoring distinct from query" },
+      { "step": 4, "action": "Extract prism_analytics (50 actions)", "risk": "MEDIUM", "effort": "4 hours", "reason": "Multiple engines, need shared infrastructure" },
+      { "step": 5, "action": "Extract prism_diagnostics (28 actions)", "risk": "LOW", "effort": "2 hours", "reason": "Clean domain boundary" }
+    ],
+
+    "backward_compatibility": "Keep prism_intelligence as pass-through router during transition. Old action names continue working. Add deprecation warnings after 2 releases.",
+
+    "total_effort": "~13 engineering hours",
+    "total_risk": "LOW-MEDIUM (no logic changes, pure routing restructure)"
+  },
+
+  "recommendation": "DEFER. The current architecture works well. The single-tool pattern is optimal for LLM clients. Revisit if: (A) action count exceeds 500, (B) multiple teams need independent deployment, or (C) MCP tool description length becomes a limiting factor.",
+
+  "findings_summary": {
+    "F40": "Action count mismatch (250 vs 238 documented) - LOW",
+    "F41": "6 machine actions missing key-value extraction - LOW"
+  },
+
+  "exit_conditions_met": {
+    "refactoring_plan_produced": true,
+    "migration_sequence_defined": true,
+    "effort_and_risk_estimated": true
+  }
+}

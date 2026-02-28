@@ -1,0 +1,58 @@
+{
+  "audit_id": "QA-MS6-P0-U05",
+  "title": "PFP (Process Feature Planning) Engine Action Subset Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 21 PFP-related actions across 2 engines: core intelligence (11) + generative process planning (10)",
+
+  "scope": "IntelligenceEngine core (11) + GenerativeProcessEngine (10) = 21 process planning actions",
+
+  "intelligence_engine_core": {
+    "engine": "IntelligenceEngine (executeIntelligenceAction)",
+    "routing_line": 1180,
+    "note": "Fallthrough default - actions not matched by any group constant",
+    "actions": {
+      "job_plan":           { "kv_extracted": ["material.name", "iso_group", "operations.length", "cycle_time.total_min", "stability.is_stable", "confidence", "safety.all_checks_passed"] },
+      "setup_sheet":        { "kv_extracted": ["header.material", "operations.length", "tools.length", "format"] },
+      "process_cost":       { "kv_extracted": ["total_cost_per_part", "machine_cost", "tool_cost_per_part", "cycle_time_min"] },
+      "material_recommend": { "kv_extracted": ["candidates.length", "top_pick.name", "top_score"] },
+      "tool_recommend":     { "kv_extracted": ["candidates.length", "top_pick.name/id", "top_score"] },
+      "machine_recommend":  { "kv_extracted": ["candidates.length", "top_pick.name/model", "utilization_pct"] },
+      "what_if":            { "kv_extracted": ["material", "baseline.Vc", "scenario.Vc", "force_delta_pct", "life_delta_pct", "mrr_delta_pct", "insights.length"] },
+      "failure_diagnose":   { "kv_extracted": ["symptoms.length", "top_diagnosis.name", "relevance", "severity", "alarm.code", "physics_cross_check"] },
+      "parameter_optimize": { "kv_extracted": ["material", "optimal_Vc/fz/ap", "mrr", "surface_finish", "tool_life", "min_cost_speed"] },
+      "cycle_time_estimate":{ "kv_extracted": ["total_min", "cutting_min", "rapid_min", "operations.length", "utilization_pct"] },
+      "quality_predict":    { "kv_extracted": ["Ra", "Rz", "deflection_mm", "temperature_C", "tolerance_grade/um", "force_N"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "generative_process_planning": {
+    "engine": "GenerativeProcessEngine",
+    "routing_line": 1132,
+    "actions": {
+      "genplan_plan":       { "kv_extracted": ["plan_id", "feature_count", "setup_count", "operation_count", "tool_count", "total_cycle_time_min", "total_cost_usd"] },
+      "genplan_features":   { "kv_extracted": ["feature_count", "complexity_summary.simple/moderate/complex"] },
+      "genplan_setups":     { "kv_extracted": ["setup_count"] },
+      "genplan_operations": { "kv_extracted": ["operation_count"] },
+      "genplan_optimize":   { "kv_extracted": ["total_operations", "unique_tools"] },
+      "genplan_tools":      { "kv_extracted": ["tool_count", "tool_change_count"] },
+      "genplan_cycle":      { "kv_extracted": ["cutting_time_min", "tool_change_time_min", "total_cycle_time_min"] },
+      "genplan_cost":       { "kv_extracted": ["total_per_part_usd", "total_batch_usd"] },
+      "genplan_risk":       { "kv_extracted": ["overall_risk", "high_risk_operations", "medium_risk_operations"] },
+      "genplan_get":        { "kv_extracted": ["plan_id", "material", "features.length"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_pfp_actions_audited": true,
+    "engine_method_coverage_verified": true,
+    "no_dead_or_duplicate_actions": true
+  }
+}
