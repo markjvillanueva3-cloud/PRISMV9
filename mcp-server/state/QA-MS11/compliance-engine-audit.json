@@ -1,0 +1,71 @@
+{
+  "audit_id": "QA-MS11-P0-U02",
+  "title": "ComplianceEngine Regulatory Rule Evaluation Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T07:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 6 regulatory frameworks, disclaimer-gated provisioning, append-only audit log, conflict resolution with STRICTEST-wins",
+
+  "engine_overview": {
+    "file": "src/engines/ComplianceEngine.ts",
+    "lines": 786,
+    "class": "ComplianceEngine (singleton: complianceEngine)",
+    "safety_principle": "Compliance is ADDITIVE, never gating. Existing S(x)>=0.70 enforcement operates independently.",
+    "depends_on": ["F4 (CertificateEngine)", "F6 (NLHookEngine)"]
+  },
+
+  "regulatory_frameworks": {
+    "count": 6,
+    "templates": [
+      { "id": "iso_13485_v2016", "framework": "ISO_13485", "version": "2016", "strictness_rank": 2, "requirements": 3, "retain_days": 365, "legal_review": true },
+      { "id": "as9100_rev_d", "framework": "AS9100", "version": "Rev D", "strictness_rank": 3, "requirements": 2, "retain_days": 730, "legal_review": true },
+      { "id": "itar_22cfr", "framework": "ITAR", "version": "22 CFR 120-130", "strictness_rank": 1, "requirements": 2, "retain_days": 1825, "legal_review": true },
+      { "id": "soc2_type2", "framework": "SOC2", "version": "Type II", "strictness_rank": 5, "requirements": 2, "retain_days": 365, "legal_review": false },
+      { "id": "hipaa_security", "framework": "HIPAA", "version": "Security Rule", "strictness_rank": 4, "requirements": 2, "retain_days": 2190, "legal_review": true },
+      { "id": "fda_21cfr11", "framework": "FDA_21CFR11", "version": "21 CFR Part 11", "strictness_rank": 1, "requirements": 3, "retain_days": 2555, "legal_review": true }
+    ],
+    "total_requirements": 14
+  },
+
+  "provisioning": {
+    "disclaimer_gate": "COMPLIANCE_DISCLAIMER must be acknowledged before provisioning",
+    "max_templates": "Configurable (config.max_templates)",
+    "hook_auto_provision": "Converts requirement.hook_spec.natural_language to NLHookEngine hooks via F6",
+    "certificate_auto_config": "Initializes CertificateEngine (F4) on provision, non-fatal on failure",
+    "audit_trail": "Append-only JSONL at state/compliance/audit.jsonl",
+    "removal": "Marks as 'removed' (keeps record), deregisters associated hooks"
+  },
+
+  "rule_evaluation": {
+    "audit_method": "runAudit(templateId?) — checks all active provisioned templates",
+    "scoring": "passing_requirements / total_requirements per template",
+    "status_thresholds": { "compliant": "score >= 0.9", "partial": "score >= 0.5", "non_compliant": "score < 0.5" },
+    "hook_check": "Verifies each requirement's provisioned hook still exists and is active"
+  },
+
+  "gap_analysis": {
+    "method": "gapAnalysis(templateId) — per-requirement compliance status",
+    "gap_types": ["not_assessed (not provisioned)", "non_compliant (hook missing/inactive)", "partial (procedural/manual requirement)"],
+    "remediation": "Auto-generated remediation strings for each gap"
+  },
+
+  "conflict_resolution": {
+    "trigger": "When 2+ templates are active simultaneously",
+    "strategies": {
+      "retain_days": "MAX (longest retention wins)",
+      "certificate_signing": "TRUE (any requires signing → all require)",
+      "strictness": "STRICTEST (lowest rank number = most strict wins)"
+    }
+  },
+
+  "persistence": {
+    "registry": "state/compliance/registry.json (provisioned templates with status)",
+    "audit_log": "state/compliance/audit.jsonl (append-only, NEVER compacted)",
+    "config": "state/compliance/config.json"
+  },
+
+  "source_catalog": "QUALITY_SOURCE_FILE_CATALOG: 3 HIGH-safety extracted JS files (PRISM_INSPECTION_ENGINE 206 lines, PRISM_PHASE2_QUALITY_SYSTEM 404 lines, PRISM_QUALITY_MANAGER 378 lines)",
+
+  "findings": [],
+  "exit_conditions_met": { "rule_evaluation_logic_verified": true, "regulatory_standard_mapping_verified": true, "compliance_reporting_format_validated": true }
+}

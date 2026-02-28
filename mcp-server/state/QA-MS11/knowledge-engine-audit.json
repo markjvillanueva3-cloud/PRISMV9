@@ -1,0 +1,57 @@
+{
+  "audit_id": "QA-MS11-P0-U00",
+  "title": "KnowledgeEngine Search/Retrieval Logic Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T07:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Dual-engine knowledge system: KnowledgeGraphEngine (920 lines, in-memory graph with typed nodes/edges) + KnowledgeQueryEngine (1031 lines, cross-registry unified search)",
+
+  "engines": {
+    "KnowledgeGraphEngine": {
+      "file": "src/engines/KnowledgeGraphEngine.ts",
+      "lines": 920,
+      "actions": ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"],
+      "action_count": 10,
+      "architecture": {
+        "storage": "In-memory Map<string, GraphNode> + GraphEdge[]",
+        "seeding": "seedGraph() on first use — 7 materials, 6 tools, 4 machines, 5 strategies, 4 coatings, 6 failure modes, 3 manufacturers, 3 applications",
+        "node_types": ["material", "tool", "machine", "strategy", "property", "failure_mode", "application", "coating", "manufacturer"],
+        "edge_types": ["has_property", "requires_strategy", "fails_with", "best_tool", "machined_on", "made_by", "coated_with", "used_for", "causes", "prevents", "similar_to", "exceeds_limit", "optimal_for", "alternative_to", "learned_from"],
+        "seed_nodes": 38,
+        "seed_edges": 52
+      },
+      "capabilities": {
+        "graph_query": "Neighbor traversal with edge-type filter, weight-sorted results",
+        "graph_infer": "Type-based similarity matching for unknown entities, property transfer from similar materials",
+        "graph_discover": "Capability utilization analysis for machines, strategy underutilization detection, 5-axis/HSM opportunity flagging",
+        "graph_predict": "Success rate prediction from machinability sqrt scale + tool/machine/strategy edge weights, failure mode aggregation",
+        "graph_traverse": "BFS traversal with depth limit and fanout cap (5 per node)",
+        "graph_add": "Dynamic node/edge addition at runtime",
+        "graph_search": "Name/ID substring search with optional type filter"
+      },
+      "source_catalog": "KNOWLEDGE_SOURCE_FILE_CATALOG: 12 extracted KB modules, 8,925 total lines (MEDIUM safety class)"
+    },
+    "KnowledgeQueryEngine": {
+      "file": "src/engines/KnowledgeQueryEngine.ts",
+      "lines": 1031,
+      "class": "KnowledgeQueryEngine (singleton: knowledgeEngine)",
+      "registries_searched": ["materials", "machines", "tools", "alarms", "formulas", "skills", "scripts", "agents", "hooks"],
+      "search_algorithms": {
+        "unified_search": "Cross-registry search with auto-detect relevant registries via REGISTRY_PATTERNS regex map, TTL cache (5min, 100 entries)",
+        "relevance_scoring": "4-tier: exact name match (1.0) > starts-with (0.9) > contains (0.7) > description match (0.5) > partial word (0.3-0.6)",
+        "match_types": ["exact", "partial", "semantic"],
+        "cross_registry_query": "Task-based cross-registry with relationship building and workflow generation",
+        "formula_query": "Domain-aware formula search with related formula discovery (same-category + shared-inputs)"
+      },
+      "relationships": {
+        "materials_formulas": "cutting_force/tool_life formulas linked to materials",
+        "machines_alarms": "Controller family matching",
+        "skills_scripts": "Tag-based overlap scoring"
+      },
+      "source_catalog": "KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG: same 12 KB modules (independent copy, no cross-engine import)"
+    }
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "search_algorithm_logic_verified": true, "retrieval_ranking_logic_verified": true, "knowledge_base_integration_points_documented": true }
+}

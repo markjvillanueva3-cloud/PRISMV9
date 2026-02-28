@@ -1,0 +1,74 @@
+{
+  "audit_id": "QA-MS11-P0-U05",
+  "title": "Engine File Count Reconciliation",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T07:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "RECONCILED — 191 .ts files in src/engines/: 169 *Engine.ts + 7 *Executor.ts + 6 legacy-named engines + 7 infrastructure/utility + 2 meta-files. True engine count: 182.",
+
+  "raw_count": {
+    "total_ts_files": 191,
+    "directory": "src/engines/"
+  },
+
+  "categorization": {
+    "engine_ts_files": {
+      "count": 169,
+      "pattern": "*Engine.ts",
+      "note": "Matches QA-MS0 verified count of 169 engines exactly"
+    },
+    "executor_files": {
+      "count": 7,
+      "pattern": "*Executor.ts",
+      "files": ["SkillExecutor.ts", "ScriptExecutor.ts", "AgentExecutor.ts", "SwarmExecutor.ts", "SwarmGroupExecutor.ts", "RoadmapExecutor.ts", "HookExecutor.ts"]
+    },
+    "legacy_named_engines": {
+      "count": 6,
+      "note": "Functional engines with non-standard naming (no 'Engine' suffix)",
+      "files": [
+        { "file": "AdvancedCalculations.ts", "purpose": "Stability lobes, deflection, thermal analysis" },
+        { "file": "ManufacturingCalculations.ts", "purpose": "Core cutting force, tool life, speed/feed calculations" },
+        { "file": "RegenerativeChatterPredictor.ts", "purpose": "Altintas-Budak chatter prediction (SAFETY CRITICAL)" },
+        { "file": "ReportRenderer.ts", "purpose": "Manufacturing report generation" },
+        { "file": "TaskAgentClassifier.ts", "purpose": "Task routing and agent classification" },
+        { "file": "ToolpathCalculations.ts", "purpose": "Engagement, trochoidal, HSM, scallop calculations" }
+      ]
+    },
+    "infrastructure_utility": {
+      "count": 7,
+      "note": "Support modules that are NOT standalone engines",
+      "files": [
+        { "file": "BatchProcessor.ts", "purpose": "Generic batch processing utility" },
+        { "file": "ComputationCache.ts", "purpose": "Shared computation cache" },
+        { "file": "EventBus.ts", "purpose": "Event pub/sub infrastructure (also in orchestration/)" },
+        { "file": "ManusATCSBridge.ts", "purpose": "Manus-ATCS integration bridge" },
+        { "file": "MasterIndexGenerator.ts", "purpose": "Master index file generator" },
+        { "file": "SkillAutoLoader.ts", "purpose": "Automatic skill loading on startup" },
+        { "file": "SourceCatalogAggregator.ts", "purpose": "Source file catalog aggregation" }
+      ]
+    },
+    "meta_files": {
+      "count": 2,
+      "files": ["index.ts (barrel export)", "reactiveChainBootstrap.ts (initialization bootstrap)"]
+    }
+  },
+
+  "reconciliation": {
+    "true_engine_count": 182,
+    "breakdown": "169 (*Engine.ts) + 7 (*Executor.ts) + 6 (legacy-named engines) = 182",
+    "non_engine_files": 9,
+    "breakdown_non_engine": "7 (infrastructure/utility) + 2 (meta-files) = 9",
+    "verification": "169 + 7 + 6 + 7 + 2 = 191 ✓"
+  },
+
+  "discrepancy_explanation": {
+    "milestone_claim_74": "From early documentation (pre-QA). Undercounted by 59% — only counted core manufacturing engines.",
+    "qa_ms0_verified_169": "QA-MS0 counted *Engine.ts pattern = 169. Correct for that pattern.",
+    "milestone_estimate_175": "Rough estimate in QA-MS11 envelope. Close but under by 16.",
+    "actual_191": "Full count including executors (7), legacy names (6), infrastructure (7), and meta-files (2).",
+    "true_functional_engines": "182 functional engine/executor modules. 169 from QA-MS0 was accurate for *Engine.ts; adding executors and legacy-named gives 182."
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "exact_engine_file_count_determined": true, "files_categorized": true, "true_engine_count_established": true, "discrepancy_explained": true }
+}
