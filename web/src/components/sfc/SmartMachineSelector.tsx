@@ -41,8 +41,8 @@ export default function SmartMachineSelector({
       {hasRequirements && capable.length === 0 && (
         <div className="rounded-md bg-red-50 p-3 dark:bg-red-900/20">
           <p className="text-xs font-medium text-red-600">
-            No machines meet the requirements ({Math.round(requiredRpm)} RPM,{" "}
-            {requiredPowerKw.toFixed(1)} kW, {requiredAxes}-axis)
+            No machines meet the requirements ({Number.isFinite(requiredRpm) ? Math.round(requiredRpm) : 0} RPM,{" "}
+            {Number.isFinite(requiredPowerKw) ? requiredPowerKw.toFixed(1) : "0.0"} kW, {requiredAxes}-axis)
           </p>
         </div>
       )}

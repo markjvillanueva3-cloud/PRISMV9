@@ -37,6 +37,12 @@ export function validateMachines(
   requiredPowerKw: number,
   requiredAxes: number,
 ): MachineValidation[] {
+  // Guard against NaN/Infinity
+  if (!Number.isFinite(requiredRpm)) requiredRpm = 0;
+  if (!Number.isFinite(requiredPowerKw)) requiredPowerKw = 0;
+  if (!Number.isFinite(requiredAxes) || requiredAxes < 0) requiredAxes = 0;
+  requiredRpm = Math.round(requiredRpm);
+
   return MACHINES.map((m) => {
     const issues: string[] = [];
     const rpmOk = m.spindleMaxRpm >= requiredRpm;

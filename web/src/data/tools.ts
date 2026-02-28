@@ -63,16 +63,19 @@ export function getCompatibleTools(
   const incompatible: { tool: CuttingToolEntry; reason: string }[] = [];
 
   for (const tool of TOOLS) {
-    const opMatch = tool.suitedOperations.includes(operationId);
-    const matAvoid = tool.avoidMaterials.includes(materialGroup);
-    const coatingAvoid = COATINGS[tool.coating]?.avoidFor.includes(materialGroup);
+    const reasons: string[] = [];
+    if (!tool.suitedOperations.includes(operationId)) {
+      reasons.push(`Not designed for ${operationId.replace(/_/g, " ")}`);
+    }
+    if (tool.avoidMaterials.includes(materialGroup)) {
+      reasons.push(`${tool.substrate} substrate not suited for ISO ${materialGroup}`);
+    }
+    if (COATINGS[tool.coating]?.avoidFor.includes(materialGroup)) {
+      reasons.push(`${tool.coating} coating not recommended for ISO ${materialGroup}`);
+    }
 
-    if (!opMatch) {
-      incompatible.push({ tool, reason: `Not designed for ${operationId.replace(/_/g, " ")}` });
-    } else if (matAvoid) {
-      incompatible.push({ tool, reason: `${tool.substrate} substrate not suited for ISO ${materialGroup} materials` });
-    } else if (coatingAvoid) {
-      incompatible.push({ tool, reason: `${tool.coating} coating not recommended for ISO ${materialGroup} materials` });
+    if (reasons.length > 0) {
+      incompatible.push({ tool, reason: reasons.join("; ") });
     } else {
       compatible.push(tool);
     }

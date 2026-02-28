@@ -134,8 +134,6 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
     el?.scrollIntoView({ block: "nearest" });
   }, [activeIdx]);
 
-  const hint = value ? machinabilityHint(value.machinability) : null;
-
   return (
     <Card title="Material">
       <div className="relative">
@@ -159,6 +157,11 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
             dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         />
 
+        {open && flatItems.length === 0 && query.trim() && (
+          <div className="absolute z-20 mt-1 w-full rounded-md border border-slate-200 bg-white p-3 text-center text-xs text-slate-400 shadow-lg dark:border-slate-600 dark:bg-slate-800">
+            No materials match &ldquo;{query}&rdquo;
+          </div>
+        )}
         {open && flatItems.length > 0 && (
           <div
             ref={listRef}
@@ -220,19 +223,22 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
       </div>
 
       {/* Property summary */}
-      {value && (
-        <div className="mt-3 space-y-1">
-          <div className="flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
-            <Badge color="blue">{value.group} — {value.groupLabel}</Badge>
-            <Badge color={hint!.color}>Machinability: {hint!.label}</Badge>
+      {value && (() => {
+        const hint = machinabilityHint(value.machinability);
+        return (
+          <div className="mt-3 space-y-1">
+            <div className="flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
+              <Badge color="blue">{value.group} — {value.groupLabel}</Badge>
+              <Badge color={hint.color}>Machinability: {hint.label}</Badge>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+              <span>Hardness: <strong>{value.hardness} HB</strong></span>
+              <span>UTS: <strong>{value.tensileStrength} MPa</strong></span>
+              <span>Rating: <strong>{value.machinability}%</strong></span>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-            <span>Hardness: <strong>{value.hardness} HB</strong></span>
-            <span>UTS: <strong>{value.tensileStrength} MPa</strong></span>
-            <span>Rating: <strong>{value.machinability}%</strong></span>
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </Card>
   );
 }

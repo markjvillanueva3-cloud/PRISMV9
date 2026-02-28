@@ -36,14 +36,20 @@ function validate(
 ): ValidationResult {
   const messages: string[] = [];
   const suggestions: Suggestion[] = [];
+  let hasError = false; // track red-level issues directly
 
   if (!material || !tool || !operationId) {
     return { status: "green", messages: [], suggestions: [] };
   }
 
+  // NaN guards
+  if (!Number.isFinite(requiredRpm)) requiredRpm = 0;
+  if (!Number.isFinite(requiredPowerKw)) requiredPowerKw = 0;
+
   // Coating vs material check
   const coating = COATINGS[tool.coating];
   if (coating?.avoidFor.includes(material.group)) {
+    hasError = true;
     messages.push(
       `${tool.coating} coating is not recommended for ${material.groupLabel} (ISO ${material.group})`,
     );
@@ -61,6 +67,7 @@ function validate(
 
   // Tool material suitability
   if (tool.avoidMaterials.includes(material.group)) {
+    hasError = true;
     messages.push(
       `${tool.substrate} substrate tools are not recommended for ISO ${material.group}`,
     );
@@ -76,6 +83,7 @@ function validate(
   // Machine RPM check
   if (machine && requiredRpm > 0) {
     if (machine.spindleMaxRpm < requiredRpm) {
+      hasError = true;
       messages.push(
         `Machine max RPM (${machine.spindleMaxRpm.toLocaleString()}) is below required ${Math.round(requiredRpm).toLocaleString()} RPM`,
       );
@@ -89,6 +97,7 @@ function validate(
   // Machine power check
   if (machine && requiredPowerKw > 0) {
     if (machine.spindlePowerKw < requiredPowerKw) {
+      hasError = true;
       messages.push(
         `Machine power (${machine.spindlePowerKw} kW) insufficient for required ${requiredPowerKw.toFixed(1)} kW`,
       );
@@ -101,6 +110,7 @@ function validate(
 
   // Tool max RPM
   if (tool.maxRpm > 0 && requiredRpm > tool.maxRpm) {
+    hasError = true;
     messages.push(
       `Required RPM (${Math.round(requiredRpm).toLocaleString()}) exceeds tool max RPM (${tool.maxRpm.toLocaleString()})`,
     );
@@ -108,6 +118,7 @@ function validate(
 
   // Hardened material + wrong tool
   if (material.group === "H" && tool.substrate === "HSS") {
+    hasError = true;
     messages.push("HSS tools are not suitable for hardened steel — use CBN or ceramic");
     suggestions.push({
       type: "tool",
@@ -115,9 +126,7 @@ function validate(
     });
   }
 
-  const status = messages.length === 0 ? "green" : messages.some(
-    (m) => m.includes("not suitable") || m.includes("not recommended") || m.includes("insufficient"),
-  ) ? "red" : "yellow";
+  const status = messages.length === 0 ? "green" : hasError ? "red" : "yellow";
 
   return { status, messages, suggestions };
 }

@@ -83,12 +83,26 @@ export default function SfcCalculatorPage() {
   }, []);
 
   const handleSuggestion = useCallback((suggestion: Suggestion) => {
-    if (suggestion.type === "params") {
-      // Reduce aggressiveness
-      setParams((prev) => ({
-        ...prev,
-        depth: +(prev.depth * 0.7).toFixed(2),
-      }));
+    switch (suggestion.type) {
+      case "params":
+        // Reduce aggressiveness
+        setParams((prev) => ({
+          ...prev,
+          depth: +(prev.depth * 0.7).toFixed(2),
+        }));
+        break;
+      case "tool":
+        // Reset tool so user picks a better one
+        setTool(null);
+        break;
+      case "coating":
+        // Reset tool — user needs a different coating
+        setTool(null);
+        break;
+      case "machine":
+        // Reset machine so user picks a capable one
+        setMachine(null);
+        break;
     }
   }, []);
 
@@ -121,7 +135,8 @@ export default function SfcCalculatorPage() {
 
   // Derived values for machine validation
   const requiredRpm = calc.data?.spindle_speed ?? 0;
-  const requiredPowerKw = 0; // Would come from power-torque calc
+  // Power comes from a separate power-torque calculation; use meta if available
+  const requiredPowerKw = (calc.data?.meta?.power_kw as number) ?? 0;
   const requiredAxes = operation?.category === "milling" ? 3 : 2;
 
   return (
@@ -180,7 +195,7 @@ export default function SfcCalculatorPage() {
         </div>
 
         {/* Right column — results + machine + history */}
-        <div className="space-y-4">
+        <div className="space-y-4" aria-live="polite">
           <ResultsDisplay
             result={calc.data}
             loading={calc.loading}
@@ -203,9 +218,9 @@ export default function SfcCalculatorPage() {
                 Recent Calculations
               </h3>
               <div className="space-y-1">
-                {history.map((h) => (
+                {history.map((h, idx) => (
                   <div
-                    key={h.ts}
+                    key={`${h.ts}-${idx}`}
                     className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400"
                   >
                     <span>{h.material} / {h.operation}</span>
