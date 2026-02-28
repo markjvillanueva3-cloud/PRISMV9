@@ -1,0 +1,109 @@
+{
+  "unit": "QA-MS8-U03",
+  "title": "prism_manus Dispatcher Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T11:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "manusDispatcher.ts — 11 actions, Claude API task executor (NOT manufacturing-specific)",
+  "file": "src/tools/dispatchers/manusDispatcher.ts",
+  "action_count": 11,
+  "actions": [
+    "create_task",
+    "task_status",
+    "task_result",
+    "cancel_task",
+    "list_tasks",
+    "web_research",
+    "code_sandbox",
+    "hook_trigger",
+    "hook_list",
+    "hook_chain",
+    "hook_stats"
+  ],
+  "architecture": {
+    "nature": "General-purpose AI task executor using Claude API — NOT a manufacturing dispatcher despite the name",
+    "engine": "No external engine — all logic inline in switch cases",
+    "api": "Raw fetch to https://api.anthropic.com/v1/messages",
+    "persistence": "In-memory Map only — tasks lost on server restart",
+    "atcs_bridge": "ManusATCSBridge.ts handles ATCS delegation (via atcsDispatcher, not manusDispatcher)"
+  },
+  "action_groups": {
+    "task_management": {
+      "actions": [
+        "create_task",
+        "task_status",
+        "task_result",
+        "cancel_task",
+        "list_tasks"
+      ],
+      "note": "Async task queue with in-memory store"
+    },
+    "specialized_tasks": {
+      "actions": [
+        "web_research",
+        "code_sandbox"
+      ],
+      "note": "Both are Claude API calls with structured prompts — no actual web search or code execution"
+    },
+    "hook_management": {
+      "actions": [
+        "hook_trigger",
+        "hook_list",
+        "hook_chain",
+        "hook_stats"
+      ],
+      "note": "Read-only hook registry lookup — hook_trigger does NOT execute hooks despite returning status:'executed'"
+    }
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "11 actions all implemented with no stubs or fallthrough"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "code_sandbox does NOT execute code — calls Claude to 'mentally simulate' execution. Misleading name."
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "web_research does NOT search the web — uses Claude model knowledge only. Misleading name."
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "hook_trigger returns status:'executed' but does NOT actually execute hooks — metadata lookup only"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "cancel_task silently no-ops on running tasks — no abort signal, no error returned"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Task store is in-memory only — all tasks lost on server restart"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "3 duplicate callClaude implementations (manusDispatcher, atcsDispatcher, ManusATCSBridge)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "manus_integration.py is dead code — Python prototype for external Manus AI service, never called"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Name 'prism_manus' is misleading — this is a general AI task executor, not manufacturing-specific"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 4,
+    "composite": "3.75",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "engine_coverage_verified": true,
+    "manufacturing_process_coverage_assessed": true
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "unit": "QA-MS8-U01",
+  "title": "prism_thread Dispatcher Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T11:00:00Z",
+  "status": "PASS",
+  "scope": "threadDispatcher.ts — 12 actions, ThreadCalculationEngine, 311 thread definitions",
+  "file": "src/tools/dispatchers/threadDispatcher.ts",
+  "lines": 90,
+  "action_count": 12,
+  "actions": [
+    "calculate_tap_drill",
+    "calculate_thread_mill_params",
+    "calculate_thread_depth",
+    "calculate_engagement_percent",
+    "get_thread_specifications",
+    "get_go_nogo_gauges",
+    "calculate_pitch_diameter",
+    "calculate_minor_major_diameter",
+    "select_thread_insert",
+    "calculate_thread_cutting_params",
+    "validate_thread_fit_class",
+    "generate_thread_gcode"
+  ],
+  "engine": "ThreadCalculationEngine (sole engine, all 12 actions route through handleThreadTool())",
+  "thread_standards": {
+    "active": {
+      "ISO_Metric_Coarse": {
+        "count": 48,
+        "range": "M1-M100"
+      },
+      "ISO_Metric_Fine": {
+        "count": 73,
+        "range": "M1-M100, multiple pitches"
+      },
+      "UNC": {
+        "count": 26,
+        "range": "#0-2 inch"
+      },
+      "UNF": {
+        "count": 24,
+        "range": "#0-1.5 inch"
+      },
+      "UNEF": {
+        "count": 11,
+        "range": "#12-1 inch"
+      },
+      "NPT": {
+        "count": 15,
+        "range": "1/16-6 inch"
+      },
+      "NPTF": {
+        "count": 15,
+        "range": "derived from NPT"
+      },
+      "BSP": {
+        "count": 9,
+        "range": "1/8-2 inch"
+      },
+      "BSPT": {
+        "count": 9,
+        "range": "derived from BSP"
+      },
+      "ACME": {
+        "count": 23,
+        "range": "1/4-5 inch"
+      },
+      "Stub_ACME": {
+        "count": 23,
+        "range": "derived from ACME"
+      },
+      "Trapezoidal": {
+        "count": 35,
+        "range": "Tr8-Tr100"
+      }
+    },
+    "total_definitions": 311,
+    "data_source": "Hardcoded TS constants, formula-generated from Machinery's Handbook (ISO 261/262/965, ASME B1.1, ASME B1.20.1, BS 21)",
+    "missing_standards": [
+      "Buttress (mentioned in engines, no data)",
+      "Whitworth BSW/BSF (no parser)",
+      "NPS (type declared, no data)"
+    ]
+  },
+  "orphaned_engines": [
+    {
+      "engine": "ThreadMillingEngine",
+      "note": "Full engine with tests, never called by dispatcher"
+    },
+    {
+      "engine": "SinglePointThreadEngine",
+      "note": "Full engine with tests, never called by dispatcher"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "12 actions correctly routed through ThreadCalculationEngine via handleThreadTool()"
+    },
+    {
+      "severity": "OK",
+      "finding": "311 thread definitions across 12 standards, formula-generated from authoritative sources"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "calculateStrippingStrength() fully implemented in engine but no dispatcher action — thread stripping is critical safety calculation"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "NPTF/BSPT are shallow copies of NPT/BSP — missing Dryseal tolerance differences and taper-adjusted diameters"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "NPS type declared in PipeThread interface but no data exists — silently returns null"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "ThreadMillingEngine and SinglePointThreadEngine orphaned — richer than dispatcher's simplified thread mill handler"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "calculate_pitch_diameter uses simplified 0.02*pitch tolerance instead of ISO 965 size-dependent tolerances"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "generate_thread_gcode: MAZAK/OKUMA/HEIDENHAIN fall through to FANUC defaults; thread mill G-code ignores controller param"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "validate_thread_fit_class only handles ISO metric and Unified — pipe/ACME classes return valid:false with no explanation"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 5,
+    "composite": "4.25",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_mapped": true,
+    "thread_standard_coverage_assessed": true,
+    "engine_method_coverage_verified": true
+  }
+}

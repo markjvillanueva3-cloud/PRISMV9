@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS7 COMPLETE, QA-MS8 next
+**Phase:** QA Audit Track -- QA-MS0-MS8 COMPLETE, QA-MS9 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS8 (Manufacturing Dispatchers) -- not started
-**Next:** QA-MS8-U00 -> U01 -> U02 -> U03 -> U04
+**Active:** QA-MS9 (Infrastructure Dispatchers) -- not started
+**Next:** QA-MS9-U00 -> U01 -> U02 -> U03 -> U04 -> U05 -> U06
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -91,10 +91,21 @@
 - **Fixes applied:** 1 code change -- shop_schedule removed from SCHEDULER_ACTIONS (QA-MS6 finding, applied post-commit)
 - **Composite OQA:** (4.75+5.00+4.25+5.00+4.75+4.25+4.75)/7*0.8 + test_pass*0.2 = 4.68*0.8 + 1.0 = 4.74 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS8 Manufacturing Dispatchers Results (2026-02-28)
+- **U00 (prism_calc):** 56 actions across 13 engines + 4 inline, 3 MAJOR: surface_finish missing operation param, _physicsActions dead code, calculateDrillingForce orphaned (OQA=4.00 COND PASS)
+- **U01 (prism_thread):** 12 actions, 311 thread definitions across 12 standards, 1 MAJOR: calculateStrippingStrength orphaned (safety-critical), 2 orphaned engines (ThreadMilling, SinglePoint) (OQA=4.25 PASS)
+- **U02 (prism_toolpath):** 8 actions, ~700 strategies (680 claim stale), 3 MAJOR: Part1 registry orphaned (704 lines), EXTENDED_STRATEGIES unreachable, generate/simulate/optimize not exposed (OQA=4.00 COND PASS)
+- **U03 (prism_manus):** 11 actions, NOT manufacturing-specific (general AI task executor), 3 MAJOR: code_sandbox/web_research misleading names, hook_trigger fakes execution (OQA=3.75 COND PASS)
+- **U04 (Param Normalization):** Only prism_calc has alias normalization, all use z.record(z.any()), SI consistent, default strategies differ (OQA=4.00 COND PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** drilling force orphaned, thread stripping orphaned, toolpath Part1+extended dead code, manus naming misleading, param normalization inconsistent
+- **Composite OQA:** (4.00+4.25+4.00+3.75+4.00)/5*0.8 + test_pass*0.2 = 4.00*0.8 + 1.0 = 4.20 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 47 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5, QA-MS6, QA-MS7)
+- Complete: 48 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS8)
 - In Progress: 0
-- Not Started: 33 milestones (QA-MS8-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 32 milestones (QA-MS9-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -107,7 +118,7 @@
 | QA-MS5 | Optimization & ML | 8 | **COMPLETE** (0 code fixes, OQA=4.85) |
 | QA-MS6 | Intelligence Mega-Dispatcher | 8 | **COMPLETE** (shop_schedule conflict, OQA=4.95) |
 | QA-MS7 | Registry & Data Quality | 7 | **COMPLETE** (ToolRegistry dup handling, no TTL, OQA=4.74) |
-| QA-MS8 | Manufacturing Dispatchers | 5 | not started |
+| QA-MS8 | Manufacturing Dispatchers | 5 | **COMPLETE** (drilling/stripping orphaned, toolpath dead code, OQA=4.20) |
 | QA-MS9 | Infrastructure Dispatchers | 7 | not started |
 | QA-MS10 | Manufacturing Engines | 6 | not started |
 | QA-MS11 | Intelligence Engines | 6 | not started |

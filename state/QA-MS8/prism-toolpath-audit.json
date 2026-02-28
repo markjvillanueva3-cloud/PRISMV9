@@ -1,0 +1,94 @@
+{
+  "unit": "QA-MS8-U02",
+  "title": "prism_toolpath Dispatcher Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T11:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "toolpathDispatcher.ts — 8 actions, ~700 strategies (680 claim is stale)",
+  "file": "src/tools/dispatchers/toolpathDispatcher.ts",
+  "action_count": 8,
+  "actions": [
+    "strategy_select",
+    "params_calculate",
+    "strategy_search",
+    "strategy_list",
+    "strategy_info",
+    "stats",
+    "material_strategies",
+    "prism_novel"
+  ],
+  "strategy_verification": {
+    "envelope_claim": 680,
+    "file_header_claim": "762+",
+    "runtime_registry": "~700 in main ToolpathStrategyRegistry class (System A)",
+    "extended_strategies": "~300+ additional entries in EXTENDED_STRATEGIES, NOT wired to dispatcher",
+    "part1_registry": "~24 entries in ToolpathStrategyRegistry_Part1.ts, completely orphaned",
+    "assessment": "680 is a stale approximation. Runtime count is ~700. Extended strategies unreachable from MCP API.",
+    "categories": {
+      "milling_roughing": 127,
+      "milling_finishing": 156,
+      "hole_making": 98,
+      "turning": 124,
+      "multiaxis": 157,
+      "prism_novel": 55
+    },
+    "category_total_claimed": 717
+  },
+  "engine_routing": {
+    "live_path": "toolpathDispatcher -> toolpathTools.ts -> toolpathRegistry.getBestStrategy() / getStrategiesByCategory()",
+    "scoring": "Base 50 + bestFor bonus + CAM software match + material match + axes capability + priority weighting",
+    "dead_paths": [
+      "ToolpathGenerationEngine (generate/simulate/optimize methods not exposed via dispatcher)",
+      "EXTENDED_STRATEGIES (consolidateExtendedStrategies output not called by dispatcher tools)",
+      "ToolpathStrategyRegistry_Part1.ts (entire 704-line file orphaned, different schema)",
+      "ToolpathCalculations.ts (physics math, called by prism_calc not prism_toolpath)"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "8 actions all wired to live toolpathRegistry methods"
+    },
+    {
+      "severity": "OK",
+      "finding": "Strategy selection uses multi-factor scoring with material/axes/priority weighting"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "ToolpathStrategyRegistry_Part1.ts (704 lines, ~24 strategies) is completely orphaned — different schema, never imported"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "EXTENDED_STRATEGIES (~300+ entries) exported but never called by dispatcher tools — unreachable from MCP"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "ToolpathGenerationEngine generate/simulate/optimize methods not exposed — no action to generate actual toolpaths"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "680 strategy count is stale — actual runtime is ~700, file header claims 762+"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "toolpath_stats() counts only main registry, not extended — returns incomplete total"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Only strategy_select and params_calculate go through pre/post hooks — other 6 actions bypass hooks"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "strategy_count_verified": true,
+    "action_routing_verified": true,
+    "category_distribution_documented": true
+  }
+}

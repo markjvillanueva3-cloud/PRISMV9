@@ -1,0 +1,219 @@
+{
+  "unit": "QA-MS8-U00",
+  "title": "prism_calc Dispatcher Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T11:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "calcDispatcher.ts — 56 actions, 13 engines + 4 inline handlers",
+  "file": "src/tools/dispatchers/calcDispatcher.ts",
+  "action_count": 56,
+  "engine_routing": {
+    "ManufacturingCalculations": {
+      "actions": [
+        "cutting_force",
+        "tool_life",
+        "speed_feed",
+        "flow_stress",
+        "surface_finish",
+        "mrr",
+        "power",
+        "torque",
+        "chip_load",
+        "productivity"
+      ],
+      "count": 10
+    },
+    "AdvancedCalculations": {
+      "actions": [
+        "stability",
+        "deflection",
+        "thermal",
+        "cost_optimize",
+        "multi_optimize"
+      ],
+      "count": 5
+    },
+    "ToolpathCalculations": {
+      "actions": [
+        "engagement",
+        "trochoidal",
+        "hsm",
+        "scallop",
+        "stepover",
+        "cycle_time",
+        "arc_fit",
+        "chip_thinning",
+        "multi_pass",
+        "coolant_strategy",
+        "gcode_snippet"
+      ],
+      "count": 11
+    },
+    "ToleranceEngine": {
+      "actions": [
+        "tolerance_analysis",
+        "fit_analysis"
+      ],
+      "count": 2
+    },
+    "GCodeTemplateEngine": {
+      "actions": [
+        "gcode_generate"
+      ],
+      "count": 1
+    },
+    "DecisionTreeEngine": {
+      "actions": [
+        "decision_tree"
+      ],
+      "count": 1
+    },
+    "ReportRenderer": {
+      "actions": [
+        "render_report"
+      ],
+      "count": 1
+    },
+    "CampaignEngine": {
+      "actions": [
+        "campaign_create",
+        "campaign_validate",
+        "campaign_optimize",
+        "campaign_cycle_time"
+      ],
+      "count": 4
+    },
+    "InferenceChainEngine": {
+      "actions": [
+        "inference_chain"
+      ],
+      "count": 1
+    },
+    "PhysicsPredictionEngine": {
+      "actions": [
+        "surface_integrity_predict",
+        "chatter_predict",
+        "thermal_compensate",
+        "unified_machining_model",
+        "coupling_sensitivity"
+      ],
+      "count": 5
+    },
+    "OptimizationEngine": {
+      "actions": [
+        "optimize_parameters",
+        "optimize_sequence",
+        "sustainability_report",
+        "eco_optimize"
+      ],
+      "count": 4
+    },
+    "WorkholdingIntelligenceEngine": {
+      "actions": [
+        "fixture_recommend"
+      ],
+      "count": 1
+    },
+    "AlgorithmEngine": {
+      "actions": [
+        "algorithm_calculate",
+        "algorithm_validate",
+        "algorithm_list",
+        "algorithm_info",
+        "algorithm_batch",
+        "algorithm_benchmark"
+      ],
+      "count": 6
+    },
+    "inline_dispatcher_native": {
+      "actions": [
+        "wear_prediction",
+        "process_cost_calc",
+        "uncertainty_chain",
+        "controller_optimize"
+      ],
+      "count": 4,
+      "note": "Full physics models implemented inline in switch cases (~350 lines), violates engine/dispatcher separation"
+    }
+  },
+  "parameter_normalization": {
+    "alias_layer": "3-pass normalization: domain shorthands (ap->axial_depth, fz->feed_per_tooth, etc.), camelCase->snake_case, dynamic paramNormalizer (try/catch soft dep)",
+    "validation": "z.record(z.any()).optional() — no action-specific Zod schema, validation deferred to engine functions",
+    "material_lookup": "Per-call _matCache Map prevents redundant registry reads"
+  },
+  "orphaned_engine_methods": [
+    {
+      "engine": "ManufacturingCalculations",
+      "method": "calculateDrillingForce",
+      "note": "Full Sandvik/Shaw drilling model, no dispatcher action"
+    },
+    {
+      "engine": "ToleranceEngine",
+      "method": "findAchievableGrade",
+      "note": "IT grade from deflection, no dispatcher action"
+    },
+    {
+      "engine": "PhysicsPredictionEngine",
+      "method": "get_source_file_catalog / catalog_source_files",
+      "note": "Internal cases unreachable from MCP API"
+    },
+    {
+      "engine": "OptimizationEngine",
+      "method": "get_source_file_catalog / catalog_source_files",
+      "note": "Same pattern — unreachable"
+    },
+    {
+      "engine": "CampaignEngine",
+      "method": "getCampaignSourceFileCatalog",
+      "note": "Exported but not wired"
+    },
+    {
+      "engine": "GCodeTemplateEngine",
+      "method": "getSourceFileCatalog",
+      "note": "Exported but not wired"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "finding": "surface_finish action missing 'operation' parameter — engine receives undefined, loses boring/grinding/reaming Rz/Ra ratios"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "_physicsActions cross-field check is dead code — 'optimize' not in ACTIONS, result.Vc never exists. validateCrossFieldPhysics never called."
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "calculateDrillingForce completely orphaned — core machining operation with no dispatcher exposure"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "4 inline dispatcher-native actions (~350 lines of physics in switch cases) violate engine/dispatcher separation"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Sub-dispatcher error handling inconsistency — optimization()/workholdingIntelligence() return soft {error:...} objects vs main switch that throws"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "toleranceStackUp receives raw params.stack_dimensions without type-checking"
+    },
+    {
+      "severity": "INFO",
+      "finding": "52 engine-routed + 4 inline = 56 total actions across 13 engines"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 5,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "all_actions_mapped": true,
+    "unwired_actions_identified": true,
+    "orphaned_engine_methods_identified": true
+  }
+}

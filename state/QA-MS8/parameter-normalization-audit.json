@@ -1,0 +1,113 @@
+{
+  "unit": "QA-MS8-U04",
+  "title": "Parameter Normalization Consistency Across Manufacturing Dispatchers",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T11:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "Cross-dispatcher comparison: prism_calc, prism_thread, prism_toolpath, prism_manus",
+  "dispatchers_compared": [
+    {
+      "name": "prism_calc",
+      "param_schema": "z.record(z.any()).optional()",
+      "normalization": "3-pass alias layer (domain→snake_case→dynamic normalizer)",
+      "validation": "Deferred to engines"
+    },
+    {
+      "name": "prism_thread",
+      "param_schema": "z.record(z.any()).optional()",
+      "normalization": "None — raw params passed to handleThreadTool()",
+      "validation": "In threadTools.ts switch cases"
+    },
+    {
+      "name": "prism_toolpath",
+      "param_schema": "z.record(z.any()).optional()",
+      "normalization": "None — raw params passed to toolpathTools functions",
+      "validation": "In toolpathTools.ts functions"
+    },
+    {
+      "name": "prism_manus",
+      "param_schema": "z.record(z.any()).optional()",
+      "normalization": "None — raw params used inline",
+      "validation": "Minimal type checks in switch cases"
+    }
+  ],
+  "parameter_naming": {
+    "convention": "snake_case is the target convention (prism_calc enforces this via alias layer)",
+    "consistency": "INCONSISTENT — only prism_calc has alias normalization. prism_thread/prism_toolpath accept whatever the caller sends.",
+    "examples": {
+      "prism_calc": "ap→axial_depth, fz→feed_per_tooth, toolDiameter→tool_diameter",
+      "prism_thread": "No aliases — caller must use exact param names (designation, engagement_percent, etc.)",
+      "prism_toolpath": "No aliases — caller must use exact param names (operation, material, feature_type, etc.)",
+      "prism_manus": "No aliases — task, mode, prompt, hook_id etc."
+    }
+  },
+  "unit_handling": {
+    "system": "SI (metric) throughout — all dispatchers use mm, m/min, N, Pa, K",
+    "imperial_support": "prism_calc has limited imperial detection (inch→mm conversion for tool_diameter). Other dispatchers: metric only.",
+    "consistency": "MOSTLY CONSISTENT — SI default everywhere, but only prism_calc attempts any unit conversion"
+  },
+  "default_values": {
+    "prism_calc": "Engine-level defaults (e.g., cutting_speed from material registry, Taylor coefficients, T_ref=25C). Auto-derivation from registry if params missing.",
+    "prism_thread": "Hardcoded defaults in threadTools.ts (engagement_percent=75, fit_class='6H'). No registry lookup.",
+    "prism_toolpath": "Strategy scoring defaults (priority='balanced'). No parameter-level defaults.",
+    "prism_manus": "mode='balanced' (maps to sonnet model), limit=20 for list_tasks.",
+    "consistency": "INCONSISTENT — prism_calc derives from registry, others use hardcoded defaults or require explicit params"
+  },
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "finding": "Only prism_calc has parameter alias normalization — prism_thread and prism_toolpath accept raw params with no normalization layer"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "All 4 dispatchers use z.record(z.any()).optional() — no action-specific Zod schemas anywhere"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Imperial unit handling only in prism_calc — other dispatchers silently accept metric only"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Default value strategies differ: registry-derived (calc) vs hardcoded (thread) vs none (toolpath)"
+    },
+    {
+      "severity": "OK",
+      "finding": "SI (metric) is the consistent base unit system across all dispatchers"
+    },
+    {
+      "severity": "OK",
+      "finding": "Parameter naming within each dispatcher is internally consistent"
+    },
+    {
+      "severity": "INFO",
+      "finding": "prism_manus is not a manufacturing dispatcher — parameter comparison is not meaningful for manufacturing consistency"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 4,
+    "safety": 4,
+    "performance": 4,
+    "composite": "4.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "recommended_fixes": [
+    {
+      "priority": "MEDIUM",
+      "action": "Add alias normalization layer to prism_thread and prism_toolpath (copy from prism_calc pattern)",
+      "reason": "Callers may use camelCase or domain abbreviations — currently silently ignored",
+      "effort": "~30 lines per dispatcher"
+    },
+    {
+      "priority": "LOW",
+      "action": "Add action-specific Zod schemas to catch invalid params at dispatcher level",
+      "reason": "z.record(z.any()) provides no compile-time or runtime param safety",
+      "effort": "~1 session per dispatcher"
+    }
+  ],
+  "exit_conditions_met": {
+    "parameter_naming_compared": true,
+    "unit_systems_verified": true,
+    "default_value_policies_compared": true
+  }
+}
