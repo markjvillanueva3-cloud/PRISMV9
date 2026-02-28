@@ -38,14 +38,14 @@ function getSystemCounts(): Record<string, number> {
     const dispatchers = fs.existsSync(dispDir)
       ? fs.readdirSync(dispDir).filter(f => f.endsWith("Dispatcher.ts")).length : 45;
     const engines = fs.existsSync(engDir)
-      ? fs.readdirSync(engDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 185;
+      ? fs.readdirSync(engDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 169;
     const hooks = fs.existsSync(hookDir)
-      ? fs.readdirSync(hookDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 179;
+      ? fs.readdirSync(hookDir).filter(f => f.endsWith(".ts") && !f.startsWith("index")).length : 157;
     const counts = { dispatchers, engines, hooks };
     _countsCache = { ts: now, counts };
     return counts;
   } catch {
-    return { dispatchers: 45, engines: 185, hooks: 179 };
+    return { dispatchers: 45, engines: 169, hooks: 157 };
   }
 }
 const ACTIONS = ["core", "quick", "get", "dev_protocol", "resources_summary", "quick_resume"] as const;
@@ -56,7 +56,7 @@ const VALID_SECTIONS = ["laws", "workflow", "buffer", "equation", "tools", "manu
 // These are safety nets, not the primary source. Edit the .md files instead.
 // ============================================================================
 
-const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 45 dispatchers | 1060 verified actions | 185 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
+const FALLBACK_QUICK = "# PRISM Quick Reference v22.0\n## 45 dispatchers | 1060 verified actions | 169 engines\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\n## START: prism_dev session_boot → prism_context todo_update";
 
 const FALLBACK_DEV_PROTOCOL = "# Dev Protocol\n## Files not found — edit data/docs/gsd/DEV_PROTOCOL.md";
 

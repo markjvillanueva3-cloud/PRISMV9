@@ -4,7 +4,7 @@
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:45:00Z",
   "status": "COMPLETE",
-  "verdict": "PASS — Weight vector correct, safety hard constraint verified",
+  "verdict": "PASS — Weight vector correct, safety hard constraint verified, F20 FIXED",
 
   "weight_vector": {
     "source_file": "src/tools/dispatchers/omegaDispatcher.ts",
@@ -84,7 +84,9 @@
       "line": 91,
       "issue": "Line 91: R = params.R ?? 1.0 — if no component is provided, it defaults to 1.0 (perfect score). This is generous but arguably incorrect — missing data should score lower.",
       "impact": "A 'compute' call with no params returns Ω=1.00, status=RELEASE_READY, which is misleading.",
-      "fix": "Consider defaulting to 0.0 or requiring at least S to be provided explicitly."
+      "fix": "Consider defaulting to 0.0 or requiring at least S to be provided explicitly.",
+      "status": "FIXED",
+      "fix_applied": "Changed omegaDispatcher.ts line 91 defaults from 1.0 to 0.0 for all 5 components."
     }
   ],
 

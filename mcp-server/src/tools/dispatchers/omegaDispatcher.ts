@@ -88,7 +88,7 @@ Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
-        const R = params.R ?? 1.0, C = params.C ?? 1.0, P = params.P ?? 1.0, S = params.S ?? 1.0, L = params.L ?? 1.0;
+        const R = params.R ?? 0.0, C = params.C ?? 0.0, P = params.P ?? 0.0, S = params.S ?? 0.0, L = params.L ?? 0.0;
         switch (action) {
           case "compute": { result = computeOmega({ R, C, P, S, L }); break; }
           case "breakdown": {

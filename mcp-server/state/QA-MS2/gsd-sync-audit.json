@@ -4,7 +4,7 @@
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:50:00Z",
   "status": "COMPLETE",
-  "verdict": "2 MEDIUM findings — engine and hook counts diverge between GSD fallback, live scan, and QA-MS0 verified values",
+  "verdict": "2 MEDIUM findings (1 FIXED) — engine and hook counts diverge between GSD fallback, live scan, and QA-MS0 verified values",
 
   "counting_methodology": {
     "gsd_live_scan": {
@@ -85,7 +85,9 @@
       "file": "src/tools/dispatchers/gsdDispatcher.ts",
       "lines": "39-43, 59",
       "issue": "Fallback defaults (engines: 185, hooks: 179) were set before QA-MS0 audit. QA-MS0 verified 169 engines and 157 hooks. The fallback values are 9.5% and 14% overstated respectively.",
-      "fix": "Update fallback defaults to QA-MS0 verified counts: engines: 169, hooks: 157"
+      "fix": "Update fallback defaults to QA-MS0 verified counts: engines: 169, hooks: 157",
+      "status": "FIXED",
+      "fix_applied": "Updated gsdDispatcher.ts lines 41, 43, 48, 59 — fallback counts now match QA-MS0 verified values."
     },
     {
       "id": "F28",
