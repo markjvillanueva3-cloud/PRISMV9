@@ -2,7 +2,7 @@
  * Manus Dispatcher - PRISM's own agent task execution engine
  * Uses Claude API (NOT external Manus service) for all AI tasks.
  * Actions: create_task, task_status, task_result, cancel_task, list_tasks,
- *          web_research, code_sandbox, hook_trigger, hook_list, hook_chain, hook_stats
+ *          knowledge_lookup, code_reasoning, hook_trigger, hook_list, hook_chain, hook_stats
  * 
  * This is PRISM's built-in task executor — no external Manus API key needed.
  * Tasks execute via Claude API using the key in .env / claude_desktop_config.json.
@@ -16,7 +16,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = ["create_task", "task_status", "task_result", "cancel_task", "list_tasks",
-  "web_research", "code_sandbox", "hook_trigger", "hook_list", "hook_chain", "hook_stats"] as const;
+  "knowledge_lookup", "code_reasoning", "hook_trigger", "hook_list", "hook_chain", "hook_stats"] as const;
 
 // ============================================================================
 // INTERNAL TASK STORE (in-memory, persists for session lifetime)
@@ -203,7 +203,7 @@ export function registerManusDispatcher(server: any): void {
           }
 
           // === SPECIALIZED TASKS (still via Claude API) ===
-          case "web_research": {
+          case "knowledge_lookup": {
             if (!hasValidApiKey()) return ok({ error: "ANTHROPIC_API_KEY not configured." });
             const depth = params.depth || "standard";
             const query = params.query || "";
@@ -217,7 +217,7 @@ export function registerManusDispatcher(server: any): void {
             break;
           }
 
-          case "code_sandbox": {
+          case "code_reasoning": {
             if (!hasValidApiKey()) return ok({ error: "ANTHROPIC_API_KEY not configured." });
             const lang = params.language || "python";
             const code = params.code || "";
@@ -238,8 +238,10 @@ export function registerManusDispatcher(server: any): void {
             if (!registry) { result = { error: "Hook registry not found" }; break; }
             const hook = registry.hooks.find((h: any) => h.id === params.hook_id);
             if (!hook) { result = { error: `Hook not found: ${params.hook_id}` }; break; }
+            // M-018: Honestly report that this is a registry lookup, not real execution
             result = { hook_id: params.hook_id, domain: hook.domain, category: hook.category, trigger: hook.trigger,
-              executed_at: new Date().toISOString(), params: params.params || {}, status: "executed",
+              queried_at: new Date().toISOString(), params: params.params || {}, status: "simulated",
+              note: "Hook metadata returned from registry. Use HookExecutor for real hook execution.",
               side_effects: hook.sideEffects, next_hooks: hook.relatedHooks };
             break;
           }

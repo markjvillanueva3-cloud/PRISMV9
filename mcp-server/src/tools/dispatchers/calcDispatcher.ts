@@ -1384,8 +1384,8 @@ export function registerCalcDispatcher(server: any): void {
 
         // Cross-field physics validation — catches physically impossible results
         // Only applies to actions that produce SafetyCalcResult-shaped output
-        const _physicsActions = new Set(["cutting_force", "tool_life", "speed_feed", "optimize"]);
-        if (_physicsActions.has(action) && result && !result.error && result.Vc !== undefined) {
+        const physicsActions = new Set(["cutting_force", "tool_life", "speed_feed", "optimize"]);
+        if (physicsActions.has(action) && result && !result.error && result.Vc !== undefined) {
           try {
             const material = params.material_id || params.material || params.material_group || "unknown";
             validateCrossFieldPhysics({ ...result, material, operation: action });

@@ -47,7 +47,7 @@ Actions (18): list, get, execute, chain, toggle, emit, event_list, event_history
 Actions (5): search, cross_query, formula, relations, stats
 
 ### prism_manus (manusDispatcher.ts, 286L)
-Actions (11): create_task, task_status, task_result, cancel_task, list_tasks, web_research, code_sandbox, hook_trigger, hook_list, hook_chain, hook_stats
+Actions (11): create_task, task_status, task_result, cancel_task, list_tasks, knowledge_lookup, code_reasoning, hook_trigger, hook_list, hook_chain, hook_stats
 
 ### prism_memory (memoryDispatcher.ts, 182L)
 Actions (6): get_health, trace_decision, find_similar, get_session, get_node, run_integrity

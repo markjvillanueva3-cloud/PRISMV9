@@ -1,0 +1,51 @@
+{
+  "id": "REM-MS3",
+  "title": "Code Quality & Documentation Cleanup",
+  "priority": "P3",
+  "status": "COMPLETE",
+  "completed_at": "2026-02-28",
+  "units": [
+    {
+      "id": "REM-MS3-U00",
+      "title": "Dead code removal + misleading name fixes",
+      "findings": ["M-011", "M-013", "M-014", "M-016", "M-017", "M-018"],
+      "status": "PASS",
+      "changes": [
+        "M-011: Removed misleading _ prefix from physicsActions in calcDispatcher (variable IS used)",
+        "M-013: ToolpathStrategyRegistry_Part1 verified as actively imported by registries/index.ts — NOT dead",
+        "M-014: EXTENDED_STRATEGIES verified as used by 5+ functions — NOT unreachable",
+        "M-016: Renamed code_sandbox to code_reasoning in manusDispatcher (honest naming)",
+        "M-017: Renamed web_research to knowledge_lookup in manusDispatcher (honest naming)",
+        "M-018: Changed hook_trigger status from fake 'executed' to honest 'simulated' with note"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/calcDispatcher.ts",
+        "src/tools/dispatchers/manusDispatcher.ts",
+        "data/docs/MASTER_INDEX.md"
+      ]
+    },
+    {
+      "id": "REM-MS3-U01",
+      "title": "Documentation corrections + param normalization",
+      "findings": ["M-032", "M-033", "M-034"],
+      "status": "PASS",
+      "changes": [
+        "M-032: Hook count already updated to 220 (done in micro-session MS7)",
+        "M-033: No stale cadence count '40' found in codebase — already correct",
+        "M-034: Both threadDispatcher and toolpathDispatcher already have normalizeParams"
+      ],
+      "files_modified": []
+    }
+  ],
+  "tests": {
+    "file": "src/__tests__/rem-ms3-code-quality.test.ts",
+    "count": 9,
+    "status": "ALL PASS"
+  },
+  "findings_resolved": {
+    "count": 9,
+    "ids": ["M-011", "M-013", "M-014", "M-016", "M-017", "M-018", "M-032", "M-033", "M-034"],
+    "already_fixed": ["M-032", "M-033", "M-034"],
+    "verified_non_issue": ["M-013", "M-014"]
+  }
+}

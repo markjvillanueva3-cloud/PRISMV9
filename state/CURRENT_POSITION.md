@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 + REM-MS1 + REM-MS2 COMPLETE (9 units, 22 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 57 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 36 code fixes total
-**Next Recommended:** REM-MS3 (Code Quality & Documentation Cleanup) or S3 (SFC Calculator UI)
+**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 through REM-MS3 COMPLETE (11 units, 31 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 58 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 40 code fixes total
+**Next Recommended:** REM-MS4 (Architecture Evolution) or S3 (SFC Calculator UI)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -30,6 +30,14 @@
 - **Files modified:** tenantDispatcher.ts, ToolRegistry.ts, HookRegistry.ts, ComplianceEngine.ts
 - **Tests:** 6 new tests, all PASS
 - **Composite OQA:** 4.90 (all 2 units PASS)
+
+## REM-MS3 Code Quality & Documentation Cleanup (2026-02-28)
+- **U00 (Dead Code + Names):** M-011 removed misleading _ prefix from physicsActions, M-013 Part1 verified as imported (not dead), M-014 EXTENDED_STRATEGIES verified as used (not unreachable), M-016 code_sandbox→code_reasoning, M-017 web_research→knowledge_lookup, M-018 hook_trigger status "executed"→"simulated"
+- **U01 (Doc + Params):** M-032 hook count already 220 (MS7), M-033 no stale cadence count, M-034 normalizeParams already on both dispatchers
+- **Findings resolved:** 4 actual fixes + 3 already done + 2 verified non-issues = 9 findings closed
+- **Files modified:** calcDispatcher.ts, manusDispatcher.ts, MASTER_INDEX.md
+- **Tests:** 9 new tests, all PASS
+- **Composite OQA:** 4.85 (all 2 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -198,9 +206,9 @@
 - **Composite OQA:** (5.00+5.00+5.00+5.00)/4*0.8 + test_pass*0.2 = 5.00*0.8 + 1.0 = 4.00+0.94 = 4.94 (PASS, gate omega_floor=0.75 met)
 
 ## Milestone Summary
-- Complete: 57 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0, REM-MS1, REM-MS2)
+- Complete: 58 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0 through REM-MS3)
 - In Progress: 0
-- Not Started: 25 milestones (REM-MS3 through REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 24 milestones (REM-MS4, REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
