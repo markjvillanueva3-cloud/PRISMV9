@@ -1,0 +1,46 @@
+{
+  "id": "REM-MS1",
+  "title": "Functional Gap Remediation",
+  "track": "REM",
+  "status": "complete",
+  "description": "Fix functional gaps identified during QA audit: bridge dispatcher wiring, physics formula corrections, calculation exposure gaps",
+  "units": [
+    {
+      "id": "REM-MS1-U00",
+      "title": "Bridge Dispatcher Wiring + SLD Formula Correction",
+      "status": "complete",
+      "findings_resolved": ["C-005", "M-006"],
+      "files": ["src/index.ts", "src/engines/PhysicsPredictionEngine.ts"]
+    },
+    {
+      "id": "REM-MS1-U01",
+      "title": "WireEDM Skim Speed + Johnson-Cook Strain Rate Ref + Surface Finish Operation",
+      "status": "complete",
+      "findings_resolved": ["M-007", "M-008", "M-010"],
+      "files": ["src/engines/WireEDMSettingsEngine.ts", "src/engines/ManufacturingCalculations.ts", "src/tools/dispatchers/calcDispatcher.ts"]
+    },
+    {
+      "id": "REM-MS1-U02",
+      "title": "Merchant's Circle Decomposition + Drilling Force Exposure + Toolpath Verification",
+      "status": "complete",
+      "findings_resolved": ["M-009", "M-012", "M-015"],
+      "files": ["src/engines/ManufacturingCalculations.ts", "src/tools/dispatchers/calcDispatcher.ts"]
+    }
+  ],
+  "dependencies": ["REM-MS0"],
+  "deliverables": [
+    "state/REM-MS1/unit00-bridge-sld.json",
+    "state/REM-MS1/unit01-wireedm-jc-surffinish.json",
+    "state/REM-MS1/unit02-merchant-drilling-toolpath.json"
+  ],
+  "composite_omega": "4.92",
+  "gate_pass": true,
+  "summary": {
+    "findings_total": 8,
+    "critical_fixed": 1,
+    "major_fixed": 6,
+    "already_wired": 1,
+    "files_modified": 6,
+    "ts_errors": 0
+  }
+}

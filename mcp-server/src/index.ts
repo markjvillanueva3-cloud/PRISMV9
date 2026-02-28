@@ -87,6 +87,7 @@ import { registerTenantDispatcher } from "./tools/dispatchers/tenantDispatcher.j
 
 // PROTOCOL BRIDGE: Multi-protocol Gateway (Dispatcher #31) — F7
 import { registerBridgeDispatcher } from "./tools/dispatchers/bridgeDispatcher.js";
+import { protocolBridgeEngine } from "./engines/ProtocolBridgeEngine.js";
 
 // R3: Intelligence Engine — Compound Actions (Dispatcher #32)
 import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
@@ -492,7 +493,17 @@ async function registerTools(): Promise<void> {
     log.info(`[SYNERGY] ${synResult.integrations.length} integrations active`);
   } catch (e) { log.warn(`[SYNERGY] Init skipped: ${(e as Error).message}`); }
 
-  
+  // C-005 FIX: Wire bridge dispatch handler for live routing to PRISM dispatchers
+  protocolBridgeEngine.setDispatchHandler(async (dispatcher: string, action: string, params: Record<string, unknown>) => {
+    const tools = (server as any)._registeredTools;
+    const tool = tools?.[dispatcher];
+    if (!tool) throw new Error(`Bridge routing failed: dispatcher '${dispatcher}' not registered`);
+    const result = await (server as any).executeToolHandler(tool, { action, params }, {});
+    const text = result?.content?.[0]?.text;
+    return text ? JSON.parse(text) : result;
+  });
+  log.info('[BRIDGE] Dispatch handler wired — live routing to all PRISM dispatchers enabled');
+
   // Restore original server.tool and report auto-hook stats
   (server as any).tool = originalTool;
   log.info(`[AUTO-HOOK] ${universalHookCount} dispatchers wrapped with UNIVERSAL hooks (before/after/cadence/error)`);

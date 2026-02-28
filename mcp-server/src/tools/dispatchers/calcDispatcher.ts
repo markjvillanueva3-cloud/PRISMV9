@@ -26,7 +26,9 @@ import {
   type CuttingConditions,
   type KienzleCoefficients,
   type TaylorCoefficients,
-  type JohnsonCookParams
+  type JohnsonCookParams,
+  calculateDrillingForce,
+  type DrillingConditions
 } from "../../engines/ManufacturingCalculations.js";
 
 import {
@@ -142,6 +144,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { deflection_mm: result.static_deflection, safe: result.safe };
     case "thermal":
       return { T_tool_C: result.tool_temperature, T_chip_C: result.chip_temperature };
+    case "drilling_force":
+      return { Fc_N: result.Fc, Ff_N: result.Ff, torque_Nm: result.torque, power_kW: result.power };
     case "cost_optimize":
       return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
     case "multi_optimize":
@@ -240,6 +244,7 @@ const ACTIONS = [
   "unified_machining_model", "coupling_sensitivity",
   "optimize_parameters", "optimize_sequence", "sustainability_report", "eco_optimize",
   "fixture_recommend",
+  "drilling_force",
   "algorithm_calculate", "algorithm_validate", "algorithm_list",
   "algorithm_info", "algorithm_batch", "algorithm_benchmark"
 ] as const;
@@ -495,12 +500,14 @@ export function registerCalcDispatcher(server: any): void {
           }
           
           case "surface_finish": {
+            // M-010 fix: pass operation parameter to engine
             result = calculateSurfaceFinish(
               params.feed,
               params.nose_radius,
               params.is_milling || false,
               params.radial_depth,
-              params.tool_diameter
+              params.tool_diameter,
+              params.operation
             );
             break;
           }
@@ -587,7 +594,28 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
+          case "drilling_force": {
+            const drillCond: DrillingConditions = {
+              drill_diameter: params.drill_diameter || params.tool_diameter,
+              feed_per_rev: params.feed_per_rev,
+              cutting_speed: params.cutting_speed,
+              point_angle_deg: params.point_angle_deg,
+              chisel_edge_factor: params.chisel_edge_factor
+            };
+            let drillCoeffs: KienzleCoefficients | undefined;
+            if (params.kc1_1 && params.mc) {
+              drillCoeffs = { kc1_1: params.kc1_1, mc: params.mc };
+            } else if (params.material_id || params.material) {
+              const mat = await getMat(params.material_id || params.material);
+              if (mat?.kienzle) {
+                drillCoeffs = { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc };
+              }
+            }
+            result = calculateDrillingForce(drillCond, drillCoeffs);
+            break;
+          }
+
           case "cost_optimize": {
             const costParams: CostParameters = {
               machine_rate: params.machine_rate,

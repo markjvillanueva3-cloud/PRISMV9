@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 COMPLETE (4 units, 7 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.1.0 (81 milestones, 55 complete)
-**Aggregate OQA:** 4.32 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 22 code fixes total
-**Next Recommended:** REM-MS1 (Functional Remediation) or S3 (SFC Calculator UI)
+**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 + REM-MS1 COMPLETE (7 units, 15 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 56 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 29 code fixes total
+**Next Recommended:** REM-MS2 (Security Hardening) or S3 (SFC Calculator UI)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -14,6 +14,14 @@
 - **Findings resolved:** 4 CRITICAL (C-001..C-004), 3 MAJOR (M-001, M-002, M-005)
 - **Files modified:** PostProcessorEngine.ts, threadTools.ts
 - **Composite Ω_REM:** 4.94 (all 4 units PASS)
+
+## REM-MS1 Functional Gap Remediation (2026-02-28)
+- **U00 (Bridge + SLD):** C-005 bridge dispatch handler wired via _registeredTools + executeToolHandler(), M-006 SLD formula replaced with Altintas-Budak FRF model
+- **U01 (WireEDM + J-C + SurfFinish):** M-007 skim speed formula inverted (2.0-i*0.3 -> 0.8-i*0.15), M-008 strain_rate_ref made configurable, M-010 operation param passed to calculateSurfaceFinish()
+- **U02 (Merchant + Drilling + Toolpath):** M-009 fixed ISO-group ratios replaced with Ernst-Merchant trigonometric decomposition, M-012 drilling_force action wired to calcDispatcher, M-015 toolpath already wired via camDispatcher
+- **Findings resolved:** 1 CRITICAL (C-005), 6 MAJOR (M-006..M-010, M-012), 1 already wired (M-015)
+- **Files modified:** index.ts, PhysicsPredictionEngine.ts, WireEDMSettingsEngine.ts, ManufacturingCalculations.ts, calcDispatcher.ts
+- **Composite OQA:** 4.92 (all 3 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -182,9 +190,9 @@
 - **Composite OQA:** (5.00+5.00+5.00+5.00)/4*0.8 + test_pass*0.2 = 5.00*0.8 + 1.0 = 4.00+0.94 = 4.94 (PASS, gate omega_floor=0.75 met)
 
 ## Milestone Summary
-- Complete: 54 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14)
+- Complete: 56 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0, REM-MS1)
 - In Progress: 0
-- Not Started: 26 milestones (S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 26 milestones (REM-MS2 through REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |

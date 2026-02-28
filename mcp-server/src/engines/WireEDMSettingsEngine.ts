@@ -83,10 +83,11 @@ export class WireEDMSettingsEngine {
     else if (input.target_surface_finish_Ra_um > 0.4) numSkims = 3;
     else numSkims = 4;
 
-    // Skim cut speeds (each progressively slower)
+    // Skim cut speeds — each progressively slower than rough cut for finer finish
+    // M-007 fix: was (2.0 - i*0.3) giving speeds ABOVE rough cut — inverted
     const skimSpeeds: number[] = [];
     for (let i = 0; i < numSkims; i++) {
-      skimSpeeds.push(Math.round(firstCutSpeed * (2.0 - i * 0.3) * 10) / 10);
+      skimSpeeds.push(Math.round(firstCutSpeed * Math.max(0.2, 0.8 - i * 0.15) * 10) / 10);
     }
 
     // Total wire offset: wire_radius + spark_gap + skim_offset

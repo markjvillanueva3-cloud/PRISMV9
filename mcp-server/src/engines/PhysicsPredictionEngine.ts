@@ -549,29 +549,42 @@ export function predictChatter(input: ChatterInput): ChatterResult {
     ks = input.radial_depth_mm / D; // Side milling
   }
 
-  // Stability lobe diagram generation
+  // Stability lobe diagram — Altintas-Budak (1995) single-DOF model
+  // M-006 fix: replaced incorrect Lambda_R/epsilon approach with proper FRF-based computation
   const sld_rpm: number[] = [];
   const sld_depth: number[] = [];
   const stablePockets: number[] = [];
+  const omega_n = fn * 2 * Math.PI; // natural frequency in rad/s
 
   for (let lobe = 0; lobe < 15; lobe++) {
-    for (let phase = 0; phase < 20; phase++) {
-      const epsilon = (phase / 20) * Math.PI;
-      const omega_c = fn * 2 * Math.PI; // rad/s
-      const kappa = Math.atan2(2 * damping * (omega_c / (omega_c + 0.01)), 1);
-      const n_lobe = lobe;
+    for (let step = 1; step <= 40; step++) {
+      // Sweep frequency ratio r = ω/ωn (only above resonance where G_real < 0)
+      const r = 0.5 + step * 0.05; // r from 0.55 to 2.50
+      const omega = r * omega_n;
 
-      const rpm_point = (60 * omega_c / (2 * Math.PI)) / (n_lobe + epsilon / (2 * Math.PI) + 1e-10);
+      // Single-DOF FRF: G(iω) = 1/(k * ((1-r²) + i·2ζr))
+      const r2 = r * r;
+      const denom = (1 - r2) * (1 - r2) + (2 * damping * r) * (2 * damping * r);
+      const G_real = (1 - r2) / (k * denom);
+      const G_imag = -(2 * damping * r) / (k * denom);
+
+      // Stable lobes only where G_real < 0 (above resonance)
+      if (G_real >= 0) continue;
+
+      // Critical depth: a_lim = -1 / (2 · Nt · Kt · ks · G_real)
+      const a_lim = -1 / (2 * z * Kt * ks * G_real);
+      if (a_lim <= 0 || a_lim > 50) continue;
+
+      // Phase angle for spindle speed: κ = π - 2·arctan(G_real / G_imag)
+      const kappa = Math.PI - 2 * Math.atan2(G_real, G_imag);
+
+      // Spindle speed: N = 60·f / (n + κ/(2π))
+      const f_hz = omega / (2 * Math.PI);
+      const rpm_point = (60 * f_hz) / (lobe + kappa / (2 * Math.PI) + 1e-10);
       if (rpm_point < 1000 || rpm_point > 30000) continue;
 
-      // Critical depth at this RPM
-      const Lambda_R = -1 / (2 * k * ks + 1e-10);
-      const ap_lim = -1 / (2 * Kt * z * Lambda_R * (1 + Math.pow(Math.tan(epsilon), 2) + 1e-10));
-
-      if (ap_lim > 0 && ap_lim < 50) {
-        sld_rpm.push(+rpm_point.toFixed(0));
-        sld_depth.push(+ap_lim.toFixed(3));
-      }
+      sld_rpm.push(+rpm_point.toFixed(0));
+      sld_depth.push(+a_lim.toFixed(3));
     }
   }
 

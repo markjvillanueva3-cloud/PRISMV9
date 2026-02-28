@@ -1,0 +1,69 @@
+{
+  "unit": "REM-MS1-U00",
+  "title": "Bridge Dispatcher Wiring + SLD Formula Correction",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T17:00:00Z",
+  "status": "PASS",
+  "scope": "Fix C-005 (bridge never wired) and M-006 (SLD formula non-standard)",
+  "findings": [
+    {
+      "id": "C-005",
+      "severity": "CRITICAL",
+      "title": "Bridge dispatcher setDispatchHandler() never called — all route calls return _simulated:true",
+      "status": "FIXED",
+      "fix": "Wired setDispatchHandler() in index.ts after all dispatchers registered, using McpServer._registeredTools + executeToolHandler() for internal routing",
+      "file": "src/index.ts",
+      "changes": [
+        "Added import: protocolBridgeEngine from ProtocolBridgeEngine.js",
+        "Added setDispatchHandler() call after synergy init block",
+        "Handler looks up dispatcher via server._registeredTools[dispatcher]",
+        "Invokes server.executeToolHandler() with {action, params}",
+        "Parses JSON text response back to object"
+      ]
+    },
+    {
+      "id": "M-006",
+      "severity": "MAJOR",
+      "title": "PhysicsPredictionEngine SLD formula uses constant Lambda_R and incorrect epsilon phase sweep",
+      "status": "FIXED",
+      "fix": "Replaced with proper Altintas-Budak single-DOF FRF model: G_real/G_imag frequency response, kappa phase angle, correct spindle speed mapping",
+      "file": "src/engines/PhysicsPredictionEngine.ts",
+      "changes": [
+        "G_real = (1-r²)/(k·denom), G_imag = -2ζr/(k·denom) where denom = (1-r²)² + (2ζr)²",
+        "a_lim = -1/(2·Nt·Kt·ks·G_real) — Altintas-Budak critical depth",
+        "kappa = π - 2·atan2(G_real, G_imag) — proper phase angle",
+        "N = 60·f/(n + κ/(2π)) — correct spindle speed lobe mapping",
+        "Removed old constant Lambda_R and incorrect epsilon sweep"
+      ]
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 5,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "spot_checks": [
+    {
+      "test": "Bridge dispatch handler wired",
+      "expected": "setDispatchHandler() called with working handler",
+      "actual": "Handler registered in index.ts after line 493, routes via _registeredTools lookup",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "SLD formula matches Altintas-Budak reference",
+      "expected": "FRF-based G(iω) with proper phase angle κ",
+      "actual": "Single-DOF FRF with G_real, G_imag, kappa = π - 2·arctan(G_real/G_imag)",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "TypeScript compiles clean",
+      "expected": "0 errors",
+      "actual": "0 errors",
+      "status": "VERIFIED"
+    }
+  ],
+  "notes": "Completeness 4/5: Bridge wiring uses internal McpServer API (_registeredTools) which may break on SDK upgrades. SLD formula correct but only implements SDOF model — multi-DOF FRF remains as enhancement."
+}

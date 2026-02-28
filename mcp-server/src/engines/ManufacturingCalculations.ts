@@ -123,6 +123,7 @@ export interface JohnsonCookParams {
   m: number;          // Thermal softening exponent
   T_melt: number;     // Melting temperature [°C]
   T_ref: number;      // Reference temperature [°C]
+  strain_rate_ref?: number;  // M-008: Reference strain rate [1/s] (default 1.0)
   material_id?: string;
 }
 
@@ -281,17 +282,21 @@ export function calculateKienzleCuttingForce(
   }
   
   // Forces — ratios vary by material group (Ref: Altintas "Manufacturing Automation" Table 2.2)
-  // N-group (aluminum/nonferrous): Ff/Fc≈0.3, Fp/Fc≈0.2
-  // P-group (steel): Ff/Fc≈0.4, Fp/Fc≈0.3
-  // M-group (stainless): Ff/Fc≈0.45, Fp/Fc≈0.35
-  // S-group (superalloys): Ff/Fc≈0.5, Fp/Fc≈0.4
-  // H-group (hardened): Ff/Fc≈0.35, Fp/Fc≈0.4
+  // M-009 fix: Merchant's circle trigonometric force decomposition
+  // Replaces fixed ISO-group ratios with physics-based calculation
+  // Friction coefficient μ varies by ISO group (empirical, Shaw 2005)
   const isoGroup = (coefficients as any).iso_group || "P";
-  const forceRatios: Record<string, [number, number]> = {
-    "N": [0.3, 0.2], "P": [0.4, 0.3], "M": [0.45, 0.35],
-    "K": [0.35, 0.25], "S": [0.5, 0.4], "H": [0.35, 0.4], "X": [0.4, 0.3]
+  const frictionCoeffs: Record<string, number> = {
+    "N": 0.35, "P": 0.50, "M": 0.55, "K": 0.45, "S": 0.60, "H": 0.45, "X": 0.50
   };
-  const [ffRatio, fpRatio] = forceRatios[isoGroup] || [0.4, 0.3];
+  const mu = frictionCoeffs[isoGroup] || 0.50;
+  const beta = Math.atan(mu);                                    // friction angle
+  const gamma = rake_angle * Math.PI / 180;                      // rake angle in radians
+  const phi = Math.PI / 4 - beta / 2 + gamma / 2;               // Ernst-Merchant shear angle
+  // Feed force ratio: Ff/Fc = tan(β - γ)  [Merchant's circle geometry]
+  const ffRatio = Math.abs(Math.tan(beta - gamma));
+  // Passive force ratio: Fp/Fc ≈ sin(β) / cos(φ + β - γ) × cos(γ) — simplified
+  const fpRatio = Math.max(0.1, Math.abs(Math.sin(beta) * Math.cos(gamma) / Math.cos(phi + beta - gamma)));
   const Fc_single = kc * b * h * rake_correction;
   const Fc_raw = Fc_single * z_e;  // Total avg force = single-tooth × engaged teeth
   const Ff = Fc_raw * ffRatio;
@@ -505,8 +510,9 @@ export function calculateJohnsonCookStress(
 ): { stress: number; components: { strain_term: number; rate_term: number; thermal_term: number }; warnings: string[] } {
   const warnings: string[] = [];
   const { A, B, n, C, m, T_melt, T_ref } = params;
-  
-  const strain_rate_ref = 1.0;
+
+  // M-008 fix: use params.strain_rate_ref if provided, not hardcoded 1.0
+  const strain_rate_ref = params.strain_rate_ref ?? 1.0;
   const strain_term = A + B * Math.pow(Math.max(strain, 0.001), n);
   const rate_ratio = Math.max(strain_rate / strain_rate_ref, 1);
   const rate_term = 1 + C * Math.log(rate_ratio);

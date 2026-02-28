@@ -1,9 +1,9 @@
 {
-  "version": "5.1.0",
-  "title": "PRISM App â€” Comprehensive Layered Roadmap",
-  "updated_at": "2026-02-27T12:00:00Z",
-  "total_milestones": 80,
-  "completed_milestones": 54,
+  "version": "5.2.0",
+  "title": "PRISM App \u2014 Comprehensive Layered Roadmap",
+  "updated_at": "2026-02-28T18:00:00Z",
+  "total_milestones": 82,
+  "completed_milestones": 56,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -170,7 +170,7 @@
     },
     {
       "id": "L0-P1-MS1",
-      "title": "Registry Enrichment â€” Full Coverage + DSL Integration",
+      "title": "Registry Enrichment -- Full Coverage + DSL Integration",
       "track": "L0",
       "dependencies": [
         "L0-P0-MS2"
@@ -422,7 +422,7 @@
     },
     {
       "id": "L6-P0-MS1",
-      "title": "Core REST API â€” 9 Route Modules, 42 Endpoints",
+      "title": "Core REST API -- 9 Route Modules, 42 Endpoints",
       "track": "L6",
       "dependencies": [
         "L5-P1-MS1"
@@ -450,7 +450,7 @@
     },
     {
       "id": "L7-P0-MS1",
-      "title": "Phase Gate â€” Zero TS Errors",
+      "title": "Phase Gate -- Zero TS Errors",
       "track": "L7",
       "dependencies": [
         "L6-P1-MS1"
@@ -464,7 +464,7 @@
     },
     {
       "id": "L8-P0-MS1",
-      "title": "PPG Product â€” Post Processor Generator",
+      "title": "PPG Product -- Post Processor Generator",
       "track": "L8",
       "dependencies": [
         "L7-P0-MS1"
@@ -520,7 +520,7 @@
     },
     {
       "id": "L8-P0-MS2",
-      "title": "PPG Web UI â€” Post Processor Generator Interface",
+      "title": "PPG Web UI -- Post Processor Generator Interface",
       "track": "L8",
       "dependencies": [
         "L8-P0-MS1"
@@ -951,7 +951,7 @@
     },
     {
       "id": "QA-MS4",
-      "title": "Algorithm Suite Part 1 â€” Physics Models",
+      "title": "Algorithm Suite Part 1 -- Physics Models",
       "track": "QA",
       "dependencies": [
         "QA-MS3"
@@ -964,7 +964,7 @@
     },
     {
       "id": "QA-MS5",
-      "title": "Algorithm Suite Part 2 â€” Optimization & ML",
+      "title": "Algorithm Suite Part 2 -- Optimization & ML",
       "track": "QA",
       "dependencies": [
         "QA-MS4"
@@ -1117,6 +1117,18 @@
         "QA-MS14"
       ],
       "description": "Fix all CRITICAL and safety-related MAJOR findings from QA audit: 5-axis work envelope, post-processor canned cycles + 5-axis G-code, RTCP tolerance, thread stripping wiring"
+    },
+    {
+      "id": "REM-MS1",
+      "title": "Functional Gap Remediation",
+      "track": "REM",
+      "status": "complete",
+      "units": 3,
+      "envelope": "milestones/REM-MS1.json",
+      "dependencies": [
+        "REM-MS0"
+      ],
+      "description": "Fix functional gaps: bridge dispatcher wiring, SLD formula correction, WireEDM skim speed, Johnson-Cook strain_rate_ref, surface finish operation param, Merchant's circle trigonometry, drilling force exposure"
     }
   ]
 }
