@@ -53,17 +53,17 @@
 - **Composite OQA:** (4.40+3.55+4.75+4.75+4.75+4.75)/6*0.8 + test_pass*0.2 = 4.49*0.8 + 1.0 = 4.59 (PASS, gate omega_floor=0.75 met)
 
 ## QA-MS5 Optimization & ML Results (2026-02-28)
-- **U00 (Registry Reconciliation):** 50 TS algorithms in ALGORITHM_REGISTRY + 10 legacy JS in AlgorithmGatewayEngine, 3 overlaps (ACO, PID, FFT) (OQA=4.75 PASS)
-- **U01 (Genetic/Evolutionary):** 4 algorithms (GA/NSGA-II, SA/Metropolis, PSO/Clerc-Kennedy, ACO/TSP), all mulberry32 seeded, tournament/crossover/mutation verified (OQA=5.00 PASS)
-- **U02 (Gradient/Optimization):** No gradient descent -- Bayesian GP+EI/UCB/PI, OLS Normal Equation, Natural Cubic Spline. Appropriate for manufacturing (OQA=5.00 PASS)
-- **U03 (Monte Carlo):** Box-Muller normal, 4 distributions, Sobol first-order sensitivity, z-based CI at 90/95/99%, seeded PRNG (OQA=5.00 PASS)
-- **U04 (ML Inference):** 6 algorithms (NeuralInference, Ensemble 3-strategy, DecisionTree CART, K-Means++, Holt DES, AnomalyDetector SPC+WE rules) (OQA=5.00 PASS)
+- **U00 (Registry Reconciliation):** 50 TS algorithms in ALGORITHM_REGISTRY + 10 legacy JS in AlgorithmRegistry, 100% file-to-registry match, 3 overlaps (ACO, PID, FFT) (OQA=5.00 PASS)
+- **U01 (Genetic/Evolutionary):** GA/NSGA-II (no elitism), SA/Metropolis 3 cooling schedules, PSO/Clerc-Kennedy constriction -- all correct, MINOR: uniform crossover not SBX (OQA=4.60 PASS)
+- **U02 (Gradient/Optimization):** Inline GD with log-domain Taylor + central FD, Bayesian GP+EI/UCB/PI, MINOR: no dedicated GD Algorithm class, absolute convergence (OQA=4.60 PASS)
+- **U03 (Monte Carlo):** mulberry32 PRNG, Box-Muller + 3 distributions, Bessel-corrected variance, Sobol correlation-ratio sensitivity, MINOR: hardcoded product output fn (OQA=4.75 PASS)
+- **U04 (ML Inference):** 6 algorithms (NeuralInference MLP, Ensemble 3-strategy, DecisionTree CART, K-Means++, Holt DES, AnomalyDetector SPC+WE), MINOR: no NN normalization (OQA=4.75 PASS)
 - **U05 (SPC/Control):** 4 algorithms (AdaptiveController 4-mode CRITICAL safety, KalmanFilter NIS, PID Z-N auto-tune, Fuzzy Mamdani centroid) (OQA=5.00 PASS)
-- **U06 (Cost/Scheduling):** 3 algorithms (DP multi-pass Bellman, ILP Hungarian+local search, CSP Kahn topological sort) (OQA=5.00 PASS)
-- **U07 (Algorithm Wiring):** 100% coverage -- all 50 algorithms wired via AlgorithmEngine, 3 secondary consumers, calcDispatcher entry point (OQA=5.00 PASS)
-- **Tests:** 1080 passed (32 files), build 6.6MB clean
+- **U06 (Cost/Scheduling):** 3 algorithms (DP multi-pass Bellman, ILP simplified Hungarian+local search, CSP Kahn topo-sort), MINOR: ILP not full Kuhn-Munkres (OQA=4.75 PASS)
+- **U07 (Algorithm Wiring):** 100% coverage -- all 50 algorithms wired via AlgorithmEngine, 4 secondary consumers, calcDispatcher entry point (OQA=5.00 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
 - **Fixes applied:** 0 code changes (all algorithms clean)
-- **Composite OQA:** (4.75+5+5+5+5+5+5+5)/8*0.8 + test_pass*0.2 = 4.97*0.8 + 1.0 = 4.97 (PASS, gate omega_floor=0.75 met)
+- **Composite OQA:** (5.00+4.60+4.60+4.75+4.75+5.00+4.75+5.00)/8*0.8 + test_pass*0.2 = 4.81*0.8 + 1.0 = 4.85 (PASS, gate omega_floor=0.75 met)
 
 ## Milestone Summary
 - Complete: 45 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5)
@@ -78,7 +78,7 @@
 | QA-MS2 | Omega/Guard/Ralph/GSD | 6 | **COMPLETE** (GSD counts fixed, 3 code fixes) |
 | QA-MS3 | Core Calculation Engines | 7 | **COMPLETE** (SpeedFeed fix, 1 code change) |
 | QA-MS4 | Physics Algorithms | 6 | **COMPLETE** (Merchant gap, J-C eps_dot mismatch, 1 code fix) |
-| QA-MS5 | Optimization & ML | 8 | **COMPLETE** (0 code fixes, OQA=4.97) |
+| QA-MS5 | Optimization & ML | 8 | **COMPLETE** (0 code fixes, OQA=4.85) |
 | QA-MS6 | Intelligence Mega-Dispatcher | 8 | not started |
 | QA-MS7 | Registry & Data Quality | 7 | not started |
 | QA-MS8 | Manufacturing Dispatchers | 5 | not started |
