@@ -1,45 +1,70 @@
 {
-  "version": "10.0-FULLY-ENHANCED",
-  "generated": "2026-02-27T14:22:16.147706",
-  "total_materials": 6346,
+  "version": "10.2-DEEP-ACCURACY",
+  "generated": "2026-02-27T23:03:56.096408",
+  "total_materials": 6353,
+  "parameter_count": 165,
   "physics_complete": true,
   "safety_factor": 1.0,
-  "enhancement_method": "Batch physics correlation + handbook validation (v10)",
-  "categories": {
-    "H_HARDENED": {
-      "total": 363,
-      "enhanced": 363,
-      "physics_complete": true
+  "enhancement_method": "Batch physics correlation + handbook validation (v10) + deep accuracy pass v2 (composition matching, subcategory-specific coefficients)",
+  "deep_accuracy": {
+    "version": "v2",
+    "date": "2026-02-27",
+    "composition_coverage": {
+      "metals": "100.0%",
+      "overall": "83.5%",
+      "compositions_in_db": 775,
+      "matching_strategies": 39
     },
-    "K_CAST_IRON": {
-      "total": 122,
-      "enhanced": 122,
-      "physics_complete": true
+    "confidence_distribution": {
+      "HIGH": "~45%",
+      "SUBCATEGORY_SPECIFIC": "~40%",
+      "MEDIUM_HIGH": "~10%",
+      "MEDIUM": "~4%",
+      "LOW": "<1%"
+    }
+  },
+  "categories": {
+    "P_STEELS": {
+      "total": 2720,
+      "enhanced": 2720,
+      "physics_complete": true,
+      "composition_matched": 2720
     },
     "M_STAINLESS": {
-      "total": 822,
-      "enhanced": 822,
-      "physics_complete": true
+      "total": 823,
+      "enhanced": 823,
+      "physics_complete": true,
+      "composition_matched": 823
+    },
+    "K_CAST_IRON": {
+      "total": 123,
+      "enhanced": 123,
+      "physics_complete": true,
+      "composition_matched": 123
     },
     "N_NONFERROUS": {
-      "total": 931,
-      "enhanced": 931,
-      "physics_complete": true
-    },
-    "P_STEELS": {
-      "total": 2719,
-      "enhanced": 2719,
-      "physics_complete": true
+      "total": 932,
+      "enhanced": 932,
+      "physics_complete": true,
+      "composition_matched": 932
     },
     "S_SUPERALLOYS": {
-      "total": 132,
-      "enhanced": 132,
-      "physics_complete": true
+      "total": 133,
+      "enhanced": 133,
+      "physics_complete": true,
+      "composition_matched": 133
+    },
+    "H_HARDENED": {
+      "total": 364,
+      "enhanced": 364,
+      "physics_complete": true,
+      "composition_matched": 364
     },
     "X_SPECIALTY": {
-      "total": 1257,
-      "enhanced": 1257,
-      "physics_complete": true
+      "total": 1258,
+      "enhanced": 1258,
+      "physics_complete": true,
+      "composition_matched": 90
     }
   },
   "physics_mode": "accurate",

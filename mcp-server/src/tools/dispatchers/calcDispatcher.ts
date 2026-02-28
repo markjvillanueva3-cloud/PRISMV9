@@ -399,10 +399,10 @@ export function registerCalcDispatcher(server: any): void {
               if (mat?.kienzle) {
                 const k = mat.kienzle;
                 coefficients = {
-                  kc1_1: (k as any).kc1_1_milling || k.kc1_1,
-                  mc: (k as any).mc_milling || k.mc,
+                  kc1_1: k.kc1_1_milling || k.kc1_1,
+                  mc: k.mc_milling || k.mc,
                   iso_group: mat.iso_group,
-                  data_quality: (mat as any).data_quality
+                  data_quality: mat.data_quality
                 } as any;
               } else {
                 coefficients = getDefaultKienzle(params.material_group || "steel_medium_carbon");

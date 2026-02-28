@@ -36,10 +36,20 @@ export interface MaterialPhysical {
   melting_point?: number;
   melting_range_min?: number;
   melting_range_max?: number;
+  boiling_point?: number;
+  liquidus_temperature?: number;
+  solidus_temperature?: number;
+  latent_heat_fusion?: number;
   specific_heat?: number;
+  thermal_conductivity?: number;
+  thermal_expansion?: number;
   electrical_resistivity?: number;
   magnetic_permeability?: number;
-  poissons_ratio?: number;
+  poisson_ratio?: number;
+  poissons_ratio?: number;  // legacy alias
+  elastic_modulus?: number;
+  shear_modulus?: number;
+  bulk_modulus?: number;
 }
 
 export interface MaterialHardness {
@@ -49,16 +59,28 @@ export interface MaterialHardness {
   vickers?: number;
 }
 
+export interface MaterialStrengthRange {
+  typical?: number;
+  min?: number;
+  max?: number;
+}
+
 export interface MaterialMechanical {
   hardness: MaterialHardness;
-  tensile_strength?: number;
-  yield_strength?: number;
+  tensile_strength?: number | MaterialStrengthRange;
+  yield_strength?: number | MaterialStrengthRange;
   elongation?: number;
   reduction_of_area?: number;
   elastic_modulus?: number;
   shear_modulus?: number;
   fatigue_strength?: number;
   impact_strength?: number;
+  fracture_toughness?: number;
+  compressive_strength?: number;
+  true_fracture_stress?: number;
+  true_fracture_strain?: number;
+  strain_rate_sensitivity?: number;
+  shear_strength?: number;
 }
 
 export interface MaterialThermal {
@@ -67,6 +89,11 @@ export interface MaterialThermal {
   thermal_expansion?: number;
   max_service_temp?: number;
   min_service_temp?: number;
+  cutting_temperature_factor?: number;
+  heat_partition_ratio?: number;
+  thermal_softening_onset?: number;
+  hot_hardness_retention?: "poor" | "low" | "moderate" | "good" | "excellent";
+  cryogenic_machinability?: "poor" | "fair" | "good" | "excellent" | "not_applicable";
 }
 
 export interface MaterialSpeedRange {
@@ -92,6 +119,14 @@ export interface MaterialMachining {
 export interface KienzleCoefficients {
   kc1_1: number;
   mc: number;
+  kc1_1_milling?: number;
+  mc_milling?: number;
+  kc1_1_drilling?: number;
+  mc_drilling?: number;
+  kc1_1_boring?: number;
+  mc_boring?: number;
+  kc1_1_reaming?: number;
+  mc_reaming?: number;
   kc1_1_axial?: number;
   mc_axial?: number;
   gamma_correction?: number;
@@ -113,15 +148,170 @@ export interface JohnsonCookParams {
 export interface TaylorParams {
   C: number;
   n: number;
+  C_carbide?: number;
+  n_carbide?: number;
+  C_ceramic?: number;
+  n_ceramic?: number;
+  C_cbn?: number;
+  n_cbn?: number;
+  C_hss?: number;
+  n_hss?: number;
   reference_tool_life?: number;
   reference_speed?: number;
 }
 
 export interface TribologyParams {
+  friction_coefficient?: number;
   friction_coefficient_dry?: number;
+  friction_coefficient_flood?: number;
+  friction_coefficient_mql?: number;
   friction_coefficient_lubricated?: number;
+  wear_coefficient?: number;
   adhesion_tendency?: "none" | "low" | "moderate" | "high" | "severe";
+  abrasiveness?: "none" | "low" | "moderate" | "high" | "extreme";
   galling_tendency?: "none" | "low" | "moderate" | "high" | "severe";
+  crater_wear_coefficient?: number;
+  flank_wear_coefficient?: number;
+}
+
+export interface ChipFormationParams {
+  chip_type?: "continuous" | "continuous_with_bue" | "segmented" | "discontinuous" | "serrated" | "shear_localized";
+  chip_breaking?: "excellent" | "good" | "fair" | "poor" | "very_poor";
+  shear_angle?: number;
+  chip_compression_ratio?: number;
+  built_up_edge_tendency?: "none" | "low" | "moderate" | "high" | "severe";
+  segmentation_frequency?: "none" | "low" | "moderate" | "high";
+  min_chip_thickness?: number;
+  edge_radius_sensitivity?: "low" | "moderate" | "high" | "very_high";
+}
+
+export interface ThermalMachiningParams {
+  thermal_diffusivity?: number;
+  heat_partition_coefficient?: number;
+  critical_temperature?: number;
+  recrystallization_temperature?: number;
+  phase_transformation_temperature?: number;
+  maximum_cutting_temperature?: number;
+  emissivity?: number;
+  heat_transfer_coefficient?: number;
+}
+
+export interface SurfaceIntegrityParams {
+  residual_stress_tendency?: "compressive" | "neutral" | "tensile" | "variable";
+  work_hardening_depth?: number;
+  white_layer_risk?: "none" | "low" | "moderate" | "high";
+  surface_roughness_achievable?: number;
+  burr_formation_tendency?: "none" | "low" | "moderate" | "high" | "severe";
+  microstructure_sensitivity?: "none" | "low" | "moderate" | "high";
+  minimum_uncut_chip_thickness?: number;
+  ploughing_force_coefficient?: number;
+}
+
+export interface MachinabilityParams {
+  aisi_rating?: number;
+  relative_to_1212?: number;
+  machinability_index?: number;
+  power_constant?: number;
+  unit_power?: number;
+}
+
+export interface CuttingRecommendationBlock {
+  speed_roughing?: number;
+  speed_finishing?: number;
+  feed_roughing?: number;
+  feed_finishing?: number;
+  feed_per_tooth_roughing?: number;
+  feed_per_tooth_finishing?: number;
+  doc_roughing?: number;
+  doc_finishing?: number;
+  woc_roughing?: number;
+  woc_finishing?: number;
+  speed?: number;
+  feed_per_rev?: number;
+  peck_depth_ratio?: number;
+  coolant_through?: boolean;
+}
+
+export interface CuttingRecommendations {
+  turning?: CuttingRecommendationBlock;
+  milling?: CuttingRecommendationBlock;
+  drilling?: CuttingRecommendationBlock;
+  tool_material?: {
+    recommended_grade?: string;
+    coating_recommendation?: string;
+    geometry_recommendation?: string;
+  };
+  coolant?: {
+    type?: string;
+    pressure?: number;
+    flow_rate?: number;
+  };
+}
+
+export interface SurfaceParams {
+  achievable_ra_turning?: number;
+  achievable_ra_milling?: number;
+  achievable_ra_grinding?: number;
+  surface_integrity_sensitivity?: "low" | "moderate" | "high" | "very_high";
+  white_layer_risk?: "none" | "low" | "moderate" | "high";
+}
+
+export interface ProcessSpecificParams {
+  grinding_ratio?: number;
+  edm_machinability?: number;
+  laser_absorptivity?: number;
+  weldability_rating?: "excellent" | "good" | "fair" | "poor" | "not_recommended";
+}
+
+export interface WeldabilityParams {
+  rating?: "excellent" | "good" | "fair" | "poor" | "not_recommended";
+  preheat_temperature?: number;
+  postweld_treatment?: string;
+}
+
+export interface MaterialStatistics {
+  dataPoints?: number;
+  confidenceLevel?: number;
+  standardDeviation?: Record<string, number>;
+  sources?: string[];
+  lastValidated?: string;
+  reliability?: string;
+}
+
+export interface ConfidenceEntry {
+  confidence?: "VERIFIED" | "HIGH" | "SUBCATEGORY_SPECIFIC" | "MEDIUM_HIGH" | "MEDIUM" | "PARAMETRIC_MODEL" | "LOW";
+  source?: string;
+}
+
+export interface AccuracyMetadata {
+  pass?: string;
+  date?: string;
+  alloy_match?: string;
+  match_method?: string;
+  match_quality?: number;
+  subcategory_resolved?: string;
+  overall_confidence?: string;
+  has_composition?: boolean;
+  v2_corrections?: number;
+  johnson_cook?: ConfidenceEntry;
+  kienzle?: ConfidenceEntry;
+  taylor?: ConfidenceEntry;
+  chip_formation?: ConfidenceEntry;
+  cutting_recommendations?: ConfidenceEntry;
+  tribology?: ConfidenceEntry;
+  surface_integrity?: ConfidenceEntry;
+  thermal_machining?: ConfidenceEntry;
+  thermal_conductivity?: ConfidenceEntry;
+  physical_properties?: ConfidenceEntry;
+}
+
+export interface VerificationMetadata {
+  session?: number;
+  date?: string;
+  method?: string;
+  params?: number;
+  prior_method?: string | null;
+  prior_params?: number | null;
 }
 
 export interface MaterialMetadata {
@@ -138,46 +328,68 @@ export interface Material {
   id: string;
   material_id?: string;  // Alias for id
   name: string;
-  
+
   // Classification
   iso_group: IsoMaterialGroup;
   category: MaterialCategory;
   subcategory?: string;
-  
+  material_type?: string;
+  iso_p_equivalent?: string;
+
   // Classification object (alternative structure)
   classification?: {
     iso_group?: string;
     category?: string;
     subcategory?: string;
   };
-  
+
   // Designations
   designation?: MaterialDesignation;
   common_names?: string[];
-  condition?: MaterialCondition;
-  
-  // Properties
+  condition?: MaterialCondition | string;
+
+  // Core properties
   physical: MaterialPhysical;
   mechanical: MaterialMechanical;
   thermal: MaterialThermal;
   machining: MaterialMachining;
-  
+
   // Advanced coefficients
   kienzle?: KienzleCoefficients;
   johnson_cook?: JohnsonCookParams;
   taylor?: TaylorParams;
   tribology?: TribologyParams;
-  
-  // Chemistry
+
+  // Extended machining characteristics (v10 deep accuracy)
+  chip_formation?: ChipFormationParams;
+  thermal_machining?: ThermalMachiningParams;
+  surface_integrity?: SurfaceIntegrityParams;
+  machinability?: MachinabilityParams;
+  cutting_recommendations?: CuttingRecommendations;
+  surface?: SurfaceParams;
+  process_specific?: ProcessSpecificParams;
+  weldability?: WeldabilityParams;
+
+  // Chemistry / Composition
   chemistry?: Record<string, number>;
-  
+  composition?: Record<string, number>;
+
+  // Data quality
+  data_quality?: string;
+  data_sources?: string[];
+  statistics?: MaterialStatistics;
+  standards?: Record<string, string>;
+  param_count?: number;
+
   // Usage
   applications?: string[];
   notes?: string;
   sources?: string[];
-  
+
   // Metadata
   metadata: MaterialMetadata;
+  _verified?: VerificationMetadata;
+  _accuracy?: AccuracyMetadata;
 }
 
 // ============================================================================

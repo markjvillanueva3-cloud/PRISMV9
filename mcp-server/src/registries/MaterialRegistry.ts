@@ -224,16 +224,16 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       }
       
       // Index by ISO group — check both classification.iso_group AND top-level iso_group
-      const iso = material.classification?.iso_group || (material as any).iso_group;
+      const iso = material.classification?.iso_group || material.iso_group;
       if (iso) {
         if (!this.indexByISO.has(iso)) {
           this.indexByISO.set(iso, []);
         }
         this.indexByISO.get(iso)!.push(id);
       }
-      
+
       // Index by category — check classification.category, material_type, and subcategory
-      const category = material.classification?.category || (material as any).material_type || (material as any).subcategory;
+      const category = material.classification?.category || material.material_type || material.subcategory;
       if (category) {
         if (!this.indexByCategory.has(category)) {
           this.indexByCategory.set(category, []);
@@ -257,7 +257,7 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       this.indexByName.get(normalizedName)!.push(id);
     }
 
-    const iso = material.classification?.iso_group || (material as any).iso_group;
+    const iso = material.classification?.iso_group || material.iso_group;
     if (iso) {
       if (!this.indexByISO.has(iso)) {
         this.indexByISO.set(iso, []);
@@ -265,7 +265,7 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       this.indexByISO.get(iso)!.push(id);
     }
 
-    const category = material.classification?.category || (material as any).material_type || (material as any).subcategory;
+    const category = material.classification?.category || material.material_type || material.subcategory;
     if (category) {
       if (!this.indexByCategory.has(category)) {
         this.indexByCategory.set(category, []);
@@ -354,10 +354,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
         m.name?.toLowerCase().includes(query) ||
         m.material_id?.toLowerCase().includes(query) ||
         m.common_names?.some((n: string) => n.toLowerCase().includes(query)) ||
-        (m as any).material_type?.toLowerCase().includes(query) ||
-        (m as any).subcategory?.toLowerCase().includes(query) ||
-        (m as any).iso_group?.toLowerCase().includes(query) ||
-        (m as any).condition?.toLowerCase().includes(query)
+        m.material_type?.toLowerCase().includes(query) ||
+        m.subcategory?.toLowerCase().includes(query) ||
+        m.iso_group?.toLowerCase().includes(query) ||
+        (typeof m.condition === "string" ? m.condition.toLowerCase().includes(query) : false)
       );
     }
     

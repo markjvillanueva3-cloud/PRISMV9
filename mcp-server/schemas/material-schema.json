@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "prism-material-schema-v1",
+  "$id": "prism-material-schema-v2",
   "title": "PRISM Material Schema",
-  "description": "Complete 127-parameter material definition for CNC machining",
+  "description": "Complete 165-parameter material definition for CNC machining (v10.2 deep accuracy)",
   "type": "object",
   "required": ["id", "name", "iso_group", "category", "physical", "mechanical", "thermal", "machining"],
   "properties": {
@@ -10,6 +10,10 @@
       "type": "string",
       "pattern": "^[A-Z]{2,4}-[A-Z0-9]+-[0-9]{3}$",
       "description": "Unique material identifier (e.g., CS-1045-001, SS-316L-001)"
+    },
+    "material_id": {
+      "type": "string",
+      "description": "Alias for id used in some data sources"
     },
     "name": {
       "type": "string",
@@ -35,6 +39,21 @@
       ]
     },
     "subcategory": { "type": "string" },
+    "material_type": { "type": "string", "description": "Material type classification (e.g., alloy_steel, austenitic_stainless)" },
+    "iso_p_equivalent": { "type": "string", "description": "ISO P-group equivalent classification" },
+    "condition": {
+      "oneOf": [
+        { "type": "string", "description": "Simple condition string (e.g., annealed, quenched & tempered)" },
+        {
+          "type": "object",
+          "properties": {
+            "heat_treatment": { "type": "string", "enum": ["annealed", "normalized", "quenched", "tempered", "solution_treated", "aged", "as_rolled", "cold_worked"] },
+            "temper": { "type": "string" },
+            "hardness_state": { "type": "string" }
+          }
+        }
+      ]
+    },
     "designation": {
       "type": "object",
       "properties": {
@@ -46,26 +65,36 @@
         "trade_names": { "type": "array", "items": { "type": "string" } }
       }
     },
-    "condition": {
+    "classification": {
       "type": "object",
       "properties": {
-        "heat_treatment": { "type": "string", "enum": ["annealed", "normalized", "quenched", "tempered", "solution_treated", "aged", "as_rolled", "cold_worked"] },
-        "temper": { "type": "string" },
-        "hardness_state": { "type": "string" }
+        "iso_group": { "type": "string" },
+        "category": { "type": "string" },
+        "subcategory": { "type": "string" }
       }
     },
+    "common_names": { "type": "array", "items": { "type": "string" } },
     "physical": {
       "type": "object",
       "required": ["density"],
       "properties": {
-        "density": { "type": "number", "minimum": 0.5, "maximum": 25, "description": "g/cm³" },
-        "melting_point": { "type": "number", "description": "°C" },
+        "density": { "type": "number", "minimum": 0.5, "maximum": 25, "description": "g/cm3" },
+        "melting_point": { "type": "number", "description": "C" },
         "melting_range_min": { "type": "number" },
         "melting_range_max": { "type": "number" },
-        "specific_heat": { "type": "number", "description": "J/(kg·K)" },
-        "electrical_resistivity": { "type": "number", "description": "μΩ·cm" },
+        "boiling_point": { "type": "number", "description": "C" },
+        "liquidus_temperature": { "type": "number", "description": "C" },
+        "solidus_temperature": { "type": "number", "description": "C" },
+        "latent_heat_fusion": { "type": "number", "description": "kJ/kg" },
+        "specific_heat": { "type": "number", "description": "J/(kg*K)" },
+        "thermal_conductivity": { "type": "number", "description": "W/(m*K)" },
+        "thermal_expansion": { "type": "number", "description": "um/(m*K)" },
+        "electrical_resistivity": { "type": "number", "description": "uOhm*cm" },
         "magnetic_permeability": { "type": "number" },
-        "poissons_ratio": { "type": "number", "minimum": 0, "maximum": 0.5 }
+        "poisson_ratio": { "type": "number", "minimum": 0, "maximum": 0.5 },
+        "elastic_modulus": { "type": "number", "description": "GPa" },
+        "shear_modulus": { "type": "number", "description": "GPa" },
+        "bulk_modulus": { "type": "number", "description": "GPa" }
       }
     },
     "mechanical": {
@@ -81,25 +110,59 @@
             "vickers": { "type": "number", "description": "HV" }
           }
         },
-        "tensile_strength": { "type": "number", "description": "MPa" },
-        "yield_strength": { "type": "number", "description": "MPa" },
+        "tensile_strength": {
+          "oneOf": [
+            { "type": "number", "description": "MPa" },
+            {
+              "type": "object",
+              "properties": {
+                "typical": { "type": "number" },
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            }
+          ]
+        },
+        "yield_strength": {
+          "oneOf": [
+            { "type": "number", "description": "MPa" },
+            {
+              "type": "object",
+              "properties": {
+                "typical": { "type": "number" },
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            }
+          ]
+        },
         "elongation": { "type": "number", "description": "%" },
         "reduction_of_area": { "type": "number", "description": "%" },
         "elastic_modulus": { "type": "number", "description": "GPa" },
         "shear_modulus": { "type": "number", "description": "GPa" },
         "fatigue_strength": { "type": "number", "description": "MPa" },
-        "impact_strength": { "type": "number", "description": "J (Charpy)" }
+        "impact_strength": { "type": "number", "description": "J (Charpy)" },
+        "fracture_toughness": { "type": "number", "description": "MPa*sqrt(m)" },
+        "compressive_strength": { "type": "number", "description": "MPa" },
+        "true_fracture_stress": { "type": "number", "description": "MPa" },
+        "true_fracture_strain": { "type": "number" },
+        "strain_rate_sensitivity": { "type": "number" },
+        "shear_strength": { "type": "number", "description": "MPa" }
       }
     },
     "thermal": {
       "type": "object",
-      "required": ["thermal_conductivity"],
       "properties": {
-        "thermal_conductivity": { "type": "number", "description": "W/(m·K)" },
-        "thermal_diffusivity": { "type": "number", "description": "mm²/s" },
-        "thermal_expansion": { "type": "number", "description": "μm/(m·K)" },
-        "max_service_temp": { "type": "number", "description": "°C" },
-        "min_service_temp": { "type": "number", "description": "°C" }
+        "thermal_conductivity": { "type": "number", "description": "W/(m*K)" },
+        "thermal_diffusivity": { "type": "number", "description": "mm2/s" },
+        "thermal_expansion": { "type": "number", "description": "um/(m*K)" },
+        "max_service_temp": { "type": "number", "description": "C" },
+        "min_service_temp": { "type": "number", "description": "C" },
+        "cutting_temperature_factor": { "type": "number" },
+        "heat_partition_ratio": { "type": "number" },
+        "thermal_softening_onset": { "type": "number", "description": "C" },
+        "hot_hardness_retention": { "type": "string", "enum": ["poor", "low", "moderate", "good", "excellent"] },
+        "cryogenic_machinability": { "type": "string", "enum": ["poor", "fair", "good", "excellent", "not_applicable"] }
       }
     },
     "machining": {
@@ -122,7 +185,7 @@
           "type": "string",
           "enum": ["continuous", "segmented", "discontinuous", "built_up_edge", "serrated"]
         },
-        "surface_finish_achievable": { "type": "number", "description": "Ra μm" },
+        "surface_finish_achievable": { "type": "number", "description": "Ra um" },
         "work_hardening_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
         "abrasiveness": { "type": "string", "enum": ["none", "low", "moderate", "high", "extreme"] },
         "recommended_coolant": { "type": "string", "enum": ["flood", "mist", "dry", "mql", "cryogenic", "high_pressure"] },
@@ -134,10 +197,18 @@
     },
     "kienzle": {
       "type": "object",
-      "description": "Kienzle cutting force coefficients",
+      "description": "Kienzle cutting force coefficients (per VDI 3323)",
       "properties": {
-        "kc1_1": { "type": "number", "description": "Specific cutting force at h=1mm, b=1mm (N/mm²)" },
+        "kc1_1": { "type": "number", "description": "Specific cutting force at h=1mm, b=1mm (N/mm2)" },
         "mc": { "type": "number", "description": "Kienzle exponent (typically 0.2-0.35)" },
+        "kc1_1_milling": { "type": "number", "description": "kc1.1 for milling operations" },
+        "mc_milling": { "type": "number", "description": "Kienzle exponent for milling" },
+        "kc1_1_drilling": { "type": "number", "description": "kc1.1 for drilling operations" },
+        "mc_drilling": { "type": "number", "description": "Kienzle exponent for drilling" },
+        "kc1_1_boring": { "type": "number", "description": "kc1.1 for boring operations" },
+        "mc_boring": { "type": "number", "description": "Kienzle exponent for boring" },
+        "kc1_1_reaming": { "type": "number", "description": "kc1.1 for reaming operations" },
+        "mc_reaming": { "type": "number", "description": "Kienzle exponent for reaming" },
         "kc1_1_axial": { "type": "number" },
         "mc_axial": { "type": "number" },
         "gamma_correction": { "type": "number", "description": "Rake angle correction factor" },
@@ -156,44 +227,233 @@
         "m": { "type": "number", "description": "Thermal softening exponent" },
         "T_melt": { "type": "number", "description": "Melting temperature (K)" },
         "T_ref": { "type": "number", "description": "Reference temperature (K)" },
-        "epsilon_dot_ref": { "type": "number", "description": "Reference strain rate (1/s)" }
+        "epsilon_dot_ref": { "type": "number", "description": "Reference strain rate (1/s)" },
+        "T_transition": { "type": "number", "description": "Transition temperature (K)" }
       }
     },
     "taylor": {
       "type": "object",
-      "description": "Taylor tool life equation parameters",
+      "description": "Taylor tool life equation parameters (VT^n = C) per tool material",
       "properties": {
-        "C": { "type": "number", "description": "Taylor constant" },
-        "n": { "type": "number", "description": "Taylor exponent" },
+        "C": { "type": "number", "description": "Taylor constant (default/general)" },
+        "n": { "type": "number", "description": "Taylor exponent (default/general)" },
+        "C_carbide": { "type": "number", "description": "Taylor C for coated carbide" },
+        "n_carbide": { "type": "number", "description": "Taylor n for coated carbide" },
+        "C_ceramic": { "type": "number", "description": "Taylor C for ceramic tooling" },
+        "n_ceramic": { "type": "number", "description": "Taylor n for ceramic tooling" },
+        "C_cbn": { "type": "number", "description": "Taylor C for CBN tooling" },
+        "n_cbn": { "type": "number", "description": "Taylor n for CBN tooling" },
+        "C_hss": { "type": "number", "description": "Taylor C for HSS tooling" },
+        "n_hss": { "type": "number", "description": "Taylor n for HSS tooling" },
         "reference_tool_life": { "type": "number", "description": "minutes" },
         "reference_speed": { "type": "number", "description": "m/min" }
       }
     },
-    "tribology": {
+    "chip_formation": {
       "type": "object",
+      "description": "Chip formation characteristics (subcategory-specific)",
       "properties": {
-        "friction_coefficient_dry": { "type": "number" },
-        "friction_coefficient_lubricated": { "type": "number" },
-        "adhesion_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
-        "galling_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] }
+        "chip_type": { "type": "string", "enum": ["continuous", "continuous_with_bue", "segmented", "discontinuous", "serrated", "shear_localized"] },
+        "chip_breaking": { "type": "string", "enum": ["excellent", "good", "fair", "poor", "very_poor"] },
+        "shear_angle": { "type": "number", "description": "Primary shear angle (degrees)" },
+        "chip_compression_ratio": { "type": "number", "description": "Chip thickness ratio" },
+        "built_up_edge_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "segmentation_frequency": { "type": "string", "enum": ["none", "low", "moderate", "high"] },
+        "min_chip_thickness": { "type": "number", "description": "Minimum uncut chip thickness (mm)" },
+        "edge_radius_sensitivity": { "type": "string", "enum": ["low", "moderate", "high", "very_high"] }
       }
     },
-    "chemistry": {
+    "tribology": {
+      "type": "object",
+      "description": "Tribological properties for tool-workpiece interaction",
+      "properties": {
+        "friction_coefficient": { "type": "number", "description": "General friction coefficient" },
+        "friction_coefficient_dry": { "type": "number" },
+        "friction_coefficient_flood": { "type": "number" },
+        "friction_coefficient_mql": { "type": "number" },
+        "friction_coefficient_lubricated": { "type": "number" },
+        "wear_coefficient": { "type": "number" },
+        "adhesion_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "abrasiveness": { "type": "string", "enum": ["none", "low", "moderate", "high", "extreme"] },
+        "galling_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "crater_wear_coefficient": { "type": "number" },
+        "flank_wear_coefficient": { "type": "number" }
+      }
+    },
+    "thermal_machining": {
+      "type": "object",
+      "description": "Thermal behavior during machining",
+      "properties": {
+        "thermal_diffusivity": { "type": "number", "description": "mm2/s" },
+        "heat_partition_coefficient": { "type": "number", "description": "Fraction of heat entering workpiece" },
+        "critical_temperature": { "type": "number", "description": "C" },
+        "recrystallization_temperature": { "type": "number", "description": "C" },
+        "phase_transformation_temperature": { "type": "number", "description": "C" },
+        "maximum_cutting_temperature": { "type": "number", "description": "C" },
+        "emissivity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "heat_transfer_coefficient": { "type": "number", "description": "W/(m2*K)" }
+      }
+    },
+    "surface_integrity": {
+      "type": "object",
+      "description": "Surface integrity characteristics after machining",
+      "properties": {
+        "residual_stress_tendency": { "type": "string", "enum": ["compressive", "neutral", "tensile", "variable"] },
+        "work_hardening_depth": { "type": "number", "description": "mm" },
+        "white_layer_risk": { "type": "string", "enum": ["none", "low", "moderate", "high"] },
+        "surface_roughness_achievable": { "type": "number", "description": "Ra um" },
+        "burr_formation_tendency": { "type": "string", "enum": ["none", "low", "moderate", "high", "severe"] },
+        "microstructure_sensitivity": { "type": "string", "enum": ["none", "low", "moderate", "high"] },
+        "minimum_uncut_chip_thickness": { "type": "number", "description": "mm" },
+        "ploughing_force_coefficient": { "type": "number" }
+      }
+    },
+    "machinability": {
+      "type": "object",
+      "description": "Extended machinability parameters",
+      "properties": {
+        "aisi_rating": { "type": "number", "description": "AISI machinability rating (%)" },
+        "relative_to_1212": { "type": "number", "description": "Relative to AISI 1212 = 1.0" },
+        "machinability_index": { "type": "number" },
+        "power_constant": { "type": "number" },
+        "unit_power": { "type": "number", "description": "hp/(in3/min) or kW/(cm3/min)" }
+      }
+    },
+    "cutting_recommendations": {
+      "type": "object",
+      "description": "Operation-specific cutting parameter recommendations",
+      "properties": {
+        "turning": {
+          "type": "object",
+          "properties": {
+            "speed_roughing": { "type": "number", "description": "m/min" },
+            "speed_finishing": { "type": "number", "description": "m/min" },
+            "feed_roughing": { "type": "number", "description": "mm/rev" },
+            "feed_finishing": { "type": "number", "description": "mm/rev" },
+            "doc_roughing": { "type": "number", "description": "mm" },
+            "doc_finishing": { "type": "number", "description": "mm" }
+          }
+        },
+        "milling": {
+          "type": "object",
+          "properties": {
+            "speed_roughing": { "type": "number", "description": "m/min" },
+            "speed_finishing": { "type": "number", "description": "m/min" },
+            "feed_per_tooth_roughing": { "type": "number", "description": "mm/tooth" },
+            "feed_per_tooth_finishing": { "type": "number", "description": "mm/tooth" },
+            "doc_roughing": { "type": "number", "description": "mm" },
+            "doc_finishing": { "type": "number", "description": "mm" },
+            "woc_roughing": { "type": "number", "description": "mm (width of cut)" },
+            "woc_finishing": { "type": "number", "description": "mm" }
+          }
+        },
+        "drilling": {
+          "type": "object",
+          "properties": {
+            "speed": { "type": "number", "description": "m/min" },
+            "feed_per_rev": { "type": "number", "description": "mm/rev" },
+            "peck_depth_ratio": { "type": "number", "description": "Multiple of drill diameter" },
+            "coolant_through": { "type": "boolean" }
+          }
+        },
+        "tool_material": {
+          "type": "object",
+          "properties": {
+            "recommended_grade": { "type": "string" },
+            "coating_recommendation": { "type": "string" },
+            "geometry_recommendation": { "type": "string" }
+          }
+        },
+        "coolant": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "pressure": { "type": "number", "description": "bar" },
+            "flow_rate": { "type": "number", "description": "L/min" }
+          }
+        }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "description": "Achievable surface quality parameters",
+      "properties": {
+        "achievable_ra_turning": { "type": "number", "description": "Ra um" },
+        "achievable_ra_milling": { "type": "number", "description": "Ra um" },
+        "achievable_ra_grinding": { "type": "number", "description": "Ra um" },
+        "surface_integrity_sensitivity": { "type": "string", "enum": ["low", "moderate", "high", "very_high"] },
+        "white_layer_risk": { "type": "string", "enum": ["none", "low", "moderate", "high"] }
+      }
+    },
+    "process_specific": {
+      "type": "object",
+      "description": "Non-conventional machining characteristics",
+      "properties": {
+        "grinding_ratio": { "type": "number", "description": "G-ratio (vol material / vol wheel)" },
+        "edm_machinability": { "type": "number", "description": "Relative EDM machinability index" },
+        "laser_absorptivity": { "type": "number", "description": "Absorptivity at 1064nm" },
+        "weldability_rating": { "type": "string", "enum": ["excellent", "good", "fair", "poor", "not_recommended"] }
+      }
+    },
+    "weldability": {
+      "type": "object",
+      "properties": {
+        "rating": { "type": "string", "enum": ["excellent", "good", "fair", "poor", "not_recommended"] },
+        "preheat_temperature": { "type": "number", "description": "C" },
+        "postweld_treatment": { "type": "string" }
+      }
+    },
+    "composition": {
       "type": "object",
       "description": "Chemical composition in weight %",
       "additionalProperties": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "chemistry": {
+      "type": "object",
+      "description": "Chemical composition in weight % (legacy alias for composition)",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "standards": {
+      "type": "object",
+      "properties": {
+        "note": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Data quality statistics",
+      "properties": {
+        "dataPoints": { "type": "integer" },
+        "confidenceLevel": { "type": "number" },
+        "standardDeviation": {
+          "type": "object",
+          "properties": {
+            "speed": { "type": "number" },
+            "force": { "type": "number" },
+            "toolLife": { "type": "number" }
+          },
+          "additionalProperties": { "type": "number" }
+        },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "lastValidated": { "type": "string" },
+        "reliability": { "type": "string" }
+      }
     },
     "applications": {
       "type": "array",
       "items": { "type": "string" },
       "description": "Typical applications"
     },
+    "data_quality": { "type": "string", "description": "Overall data quality indicator" },
+    "data_sources": { "type": "array", "items": { "type": "string" } },
     "notes": { "type": "string" },
     "sources": {
       "type": "array",
       "items": { "type": "string" },
       "description": "Data sources and references"
     },
+    "param_count": { "type": "integer", "description": "Total non-null parameter count" },
     "metadata": {
       "type": "object",
       "properties": {
@@ -203,6 +463,52 @@
         "layer": { "type": "string", "enum": ["CORE", "ENHANCED", "USER", "LEARNED"] },
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
         "validation_status": { "type": "string", "enum": ["unvalidated", "partial", "validated", "verified"] }
+      }
+    },
+    "_verified": {
+      "type": "object",
+      "description": "Enhancement verification metadata",
+      "properties": {
+        "session": { "type": "integer" },
+        "date": { "type": "string" },
+        "method": { "type": "string" },
+        "params": { "type": "integer" },
+        "prior_method": { "type": ["string", "null"] },
+        "prior_params": { "type": ["integer", "null"] }
+      }
+    },
+    "_accuracy": {
+      "type": "object",
+      "description": "Deep accuracy pass metadata with per-property confidence",
+      "properties": {
+        "pass": { "type": "string" },
+        "date": { "type": "string" },
+        "alloy_match": { "type": "string" },
+        "match_method": { "type": "string" },
+        "match_quality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "subcategory_resolved": { "type": "string" },
+        "overall_confidence": { "type": "string", "enum": ["VERIFIED", "HIGH", "SUBCATEGORY_SPECIFIC", "MEDIUM_HIGH", "MEDIUM", "PARAMETRIC_MODEL", "LOW"] },
+        "has_composition": { "type": "boolean" },
+        "v2_corrections": { "type": "integer" },
+        "johnson_cook": { "$ref": "#/definitions/confidence_entry" },
+        "kienzle": { "$ref": "#/definitions/confidence_entry" },
+        "taylor": { "$ref": "#/definitions/confidence_entry" },
+        "chip_formation": { "$ref": "#/definitions/confidence_entry" },
+        "cutting_recommendations": { "$ref": "#/definitions/confidence_entry" },
+        "tribology": { "$ref": "#/definitions/confidence_entry" },
+        "surface_integrity": { "$ref": "#/definitions/confidence_entry" },
+        "thermal_machining": { "$ref": "#/definitions/confidence_entry" },
+        "thermal_conductivity": { "$ref": "#/definitions/confidence_entry" },
+        "physical_properties": { "$ref": "#/definitions/confidence_entry" }
+      }
+    }
+  },
+  "definitions": {
+    "confidence_entry": {
+      "type": "object",
+      "properties": {
+        "confidence": { "type": "string", "enum": ["VERIFIED", "HIGH", "SUBCATEGORY_SPECIFIC", "MEDIUM_HIGH", "MEDIUM", "PARAMETRIC_MODEL", "LOW"] },
+        "source": { "type": "string" }
       }
     }
   }
