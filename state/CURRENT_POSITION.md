@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS12 COMPLETE, QA-MS13 next
+**Phase:** QA Audit Track -- QA-MS0-MS13 COMPLETE, QA-MS14 next (FINAL)
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS13 (Cross-Cutting Concerns) -- not started
-**Next:** QA-MS13-U00 -> U01 -> U02 -> U03 -> U04 -> U05
+**Active:** QA-MS14 (Enhancement Synthesis) -- not started
+**Next:** QA-MS14-U00 -> U01 -> U02 -> U03
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -150,10 +150,22 @@
 - **Key findings:** Hook count 220 (not 157 as claimed), domain hook registry silent failure risk, zero dispatcher bypass paths, no circular hook dependencies
 - **Composite OQA:** (4.25+4.75+4.75+4.75+5.00)/5*0.8 + test_pass*0.2 = 4.70*0.8 + 1.0 = 3.76+0.2 = 3.96 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS13 Cross-Cutting Concerns & Test Coverage Results (2026-02-28)
+- **U00 (TS Errors):** 0 errors — all 28 previously-known errors resolved during QA track. Codebase TSC-clean. (OQA=5.00 PASS)
+- **U01 (Wiring Gap):** 99.5% D2F wiring in sampled dispatchers (434/436 actions route to real engines). Envelope '86% gap' was documentation gap, not code gap. (OQA=4.75 PASS)
+- **U02 (Test Coverage):** 1115 tests passing, 100% algorithm coverage, safety well-tested. 2 MAJOR gaps: 94% cadence functions untested (97/103), 95% engines lack unit tests (163/171) (OQA=4.00 COND PASS)
+- **U03 (Error Handling):** SafetyBlockError propagation verified (QA-MS1 fix maintained). 1 empty catch block (autoPilotDispatcher), 8 log-but-no-rethrow in non-critical hooks (OQA=4.75 PASS)
+- **U04 (Cadence Functions):** 103 actual cadence functions (envelope claimed 40 — 158% undercount). All wired, zero orphaned. 94% untested. (OQA=3.75 COND PASS)
+- **U05 (Build Health):** 6.6MB bundle, 1025ms build, 0 TS errors, 2 low-severity warnings, 1115 tests. Regression baseline established. (OQA=5.00 PASS)
+- **Tests:** 1115 passed (37 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** 0 TS errors (down from 28), wiring is 99.5% (not 86% gap), 103 cadence functions (not 40), test gap in cadences/engines
+- **Composite OQA:** (5.00+4.75+4.00+4.75+3.75+5.00)/6*0.8 + test_pass*0.2 = 4.54*0.8 + 1.0 = 3.63+0.2 = 3.83 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 52 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS12)
+- Complete: 53 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS13)
 - In Progress: 0
-- Not Started: 28 milestones (QA-MS13-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 27 milestones (QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -171,7 +183,7 @@
 | QA-MS10 | Manufacturing Engines | 6 | **COMPLETE** (5-axis CRITICAL, post-proc CRITICAL, OQA=3.24) |
 | QA-MS11 | Intelligence Engines | 6 | **COMPLETE** (dual hook system, no semantic search, OQA=3.87) |
 | QA-MS12 | Hook & Orchestration | 5 | **COMPLETE** (220 hooks actual, zero bypass, OQA=3.96) |
-| QA-MS13 | Cross-Cutting Concerns | 6 | not started |
+| QA-MS13 | Cross-Cutting Concerns | 6 | **COMPLETE** (0 TS errors, 99.5% wiring, OQA=3.83) |
 | QA-MS14 | Enhancement Synthesis | 4 | not started |
 
 ## Other Available Tracks

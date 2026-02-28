@@ -1,0 +1,89 @@
+{
+  "unit": "QA-MS13-U05",
+  "title": "Build Health & Bundle Size Regression Baseline",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T16:00:00Z",
+  "status": "PASS",
+  "scope": "npm run build output \u2014 esbuild bundling, warning catalog, size baseline",
+  "build_results": {
+    "status": "SUCCESS",
+    "bundler": "esbuild",
+    "build_time_ms": 1025,
+    "output_file": "dist/index.js",
+    "output_size": "6.6MB",
+    "output_size_bytes": 6918144
+  },
+  "warnings": {
+    "count": 2,
+    "details": [
+      {
+        "type": "commonjs-in-esm",
+        "message": "Node's package format requires that CommonJS files in a 'type: module' package use the .cjs file extension",
+        "severity": "LOW",
+        "impact": "None \u2014 esbuild handles CJS/ESM interop automatically"
+      },
+      {
+        "type": "empty-glob",
+        "message": "The glob pattern import('./**/*.js') did not match any files",
+        "file": "src/engines/SourceCatalogAggregator.ts:69",
+        "severity": "LOW",
+        "impact": "SourceCatalogAggregator dynamic imports don't resolve at build time \u2014 runtime-only pattern"
+      }
+    ]
+  },
+  "tsc_status": {
+    "errors": 0,
+    "command": "npx tsc --noEmit",
+    "result": "CLEAN"
+  },
+  "test_status": {
+    "total": 1115,
+    "passing": 1115,
+    "failing": 0,
+    "test_files": 37
+  },
+  "regression_baseline": {
+    "bundle_size_mb": 6.6,
+    "build_time_ms": 1025,
+    "tsc_errors": 0,
+    "build_warnings": 2,
+    "test_count": 1115,
+    "test_pass_rate": "100%",
+    "baseline_date": "2026-02-28"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Build succeeds in 1025ms \u2014 6.6MB output, 0 errors, 2 low-severity warnings"
+    },
+    {
+      "severity": "OK",
+      "finding": "0 TypeScript errors \u2014 codebase is fully TSC-clean"
+    },
+    {
+      "severity": "OK",
+      "finding": "1115 tests passing with 100% pass rate"
+    },
+    {
+      "severity": "INFO",
+      "finding": "2 build warnings (CJS/ESM interop + empty glob) are cosmetic and have no functional impact"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Regression baseline established: 6.6MB / 1025ms / 0 TS errors / 1115 tests"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "build_succeeds": true,
+    "build_warnings_cataloged": true,
+    "bundle_size_documented": true
+  }
+}

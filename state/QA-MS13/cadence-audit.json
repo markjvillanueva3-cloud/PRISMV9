@@ -1,0 +1,197 @@
+{
+  "unit": "QA-MS13-U04",
+  "title": "Cadence Function Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T16:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "103 auto* cadence functions in cadenceExecutor.ts + autoHookWrapper.ts orchestration",
+  "counts": {
+    "total_cadence_functions": 103,
+    "envelope_claim": 40,
+    "qa_ms12_claim": 88,
+    "actual": 103,
+    "discrepancy": "+63 above envelope claim (158% undercount)"
+  },
+  "categories": {
+    "core_infrastructure": {
+      "count": 15,
+      "examples": [
+        "autoTodoRefresh",
+        "autoCheckpoint",
+        "autoContextPressure",
+        "autoCompactionDetect",
+        "autoPatternMatch",
+        "autoErrorLearn",
+        "autoQualityGate",
+        "autoAntiRegression"
+      ]
+    },
+    "compaction_recovery": {
+      "count": 5,
+      "examples": [
+        "autoPreCompactionDump",
+        "autoCompactionSurvival",
+        "autoContextRehydrate",
+        "autoRecoveryManifest",
+        "autoHandoffPackage"
+      ]
+    },
+    "input_validation_learning": {
+      "count": 4,
+      "examples": [
+        "autoInputValidation",
+        "autoD3ErrorChain",
+        "autoD3LkgUpdate",
+        "autoWarmStartData"
+      ]
+    },
+    "advanced_cadences": {
+      "count": 10,
+      "examples": [
+        "autoVariationCheck",
+        "autoPythonCompactionPredict",
+        "autoD4CacheCheck",
+        "autoD4DiffCheck",
+        "autoTelemetrySnapshot"
+      ]
+    },
+    "skill_learning": {
+      "count": 15,
+      "examples": [
+        "autoSkillHint",
+        "autoKnowledgeCrossQuery",
+        "autoPhaseSkillLoader",
+        "autoSkillContextMatch",
+        "autoNLHookEvaluator",
+        "autoBudgetTrack"
+      ]
+    },
+    "session_memory": {
+      "count": 15,
+      "examples": [
+        "autoSessionLifecycleStart",
+        "autoSessionLifecycleEnd",
+        "autoMemoryGraphFlush",
+        "autoWipCapture",
+        "autoPfpPatternExtract"
+      ]
+    },
+    "system_integration": {
+      "count": 20,
+      "examples": [
+        "autoGroupedSwarmDispatch",
+        "autoATCSParallelUpgrade",
+        "autoSkillPreload",
+        "autoRegistryRefresh",
+        "autoRoadmapHeartbeat"
+      ]
+    },
+    "external_advanced": {
+      "count": 19,
+      "examples": [
+        "autoBridgeHealthCheck",
+        "autoSwarmPatternDecay",
+        "autoNLHookValidate",
+        "autoOmegaHistoryPersist",
+        "autoCognitiveStatePersist"
+      ]
+    }
+  },
+  "trigger_types": {
+    "call_count_based": {
+      "count": 25,
+      "pattern": "callNum % N === 0",
+      "examples": [
+        "autoCheckpoint (every 10)",
+        "autoContextPressure (every 15+)",
+        "autoTelemetrySnapshot (periodic)"
+      ]
+    },
+    "threshold_based": {
+      "count": 20,
+      "pattern": "if (metric > threshold)",
+      "examples": [
+        "autoContextPressure (>75% budget)",
+        "autoCompactionDetect (compression signal)"
+      ]
+    },
+    "error_based": {
+      "count": 15,
+      "pattern": "on error/failure event",
+      "examples": [
+        "autoErrorLearn",
+        "autoD3ErrorChain",
+        "autoFailurePatternSync"
+      ]
+    },
+    "lifecycle_based": {
+      "count": 20,
+      "pattern": "session start/end/checkpoint",
+      "examples": [
+        "autoSessionLifecycleStart",
+        "autoSessionLifecycleEnd",
+        "autoRoadmapHeartbeat"
+      ]
+    },
+    "event_based": {
+      "count": 15,
+      "pattern": "on pattern/memory/quality event",
+      "examples": [
+        "autoPatternDetect",
+        "autoMemoryGraphFlush",
+        "autoWipCapture"
+      ]
+    },
+    "utility_async": {
+      "count": 8,
+      "pattern": "utility/compression",
+      "examples": [
+        "autoPythonCompress",
+        "autoPythonExpand"
+      ]
+    }
+  },
+  "wiring_status": {
+    "all_exported": true,
+    "all_imported_in_autohookwrapper": true,
+    "orphaned_functions": 0,
+    "tested": 6,
+    "untested": 97,
+    "test_gap_pct": "94%"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "All 103 cadence functions properly exported and imported \u2014 zero orphaned functions"
+    },
+    {
+      "severity": "OK",
+      "finding": "Well-categorized trigger patterns: call-count, threshold, error, lifecycle, event-based"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "103 actual cadence functions vs 40 claimed in envelope \u2014 158% undercount in documentation"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "94% of cadence functions untested (97/103) \u2014 only 6 have test coverage"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Some cadence functions wrapped in try/catch with silent failure \u2014 reduced observability for debugging"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 4,
+    "composite": "3.75",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "all_cadences_inventoried": true,
+    "trigger_conditions_verified": true,
+    "cadence_to_hook_wiring_verified": true
+  }
+}
