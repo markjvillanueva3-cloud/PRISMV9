@@ -12,9 +12,10 @@ import {
   toolpath_prism_novel
 } from "../toolpathTools";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { toolpathGenerationEngine } from "../../engines/ToolpathGenerationEngine.js";
 import { log } from "../../utils/Logger.js";
 
-const CALC_ACTIONS = new Set(["params_calculate", "strategy_select"]);
+const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]);
 
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
@@ -29,7 +30,8 @@ export function registerToolpathDispatcher(server: any): void {
         "strategy_info",
         "stats",
         "material_strategies",
-        "prism_novel"
+        "prism_novel",
+        "generate"
       ]),
       params: z.record(z.any()).optional()
     },
@@ -90,6 +92,33 @@ export function registerToolpathDispatcher(server: any): void {
           case "prism_novel":
             result = await toolpath_prism_novel(params);
             break;
+
+          case "generate": {
+            // M-015: Expose ToolpathGenerationEngine.generate() via dispatcher
+            const dims = {
+              width_mm: params.width_mm, length_mm: params.length_mm,
+              depth_mm: params.depth_mm, diameter_mm: params.diameter_mm,
+            };
+            result = toolpathGenerationEngine.generate(
+              params.feature_type || "pocket_rectangular",
+              dims,
+              {
+                strategy: params.strategy || "adaptive_clearing",
+                tool_diameter_mm: params.tool_diameter_mm || 10,
+                stepover_pct: params.stepover_pct || 40,
+                stepdown_mm: params.stepdown_mm || 2,
+                feed_rate_mmmin: params.feed_rate_mmmin || 1000,
+                plunge_rate_mmmin: params.plunge_rate_mmmin || 300,
+                spindle_rpm: params.spindle_rpm || 8000,
+                cut_direction: params.cut_direction || "climb",
+                coolant: params.coolant || "flood",
+                retract_height_mm: params.retract_height_mm || 5,
+                stock_to_leave_mm: params.stock_to_leave_mm,
+                entry_strategy: params.entry_strategy || "ramp",
+              }
+            );
+            break;
+          }
 
           default:
             throw new Error(`Unknown action: ${action}`);
