@@ -1,0 +1,206 @@
+{
+  "audit_id": "QA-MS1-P0-U01",
+  "title": "CoolantValidationEngine Bracket Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T22:15:00Z",
+  "status": "COMPLETE",
+  "verdict": "0 CRITICAL, 2 MEDIUM, 1 LOW findings. Speed bracket fix confirmed.",
+
+  "speed_bracket_fix_verification": {
+    "file": "src/engines/CoolantValidationEngine.ts",
+    "line": 282,
+    "status": "FIXED_AND_VERIFIED",
+    "original_bug": "Dead else-if >300 branch — could never execute because >300 is also >200 so the first branch caught it",
+    "current_code": "if (cuttingSpeed > 300) { requiredFlow *= 1.4; } else if (cuttingSpeed > 200) { requiredFlow *= 1.2; }",
+    "cascade_correct": true,
+    "boundary_analysis": {
+      "speed_200": "1.0x (no multiplier — falls through both conditions)",
+      "speed_201": "1.2x (hits else-if >200)",
+      "speed_300": "1.2x (hits else-if >200, not >300)",
+      "speed_301": "1.4x (hits if >300)",
+      "speed_0": "1.0x (no multiplier)"
+    }
+  },
+
+  "all_validation_brackets": {
+    "1_flow_requirements_per_mm_diameter": {
+      "location": "FLOW_REQUIREMENTS constant, line 181",
+      "unit": "L/min per mm tool diameter",
+      "brackets": {
+        "MILLING_GENERAL": 0.5,
+        "MILLING_HSM": 0.3,
+        "DRILLING_SHALLOW": 0.8,
+        "DRILLING_DEEP": 1.5,
+        "DRILLING_GUNDRILLING": 3.0,
+        "TAPPING": 1.0,
+        "REAMING": 0.6,
+        "BORING": 0.5,
+        "TURNING": 0.4,
+        "GRINDING": 2.0
+      },
+      "coverage": "10/10 CoolantOperation types covered",
+      "physically_sensible": true
+    },
+    "2_speed_multipliers": {
+      "location": "validateCoolantFlow(), line 282",
+      "brackets": {
+        ">300 m/min": "1.4x flow",
+        ">200 m/min": "1.2x flow",
+        "<=200 m/min": "1.0x (base)"
+      },
+      "cascade_order": "correct (highest first)"
+    },
+    "3_material_factors": {
+      "location": "MATERIAL_FACTORS constant, line 209",
+      "brackets": {
+        "ALUMINUM": 0.7,
+        "CAST_IRON": 0.6,
+        "STEEL": 1.0,
+        "STAINLESS": 1.3,
+        "TITANIUM": 1.5,
+        "SUPERALLOY": 1.8
+      },
+      "fallback": "1.0 for unknown materials",
+      "physically_sensible": true,
+      "note": "Titanium/superalloy having highest factors is correct — these materials generate extreme heat"
+    },
+    "4_pressure_by_LD_ratio": {
+      "location": "PRESSURE_BY_LD + checkThroughSpindleCoolant(), lines 197-397",
+      "unit": "bar",
+      "brackets": {
+        "L/D < 3": 10,
+        "L/D 3-5": 20,
+        "L/D 5-8": 40,
+        "L/D 8-12": 70,
+        "L/D 12-20": 100,
+        "L/D > 20": 150
+      },
+      "cascade_order": "correct (ascending thresholds, else-if chain)",
+      "material_adjustments": "Titanium/Superalloy get 1.3x pressure requirement",
+      "tool_override": "toolSpec.minPressure takes precedence if higher",
+      "physically_sensible": true
+    },
+    "5_chip_evacuation_LD_brackets": {
+      "location": "calculateChipEvacuation(), line 472",
+      "brackets": {
+        "L/D <= 3": { "type": "STANDARD", "pressure": 10, "flow_factor": "0.5x diameter" },
+        "L/D 3-8": { "type": "PECK_CYCLE", "pressure": 40, "flow_factor": "1.0x diameter", "peck": "1.5x diameter", "dwell": "0.5s" },
+        "L/D 8-20": { "type": "HIGH_PRESSURE", "pressure": 70, "flow_factor": "2.0x diameter", "peck": "1.0x diameter", "dwell": "1.0s" },
+        "L/D > 20": { "type": "GUNDRILLING", "pressure": 150, "flow_factor": "3.0x diameter" }
+      },
+      "material_factor_applied": true,
+      "cascade_order": "correct (ascending)"
+    },
+    "6_mql_consumption": {
+      "location": "MQL_CONSUMPTION constant, line 221",
+      "unit": "mL/hr",
+      "brackets": {
+        "MILLING_GENERAL": "20-50",
+        "MILLING_HSM": "10-30",
+        "DRILLING_SHALLOW": "30-80",
+        "DRILLING_DEEP": "50-150",
+        "DRILLING_GUNDRILLING": "100-300",
+        "TAPPING": "40-100",
+        "REAMING": "20-50",
+        "BORING": "20-60",
+        "TURNING": "15-40",
+        "GRINDING": "0-0 (NOT_RECOMMENDED)"
+      },
+      "coverage": "10/10 operations"
+    },
+    "7_mql_compatibility": {
+      "location": "validateMQLParameters(), line 567",
+      "ratings": {
+        "GRINDING": "NOT_RECOMMENDED",
+        "DRILLING_GUNDRILLING": "NOT_RECOMMENDED",
+        "DRILLING_DEEP": "MARGINAL",
+        "MILLING_HSM": "EXCELLENT",
+        "MILLING_GENERAL": "EXCELLENT",
+        "all_other": "GOOD"
+      },
+      "material_downgrades": "Titanium/Superalloy: EXCELLENT→GOOD, GOOD→MARGINAL"
+    },
+    "8_thermal_status": {
+      "location": "validateCoolant(), line 675",
+      "brackets": {
+        "RISK": "flow inadequate OR chipEvacuationRisk=HIGH",
+        "MARGINAL": "flow utilization >80% OR chipEvacuationRisk=MEDIUM",
+        "SAFE": "everything else"
+      }
+    },
+    "9_chip_evacuation_risk": {
+      "location": "checkThroughSpindleCoolant(), line 414",
+      "brackets": {
+        "HIGH": "pressureMargin < 0 (insufficient)",
+        "MEDIUM": "pressureMargin < 20% of required",
+        "LOW": "everything else"
+      }
+    },
+    "10_flow_utilization_warning": {
+      "location": "validateCoolantFlow(), line 332",
+      "threshold": ">80% utilization triggers warning"
+    }
+  },
+
+  "existing_qa_fixes_verified": [
+    {
+      "fix": "Division-by-zero guard on utilizationPercent",
+      "line": 325,
+      "code": "availableFlow > 0 ? (requiredFlow / availableFlow) * 100 : 999",
+      "status": "VERIFIED_CORRECT"
+    },
+    {
+      "fix": "Fire hazard block for dry machining titanium/superalloy",
+      "lines": "303-308",
+      "status": "VERIFIED_CORRECT",
+      "note": "Returns isAdequate=false with FIRE RISK warning"
+    },
+    {
+      "fix": "MQL unit conversion L/min → mL/hr",
+      "line": 669,
+      "code": "system.flowRate * 60000",
+      "status": "VERIFIED_CORRECT",
+      "note": "L/min × 60 min/hr × 1000 mL/L = ×60000"
+    }
+  ],
+
+  "findings": [
+    {
+      "id": "F08",
+      "severity": "MEDIUM",
+      "title": "CoolantSystem.concentration, temperature, filtration never validated",
+      "file": "src/engines/CoolantValidationEngine.ts",
+      "issue": "Three fields defined in CoolantSystem interface (concentration %, temperature °C, filtration μm) are accepted but never checked by any validation method. Coolant concentration outside 5-10% for water-soluble emulsions causes tool wear or corrosion. Temperature >40°C degrades coolant; >60°C is a fire risk for oil-based coolants.",
+      "impact": "A system with concentration=0% or temperature=80°C would pass all validations with zero warnings.",
+      "fix": "Add concentration range check (5-10% for emulsions) and temperature check (<40°C warn, <60°C block for oil) in validateCoolant()."
+    },
+    {
+      "id": "F09",
+      "severity": "MEDIUM",
+      "title": "No negative/zero validation on OperationParams inputs",
+      "file": "src/engines/CoolantValidationEngine.ts",
+      "issue": "validateCoolantFlow() accepts negative toolDiameter and negative cuttingSpeed without validation. A negative toolDiameter would produce a negative requiredFlow, which would always pass the isAdequate check (availableFlow >= negative = true).",
+      "impact": "Garbage inputs silently produce 'adequate' results instead of errors.",
+      "fix": "Add input guards: toolDiameter must be > 0, cuttingSpeed must be >= 0, flowRate must be >= 0."
+    },
+    {
+      "id": "F10",
+      "severity": "LOW",
+      "title": "HSM delivery recommendation overrides user's TSC choice",
+      "file": "src/engines/CoolantValidationEngine.ts",
+      "line": 687,
+      "issue": "For MILLING_HSM with FLOOD, recommendedDelivery is set to AIR_BLAST. But if the user deliberately chose FLOOD for HSM (e.g., heat-sensitive material), the recommendation is misleading. This is only a recommendation, not a block, so impact is low.",
+      "fix": "Consider adding material context — don't recommend AIR_BLAST for titanium HSM."
+    }
+  ],
+
+  "summary": {
+    "critical_findings": 0,
+    "medium_findings": 2,
+    "low_findings": 1,
+    "brackets_verified": "10/10 bracket categories mapped and verified",
+    "speed_bracket_fix": "CONFIRMED — cascade now correct: >300 (1.4x) before >200 (1.2x)",
+    "previous_qa_fixes": "3/3 verified correct (div-by-zero, fire hazard, MQL units)",
+    "physically_sensible": "All bracket values are within industry-standard ranges for metalworking"
+  }
+}

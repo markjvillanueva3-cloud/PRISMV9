@@ -640,8 +640,13 @@ const preOutputSafetyHardGate: HookDefinition = {
     
     const safety = context.quality?.safety;
     
+    // QA-MS1 FIX (F02): Hard gate must fail-CLOSED when safety data is missing
     if (safety === undefined) {
-      return hookWarning(hook, "No safety score available - proceeding with caution");
+      return hookBlock(hook, "HARD BLOCK: No safety score available — cannot verify safe output", {
+        score: 0,
+        threshold: SAFETY_THRESHOLD,
+        issues: ["Safety score missing from context — fail-closed"]
+      });
     }
     
     if (safety < SAFETY_THRESHOLD) {

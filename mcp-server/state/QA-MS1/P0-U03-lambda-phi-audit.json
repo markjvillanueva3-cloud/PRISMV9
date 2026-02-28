@@ -1,0 +1,145 @@
+{
+  "audit_id": "QA-MS1-P0-U03",
+  "title": "Lambda/Phi Validation in Auto-Hook Proxy",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T22:40:00Z",
+  "status": "COMPLETE",
+  "verdict": "1 CRITICAL (FIXED), 2 MEDIUM (1 FIXED), 1 LOW. Lambda annotation-only gap resolved.",
+
+  "architecture": {
+    "two_separate_systems": {
+      "system_1": "autoHookWrapper (Lambda/Phi) → fireHook → hookExecutor.execute()",
+      "system_2": "HookEngine → executeBuiltInHandler (CALC-SAFETY-VIOLATION-001)",
+      "shared_hook_id": "CALC-SAFETY-VIOLATION-001 is used by BOTH systems but with DIFFERENT semantics",
+      "note": "autoHookWrapper fires the hook as a LOGGING event; HookEngine evaluates it as a BLOCKING gate"
+    },
+    "proxy_wrapping": {
+      "all_prism_tools": "wrapWithUniversalHooks() — before/after/cadence/error + input validation (CAN BLOCK)",
+      "calc_tools_only": "wrapToolWithAutoHooks() — Lambda/Phi safety proof (ANNOTATION ONLY)",
+      "registration": "index.ts:340-356 — proxy intercepts server.tool() during dispatcher registration"
+    }
+  },
+
+  "lambda_validation": {
+    "function": "validateSafetyProof() at autoHookWrapper.ts:215",
+    "applied_to": "25 calc tools (24 in AUTO_HOOK_CONFIG.calcTools + prism_calc added at index.ts:329)",
+    "trigger": "Post-calculation — runs AFTER handler returns result",
+    "scoring": {
+      "start": 1.0,
+      "deductions": [
+        { "field": "cutting_speed", "range": "[1, 2000] m/min", "penalty": -0.3, "physically_correct": true },
+        { "field": "feed_per_tooth", "range": "[0.001, 2] mm", "penalty": -0.3, "physically_correct": true },
+        { "field": "axial_depth", "range": "[0.01, 100] mm", "penalty": -0.3, "physically_correct": true },
+        { "field": "tool_diameter", "range": "[0.1, 500] mm", "penalty": -0.3, "physically_correct": true },
+        { "field": "result.cutting_force", "check": "< 0 (negative)", "penalty": -0.5, "physically_correct": true },
+        { "field": "result.power", "check": "< 0 (negative)", "penalty": -0.5, "physically_correct": true },
+        { "field": "result.power", "check": "> 100 kW", "penalty": -0.1, "physically_correct": true },
+        { "field": "result.tool_life", "check": "<= 0", "penalty": -0.5, "physically_correct": true }
+      ],
+      "floor": "Math.max(0, validityScore) — capped at 0",
+      "threshold": "lambda_min = 0.9"
+    },
+    "bounds_verification": {
+      "cutting_speed_1_2000": "Correct. Typical range 10-800 m/min for metals, up to 2000 for aluminum HSM.",
+      "feed_per_tooth_0.001_2": "Correct. Micro-machining can use 0.005mm; large face mills up to 0.5mm; 2mm is generous upper bound.",
+      "axial_depth_0.01_100": "Correct. Finishing at 0.01mm; heavy roughing at 10-20mm; 100mm is extreme but exists for large face mills.",
+      "tool_diameter_0.1_500": "Correct. Micro drills 0.1mm; large face mills up to 300mm; 500mm generous upper.",
+      "force_negative": "Correct. Force magnitude cannot be negative.",
+      "power_100kW": "Reasonable. Most machines 5-50kW; heavy-duty lathes up to 100kW. Warning-level only (-0.1).",
+      "tool_life_zero": "Correct. Zero/negative tool life is invalid."
+    },
+    "action_on_failure": "ANNOTATION ONLY — attaches _safety_warning to result, does NOT block or throw",
+    "severity_split": "< 0.5 → 'critical', >= 0.5 → 'warning' (determines _safety_warning.severity)"
+  },
+
+  "phi_validation": {
+    "function": "verifyFactualClaims() at autoHookWrapper.ts:272",
+    "applied_to": "2 web tools: web_search, web_fetch",
+    "trigger": "Post-response — runs AFTER handler returns content",
+    "scoring": {
+      "claim_indicators": "11 phrases (e.g., 'studies show', 'research indicates')",
+      "no_claims": "VERIFIED, phi_score = 1.0",
+      "claims_detected_start": 0.7,
+      "deductions": [
+        { "condition": "> 3 claims", "penalty": -0.1 },
+        { "condition": "hedging words (may/might/could/possibly/potentially/some)", "penalty": -0.05 }
+      ],
+      "verdict_thresholds": {
+        "phi_high_0.85": "VERIFIED",
+        "phi_moderate_0.6": "LIKELY",
+        "0.4": "UNCERTAIN",
+        "below_0.4": "UNVERIFIED"
+      }
+    },
+    "action_on_caveats": "ANNOTATION ONLY — attaches _fact_verification to result"
+  },
+
+  "proxy_coverage": {
+    "wrapped_tools": "ALL prism_* dispatchers (universal hooks)",
+    "lambda_wrapped": "25 calc tools",
+    "NOT_lambda_wrapped": [
+      "prism_safety — intentionally excluded (safety dispatcher validates others, not itself)",
+      "prism_data, prism_doc, prism_knowledge — FILE category, no calc validation needed",
+      "prism_session, prism_context — STATE category",
+      "prism_orchestrate, prism_manus, prism_autopilot_d — ORCH/AGENT category"
+    ],
+    "universal_input_validation": "CAN BLOCK — inputVal.blocked returns SAFETY BLOCK error at line 922-934",
+    "note": "Universal hooks provide real blocking; Lambda is advisory only"
+  },
+
+  "findings": [
+    {
+      "id": "F13",
+      "severity": "CRITICAL",
+      "title": "Lambda validation is annotation-only — does not block unsafe calc results",
+      "file": "src/tools/autoHookWrapper.ts",
+      "lines": "414-434",
+      "issue": "When validateSafetyProof() detects physically impossible results (negative force, zero tool life), the wrapper only attaches a _safety_warning property to the result object and returns it. It does NOT throw, block, or prevent the result from reaching the caller. A calculation producing negative cutting force (-500N) would be returned to the user with just a warning annotation.",
+      "impact": "Physically impossible manufacturing parameters can reach the end user. The caller (LLM agent) must manually check _safety_warning — if it doesn't, unsafe values pass silently.",
+      "fix": "For severity='critical' (validity_score < 0.5): throw SafetyBlockError or return an error envelope instead of the result. For severity='warning': keep annotation-only behavior.",
+      "note": "The universal hooks' INPUT validation at line 906-916 DOES block. This gap is specifically in the POST-calculation Lambda check.",
+      "status": "FIXED",
+      "fix_applied": "QA-MS1: autoHookWrapper.ts:414-441 now returns error envelope for critical Lambda failures (validity_score < 0.5). Warning-level stays annotation-only."
+    },
+    {
+      "id": "F14",
+      "severity": "MEDIUM",
+      "title": "Hook ID CALC-SAFETY-VIOLATION-001 used with different semantics in two systems",
+      "files": ["src/tools/autoHookWrapper.ts:416", "src/orchestration/HookEngine.ts:241"],
+      "issue": "autoHookWrapper fires CALC-SAFETY-VIOLATION-001 as a logging event via hookExecutor (non-blocking). HookEngine evaluates the same hook ID as a hard blocking gate (safetyScore < 0.70). Same ID, different behavior depending on execution path.",
+      "impact": "Confusing for audit and debugging. A developer seeing CALC-SAFETY-VIOLATION-001 in logs might assume it blocked when it didn't (autoHookWrapper path) or vice versa.",
+      "fix": "Use distinct hook IDs: CALC-SAFETY-VIOLATION-001 for HookEngine's S(x) gate, LAMBDA-SAFETY-WARN-001 for autoHookWrapper's post-calc annotation.",
+      "status": "FIXED",
+      "fix_applied": "QA-MS1: Renamed autoHookWrapper hook ID to LAMBDA-SAFETY-WARN-001."
+    },
+    {
+      "id": "F15",
+      "severity": "MEDIUM",
+      "title": "autoHookWrapper fires CALC-SAFETY-VIOLATION-001 with 'score' field, HookEngine expects 'safety_score'",
+      "files": ["src/tools/autoHookWrapper.ts:420", "src/orchestration/HookEngine.ts:242"],
+      "issue": "autoHookWrapper passes { score: proofResult.validity_score } but HookEngine looks for context.data.safety_score ?? context.data.S. The field name mismatch means even if the hook somehow reached HookEngine, it would not find the score. Currently these are separate systems so it's not a runtime bug, but it's a naming inconsistency.",
+      "impact": "If the systems are ever unified, the field mismatch would cause a silent bypass.",
+      "fix": "Standardize on safety_score as the canonical field name in all hook data."
+    },
+    {
+      "id": "F16",
+      "severity": "LOW",
+      "title": "Phi validation only checks English hedging words",
+      "file": "src/tools/autoHookWrapper.ts:292",
+      "issue": "verifyFactualClaims() checks for 11 English claim indicators and 6 hedging words. If web content is in another language or uses domain-specific claim patterns, Phi scoring would return VERIFIED (no claims detected) even for unverified claims.",
+      "impact": "Low — PRISM content is English-only manufacturing domain. But worth noting for future internationalization.",
+      "fix": "N/A for current scope."
+    }
+  ],
+
+  "summary": {
+    "critical_findings": 1,
+    "medium_findings": 2,
+    "low_findings": 1,
+    "lambda_bounds": "All 8 input/output bounds are physically correct for metalworking",
+    "lambda_threshold": "0.9 is appropriately conservative (more strict than S(x) 0.70 threshold)",
+    "phi_design": "Sound for English manufacturing content",
+    "proxy_coverage": "All prism_* dispatchers get universal hooks (including blocking input validation). 25 calc tools additionally get Lambda. Safety dispatcher intentionally excluded from Lambda.",
+    "critical_gap": "Lambda post-calc check annotates but does not block physically impossible results. Universal input validation does block — the gap is in POST-calculation output verification."
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "id": "QA-MS0",
+  "version": "1.0.0",
+  "title": "Audit Framework & Baseline",
+  "brief": "Establish the QA audit scoring rubric, generate ground-truth inventories of all system components from code, cross-reference against documentation, identify discrepancies, and produce a baseline audit report.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Audit Framework & Baseline",
+      "description": "Build the audit foundation: scoring rubric, ground-truth inventories from live code, cross-reference against docs, and produce baseline report with corrected counts.",
+      "sessions": "2-3",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00",
+          "title": "Establish audit scoring rubric",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "OPUS/HIGH — foundational rubric that all subsequent audits reference",
+          "tools": [{ "tool": "prism_validate" }, { "tool": "prism_intelligence", "action": "query" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": ["QA track approved", "Access to full codebase"],
+          "exit_conditions": [
+            "Scoring rubric document created with 4 dimensions: correctness, completeness, safety, performance",
+            "Rubric includes severity levels (CRITICAL/MAJOR/MINOR/INFO)",
+            "Rubric includes pass/fail thresholds per dimension"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/",
+          "steps": [
+            { "number": 1, "instruction": "Define the 4-dimension audit scoring rubric (correctness, completeness, safety, performance)" },
+            { "number": 2, "instruction": "Establish severity thresholds and scoring weights for each dimension" },
+            { "number": 3, "instruction": "Create rubric state file at state/QA-MS0/rubric.json" },
+            { "number": 4, "instruction": "Validate rubric covers all 12 gap categories from roadmapSchema" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/rubric.json", "type": "config", "description": "QA audit scoring rubric with 4 dimensions and severity thresholds" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U01",
+          "title": "Generate ground-truth inventory: dispatchers, actions, engines",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "OPUS/HIGH — must parse all dispatcher files and engine files to build accurate inventory",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U00"],
+          "entry_conditions": ["Scoring rubric established"],
+          "exit_conditions": [
+            "Complete dispatcher inventory with exact action counts per dispatcher",
+            "Complete engine inventory with method signatures",
+            "All counts derived from code, not documentation"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/",
+          "steps": [
+            { "number": 1, "instruction": "Scan src/tools/dispatchers/ to enumerate all dispatchers and their registered actions" },
+            { "number": 2, "instruction": "Scan src/engines/ to enumerate all engine files and their public methods" },
+            { "number": 3, "instruction": "Record exact counts: dispatchers, actions per dispatcher, total actions, engines, methods per engine" },
+            { "number": 4, "instruction": "Save inventory to state/QA-MS0/inventory-dispatchers-engines.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/inventory-dispatchers-engines.json", "type": "data", "description": "Ground-truth inventory of dispatchers, actions, and engines from code" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Generate ground-truth inventory: algorithms, registries, hooks",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "OPUS/HIGH — must parse algorithm files, registry files, and hook definitions",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U01"],
+          "entry_conditions": ["Dispatcher/engine inventory complete"],
+          "exit_conditions": [
+            "Complete algorithm inventory with registration status",
+            "Complete registry inventory with entry counts",
+            "Complete hook inventory with trigger types",
+            "All counts derived from code"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/",
+          "steps": [
+            { "number": 1, "instruction": "Scan src/algorithms/ to enumerate all algorithm files and their AlgorithmRegistry registrations" },
+            { "number": 2, "instruction": "Scan data/ to enumerate all registry JSON files with entry counts" },
+            { "number": 3, "instruction": "Scan src/hooks/ and hook registration to enumerate all hooks" },
+            { "number": 4, "instruction": "Save inventory to state/QA-MS0/inventory-algorithms-registries-hooks.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/inventory-algorithms-registries-hooks.json", "type": "data", "description": "Ground-truth inventory of algorithms, registries, and hooks from code" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Cross-reference inventories against MASTER_INDEX.md, CLAUDE.md, GSD state",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "rationale": "SONNET/MEDIUM — systematic comparison, less creative judgment needed",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U02"],
+          "entry_conditions": ["All ground-truth inventories complete"],
+          "exit_conditions": [
+            "Cross-reference matrix produced comparing code vs MASTER_INDEX.md",
+            "Cross-reference matrix produced comparing code vs CLAUDE.md counts",
+            "Cross-reference matrix produced comparing code vs GSD state"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/",
+          "steps": [
+            { "number": 1, "instruction": "Parse MASTER_INDEX.md for all claimed counts (dispatchers, actions, engines, etc.)" },
+            { "number": 2, "instruction": "Parse CLAUDE.md for all claimed counts" },
+            { "number": 3, "instruction": "Compare code inventories against documentation claims" },
+            { "number": 4, "instruction": "Save cross-reference to state/QA-MS0/cross-reference.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/cross-reference.json", "type": "data", "description": "Cross-reference matrix: code reality vs documentation claims" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U04",
+          "title": "Identify all count discrepancies and doc drift",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "rationale": "SONNET/MEDIUM — analysis of cross-reference data",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": ["Cross-reference matrix complete"],
+          "exit_conditions": [
+            "All count discrepancies cataloged with severity",
+            "Doc drift report produced with before/after values",
+            "Priority list of corrections ranked by impact"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/",
+          "steps": [
+            { "number": 1, "instruction": "Analyze cross-reference for all numeric discrepancies" },
+            { "number": 2, "instruction": "Categorize each discrepancy: inflation, deflation, missing, orphaned" },
+            { "number": 3, "instruction": "Assign severity per audit rubric" },
+            { "number": 4, "instruction": "Save discrepancy report to state/QA-MS0/discrepancies.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/discrepancies.json", "type": "data", "description": "Catalog of all count discrepancies with severity and correction priority" }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U05",
+          "title": "Produce baseline audit report + fix doc counts",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Auditor",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "OPUS/HIGH — synthesizes all findings and updates documentation",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }],
+          "skills": ["smart"],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": ["P0-U04"],
+          "entry_conditions": ["Discrepancy report complete"],
+          "exit_conditions": [
+            "Baseline audit report produced with system-wide scores",
+            "MASTER_INDEX.md counts corrected to match code",
+            "CLAUDE.md counts corrected to match code",
+            "GSD state updated with accurate counts"
+          ],
+          "rollback": "git checkout -- state/QA-MS0/ mcp-server/data/docs/MASTER_INDEX.md",
+          "steps": [
+            { "number": 1, "instruction": "Compile all inventories and discrepancies into baseline audit report" },
+            { "number": 2, "instruction": "Calculate initial system scores per rubric dimensions" },
+            { "number": 3, "instruction": "Update MASTER_INDEX.md with corrected counts" },
+            { "number": 4, "instruction": "Update CLAUDE.md with corrected counts" },
+            { "number": 5, "instruction": "Save baseline report to state/QA-MS0/baseline-report.json" }
+          ],
+          "deliverables": [
+            { "path": "state/QA-MS0/baseline-report.json", "type": "data", "description": "Complete baseline audit report with system-wide scores" },
+            { "path": "mcp-server/data/docs/MASTER_INDEX.md", "type": "doc", "description": "MASTER_INDEX.md with corrected counts" }
+          ],
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "All ground-truth inventories complete and saved",
+          "Cross-reference matrix covers all doc sources",
+          "Baseline scores calculated for all 4 dimensions"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["missing_tools", "underspecified_steps", "missing_exit_conditions"]
+    }
+  ],
+  "total_units": 6,
+  "total_sessions": "2-3",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90, "description": "QA auditor for high-complexity verification" },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70, "description": "QA auditor for medium-complexity verification" }
+  ],
+  "tool_map": [
+    { "tool": "prism_validate", "phases": ["P0"], "purpose": "Validate system components" },
+    { "tool": "prism_intelligence", "phases": ["P0"], "purpose": "Query system state and inventories" },
+    { "tool": "prism_dev", "phases": ["P0"], "purpose": "Development tooling for code inspection" }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS0/rubric.json", "type": "config", "description": "QA audit scoring rubric" },
+    { "path": "state/QA-MS0/inventory-dispatchers-engines.json", "type": "data", "description": "Dispatcher/engine inventory" },
+    { "path": "state/QA-MS0/inventory-algorithms-registries-hooks.json", "type": "data", "description": "Algorithm/registry/hook inventory" },
+    { "path": "state/QA-MS0/cross-reference.json", "type": "data", "description": "Code vs docs cross-reference" },
+    { "path": "state/QA-MS0/discrepancies.json", "type": "data", "description": "Count discrepancy catalog" },
+    { "path": "state/QA-MS0/baseline-report.json", "type": "data", "description": "Baseline audit report" }
+  ],
+  "existing_leverage": [
+    { "asset": "MASTER_INDEX.md", "type": "doc", "usage": "Documentation truth source for cross-reference" },
+    { "asset": "dispatchers/index.ts", "type": "source", "usage": "Dispatcher registry for inventory" },
+    { "asset": "Scrutinizer 12-checker", "type": "source", "usage": "Existing gap analysis framework" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors", "underspecified_steps"],
+    "improvement_threshold": 0.92
+  }
+}

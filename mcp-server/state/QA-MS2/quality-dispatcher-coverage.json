@@ -1,0 +1,104 @@
+{
+  "audit_id": "QA-MS2-P0-U05",
+  "title": "Quality Dispatcher Action Coverage",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:50:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS — All 29 quality actions wired to handlers. 1 LOW finding.",
+
+  "quality_dispatchers": {
+    "prism_omega": {
+      "file": "src/tools/dispatchers/omegaDispatcher.ts",
+      "total_actions": 6,
+      "actions": {
+        "compute": { "handler": "computeOmega()", "engine_method": "inline (line 36)", "wired": true },
+        "breakdown": { "handler": "computeOmega() + contribution_percentages", "engine_method": "inline (line 94)", "wired": true },
+        "validate": { "handler": "threshold comparison", "engine_method": "inline (line 112)", "wired": true },
+        "optimize": { "handler": "weight-based suggestions", "engine_method": "inline (line 125)", "wired": true },
+        "history": { "handler": "omegaHistory.slice(-n)", "engine_method": "inline (line 141)", "wired": true },
+        "auto_score": { "handler": "getCogMetrics() + computeSafetyScore()", "engine_method": "cross-dispatcher (line 146)", "wired": true }
+      }
+    },
+    "prism_guard": {
+      "file": "src/tools/dispatchers/guardDispatcher.ts",
+      "total_actions": 14,
+      "actions": {
+        "decision_log": { "handler": "JSONL file ops (record/search/list)", "wired": true },
+        "failure_library": { "handler": "JSONL pattern matching (record/check/stats)", "wired": true },
+        "error_capture": { "handler": "JSONL append + pattern matching", "wired": true },
+        "pre_write_gate": { "handler": "approvedPlans Map (approve/check/status)", "wired": true },
+        "pre_write_diff": { "handler": "filesReadThisSession Set (register_read/check_write/status)", "wired": true },
+        "pre_call_validate": { "handler": "KNOWN_RENAMES lookup (139 entries)", "wired": true },
+        "autohook_status": { "handler": "getHookHistory() + hookHistory", "wired": true },
+        "autohook_test": { "handler": "fireHook('AUTOHOOK-TEST-001')", "wired": true },
+        "pattern_scan": { "handler": "Python: pattern_detector.py --detect", "wired": true },
+        "pattern_history": { "handler": "Python: pattern_detector.py --list", "wired": true },
+        "learning_query": { "handler": "Python: learning_store.py --lookup", "wired": true },
+        "learning_save": { "handler": "Python: learning_store.py --learn-file", "wired": true },
+        "lkg_status": { "handler": "Python: lkg_tracker.py", "wired": true },
+        "priority_score": { "handler": "Python: priority_scorer.py", "wired": true }
+      }
+    },
+    "prism_ralph": {
+      "file": "src/tools/dispatchers/ralphDispatcher.ts",
+      "total_actions": 3,
+      "actions": {
+        "loop": { "handler": "4-phase validation (Claude API)", "engine_method": "executeValidator() × N + callClaudeApi() × 3", "wired": true },
+        "scrutinize": { "handler": "Single validator pass (Claude API)", "engine_method": "executeValidator()", "wired": true },
+        "assess": { "handler": "Opus assessment (Claude API)", "engine_method": "executeAssessment()", "wired": true }
+      }
+    },
+    "prism_gsd": {
+      "file": "src/tools/dispatchers/gsdDispatcher.ts",
+      "total_actions": 6,
+      "actions": {
+        "core": { "handler": "readGsdFile('GSD_QUICK.md') + readGsdFile('DEV_PROTOCOL.md')", "wired": true },
+        "quick": { "handler": "readGsdFile('GSD_QUICK.md')", "wired": true },
+        "get": { "handler": "readSection(section)", "wired": true },
+        "dev_protocol": { "handler": "readGsdFile('DEV_PROTOCOL.md')", "wired": true },
+        "resources_summary": { "handler": "getSystemCounts() + CURRENT_STATE.json", "wired": true },
+        "quick_resume": { "handler": "CURRENT_STATE.json parse", "wired": true }
+      }
+    }
+  },
+
+  "coverage_summary": {
+    "total_quality_actions": 29,
+    "wired_to_handler": 29,
+    "wiring_coverage": "100%",
+    "unwired_actions": [],
+    "test_coverage": {
+      "prism_omega": "Not tested in existing test suite",
+      "prism_guard": "Not tested in existing test suite",
+      "prism_ralph": "Not tested (requires API key)",
+      "prism_gsd": "Not tested in existing test suite"
+    }
+  },
+
+  "cross_dispatcher_integration": {
+    "omega_to_safety": "auto_score calls computeSafetyScore() from validators.ts",
+    "omega_to_sp": "auto_score calls getCogMetrics() from spDispatcher.ts",
+    "omega_events": "Publishes QUALITY_SCORE_UPDATED, subscribes QUALITY_GATE_FAILED",
+    "guard_to_hooks": "autohook_status reads from autoHookWrapper's getHookHistory()",
+    "guard_python": "6 actions delegate to Python scripts in scripts/ directory",
+    "ralph_to_api": "All 3 actions make real Claude API calls",
+    "gsd_to_fs": "core/quick/get/dev_protocol read from data/docs/gsd/ files"
+  },
+
+  "findings": [
+    {
+      "id": "F30",
+      "severity": "LOW",
+      "title": "Zero quality dispatcher actions have automated tests",
+      "issue": "All 29 quality dispatcher actions are wired and functional, but none have test coverage in the existing test suite. prism_omega, prism_guard, and prism_gsd could be tested without external dependencies. prism_ralph requires an API key.",
+      "impact": "Regressions in quality scoring, guard logic, or GSD file reading would go undetected.",
+      "fix": "Add test files: omega-dispatcher.test.ts, guard-dispatcher.test.ts, gsd-dispatcher.test.ts using the existing createMockServer() pattern."
+    }
+  ],
+
+  "exit_conditions_met": {
+    "all_actions_mapped": true,
+    "unwired_actions_identified": "None — 100% wired",
+    "coverage_report_produced": true
+  }
+}

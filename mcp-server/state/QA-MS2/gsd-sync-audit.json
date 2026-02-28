@@ -1,0 +1,106 @@
+{
+  "audit_id": "QA-MS2-P0-U03",
+  "title": "GSD Sync State Accuracy vs Live System",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:50:00Z",
+  "status": "COMPLETE",
+  "verdict": "2 MEDIUM findings — engine and hook counts diverge between GSD fallback, live scan, and QA-MS0 verified values",
+
+  "counting_methodology": {
+    "gsd_live_scan": {
+      "method": "getSystemCounts() in gsdDispatcher.ts:31-50",
+      "logic": "fs.readdirSync() on dispatchers/, engines/, hooks/ directories, filtered by extension",
+      "cache": "60-second TTL",
+      "fallback": "dispatchers: 45, engines: 185, hooks: 179"
+    },
+    "qa_ms0_verified": {
+      "source": "state/QA-MS0/ inventories (verified by hand audit)",
+      "counts": { "dispatchers": 45, "actions": 1060, "engines": 169, "algorithms": 50, "hooks": 157 }
+    },
+    "live_filesystem_scan": {
+      "method": "ls + wc -l (actual filesystem at audit time)",
+      "results": { "dispatchers": 45, "engine_files": 190, "hook_files": 21 }
+    }
+  },
+
+  "comparison_matrix": {
+    "dispatchers": {
+      "gsd_fallback": 45,
+      "live_scan": 45,
+      "qa_ms0": 45,
+      "match": "ALL MATCH ✓"
+    },
+    "engines": {
+      "gsd_fallback": 185,
+      "live_scan": 190,
+      "qa_ms0": 169,
+      "delta_gsd_vs_qa": "+16 (9.5%)",
+      "delta_live_vs_qa": "+21 (12.4%)",
+      "explanation": "GSD/live count ALL .ts files in engines/ directory (190 files). QA-MS0 counted verified functional engine classes (169). The delta includes utility files, index files, and type files that aren't actual engines."
+    },
+    "hooks": {
+      "gsd_fallback": 179,
+      "live_scan_files": 21,
+      "qa_ms0": 157,
+      "explanation": "GSD fallback (179) counts total hook DEFINITIONS registered at runtime. Live scan (21) counts .ts FILES in hooks/ directory. QA-MS0 (157) counted verified hook registrations. The GSD fallback is stale — should be 157 per QA-MS0."
+    }
+  },
+
+  "stale_entries": [
+    {
+      "field": "engines fallback",
+      "current_value": 185,
+      "correct_value": 169,
+      "location": "gsdDispatcher.ts:41",
+      "issue": "Fallback engine count (185) doesn't match QA-MS0 verified count (169)"
+    },
+    {
+      "field": "hooks fallback",
+      "current_value": 179,
+      "correct_value": 157,
+      "location": "gsdDispatcher.ts:43",
+      "issue": "Fallback hook count (179) doesn't match QA-MS0 verified count (157)"
+    },
+    {
+      "field": "GSD_QUICK.md fallback",
+      "current_value": "185 engines",
+      "correct_value": "169 engines (QA-MS0 verified)",
+      "location": "gsdDispatcher.ts:59",
+      "issue": "Hardcoded fallback string references stale counts"
+    }
+  ],
+
+  "sync_accuracy": {
+    "dispatchers": "100% (45/45)",
+    "engines": "89% (169/190 — methodology difference, not data staleness)",
+    "hooks": "GSD fallback is 14% overstated (179 vs 157)",
+    "overall": "Dispatcher counts are accurate. Engine and hook counts suffer from methodology mismatch between file-count (GSD live scan) and functional-unit-count (QA-MS0)."
+  },
+
+  "findings": [
+    {
+      "id": "F27",
+      "severity": "MEDIUM",
+      "title": "GSD fallback counts are stale — don't match QA-MS0 verified values",
+      "file": "src/tools/dispatchers/gsdDispatcher.ts",
+      "lines": "39-43, 59",
+      "issue": "Fallback defaults (engines: 185, hooks: 179) were set before QA-MS0 audit. QA-MS0 verified 169 engines and 157 hooks. The fallback values are 9.5% and 14% overstated respectively.",
+      "fix": "Update fallback defaults to QA-MS0 verified counts: engines: 169, hooks: 157"
+    },
+    {
+      "id": "F28",
+      "severity": "MEDIUM",
+      "title": "getSystemCounts() counts files, not functional units — methodology mismatch",
+      "file": "src/tools/dispatchers/gsdDispatcher.ts",
+      "line": 31,
+      "issue": "Live scan counts all .ts files in engines/ (190) but QA-MS0 verified only 169 are actual engine classes. The scan includes utility files, type definitions, and index files.",
+      "fix": "Filter by pattern (e.g., *Engine.ts) or maintain a registry of known engines. Or document that 'engines' count includes all engine-directory files, not just functional engines."
+    }
+  ],
+
+  "exit_conditions_met": {
+    "gsd_vs_live_compared": true,
+    "stale_entries_identified": true,
+    "sync_accuracy_calculated": true
+  }
+}

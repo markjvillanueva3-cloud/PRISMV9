@@ -26,6 +26,7 @@ import { log } from "../utils/Logger.js";
 // ProofValidation and FactVerify do not exist as exports — functionality is inline
 import { hookExecutor } from "../engines/HookExecutor.js";
 import { hookEngine } from "../orchestration/HookEngine.js";
+import { eventBus, EventTypes } from "../engines/EventBus.js";
 import {
   autoTodoRefresh, autoCheckpoint, autoContextPressure,
   autoContextCompress, autoCompactionDetect, autoCompactionSurvival,
@@ -410,19 +411,37 @@ export function wrapToolWithAutoHooks(toolName: string, handler: (...a: any[]) =
         is_valid: proofResult.is_valid,
         issue_count: proofResult.issues?.length || 0
       });
-      if (!proofResult.is_valid && proofResult.validity_score < 0.5) {
-        await fireHook("CALC-SAFETY-VIOLATION-001", {
+      if (!proofResult.is_valid) {
+        const severity = proofResult.validity_score < 0.5 ? "critical" : "warning";
+        await fireHook("LAMBDA-SAFETY-WARN-001", {
           tool_name: toolName,
           event: "safety:violation",
-          score: proofResult.validity_score,
+          severity,
+          lambda_score: proofResult.validity_score,
           threshold: AUTO_HOOK_CONFIG.thresholds.lambda_min,
           issue_count: proofResult.issues?.length || 0
         });
+        // QA-MS1 FIX (F13): Critical Lambda failures BLOCK — physically impossible results must not reach the user
+        if (severity === "critical") {
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                error: `SAFETY BLOCK: Physics violation detected (Λ=${proofResult.validity_score.toFixed(2)})`,
+                lambda_score: proofResult.validity_score,
+                issues: proofResult.issues,
+                guidance: "Review calculation parameters — physically impossible results detected."
+              })
+            }]
+          };
+        }
+        // Warning-level: annotate but allow through
         if (typeof result === "object" && result !== null) {
           result._safety_warning = {
             lambda_score: proofResult.validity_score,
+            severity,
             issues: proofResult.issues,
-            recommendation: "Review calculation parameters"
+            recommendation: "Calculation may be inaccurate — verify inputs"
           };
         }
       }
@@ -909,7 +928,10 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           });
         }
       }
-    } catch {
+    } catch (validationError) {
+      // QA-MS1 FIX (F18): Fail-closed — if input validation itself throws, block the call
+      inputBlocked = true;
+      cadence.actions.push(`\u{1F6D1} INPUT_VALIDATION_ERROR: ${validationError instanceof Error ? validationError.message : "unknown"}`);
     }
     let result;
     let error = null;
@@ -1073,6 +1095,25 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       // Telemetry recording handled by autoTelemetrySnapshot cadence function
     } catch {
     }
+    // MS2: Emit phase events for phase-based hook triggering
+    try {
+      const phaseMap: Record<string, string> = {
+        "prism_calc": "post-calculation",
+        "prism_safety": "post-safety-check",
+        "prism_validate": "post-validation",
+        "prism_data": "post-data-query",
+        "prism_toolpath": "post-toolpath",
+        "prism_export": "post-export",
+        "prism_quality": "post-quality-check",
+      };
+      const phase = phaseMap[toolName] || `post-${toolName.replace("prism_", "")}`;
+      eventBus.publish(`phase.${phase}`, {
+        tool: toolName,
+        action: action2,
+        duration_ms: durationMs,
+        call_number: callNum,
+      }, { category: "hook", priority: "normal", source: "autoHookWrapper" });
+    } catch { /* phase event emission is best-effort */ }
     try {
       const { memoryGraphEngine: memoryGraphEngine2 } = await import("../engines/MemoryGraphEngine.js");
       const paramsSummary = typeof (args as any).params === "object" ? JSON.stringify((args as any).params).slice(0, 200) : String((args as any).params || "").slice(0, 200);

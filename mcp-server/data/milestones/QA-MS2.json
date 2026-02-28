@@ -1,0 +1,161 @@
+{
+  "id": "QA-MS2",
+  "version": "1.0.0",
+  "title": "Omega / Guard / Ralph / GSD Audit",
+  "brief": "Audit the quality scoring engines: OmegaEngine weight vector verification, GuardEngine naming consistency, RalphEngine QA logic, GSD sync accuracy, Scrutinizer 12-checker coverage, and dispatcher action coverage for all three engines.",
+  "created_at": "2026-02-27T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Omega / Guard / Ralph / GSD Audit",
+      "description": "Verify quality scoring subsystem: Omega weight vectors, Guard naming consistency, Ralph QA logic, GSD state accuracy, Scrutinizer coverage, and dispatcher wiring.",
+      "sessions": "2",
+      "primary_role": "R4",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U00", "title": "OmegaEngine: weight vector (0.25R+0.20C+0.15P+0.30S+0.10L) verification",
+          "phase": "P0", "sequence": 0, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — Omega score drives all quality gates",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": [], "entry_conditions": ["QA-MS1 complete", "Safety chain verified"],
+          "exit_conditions": ["Weight vector sums to 1.0", "Each component (R,C,P,S,L) maps to correct subscore", "Score normalization verified"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Read OmegaEngine source and extract weight vector" },
+            { "number": 2, "instruction": "Verify weights sum to 1.0: 0.25+0.20+0.15+0.30+0.10" },
+            { "number": 3, "instruction": "Verify each weight maps to correct subscore component" },
+            { "number": 4, "instruction": "Test with known inputs and verify output" },
+            { "number": 5, "instruction": "Document in state/QA-MS2/omega-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/omega-audit.json", "type": "data", "description": "OmegaEngine weight vector verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U01", "title": "GuardEngine: naming confusion audit (guard vs validate vs check)",
+          "phase": "P0", "sequence": 1, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — naming consistency analysis",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U00"], "entry_conditions": ["Omega audit complete"],
+          "exit_conditions": ["All guard/validate/check naming patterns cataloged", "Inconsistencies identified with recommendations", "Naming convention proposal documented"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Search codebase for guard*, validate*, check* function/method names" },
+            { "number": 2, "instruction": "Categorize by actual behavior (blocking guard, validation, passive check)" },
+            { "number": 3, "instruction": "Identify mismatches between name and behavior" },
+            { "number": 4, "instruction": "Document in state/QA-MS2/guard-naming-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/guard-naming-audit.json", "type": "data", "description": "Guard naming consistency audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U02", "title": "RalphEngine: quality assurance logic review",
+          "phase": "P0", "sequence": 2, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — logic review of QA engine",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U01"], "entry_conditions": ["Guard naming audit complete"],
+          "exit_conditions": ["Ralph grading logic verified (A-F scale)", "Loop convergence logic verified", "Anti-regression check integration confirmed"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Read RalphEngine source and map grading logic" },
+            { "number": 2, "instruction": "Verify grade thresholds and scoring formula" },
+            { "number": 3, "instruction": "Verify loop convergence detection" },
+            { "number": 4, "instruction": "Document in state/QA-MS2/ralph-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/ralph-audit.json", "type": "data", "description": "RalphEngine QA logic verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U03", "title": "GSD sync state accuracy vs live system",
+          "phase": "P0", "sequence": 3, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — state comparison",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }, { "tool": "prism_dev" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U02"], "entry_conditions": ["Ralph audit complete"],
+          "exit_conditions": ["GSD state compared against live system counts", "Stale entries identified", "Sync accuracy percentage calculated"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Read current GSD state files" },
+            { "number": 2, "instruction": "Compare against live system inventory from QA-MS0" },
+            { "number": 3, "instruction": "Calculate sync accuracy and identify stale entries" },
+            { "number": 4, "instruction": "Document in state/QA-MS2/gsd-sync-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/gsd-sync-audit.json", "type": "data", "description": "GSD sync accuracy audit" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U04", "title": "Scrutinizer 12-checker coverage verification",
+          "phase": "P0", "sequence": 4, "role": "R4", "role_name": "Auditor", "model": "opus-4.6", "effort": 90,
+          "rationale": "OPUS/HIGH — scrutinizer is the quality backbone",
+          "tools": [{ "tool": "prism_validate" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U03"], "entry_conditions": ["GSD sync audit complete"],
+          "exit_conditions": ["All 12 gap categories verified as implemented", "Each checker tested with positive and negative cases", "Coverage gaps in scrutinizer identified"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all 12 gap categories from roadmapSchema.ts" },
+            { "number": 2, "instruction": "For each category, locate the checker implementation" },
+            { "number": 3, "instruction": "Verify each checker produces correct results for known inputs" },
+            { "number": 4, "instruction": "Document in state/QA-MS2/scrutinizer-coverage-audit.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/scrutinizer-coverage-audit.json", "type": "data", "description": "Scrutinizer 12-checker coverage verification" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        },
+        {
+          "id": "P0-U05", "title": "Omega/Guard/Ralph dispatcher action coverage",
+          "phase": "P0", "sequence": 5, "role": "R4", "role_name": "Auditor", "model": "sonnet-4.6", "effort": 70,
+          "rationale": "SONNET/MEDIUM — action-to-engine mapping check",
+          "tools": [{ "tool": "prism_intelligence", "action": "query" }], "skills": ["smart"], "scripts": [], "hooks": [], "features": [],
+          "dependencies": ["P0-U04"], "entry_conditions": ["Scrutinizer audit complete"],
+          "exit_conditions": ["All quality dispatcher actions mapped to engine methods", "Unwired actions identified", "Coverage report produced"],
+          "rollback": "git checkout -- state/QA-MS2/",
+          "steps": [
+            { "number": 1, "instruction": "Enumerate all actions in quality-related dispatchers" },
+            { "number": 2, "instruction": "Map each action to its Omega/Guard/Ralph engine method" },
+            { "number": 3, "instruction": "Calculate wiring coverage percentage" },
+            { "number": 4, "instruction": "Document in state/QA-MS2/quality-dispatcher-coverage.json" }
+          ],
+          "deliverables": [{ "path": "state/QA-MS2/quality-dispatcher-coverage.json", "type": "data", "description": "Quality dispatcher action coverage" }],
+          "index_in_master": false, "creates_skill": false, "creates_script": false, "creates_hook": false, "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75, "safety_floor": 0.70, "ralph_required": false, "ralph_grade_floor": "B",
+        "anti_regression": true, "test_required": true, "build_required": true, "checkpoint": true, "learning_save": true,
+        "custom_checks": ["Omega weight vector sums to 1.0", "All 12 scrutinizer checkers verified"]
+      },
+      "scrutiny_checkpoint": false, "scrutiny_focus": []
+    }
+  ],
+  "total_units": 6,
+  "total_sessions": "2",
+  "role_matrix": [
+    { "code": "R4", "name": "Auditor", "model": "opus-4.6", "effort": 90 },
+    { "code": "R4", "name": "Auditor", "model": "sonnet-4.6", "effort": 70 }
+  ],
+  "tool_map": [
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
+  ],
+  "deliverables_index": [
+    { "path": "state/QA-MS2/omega-audit.json", "type": "data", "description": "OmegaEngine audit" },
+    { "path": "state/QA-MS2/guard-naming-audit.json", "type": "data", "description": "Guard naming audit" },
+    { "path": "state/QA-MS2/ralph-audit.json", "type": "data", "description": "RalphEngine audit" },
+    { "path": "state/QA-MS2/gsd-sync-audit.json", "type": "data", "description": "GSD sync audit" },
+    { "path": "state/QA-MS2/scrutinizer-coverage-audit.json", "type": "data", "description": "Scrutinizer coverage" },
+    { "path": "state/QA-MS2/quality-dispatcher-coverage.json", "type": "data", "description": "Quality dispatcher coverage" }
+  ],
+  "existing_leverage": [
+    { "asset": "OmegaEngine", "type": "source", "usage": "Weight vector audit target" },
+    { "asset": "GuardEngine", "type": "source", "usage": "Naming consistency target" },
+    { "asset": "RalphEngine", "type": "source", "usage": "QA logic audit target" }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive", "min_passes": 3, "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6", "scrutinizer_effort": 90,
+    "gap_categories": ["missing_tools", "missing_deps", "missing_exit_conditions", "missing_rollback", "sequence_errors"],
+    "improvement_threshold": 0.92
+  }
+}

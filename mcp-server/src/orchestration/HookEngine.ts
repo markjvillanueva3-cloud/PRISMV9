@@ -238,8 +238,12 @@ class HookEngine {
 
   private async executeBuiltInHandler(hook: Hook, context: HookContext): Promise<HookResult> {
     // SAFETY-CRITICAL: CALC-SAFETY-VIOLATION-001
+    // QA-MS1 FIX (F01): Fail-CLOSED when safety score is missing — never default to 1.0
     if (hook.id === "CALC-SAFETY-VIOLATION-001") {
-      const safetyScore = context.data.safety_score ?? context.data.S ?? 1.0;
+      const safetyScore = context.data.safety_score ?? context.data.S;
+      if (safetyScore === undefined || safetyScore === null) {
+        return { status: "blocked", hookId: hook.id, message: `HARD BLOCK: No safety score provided — cannot verify safety`, blockReason: "missing_safety_score" };
+      }
       if (safetyScore < 0.70) {
         return { status: "blocked", hookId: hook.id, message: `HARD BLOCK: Safety score ${safetyScore} < 0.70`, blockReason: "safety_violation" };
       }
