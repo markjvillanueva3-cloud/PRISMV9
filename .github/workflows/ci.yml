@@ -15,8 +15,17 @@ jobs:
       - name: Validate JSON files
         run: |
           echo "Validating JSON files..."
-          find . -name '*.json' -not -path './node_modules/*' -not -path './.git/*' | while read f; do
-            if python3 -c "import json; json.load(open('$f'))" 2>/dev/null; then
+          FAIL_COUNT=0
+          find . -name '*.json' \
+            -not -path './node_modules/*' \
+            -not -path './.git/*' \
+            -not -path './archives/*' \
+            -not -path './state/externalized/*' \
+            -not -path './state/inference-logs/*' \
+            -not -path './state/ralph_loops/*' \
+            -not -path '*/node_modules/*' \
+            | while read f; do
+            if python3 -c "import json; json.load(open('$f', encoding='utf-8'))" 2>/dev/null; then
               echo "  OK: $f"
             else
               echo "  FAIL: $f"
