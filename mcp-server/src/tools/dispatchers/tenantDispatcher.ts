@@ -69,9 +69,11 @@ export function registerTenantDispatcher(server: McpServer): void {
             result = multiTenantEngine.consumePatterns(params.tenant_id, params.type, params.limit);
             break;
           case "promote_pattern":
+            if (!params.tenant_id) throw new Error("tenant_id required for promote_pattern (M-003 auth fix)");
             result = multiTenantEngine.promotePattern(params.pattern_id);
             break;
           case "quarantine_pattern":
+            if (!params.tenant_id) throw new Error("tenant_id required for quarantine_pattern (M-003 auth fix)");
             result = multiTenantEngine.quarantinePattern(params.pattern_id);
             break;
           case "slb_stats":

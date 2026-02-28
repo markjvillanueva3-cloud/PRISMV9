@@ -79,7 +79,7 @@ export class WorkEnvelopeValidatorEngine {
     };
 
     // Z limit adjusted for tool length and workpiece/fixture stack
-    const zMinEffective = effLimits.Z_min + input.tool_length_mm;
+    const zMinEffective = effLimits.Z_min + input.tool_length_mm + input.fixture_height_mm;
 
     // Bounding box tracking
     let bbXmin = Infinity, bbXmax = -Infinity;
@@ -141,6 +141,17 @@ export class WorkEnvelopeValidatorEngine {
             point_index: idx, axis: "B", value: pt.B,
             limit: pt.B < lim.B_min_deg! ? lim.B_min_deg! : lim.B_max_deg!,
             overshoot_mm_or_deg: Math.abs(pt.B < lim.B_min_deg! ? lim.B_min_deg! - pt.B : pt.B - lim.B_max_deg!),
+            is_rapid: isRapid, severity: "critical",
+          });
+        }
+      }
+      // C-axis rotary limit check (C-001 fix: was previously missing)
+      if (pt.C !== undefined && lim.C_min_deg !== undefined && lim.C_max_deg !== undefined) {
+        if (pt.C < lim.C_min_deg! + margin * 0.1 || pt.C > lim.C_max_deg! - margin * 0.1) {
+          violations.push({
+            point_index: idx, axis: "C", value: pt.C,
+            limit: pt.C < lim.C_min_deg! ? lim.C_min_deg! : lim.C_max_deg!,
+            overshoot_mm_or_deg: Math.abs(pt.C < lim.C_min_deg! ? lim.C_min_deg! - pt.C : pt.C - lim.C_max_deg!),
             is_rapid: isRapid, severity: "critical",
           });
         }

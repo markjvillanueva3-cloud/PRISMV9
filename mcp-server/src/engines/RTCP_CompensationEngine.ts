@@ -38,6 +38,7 @@ export interface RTCPInput {
   X_mm: number;
   Y_mm: number;
   Z_mm: number;
+  tolerance_mm?: number;                // RTCP tolerance threshold (default 0.01mm)
 }
 
 export interface RTCPResult {
@@ -141,7 +142,8 @@ export class RTCP_CompensationEngine {
     const errorMm = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
     // Tolerance check (0.01mm typical for 5-axis)
-    const withinTol = true; // compensation is the correction itself
+    const toleranceMm = input.tolerance_mm ?? 0.01;
+    const withinTol = errorMm <= toleranceMm;
 
     // Kinematic chain description
     const chainDesc = `${input.kinematic_type}: A=${input.A_deg}° C=${input.C_deg}°` +

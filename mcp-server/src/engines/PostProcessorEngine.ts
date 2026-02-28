@@ -44,6 +44,7 @@ export interface PostMove {
   i?: number; j?: number;
   feed?: number;
   dwell_sec?: number;
+  pitch?: number;                 // thread pitch for tapping (mm)
   text?: string;                  // for comments
 }
 
@@ -209,6 +210,9 @@ export class PostProcessorEngine {
     // Work offset
     if (input.work_offset) addLine(dialect.workOffset(input.work_offset));
 
+    // Safe retract before tool change (M-002 fix: prevent collision during ATC)
+    addLine("G28 Z0");
+
     // Tool change
     addLine(dialect.toolChange(input.tool_number, input.spindle_rpm, "cw"));
 
@@ -246,8 +250,33 @@ export class PostProcessorEngine {
           }
           totalFeedDist += 20;
           break;
+        case "tap":
+          // C-003 fix: tapping cycle (was previously silently dropped)
+          if (config.use_canned_cycles && move.z !== undefined) {
+            const pitch = move.pitch || 1.0;
+            addLine(`G84 Z${move.z.toFixed(dp)} R2.000 F${(input.spindle_rpm * pitch).toFixed(0)}`);
+            cannedCyclesUsed.push("G84");
+          } else {
+            addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin / 4, dp));
+          }
+          totalFeedDist += 20;
+          break;
+        case "bore":
+          // C-003 fix: boring cycle (was previously silently dropped)
+          if (config.use_canned_cycles && move.z !== undefined) {
+            addLine(`G76 Z${move.z.toFixed(dp)} R2.000 F${move.feed || input.feed_rate_mmmin / 2}`);
+            cannedCyclesUsed.push("G76");
+          } else {
+            addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin / 2, dp));
+          }
+          totalFeedDist += 20;
+          break;
         case "comment":
           if (move.text) addLine(dialect.comment(move.text));
+          break;
+        default:
+          warnings.push(`Unknown move type "${(move as any).type}" at move index — output as comment`);
+          addLine(dialect.comment(`UNSUPPORTED: ${(move as any).type}`));
           break;
       }
     }
