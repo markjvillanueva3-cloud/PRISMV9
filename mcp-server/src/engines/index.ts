@@ -1028,6 +1028,17 @@ export {
   type VoronoiResult,
 } from "./CADKernelEngine.js";
 
+// CadQuery Bridge (Python ↔ TypeScript IPC)
+export {
+  CadBridge,
+  getCadBridge,
+  type CadGeometryRequest,
+  type CadGeometryResult,
+  type CadValidationResult,
+  type CadExportResult,
+  type CadAnalysisResult,
+} from "./CadBridge.js";
+
 // CAM Toolpath Generation & G-code (SAFETY CRITICAL)
 export {
   CAMKernelEngine,

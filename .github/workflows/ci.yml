@@ -108,3 +108,14 @@ jobs:
           else
             echo "No tests directory found, skipping."
           fi
+
+      - name: Run CAD engine tests (pytest)
+        run: |
+          if [ -d "cad-engine" ]; then
+            pip install cadquery build123d pytest pytest-cov --quiet 2>/dev/null || echo "CAD deps install skipped (platform may not support OCP)."
+            if python3 -c "import cadquery" 2>/dev/null; then
+              python3 -m pytest cad-engine/tests/ -v --tb=short
+            else
+              echo "CadQuery not importable — skipping CAD engine tests."
+            fi
+          fi

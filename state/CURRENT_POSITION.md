@@ -1,10 +1,11 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 through REM-MS4 COMPLETE (15 units, 37 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 59 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes total
-**Next Recommended:** REM-MS5 (Test Coverage Expansion) or S3 (SFC Calculator UI)
+**Phase:** REMEDIATION COMPLETE -- REM-MS0 through REM-MS5 DONE (17 units, 39 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 60 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
+**Test Suite:** 1243 tests (1242 pass, 1 pre-existing Merchant's ratios)
+**Next Recommended:** S3 (SFC Calculator UI) or REM-MS5-U02 (calculation engine test expansion)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -48,6 +49,13 @@
 - **Files modified:** HookEngine.ts, HookExecutor.ts, MachineConnectivityEngine.ts, KnowledgeQueryEngine.ts, PredictiveMaintenanceEngine.ts, BaseRegistry.ts
 - **Tests:** 15 new tests, all PASS
 - **Composite OQA:** 4.88 (all 4 units PASS)
+
+## REM-MS5 Test Coverage Expansion (2026-02-28)
+- **U00 (Cadence Tests):** M-030 — 40 tests covering all 38 cadence executor functions (export completeness, pressure zones, return shapes, graceful failure)
+- **U01 (Safety Engine Tests):** M-031 — 35 tests covering PostProcessorEngine (12), WorkEnvelopeValidatorEngine (12), RTCP_CompensationEngine (11)
+- **Findings resolved:** 2 (M-030, M-031)
+- **Test delta:** 1157 → 1243 (+86 new tests across MS4+MS5)
+- **Composite OQA:** 4.90 (all 2 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
