@@ -364,8 +364,13 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
           }
           
           for (const tool of tools) {
-            if (tool.id && !this.entries.has(tool.id)) {
-              this.set(tool.id, tool as CuttingTool);
+            if (tool.id) {
+              if (this.entries.has(tool.id)) {
+                // M-026: Log duplicate instead of silent SKIP (consistent with MaterialRegistry THROW)
+                log.warn(`ToolRegistry: duplicate tool ID '${tool.id}' in ${file.name} — skipping (first-wins)`);
+              } else {
+                this.set(tool.id, tool as CuttingTool);
+              }
             }
           }
         } catch (err) {

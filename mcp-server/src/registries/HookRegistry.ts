@@ -693,7 +693,8 @@ export class HookRegistry extends BaseRegistry<Hook> {
   private async loadFromPath(basePath: string): Promise<void> {
     try {
       if (!await fileExists(basePath)) {
-        log.debug(`Hooks path does not exist: ${basePath}`);
+        // M-024: Warn (not debug) when hook definitions path is missing — prevents silent failure
+        log.warn(`HookRegistry: hooks path does not exist: ${basePath} — domain hooks will not load`);
         return;
       }
       

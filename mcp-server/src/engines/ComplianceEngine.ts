@@ -362,9 +362,25 @@ export class ComplianceEngine {
 
       // Auto-provision hooks via F6
       if (this.config.auto_provision_hooks) {
+        // M-027: Collect existing hook IDs from previous provision to avoid duplicates on re-apply
+        const prevProvision = this.provisioned.get(templateId);
+        const existingHookIds = new Set(
+          prevProvision?.hook_ids?.filter(id => { try { return nlHookEngine.get(id) !== null; } catch { return false; } }) || []
+        );
         for (const req of template.requirements) {
           if (!req.hook_spec) continue;
           try {
+            // M-027: Skip hook creation if a hook from a prior provision is still active
+            if (existingHookIds.size > 0) {
+              const alreadyHooked = [...existingHookIds].some(id => {
+                try { return nlHookEngine.get(id) !== null; } catch { return false; }
+              });
+              if (alreadyHooked && hookIds.length < existingHookIds.size) {
+                // Reuse existing hook
+                const reused = [...existingHookIds][hookIds.length];
+                if (reused) { hookIds.push(reused); continue; }
+              }
+            }
             const result = nlHookEngine.createFromNL(req.hook_spec.natural_language);
             if (result.deploy?.hook_id) {
               hookIds.push(result.deploy.hook_id);
@@ -464,34 +480,40 @@ export class ComplianceEngine {
       const template = this.templates.get(prov.template_id);
       if (!template) continue;
 
-      let passing = 0;
-      const total = template.requirements.length;
+      // M-028: Weight audit score by requirement severity
+      const severityWeights: Record<string, number> = { mandatory: 3, recommended: 2, optional: 1 };
+      let weightedPassing = 0;
+      let totalWeight = 0;
 
       for (const req of template.requirements) {
+        const weight = severityWeights[req.severity] || 1;
+        totalWeight += weight;
+
         // Check if corresponding hook exists and is active
         const hookActive = req.hook_spec
           ? prov.hook_ids.some(id => { try { return nlHookEngine.get(id) !== null; } catch { return false; } })
           : true; // No hook needed
 
-        if (hookActive) passing++;
+        if (hookActive) weightedPassing += weight;
       }
 
-      const score = total > 0 ? passing / total : 0;
+      const score = totalWeight > 0 ? weightedPassing / totalWeight : 0;
 
       // Update provisioned record
       const updated: ProvisionedTemplate = { ...prov, compliance_score: score, last_audit_at: Date.now() };
       this.provisioned.set(prov.template_id, updated);
 
+      const totalReqs = template.requirements.length;
       results.push({
         template_id: prov.template_id,
         framework: template.framework,
         score,
-        details: `${passing}/${total} requirements active (${(score * 100).toFixed(0)}%)`,
+        details: `${totalReqs} requirements, weighted score ${(score * 100).toFixed(0)}% (severity-weighted)`,
       });
 
       this.writeAuditEntry(template.framework, prov.template_id, 'AUDIT',
         score >= 0.9 ? 'compliant' : score >= 0.5 ? 'partial' : 'non_compliant',
-        `Audit score: ${(score * 100).toFixed(0)}% (${passing}/${total})`);
+        `Audit score: ${(score * 100).toFixed(0)}% (severity-weighted, ${totalReqs} requirements)`);
     }
 
     this.saveRegistry();
@@ -620,6 +642,23 @@ export class ComplianceEngine {
       conflicts.push({
         field: 'strictness_precedence', templates: strictValues.map(s => s.id),
         values: strictValues.map(s => s.val), resolved: winner?.id, strategy: 'STRICTEST',
+      });
+    }
+
+    // M-029: Resolve access_control conflicts — INTERSECT strategy (most restrictive wins)
+    const allAccessControls = active.flatMap(t =>
+      t.requirements.filter(r => r.access_control).map(r => ({ templateId: t.id, req: r.id, ac: r.access_control! }))
+    );
+    if (allAccessControls.length > 1) {
+      // INTERSECT: union all required_roles, union all deny_roles (most restrictive)
+      const mergedRequired = [...new Set(allAccessControls.flatMap(a => a.ac.required_roles || []))];
+      const mergedDenied = [...new Set(allAccessControls.flatMap(a => a.ac.deny_roles || []))];
+      conflicts.push({
+        field: 'access_control',
+        templates: allAccessControls.map(a => a.templateId),
+        values: allAccessControls.map(a => a.ac),
+        resolved: { required_roles: mergedRequired, deny_roles: mergedDenied, strategy: 'INTERSECT' },
+        strategy: 'INTERSECT' as ConflictStrategy,
       });
     }
 

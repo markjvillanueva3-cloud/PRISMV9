@@ -1,0 +1,49 @@
+{
+  "id": "REM-MS2",
+  "title": "Auth, Compliance & Consistency",
+  "priority": "P2",
+  "status": "COMPLETE",
+  "completed_at": "2026-02-28",
+  "units": [
+    {
+      "id": "REM-MS2-U00",
+      "title": "Tenant authorization + registry consistency",
+      "findings": ["M-003", "M-004", "M-026"],
+      "status": "PASS",
+      "changes": [
+        "M-003: tenant_id already enforced on promote/quarantine (prior session)",
+        "M-004: Added tenant_id + admin/owner role gate to config mutation in tenantDispatcher",
+        "M-026: ToolRegistry duplicate IDs now log.warn instead of silent skip (consistent with MaterialRegistry)"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/tenantDispatcher.ts",
+        "src/registries/ToolRegistry.ts"
+      ]
+    },
+    {
+      "id": "REM-MS2-U01",
+      "title": "Compliance fixes + hook registry resilience",
+      "findings": ["M-024", "M-027", "M-028", "M-029"],
+      "status": "PASS",
+      "changes": [
+        "M-024: HookRegistry loadFromPath() upgraded from log.debug to log.warn when hooks path missing",
+        "M-027: ComplianceEngine applyTemplate() checks for existing active hooks before creating duplicates",
+        "M-028: Audit score now severity-weighted (mandatory=3x, recommended=2x, optional=1x)",
+        "M-029: resolveConflicts() adds INTERSECT strategy for access_control (union required_roles + deny_roles)"
+      ],
+      "files_modified": [
+        "src/registries/HookRegistry.ts",
+        "src/engines/ComplianceEngine.ts"
+      ]
+    }
+  ],
+  "tests": {
+    "file": "src/__tests__/rem-ms2-auth-compliance.test.ts",
+    "count": 6,
+    "status": "ALL PASS"
+  },
+  "findings_resolved": {
+    "count": 7,
+    "ids": ["M-003", "M-004", "M-024", "M-026", "M-027", "M-028", "M-029"]
+  }
+}

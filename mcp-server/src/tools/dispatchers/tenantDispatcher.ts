@@ -83,7 +83,16 @@ export function registerTenantDispatcher(server: McpServer): void {
             result = multiTenantEngine.getStats();
             break;
           case "config":
-            result = params.updates ? multiTenantEngine.updateConfig(params.updates) : multiTenantEngine.getConfig();
+            if (params.updates) {
+              // M-004: Require tenant_id + admin role for config mutation
+              if (!params.tenant_id) throw new Error("tenant_id required for config mutation (M-004 auth fix)");
+              if (params.role && params.role !== "admin" && params.role !== "owner") {
+                throw new Error("Admin or owner role required for config mutation (M-004 scope gate)");
+              }
+              result = multiTenantEngine.updateConfig(params.updates);
+            } else {
+              result = multiTenantEngine.getConfig();
+            }
             break;
         }
         return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };

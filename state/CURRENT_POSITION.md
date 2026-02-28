@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 + REM-MS1 COMPLETE (7 units, 15 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 56 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 29 code fixes total
-**Next Recommended:** REM-MS2 (Security Hardening) or S3 (SFC Calculator UI)
+**Phase:** REMEDIATION IN PROGRESS -- REM-MS0 + REM-MS1 + REM-MS2 COMPLETE (9 units, 22 findings fixed)
+**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 57 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 36 code fixes total
+**Next Recommended:** REM-MS3 (Code Quality & Documentation Cleanup) or S3 (SFC Calculator UI)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -22,6 +22,14 @@
 - **Findings resolved:** 1 CRITICAL (C-005), 6 MAJOR (M-006..M-010, M-012), 1 already wired (M-015)
 - **Files modified:** index.ts, PhysicsPredictionEngine.ts, WireEDMSettingsEngine.ts, ManufacturingCalculations.ts, calcDispatcher.ts
 - **Composite OQA:** 4.92 (all 3 units PASS)
+
+## REM-MS2 Auth, Compliance & Consistency (2026-02-28)
+- **U00 (Tenant + Registry):** M-003 tenant_id already enforced (prior session), M-004 config mutation requires tenant_id + admin/owner role, M-026 ToolRegistry duplicate IDs now log.warn (not silent skip)
+- **U01 (Compliance + HookRegistry):** M-024 HookRegistry warns on missing hooks path, M-027 applyTemplate() dedup before hook creation, M-028 audit score severity-weighted (mandatory=3x), M-029 access_control INTERSECT strategy
+- **Findings resolved:** 7 MAJOR (M-003, M-004, M-024, M-026, M-027, M-028, M-029)
+- **Files modified:** tenantDispatcher.ts, ToolRegistry.ts, HookRegistry.ts, ComplianceEngine.ts
+- **Tests:** 6 new tests, all PASS
+- **Composite OQA:** 4.90 (all 2 units PASS)
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -190,9 +198,9 @@
 - **Composite OQA:** (5.00+5.00+5.00+5.00)/4*0.8 + test_pass*0.2 = 5.00*0.8 + 1.0 = 4.00+0.94 = 4.94 (PASS, gate omega_floor=0.75 met)
 
 ## Milestone Summary
-- Complete: 56 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0, REM-MS1)
+- Complete: 57 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0, REM-MS1, REM-MS2)
 - In Progress: 0
-- Not Started: 26 milestones (REM-MS2 through REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 25 milestones (REM-MS3 through REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
