@@ -1083,7 +1083,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         // Route to specialized engines or IntelligenceEngine
         const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
         const ALGORITHM_ACTIONS = ["algorithm_select"] as const;
-        const SCHEDULER_ACTIONS = ["shop_schedule", "machine_utilization"] as const;
+        const SCHEDULER_ACTIONS = ["machine_utilization"] as const; // shop_schedule removed: handled by SHOP_ACTIONS -> productShop
         const INTENT_ACTIONS = ["decompose_intent"] as const;
         const FORMATTER_ACTIONS = ["format_response"] as const;
         const WORKFLOW_ACTIONS = ["workflow_match", "workflow_get", "workflow_list"] as const;

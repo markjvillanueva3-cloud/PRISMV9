@@ -1,0 +1,86 @@
+{
+  "unit": "QA-MS7-U02",
+  "title": "Tool Registry Data Quality Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "ToolRegistry.ts — ~500+ coded entries, 13,967 DB_MANIFEST entries",
+  "file": "src/registries/ToolRegistry.ts",
+  "lines": 1112,
+  "architecture": {
+    "base_class": "BaseRegistry (4-tier: LEARNED > USER > ENHANCED > CORE)",
+    "storage": "Map<string, ToolRegistryEntry>",
+    "indexes": [
+      "byType",
+      "byMaterial (workpiece suitability)",
+      "byDiameter (range buckets)",
+      "byManufacturer",
+      "byCoating",
+      "byApplication"
+    ],
+    "search": "Faceted search with multi-term AND logic, fuzzy matching on name/description"
+  },
+  "entry_count_reconciliation": {
+    "code_header": "~500+ (CORE layer)",
+    "db_manifest": "13,967 entries across 14 files",
+    "envelope_claim": "1,731 typed",
+    "explanation": "CORE has ~500+ hardcoded tools. DB_MANIFEST has 13,967 total (includes all variants/sizes). Envelope counted 'typed' subset only.",
+    "severity": "INFO — large gap between typed (1,731) and total (13,967) reflects tool variant explosion"
+  },
+  "data_quality_checks": {
+    "duplicate_handling": "SKIP silently on duplicate ID — INCONSISTENT with Material/Machine (which THROW)",
+    "required_fields": [
+      "id",
+      "name",
+      "type"
+    ],
+    "validation": "validateItem() checks required fields + valid tool type",
+    "missing_data_tolerance": "Many optional fields (coating, geometry, recommended speeds) can be undefined",
+    "search_capabilities": [
+      "faceted multi-index",
+      "fuzzy text",
+      "diameter range",
+      "application filter"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "6 indexes provide comprehensive faceted search capability"
+    },
+    {
+      "severity": "OK",
+      "finding": "Multi-term AND logic enables precise tool selection queries"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "Duplicate ID handling is SKIP (silent) — inconsistent with Material/Machine registries which THROW. Could mask data corruption."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "13,967 DB entries vs 500+ CORE — large ENHANCED layer may cause slow initial load"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Diameter range buckets (0-3mm, 3-6mm, 6-12mm, 12-25mm, 25mm+) cover standard tool sizes"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 5,
+    "safety": 4,
+    "performance": 4,
+    "composite": "4.25",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "recommended_fix": {
+    "action": "Change ToolRegistry duplicate handling from silent SKIP to THROW (or at minimum WARN/log)",
+    "reason": "Consistency with other registries + prevents silent data loss",
+    "effort": "1 line change"
+  },
+  "exit_conditions_met": {
+    "entry_count_reconciled": true,
+    "data_quality_verified": true,
+    "index_coverage_checked": true
+  }
+}

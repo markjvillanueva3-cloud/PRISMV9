@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS6 COMPLETE, QA-MS7 next
+**Phase:** QA Audit Track -- QA-MS0-MS7 COMPLETE, QA-MS8 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS7 (Registry & Data Quality) -- not started
-**Next:** QA-MS7-U00 -> U01 -> U02 -> U03 -> U04 -> U05 -> U06
+**Active:** QA-MS8 (Manufacturing Dispatchers) -- not started
+**Next:** QA-MS8-U00 -> U01 -> U02 -> U03 -> U04
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -79,10 +79,22 @@
 - **Key findings:** shop_schedule dead code path, L3 Industry inline handler should migrate to engine, knowledgeDispatcher naming overlap
 - **Composite OQA:** (4.75+5+5+5+5+5+4.75+5)/8*0.8 + test_pass*0.2 = 4.94*0.8 + 1.0 = 4.95 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS7 Registry & Data Quality Results (2026-02-28)
+- **U00 (MaterialRegistry):** ~1,047 CORE + 6,509 DB_MANIFEST entries, 7 ISO groups, 4-tier layers, 3 indexes, strict duplicate THROW (OQA=4.75 PASS)
+- **U01 (MachineRegistry):** ~824 CORE + 1,015 DB_MANIFEST entries, 7 types, 4 indexes, controller family bridging to AlarmRegistry (OQA=5.00 PASS)
+- **U02 (ToolRegistry):** ~500+ CORE + 13,967 DB_MANIFEST entries, 6 indexes, faceted search, 1 MAJOR: duplicate handling SKIP (inconsistent with Material/Machine THROW) (OQA=4.25 COND PASS)
+- **U03 (AlarmRegistry):** ~2,500 CORE + 10,090 DB_MANIFEST entries, 12 controller families, fix procedures with safety warnings (OQA=5.00 PASS)
+- **U04 (FormulaRegistry):** 11 built-in + 489 JSON = 500 total, consumer tracking, 12 source modules, SI units throughout (OQA=4.75 PASS)
+- **U05 (Performance):** Dual-phase init (eager+lazy), Promise concurrency guard, 1 MAJOR: no TTL/cache invalidation (acceptable for MCP, risk for daemon mode) (OQA=4.25 COND PASS)
+- **U06 (Cross-Registry):** 15 registries, ISO group keys consistent, controller families consistent, crossLookup() bridges verified, 1 MINOR: kb-ai-structures stub enabled (OQA=4.75 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 1 code change -- shop_schedule removed from SCHEDULER_ACTIONS (QA-MS6 finding, applied post-commit)
+- **Composite OQA:** (4.75+5.00+4.25+5.00+4.75+4.25+4.75)/7*0.8 + test_pass*0.2 = 4.68*0.8 + 1.0 = 4.74 (PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 46 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5, QA-MS6)
+- Complete: 47 milestones (S0-S2, L0-L10, QA-MS0, QA-MS1, QA-MS2, QA-MS3, QA-MS4, QA-MS5, QA-MS6, QA-MS7)
 - In Progress: 0
-- Not Started: 34 milestones (QA-MS7-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 33 milestones (QA-MS8-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -94,7 +106,7 @@
 | QA-MS4 | Physics Algorithms | 6 | **COMPLETE** (Merchant gap, J-C eps_dot mismatch, 1 code fix) |
 | QA-MS5 | Optimization & ML | 8 | **COMPLETE** (0 code fixes, OQA=4.85) |
 | QA-MS6 | Intelligence Mega-Dispatcher | 8 | **COMPLETE** (shop_schedule conflict, OQA=4.95) |
-| QA-MS7 | Registry & Data Quality | 7 | not started |
+| QA-MS7 | Registry & Data Quality | 7 | **COMPLETE** (ToolRegistry dup handling, no TTL, OQA=4.74) |
 | QA-MS8 | Manufacturing Dispatchers | 5 | not started |
 | QA-MS9 | Infrastructure Dispatchers | 7 | not started |
 | QA-MS10 | Manufacturing Engines | 6 | not started |

@@ -1,0 +1,132 @@
+{
+  "unit": "QA-MS7-U06",
+  "title": "Cross-Registry Integrity & Consistency Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "PASS",
+  "scope": "Cross-registry relationships, key consistency, supplementary registries",
+  "registries_in_scope": [
+    "registryManager (orchestrator)",
+    "CoatingRegistry (30 coatings)",
+    "CoolantRegistry (26 coolants)",
+    "ToolGeometryDefaults (39 tool types)",
+    "MachineSpindleDefaults (24 machine types)",
+    "DatabaseRegistry (24 databases)",
+    "KnowledgeBaseRegistry (12 knowledge bases)",
+    "HookRegistry (162+ hooks)",
+    "SkillRegistry (135+ skills)",
+    "PostProcessorRegistry (14 controller families)"
+  ],
+  "cross_registry_relationships": {
+    "material_to_tools": "Material ISO group → compatible tool coatings/geometries via crossLookup()",
+    "material_to_coolants": "Material properties (heat sensitivity, reactivity) → coolant recommendations",
+    "machine_to_alarms": "Machine controller family → AlarmRegistry controller index",
+    "machine_to_post_processors": "Machine controller → PostProcessorRegistry for G-code generation",
+    "tool_to_coatings": "Tool substrate → CoatingRegistry compatibility matrix",
+    "tool_to_geometry": "Tool type → ToolGeometryDefaults for default dimensions"
+  },
+  "key_consistency": {
+    "iso_group_keys": "P/M/K/N/S/H/X used consistently across Material, Coating, and SFC calculations",
+    "controller_families": "12 families consistent between Machine, Alarm, and PostProcessor registries",
+    "tool_types": "Tool type taxonomy consistent between Tool, ToolGeometry, and SFC registries",
+    "machine_types": "Machine type taxonomy consistent between Machine, MachineSpindle, and capacity planning"
+  },
+  "supplementary_registry_audits": [
+    {
+      "registry": "CoatingRegistry",
+      "file": "src/registries/CoatingRegistry.ts",
+      "lines": 505,
+      "entries": 30,
+      "quality": "HIGH — SFC performance factors, ISO group compatibility matrix, temperature ratings"
+    },
+    {
+      "registry": "CoolantRegistry",
+      "file": "src/registries/CoolantRegistry.ts",
+      "lines": 599,
+      "entries": 26,
+      "quality": "HIGH — environmental tracking (VOC, pH, disposal), pressure ratings, material compatibility"
+    },
+    {
+      "registry": "ToolGeometryDefaults",
+      "file": "src/registries/ToolGeometryDefaults.ts",
+      "lines": 519,
+      "entries": 39,
+      "quality": "HIGH — 3-tier fuzzy matching (exact → partial → category), ISO 13399 attribute mapping"
+    },
+    {
+      "registry": "MachineSpindleDefaults",
+      "file": "src/registries/MachineSpindleDefaults.ts",
+      "lines": 447,
+      "entries": 24,
+      "quality": "HIGH — torque/power estimation curves, speed ranges, bearing type tracking"
+    },
+    {
+      "registry": "DatabaseRegistry",
+      "file": "src/registries/DatabaseRegistry.ts",
+      "lines": 230,
+      "entries": 24,
+      "quality": "MEDIUM — thin wrapper over DB_MANIFEST.json, minimal validation"
+    },
+    {
+      "registry": "KnowledgeBaseRegistry",
+      "file": "src/registries/KnowledgeBaseRegistry.ts",
+      "lines": 786,
+      "entries": 12,
+      "quality": "HIGH — hybrid inline+filesystem, relevance scoring, domain classification"
+    },
+    {
+      "registry": "PostProcessorRegistry",
+      "file": "src/registries/PostProcessorRegistry.ts",
+      "lines": "~400",
+      "entries": 14,
+      "quality": "HIGH — SAFETY CRITICAL: G-code formatting rules per controller family"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "ISO group keys (P/M/K/N/S/H/X) consistent across Material, Coating, and SFC registries"
+    },
+    {
+      "severity": "OK",
+      "finding": "Controller family taxonomy consistent across Machine, Alarm, and PostProcessor registries"
+    },
+    {
+      "severity": "OK",
+      "finding": "crossLookup() correctly bridges Material → Tool/Coating/Coolant relationships"
+    },
+    {
+      "severity": "OK",
+      "finding": "ToolGeometryDefaults 3-tier fuzzy matching provides graceful degradation for unknown tool types"
+    },
+    {
+      "severity": "OK",
+      "finding": "PostProcessorRegistry correctly flagged as SAFETY CRITICAL (incorrect G-code = crash risk)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "KnowledgeBaseRegistry has 1 stub entry (kb-ai-structures) with enabled=true — stub should be disabled or implemented"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "DatabaseRegistry is thin wrapper with minimal validation — acceptable for internal use"
+    },
+    {
+      "severity": "INFO",
+      "finding": "15 registries total managed by registryManager — comprehensive coverage of manufacturing domain"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "cross_registry_keys_verified": true,
+    "relationship_integrity_checked": true,
+    "supplementary_registries_audited": true
+  }
+}

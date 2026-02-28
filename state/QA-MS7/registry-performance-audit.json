@@ -1,0 +1,125 @@
+{
+  "unit": "QA-MS7-U05",
+  "title": "Registry Performance & Lifecycle Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "registryManager.ts + base.ts + BaseRegistry.ts — initialization, caching, memory lifecycle",
+  "files_audited": [
+    {
+      "file": "src/registries/manager.ts",
+      "lines": 705,
+      "role": "Central registry orchestrator"
+    },
+    {
+      "file": "src/registries/base.ts",
+      "lines": 261,
+      "role": "Active base class (Map-based, lazy load)"
+    },
+    {
+      "file": "src/registries/BaseRegistry.ts",
+      "lines": 369,
+      "role": "Legacy abstract (4-tier hierarchy)"
+    }
+  ],
+  "initialization": {
+    "strategy": "Dual-phase: CORE registries eager-loaded at startup, SECONDARY registries lazy-loaded on first access",
+    "core_registries": [
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry",
+      "AlarmRegistry",
+      "FormulaRegistry"
+    ],
+    "secondary_registries": [
+      "CoatingRegistry",
+      "CoolantRegistry",
+      "ToolGeometryDefaults",
+      "MachineSpindleDefaults",
+      "DatabaseRegistry",
+      "KnowledgeBaseRegistry",
+      "HookRegistry",
+      "SkillRegistry",
+      "PostProcessorRegistry",
+      "AlgorithmRegistry"
+    ],
+    "concurrency_guard": "Promise-based guard prevents concurrent initialization (base.ts line ~45)",
+    "idempotent": true
+  },
+  "caching": {
+    "strategy": "In-memory Map — entries persist for lifetime of process",
+    "ttl": "NONE — no TTL or cache invalidation mechanism",
+    "eviction": "NONE — entries never evicted once loaded",
+    "memory_estimate": {
+      "materials": "~1,047 entries × ~2KB each ≈ 2MB",
+      "tools": "~500+ entries × ~3KB each ≈ 1.5MB (CORE only; 13,967 ENHANCED would be ~42MB)",
+      "machines": "~824 entries × ~2KB each ≈ 1.6MB",
+      "alarms": "~2,500 entries × ~1KB each ≈ 2.5MB",
+      "formulas": "~500 entries × ~1KB each ≈ 0.5MB",
+      "total_core": "~8MB (CORE layers only)",
+      "total_with_enhanced": "~50-60MB if all ENHANCED layers loaded"
+    }
+  },
+  "cross_registry_operations": {
+    "crossLookup": "registryManager.crossLookup(materialId) → compatible tools, coatings, coolants",
+    "globalSearch": "registryManager.globalSearch(query) → results across all registries",
+    "performance_note": "globalSearch does linear scan across all registries — acceptable for <50K total entries"
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "Dual-phase initialization correctly prioritizes frequently-used registries"
+    },
+    {
+      "severity": "OK",
+      "finding": "Promise-based concurrency guard prevents race conditions on lazy load"
+    },
+    {
+      "severity": "OK",
+      "finding": "Idempotent loading ensures registries initialize exactly once"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "No TTL or cache invalidation — entries persist indefinitely. For MCP server (short-lived per request), this is acceptable. For long-running daemon mode, stale data risk."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "If all ENHANCED layers load simultaneously, memory usage could reach ~50-60MB — may be excessive for constrained environments"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Two base class patterns coexist (base.ts + BaseRegistry.ts) — should consolidate to one"
+    },
+    {
+      "severity": "INFO",
+      "finding": "globalSearch linear scan is O(n) across all entries — acceptable at current scale (<50K) but won't scale to 100K+"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 4,
+    "safety": 5,
+    "performance": 3,
+    "composite": "4.25",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "recommended_fixes": [
+    {
+      "priority": "LOW",
+      "action": "Add optional TTL to base.ts with configurable expiration (default: no expiry for MCP mode)",
+      "reason": "Future-proofing for daemon/persistent mode",
+      "effort": "~20 lines"
+    },
+    {
+      "priority": "LOW",
+      "action": "Consolidate base.ts and BaseRegistry.ts into single base class",
+      "reason": "Two inheritance patterns creates confusion for new contributors",
+      "effort": "~2 sessions (many files reference one or the other)"
+    }
+  ],
+  "exit_conditions_met": {
+    "initialization_lifecycle_verified": true,
+    "caching_strategy_audited": true,
+    "memory_footprint_estimated": true
+  }
+}

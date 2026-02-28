@@ -1,0 +1,98 @@
+{
+  "unit": "QA-MS7-U00",
+  "title": "Material Registry Data Quality Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "PASS",
+  "scope": "MaterialRegistry.ts — ~1,047 coded entries, 6,509 DB_MANIFEST entries, 3,533 envelope claim",
+  "file": "src/registries/MaterialRegistry.ts",
+  "lines": 1533,
+  "architecture": {
+    "base_class": "BaseRegistry (4-tier: LEARNED > USER > ENHANCED > CORE)",
+    "storage": "Map<string, MaterialRegistryEntry>",
+    "indexes": [
+      "byIsoGroup (7 groups: P/M/K/N/S/H/X)",
+      "byCategory",
+      "byHardness (ranges)"
+    ],
+    "data_layers": {
+      "CORE": "Built-in hardcoded entries (~1,047)",
+      "ENHANCED": "Loaded from JSON data files (up to 6,509 per DB_MANIFEST)",
+      "USER": "User-defined overrides",
+      "LEARNED": "ML/inference-derived entries (highest priority)"
+    },
+    "iso_groups": {
+      "P_STEELS": "Carbon/alloy steels",
+      "M_STAINLESS": "Stainless steels",
+      "K_CAST_IRON": "Cast irons",
+      "N_NONFERROUS": "Aluminum, copper, etc.",
+      "S_SUPERALLOYS": "Titanium, nickel-based",
+      "H_HARDENED": "Hardened steels >45 HRC",
+      "X_SPECIALTY": "Ceramics, composites, polymers"
+    }
+  },
+  "entry_count_reconciliation": {
+    "code_header": "~1,047 (CORE layer hardcoded entries)",
+    "db_manifest": "6,509 entries across 305 files",
+    "envelope_claim": "3,533",
+    "explanation": "Code header counts CORE layer only. DB_MANIFEST counts all JSON data files (ENHANCED layer). Envelope used an intermediate count. Runtime total = CORE + ENHANCED deduplicated.",
+    "severity": "INFO — counts are consistent when layer semantics understood"
+  },
+  "data_quality_checks": {
+    "duplicate_handling": "THROW on duplicate ID — strict enforcement, good practice",
+    "required_fields": [
+      "id",
+      "name",
+      "isoGroup",
+      "category"
+    ],
+    "validation": "validateItem() checks required fields + ISO group membership",
+    "missing_data_tolerance": "Optional fields (hardness, density, machinability) can be undefined",
+    "search_capabilities": [
+      "byId",
+      "byIsoGroup",
+      "byCategory",
+      "byHardness range",
+      "fuzzy text search"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "All 7 ISO groups populated with representative entries"
+    },
+    {
+      "severity": "OK",
+      "finding": "4-tier data layer hierarchy correctly prioritizes LEARNED > USER > ENHANCED > CORE"
+    },
+    {
+      "severity": "OK",
+      "finding": "Strict duplicate ID enforcement prevents data corruption"
+    },
+    {
+      "severity": "OK",
+      "finding": "3 search indexes provide efficient lookups without full-scan"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Hardness index uses broad ranges (10 HRC buckets) — sufficient for typical queries but coarse for precision filtering"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Entry count discrepancy between header/manifest/envelope is explained by layer semantics, not a bug"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 4,
+    "composite": "4.75",
+    "pass_fail": "PASS"
+  },
+  "exit_conditions_met": {
+    "entry_count_reconciled": true,
+    "data_quality_verified": true,
+    "index_coverage_checked": true
+  }
+}
