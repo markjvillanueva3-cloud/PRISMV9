@@ -1,22 +1,22 @@
 {
   "id": "L8-P2-MS1",
   "version": "3.1.0",
-  "title": "ERP/Business - Engine + API",
-  "brief": "ERPBridgeEngine: work order import, cost feedback, quality import, tool inventory. ShopFloorEngine: job tracking.",
+  "title": "Thread, Compliance & Telemetry Products",
+  "brief": "ThreadEngine: conversation threading, context continuity. ComplianceEngine: standards validation (ISO/AS9100/medical). TelemetryEngine: metrics collection, usage analytics, performance monitoring.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "ERP/Business - Engine + API",
-      "description": "ERPBridgeEngine: work order import, cost feedback, quality import, tool inventory. ShopFloorEngine: job tracking.",
-      "sessions": "3-4",
+      "title": "Thread, Compliance & Telemetry Products",
+      "description": "Implement ThreadEngine (conversation threading, context continuity), ComplianceEngine (standards validation for ISO/AS9100/medical), and TelemetryEngine (metrics collection, usage analytics, performance monitoring).",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute ERP/Business - Engine + API",
+          "title": "Implement Thread, Compliance & Telemetry Products",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,15 +24,10 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_validate"
-            }
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_compliance" }
           ],
           "skills": [],
           "scripts": [],
@@ -40,18 +35,33 @@
           "features": [],
           "dependencies": [],
           "entry_conditions": [
-            "L6-P1-MS1 complete"
+            "L8-P1-MS1 complete"
           ],
           "exit_conditions": [
-            "ERP/Business - Engine + API complete",
+            "ThreadEngine implements conversation threading and context continuity",
+            "ComplianceEngine validates against ISO, AS9100, and medical standards",
+            "TelemetryEngine collects metrics, usage analytics, and performance data",
+            "All 27 product units registered and wired to dispatchers",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by L8-P2-MS1]",
+          "rollback": "git checkout -- src/products/thread/ src/products/compliance/ src/products/telemetry/",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute ERP/Business - Engine + API per roadmap spec"
+              "instruction": "Implement ThreadEngine with conversation threading and context continuity"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement ComplianceEngine with ISO, AS9100, and medical standards validation"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement TelemetryEngine with metrics collection, usage analytics, performance monitoring"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire all products to dispatchers, register in product registry, verify API integration"
             }
           ],
           "deliverables": [],
@@ -78,8 +88,8 @@
       "scrutiny_focus": []
     }
   ],
-  "total_units": 10,
-  "total_sessions": "3-4",
+  "total_units": 27,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -89,24 +99,10 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_validate",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_compliance", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

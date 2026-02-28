@@ -18,14 +18,17 @@
 - Effort tier mapping: quick (<100ms), standard (<1s), intensive (<10s)
 - Check `data/wiring/PRECISE_WIRING_D2F.json` for dispatcher→formula mapping
 
-## 31 Dispatchers
-prism_data, prism_calc, prism_safety, prism_thread, prism_toolpath,
-prism_knowledge, prism_skill_script, prism_hook, prism_session,
-prism_orchestrate, prism_validate, prism_omega, prism_guard,
-prism_context, prism_doc, prism_dev, prism_sp, prism_generator,
-prism_manus, prism_gsd, prism_autopilot_d, prism_ralph,
-prism_telemetry, prism_pfp, prism_memory, prism_nl_hook,
-prism_compliance, prism_tenant, prism_bridge, prism_atcs, prism_autonomous
+## 45 Dispatchers (684 verified actions — see MASTER_INDEX.md)
+Manufacturing: prism_calc, prism_safety, prism_thread, prism_toolpath
+Data: prism_data, prism_knowledge
+Session: prism_session, prism_context, prism_dev
+Quality: prism_validate, prism_omega, prism_ralph, prism_guard
+Intelligence: prism_pfp, prism_memory, prism_telemetry
+Orchestration: prism_orchestrate, prism_atcs, prism_autonomous, prism_autopilot_d
+Enterprise: prism_compliance, prism_tenant, prism_bridge, prism_nl_hook
+Dev: prism_sp, prism_skill_script, prism_doc, prism_hook
+Code Gen: prism_generator, prism_gsd, prism_manus
++ 14 additional L6/L8/L9/L10 route dispatchers (see MASTER_INDEX.md for full list)
 
 ## Anti-Regression
 - Before modifying any dispatcher: count existing actions

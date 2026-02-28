@@ -25,11 +25,11 @@ interface AtomicValue {
 - Uncertainty propagation: RSS (root-sum-square) for independent variables
 - Safety factor: always applied AFTER uncertainty, never before
 
-## Key Engines (37 total)
-- CuttingForceEngine — Kienzle-based force calculations
-- ToolLifeEngine — Taylor equation tool wear prediction
-- SpeedFeedEngine — Optimal parameter calculation
-- SafetyEngine — S(x) scoring, hard block at <0.70
-- ThermalEngine — Heat generation and distribution
-- StabilityEngine — Chatter prediction (stability lobes)
-- DeflectionEngine — Tool/workpiece deflection analysis
+## Key Engines (74 total across L2 layers)
+Manufacturing Intelligence (L2-P1): CuttingForceEngine, ToolLifeEngine, SpeedFeedEngine,
+  ThermalEngine, StabilityEngine, DeflectionEngine, SurfaceFinishEngine, etc.
+CAD/CAM (L2-P2): ToolpathEngine, PostProcessorEngine, CadValidationEngine, etc.
+Infrastructure (L2-P3): SafetyEngine (S(x) scoring, hard block <0.70),
+  CoolantValidationEngine, ComplianceEngine, TelemetryEngine, etc.
+Specialty (L2-P4): ThreadEngine, GrindingEngine, EDMEngine, FiveAxisEngine, etc.
+Orchestration: RoadmapExecutor, SwarmExecutor, AgentExecutor, SkillExecutor, HookEngine

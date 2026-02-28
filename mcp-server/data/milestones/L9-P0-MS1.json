@@ -1,22 +1,22 @@
 {
   "id": "L9-P0-MS1",
   "version": "3.1.0",
-  "title": "Port CAD Geometry Kernel",
-  "brief": "Port CAD geometry kernel: B-Rep engine, NURBS surfaces, Boolean operations, STEP/IGES import/export.",
+  "title": "API Integration Phase Gate",
+  "brief": "Phase gate verifying all L8 products integrate correctly with L6 API layer. All product endpoints functional, dispatcher routing verified, cross-product data flow tested.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "Port CAD Geometry Kernel",
-      "description": "Port CAD geometry kernel: B-Rep engine, NURBS surfaces, Boolean operations, STEP/IGES import/export.",
-      "sessions": "4-5",
+      "title": "API Integration Phase Gate",
+      "description": "Verify all L8 products (PPG, Learning, ERP, Thread, Compliance, Telemetry, Orchestration, Bridge) integrate correctly with L6 API layer. All endpoints functional, dispatcher routing verified.",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Port CAD Geometry Kernel",
+          "title": "Execute API Integration Phase Gate",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,12 +24,8 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_validate"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
@@ -37,10 +33,13 @@
           "features": [],
           "dependencies": [],
           "entry_conditions": [
-            "L8-P2-MS2 complete"
+            "L8-P3-MS1 complete"
           ],
           "exit_conditions": [
-            "Port CAD Geometry Kernel complete",
+            "All L8 product endpoints respond with correct status codes",
+            "Dispatcher routing verified for all product actions",
+            "Cross-product data flow tested end-to-end",
+            "npm run build produces zero errors",
             "Build passes",
             "Tests pass"
           ],
@@ -48,7 +47,15 @@
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Port CAD Geometry Kernel per roadmap spec"
+              "instruction": "Verify all L8 product API endpoints are registered and responding"
+            },
+            {
+              "number": 2,
+              "instruction": "Test dispatcher routing for all product actions end-to-end"
+            },
+            {
+              "number": 3,
+              "instruction": "Verify cross-product data flow (e.g., Learning→ERP, Orchestration→Bridge)"
             }
           ],
           "deliverables": [],
@@ -60,7 +67,7 @@
         }
       ],
       "gate": {
-        "omega_floor": 0.75,
+        "omega_floor": 1.0,
         "safety_floor": 0.7,
         "ralph_required": false,
         "ralph_grade_floor": "B",
@@ -69,14 +76,17 @@
         "build_required": true,
         "checkpoint": true,
         "learning_save": true,
-        "custom_checks": []
+        "custom_checks": [
+          "All L8 product API endpoints functional",
+          "Dispatcher routing covers all product actions"
+        ]
       },
       "scrutiny_checkpoint": false,
       "scrutiny_focus": []
     }
   ],
-  "total_units": 10,
-  "total_sessions": "4-5",
+  "total_units": 1,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -86,18 +96,8 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_validate",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

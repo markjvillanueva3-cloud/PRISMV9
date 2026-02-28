@@ -1,22 +1,22 @@
 {
   "id": "L8-P1-MS1",
   "version": "3.1.0",
-  "title": "CAD/CAM Learning - Engine + API",
-  "brief": "LearningEngine: lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking.",
+  "title": "Learning & ERP Products",
+  "brief": "LearningEngine: lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking. ERPBridgeEngine: work order import, cost feedback, quality import, tool inventory sync. ShopFloorEngine: job tracking, station management.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "CAD/CAM Learning - Engine + API",
-      "description": "LearningEngine: lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking.",
-      "sessions": "2-3",
+      "title": "Learning & ERP Products",
+      "description": "Implement LearningEngine (lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking), ERPBridgeEngine (work order import, cost feedback, quality import, tool inventory), and ShopFloorEngine (job tracking, station management).",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute CAD/CAM Learning - Engine + API",
+          "title": "Implement Learning & ERP Products",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,15 +24,9 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_intelligence"
-            },
-            {
-              "tool": "prism_knowledge"
-            },
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_intelligence" },
+            { "tool": "prism_knowledge" },
+            { "tool": "prism_dev" }
           ],
           "skills": [],
           "scripts": [],
@@ -40,18 +34,33 @@
           "features": [],
           "dependencies": [],
           "entry_conditions": [
-            "L6-P1-MS1 complete"
+            "L8-P0-MS1 complete"
           ],
           "exit_conditions": [
-            "CAD/CAM Learning - Engine + API complete",
+            "LearningEngine implements lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking",
+            "ERPBridgeEngine implements work order import, cost feedback, quality import, tool inventory sync",
+            "ShopFloorEngine implements job tracking and station management",
+            "All 20 product units registered and wired to dispatchers",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by L8-P1-MS1]",
+          "rollback": "git checkout -- src/products/learning/ src/products/erp/ src/products/shopfloor/",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute CAD/CAM Learning - Engine + API per roadmap spec"
+              "instruction": "Implement LearningEngine with lesson system, knowledge base, formula explorer, troubleshooting wizard, progress tracking"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement ERPBridgeEngine with work order import, cost feedback, quality import, tool inventory sync"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement ShopFloorEngine with job tracking and station management"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire all products to dispatchers, register in product registry, verify API integration"
             }
           ],
           "deliverables": [],
@@ -78,8 +87,8 @@
       "scrutiny_focus": []
     }
   ],
-  "total_units": 8,
-  "total_sessions": "2-3",
+  "total_units": 20,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -89,24 +98,9 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_intelligence",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_knowledge",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_intelligence", "phases": ["P0"] },
+    { "tool": "prism_knowledge", "phases": ["P0"] },
+    { "tool": "prism_dev", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

@@ -1,22 +1,22 @@
 {
   "id": "L10-P2-MS1",
   "version": "3.1.0",
-  "title": "Cross-Cutting Features from PASS2",
-  "brief": "Cross-cutting: i18n, accessibility, dark mode, keyboard shortcuts, offline support, data export/import.",
+  "title": "SP, SkillScript & Doc Products",
+  "brief": "SkillPipeline: skill execution orchestration. SkillScript: DSL interpreter and compiler. DocumentationEngine: auto-doc generation, API documentation products, knowledge export.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "Cross-Cutting Features from PASS2",
-      "description": "Cross-cutting: i18n, accessibility, dark mode, keyboard shortcuts, offline support, data export/import.",
-      "sessions": "3-5",
+      "title": "SP, SkillScript & Doc Products",
+      "description": "Implement SkillPipeline (skill execution orchestration), SkillScript (DSL interpreter and compiler), and DocumentationEngine (auto-doc generation, API documentation products, knowledge export).",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Cross-Cutting Features from PASS2",
+          "title": "Implement SP, SkillScript & Doc Products",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,9 +24,8 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_dev"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
@@ -37,15 +36,30 @@
             "L10-P1-MS1 complete"
           ],
           "exit_conditions": [
-            "Cross-Cutting Features from PASS2 complete",
+            "SkillPipeline implements skill execution orchestration with chaining and error recovery",
+            "SkillScript DSL interpreter and compiler functional with test scripts",
+            "DocumentationEngine generates auto-docs, API documentation, and knowledge exports",
+            "All 53 product units registered and wired to dispatchers",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by L10-P2-MS1]",
+          "rollback": "git checkout -- src/products/skillpipeline/ src/products/skillscript/ src/products/documentation/",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Cross-Cutting Features from PASS2 per roadmap spec"
+              "instruction": "Implement SkillPipeline with skill execution orchestration, chaining, error recovery"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement SkillScript DSL interpreter and compiler"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement DocumentationEngine with auto-doc generation, API docs, knowledge export"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire all 53 products to dispatchers, register in product registry, verify API integration"
             }
           ],
           "deliverables": [],
@@ -72,8 +86,8 @@
       "scrutiny_focus": []
     }
   ],
-  "total_units": 10,
-  "total_sessions": "3-5",
+  "total_units": 53,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -83,12 +97,8 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

@@ -15,9 +15,11 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-# Import the verified properties database (85 alloys, web-sourced)
+# Import the verified properties database (85+ alloys, web-sourced)
 sys.path.insert(0, str(Path(__file__).parent))
 from alloy_physical_properties_db import ALLOY_PHYSICAL_PROPERTIES
+from alloy_compositions_db import (ALLOY_COMPOSITIONS,
+    calc_thermal_conductivity_steel, calc_density_steel)
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -204,6 +206,136 @@ def find_verified_props(mat: dict) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# COMPOSITION ENRICHMENT
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _build_comp_lookup():
+    """Build lookup index from material names to composition DB keys."""
+    index = {}
+    for key in ALLOY_COMPOSITIONS:
+        index[key] = key
+        index[key.upper()] = key
+        if key.startswith("AA"):
+            index[key[2:]] = key
+        elif key.startswith("Ti"):
+            index[key.upper()] = key
+        elif key.startswith("Inconel") or key.startswith("Incoloy"):
+            num = key.replace("Inconel", "").replace("Incoloy", "")
+            index[f"IN{num}"] = key
+            index[f"INCONEL{num}"] = key
+            index[f"INCONEL {num}"] = key
+            index[f"INCOLOY{num}"] = key
+            index[f"INCOLOY {num}"] = key
+        elif key.startswith("Hastelloy"):
+            suffix = key.replace("Hastelloy", "")
+            index[f"HASTELLOY{suffix}"] = key
+            index[f"HASTELLOY {suffix}"] = key
+        elif key.startswith("Haynes"):
+            num = key.replace("Haynes", "")
+            index[f"HAYNES{num}"] = key
+            index[f"HAYNES {num}"] = key
+        elif key.startswith("Monel"):
+            suffix = key.replace("Monel", "")
+            index[f"MONEL{suffix}"] = key
+            index[f"MONEL {suffix}"] = key
+        elif key.startswith("Nimonic"):
+            suffix = key.replace("Nimonic", "")
+            index[f"NIMONIC{suffix}"] = key
+            index[f"NIMONIC {suffix}"] = key
+        elif key.startswith("Rene"):
+            num = key.replace("Rene", "")
+            index[f"RENE{num}"] = key
+            index[f"RENE {num}"] = key
+    return index
+
+COMP_LOOKUP = _build_comp_lookup()
+
+
+def find_composition(mat: dict) -> dict:
+    """Try to match a material to the compositions database."""
+    name = mat.get("name", "").upper().strip()
+    if not name:
+        return None
+
+    for pfx in ["AISI ", "SAE ", "UNS ", "EN ", "DIN ", "AA ", "AMS ", "ASTM "]:
+        if name.startswith(pfx):
+            name = name[len(pfx):]
+            break
+
+    base = re.sub(r"\s+(ANNEALED|NORMALIZED|Q&T|COLD|HOT|ROLLED|DRAWN|TEMPERED|AGED|"
+                  r"STA|SOLUTION|TREATED|WORKED|HARD|QUENCHED|MILL|CAST|"
+                  r"AS[- ]SUPPLIED|AS[- ]CAST|EBM|SLM|DMLS|ELI|"
+                  r"\d+\s*HR?C|CONDITION\s*\w+|H\d+|T\d+|O\s*TEMPER|"
+                  r"STANDARD|LOW\s*C|HIGH\s*C|[- ]\d+/\d+).*$", "", name, flags=re.IGNORECASE).strip()
+    base = re.sub(r"[- ](T\d+[A-Z]*|O|H\d+|F)\b.*$", "", base).strip()
+
+    if base in COMP_LOOKUP:
+        return ALLOY_COMPOSITIONS[COMP_LOOKUP[base]]
+
+    num_m = re.match(r"(\d{3,5}[A-Z]?)", base)
+    if num_m:
+        num = num_m.group(1)
+        if num in COMP_LOOKUP:
+            return ALLOY_COMPOSITIONS[COMP_LOOKUP[num]]
+
+    for pat_key in ["INCONEL", "INCOLOY", "HASTELLOY", "WASPALOY",
+                    "MONEL", "NIMONIC", "HAYNES", "RENE", "STELLITE"]:
+        m = re.search(rf"{pat_key}\s*([A-Z]?\d*[A-Z]?)", name)
+        if m:
+            lookup = f"{pat_key}{m.group(1)}"
+            if lookup in COMP_LOOKUP:
+                return ALLOY_COMPOSITIONS[COMP_LOOKUP[lookup]]
+
+    tool_m = re.match(r"([ADHMOSWPL]\d+)", base)
+    if tool_m:
+        code = tool_m.group(1)
+        if code in COMP_LOOKUP:
+            return ALLOY_COMPOSITIONS[COMP_LOOKUP[code]]
+
+    ph_m = re.match(r"(\d+)[- ]?(\d+)\s*PH", name)
+    if ph_m:
+        ph_key = f"{ph_m.group(1)}-{ph_m.group(2)}PH"
+        if ph_key in COMP_LOOKUP:
+            return ALLOY_COMPOSITIONS[COMP_LOOKUP[ph_key]]
+
+    for d in ["2205", "2507", "2304"]:
+        if d in name:
+            if d in COMP_LOOKUP:
+                return ALLOY_COMPOSITIONS[COMP_LOOKUP[d]]
+
+    return None
+
+
+def enrich_composition(mat: dict, comp: dict, corrections: list):
+    """Add composition data to material and optionally refine density from it."""
+    if not comp:
+        return
+
+    existing_comp = mat.get("composition", {})
+    if not existing_comp or not isinstance(existing_comp, dict):
+        mat["composition"] = dict(comp)
+        corrections.append("composition: added from standard specs")
+    elif len(existing_comp) < len(comp):
+        mat["composition"] = dict(comp)
+        corrections.append(f"composition: enriched ({len(existing_comp)} -> {len(comp)} elements)")
+
+    phys = mat.get("physical", {})
+    if not isinstance(phys, dict):
+        return
+
+    is_ferrous = comp.get("Fe", 0) > 50 or (
+        sum(v for k, v in comp.items() if k not in ("Fe",)) < 50 and
+        not any(comp.get(e, 0) > 50 for e in ["Al", "Cu", "Ni", "Ti", "Mg", "Co", "W"]))
+
+    if is_ferrous:
+        current_rho = _num(phys.get("density", 0))
+        calc_rho = calc_density_steel(comp)
+        if current_rho <= 0:
+            phys["density"] = calc_rho * 1000 if current_rho == 0 else calc_rho
+            corrections.append(f"density: calculated {calc_rho:.3f} g/cc from composition")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # VALIDATION AND CORRECTION FUNCTIONS
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -277,8 +409,8 @@ def validate_and_correct_physical(mat: dict, verified: dict, corrections: list):
     v_sol = verified.get("solidus")
     v_liq = verified.get("liquidus")
     if v_sol:
-        current = phys.get("solidus_temperature", phys.get("melting_point", 0))
-        if isinstance(current, (int, float)) and current > 0:
+        current = _num(phys.get("solidus_temperature", phys.get("melting_point", 0)))
+        if current > 0:
             if abs(current - v_sol) / v_sol > 0.05:
                 phys["solidus_temperature"] = v_sol
                 if "melting_point" in phys:
@@ -288,8 +420,8 @@ def validate_and_correct_physical(mat: dict, verified: dict, corrections: list):
             phys["solidus_temperature"] = v_sol
             phys["melting_point"] = v_sol
     if v_liq:
-        current = phys.get("liquidus_temperature", 0)
-        if isinstance(current, (int, float)) and current > 0:
+        current = _num(phys.get("liquidus_temperature", 0))
+        if current > 0:
             if abs(current - v_liq) / v_liq > 0.05:
                 phys["liquidus_temperature"] = v_liq
                 corrections.append(f"liquidus: {current:.0f} -> {v_liq}")
@@ -300,13 +432,15 @@ def validate_and_correct_physical(mat: dict, verified: dict, corrections: list):
 def validate_and_correct_mechanical(mat: dict, verified: dict, corrections: list):
     """Cross-validate mechanical properties against verified data."""
     mech = mat.setdefault("mechanical", {})
+    if not isinstance(mech, dict):
+        return
 
     # Hardness
     v_bhn = verified.get("hardness_bhn")
     if v_bhn:
         h = mech.get("hardness", {})
         if isinstance(h, dict):
-            current = h.get("brinell", 0)
+            current = _num(h.get("brinell", 0))
             if not current or current <= 0:
                 h["brinell"] = v_bhn
                 mech["hardness"] = h
@@ -351,6 +485,73 @@ def validate_and_correct_mechanical(mat: dict, verified: dict, corrections: list
                 corrections.append(f"jc_A: {old_a:.0f} -> {jc['A']:.0f} (was only {ratio:.1f}x yield)")
 
 
+def validate_jc_ab_vs_uts(mat: dict, verified: dict, corrections: list):
+    """Cross-validate J-C (A + B*0.2^n) against UTS within 30%.
+    The Considère criterion: at necking strain ε ≈ n, flow stress ≈ A + B*n^n.
+    For engineering check, use ε=0.2 as representative plastic strain at UTS."""
+    jc = mat.get("johnson_cook", {})
+    if not isinstance(jc, dict):
+        return
+
+    A = _num(jc.get("A", 0))
+    B = _num(jc.get("B", 0))
+    n = _num(jc.get("n", 0))
+    if A <= 0 or B <= 0 or n <= 0 or n >= 1:
+        return
+
+    # Get UTS from verified data or from material's own mechanical props
+    v_uts = 0
+    if verified:
+        v_uts = verified.get("uts_annealed", 0) or 0
+    if v_uts <= 0:
+        mech = mat.get("mechanical", {})
+        if isinstance(mech, dict):
+            ts = mech.get("tensile_strength", {})
+            if isinstance(ts, dict):
+                v_uts = _num(ts.get("typical", ts.get("min", 0)))
+            elif isinstance(ts, (int, float)):
+                v_uts = ts
+    if v_uts <= 0:
+        return
+
+    # Calculate approximate flow stress at representative strain
+    # Use Considère criterion: necking at ε=n, so σ_UTS ≈ A + B*n^n
+    # Also check the simpler A + B*0.2^n estimate
+    sigma_02 = A + B * (0.2 ** n)
+    sigma_neck = A + B * (n ** n)
+
+    # Use whichever is closer to UTS as the model estimate
+    est_uts = min(sigma_02, sigma_neck)
+
+    ratio = est_uts / v_uts
+
+    # Hardened materials can have much higher yield than annealed UTS
+    name = mat.get("name", "").upper()
+    is_hardened = any(x in name for x in ["Q&T", "QUENCH", "TEMPER", "HRC", "HARD", "STA", "AGED"])
+
+    if is_hardened:
+        # For hardened materials, allow much wider range (yield >> annealed UTS)
+        return
+
+    if ratio > 1.5:
+        # A+B estimate way above UTS — B is too high
+        # Scale B so that A + B*n^n ≈ UTS * 1.1
+        target_uts = v_uts * 1.1
+        new_B = max(50, round((target_uts - A) / max(n ** n, 0.01), 1))
+        if new_B != B:
+            old_est = est_uts
+            jc["B"] = new_B
+            corrections.append(f"jc_B: {B:.0f} -> {new_B:.0f} (A+B*n^n={old_est:.0f} vs UTS={v_uts:.0f})")
+    elif ratio < 0.5 and not is_hardened:
+        # A+B estimate way below UTS — B is too low
+        target_uts = v_uts * 0.95
+        new_B = max(50, round((target_uts - A) / max(n ** n, 0.01), 1))
+        if new_B != B:
+            old_est = est_uts
+            jc["B"] = new_B
+            corrections.append(f"jc_B: {B:.0f} -> {new_B:.0f} (A+B*n^n={old_est:.0f} vs UTS={v_uts:.0f})")
+
+
 def _num(val, default=0):
     """Safely extract a numeric value, returning default if dict/None/str."""
     if isinstance(val, (int, float)):
@@ -392,9 +593,11 @@ def validate_jc_bounds(mat: dict, corrections: list):
         corrections.append(f"jc_B: {B:.0f} is non-positive (invalid)")
 
     # Cross-check: T_melt vs physical solidus
-    t_melt = jc.get("T_melt", 0)
-    solidus = mat.get("physical", {}).get("solidus_temperature",
-              mat.get("physical", {}).get("melting_point", 0))
+    t_melt = _num(jc.get("T_melt", 0))
+    phys = mat.get("physical", {})
+    if not isinstance(phys, dict):
+        phys = {}
+    solidus = _num(phys.get("solidus_temperature", phys.get("melting_point", 0)))
     if t_melt > 0 and solidus > 0 and abs(t_melt - solidus) / solidus > 0.10:
         jc["T_melt"] = solidus
         corrections.append(f"jc_T_melt: {t_melt:.0f} -> {solidus:.0f} (match solidus)")
@@ -484,12 +687,14 @@ def validate_cutting_speeds(mat: dict, corrections: list):
         corrections.append(f"V_rough: {v_rough:.0f} -> {new_v:.0f} (above range {high})")
 
 
-def update_confidence(mat: dict, verified_match: bool, corrections: list):
+def update_confidence(mat: dict, verified_match: bool, corrections: list,
+                      has_composition: bool = False):
     """Update confidence tags with honest, granular categories."""
     acc = mat.get("_accuracy", {})
     acc["pass"] = "deep_accuracy_v2"
     acc["date"] = datetime.now().strftime("%Y-%m-%d")
     acc["v2_corrections"] = len(corrections)
+    acc["has_composition"] = has_composition
 
     if verified_match:
         acc["physical_properties"] = {"confidence": "VERIFIED", "source": "web_database"}
@@ -571,6 +776,11 @@ def process_material(mat: dict) -> dict:
     verified = find_verified_props(mat)
     verified_match = verified is not None
 
+    # Step 1b: Composition enrichment
+    comp = find_composition(mat)
+    if comp:
+        enrich_composition(mat, comp, corrections)
+
     # Step 2: Correct physical properties from verified data
     if verified:
         validate_and_correct_physical(mat, verified, corrections)
@@ -579,6 +789,9 @@ def process_material(mat: dict) -> dict:
     # Step 3: J-C parameter bounds check (all materials)
     validate_jc_bounds(mat, corrections)
 
+    # Step 3b: A+B vs UTS cross-validation
+    validate_jc_ab_vs_uts(mat, verified, corrections)
+
     # Step 4: Kienzle vs UTS correlation check
     validate_kienzle_vs_uts(mat, corrections)
 
@@ -586,15 +799,16 @@ def process_material(mat: dict) -> dict:
     validate_cutting_speeds(mat, corrections)
 
     # Step 6: Update confidence with honest tags
-    update_confidence(mat, verified_match, corrections)
+    update_confidence(mat, verified_match, corrections, has_composition=comp is not None)
 
-    return {"verified_match": verified_match, "corrections": corrections}
+    return {"verified_match": verified_match, "corrections": corrections,
+            "has_composition": comp is not None}
 
 
 def process_file(filepath: Path) -> dict:
     """Process all materials in a JSON file."""
     result = {"file": str(filepath), "materials": 0, "verified_matches": 0,
-              "total_corrections": 0, "errors": []}
+              "composition_matches": 0, "total_corrections": 0, "errors": []}
 
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -616,6 +830,8 @@ def process_file(filepath: Path) -> dict:
             info = process_material(mat)
             if info["verified_match"]:
                 result["verified_matches"] += 1
+            if info.get("has_composition"):
+                result["composition_matches"] += 1
             result["total_corrections"] += len(info["corrections"])
         except Exception as e:
             result["errors"].append(f"{mat.get('name', '?')}: {e}")
@@ -670,7 +886,7 @@ def main():
     log.info(f"Found {len(json_files)} JSON files")
 
     results = []
-    total_mat = total_verified = total_corrections = total_errors = 0
+    total_mat = total_verified = total_comp = total_corrections = total_errors = 0
 
     for i, fp in enumerate(sorted(json_files)):
         log.info(f"[{i+1}/{len(json_files)}] {fp.parent.name}/{fp.name}")
@@ -678,6 +894,7 @@ def main():
         results.append(r)
         total_mat += r["materials"]
         total_verified += r["verified_matches"]
+        total_comp += r.get("composition_matches", 0)
         total_corrections += r["total_corrections"]
         total_errors += len(r["errors"])
 
@@ -704,6 +921,7 @@ def main():
     log.info(f"Files processed:       {len(json_files)}")
     log.info(f"Materials processed:   {total_mat}")
     log.info(f"Verified DB matches:   {total_verified} ({total_verified*100/max(total_mat,1):.1f}%)")
+    log.info(f"Composition matches:   {total_comp} ({total_comp*100/max(total_mat,1):.1f}%)")
     log.info(f"Total corrections:     {total_corrections}")
     log.info(f"Errors:                {total_errors}")
     log.info(f"Elapsed:               {elapsed:.1f}s")
@@ -724,6 +942,7 @@ def main():
         "total_files": len(json_files),
         "total_materials": total_mat,
         "verified_matches": total_verified,
+        "composition_matches": total_comp,
         "total_corrections": total_corrections,
         "total_errors": total_errors,
         "elapsed_seconds": elapsed,

@@ -1,12 +1,15 @@
 {
   "metadata": {
     "name": "PRISM MCP Integration Map",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "created": "2026-01-31",
-    "description": "Complete mapping of MCP tools to PRISM resources",
-    "totalTools": 117,
-    "totalResources": 1735,
-    "principle": "IF IT EXISTS, USE IT EVERYWHERE"
+    "updated": "2026-02-27",
+    "description": "Complete mapping of PRISM dispatchers to resources — 45 dispatchers, 684 actions",
+    "totalDispatchers": 45,
+    "totalActions": 684,
+    "totalResources": 3121,
+    "principle": "IF IT EXISTS, USE IT EVERYWHERE",
+    "masterSchema": "SYSTEM_ARCHITECTURE.json"
   },
 
   "resourceSummary": {
@@ -20,12 +23,12 @@
       "posts": { "count": 150, "path": "EXTRACTED/controllers/posts" }
     },
     "knowledge": {
-      "skills": { "count": 135, "totalLines": 50000, "path": "skills-consolidated" },
-      "modules": { "count": 950, "totalMB": 154, "path": "extracted_modules" },
-      "knowledgeBases": { "count": 10, "path": "EXTRACTED/knowledge_bases" }
+      "skills": { "count": 153, "totalLines": 50000, "path": "skills-consolidated" },
+      "modules": { "count": 1050, "totalMB": 154, "path": "extracted" },
+      "knowledgeBases": { "count": 12, "path": "EXTRACTED/knowledge_bases" }
     },
     "orchestration": {
-      "agents": { "count": 64, "tiers": 3, "path": "data/coordination/AGENT_REGISTRY.json" },
+      "agents": { "count": 70, "tiers": 3, "path": "data/coordination/AGENT_REGISTRY.json" },
       "formulas": { "count": 109, "domains": 20, "path": "data/coordination/FORMULA_REGISTRY.json" },
       "hooks": { "count": 162, "patterns": 5, "path": "skills-consolidated/prism-cognitive-core" },
       "workflows": { "count": 12, "path": "data/coordination/WORKFLOW_REGISTRY.json" },

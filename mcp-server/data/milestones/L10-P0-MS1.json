@@ -1,22 +1,22 @@
 {
   "id": "L10-P0-MS1",
   "version": "3.1.0",
-  "title": "Security Middleware Stack",
-  "brief": "Security middleware: RBAC, rate limiting, input sanitization, CSRF protection, security headers, audit logging.",
+  "title": "Session & Context Products",
+  "brief": "SessionEngine: lifecycle management, state persistence, recovery. ContextBudgetEngine: token tracking, budget allocation. ConversationEngine: thread management, history. StateEngine: cross-session persistence, checkpoint/restore.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "Security Middleware Stack",
-      "description": "Security middleware: RBAC, rate limiting, input sanitization, CSRF protection, security headers, audit logging.",
-      "sessions": "2-3",
+      "title": "Session & Context Products",
+      "description": "Implement SessionEngine (lifecycle management, state persistence, recovery), ContextBudgetEngine (token tracking, budget allocation), ConversationEngine (thread management, history), and StateEngine (cross-session persistence, checkpoint/restore).",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Security Middleware Stack",
+          "title": "Implement Session & Context Products",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,15 +24,8 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_validate"
-            },
-            {
-              "tool": "prism_compliance"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" }
           ],
           "skills": [],
           "scripts": [],
@@ -40,18 +33,38 @@
           "features": [],
           "dependencies": [],
           "entry_conditions": [
-            "L9-P2-MS1 complete"
+            "L9-P0-MS1 complete"
           ],
           "exit_conditions": [
-            "Security Middleware Stack complete",
+            "SessionEngine implements lifecycle management, state persistence, and recovery",
+            "ContextBudgetEngine implements token tracking and budget allocation",
+            "ConversationEngine implements thread management and history",
+            "StateEngine implements cross-session persistence and checkpoint/restore",
+            "All 58 product units registered and wired to dispatchers",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by L10-P0-MS1]",
+          "rollback": "git checkout -- src/products/session/ src/products/context/ src/products/conversation/ src/products/state/",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Security Middleware Stack per roadmap spec"
+              "instruction": "Implement SessionEngine with lifecycle management, state persistence, recovery"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement ContextBudgetEngine with token tracking and budget allocation"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement ConversationEngine with thread management and history"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement StateEngine with cross-session persistence and checkpoint/restore"
+            },
+            {
+              "number": 5,
+              "instruction": "Wire all 58 products to dispatchers, register in product registry, verify API integration"
             }
           ],
           "deliverables": [],
@@ -78,8 +91,8 @@
       "scrutiny_focus": []
     }
   ],
-  "total_units": 6,
-  "total_sessions": "2-3",
+  "total_units": 58,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -89,24 +102,8 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_validate",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_compliance",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

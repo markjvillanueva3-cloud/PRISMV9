@@ -98,7 +98,49 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-**Total: 32 dispatchers, 395+ actions**
+### prism_intelligence (intelligenceDispatcher.ts)
+Actions (27): job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format
+
+### prism_l2 (l2EngineDispatcher.ts)
+Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_models, cad_geometry, cad_mesh, cad_curve, cad_capabilities, cam_toolpath, cam_gcode, cam_collision, cam_chip_thinning, cam_capabilities, file_parse, file_generate, file_formats, sim_gcode, sim_cycle_time, sim_verify, sim_capabilities, viz_scene, viz_toolpath, viz_heatmap, viz_presets, report_setup_sheet, report_cost, report_tool_list, report_speed_feed, report_alarm, report_inspection, report_templates, settings_get, settings_update, settings_convert, settings_presets, settings_safety, settings_apply_preset
+
+### prism_cad (cadDispatcher.ts)
+Actions (10): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup
+
+### prism_cam (camDispatcher.ts)
+Actions (9): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize
+
+### prism_quality (qualityDispatcher.ts)
+Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
+
+### prism_export (exportDispatcher.ts)
+Actions (8): render_pdf, render_csv, render_excel, render_dxf, render_step, render_gcode, render_setup_sheet, batch_export
+
+### prism_scheduling (schedulingDispatcher.ts)
+Actions (8): job_schedule, machine_assign, capacity_plan, priority_queue, bottleneck_find, lead_time_estimate, due_date_track, resource_balance
+
+### prism_turning (turningDispatcher.ts)
+Actions (6): chuck_force, tailstock, steady_rest, live_tool, bar_pull, thread_single_point
+
+### prism_5axis (fiveAxisDispatcher.ts)
+Actions (5): rtcp_calc, singularity_check, tilt_optimize, work_envelope, inverse_kin
+
+### prism_edm (edmDispatcher.ts)
+Actions (4): electrode_design, wire_settings, surface_integrity, micro_edm
+
+### prism_grinding (grindingDispatcher.ts)
+Actions (4): wheel_select, dress_params, burn_threshold, surface_integrity
+
+### prism_industry (industryDispatcher.ts)
+Actions (4): aerospace_check, medical_check, automotive_check, oil_gas_check
+
+### prism_automation (automationDispatcher.ts)
+Actions (5): oee_calc, bottleneck, digital_thread, work_instructions, shift_handoff
+
+### prism_auth (authDispatcher.ts)
+Actions (8): login, register, refresh_token, change_password, role_assign, permission_check, session_manage, mfa_setup
+
+**Total: 45 dispatchers, 684 actions**
 
 ---
 
@@ -130,6 +172,20 @@ Natural language hooks → prism_nl_hook (8)
 Compliance templates → prism_compliance (8)
 Multi-tenant management → prism_tenant (15)
 Protocol bridge / API gateway → prism_bridge (13)
+Manufacturing intelligence → prism_intelligence (27)
+L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
+CAD geometry/mesh → prism_cad (10)
+CAM toolpath/post → prism_cam (9)
+Quality/SPC/GD&T → prism_quality (8)
+Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
+Job scheduling → prism_scheduling (8)
+Turning operations → prism_turning (6)
+5-axis operations → prism_5axis (5)
+EDM operations → prism_edm (4)
+Grinding operations → prism_grinding (4)
+Industry compliance → prism_industry (4)
+Automation/OEE → prism_automation (5)
+Auth/RBAC → prism_auth (8)
 
 ---
 
@@ -236,7 +292,7 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (37 files)
+## 4. ENGINES (102 files — see SYSTEM_ARCHITECTURE.json for full list)
 
 - AdvancedCalculations.ts (623L)
 - AgentExecutor.ts (818L)
@@ -347,19 +403,25 @@ Total skill files: 119
 - W4_ASSESSMENT.md
 - W6_ROADMAP.md
 
-## 14. SUMMARY
+## 14. SUMMARY (Updated 2026-02-27)
 
-- Dispatchers: 32 (382+ verified actions)
-- Engines: 74 (all wired — 58 direct, 15 via handlers, 1 via bundle) + AlgorithmEngine (50 typed algorithms)
-- Algorithms: 50 standalone Algorithm<I,O> implementations (18 safety-critical, 32 standard)
-- Registries: 9 (material, machine, tool, alarm, formula, agent, hook, skill, script)
-- Skills: 230 with SKILL.md (C:\PRISM\skills-consolidated)
-- Skill Bundles: 9 (wired to skillScriptDispatcher)
-- NL Hooks: 48 deployed
-- Build: 5.6MB, 1 warning, 73/74 tests pass
-- GSD files: 16 (~628L)
-- Synergy integration: synergyIntegration.ts (276L)
-- Build: npm run build (esbuild, NEVER tsc) → dist/index.js ~3.9MB
+- Dispatchers: 45 (684 verified actions)
+- Engines: 102 TypeScript engine files (see SYSTEM_ARCHITECTURE.json)
+- Algorithms: 54 standalone Algorithm<I,O> implementations
+- Registries: 22 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath, coating, coolant, database, post-processor, knowledge-base, + defaults)
+- Skills: 153 with SKILL.md (C:\PRISM\skills-consolidated)
+- Scripts: 275 Python/PowerShell (C:\PRISM\scripts)
+- Agents: 70 definitions (14 OPUS, 35 SONNET, 9 HAIKU)
+- DSL Abbreviations: 300 entries across 19 categories
+- Tests: 32 test files, 1080 passing
+- Hooks (TS): 22 hook modules
+- Type definitions: 12 files
+- Extracted assets: 522 files across 23 directories
+- State/checkpoint files: 240
+- Knowledge base files: 58
+- Coordination files: 13
+- Build: npm run build (esbuild) → dist/index.js
+- Master schema: SYSTEM_ARCHITECTURE.json (single source of truth)
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

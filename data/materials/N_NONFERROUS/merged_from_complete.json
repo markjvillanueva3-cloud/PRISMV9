@@ -7,10 +7,11 @@
       "material_type": "Aluminum - Free Machining",
       "subcategory": "free_machining",
       "condition": "T3 (Solution Heat Treated + Cold Worked)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2830,
@@ -502,18 +503,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2011",
         "match_method": "name_parse_subcategory",
         "match_quality": 0.7,
         "subcategory_resolved": "free_machining",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_free_mach"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_free_machining_HB_scaled"
         },
         "taylor": {
@@ -544,7 +545,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": true
       }
     },
     {
@@ -554,10 +561,11 @@
       "material_type": "Aluminum - Free Machining",
       "subcategory": "free_machining",
       "condition": "T8 (Solution + Cold Work + Artificial Age)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2830,
@@ -1048,18 +1056,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2011",
         "match_method": "name_parse_subcategory",
         "match_quality": 0.7,
         "subcategory_resolved": "free_machining",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_free_mach"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_free_machining_HB_scaled"
         },
         "taylor": {
@@ -1090,7 +1098,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": true
       }
     },
     {
@@ -1103,7 +1117,8 @@
       "data_quality": "reference",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2800,
@@ -1199,7 +1214,7 @@
       },
       "johnson_cook": {
         "A": 290,
-        "B": 425,
+        "B": 50,
         "n": 0.34,
         "C": 0.015,
         "m": 1.0,
@@ -1583,18 +1598,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2014",
         "match_method": "exact_alloy",
         "match_quality": 1.0,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "HIGH",
+          "confidence": "INTERPOLATED",
           "source": "Interpolated_2xxx"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -1625,7 +1640,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
       }
     },
     {
@@ -1638,7 +1659,8 @@
       "data_quality": "reference",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2800,
@@ -1734,7 +1756,7 @@
       },
       "johnson_cook": {
         "A": 290,
-        "B": 425,
+        "B": 50,
         "n": 0.34,
         "C": 0.015,
         "m": 1.0,
@@ -2117,18 +2139,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2014",
         "match_method": "exact_alloy",
         "match_quality": 1.0,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "HIGH",
+          "confidence": "INTERPOLATED",
           "source": "Interpolated_2xxx"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -2159,7 +2181,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
       }
     },
     {
@@ -2172,7 +2200,8 @@
       "data_quality": "reference",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2800,
@@ -2651,18 +2680,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2014",
         "match_method": "exact_alloy",
         "match_quality": 1.0,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "HIGH",
+          "confidence": "INTERPOLATED",
           "source": "Interpolated_2xxx"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -2693,7 +2722,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
       }
     },
     {
@@ -2703,10 +2738,11 @@
       "material_type": "Aluminum - Structural",
       "subcategory": "structural_steel",
       "condition": "T4 (Solution + Natural Age)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2790,
@@ -3186,18 +3222,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "2017",
         "match_method": "exact_alloy",
         "match_quality": 1.0,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "HIGH",
+          "confidence": "INTERPOLATED",
           "source": "Interpolated_2xxx"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -3228,7 +3264,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": true
       }
     },
     {
@@ -3238,10 +3280,11 @@
       "material_type": "Aluminum - Aerospace Structural",
       "subcategory": "structural_steel",
       "condition": "T651 (Solution + Stretch + Artificial Age)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2710,
@@ -3324,7 +3367,7 @@
       "johnson_cook": {
         "A": 319.5,
         "A_source": "class_default",
-        "B": 456.2,
+        "B": 162.6,
         "B_source": "class_default",
         "n": 0.25,
         "n_source": "class_default",
@@ -3687,18 +3730,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "6013",
         "match_method": "name_parse_subcategory",
         "match_quality": 0.7,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_structural"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -3729,7 +3772,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": true
       }
     },
     {
@@ -3739,10 +3788,11 @@
       "material_type": "Aluminum - High Strength Structural",
       "subcategory": "structural_steel",
       "condition": "T6 (Solution + Artificial Age)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 2710,
@@ -3824,7 +3874,7 @@
       "johnson_cook": {
         "A": 319.5,
         "A_source": "class_default",
-        "B": 456.2,
+        "B": 139.3,
         "B_source": "class_default",
         "n": 0.25,
         "n_source": "class_default",
@@ -4187,18 +4237,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "6070",
         "match_method": "name_parse_subcategory",
         "match_quality": 0.7,
         "subcategory_resolved": "structural_steel",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_structural"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_structural_steel_HB_scaled"
         },
         "taylor": {
@@ -4229,7 +4279,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     }
   ]

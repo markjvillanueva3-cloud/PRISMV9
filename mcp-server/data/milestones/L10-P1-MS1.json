@@ -1,22 +1,22 @@
 {
   "id": "L10-P1-MS1",
   "version": "3.1.0",
-  "title": "Monitoring, CI/CD & Deployment",
-  "brief": "Monitoring, CI/CD (GitHub Actions), Docker deployment, environment configuration.",
+  "title": "Quality, Scoring & DevTools Products",
+  "brief": "QualityEngine: output validation, confidence scoring. OmegaScoring: multi-dimensional quality metrics. DevToolsEngine: debugging tools, inspection utilities, diagnostic products.",
   "created_at": "2026-02-26T20:14:19Z",
   "created_by": "claude-opus-4.6",
   "phases": [
     {
       "id": "P0",
-      "title": "Monitoring, CI/CD & Deployment",
-      "description": "Monitoring, CI/CD (GitHub Actions), Docker deployment, environment configuration.",
-      "sessions": "3-4",
+      "title": "Quality, Scoring & DevTools Products",
+      "description": "Implement QualityEngine (output validation, confidence scoring), OmegaScoring (multi-dimensional quality metrics), and DevToolsEngine (debugging tools, inspection utilities, diagnostic products).",
+      "sessions": "1",
       "primary_role": "R2",
       "primary_model": "sonnet-4.6",
       "units": [
         {
           "id": "P0-U01",
-          "title": "Execute Monitoring, CI/CD & Deployment",
+          "title": "Implement Quality, Scoring & DevTools Products",
           "phase": "P0",
           "sequence": 0,
           "role": "R2",
@@ -24,12 +24,9 @@
           "model": "sonnet-4.6",
           "effort": 80,
           "tools": [
-            {
-              "tool": "prism_dev"
-            },
-            {
-              "tool": "prism_telemetry"
-            }
+            { "tool": "prism_dev" },
+            { "tool": "prism_validate" },
+            { "tool": "prism_telemetry" }
           ],
           "skills": [],
           "scripts": [],
@@ -40,15 +37,30 @@
             "L10-P0-MS1 complete"
           ],
           "exit_conditions": [
-            "Monitoring, CI/CD & Deployment complete",
+            "QualityEngine implements output validation and confidence scoring",
+            "OmegaScoring implements multi-dimensional quality metrics",
+            "DevToolsEngine implements debugging tools, inspection utilities, diagnostic products",
+            "All 24 product units registered and wired to dispatchers",
             "Build passes",
             "Tests pass"
           ],
-          "rollback": "git checkout -- [files modified by L10-P1-MS1]",
+          "rollback": "git checkout -- src/products/quality/ src/products/scoring/ src/products/devtools/",
           "steps": [
             {
               "number": 1,
-              "instruction": "Execute Monitoring, CI/CD & Deployment per roadmap spec"
+              "instruction": "Implement QualityEngine with output validation and confidence scoring"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement OmegaScoring with multi-dimensional quality metrics"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement DevToolsEngine with debugging tools, inspection utilities, diagnostic products"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire all 24 products to dispatchers, register in product registry, verify API integration"
             }
           ],
           "deliverables": [],
@@ -75,8 +87,8 @@
       "scrutiny_focus": []
     }
   ],
-  "total_units": 8,
-  "total_sessions": "3-4",
+  "total_units": 24,
+  "total_sessions": "1",
   "role_matrix": [
     {
       "code": "R2",
@@ -86,18 +98,9 @@
     }
   ],
   "tool_map": [
-    {
-      "tool": "prism_dev",
-      "phases": [
-        "P0"
-      ]
-    },
-    {
-      "tool": "prism_telemetry",
-      "phases": [
-        "P0"
-      ]
-    }
+    { "tool": "prism_dev", "phases": ["P0"] },
+    { "tool": "prism_validate", "phases": ["P0"] },
+    { "tool": "prism_telemetry", "phases": ["P0"] }
   ],
   "deliverables_index": [],
   "existing_leverage": [],

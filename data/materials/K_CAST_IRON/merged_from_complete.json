@@ -7,10 +7,11 @@
       "material_type": "Malleable Cast Iron - Ferritic",
       "subcategory": "austenitic",
       "condition": "Malleabilized (Blackheart)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7300,
@@ -470,18 +471,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "austenitic",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_austenitic"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_austenitic_HB_scaled"
         },
         "taylor": {
@@ -512,7 +513,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -525,7 +532,8 @@
       "data_quality": "reference",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 4500.0,
@@ -994,18 +1002,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "compacted_graphite",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_CGI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_compacted_graphite_HB_scaled"
         },
         "taylor": {
@@ -1036,7 +1044,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": false
       }
     },
     {
@@ -1049,7 +1063,8 @@
       "data_quality": "reference",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 4500.0,
@@ -1518,18 +1533,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "compacted_graphite",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_CGI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_compacted_graphite_HB_scaled"
         },
         "taylor": {
@@ -1560,7 +1575,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": false
       }
     },
     {
@@ -1570,10 +1591,11 @@
       "material_type": "Malleable Cast Iron - Ferritic",
       "subcategory": "ferritic",
       "condition": "Malleabilized (Higher Strength)",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7300,
@@ -2033,18 +2055,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "ferritic",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_ferritic"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_ferritic_HB_scaled"
         },
         "taylor": {
@@ -2075,7 +2097,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -2085,10 +2113,11 @@
       "material_type": "Compacted Graphite Iron",
       "subcategory": "ferritic",
       "condition": "As-Cast Ferritic",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7100,
@@ -2184,7 +2213,7 @@
       },
       "johnson_cook": {
         "A": 382.9,
-        "B": 517.1,
+        "B": 50,
         "n": 0.28,
         "C": 0.02,
         "m": 1.0,
@@ -2559,18 +2588,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "ferritic",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_ferritic"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_ferritic_HB_scaled"
         },
         "taylor": {
@@ -2601,7 +2630,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -2611,10 +2646,11 @@
       "material_type": "Compacted Graphite Iron",
       "subcategory": "ferritic",
       "condition": "As-Cast Ferritic-Pearlitic",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7100,
@@ -2710,7 +2746,7 @@
       },
       "johnson_cook": {
         "A": 420.0,
-        "B": 550.0,
+        "B": 50,
         "n": 0.28,
         "C": 0.02,
         "m": 1.0,
@@ -3084,18 +3120,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "ferritic",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_ferritic"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_ferritic_HB_scaled"
         },
         "taylor": {
@@ -3126,7 +3162,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -3136,10 +3178,11 @@
       "material_type": "Gray Cast Iron - Engineered",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7280,
@@ -3201,7 +3244,7 @@
         "shear_strength": 156.0
       },
       "kienzle": {
-        "kc1_1": 1722.4,
+        "kc1_1": 877.5,
         "mc": 0.25,
         "kc_adjust_rake": -1.5,
         "kc_adjust_speed": -0.1,
@@ -3236,7 +3279,7 @@
       },
       "johnson_cook": {
         "A": 510.4,
-        "B": 567.8,
+        "B": 50,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -3600,18 +3643,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -3642,7 +3685,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -3652,10 +3701,11 @@
       "material_type": "Gray Cast Iron - Engineered",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7350,
@@ -3752,7 +3802,7 @@
       },
       "johnson_cook": {
         "A": 559.2,
-        "B": 603.4,
+        "B": 50,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -4116,18 +4166,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -4158,7 +4208,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -4168,10 +4224,11 @@
       "material_type": "White Cast Iron - Ni-Hard",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7650,
@@ -4636,18 +4693,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -4678,7 +4735,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -4688,10 +4751,11 @@
       "material_type": "White Cast Iron - Ni-Hard",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7700,
@@ -5156,18 +5220,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -5198,7 +5262,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -5208,10 +5278,11 @@
       "material_type": "White Cast Iron - High Chrome",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7550,
@@ -5308,7 +5379,7 @@
       },
       "johnson_cook": {
         "A": 288.0,
-        "B": 839.3,
+        "B": 338.0,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -5676,18 +5747,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -5718,7 +5789,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -5728,10 +5805,11 @@
       "material_type": "White Cast Iron - High Chrome",
       "subcategory": "general",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7600,
@@ -5828,7 +5906,7 @@
       },
       "johnson_cook": {
         "A": 324.0,
-        "B": 880.5,
+        "B": 380.3,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -6196,18 +6274,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -6238,7 +6316,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -6248,10 +6332,11 @@
       "material_type": "Chilled Cast Iron",
       "subcategory": "general",
       "condition": "Chilled Surface",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7450,
@@ -6314,7 +6399,7 @@
         "shear_strength": 1212.0
       },
       "kienzle": {
-        "kc1_1": 2212.3,
+        "kc1_1": 10500.0,
         "mc": 0.25,
         "kc_adjust_rake": -2,
         "kc_adjust_speed": -0.15,
@@ -6723,18 +6808,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -6765,7 +6850,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -6775,10 +6866,11 @@
       "material_type": "Indefinite Chill Cast Iron",
       "subcategory": "general",
       "condition": "Indefinite Chill",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7500,
@@ -6875,7 +6967,7 @@
       },
       "johnson_cook": {
         "A": 252.0,
-        "B": 807.9,
+        "B": 295.8,
         "n": 0.24,
         "C": 0.017,
         "m": 1.0,
@@ -7242,18 +7334,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "general",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_general"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_general_HB_scaled"
         },
         "taylor": {
@@ -7284,7 +7376,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -7294,10 +7392,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7150,
@@ -7359,7 +7458,7 @@
         "shear_strength": 87.0
       },
       "kienzle": {
-        "kc1_1": 1021.0,
+        "kc1_1": 487.5,
         "mc": 0.24,
         "kc_adjust_rake": -1.5,
         "kc_adjust_speed": -0.1,
@@ -7394,7 +7493,7 @@
       },
       "johnson_cook": {
         "A": 215.4,
-        "B": 362.2,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -7758,18 +7857,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -7800,7 +7899,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -7810,10 +7915,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7200,
@@ -7910,7 +8016,7 @@
       },
       "johnson_cook": {
         "A": 230.0,
-        "B": 378.3,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -8274,18 +8380,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -8316,7 +8422,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -8326,10 +8438,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7250,
@@ -8426,7 +8539,7 @@
       },
       "johnson_cook": {
         "A": 247.0,
-        "B": 396.8,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -8790,18 +8903,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -8832,7 +8945,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -8842,10 +8961,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7300,
@@ -8942,7 +9062,7 @@
       },
       "johnson_cook": {
         "A": 258.9,
-        "B": 409.4,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -9306,18 +9426,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -9348,7 +9468,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -9358,10 +9484,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7350,
@@ -9458,7 +9585,7 @@
       },
       "johnson_cook": {
         "A": 275.4,
-        "B": 426.7,
+        "B": 77.2,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -9822,18 +9949,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -9864,7 +9991,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -9874,10 +10007,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7400,
@@ -9974,7 +10108,7 @@
       },
       "johnson_cook": {
         "A": 289.2,
-        "B": 440.8,
+        "B": 127.7,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -10338,18 +10472,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -10380,7 +10514,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -10390,10 +10530,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7450,
@@ -10490,7 +10631,7 @@
       },
       "johnson_cook": {
         "A": 302.6,
-        "B": 454.3,
+        "B": 163.2,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -10854,18 +10995,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -10896,7 +11037,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -10906,10 +11053,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7500,
@@ -11370,18 +11518,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -11412,7 +11560,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -11422,10 +11576,11 @@
       "material_type": "Gray Cast Iron - Damping Grade",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7150,
@@ -11522,7 +11677,7 @@
       },
       "johnson_cook": {
         "A": 214.5,
-        "B": 361.2,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -11886,18 +12041,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -11928,7 +12083,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -11938,10 +12099,11 @@
       "material_type": "Gray Cast Iron",
       "subcategory": "gray_iron",
       "condition": "Stress Relieved",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7250,
@@ -12038,7 +12200,7 @@
       },
       "johnson_cook": {
         "A": 242.4,
-        "B": 391.9,
+        "B": 50,
         "n": 0.25,
         "C": 0.015,
         "m": 0.8,
@@ -12402,18 +12564,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -12444,7 +12606,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 1,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -12454,10 +12622,11 @@
       "material_type": "Gray Cast Iron - Surface Hardened",
       "subcategory": "gray_iron",
       "condition": "Flame Hardened",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7350,
@@ -12520,7 +12689,7 @@
         "shear_strength": 1212.0
       },
       "kienzle": {
-        "kc1_1": 1490.0,
+        "kc1_1": 10500.0,
         "mc": 0.24,
         "kc_adjust_rake": -2,
         "kc_adjust_speed": -0.12,
@@ -12929,18 +13098,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -12971,7 +13140,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -12981,10 +13156,11 @@
       "material_type": "Gray Cast Iron - Surface Hardened",
       "subcategory": "gray_iron",
       "condition": "Induction Hardened",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7350,
@@ -13047,7 +13223,7 @@
         "shear_strength": 1212.0
       },
       "kienzle": {
-        "kc1_1": 1514.0,
+        "kc1_1": 10500.0,
         "mc": 0.24,
         "kc_adjust_rake": -2,
         "kc_adjust_speed": -0.12,
@@ -13456,18 +13632,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -13498,7 +13674,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -13508,10 +13690,11 @@
       "material_type": "Gray Cast Iron - High Chrome",
       "subcategory": "gray_iron",
       "condition": "As-Cast",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7600,
@@ -13976,18 +14159,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "gray_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_gray_iron_HB_scaled"
         },
         "taylor": {
@@ -14018,7 +14201,13 @@
           "confidence": "MEDIUM_HIGH",
           "source": "existing_validated"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -14028,10 +14217,11 @@
       "material_type": "Malleable Cast Iron - Pearlitic",
       "subcategory": "malleable_iron",
       "condition": "Malleabilized Pearlitic",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7350,
@@ -14490,18 +14680,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "malleable_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_malleable_iron_HB_scaled"
         },
         "taylor": {
@@ -14532,7 +14722,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -14542,10 +14738,11 @@
       "material_type": "Malleable Cast Iron - Pearlitic",
       "subcategory": "malleable_iron",
       "condition": "Malleabilized Pearlitic + Temper",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7400,
@@ -15004,18 +15201,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "malleable_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_malleable_iron_HB_scaled"
         },
         "taylor": {
@@ -15046,7 +15243,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     },
     {
@@ -15056,10 +15259,11 @@
       "material_type": "Malleable Cast Iron - Whiteheart",
       "subcategory": "malleable_iron",
       "condition": "Decarburized Surface",
-      "data_quality": "reference",
+      "data_quality": "calculated",
       "data_sources": [
         "materials_complete",
-        "deep_accuracy_v1"
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
       ],
       "physical": {
         "density": 7400,
@@ -15519,18 +15723,18 @@
         "prior_params": null
       },
       "_accuracy": {
-        "pass": "deep_accuracy_v1",
+        "pass": "deep_accuracy_v2",
         "date": "2026-02-27",
         "alloy_match": "none",
         "match_method": "subcategory_only",
         "match_quality": 0.5,
         "subcategory_resolved": "malleable_iron",
         "johnson_cook": {
-          "confidence": "MEDIUM",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "Subcategory_gray_CI"
         },
         "kienzle": {
-          "confidence": "MEDIUM_HIGH",
+          "confidence": "SUBCATEGORY_SPECIFIC",
           "source": "VDI3323_malleable_iron_HB_scaled"
         },
         "taylor": {
@@ -15561,7 +15765,13 @@
           "confidence": "MEDIUM",
           "source": "existing"
         },
-        "overall_confidence": "MEDIUM_HIGH"
+        "overall_confidence": "PARAMETRIC_MODEL",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "PARAMETRIC_MODEL",
+          "source": "composition_or_group"
+        },
+        "has_composition": false
       }
     }
   ]
