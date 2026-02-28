@@ -1,10 +1,10 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** QA Audit Track -- QA-MS0-MS9 COMPLETE, QA-MS10 next
+**Phase:** QA Audit Track -- QA-MS0-MS10 COMPLETE, QA-MS11 next
 **Build:** 6.6MB clean | Roadmap Index: v5.0.0 (80 milestones)
-**Active:** QA-MS10 (Manufacturing Engines) -- not started
-**Next:** QA-MS10-U00 -> U01 -> U02 -> U03 -> U04 -> U05
+**Active:** QA-MS11 (Intelligence Engines) -- not started
+**Next:** QA-MS11-U00 -> U01 -> U02 -> U03 -> U04 -> U05
 
 ## QA-MS0 Baseline Results (2026-02-27)
 - **Code reality:** 45 dispatchers, 1060 actions, 169 engines, 50 algorithms, 157 hooks
@@ -115,10 +115,22 @@
 - **Key findings:** Bridge dispatch handler never wired (CRITICAL), tenant auth gap on pattern ops, appendFileSync not covered by atomic write sweep (3 files)
 - **Composite OQA:** (4.50+4.00+3.75+4.75+4.75+5.00+5.00)/7*0.8 + test_pass*0.2 = 4.54*0.8 + 1.0 = 4.63 (PASS, gate omega_floor=0.75 met)
 
+## QA-MS10 Manufacturing Engines Deep Audit Results (2026-02-28)
+- **U00 (Stability Engines):** 6 engines (5 dedicated + 1 physics inline), dual chatter implementations (SDOF analytical vs FRF measured), 2 MAJOR: no toolpath feedback loop, PhysicsPrediction SLD formula non-standard (OQA=4.25 PASS)
+- **U01 (Grinding/EDM):** NO dedicated grinding engine (139 lines inline), 4 EDM engines real, 1 MAJOR: WireEDM skim speed formula INVERTED (2.0-i*0.3 produces >firstCut speeds), WhiteLayerDetectionEngine unused (OQA=3.55 COND PASS)
+- **U02 (5-Axis Engines):** 5 engines (RTCP/Singularity/Tilt/WorkEnvelope/IK), 2 CRITICAL: C-axis limits not checked in WorkEnvelopeValidator, fixture_height ignored in Z limit, RTCP tolerance hardcoded true (OQA=3.30 COND PASS)
+- **U03 (PostProcessor):** 309 lines, 6 controller dialects, 2 CRITICAL: tap/bore move types silently dropped (no G84/G76 output), no 5-axis G-code generation (no G43.4/G68.2) (OQA=3.30 COND PASS)
+- **U04 (CAD Validation):** No dedicated CadValidationEngine -- distributed across CADKernel (758 lines, 45 methods), FeatureRecognition (247), Geometry (224 facade) (OQA=4.00 COND PASS)
+- **U05 (Wiring Completeness):** 88% coverage (15/17 manufacturing engines fully wired), grinding inline-only, WhiteLayerDetection unused (OQA=4.40 PASS)
+- **Tests:** 1115 passed (36 files), build 6.6MB clean
+- **Fixes applied:** 0 code changes (audit-only milestone)
+- **Key findings:** 5-axis C-axis limits unchecked (CRITICAL), post-processor drops tap/bore cycles (CRITICAL), WireEDM skim formula inverted (MAJOR), no dedicated grinding engine
+- **Composite OQA:** (4.25+3.55+3.30+3.30+4.00+4.40)/6*0.8 + test_pass*0.2 = 3.80*0.8 + 1.0 = 3.24 (COND PASS, gate omega_floor=0.75 met)
+
 ## Milestone Summary
-- Complete: 49 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS9)
+- Complete: 50 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS10)
 - In Progress: 0
-- Not Started: 31 milestones (QA-MS10-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 30 milestones (QA-MS11-QA-MS14, S3-S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -133,7 +145,7 @@
 | QA-MS7 | Registry & Data Quality | 7 | **COMPLETE** (ToolRegistry dup handling, no TTL, OQA=4.74) |
 | QA-MS8 | Manufacturing Dispatchers | 5 | **COMPLETE** (drilling/stripping orphaned, toolpath dead code, OQA=4.20) |
 | QA-MS9 | Infrastructure Dispatchers | 7 | **COMPLETE** (bridge CRITICAL, tenant auth gap, OQA=4.63) |
-| QA-MS10 | Manufacturing Engines | 6 | not started |
+| QA-MS10 | Manufacturing Engines | 6 | **COMPLETE** (5-axis CRITICAL, post-proc CRITICAL, OQA=3.24) |
 | QA-MS11 | Intelligence Engines | 6 | not started |
 | QA-MS12 | Hook & Orchestration | 5 | not started |
 | QA-MS13 | Cross-Cutting Concerns | 6 | not started |

@@ -1,0 +1,111 @@
+{
+  "unit": "QA-MS10-U02",
+  "title": "Five-Axis Engine Suite Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T13:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "5 dedicated 5-axis engines — RTCP, singularity, tilt, work envelope, inverse kinematics",
+  "engines": [
+    {
+      "file": "src/engines/RTCP_CompensationEngine.ts",
+      "lines": 211,
+      "real": true,
+      "kinematic_models": [
+        "table_table (A+C)",
+        "head_head (A+C)",
+        "mixed_AC",
+        "mixed_BC",
+        "head_table"
+      ],
+      "issues": [
+        "is_within_tolerance hardcoded true (SAFETY)",
+        "mixed_BC/head_table share one formula"
+      ]
+    },
+    {
+      "file": "src/engines/SingularityAvoidanceEngine.ts",
+      "lines": 219,
+      "real_detect": true,
+      "stub_reroute": true,
+      "issues": [
+        "mapSingularities returns only 2 generic zones",
+        "No reroute() method despite advertised",
+        "Threshold inconsistency with RTCP (2.0 vs 0.5 deg)"
+      ]
+    },
+    {
+      "file": "src/engines/TiltAngleOptimizationEngine.ts",
+      "lines": 183,
+      "real": true,
+      "tool_types": [
+        "ball_nose",
+        "bull_nose",
+        "flat_end",
+        "barrel",
+        "lens"
+      ],
+      "issues": [
+        "No gouge check against part geometry",
+        "Grid search not analytical (O(n^2))"
+      ]
+    },
+    {
+      "file": "src/engines/WorkEnvelopeValidatorEngine.ts",
+      "lines": 190,
+      "real": true,
+      "issues": [
+        "C-AXIS LIMIT NOT CHECKED (SAFETY CRITICAL)",
+        "fixture_height_mm accepted but IGNORED in Z limit calculation"
+      ]
+    },
+    {
+      "file": "src/engines/InverseKinematicsSolverEngine.ts",
+      "lines": 198,
+      "real": true,
+      "issues": [
+        "Only 2 solutions generated (4 possible)",
+        "mixed config falls to BC branch",
+        "No axis-limit filtering"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "All 5 engines are real implementations with correct trigonometric derivations"
+    },
+    {
+      "severity": "CRITICAL",
+      "finding": "WorkEnvelopeValidator: C-axis limits not checked — rotary overtravel on C undetected"
+    },
+    {
+      "severity": "CRITICAL",
+      "finding": "WorkEnvelopeValidator: fixture_height_mm ignored in Z limit — tool can drive through fixture"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "RTCP is_within_tolerance hardcoded true — caller always gets green light regardless of compensation error"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "SingularityAvoidance has no reroute() method — detection only, no avoidance path planning"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "InverseKinematics generates only 2 of 4 possible solutions"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "safety": 2,
+    "performance": 5,
+    "composite": "3.50",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "kinematic_model_verified": true,
+    "tool_orientation_verified": true,
+    "collision_detection_checked": true
+  }
+}

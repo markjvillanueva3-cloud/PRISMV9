@@ -1,0 +1,99 @@
+{
+  "unit": "QA-MS10-U01",
+  "title": "Grinding + EDM Engine Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T13:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "Grinding: 0 dedicated engines (4 inline actions), EDM: 4 dedicated engines",
+  "grinding": {
+    "dedicated_engine": false,
+    "implementation": "139 lines inline in grindingDispatcher.ts",
+    "actions": [
+      "wheel_select (ANSI B74.13 partial)",
+      "dress_params (overlap ratio)",
+      "burn_threshold (specific energy model)",
+      "surface_integrity (classification only)"
+    ],
+    "issues": [
+      {
+        "severity": "MAJOR",
+        "finding": "No dedicated grinding engine — all logic inline (75 lines of physics in dispatcher)"
+      },
+      {
+        "severity": "MAJOR",
+        "finding": "Burn threshold not physics-based — 500W arbitrary default, not Malkin's 84 J/mm3 criterion"
+      },
+      {
+        "severity": "MAJOR",
+        "finding": "surface_integrity does not use WhiteLayerDetectionEngine despite it supporting operation:'grinding'"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "dress_params has double-assignment bug (line 79 references result before construction)"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "ANSI B74.13 coverage incomplete — no electroplated/metal bond, no porosity specification"
+      }
+    ]
+  },
+  "edm": {
+    "engines": [
+      {
+        "file": "src/engines/ElectrodeDesignEngine.ts",
+        "lines": 156,
+        "real": true,
+        "note": "5 electrode materials, wear ratio tables, stage selection"
+      },
+      {
+        "file": "src/engines/WireEDMSettingsEngine.ts",
+        "lines": 166,
+        "real": true,
+        "note": "6 wire types, skim cuts, flushing pressure"
+      },
+      {
+        "file": "src/engines/EDMSurfaceIntegrityEngine.ts",
+        "lines": 157,
+        "real": true,
+        "note": "SAFETY CRITICAL — recast/HAZ/microcrack models, spec limits per industry"
+      },
+      {
+        "file": "src/engines/MicroEDMEngine.ts",
+        "lines": 124,
+        "real": true,
+        "note": "Spark gap, discharge energy, aspect ratio limits, WEDG recommendation"
+      }
+    ],
+    "issues": [
+      {
+        "severity": "MAJOR",
+        "finding": "WireEDM skim speed formula INVERTED — firstCutSpeed*(2.0-i*0.3) produces skim speeds FASTER than first cut"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "WireEDM taper speed factor computed but never applied to output"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "ElectrodeDesign: no electrode replacement count (wear ratio returned but consumption not computed)"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "MicroEDM: no dielectric/flushing model (critical for aspect ratio >10)"
+      }
+    ]
+  },
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "safety": 4,
+    "performance": 5,
+    "composite": "3.75",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "grinding_models_verified": true,
+    "edm_models_verified": true,
+    "parameter_ranges_validated": true
+  }
+}

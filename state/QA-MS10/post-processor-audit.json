@@ -1,0 +1,92 @@
+{
+  "unit": "QA-MS10-U03",
+  "title": "PostProcessorEngine G-code Audit",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T13:00:00Z",
+  "status": "CONDITIONAL PASS",
+  "scope": "PostProcessorEngine.ts — 309 lines, SAFETY CRITICAL, 6 controller dialects",
+  "file": "src/engines/PostProcessorEngine.ts",
+  "lines": 309,
+  "controllers": [
+    "fanuc",
+    "haas",
+    "siemens",
+    "heidenhain",
+    "mazak",
+    "okuma"
+  ],
+  "move_types": {
+    "implemented": [
+      "rapid",
+      "feed",
+      "arc_cw",
+      "arc_ccw",
+      "drill",
+      "comment"
+    ],
+    "missing": [
+      "tap",
+      "bore"
+    ]
+  },
+  "safety_sequences": {
+    "present": [
+      "Safe start (G90 G80 G40 G49)",
+      "Tool length comp (G43)",
+      "Coolant on/off",
+      "Program end (M30)"
+    ],
+    "missing": [
+      "Safe retract before tool change (G28 Z0)",
+      "5-axis TCPM activation (G43.4/G43.5)",
+      "Emergency stop sequence"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "OK",
+      "finding": "6 controller dialects correctly differentiated (tool change, coolant, comment, decimal, arc syntax)"
+    },
+    {
+      "severity": "OK",
+      "finding": "Safe start block cancels canned cycles, cutter comp, and tool length comp"
+    },
+    {
+      "severity": "CRITICAL",
+      "finding": "tap and bore move types in PostMove type but NO switch case — tapping/boring cycles silently dropped from output"
+    },
+    {
+      "severity": "CRITICAL",
+      "finding": "No 5-axis G-code output — no TCPM (G43.4/G43.5), no CYCLE800, no M128/M129 despite full 5-axis kinematics suite"
+    },
+    {
+      "severity": "MAJOR",
+      "finding": "No safe retract (G28 Z0) before tool change — standard practice on Fanuc/Haas"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Siemens coolant ignores mist type — always returns M8"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Feed rate validation cap 15,000 mm/min too low for HSM milling (30,000-60,000 common)"
+    },
+    {
+      "severity": "MINOR",
+      "finding": "Cycle time estimation is placeholder — fixed distances per move type, not actual geometry"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 3,
+    "completeness": 2,
+    "safety": 2,
+    "performance": 5,
+    "composite": "3.00",
+    "pass_fail": "CONDITIONAL PASS"
+  },
+  "exit_conditions_met": {
+    "gcode_templates_verified": true,
+    "machine_configs_verified": true,
+    "safety_gcodes_verified": true
+  }
+}
