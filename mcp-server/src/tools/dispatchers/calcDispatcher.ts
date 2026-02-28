@@ -281,6 +281,9 @@ export function registerCalcDispatcher(server: any): void {
       let result: any;
       const calcStart = Date.now();
 
+      // Emit CALC_STARTED event
+      try { eventBus.publish(EventTypes.CALC_STARTED, { action }, { category: "calculation", priority: "normal", source: "calcDispatcher" }); } catch { /* best-effort */ }
+
       // Map actions to specific pre-hook phases
       const SPECIFIC_HOOKS: Record<string, string> = {
         cutting_force: "pre-kienzle",

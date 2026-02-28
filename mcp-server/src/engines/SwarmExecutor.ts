@@ -209,6 +209,14 @@ export class SwarmExecutor {
 
     this.activeSwarms.set(swarmId, result);
 
+    // Emit SWARM_STARTED event
+    try {
+      eventBus.publish(EventTypes.SWARM_STARTED, {
+        swarm_id: swarmId, name: config.name, pattern: config.pattern,
+        agent_count: validAgents.length,
+      }, { category: "swarm", priority: "normal", source: "SwarmExecutor" });
+    } catch { /* best-effort */ }
+
     try {
       // Execute based on pattern
       switch (config.pattern) {
@@ -250,6 +258,11 @@ export class SwarmExecutor {
       result.status = "failed";
       result.warnings.push(error instanceof Error ? error.message : String(error));
       log.error(`[SwarmExecutor] Swarm ${swarmId} failed: ${error}`);
+      try {
+        eventBus.publish(EventTypes.SWARM_FAILED, {
+          swarm_id: swarmId, error: error instanceof Error ? error.message : String(error),
+        }, { category: "swarm", priority: "high", source: "SwarmExecutor" });
+      } catch { /* best-effort */ }
     }
 
     // Move to completed

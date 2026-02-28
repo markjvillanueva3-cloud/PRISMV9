@@ -21,7 +21,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { eventBus } from "./EventBus.js";
+import { eventBus, EventTypes } from "./EventBus.js";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -429,6 +429,9 @@ export class HookExecutor {
       };
     }
 
+    // Emit HOOK_TRIGGERED lifecycle event
+    try { await eventBus.publish(EventTypes.HOOK_TRIGGERED, { phase, hook_count: hookIds.size }, { source: "HookExecutor" }); } catch { /* best-effort */ }
+
     // Get and sort hooks by priority
     const hooks: HookDefinition[] = [];
     for (const id of hookIds) {
@@ -520,6 +523,9 @@ export class HookExecutor {
     } else {
       summary = `✅ All ${results.length} hooks passed (${totalDurationMs}ms)`;
     }
+
+    // Emit HOOK_COMPLETED lifecycle event
+    try { await eventBus.publish(EventTypes.HOOK_COMPLETED, { phase, executed: results.length, blocked, duration_ms: totalDurationMs }, { source: "HookExecutor" }); } catch { /* best-effort */ }
 
     return {
       phase,
