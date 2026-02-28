@@ -550,11 +550,11 @@ export function calculateSurfaceFinish(
   if (nose_radius <= 0 || nose_radius > 10) warnings.push(`Nose radius ${nose_radius}mm outside range`);
   
   let Ra_theoretical: number;
-  if (is_milling && radial_depth && tool_diameter) {
-    Ra_theoretical = (feed * feed * radial_depth) / (32 * tool_diameter * nose_radius);
-  } else {
-    Ra_theoretical = (feed * feed) / (32 * nose_radius);
-  }
+  // QA-MS3 FIX (F36): Feed-direction Ra is governed by nose radius kinematics
+  // regardless of radial engagement. Standard Brammertz formula: Ra = f^2/(32*r)
+  // applies to both turning and milling. The ae/D ratio affects scallop height
+  // (stepover-direction roughness), not feed-direction Ra.
+  Ra_theoretical = (feed * feed) / (32 * nose_radius);
   Ra_theoretical *= 1000; // to μm
   
   const process_factor = 2.0;

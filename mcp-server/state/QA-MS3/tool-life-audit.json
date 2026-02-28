@@ -1,0 +1,82 @@
+{
+  "audit_id": "QA-MS3-P0-U01",
+  "title": "ToolLifeEngine: Taylor Equation Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:55:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS — Taylor equation correctly implemented, 2 LOW findings",
+
+  "taylor_model": {
+    "source_file": "src/engines/ManufacturingCalculations.ts",
+    "function": "calculateTaylorToolLife",
+    "line": 433,
+    "formula_reference": "Taylor: V * T^n = C → T = (C/V)^(1/n)",
+    "implementation": "tool_life = Math.pow(C / cutting_speed, 1 / n)",
+    "formula_correct": true
+  },
+
+  "extended_taylor": {
+    "feed_correction": "tool_life *= (0.2 / feed)^0.35",
+    "depth_correction": "tool_life *= (2.0 / depth)^0.2",
+    "reference_values": { "feed_ref": 0.2, "depth_ref": 2.0 },
+    "exponents": { "a_feed": 0.35, "b_depth": 0.2 },
+    "description": "Simplified extended Taylor applying feed/depth corrections independently from reference values. This is a reasonable approximation of the full extended Taylor: V*T^n*f^a*d^b = C_ext",
+    "correct": true,
+    "note": "Exponents are hardcoded, not material-specific"
+  },
+
+  "taylor_coefficients_validation": {
+    "steel_HSS": { "C": 70, "n": 0.125, "ref_range_C": "50-100", "ref_range_n": "0.08-0.15", "verdict": "PASS" },
+    "steel_carbide": { "C": 200, "n": 0.25, "ref_range_C": "150-300", "ref_range_n": "0.20-0.30", "verdict": "PASS" },
+    "steel_ceramic": { "C": 400, "n": 0.30, "ref_range_C": "300-500", "ref_range_n": "0.25-0.35", "verdict": "PASS" },
+    "stainless_HSS": { "C": 50, "n": 0.12, "ref_range_C": "40-70", "ref_range_n": "0.10-0.15", "verdict": "PASS" },
+    "stainless_carbide": { "C": 150, "n": 0.22, "ref_range_C": "120-200", "ref_range_n": "0.18-0.25", "verdict": "PASS" },
+    "aluminum_carbide": { "C": 800, "n": 0.30, "ref_range_C": "600-1000", "ref_range_n": "0.25-0.35", "verdict": "PASS" },
+    "titanium_carbide": { "C": 100, "n": 0.20, "ref_range_C": "80-150", "ref_range_n": "0.15-0.25", "verdict": "PASS" },
+    "inconel_carbide": { "C": 80, "n": 0.18, "ref_range_C": "60-100", "ref_range_n": "0.15-0.22", "verdict": "PASS" }
+  },
+
+  "safety_features": {
+    "speed_clamping": "Clamps to [1, 2000] m/min with warnings",
+    "life_clamping": "Clamps to [0.1, 10000] min",
+    "cliff_edge_warning_short": "tool_life < 5 min → TAYLOR_CLIFF warning",
+    "cliff_edge_warning_speed": "cutting_speed > 0.9*C → TAYLOR_CLIFF warning (exponential curve)"
+  },
+
+  "findings": [
+    {
+      "id": "F32",
+      "severity": "LOW",
+      "title": "Extended Taylor exponents are hardcoded, not material-specific",
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "line": 455,
+      "issue": "Feed exponent a=0.35 and depth exponent b=0.2 are fixed constants. In practice, these vary by material (e.g., a=0.2-0.5 for different steel grades). The reference values (feed=0.2, depth=2.0) are also fixed.",
+      "impact": "Low — the corrections are secondary to the V-T relationship, and the fixed values are reasonable median estimates.",
+      "fix": "Accept a/b exponents as optional parameters in the TaylorCoefficients interface, or look them up from material registry."
+    },
+    {
+      "id": "F33",
+      "severity": "LOW",
+      "title": "optimal_speed is a fixed 85% heuristic, not cost-derived",
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "line": 481,
+      "issue": "optimal_speed = cutting_speed * 0.85 is a crude heuristic. The actual minimum cost speed depends on tool cost, machine rate, and change time (Gilbert's equation). AdvancedCalculations.calculateMinimumCostSpeed implements the correct derivation.",
+      "impact": "Low — this is a quick estimate. The proper function exists in AdvancedCalculations.",
+      "fix": "Either remove optimal_speed from this function (it's misleading), or call calculateMinimumCostSpeed if cost params are available."
+    }
+  ],
+
+  "verification_tests": {
+    "basic_taylor": "V=200, C=200, n=0.25 → T = (200/200)^(1/0.25) = 1^4 = 1 min ✓",
+    "half_speed": "V=100, C=200, n=0.25 → T = (200/100)^4 = 16 min ✓",
+    "with_feed": "V=100, C=200, n=0.25, f=0.1 → T = 16 * (0.2/0.1)^0.35 = 16*1.275 = 20.4 min ✓",
+    "speed_clamping": "V=3000 → clamped to 2000 with warning ✓",
+    "cliff_warning": "V=190, C=200 → V > 0.9*C → TAYLOR_CLIFF warning ✓"
+  },
+
+  "exit_conditions_met": {
+    "taylor_equation_verified": true,
+    "extended_taylor_verified": true,
+    "coefficients_validated": true
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "audit_id": "QA-MS3-P0-U03",
+  "title": "ThermalEngine: Heat Generation Models",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:55:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS — Loewen-Shaw model correctly implemented, 1 LOW finding (fixed heat partition)",
+
+  "thermal_model": {
+    "source_file": "src/engines/AdvancedCalculations.ts",
+    "function": "calculateCuttingTemperature",
+    "line": 347,
+    "formula_reference": "Simplified Loewen-Shaw: T = T_ambient + C * Vc^a * f^b * ap^c / sqrt(k)",
+    "implementation": "T_rise = C_temp * Vc^0.4 * f^0.2 * ap^0.1 / sqrt(k)",
+    "formula_correct": true,
+    "references": ["Shaw 'Metal Cutting Principles' Ch.12", "Boothroyd & Knight 'Fundamentals of Machining'", "Trent & Wright 'Metal Cutting' 4th ed Ch.5"]
+  },
+
+  "exponents": {
+    "speed_a": 0.4,
+    "feed_b": 0.2,
+    "depth_c": 0.1,
+    "reference_ranges": { "a": "0.3-0.5", "b": "0.1-0.3", "c": "0.05-0.15" },
+    "within_range": true
+  },
+
+  "empirical_constant": {
+    "C_temp_default": 350,
+    "overridable": true,
+    "parameter": "C_empirical",
+    "description": "Material-specific constant, can be passed explicitly for accurate results"
+  },
+
+  "heat_partition": {
+    "chip_fraction": 0.75,
+    "tool_fraction": 0.15,
+    "workpiece_fraction": 0.10,
+    "sum_check": "0.75 + 0.15 + 0.10 = 1.00 ✓",
+    "note": "Tool fraction is derived as 1 - chip - workpiece = 0.15 (consistent)"
+  },
+
+  "temperature_distribution": {
+    "tool_temperature": "cutting_temperature (interface temp)",
+    "chip_temperature": "cutting_temperature * 0.85",
+    "workpiece_temperature": "T_ambient + T_rise * work_fraction",
+    "references_cited": true
+  },
+
+  "thermal_expansion": {
+    "formula": "delta_L = L * CTE * delta_T",
+    "steel_CTE": "12e-6 /°C",
+    "aluminum_CTE": "23e-6 /°C (defined but only steel used as default)",
+    "correct": true
+  },
+
+  "warning_thresholds": {
+    "carbide_limit": "600°C — coating degradation",
+    "elevated": "400-600°C — monitor wear",
+    "chip_welding": "800°C — chip welding risk",
+    "reasonable": true
+  },
+
+  "findings": [
+    {
+      "id": "F35",
+      "severity": "LOW",
+      "title": "Fixed heat partition ignores speed-dependent variation",
+      "file": "src/engines/AdvancedCalculations.ts",
+      "line": 370,
+      "issue": "Heat partition is fixed at 75%/15%/10% (chip/tool/workpiece) regardless of cutting speed. In reality, chip fraction increases with speed (approaching 90%+ in HSM) because higher speed means less time for heat conduction into tool/workpiece. At low speeds (<20 m/min), tool fraction can reach 25-30%.",
+      "impact": "Low — the fixed partition is reasonable for mid-range speeds (50-300 m/min) where most calculations occur. Only significantly wrong at extremes.",
+      "fix": "Model speed-dependent partition: chip_fraction = 0.65 + 0.15*(Vc/300) clamped to [0.65, 0.95]. Or use Boothroyd's R_t parameter."
+    }
+  ],
+
+  "verification_tests": {
+    "steel_baseline": "Vc=150, f=0.1, ap=2, kc=1800, k=50 → T_rise = 350*(150^0.4)*(0.1^0.2)*(2^0.1)/sqrt(50) ≈ 350*8.5*0.63*1.07/7.07 ≈ 284°C → T_cut ≈ 304°C ✓",
+    "high_speed": "Vc=500, same → T_rise scales by (500/150)^0.4 ≈ 1.55 → ~470°C, triggers elevated warning ✓",
+    "aluminum_conductivity": "k=170 → T_rise reduced by sqrt(170/50) ≈ 1.84 → ~46% cooler, physically correct ✓",
+    "thermal_expansion": "L=300mm, delta_T=30°C, steel → 300*12e-6*30 = 0.108mm ✓"
+  },
+
+  "exit_conditions_met": {
+    "heat_generation_formula_verified": true,
+    "temperature_partition_checked": true,
+    "thermal_limits_verified": true
+  }
+}
