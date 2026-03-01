@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import SmartMaterialSelector from "../components/sfc/SmartMaterialSelector";
 import OperationSelector from "../components/sfc/OperationSelector";
 import SmartToolSelector from "../components/sfc/SmartToolSelector";
@@ -14,6 +14,7 @@ import CalculationHistory from "../components/sfc/CalculationHistory";
 import AdvancedCharts from "../components/sfc/AdvancedCharts";
 import { Button } from "../components/ui";
 import { useSfcCalculate } from "../hooks/useSfc";
+import type { SfcCalculateResult } from "../types/sfc";
 import { generateSfcReport } from "../utils/sfcReport";
 import type { MaterialEntry } from "../data/materials";
 import { MATERIALS } from "../data/materials";
@@ -94,7 +95,7 @@ export default function SfcCalculatorPage() {
     }
   }, []);
 
-  const makeSnapshot = useCallback((result: typeof calc.data): CalcSnapshot | null => {
+  const makeSnapshot = useCallback((result: SfcCalculateResult | null): CalcSnapshot | null => {
     if (!result || !material || !operation) return null;
     return {
       id: `calc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
@@ -196,11 +197,11 @@ export default function SfcCalculatorPage() {
   const requiredPowerKw = Number(calc.data?.meta?.power_kw) || 0;
   const requiredAxes = operation?.category === "milling" ? 3 : 2;
 
-  const rightTabs: { id: RightTab; label: string; count?: number }[] = [
+  const rightTabs = useMemo<{ id: RightTab; label: string; count?: number }[]>(() => [
     { id: "charts", label: "Charts" },
     { id: "compare", label: "Compare", count: comparison.length },
     { id: "history", label: "History", count: fullHistory.length },
-  ];
+  ], [comparison.length, fullHistory.length]);
 
   const handleTabKeyDown = useCallback((e: React.KeyboardEvent) => {
     const ids = rightTabs.map((t) => t.id);

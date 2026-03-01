@@ -58,7 +58,10 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
   const filtered = useMemo(() => searchMaterials(query), [query]);
 
   // Recommendations for current operation
-  const recommendedIds = operationId ? (OP_RECOMMENDATIONS[operationId] ?? []) : [];
+  const recommendedIds = useMemo(
+    () => operationId ? (OP_RECOMMENDATIONS[operationId] ?? []) : [],
+    [operationId],
+  );
 
   // Sort: recommended first, then favorites, then by group
   const ranked = useMemo(() => {
