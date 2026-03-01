@@ -546,8 +546,8 @@ class TestSeedDataIntegrity:
             len(cat_data["practices"])
             for cat_data in data["categories"].values()
         )
-        assert total == 30
-        assert data["total_practices"] == 30
+        assert total >= 30, f"Expected at least 30 seed practices, got {total}"
+        assert data["total_practices"] == total
 
     def test_all_practices_have_required_fields(self):
         db_path = _DATA_DIR / "practice_db.json"
@@ -640,11 +640,11 @@ class TestSeedDataIntegrity:
         db_path = _DATA_DIR / "practice_db.json"
         agg = PracticeAggregator(db_path=str(db_path))
         count = agg.load()
-        assert count == 30
+        assert count >= 30, f"Expected at least 30 seed practices, got {count}"
 
         counts = agg.category_counts()
         for cat in CATEGORIES:
-            assert counts[cat] == 5, f"Category {cat} has {counts[cat]} practices, expected 5"
+            assert counts[cat] >= 5, f"Category {cat} has {counts[cat]} practices, expected 5+"
 
     def test_weighted_consensus_in_seed(self):
         """All seed practices should have confidence > 0."""

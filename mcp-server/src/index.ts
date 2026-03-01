@@ -110,6 +110,9 @@ import { registerDiagnosisDispatcher } from "./tools/dispatchers/diagnosisDispat
 // CC-EXT-MS0: Document Learning Dispatcher — PDF/notes/article knowledge extraction (Dispatcher #51)
 import { registerDocumentLearningDispatcher } from "./tools/dispatchers/documentLearningDispatcher.js";
 
+// CC-MS6: Shop Practice Dispatcher — practice KB, trouble trees, material tips (Dispatcher #52)
+import { registerShopPracticeDispatcher } from "./tools/dispatchers/shopPracticeDispatcher.js";
+
 // L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
 import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
 
@@ -521,7 +524,10 @@ async function registerTools(): Promise<void> {
   // CC-EXT-MS0: Document Learning — 5 actions (doc_upload, doc_extract, doc_list, doc_get, doc_delete)
   registerDocumentLearningDispatcher(server);
 
-  log.info(`All PRISM tools registered: 51 dispatchers (1265 actions)`);
+  // CC-MS6: Shop Practice KB — 12 actions (practice_ingest/search/get/list/audit/recommend, tree_build/navigate/search, tips_add/get/conflicts)
+  registerShopPracticeDispatcher(server);
+
+  log.info(`All PRISM tools registered: 52 dispatchers (1277 actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
