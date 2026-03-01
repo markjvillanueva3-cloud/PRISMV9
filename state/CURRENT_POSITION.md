@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** SFC CALCULATOR UI — S3+S4 tracks (SFC features, testing, deployment)
-**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 63 complete + S4-MS1 in progress)
+**Phase:** SYSTEM OPTIMIZATION — S4-MS1 COMPLETE, SYS track next
+**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 64 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
-**Test Suite:** 1243 backend tests + 10 Playwright E2E tests
-**S4-MS1 IN PROGRESS:** 6/8 units done (E2E, a11y, perf, offline, deploy, meta) — scrutinization fixes applied
-**Next Recommended:** S4-MS1 U07-U08 (Documentation & Launch Gate), then SYS-MS1
+**Test Suite:** 1243 backend tests + 11 Playwright E2E tests
+**S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
+**Next Recommended:** SYS-MS4 (engine wiring audit) or SYS-MS6 (param schemas) or SYS-MS1 (mega-dispatcher decomp)
 **Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
@@ -226,16 +226,17 @@
 - **Key findings:** 6 CRITICAL issues for REM-MS0, 31 MAJOR across 4 remediation milestones, system Omega +22.6%
 - **Composite OQA:** (5.00+5.00+5.00+5.00)/4*0.8 + test_pass*0.2 = 5.00*0.8 + 1.0 = 4.00+0.94 = 4.94 (PASS, gate omega_floor=0.75 met)
 
-## S4-MS1 Testing, Polish & Ship (2026-02-28) — IN PROGRESS
-- **U01 (E2E Tests):** Playwright installed, 10 E2E tests for SFC flow (material, operation, calculate, tabs, presets, keyboard nav)
+## S4-MS1 Testing, Polish & Ship (2026-02-28) — COMPLETE
+- **U01 (E2E Tests):** Playwright installed, 11 E2E tests for SFC flow (material, operation, calculate, tabs, presets, keyboard nav)
 - **U02 (Accessibility):** skip-to-content link, nav landmark role, prefers-reduced-motion CSS, focus-visible outlines, aria-controls/tabpanel
 - **U03 (Performance):** React.lazy code splitting for SfcCalculatorPage, Vite manual chunks (react/recharts/jspdf), all chunks <400KB
 - **U04 (Offline):** OfflineBanner.tsx with online/offline detection + AbortController cleanup
 - **U05 (Deployment):** Dockerfile (multi-stage, non-root nginx), nginx.conf (SPA + API proxy + security headers), docker-compose (healthchecks), GitHub Actions CI/CD (Playwright cache)
 - **U06 (Meta):** Meta tags, theme-color, SVG favicon, noscript fallback
-- **Scrutinization:** 5 CRITICAL + 9 MED + 6 LOW found → all CRITICAL + actionable MED fixed
-- **Commits:** `cab350de` (U01-U06), `e54ee716` (scrutinization fixes)
-- **Remaining:** U07 (Documentation), U08 (Launch Gate)
+- **U07 (Documentation):** web/README.md — setup, architecture (component tree + state flow + API map), testing, deployment, a11y, perf
+- **U08 (Ship Gate):** All quality gates verified — web build clean (956 modules), backend build 6.6MB/0 TS errors, 1232 tests pass, Docker configs verified
+- **Scrutinization:** Pass 1: 1 MINOR (E2E count 10→11) fixed. Pass 2: CLEAN
+- **Commits:** `cab350de` (U01-U06), `e54ee716` (scrutinization fixes), `b935b909` (U07 docs), `44155296` (scrutiny fix)
 
 ## Gap Analysis → SYS-MS4 through SYS-MS7 (2026-02-28)
 Deep system-wide gap analysis identified 4 structural improvement areas after QA+REM completion:
@@ -246,8 +247,8 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 - **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
 
 ## Milestone Summary
-- Complete: 63 milestones (S0-S3, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0)
-- In Progress: 1 (S4-MS1 — 6/8 units)
+- Complete: 64 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0)
+- In Progress: 0
 - Not Started: 30 milestones (SYS-MS1-MS7, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
