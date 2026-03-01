@@ -1089,6 +1089,6 @@ export function optimization(action: string, params: Record<string, unknown>): u
     case 'eco_optimize':
       return ecoOptimize(params as unknown as EcoOptimizeInput);
     default:
-      return { error: `Unknown optimization action: ${action}` };
+      throw new Error(`Unknown optimization action: ${action}`);
   }
 }

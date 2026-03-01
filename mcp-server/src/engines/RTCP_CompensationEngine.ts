@@ -201,7 +201,7 @@ export class RTCP_CompensationEngine {
     }
 
     return {
-      safe: aOk && cOk && !singularity && warnings.length <= 1,
+      safe: aOk && cOk && !singularity && result.tool_tip_error_without_rtcp_mm <= 50,
       max_error_mm: result.tool_tip_error_without_rtcp_mm,
       axis_limits_ok: aOk && cOk,
       singularity_risk: singularity,

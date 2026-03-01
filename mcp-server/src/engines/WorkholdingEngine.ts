@@ -576,7 +576,8 @@ class WorkholdingEngine {
 
     // Calculate required clamp force
     // F_clamp = F_cutting × SafetyFactor × DynamicFactor / μ
-    const requiredClampForce = (F_cutting * safetyFactor * dynamicFactor) / mu;
+    // Guard: friction-based formula is meaningless for vacuum/magnetic (mu=0)
+    const requiredClampForce = mu > 0 ? (F_cutting * safetyFactor * dynamicFactor) / mu : Infinity;
 
     // Get applied clamp force
     const appliedClampForce = device.currentClampForce || device.maxClampForce || 0;

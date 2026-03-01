@@ -308,7 +308,7 @@ export function calculateEngagementAngle(
   // cos(θ) = (R - ae) / R = 1 - ae/R = 1 - 2×ae/D
   const cos_half_angle = 1 - (radial_depth / radius);
   const half_angle_rad = Math.acos(Math.max(-1, Math.min(1, cos_half_angle)));
-  const arc_of_engagement = (half_angle_rad * 180 / Math.PI) * 2;
+  const arc_of_engagement = Math.min((half_angle_rad * 180 / Math.PI) * 2, 180);
   
   // Entry and exit angles depend on climb vs conventional
   let entry_angle: number;
@@ -685,12 +685,15 @@ export function calculateOptimalStepover(
   
   log.debug(`[Stepover] D=${tool_diameter}, r=${effective_radius}, step=${optimal_stepover.toFixed(3)}mm`);
   
+  const final_stepover = operation === "finishing" ? optimal_stepover : adjusted_stepover;
+  const final_stepover_percent = (final_stepover / tool_diameter) * 100;
+
   return {
-    optimal_stepover: Math.round(optimal_stepover * 1000) / 1000,
-    stepover_percent: Math.round(stepover_percent * 10) / 10,
+    optimal_stepover: Math.round(final_stepover * 1000) / 1000,
+    stepover_percent: Math.round(final_stepover_percent * 10) / 10,
     scallop_height: Math.round(actual_scallop * 10000) / 10000,
     number_of_passes,
-    overlap_percent: Math.round(overlap_percent * 10) / 10,
+    overlap_percent: Math.round((100 - final_stepover_percent) * 10) / 10,
     strategy,
     warnings
   };
@@ -722,10 +725,10 @@ export function estimateCycleTime(
   const warnings: string[] = [];
   
   // Cutting time
-  const cutting_time = cutting_distance / cutting_feedrate;
-  
+  const cutting_time = cutting_feedrate > 0 ? cutting_distance / cutting_feedrate : 0;
+
   // Rapid time
-  const rapid_time = rapid_distance / rapid_rate;
+  const rapid_time = rapid_rate > 0 ? rapid_distance / rapid_rate : 0;
   
   // Tool change time
   const total_tool_change_time = (number_of_tools - 1) * tool_change_time;

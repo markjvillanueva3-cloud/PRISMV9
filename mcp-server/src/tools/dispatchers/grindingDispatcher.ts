@@ -75,7 +75,7 @@ Actions: ${ACTIONS.join(", ")}.`,
               dress_lead_mm_rev: lead,
               overlap_ratio: Math.round(overlapRatio * 10) / 10,
               passes: params.passes || 2,
-              wheel_speed_rpm: Math.round((30 * 1000) / (Math.PI * wheelDia / 1000)),
+              wheel_speed_rpm: Math.round((30 * 60) / (Math.PI * wheelDia / 1000)),
               traverse_speed_mm_min: Math.round(lead * result?.wheel_speed_rpm || 300),
               recommendation: overlapRatio > 10 ? "Fine dress — good for finish grinding" : "Open dress — good for stock removal",
             };

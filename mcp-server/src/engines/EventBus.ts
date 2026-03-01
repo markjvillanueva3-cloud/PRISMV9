@@ -279,22 +279,22 @@ export class EventBus {
 
     const handlerPromises = matchingSubscriptions.map(async (sub) => {
       try {
-        // Check debounce
+        // Check debounce — fire-and-forget debounced handlers to avoid hanging Promise.all
         if (sub.options.debounce_ms) {
           const debounceKey = `${sub.id}_${event.type}`;
           const existingTimer = this.debounceTimers.get(debounceKey);
           if (existingTimer) {
             clearTimeout(existingTimer);
           }
-          
-          await new Promise<void>((resolve) => {
-            const timer = setTimeout(async () => {
-              this.debounceTimers.delete(debounceKey);
+          const timer = setTimeout(async () => {
+            this.debounceTimers.delete(debounceKey);
+            try {
               await this.executeHandler(sub, event);
-              resolve();
-            }, sub.options.debounce_ms);
-            this.debounceTimers.set(debounceKey, timer);
-          });
+            } catch (err) {
+              log.error(`[EventBus] Debounced handler error for ${event.type}: ${err}`);
+            }
+          }, sub.options.debounce_ms);
+          this.debounceTimers.set(debounceKey, timer);
         } else {
           await this.executeHandler(sub, event);
         }

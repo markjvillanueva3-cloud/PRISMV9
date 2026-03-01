@@ -52,7 +52,7 @@ Params vary by action — pass relevant fields in params object.`,
             const lsl = params.lsl ?? params.lower_spec_limit;
             const n = measurements.length || 1;
             const mean = measurements.length ? measurements.reduce((a: number, b: number) => a + b, 0) / n : 0;
-            const std = measurements.length ? Math.sqrt(measurements.reduce((s: number, v: number) => s + (v - mean) ** 2, 0) / (n - 1)) : 1;
+            const std = n > 1 ? Math.sqrt(measurements.reduce((s: number, v: number) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
             const cp = usl !== undefined && lsl !== undefined ? (usl - lsl) / (6 * std) : null;
             const cpk = cp !== null ? Math.min((usl - mean) / (3 * std), (mean - lsl) / (3 * std)) : null;
             result = { mean, std_dev: std, n, cp, cpk, usl, lsl, in_control: cpk !== null ? cpk >= 1.33 : null };
@@ -94,12 +94,13 @@ Params vary by action — pass relevant fields in params object.`,
           case "gdt_validate": {
             const nominal = params.nominal ?? 0;
             const actual = params.actual ?? 0;
-            const tolerance = params.tolerance ?? 0.1;
+            const tolerance = Math.max(params.tolerance ?? 0.1, 1e-10);
             const deviation = Math.abs(actual - nominal);
+            const halfTol = tolerance / 2;
             result = {
               nominal, actual, tolerance, deviation,
-              within_tolerance: deviation <= tolerance / 2,
-              percent_used: Math.round((deviation / (tolerance / 2)) * 100),
+              within_tolerance: deviation <= halfTol,
+              percent_used: Math.round((deviation / halfTol) * 100),
               gdt_type: params.gdt_type || "position",
             };
             break;
@@ -125,12 +126,12 @@ Params vary by action — pass relevant fields in params object.`,
             const grr = Math.sqrt(ev ** 2 + av ** 2);
             const pv = params.part_variation ?? tolerance * 0.3;
             const tv = Math.sqrt(grr ** 2 + pv ** 2);
-            const grr_pct = (grr / tv) * 100;
+            const grr_pct = tv > 0 ? (grr / tv) * 100 : 0;
             result = {
               ev, av, grr, pv, tv,
               grr_pct_of_tv: Math.round(grr_pct * 10) / 10,
               grr_pct_of_tolerance: Math.round((grr / tolerance) * 1000) / 10,
-              ndc: Math.floor(1.41 * (pv / grr)),
+              ndc: grr > 0 ? Math.floor(1.41 * (pv / grr)) : 0,
               acceptable: grr_pct < 10 ? "acceptable" : grr_pct < 30 ? "marginal" : "unacceptable",
               study: { parts, operators, trials },
             };

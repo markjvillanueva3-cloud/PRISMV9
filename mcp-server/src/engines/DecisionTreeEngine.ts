@@ -543,6 +543,16 @@ export function selectCoolantStrategy(params: SelectCoolantStrategyParams): Cool
   const isDrilling = /drill|tap|ream/.test(op);
   if (isDrilling) {
     reasoning.push("Drilling/tapping/reaming: coolant mandatory for chip evacuation.");
+    // ISO K (cast iron) drilling: MQL preferred over flood to avoid ceramic thermal shock
+    if (iso === "K") {
+      strategy = "mql";
+      pressure_bar = 6;
+      concentration_pct = 0;
+      flow_rate_note = "MQL for cast iron drilling chip evacuation";
+      reasoning.push("ISO K drilling: MQL preferred — avoids thermal cracking in ceramic inserts.");
+      warnings.push("If using ceramic inserts on cast iron, avoid intermittent coolant application.");
+      return { strategy, pressure_bar, concentration_pct, flow_rate_note, reasoning, confidence: 0.90, warnings, alternatives };
+    }
     if (hasTSC && hasThrough) {
       strategy = "through_spindle";
       pressure_bar = 70;
@@ -610,21 +620,14 @@ export function selectCoolantStrategy(params: SelectCoolantStrategyParams): Cool
     return { strategy, pressure_bar, concentration_pct, flow_rate_note, reasoning, confidence: 0.90, warnings, alternatives };
   }
 
-  // ISO K (cast iron) — dry preferred
+  // ISO K (cast iron) — dry preferred (drilling already handled above)
   if (iso === "K") {
-    if (isDrilling) {
-      strategy = "mql";
-      pressure_bar = 6;
-      concentration_pct = 0;
-      flow_rate_note = "MQL for cast iron drilling chip evacuation";
-    } else {
-      strategy = "dry";
-      pressure_bar = 0;
-      concentration_pct = 0;
-      flow_rate_note = "Air blast for graphite chip removal";
-      reasoning.push("ISO K: dry preferred — graphite lubrication in cast iron; coolant can cause thermal cracking in ceramic.");
-      alternatives.push({ strategy: "mql", note: "MQL if tool life insufficient dry" });
-    }
+    strategy = "dry";
+    pressure_bar = 0;
+    concentration_pct = 0;
+    flow_rate_note = "Air blast for graphite chip removal";
+    reasoning.push("ISO K: dry preferred — graphite lubrication in cast iron; coolant can cause thermal cracking in ceramic.");
+    alternatives.push({ strategy: "mql", note: "MQL if tool life insufficient dry" });
     warnings.push("If using ceramic inserts on cast iron, avoid intermittent coolant application.");
     return { strategy, pressure_bar, concentration_pct, flow_rate_note, reasoning, confidence: 0.87, warnings, alternatives };
   }

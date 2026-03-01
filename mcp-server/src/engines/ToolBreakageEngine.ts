@@ -410,6 +410,9 @@ class ToolBreakageEngine {
     const F_radial = Math.sqrt(Math.pow(forces.Ff, 2) + Math.pow(forces.Fp, 2));
 
     // Bending stress: σ = 32 × F × L / (π × d³)
+    if (criticalDiameter <= 0) {
+      return { bendingStress: Infinity, torsionalStress: Infinity, vonMisesStress: Infinity, stressRatio: Infinity, safetyFactor: 0, isSafe: false, criticalLocation, criticalDiameter: 0, warnings: ['Critical diameter is 0 — tool geometry invalid'] } as any;
+    }
     const d3 = Math.pow(criticalDiameter, 3);
     const bendingStress = (32 * F_radial * L) / (Math.PI * d3);
 

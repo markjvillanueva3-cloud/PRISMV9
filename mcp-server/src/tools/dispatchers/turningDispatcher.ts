@@ -60,7 +60,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "steady_rest": {
             const engine = await getEngine("steady");
-            result = engine.calculate?.(params) ?? engine.optimize?.(params) ?? engine.compute?.(params) ?? { error: "SteadyRestPlacementEngine method not found" };
+            result = engine.place?.(params) ?? { error: "SteadyRestPlacementEngine method not found" };
             break;
           }
           case "live_tool": {
@@ -75,7 +75,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "thread_single_point": {
             const engine = await getEngine("thread");
-            result = engine.calculate?.(params) ?? engine.plan?.(params) ?? engine.compute?.(params) ?? { error: "SinglePointThreadEngine method not found" };
+            result = engine.calculatePassPlan?.(params) ?? { error: "SinglePointThreadEngine method not found" };
             break;
           }
           default:

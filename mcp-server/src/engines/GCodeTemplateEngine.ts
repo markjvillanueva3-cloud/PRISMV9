@@ -1109,7 +1109,7 @@ function genCircularPocket(ctrl: ControllerConfig, p: GCodeParams): GCodeResult 
   const xCenter = d.x_start;
   const yCenter = d.y_start;
   const pocketDia = p.pocket_diameter ?? 50;
-  const pocketDepth = p.pocket_depth ?? p.z_depth ? Math.abs(p.z_depth ?? 10) : 10;
+  const pocketDepth = p.pocket_depth ?? (p.z_depth ? Math.abs(p.z_depth) : 10);
   const toolDia = p.tool_diameter ?? 10;
   const zSafe = d.z_safe;
   const stepoverPct = p.stepover_percent ?? 70;

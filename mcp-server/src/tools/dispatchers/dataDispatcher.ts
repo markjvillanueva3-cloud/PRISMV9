@@ -79,7 +79,7 @@ export function registerDataDispatcher(server: any): void {
             const mid = matId(params);
             if (!mid) return jsonResponse({ error: "Missing material identifier. Provide 'identifier', 'material_id', or 'name'." });
             const mat = await registryManager.materials.getByIdOrName(mid);
-            if (!mat) return jsonResponse({ error: `Material not found: ${matId}` });
+            if (!mat) return jsonResponse({ error: `Material not found: ${mid}` });
             let out: any = mat;
             if (params.fields?.length) {
               out = { id: mat.id, name: mat.name };
@@ -146,7 +146,7 @@ export function registerDataDispatcher(server: any): void {
             const tid = toolId(params);
             if (!tid) return jsonResponse({ error: "tool_get requires 'identifier', 'tool_id', 'id', or 'catalog' parameter" });
             const tool = await registryManager.tools.getByIdOrCatalog(tid);
-            if (!tool) return jsonResponse({ error: `Tool not found: ${toolId}` });
+            if (!tool) return jsonResponse({ error: `Tool not found: ${tid}` });
             result = tool;
             // Pressure-aware: strip deep properties
             if (getCurrentPressurePct() > 50 && result) {
@@ -615,7 +615,7 @@ export function registerDataDispatcher(server: any): void {
             const candidates = await registryManager.materials.search({
               iso_group: srcGroup, limit: 50, offset: 0
             });
-            const candidateList = Array.isArray(candidates) ? candidates : (candidates as any)?.results || [];
+            const candidateList = Array.isArray(candidates) ? candidates : (candidates as any)?.materials || (candidates as any)?.results || [];
 
             // 3. Score and rank based on reason
             const scored = candidateList

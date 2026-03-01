@@ -212,16 +212,10 @@ export class CollisionDetectionEngine {
    * Clearance plane check.
    */
   checkClearance(moves: CollisionMove[], clearancePlaneZ: number): ClearanceCheck {
-    let minZ = Infinity;
-    for (const m of moves) {
-      if (m.type === "rapid") {
-        minZ = Math.min(minZ, m.to.z, m.from.z);
-      }
-    }
-    // Only check rapid moves — feed moves can go below clearance
+    // Check both from.z and to.z on rapid moves
     const rapidMinZ = moves
       .filter(m => m.type === "rapid")
-      .reduce((min, m) => Math.min(min, m.to.z), Infinity);
+      .reduce((min, m) => Math.min(min, m.to.z, m.from.z), Infinity);
 
     return {
       clearance_plane_z: clearancePlaneZ,
