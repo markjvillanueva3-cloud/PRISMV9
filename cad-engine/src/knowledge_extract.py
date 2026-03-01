@@ -50,7 +50,12 @@ class ExtractionResult:
 
     @property
     def is_valid(self) -> bool:
-        return len(self.errors) == 0
+        if self.errors:
+            return False
+        return all(
+            v.get("is_valid", True)
+            for v in self.validation_results.values()
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -128,7 +133,7 @@ def _call_extraction(
     except json.JSONDecodeError as e:
         raise ExtractionError(
             f"Failed to parse extraction response as JSON: {e}\n"
-            f"Response text (first 500 chars): {text[:500]}"
+            f"Response preview: {text[:200]}"
         )
 
 
@@ -199,16 +204,22 @@ def _build_cross_links(domains: dict) -> list[dict]:
     """
     links: list[dict] = []
 
-    cad_features = {f["id"]: f for f in domains.get("cad", {}).get("features", [])}
+    cad_features = {
+        f["id"]: f for f in domains.get("cad", {}).get("features", [])
+        if f.get("id")
+    }
     cam_strategies = domains.get("cam", {}).get("strategies", [])
     shop_practices = domains.get("shop", {}).get("practices", [])
 
     # CAM -> CAD: strategies that target specific features
     for strat in cam_strategies:
+        sid = strat.get("id")
+        if not sid:
+            continue
         for feat_id in strat.get("target_features", []):
             if feat_id in cad_features:
                 links.append({
-                    "from_id": strat["id"],
+                    "from_id": sid,
                     "from_domain": "cam",
                     "to_id": feat_id,
                     "to_domain": "cad",
@@ -223,13 +234,17 @@ def _build_cross_links(domains: dict) -> list[dict]:
     # Build a map from tool type -> strategy that owns it
     cam_tool_owners: dict[str, str] = {}
     for strat in cam_strategies:
+        sid = strat.get("id")
         tool = strat.get("tool")
-        if tool and tool.get("type"):
+        if sid and tool and tool.get("type"):
             tool_key = tool["type"].lower()
             if tool_key not in cam_tool_owners:
-                cam_tool_owners[tool_key] = strat["id"]
+                cam_tool_owners[tool_key] = sid
 
     for practice in shop_practices:
+        pid = practice.get("id")
+        if not pid:
+            continue
         desc_lower = practice.get("description", "").lower()
         title_lower = practice.get("title", "").lower()
         combined = desc_lower + " " + title_lower
@@ -238,7 +253,7 @@ def _build_cross_links(domains: dict) -> list[dict]:
         for tool_type, owner_id in cam_tool_owners.items():
             if tool_type in combined:
                 links.append({
-                    "from_id": practice["id"],
+                    "from_id": pid,
                     "from_domain": "shop",
                     "to_id": owner_id,
                     "to_domain": "cam",
@@ -482,9 +497,9 @@ def save_knowledge(result: ExtractionResult, output_dir: str | Path) -> Path:
     filename = f"knowledge_{safe_id}.json"
     output_path = output_dir / filename
 
-    # Verify output stays within output_dir
+    # Verify output stays within output_dir (Python 3.9+)
     resolved = output_path.resolve()
-    if not str(resolved).startswith(str(output_dir.resolve())):
+    if not resolved.is_relative_to(output_dir.resolve()):
         raise ExtractionError(
             f"Path traversal detected in video_id: {result.video_id!r}"
         )

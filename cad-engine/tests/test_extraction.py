@@ -989,3 +989,94 @@ class TestValidationFindingShared:
         assert cad_result["is_valid"] is True
         assert cam_result["is_valid"] is True
         assert shop_result["is_valid"] is True
+
+
+class TestReScrutinyFixes:
+    """Tests for re-scrutiny round 2 fixes."""
+
+    def test_cross_link_skips_missing_strategy_id(self):
+        """Strategies without 'id' field don't cause KeyError in cross-links."""
+        from src.knowledge_extract import _build_cross_links
+
+        domains = {
+            "cad": {
+                "features": [{"id": "cad-001", "name": "Pocket", "feature_type": "extrude"}],
+            },
+            "cam": {
+                "strategies": [
+                    {"name": "No ID Strategy", "target_features": ["cad-001"]},
+                    {"id": "cam-002", "name": "With ID", "target_features": ["cad-001"]},
+                ],
+            },
+        }
+        # Should not raise KeyError
+        links = _build_cross_links(domains)
+        # Only the strategy with an ID should produce a link
+        assert all(l["from_id"] == "cam-002" for l in links if l["from_domain"] == "cam")
+
+    def test_cross_link_skips_missing_practice_id(self):
+        """Practices without 'id' field don't cause KeyError in cross-links."""
+        from src.knowledge_extract import _build_cross_links
+
+        domains = {
+            "cam": {
+                "strategies": [
+                    {"id": "cam-001", "name": "Mill", "tool": {"type": "end_mill"}, "target_features": []},
+                ],
+            },
+            "shop": {
+                "practices": [
+                    {"title": "No ID Practice", "description": "end_mill tips"},
+                    {"id": "shop-002", "title": "End Mill Care", "description": "end_mill maintenance"},
+                ],
+            },
+        }
+        links = _build_cross_links(domains)
+        shop_links = [l for l in links if l["from_domain"] == "shop"]
+        # Only shop-002 (has ID) should link
+        assert all(l["from_id"] == "shop-002" for l in shop_links)
+
+    def test_cross_link_skips_missing_feature_id(self):
+        """Features without 'id' are excluded from cross-link lookup."""
+        from src.knowledge_extract import _build_cross_links
+
+        domains = {
+            "cad": {
+                "features": [
+                    {"name": "No ID Feature", "feature_type": "extrude"},
+                    {"id": "cad-002", "name": "Valid", "feature_type": "hole"},
+                ],
+            },
+            "cam": {
+                "strategies": [
+                    {"id": "cam-001", "name": "Op", "target_features": ["cad-002"]},
+                ],
+            },
+        }
+        links = _build_cross_links(domains)
+        assert len(links) == 1
+        assert links[0]["to_id"] == "cad-002"
+
+    @patch("src.knowledge_extract._call_extraction")
+    def test_is_valid_checks_validation_results(self, mock_call):
+        """ExtractionResult.is_valid returns False when validators report errors."""
+        # Return data with missing required fields so validator flags errors
+        mock_call.return_value = {
+            "features": [
+                {"name": "no id or type"},  # missing id and feature_type
+            ],
+        }
+
+        from src.knowledge_extract import extract_knowledge
+
+        result = extract_knowledge(
+            video_id="test-valid",
+            title="Test",
+            transcript="test",
+            force_domain="cad",
+        )
+
+        # Validator should have flagged errors
+        assert result.validation_results["cad"]["is_valid"] is False
+        # ExtractionResult.is_valid should now also be False
+        assert result.is_valid is False
