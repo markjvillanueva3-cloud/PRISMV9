@@ -79,11 +79,46 @@ _VALID_DOMAINS = {
 }
 
 
+def _load_env_file() -> None:
+    """Load ANTHROPIC_API_KEY from PRISM .env if not already in environment.
+
+    Searches for .env in standard locations:
+      1. C:/PRISM/mcp-server/.env  (primary)
+      2. C:/PRISM/.env             (fallback)
+    """
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return  # Already set — skip file loading
+
+    env_paths = [
+        os.path.join("C:", os.sep, "PRISM", "mcp-server", ".env"),
+        os.path.join("C:", os.sep, "PRISM", ".env"),
+    ]
+
+    for env_path in env_paths:
+        if not os.path.exists(env_path):
+            continue
+        try:
+            with open(env_path, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, _, value = line.partition("=")
+                        key = key.strip()
+                        value = value.strip()
+                        if key and not os.environ.get(key):
+                            os.environ[key] = value
+            return  # Loaded successfully
+        except OSError:
+            continue
+
+
 def _get_client():
     """Get Anthropic client.
 
-    Uses the SDK's built-in ANTHROPIC_API_KEY env var reading
-    to avoid passing the key explicitly (prevents traceback leaks).
+    Auto-loads ANTHROPIC_API_KEY from PRISM .env files if not in environment.
+    Uses the SDK's built-in env var reading to avoid passing the key explicitly.
     """
     try:
         import anthropic
@@ -91,6 +126,8 @@ def _get_client():
         raise ExtractionError(
             "anthropic SDK not installed. Run: pip install anthropic"
         )
+
+    _load_env_file()
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise ExtractionError(

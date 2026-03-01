@@ -141,6 +141,10 @@ def _get_anthropic_client():
     except ImportError:
         raise VisionAnalysisError("anthropic SDK not installed. Run: pip install anthropic")
 
+    # Auto-load from PRISM .env if not in environment
+    from .knowledge_extract import _load_env_file
+    _load_env_file()
+
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         raise VisionAnalysisError(
