@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
@@ -402,7 +403,6 @@ class PracticeAggregator:
             for mat, max_rpm in _MAX_SAFE_RPM.items():
                 if mat in text:
                     # Look for RPM numbers in text
-                    import re
                     rpm_matches = re.findall(r"(\d{3,6})\s*rpm", text, re.IGNORECASE)
                     for rpm_str in rpm_matches:
                         rpm_val = int(rpm_str)
