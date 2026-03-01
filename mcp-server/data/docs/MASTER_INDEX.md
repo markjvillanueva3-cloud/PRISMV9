@@ -158,7 +158,10 @@ Actions (5): oee_calc, bottleneck, digital_thread, work_instructions, shift_hand
 ### prism_auth (authDispatcher.ts)
 Actions (8): login, register, refresh_token, change_password, role_assign, permission_check, session_manage, mfa_setup
 
-**Total: 50 dispatchers, 1260 actions** (verified SYS-MS1-U06 2026-02-28, +4 sub-dispatchers from intelligence decomposition)
+### prism_doc_learn (documentLearningDispatcher.ts)
+Actions (5): doc_upload, doc_extract, doc_list, doc_get, doc_delete
+
+**Total: 51 dispatchers, 1265 actions** (verified CC-EXT-MS0 2026-03-01, +1 document learning dispatcher)
 
 ---
 
