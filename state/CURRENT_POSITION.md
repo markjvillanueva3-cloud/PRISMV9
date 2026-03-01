@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-03-01
 
-**Phase:** SYSTEM OPTIMIZATION — SYS-MS5 + SYS-MS7 COMPLETE, continuing SYS track
+**Phase:** SYSTEM OPTIMIZATION — SYS-MS6 IN PROGRESS (2/4 units), continuing SYS track
 **Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 67 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
 **S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
-**Next Recommended:** SYS-MS6 (param schemas — P1) or SYS-MS1 (mega-dispatcher decomp)
+**Next Recommended:** SYS-MS6-U02 (safety schemas) then U03 (remaining dispatchers + type coercion)
 **Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
@@ -52,6 +52,15 @@
 - **Files modified:** HookEngine.ts, HookExecutor.ts, MachineConnectivityEngine.ts, KnowledgeQueryEngine.ts, PredictiveMaintenanceEngine.ts, BaseRegistry.ts
 - **Tests:** 15 new tests, all PASS
 - **Composite OQA:** 4.88 (all 4 units PASS)
+
+## SYS-MS6 Dispatcher Param Schema Validation (2026-03-01) — IN PROGRESS
+- **U00 (Architecture):** Designed schema registry pattern (ActionSchemaMap), validateActionParams() middleware, two-tier error strategy (dispatcherError for normal, SafetyBlockError for safety-critical)
+- **U01 (prism_calc Schemas):** Created 57 per-action Zod schemas in calcActionSchemas.ts, wired into calcDispatcher after normalizeParams. All schemas use .passthrough() for non-breaking rollout.
+- **U02 (Safety Schemas):** NOT STARTED — prism_safety, prism_5axis, prism_thread
+- **U03 (Remaining + Coercion):** NOT STARTED — remaining dispatchers, type coercion, coverage metric
+- **Files created:** actionSchemaTypes.ts, calcActionSchemas.ts, schema-validation-architecture.md
+- **Files modified:** dispatcherMiddleware.ts (+validateActionParams), calcDispatcher.ts (+4 lines wiring), actionParamValidator.ts (fix .nonneg→.min(0))
+- **Build:** PASS (0 errors) | **Tests:** 1242/1243 (0 regression)
 
 ## REM-MS5 Test Coverage Expansion (2026-02-28)
 - **U00 (Cadence Tests):** M-030 — 40 tests covering all 38 cadence executor functions (export completeness, pressure zones, return shapes, graceful failure)
