@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_TOOLPATH_SCHEMAS } from "../../schemas/toolpathActionSchemas.js";
 import {
   toolpath_strategy_select,
   toolpath_params_calculate,
@@ -42,6 +43,16 @@ export function registerToolpathDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_TOOLPATH_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_toolpath"
+        );
+      }
 
       let result: any;
       const isCalc = CALC_ACTIONS.has(action);

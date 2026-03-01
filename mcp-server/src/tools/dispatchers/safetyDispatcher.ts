@@ -7,6 +7,8 @@ import { handleWorkholdingTool } from "../workholdingTools.js";
 import { SafetyBlockError } from "../../errors/PrismError.js";
 import { log } from "../../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_SAFETY_SCHEMAS } from "../../schemas/safetyActionSchemas.js";
 
 /**
  * Extract domain-specific key values for safety dispatcher summary responses.
@@ -129,6 +131,16 @@ export function registerSafetyDispatcher(server: any): void {
             spindleSpeed: params.rpm || 5000
           };
         }
+        // SYS-MS6: Validate params against per-action Zod schema (STRICT — safety-critical)
+        const validation = validateActionParams(action, params, ACTION_SAFETY_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_safety"
+          );
+        }
+
         let result: any;
 
         if (COLLISION_ACTIONS.has(action)) {

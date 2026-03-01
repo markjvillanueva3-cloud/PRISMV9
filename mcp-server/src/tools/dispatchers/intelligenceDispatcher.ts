@@ -1113,6 +1113,13 @@ export function registerIntelligenceDispatcher(server: any): void {
         const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
         const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
         const L3_INDUSTRY_ACTIONS = ["tool_crib_status", "digital_twin_state", "predictive_maintenance_alert", "energy_report"] as const;
+
+        // SYS-MS1-U00: Product actions deprecated — use prism_product dispatcher
+        const PRODUCT_FORWARDED = [...SFC_ACTIONS, ...PPG_ACTIONS, ...SHOP_ACTIONS, ...ACNC_ACTIONS] as readonly string[];
+        if (PRODUCT_FORWARDED.includes(action)) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_product dispatcher. Use prism_product instead.`);
+        }
+
         const result = L3_INDUSTRY_ACTIONS.includes(action as any)
           ? l3IndustryAction(action, params)
           : SFC_ACTIONS.includes(action as any)

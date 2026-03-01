@@ -14,6 +14,7 @@
  * @date 2026-02-28
  */
 
+import { z } from "zod";
 import { log } from "./Logger.js";
 import { slimResponse } from "./responseSlimmer.js";
 import type { ActionSchemaMap, ValidationResult } from "../schemas/actionSchemaTypes.js";
@@ -127,7 +128,11 @@ export function validateActionParams(
   const schema = schemas[action];
   if (!schema) return { valid: true };
 
-  const result = schema.safeParse(params);
+  // SYS-MS6-U03: Coerce string values to expected types before validation
+  // LLMs frequently send "2.5" instead of 2.5, "true" instead of true
+  const coerced = coerceParamTypes(params, schema);
+
+  const result = schema.safeParse(coerced);
   if (result.success) return { valid: true };
 
   const issues = result.error.issues;
@@ -136,6 +141,41 @@ export function validateActionParams(
     .join("; ");
 
   return { valid: false, errors: issues, errorMessage };
+}
+
+/** Coerce string param values to expected types based on Zod schema shape. */
+function coerceParamTypes(params: Record<string, unknown>, schema: z.ZodType): Record<string, unknown> {
+  if (!(schema instanceof z.ZodObject)) return params;
+  const shape = schema.shape as Record<string, z.ZodType>;
+  const result = { ...params };
+  for (const [key, fieldSchema] of Object.entries(shape)) {
+    if (key in result && typeof result[key] === "string") {
+      result[key] = coerceValue(result[key] as string, fieldSchema);
+    }
+  }
+  return result;
+}
+
+/** Coerce a single string to the target Zod type. */
+function coerceValue(value: string, schema: z.ZodType): unknown {
+  const inner = unwrapZod(schema);
+  if (inner instanceof z.ZodNumber) {
+    const num = Number(value);
+    if (!isNaN(num) && value.trim() !== "") return num;
+  }
+  if (inner instanceof z.ZodBoolean) {
+    if (value === "true") return true;
+    if (value === "false") return false;
+  }
+  return value;
+}
+
+/** Unwrap ZodOptional/ZodNullable/ZodDefault to get inner type. */
+function unwrapZod(schema: z.ZodType): z.ZodType {
+  if (schema instanceof z.ZodOptional) return unwrapZod(schema.unwrap());
+  if (schema instanceof z.ZodNullable) return unwrapZod(schema.unwrap());
+  if (schema instanceof z.ZodDefault) return unwrapZod(schema.removeDefault());
+  return schema;
 }
 
 // ============================================================================

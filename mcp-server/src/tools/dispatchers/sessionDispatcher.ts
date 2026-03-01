@@ -976,6 +976,14 @@ export function registerSessionDispatcher(server: any): void {
               ? "Session aging. Save state, consider wrapping up."
               : "Healthy. Continue normally.";
 
+            // SYS-MS6: Schema coverage metric
+            const schemaCoverage = {
+              dispatchers_with_schemas: 7,
+              total_dispatchers: 45,
+              actions_with_schemas: 147,
+              covered: ["prism_calc(48)", "prism_safety(29)", "prism_5axis(5)", "prism_thread(13)", "prism_data(35)", "prism_toolpath(9)", "prism_export(8)"],
+            };
+
             return ok({
               health_status: healthStatus,
               call_count: calls,
@@ -983,7 +991,8 @@ export function registerSessionDispatcher(server: any): void {
               compaction_count: compactions,
               last_position_save: lastPositionSave,
               reasons,
-              advisory
+              advisory,
+              schema_coverage: schemaCoverage,
             });
           }
 

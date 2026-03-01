@@ -84,8 +84,38 @@ export function normalizeParams(params: Record<string, any>): Record<string, any
     }
   }
   
+  // SYS-MS6-U03: Type coercion — string numbers → actual numbers for known numeric fields
+  const NUMERIC_FIELDS = new Set([
+    "toolDiameter", "tool_diameter", "axialDepth", "axial_depth", "radialDepth", "radial_depth",
+    "depthOfCut", "depth_of_cut", "widthOfCut", "width_of_cut", "cuttingSpeed", "cutting_speed",
+    "spindleSpeed", "spindle_speed", "feedRate", "feed_rate", "feedPerTooth", "feed_per_tooth",
+    "feedPerRev", "feed_per_rev", "surfaceSpeed", "surface_speed", "chipLoad", "chip_load",
+    "coolantPressure", "coolant_pressure", "stickout", "stickout_length", "stick_out",
+    "toolLength", "tool_length", "fluteLength", "flute_length", "rakeAngle", "rake_angle",
+    "noseRadius", "nose_radius", "cornerRadius", "corner_radius", "pointAngle", "point_angle",
+    "helixAngle", "helix_angle", "leadAngle", "lead_angle", "numberOfFlutes", "num_flutes",
+    "number_of_flutes", "threadPitch", "thread_pitch", "pitchDiameter", "pitch_diameter",
+    "majorDiameter", "major_diameter", "minorDiameter", "minor_diameter",
+    "threadsPerInch", "threads_per_inch", "kc1_1", "mc", "taylor_C", "taylor_n",
+    "width_mm", "length_mm", "depth_mm", "diameter_mm", "stepover_pct", "stepdown_mm",
+    "feed_rate_mmmin", "plunge_rate_mmmin", "spindle_rpm", "retract_height_mm", "stock_to_leave_mm",
+  ]);
+  let coerced = 0;
+  for (const [key, value] of Object.entries(result)) {
+    if (NUMERIC_FIELDS.has(key) && typeof value === "string") {
+      const num = Number(value);
+      if (!isNaN(num)) {
+        result[key] = num;
+        coerced++;
+      }
+    }
+  }
+
   if (remapped > 0) {
     result._param_remaps = remapped;
+  }
+  if (coerced > 0) {
+    result._param_coercions = coerced;
   }
   return result;
 }

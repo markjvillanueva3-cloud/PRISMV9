@@ -92,6 +92,9 @@ import { protocolBridgeEngine } from "./engines/ProtocolBridgeEngine.js";
 // R3: Intelligence Engine — Compound Actions (Dispatcher #32)
 import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligenceDispatcher.js";
 
+// SYS-MS1: Product Dispatcher — 40 actions extracted from intelligence (Dispatcher #46)
+import { registerProductDispatcher } from "./tools/dispatchers/productDispatcher.js";
+
 // L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
 import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
 
@@ -465,6 +468,9 @@ async function registerTools(): Promise<void> {
 
   // R3: Intelligence Engine — Compound Manufacturing Actions (11 actions)
   registerIntelligenceDispatcher(server);
+
+  // SYS-MS1: Product Dispatcher — SFC, PPG, Shop, ACNC (40 actions)
+  registerProductDispatcher(server);
 
   // L2: Monolith Engine Ports — 8 engines, 34 actions
   registerL2EngineDispatcher(server);
