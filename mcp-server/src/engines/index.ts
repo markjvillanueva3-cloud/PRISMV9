@@ -1624,3 +1624,29 @@ export {
   type FinishingPassInput,
   type FinishingPassResult,
 } from "./FinishingPassOptimizationEngine.js";
+
+// ─── New Engines: FORGE-ENGINES Round 3 (2026-03-01) ────────────
+
+export {
+  turningForceEngine,
+  TurningForceEngine,
+  type TurningForceInput,
+  type TurningForceResult,
+  type TurningOperation,
+} from "./TurningForceEngine.js";
+
+export {
+  tappingTorqueEngine,
+  TappingTorqueEngine,
+  type TappingTorqueInput,
+  type TappingTorqueResult,
+  type TapType,
+  type HoleType,
+} from "./TappingTorqueEngine.js";
+
+export {
+  cuttingPowerBudgetEngine,
+  CuttingPowerBudgetEngine,
+  type PowerBudgetInput,
+  type PowerBudgetResult,
+} from "./CuttingPowerBudgetEngine.js";

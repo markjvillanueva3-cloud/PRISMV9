@@ -41,6 +41,11 @@ import type { SpindleBearingType } from "../../engines/ThermalGrowthCompensation
 import { boreFinishingEngine } from "../../engines/BoreFinishingEngine.js";
 import type { HoningStoneGrit } from "../../engines/BoreFinishingEngine.js";
 import { finishingPassOptimizationEngine } from "../../engines/FinishingPassOptimizationEngine.js";
+import { turningForceEngine } from "../../engines/TurningForceEngine.js";
+import type { TurningOperation } from "../../engines/TurningForceEngine.js";
+import { tappingTorqueEngine } from "../../engines/TappingTorqueEngine.js";
+import type { TapType, HoleType } from "../../engines/TappingTorqueEngine.js";
+import { cuttingPowerBudgetEngine } from "../../engines/CuttingPowerBudgetEngine.js";
 
 import {
   calculateStabilityLobes,
@@ -167,6 +172,12 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { passes: result.estimated_passes?.value, predicted_Ra_um: result.predicted_Ra_um?.value, cycle_min: result.cycle_time_min?.value, diameter_growth_um: result.bore_diameter_growth_um?.value, safe: result.is_safe };
     case "finishing_pass":
       return { deflection_um: result.roughing_deflection_um?.value, spring_depth_mm: result.spring_pass_depth_mm?.value, finish_feed: result.finishing_feed_mm_rev?.value, predicted_Ra_um: result.predicted_Ra_um?.value, passes: result.number_of_passes?.value, safe: result.is_safe };
+    case "turning_force":
+      return { Fc_N: result.tangential_force_Fc_N?.value, Ff_N: result.feed_force_Ff_N?.value, Fp_N: result.radial_force_Fp_N?.value, power_kW: result.cutting_power_kW?.value, torque_Nm: result.spindle_torque_Nm?.value, safe: result.is_safe };
+    case "tapping_torque":
+      return { torque_Nm: result.cutting_torque_Nm?.value, thrust_N: result.axial_thrust_N?.value, power_kW: result.tapping_power_kW?.value, breakage_risk: result.breakage_risk, margin_pct: result.torque_margin_pct?.value, safe: result.is_safe };
+    case "power_budget":
+      return { required_kW: result.required_power_kW?.value, available_kW: result.available_power_kW?.value, utilization_pct: result.power_utilization_pct?.value, max_feed: result.max_feed_at_limit?.value, max_mrr: result.max_mrr_cm3_min?.value, limiting: result.limiting_factor, safe: result.is_safe };
     case "cost_optimize":
       return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
     case "multi_optimize":
@@ -1476,6 +1487,63 @@ export function registerCalcDispatcher(server: any): void {
               material_kc1_1: params.kc1_1,
               material_mc: params.mc,
               shank_modulus_GPa: params.modulus_GPa,
+            });
+            break;
+          }
+
+          case "turning_force": {
+            result = turningForceEngine.calculate({
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc || 200,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.f || 0.2,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || 2,
+              lead_angle_deg: params.lead_angle || params.kr || 95,
+              nose_radius_mm: params.nose_radius || params.corner_radius || 0.8,
+              rake_angle_deg: params.rake_angle || params.gamma,
+              iso_group: params.iso_group || params.material_group,
+              material_kc1_1: params.kc1_1,
+              material_mc: params.mc,
+              workpiece_diameter_mm: params.workpiece_diameter || params.diameter,
+              spindle_power_kW: params.machine_power || params.spindle_power,
+              operation: (params.operation || "longitudinal") as TurningOperation,
+            });
+            break;
+          }
+
+          case "tapping_torque": {
+            result = tappingTorqueEngine.calculate({
+              thread_major_diameter_mm: params.thread_diameter || params.diameter || 10,
+              pitch_mm: params.pitch || params.thread_pitch || 1.5,
+              tap_type: (params.tap_type || "cut_spiral_point") as TapType,
+              hole_type: (params.hole_type || "through") as HoleType,
+              thread_depth_mm: params.thread_depth || params.depth,
+              thread_engagement_pct: params.engagement_pct || params.thread_engagement,
+              workpiece_iso_group: params.iso_group || params.material_group,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc,
+              material_kc1_1: params.kc1_1,
+              spindle_rpm: params.rpm || params.spindle_rpm || 500,
+              spindle_max_torque_Nm: params.max_torque || params.spindle_torque,
+              coolant_active: params.coolant !== false,
+            });
+            break;
+          }
+
+          case "power_budget": {
+            result = cuttingPowerBudgetEngine.calculate({
+              machine_power_kW: params.machine_power || params.spindle_power || 15,
+              machine_max_torque_Nm: params.max_torque || params.machine_torque,
+              machine_base_rpm: params.base_rpm,
+              machine_max_rpm: params.max_rpm || params.machine_max_rpm,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc || 200,
+              tool_diameter_mm: params.tool_diameter || params.diameter,
+              workpiece_diameter_mm: params.workpiece_diameter,
+              feed_mm_rev: params.feed_per_rev || params.feed,
+              feed_mm_tooth: params.feed_per_tooth || params.fz,
+              flutes: params.flutes || params.num_flutes,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || 2,
+              width_of_cut_mm: params.width_of_cut || params.ae,
+              material_kc1_1: params.kc1_1,
+              material_mc: params.mc,
+              iso_group: params.iso_group || params.material_group,
             });
             break;
           }
