@@ -329,3 +329,293 @@ describe("PpgContext", () => {
     expect(container).toBeTruthy();
   });
 });
+
+/* ------------------------------------------------------------------ */
+/* TemplateBrowser                                                      */
+/* ------------------------------------------------------------------ */
+
+describe("TemplateBrowser", () => {
+  it("renders operation templates grouped by category", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    expect(screen.getByText("Facing")).toBeInTheDocument();
+    // "Drilling" appears as both category header and operation name
+    expect(screen.getAllByText("Drilling").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows category group headers", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    expect(screen.getByText("Milling")).toBeInTheDocument();
+    // "Drilling" appears as both category header and operation name
+    expect(screen.getAllByText("Drilling").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("filters templates by search text", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    const search = screen.getByLabelText("Filter templates");
+    fireEvent.change(search, { target: { value: "facing" } });
+    expect(screen.getByText("Facing")).toBeInTheDocument();
+    expect(screen.queryByText("Drilling")).not.toBeInTheDocument();
+  });
+
+  it("shows empty message when search has no matches", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    const search = screen.getByLabelText("Filter templates");
+    fireEvent.change(search, { target: { value: "xyz_nonexistent" } });
+    expect(screen.getByText("No templates match")).toBeInTheDocument();
+  });
+
+  it("shows parameter form when template is selected", () => {
+    render(<TemplateBrowser controller="fanuc" onGenerate={vi.fn()} />);
+    // Click the Drilling operation (not the category header)
+    const drillingElements = screen.getAllByText("Drilling");
+    const drillingButton = drillingElements.find((el) => el.closest("button"));
+    fireEvent.click(drillingButton!);
+    expect(screen.getByText("depth")).toBeInTheDocument();
+    expect(screen.getByText("Generate G-Code")).toBeInTheDocument();
+  });
+
+  it("shows 'Select a controller first' when no controller", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    fireEvent.click(screen.getByText("Facing"));
+    expect(screen.getByText("Select a controller first")).toBeInTheDocument();
+  });
+
+  it("deselects template when clicking it again", () => {
+    render(<TemplateBrowser controller="fanuc" onGenerate={vi.fn()} />);
+    fireEvent.click(screen.getByText("Facing"));
+    expect(screen.getByText("Generate G-Code")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Facing"));
+    expect(screen.queryByText("Generate G-Code")).not.toBeInTheDocument();
+  });
+
+  it("calls ppgApi.template and onGenerate on generate click", async () => {
+    mockPpgApiTemplate.mockResolvedValue({ gcode: "G00 X0 Y0", line_count: 1, template_name: "facing", warnings: [] });
+    const onGenerate = vi.fn();
+    render(<TemplateBrowser controller="fanuc" onGenerate={onGenerate} />);
+    fireEvent.click(screen.getByText("Facing"));
+    fireEvent.click(screen.getByText("Generate G-Code"));
+
+    await waitFor(() => {
+      expect(mockPpgApiTemplate).toHaveBeenCalledWith({
+        controller: "fanuc",
+        template: "facing",
+        params: {},
+      });
+      expect(onGenerate).toHaveBeenCalledWith("G00 X0 Y0");
+    });
+  });
+
+  it("shows error when generation fails", async () => {
+    mockPpgApiTemplate.mockRejectedValue(new Error("Template error"));
+    render(<TemplateBrowser controller="fanuc" onGenerate={vi.fn()} />);
+    fireEvent.click(screen.getByText("Facing"));
+    fireEvent.click(screen.getByText("Generate G-Code"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Template error")).toBeInTheDocument();
+    });
+  });
+
+  it("shows param count badge on template items", () => {
+    render(<TemplateBrowser onGenerate={vi.fn()} />);
+    // Facing has 0 params → "0p", Drilling has 1 param → "1p"
+    expect(screen.getByText("0p")).toBeInTheDocument();
+    expect(screen.getByText("1p")).toBeInTheDocument();
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* OperationBuilder                                                     */
+/* ------------------------------------------------------------------ */
+
+describe("OperationBuilder", () => {
+  it("shows empty state message", () => {
+    render(<OperationBuilder onGenerate={vi.fn()} />);
+    expect(screen.getByText(/Add operations to build/)).toBeInTheDocument();
+  });
+
+  it("shows add operation dropdown", () => {
+    render(<OperationBuilder onGenerate={vi.fn()} />);
+    expect(screen.getByLabelText("Add operation")).toBeInTheDocument();
+  });
+
+  it("adds an operation card when selected from dropdown", () => {
+    render(<OperationBuilder controller="fanuc" onGenerate={vi.fn()} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    expect(screen.getByText("facing")).toBeInTheDocument();
+    expect(screen.getByText("Generate Program (1 ops)")).toBeInTheDocument();
+  });
+
+  it("shows move up/down and remove buttons on operation cards", () => {
+    render(<OperationBuilder controller="fanuc" onGenerate={vi.fn()} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    expect(screen.getByLabelText("Move up")).toBeInTheDocument();
+    expect(screen.getByLabelText("Move down")).toBeInTheDocument();
+    expect(screen.getByLabelText("Remove")).toBeInTheDocument();
+  });
+
+  it("removes an operation when remove is clicked", () => {
+    render(<OperationBuilder controller="fanuc" onGenerate={vi.fn()} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    expect(screen.getByText("facing")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Remove"));
+    expect(screen.getByText(/Add operations to build/)).toBeInTheDocument();
+  });
+
+  it("shows 'Select a controller' when none provided", () => {
+    render(<OperationBuilder onGenerate={vi.fn()} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    expect(screen.getByText("Select a controller")).toBeInTheDocument();
+  });
+
+  it("calls ppgApi.program on generate click", async () => {
+    mockPpgApiProgram.mockResolvedValue({
+      gcode: "O0001\nG00 X0\nM30", line_count: 3, tool_changes: 1,
+      estimated_time_sec: 10, warnings: [],
+    });
+    const onGenerate = vi.fn();
+    render(<OperationBuilder controller="fanuc" onGenerate={onGenerate} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    fireEvent.click(screen.getByText("Generate Program (1 ops)"));
+
+    await waitFor(() => {
+      expect(mockPpgApiProgram).toHaveBeenCalled();
+      expect(onGenerate).toHaveBeenCalledWith("O0001\nG00 X0\nM30");
+    });
+  });
+
+  it("shows error on program generation failure", async () => {
+    mockPpgApiProgram.mockRejectedValue(new Error("Program gen failed"));
+    render(<OperationBuilder controller="fanuc" onGenerate={vi.fn()} />);
+    const select = screen.getByLabelText("Add operation");
+    fireEvent.change(select, { target: { value: "facing" } });
+    fireEvent.click(screen.getByText("Generate Program (1 ops)"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Program gen failed")).toBeInTheDocument();
+    });
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* GcodeDiff                                                            */
+/* ------------------------------------------------------------------ */
+
+describe("GcodeDiff", () => {
+  it("shows controller selector dropdowns", () => {
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    expect(screen.getByLabelText("Controller A")).toBeInTheDocument();
+    expect(screen.getByLabelText("Controller B")).toBeInTheDocument();
+  });
+
+  it("shows compare button", () => {
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    expect(screen.getByText("Compare")).toBeInTheDocument();
+  });
+
+  it("disables compare when controllers not selected", () => {
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    expect(screen.getByText("Compare")).toBeDisabled();
+  });
+
+  it("shows empty state text", () => {
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    expect(
+      screen.getByText("Select two controllers and click Compare"),
+    ).toBeInTheDocument();
+  });
+
+  it("calls ppgApi.compare and shows diff editor", async () => {
+    mockPpgApiCompare.mockResolvedValue({
+      results: [
+        { controller: "fanuc", gcode: "G00 X0 (FANUC)", line_count: 1 },
+        { controller: "siemens", gcode: "G0 X0 ;SIEMENS", line_count: 1 },
+      ],
+    });
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    fireEvent.change(screen.getByLabelText("Controller A"), { target: { value: "fanuc" } });
+    fireEvent.change(screen.getByLabelText("Controller B"), { target: { value: "siemens" } });
+    fireEvent.click(screen.getByText("Compare"));
+
+    await waitFor(() => {
+      expect(mockPpgApiCompare).toHaveBeenCalled();
+      expect(screen.getByTestId("monaco-diff-editor")).toBeInTheDocument();
+    });
+  });
+
+  it("shows diff statistics after comparison", async () => {
+    mockPpgApiCompare.mockResolvedValue({
+      results: [
+        { controller: "fanuc", gcode: "G00 X0\nG01 Z-5", line_count: 2 },
+        { controller: "siemens", gcode: "G0 X0\nG1 Z-5", line_count: 2 },
+      ],
+    });
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    fireEvent.change(screen.getByLabelText("Controller A"), { target: { value: "fanuc" } });
+    fireEvent.change(screen.getByLabelText("Controller B"), { target: { value: "siemens" } });
+    fireEvent.click(screen.getByText("Compare"));
+
+    await waitFor(() => {
+      expect(screen.getByText("2 lines (A)")).toBeInTheDocument();
+      expect(screen.getByText("2 lines (B)")).toBeInTheDocument();
+      expect(screen.getByText("2 changed")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error when comparison fails", async () => {
+    mockPpgApiCompare.mockRejectedValue(new Error("Compare failed"));
+    render(
+      <GcodeDiff gcode="G00 X0" controllers={mockControllers} />,
+    );
+    fireEvent.change(screen.getByLabelText("Controller A"), { target: { value: "fanuc" } });
+    fireEvent.change(screen.getByLabelText("Controller B"), { target: { value: "siemens" } });
+    fireEvent.click(screen.getByText("Compare"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Compare failed")).toBeInTheDocument();
+    });
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* GcodeEditor                                                          */
+/* ------------------------------------------------------------------ */
+
+describe("GcodeEditor", () => {
+  it("renders Monaco editor mock", () => {
+    render(<GcodeEditor value="G00 X0 Y0" onChange={vi.fn()} />);
+    expect(screen.getByTestId("monaco-editor")).toBeInTheDocument();
+  });
+
+  it("passes value to the editor", () => {
+    render(<GcodeEditor value="G01 Z-5.0 F200" onChange={vi.fn()} />);
+    const textarea = screen.getByTestId("monaco-textarea") as HTMLTextAreaElement;
+    expect(textarea.value).toBe("G01 Z-5.0 F200");
+  });
+
+  it("calls onChange when content changes", () => {
+    const onChange = vi.fn();
+    render(<GcodeEditor value="" onChange={onChange} />);
+    fireEvent.change(screen.getByTestId("monaco-textarea"), {
+      target: { value: "G00 X10 Y20" },
+    });
+    expect(onChange).toHaveBeenCalledWith("G00 X10 Y20");
+  });
+});
