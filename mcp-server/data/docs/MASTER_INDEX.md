@@ -103,9 +103,21 @@ Actions (15): create, get, list, suspend, reactivate, delete, get_context, check
 ### prism_bridge (bridgeDispatcher.ts, 100L) — F7
 Actions (13): register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config
 
-### prism_intelligence (intelligenceDispatcher.ts) — MEGA-DISPATCHER
-Actions (489 total = 250 main + 239 sub-engine): MAIN: job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, shop_schedule, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format, setup_sheet_template, skill_list, skill_get, skill_search, skill_match, skill_steps, skill_for_persona, conversation_context, conversation_transition, job_start, job_update, job_find, job_resume, job_complete, job_list_recent, assist_list, assist_get, assist_search, assist_match, assist_explain, assist_confidence, assist_mistakes, assist_safety, + ~200 more main actions + 31 sub-engine arrays (LEARNING_ACTIONS, SCHEDULER_ACTIONS, PFP_ACTIONS, MEMORY_ACTIONS, TELEMETRY_ACTIONS, etc.)
-NOTE: Full action list requires QA-MS6 decomposition audit. This dispatcher holds 46% of all system actions.
+### prism_machine_live (machineLiveDispatcher.ts, 260L) — SYS-MS1-U01
+Actions (40): machine_register, machine_unregister, machine_list, machine_connect, machine_disconnect, machine_live_status, machine_all_status, machine_ingest, chatter_detect_live, tool_wear_start, tool_wear_update, tool_wear_status, thermal_update, thermal_status, alert_acknowledge, alert_history, adaptive_chipload, adaptive_chatter, adaptive_wear, adaptive_thermal, adaptive_override, adaptive_status, adaptive_config, adaptive_log, adaptive_history, adaptive_get, maint_analyze, maint_trend, maint_predict, maint_schedule, maint_models, maint_thresholds, maint_alerts, maint_status, maint_history, maint_get, tool_crib_status, digital_twin_state, predictive_maintenance_alert, energy_report
+
+### prism_integration (integrationDispatcher.ts, 225L) — SYS-MS1-U02
+Actions (42): cam_recommend, cam_export, cam_analyze_op, cam_tool_library, cam_tool_get, cam_systems, dnc_generate, dnc_send, dnc_compare, dnc_verify, dnc_qr, dnc_systems, dnc_history, dnc_get, erp_import_wo, erp_get_plan, erp_cost_feedback, erp_cost_history, erp_quality_import, erp_quality_history, erp_tool_inventory, erp_tool_update, erp_systems, erp_wo_list, mobile_lookup, mobile_voice, mobile_alarm, mobile_timer_start, mobile_timer_check, mobile_timer_reset, mobile_timer_list, mobile_cache, measure_cmm_import, measure_cmm_history, measure_cmm_get, measure_surface, measure_surface_history, measure_probe_record, measure_probe_drift, measure_probe_history, measure_bias_detect, measure_summary
+
+### prism_knowledge_ext (knowledgeExtDispatcher.ts, 240L) — SYS-MS1-U03
+Actions (40): apprentice_explain, apprentice_lesson, apprentice_lessons, apprentice_assess, apprentice_capture, apprentice_knowledge, apprentice_challenge, apprentice_materials, apprentice_history, apprentice_get, genome_lookup, genome_predict, genome_similar, genome_compare, genome_list, genome_fingerprint, genome_behavioral, genome_search, genome_history, genome_get, graph_query, graph_infer, graph_discover, graph_predict, graph_traverse, graph_add, graph_search, graph_stats, graph_history, graph_get, learn_contribute, learn_query, learn_aggregate, learn_anonymize, learn_network_stats, learn_opt_control, learn_correction, learn_transparency, learn_history, learn_get
+
+### prism_diagnosis (diagnosisDispatcher.ts, 237L) — SYS-MS1-U04
+Actions (38): forensic_tool_autopsy, forensic_chip_analysis, forensic_surface_defect, forensic_crash, forensic_failure_modes, forensic_chip_types, forensic_surface_types, forensic_crash_types, forensic_history, forensic_get, inverse_solve, inverse_surface, inverse_tool_life, inverse_dimensional, inverse_chatter, inverse_troubleshoot, inverse_history, inverse_get, genplan_plan, genplan_features, genplan_setups, genplan_operations, genplan_optimize, genplan_tools, genplan_cycle, genplan_cost, genplan_risk, genplan_get, sustain_optimize, sustain_compare, sustain_energy, sustain_carbon, sustain_coolant, sustain_nearnet, sustain_report, sustain_materials, sustain_history, sustain_get
+
+### prism_intelligence (intelligenceDispatcher.ts, 620L) — SLIMMED (SYS-MS1-U05)
+Actions (49 core + 200 deprecated forwarding): job_plan, setup_sheet, process_cost, material_recommend, tool_recommend, machine_recommend, what_if, failure_diagnose, parameter_optimize, cycle_time_estimate, quality_predict, job_record, job_insights, algorithm_select, machine_utilization, decompose_intent, format_response, workflow_match, workflow_get, workflow_list, onboarding_welcome, onboarding_state, onboarding_record, onboarding_suggestion, onboarding_reset, setup_sheet_format, setup_sheet_template, skill_list, skill_get, skill_search, skill_match, skill_steps, skill_for_persona, conversation_context, conversation_transition, job_start, job_update, job_find, job_resume, job_complete, job_list_recent, assist_list, assist_get, assist_search, assist_match, assist_explain, assist_confidence, assist_mistakes, assist_safety
+NOTE: 200 deprecated actions still accepted for backward compatibility, forwarded to prism_product (40), prism_machine_live (40), prism_integration (42), prism_knowledge_ext (40), prism_diagnosis (38).
 
 ### prism_l2 (l2EngineDispatcher.ts)
 Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_models, cad_geometry, cad_mesh, cad_curve, cad_capabilities, cam_toolpath, cam_gcode, cam_collision, cam_chip_thinning, cam_capabilities, file_parse, file_generate, file_formats, sim_gcode, sim_cycle_time, sim_verify, sim_capabilities, viz_scene, viz_toolpath, viz_heatmap, viz_presets, report_setup_sheet, report_cost, report_tool_list, report_speed_feed, report_alarm, report_inspection, report_templates, settings_get, settings_update, settings_convert, settings_presets, settings_safety, settings_apply_preset
@@ -146,7 +158,7 @@ Actions (5): oee_calc, bottleneck, digital_thread, work_instructions, shift_hand
 ### prism_auth (authDispatcher.ts)
 Actions (8): login, register, refresh_token, change_password, role_assign, permission_check, session_manage, mfa_setup
 
-**Total: 46 dispatchers, 1100 actions** (verified QA-MS0 2026-02-27, +prism_product SYS-MS1-U00)
+**Total: 50 dispatchers, 1260 actions** (verified SYS-MS1-U06 2026-02-28, +4 sub-dispatchers from intelligence decomposition)
 
 ---
 
@@ -178,7 +190,12 @@ Natural language hooks → prism_nl_hook (8)
 Compliance templates → prism_compliance (8)
 Multi-tenant management → prism_tenant (15)
 Protocol bridge / API gateway → prism_bridge (13)
-Manufacturing intelligence → prism_intelligence (27)
+Manufacturing intelligence → prism_intelligence (50)
+Machine telemetry/adaptive → prism_machine_live (40)
+CAM/DNC/ERP/mobile/measurement → prism_integration (42)
+Knowledge graph/apprentice/genome → prism_knowledge_ext (40)
+Forensics/inverse/genplan/sustain → prism_diagnosis (38)
+Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
 CAD geometry/mesh → prism_cad (10)
 CAM toolpath/post → prism_cam (9)

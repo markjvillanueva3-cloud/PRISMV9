@@ -1,7 +1,7 @@
 # PRISM Manufacturing Intelligence — Core Rules
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 45 dispatchers, 1060 actions, 125 engines.
+Safety-critical CNC manufacturing MCP server. 50 dispatchers, 1260 actions, 125 engines.
 Mathematical errors cause tool explosions and operator injuries.
 **Lives depend on correctness. Zero tolerance for shortcuts or placeholders.**
 
@@ -29,7 +29,7 @@ npm run build:fast     # esbuild only (no type-check)
 
 ## Key Paths
 ```
-src/tools/dispatchers/       — 45 dispatcher files (see dispatchers/CLAUDE.md)
+src/tools/dispatchers/       — 50 dispatcher files (see dispatchers/CLAUDE.md)
 src/engines/                 — 125 engine exports (see engines/CLAUDE.md)
 src/tools/autoHookWrapper.ts — Central hook/cadence/logging wrapper
 src/tools/cadenceExecutor.ts — Cadence functions (checkpoint, pressure, etc.)

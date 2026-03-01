@@ -18,12 +18,13 @@
 - Effort tier mapping: quick (<100ms), standard (<1s), intensive (<10s)
 - Check `data/wiring/PRECISE_WIRING_D2F.json` for dispatcher→formula mapping
 
-## 45 Dispatchers (1060 verified actions — see MASTER_INDEX.md)
+## 50 Dispatchers (1260 actions — see MASTER_INDEX.md)
 Manufacturing: prism_calc, prism_safety, prism_thread, prism_toolpath
 Data: prism_data, prism_knowledge
 Session: prism_session, prism_context, prism_dev
 Quality: prism_validate, prism_omega, prism_ralph, prism_guard
-Intelligence: prism_pfp, prism_memory, prism_telemetry
+Intelligence: prism_intelligence (50 core), prism_pfp, prism_memory, prism_telemetry
+Intelligence Sub-dispatchers (SYS-MS1): prism_product (40), prism_machine_live (40), prism_integration (42), prism_knowledge_ext (40), prism_diagnosis (38)
 Orchestration: prism_orchestrate, prism_atcs, prism_autonomous, prism_autopilot_d
 Enterprise: prism_compliance, prism_tenant, prism_bridge, prism_nl_hook
 Dev: prism_sp, prism_skill_script, prism_doc, prism_hook
