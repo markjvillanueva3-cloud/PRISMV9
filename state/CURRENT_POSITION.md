@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-03-01
 
-**Phase:** SYSTEM OPTIMIZATION — SYS-MS6 IN PROGRESS (2/4 units), continuing SYS track
-**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 67 complete)
+**Phase:** SYSTEM OPTIMIZATION — SYS-MS6 COMPLETE (4/4 units), continuing SYS track
+**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 68 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
 **S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
-**Next Recommended:** SYS-MS6-U02 (safety schemas) then U03 (remaining dispatchers + type coercion)
+**Next Recommended:** SYS-MS1 (mega-dispatcher decomp) or SYS-MS8+ (new SYS milestones)
 **Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
@@ -53,13 +53,12 @@
 - **Tests:** 15 new tests, all PASS
 - **Composite OQA:** 4.88 (all 4 units PASS)
 
-## SYS-MS6 Dispatcher Param Schema Validation (2026-03-01) — IN PROGRESS
+## SYS-MS6 Dispatcher Param Schema Validation (2026-03-01) — COMPLETE
 - **U00 (Architecture):** Designed schema registry pattern (ActionSchemaMap), validateActionParams() middleware, two-tier error strategy (dispatcherError for normal, SafetyBlockError for safety-critical)
-- **U01 (prism_calc Schemas):** Created 57 per-action Zod schemas in calcActionSchemas.ts, wired into calcDispatcher after normalizeParams. All schemas use .passthrough() for non-breaking rollout.
-- **U02 (Safety Schemas):** NOT STARTED — prism_safety, prism_5axis, prism_thread
-- **U03 (Remaining + Coercion):** NOT STARTED — remaining dispatchers, type coercion, coverage metric
-- **Files created:** actionSchemaTypes.ts, calcActionSchemas.ts, schema-validation-architecture.md
-- **Files modified:** dispatcherMiddleware.ts (+validateActionParams), calcDispatcher.ts (+4 lines wiring), actionParamValidator.ts (fix .nonneg→.min(0))
+- **U01 (prism_calc Schemas):** 57 per-action Zod schemas in calcActionSchemas.ts, wired into calcDispatcher
+- **U02 (Safety Schemas):** safetyActionSchemas.ts (543L, 29 actions), fiveAxisActionSchemas.ts (137L, 5 actions), threadActionSchemas.ts (141L, 13 actions) — all wired with SafetyBlockError
+- **U03 (Remaining + Coercion):** dataActionSchemas.ts, toolpathActionSchemas.ts, exportActionSchemas.ts — all wired. Type coercion in paramNormalizer. Schema coverage metric in health endpoint.
+- **7 dispatchers wired:** calc, safety, fiveAxis, thread, data, toolpath, export
 - **Build:** PASS (0 errors) | **Tests:** 1242/1243 (0 regression)
 
 ## REM-MS5 Test Coverage Expansion (2026-02-28)
