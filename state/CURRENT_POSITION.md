@@ -235,9 +235,9 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 - **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
 
 ## Milestone Summary
-- Complete: 62 milestones (S0-S3-MS2, L0-L10, QA-MS0-MS14, REM-MS0-MS5)
+- Complete: 63 milestones (S0-S4-MS1, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0)
 - In Progress: 0
-- Not Started: 32 milestones (SYS-MS0-MS7, S3-MS3, S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 31 milestones (SYS-MS1-MS7, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -258,11 +258,10 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 | QA-MS13 | Cross-Cutting Concerns | 6 | **COMPLETE** (0 TS errors, 99.5% wiring, OQA=3.83) |
 | QA-MS14 | Enhancement Synthesis | 4 | **COMPLETE** (127 findings, Ω 3.50→4.29, OQA=4.94) |
 
-## Available Tracks (32 milestones remaining)
+## Available Tracks (31 milestones remaining)
 | Track | Milestones | Description | Unblocked |
 |-------|-----------|-------------|-----------|
-| SYS | 8 | System Optimization (CLAUDE.md, mega-dispatcher, tests, automation, engine wiring, MASTER_INDEX, param schemas, stub remediation) | SYS-MS0, SYS-MS1, SYS-MS4, SYS-MS6, SYS-MS7 |
-| S3-S4 | 2 | SFC Advanced Features + Testing & Ship | S3-MS3 |
+| SYS | 7 | System Optimization (mega-dispatcher, tests, automation, engine wiring, MASTER_INDEX, param schemas, stub remediation) | SYS-MS1, SYS-MS4, SYS-MS6, SYS-MS7 |
 | L8-MS2s | 3 | Web UIs (PPG, CAD/CAM Learning, ERP) | All 3 |
 | L9 | 1 | WebGL 3D Viewer | L9-P2-MS1 |
 | CC | 12 | CAD/CAM/Machining Learning Engine | CC-MS0 |
