@@ -1,0 +1,82 @@
+[
+  {
+    "video_id": "r6NUt1cMzuI",
+    "title": "SolidWorks Tutorial for Beginners - Extrude Boss, Cut, Fillet & Chamfer",
+    "description": "Learn SolidWorks basics: sketch, extrude boss, cut extrude, fillet, chamfer, mirror, and rib commands. Step by step beginner tutorial.",
+    "uploader": "CAD Tutorials",
+    "duration_seconds": 1847,
+    "expected_domain": "cad",
+    "expected_software": ["SolidWorks"],
+    "transcript": "welcome to this solidworks tutorial for beginners. today we're going to learn the fundamental features in solidworks 2024. first let's open a new part file. go to file new and select part. now we'll start with a sketch on the front plane. click on the sketch tab and select rectangle. draw a rectangle and add dimensions. let's make it 100 millimeters by 50 millimeters. now we'll use the extrude boss feature. click on features tab then extruded boss base. set the depth to 25 millimeters and click the green check. now let's add a fillet. select the top edges and set the radius to 5 millimeters. you can see the fillet preview in the graphics area. next we'll add a chamfer to the bottom edges. set the distance to 3 millimeters. now let's do a cut extrude. sketch a circle on the top face with a diameter of 20 millimeters. extrude cut through all. finally we'll use the mirror feature to create a symmetric design. select the right plane as the mirror plane and pick the features to mirror. the feature tree on the left shows all our features in order. that's the basics of parametric modeling in solidworks. make sure to save your file as a step file for manufacturing."
+  },
+  {
+    "video_id": "mK1PFbBnEOc",
+    "title": "Fusion 360 for Beginners - Complete Parametric Part Design Tutorial",
+    "description": "Master Fusion 360 parametric modeling. Learn sketch constraints, extrude, revolve, fillet, shell, and assembly joints.",
+    "uploader": "Product Design Online",
+    "duration_seconds": 2340,
+    "expected_domain": "cad",
+    "expected_software": ["Fusion 360"],
+    "transcript": "in this fusion 360 tutorial we'll design a complete parametric part from scratch. open autodesk fusion 360 and create a new design. start by creating a sketch on the xy plane. use the line tool to draw an l-shaped profile. add dimensions and constraints to fully define the sketch. the sketch should turn black when fully constrained. now extrude the sketch 30 millimeters. click create extrude select the profile and enter the distance. next we'll add fillets to smooth the edges. select the fillet tool set radius to 4 millimeters and pick the edges. for the shell feature select the top face and set wall thickness to 2 millimeters. this hollows out the part while maintaining the outer shape. let's add a revolve feature. create a new sketch on a construction plane draw the revolve profile and select the axis. the timeline at the bottom shows our design history. each feature can be edited by double clicking. that's the power of parametric design in fusion 360. you can export as step or stl file for 3d printing or machining."
+  },
+  {
+    "video_id": "aVcqrFkLMbU",
+    "title": "Mastercam 2024 Tutorial - 2D Toolpath Programming for CNC Milling",
+    "description": "Learn Mastercam 2024 toolpath creation: contour, pocket, drill, facing operations with feeds and speeds.",
+    "uploader": "Titans of CNC",
+    "duration_seconds": 2890,
+    "expected_domain": "cam",
+    "expected_software": ["Mastercam"],
+    "transcript": "welcome to this mastercam 2024 toolpath tutorial. today we'll program a complete 2d milling job. first import your cad model into mastercam. set up the stock geometry as a rectangular block 150 by 100 by 50 millimeters. let's start with a facing operation. select a 3 inch face mill and set the spindle speed to 3000 rpm. the feed rate is 40 inches per minute. depth of cut is 0.040 inches. next we'll create a roughing toolpath. select 2d dynamic mill which uses trochoidal milling for efficient material removal. choose a half inch 3 flute end mill. set stepover to 25 percent of tool diameter. the feed rate is 60 ipm at 8000 rpm. chip load is 0.0025 per tooth. now create a finishing contour. use the same end mill but reduce the stepover to 5 percent for a better surface finish. finally add drilling operations for the bolt holes. select a quarter inch drill and set the pecking cycle. the post processor will generate g-code for your specific machine. we're posting for a haas vf-2 with fanuc compatible control."
+  },
+  {
+    "video_id": "Do_Mtb0vMaQ",
+    "title": "Fusion 360 CAM Tutorial - From Design to G-Code for CNC Machining",
+    "description": "Complete Fusion 360 CAM workflow: setup, roughing, finishing, drilling and post processing for CNC.",
+    "uploader": "NYC CNC",
+    "duration_seconds": 3120,
+    "expected_domain": "cam",
+    "expected_software": ["Fusion 360"],
+    "transcript": "let's take our fusion 360 design and create cam toolpaths for cnc machining. switch to the manufacture workspace in fusion 360. first set up the stock. click setup and define the stock as a rectangular block with 5 millimeters of extra material on each side. set the work coordinate system origin to the top center of the stock. now let's create a roughing toolpath. go to 3d and select adaptive clearing. this is fusion 360's high efficiency roughing strategy. select a half inch flat end mill. set the cutting speed to 300 surface feet per minute. that gives us about 2300 rpm. feed per tooth is 0.003 inches. stepdown is 0.5 inches and stepover is 40 percent. the adaptive toolpath uses trochoidal motion to maintain consistent chip load. next add a finishing pass. select parallel from the 3d menu. use a quarter inch ball nose end mill at 10000 rpm. stepover of 0.010 inches for a smooth surface. now add drilling. select the drill operation and pick the hole features. we'll use a peck drilling cycle with 0.1 inch peck depth. finally post process the toolpaths. select the post processor for your machine. i'm using the haas post processor which generates fanuc compatible g-code."
+  },
+  {
+    "video_id": "rX_FFexuVgQ",
+    "title": "Haas VF-2 CNC Mill Setup Guide - Workholding, Tool Setting & G54 Work Offsets",
+    "description": "Complete setup guide for the Haas VF-2 vertical machining center. Workholding, tool measurement, work offsets.",
+    "uploader": "Haas Automation",
+    "duration_seconds": 1560,
+    "expected_domain": "shop",
+    "expected_software": ["Haas"],
+    "transcript": "in this video we'll walk through setting up a part on the haas vf-2 vertical machining center. first let's talk about workholding. we're using a kurt 6 inch vise mounted to the t-slots. make sure the vise is indicated in to within half a thousandth. tighten the vise bolts in a star pattern. now place the part in the vise with parallels underneath. the part should sit flat on the parallels. tap it down with a dead blow hammer. next we need to set the work offset. jog the machine to the part. use the haas wireless tool probe or an edge finder to locate x and y zero. for x zero touch off the left side of the part. enter the value into the g54 work offset page on the haas control. do the same for y zero on the front face. for z zero we'll use the tool setter. load each tool and touch off on the tool setter. the haas control automatically calculates the tool length offset. enter the values in the tool offset table. now let's verify. jog to g54 position and visually confirm the tool is at the correct location. run the program in graphics mode first to verify the toolpath."
+  },
+  {
+    "video_id": "gkCB3s3itME",
+    "title": "CNC Programming Tutorial - G-Code Basics on Fanuc Controller",
+    "description": "Learn CNC G-code programming fundamentals on a Fanuc 0i-MF controller. G00, G01, G02, G03, canned cycles.",
+    "uploader": "CNC Training Centre",
+    "duration_seconds": 2240,
+    "expected_domain": "multi",
+    "expected_software": ["Fanuc"],
+    "transcript": "today we'll learn g-code programming on the fanuc 0i controller. g-code is the language that tells your cnc machine what to do. let's start with the basic codes. g00 is rapid traverse used for positioning moves. g01 is linear interpolation for cutting moves at a specified feed rate. g02 is clockwise circular interpolation and g03 is counterclockwise. every program starts with a safety block. percent sign program number o0001. then g28 g91 z0 to home the z axis. g90 g54 to set absolute positioning and select work offset. now let's write a simple program. g00 x0 y0 to rapid to the start position. g43 h01 z1.0 to activate tool length compensation. g01 z-0.25 f10.0 to plunge into the material at 10 inches per minute. g01 x2.0 f20.0 to cut along x axis. g02 x3.0 y1.0 r1.0 to cut a clockwise arc. for drilling we use canned cycles. g81 is a simple drill cycle. g83 is peck drilling. enter the parameters z depth r plane and f feed. g80 cancels the canned cycle. always end with m30 to end program and rewind. the fanuc control display shows the current position coordinates and active g-codes."
+  },
+  {
+    "video_id": "25LG0OYNTBQ",
+    "title": "Fusion 360 - Complete Beginner to CNC: Design, CAM, and Machine Setup",
+    "description": "Full workflow from Fusion 360 CAD design through CAM toolpath generation to running on a CNC machine.",
+    "uploader": "Saunders Machine Works",
+    "duration_seconds": 4200,
+    "expected_domain": "multi",
+    "expected_software": ["Fusion 360"],
+    "transcript": "in this video we'll go from a blank screen in fusion 360 all the way to a finished part on the cnc machine. starting in the design workspace we'll sketch our part. draw a rectangle 4 inches by 3 inches. extrude it 1 inch tall. add fillets of 0.25 inches to the top edges. create a pocket feature on the top face. add mounting holes with counterbores. now switch to the cam workspace. the manufacture tab in fusion 360 gives us all the toolpath tools. first set up the stock. select the adaptive clearing strategy for roughing. choose a 3 flute half inch end mill. cutting speed 350 sfm. feed per tooth 0.003 inches. stepover 40 percent. depth of cut 0.375 inches. the toolpath preview shows the trochoidal motion. next add a contour pass for the walls. then a parallel finishing pass with a ball end mill for the pocket floor. add drilling operations for the mounting holes. post process for our haas vf-2. now at the machine. load the stock in the vise. set the work offset g54 using the edge finder. load the tools and measure them with the tool setter. transfer the program via usb. run the program in single block mode first. after verifying switch to full auto. coolant on and let it run. the finished part comes out exactly as designed in fusion 360."
+  },
+  {
+    "video_id": "u8otDF_C_fw",
+    "title": "FreeCAD 0.21 Tutorial for Beginners - Your First 3D Model",
+    "description": "Learn FreeCAD basics: Part Design workbench, sketch, pad, pocket, fillet. Open source CAD for beginners.",
+    "uploader": "MangoJelly Solutions",
+    "duration_seconds": 1650,
+    "expected_domain": "cad",
+    "expected_software": ["FreeCAD"],
+    "transcript": "welcome to this freecad 0.21 tutorial for beginners. freecad is a free and open source parametric 3d cad modeler. let's create our first 3d model. open freecad and select the part design workbench. create a new body and add a sketch on the xy plane. use the polyline tool to draw an l-shaped profile. add constraints to make lines horizontal and vertical. dimension the sketch. 80 millimeters wide 60 millimeters tall. the sketch turns green when fully constrained. now pad the sketch which is freecad's version of extrude. set the length to 30 millimeters. you can see the 3d model in the viewport. let's add a pocket. create a new sketch on the top face. draw a rectangle and dimension it. pocket it 15 millimeters deep. now add fillets to the edges. select the fillet tool pick the edges and set radius to 5 millimeters. the model tree on the left shows all features in order just like solidworks. freecad supports export to step iges and stl formats. it's a great free alternative for parametric modeling and even has a path workbench for basic cam operations."
+  }
+]
