@@ -124,6 +124,8 @@ function productExtractKeyValues(action: string, result: any): Record<string, an
       return { cost_per_part: result.cost_per_part, price_per_part: result.price_per_part, batch_size: result.batch_size };
     case "shop_quote":
       return { quote_number: result.quote_number, unit_price: result.pricing?.unit_price, quantity: result.pricing?.quantity };
+    case "shop_schedule":
+      return { makespan_min: result.metrics?.total_makespan_min, avg_utilization: result.metrics?.average_utilization_pct, jobs_on_time: result.metrics?.jobs_on_time, bottlenecks: result.bottlenecks?.length };
     case "shop_dashboard":
       return { total_machines: result.summary?.total_machines, utilization: result.summary?.average_utilization_pct };
     case "shop_report":
