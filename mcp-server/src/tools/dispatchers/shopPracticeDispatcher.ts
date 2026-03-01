@@ -624,7 +624,7 @@ export function registerShopPracticeDispatcher(server: any): void {
     "Shop practice knowledge base: ingest/search/audit machining practices from video tutorials, build/navigate troubleshooting trees, manage per-material tips with conflict resolution. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_shop_practice] Action: ${action}`);
