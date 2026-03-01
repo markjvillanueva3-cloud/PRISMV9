@@ -5,6 +5,7 @@ import { Spinner } from "./components/ui";
 
 // Lazy-load pages for code splitting
 const SfcCalculatorPage = lazy(() => import("./pages/SfcCalculatorPage"));
+const PpgPage = lazy(() => import("./pages/PpgPage"));
 
 function PageLoader() {
   return (
@@ -24,6 +25,14 @@ export default function App() {
           element={
             <Suspense fallback={<PageLoader />}>
               <SfcCalculatorPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ppg"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <PpgPage />
             </Suspense>
           }
         />
