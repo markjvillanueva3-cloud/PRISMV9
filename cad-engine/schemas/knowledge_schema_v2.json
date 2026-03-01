@@ -13,7 +13,7 @@
       "properties": {
         "source_type": {
           "type": "string",
-          "enum": ["transcript", "vision", "ocr", "inferred"]
+          "enum": ["transcript", "vision", "ocr", "inferred", "document"]
         },
         "confidence": {
           "type": "number",
@@ -35,6 +35,14 @@
         "ocr_text": {
           "type": ["string", "null"],
           "description": "OCR text that supports this extraction."
+        },
+        "page_number": {
+          "type": ["integer", "null"],
+          "description": "Page number in document where knowledge was extracted."
+        },
+        "section_title": {
+          "type": ["string", "null"],
+          "description": "Section/heading title where knowledge was found."
         }
       },
       "additionalProperties": false
@@ -294,6 +302,32 @@
         "tags": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "source_type": {
+          "type": ["string", "null"],
+          "enum": ["video", "document", null],
+          "description": "Whether knowledge was extracted from a video or document."
+        },
+        "document_metadata": {
+          "type": ["object", "null"],
+          "description": "Additional metadata for document-sourced knowledge.",
+          "properties": {
+            "author": { "type": ["string", "null"] },
+            "publication_title": { "type": ["string", "null"] },
+            "publication_date": { "type": ["string", "null"] },
+            "doi": { "type": ["string", "null"] },
+            "page_count": { "type": ["integer", "null"] },
+            "format": {
+              "type": ["string", "null"],
+              "enum": ["pdf", "markdown", "text", "html", null]
+            },
+            "url": { "type": ["string", "null"] },
+            "doc_type": {
+              "type": ["string", "null"],
+              "enum": ["academic_paper", "technical_manual", "handbook", "blog_article", "notes", "specification", "other", null]
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
