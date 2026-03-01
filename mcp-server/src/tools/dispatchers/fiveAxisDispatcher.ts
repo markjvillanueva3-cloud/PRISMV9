@@ -10,7 +10,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_FIVEAXIS_SCHEMAS } from "../../schemas/fiveAxisActionSchemas.js";
 
 let _rtcp: any, _sing: any, _tilt: any, _envelope: any, _ik: any;
 async function getEngine(name: string): Promise<any> {
@@ -45,6 +46,17 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // SYS-MS6: Validate params against per-action Zod schema (STRICT — safety-critical)
+        const validation = validateActionParams(action, params, ACTION_FIVEAXIS_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_5axis"
+          );
+        }
+
         switch (action) {
           case "rtcp_calc": {
             const engine = await getEngine("rtcp");

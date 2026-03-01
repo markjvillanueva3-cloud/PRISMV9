@@ -3,7 +3,7 @@
   "title": "Dispatcher Param Schema Validation",
   "track": "SYS",
   "priority": "P1",
-  "status": "not_started",
+  "status": "in_progress",
   "description": "Add per-action Zod schema validation to dispatcher entry points. Currently all 45 dispatchers accept params: z.record(z.any()) — no type enforcement at the tool boundary. 21 Zod schemas exist in src/schemas/ but none are wired to dispatcher param validation. ParamNormalizer (40 aliases) is best-effort only. This milestone creates action-specific schemas for high-traffic dispatchers.",
   "source": "GAP-ANALYSIS-2026-02-28",
   "findings": [
@@ -17,7 +17,7 @@
     {
       "id": "SYS-MS6-U00",
       "title": "Design Schema Validation Architecture",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Analyze the top 5 dispatchers by traffic: prism_calc, prism_safety, prism_5axis, prism_thread, prism_data"},
         {"number": 2, "instruction": "For each, catalog required params per action (from engine function signatures)"},
@@ -30,7 +30,7 @@
     {
       "id": "SYS-MS6-U01",
       "title": "Create Schemas for prism_calc Actions",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Create src/schemas/calcSchemas.ts with Zod schemas for all 56 prism_calc actions"},
         {"number": 2, "instruction": "Group schemas by engine: Kienzle (force_power, cutting_force), Taylor (tool_life), SpeedFeed (speed_feed), etc."},
@@ -43,7 +43,7 @@
     {
       "id": "SYS-MS6-U02",
       "title": "Create Schemas for Safety-Critical Dispatchers",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Create src/schemas/safetySchemas.ts for prism_safety actions"},
         {"number": 2, "instruction": "Create src/schemas/fiveAxisSchemas.ts for prism_5axis actions"},

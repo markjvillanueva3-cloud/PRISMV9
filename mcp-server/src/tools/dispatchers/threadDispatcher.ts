@@ -2,6 +2,8 @@ import { z } from "zod";
 import { handleThreadTool } from "../threadTools.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { log } from "../../utils/Logger.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_THREAD_SCHEMAS } from "../../schemas/threadActionSchemas.js";
 
 // Actions that perform calculations (vs lookups)
 const CALC_ACTIONS = new Set([
@@ -41,6 +43,17 @@ export function registerThreadDispatcher(server: any): void {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_THREAD_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_thread"
+          );
+        }
+
         const isCalc = CALC_ACTIONS.has(action);
         const isCode = CODE_ACTIONS.has(action);
         const hookCtx = {
