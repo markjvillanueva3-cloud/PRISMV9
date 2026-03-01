@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import ControllerSelector from "../components/ppg/ControllerSelector";
 import TemplateBrowser from "../components/ppg/TemplateBrowser";
+import GcodeEditor from "../components/ppg/GcodeEditor";
 import type { PpgControllerInfo } from "../types/ppg";
 
 type PanelTab = "controller" | "templates" | "editor" | "preview" | "validation";
@@ -109,9 +110,12 @@ export default function PpgPage() {
               <EditorPanel
                 content={editorContent}
                 onContentChange={setEditorContent}
+                controller={activeController?.id}
               />
             </div>
-            <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${mdRightTab === "preview" ? "flex" : "hidden"}`}>
+            <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${
+              mdRightTab === "preview" ? "flex" : "hidden"
+            }`}>
               <PreviewPanel />
             </div>
           </main>
@@ -136,6 +140,7 @@ export default function PpgPage() {
             <EditorPanel
               content={editorContent}
               onContentChange={setEditorContent}
+              controller={activeController?.id}
             />
           )}
           {(mobileTab === "preview" || mobileTab === "validation") && (
@@ -190,34 +195,22 @@ function SidebarPanel({
 function EditorPanel({
   content,
   onContentChange,
+  controller,
 }: {
   content: string;
   onContentChange: (v: string) => void;
+  controller?: string;
 }) {
   return (
     <div className="flex flex-1 flex-col">
       <PanelHeader title="G-Code Editor" actions={<EditorActions />} />
-      {content ? (
-        <textarea
+      <div className="flex-1 overflow-hidden">
+        <GcodeEditor
           value={content}
-          onChange={(e) => onContentChange(e.target.value)}
-          className="flex-1 resize-none bg-white p-3 font-mono text-xs
-            text-slate-800 focus:outline-none
-            dark:bg-slate-800 dark:text-slate-200"
-          spellCheck={false}
-          aria-label="G-code editor"
+          onChange={onContentChange}
+          controller={controller}
         />
-      ) : (
-        <div className="flex flex-1 items-center justify-center bg-white p-4 dark:bg-slate-800">
-          <div className="w-full rounded-md border border-dashed border-slate-300
-            p-12 text-center text-sm text-slate-400 dark:border-slate-600">
-            <p className="mb-1 text-base font-medium text-slate-500">
-              Monaco Editor — U05
-            </p>
-            <p>Select a template or type G-code to get started</p>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

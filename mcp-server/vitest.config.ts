@@ -6,5 +6,17 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 30000,
+    // Share module state across test files within each worker — avoids
+    // redundant registry initialization (~3.4s per file × 52 files).
+    // Safe because tests are stateless calculations against read-only registries.
+    isolate: false,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        minThreads: 2,
+        maxThreads: 8,
+      },
+    },
+    fileParallelism: true,
   },
 });
