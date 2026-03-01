@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import ControllerSelector from "../components/ppg/ControllerSelector";
+import type { PpgControllerInfo } from "../types/ppg";
 
 type PanelTab = "controller" | "templates" | "editor" | "preview" | "validation";
 type RightTab = "editor" | "preview";
@@ -13,6 +15,7 @@ type RightTab = "editor" | "preview";
 export default function PpgPage() {
   const [mobileTab, setMobileTab] = useState<PanelTab>("editor");
   const [mdRightTab, setMdRightTab] = useState<RightTab>("editor");
+  const [activeController, setActiveController] = useState<PpgControllerInfo | null>(null);
 
   const tabs: { id: PanelTab; label: string }[] = [
     { id: "controller", label: "Controllers" },
@@ -71,7 +74,7 @@ export default function PpgPage() {
         <div className="hidden h-full md:grid md:grid-cols-[280px_1fr] md:gap-0 xl:grid-cols-[280px_1fr_320px]">
           {/* Left sidebar — controller + templates */}
           <aside className="flex flex-col overflow-y-auto border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
-            <SidebarPanel />
+            <SidebarPanel controller={activeController} onControllerChange={setActiveController} />
           </aside>
 
           {/* Center — editor OR preview (md toggle), always editor at xl */}
@@ -111,7 +114,7 @@ export default function PpgPage() {
         {/* Mobile: show active tab content */}
         <div className="flex h-full flex-col overflow-y-auto md:hidden">
           {(mobileTab === "controller" || mobileTab === "templates") && (
-            <SidebarPanel activeTab={mobileTab} />
+            <SidebarPanel activeTab={mobileTab} controller={activeController} onControllerChange={setActiveController} />
           )}
           {mobileTab === "editor" && <EditorPanel />}
           {(mobileTab === "preview" || mobileTab === "validation") && (
@@ -127,17 +130,21 @@ export default function PpgPage() {
 /* Panel placeholders — will be replaced by real components in U02-U09 */
 /* ------------------------------------------------------------------ */
 
-function SidebarPanel({ activeTab }: { activeTab?: "controller" | "templates" }) {
+function SidebarPanel({
+  activeTab,
+  controller,
+  onControllerChange,
+}: {
+  activeTab?: "controller" | "templates";
+  controller: PpgControllerInfo | null;
+  onControllerChange: (c: PpgControllerInfo | null) => void;
+}) {
   return (
     <div className="flex flex-1 flex-col">
       {/* Controller selector section */}
       <div className={`${activeTab === "templates" ? "hidden md:block" : ""}`}>
         <PanelHeader title="Controller" />
-        <div className="p-3">
-          <div className="rounded-md border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400 dark:border-slate-600">
-            ControllerSelector — U03
-          </div>
-        </div>
+        <ControllerSelector value={controller?.id} onChange={onControllerChange} />
       </div>
 
       {/* Template browser section */}
