@@ -295,7 +295,7 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (125 exported + 66 unwired = 191 total .ts files)
+## 4. ENGINES (124 exported + 67 unwired = 191 total .ts files)
 ## Regenerated: SYS-MS5 audit (2026-02-28) — line counts verified from filesystem
 
 ### 4a. Calculation Engines (10 exported)
@@ -344,7 +344,7 @@ Health: prism_bridge→health
 - WorkCoordinateEngine.ts (227L) — Work coordinate system setup
 - CollisionEngine.ts (2089L) — Full collision analysis engine
 
-### 4e. CAD/CAM Engines (8 exported)
+### 4e. CAD/CAM Engines (7 exported)
 - CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
 - CAMKernelEngine.ts (874L) — CAM kernel operations
 - CAMIntegrationEngine.ts (1230L) — CAM system integration
@@ -352,7 +352,6 @@ Health: prism_bridge→health
 - FeatureRecognitionEngine.ts (247L) — Feature recognition from geometry
 - GeometryEngine.ts (224L) — Geometry operations facade
 - MeshEngine.ts (286L) — Mesh generation and operations
-- NestingEngine.ts (220L) — Part nesting (unwired, on-disk only)
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
@@ -459,7 +458,7 @@ Reserved for future wiring. Top 10 by size:
 - ClampingSimEngine.ts (234L)
 Total unwired: 66 files, ~12,938 lines
 
-### index.ts (884L) — Barrel export file re-exporting 125 engines
+### index.ts (1567L) — Barrel export file re-exporting 125 engines
 
 ## 5. REGISTRIES (19 files)
 
@@ -579,12 +578,12 @@ Total skill files: 119
 - Agents: 70 definitions (14 OPUS, 35 SONNET, 9 HAIKU)
 - Cadences: 103 functions (QA-MS13 verified)
 - Hooks: 220 total (179 domain + 41 Phase0) — QA-MS12 verified
-- Tests: 43 test files, 1244 total (1123 passing, 121 pre-existing)
+- Tests: 43 test files, 1243 total (1242 passing, 1 pre-existing Merchant's force_ratios)
 - Type definitions: 13 files (including coordinationTypes.ts)
 - Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
 - Coordination files: TaskClaimService + 5 orchestration actions
 - Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
-- Roadmap: v5.3.0, 94 milestones, 64 complete
+- Roadmap: v5.3.0, 94 milestones, 66 complete
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |
