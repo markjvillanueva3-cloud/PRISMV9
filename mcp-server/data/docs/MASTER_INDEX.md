@@ -17,7 +17,7 @@ Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, au
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
 ### prism_calc (calcDispatcher.ts, 1452L)
-Actions (62): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass
+Actions (65): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -315,10 +315,10 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (132 exported + 63 unwired = 195 total .ts files)
-## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES (2026-03-01)
+## 4. ENGINES (135 exported + 63 unwired = 198 total .ts files)
+## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R3 (2026-03-01)
 
-### 4a. Calculation Engines (16 exported)
+### 4a. Calculation Engines (19 exported)
 - ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
 - AdvancedCalculations.ts (639L) — Stability lobes, tool deflection, cutting temperature, cost optimization
 - ToolpathCalculations.ts (1304L) — Engagement angles, trochoidal, HSM, scallop height, stepover
@@ -335,6 +335,9 @@ Health: prism_bridge→health
 - ThermalGrowthCompensationEngine.ts (195L) — Spindle/tool/workpiece thermal expansion, Z-axis error prediction (Bryan/ISO 230-3)
 - BoreFinishingEngine.ts (210L) — Honing prediction via Preston's equation, crosshatch angle, stone life estimation
 - FinishingPassOptimizationEngine.ts (210L) — Spring pass depth via Euler-Bernoulli deflection, finishing feed optimization
+- TurningForceEngine.ts (260L) — Kienzle turning force with Fc/Ff/Fp decomposition, 5 operations (longitudinal/facing/parting/boring/grooving)
+- TappingTorqueEngine.ts (272L) — Tapping torque, breakage risk scoring, form/cut tap differentiation, blind hole chip packing
+- CuttingPowerBudgetEngine.ts (260L) — Spindle torque-speed curve, power/torque utilization, inverse feed solver, max MRR
 
 ### 4b. Safety Engines (6 exported)
 - CoolantValidationEngine.ts (767L) — Coolant flow, MQL validation, dry machining safety
