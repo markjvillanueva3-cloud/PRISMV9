@@ -3,7 +3,8 @@
   "title": "Dispatcher Stub & Fallback Remediation",
   "track": "SYS",
   "priority": "P1",
-  "status": "not_started",
+  "status": "complete",
+  "completed_at": "2026-03-01T02:10:00Z",
   "description": "Fix broken fallback chains, dead compute() calls, and stub actions across dispatchers. exportDispatcher has broken engine.generate() fallback, automationDispatcher has 5 dead .compute() fallback branches, batch_export returns 'queued' without processing, knowledgeDispatcher 'relations' returns 'not yet implemented'.",
   "source": "GAP-ANALYSIS-2026-02-28",
   "findings": [
@@ -16,7 +17,7 @@
     {
       "id": "SYS-MS7-U00",
       "title": "Fix exportDispatcher Fallback Chain",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Read exportDispatcher.ts and identify all fallback branches calling engine.generate()"},
         {"number": 2, "instruction": "Replace broken generate() calls with correct ReportEngine method (renderPdf, renderHtml, etc.)"},
@@ -29,7 +30,7 @@
     {
       "id": "SYS-MS7-U01",
       "title": "Fix automationDispatcher Dead Branches",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Read automationDispatcher.ts and identify all .compute() fallback branches"},
         {"number": 2, "instruction": "For each: determine correct engine method from primary handler above the catch"},
@@ -41,7 +42,7 @@
     {
       "id": "SYS-MS7-U02",
       "title": "Implement or Remove Stub Actions",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Implement knowledgeDispatcher 'relations' action using KnowledgeGraphEngine.getRelations() or graph traversal"},
         {"number": 2, "instruction": "Grep for any remaining 'not yet implemented' strings across all dispatchers"},

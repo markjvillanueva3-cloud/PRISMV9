@@ -1,12 +1,13 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** SYSTEM OPTIMIZATION — S4-MS1 COMPLETE, SYS track next
-**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 64 complete)
+**Phase:** SYSTEM OPTIMIZATION — SYS-MS7 COMPLETE, continuing SYS track
+**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 66 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 backend tests + 11 Playwright E2E tests
 **S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
 **Next Recommended:** SYS-MS4 (engine wiring audit) or SYS-MS6 (param schemas) or SYS-MS1 (mega-dispatcher decomp)
+**Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
 **Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
@@ -238,6 +239,15 @@
 - **Scrutinization:** Pass 1: 1 MINOR (E2E count 10→11) fixed. Pass 2: CLEAN
 - **Commits:** `cab350de` (U01-U06), `e54ee716` (scrutinization fixes), `b935b909` (U07 docs), `44155296` (scrutiny fix)
 
+## SYS-MS7 Dispatcher Stub & Fallback Remediation (2026-03-01) — COMPLETE
+- **U00 (exportDispatcher):** Removed dead `engine.generate?.()` fallback from render_setup_sheet — ReportEngine has no generate() method. batch_export already functional (gap analysis false positive).
+- **U01 (automationDispatcher):** Removed 5 dead `engine.compute?.()` fallbacks across oee_calc, bottleneck, digital_thread, work_instructions, shift_handoff — no engine has .compute().
+- **U02 (knowledgeDispatcher):** Fixed ESM import bug — `require()` always threw in ESM context, converted to `await import()` for both main getEngine() and relations action's KnowledgeGraphEngine loader. Removed unused REGISTRIES const. Zero "not yet implemented" strings remain.
+- **Scrutiny:** Pass 1 caught CRITICAL — main getEngine() still used require() after relations fix. Fixed. Pass 2: CLEAN.
+- **Build:** 6.6MB, 0 errors | **Tests:** 1242 pass, 1 pre-existing fail
+- **Commits:** `9dc733c4` (3 dispatcher fixes), `c0f98d83` (scrutiny: getEngine async)
+- **Note:** 6 other dispatchers (cad, fiveAxis, edm, cam, quality, scheduling) have same `.compute?.()` anti-pattern — out of scope for SYS-MS7.
+
 ## Gap Analysis → SYS-MS4 through SYS-MS7 (2026-02-28)
 Deep system-wide gap analysis identified 4 structural improvement areas after QA+REM completion:
 - **SYS-MS4 Engine Wiring Audit (3 units):** 136/156 engines not directly imported by dispatchers (87%). Build dependency graph, identify dead code (~15-20 candidates), sync index.ts header. Deps: none.
@@ -247,9 +257,9 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 - **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
 
 ## Milestone Summary
-- Complete: 64 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0)
+- Complete: 66 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0, SYS-MS7)
 - In Progress: 0
-- Not Started: 30 milestones (SYS-MS1-MS7, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 28 milestones (SYS-MS1-MS6, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -273,7 +283,7 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 ## Available Tracks (31 milestones remaining)
 | Track | Milestones | Description | Unblocked |
 |-------|-----------|-------------|-----------|
-| SYS | 7 | System Optimization (mega-dispatcher, tests, automation, engine wiring, MASTER_INDEX, param schemas, stub remediation) | SYS-MS1, SYS-MS4, SYS-MS6, SYS-MS7 |
+| SYS | 6 | System Optimization (mega-dispatcher, tests, automation, engine wiring, MASTER_INDEX, param schemas) | SYS-MS1, SYS-MS4, SYS-MS6 |
 | L8-MS2s | 3 | Web UIs (PPG, CAD/CAM Learning, ERP) | All 3 |
 | L9 | 1 | WebGL 3D Viewer | L9-P2-MS1 |
 | CC | 12 | CAD/CAM/Machining Learning Engine | CC-MS0 |
