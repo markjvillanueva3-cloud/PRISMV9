@@ -1,11 +1,11 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** SYS-MS2 COMPLETE — Test Coverage Phase 2
+**Phase:** L8-P0-MS2 IN PROGRESS — PPG Web UI (11/12 units done)
 **Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 70 complete)
-**Test Suite:** 1661 backend (1661 pass) + 11 Playwright E2E
-**SYS-MS2 Result:** 6 units, 284 new tests — engine test harness (25), core manufacturing (82), safety engines (42), specialty engines (43), intelligence engines (62), remaining cadences (72). Test count 1243→1661 (+33.6%). All 103 cadence functions now tested.
-**Next:** SYS-MS3 (automation) or L8-MS2 (web UIs)
+**Test Suite:** 1881 backend + 11 Playwright E2E (17 pre-existing fails)
+**L8-P0-MS2 Result:** PPG Web UI — 9 components + context + types + API + hooks. Monaco G-code editor with syntax highlighting, controller selector, template browser, preview, validation, diff comparison, operation builder, optimize/download. PpgContext with localStorage autosave. Keyboard shortcuts (Ctrl+S/Ctrl+Shift+G/Ctrl+D).
+**Next:** L8-P0-MS2:P0-U12 (PPG testing & polish), then L8-P1-MS2 or L8-P2-MS2
 **Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
 **Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
