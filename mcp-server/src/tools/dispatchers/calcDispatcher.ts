@@ -36,6 +36,11 @@ import { toolWearProgressionEngine } from "../../engines/ToolWearProgressionEngi
 import type { ToolGrade } from "../../engines/ToolWearProgressionEngine.js";
 import { drillBreakthroughForceEngine } from "../../engines/DrillBreakthroughForceEngine.js";
 import type { ExitSupport } from "../../engines/DrillBreakthroughForceEngine.js";
+import { thermalGrowthCompensationEngine } from "../../engines/ThermalGrowthCompensationEngine.js";
+import type { SpindleBearingType } from "../../engines/ThermalGrowthCompensationEngine.js";
+import { boreFinishingEngine } from "../../engines/BoreFinishingEngine.js";
+import type { HoningStoneGrit } from "../../engines/BoreFinishingEngine.js";
+import { finishingPassOptimizationEngine } from "../../engines/FinishingPassOptimizationEngine.js";
 
 import {
   calculateStabilityLobes,
@@ -156,6 +161,12 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { vb_mm: result.current_vb_mm?.value, wear_rate_um_min: result.wear_rate_um_per_min?.value, remaining_min: result.remaining_life_min?.value, stage: result.wear_stage, safe: result.is_safe };
     case "drill_breakthrough":
       return { thrust_N: result.steady_state_thrust_N?.value, peak_thrust_N: result.peak_breakthrough_thrust_N?.value, exit_feed: result.recommended_exit_feed_mm_rev?.value, burr_risk: result.exit_burr_risk, safe: result.is_safe };
+    case "thermal_growth":
+      return { total_z_error_um: result.total_z_error_um?.value, compensation_mm: result.compensation_needed_mm?.value, spindle_rise_C: result.spindle_temp_rise_C?.value, stability_min: result.time_to_stability_min?.value, safe: result.is_safe };
+    case "bore_finishing":
+      return { passes: result.estimated_passes?.value, predicted_Ra_um: result.predicted_Ra_um?.value, cycle_min: result.cycle_time_min?.value, diameter_growth_um: result.bore_diameter_growth_um?.value, safe: result.is_safe };
+    case "finishing_pass":
+      return { deflection_um: result.roughing_deflection_um?.value, spring_depth_mm: result.spring_pass_depth_mm?.value, finish_feed: result.finishing_feed_mm_rev?.value, predicted_Ra_um: result.predicted_Ra_um?.value, passes: result.number_of_passes?.value, safe: result.is_safe };
     case "cost_optimize":
       return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
     case "multi_optimize":
@@ -1412,6 +1423,59 @@ export function registerCalcDispatcher(server: any): void {
               is_through_hole: params.is_through_hole ?? params.through_hole ?? true,
               exit_support: (params.exit_support || "none") as ExitSupport,
               remaining_thickness_mm: params.remaining_thickness_mm,
+            });
+            break;
+          }
+
+          case "thermal_growth": {
+            result = thermalGrowthCompensationEngine.calculate({
+              spindle_speed_rpm: params.spindle_rpm || params.rpm || 10000,
+              cutting_time_min: params.cutting_time_min || params.time_min || 30,
+              ambient_temp_C: params.ambient_temp_C || params.ambient_temp,
+              spindle_bearing_type: (params.bearing_type || "angular_contact") as SpindleBearingType,
+              tool_material: params.tool_material,
+              tool_overhang_mm: params.tool_overhang || params.overhang || 50,
+              tool_holder_length_mm: params.holder_length,
+              workpiece_material: params.workpiece_material || params.material,
+              workpiece_length_mm: params.workpiece_length || params.part_length,
+              cutting_power_kW: params.power_kW || params.power,
+              coolant_active: params.coolant_active ?? params.coolant ?? true,
+            });
+            break;
+          }
+
+          case "bore_finishing": {
+            result = boreFinishingEngine.calculate({
+              bore_diameter_mm: params.bore_diameter || params.diameter || 50,
+              bore_length_mm: params.bore_length || params.length || 100,
+              target_Ra_um: params.target_Ra || params.Ra_target || 0.4,
+              current_Ra_um: params.current_Ra,
+              stone_grit: params.stone_grit as HoningStoneGrit | undefined,
+              honing_pressure_bar: params.pressure_bar || params.pressure,
+              spindle_rpm: params.spindle_rpm || params.rpm,
+              stroke_rate_spm: params.stroke_rate || params.spm,
+              stock_removal_target_um: params.stock_removal_um,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc,
+              coolant_type: params.coolant_type,
+            });
+            break;
+          }
+
+          case "finishing_pass": {
+            result = finishingPassOptimizationEngine.calculate({
+              tool_diameter_mm: params.tool_diameter || params.diameter || 12,
+              tool_overhang_mm: params.tool_overhang || params.overhang || 50,
+              tool_type: params.tool_type,
+              tool_material: params.tool_material,
+              tool_nose_radius_mm: params.nose_radius || params.corner_radius || 0.8,
+              flutes: params.flutes || params.num_flutes,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.f || 0.2,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || 2,
+              target_Ra_um: params.target_Ra || params.Ra_target || 0.8,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc,
+              material_kc1_1: params.kc1_1,
+              material_mc: params.mc,
+              shank_modulus_GPa: params.modulus_GPa,
             });
             break;
           }

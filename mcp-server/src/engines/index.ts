@@ -1599,3 +1599,28 @@ export {
   regenerativeChatterPredictor,
   RegenerativeChatterPredictor,
 } from "./RegenerativeChatterPredictor.js";
+
+// ─── New Engines: FORGE-ENGINES Round 2 (2026-03-01) ────────────
+
+export {
+  thermalGrowthCompensationEngine,
+  ThermalGrowthCompensationEngine,
+  type ThermalGrowthInput,
+  type ThermalGrowthResult,
+  type SpindleBearingType,
+} from "./ThermalGrowthCompensationEngine.js";
+
+export {
+  boreFinishingEngine,
+  BoreFinishingEngine,
+  type BoreFinishingInput,
+  type BoreFinishingResult,
+  type HoningStoneGrit,
+} from "./BoreFinishingEngine.js";
+
+export {
+  finishingPassOptimizationEngine,
+  FinishingPassOptimizationEngine,
+  type FinishingPassInput,
+  type FinishingPassResult,
+} from "./FinishingPassOptimizationEngine.js";
