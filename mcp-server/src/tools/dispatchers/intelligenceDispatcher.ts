@@ -1,14 +1,12 @@
 /**
  * PRISM MCP Server - Intelligence Dispatcher (Dispatcher #32)
  *
- * Routes 11 compound intelligence actions to IntelligenceEngine.
- * These actions compose calibrated physics engines + registry lookups
- * into high-level answers to manufacturing questions.
+ * Core intelligence: ~50 actions for compound manufacturing intelligence.
+ * 200+ actions deprecated — forwarded to focused sub-dispatchers (SYS-MS1):
+ *   prism_product (40), prism_machine_live (40), prism_integration (42),
+ *   prism_knowledge_ext (40), prism_diagnosis (38)
  *
- * Actions:
- *   job_plan, setup_sheet, process_cost, material_recommend,
- *   tool_recommend, machine_recommend, what_if, failure_diagnose,
- *   parameter_optimize, cycle_time_estimate, quality_predict
+ * @milestone SYS-MS1-U05
  */
 
 import { z } from "zod";
@@ -20,17 +18,11 @@ import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import type { IntelligenceAction } from "../../engines/IntelligenceEngine.js";
 
-// Lazy engine cache — each engine is loaded on first use only
+// Core engine cache (lazy-loaded — only engines for core 49 actions)
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any, _machineConnectivity: any, _camIntegration: any,
-    _dncTransfer: any, _mobileInterface: any, _erpIntegration: any,
-    _measurementIntegration: any, _inverseSolver: any, _failureForensics: any,
-    _apprenticeEngine: any, _manufacturingGenome: any, _predictiveMaintenance: any,
-    _sustainabilityEngine: any, _generativeProcess: any, _knowledgeGraph: any,
-    _federatedLearning: any, _adaptiveControl: any,
-    _productSFC: any, _productPPG: any, _productShop: any, _productACNC: any;
+    _userAssistanceSkills: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -46,28 +38,55 @@ async function getEngine(name: string): Promise<any> {
     case "conversationalMemory": return _conversationalMemory ??= (await import("../../engines/ConversationalMemoryEngine.js")).conversationalMemory;
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
-    case "machineConnectivity": return _machineConnectivity ??= (await import("../../engines/MachineConnectivityEngine.js")).machineConnectivity;
-    case "camIntegration":     return _camIntegration ??= (await import("../../engines/CAMIntegrationEngine.js")).camIntegration;
-    case "dncTransfer":        return _dncTransfer ??= (await import("../../engines/DNCTransferEngine.js")).dncTransfer;
-    case "mobileInterface":    return _mobileInterface ??= (await import("../../engines/MobileInterfaceEngine.js")).mobileInterface;
-    case "erpIntegration":     return _erpIntegration ??= (await import("../../engines/ERPIntegrationEngine.js")).erpIntegration;
-    case "measurementIntegration": return _measurementIntegration ??= (await import("../../engines/MeasurementIntegrationEngine.js")).measurementIntegration;
-    case "inverseSolver":      return _inverseSolver ??= (await import("../../engines/InverseSolverEngine.js")).inverseSolver;
-    case "failureForensics":   return _failureForensics ??= (await import("../../engines/FailureForensicsEngine.js")).failureForensics;
-    case "apprenticeEngine":   return _apprenticeEngine ??= (await import("../../engines/ApprenticeEngine.js")).apprenticeEngine;
-    case "manufacturingGenome": return _manufacturingGenome ??= (await import("../../engines/ManufacturingGenomeEngine.js")).manufacturingGenome;
-    case "predictiveMaintenance": return _predictiveMaintenance ??= (await import("../../engines/PredictiveMaintenanceEngine.js")).predictiveMaintenance;
-    case "sustainabilityEngine": return _sustainabilityEngine ??= (await import("../../engines/SustainabilityEngine.js")).sustainabilityEngine;
-    case "generativeProcess":  return _generativeProcess ??= (await import("../../engines/GenerativeProcessEngine.js")).generativeProcess;
-    case "knowledgeGraph":     return _knowledgeGraph ??= (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraph;
-    case "federatedLearning":  return _federatedLearning ??= (await import("../../engines/FederatedLearningEngine.js")).federatedLearning;
-    case "adaptiveControl":    return _adaptiveControl ??= (await import("../../engines/AdaptiveControlEngine.js")).adaptiveControl;
-    case "productSFC":         return _productSFC ??= (await import("../../engines/ProductEngine.js")).productSFC;
-    case "productPPG":         return _productPPG ??= (await import("../../engines/ProductEngine.js")).productPPG;
-    case "productShop":        return _productShop ??= (await import("../../engines/ProductEngine.js")).productShop;
-    case "productACNC":        return _productACNC ??= (await import("../../engines/ProductEngine.js")).productACNC;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
+}
+
+// Deprecation forwarding — resolve moved actions to new dispatcher engines (dynamic import)
+async function forwardToNewDispatcher(action: string, params: Record<string, any>): Promise<{ result: any; dispatcher: string } | null> {
+  // Product (40 actions)
+  if ((PRODUCT_FWD as readonly string[]).includes(action)) {
+    const mod = await import("../../engines/ProductEngine.js");
+    const engine = action.startsWith("sfc_") ? mod.productSFC
+      : action.startsWith("ppg_") ? mod.productPPG
+      : action.startsWith("shop_") ? mod.productShop : mod.productACNC;
+    return { result: await engine(action, params), dispatcher: "prism_product" };
+  }
+  // Machine-live (40 actions)
+  if ((MACHINE_LIVE_FWD as readonly string[]).includes(action)) {
+    const engine = action.startsWith("adaptive_")
+      ? (await import("../../engines/AdaptiveControlEngine.js")).adaptiveControl
+      : action.startsWith("maint_")
+      ? (await import("../../engines/PredictiveMaintenanceEngine.js")).predictiveMaintenance
+      : (await import("../../engines/MachineConnectivityEngine.js")).machineConnectivity;
+    return { result: await engine(action, params), dispatcher: "prism_machine_live" };
+  }
+  // Integration (42 actions)
+  if ((INTEGRATION_FWD as readonly string[]).includes(action)) {
+    const engine = action.startsWith("cam_") ? (await import("../../engines/CAMIntegrationEngine.js")).camIntegration
+      : action.startsWith("dnc_") ? (await import("../../engines/DNCTransferEngine.js")).dncTransfer
+      : action.startsWith("erp_") ? (await import("../../engines/ERPIntegrationEngine.js")).erpIntegration
+      : action.startsWith("mobile_") ? (await import("../../engines/MobileInterfaceEngine.js")).mobileInterface
+      : (await import("../../engines/MeasurementIntegrationEngine.js")).measurementIntegration;
+    return { result: await engine(action, params), dispatcher: "prism_integration" };
+  }
+  // Knowledge-ext (40 actions)
+  if ((KNOWLEDGE_EXT_FWD as readonly string[]).includes(action)) {
+    const engine = action.startsWith("apprentice_") ? (await import("../../engines/ApprenticeEngine.js")).apprenticeEngine
+      : action.startsWith("genome_") ? (await import("../../engines/ManufacturingGenomeEngine.js")).manufacturingGenome
+      : action.startsWith("graph_") ? (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraph
+      : (await import("../../engines/FederatedLearningEngine.js")).federatedLearning;
+    return { result: await engine(action, params), dispatcher: "prism_knowledge_ext" };
+  }
+  // Diagnosis (38 actions)
+  if ((DIAGNOSIS_FWD as readonly string[]).includes(action)) {
+    const engine = action.startsWith("forensic_") ? (await import("../../engines/FailureForensicsEngine.js")).failureForensics
+      : action.startsWith("inverse_") ? (await import("../../engines/InverseSolverEngine.js")).inverseSolver
+      : action.startsWith("genplan_") ? (await import("../../engines/GenerativeProcessEngine.js")).generativeProcess
+      : (await import("../../engines/SustainabilityEngine.js")).sustainabilityEngine;
+    return { result: await engine(action, params), dispatcher: "prism_diagnosis" };
+  }
+  return null;
 }
 
 const ACTIONS = [
@@ -85,7 +104,6 @@ const ACTIONS = [
   "job_record",
   "job_insights",
   "algorithm_select",
-  "shop_schedule",
   "machine_utilization",
   "decompose_intent",
   "format_response",
@@ -121,210 +139,68 @@ const ACTIONS = [
   "assist_confidence",
   "assist_mistakes",
   "assist_safety",
-  "machine_register",
-  "machine_unregister",
-  "machine_list",
-  "machine_connect",
-  "machine_disconnect",
-  "machine_live_status",
-  "machine_all_status",
-  "machine_ingest",
-  "chatter_detect_live",
-  "tool_wear_start",
-  "tool_wear_update",
-  "tool_wear_status",
-  "thermal_update",
-  "thermal_status",
-  "alert_acknowledge",
-  "alert_history",
-  "cam_recommend",
-  "cam_export",
-  "cam_analyze_op",
-  "cam_tool_library",
-  "cam_tool_get",
-  "cam_systems",
-  "dnc_generate",
-  "dnc_send",
-  "dnc_compare",
-  "dnc_verify",
-  "dnc_qr",
-  "dnc_systems",
-  "dnc_history",
-  "dnc_get",
-  "mobile_lookup",
-  "mobile_voice",
-  "mobile_alarm",
-  "mobile_timer_start",
-  "mobile_timer_check",
-  "mobile_timer_reset",
-  "mobile_timer_list",
-  "mobile_cache",
-  "erp_import_wo",
-  "erp_get_plan",
-  "erp_cost_feedback",
-  "erp_cost_history",
-  "erp_quality_import",
-  "erp_quality_history",
-  "erp_tool_inventory",
-  "erp_tool_update",
-  "erp_systems",
-  "erp_wo_list",
-  "measure_cmm_import",
-  "measure_cmm_history",
-  "measure_cmm_get",
-  "measure_surface",
-  "measure_surface_history",
-  "measure_probe_record",
-  "measure_probe_drift",
-  "measure_probe_history",
-  "measure_bias_detect",
-  "measure_summary",
-  "inverse_solve",
-  "inverse_surface",
-  "inverse_tool_life",
-  "inverse_dimensional",
-  "inverse_chatter",
-  "inverse_troubleshoot",
-  "inverse_history",
-  "inverse_get",
-  "forensic_tool_autopsy",
-  "forensic_chip_analysis",
-  "forensic_surface_defect",
-  "forensic_crash",
-  "forensic_failure_modes",
-  "forensic_chip_types",
-  "forensic_surface_types",
-  "forensic_crash_types",
-  "forensic_history",
-  "forensic_get",
-  "apprentice_explain",
-  "apprentice_lesson",
-  "apprentice_lessons",
-  "apprentice_assess",
-  "apprentice_capture",
-  "apprentice_knowledge",
-  "apprentice_challenge",
-  "apprentice_materials",
-  "apprentice_history",
-  "apprentice_get",
-  "genome_lookup",
-  "genome_predict",
-  "genome_similar",
-  "genome_compare",
-  "genome_list",
-  "genome_fingerprint",
-  "genome_behavioral",
-  "genome_search",
-  "genome_history",
-  "genome_get",
-  "maint_analyze",
-  "maint_trend",
-  "maint_predict",
-  "maint_schedule",
-  "maint_models",
-  "maint_thresholds",
-  "maint_alerts",
-  "maint_status",
-  "maint_history",
-  "maint_get",
-  "sustain_optimize",
-  "sustain_compare",
-  "sustain_energy",
-  "sustain_carbon",
-  "sustain_coolant",
-  "sustain_nearnet",
-  "sustain_report",
-  "sustain_materials",
-  "sustain_history",
-  "sustain_get",
-  "genplan_plan",
-  "genplan_features",
-  "genplan_setups",
-  "genplan_operations",
-  "genplan_optimize",
-  "genplan_tools",
-  "genplan_cycle",
-  "genplan_cost",
-  "genplan_risk",
-  "genplan_get",
-  "graph_query",
-  "graph_infer",
-  "graph_discover",
-  "graph_predict",
-  "graph_traverse",
-  "graph_add",
-  "graph_search",
-  "graph_stats",
-  "graph_history",
-  "graph_get",
-  "learn_contribute",
-  "learn_query",
-  "learn_aggregate",
-  "learn_anonymize",
-  "learn_network_stats",
-  "learn_opt_control",
-  "learn_correction",
-  "learn_transparency",
-  "learn_history",
-  "learn_get",
-  "adaptive_chipload",
-  "adaptive_chatter",
-  "adaptive_wear",
-  "adaptive_thermal",
-  "adaptive_override",
-  "adaptive_status",
-  "adaptive_config",
-  "adaptive_log",
-  "adaptive_history",
-  "adaptive_get",
-  "sfc_calculate",
-  "sfc_compare",
-  "sfc_optimize",
-  "sfc_quick",
-  "sfc_materials",
-  "sfc_tools",
-  "sfc_formulas",
-  "sfc_safety",
-  "sfc_history",
-  "sfc_get",
-  // PPG — R11-MS1 Post Processor Generator
-  "ppg_validate",
-  "ppg_translate",
-  "ppg_templates",
-  "ppg_generate",
-  "ppg_controllers",
-  "ppg_compare",
-  "ppg_syntax",
-  "ppg_batch",
-  "ppg_history",
-  "ppg_get",
-  // Shop Manager — R11-MS2
-  "shop_job",
-  "shop_cost",
-  "shop_quote",
-  "shop_schedule",
-  "shop_dashboard",
-  "shop_report",
-  "shop_compare",
-  "shop_materials",
-  "shop_history",
-  "shop_get",
-  // ACNC (R11-MS3)
-  "acnc_program",
-  "acnc_feature",
-  "acnc_simulate",
-  "acnc_output",
-  "acnc_tools",
-  "acnc_strategy",
-  "acnc_validate",
-  "acnc_batch",
-  "acnc_history",
-  "acnc_get",
-  // L3-P0-MS1: New Industry 4.0 actions
-  "tool_crib_status",
-  "digital_twin_state",
-  "predictive_maintenance_alert",
-  "energy_report",
+] as const;
+
+// SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
+const PRODUCT_FWD = [
+  "sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get",
+  "ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get",
+  "shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get",
+  "acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get",
+] as const;
+
+const MACHINE_LIVE_FWD = [
+  "machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect",
+  "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live",
+  "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status",
+  "alert_acknowledge", "alert_history",
+  "adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override",
+  "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get",
+  "maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models",
+  "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get",
+  "tool_crib_status", "digital_twin_state", "predictive_maintenance_alert", "energy_report",
+] as const;
+
+const INTEGRATION_FWD = [
+  "cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems",
+  "dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get",
+  "erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import",
+  "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list",
+  "mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check",
+  "mobile_timer_reset", "mobile_timer_list", "mobile_cache",
+  "measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface",
+  "measure_surface_history", "measure_probe_record", "measure_probe_drift",
+  "measure_probe_history", "measure_bias_detect", "measure_summary",
+] as const;
+
+const KNOWLEDGE_EXT_FWD = [
+  "apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess",
+  "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials",
+  "apprentice_history", "apprentice_get",
+  "genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list",
+  "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get",
+  "graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse",
+  "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get",
+  "learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats",
+  "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get",
+] as const;
+
+const DIAGNOSIS_FWD = [
+  "forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash",
+  "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types",
+  "forensic_history", "forensic_get",
+  "inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional",
+  "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get",
+  "genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize",
+  "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get",
+  "sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant",
+  "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get",
+] as const;
+
+// Combined: core + all forwarded for z.enum (backward compatibility)
+const ALL_ACTIONS = [
+  ...ACTIONS, ...PRODUCT_FWD, ...MACHINE_LIVE_FWD,
+  ...INTEGRATION_FWD, ...KNOWLEDGE_EXT_FWD, ...DIAGNOSIS_FWD,
 ] as const;
 
 /**
@@ -453,16 +329,6 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         algorithm: result.selected_algorithm,
         course: result.source_course,
         alternatives: result.alternatives?.length,
-        safety_score: result.safety?.score,
-      };
-    case "shop_schedule":
-      return {
-        makespan_min: result.metrics?.total_makespan_min,
-        avg_utilization: result.metrics?.average_utilization_pct,
-        jobs_on_time: result.metrics?.jobs_on_time,
-        jobs_late: result.metrics?.jobs_late,
-        bottlenecks: result.bottlenecks?.length,
-        unscheduled: result.unscheduled?.length,
         safety_score: result.safety?.score,
       };
     case "machine_utilization":
@@ -602,428 +468,11 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
       return { count: result.count };
     case "assist_safety":
       return { grade: result.grade, risk_count: result.risk_factors?.length };
-    case "machine_register":
-      return { id: result.id, name: result.name, protocol: result.protocol };
-    case "machine_list":
-      return { total: result.total };
-    case "machine_live_status":
-      return { id: result.machine?.id, state: result.current?.state, connected: result.connected };
-    case "machine_all_status":
-      return { count: result.machines?.length };
-    case "chatter_detect_live":
-      return { detected: result.chatter_detected, severity: result.severity, rpm: result.current_rpm };
-    case "tool_wear_status":
-    case "tool_wear_update":
-      return { tool: result.tool_id, remaining: result.predicted_remaining_life_min, rate: result.wear_rate };
-    case "thermal_status":
-    case "thermal_update":
-      return { drift_mm: result.estimated_z_drift_mm, stable: result.compensation_active };
-    case "cam_recommend":
-      return { operation: result.operation, rpm: result.recommended?.rpm, feed: result.recommended?.feed_mmmin };
-    case "cam_export":
-      return { format: result.format, system: result.target_system };
-    case "cam_analyze_op":
-      return { match: result.match_pct, issues: result.issues?.length };
-    case "cam_tool_library":
-      return { total: result.total };
-    case "cam_tool_get":
-      return { id: result.id, type: result.type, diameter: result.diameter_mm };
-    case "cam_systems":
-      return { count: result.systems?.length };
-    case "dnc_generate":
-      return { program: result.program_number, rpm: result.parameters?.rpm, feed: result.parameters?.feed_mmmin };
-    case "dnc_send":
-    case "dnc_compare":
-    case "dnc_verify":
-      return { id: result.transfer_id, status: result.status, program: result.program_number };
-    case "dnc_qr":
-      return { bytes: result.byte_size, fits_qr: result.fits_standard_qr };
-    case "dnc_systems":
-      return { count: result.total };
-    case "dnc_history":
-      return { total: result.total };
-    case "dnc_get":
-      return { id: result.transfer_id, status: result.status };
-    case "mobile_lookup":
-      return { rpm: result.rpm, feed_ipm: result.feed_ipm, status: result.display?.status_color };
-    case "mobile_voice":
-      return { interpreted: result.interpreted, confidence: result.confidence, rpm: result.parameters?.rpm };
-    case "mobile_alarm":
-      return { code: result.code, severity: result.severity, downtime_min: result.estimated_downtime_min };
-    case "mobile_timer_start":
-    case "mobile_timer_check":
-    case "mobile_timer_reset":
-      return { id: result.timer_id, state: result.state, remaining: result.remaining_min };
-    case "mobile_timer_list":
-      return { total: result.total };
-    case "mobile_cache":
-      return { entries: result.entries?.length, bytes: result.total_bytes };
-    case "erp_import_wo":
-      return { wo: result.wo_number, cycle_min: result.total_cycle_time_min, cost: result.estimated_cost?.total };
-    case "erp_get_plan":
-      return { wo: result.wo_number, steps: result.routing?.length, cost: result.estimated_cost?.total };
-    case "erp_cost_feedback":
-      return { wo: result.wo_number, variance_pct: result.variance?.total_pct };
-    case "erp_cost_history":
-      return { total: result.total, avg_variance: result.avg_variance_pct };
-    case "erp_quality_import":
-      return { wo: result.wo_number, pass: result.pass, out_of_spec: result.analysis?.out_of_spec };
-    case "erp_quality_history":
-      return { total: result.total, pass_rate: result.pass_rate };
-    case "erp_tool_inventory":
-      return { total: result.total, need_reorder: result.need_reorder };
-    case "erp_tool_update":
-      return { id: result.tool_id, available: result.available };
-    case "erp_systems":
-      return { count: result.total };
-    case "erp_wo_list":
-      return { total: result.total };
-    case "measure_cmm_import":
-      return { id: result.report_id, pass: result.summary?.pass, features: result.summary?.total_features, cpk: result.summary?.cpk_estimate };
-    case "measure_cmm_history":
-      return { total: result.total, pass_rate: result.pass_rate };
-    case "measure_cmm_get":
-      return { id: result.report_id, pass: result.summary?.pass };
-    case "measure_surface":
-      return { id: result.measurement_id, accuracy: result.model_accuracy, ra_error: result.ra_error_pct };
-    case "measure_surface_history":
-      return { total: result.total, avg_ra_error: result.avg_ra_error_pct };
-    case "measure_probe_record":
-      return { id: result.probe_id, deviation: result.deviation };
-    case "measure_probe_drift":
-      return { direction: result.direction, rate: result.rate_um_per_part, action: result.action };
-    case "measure_probe_history":
-      return { total: result.total, machine: result.machine, feature: result.feature };
-    case "measure_bias_detect":
-      return { biases: result.biases?.length, machine: result.machine };
-    case "measure_summary":
-      return { health: result.overall_health, cmm_reports: result.cmm?.reports, probe_features: result.probing?.features_tracked };
-    case "inverse_solve":
-    case "inverse_surface":
-    case "inverse_tool_life":
-    case "inverse_dimensional":
-    case "inverse_chatter":
-    case "inverse_troubleshoot":
-      return { id: result.problem_id, type: result.problem_type, primary_cause: result.primary_cause, fix: result.recommended_fix, confidence: result.confidence };
-    case "inverse_history":
-      return { total: result.total, by_type: result.by_type };
-    case "inverse_get":
-      return { id: result.problem_id, type: result.problem_type, primary_cause: result.primary_cause };
-    case "forensic_tool_autopsy":
-    case "forensic_chip_analysis":
-    case "forensic_surface_defect":
-    case "forensic_crash":
-      return { id: result.diagnosis_id, category: result.category, mode: result.failure_mode, severity: result.severity, actions: result.corrective_actions?.length };
-    case "forensic_failure_modes":
-    case "forensic_chip_types":
-    case "forensic_surface_types":
-    case "forensic_crash_types":
-      return { total: result.total };
-    case "forensic_history":
-      return { total: result.total, by_category: result.by_category };
-    case "forensic_get":
-      return { id: result.diagnosis_id, category: result.category, mode: result.failure_mode };
-    case "apprentice_explain":
-      return { parameter: result.parameter, value: result.value, depth: result.depth, factors: result.factors?.length };
-    case "apprentice_lesson":
-      return { id: result.id ?? result.total, title: result.title, track: result.track };
-    case "apprentice_lessons":
-      return { total: result.total };
-    case "apprentice_assess":
-      return { id: result.assessment_id, level: result.level, score: result.total_score, gaps: result.gaps?.length };
-    case "apprentice_capture":
-      return { id: result.knowledge_id, confidence: result.confidence, material: result.material };
-    case "apprentice_knowledge":
-      return { total: result.total, by_confidence: result.by_confidence };
-    case "apprentice_challenge":
-      return { id: result.challenge_id, total: result.total, difficulty: result.difficulty };
-    case "apprentice_materials":
-      return { name: result.name, total: result.total };
-    case "apprentice_history":
-      return { total: result.total, knowledge: result.knowledge_entries };
-    case "apprentice_get":
-      return { id: result.assessment_id, level: result.level, score: result.total_score };
-    case "genome_lookup":
-      return { id: result.genome_id, material: result.material_name, iso_group: result.iso_group, family: result.family };
-    case "genome_predict":
-      return { id: result.prediction_id, material: result.material, vc: result.recommended_vc, fz: result.recommended_fz, confidence: result.confidence_pct };
-    case "genome_similar":
-      return { query: result.query_material, total: result.total };
-    case "genome_compare":
-      return { a: result.a?.material, b: result.b?.material, easier: result.easier_to_machine };
-    case "genome_list":
-      return { total: result.total };
-    case "genome_fingerprint":
-      return { id: result.genome_id, material: result.material };
-    case "genome_behavioral":
-      return { id: result.genome_id, material: result.material, jobs: result.jobs_recorded };
-    case "genome_search":
-      return { total: result.total };
-    case "genome_history":
-      return { total: result.total };
-    case "genome_get":
-      return { id: result.prediction_id, material: result.material };
-    case "maint_analyze":
-      return { machine: result.machine_id, categories: result.analyzed_categories, alerts: result.alerts_generated };
-    case "maint_trend":
-      return { machine: result.machine_id, category: result.category, direction: result.trend?.direction, severity: result.severity, current: result.current_value };
-    case "maint_predict":
-      return { id: result.prediction_id, category: result.category, severity: result.severity, remaining_hours: result.remaining_life_hours, confidence: result.confidence_pct };
-    case "maint_schedule":
-      return { machines: result.total_machines, critical: result.summary?.critical, warning: result.summary?.warning, urgent: result.urgent?.length };
-    case "maint_models":
-      return { total: result.total };
-    case "maint_thresholds":
-      return { category: result.category, warning: result.warning, critical: result.critical };
-    case "maint_alerts":
-      return { total: result.total };
-    case "maint_status":
-      return { machine: result.machine_id, health: result.overall_health, severity: result.overall_severity, alerts: result.active_alerts?.length };
-    case "maint_history":
-      return { total: result.total, by_severity: result.by_severity };
-    case "maint_get":
-      return { id: result.prediction_id, category: result.category, severity: result.severity, remaining: result.remaining_life_hours };
-    case "sustain_optimize":
-      return { id: result.optimization_id, material: result.material, mode: result.mode, cost_delta: result.savings?.cost_delta_pct, energy_saved: result.savings?.energy_saved_pct, carbon_saved: result.savings?.carbon_saved_pct };
-    case "sustain_compare":
-      return { total: result.total };
-    case "sustain_energy":
-      return { material: result.material, savings_kwh: result.savings_kwh, savings_pct: result.savings_pct };
-    case "sustain_carbon":
-      return { material: result.material, savings_kg: result.savings_kg_co2, savings_pct: result.savings_pct };
-    case "sustain_coolant":
-      return { current: result.current_type, recommended: result.recommended_type, savings_usd: result.annual_savings_usd };
-    case "sustain_nearnet":
-      return { id: result.analysis_id, material: result.material, best: result.best_option, options: result.stock_options?.length };
-    case "sustain_report":
-      return { material: result.material, batch: result.batch_size, energy_saved: result.batch_totals?.energy_saved_kwh, carbon_saved: result.batch_totals?.carbon_saved_kg };
-    case "sustain_materials":
-      return { name: result.name, total: result.total };
-    case "sustain_history":
-      return { total: result.total };
-    case "sustain_get":
-      return { id: result.optimization_id, material: result.material, mode: result.mode };
-    case "genplan_plan":
-      return { plan_id: result.plan_id, features: result.feature_count, setups: result.setup_count, ops: result.operation_count, tools: result.tool_count, cycle: result.total_cycle_time_min, cost: result.total_cost_usd };
-    case "genplan_features":
-      return { count: result.feature_count, simple: result.complexity_summary?.simple, moderate: result.complexity_summary?.moderate, complex: result.complexity_summary?.complex };
-    case "genplan_setups":
-      return { count: result.setup_count };
-    case "genplan_operations":
-      return { count: result.operation_count };
-    case "genplan_optimize":
-      return { total: result.optimization_summary?.total_operations, tools: result.optimization_summary?.unique_tools };
-    case "genplan_tools":
-      return { count: result.tool_count, changes: result.tool_change_count };
-    case "genplan_cycle":
-      return { cutting: result.cutting_time_min, tool_change: result.tool_change_time_min, total: result.total_cycle_time_min };
-    case "genplan_cost":
-      return { per_part: result.cost_breakdown?.total_per_part_usd, batch: result.cost_breakdown?.total_batch_usd };
-    case "genplan_risk":
-      return { overall: result.risk_summary?.overall_risk, high: result.risk_summary?.high_risk_operations, medium: result.risk_summary?.medium_risk_operations };
-    case "genplan_get":
-      return { plan_id: result.plan_id, material: result.material, features: result.features?.length };
-    case "graph_query":
-      return { node: result.center_node?.name, connections: result.total_connections };
-    case "graph_infer":
-      return { entity: result.entity, confidence: result.confidence, strategies: result.recommended_strategies?.length };
-    case "graph_discover":
-      return { entity: result.entity, discoveries: result.discoveries?.length };
-    case "graph_predict":
-      return { material: result.combination?.material, success: result.success_rate_pct, confidence: result.confidence };
-    case "graph_traverse":
-      return { start: result.start, nodes: result.nodes_visited };
-    case "graph_add":
-      return { added: result.added, id: result.id ?? result.source };
-    case "graph_search":
-      return { query: result.query, total: result.total };
-    case "graph_stats":
-      return { nodes: result.total_nodes, edges: result.total_edges, jobs: result.total_job_evidence };
-    case "graph_history":
-      return { total: result.total };
-    case "graph_get":
-      return { id: result.query_id };
-    case "learn_contribute":
-      return { contribution_id: result.contribution_id, status: result.status };
-    case "learn_query":
-      return { total: result.total, top_correction: result.corrections?.[0]?.vc_correction };
-    case "learn_aggregate":
-      return { updated: result.correction_factors_updated, created: result.new_factors_created };
-    case "learn_anonymize":
-      return { privacy_score: result.report?.privacy_score, safe: result.report?.safe_to_share };
-    case "learn_network_stats":
-      return { nodes: result.total_nodes, factors: result.correction_factors, confidence: result.avg_confidence };
-    case "learn_opt_control":
-      return { shop_id: result.shop_id, status: result.status ?? (result.opted_in ? "opted_in" : "opted_out") };
-    case "learn_correction":
-      return { id: result.id, vc: result.vc_correction, confidence: result.confidence };
-    case "learn_transparency":
-      return { total: result.total };
-    case "learn_history":
-      return { queries: result.total_queries, contributions: result.total_contributions };
-    case "learn_get":
-      return { id: result.query_id ?? result.id };
-    case "adaptive_chipload":
-      return { target: result.target_chipload_mm, actual: result.actual_chipload_mm, override: result.feed_override_pct };
-    case "adaptive_chatter":
-      return { chatter: result.is_chatter, rpm: result.recommended_rpm, freq: result.dominant_frequency_hz };
-    case "adaptive_wear":
-      return { wear: result.estimated_wear_pct, life: result.remaining_life_min, replace: result.should_replace };
-    case "adaptive_thermal":
-      return { drift_z: result.z_drift_um, compensated: result.compensation_applied };
-    case "adaptive_override":
-      return { channel: result.override?.channel, value: result.override?.value_pct, status: result.status };
-    case "adaptive_status":
-      return { active: result.active, sessions: result.total_sessions ?? result.sessions };
-    case "adaptive_config":
-      return { status: result.status, updated: result.updated_keys };
-    case "adaptive_log":
-      return { total: result.total };
-    case "adaptive_history":
-      return { sessions: result.total_sessions, overrides: result.total_overrides };
-    case "adaptive_get":
-      return { id: result.query_id ?? result.id };
-    // SFC Product (R11-MS0)
-    case "sfc_calculate":
-      return { vc: result.cutting_speed_m_min, rpm: result.spindle_rpm, fz: result.feed_per_tooth_mm, power: result.power_kW, tool_life: result.tool_life_min, safety: result.safety_status };
-    case "sfc_compare":
-      return { approaches: result.approaches?.length, recommended: result.recommended };
-    case "sfc_optimize":
-      return { objective: result.objective, improvement: result.improvement_pct };
-    case "sfc_quick":
-      return { vc: result.result?.cutting_speed_m_min, rpm: result.result?.spindle_rpm };
-    case "sfc_materials":
-      return { count: result.materials?.length };
-    case "sfc_tools":
-      return { count: result.tools?.length };
-    case "sfc_formulas":
-      return { count: result.formulas?.length };
-    case "sfc_safety":
-      return { score: result.score, status: result.status };
-    case "sfc_history":
-      return { entries: result.history?.length };
-    case "sfc_get":
-      return { product: result.product, version: result.version };
-    // PPG extractors
-    case "ppg_validate":
-      return { valid: result.valid, score: result.score, errors: result.errors?.length, warnings: result.warnings?.length };
-    case "ppg_translate":
-      return { source: result.original_controller, target: result.target_controller, changes: result.changes_made?.length };
-    case "ppg_templates":
-      return { total: result.total };
-    case "ppg_generate":
-      return { controller: result.controller, operation: result.operation, line_count: result.line_count };
-    case "ppg_controllers":
-      return { total: result.total };
-    case "ppg_compare":
-      return { operation: result.operation, controllers_compared: result.controllers_compared };
-    case "ppg_syntax":
-      return { controller: result.controller, family: result.controller_family };
-    case "ppg_batch":
-      return { source: result.source_controller, targets: result.total_targets };
-    case "ppg_history":
-      return { entries: result.history?.length };
-    case "ppg_get":
-      return { product: result.product, version: result.version };
-    // Shop Manager extractors
-    case "shop_job":
-      return { material: result.material, operations: result.operations?.length, cycle_time_min: result.total_cycle_time_min };
-    case "shop_cost":
-      return { cost_per_part: result.cost_per_part, price_per_part: result.price_per_part, batch_size: result.batch_size };
-    case "shop_quote":
-      return { quote_number: result.quote_number, unit_price: result.pricing?.unit_price, quantity: result.pricing?.quantity };
-    // shop_schedule handled at L429 (detailed response) — removed duplicate
-    case "shop_dashboard":
-      return { total_machines: result.summary?.total_machines, utilization: result.summary?.average_utilization_pct };
-    case "shop_report":
-      return { cost_per_part: result.cost_summary?.cost_per_part, co2_kg: result.sustainability?.co2_kg_per_part };
-    case "shop_compare":
-      return { results: result.results?.length, recommendation: result.recommendation };
-    case "shop_materials":
-      return { total: result.total };
-    case "shop_history":
-      return { entries: result.history?.length };
-    case "shop_get":
-      return { product: result.product, version: result.version };
-    // ACNC extractors
-    case "acnc_program":
-      return { feature: result.feature?.feature, controller: result.gcode?.controller, safety: result.safety_score, ready: result.ready_to_run };
-    case "acnc_feature":
-      return { feature: result.feature, operations: result.operations?.length };
-    case "acnc_simulate":
-      return { safety: result.safety_status, cycle_time: result.estimated_cycle_time_min };
-    case "acnc_output":
-      return { controller: result.controller, operations: result.operations_count };
-    case "acnc_tools":
-      return { tool: result.tool_type, coating: result.coating };
-    case "acnc_strategy":
-      return { strategy: result.strategy, confidence: result.confidence };
-    case "acnc_validate":
-      return { valid: result.valid, score: result.score };
-    case "acnc_batch":
-      return { batch_size: result.batch_size, all_ready: result.all_ready };
-    case "acnc_history":
-      return { entries: result.history?.length };
-    case "acnc_get":
-      return { product: result.product, version: result.version };
+    // SYS-MS1-U05: Moved action extractors removed — now in sub-dispatchers
+    // (prism_product, prism_machine_live, prism_integration, prism_knowledge_ext, prism_diagnosis)
+    // Deprecated actions fall through to default — extractors live in sub-dispatchers
     default:
       return result;
-  }
-}
-
-// L3-P0-MS1: Industry 4.0 actions (tool crib, digital twin, maintenance, energy)
-function l3IndustryAction(action: string, params: Record<string, any>): any {
-  switch (action) {
-    case "tool_crib_status": {
-      const tools = params.tools || [];
-      return {
-        total_tools: tools.length || 150,
-        available: Math.round((tools.length || 150) * 0.72),
-        checked_out: Math.round((tools.length || 150) * 0.22),
-        in_regrind: Math.round((tools.length || 150) * 0.06),
-        low_stock_alerts: params.low_stock_alerts || 3,
-        next_order_due: params.next_order || "2026-03-05",
-      };
-    }
-    case "digital_twin_state": {
-      return {
-        machine_id: params.machine_id || "M001",
-        state: params.state || "running",
-        spindle_rpm: params.spindle_rpm || 8000,
-        feed_rate_mm_min: params.feed_rate || 2400,
-        spindle_load_pct: params.spindle_load || 45,
-        temperature_C: params.temperature || 28.5,
-        vibration_mm_s: params.vibration || 0.8,
-        last_sync: new Date().toISOString(),
-        health_score: params.health_score || 0.92,
-      };
-    }
-    case "predictive_maintenance_alert": {
-      return {
-        machine_id: params.machine_id || "M001",
-        alerts: [
-          { component: "spindle_bearing", risk_pct: params.bearing_risk || 15, action: "monitor", next_check: "2026-03-10" },
-          { component: "ballscrew_x", risk_pct: params.ballscrew_risk || 8, action: "none", next_check: "2026-04-01" },
-        ],
-        overall_health: params.health || "good",
-        mtbf_hours: params.mtbf || 4200,
-      };
-    }
-    case "energy_report": {
-      const kwh = params.kwh_consumed || 1250;
-      const parts = params.parts_produced || 500;
-      return {
-        period: params.period || "weekly",
-        kwh_consumed: kwh,
-        parts_produced: parts,
-        kwh_per_part: Math.round((kwh / Math.max(parts, 1)) * 100) / 100,
-        cost_usd: Math.round(kwh * (params.rate_per_kwh || 0.12) * 100) / 100,
-        idle_pct: params.idle_pct || 18,
-        recommendation: (params.idle_pct || 18) > 25 ? "High idle time — review scheduling" : "Energy usage within normal range",
-      };
-    }
-    default:
-      return { error: `Unknown L3 industry action: ${action}` };
   }
 }
 
@@ -1032,7 +481,7 @@ export function registerIntelligenceDispatcher(server: any): void {
     "prism_intelligence",
     "Manufacturing intelligence: job planning, setup sheets, costing, recommendations, what-if, diagnosis, optimization, scheduling. Use 'action' param.",
     {
-      action: z.enum(ACTIONS),
+      action: z.enum(ALL_ACTIONS),
       params: z.record(z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
@@ -1079,143 +528,56 @@ export function registerIntelligenceDispatcher(server: any): void {
           };
         }
 
-        // === EXECUTE INTELLIGENCE ACTION ===
-        // Route to specialized engines or IntelligenceEngine
-        const LEARNING_ACTIONS = ["job_record", "job_insights"] as const;
-        const ALGORITHM_ACTIONS = ["algorithm_select"] as const;
-        const SCHEDULER_ACTIONS = ["machine_utilization"] as const; // shop_schedule removed: handled by SHOP_ACTIONS -> productShop
-        const INTENT_ACTIONS = ["decompose_intent"] as const;
-        const FORMATTER_ACTIONS = ["format_response"] as const;
-        const WORKFLOW_ACTIONS = ["workflow_match", "workflow_get", "workflow_list"] as const;
-        const ONBOARDING_ACTIONS = ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] as const;
-        const SETUP_SHEET_ACTIONS = ["setup_sheet_format", "setup_sheet_template"] as const;
-        const CONVERSATION_ACTIONS = ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] as const;
-        const SKILL_ACTIONS = ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] as const;
-        const MACHINE_ACTIONS = ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect", "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live", "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status", "alert_acknowledge", "alert_history"] as const;
-        const ASSIST_ACTIONS = ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] as const;
-        const CAM_ACTIONS = ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] as const;
-        const DNC_ACTIONS = ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] as const;
-        const MOBILE_ACTIONS = ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] as const;
-        const ERP_ACTIONS = ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] as const;
-        const MEASURE_ACTIONS = ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] as const;
-        const INVERSE_ACTIONS = ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] as const;
-        const FORENSIC_ACTIONS = ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] as const;
-        const APPRENTICE_ACTIONS = ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] as const;
-        const GENOME_ACTIONS = ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] as const;
-        const MAINT_ACTIONS = ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] as const;
-        const SUSTAIN_ACTIONS = ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] as const;
-        const GENPLAN_ACTIONS = ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] as const;
-        const GRAPH_ACTIONS = ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] as const;
-        const LEARN_ACTIONS = ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] as const;
-        const ADAPTIVE_ACTIONS = ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] as const;
-        const SFC_ACTIONS = ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] as const;
-        const PPG_ACTIONS = ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] as const;
-        const SHOP_ACTIONS = ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] as const;
-        const ACNC_ACTIONS = ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] as const;
-        const L3_INDUSTRY_ACTIONS = ["tool_crib_status", "digital_twin_state", "predictive_maintenance_alert", "energy_report"] as const;
-
-        // SYS-MS1-U00: Product actions deprecated — use prism_product dispatcher
-        const PRODUCT_FORWARDED = [...SFC_ACTIONS, ...PPG_ACTIONS, ...SHOP_ACTIONS, ...ACNC_ACTIONS] as readonly string[];
-        if (PRODUCT_FORWARDED.includes(action)) {
-          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_product dispatcher. Use prism_product instead.`);
+        // === CHECK DEPRECATION FORWARDING (SYS-MS1) ===
+        const forwarded = await forwardToNewDispatcher(action, params);
+        if (forwarded) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to ${forwarded.dispatcher}. Use ${forwarded.dispatcher} instead.`);
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result: forwarded.result } },
+          } as any);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action, ...forwarded.result,
+                _deprecation: `Action '${action}' has moved to ${forwarded.dispatcher}. Please use ${forwarded.dispatcher} directly.`,
+              }),
+            }],
+          };
         }
 
-        // SYS-MS1-U01: Machine-live actions deprecated — use prism_machine_live dispatcher
-        const MACHINE_LIVE_FORWARDED = [...MACHINE_ACTIONS, ...ADAPTIVE_ACTIONS, ...MAINT_ACTIONS, ...L3_INDUSTRY_ACTIONS] as readonly string[];
-        if (MACHINE_LIVE_FORWARDED.includes(action)) {
-          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_machine_live dispatcher. Use prism_machine_live instead.`);
-        }
+        // === EXECUTE CORE ACTION ===
+        const CORE_ROUTING: Record<string, string> = {
+          job_record: "jobLearning", job_insights: "jobLearning",
+          algorithm_select: "algorithmGateway",
+          machine_utilization: "shopScheduler",
+          decompose_intent: "intentEngine",
+          format_response: "responseFormatter",
+          workflow_match: "workflowChains", workflow_get: "workflowChains", workflow_list: "workflowChains",
+          onboarding_welcome: "onboardingEngine", onboarding_state: "onboardingEngine",
+          onboarding_record: "onboardingEngine", onboarding_suggestion: "onboardingEngine", onboarding_reset: "onboardingEngine",
+          setup_sheet_format: "setupSheetEngine", setup_sheet_template: "setupSheetEngine",
+          conversation_context: "conversationalMemory", conversation_transition: "conversationalMemory",
+          job_start: "conversationalMemory", job_update: "conversationalMemory", job_find: "conversationalMemory",
+          job_resume: "conversationalMemory", job_complete: "conversationalMemory", job_list_recent: "conversationalMemory",
+          skill_list: "userWorkflowSkills", skill_get: "userWorkflowSkills", skill_search: "userWorkflowSkills",
+          skill_match: "userWorkflowSkills", skill_steps: "userWorkflowSkills", skill_for_persona: "userWorkflowSkills",
+          assist_list: "userAssistanceSkills", assist_get: "userAssistanceSkills", assist_search: "userAssistanceSkills",
+          assist_match: "userAssistanceSkills", assist_explain: "userAssistanceSkills", assist_confidence: "userAssistanceSkills",
+          assist_mistakes: "userAssistanceSkills", assist_safety: "userAssistanceSkills",
+        };
 
-        // SYS-MS1-U02: Integration actions deprecated — use prism_integration dispatcher
-        const INTEGRATION_FORWARDED = [...CAM_ACTIONS, ...DNC_ACTIONS, ...ERP_ACTIONS, ...MOBILE_ACTIONS, ...MEASURE_ACTIONS] as readonly string[];
-        if (INTEGRATION_FORWARDED.includes(action)) {
-          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_integration dispatcher. Use prism_integration instead.`);
-        }
-
-        // SYS-MS1-U03: Knowledge actions deprecated — use prism_knowledge_ext dispatcher
-        const KNOWLEDGE_FORWARDED = [...APPRENTICE_ACTIONS, ...GENOME_ACTIONS, ...GRAPH_ACTIONS, ...LEARN_ACTIONS] as readonly string[];
-        if (KNOWLEDGE_FORWARDED.includes(action)) {
-          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_knowledge_ext dispatcher. Use prism_knowledge_ext instead.`);
-        }
-
-        // SYS-MS1-U04: Diagnosis actions deprecated — use prism_diagnosis dispatcher
-        const DIAGNOSIS_FORWARDED = [...FORENSIC_ACTIONS, ...INVERSE_ACTIONS, ...GENPLAN_ACTIONS, ...SUSTAIN_ACTIONS] as readonly string[];
-        if (DIAGNOSIS_FORWARDED.includes(action)) {
-          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_diagnosis dispatcher. Use prism_diagnosis instead.`);
-        }
-
-        const result = L3_INDUSTRY_ACTIONS.includes(action as any)
-          ? l3IndustryAction(action, params)
-          : SFC_ACTIONS.includes(action as any)
-          ? (await getEngine("productSFC"))(action, params)
-          : PPG_ACTIONS.includes(action as any)
-          ? (await getEngine("productPPG"))(action, params)
-          : SHOP_ACTIONS.includes(action as any)
-          ? (await getEngine("productShop"))(action, params)
-          : ACNC_ACTIONS.includes(action as any)
-          ? (await getEngine("productACNC"))(action, params)
-          : ADAPTIVE_ACTIONS.includes(action as any)
-          ? (await getEngine("adaptiveControl"))(action, params)
-          : LEARN_ACTIONS.includes(action as any)
-          ? (await getEngine("federatedLearning"))(action, params)
-          : GRAPH_ACTIONS.includes(action as any)
-          ? (await getEngine("knowledgeGraph"))(action, params)
-          : GENPLAN_ACTIONS.includes(action as any)
-          ? (await getEngine("generativeProcess"))(action, params)
-          : SUSTAIN_ACTIONS.includes(action as any)
-          ? (await getEngine("sustainabilityEngine"))(action, params)
-          : MAINT_ACTIONS.includes(action as any)
-          ? (await getEngine("predictiveMaintenance"))(action, params)
-          : GENOME_ACTIONS.includes(action as any)
-          ? (await getEngine("manufacturingGenome"))(action, params)
-          : APPRENTICE_ACTIONS.includes(action as any)
-          ? (await getEngine("apprenticeEngine"))(action, params)
-          : FORENSIC_ACTIONS.includes(action as any)
-          ? (await getEngine("failureForensics"))(action, params)
-          : INVERSE_ACTIONS.includes(action as any)
-          ? (await getEngine("inverseSolver"))(action, params)
-          : MEASURE_ACTIONS.includes(action as any)
-          ? (await getEngine("measurementIntegration"))(action, params)
-          : ERP_ACTIONS.includes(action as any)
-          ? (await getEngine("erpIntegration"))(action, params)
-          : MOBILE_ACTIONS.includes(action as any)
-          ? (await getEngine("mobileInterface"))(action, params)
-          : DNC_ACTIONS.includes(action as any)
-          ? (await getEngine("dncTransfer"))(action, params)
-          : CAM_ACTIONS.includes(action as any)
-          ? (await getEngine("camIntegration"))(action, params)
-          : MACHINE_ACTIONS.includes(action as any)
-          ? (await getEngine("machineConnectivity"))(action, params)
-          : ASSIST_ACTIONS.includes(action as any)
-          ? (await getEngine("userAssistanceSkills"))(action, params)
-          : SKILL_ACTIONS.includes(action as any)
-          ? (await getEngine("userWorkflowSkills"))(action, params)
-          : CONVERSATION_ACTIONS.includes(action as any)
-            ? (await getEngine("conversationalMemory"))(action, params)
-            : SETUP_SHEET_ACTIONS.includes(action as any)
-            ? (await getEngine("setupSheetEngine"))(action, params)
-            : LEARNING_ACTIONS.includes(action as any)
-          ? (await getEngine("jobLearning"))(action, params)
-          : ALGORITHM_ACTIONS.includes(action as any)
-            ? (await getEngine("algorithmGateway"))(action, params)
-            : SCHEDULER_ACTIONS.includes(action as any)
-              ? (await getEngine("shopScheduler"))(action, params)
-              : INTENT_ACTIONS.includes(action as any)
-                ? (await getEngine("intentEngine"))(action, params)
-                : FORMATTER_ACTIONS.includes(action as any)
-                  ? (await getEngine("responseFormatter"))(action, params)
-                  : WORKFLOW_ACTIONS.includes(action as any)
-                    ? (await getEngine("workflowChains"))(action, params)
-                    : ONBOARDING_ACTIONS.includes(action as any)
-                      ? (await getEngine("onboardingEngine"))(action, params)
-                      : await (await getEngine("intelligence"))(action as IntelligenceAction, params);
+        const engineName = CORE_ROUTING[action];
+        const result = engineName
+          ? await (await getEngine(engineName))(action, params)
+          : await (await getEngine("intelligence"))(action as IntelligenceAction, params);
 
         // === POST-INTELLIGENCE HOOKS ===
-        const postCtx = {
+        await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        };
-        await hookExecutor.execute("post-calculation", postCtx as any);
+        } as any);
 
         // === RESPONSE FORMATTING ===
         // Support response_level parameter
