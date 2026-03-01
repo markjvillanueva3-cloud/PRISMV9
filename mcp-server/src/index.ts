@@ -95,6 +95,18 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 // SYS-MS1: Product Dispatcher — 40 actions extracted from intelligence (Dispatcher #46)
 import { registerProductDispatcher } from "./tools/dispatchers/productDispatcher.js";
 
+// SYS-MS1: Machine Live Dispatcher — 40 actions extracted from intelligence (Dispatcher #47)
+import { registerMachineLiveDispatcher } from "./tools/dispatchers/machineLiveDispatcher.js";
+
+// SYS-MS1: Integration Dispatcher — 42 actions extracted from intelligence (Dispatcher #48)
+import { registerIntegrationDispatcher } from "./tools/dispatchers/integrationDispatcher.js";
+
+// SYS-MS1: Knowledge Extension Dispatcher — 40 actions extracted from intelligence (Dispatcher #49)
+import { registerKnowledgeExtDispatcher } from "./tools/dispatchers/knowledgeExtDispatcher.js";
+
+// SYS-MS1: Diagnosis Dispatcher — 38 actions extracted from intelligence (Dispatcher #50)
+import { registerDiagnosisDispatcher } from "./tools/dispatchers/diagnosisDispatcher.js";
+
 // L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
 import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
 
@@ -471,6 +483,18 @@ async function registerTools(): Promise<void> {
 
   // SYS-MS1: Product Dispatcher — SFC, PPG, Shop, ACNC (40 actions)
   registerProductDispatcher(server);
+
+  // SYS-MS1: Machine Live Dispatcher — connectivity, adaptive, maintenance, Industry 4.0 (40 actions)
+  registerMachineLiveDispatcher(server);
+
+  // SYS-MS1: Integration Dispatcher — CAM, DNC, ERP, mobile, measurement (42 actions)
+  registerIntegrationDispatcher(server);
+
+  // SYS-MS1: Knowledge Extension Dispatcher — apprentice, genome, graph, learning (40 actions)
+  registerKnowledgeExtDispatcher(server);
+
+  // SYS-MS1: Diagnosis Dispatcher — forensics, inverse, genplan, sustainability (38 actions)
+  registerDiagnosisDispatcher(server);
 
   // L2: Monolith Engine Ports — 8 engines, 34 actions
   registerL2EngineDispatcher(server);

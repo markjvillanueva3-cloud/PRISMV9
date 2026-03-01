@@ -1120,6 +1120,30 @@ export function registerIntelligenceDispatcher(server: any): void {
           log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_product dispatcher. Use prism_product instead.`);
         }
 
+        // SYS-MS1-U01: Machine-live actions deprecated — use prism_machine_live dispatcher
+        const MACHINE_LIVE_FORWARDED = [...MACHINE_ACTIONS, ...ADAPTIVE_ACTIONS, ...MAINT_ACTIONS, ...L3_INDUSTRY_ACTIONS] as readonly string[];
+        if (MACHINE_LIVE_FORWARDED.includes(action)) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_machine_live dispatcher. Use prism_machine_live instead.`);
+        }
+
+        // SYS-MS1-U02: Integration actions deprecated — use prism_integration dispatcher
+        const INTEGRATION_FORWARDED = [...CAM_ACTIONS, ...DNC_ACTIONS, ...ERP_ACTIONS, ...MOBILE_ACTIONS, ...MEASURE_ACTIONS] as readonly string[];
+        if (INTEGRATION_FORWARDED.includes(action)) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_integration dispatcher. Use prism_integration instead.`);
+        }
+
+        // SYS-MS1-U03: Knowledge actions deprecated — use prism_knowledge_ext dispatcher
+        const KNOWLEDGE_FORWARDED = [...APPRENTICE_ACTIONS, ...GENOME_ACTIONS, ...GRAPH_ACTIONS, ...LEARN_ACTIONS] as readonly string[];
+        if (KNOWLEDGE_FORWARDED.includes(action)) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_knowledge_ext dispatcher. Use prism_knowledge_ext instead.`);
+        }
+
+        // SYS-MS1-U04: Diagnosis actions deprecated — use prism_diagnosis dispatcher
+        const DIAGNOSIS_FORWARDED = [...FORENSIC_ACTIONS, ...INVERSE_ACTIONS, ...GENPLAN_ACTIONS, ...SUSTAIN_ACTIONS] as readonly string[];
+        if (DIAGNOSIS_FORWARDED.includes(action)) {
+          log.warn(`[prism_intelligence] DEPRECATED: '${action}' moved to prism_diagnosis dispatcher. Use prism_diagnosis instead.`);
+        }
+
         const result = L3_INDUSTRY_ACTIONS.includes(action as any)
           ? l3IndustryAction(action, params)
           : SFC_ACTIONS.includes(action as any)
