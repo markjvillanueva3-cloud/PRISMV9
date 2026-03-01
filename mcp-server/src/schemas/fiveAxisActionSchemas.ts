@@ -26,8 +26,8 @@ const kinematicType = z.enum([
   "table_table_AC", "table_table_BC", "head_head_AC", "head_head_BC",
 ]);
 
-const unitVector = z.object({ i: z.number(), j: z.number(), k: z.number() });
-const point3d = z.object({ x: z.number(), y: z.number(), z: z.number() });
+const unitVector = z.object({ i: z.number(), j: z.number(), k: z.number() }).passthrough();
+const point3d = z.object({ x: z.number(), y: z.number(), z: z.number() }).passthrough();
 
 // ============================================================================
 // RTCP COMPENSATION

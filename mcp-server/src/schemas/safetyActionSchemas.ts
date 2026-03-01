@@ -26,7 +26,7 @@ const optStr = z.string().optional();
 const optBool = z.boolean().optional();
 
 /** 3D coordinate */
-const point3d = z.object({ x: z.number(), y: z.number(), z: z.number() });
+const point3d = z.object({ x: z.number(), y: z.number(), z: z.number() }).passthrough();
 
 /** Cutting forces (Fc, Ff, Fp) */
 const forces3d = z.object({
@@ -50,7 +50,7 @@ const toolGeom = z.object({
 }).passthrough();
 
 /** Tool axis direction vector */
-const toolAxis = z.object({ x: z.number(), y: z.number(), z: z.number() }).optional();
+const toolAxis = z.object({ x: z.number(), y: z.number(), z: z.number() }).passthrough().optional();
 
 /** Spindle type enum */
 const spindleType = z.enum([
