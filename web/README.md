@@ -125,7 +125,7 @@ npm run e2e
 npm run e2e:headed
 ```
 
-10 E2E tests cover the SFC calculator flow: material selection, operation selection, parameter entry, calculation, tab navigation, presets, and keyboard accessibility.
+11 E2E tests cover the SFC calculator flow: material selection, operation selection, parameter entry, calculation, tab navigation, presets, and keyboard accessibility.
 
 ## Deployment
 
