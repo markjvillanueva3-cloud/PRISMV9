@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import ErrorBoundary from "../ErrorBoundary";
+import OfflineBanner from "../OfflineBanner";
 
 const navItems = [
   { to: "/sfc", label: "SFC Calculator", icon: CalculatorIcon },
@@ -11,8 +12,17 @@ export default function AppShell() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface dark:bg-surface-dark">
+      {/* Skip to content link for keyboard/screen reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50
+          focus:rounded-md focus:bg-primary-600 focus:px-4 focus:py-2 focus:text-white"
+      >
+        Skip to main content
+      </a>
+
       {/* Sidebar */}
-      <aside className="hidden w-56 flex-shrink-0 flex-col bg-sidebar text-white md:flex">
+      <aside className="hidden w-56 flex-shrink-0 flex-col bg-sidebar text-white md:flex" role="navigation" aria-label="Main navigation">
         <div className="flex h-14 items-center gap-2 px-4 font-bold tracking-wide">
           <span className="text-primary-400 text-xl">P</span>
           <span className="text-sm">PRISM v9</span>
@@ -47,12 +57,13 @@ export default function AppShell() {
             {pageTitle}
           </h1>
         </header>
-        <main className="flex-1 overflow-y-auto p-6">
+        <main id="main-content" className="flex-1 overflow-y-auto p-6">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>
         </main>
       </div>
+      <OfflineBanner />
     </div>
   );
 }
