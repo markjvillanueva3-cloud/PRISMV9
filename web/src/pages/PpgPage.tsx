@@ -1,11 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import ControllerSelector from "../components/ppg/ControllerSelector";
 import TemplateBrowser from "../components/ppg/TemplateBrowser";
 import GcodeEditor from "../components/ppg/GcodeEditor";
 import GcodePreview from "../components/ppg/GcodePreview";
 import ValidationPanel from "../components/ppg/ValidationPanel";
 import OptimizeDownload from "../components/ppg/OptimizeDownload";
+import GcodeDiff from "../components/ppg/GcodeDiff";
 import { PpgProvider, usePpgContext } from "../contexts/PpgContext";
+import { usePpgControllers } from "../hooks/usePpg";
 
 type PanelTab =
   | "controller"
@@ -32,6 +34,26 @@ function PpgPageInner() {
 
   const [mobileTab, setMobileTab] = useState<PanelTab>("editor");
   const [mdRightTab, setMdRightTab] = useState<RightTab>("editor");
+  const [showDiff, setShowDiff] = useState(false);
+
+  // Keyboard shortcuts: Ctrl+S (validate), Ctrl+Shift+G (generate), Ctrl+D (diff)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && !e.shiftKey && e.key === "s") {
+        e.preventDefault();
+        setMobileTab("validation");
+        setMdRightTab("preview");
+      } else if (e.ctrlKey && e.shiftKey && (e.key === "G" || e.key === "g")) {
+        e.preventDefault();
+        setMobileTab("templates");
+      } else if (e.ctrlKey && !e.shiftKey && e.key === "d") {
+        e.preventDefault();
+        setShowDiff((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const tabs: { id: PanelTab; label: string }[] = [
     { id: "controller", label: "Controllers" },
@@ -126,7 +148,7 @@ function PpgPageInner() {
             <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${
               mdRightTab === "preview" ? "flex" : "hidden"
             }`}>
-              <RightPanel />
+              <RightPanel showDiff={showDiff} />
             </div>
           </main>
 
@@ -134,7 +156,7 @@ function PpgPageInner() {
           <aside className="hidden flex-col overflow-y-auto border-l
             border-slate-200 bg-slate-50
             dark:border-slate-700 dark:bg-slate-900/50 xl:flex">
-            <RightPanel />
+            <RightPanel showDiff={showDiff} />
           </aside>
         </div>
 
@@ -223,12 +245,25 @@ function EditorSection() {
   );
 }
 
-function RightPanel() {
+function RightPanel({ showDiff }: { showDiff: boolean }) {
   const { editorContent, setEditorContent, activeController } =
     usePpgContext();
+  const { data: controllerList } = usePpgControllers();
 
   return (
     <div className="flex flex-1 flex-col">
+      {/* Diff view (Ctrl+D toggle) */}
+      {showDiff && (
+        <>
+          <PanelHeader title="Diff Comparison" />
+          <GcodeDiff
+            gcode={editorContent}
+            controllers={controllerList ?? []}
+            currentController={activeController?.id}
+          />
+        </>
+      )}
+
       {/* Preview */}
       <PanelHeader title="Preview" />
       <GcodePreview
