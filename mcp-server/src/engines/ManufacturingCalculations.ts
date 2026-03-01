@@ -299,14 +299,15 @@ export function calculateKienzleCuttingForce(
   const fpRatio = Math.max(0.1, Math.abs(Math.sin(beta) * Math.cos(gamma) / Math.cos(phi + beta - gamma)));
   const Fc_single = kc * b * h * rake_correction;
   const Fc_raw = Fc_single * z_e;  // Total avg force = single-tooth × engaged teeth
-  const Ff = Fc_raw * ffRatio;
-  const Fp = Fc_raw * fpRatio;
-  const F_resultant = Math.sqrt(Fc_raw * Fc_raw + Ff * Ff + Fp * Fp);
-  
+
+  // Cap Fc BEFORE deriving Ff, Fp, F_resultant for consistency
   const Fc = Math.min(Fc_raw, SAFETY_LIMITS.MAX_FORCE);
   if (Fc_raw > SAFETY_LIMITS.MAX_FORCE) {
     warnings.push(`Force ${Fc_raw.toFixed(0)}N exceeds limit, capped at ${SAFETY_LIMITS.MAX_FORCE}N`);
   }
+  const Ff = Fc * ffRatio;
+  const Fp = Fc * fpRatio;
+  const F_resultant = Math.sqrt(Fc * Fc + Ff * Ff + Fp * Fp);
   
   // Power and torque
   const power_raw = (Fc * cutting_speed) / 60000;
@@ -406,11 +407,12 @@ export function calculateDrillingForce(
   if (fn < 0.01 || fn > 1.0) warnings.push(`Feed ${fn}mm/rev outside typical drilling range`);
   if (fn / D > 0.04) warnings.push(`Feed/diameter ratio ${(fn/D).toFixed(3)} is high — risk of drill breakage`);
 
+  // ISO 3002: Fc = main cutting force (tangential), Ff = feed force (axial thrust)
   return {
-    Fc: Ff_thrust,           // "Fc_N" in drilling = thrust force (axial)
-    Ff: Fc_tangential,       // tangential force (produces torque)
+    Fc: Fc_tangential,       // Main cutting force (tangential, produces torque)
+    Ff: Ff_thrust,           // Feed/thrust force (axial)
     Fp: 0,                   // no passive force in drilling
-    F_resultant: Math.sqrt(Ff_thrust * Ff_thrust + Fc_tangential * Fc_tangential),
+    F_resultant: Math.sqrt(Fc_tangential * Fc_tangential + Ff_thrust * Ff_thrust),
     specific_force: kc,
     chip_thickness: h,
     chip_width: D / 2,
@@ -418,12 +420,12 @@ export function calculateDrillingForce(
     torque,
     warnings,
     uncertainty: {
-      Fc_range: [Ff_thrust * 0.80, Ff_thrust * 1.20],
+      Fc_range: [Fc_tangential * 0.80, Fc_tangential * 1.20],
       power_range: [power * 0.85, power * 1.15],
       confidence: 0.75,
       source: "drilling_model"
     },
-    force_ratios: { Ff_over_Fc: Fc_tangential / Ff_thrust, Fp_over_Fc: 0, iso_group: "drilling" },
+    force_ratios: { Ff_over_Fc: Ff_thrust / Fc_tangential, Fp_over_Fc: 0, iso_group: "drilling" },
     calculation_method: "Drilling (Sandvik/Shaw: M=kc×D²×fn/8000, Ff=0.5×kc×D×fn×sin(κr)×chisel)"
   };
 }

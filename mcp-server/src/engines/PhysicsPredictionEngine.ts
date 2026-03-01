@@ -531,8 +531,11 @@ export function predictChatter(input: ChatterInput): ChatterResult {
 
   // Natural frequency estimation (Euler-Bernoulli beam)
   // Carbide density ≈ 14800 kg/m³; D,L in mm → convert to m for mass
-  const m = 14800 * (Math.PI / 4) * Math.pow(D * 1e-3, 2) * (L * 1e-3); // kg
-  const fn = (1 / (2 * Math.PI)) * Math.sqrt(k * 1000 / (m + 1e-10)); // Hz
+  const m_total = 14800 * (Math.PI / 4) * Math.pow(D * 1e-3, 2) * (L * 1e-3); // kg
+  // Effective mass for fundamental cantilever mode = 0.2427 × total mass
+  // Ref: Rao "Mechanical Vibrations" 5th ed, Table 8.7
+  const m_eff = 0.2427 * m_total;
+  const fn = (1 / (2 * Math.PI)) * Math.sqrt(k * 1000 / (m_eff + 1e-10)); // Hz
   const damping = 0.03; // Typical damping ratio
 
   // Specific cutting force for stability calculation
@@ -579,12 +582,15 @@ export function predictChatter(input: ChatterInput): ChatterResult {
       const a_lim = -1 / (2 * z * Kt * ks * G_real);
       if (a_lim <= 0 || a_lim > 50) continue;
 
-      // Phase angle for spindle speed: κ = π - 2·arctan(G_real / G_imag)
-      const kappa = Math.PI - 2 * Math.atan2(G_real, G_imag);
+      // Phase angle for spindle speed: κ = π - 2·arctan(G_imag / G_real)
+      // Ref: Altintas (2012) Eq 3.18 — atan2(imag, real)
+      const kappa = Math.PI - 2 * Math.atan2(G_imag, G_real);
 
       // Spindle speed: N = 60·f / (n + κ/(2π))
       const f_hz = omega / (2 * Math.PI);
-      const rpm_point = (60 * f_hz) / (lobe + kappa / (2 * Math.PI) + 1e-10);
+      const lobeDenom = lobe + kappa / (2 * Math.PI);
+      if (lobeDenom < 0.1) continue; // Skip near-zero denominator (produces unrealistic RPM)
+      const rpm_point = (60 * f_hz) / lobeDenom;
       if (rpm_point < 1000 || rpm_point > 30000) continue;
 
       sld_rpm.push(+rpm_point.toFixed(0));
@@ -773,7 +779,9 @@ export function unifiedMachiningModel(input: UnifiedMachiningInput): UnifiedMach
     const power_w = Fc * Vc_ms;
     const k_tool = TOOL_THERMAL_CONDUCTIVITY[input.tool_material];
     const R_partition = mat.thermal_conductivity / (mat.thermal_conductivity + k_tool);
-    const chipArea = h * ap * 1e-6;
+    // Chip cross-section: turning uses h×ap, milling uses h×ae (width of cut)
+    const chipWidth = input.operation === 'turning' ? ap : ae;
+    const chipArea = h * chipWidth * 1e-6;
     const massFlow = mat.density * chipArea * Vc_ms;
 
     // Contact-zone thermal resistance model (consistent with predictSurfaceIntegrity)

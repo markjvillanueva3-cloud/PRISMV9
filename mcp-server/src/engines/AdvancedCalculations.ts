@@ -148,11 +148,20 @@ export function calculateStabilityLobes(
   const { natural_frequency, damping_ratio, stiffness } = modal;
   
   // Validate inputs
+  if (damping_ratio >= 1.0) {
+    throw new Error(`Damping ratio ${damping_ratio} >= 1.0 (overdamped) — stability lobe model requires underdamped system (ζ < 1.0)`);
+  }
   if (damping_ratio < STABILITY_CONSTANTS.MIN_DAMPING) {
     warnings.push(`Damping ratio ${damping_ratio} very low - system highly underdamped`);
   }
   if (natural_frequency < STABILITY_CONSTANTS.MIN_FREQUENCY) {
     warnings.push(`Natural frequency ${natural_frequency} Hz is low for machining`);
+  }
+  if (kc <= 0) {
+    throw new Error(`Specific cutting force kc=${kc} must be > 0`);
+  }
+  if (number_of_teeth < 1) {
+    throw new Error(`Number of teeth=${number_of_teeth} must be >= 1`);
   }
   
   // Calculate chatter frequency (slightly above natural frequency)
@@ -443,7 +452,12 @@ export function calculateMinimumCostSpeed(
 ): { optimal_speed: number; cost_per_part?: number; tool_changes?: number; warnings: string[] } {
   const warnings: string[] = [];
   const { machine_rate, tool_cost, tool_change_time } = cost_params;
-  
+
+  // Validate Taylor exponent — physical range is 0.1-0.5 for most materials
+  if (taylor_n <= 0 || taylor_n >= 1) {
+    throw new Error(`Taylor exponent n=${taylor_n} out of physical range (must be 0 < n < 1)`);
+  }
+
   // Minimum cost speed formula (Gilbert's equation, derived from Taylor)
   // T_opt = (1/n - 1) × (Ct/Cm + tc)  where cost_ratio = Ct/Cm + tc
   // V_opt = C / T_opt^n  (from Taylor: V × T^n = C)
@@ -531,8 +545,11 @@ export function optimizeCuttingParameters(
 ): OptimizationResult {
   const warnings: string[] = [];
   
-  // Normalize weights
+  // Normalize weights — guard against all-zero
   const total_weight = weights.productivity + weights.cost + weights.quality + weights.tool_life;
+  if (total_weight <= 0) {
+    throw new Error("Optimization weights must sum to > 0");
+  }
   const w_prod = weights.productivity / total_weight;
   const w_cost = weights.cost / total_weight;
   const w_qual = weights.quality / total_weight;
@@ -580,10 +597,10 @@ export function optimizeCuttingParameters(
         
         // Calculate weighted score (higher is better)
         // Normalize each objective to 0-1 range
-        const mrr_norm = mrr / 100;           // Assume max MRR = 100 cm³/min
-        const cost_norm = 1 - (1 / tool_life) / 0.1; // Lower cost is better
-        const qual_norm = 1 - Ra / 10;        // Lower Ra is better
-        const life_norm = tool_life / 100;    // Assume max life = 100 min
+        const mrr_norm = Math.max(0, Math.min(1, mrr / 100));
+        const cost_norm = Math.max(0, Math.min(1, 1 - (1 / tool_life) / 0.1));
+        const qual_norm = Math.max(0, Math.min(1, 1 - Ra / 10));
+        const life_norm = Math.max(0, Math.min(1, tool_life / 100));
         
         const score = w_prod * mrr_norm + w_cost * cost_norm + w_qual * qual_norm + w_life * life_norm;
         
