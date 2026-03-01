@@ -35,11 +35,15 @@ const TAYLOR: Record<string, { n: number; C: number }> = {
 function generateToolLifeData(cuttingSpeed: number, materialGroup: string) {
   const { n, C } = TAYLOR[materialGroup] ?? TAYLOR.P;
   const points: { speed: number; life: number }[] = [];
+  if (cuttingSpeed <= 0) return points;
   const minV = Math.max(20, cuttingSpeed * 0.3);
   const maxV = cuttingSpeed * 2.5;
-  for (let v = minV; v <= maxV; v += (maxV - minV) / 40) {
+  const step = (maxV - minV) / 40;
+  if (step <= 0) return points;
+  for (let v = minV; v <= maxV; v += step) {
+    if (v <= 0) continue;
     const life = Math.pow(C / v, 1 / n);
-    if (life > 0 && life < 10000) {
+    if (Number.isFinite(life) && life > 0 && life < 10000) {
       points.push({ speed: Math.round(v), life: Math.round(life * 10) / 10 });
     }
   }
@@ -47,14 +51,19 @@ function generateToolLifeData(cuttingSpeed: number, materialGroup: string) {
 }
 
 function generateSurfaceFinishData(currentFeed: number, toolDiameter: number) {
-  const noseRadius = toolDiameter / 2;
   const points: { feed: number; ra: number }[] = [];
+  if (toolDiameter <= 0) return points;
+  const noseRadius = Math.max(toolDiameter / 2, 0.01);
   const minF = 0.02;
   const maxF = Math.max(currentFeed * 2.5, 0.5);
-  for (let f = minF; f <= maxF; f += (maxF - minF) / 40) {
+  const step = (maxF - minF) / 40;
+  if (step <= 0) return points;
+  for (let f = minF; f <= maxF; f += step) {
     // Theoretical Ra = f^2 / (32 * r) in mm → convert to µm
     const ra = (f * f) / (32 * noseRadius) * 1000;
-    points.push({ feed: Math.round(f * 1000) / 1000, ra: Math.round(ra * 100) / 100 });
+    if (Number.isFinite(ra)) {
+      points.push({ feed: Math.round(f * 1000) / 1000, ra: Math.round(ra * 100) / 100 });
+    }
   }
   return points;
 }
@@ -72,17 +81,23 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const img = new Image();
+    img.onerror = () => { img.onload = null; img.onerror = null; };
     img.onload = () => {
-      canvas.width = img.width * 2;
-      canvas.height = img.height * 2;
-      ctx.scale(2, 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      const a = document.createElement("a");
-      a.download = `prism-${tab}-chart.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
+      try {
+        canvas.width = img.width * 2;
+        canvas.height = img.height * 2;
+        ctx.scale(2, 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        const a = document.createElement("a");
+        a.download = `prism-${tab}-chart.png`;
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      } finally {
+        img.onload = null;
+        img.onerror = null;
+      }
     };
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   }, [tab]);
@@ -107,6 +122,7 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
             type="button"
             role="tab"
             aria-selected={tab === t.id}
+            aria-controls={`chart-panel-${t.id}`}
             onClick={() => setTab(t.id)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === t.id
@@ -122,16 +138,17 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
           onClick={handleExportPng}
           className="ml-auto text-xs text-primary-600 hover:underline"
           title="Export chart as PNG"
+          aria-label="Export current chart as PNG"
         >
           Export PNG
         </button>
       </div>
 
-      <div ref={chartRef}>
+      <div ref={chartRef} role="tabpanel" id={`chart-panel-${tab}`}>
         {tab === "toolLife" && (
           <ToolLifeChart
             cuttingSpeed={result.cutting_speed}
-            materialGroup={result.meta?.material_group as string ?? "P"}
+            materialGroup={typeof result.meta?.material_group === "string" ? result.meta.material_group : "P"}
           />
         )}
         {tab === "power" && (
@@ -154,8 +171,10 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
 function ToolLifeChart({ cuttingSpeed, materialGroup }: { cuttingSpeed: number; materialGroup: string }) {
   const data = useMemo(() => generateToolLifeData(cuttingSpeed, materialGroup), [cuttingSpeed, materialGroup]);
   const currentLife = useMemo(() => {
+    if (cuttingSpeed <= 0) return 0;
     const { n, C } = TAYLOR[materialGroup] ?? TAYLOR.P;
-    return Math.round(Math.pow(C / cuttingSpeed, 1 / n) * 10) / 10;
+    const life = Math.pow(C / cuttingSpeed, 1 / n);
+    return Number.isFinite(life) ? Math.round(life * 10) / 10 : 0;
   }, [cuttingSpeed, materialGroup]);
 
   return (
@@ -243,8 +262,10 @@ function PowerChart({ requiredPower, machinePower }: { requiredPower: number; ma
 
 function SurfaceFinishChart({ currentFeed, toolDiameter }: { currentFeed: number; toolDiameter: number }) {
   const data = useMemo(() => generateSurfaceFinishData(currentFeed, toolDiameter), [currentFeed, toolDiameter]);
-  const noseRadius = toolDiameter / 2;
-  const currentRa = (currentFeed * currentFeed) / (32 * noseRadius) * 1000;
+  const noseRadius = Math.max(toolDiameter / 2, 0.01);
+  const currentRa = toolDiameter > 0
+    ? (currentFeed * currentFeed) / (32 * noseRadius) * 1000
+    : 0;
 
   return (
     <div>

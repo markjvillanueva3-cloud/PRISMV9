@@ -67,8 +67,9 @@ export default function PresetManager({ materialId, operationId, params, onLoad 
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
+        if (!reader.result || typeof reader.result !== "string") return;
         try {
-          const imported = JSON.parse(reader.result as string) as SfcPreset[];
+          const imported = JSON.parse(reader.result) as SfcPreset[];
           if (!Array.isArray(imported)) return;
           const merged = [...imported.filter((p) => p.id && p.name && p.params), ...presets];
           // Deduplicate by id

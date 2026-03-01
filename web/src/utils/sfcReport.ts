@@ -137,11 +137,12 @@ export function generateSfcReport(data: ReportData): void {
 
     doc.setFont("helvetica", "normal");
     for (const entry of data.comparison) {
+      if (y > 270) { doc.addPage(); y = 20; }
       doc.text(entry.materialName.substring(0, 20), colX[0], y);
       doc.text(entry.operationLabel.substring(0, 15), colX[1], y);
-      doc.text(entry.result.spindle_speed.toFixed(0), colX[2], y);
-      doc.text(entry.result.feed_rate.toFixed(1), colX[3], y);
-      doc.text(entry.result.safety?.score.toFixed(3) ?? "\u2014", colX[4], y);
+      doc.text((entry.result?.spindle_speed ?? 0).toFixed(0), colX[2], y);
+      doc.text((entry.result?.feed_rate ?? 0).toFixed(1), colX[3], y);
+      doc.text(entry.result?.safety?.score?.toFixed(3) ?? "\u2014", colX[4], y);
       y += 4;
     }
   }

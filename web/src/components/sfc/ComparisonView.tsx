@@ -105,9 +105,9 @@ export default function ComparisonView({ entries, onRemove, imperial }: Props) {
           </thead>
           <tbody>
             {rows.map((row) => {
-              const min = Math.min(...row.values);
-              const max = Math.max(...row.values);
-              const allSame = min === max;
+              const min = row.values.length > 0 ? Math.min(...row.values) : 0;
+              const max = row.values.length > 0 ? Math.max(...row.values) : 0;
+              const allSame = max - min < (max * 0.0001);
 
               return (
                 <tr key={row.label} className="border-t border-slate-100 dark:border-slate-700">

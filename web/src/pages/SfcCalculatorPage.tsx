@@ -200,6 +200,18 @@ export default function SfcCalculatorPage() {
     { id: "history", label: "History", count: fullHistory.length },
   ];
 
+  const handleTabKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const ids = rightTabs.map((t) => t.id);
+    const idx = ids.indexOf(rightTab);
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setRightTab(ids[(idx + 1) % ids.length]);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setRightTab(ids[(idx - 1 + ids.length) % ids.length]);
+    }
+  }, [rightTab, rightTabs]);
+
   return (
     <div className="mx-auto max-w-7xl">
       {/* Compatibility banner */}
@@ -307,6 +319,8 @@ export default function SfcCalculatorPage() {
                 role="tab"
                 aria-selected={rightTab === t.id}
                 onClick={() => setRightTab(t.id)}
+                onKeyDown={handleTabKeyDown}
+                tabIndex={rightTab === t.id ? 0 : -1}
                 className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
                   rightTab === t.id
                     ? "border-primary-600 text-primary-600"

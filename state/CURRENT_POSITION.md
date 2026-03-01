@@ -1,11 +1,13 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** REMEDIATION COMPLETE -- REM-MS0 through REM-MS5 DONE (17 units, 39 findings fixed)
-**Build:** 6.6MB clean | Roadmap Index: v5.2.0 (82 milestones, 60 complete)
+**Phase:** SYSTEM OPTIMIZATION — SYS track created (8 milestones, 36 units)
+**Build:** 6.6MB clean | Roadmap Index: v5.3.0 (94 milestones, 62 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 tests (1242 pass, 1 pre-existing Merchant's ratios)
-**Next Recommended:** S3 (SFC Calculator UI) or REM-MS5-U02 (calculation engine test expansion)
+**Next Recommended:** SYS-MS0 (CLAUDE.md modular refactor) or S3-MS3 (SFC Advanced Features)
+**Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
+**Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
 - **U00 (WorkEnvelopeValidator):** C-001 C-axis limits + C-002 fixture_height — BOTH ALREADY FIXED (prior session)
@@ -223,10 +225,18 @@
 - **Key findings:** 6 CRITICAL issues for REM-MS0, 31 MAJOR across 4 remediation milestones, system Omega +22.6%
 - **Composite OQA:** (5.00+5.00+5.00+5.00)/4*0.8 + test_pass*0.2 = 5.00*0.8 + 1.0 = 4.00+0.94 = 4.94 (PASS, gate omega_floor=0.75 met)
 
+## Gap Analysis → SYS-MS4 through SYS-MS7 (2026-02-28)
+Deep system-wide gap analysis identified 4 structural improvement areas after QA+REM completion:
+- **SYS-MS4 Engine Wiring Audit (3 units):** 136/156 engines not directly imported by dispatchers (87%). Build dependency graph, identify dead code (~15-20 candidates), sync index.ts header. Deps: none.
+- **SYS-MS5 MASTER_INDEX Regen (2 units):** Only 102/156 engines documented (34%). Line counts stale (80% error on some). Regenerate from reality. Deps: SYS-MS4.
+- **SYS-MS6 Dispatcher Param Schemas (4 units):** All 45 dispatchers use z.record(z.any()). 24 schemas exist but none validate params. Create per-action Zod schemas for high-traffic dispatchers. Deps: none.
+- **SYS-MS7 Stub & Fallback Remediation (3 units):** exportDispatcher broken generate() fallback, automationDispatcher 5 dead compute() branches, batch_export stub, knowledgeDispatcher relations stub. Deps: none.
+- **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
+
 ## Milestone Summary
-- Complete: 58 milestones (S0-S2, L0-L10, QA-MS0 through QA-MS14, REM-MS0 through REM-MS3)
+- Complete: 62 milestones (S0-S3-MS2, L0-L10, QA-MS0-MS14, REM-MS0-MS5)
 - In Progress: 0
-- Not Started: 24 milestones (REM-MS4, REM-MS5, S3-S4, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 32 milestones (SYS-MS0-MS7, S3-MS3, S4, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -247,14 +257,15 @@
 | QA-MS13 | Cross-Cutting Concerns | 6 | **COMPLETE** (0 TS errors, 99.5% wiring, OQA=3.83) |
 | QA-MS14 | Enhancement Synthesis | 4 | **COMPLETE** (127 findings, Ω 3.50→4.29, OQA=4.94) |
 
-## Other Available Tracks
-| Track | Milestones | Description |
-|-------|-----------|-------------|
-| S3-S4 | 4 | SFC Calculator UI + Testing & Ship |
-| L8-MS2s | 3 | Web UIs (PPG, CAD/CAM Learning, ERP) |
-| L9 | 1 | WebGL 3D Viewer |
-| CC | 12 | CAD/CAM/Machining Learning Engine |
-| CC-EXT | 6 | Extended Learning (PDF, Sensor, QA) |
+## Available Tracks (32 milestones remaining)
+| Track | Milestones | Description | Unblocked |
+|-------|-----------|-------------|-----------|
+| SYS | 8 | System Optimization (CLAUDE.md, mega-dispatcher, tests, automation, engine wiring, MASTER_INDEX, param schemas, stub remediation) | SYS-MS0, SYS-MS1, SYS-MS4, SYS-MS6, SYS-MS7 |
+| S3-S4 | 2 | SFC Advanced Features + Testing & Ship | S3-MS3 |
+| L8-MS2s | 3 | Web UIs (PPG, CAD/CAM Learning, ERP) | All 3 |
+| L9 | 1 | WebGL 3D Viewer | L9-P2-MS1 |
+| CC | 12 | CAD/CAM/Machining Learning Engine | CC-MS0 |
+| CC-EXT | 6 | Extended Learning (PDF, Sensor, QA) | None (blocked by CC) |
 
 ## DATA REGISTRIES (verified 2026-02-22)
 Materials: 3022 typed / 6338 knowledge (3316 gap)
@@ -263,7 +274,7 @@ Machines: 1015 knowledge
 
 ## Canonical Roadmap System
 - **Master Index:** mcp-server/data/roadmap-index.json
-- **Envelopes:** mcp-server/data/milestones/*.json (80 files)
+- **Envelopes:** mcp-server/data/milestones/*.json (94 files)
 - **Schema:** mcp-server/src/schemas/roadmapSchema.ts
 - **Loader:** mcp-server/src/services/RoadmapLoader.ts
 - **Position:** state/CURRENT_POSITION.md (this file)
