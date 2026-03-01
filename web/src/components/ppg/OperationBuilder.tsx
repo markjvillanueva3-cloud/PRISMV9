@@ -18,9 +18,8 @@ interface OpEntry {
   params: Record<string, string>;
 }
 
-let nextId = 1;
 function makeId() {
-  return `op-${nextId++}`;
+  return `op-${crypto.randomUUID()}`;
 }
 
 export default function OperationBuilder({
@@ -30,6 +29,7 @@ export default function OperationBuilder({
   const { data: opsData, loading: opsLoading } = usePpgOperations();
   const [entries, setEntries] = useState<OpEntry[]>([]);
   const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
 
   const addOperation = (opId: string) => {
     setEntries((prev) => [
@@ -70,6 +70,7 @@ export default function OperationBuilder({
   const handleGenerate = async () => {
     if (!controller || entries.length === 0) return;
     setGenerating(true);
+    setGenError(null);
     try {
       const operations: PpgProgramOperation[] = entries.map((e) => ({
         type: e.operation,
@@ -81,8 +82,8 @@ export default function OperationBuilder({
       }));
       const result = await ppgApi.program({ controller, operations });
       onGenerate(result.gcode);
-    } catch {
-      // silently handled
+    } catch (e) {
+      setGenError((e as Error).message || "Program generation failed");
     } finally {
       setGenerating(false);
     }
@@ -215,6 +216,11 @@ export default function OperationBuilder({
             </div>
           ))}
         </div>
+      )}
+
+      {/* Generate error */}
+      {genError && (
+        <p className="text-xs text-red-500">{genError}</p>
       )}
 
       {/* Generate program button */}

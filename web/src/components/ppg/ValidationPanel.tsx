@@ -123,7 +123,7 @@ export default function ValidationPanel({
                 const cfg = severityConfig[issue.severity] ?? severityConfig.info;
                 return (
                   <button
-                    key={i}
+                    key={`${issue.severity}-${issue.line ?? "x"}-${issue.code ?? i}`}
                     type="button"
                     onClick={() => issue.line && onGoToLine?.(issue.line)}
                     disabled={!issue.line}

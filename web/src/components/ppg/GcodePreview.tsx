@@ -68,7 +68,11 @@ export default function GcodePreview({
   }, [gcode]);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(gcode);
+    try {
+      await navigator.clipboard.writeText(gcode);
+    } catch {
+      // Clipboard API may be unavailable in insecure contexts
+    }
   };
 
   const handleDownload = () => {
@@ -128,7 +132,7 @@ export default function GcodePreview({
       <div className="rounded-md border border-slate-200 bg-white
         dark:border-slate-700 dark:bg-slate-800">
         {sections.map((section, i) => (
-          <div key={i} className="border-b border-slate-100
+          <div key={`${section.label}-${i}`} className="border-b border-slate-100
             last:border-b-0 dark:border-slate-700/50">
             <div className={`px-2 py-0.5 text-[9px] font-semibold
               uppercase tracking-wider ${section.color}`}>

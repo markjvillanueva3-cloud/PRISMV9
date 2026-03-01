@@ -20,6 +20,7 @@ export default function TemplateBrowser({ controller, onGenerate }: TemplateBrow
   const [selected, setSelected] = useState<PpgOperationInfo | null>(null);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
 
   const grouped = useMemo(() => {
     if (!data?.length) return new Map<string, PpgOperationInfo[]>();
@@ -67,6 +68,7 @@ export default function TemplateBrowser({ controller, onGenerate }: TemplateBrow
   const handleGenerate = async () => {
     if (!selected || !controller) return;
     setGenerating(true);
+    setGenError(null);
     try {
       const params: Record<string, number | string> = {};
       for (const p of selected.params) {
@@ -83,8 +85,8 @@ export default function TemplateBrowser({ controller, onGenerate }: TemplateBrow
       onGenerate(result.gcode);
       setSelected(null);
       setParamValues({});
-    } catch {
-      // Error handled silently — user sees generate button re-enable
+    } catch (e) {
+      setGenError((e as Error).message || "Generation failed");
     } finally {
       setGenerating(false);
     }
@@ -131,6 +133,11 @@ export default function TemplateBrowser({ controller, onGenerate }: TemplateBrow
           aria-label="Filter templates"
         />
       </div>
+
+      {/* Generate error */}
+      {genError && (
+        <p className="mx-3 text-xs text-red-500">{genError}</p>
+      )}
 
       {/* Template list */}
       <div className="overflow-y-auto px-1 pb-2">

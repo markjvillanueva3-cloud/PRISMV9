@@ -126,8 +126,8 @@ export default function OptimizeDownload({
           </div>
           {(data.savings?.length ?? 0) > 0 && (
             <ul className="mt-2 space-y-0.5">
-              {data.savings!.map((s: string, i: number) => (
-                <li key={i} className="text-[10px] text-slate-500">
+              {data.savings!.map((s: string) => (
+                <li key={s} className="text-[10px] text-slate-500">
                   {s}
                 </li>
               ))}

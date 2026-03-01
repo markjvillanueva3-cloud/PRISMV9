@@ -24,10 +24,12 @@ export default function GcodeEditor({
   onSave,
 }: GcodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof import("monaco-editor") | null>(null);
 
   const handleMount: OnMount = useCallback(
     (ed, monaco) => {
       editorRef.current = ed;
+      monacoRef.current = monaco;
 
       // Register G-code language (once globally)
       if (!languageRegistered) {
@@ -80,12 +82,9 @@ export default function GcodeEditor({
   // Sync dark mode changes
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      if (!editorRef.current) return;
+      if (!editorRef.current || !monacoRef.current) return;
       const isDark = document.documentElement.classList.contains("dark");
-      const monaco = (window as unknown as Record<string, unknown>).monaco as
-        | typeof import("monaco-editor")
-        | undefined;
-      monaco?.editor.setTheme(isDark ? "gcode-dark" : "gcode-light");
+      monacoRef.current.editor.setTheme(isDark ? "gcode-dark" : "gcode-light");
     });
 
     observer.observe(document.documentElement, {

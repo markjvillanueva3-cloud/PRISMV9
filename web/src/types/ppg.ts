@@ -82,7 +82,6 @@ export interface PpgProgramOperation {
   rpm?: number;
   feed_rate?: number;
   params?: Record<string, number | string>;
-  [key: string]: unknown;
 }
 
 export interface PpgProgramRequest {
@@ -137,7 +136,6 @@ export interface PpgCompareRequest {
   spindle_rpm?: number;
   feed_rate_mmmin?: number;
   coolant?: "flood" | "mist" | "air" | "none";
-  [key: string]: unknown;
 }
 
 export interface PpgCompareResultEntry {
