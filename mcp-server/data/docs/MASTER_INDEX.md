@@ -16,8 +16,8 @@ Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, au
 ### prism_autonomous (autonomousDispatcher.ts, 1070L)
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
-### prism_calc (calcDispatcher.ts, 462L)
-Actions (21): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit
+### prism_calc (calcDispatcher.ts, 1452L)
+Actions (57): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -567,7 +567,21 @@ Total skill files: 119
 ### Coordination Schemas (schemas/coordinationTypes.ts, 73L)
 - ClaimRecord, InstanceRecord, CoordinationMessage, RoadmapRegistry, RoadmapRegistryEntry
 
-## 15. SUMMARY (Updated 2026-02-28, SYS-MS5 regeneration)
+### Action Param Schemas (SYS-MS6 — 7 schema files, 147 actions validated)
+- actionSchemaTypes.ts — Shared types (ActionSchemaMap, ValidationResult)
+- calcActionSchemas.ts — 48 prism_calc action schemas
+- safetyActionSchemas.ts — 29 prism_safety action schemas (STRICT)
+- fiveAxisActionSchemas.ts — 5 prism_5axis action schemas (STRICT)
+- threadActionSchemas.ts — 13 prism_thread action schemas
+- dataActionSchemas.ts — 35 prism_data action schemas (LOOSE)
+- toolpathActionSchemas.ts — 9 prism_toolpath action schemas
+- exportActionSchemas.ts — 8 prism_export action schemas
+
+### Validation Middleware (SYS-MS6)
+- validation/actionParamValidator.ts — Standalone validator with coercion + structured errors
+- utils/dispatcherMiddleware.ts — validateActionParams() with type coercion (string→number/boolean)
+
+## 15. SUMMARY (Updated 2026-03-01, SYS-MS6 schema validation)
 
 - Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
 - Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
@@ -584,7 +598,9 @@ Total skill files: 119
 - Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
 - Coordination files: TaskClaimService + 5 orchestration actions
 - Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
-- Roadmap: v5.3.0, 94 milestones, 67 complete
+- Action Param Schemas: 8 files covering 7 dispatchers, 147 actions (SYS-MS6)
+- Slash commands: 34 (16 core + 10 forge family + 8 utility)
+- Roadmap: v5.3.0, 94 milestones, 68 complete
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

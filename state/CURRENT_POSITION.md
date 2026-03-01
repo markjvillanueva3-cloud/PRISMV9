@@ -7,7 +7,8 @@
 **Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
 **S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
 **Next Recommended:** SYS-MS1 (mega-dispatcher decomp) or SYS-MS8+ (new SYS milestones)
-**Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
+**Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
+**Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 
 ## REM-MS0 Safety-Critical Remediation (2026-02-28)
