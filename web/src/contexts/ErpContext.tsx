@@ -72,8 +72,8 @@ export function ErpProvider({ children, wsUrl = "/ws/erp" }: ErpProviderProps) {
         try {
           const msg = JSON.parse(event.data);
           handleWsMessage(msg);
-        } catch {
-          // ignore malformed messages
+        } catch (err) {
+          console.warn("[ErpContext] Malformed WebSocket message:", err);
         }
       };
 
@@ -99,9 +99,11 @@ export function ErpProvider({ children, wsUrl = "/ws/erp" }: ErpProviderProps) {
 
   // ---- WebSocket message handler ----
   const handleWsMessage = useCallback((msg: { type: string; data: unknown }) => {
+    const d = msg.data;
     switch (msg.type) {
       case "job_update": {
-        const job = msg.data as ErpJobInfo;
+        if (!d || typeof d !== "object" || !("job_id" in d)) break;
+        const job = d as ErpJobInfo;
         setState((s) => ({
           ...s,
           activeJobs: s.activeJobs.some((j) => j.job_id === job.job_id)
@@ -111,7 +113,8 @@ export function ErpProvider({ children, wsUrl = "/ws/erp" }: ErpProviderProps) {
         break;
       }
       case "oee_update": {
-        const metric = msg.data as ErpOeeMetric;
+        if (!d || typeof d !== "object" || !("machine" in d)) break;
+        const metric = d as ErpOeeMetric;
         setState((s) => ({
           ...s,
           machineOee: s.machineOee.some((m) => m.machine === metric.machine)
@@ -121,13 +124,13 @@ export function ErpProvider({ children, wsUrl = "/ws/erp" }: ErpProviderProps) {
         break;
       }
       case "jobs_snapshot": {
-        const jobs = msg.data as ErpJobInfo[];
-        setState((s) => ({ ...s, activeJobs: jobs }));
+        if (!Array.isArray(d)) break;
+        setState((s) => ({ ...s, activeJobs: d as ErpJobInfo[] }));
         break;
       }
       case "oee_snapshot": {
-        const metrics = msg.data as ErpOeeMetric[];
-        setState((s) => ({ ...s, machineOee: metrics }));
+        if (!Array.isArray(d)) break;
+        setState((s) => ({ ...s, machineOee: d as ErpOeeMetric[] }));
         break;
       }
     }

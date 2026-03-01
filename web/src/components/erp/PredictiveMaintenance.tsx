@@ -178,22 +178,17 @@ function AlertCard({ alert }: { alert: ErpMaintenanceAlert }) {
 // ---------------------------------------------------------------------------
 
 function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function daysUntilDate(iso: string): number | null {
-  try {
-    const diff = new Date(iso).getTime() - Date.now();
-    return Math.max(0, Math.ceil(diff / 86_400_000));
-  } catch {
-    return null;
-  }
+  const ts = new Date(iso).getTime();
+  if (isNaN(ts)) return null;
+  return Math.max(0, Math.ceil((ts - Date.now()) / 86_400_000));
 }

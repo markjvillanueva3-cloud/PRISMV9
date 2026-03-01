@@ -89,7 +89,7 @@ export default function ReportBuilder() {
     a.href = url;
     a.download = `report-${metric}-${timeRange}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   };
 
   return (

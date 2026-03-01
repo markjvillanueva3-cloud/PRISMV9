@@ -32,6 +32,30 @@ const CONDITION_COLORS: Record<string, string> = {
   replace: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
+type ToolSortKey = keyof ToolItem;
+type MaterialSortKey = keyof MaterialItem;
+
+function getToolValue(item: ToolItem, key: string): string | number {
+  switch (key as ToolSortKey) {
+    case "name": return item.name;
+    case "quantity": return item.quantity;
+    case "location": return item.location;
+    case "condition": return item.condition;
+    case "lastUsed": return item.lastUsed;
+    default: return item.name;
+  }
+}
+
+function getMaterialValue(item: MaterialItem, key: string): string | number {
+  switch (key as MaterialSortKey) {
+    case "name": return item.name;
+    case "stock": return item.stock;
+    case "reorderPoint": return item.reorderPoint;
+    case "supplier": return item.supplier;
+    default: return item.name;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
@@ -133,8 +157,8 @@ function ToolTable({
       : items;
 
     list = [...list].sort((a, b) => {
-      const av = (a as Record<string, unknown>)[sortCol];
-      const bv = (b as Record<string, unknown>)[sortCol];
+      const av = getToolValue(a, sortCol);
+      const bv = getToolValue(b, sortCol);
       const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true });
       return sortDir === "asc" ? cmp : -cmp;
     });
@@ -142,7 +166,7 @@ function ToolTable({
     return list;
   }, [items, search, sortCol, sortDir]);
 
-  const headers = [
+  const headers: { key: ToolSortKey; label: string }[] = [
     { key: "name", label: "Tool" },
     { key: "quantity", label: "Qty" },
     { key: "location", label: "Location" },
@@ -225,8 +249,8 @@ function MaterialTable({
       : items;
 
     list = [...list].sort((a, b) => {
-      const av = (a as Record<string, unknown>)[sortCol];
-      const bv = (b as Record<string, unknown>)[sortCol];
+      const av = getMaterialValue(a, sortCol);
+      const bv = getMaterialValue(b, sortCol);
       const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true });
       return sortDir === "asc" ? cmp : -cmp;
     });
@@ -234,7 +258,7 @@ function MaterialTable({
     return list;
   }, [items, search, sortCol, sortDir]);
 
-  const headers = [
+  const headers: { key: MaterialSortKey; label: string }[] = [
     { key: "name", label: "Material" },
     { key: "stock", label: "Stock" },
     { key: "reorderPoint", label: "Reorder Point" },

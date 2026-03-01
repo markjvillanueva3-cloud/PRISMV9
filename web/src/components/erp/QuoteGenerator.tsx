@@ -69,24 +69,28 @@ export default function QuoteGenerator() {
     const dims = parseDimensions();
     const qty = Number(details.quantity) || 1;
 
-    const [quoteResult] = await Promise.all([
-      quoteGen.execute({
-        material: details.material,
-        feature: details.feature,
-        dimensions: dims,
-        quantity: qty,
-        tolerance: details.tolerance || undefined,
-        surface_finish: details.surface_finish || undefined,
-      }),
-      breakdown.execute({
-        material: details.material,
-        feature: details.feature,
-        dimensions: dims,
-        quantity: qty,
-      }),
-    ]);
+    try {
+      const [quoteResult] = await Promise.all([
+        quoteGen.execute({
+          material: details.material,
+          feature: details.feature,
+          dimensions: dims,
+          quantity: qty,
+          tolerance: details.tolerance || undefined,
+          surface_finish: details.surface_finish || undefined,
+        }),
+        breakdown.execute({
+          material: details.material,
+          feature: details.feature,
+          dimensions: dims,
+          quantity: qty,
+        }),
+      ]);
 
-    if (quoteResult) setStep("review");
+      if (quoteResult) setStep("review");
+    } catch {
+      // Hook errors are surfaced via quoteGen.error / breakdown.error
+    }
   };
 
   const handleCompare = async () => {
