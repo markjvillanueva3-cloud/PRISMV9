@@ -35,6 +35,7 @@ function PpgPageInner() {
   const [mobileTab, setMobileTab] = useState<PanelTab>("editor");
   const [mdRightTab, setMdRightTab] = useState<RightTab>("editor");
   const [showDiff, setShowDiff] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Keyboard shortcuts: Ctrl+S (validate), Ctrl+Shift+G (generate), Ctrl+D (diff)
   useEffect(() => {
@@ -143,7 +144,7 @@ function PpgPageInner() {
             <div className={`flex-1 flex-col overflow-hidden xl:flex ${
               mdRightTab === "editor" ? "flex" : "hidden xl:flex"
             }`}>
-              <EditorSection />
+              <EditorSection showHelp={showHelp} onToggleHelp={() => setShowHelp((v) => !v)} />
             </div>
             <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${
               mdRightTab === "preview" ? "flex" : "hidden"
@@ -165,7 +166,7 @@ function PpgPageInner() {
           {(mobileTab === "controller" || mobileTab === "templates") && (
             <SidebarPanel activeTab={mobileTab} />
           )}
-          {mobileTab === "editor" && <EditorSection />}
+          {mobileTab === "editor" && <EditorSection showHelp={showHelp} onToggleHelp={() => setShowHelp((v) => !v)} />}
           {mobileTab === "preview" && (
             <>
               <PanelHeader title="Preview" />
@@ -227,13 +228,32 @@ function SidebarPanel({
   );
 }
 
-function EditorSection() {
+function EditorSection({ showHelp, onToggleHelp }: {
+  showHelp?: boolean;
+  onToggleHelp?: () => void;
+}) {
   const { editorContent, setEditorContent, activeController } =
     usePpgContext();
 
   return (
     <div className="flex flex-1 flex-col">
-      <PanelHeader title="G-Code Editor" />
+      <PanelHeader
+        title="G-Code Editor"
+        actions={
+          <button
+            type="button"
+            onClick={onToggleHelp}
+            className="rounded px-1.5 py-0.5 text-[10px] text-slate-400
+              hover:bg-slate-100 hover:text-slate-600
+              dark:hover:bg-slate-700"
+            title="Keyboard shortcuts"
+            aria-label="Toggle keyboard shortcuts help"
+          >
+            ?
+          </button>
+        }
+      />
+      {showHelp && <KeyboardShortcutHelp />}
       <div className="flex-1 overflow-hidden">
         <GcodeEditor
           value={editorContent}
@@ -307,6 +327,34 @@ function PanelHeader({
         {title}
       </h2>
       {actions}
+    </div>
+  );
+}
+
+const SHORTCUTS = [
+  { keys: "Ctrl+S", action: "Save / Validate" },
+  { keys: "Ctrl+Shift+G", action: "Generate from template" },
+  { keys: "Ctrl+D", action: "Toggle diff view" },
+] as const;
+
+function KeyboardShortcutHelp() {
+  return (
+    <div className="border-b border-slate-200 bg-slate-50 px-3 py-2
+      dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="flex items-center gap-4 text-[10px]">
+        <span className="font-semibold text-slate-500">Shortcuts:</span>
+        {SHORTCUTS.map((s) => (
+          <span key={s.keys} className="text-slate-500">
+            <kbd className="rounded border border-slate-300 bg-white
+              px-1 py-0.5 font-mono text-[9px] text-slate-600
+              dark:border-slate-600 dark:bg-slate-700
+              dark:text-slate-300">
+              {s.keys}
+            </kbd>
+            {" "}{s.action}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
