@@ -320,24 +320,28 @@ export function calculateEngagementAngle(
     exit_angle = 90 + (arc_of_engagement / 2);
   } else {
     // Conventional: tool enters at zero chip, exits at max
-    entry_angle = 90 + (arc_of_engagement / 2);
-    exit_angle = 90 - (arc_of_engagement / 2);
+    // Entry < exit (measured in cutter rotation direction) for consistent force calcs
+    entry_angle = 180 - (90 + (arc_of_engagement / 2));
+    exit_angle = 180 - (90 - (arc_of_engagement / 2));
   }
   
   // Chip thickness calculations
   // h_max = fz × sin(engagement_angle/2)
   const max_chip_thickness = feed_per_tooth * Math.sin(half_angle_rad);
   
-  // Average chip thickness (simplified)
-  // h_avg ≈ fz × (ae/D)^0.5 × (2/π) × arc_of_engagement
-  const avg_factor = Math.sqrt(radial_depth / tool_diameter);
-  const average_chip_thickness = feed_per_tooth * avg_factor * 0.637;
+  // Average chip thickness: h_avg = fz × ae / (R × φ_rad)
+  // Ref: Altintas "Manufacturing Automation" Eq 2.22 — integral-based mean
+  const engagement_rad = half_angle_rad * 2;
+  const average_chip_thickness = engagement_rad > 0.001
+    ? feed_per_tooth * radial_depth / (radius * engagement_rad)
+    : feed_per_tooth * 0.01;
   
   // Effective cutting speed adjustment
   let effective_cutting_speed = cutting_speed || 0;
   if (cutting_speed && radial_engagement_percent < 50) {
     // Chip thinning compensation - can increase speed
-    const compensation = 1 / avg_factor;
+    const ae_ratio_sqrt = Math.sqrt(radial_depth / tool_diameter);
+    const compensation = ae_ratio_sqrt > 0.001 ? 1 / ae_ratio_sqrt : 1;
     effective_cutting_speed = cutting_speed * Math.min(compensation, 1.5);
   }
   

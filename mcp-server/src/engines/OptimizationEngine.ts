@@ -445,10 +445,14 @@ function taylorLife(vc_mpm: number, C: number, n: number): number {
 
 function calcSustainability(
   mat: MatOpt, vc: number, fz: number, ap: number, ae: number,
-  cycleTime: number, machinePower_kw: number, coolantType: string
+  cycleTime: number, machinePower_kw: number, coolantType: string,
+  num_teeth: number = 4, tool_diameter: number = 12
 ): SustainabilityMetrics {
   // F-SUST-001: Energy consumption
-  const mrr_cm3_min = (vc * 1000 / 60) * fz * ap * ae / 1000; // cm³/min (approx)
+  // MRR = ae × ap × vf [mm³/min], vf = fz × z × N, N = vc×1000/(π×D)
+  const N_rpm = (vc * 1000) / (Math.PI * tool_diameter);
+  const mrr_mm3_min = ae * ap * fz * num_teeth * N_rpm;
+  const mrr_cm3_min = mrr_mm3_min / 1000;
   const cutting_energy_kwh = mat.energy_factor * mrr_cm3_min * cycleTime / 60;
   const spindle_energy_kwh = machinePower_kw * 0.6 * cycleTime / 60; // 60% avg load
   const aux_energy_kwh = machinePower_kw * 0.15 * cycleTime / 60; // coolant pumps, etc
@@ -525,8 +529,14 @@ function generateParetoFront(
           if (life < 3) continue; // Too short
 
           // Cycle time estimate
+          // MRR = ae × ap × vf, vf = fz × z × N, N = vc×1000/(π×D)
+          // Assume z=4 flutes, D=12mm for endmill (face mill z=6, D=50)
+          const estZ = feature === 'face' ? 6 : 4;
+          const estD = feature === 'face' ? 50 : 12;
           const numPasses = Math.ceil(depth / ap);
-          const mrr = vc * 1000 / 60 * fz * ap; // mm³/s (simplified)
+          const estN = (vc * 1000) / (Math.PI * estD);
+          const vf = fz * estZ * estN; // mm/min
+          const mrr = ae * ap * vf / 60; // mm³/s
           const volume = depth * width * length; // mm³
           const cycleTime = volume / (mrr * 60 + 1e-10); // min
           if (constraints.max_cycle_time_min && cycleTime > constraints.max_cycle_time_min) continue;
