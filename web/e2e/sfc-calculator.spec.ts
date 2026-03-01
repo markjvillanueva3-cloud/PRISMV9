@@ -14,7 +14,7 @@ const MOCK_CALC_RESULT = {
 test.describe("SFC Calculator", () => {
   test.beforeEach(async ({ page }) => {
     // Mock the calculate API so tests don't need a running backend
-    await page.route("**/api/sfc/calculate", (route) =>
+    await page.route("**/api/v1/sfc/calculate", (route) =>
       route.fulfill({
         status: 200,
         contentType: "application/json",
