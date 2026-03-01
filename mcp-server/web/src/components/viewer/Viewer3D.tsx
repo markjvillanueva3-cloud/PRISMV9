@@ -128,7 +128,7 @@ export function Viewer3D({
   className = '',
 }: Viewer3DProps) {
   const [activePreset, setActivePreset] = useState<ViewPreset>(viewPreset);
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef(null);
 
   // Sync external preset changes
   useEffect(() => {
