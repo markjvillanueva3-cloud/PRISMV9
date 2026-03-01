@@ -2,10 +2,11 @@
 ## Updated: 2026-02-28
 
 **Phase:** SYSTEM OPTIMIZATION — SYS track created (8 milestones, 36 units)
-**Build:** 6.6MB clean | Roadmap Index: v5.3.0 (94 milestones, 62 complete)
+**Build:** 6.6MB clean | Roadmap Index: v5.3.0 (94 milestones, 63 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 tests (1242 pass, 1 pre-existing Merchant's ratios)
-**Next Recommended:** SYS-MS0 (CLAUDE.md modular refactor) or S3-MS3 (SFC Advanced Features)
+**SYS-MS0 COMPLETE:** CLAUDE.md modular architecture — 1,656 to 172 lines (90% reduction, ~14.5K tokens saved/session)
+**Next Recommended:** SYS-MS1 (Intelligence Mega-Dispatcher Decomposition) or S3-MS3 (SFC Advanced Features)
 **Slash commands (16):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
 

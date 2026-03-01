@@ -1,15 +1,34 @@
 import { test, expect } from "@playwright/test";
 
+/** Mock API response for /api/sfc/calculate */
+const MOCK_CALC_RESULT = {
+  spindle_speed: 4800,
+  feed_rate: 1920,
+  cutting_speed: 150,
+  feed_per_tooth: 0.1,
+  depth_of_cut: 2.0,
+  safety: { score: 0.85, status: "APPROVED" },
+  meta: { power_kw: 3.2 },
+};
+
 test.describe("SFC Calculator", () => {
   test.beforeEach(async ({ page }) => {
+    // Mock the calculate API so tests don't need a running backend
+    await page.route("**/api/sfc/calculate", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_CALC_RESULT),
+      }),
+    );
     await page.goto("/sfc");
   });
 
   test("page loads with correct title and layout", async ({ page }) => {
     // Verify page structure
-    await expect(page.getByRole("heading", { name: /material/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /operation/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /results/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /material/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /operation/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /results/i }).first()).toBeVisible();
 
     // Calculate button should be disabled initially
     const calcButton = page.getByRole("button", { name: /calculate/i });
@@ -37,8 +56,8 @@ test.describe("SFC Calculator", () => {
   });
 
   test("operation selector expands categories", async ({ page }) => {
-    // Click a category (Milling)
-    const millingButton = page.getByRole("button", { name: /milling/i }).first();
+    // Click a category (Milling) — use the category-level button
+    const millingButton = page.getByRole("button", { name: /^milling$/i });
     await millingButton.click();
 
     // Sub-operations should appear
@@ -56,7 +75,7 @@ test.describe("SFC Calculator", () => {
     await page.getByRole("option").first().click();
 
     // 2. Select operation
-    const millingButton = page.getByRole("button", { name: /milling/i }).first();
+    const millingButton = page.getByRole("button", { name: /^milling$/i });
     await millingButton.click();
     await page.getByRole("button", { name: /face milling/i }).click();
 
@@ -64,14 +83,12 @@ test.describe("SFC Calculator", () => {
     const calcButton = page.getByRole("button", { name: /calculate/i });
     await expect(calcButton).toBeEnabled();
 
-    // 4. Click calculate
+    // 4. Click calculate (API is mocked in beforeEach)
     await calcButton.click();
 
-    // 5. Results should appear (or loading state)
-    // Note: Without a running API server, this will show an error,
-    // but we verify the flow works up to the API call
+    // 5. Results should appear with mocked data
     await expect(
-      page.getByText(/RPM|calculating|error/i)
+      page.getByText(/4800|RPM/i)
     ).toBeVisible({ timeout: 5000 });
   });
 
@@ -94,7 +111,7 @@ test.describe("SFC Calculator", () => {
     await page.getByRole("option").first().click();
 
     // Select operation
-    const millingButton = page.getByRole("button", { name: /milling/i }).first();
+    const millingButton = page.getByRole("button", { name: /^milling$/i });
     await millingButton.click();
     await page.getByRole("button", { name: /pocket milling/i }).click();
 
@@ -109,7 +126,7 @@ test.describe("SFC Calculator", () => {
     await materialInput.fill("1045");
     await page.getByRole("option").first().click();
 
-    const millingButton = page.getByRole("button", { name: /milling/i }).first();
+    const millingButton = page.getByRole("button", { name: /^milling$/i });
     await millingButton.click();
     await page.getByRole("button", { name: /face milling/i }).click();
 

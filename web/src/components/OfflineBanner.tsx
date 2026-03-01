@@ -4,14 +4,10 @@ export default function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
-    const goOffline = () => setOffline(true);
-    const goOnline = () => setOffline(false);
-    window.addEventListener("offline", goOffline);
-    window.addEventListener("online", goOnline);
-    return () => {
-      window.removeEventListener("offline", goOffline);
-      window.removeEventListener("online", goOnline);
-    };
+    const ac = new AbortController();
+    window.addEventListener("offline", () => setOffline(true), { signal: ac.signal });
+    window.addEventListener("online", () => setOffline(false), { signal: ac.signal });
+    return () => ac.abort();
   }, []);
 
   if (!offline) return null;

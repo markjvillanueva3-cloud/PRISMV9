@@ -6,9 +6,16 @@ services:
     ports:
       - "${WEB_PORT:-8080}:80"
     depends_on:
-      - mcp-server
+      mcp-server:
+        condition: service_healthy
     environment:
       - API_URL=http://mcp-server:3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   mcp-server:
     build: ./mcp-server
@@ -19,3 +26,9 @@ services:
       - PORT=3000
     volumes:
       - ./mcp-server/data:/app/data:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
