@@ -1565,3 +1565,37 @@ export {
   type GroupResult,
   type SwarmGroupResult,
 } from "./SwarmGroupExecutor.js";
+
+// ─── New Engines: FORGE-ENGINES (2026-03-01) ───────────────────────
+
+export {
+  toolWearProgressionEngine,
+  ToolWearProgressionEngine,
+  type WearProgressionInput,
+  type WearProgressionResult,
+  type WearStage,
+  type ToolGrade,
+} from "./ToolWearProgressionEngine.js";
+
+export {
+  grindingForceEngine,
+  GrindingForceEngine,
+  type GrindingForceInput,
+  type GrindingForceResult,
+  type GrindingMode,
+} from "./GrindingForceEngine.js";
+
+export {
+  drillBreakthroughForceEngine,
+  DrillBreakthroughForceEngine,
+  type DrillBreakthroughInput,
+  type DrillBreakthroughResult,
+  type ExitSupport,
+  type BurrRisk,
+} from "./DrillBreakthroughForceEngine.js";
+
+// Wire existing RegenerativeChatterPredictor (was on-disk but unexported)
+export {
+  regenerativeChatterPredictor,
+  RegenerativeChatterPredictor,
+} from "./RegenerativeChatterPredictor.js";

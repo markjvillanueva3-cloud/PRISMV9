@@ -32,6 +32,11 @@ import {
   type DrillingConditions
 } from "../../engines/ManufacturingCalculations.js";
 
+import { toolWearProgressionEngine } from "../../engines/ToolWearProgressionEngine.js";
+import type { ToolGrade } from "../../engines/ToolWearProgressionEngine.js";
+import { drillBreakthroughForceEngine } from "../../engines/DrillBreakthroughForceEngine.js";
+import type { ExitSupport } from "../../engines/DrillBreakthroughForceEngine.js";
+
 import {
   calculateStabilityLobes,
   calculateToolDeflection,
@@ -147,6 +152,10 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { T_tool_C: result.tool_temperature, T_chip_C: result.chip_temperature };
     case "drilling_force":
       return { Fc_N: result.Fc, Ff_N: result.Ff, torque_Nm: result.torque, power_kW: result.power };
+    case "wear_progression":
+      return { vb_mm: result.current_vb_mm?.value, wear_rate_um_min: result.wear_rate_um_per_min?.value, remaining_min: result.remaining_life_min?.value, stage: result.wear_stage, safe: result.is_safe };
+    case "drill_breakthrough":
+      return { thrust_N: result.steady_state_thrust_N?.value, peak_thrust_N: result.peak_breakthrough_thrust_N?.value, exit_feed: result.recommended_exit_feed_mm_rev?.value, burr_risk: result.exit_burr_risk, safe: result.is_safe };
     case "cost_optimize":
       return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
     case "multi_optimize":
@@ -1367,6 +1376,42 @@ export function registerCalcDispatcher(server: any): void {
             result = algorithmEngine.benchmark({
               algorithm_id: params.algorithm_id,
               params: params.algorithm_params ?? params.params ?? params,
+            });
+            break;
+          }
+
+          case "wear_progression": {
+            result = toolWearProgressionEngine.calculate({
+              cutting_speed_m_min: params.cutting_speed || params.vc || 150,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.f || 0.2,
+              depth_of_cut_mm: params.depth_of_cut || params.axial_depth || params.ap || 2,
+              tool_grade: (params.tool_grade || params.tool_material || "CARBIDE") as ToolGrade,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc || 30,
+              cutting_time_min: params.cutting_time_min || params.elapsed_min,
+              current_vb_mm: params.current_vb_mm || params.vb,
+              vb_limit_mm: params.vb_limit_mm || params.wear_limit || 0.3,
+              cutting_temperature_C: params.temperature_C,
+              taylor_C: params.taylor_C,
+              taylor_n: params.taylor_n,
+            });
+            break;
+          }
+
+          case "drill_breakthrough": {
+            result = drillBreakthroughForceEngine.calculate({
+              drill_diameter_mm: params.drill_diameter || params.tool_diameter || params.diameter || 10,
+              point_angle_deg: params.point_angle_deg || params.point_angle || 118,
+              web_thickness_mm: params.web_thickness_mm,
+              helix_angle_deg: params.helix_angle_deg || params.helix_angle,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.f || 0.15,
+              spindle_rpm: params.spindle_rpm || params.rpm || 1000,
+              workpiece_thickness_mm: params.workpiece_thickness || params.thickness || 20,
+              material_kc1_1: params.kc1_1,
+              material_mc: params.mc,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc || 30,
+              is_through_hole: params.is_through_hole ?? params.through_hole ?? true,
+              exit_support: (params.exit_support || "none") as ExitSupport,
+              remaining_thickness_mm: params.remaining_thickness_mm,
             });
             break;
           }

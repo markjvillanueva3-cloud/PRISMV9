@@ -10,9 +10,11 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { grindingForceEngine } from "../../engines/GrindingForceEngine.js";
+import type { GrindingMode, CoolantType } from "../../engines/GrindingForceEngine.js";
 
 const ACTIONS = [
-  "wheel_select", "dress_params", "burn_threshold", "surface_integrity",
+  "wheel_select", "dress_params", "burn_threshold", "surface_integrity", "grinding_force",
 ] as const;
 
 // Grinding wheel bond/abrasive constants
@@ -124,6 +126,24 @@ Actions: ${ACTIONS.join(", ")}.`,
               ],
             };
             if (result.recommendations.length === 0) result.recommendations.push("Surface integrity acceptable");
+            break;
+          }
+          case "grinding_force": {
+            const gfResult = grindingForceEngine.calculate({
+              wheel_diameter_mm: params.wheel_diameter_mm || 200,
+              wheel_speed_m_s: params.wheel_speed_m_s || 30,
+              work_speed_m_min: params.work_speed_m_min || 15,
+              depth_of_cut_mm: params.depth_of_cut_mm || 0.02,
+              width_of_cut_mm: params.width_of_cut_mm || 20,
+              grinding_mode: (params.grinding_mode || "surface") as GrindingMode,
+              workpiece_diameter_mm: params.workpiece_diameter_mm,
+              material_specific_energy_J_mm3: params.specific_energy_J_mm3,
+              workpiece_hardness_hrc: params.hardness_hrc || 40,
+              coolant_type: (params.coolant_type || "flood") as CoolantType,
+              grain_density_per_mm2: params.grain_density,
+              grain_radius_um: params.grain_radius_um,
+            });
+            result = gfResult;
             break;
           }
           default:
