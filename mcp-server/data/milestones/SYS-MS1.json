@@ -1,0 +1,92 @@
+{
+  "id": "SYS-MS1",
+  "title": "Intelligence Mega-Dispatcher Decomposition",
+  "track": "SYS",
+  "status": "in_progress",
+  "description": "Decompose prism_intelligence (250 actions, 44% of system) into 6 focused dispatchers per QA-MS6 analysis. Backward-compatible via deprecation forwarding.",
+  "units": [
+    {
+      "id": "SYS-MS1-U00",
+      "title": "Extract prism_product Dispatcher (40 actions)",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create productDispatcher.ts with 40 SFC/PPG/Shop/ACNC product actions"},
+        {"number": 2, "instruction": "Move ProductEngine routing from intelligenceDispatcher to new file"},
+        {"number": 3, "instruction": "Register in dispatchers/index.ts"},
+        {"number": 4, "instruction": "Add deprecation forwarding in intelligenceDispatcher for moved actions"}
+      ],
+      "exit_conditions": ["40 actions route through prism_product", "Old routes still work via forwarding", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U01",
+      "title": "Extract prism_machine_live Dispatcher (40 actions)",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create machineLiveDispatcher.ts with MachineConnectivity, AdaptiveControl, PredictiveMaintenance, Industry actions"},
+        {"number": 2, "instruction": "Move telemetry/monitoring routing from intelligenceDispatcher"},
+        {"number": 3, "instruction": "Register and add deprecation forwarding"}
+      ],
+      "exit_conditions": ["40 actions route through prism_machine_live", "Backward compatible", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U02",
+      "title": "Extract prism_integration Dispatcher (42 actions)",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create integrationDispatcher.ts with federation, apprentice, genome, workflow actions"},
+        {"number": 2, "instruction": "Move cross-system integration routing from intelligenceDispatcher"},
+        {"number": 3, "instruction": "Register and add deprecation forwarding"}
+      ],
+      "exit_conditions": ["42 actions route through prism_integration", "Backward compatible", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U03",
+      "title": "Extract prism_knowledge_ext Dispatcher (40 actions)",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Create knowledgeExtDispatcher.ts with KnowledgeGraph, TribalKnowledge, ConversationalMemory actions"},
+        {"number": 2, "instruction": "Move knowledge management routing from intelligenceDispatcher"},
+        {"number": 3, "instruction": "Register and add deprecation forwarding"}
+      ],
+      "exit_conditions": ["40 actions route through prism_knowledge_ext", "Backward compatible", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U04",
+      "title": "Extract prism_diagnosis Dispatcher (38 actions)",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Create diagnosisDispatcher.ts with diagnostic, analysis, anomaly detection actions"},
+        {"number": 2, "instruction": "Move diagnostic routing from intelligenceDispatcher"},
+        {"number": 3, "instruction": "Register and add deprecation forwarding"}
+      ],
+      "exit_conditions": ["38 actions route through prism_diagnosis", "Backward compatible", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U05",
+      "title": "Slim Down Residual prism_intelligence (50 actions)",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Verify remaining ~50 core intelligence actions stay in prism_intelligence"},
+        {"number": 2, "instruction": "Remove moved action handlers from intelligenceDispatcher"},
+        {"number": 3, "instruction": "Update ACTIONS array to reflect only remaining actions"},
+        {"number": 4, "instruction": "Verify deprecation forwarding works for all 200 moved actions"}
+      ],
+      "exit_conditions": ["prism_intelligence has ~50 actions (down from 250)", "All 200 moved actions still accessible via old routes", "0 TS errors"]
+    },
+    {
+      "id": "SYS-MS1-U06",
+      "title": "Update Documentation and Tests",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Update MASTER_INDEX.md with 5 new dispatchers and updated action counts"},
+        {"number": 2, "instruction": "Update dispatchers/CLAUDE.md with new dispatcher list"},
+        {"number": 3, "instruction": "Update mcp-server/CLAUDE.md dispatcher counts (45 -> 50)"},
+        {"number": 4, "instruction": "Write integration tests verifying routing for all 250 actions"},
+        {"number": 5, "instruction": "Run full build and test suite"}
+      ],
+      "exit_conditions": ["All docs updated", "Tests pass", "Build clean", "MASTER_INDEX current"]
+    }
+  ],
+  "dependencies": [],
+  "deliverables": ["5 new focused dispatchers", "prism_intelligence slimmed to ~50 actions", "Backward-compatible deprecation forwarding"]
+}

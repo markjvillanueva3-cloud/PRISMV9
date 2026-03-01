@@ -1,12 +1,12 @@
 # CURRENT POSITION
 ## Updated: 2026-03-01
 
-**Phase:** SYSTEM OPTIMIZATION — SYS-MS6 COMPLETE (4/4 units), continuing SYS track
+**Phase:** SYSTEM OPTIMIZATION — SYS-MS1 IN PROGRESS (3/7 units: U00-U02 complete)
 **Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 68 complete)
 **Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
 **Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
-**S4-MS1 COMPLETE:** 8/8 units (E2E, a11y, perf, offline, deploy, meta, docs, ship gate)
-**Next Recommended:** SYS-MS1 (mega-dispatcher decomp) or SYS-MS8+ (new SYS milestones)
+**SYS-MS1 Progress:** prism_product (40 actions), prism_machine_live (40 actions), prism_integration (42 actions) extracted
+**Next:** SYS-MS1-U03 (prism_knowledge_ext, 40 actions)
 **Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
 **Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)

@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (45 dispatchers, 1060 verified actions)
+## 1. DISPATCHERS (46 dispatchers, 1100 verified actions)
 ## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
 ## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
@@ -60,6 +60,9 @@ Actions (14): agent_execute, agent_parallel, agent_pipeline, plan_create, plan_e
 
 ### prism_pfp (pfpDispatcher.ts, 176L)
 Actions (6): get_dashboard, assess_risk, get_patterns, get_history, force_extract, update_config
+
+### prism_product (productDispatcher.ts, 250L) — SYS-MS1-U00
+Actions (40): sfc_calculate, sfc_compare, sfc_optimize, sfc_quick, sfc_materials, sfc_tools, sfc_formulas, sfc_safety, sfc_history, sfc_get, ppg_validate, ppg_translate, ppg_templates, ppg_generate, ppg_controllers, ppg_compare, ppg_syntax, ppg_batch, ppg_history, ppg_get, shop_job, shop_cost, shop_quote, shop_schedule, shop_dashboard, shop_report, shop_compare, shop_materials, shop_history, shop_get, acnc_program, acnc_feature, acnc_simulate, acnc_output, acnc_tools, acnc_strategy, acnc_validate, acnc_batch, acnc_history, acnc_get
 
 ### prism_ralph (ralphDispatcher.ts, 131L)
 Actions (3): loop, scrutinize, assess
@@ -143,7 +146,7 @@ Actions (5): oee_calc, bottleneck, digital_thread, work_instructions, shift_hand
 ### prism_auth (authDispatcher.ts)
 Actions (8): login, register, refresh_token, change_password, role_assign, permission_check, session_manage, mfa_setup
 
-**Total: 45 dispatchers, 1060 actions** (verified QA-MS0 2026-02-27)
+**Total: 46 dispatchers, 1100 actions** (verified QA-MS0 2026-02-27, +prism_product SYS-MS1-U00)
 
 ---
 
@@ -583,7 +586,7 @@ Total skill files: 119
 
 ## 15. SUMMARY (Updated 2026-03-01, SYS-MS6 schema validation)
 
-- Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
+- Dispatchers: 46 (1100 verified actions — QA-MS0 audit + SYS-MS1)
 - Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
 - Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
 - Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
