@@ -508,8 +508,8 @@
             "Supports methods: create_geometry, validate_geometry, export_geometry, import_step",
             "Each method accepts JSON params, returns JSON result",
             "Error responses include error code and descriptive message",
-            "Timeout handling: operations killed after configurable timeout (default 30s)",
-            "Graceful shutdown on SIGTERM/SIGINT"
+            "Timeout handling: operations killed after configurable timeout (default 30s) using threading.Timer (not signal.alarm — Windows incompatible)",
+            "Graceful shutdown on SIGTERM/SIGINT (or Windows equivalent via atexit)"
           ],
           "rollback": "git checkout -- cad-engine/src/bridge.py",
           "steps": [
