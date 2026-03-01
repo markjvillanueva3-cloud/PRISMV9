@@ -322,8 +322,9 @@ class TeachMeMode:
                 tags=["feed", "cutting_parameters"],
             ))
 
-        # RPM values
-        rpm_matches = re.findall(r"(\d{3,6})\s*rpm", t, re.IGNORECASE)
+        # RPM values (matches both "5000 RPM" and "RPM: 5000")
+        rpm_matches = re.findall(r"(?:(\d{3,6})\s*rpm|rpm\s*[:=]\s*(\d{3,6}))", t, re.IGNORECASE)
+        rpm_matches = [m[0] or m[1] for m in rpm_matches]
         for val in rpm_matches:
             items.append(ExtractedKnowledge(
                 domain="cam",
