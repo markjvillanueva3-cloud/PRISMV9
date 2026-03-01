@@ -161,7 +161,10 @@ Actions (8): login, register, refresh_token, change_password, role_assign, permi
 ### prism_doc_learn (documentLearningDispatcher.ts)
 Actions (5): doc_upload, doc_extract, doc_list, doc_get, doc_delete
 
-**Total: 51 dispatchers, 1268 actions** (updated FORGE-ENGINES R4 2026-03-01, +3 calc actions)
+### prism_shop_practice (shopPracticeDispatcher.ts) — CC-MS6
+Actions (12): practice_ingest, practice_search, practice_get, practice_list, practice_audit, practice_recommend, tree_build, tree_navigate, tree_search, tips_add, tips_get, tips_conflicts
+
+**Total: 52 dispatchers, 1280 actions** (updated FORGE-TRIPLE 2026-03-01, +1 dispatcher, +12 shop practice actions)
 
 ---
 
@@ -187,6 +190,8 @@ System diagnostics → prism_telemetry (7) + prism_pfp (6) + prism_memory (6)
 GSD/protocol reference → prism_gsd (6)
 Development workflow → prism_dev (9) + prism_sp (19)
 Code generation → prism_generator (6)
+Shop practices/troubleshooting → prism_shop_practice (12): practice KB, trouble trees, material tips
+Document learning → prism_doc_learn (5): PDF/doc upload, extraction, management
 External research → prism_manus (11)
 Knowledge query → prism_knowledge (5)
 Natural language hooks → prism_nl_hook (8)
