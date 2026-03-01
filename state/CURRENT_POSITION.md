@@ -1,11 +1,11 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** L8-P0-MS2 IN PROGRESS — PPG Web UI (11/12 units done)
-**Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 70 complete)
-**Test Suite:** 1881 backend + 11 Playwright E2E (17 pre-existing fails)
-**L8-P0-MS2 Result:** PPG Web UI — 9 components + context + types + API + hooks. Monaco G-code editor with syntax highlighting, controller selector, template browser, preview, validation, diff comparison, operation builder, optimize/download. PpgContext with localStorage autosave. Keyboard shortcuts (Ctrl+S/Ctrl+Shift+G/Ctrl+D).
-**Next:** L8-P0-MS2:P0-U12 (PPG testing & polish), then L8-P1-MS2 or L8-P2-MS2
+**Phase:** L8-P0-MS2 COMPLETE — PPG Web UI (12/12 units done)
+**Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 71 complete)
+**Test Suite:** 2071 backend + 68 web + 11 Playwright E2E (1 pre-existing fail: CadBridge timeout)
+**L8-P0-MS2 Result:** PPG Web UI — 9 components + context + types + API + hooks. Monaco G-code editor with syntax highlighting, controller selector, template browser, preview, validation, diff comparison, operation builder, optimize/download. PpgContext with localStorage autosave. Keyboard shortcuts (Ctrl+S/Ctrl+Shift+G/Ctrl+D). 68 vitest tests (51 component + 17 integration).
+**Next:** L8-P1-MS2 (CAD/CAM Learning UI) or L8-P2-MS2 (ERP Dashboard)
 **Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
 **Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
@@ -270,9 +270,9 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 - **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
 
 ## Milestone Summary
-- Complete: 70 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0-MS2, SYS-MS4, SYS-MS5, SYS-MS7)
+- Complete: 71 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0-MS2, SYS-MS4-MS7, L8-P0-MS2, L9-P2-MS1)
 - In Progress: 0
-- Not Started: 24 milestones (SYS-MS3, SYS-MS6, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 23 milestones (SYS-MS3, L8-P1-MS2, L8-P2-MS2, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
