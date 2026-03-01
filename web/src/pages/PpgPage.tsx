@@ -248,6 +248,7 @@ function EditorSection({ showHelp, onToggleHelp }: {
               dark:hover:bg-slate-700"
             title="Keyboard shortcuts"
             aria-label="Toggle keyboard shortcuts help"
+            aria-expanded={showHelp}
           >
             ?
           </button>
