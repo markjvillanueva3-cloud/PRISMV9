@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .common import ValidationFinding
+
 _ALLOWED_OPERATION_TYPES = {
     "face_mill", "pocket_2d", "pocket_3d", "contour", "profile",
     "adaptive", "trochoidal", "slot", "thread_mill",
@@ -39,14 +41,6 @@ _CUTTING_PARAM_RANGES: dict[str, tuple[float, float]] = {
 
 # Sane tool diameter ranges
 _TOOL_DIAMETER_RANGE = (0.1, 200)  # mm
-
-
-@dataclass
-class ValidationFinding:
-    """A single validation finding."""
-    severity: str
-    item_id: str
-    message: str
 
 
 @dataclass

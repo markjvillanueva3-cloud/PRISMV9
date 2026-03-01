@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .common import ValidationFinding
+
 _ALLOWED_FEATURE_TYPES = {
     "sketch", "extrude", "revolve", "loft", "sweep",
     "fillet", "chamfer", "hole", "pattern", "mirror",
@@ -39,14 +41,6 @@ _PARAM_RANGES: dict[str, tuple[float, float]] = {
     "pattern_count": (1, 1000),
     "pattern_spacing": (0.1, 10000),
 }
-
-
-@dataclass
-class ValidationFinding:
-    """A single validation finding."""
-    severity: str  # "error", "warning", "info"
-    item_id: str
-    message: str
 
 
 @dataclass

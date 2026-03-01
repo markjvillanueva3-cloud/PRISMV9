@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .common import ValidationFinding
+
 _ALLOWED_PRACTICE_TYPES = {
     "setup_procedure", "workholding_technique", "tool_management",
     "measurement_technique", "cutting_practice", "troubleshooting",
@@ -25,14 +27,6 @@ _SAFETY_RELEVANT_TYPES = {
     "setup_procedure", "machine_operation", "safety_procedure",
     "material_handling", "cutting_practice",
 }
-
-
-@dataclass
-class ValidationFinding:
-    """A single validation finding."""
-    severity: str
-    item_id: str
-    message: str
 
 
 @dataclass

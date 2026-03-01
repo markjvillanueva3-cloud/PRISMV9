@@ -833,3 +833,159 @@ class TestExtractionOrchestrator:
         assert meta["duration_seconds"] == 600
         assert meta["uploader"] == "CNCTech"
         assert "solidworks" in meta["tags"]
+
+
+# ---------------------------------------------------------------------------
+# Scrutiny fix tests (Phase 7)
+# ---------------------------------------------------------------------------
+
+
+class TestSecurityFixes:
+    """Tests for security fixes found during scrutiny."""
+
+    @patch("src.knowledge_extract._call_extraction")
+    def test_save_knowledge_sanitizes_video_id(self, mock_call, tmp_path):
+        """Path traversal characters in video_id are sanitized."""
+        mock_call.return_value = json.loads(_MOCK_CAD_RESPONSE)
+
+        from src.knowledge_extract import extract_knowledge, save_knowledge
+
+        result = extract_knowledge(
+            video_id="../../../etc/passwd",
+            title="Test",
+            transcript="test",
+            force_domain="cad",
+        )
+
+        output_path = save_knowledge(result, tmp_path)
+        # Should NOT escape the output directory
+        assert str(output_path.resolve()).startswith(str(tmp_path.resolve()))
+        # Should not contain path separators
+        assert "/" not in output_path.name.replace("knowledge_", "").replace(".json", "").strip("_.")
+        assert "\\" not in output_path.name
+
+    @patch("src.knowledge_extract._call_extraction")
+    def test_save_knowledge_sanitizes_slashes(self, mock_call, tmp_path):
+        """Slashes in video_id are replaced with underscores."""
+        mock_call.return_value = json.loads(_MOCK_CAD_RESPONSE)
+
+        from src.knowledge_extract import extract_knowledge, save_knowledge
+
+        result = extract_knowledge(
+            video_id="video/with\\slashes",
+            title="Test",
+            transcript="test",
+            force_domain="cad",
+        )
+
+        output_path = save_knowledge(result, tmp_path)
+        assert output_path.exists()
+        assert "knowledge_video_with_slashes.json" == output_path.name
+
+    def test_invalid_force_domain_raises(self):
+        """Invalid force_domain value raises ExtractionError."""
+        from src.knowledge_extract import extract_knowledge, ExtractionError
+
+        with pytest.raises(ExtractionError, match="Invalid force_domain"):
+            extract_knowledge(
+                video_id="test",
+                title="Test",
+                transcript="test",
+                force_domain="invalid_domain",
+            )
+
+
+class TestRobustnessFixes:
+    """Tests for robustness fixes found during scrutiny."""
+
+    def test_empty_response_content_raises(self):
+        """Empty API response raises ExtractionError."""
+        from src.knowledge_extract import _call_extraction, ExtractionError
+
+        mock_response = MagicMock()
+        mock_response.content = []
+
+        with patch("src.knowledge_extract._get_client") as mock_client:
+            mock_client.return_value.messages.create.return_value = mock_response
+
+            with pytest.raises(ExtractionError, match="Empty response"):
+                _call_extraction("system", "user")
+
+    def test_fence_stripping_json(self):
+        """Markdown ```json fences are stripped correctly."""
+        from src.knowledge_extract import _call_extraction
+
+        mock_response = MagicMock()
+        mock_response.content = [MagicMock(text='```json\n{"features": []}\n```')]
+
+        with patch("src.knowledge_extract._get_client") as mock_client:
+            mock_client.return_value.messages.create.return_value = mock_response
+            result = _call_extraction("system", "user")
+            assert result == {"features": []}
+
+    def test_fence_stripping_bare(self):
+        """Markdown ``` fences without language tag are stripped."""
+        from src.knowledge_extract import _call_extraction
+
+        mock_response = MagicMock()
+        mock_response.content = [MagicMock(text='```\n{"strategies": [1]}\n```')]
+
+        with patch("src.knowledge_extract._get_client") as mock_client:
+            mock_client.return_value.messages.create.return_value = mock_response
+            result = _call_extraction("system", "user")
+            assert result == {"strategies": [1]}
+
+    def test_fence_stripping_no_closing(self):
+        """Opening fence without closing fence still parses."""
+        from src.knowledge_extract import _call_extraction
+
+        mock_response = MagicMock()
+        mock_response.content = [MagicMock(text='```json\n{"ok": true}')]
+
+        with patch("src.knowledge_extract._get_client") as mock_client:
+            mock_client.return_value.messages.create.return_value = mock_response
+            result = _call_extraction("system", "user")
+            assert result == {"ok": True}
+
+    def test_cross_link_tracks_tool_owner(self):
+        """SHOP->CAM link uses the correct strategy that owns the tool, not always the first."""
+        from src.knowledge_extract import _build_cross_links
+
+        domains = {
+            "cam": {
+                "strategies": [
+                    {"id": "cam-001", "name": "Facing", "tool": {"type": "face_mill"}, "target_features": []},
+                    {"id": "cam-002", "name": "Drilling", "tool": {"type": "drill"}, "target_features": []},
+                ],
+            },
+            "shop": {
+                "practices": [
+                    {"id": "shop-001", "title": "Drill Setup", "description": "Setting up the drill for holes"},
+                ],
+            },
+        }
+
+        links = _build_cross_links(domains)
+        shop_links = [l for l in links if l["from_domain"] == "shop"]
+        assert len(shop_links) == 1
+        # Should link to cam-002 (drill owner), not cam-001 (first strategy)
+        assert shop_links[0]["to_id"] == "cam-002"
+
+
+class TestValidationFindingShared:
+    """Test that ValidationFinding is shared across all validators."""
+
+    def test_common_validation_finding_imported(self):
+        from src.validators.common import ValidationFinding
+        from src.validators.cad_validator import validate_cad_extraction
+        from src.validators.cam_validator import validate_cam_extraction
+        from src.validators.shop_validator import validate_shop_extraction
+
+        # All validators should work with the shared ValidationFinding
+        cad_result = validate_cad_extraction({"features": []})
+        cam_result = validate_cam_extraction({"strategies": []})
+        shop_result = validate_shop_extraction({"practices": []})
+
+        assert cad_result["is_valid"] is True
+        assert cam_result["is_valid"] is True
+        assert shop_result["is_valid"] is True

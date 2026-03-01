@@ -67,8 +67,15 @@ class ExtractionResult:
 # ---------------------------------------------------------------------------
 
 
+_VALID_DOMAINS = {"cad", "cam", "shop", "multi"}
+
+
 def _get_client():
-    """Get Anthropic client."""
+    """Get Anthropic client.
+
+    Uses the SDK's built-in ANTHROPIC_API_KEY env var reading
+    to avoid passing the key explicitly (prevents traceback leaks).
+    """
     try:
         import anthropic
     except ImportError:
@@ -76,13 +83,12 @@ def _get_client():
             "anthropic SDK not installed. Run: pip install anthropic"
         )
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
+    if not os.environ.get("ANTHROPIC_API_KEY"):
         raise ExtractionError(
             "ANTHROPIC_API_KEY not set. Export it or add to .env"
         )
 
-    return anthropic.Anthropic(api_key=api_key)
+    return anthropic.Anthropic()  # SDK reads ANTHROPIC_API_KEY from env
 
 
 def _call_extraction(
@@ -100,14 +106,21 @@ def _call_extraction(
         messages=[{"role": "user", "content": user_message}],
     )
 
+    if not response.content:
+        raise ExtractionError("Empty response from Claude API (no content blocks)")
+
     text = response.content[0].text.strip()
 
-    # Strip markdown fences if present
+    # Strip markdown fences if present (handles ```json, ```JSON, ``` etc.)
     if text.startswith("```"):
+        # Find matching closing fence
         lines = text.split("\n")
-        # Remove first line (```json or ```) and last line (```)
-        start = 1
-        end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
+        start = 1  # Skip opening fence line
+        end = len(lines)
+        for i in range(len(lines) - 1, 0, -1):
+            if lines[i].strip() == "```":
+                end = i
+                break
         text = "\n".join(lines[start:end])
 
     try:
@@ -207,11 +220,14 @@ def _build_cross_links(domains: dict) -> list[dict]:
                 })
 
     # SHOP -> CAM: practices that reference similar tools/materials
-    cam_tools = set()
+    # Build a map from tool type -> strategy that owns it
+    cam_tool_owners: dict[str, str] = {}
     for strat in cam_strategies:
         tool = strat.get("tool")
         if tool and tool.get("type"):
-            cam_tools.add(tool["type"].lower())
+            tool_key = tool["type"].lower()
+            if tool_key not in cam_tool_owners:
+                cam_tool_owners[tool_key] = strat["id"]
 
     for practice in shop_practices:
         desc_lower = practice.get("description", "").lower()
@@ -219,12 +235,12 @@ def _build_cross_links(domains: dict) -> list[dict]:
         combined = desc_lower + " " + title_lower
 
         # Link if practice mentions a tool used in CAM
-        for tool_type in cam_tools:
+        for tool_type, owner_id in cam_tool_owners.items():
             if tool_type in combined:
                 links.append({
                     "from_id": practice["id"],
                     "from_domain": "shop",
-                    "to_id": cam_strategies[0]["id"] if cam_strategies else "",
+                    "to_id": owner_id,
                     "to_domain": "cam",
                     "relationship": "validates",
                     "description": (
@@ -321,6 +337,11 @@ def extract_knowledge(
 
     # Step 1: Domain classification
     if force_domain:
+        if force_domain not in _VALID_DOMAINS:
+            raise ExtractionError(
+                f"Invalid force_domain '{force_domain}'. "
+                f"Must be one of: {', '.join(sorted(_VALID_DOMAINS))}"
+            )
         primary_domain = force_domain
         domain_confidence = 1.0
         secondary_domain = None
@@ -450,8 +471,23 @@ def save_knowledge(result: ExtractionResult, output_dir: str | Path) -> Path:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    filename = f"knowledge_{result.video_id}.json"
+    # Sanitize video_id to prevent path traversal
+    safe_id = "".join(
+        c if c.isalnum() or c in "-_." else "_"
+        for c in result.video_id
+    )
+    if not safe_id:
+        safe_id = "unknown"
+
+    filename = f"knowledge_{safe_id}.json"
     output_path = output_dir / filename
+
+    # Verify output stays within output_dir
+    resolved = output_path.resolve()
+    if not str(resolved).startswith(str(output_dir.resolve())):
+        raise ExtractionError(
+            f"Path traversal detected in video_id: {result.video_id!r}"
+        )
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result.knowledge, f, indent=2, ensure_ascii=False)
