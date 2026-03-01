@@ -295,41 +295,171 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (102 files — see SYSTEM_ARCHITECTURE.json for full list)
+## 4. ENGINES (125 exported + 66 unwired = 191 total .ts files)
+## Regenerated: SYS-MS5 audit (2026-02-28) — line counts verified from filesystem
 
-- AdvancedCalculations.ts (623L)
-- AgentExecutor.ts (818L)
-- BatchProcessor.ts (233L)
-- CalcHookMiddleware.ts (269L)
-- CertificateEngine.ts (620L) — F4
-- CollisionEngine.ts (1923L)
-- ComplianceEngine.ts (722L) — F8
-- ComputationCache.ts (420L)
-- CoolantValidationEngine.ts (752L)
-- DiffEngine.ts (196L)
-- EventBus.ts (656L)
-- HookEngine.ts (802L)
-- HookExecutor.ts (835L)
-- KnowledgeQueryEngine.ts (871L)
-- ManufacturingCalculations.ts (550L)
-- MemoryGraphEngine.ts (774L) — F2
-- MultiTenantEngine.ts (592L) — F5
-- NLHookEngine.ts (920L) — F6
-- PFPEngine.ts (765L) — F1
-- PredictiveFailureEngine.ts (807L)
-- ProtocolBridgeEngine.ts (484L) — F7
-- ResponseTemplateEngine.ts (669L)
-- ScriptExecutor.ts (754L)
-- SessionLifecycleEngine.ts (351L)
-- SkillExecutor.ts (868L)
-- SpindleProtectionEngine.ts (901L)
-- SwarmExecutor.ts (953L)
-- TelemetryEngine.ts (615L) — F3
-- ThreadCalculationEngine.ts (658L)
-- ToolBreakageEngine.ts (1071L)
-- ToolpathCalculations.ts (672L)
-- WorkholdingEngine.ts (1409L)
-- index.ts (300L)
+### 4a. Calculation Engines (10 exported)
+- ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
+- AdvancedCalculations.ts (639L) — Stability lobes, tool deflection, cutting temperature, cost optimization
+- ToolpathCalculations.ts (1304L) — Engagement angles, trochoidal, HSM, scallop height, stepover
+- PhysicsPredictionEngine.ts (1023L) — Chip formation, SLD, chatter detection (DFT), thermal partition
+- OptimizationEngine.ts (1094L) — GA/NSGA-II, SA, PSO, Bayesian optimization
+- DimensionalAnalysisEngine.ts (224L) — Dimensional analysis and unit conversion
+- InverseSolverEngine.ts (741L) — Inverse parameter solving (target → input)
+- AlgorithmEngine.ts (257L) — Algorithm registry gateway, 50 algorithms
+- AlgorithmGatewayEngine.ts (1608L) — Algorithm dispatch routing
+- ToleranceEngine.ts (541L) — Tolerance stack-up analysis (RSS)
+
+### 4b. Safety Engines (6 exported)
+- CoolantValidationEngine.ts (767L) — Coolant flow, MQL validation, dry machining safety
+- SpindleProtectionEngine.ts (1009L) — Spindle overload, vibration monitoring
+- ToolBreakageEngine.ts (1071L) — Tool breakage prediction and monitoring
+- WorkEnvelopeValidatorEngine.ts (201L) — Work envelope limits, C-axis validation
+- RTCP_CompensationEngine.ts (213L) — Rotary tool center point compensation
+- CollisionDetectionEngine.ts (278L) — Real-time collision detection
+
+### 4c. Manufacturing Process Engines (16 exported)
+- PostProcessorEngine.ts (381L) — G-code post-processing, 6 controller dialects
+- ThreadCalculationEngine.ts (659L) — Thread cutting calculations, 12 standards
+- SinglePointThreadEngine.ts (238L) — Single point threading parameters
+- WireEDMSettingsEngine.ts (166L) — Wire EDM spark gap, skim passes
+- EDMSurfaceIntegrityEngine.ts (156L) — EDM surface integrity analysis
+- MicroEDMEngine.ts (123L) — Micro EDM settings
+- ElectrodeDesignEngine.ts (155L) — EDM electrode design
+- LiveToolingEngine.ts (137L) — Live tooling speed/feed for turning centers
+- BarPullerTimingEngine.ts (112L) — Bar puller cycle timing
+- GCodeOptimizationEngine.ts (265L) — G-code optimization passes
+- GCodeTemplateEngine.ts (1592L) — G-code template generation
+- ToolpathGenerationEngine.ts (237L) — Toolpath generation engine
+- SimulationEngine.ts (598L) — Machining simulation
+- StockModelEngine.ts (201L) — Stock model tracking
+- SteadyRestPlacementEngine.ts (133L) — Steady rest placement for long parts
+- TailstockForceEngine.ts (165L) — Tailstock force calculations
+
+### 4d. Workholding Engines (6 exported)
+- WorkholdingEngine.ts (1486L) — Workholding selection and force analysis
+- WorkholdingIntelligenceEngine.ts (481L) — Smart workholding recommendations
+- ChuckJawForceEngine.ts (184L) — Chuck jaw gripping force calculations
+- ModularFixtureLayoutEngine.ts (153L) — Modular fixture layout optimization
+- WorkCoordinateEngine.ts (227L) — Work coordinate system setup
+- CollisionEngine.ts (2089L) — Full collision analysis engine
+
+### 4e. CAD/CAM Engines (8 exported)
+- CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
+- CAMKernelEngine.ts (874L) — CAM kernel operations
+- CAMIntegrationEngine.ts (1230L) — CAM system integration
+- CadBridge.ts (390L) — Python CAD engine bridge (OpenCascade)
+- FeatureRecognitionEngine.ts (247L) — Feature recognition from geometry
+- GeometryEngine.ts (224L) — Geometry operations facade
+- MeshEngine.ts (286L) — Mesh generation and operations
+- NestingEngine.ts (220L) — Part nesting (unwired, on-disk only)
+
+### 4f. Intelligence & Knowledge Engines (14 exported)
+- IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
+- KnowledgeGraphEngine.ts (919L) — Knowledge graph operations
+- KnowledgeQueryEngine.ts (1196L) — Knowledge query with TF-IDF search
+- FederatedLearningEngine.ts (826L) — Federated learning across instances
+- ApprenticeEngine.ts (621L) — Apprentice learning engine
+- ManufacturingGenomeEngine.ts (445L) — Manufacturing genome patterns
+- ConversationalMemoryEngine.ts (453L) — Conversation memory management
+- OnboardingEngine.ts (265L) — User onboarding workflows
+- JobLearningEngine.ts (442L) — Job-level learning and optimization
+- InferenceChainEngine.ts (1103L) — Multi-step inference chains
+- IntentDecompositionEngine.ts (692L) — Intent decomposition and routing
+- AIMLEngine.ts (694L) — AI/ML inference engine
+- DecisionTreeEngine.ts (1467L) — Decision tree engine (CART)
+- SourceCatalogAggregator.ts (174L) — Source catalog aggregation
+
+### 4g. Product Engines (2 exported)
+- ProductEngine.ts (2590L) — SFC/PPG/Shop/ACNC product calculations
+- PFPEngine.ts (797L) — F1 Process Fingerprint engine
+
+### 4h. Infrastructure Engines (21 exported)
+- EventBus.ts (1202L) — Async event bus for hook system
+- HookEngine.ts (819L) — Hook event-bus system
+- HookExecutor.ts (851L) — Hook phase-chain executor
+- NLHookEngine.ts (952L) — F6 Natural language hook creation
+- ComplianceEngine.ts (824L) — F8 Regulatory compliance (ITAR/FDA/AS9100/ISO13485)
+- CertificateEngine.ts (642L) — F4 Certificate generation
+- MultiTenantEngine.ts (590L) — F5 Multi-tenant isolation
+- TenantEngine.ts (189L) — Tenant management operations
+- AuthEngine.ts (327L) — Authentication engine
+- ComputationCache.ts (406L) — Computation result caching
+- DiffEngine.ts (175L) — Diff computation engine
+- FileIOEngine.ts (784L) — File I/O operations
+- ExportEngine.ts (187L) — Export engine
+- SettingsEngine.ts (303L) — Settings management
+- ContextBudgetEngine.ts (162L) — Context budget tracking
+- SessionLifecycleEngine.ts (354L) — Session lifecycle management
+- BatchProcessor.ts (302L) — Batch processing engine
+- ProtocolBridgeEngine.ts (593L) — F7 Protocol bridge
+- ResponseTemplateEngine.ts (669L) — Response template engine
+- ResponseFormatterEngine.ts (676L) — Response formatting
+- MemoryGraphEngine.ts (920L) — F2 Memory graph engine
+
+### 4i. Monitoring & Telemetry Engines (7 exported)
+- TelemetryEngine.ts (606L) — F3 Telemetry collection
+- MachineConnectivityEngine.ts (849L) — Machine connectivity (MTConnect/OPC-UA)
+- AdaptiveControlEngine.ts (672L) — Adaptive control loops
+- PredictiveMaintenanceEngine.ts (825L) — Predictive maintenance
+- PredictiveFailureEngine.ts (793L) — Predictive failure analysis
+- OEECalculatorEngine.ts (132L) — OEE calculation
+- BottleneckIdentificationEngine.ts (126L) — Bottleneck identification
+
+### 4j. Execution & Orchestration Engines (11 exported)
+- AgentExecutor.ts (835L) — Agent execution engine
+- SkillExecutor.ts (861L) — Skill execution engine
+- SkillAutoLoader.ts (433L) — Skill auto-loading
+- SkillBundleEngine.ts (238L) — Skill bundling
+- ScriptExecutor.ts (829L) — Script execution
+- SwarmExecutor.ts (991L) — Swarm execution engine
+- SwarmGroupExecutor.ts (357L) — Swarm group orchestration
+- ManusATCSBridge.ts (305L) — Manus ATCS bridge
+- RoadmapExecutor.ts (849L) — Roadmap task execution
+- TaskAgentClassifier.ts (630L) — Task classification for agent routing
+- WorkflowChainsEngine.ts (478L) — Workflow chain execution
+
+### 4k. Reporting & Visualization Engines (5 exported)
+- ReportEngine.ts (395L) — Report generation
+- ReportRenderer.ts (1161L) — Report rendering (PDF/HTML)
+- VisualizationEngine.ts (476L) — Data visualization
+- SetupSheetEngine.ts (566L) — Setup sheet generation
+- DigitalWorkInstructionEngine.ts (145L) — Digital work instructions
+
+### 4l. Industry & Enterprise Engines (10 exported)
+- ERPIntegrationEngine.ts (592L) — ERP system integration
+- ShopSchedulerEngine.ts (735L) — Shop scheduling engine
+- SchedulingEngine.ts (233L) — Scheduling operations
+- SustainabilityEngine.ts (862L) — Sustainability analysis
+- QualityPredictionEngine.ts (279L) — Quality prediction
+- MeasurementIntegrationEngine.ts (562L) — CMM/measurement integration
+- DNCTransferEngine.ts (518L) — DNC file transfer
+- MobileInterfaceEngine.ts (396L) — Mobile interface engine
+- ShiftHandoffEngine.ts (110L) — Shift handoff management
+- DigitalThreadEngine.ts (109L) — Digital thread traceability
+
+### 4m. Multi-Axis & Geometry Engines (5 exported)
+- SingularityAvoidanceEngine.ts (219L) — 5-axis singularity avoidance
+- TiltAngleOptimizationEngine.ts (183L) — 5-axis tilt angle optimization
+- InverseKinematicsSolverEngine.ts (198L) — Inverse kinematics solver
+- ToleranceStackEngine.ts (231L) — Tolerance stack analysis
+- GenerativeProcessEngine.ts (1147L) — Generative process planning
+
+### 4n. Specialty Engines (4 exported)
+- CampaignEngine.ts (1421L) — Campaign management engine
+- FailureForensicsEngine.ts (527L) — Failure forensics analysis
+- UserAssistanceSkillsEngine.ts (541L) — User assistance skills
+- UserWorkflowSkillsEngine.ts (606L) — User workflow skills
+
+### 4o. Unwired Engines (66 on-disk, not in index.ts barrel)
+Reserved for future wiring. Top 10 by size:
+- ProcessPlanEngine.ts (363L), FixtureDesignEngine.ts (334L), MasterIndexGenerator.ts (323L)
+- TroubleshootingEngine.ts (315L), DigitalTwinEngine.ts (311L), ToolSelectionEngine.ts (277L)
+- BatchOptimizationEngine.ts (241L), HarmonicAnalysisEngine.ts (234L), DampingOptimizationEngine.ts (234L)
+- ClampingSimEngine.ts (234L)
+Total unwired: 66 files, ~12,938 lines
+
+### index.ts (884L) — Barrel export file re-exporting 125 engines
 
 ## 5. REGISTRIES (19 files)
 
@@ -437,10 +567,10 @@ Total skill files: 119
 ### Coordination Schemas (schemas/coordinationTypes.ts, 73L)
 - ClaimRecord, InstanceRecord, CoordinationMessage, RoadmapRegistry, RoadmapRegistryEntry
 
-## 15. SUMMARY (Updated 2026-02-28)
+## 15. SUMMARY (Updated 2026-02-28, SYS-MS5 regeneration)
 
 - Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
-- Engines: 125 active barrel exports + 64 unwired on disk = 189 total .ts files (SYS-MS4 audit)
+- Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
 - Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
 - Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
 - Services: 2 (TaskClaimService, RoadmapLoader) — multi-Claude coordination
@@ -449,12 +579,12 @@ Total skill files: 119
 - Agents: 70 definitions (14 OPUS, 35 SONNET, 9 HAIKU)
 - Cadences: 103 functions (QA-MS13 verified)
 - Hooks: 220 total (179 domain + 41 Phase0) — QA-MS12 verified
-- Tests: 37 test files, 1115 passing
+- Tests: 43 test files, 1244 total (1123 passing, 121 pre-existing)
 - Type definitions: 13 files (including coordinationTypes.ts)
 - Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
 - Coordination files: TaskClaimService + 5 orchestration actions
 - Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
-- Roadmap: v5.2.0, 82 milestones, 57 complete
+- Roadmap: v5.3.0, 94 milestones, 64 complete
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |
