@@ -14,7 +14,6 @@
  * @date 2026-02-28
  */
 
-import { z } from "zod";
 import { log } from "./Logger.js";
 import { slimResponse } from "./responseSlimmer.js";
 import type { ActionSchemaMap, ValidationResult } from "../schemas/actionSchemaTypes.js";
@@ -128,7 +127,7 @@ export function validateActionParams(
   const schema = schemas[action];
   if (!schema) return { valid: true };
 
-  const result = (schema as z.ZodType).safeParse(params);
+  const result = schema.safeParse(params);
   if (result.success) return { valid: true };
 
   const issues = result.error.issues;
