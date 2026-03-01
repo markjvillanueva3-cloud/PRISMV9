@@ -8,12 +8,25 @@ import ResultsDisplay from "../components/sfc/ResultsDisplay";
 import CompatibilityValidator, {
   type Suggestion,
 } from "../components/sfc/CompatibilityValidator";
+import ComparisonView from "../components/sfc/ComparisonView";
+import PresetManager from "../components/sfc/PresetManager";
+import CalculationHistory from "../components/sfc/CalculationHistory";
+import AdvancedCharts from "../components/sfc/AdvancedCharts";
 import { Button } from "../components/ui";
 import { useSfcCalculate } from "../hooks/useSfc";
+import { generateSfcReport } from "../utils/sfcReport";
 import type { MaterialEntry } from "../data/materials";
+import { MATERIALS } from "../data/materials";
 import type { OperationType } from "../data/operations";
+import { getOperationById } from "../data/operations";
 import type { CuttingToolEntry } from "../data/tools";
 import type { MachineEntry } from "../data/machines";
+import {
+  type CalcSnapshot,
+  type SfcPreset,
+  loadComparison, saveComparison,
+  loadFullHistory, saveFullHistory,
+} from "../components/sfc/comparison-types";
 
 const DEFAULT_PARAMS: SfcParams = {
   tool_diameter: 12,
@@ -24,24 +37,7 @@ const DEFAULT_PARAMS: SfcParams = {
   coolant: "flood",
 };
 
-interface HistoryEntry {
-  material: string;
-  operation: string;
-  rpm: number;
-  feedRate: number;
-  ts: number;
-}
-
-const HISTORY_KEY = "prism-sfc-history";
-
-function loadHistory(): HistoryEntry[] {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }
-  catch { return []; }
-}
-
-function saveHistory(entries: HistoryEntry[]) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, 10)));
-}
+type RightTab = "charts" | "compare" | "history";
 
 export default function SfcCalculatorPage() {
   const [material, setMaterial] = useState<MaterialEntry | null>(null);
@@ -50,12 +46,14 @@ export default function SfcCalculatorPage() {
   const [machine, setMachine] = useState<MachineEntry | null>(null);
   const [params, setParams] = useState<SfcParams>(DEFAULT_PARAMS);
   const [imperial, setImperial] = useState(false);
-  const [history, setHistory] = useState<HistoryEntry[]>(loadHistory);
+  const [comparison, setComparison] = useState<CalcSnapshot[]>(loadComparison);
+  const [fullHistory, setFullHistory] = useState<CalcSnapshot[]>(loadFullHistory);
+  const [rightTab, setRightTab] = useState<RightTab>("charts");
   const calc = useSfcCalculate();
 
   const handleOperationChange = useCallback((op: OperationType) => {
     setOperation(op);
-    setTool(null); // Reset tool when operation changes
+    setTool(null);
     setParams({
       tool_diameter: op.defaults.tool_diameter,
       number_of_teeth: op.defaults.number_of_teeth,
@@ -68,12 +66,11 @@ export default function SfcCalculatorPage() {
 
   const handleMaterialChange = useCallback((mat: MaterialEntry) => {
     setMaterial(mat);
-    setTool(null); // Reset tool when material changes (compatibility may shift)
+    setTool(null);
   }, []);
 
   const handleToolChange = useCallback((t: CuttingToolEntry) => {
     setTool(t);
-    // Sync tool params into the parameter panel
     setParams((prev) => ({
       ...prev,
       tool_diameter: t.diameter,
@@ -85,26 +82,33 @@ export default function SfcCalculatorPage() {
   const handleSuggestion = useCallback((suggestion: Suggestion) => {
     switch (suggestion.type) {
       case "params":
-        // Reduce aggressiveness
-        setParams((prev) => ({
-          ...prev,
-          depth: +(prev.depth * 0.7).toFixed(2),
-        }));
+        setParams((prev) => ({ ...prev, depth: +(prev.depth * 0.7).toFixed(2) }));
         break;
       case "tool":
-        // Reset tool so user picks a better one
-        setTool(null);
-        break;
       case "coating":
-        // Reset tool — user needs a different coating
         setTool(null);
         break;
       case "machine":
-        // Reset machine so user picks a capable one
         setMachine(null);
         break;
     }
   }, []);
+
+  const makeSnapshot = useCallback((result: typeof calc.data): CalcSnapshot | null => {
+    if (!result || !material || !operation) return null;
+    return {
+      id: `calc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      materialName: material.name,
+      materialId: material.id,
+      materialGroup: material.group,
+      operationLabel: operation.label,
+      operationId: operation.id,
+      toolName: tool?.name,
+      params: { ...params },
+      result,
+      ts: Date.now(),
+    };
+  }, [material, operation, tool, params]);
 
   const handleCalculate = async () => {
     if (!material || !operation) return;
@@ -120,24 +124,81 @@ export default function SfcCalculatorPage() {
       coolant: params.coolant,
     });
     if (result) {
-      const entry: HistoryEntry = {
-        material: material.name,
-        operation: operation.label,
-        rpm: result.spindle_speed,
-        feedRate: result.feed_rate,
-        ts: Date.now(),
-      };
-      const updated = [entry, ...history].slice(0, 10);
-      setHistory(updated);
-      saveHistory(updated);
+      const snap = makeSnapshot(result);
+      if (snap) {
+        const updated = [snap, ...fullHistory].slice(0, 100);
+        setFullHistory(updated);
+        saveFullHistory(updated);
+      }
     }
   };
 
+  const handleAddToComparison = useCallback((entry: CalcSnapshot) => {
+    if (comparison.length >= 4) return;
+    if (comparison.some((c) => c.id === entry.id)) return;
+    const updated = [...comparison, entry];
+    setComparison(updated);
+    saveComparison(updated);
+    setRightTab("compare");
+  }, [comparison]);
+
+  const handleRemoveFromComparison = useCallback((id: string) => {
+    const updated = comparison.filter((c) => c.id !== id);
+    setComparison(updated);
+    saveComparison(updated);
+  }, [comparison]);
+
+  const handleReloadFromHistory = useCallback((entry: CalcSnapshot) => {
+    // Restore material
+    const mat = MATERIALS.find((m) => m.id === entry.materialId);
+    if (mat) setMaterial(mat);
+    // Restore operation
+    const op = getOperationById(entry.operationId);
+    if (op) setOperation(op);
+    // Restore params
+    setParams(entry.params);
+    setTool(null);
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setFullHistory([]);
+    saveFullHistory([]);
+  }, []);
+
+  const handleLoadPreset = useCallback((preset: SfcPreset) => {
+    const mat = MATERIALS.find((m) => m.id === preset.materialId);
+    if (mat) setMaterial(mat);
+    const op = getOperationById(preset.operationId);
+    if (op) setOperation(op);
+    setParams(preset.params);
+    setTool(null);
+  }, []);
+
+  const handleDownloadPdf = useCallback(() => {
+    if (!calc.data || !material || !operation) return;
+    generateSfcReport({
+      materialName: material.name,
+      materialGroup: material.group,
+      operationLabel: operation.label,
+      toolName: tool?.name,
+      params,
+      result: calc.data,
+      machineName: machine?.name,
+      comparison: comparison.length > 0 ? comparison : undefined,
+      imperial,
+    });
+  }, [calc.data, material, operation, tool, params, machine, comparison, imperial]);
+
   // Derived values for machine validation
   const requiredRpm = calc.data?.spindle_speed ?? 0;
-  // Power comes from a separate power-torque calculation; use meta if available
   const requiredPowerKw = (calc.data?.meta?.power_kw as number) ?? 0;
   const requiredAxes = operation?.category === "milling" ? 3 : 2;
+
+  const rightTabs: { id: RightTab; label: string; count?: number }[] = [
+    { id: "charts", label: "Charts" },
+    { id: "compare", label: "Compare", count: comparison.length },
+    { id: "history", label: "History", count: fullHistory.length },
+  ];
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -179,6 +240,12 @@ export default function SfcCalculatorPage() {
             imperial={imperial}
             onToggleUnits={() => setImperial((p) => !p)}
           />
+          <PresetManager
+            materialId={material?.id ?? null}
+            operationId={operation?.id ?? null}
+            params={params}
+            onLoad={handleLoadPreset}
+          />
           <Button
             onClick={handleCalculate}
             disabled={!material || !operation || calc.loading}
@@ -194,7 +261,7 @@ export default function SfcCalculatorPage() {
           )}
         </div>
 
-        {/* Right column — results + machine + history */}
+        {/* Right column — results + tabs */}
         <div className="space-y-4" aria-live="polite">
           <ResultsDisplay
             result={calc.data}
@@ -202,6 +269,26 @@ export default function SfcCalculatorPage() {
             error={calc.error}
             imperial={imperial}
           />
+
+          {/* Action buttons */}
+          {calc.data && material && operation && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  const snap = makeSnapshot(calc.data);
+                  if (snap) handleAddToComparison(snap);
+                }}
+                disabled={comparison.length >= 4}
+              >
+                + Compare {comparison.length > 0 ? `(${comparison.length}/4)` : ""}
+              </Button>
+              <Button size="sm" variant="secondary" onClick={handleDownloadPdf}>
+                Download PDF
+              </Button>
+            </div>
+          )}
 
           <SmartMachineSelector
             requiredRpm={requiredRpm}
@@ -211,27 +298,53 @@ export default function SfcCalculatorPage() {
             onChange={setMachine}
           />
 
-          {/* Calculation history */}
-          {history.length > 0 && (
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Recent Calculations
-              </h3>
-              <div className="space-y-1">
-                {history.map((h, idx) => (
-                  <div
-                    key={`${h.ts}-${idx}`}
-                    className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400"
-                  >
-                    <span>{h.material} / {h.operation}</span>
-                    <span>
-                      {h.rpm.toFixed(0)} RPM &middot;{" "}
-                      {h.feedRate.toFixed(1)} mm/min
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Tab bar */}
+          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist">
+            {rightTabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={rightTab === t.id}
+                onClick={() => setRightTab(t.id)}
+                className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
+                  rightTab === t.id
+                    ? "border-primary-600 text-primary-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {t.label}
+                {t.count != null && t.count > 0 && (
+                  <span className="ml-1 rounded-full bg-slate-200 px-1.5 text-[10px] dark:bg-slate-600">
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          {rightTab === "charts" && (
+            <AdvancedCharts
+              result={calc.data}
+              params={params}
+              machine={machine}
+            />
+          )}
+          {rightTab === "compare" && (
+            <ComparisonView
+              entries={comparison}
+              onRemove={handleRemoveFromComparison}
+              imperial={imperial}
+            />
+          )}
+          {rightTab === "history" && (
+            <CalculationHistory
+              entries={fullHistory}
+              onReload={handleReloadFromHistory}
+              onAddToComparison={handleAddToComparison}
+              onClear={handleClearHistory}
+            />
           )}
         </div>
       </div>
