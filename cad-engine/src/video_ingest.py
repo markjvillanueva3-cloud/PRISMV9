@@ -109,12 +109,11 @@ def _find_ytdlp() -> str:
 
 def _find_ffmpeg() -> str:
     """Find ffmpeg executable."""
-    # Check common Windows paths
-    candidates = [
-        "ffmpeg",
-        r"C:\Users\Admin.DIGITALSTORM-PC\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe",
-        r"C:\ffmpeg\bin\ffmpeg.exe",
-    ]
+    candidates = ["ffmpeg"]
+    local_app = os.environ.get("LOCALAPPDATA", "")
+    if local_app:
+        candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", "ffmpeg.exe"))
+    candidates.append(r"C:\ffmpeg\bin\ffmpeg.exe")
     for candidate in candidates:
         try:
             subprocess.run(
@@ -354,7 +353,13 @@ def download_video(
 
     try:
         subprocess.run(cmd, capture_output=True, text=True, timeout=600, check=True)
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+    except subprocess.CalledProcessError as exc:
+        import logging
+        logging.warning("Video download failed: %s", (exc.stderr or "")[-300:])
+        return None
+    except subprocess.TimeoutExpired:
+        import logging
+        logging.warning("Video download timed out after 600s for URL: %s", url)
         return None
 
     # Find the video file

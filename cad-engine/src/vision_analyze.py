@@ -18,6 +18,9 @@ from pathlib import Path
 from typing import Optional
 
 
+_DEFAULT_MODEL = "claude-sonnet-4-20250514"
+
+
 class VisionAnalysisError(Exception):
     """Raised when vision analysis fails."""
 
@@ -176,7 +179,7 @@ def analyze_frame(
     mode: AnalysisMode = AnalysisMode.GENERAL,
     *,
     timestamp_seconds: float = 0.0,
-    model: str = "claude-sonnet-4-20250514",
+    model: str = _DEFAULT_MODEL,
     max_tokens: int = 1024,
 ) -> FrameAnalysis:
     """Analyze a single frame using Claude's vision API.
@@ -283,7 +286,7 @@ def analyze_frames(
     frames: list[dict],
     mode: AnalysisMode = AnalysisMode.GENERAL,
     *,
-    model: str = "claude-sonnet-4-20250514",
+    model: str = _DEFAULT_MODEL,
     max_frames: int = 20,
     skip_interval: int = 1,
 ) -> list[FrameAnalysis]:
@@ -320,7 +323,7 @@ def analyze_video_frames(
     *,
     video_id: str = "",
     mode: AnalysisMode = AnalysisMode.GENERAL,
-    model: str = "claude-sonnet-4-20250514",
+    model: str = _DEFAULT_MODEL,
     max_frames: int = 20,
 ) -> VisionAnalysisResult:
     """Full vision analysis pipeline for a video's frames.

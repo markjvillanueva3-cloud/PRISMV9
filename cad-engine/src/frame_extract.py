@@ -66,11 +66,11 @@ class FrameExtractionResult:
 
 def _find_ffmpeg() -> str:
     """Find ffmpeg executable."""
-    candidates = [
-        "ffmpeg",
-        r"C:\Users\Admin.DIGITALSTORM-PC\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe",
-        r"C:\ffmpeg\bin\ffmpeg.exe",
-    ]
+    candidates = ["ffmpeg"]
+    local_app = os.environ.get("LOCALAPPDATA", "")
+    if local_app:
+        candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", "ffmpeg.exe"))
+    candidates.append(r"C:\ffmpeg\bin\ffmpeg.exe")
     for candidate in candidates:
         try:
             subprocess.run(
@@ -85,11 +85,11 @@ def _find_ffmpeg() -> str:
 
 def _find_ffprobe() -> str:
     """Find ffprobe executable."""
-    candidates = [
-        "ffprobe",
-        r"C:\Users\Admin.DIGITALSTORM-PC\AppData\Local\Microsoft\WinGet\Links\ffprobe.exe",
-        r"C:\ffmpeg\bin\ffprobe.exe",
-    ]
+    candidates = ["ffprobe"]
+    local_app = os.environ.get("LOCALAPPDATA", "")
+    if local_app:
+        candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", "ffprobe.exe"))
+    candidates.append(r"C:\ffmpeg\bin\ffprobe.exe")
     for candidate in candidates:
         try:
             subprocess.run(
@@ -198,10 +198,16 @@ def extract_scene_change_frames(
             cmd, capture_output=True, text=True, timeout=300,
         )
         stderr_text = result.stderr
+        if result.returncode != 0:
+            import logging
+            logging.warning(
+                "ffmpeg scene detection failed (rc=%d): %s",
+                result.returncode, stderr_text[-500:],
+            )
     except subprocess.TimeoutExpired:
         raise FrameExtractError("Frame extraction timed out (300s)")
 
-    # Parse showinfo output to get timestamps
+    # Parse showinfo output to get timestamps and scene scores
     frames: list[ExtractedFrame] = []
     frame_files = sorted(Path(output_dir).glob("scene_*.jpg"))
 
@@ -209,6 +215,11 @@ def extract_scene_change_frames(
     timestamps: list[float] = []
     for match in re.finditer(r"pts_time:([\d.]+)", stderr_text):
         timestamps.append(float(match.group(1)))
+
+    # Extract scene scores from ffmpeg select filter output
+    scene_scores: list[float] = []
+    for match in re.finditer(r"scene:([\d.]+)", stderr_text):
+        scene_scores.append(float(match.group(1)))
 
     last_ts = -min_interval
     frame_num = 0
@@ -230,6 +241,7 @@ def extract_scene_change_frames(
             frame_number=frame_num,
             width=width,
             height=height,
+            scene_score=scene_scores[i] if i < len(scene_scores) else 0.0,
         ))
         last_ts = ts
         frame_num += 1

@@ -12,6 +12,8 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
+import re
+
 from PIL import Image, ImageFilter, ImageOps
 
 try:
@@ -79,7 +81,7 @@ def _configure_tesseract() -> None:
     try:
         pytesseract.get_tesseract_version()
         return
-    except Exception:
+    except pytesseract.TesseractNotFoundError:
         pass
 
     # Try common paths
@@ -179,6 +181,10 @@ def extract_text(
     else:
         processed = image
 
+    # Validate language code (ISO 639-2/3 format, e.g. "eng", "eng+deu")
+    if not re.fullmatch(r"[a-z]{3}(\+[a-z]{3})*", language):
+        raise OCRError(f"Invalid language code: {language!r}")
+
     # Get detailed data with bounding boxes
     config = f"--oem 3 --psm 6 -l {language}"
     try:
@@ -274,8 +280,6 @@ def extract_ui_elements(ocr_result: OCRResult) -> dict:
         "manufacture", "design", "model", "surface", "mesh",
         "create", "inspect", "select", "feature",
     }
-
-    import re
 
     for region in ocr_result.regions:
         text_lower = region.text.lower()
