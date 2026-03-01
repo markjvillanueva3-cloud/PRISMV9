@@ -51,6 +51,10 @@ import type { ToolMaterialType } from "../../engines/ToolDeflectionPredictionEng
 import { chipFormationPredictionEngine } from "../../engines/ChipFormationPredictionEngine.js";
 import type { MaterialDuctility } from "../../engines/ChipFormationPredictionEngine.js";
 import { specificCuttingEnergyEngine } from "../../engines/SpecificCuttingEnergyEngine.js";
+import { roughnessConversionEngine } from "../../engines/RoughnessConversionEngine.js";
+import type { RoughnessScale } from "../../engines/RoughnessConversionEngine.js";
+import { peckDrillingOptimizationEngine } from "../../engines/PeckDrillingOptimizationEngine.js";
+import type { DrillType } from "../../engines/PeckDrillingOptimizationEngine.js";
 import type { EnergySource } from "../../engines/SpecificCuttingEnergyEngine.js";
 
 import {
@@ -248,6 +252,10 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { vc_mpm: result.optimal?.vc_mpm, eco_weight: result.eco_weight_applied, improvement_pct: result.sustainability_improvement_pct, eco_score: result.optimal?.sustainability?.eco_efficiency_score };
     case "fixture_recommend":
       return { fixture: result.primary_recommendation?.fixture_type, model: result.primary_recommendation?.model, clamp_n: result.primary_recommendation?.clamp_force_n, deflection_mm: result.analysis?.max_deflection_mm, within_tol: result.analysis?.deflection_within_tolerance, safety: result.safety?.score };
+    case "roughness_convert":
+      return { from: result.input_scale, to: result.output_scale, value: result.output_value, n_grade: result.n_grade_label, process: result.typical_process, unc_pct: result.uncertainty_pct };
+    case "peck_drill_optimize":
+      return { ld_ratio: result.ld_ratio, strategy: result.peck_strategy, peck_mm: result.peck_depth_mm, pecks: result.num_pecks, feed_adj: result.adjusted_feed_mm_rev, time_s: result.estimated_cycle_time_s };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -294,7 +302,8 @@ const ACTIONS = [
   "wear_progression", "drill_breakthrough", "thermal_growth",
   "bore_finishing", "finishing_pass", "turning_force",
   "tapping_torque", "power_budget",
-  "tool_deflection_predict", "chip_formation", "specific_cutting_energy"
+  "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
+  "roughness_convert", "peck_drill_optimize"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -303,7 +312,7 @@ export function registerCalcDispatcher(server: any): void {
     "Manufacturing calculations: cutting force, tool life, speed/feed, power, G-code, tolerance, optimization, reports, campaigns. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional()
+      params: z.record(z.string(), z.any()).optional()
     },
     async ({ action, params: rawParams = {} }) => {
       log.info(`[prism_calc] Action: ${action}`);
@@ -1615,6 +1624,28 @@ export function registerCalcDispatcher(server: any): void {
               spindle_efficiency: params.spindle_efficiency || params.efficiency,
               electricity_cost_per_kWh: params.electricity_cost || params.cost_per_kWh,
               energy_source: (params.energy_source || "grid_average") as EnergySource,
+            });
+            break;
+          }
+
+          case "roughness_convert": {
+            result = roughnessConversionEngine.convert({
+              value: params.value ?? params.roughness,
+              from_scale: (params.from_scale || params.from || "Ra_um") as RoughnessScale,
+              to_scale: (params.to_scale || params.to || "Rz_um") as RoughnessScale,
+            });
+            break;
+          }
+
+          case "peck_drill_optimize": {
+            result = peckDrillingOptimizationEngine.calculate({
+              drill_diameter_mm: params.drill_diameter || params.diameter || params.D,
+              hole_depth_mm: params.hole_depth || params.depth || params.L,
+              material: params.material || "steel",
+              drill_type: (params.drill_type || params.type || "carbide_twist") as DrillType,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc || 80,
+              feed_per_rev_mm: params.feed_per_rev || params.feed || params.fn || 0.15,
+              coolant_through_spindle: params.coolant_through_spindle ?? params.tsc ?? false,
             });
             break;
           }

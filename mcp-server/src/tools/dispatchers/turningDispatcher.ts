@@ -13,7 +13,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any;
+let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, _partoff: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "chuck": return _chuck ??= (await import("../../engines/ChuckJawForceEngine.js")).chuckJawForceEngine;
@@ -22,6 +22,7 @@ async function getEngine(name: string): Promise<any> {
     case "live": return _live ??= (await import("../../engines/LiveToolingEngine.js")).liveToolingEngine;
     case "bar": return _bar ??= (await import("../../engines/BarPullerTimingEngine.js")).barPullerTimingEngine;
     case "thread": return _thread ??= (await import("../../engines/SinglePointThreadEngine.js")).singlePointThreadEngine;
+    case "partoff": return _partoff ??= (await import("../../engines/PartOffForceEngine.js")).partOffForceEngine;
     default: throw new Error(`Unknown turning engine: ${name}`);
   }
 }
@@ -29,6 +30,7 @@ async function getEngine(name: string): Promise<any> {
 const ACTIONS = [
   "chuck_force", "tailstock", "steady_rest",
   "live_tool", "bar_pull", "thread_single_point",
+  "part_off_force",
 ] as const;
 
 export function registerTurningDispatcher(server: any): void {
@@ -36,7 +38,7 @@ export function registerTurningDispatcher(server: any): void {
     "prism_turning",
     `Turning-specific dispatcher — SAFETY CRITICAL. Chuck jaw force, tailstock, steady rest, live tooling, bar puller, single-point threading.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_turning] Action: ${action}`);
       let result: any;
@@ -76,6 +78,11 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "thread_single_point": {
             const engine = await getEngine("thread");
             result = engine.calculatePassPlan?.(params) ?? { error: "SinglePointThreadEngine method not found" };
+            break;
+          }
+          case "part_off_force": {
+            const engine = await getEngine("partoff");
+            result = engine.calculate?.(params) ?? { error: "PartOffForceEngine method not found" };
             break;
           }
           default:

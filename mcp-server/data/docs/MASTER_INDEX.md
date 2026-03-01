@@ -17,7 +17,7 @@ Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, au
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
 ### prism_calc (calcDispatcher.ts, 1520L)
-Actions (68): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy
+Actions (70): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy, roughness_convert, peck_drill_optimize
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -138,7 +138,7 @@ Actions (8): render_pdf, render_csv, render_excel, render_dxf, render_step, rend
 Actions (8): job_schedule, machine_assign, capacity_plan, priority_queue, bottleneck_find, lead_time_estimate, due_date_track, resource_balance
 
 ### prism_turning (turningDispatcher.ts)
-Actions (6): chuck_force, tailstock, steady_rest, live_tool, bar_pull, thread_single_point
+Actions (7): chuck_force, tailstock, steady_rest, live_tool, bar_pull, thread_single_point, part_off_force
 
 ### prism_5axis (fiveAxisDispatcher.ts)
 Actions (5): rtcp_calc, singularity_check, tilt_optimize, work_envelope, inverse_kin
