@@ -4,17 +4,27 @@
  * Each engine gets ≥1 smoke test verifying singleton, core computation, and API shape.
  */
 
-import {
-  toolSelectionEngine, materialSelectionEngine, machineSelectionEngine,
-  fixtureDesignEngine, processPlanEngine,
-  costEstimationEngine, quoteEngine, schedulingEngine,
-  qualityPredictionEngine, troubleshootingEngine,
-  tribalKnowledgeEngine, learningPathEngine, digitalTwinEngine,
-  energyOptimizationEngine, batchOptimizationEngine,
-  nestingEngine, probeRoutineEngine, toolCribEngine,
-  // Existing engines (counted in L2-P1-MS1)
-  setupSheetEngine, predictiveMaintenance,
-} from "../engines/index.js";
+import { toolSelectionEngine } from "../engines/ToolSelectionEngine.js";
+import { materialSelectionEngine } from "../engines/MaterialSelectionEngine.js";
+import { machineSelectionEngine } from "../engines/MachineSelectionEngine.js";
+import { fixtureDesignEngine } from "../engines/FixtureDesignEngine.js";
+import { processPlanEngine } from "../engines/ProcessPlanEngine.js";
+import { costEstimationEngine } from "../engines/CostEstimationEngine.js";
+import { quoteEngine } from "../engines/QuoteEngine.js";
+import { schedulingEngine } from "../engines/SchedulingEngine.js";
+import { qualityPredictionEngine } from "../engines/QualityPredictionEngine.js";
+import { troubleshootingEngine } from "../engines/TroubleshootingEngine.js";
+import { tribalKnowledgeEngine } from "../engines/TribalKnowledgeEngine.js";
+import { learningPathEngine } from "../engines/LearningPathEngine.js";
+import { digitalTwinEngine } from "../engines/DigitalTwinEngine.js";
+import { energyOptimizationEngine } from "../engines/EnergyOptimizationEngine.js";
+import { batchOptimizationEngine } from "../engines/BatchOptimizationEngine.js";
+import { nestingEngine } from "../engines/NestingEngine.js";
+import { probeRoutineEngine } from "../engines/ProbeRoutineEngine.js";
+import { toolCribEngine } from "../engines/ToolCribEngine.js";
+// Existing engines (counted in L2-P1-MS1)
+import { setupSheetEngine } from "../engines/SetupSheetEngine.js";
+import { predictiveMaintenance } from "../engines/PredictiveMaintenanceEngine.js";
 
 // ============================================================================
 // 1. ToolSelectionEngine

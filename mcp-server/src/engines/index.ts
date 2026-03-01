@@ -1,7 +1,8 @@
 /**
- * PRISM MCP Server - Engines Index v11
- * Re-exports all 171 calculation, orchestration, and infrastructure engines
- * Updated: R1-AUDIT-T1 — Added 19 missing barrel exports
+ * PRISM MCP Server - Engines Index v12
+ * Re-exports 125 active calculation, orchestration, and infrastructure engines
+ * Updated: SYS-MS4-U01 — Removed 64 dead (unwired) engine exports
+ * Note: 64 specialty engine .ts files remain on disk for future wiring
  */
 
 // Manufacturing Calculations (Kienzle, Taylor, Johnson-Cook, etc.)
@@ -1099,84 +1100,6 @@ export {
 // L2-P1-MS1 — 20 Manufacturing Intelligence Engines
 // ──────────────────────────────────────────────────────────────
 
-// Tool Selection (composes ToolRegistry)
-export {
-  ToolSelectionEngine,
-  toolSelectionEngine,
-  type ToolRequirements,
-  type ToolRecommendation,
-  type ToolComparisonResult,
-  type ToolValidationResult as ToolSelValidation,
-} from "./ToolSelectionEngine.js";
-
-// Material Selection (composes MaterialRegistry)
-export {
-  MaterialSelectionEngine,
-  materialSelectionEngine,
-  type MaterialRequirements,
-  type MaterialCandidate,
-  type MaterialProperties,
-  type MachinabilityReport,
-  type MaterialComparisonResult,
-} from "./MaterialSelectionEngine.js";
-
-// Machine Selection (composes MachineRegistry)
-export {
-  MachineSelectionEngine,
-  machineSelectionEngine,
-  type MachineRequirements,
-  type MachineCandidate,
-  type MachineComparisonResult as MachineSelComparison,
-  type MachineValidationResult as MachineSelValidation,
-} from "./MachineSelectionEngine.js";
-
-// Fixture Design (SAFETY CRITICAL — clamping force)
-export {
-  FixtureDesignEngine,
-  fixtureDesignEngine,
-  type PartGeometry,
-  type CuttingLoads,
-  type FixtureType,
-  type FixtureRecommendation,
-  type ClampForceResult as FixtureClampForceResult,
-  type DeflectionResult as FixtureDeflectionResult,
-  type FixtureValidationResult,
-} from "./FixtureDesignEngine.js";
-
-// Process Planning (composes GenPlanEngine + registries)
-export {
-  ProcessPlanEngine,
-  processPlanEngine,
-  type FeatureCategory,
-  type PartFeature,
-  type ProcessPlanInput,
-  type ProcessOperation,
-  type ProcessPlan as ProcessPlanResult,
-  type PlanOptimization,
-  type TimeEstimate as PlanTimeEstimate,
-} from "./ProcessPlanEngine.js";
-
-// Cost Estimation
-export {
-  CostEstimationEngine,
-  costEstimationEngine,
-  type CostInput,
-  type CostBreakdown as CostEstBreakdown,
-  type CostDriver,
-  type MaterialCostComparison,
-} from "./CostEstimationEngine.js";
-
-// Quoting
-export {
-  QuoteEngine,
-  quoteEngine,
-  type QuoteInput,
-  type Quote,
-  type QuoteLineItem,
-  type QuantityBreak,
-  type MarginAnalysis,
-} from "./QuoteEngine.js";
-
 // Job Scheduling
 export {
   SchedulingEngine,
@@ -1200,111 +1123,6 @@ export {
   type SurfaceRoughnessResult,
   type QualityRiskAssessment,
 } from "./QualityPredictionEngine.js";
-
-// Troubleshooting (fault diagnosis)
-export {
-  TroubleshootingEngine,
-  troubleshootingEngine,
-  type Symptom,
-  type DiagnosisInput,
-  type Diagnosis,
-  type RankedCause,
-  type CorrectiveAction,
-  type RootCauseAnalysis,
-} from "./TroubleshootingEngine.js";
-
-// Tribal Knowledge (shop-floor wisdom)
-export {
-  TribalKnowledgeEngine,
-  tribalKnowledgeEngine,
-  type KnowledgeTip,
-  type KnowledgeCategory,
-  type KnowledgeSearchInput,
-  type KnowledgeSuggestion,
-  type KnowledgeStats,
-} from "./TribalKnowledgeEngine.js";
-
-// Learning Paths (operator training)
-export {
-  LearningPathEngine,
-  learningPathEngine,
-  type SkillLevel as LearningSkillLevel,
-  type OperatorRole,
-  type SkillAssessment as LearningSkillAssessment,
-  type LearningModule,
-  type LearningPlan,
-  type ProgressReport,
-} from "./LearningPathEngine.js";
-
-// Digital Twin (machine state & prediction)
-export {
-  DigitalTwinEngine,
-  digitalTwinEngine,
-  type MachineTwin,
-  type MachineState as TwinMachineState,
-  type MachineHealth,
-  type HealthAlert,
-  type MachinePerformance,
-  type TwinPrediction,
-  type SimulationResult as TwinSimResult,
-} from "./DigitalTwinEngine.js";
-
-// Energy Optimization (sustainability)
-export {
-  EnergyOptimizationEngine,
-  energyOptimizationEngine,
-  type EnergyInput,
-  type EnergyOperation,
-  type EnergyAnalysis,
-  type EnergyOptimization,
-  type EnergyChange,
-} from "./EnergyOptimizationEngine.js";
-
-// Batch Optimization (campaign sequencing)
-export {
-  BatchOptimizationEngine,
-  batchOptimizationEngine,
-  type BatchJob,
-  type BatchGroup,
-  type BatchSequence,
-  type SetupMatrix,
-  type BatchCapacity,
-} from "./BatchOptimizationEngine.js";
-
-// Nesting (2D part layout optimization)
-export {
-  NestingEngine,
-  nestingEngine,
-  type NestPart,
-  type StockSheet,
-  type NestPlacement,
-  type NestResult,
-  type NestAnalysis,
-} from "./NestingEngine.js";
-
-// Probe Routine Generation (GD&T → probe paths)
-export {
-  ProbeRoutineEngine,
-  probeRoutineEngine,
-  type GDTCallout,
-  type GDTSpec,
-  type ProbeMove,
-  type ProbeRoutine,
-  type GDTInterpretation,
-  type ProbeReport,
-} from "./ProbeRoutineEngine.js";
-
-// Tool Crib Management (inventory, check-in/out)
-export {
-  ToolCribEngine,
-  toolCribEngine,
-  type ToolCribItem,
-  type CheckoutRecord,
-  type ToolCribCheckout,
-  type ToolCribCheckin,
-  type InventoryReport,
-  type ReorderRecommendation,
-} from "./ToolCribEngine.js";
 
 // --- Existing engines counted in L2-P1-MS1 ---
 // PredictiveMaintenanceEngine (already exported above in original barrel)
@@ -1382,16 +1200,6 @@ export {
   type PostValidation,
 } from "./PostProcessorEngine.js";
 
-// Surface Finish Prediction (Ra, Rz, Rt from cutting params)
-export {
-  SurfaceFinishEngine,
-  surfaceFinishEngine,
-  type SurfaceProcess,
-  type SurfaceFinishInput,
-  type SurfaceFinishResult as SFEngineSurfaceFinishResult,
-  type AchievableFinish,
-} from "./SurfaceFinishEngine.js";
-
 // Collision Detection — SAFETY CRITICAL (AABB broad + swept volume)
 export {
   CollisionDetectionEngine,
@@ -1416,28 +1224,6 @@ export {
   type StockAnalysis,
   type StockComparison,
 } from "./StockModelEngine.js";
-
-// Clamping Simulation — SAFETY CRITICAL (force, pressure, deformation)
-export {
-  ClampingSimEngine,
-  clampingSimEngine,
-  type ClampPoint,
-  type CuttingForceProfile,
-  type ClampSimInput,
-  type ContactPressure,
-  type ClampSimResult,
-  type ClampOptimization,
-} from "./ClampingSimEngine.js";
-
-// Thermal Simulation — SAFETY CRITICAL (cutting temp, burn/white layer risk)
-export {
-  ThermalSimEngine,
-  thermalSimEngine,
-  type ThermalInput,
-  type ThermalResult as ThermalSimResult,
-  type ThermalDamageRisk,
-  type ThermalOptimization,
-} from "./ThermalSimEngine.js";
 
 // Tool Assembly (holder + tool, stickout, runout, reach)
 export {
@@ -1496,16 +1282,6 @@ export {
   type GCodeComparison,
 } from "./GCodeOptimizationEngine.js";
 
-// Machinability Rating (0-100 scale relative to AISI 1212)
-export {
-  MachinabilityRatingEngine,
-  machinabilityRatingEngine,
-  type MachinabilityInput,
-  type MachinabilityRating,
-  type MachinabilityFactor,
-  type MachinabilityComparison,
-} from "./MachinabilityRatingEngine.js";
-
 // ============================================================================
 // L2-P3-MS1: 16 Infrastructure Engines (#174-#189)
 // ============================================================================
@@ -1536,134 +1312,6 @@ export {
   type TenantCreateInput,
 } from "./TenantEngine.js";
 
-// Rate Limit (SECURITY — token bucket, sliding window)
-export {
-  RateLimitEngine,
-  rateLimitEngine,
-  type RateLimitAlgorithm,
-  type RateLimitRule,
-  type RateLimitState,
-  type RateLimitCheckResult,
-} from "./RateLimitEngine.js";
-
-// Cache (LRU with TTL, namespace isolation)
-export {
-  CacheEngine,
-  cacheEngine,
-  type CacheEntry as CacheEngineCacheEntry,
-  type CacheStats,
-  type CacheConfig,
-} from "./CacheEngine.js";
-
-// Queue (job queue, priority, retry, dead-letter)
-export {
-  QueueEngine,
-  queueEngine,
-  type QueueJob,
-  type JobStatus,
-  type JobPriority,
-  type QueueStats as QueueEngineStats,
-  type EnqueueOptions,
-} from "./QueueEngine.js";
-
-// Event (pub/sub event bus)
-export {
-  EventEngine,
-  eventEngine,
-  type EventMessage,
-  type EventSubscription as EventEngineSubscription,
-  type EventStats as EventEngineStats,
-  type EventHandler as EventEngineHandler,
-} from "./EventEngine.js";
-
-// Logging (structured logging with levels)
-export {
-  LoggingEngine,
-  loggingEngine,
-  type LogLevel,
-  type LogEntry,
-  type LogQuery,
-  type LogStats,
-  type LogConfig,
-} from "./LoggingEngine.js";
-
-// Metrics (counters, gauges, histograms)
-export {
-  MetricsEngine,
-  metricsEngine,
-  type MetricType,
-  type MetricDefinition,
-  type MetricValue,
-  type HistogramSummary,
-  type HistogramBucket,
-  type MetricsExport,
-} from "./MetricsEngine.js";
-
-// Health (liveness, readiness, component checks)
-export {
-  HealthEngine,
-  healthEngine,
-  type HealthStatus,
-  type HealthComponent,
-  type HealthCheck,
-  type HealthHistoryEntry,
-  type HealthChecker,
-} from "./HealthEngine.js";
-
-// Config (hierarchical configuration, validation)
-export {
-  ConfigEngine,
-  configEngine,
-  type ConfigSource,
-  type ConfigEntry,
-  type ConfigValidation,
-} from "./ConfigEngine.js";
-
-// Migration (schema versioning, up/down)
-export {
-  MigrationEngine,
-  migrationEngine,
-  type Migration,
-  type MigrationRecord,
-  type MigrationPlan,
-  type MigrationStatus,
-  type MigrationDirection,
-} from "./MigrationEngine.js";
-
-// Notification (multi-channel alerts)
-export {
-  NotificationEngine,
-  notificationEngine,
-  type Notification as NotificationMessage,
-  type NotificationChannel,
-  type NotificationPriority,
-  type NotificationStatus,
-  type NotificationTemplate,
-  type NotificationStats,
-} from "./NotificationEngine.js";
-
-// Webhook (registration, delivery, signatures)
-export {
-  WebhookEngine,
-  webhookEngine,
-  type WebhookEvent,
-  type WebhookStatus,
-  type WebhookRegistration,
-  type WebhookDelivery,
-  type WebhookStats,
-} from "./WebhookEngine.js";
-
-// Audit (compliance audit trail)
-export {
-  AuditEngine,
-  auditEngine,
-  type AuditCategory,
-  type AuditSeverity,
-  type AuditEntry,
-  type AuditQuery,
-  type AuditReport,
-} from "./AuditEngine.js";
-
 // Export (PDF, CSV, Excel, DXF, STEP, G-code rendering)
 export {
   ExportEngine,
@@ -1676,137 +1324,15 @@ export {
   type ExportStats,
 } from "./ExportEngine.js";
 
-// Plugin (lifecycle, hooks, discovery)
-export {
-  PluginEngine,
-  pluginEngine,
-  type PluginManifest,
-  type Plugin,
-  type PluginStatus,
-  type PluginHook,
-  type PluginStats,
-} from "./PluginEngine.js";
-
 // ============================================================================
 // L2-P4-MS1: 52 PASS2 Specialty Engines (#190-#241)
 // ============================================================================
 
 // --- Batch 1: Surface Integrity & Metallurgy (6 engines) ---
 
-// White Layer Detection (SAFETY CRITICAL — hard machining)
-export {
-  WhiteLayerDetectionEngine,
-  whiteLayerDetectionEngine,
-  type WhiteLayerInput,
-  type WhiteLayerRisk,
-  type WhiteLayerResult,
-} from "./WhiteLayerDetectionEngine.js";
-
-// Recast Layer (SAFETY CRITICAL — EDM/laser)
-export {
-  RecastLayerEngine,
-  recastLayerEngine,
-  type RecastProcess,
-  type RecastLayerInput,
-  type RecastRisk,
-  type RecastLayerResult,
-} from "./RecastLayerEngine.js";
-
-// Microstructure Effect on Machinability
-export {
-  MicrostructureEffectEngine,
-  microstructureEffectEngine,
-  type PhaseType,
-  type MicrostructureInput,
-  type MicrostructureResult,
-} from "./MicrostructureEffectEngine.js";
-
-// Heat Treatment Response
-export {
-  HeatTreatmentResponseEngine,
-  heatTreatmentResponseEngine,
-  type HeatTreatProcess,
-  type HeatTreatInput,
-  type HeatTreatResult,
-  type TemperCurvePoint,
-} from "./HeatTreatmentResponseEngine.js";
-
-// Cryogenic Treatment
-export {
-  CryogenicTreatmentEngine,
-  cryogenicTreatmentEngine,
-  type CryoLevel,
-  type CryoTreatmentInput,
-  type CryoTreatmentResult,
-} from "./CryogenicTreatmentEngine.js";
-
-// Plating Allowance
-export {
-  PlatingAllowanceEngine,
-  platingAllowanceEngine,
-  type PlatingProcess,
-  type PlatingAllowanceInput,
-  type PlatingAllowanceResult,
-} from "./PlatingAllowanceEngine.js";
-
 // --- Batch 2: Vibration & Dynamics (5 engines) ---
 
-// Harmonic Analysis (vibration spectrum)
-export {
-  HarmonicAnalysisEngine,
-  harmonicAnalysisEngine,
-  type HarmonicSource,
-  type HarmonicInput,
-  type HarmonicPeak,
-  type HarmonicResult,
-} from "./HarmonicAnalysisEngine.js";
-
-// Thin Floor/Wall Vibration
-export {
-  ThinFloorVibrationEngine,
-  thinFloorVibrationEngine,
-  type ThinFeatureInput,
-  type ThinFeatureResult,
-} from "./ThinFloorVibrationEngine.js";
-
-// Toolholder Dynamics (FRF)
-export {
-  ToolholderDynamicsEngine,
-  toolholderDynamicsEngine,
-  type ToolholderType,
-  type ToolholderInput,
-  type ToolholderFRF,
-  type ToolholderComparison,
-} from "./ToolholderDynamicsEngine.js";
-
-// Regenerative Chatter Predictor (SAFETY CRITICAL)
-export {
-  RegenerativeChatterPredictor,
-  regenerativeChatterPredictor,
-  type CutType as RegenerativeCutType,
-  type ChatterInput as RegenerativeChatterInput,
-  type StabilityLobe as RegenerativeStabilityLobe,
-  type ChatterResult as RegenerativeChatterResult,
-} from "./RegenerativeChatterPredictor.js";
-
-// Damping Optimization
-export {
-  DampingOptimizationEngine,
-  dampingOptimizationEngine,
-  type DampingStrategy,
-  type DampingInput,
-  type DampingResult,
-} from "./DampingOptimizationEngine.js";
-
 // --- Batch 3: Thread & Gear Manufacturing (4 engines) ---
-
-// Thread Milling (helical interpolation)
-export {
-  ThreadMillingEngine,
-  threadMillingEngine,
-  type ThreadMillInput,
-  type ThreadMillResult as ThreadMillEngineResult,
-} from "./ThreadMillingEngine.js";
 
 // Single-Point Threading (SAFETY CRITICAL)
 export {
@@ -1819,49 +1345,7 @@ export {
   type SPTValidation,
 } from "./SinglePointThreadEngine.js";
 
-// Gear Hobbing
-export {
-  GearHobbingEngine,
-  gearHobbingEngine,
-  type GearHobbingInput,
-  type GearHobbingResult,
-} from "./GearHobbingEngine.js";
-
-// Spline Milling
-export {
-  SplineMillingEngine,
-  splineMillingEngine,
-  type SplineMillingInput,
-  type SplineMillingResult,
-} from "./SplineMillingEngine.js";
-
 // --- Batch 4: Sheet Metal & Fabrication (3 engines) ---
-
-// Bend Allowance
-export {
-  BendAllowanceEngine,
-  bendAllowanceEngine,
-  type BendAllowanceInput,
-  type BendAllowanceResult,
-} from "./BendAllowanceEngine.js";
-
-// Weld Prep (AWS D1.1)
-export {
-  WeldPrepEngine,
-  weldPrepEngine,
-  type GrooveType,
-  type WeldPrepInput,
-  type WeldPrepResult,
-} from "./WeldPrepEngine.js";
-
-// Laser Cut Interface
-export {
-  LaserCutInterfaceEngine,
-  laserCutInterfaceEngine,
-  type LaserType,
-  type LaserCutInput,
-  type LaserCutResult,
-} from "./LaserCutInterfaceEngine.js";
 
 // --- Batch 5: Multi-Axis & Complex Kinematics (5 engines) ---
 
@@ -1996,34 +1480,6 @@ export {
 
 // --- Batch 8: Laser & Waterjet (3 engines) ---
 
-// Waterjet Taper Compensation
-export {
-  WaterjetTaperEngine,
-  waterjetTaperEngine,
-  type WaterjetQuality,
-  type WaterjetTaperInput,
-  type WaterjetTaperResult,
-} from "./WaterjetTaperEngine.js";
-
-// Laser Marking
-export {
-  LaserMarkingEngine,
-  laserMarkingEngine,
-  type LaserMarkSource,
-  type MarkType,
-  type LaserMarkInput,
-  type LaserMarkResult,
-} from "./LaserMarkingEngine.js";
-
-// Hybrid Laser + Machining
-export {
-  HybridLaserMachineEngine,
-  hybridLaserMachineEngine,
-  type HybridProcess,
-  type HybridLaserInput,
-  type HybridLaserResult,
-} from "./HybridLaserMachineEngine.js";
-
 // --- Batch 9: Automation & Industry 4.0 (5 engines) ---
 
 // Digital Thread
@@ -2072,73 +1528,7 @@ export {
 
 // --- Batch 10: Coating & Surface Treatment (4 engines) ---
 
-// Masking Calculator
-export {
-  MaskingCalculatorEngine,
-  maskingCalculatorEngine,
-  type MaskMethod,
-  type MaskProcess,
-  type MaskingInput,
-  type MaskingResult,
-} from "./MaskingCalculatorEngine.js";
-
-// Shot Peening (AMS 2430)
-export {
-  ShotPeeningEngine,
-  shotPeeningEngine,
-  type AlmenStrip,
-  type ShotMedia,
-  type ShotPeeningInput,
-  type ShotPeeningResult,
-} from "./ShotPeeningEngine.js";
-
-// Passivation (ASTM A967)
-export {
-  PassivationEngine,
-  passivationEngine,
-  type PassivationMethod,
-  type StainlessFamily,
-  type PassivationInput,
-  type PassivationResult,
-} from "./PassivationEngine.js";
-
-// Anodize Allowance
-export {
-  AnodizeAllowanceEngine,
-  anodizeAllowanceEngine,
-  type AnodizeType,
-  type AnodizeAllowanceInput,
-  type AnodizeAllowanceResult,
-} from "./AnodizeAllowanceEngine.js";
-
 // --- Batch 11: Material Testing Interface (3 engines) ---
-
-// Hardness Conversion (ASTM E140)
-export {
-  HardnessConversionEngine,
-  hardnessConversionEngine,
-  type HardnessScale,
-  type HardnessConvertInput,
-  type HardnessConvertResult,
-} from "./HardnessConversionEngine.js";
-
-// Tensile-to-Machinability
-export {
-  TensileToMachinabilityEngine,
-  tensileToMachinabilityEngine,
-  type TensileData,
-  type MachinabilityResult as TensileToMachResult,
-} from "./TensileToMachinabilityEngine.js";
-
-// Material Equivalence (AISI/DIN/EN/JIS/UNS)
-export {
-  MaterialEquivalenceEngine,
-  materialEquivalenceEngine,
-  type MaterialStandard,
-  type MaterialEquivInput,
-  type MaterialEquivalent,
-  type MaterialEquivResult,
-} from "./MaterialEquivalenceEngine.js";
 
 // --- Batch 12: Jig & Fixture Specific (5 engines) ---
 
@@ -2153,39 +1543,25 @@ export {
   type ModularFixtureResult,
 } from "./ModularFixtureLayoutEngine.js";
 
-// Soft Jaw Profile
+// Previously unindexed but actively used engines
 export {
-  SoftJawProfileEngine,
-  softJawProfileEngine,
-  type JawProfile,
-  type JawMaterial,
-  type SoftJawInput,
-  type SoftJawResult,
-} from "./SoftJawProfileEngine.js";
+  ContextBudgetEngine,
+  type BudgetAllocation,
+  type BudgetReport,
+  type UsageRecord,
+} from "./ContextBudgetEngine.js";
 
-// 3D-Printed Fixture
 export {
-  ThreeDPrintedFixtureEngine,
-  threeDPrintedFixtureEngine,
-  type PrintProcess,
-  type PrintMaterial,
-  type ThreeDPrintFixtureInput,
-  type ThreeDPrintFixtureResult,
-} from "./ThreeDPrintedFixtureEngine.js";
+  getAllCatalogs,
+  searchCatalog,
+  getEngineCatalog,
+  getCatalogStats,
+  type CatalogEntry,
+} from "./SourceCatalogAggregator.js";
 
-// Magnetic Chuck (SAFETY CRITICAL)
 export {
-  MagneticChuckEngine,
-  magneticChuckEngine,
-  type ChuckType as MagneticChuckType,
-  type MagneticChuckInput,
-  type MagneticChuckResult,
-} from "./MagneticChuckEngine.js";
-
-// Tombstone Layout (HMC production)
-export {
-  TombstoneLayoutEngine,
-  tombstoneLayoutEngine,
-  type TombstoneInput,
-  type TombstoneLayoutResult,
-} from "./TombstoneLayoutEngine.js";
+  executeSwarmGroups,
+  type TaskGroup,
+  type GroupResult,
+  type SwarmGroupResult,
+} from "./SwarmGroupExecutor.js";

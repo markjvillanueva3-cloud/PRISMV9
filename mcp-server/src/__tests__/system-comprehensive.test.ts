@@ -573,7 +573,6 @@ describe("Engine Exports", () => {
   // Key infrastructure engines
   const infraExports = [
     "HookEngine",
-    "CacheEngine",
     "EventBus",
   ];
 

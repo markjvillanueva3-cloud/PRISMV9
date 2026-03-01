@@ -3,24 +3,22 @@
  * Smoke tests for all 16 new engines: singletons, core operations, API shape.
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import {
-  authEngine,
-  tenantEngine,
-  rateLimitEngine,
-  cacheEngine,
-  queueEngine,
-  eventEngine,
-  loggingEngine,
-  metricsEngine,
-  healthEngine,
-  configEngine,
-  migrationEngine,
-  notificationEngine,
-  webhookEngine,
-  auditEngine,
-  exportEngine,
-  pluginEngine,
-} from "../engines/index.js";
+import { authEngine } from "../engines/AuthEngine.js";
+import { tenantEngine } from "../engines/TenantEngine.js";
+import { rateLimitEngine } from "../engines/RateLimitEngine.js";
+import { cacheEngine } from "../engines/CacheEngine.js";
+import { queueEngine } from "../engines/QueueEngine.js";
+import { eventEngine } from "../engines/EventEngine.js";
+import { loggingEngine } from "../engines/LoggingEngine.js";
+import { metricsEngine } from "../engines/MetricsEngine.js";
+import { healthEngine } from "../engines/HealthEngine.js";
+import { configEngine } from "../engines/ConfigEngine.js";
+import { migrationEngine } from "../engines/MigrationEngine.js";
+import { notificationEngine } from "../engines/NotificationEngine.js";
+import { webhookEngine } from "../engines/WebhookEngine.js";
+import { auditEngine } from "../engines/AuditEngine.js";
+import { exportEngine } from "../engines/ExportEngine.js";
+import { pluginEngine } from "../engines/PluginEngine.js";
 
 // ============================================================================
 // 1. AuthEngine — SECURITY CRITICAL

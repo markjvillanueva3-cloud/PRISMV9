@@ -440,7 +440,7 @@ Total skill files: 119
 ## 15. SUMMARY (Updated 2026-02-28)
 
 - Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
-- Engines: 171 TypeScript engine classes (QA-MS11 verified)
+- Engines: 125 active barrel exports + 64 unwired on disk = 189 total .ts files (SYS-MS4 audit)
 - Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
 - Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
 - Services: 2 (TaskClaimService, RoadmapLoader) — multi-Claude coordination
@@ -467,3 +467,13 @@ Total skill files: 119
 | F6 NL Hooks | NLHookEngine.ts | prism_nl_hook | ~0.91 |
 | F7 Protocol Bridge | ProtocolBridgeEngine.ts | prism_bridge | 0.892 |
 | F8 Compliance | ComplianceEngine.ts | prism_compliance | 0.912 |
+
+## 10. CLAUDE.md MODULAR ARCHITECTURE (SYS-MS0)
+| File | Lines | Role | Loads When |
+|------|-------|------|------------|
+| C:/PRISM/CLAUDE.md | 25 | Project pointer + claude-flow ref | Any PRISM work |
+| C:/PRISM/docs/CLAUDE.md | 7 | Directory redirect | docs/ work |
+| mcp-server/CLAUDE.md | 69 | Core rules (safety, build, conventions) | mcp-server/ work |
+| src/engines/CLAUDE.md | 35 | Engine conventions, AtomicValue schema | Engine work |
+| src/tools/dispatchers/CLAUDE.md | 36 | Dispatcher conventions, action routing | Dispatcher work |
+| **Total** | **172** | **90% reduction from 1,656 lines** | **~2.1K tokens (was ~16.7K)** |

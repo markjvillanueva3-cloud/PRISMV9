@@ -3,24 +3,22 @@
  * Smoke tests for all 16 new engines: singletons, core computation, API shape.
  */
 import { describe, it, expect } from "vitest";
-import {
-  geometryEngine,
-  meshEngine,
-  featureRecognitionEngine,
-  toolpathGenerationEngine,
-  postProcessorEngine,
-  surfaceFinishEngine,
-  collisionDetectionEngine,
-  stockModelEngine,
-  clampingSimEngine,
-  thermalSimEngine,
-  toolAssemblyEngine,
-  workCoordinateEngine,
-  dimensionalAnalysisEngine,
-  toleranceStackEngine,
-  gcodeOptimizationEngine,
-  machinabilityRatingEngine,
-} from "../engines/index.js";
+import { geometryEngine } from "../engines/GeometryEngine.js";
+import { meshEngine } from "../engines/MeshEngine.js";
+import { featureRecognitionEngine } from "../engines/FeatureRecognitionEngine.js";
+import { toolpathGenerationEngine } from "../engines/ToolpathGenerationEngine.js";
+import { postProcessorEngine } from "../engines/PostProcessorEngine.js";
+import { surfaceFinishEngine } from "../engines/SurfaceFinishEngine.js";
+import { collisionDetectionEngine } from "../engines/CollisionDetectionEngine.js";
+import { stockModelEngine } from "../engines/StockModelEngine.js";
+import { clampingSimEngine } from "../engines/ClampingSimEngine.js";
+import { thermalSimEngine } from "../engines/ThermalSimEngine.js";
+import { toolAssemblyEngine } from "../engines/ToolAssemblyEngine.js";
+import { workCoordinateEngine } from "../engines/WorkCoordinateEngine.js";
+import { dimensionalAnalysisEngine } from "../engines/DimensionalAnalysisEngine.js";
+import { toleranceStackEngine } from "../engines/ToleranceStackEngine.js";
+import { gcodeOptimizationEngine } from "../engines/GCodeOptimizationEngine.js";
+import { machinabilityRatingEngine } from "../engines/MachinabilityRatingEngine.js";
 
 // ============================================================================
 // 1. GeometryEngine
