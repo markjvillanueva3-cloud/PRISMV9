@@ -24,8 +24,8 @@ export default function GcodeDiff({
   controllers,
   currentController,
 }: GcodeDiffProps) {
-  const [controllerA, setControllerA] = useState(currentController ?? "");
-  const [controllerB, setControllerB] = useState("");
+  const [controllerA, setControllerA] = useState<string>(currentController ?? "");
+  const [controllerB, setControllerB] = useState<string>("");
   const [resultA, setResultA] = useState("");
   const [resultB, setResultB] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,10 +37,10 @@ export default function GcodeDiff({
     setError(null);
     try {
       const result = await ppgApi.compare({
-        operation: "custom",
-        rpm: 0,
-        feed_rate: 0,
-        controllers: [controllerA, controllerB],
+        controllers: [
+          controllerA as PostController,
+          controllerB as PostController,
+        ],
       });
       const rA = result.results.find(
         (r) => r.controller === controllerA,

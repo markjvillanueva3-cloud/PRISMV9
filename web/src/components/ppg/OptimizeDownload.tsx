@@ -31,9 +31,8 @@ export default function OptimizeDownload({
   };
 
   const handleApply = () => {
-    if (data?.optimized_gcode) {
-      onOptimized(data.optimized_gcode);
-    }
+    const code = data?.optimized_gcode ?? data?.gcode;
+    if (code) onOptimized(code);
   };
 
   const handleDownload = () => {
@@ -121,13 +120,13 @@ export default function OptimizeDownload({
               <span className="text-slate-500">Saved:</span>{" "}
               <span className="font-medium text-green-600">
                 {data.original_lines - data.optimized_lines} lines
-                ({data.estimated_time_saved_sec.toFixed(1)}s est.)
+                ({(data.estimated_time_saved_sec ?? 0).toFixed(1)}s est.)
               </span>
             </div>
           </div>
-          {data.savings.length > 0 && (
+          {(data.savings?.length ?? 0) > 0 && (
             <ul className="mt-2 space-y-0.5">
-              {data.savings.map((s, i) => (
+              {data.savings!.map((s: string, i: number) => (
                 <li key={i} className="text-[10px] text-slate-500">
                   {s}
                 </li>

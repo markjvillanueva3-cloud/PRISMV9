@@ -76,9 +76,13 @@ export interface PpgTemplateResult {
 // ---------------------------------------------------------------------------
 
 export interface PpgProgramOperation {
-  type: string;
+  type?: string;
+  operation?: string;
   tool_number: number;
-  params: Record<string, number | string>;
+  rpm?: number;
+  feed_rate?: number;
+  params?: Record<string, number | string>;
+  [key: string]: unknown;
 }
 
 export interface PpgProgramRequest {
@@ -123,20 +127,28 @@ export interface PpgIssue {
 // ---------------------------------------------------------------------------
 
 export interface PpgCompareRequest {
-  controller_a: PostController;
-  controller_b: PostController;
-  moves: PostMove[];
-  tool_number: number;
-  tool_diameter_mm: number;
-  spindle_rpm: number;
-  feed_rate_mmmin: number;
-  coolant: "flood" | "mist" | "air" | "none";
+  controllers: PostController[];
+  operation?: string;
+  rpm?: number;
+  feed_rate?: number;
+  moves?: PostMove[];
+  tool_number?: number;
+  tool_diameter_mm?: number;
+  spindle_rpm?: number;
+  feed_rate_mmmin?: number;
+  coolant?: "flood" | "mist" | "air" | "none";
+  [key: string]: unknown;
+}
+
+export interface PpgCompareResultEntry {
+  controller: PostController;
+  gcode: string;
+  line_count: number;
 }
 
 export interface PpgCompareResult {
-  controller_a: { controller: PostController; gcode: string; line_count: number };
-  controller_b: { controller: PostController; gcode: string; line_count: number };
-  differences: PpgDiff[];
+  results: PpgCompareResultEntry[];
+  differences?: PpgDiff[];
 }
 
 export interface PpgDiff {
@@ -153,16 +165,19 @@ export interface PpgDiff {
 
 export interface PpgOptimizeRequest {
   gcode: string;
-  controller: PostController;
+  controller?: PostController;
 }
 
 export interface PpgOptimizeResult {
   gcode: string;
+  optimized_gcode?: string;
   original_lines: number;
   optimized_lines: number;
   rapids_merged: number;
   redundant_removed: number;
   estimated_savings_sec: number;
+  estimated_time_saved_sec?: number;
+  savings?: string[];
   warnings: string[];
 }
 

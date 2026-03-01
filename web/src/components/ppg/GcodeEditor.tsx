@@ -82,7 +82,7 @@ export default function GcodeEditor({
     const observer = new MutationObserver(() => {
       if (!editorRef.current) return;
       const isDark = document.documentElement.classList.contains("dark");
-      const monaco = (window as Record<string, unknown>).monaco as
+      const monaco = (window as unknown as Record<string, unknown>).monaco as
         | typeof import("monaco-editor")
         | undefined;
       monaco?.editor.setTheme(isDark ? "gcode-dark" : "gcode-light");

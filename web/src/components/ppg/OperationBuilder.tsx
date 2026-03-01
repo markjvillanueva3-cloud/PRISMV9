@@ -72,10 +72,12 @@ export default function OperationBuilder({
     setGenerating(true);
     try {
       const operations: PpgProgramOperation[] = entries.map((e) => ({
+        type: e.operation,
         operation: e.operation,
         tool_number: e.tool_number,
         rpm: e.rpm,
         feed_rate: e.feed_rate,
+        params: {},
       }));
       const result = await ppgApi.program({ controller, operations });
       onGenerate(result.gcode);
