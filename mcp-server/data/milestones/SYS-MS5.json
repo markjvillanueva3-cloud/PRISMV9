@@ -3,7 +3,8 @@
   "title": "MASTER_INDEX Regeneration",
   "track": "SYS",
   "priority": "P1",
-  "status": "not_started",
+  "status": "complete",
+  "completed_at": "2026-03-01T02:35:00Z",
   "description": "Regenerate MASTER_INDEX.md from current codebase reality. Section 4 documents only 102 engines but 156+ exist (34% coverage). Line counts are stale (e.g., ManufacturingCalculations listed as 550L, actual 991L — 80% error). Use MasterIndexGenerator engine to produce accurate output.",
   "source": "GAP-ANALYSIS-2026-02-28",
   "findings": [
@@ -16,7 +17,7 @@
     {
       "id": "SYS-MS5-U00",
       "title": "Audit Current MASTER_INDEX Accuracy",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Read current MASTER_INDEX.md Section 4 (engines listing)"},
         {"number": 2, "instruction": "For each listed engine, verify: (a) file exists, (b) line count matches, (c) description is accurate"},
@@ -28,7 +29,7 @@
     {
       "id": "SYS-MS5-U01",
       "title": "Regenerate MASTER_INDEX Engine Section",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Use MasterIndexGenerator or manual scan to enumerate all engines from index.ts exports"},
         {"number": 2, "instruction": "For each engine: compute current line count, extract class description from JSDoc or first comment"},
