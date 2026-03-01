@@ -1,0 +1,178 @@
+{
+  "tree_id": "TT-CHATTER",
+  "title": "Chatter Vibration Troubleshooting",
+  "symptom": "Audible vibration, chatter marks on surface, poor finish with regular pattern",
+  "root": {
+    "node_id": "TT-CHATTER-ROOT",
+    "node_type": "symptom",
+    "text": "Chatter vibration during milling or turning",
+    "confidence": 1.0,
+    "children": [
+      {
+        "node_id": "TT-CHATTER-C1",
+        "node_type": "cause",
+        "text": "Excessive tool stickout creating long lever arm",
+        "confidence": 0.85,
+        "children": [
+          {
+            "node_id": "TT-CHATTER-D1",
+            "node_type": "diagnostic",
+            "text": "Measure tool stickout — is it greater than 4x tool diameter?",
+            "confidence": 0.85,
+            "children": [
+              {
+                "node_id": "TT-CHATTER-S1",
+                "node_type": "solution",
+                "text": "Reduce stickout to minimum required for the feature depth",
+                "confidence": 0.9,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHATTER-S2",
+                "node_type": "solution",
+                "text": "Switch to a shorter tool or stub-length end mill",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHATTER-S3",
+                "node_type": "solution",
+                "text": "Use a larger diameter tool to increase rigidity",
+                "confidence": 0.8,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-CHATTER-C2",
+        "node_type": "cause",
+        "text": "Spindle speed at resonant frequency of system",
+        "confidence": 0.75,
+        "children": [
+          {
+            "node_id": "TT-CHATTER-D2",
+            "node_type": "diagnostic",
+            "text": "Does chatter appear at specific RPM ranges? Try varying speed by +/-15%",
+            "confidence": 0.75,
+            "children": [
+              {
+                "node_id": "TT-CHATTER-S4",
+                "node_type": "solution",
+                "text": "Adjust spindle speed to find stable lobe (typically higher RPM)",
+                "confidence": 0.8,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHATTER-S5",
+                "node_type": "solution",
+                "text": "Use stability lobe diagram (SLD) to select optimal RPM",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-CHATTER-C3",
+        "node_type": "cause",
+        "text": "Excessive radial depth of cut",
+        "confidence": 0.7,
+        "children": [
+          {
+            "node_id": "TT-CHATTER-D3",
+            "node_type": "diagnostic",
+            "text": "Is radial engagement greater than 50% of tool diameter?",
+            "confidence": 0.7,
+            "children": [
+              {
+                "node_id": "TT-CHATTER-S6",
+                "node_type": "solution",
+                "text": "Reduce radial depth of cut to 10-15% and increase axial depth (trochoidal strategy)",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHATTER-S7",
+                "node_type": "solution",
+                "text": "Increase feed per tooth to maintain chip load with reduced engagement",
+                "confidence": 0.8,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-CHATTER-C4",
+        "node_type": "cause",
+        "text": "Weak workholding or part flexibility",
+        "confidence": 0.65,
+        "children": [
+          {
+            "node_id": "TT-CHATTER-D4",
+            "node_type": "diagnostic",
+            "text": "Does the part vibrate when tapped lightly? Check workholding rigidity",
+            "confidence": 0.65,
+            "children": [
+              {
+                "node_id": "TT-CHATTER-S8",
+                "node_type": "solution",
+                "text": "Add additional supports or clamps to stiffen the setup",
+                "confidence": 0.75,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHATTER-S9",
+                "node_type": "solution",
+                "text": "Use fixture wax or double-sided tape for additional damping",
+                "confidence": 0.6,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "material_context": [
+    "aluminum",
+    "steel",
+    "stainless_steel",
+    "titanium"
+  ],
+  "machine_context": [
+    "3-axis_vertical",
+    "5-axis"
+  ],
+  "source_practice_ids": [
+    "SP-0016"
+  ],
+  "created_at": "2026-03-01T22:00:00Z",
+  "tags": [
+    "chatter",
+    "vibration",
+    "surface_finish",
+    "SLD"
+  ]
+}

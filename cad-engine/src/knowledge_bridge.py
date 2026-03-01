@@ -54,8 +54,11 @@ _CONFIDENCE_GATES: dict[ComponentType, float] = {
 }
 
 # Knowledge category -> component type mapping
+# Covers manufacturing AND non-machining domains
 _CATEGORY_MAP: dict[str, ComponentType] = {
-    "formula": ComponentType.ENGINE,
+    # Manufacturing knowledge
+    "formula": ComponentType.ALGORITHM,
+    "equation": ComponentType.ALGORITHM,
     "parameter_table": ComponentType.SCHEMA,
     "safety_warning": ComponentType.HOOK,
     "decision_rule": ComponentType.TRIBAL_TIP,
@@ -63,6 +66,21 @@ _CATEGORY_MAP: dict[str, ComponentType] = {
     "troubleshooting": ComponentType.TRIBAL_TIP,
     "tribal_tip": ComponentType.TRIBAL_TIP,
     "design_pattern": ComponentType.TRIBAL_TIP,
+    "automation": ComponentType.SCRIPT,
+    "workflow_script": ComponentType.SCRIPT,
+    # Non-machining knowledge (auto-created categories)
+    "code_snippet": ComponentType.SCRIPT,
+    "api_pattern": ComponentType.SCHEMA,
+    "configuration": ComponentType.SCHEMA,
+    "architecture": ComponentType.TRIBAL_TIP,
+    "best_practice": ComponentType.TRIBAL_TIP,
+    "debugging": ComponentType.TRIBAL_TIP,
+    "testing": ComponentType.TRIBAL_TIP,
+    "deployment": ComponentType.SCRIPT,
+    "circuit_design": ComponentType.SCHEMA,
+    "measurement": ComponentType.ALGORITHM,
+    "inspection_procedure": ComponentType.SKILL,
+    "process_control": ComponentType.HOOK,
 }
 
 
@@ -301,60 +319,111 @@ def _classify_item(item: dict) -> ComponentType:
     # Upgrade certain items based on content richness
     params = item.get("parameters", {})
     steps = item.get("steps", [])
+    body = item.get("body", "")
 
-    # Formula with numeric parameters -> could be Engine
-    if category == "formula" and params:
-        comp_type = ComponentType.ENGINE
+    # Formula/equation detection — check for equation text
+    if category in ("formula", "equation"):
+        equation = item.get("equation", "")
+        has_equation = bool(equation) or any(
+            c in body for c in ("=", "×", "*", "/", "^", "√")
+        )
+        if has_equation and params:
+            # Rich formula with equation + parameters → Algorithm
+            comp_type = ComponentType.ALGORITHM
+        elif params:
+            # Parameters but no clear equation → Formula JSON data
+            comp_type = ComponentType.FORMULA
+        else:
+            # Just equation text, no structured data → tribal tip
+            comp_type = ComponentType.TRIBAL_TIP
 
-    # Parameter table with 3+ values -> Schema
+    # Parameter table with 3+ values -> Schema; with equation -> Formula
     if category == "parameter_table":
         total_vals = sum(
             len(v) if isinstance(v, list) else 1
             for v in params.values()
         )
-        if total_vals >= 3:
+        has_equation = bool(item.get("equation", ""))
+        if has_equation and total_vals >= 2:
+            comp_type = ComponentType.FORMULA
+        elif total_vals >= 3:
             comp_type = ComponentType.SCHEMA
         else:
             comp_type = ComponentType.TRIBAL_TIP
 
     # Safety warnings with specific conditions -> Hook
     if category == "safety_warning":
-        body = item.get("body", "")
         # If it's specific and actionable, make it a hook
         if any(kw in body.lower() for kw in ["never", "must not", "always", "critical"]):
             comp_type = ComponentType.HOOK
         else:
             comp_type = ComponentType.TRIBAL_TIP
 
-    # Procedure with 5+ steps -> Skill
+    # Procedure with 5+ steps -> Skill; with automation keywords -> Script
     if category == "procedure":
         step_count = item.get("step_count", len(steps))
-        if step_count >= 5:
+        automation_kw = ["automate", "script", "batch", "loop", "repeat", "schedule"]
+        is_automatable = any(kw in body.lower() for kw in automation_kw)
+        if is_automatable and step_count >= 3:
+            comp_type = ComponentType.SCRIPT
+        elif step_count >= 5:
             comp_type = ComponentType.SKILL
         else:
             comp_type = ComponentType.TRIBAL_TIP
+
+    # Decision rules with enough structure -> can become engines
+    if category == "decision_rule":
+        conditions = item.get("conditions", [])
+        if len(conditions) >= 3 or (params and len(params) >= 3):
+            comp_type = ComponentType.ENGINE
+        # Otherwise stays as TRIBAL_TIP
 
     return comp_type
 
 
 def _map_domain(item_domain: str) -> str:
-    """Map knowledge domain to PRISM engine domain."""
+    """Map knowledge domain to PRISM engine domain.
+
+    Supports manufacturing domains (cad/cam/shop) and non-machining
+    domains that /video-learn can dynamically discover.
+    """
     mapping = {
+        # Manufacturing domains
         "cad": "machine",
         "cam": "cutting",
         "shop": "safety",
         "multi": "cutting",
+        # Non-machining domains (auto-detected by /video-learn)
+        "software": "automation",
+        "electronics": "electronics",
+        "programming": "programming",
+        "robotics": "automation",
+        "3d_printing": "additive",
+        "additive": "additive",
+        "metrology": "metrology",
+        "quality": "quality",
+        "lean": "process_engineering",
+        "design": "design",
+        "materials": "materials_science",
+        "welding": "joining",
+        "inspection": "inspection",
     }
-    return mapping.get(item_domain, "cutting")
+    return mapping.get(item_domain, item_domain or "general")
 
 
 def _compute_priority(spec: ComponentSpec) -> float:
     """Compute priority score for ranking specs."""
     # (confidence * 2 + novelty * 3 + domain_value * 2) / complexity
     domain_value = {
+        # Manufacturing domains
         "cutting": 1.0, "safety": 0.9, "thermal": 0.8,
         "tool": 0.8, "material": 0.7, "surface": 0.7,
         "machine": 0.6, "quality": 0.6,
+        # Non-machining domains
+        "automation": 0.8, "programming": 0.7, "electronics": 0.7,
+        "additive": 0.7, "metrology": 0.7, "design": 0.6,
+        "materials_science": 0.7, "process_engineering": 0.7,
+        "inspection": 0.6, "joining": 0.6, "general": 0.5,
     }.get(spec.domain, 0.5)
 
     complexity = {
@@ -529,6 +598,125 @@ def _build_skill_spec(
     )
 
 
+def _build_algorithm_spec(
+    item: dict, video_id: str,
+) -> ComponentSpec:
+    """Build a ComponentSpec for an Algorithm<I,O> implementation."""
+    title = item.get("title", "Calculation algorithm")
+    params = item.get("parameters", {})
+    equation = item.get("equation", "")
+    body = item.get("body", "")
+    algo_name = _sanitize_name(title)
+
+    # Extract input/output field names from parameters
+    inputs = {}
+    outputs = {}
+    for k, v in params.items():
+        if isinstance(v, (int, float)):
+            inputs[k] = v
+        elif isinstance(v, dict):
+            # Nested dicts might be output definitions
+            outputs[k] = v
+        else:
+            inputs[k] = v
+
+    return ComponentSpec(
+        type=ComponentType.ALGORITHM,
+        name=algo_name,
+        description=f"Algorithm from video learning: {title}",
+        domain=_map_domain(item.get("domain", "cam")),
+        source_video_id=video_id,
+        source_item_id=item.get("id", ""),
+        source_timestamp=item.get("source_timestamp"),
+        confidence=item.get("confidence", 0.8),
+        generation_strategy="new_file",
+        target_file=f"mcp-server/src/algorithms/{algo_name}.ts",
+        content_data={
+            "title": title,
+            "equation": equation,
+            "body": body,
+            "inputs": inputs,
+            "outputs": outputs,
+            "parameters": params,
+            "reference": item.get("reference", f"Video tutorial: {video_id}"),
+        },
+        tags=["video-learned"] + item.get("tags", []),
+    )
+
+
+def _build_formula_spec(
+    item: dict, video_id: str,
+) -> ComponentSpec:
+    """Build a ComponentSpec for a formula JSON data file."""
+    title = item.get("title", "Formula")
+    params = item.get("parameters", {})
+    equation = item.get("equation", item.get("body", ""))
+    domain_raw = item.get("domain", "cam")
+    formula_name = _sanitize_name(title)
+    formula_domain = _map_domain(domain_raw).upper()
+
+    # Build input/output specs from parameters
+    input_specs = []
+    output_specs = []
+    for k, v in params.items():
+        spec_entry = {"name": k, "symbol": k, "unit": ""}
+        if isinstance(v, (int, float)):
+            spec_entry["default"] = v
+        input_specs.append(spec_entry)
+
+    return ComponentSpec(
+        type=ComponentType.FORMULA,
+        name=f"F-{formula_domain}-{formula_name}",
+        description=f"Formula from video learning: {title}",
+        domain=_map_domain(domain_raw),
+        source_video_id=video_id,
+        source_item_id=item.get("id", ""),
+        source_timestamp=item.get("source_timestamp"),
+        confidence=item.get("confidence", 0.8),
+        generation_strategy="add_data",
+        target_file=f"mcp-server/data/formulas/{_sanitize_name(title).lower()}.json",
+        content_data={
+            "title": title,
+            "equation": equation,
+            "inputs": input_specs,
+            "outputs": output_specs,
+            "parameters": params,
+            "domain": formula_domain,
+        },
+        tags=["video-learned", "formula"] + item.get("tags", []),
+    )
+
+
+def _build_script_spec(
+    item: dict, video_id: str,
+) -> ComponentSpec:
+    """Build a ComponentSpec for a Python automation script."""
+    title = item.get("title", "Automation script")
+    body = item.get("body", "")
+    steps = item.get("steps", [])
+    script_name = _sanitize_name(title).lower()
+
+    return ComponentSpec(
+        type=ComponentType.SCRIPT,
+        name=script_name,
+        description=f"Script from video learning: {title}",
+        domain=_map_domain(item.get("domain", "shop")),
+        source_video_id=video_id,
+        source_item_id=item.get("id", ""),
+        source_timestamp=item.get("source_timestamp"),
+        confidence=item.get("confidence", 0.6),
+        generation_strategy="new_file",
+        target_file=f"scripts/{script_name}.py",
+        content_data={
+            "title": title,
+            "body": body,
+            "steps": steps,
+            "parameters": item.get("parameters", {}),
+        },
+        tags=["video-learned", "automation"] + item.get("tags", []),
+    )
+
+
 def _sanitize_name(text: str) -> str:
     """Convert text to a valid identifier name."""
     # Remove non-alphanumeric, replace spaces with underscores
@@ -547,7 +735,7 @@ def bridge_knowledge(
     knowledge: dict,
     video_id: str,
     *,
-    max_components: int = 5,
+    max_components: int = 50,
     tips_only: bool = False,
     inventory: Optional[PRISMInventory] = None,
 ) -> BridgeResult:
@@ -557,7 +745,7 @@ def bridge_knowledge(
         knowledge: Knowledge document from knowledge_extract.py
             (the .knowledge dict from ExtractionResult).
         video_id: Video identifier for provenance.
-        max_components: Maximum number of component specs to return.
+        max_components: Maximum number of component specs to return (default 50 = effectively all).
         tips_only: If True, only generate tribal tip specs.
         inventory: Pre-loaded PRISM inventory for dedup. If None, loads from disk.
 
@@ -644,6 +832,9 @@ def _build_spec(
         ComponentType.ENGINE: _build_engine_spec,
         ComponentType.SCHEMA: _build_schema_spec,
         ComponentType.SKILL: _build_skill_spec,
+        ComponentType.ALGORITHM: _build_algorithm_spec,
+        ComponentType.FORMULA: _build_formula_spec,
+        ComponentType.SCRIPT: _build_script_spec,
     }
     builder = builders.get(comp_type)
     if builder:
