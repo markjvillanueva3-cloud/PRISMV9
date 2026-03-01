@@ -130,6 +130,7 @@ export class CadBridge {
   private ready = false;
   private starting = false;
   private startPromise: Promise<void> | null = null;
+  private startupTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly pythonPath: string;
   private readonly bridgePath: string;
@@ -159,15 +160,19 @@ export class CadBridge {
     if (this.ready && this.process && !this.process.killed) {
       return;
     }
+    // Guard: set starting before creating promise to prevent dual-start
     if (this.starting && this.startPromise) {
       return this.startPromise;
     }
-    this.startPromise = this.start();
+    this.starting = true;
+    this.startPromise = this.start().finally(() => {
+      this.starting = false;
+      this.startPromise = null;
+    });
     return this.startPromise;
   }
 
   private start(): Promise<void> {
-    this.starting = true;
     return new Promise<void>((resolve, reject) => {
       this.cleanup();
 
@@ -195,9 +200,8 @@ export class CadBridge {
 
       this.process.on("exit", (code) => {
         this.ready = false;
-        this.starting = false;
         // Reject all pending requests
-        for (const [id, req] of this.pending) {
+        for (const [, req] of this.pending) {
           req.reject(new Error(`Python bridge exited with code ${code}`));
           clearTimeout(req.timer);
         }
@@ -206,12 +210,17 @@ export class CadBridge {
 
       this.process.on("error", (err) => {
         this.ready = false;
-        this.starting = false;
+        // Also reject pending requests on spawn error
+        for (const [, req] of this.pending) {
+          req.reject(err);
+          clearTimeout(req.timer);
+        }
+        this.pending.clear();
         reject(err);
       });
 
-      // Startup timeout
-      setTimeout(() => {
+      // Startup timeout — store ref so cleanup can clear it
+      this.startupTimer = setTimeout(() => {
         if (!this.ready) {
           this.cleanup();
           reject(new Error("CadBridge startup timeout (10s)"));
@@ -232,7 +241,10 @@ export class CadBridge {
     // Handle "ready" notification
     if (response.method === "ready") {
       this.ready = true;
-      this.starting = false;
+      if (this.startupTimer) {
+        clearTimeout(this.startupTimer);
+        this.startupTimer = null;
+      }
       onReady?.();
       return;
     }
@@ -256,6 +268,10 @@ export class CadBridge {
   }
 
   private cleanup(): void {
+    if (this.startupTimer) {
+      clearTimeout(this.startupTimer);
+      this.startupTimer = null;
+    }
     if (this.rl) {
       this.rl.close();
       this.rl = null;
@@ -361,9 +377,10 @@ export class CadBridge {
     return this.call("clear");
   }
 
-  /** Shut down the Python bridge process. */
+  /** Shut down the Python bridge process and reset singleton. */
   async shutdown(): Promise<void> {
     this.cleanup();
+    CadBridge.instance = null;
   }
 }
 

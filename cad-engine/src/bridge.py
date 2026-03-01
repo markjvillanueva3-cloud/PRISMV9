@@ -26,6 +26,21 @@ from typing import Any, Optional
 # Ensure src/ is on the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# ---------------------------------------------------------------------------
+# Fix: Python 3.12's platform.uname() uses _wmi.exec_query() on Windows,
+# which can deadlock when the WMI service is unresponsive. Pre-populate
+# the platform cache so WMI is never called.
+# ---------------------------------------------------------------------------
+import platform as _platform
+if not hasattr(_platform, '_uname_cache') or _platform._uname_cache is None:
+    _platform._uname_cache = _platform.uname_result(
+        system=sys.platform,  # 'win32'
+        node=os.environ.get('COMPUTERNAME', ''),
+        release=str(sys.getwindowsversion().major) if hasattr(sys, 'getwindowsversion') else '',
+        version=str(sys.getwindowsversion()) if hasattr(sys, 'getwindowsversion') else '',
+        machine=os.environ.get('PROCESSOR_ARCHITECTURE', 'AMD64'),
+    )
+
 import cad_kernel as ck
 import geo_validator as gv
 import cad_export as ce
@@ -46,16 +61,22 @@ ERR_TIMEOUT = -2
 # Geometry store — keeps solids in memory between calls
 # ---------------------------------------------------------------------------
 
+MAX_SOLIDS = 500  # evict oldest when exceeded
+
 _solids: dict[str, Any] = {}
 _next_id = 1
 
 
 def _store_solid(solid, name: str = "") -> str:
-    """Store a solid and return its ID."""
+    """Store a solid and return its ID. Evicts oldest if over MAX_SOLIDS."""
     global _next_id
     sid = f"solid_{_next_id}"
     _next_id += 1
     _solids[sid] = solid
+    # LRU-style eviction: drop oldest entries when over limit
+    while len(_solids) > MAX_SOLIDS:
+        oldest_key = next(iter(_solids))
+        del _solids[oldest_key]
     return sid
 
 
@@ -64,6 +85,13 @@ def _get_solid(solid_id: str):
     if solid_id not in _solids:
         raise ck.CadKernelError(f"Unknown solid ID: {solid_id}")
     return _solids[solid_id]
+
+
+def _require_params(params: dict, *keys: str) -> None:
+    """Validate that required params are present. Raises with ERR_INVALID_PARAMS context."""
+    missing = [k for k in keys if k not in params]
+    if missing:
+        raise ValueError(f"Missing required parameter(s): {', '.join(missing)}")
 
 
 # ---------------------------------------------------------------------------
@@ -147,6 +175,7 @@ def handle_create_geometry(params: dict) -> dict:
 
 def handle_boolean(params: dict) -> dict:
     """Boolean operation on two stored solids."""
+    _require_params(params, "solid_a", "solid_b")
     op = params.get("operation", "union")
     a = _get_solid(params["solid_a"])
     b = _get_solid(params["solid_b"])
@@ -166,6 +195,7 @@ def handle_boolean(params: dict) -> dict:
 
 def handle_transform(params: dict) -> dict:
     """Transform a stored solid."""
+    _require_params(params, "solid_id")
     solid = _get_solid(params["solid_id"])
     op = params.get("operation", "translate")
 
@@ -185,6 +215,7 @@ def handle_transform(params: dict) -> dict:
 
 def handle_validate_geometry(params: dict) -> dict:
     """Validate a stored solid."""
+    _require_params(params, "solid_id")
     solid = _get_solid(params["solid_id"])
     report = gv.validate_geometry(
         solid,
@@ -219,6 +250,7 @@ def handle_validate_geometry(params: dict) -> dict:
 
 def handle_analyze_geometry(params: dict) -> dict:
     """Analyze geometry properties without full validation."""
+    _require_params(params, "solid_id")
     solid = _get_solid(params["solid_id"])
     vol = ck.volume(solid)
     sa = ck.surface_area(solid)
@@ -239,6 +271,7 @@ def handle_analyze_geometry(params: dict) -> dict:
 
 def handle_export_geometry(params: dict) -> dict:
     """Export a stored solid to file."""
+    _require_params(params, "solid_id", "output_path")
     solid = _get_solid(params["solid_id"])
     fmt = params.get("format", "STEP").upper()
     output_path = params["output_path"]
@@ -267,6 +300,7 @@ def handle_export_geometry(params: dict) -> dict:
 
 def handle_import_step(params: dict) -> dict:
     """Import a STEP file and store the solid."""
+    _require_params(params, "input_path")
     solid = ce.import_step(params["input_path"])
     sid = _store_solid(solid)
     vol = solid.val().Volume()
@@ -332,6 +366,8 @@ def process_request(line: str) -> dict:
     try:
         result = handler(params)
         return make_response(result, req_id)
+    except ValueError as exc:
+        return make_error(ERR_INVALID_PARAMS, str(exc), req_id)
     except ck.CadKernelError as exc:
         return make_error(ERR_CAD_OPERATION, str(exc), req_id)
     except gv.GeoValidatorError as exc:
@@ -346,13 +382,29 @@ def process_request(line: str) -> dict:
 # Main loop
 # ---------------------------------------------------------------------------
 
+def _safe_json_dumps(obj: Any) -> str:
+    """JSON serialize with NaN/Infinity replaced by null (valid JSON)."""
+    import math
+
+    def _sanitize(o: Any) -> Any:
+        if isinstance(o, float) and (math.isnan(o) or math.isinf(o)):
+            return None
+        if isinstance(o, dict):
+            return {k: _sanitize(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [_sanitize(v) for v in o]
+        return o
+
+    return json.dumps(_sanitize(obj))
+
+
 def main() -> None:
     """Run the JSON-RPC bridge, reading from stdin, writing to stdout."""
     # Unbuffered stdout for real-time IPC
     sys.stdout.reconfigure(line_buffering=True)
 
     # Signal readiness
-    ready_msg = json.dumps({"jsonrpc": "2.0", "method": "ready", "params": {"version": "0.1.0"}})
+    ready_msg = _safe_json_dumps({"jsonrpc": "2.0", "method": "ready", "params": {"version": "0.1.0"}})
     sys.stdout.write(ready_msg + "\n")
     sys.stdout.flush()
 
@@ -362,7 +414,7 @@ def main() -> None:
             continue
 
         response = process_request(line)
-        sys.stdout.write(json.dumps(response) + "\n")
+        sys.stdout.write(_safe_json_dumps(response) + "\n")
         sys.stdout.flush()
 
 
