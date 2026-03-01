@@ -46,27 +46,27 @@ Actions: ${ACTIONS.join(", ")}.`,
         switch (action) {
           case "oee_calc": {
             const engine = await getEngine("oee");
-            result = engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "OEECalculator method not found" };
+            result = engine.calculate?.(params) ?? { error: "OEECalculator.calculate() not available" };
             break;
           }
           case "bottleneck": {
             const engine = await getEngine("bottleneck");
-            result = engine.identify?.(params) ?? engine.compute?.(params) ?? { error: "BottleneckIdentification method not found" };
+            result = engine.identify?.(params) ?? { error: "BottleneckIdentification.identify() not available" };
             break;
           }
           case "digital_thread": {
             const engine = await getEngine("thread");
-            result = engine.trace?.(params) ?? engine.compute?.(params) ?? { error: "DigitalThread method not found" };
+            result = engine.trace?.(params) ?? { error: "DigitalThread.trace() not available" };
             break;
           }
           case "work_instructions": {
             const engine = await getEngine("instructions");
-            result = engine.generate?.(params) ?? engine.compute?.(params) ?? { error: "DigitalWorkInstruction method not found" };
+            result = engine.generate?.(params) ?? { error: "DigitalWorkInstruction.generate() not available" };
             break;
           }
           case "shift_handoff": {
             const engine = await getEngine("handoff");
-            result = engine.generate?.(params) ?? engine.compute?.(params) ?? { error: "ShiftHandoff method not found" };
+            result = engine.generate?.(params) ?? { error: "ShiftHandoff.generate() not available" };
             break;
           }
           default:

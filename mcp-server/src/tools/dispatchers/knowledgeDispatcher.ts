@@ -70,7 +70,7 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "relations": {
             let kgEngine: any = null;
             try {
-              const kgMod = require("../../engines/KnowledgeGraphEngine.js");
+              const kgMod = await import("../../engines/KnowledgeGraphEngine.js");
               kgEngine = kgMod.knowledgeGraph;
             } catch { /* KnowledgeGraphEngine not available */ }
             if (!kgEngine) { result = { error: "KnowledgeGraphEngine not loaded" }; break; }

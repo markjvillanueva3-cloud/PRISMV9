@@ -83,7 +83,7 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "render_setup_sheet": {
             const engine = await getEngine("report");
-            result = engine.generateSetupSheet?.(params) ?? engine.generate?.({ ...params, type: "setup_sheet" }) ?? {
+            result = engine.generateSetupSheet?.(params) ?? {
               format: "pdf",
               type: "setup_sheet",
               sections: ["header", "workholding", "tools", "operations", "notes"],
