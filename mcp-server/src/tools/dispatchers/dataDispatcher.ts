@@ -11,7 +11,8 @@ import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { validateMaterialSanity } from "../../validation/materialSanity.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_DATA_SCHEMAS } from "../../schemas/dataActionSchemas.js";
 
 const DataDispatcherSchema = z.object({
   action: z.enum([
@@ -49,6 +50,16 @@ export function registerDataDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_DATA_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_data"
+        );
+      }
 
       // A6: Param ID resolution helpers (eliminates 11 duplicated coalescing patterns)
       const matId = (p: any) => p.identifier || p.material_id || p.id || p.name || null;

@@ -3,7 +3,7 @@
   "title": "Dispatcher Param Schema Validation",
   "track": "SYS",
   "priority": "P1",
-  "status": "in_progress",
+  "status": "complete",
   "description": "Add per-action Zod schema validation to dispatcher entry points. Currently all 45 dispatchers accept params: z.record(z.any()) — no type enforcement at the tool boundary. 21 Zod schemas exist in src/schemas/ but none are wired to dispatcher param validation. ParamNormalizer (40 aliases) is best-effort only. This milestone creates action-specific schemas for high-traffic dispatchers.",
   "source": "GAP-ANALYSIS-2026-02-28",
   "findings": [
@@ -56,7 +56,7 @@
     {
       "id": "SYS-MS6-U03",
       "title": "Extend to Remaining Dispatchers",
-      "status": "not_started",
+      "status": "complete",
       "steps": [
         {"number": 1, "instruction": "Create schemas for remaining high-value dispatchers: prism_data, prism_toolpath, prism_export"},
         {"number": 2, "instruction": "For lower-traffic dispatchers, create minimal required-field schemas (action + essential params only)"},
