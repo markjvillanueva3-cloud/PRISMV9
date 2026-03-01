@@ -82,19 +82,20 @@ function HistoryChart({ points }: { points: TwinHistoryPoint[] }) {
 
 export default function DigitalTwin() {
   const twin = useDigitalTwin();
+  const { execute: twinExecute } = twin;
   const [autoRefresh, setAutoRefresh] = useState(false);
 
   const fetchStatus = useCallback(() => {
-    twin.execute({ action: "status" });
-  }, [twin]);
+    twinExecute({ action: "status" });
+  }, [twinExecute]);
 
   const fetchHistory = useCallback(() => {
-    twin.execute({ action: "history" });
-  }, [twin]);
+    twinExecute({ action: "history" });
+  }, [twinExecute]);
 
   useEffect(() => {
     fetchStatus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchStatus]);
 
   useEffect(() => {
     if (!autoRefresh) return;

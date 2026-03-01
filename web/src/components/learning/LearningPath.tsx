@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLearningPlan, useLearningRecommend } from "../../hooks/useLearning";
 import type { LearningModule, RecommendedModule, LearningDomain } from "../../types/learning";
 
@@ -90,15 +90,11 @@ function ModuleCard({
 export default function LearningPath() {
   const plan = useLearningPlan();
   const recommend = useLearningRecommend();
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!loaded) {
-      plan.execute({ target_level: "advanced" });
-      recommend.execute({ limit: 3 });
-      setLoaded(true);
-    }
-  }, [loaded, plan, recommend]);
+    plan.execute({ target_level: "advanced" });
+    recommend.execute({ limit: 3 });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — one-time fetch on mount
 
   const recommendedIds = new Set(
     (recommend.data?.recommendations ?? []).map(

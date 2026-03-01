@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLearningProgress, useLearningRecommend } from "../hooks/useLearning";
 import type { LearningDomain, ModuleProgress, RecommendedModule } from "../types/learning";
@@ -120,15 +120,11 @@ export default function LearningDashboard() {
   const navigate = useNavigate();
   const progress = useLearningProgress();
   const recommend = useLearningRecommend();
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!loaded) {
-      progress.execute({ action: "get" });
-      recommend.execute({ limit: 4 });
-      setLoaded(true);
-    }
-  }, [loaded, progress, recommend]);
+    progress.execute({ action: "get" });
+    recommend.execute({ limit: 4 });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — one-time fetch on mount
 
   const domainScores: Record<LearningDomain, number> = progress.data?.domain_progress ?? {
     cad: 0, cam: 0, shop_practice: 0, machine_operation: 0,

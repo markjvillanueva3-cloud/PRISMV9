@@ -43,7 +43,7 @@ export default function LearningLayout() {
       </nav>
 
       {/* Mobile nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40">
+      <nav aria-label="Learning navigation (mobile)" className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40">
         <div className="flex overflow-x-auto px-2 py-1.5 gap-1">
           {NAV_ITEMS.map((item) => (
             <NavLink
@@ -63,7 +63,7 @@ export default function LearningLayout() {
             </NavLink>
           ))}
         </div>
-      </div>
+      </nav>
 
       {/* Content area */}
       <main className="flex-1 overflow-y-auto pb-20 md:pb-0">

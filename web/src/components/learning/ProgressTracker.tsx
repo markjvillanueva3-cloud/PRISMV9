@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLearningProgress } from "../../hooks/useLearning";
 import type { LearningDomain, ModuleProgress, Achievement } from "../../types/learning";
 
@@ -46,14 +46,10 @@ function Sparkline({ data, color = "#3b82f6" }: { data: number[]; color?: string
 
 export default function ProgressTracker() {
   const progress = useLearningProgress();
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!loaded) {
-      progress.execute({ action: "get" });
-      setLoaded(true);
-    }
-  }, [loaded, progress]);
+    progress.execute({ action: "get" });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — one-time fetch on mount
 
   const data = progress.data;
 

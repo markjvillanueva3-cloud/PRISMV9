@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import type { SkillScore, LearningDomain } from "../types/learning";
 
 const STORAGE_KEY = "prism-learning-state";
@@ -50,17 +50,19 @@ function saveState(state: LearningState): void {
 
 export function LearningProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<LearningState>(loadState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // Autosave to localStorage every 30s
   useEffect(() => {
-    const interval = setInterval(() => saveState(state), 30_000);
+    const interval = setInterval(() => saveState(stateRef.current), 30_000);
     return () => clearInterval(interval);
-  }, [state]);
+  }, []);
 
-  // Also save on unmount
+  // Save on unmount only
   useEffect(() => {
-    return () => saveState(state);
-  }, [state]);
+    return () => saveState(stateRef.current);
+  }, []);
 
   const setSkills = useCallback((skills: SkillScore[]) => {
     setState((s) => ({ ...s, currentSkills: skills }));

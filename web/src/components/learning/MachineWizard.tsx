@@ -38,7 +38,7 @@ export default function MachineWizard() {
 
   const handleSubmit = async () => {
     const result = await select.execute({
-      part_size: form.part_x
+      part_size: form.part_x && form.part_y && form.part_z
         ? { x: Number(form.part_x), y: Number(form.part_y), z: Number(form.part_z) }
         : undefined,
       operations: form.operations.length > 0 ? form.operations : undefined,

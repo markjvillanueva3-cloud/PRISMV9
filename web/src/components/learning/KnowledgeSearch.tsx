@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useKnowledgeSearch, useTribalSearch } from "../../hooks/useLearning";
 import type { LearningDomain, KnowledgeEntry, TribalEntry } from "../../types/learning";
 
@@ -64,17 +64,23 @@ function TribalCard({ entry }: { entry: TribalEntry }) {
 }
 
 function DetailModal({ entry, onClose }: { entry: KnowledgeEntry; onClose: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="knowledge-modal-title">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-start mb-4">
           <div>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${DOMAIN_BADGE_COLORS[entry.domain] ?? "bg-slate-100 text-slate-600"}`}>
               {entry.domain.replace("_", " ")}
             </span>
-            <h2 className="text-xl font-bold text-slate-900 mt-2">{entry.title}</h2>
+            <h2 id="knowledge-modal-title" className="text-xl font-bold text-slate-900 mt-2">{entry.title}</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
         </div>
         <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap">{entry.content}</div>
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
