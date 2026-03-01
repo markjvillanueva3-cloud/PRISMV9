@@ -2,7 +2,8 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_CALC_SCHEMAS } from "../../schemas/calcActionSchemas.js";
 import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import { computationCache } from "../../engines/ComputationCache.js";
@@ -302,6 +303,16 @@ export function registerCalcDispatcher(server: any): void {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
+
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_CALC_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_calc"
+          );
+        }
 
         // === PRE-CALCULATION HOOKS (9 hooks: lesson recall, validation, compatibility, force bounds, circuit breaker) ===
         const hookCtx = {

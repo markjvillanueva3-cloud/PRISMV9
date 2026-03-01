@@ -10,12 +10,14 @@
  *     params = normalizeParams(rawParams);
  *   } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
  *
- * @version 1.0.0
- * @date 2026-02-27
+ * @version 1.1.0
+ * @date 2026-02-28
  */
 
+import { z } from "zod";
 import { log } from "./Logger.js";
 import { slimResponse } from "./responseSlimmer.js";
+import type { ActionSchemaMap, ValidationResult } from "../schemas/actionSchemaTypes.js";
 
 // ============================================================================
 // INPUT VALIDATION
@@ -107,6 +109,34 @@ export function validateInputParams(
   if (arrErr) return arrErr;
 
   return null;
+}
+
+// ============================================================================
+// ACTION PARAM SCHEMA VALIDATION
+// ============================================================================
+
+/**
+ * Validate action params against the schema registry.
+ * Call AFTER normalizeParams(), BEFORE engine dispatch.
+ * Actions without a registered schema pass through (graceful rollout).
+ */
+export function validateActionParams(
+  action: string,
+  params: Record<string, unknown>,
+  schemas: ActionSchemaMap
+): ValidationResult {
+  const schema = schemas[action];
+  if (!schema) return { valid: true };
+
+  const result = (schema as z.ZodType).safeParse(params);
+  if (result.success) return { valid: true };
+
+  const issues = result.error.issues;
+  const errorMessage = issues
+    .map(i => `${i.path.join(".") || "(root)"}: ${i.message}`)
+    .join("; ");
+
+  return { valid: false, errors: issues, errorMessage };
 }
 
 // ============================================================================
