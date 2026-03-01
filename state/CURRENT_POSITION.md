@@ -1,12 +1,12 @@
 # CURRENT POSITION
-## Updated: 2026-03-01
+## Updated: 2026-02-28
 
-**Phase:** SYSTEM OPTIMIZATION — SYS-MS1 COMPLETE (7/7 units)
-**Build:** web 956 modules clean | Roadmap Index: v5.3.0 (94 milestones, 69 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 46 code fixes + 75 new tests
-**Test Suite:** 1243 backend (1242 pass, 1 pre-existing) + 11 Playwright E2E
-**SYS-MS1 Result:** 5 sub-dispatchers extracted (product/machine_live/integration/knowledge_ext/diagnosis), intelligenceDispatcher slimmed from 250→50 core actions, 200 deprecated with forwarding. 50 dispatchers, 1260 actions.
-**Next:** Pick next task from roadmap
+**Phase:** FORGE-DEBUG SWEEP COMPLETE — 25 fixes across 14 files
+**Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 69 complete)
+**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 71 code fixes + 75 new tests
+**Test Suite:** 1275 backend (1274 pass, 1 pre-existing Kienzle) + 11 Playwright E2E
+**FORGE-DEBUG Result:** Full P0-P9 audit of 45 dispatchers + 125 engines. 8 CRITICAL, 48 MAJOR, 76 MINOR found. 25 fixes applied (2 commits: d082c7c4, fa4d57a0). Key: grinding RPM overspeed, turning dead wiring, GCode operator precedence, SPC div-by-zero, EventBus debounce, WorkholdingEngine Infinity guard.
+**Next:** SYS-MS2 (test coverage) or MASTER_INDEX action count reconciliation (825 actual vs 1060 listed)
 **Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
 **Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
