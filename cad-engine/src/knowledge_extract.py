@@ -72,7 +72,11 @@ class ExtractionResult:
 # ---------------------------------------------------------------------------
 
 
-_VALID_DOMAINS = {"cad", "cam", "shop", "multi"}
+_VALID_DOMAINS = {
+    "cad", "cam", "shop", "multi",
+    # Non-machining domains (auto-detected by /video-learn and /pdf-learn)
+    "software", "electronics", "additive", "auto",
+}
 
 
 def _get_client():

@@ -32,6 +32,7 @@ from .knowledge_extract import (
     _compute_stats,
     _VALID_DOMAINS,
 )
+from .knowledge_extract_offline import extract_offline
 from .prompts.document_prompts import get_document_prompt, build_document_user_message
 from .validators.cad_validator import validate_cad_extraction
 from .validators.cam_validator import validate_cam_extraction
@@ -360,5 +361,118 @@ def extract_from_document(
         video_id=doc_id,
         knowledge=knowledge,
         validation_results=validation_results,
+        errors=errors,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Offline document extraction (no API calls)
+# ---------------------------------------------------------------------------
+
+def extract_from_document_offline(
+    file_path: str | Path,
+    title: str | None = None,
+    force_domain: str | None = None,
+    format_override: str | None = None,
+    document_id: str | None = None,
+) -> ExtractionResult:
+    """Run offline knowledge extraction on a document using pattern matching.
+
+    Same interface as extract_from_document() but uses regex-based extractors
+    from knowledge_extract_offline instead of Claude API calls. Works without
+    network access — suitable for fixture mode and offline use.
+
+    Args:
+        file_path: Path to the document file.
+        title: Document title override.
+        force_domain: Override domain classification.
+        format_override: Force document format.
+        document_id: Custom document ID.
+
+    Returns:
+        ExtractionResult with flat {"items": [...]} knowledge format.
+    """
+    errors: list[str] = []
+    path = Path(file_path)
+
+    # Generate document ID
+    doc_id = document_id or path.stem
+
+    # Step 1: Ingest document
+    ingest_result = ingest_document(path, format_override=format_override)
+    if not ingest_result.is_valid:
+        return ExtractionResult(
+            video_id=doc_id,
+            knowledge={},
+            errors=ingest_result.errors,
+        )
+
+    # Use ingested metadata
+    doc_title = title or ingest_result.metadata.title or path.stem
+    doc_author = ingest_result.metadata.author
+
+    # Step 2: Classify document type
+    classification = classify_document(
+        text=ingest_result.text,
+        title=doc_title,
+        has_doi=ingest_result.metadata.doi is not None,
+        page_count=ingest_result.metadata.page_count,
+    )
+    doc_type = classification.doc_type.value
+
+    # Step 3: Domain classification
+    if force_domain:
+        primary_domain = force_domain
+        domain_confidence = 1.0
+    else:
+        domain_result = classify(
+            title=doc_title,
+            transcript=ingest_result.text[:5000],
+            ocr_text="",
+            frame_analysis="",
+        )
+        primary_domain = domain_result.primary_domain
+        domain_confidence = domain_result.confidence
+
+    # Step 4: Run offline extraction on the full text
+    knowledge_items = extract_offline(
+        transcript=ingest_result.text,
+        title=doc_title,
+        domain=primary_domain,
+        platform="",
+        ocr_text="",
+    )
+
+    # Step 5: Build knowledge document with document metadata
+    knowledge: dict = {
+        "schema_version": "2.0.0",
+        "video_id": doc_id,
+        "items": knowledge_items.get("items", []),
+        "metadata": {
+            "title": doc_title,
+            "primary_domain": primary_domain,
+            "domain_confidence": round(domain_confidence, 3),
+            "source_type": "document",
+            "uploader": doc_author,
+            "document_metadata": {
+                "author": doc_author,
+                "publication_title": doc_title,
+                "publication_date": ingest_result.metadata.publication_date,
+                "doi": ingest_result.metadata.doi,
+                "page_count": ingest_result.metadata.page_count,
+                "format": ingest_result.metadata.format,
+                "url": ingest_result.metadata.url,
+                "doc_type": doc_type,
+            },
+        },
+        "extraction_stats": {
+            "total_items": len(knowledge_items.get("items", [])),
+            "extraction_mode": "offline",
+        },
+    }
+
+    return ExtractionResult(
+        video_id=doc_id,
+        knowledge=knowledge,
         errors=errors,
     )

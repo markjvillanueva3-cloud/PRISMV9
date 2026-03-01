@@ -1,6 +1,6 @@
 /**
  * PRISM MCP Server - Engines Index v12
- * Re-exports 125 active calculation, orchestration, and infrastructure engines
+ * Re-exports 128 active calculation, orchestration, and infrastructure engines
  * Updated: SYS-MS4-U01 — Removed 64 dead (unwired) engine exports
  * Note: 64 specialty engine .ts files remain on disk for future wiring
  */
@@ -1650,3 +1650,26 @@ export {
   type PowerBudgetInput,
   type PowerBudgetResult,
 } from "./CuttingPowerBudgetEngine.js";
+
+export {
+  toolDeflectionPredictionEngine,
+  ToolDeflectionPredictionEngine,
+  type ToolDeflectionInput,
+  type ToolDeflectionResult as BeamDeflectionResult,
+  type ToolMaterialType,
+} from "./ToolDeflectionPredictionEngine.js";
+
+export {
+  chipFormationPredictionEngine,
+  ChipFormationPredictionEngine,
+  type ChipFormationInput,
+  type ChipFormationResult,
+  type ChipType as ChipMorphologyType,
+} from "./ChipFormationPredictionEngine.js";
+
+export {
+  specificCuttingEnergyEngine,
+  SpecificCuttingEnergyEngine,
+  type SpecificCuttingEnergyInput,
+  type SpecificCuttingEnergyResult,
+} from "./SpecificCuttingEnergyEngine.js";

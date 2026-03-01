@@ -46,6 +46,12 @@ import type { TurningOperation } from "../../engines/TurningForceEngine.js";
 import { tappingTorqueEngine } from "../../engines/TappingTorqueEngine.js";
 import type { TapType, HoleType } from "../../engines/TappingTorqueEngine.js";
 import { cuttingPowerBudgetEngine } from "../../engines/CuttingPowerBudgetEngine.js";
+import { toolDeflectionPredictionEngine } from "../../engines/ToolDeflectionPredictionEngine.js";
+import type { ToolMaterialType } from "../../engines/ToolDeflectionPredictionEngine.js";
+import { chipFormationPredictionEngine } from "../../engines/ChipFormationPredictionEngine.js";
+import type { MaterialDuctility } from "../../engines/ChipFormationPredictionEngine.js";
+import { specificCuttingEnergyEngine } from "../../engines/SpecificCuttingEnergyEngine.js";
+import type { EnergySource } from "../../engines/SpecificCuttingEnergyEngine.js";
 
 import {
   calculateStabilityLobes,
@@ -178,6 +184,12 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { torque_Nm: result.cutting_torque_Nm?.value, thrust_N: result.axial_thrust_N?.value, power_kW: result.tapping_power_kW?.value, breakage_risk: result.breakage_risk, margin_pct: result.torque_margin_pct?.value, safe: result.is_safe };
     case "power_budget":
       return { required_kW: result.required_power_kW?.value, available_kW: result.available_power_kW?.value, utilization_pct: result.power_utilization_pct?.value, max_feed: result.max_feed_at_limit?.value, max_mrr: result.max_mrr_cm3_min?.value, limiting: result.limiting_factor, safe: result.is_safe };
+    case "tool_deflection_predict":
+      return { deflection_um: result.static_deflection_um?.value, error_um: result.dimensional_error_um?.value, stress_MPa: result.max_bending_stress_MPa?.value, safety_factor: result.safety_factor?.value, max_overhang_mm: result.max_recommended_overhang_mm?.value, within_tol: result.within_tolerance, safe: result.is_safe };
+    case "chip_formation":
+      return { shear_angle_deg: result.shear_angle_deg?.value, compression_ratio: result.chip_compression_ratio?.value, chip_type: result.chip_type, bue_risk: result.bue_risk, breakability: result.chip_breakability, safe: result.is_safe };
+    case "specific_cutting_energy":
+      return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
       return { Vc_optimal: result.optimal_speed, cost_per_part: result.cost_per_part };
     case "multi_optimize":
@@ -278,7 +290,11 @@ const ACTIONS = [
   "fixture_recommend",
   "drilling_force",
   "algorithm_calculate", "algorithm_validate", "algorithm_list",
-  "algorithm_info", "algorithm_batch", "algorithm_benchmark"
+  "algorithm_info", "algorithm_batch", "algorithm_benchmark",
+  "wear_progression", "drill_breakthrough", "thermal_growth",
+  "bore_finishing", "finishing_pass", "turning_force",
+  "tapping_torque", "power_budget",
+  "tool_deflection_predict", "chip_formation", "specific_cutting_energy"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1544,6 +1560,61 @@ export function registerCalcDispatcher(server: any): void {
               material_kc1_1: params.kc1_1,
               material_mc: params.mc,
               iso_group: params.iso_group || params.material_group,
+            });
+            break;
+          }
+
+          case "tool_deflection_predict": {
+            result = toolDeflectionPredictionEngine.calculate({
+              tool_diameter_mm: params.tool_diameter || params.diameter || 12,
+              tool_overhang_mm: params.tool_overhang || params.overhang || params.stickout || 50,
+              cutting_force_N: params.cutting_force || params.force || params.Fc || 500,
+              force_direction: params.force_direction || "radial",
+              tool_material: (params.tool_material || "carbide") as ToolMaterialType,
+              holder_diameter_mm: params.holder_diameter,
+              holder_length_mm: params.holder_length,
+              flute_count: params.flutes || params.num_flutes,
+              helix_angle_deg: params.helix_angle_deg || params.helix_angle,
+              tolerance_target_mm: params.tolerance_mm || params.tolerance,
+            });
+            break;
+          }
+
+          case "chip_formation": {
+            result = chipFormationPredictionEngine.calculate({
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc || 200,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.f || 0.2,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || 2,
+              rake_angle_deg: params.rake_angle ?? params.gamma ?? 6,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hrc,
+              workpiece_ductility: params.ductility as MaterialDuctility | undefined,
+              workpiece_elongation_pct: params.elongation_pct,
+              friction_coefficient: params.friction || params.mu,
+              tool_has_chipbreaker: params.chipbreaker ?? params.has_chipbreaker,
+              tool_nose_radius_mm: params.nose_radius || params.corner_radius,
+              coolant_active: params.coolant_active ?? params.coolant ?? true,
+            });
+            break;
+          }
+
+          case "specific_cutting_energy": {
+            result = specificCuttingEnergyEngine.calculate({
+              cutting_force_N: params.cutting_force || params.force || params.Fc,
+              chip_width_mm: params.chip_width || params.axial_depth || params.ap,
+              chip_thickness_mm: params.chip_thickness || params.feed_per_tooth || params.fz,
+              kc1_1: params.kc1_1,
+              mc: params.mc,
+              feed_mm: params.feed_per_rev || params.feed || params.f,
+              mrr_cm3_min: params.mrr,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc,
+              depth_of_cut_mm: params.depth_of_cut || params.ap,
+              width_of_cut_mm: params.width_of_cut || params.ae,
+              volume_to_remove_cm3: params.volume_cm3 || params.volume,
+              machining_time_min: params.machining_time || params.time_min,
+              machine_standby_power_kW: params.standby_power_kW || params.standby_kW,
+              spindle_efficiency: params.spindle_efficiency || params.efficiency,
+              electricity_cost_per_kWh: params.electricity_cost || params.cost_per_kWh,
+              energy_source: (params.energy_source || "grid_average") as EnergySource,
             });
             break;
           }
