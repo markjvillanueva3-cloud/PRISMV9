@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/alarms', label: 'Alarms' },
   { to: '/reports', label: 'Reports' },
   { to: '/viewer', label: '3D Viewer' },
+  { to: '/learning', label: 'Learning' },
 ] as const;
 
 export function Layout() {
