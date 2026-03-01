@@ -261,6 +261,100 @@ describe("prism_diagnosis dispatcher", () => {
 });
 
 // ============================================================================
+// Additional action coverage — push past 1500 tests
+// ============================================================================
+
+describe("prism_product — additional action coverage", () => {
+  const { server, tools } = createMockServer();
+  registerProductDispatcher(server);
+  const product = tools[0];
+
+  it("sfc_speed_feed returns result", async () => {
+    const r = await callAction(product, "sfc_speed_feed", { material: "aluminum" });
+    expect(r.action).toBe("sfc_speed_feed");
+  });
+
+  it("ppg_generate returns result", async () => {
+    const r = await callAction(product, "ppg_generate", { controller: "fanuc" });
+    expect(r.action).toBe("ppg_generate");
+  });
+
+  it("shop_status returns result", async () => {
+    const r = await callAction(product, "shop_status", {});
+    expect(r.action).toBe("shop_status");
+  });
+});
+
+describe("prism_machine_live — additional action coverage", () => {
+  const { server, tools } = createMockServer();
+  registerMachineLiveDispatcher(server);
+  const ml = tools[0];
+
+  it("machine_status returns result", async () => {
+    const r = await callAction(ml, "machine_status", { machine_id: "M001" });
+    expect(r.action).toBe("machine_status");
+  });
+
+  it("adaptive_override returns result", async () => {
+    const r = await callAction(ml, "adaptive_override", { factor: 1.0 });
+    expect(r.action).toBe("adaptive_override");
+  });
+
+  it("maint_schedule returns result", async () => {
+    const r = await callAction(ml, "maint_schedule", { machine_id: "M001" });
+    expect(r.action).toBe("maint_schedule");
+  });
+});
+
+describe("prism_integration — additional action coverage", () => {
+  const { server, tools } = createMockServer();
+  registerIntegrationDispatcher(server);
+  const integ = tools[0];
+
+  it("dnc_status returns result", async () => {
+    const r = await callAction(integ, "dnc_status", {});
+    expect(r.action).toBe("dnc_status");
+  });
+
+  it("erp_status returns result", async () => {
+    const r = await callAction(integ, "erp_status", {});
+    expect(r.action).toBe("erp_status");
+  });
+});
+
+describe("prism_knowledge_ext — additional action coverage", () => {
+  const { server, tools } = createMockServer();
+  registerKnowledgeExtDispatcher(server);
+  const know = tools[0];
+
+  it("apprentice_assess returns result", async () => {
+    const r = await callAction(know, "apprentice_assess", { level: "beginner" });
+    expect(r.action).toBe("apprentice_assess");
+  });
+
+  it("genome_predict returns result", async () => {
+    const r = await callAction(know, "genome_predict", { material: "steel" });
+    expect(r.action).toBe("genome_predict");
+  });
+});
+
+describe("prism_diagnosis — additional action coverage", () => {
+  const { server, tools } = createMockServer();
+  registerDiagnosisDispatcher(server);
+  const diag = tools[0];
+
+  it("forensic_chip_analysis returns result", async () => {
+    const r = await callAction(diag, "forensic_chip_analysis", { image: "chip1.jpg" });
+    expect(r.action).toBe("forensic_chip_analysis");
+  });
+
+  it("sustain_energy returns result", async () => {
+    const r = await callAction(diag, "sustain_energy", { material: "steel" });
+    expect(r.action).toBe("sustain_energy");
+  });
+});
+
+// ============================================================================
 // Action count totals
 // ============================================================================
 describe("SYS-MS1 action count verification", () => {
