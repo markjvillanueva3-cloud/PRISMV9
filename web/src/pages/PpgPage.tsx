@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import ControllerSelector from "../components/ppg/ControllerSelector";
+import TemplateBrowser from "../components/ppg/TemplateBrowser";
 import type { PpgControllerInfo } from "../types/ppg";
 
 type PanelTab = "controller" | "templates" | "editor" | "preview" | "validation";
@@ -16,6 +17,7 @@ export default function PpgPage() {
   const [mobileTab, setMobileTab] = useState<PanelTab>("editor");
   const [mdRightTab, setMdRightTab] = useState<RightTab>("editor");
   const [activeController, setActiveController] = useState<PpgControllerInfo | null>(null);
+  const [editorContent, setEditorContent] = useState("");
 
   const tabs: { id: PanelTab; label: string }[] = [
     { id: "controller", label: "Controllers" },
@@ -74,7 +76,11 @@ export default function PpgPage() {
         <div className="hidden h-full md:grid md:grid-cols-[280px_1fr] md:gap-0 xl:grid-cols-[280px_1fr_320px]">
           {/* Left sidebar — controller + templates */}
           <aside className="flex flex-col overflow-y-auto border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
-            <SidebarPanel controller={activeController} onControllerChange={setActiveController} />
+            <SidebarPanel
+              controller={activeController}
+              onControllerChange={setActiveController}
+              onTemplateGenerate={setEditorContent}
+            />
           </aside>
 
           {/* Center — editor OR preview (md toggle), always editor at xl */}
@@ -97,8 +103,13 @@ export default function PpgPage() {
               ))}
             </div>
             {/* At xl: always show editor. At md-lg: show based on tab */}
-            <div className={`flex-1 flex-col overflow-hidden xl:flex ${mdRightTab === "editor" ? "flex" : "hidden xl:flex"}`}>
-              <EditorPanel />
+            <div className={`flex-1 flex-col overflow-hidden xl:flex ${
+              mdRightTab === "editor" ? "flex" : "hidden xl:flex"
+            }`}>
+              <EditorPanel
+                content={editorContent}
+                onContentChange={setEditorContent}
+              />
             </div>
             <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${mdRightTab === "preview" ? "flex" : "hidden"}`}>
               <PreviewPanel />
@@ -114,9 +125,19 @@ export default function PpgPage() {
         {/* Mobile: show active tab content */}
         <div className="flex h-full flex-col overflow-y-auto md:hidden">
           {(mobileTab === "controller" || mobileTab === "templates") && (
-            <SidebarPanel activeTab={mobileTab} controller={activeController} onControllerChange={setActiveController} />
+            <SidebarPanel
+              activeTab={mobileTab}
+              controller={activeController}
+              onControllerChange={setActiveController}
+              onTemplateGenerate={setEditorContent}
+            />
           )}
-          {mobileTab === "editor" && <EditorPanel />}
+          {mobileTab === "editor" && (
+            <EditorPanel
+              content={editorContent}
+              onContentChange={setEditorContent}
+            />
+          )}
           {(mobileTab === "preview" || mobileTab === "validation") && (
             <PreviewPanel activeTab={mobileTab} />
           )}
@@ -134,42 +155,69 @@ function SidebarPanel({
   activeTab,
   controller,
   onControllerChange,
+  onTemplateGenerate,
 }: {
   activeTab?: "controller" | "templates";
   controller: PpgControllerInfo | null;
   onControllerChange: (c: PpgControllerInfo | null) => void;
+  onTemplateGenerate: (gcode: string) => void;
 }) {
   return (
     <div className="flex flex-1 flex-col">
       {/* Controller selector section */}
       <div className={`${activeTab === "templates" ? "hidden md:block" : ""}`}>
         <PanelHeader title="Controller" />
-        <ControllerSelector value={controller?.id} onChange={onControllerChange} />
+        <ControllerSelector
+          value={controller?.id}
+          onChange={onControllerChange}
+        />
       </div>
 
       {/* Template browser section */}
-      <div className={`flex-1 ${activeTab === "controller" ? "hidden md:block" : ""}`}>
+      <div
+        className={`flex-1 ${activeTab === "controller" ? "hidden md:block" : ""}`}
+      >
         <PanelHeader title="Templates" />
-        <div className="p-3">
-          <div className="rounded-md border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400 dark:border-slate-600">
-            TemplateBrowser — U04
-          </div>
-        </div>
+        <TemplateBrowser
+          controller={controller?.id}
+          onGenerate={onTemplateGenerate}
+        />
       </div>
     </div>
   );
 }
 
-function EditorPanel() {
+function EditorPanel({
+  content,
+  onContentChange,
+}: {
+  content: string;
+  onContentChange: (v: string) => void;
+}) {
   return (
     <div className="flex flex-1 flex-col">
       <PanelHeader title="G-Code Editor" actions={<EditorActions />} />
-      <div className="flex flex-1 items-center justify-center bg-white p-4 dark:bg-slate-800">
-        <div className="w-full rounded-md border border-dashed border-slate-300 p-12 text-center text-sm text-slate-400 dark:border-slate-600">
-          <p className="mb-1 text-base font-medium text-slate-500">Monaco Editor — U05</p>
-          <p>G-code syntax highlighting, controller-aware keywords</p>
+      {content ? (
+        <textarea
+          value={content}
+          onChange={(e) => onContentChange(e.target.value)}
+          className="flex-1 resize-none bg-white p-3 font-mono text-xs
+            text-slate-800 focus:outline-none
+            dark:bg-slate-800 dark:text-slate-200"
+          spellCheck={false}
+          aria-label="G-code editor"
+        />
+      ) : (
+        <div className="flex flex-1 items-center justify-center bg-white p-4 dark:bg-slate-800">
+          <div className="w-full rounded-md border border-dashed border-slate-300
+            p-12 text-center text-sm text-slate-400 dark:border-slate-600">
+            <p className="mb-1 text-base font-medium text-slate-500">
+              Monaco Editor — U05
+            </p>
+            <p>Select a template or type G-code to get started</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

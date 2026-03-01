@@ -8,6 +8,7 @@ import { SafetyMonitorPage } from './pages/SafetyMonitorPage';
 import { WhatIfPage } from './pages/WhatIfPage';
 import { AlarmPage } from './pages/AlarmPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { ViewerPage } from './pages/ViewerPage';
 
 export function App() {
   return (
@@ -21,6 +22,7 @@ export function App() {
         <Route path="what-if" element={<WhatIfPage />} />
         <Route path="alarms" element={<AlarmPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="viewer" element={<ViewerPage />} />
       </Route>
     </Routes>
   );
