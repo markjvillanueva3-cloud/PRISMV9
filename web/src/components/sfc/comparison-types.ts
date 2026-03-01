@@ -34,7 +34,8 @@ function loadJson<T>(key: string, fallback: T): T {
   catch { return fallback; }
 }
 function saveJson(key: string, data: unknown) {
-  localStorage.setItem(key, JSON.stringify(data));
+  try { localStorage.setItem(key, JSON.stringify(data)); }
+  catch { /* storage full or unavailable */ }
 }
 
 export function loadComparison(): CalcSnapshot[] { return loadJson(COMPARISON_KEY, []); }

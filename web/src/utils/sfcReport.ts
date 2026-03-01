@@ -59,6 +59,7 @@ export function generateSfcReport(data: ReportData): void {
   if (data.machineName) config.push(["Machine", data.machineName]);
 
   for (const [label, value] of config) {
+    if (y > 260) { doc.addPage(); y = 20; }
     doc.setFont("helvetica", "bold");
     doc.text(`${label}:`, 20, y);
     doc.setFont("helvetica", "normal");
@@ -109,7 +110,7 @@ export function generateSfcReport(data: ReportData): void {
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
       for (const [key, val] of Object.entries(r.safety.factors)) {
-        doc.text(`  ${key.replace(/_/g, " ")}: ${(val as number).toFixed(3)}`, 25, y);
+        doc.text(`  ${key.replace(/_/g, " ")}: ${Number(val).toFixed(3)}`, 25, y);
         y += 4;
       }
       y += 3;

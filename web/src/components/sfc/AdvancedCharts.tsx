@@ -153,7 +153,7 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
         )}
         {tab === "power" && (
           <PowerChart
-            requiredPower={(result.meta?.power_kw as number) ?? 0}
+            requiredPower={Number(result.meta?.power_kw) || 0}
             machinePower={machine?.spindlePowerKw ?? 0}
           />
         )}

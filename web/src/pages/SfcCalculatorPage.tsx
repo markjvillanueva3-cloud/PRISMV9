@@ -97,7 +97,7 @@ export default function SfcCalculatorPage() {
   const makeSnapshot = useCallback((result: typeof calc.data): CalcSnapshot | null => {
     if (!result || !material || !operation) return null;
     return {
-      id: `calc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `calc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
       materialName: material.name,
       materialId: material.id,
       materialGroup: material.group,
@@ -112,25 +112,27 @@ export default function SfcCalculatorPage() {
 
   const handleCalculate = async () => {
     if (!material || !operation) return;
-    const result = await calc.execute({
-      material: material.id,
-      operation: operation.id,
-      material_hardness: material.hardness,
-      tool_material: params.tool_material,
-      tool_diameter: params.tool_diameter,
-      number_of_teeth: params.number_of_teeth,
-      depth: params.depth,
-      width: params.width,
-      coolant: params.coolant,
-    });
-    if (result) {
-      const snap = makeSnapshot(result);
-      if (snap) {
-        const updated = [snap, ...fullHistory].slice(0, 100);
-        setFullHistory(updated);
-        saveFullHistory(updated);
+    try {
+      const result = await calc.execute({
+        material: material.id,
+        operation: operation.id,
+        material_hardness: material.hardness,
+        tool_material: params.tool_material,
+        tool_diameter: params.tool_diameter,
+        number_of_teeth: params.number_of_teeth,
+        depth: params.depth,
+        width: params.width,
+        coolant: params.coolant,
+      });
+      if (result) {
+        const snap = makeSnapshot(result);
+        if (snap) {
+          const updated = [snap, ...fullHistory].slice(0, 100);
+          setFullHistory(updated);
+          saveFullHistory(updated);
+        }
       }
-    }
+    } catch { /* error state handled by useSfcCalculate hook */ }
   };
 
   const handleAddToComparison = useCallback((entry: CalcSnapshot) => {
@@ -191,7 +193,7 @@ export default function SfcCalculatorPage() {
 
   // Derived values for machine validation
   const requiredRpm = calc.data?.spindle_speed ?? 0;
-  const requiredPowerKw = (calc.data?.meta?.power_kw as number) ?? 0;
+  const requiredPowerKw = Number(calc.data?.meta?.power_kw) || 0;
   const requiredAxes = operation?.category === "milling" ? 3 : 2;
 
   const rightTabs: { id: RightTab; label: string; count?: number }[] = [
@@ -274,7 +276,7 @@ export default function SfcCalculatorPage() {
         </div>
 
         {/* Right column — results + tabs */}
-        <div className="space-y-4" aria-live="polite">
+        <div className="space-y-4">
           <ResultsDisplay
             result={calc.data}
             loading={calc.loading}
@@ -311,7 +313,7 @@ export default function SfcCalculatorPage() {
           />
 
           {/* Tab bar */}
-          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist">
+          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist" aria-label="Result views">
             {rightTabs.map((t) => (
               <button
                 key={t.id}

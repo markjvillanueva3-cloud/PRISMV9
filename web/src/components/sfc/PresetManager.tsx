@@ -55,7 +55,7 @@ export default function PresetManager({ materialId, operationId, params, onLoad 
     a.href = url;
     a.download = "prism-sfc-presets.json";
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, [presets]);
 
   const handleImport = useCallback(() => {
@@ -69,10 +69,32 @@ export default function PresetManager({ materialId, operationId, params, onLoad 
       reader.onload = () => {
         if (!reader.result || typeof reader.result !== "string") return;
         try {
-          const imported = JSON.parse(reader.result) as SfcPreset[];
-          if (!Array.isArray(imported)) return;
-          const merged = [...imported.filter((p) => p.id && p.name && p.params), ...presets];
-          // Deduplicate by id
+          const raw = JSON.parse(reader.result);
+          if (!Array.isArray(raw)) return;
+          // Sanitize: allow-list fields, cap at 50, prevent prototype pollution
+          const sanitized = raw.slice(0, 50).map((p: unknown): SfcPreset | null => {
+            if (!p || typeof p !== "object" || Array.isArray(p)) return null;
+            const r = p as Record<string, unknown>;
+            if (typeof r.id !== "string" || typeof r.name !== "string") return null;
+            if (!r.params || typeof r.params !== "object" || Array.isArray(r.params)) return null;
+            // Only copy known primitive param values
+            const cleanParams: Record<string, unknown> = {};
+            for (const [k, v] of Object.entries(r.params as Record<string, unknown>)) {
+              if (k === "__proto__" || k === "constructor" || k === "prototype") continue;
+              if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
+                cleanParams[k] = v;
+              }
+            }
+            return {
+              id: String(r.id).slice(0, 64),
+              name: String(r.name).slice(0, 100),
+              materialId: typeof r.materialId === "string" ? r.materialId : "",
+              operationId: typeof r.operationId === "string" ? r.operationId : "",
+              params: cleanParams as unknown as SfcParams,
+              createdAt: typeof r.createdAt === "number" ? r.createdAt : Date.now(),
+            };
+          }).filter((p): p is SfcPreset => p !== null);
+          const merged = [...sanitized, ...presets];
           const seen = new Set<string>();
           const deduped = merged.filter((p) => {
             if (seen.has(p.id)) return false;
