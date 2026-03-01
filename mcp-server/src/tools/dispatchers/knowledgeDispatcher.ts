@@ -9,14 +9,13 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 const ACTIONS = ["search", "cross_query", "formula", "relations", "stats"] as const;
-const REGISTRIES = ["materials", "machines", "tools", "alarms", "formulas", "skills", "scripts", "agents", "hooks"] as const;
 
 let knowledgeEngine: any = null;
 
-function getEngine() {
+async function getEngine(): Promise<any> {
   if (!knowledgeEngine) {
     try {
-      const mod = require("../../engines/KnowledgeQueryEngine.js");
+      const mod = await import("../../engines/KnowledgeQueryEngine.js");
       knowledgeEngine = mod.knowledgeEngine || new mod.KnowledgeQueryEngine();
     } catch (e) {
       log.warn("[knowledgeDispatcher] KnowledgeQueryEngine not available, using fallback");
@@ -35,7 +34,7 @@ export function registerKnowledgeDispatcher(server: any): void {
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_knowledge] Action: ${action}`);
-      const engine = getEngine();
+      const engine = await getEngine();
       let result: any;
 
       try {
