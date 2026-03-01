@@ -777,14 +777,14 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     
     log.info("Loading MachineRegistry...");
     
-    // Load in order: BASIC → CORE → ENHANCED → LEVEL5
-    await this.loadLayer("BASIC", PATHS.MACHINES_BASIC);
-    await this.loadLayer("CORE", PATHS.MACHINES_CORE);
-    await this.loadLayer("ENHANCED", PATHS.MACHINES_ENHANCED);
-    await this.loadLayer("LEVEL5", PATHS.MACHINES_LEVEL5);
-    
-    // Load from converted JSON data directory (C:\PRISM\data\machines)
-    await this.loadLayer("ENHANCED", path.join(PATHS.DATA_DIR, "machines", "ENHANCED", "json"));
+    // Load all layers in parallel — each layer contains distinct machines
+    await Promise.all([
+      this.loadLayer("BASIC", PATHS.MACHINES_BASIC),
+      this.loadLayer("CORE", PATHS.MACHINES_CORE),
+      this.loadLayer("ENHANCED", PATHS.MACHINES_ENHANCED),
+      this.loadLayer("LEVEL5", PATHS.MACHINES_LEVEL5),
+      this.loadLayer("ENHANCED", path.join(PATHS.DATA_DIR, "machines", "ENHANCED", "json")),
+    ]);
     
     this.buildIndexes();
     
@@ -806,49 +806,49 @@ export class MachineRegistry extends BaseRegistry<Machine> {
         log.debug(`Machine layer path does not exist: ${basePath}`);
         return;
       }
-      
+
       const files = await listDirectory(basePath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
-      
-      for (const file of jsonFiles) {
+
+      // Read all JSON files in parallel, then merge sequentially
+      const results = await Promise.all(jsonFiles.map(async (file) => {
         try {
-          const filePath = file.path;
-          const data = await readJsonFile<any>(filePath);
-          
-          // R1-MS2: Handle multiple formats:
-          // - Direct array: [machine, machine, ...]
-          // - Wrapper with .machines: { metadata: {...}, machines: [...] }
-          // - Single object: { id, manufacturer, ... }
-          let machines: any[];
-          if (Array.isArray(data)) {
-            machines = data;
-          } else if (data.machines && Array.isArray(data.machines)) {
-            machines = data.machines;
-          } else {
-            machines = [data];
-          }
-          
-          for (let i = 0; i < machines.length; i++) {
-            const machine = machines[i];
-            // W5/R1-MS2: Generate ID from manufacturer+model if no valid id
-            // Treat "unknown", empty string, or missing as invalid
-            const rawId = machine.id || machine.machine_id;
-            const hasValidId = rawId && rawId !== "unknown" && rawId.trim() !== "";
-            const id = hasValidId ? rawId :
-              (machine.manufacturer && machine.model 
-                ? `${machine.manufacturer}-${machine.model}`.replace(/[\s\/]+/g, '_').toUpperCase()
-                : machine.name 
-                  ? machine.name.replace(/[\s\/]+/g, '_').toUpperCase()
-                  : `${layer}-${path.basename(file.name, '.json')}-${i}`);
-            machine.id = id;
-            machine.layer = layer;
-            this.set(id, machine, layer);
-          }
+          const data = await readJsonFile<any>(file.path);
+          return { file, data };
         } catch (err) {
           log.warn(`Failed to load machine file ${file}: ${err}`);
+          return { file, data: null };
+        }
+      }));
+
+      for (const { file, data } of results) {
+        if (!data) continue;
+        // R1-MS2: Handle multiple formats
+        let machines: any[];
+        if (Array.isArray(data)) {
+          machines = data;
+        } else if (data.machines && Array.isArray(data.machines)) {
+          machines = data.machines;
+        } else {
+          machines = [data];
+        }
+
+        for (let i = 0; i < machines.length; i++) {
+          const machine = machines[i];
+          const rawId = machine.id || machine.machine_id;
+          const hasValidId = rawId && rawId !== "unknown" && rawId.trim() !== "";
+          const id = hasValidId ? rawId :
+            (machine.manufacturer && machine.model
+              ? `${machine.manufacturer}-${machine.model}`.replace(/[\s\/]+/g, '_').toUpperCase()
+              : machine.name
+                ? machine.name.replace(/[\s\/]+/g, '_').toUpperCase()
+                : `${layer}-${path.basename(file.name, '.json')}-${i}`);
+          machine.id = id;
+          machine.layer = layer;
+          this.set(id, machine, layer);
         }
       }
-      
+
       log.debug(`Loaded machines from ${layer} layer`);
     } catch (err) {
       log.warn(`Failed to load machine layer ${layer}: ${err}`);

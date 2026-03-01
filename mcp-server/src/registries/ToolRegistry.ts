@@ -322,9 +322,11 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     log.info("Loading ToolRegistry...");
     
-    // R1: Load from both extracted/ and data/ paths (dual-path fix)
-    await this.loadFromPath(PATHS.TOOLS_DB);
-    await this.loadFromPath(path.join(PATHS.DATA_DIR, "tools"));
+    // R1: Load from both extracted/ and data/ paths in parallel (dual-path fix)
+    await Promise.all([
+      this.loadFromPath(PATHS.TOOLS_DB),
+      this.loadFromPath(path.join(PATHS.DATA_DIR, "tools")),
+    ]);
     this.buildIndexes();
     
     if (this.entries.size > 0) {
@@ -347,34 +349,38 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       const files = await listDirectory(basePath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
-      
-      for (const file of jsonFiles) {
+
+      // Read all JSON files in parallel, then merge sequentially
+      const results = await Promise.all(jsonFiles.map(async (file) => {
         try {
-          const filePath = file.path;
-          const data = await readJsonFile<any>(filePath);
-          
-          // R1: Handle both direct arrays and wrapper format {category, count, tools: [...]}
-          let tools: any[];
-          if (Array.isArray(data)) {
-            tools = data;
-          } else if (data.tools && Array.isArray(data.tools)) {
-            tools = data.tools;
-          } else {
-            tools = [data];
-          }
-          
-          for (const tool of tools) {
-            if (tool.id) {
-              if (this.entries.has(tool.id)) {
-                // M-026: Log duplicate instead of silent SKIP (consistent with MaterialRegistry THROW)
-                log.warn(`ToolRegistry: duplicate tool ID '${tool.id}' in ${file.name} — skipping (first-wins)`);
-              } else {
-                this.set(tool.id, tool as CuttingTool);
-              }
-            }
-          }
+          const data = await readJsonFile<any>(file.path);
+          return { file, data };
         } catch (err) {
           log.warn(`Failed to load tool file ${file}: ${err}`);
+          return { file, data: null };
+        }
+      }));
+
+      for (const { file, data } of results) {
+        if (!data) continue;
+        // R1: Handle both direct arrays and wrapper format {category, count, tools: [...]}
+        let tools: any[];
+        if (Array.isArray(data)) {
+          tools = data;
+        } else if (data.tools && Array.isArray(data.tools)) {
+          tools = data.tools;
+        } else {
+          tools = [data];
+        }
+
+        for (const tool of tools) {
+          if (tool.id) {
+            if (this.entries.has(tool.id)) {
+              log.warn(`ToolRegistry: duplicate tool ID '${tool.id}' in ${file.name} — skipping (first-wins)`);
+            } else {
+              this.set(tool.id, tool as CuttingTool);
+            }
+          }
         }
       }
     } catch (err) {

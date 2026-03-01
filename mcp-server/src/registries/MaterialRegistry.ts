@@ -44,21 +44,18 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     log.info("Loading MaterialRegistry...");
     log.info(`  MATERIALS_DB path: ${PATHS.MATERIALS_DB}`);
     
-    // Load from ISO group directories (P_STEELS, M_STAINLESS, etc.)
+    // Load from ISO group directories in parallel (P_STEELS, M_STAINLESS, etc.)
     const isoGroups = ["P_STEELS", "M_STAINLESS", "K_CAST_IRON", "N_NONFERROUS", "S_SUPERALLOYS", "H_HARDENED", "X_SPECIALTY"];
-    
-    for (const group of isoGroups) {
+
+    await Promise.all(isoGroups.map(async (group) => {
       const groupPath = path.join(PATHS.MATERIALS_DB, group);
       const exists = await fileExists(groupPath);
       if (exists) {
-        const beforeCount = this.entries.size;
         await this.loadISOGroup(group, groupPath);
-        const added = this.entries.size - beforeCount;
-        log.info(`  ${group}: +${added} materials (total: ${this.entries.size})`);
       } else {
         log.info(`  ${group}: directory not found at ${groupPath}`);
       }
-    }
+    }));
     
     // Build indexes
     this.buildIndexes();
@@ -96,40 +93,38 @@ export class MaterialRegistry extends BaseRegistry<Material> {
    */
   private async loadISOGroup(group: string, groupPath: string): Promise<void> {
     try {
-      log.info(`  [loadISOGroup] ${group}: reading directory ${groupPath}`);
       const files = await listDirectory(groupPath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name !== "index.json");
-      log.info(`  [loadISOGroup] ${group}: found ${jsonFiles.length} JSON files (total files: ${files.length})`);
-      
-      for (const file of jsonFiles) {
+
+      // Read all JSON files in parallel, then merge results sequentially
+      const timestamp = new Date().toISOString();
+      const results = await Promise.all(jsonFiles.map(async (file) => {
         try {
           const data = await readJsonFile<{ materials?: Material[], category?: string }>(file.path);
-          const materials = data.materials || [];
-          const fileName = file.name.replace('.json', '');
-          
-          for (let i = 0; i < materials.length; i++) {
-            const material = materials[i];
-            // Generate unique ID including filename to prevent duplicates across files
-            const id = material.material_id || material.id || `${group}-${fileName}-${i.toString().padStart(4, '0')}`;
-            if (id) {
-              this.entries.set(id, {
-                id,
-                data: { ...material, material_id: id, iso_group: material.iso_group || group.charAt(0) },
-                metadata: {
-                  created: new Date().toISOString(),
-                  updated: new Date().toISOString(),
-                  version: 1,
-                  source: group
-                }
-              });
-              this.layerCaches.get(DATA_LAYERS.CORE)?.set(id, material);
-            }
-          }
-          log.info(`  [loadISOGroup] ${group}/${file.name}: ${materials.length} materials parsed, entries.size now: ${this.entries.size}`);
+          return { file, materials: data.materials || [] };
         } catch (error) {
           log.warn(`Failed to load material file ${file.name}: ${error}`);
+          return { file, materials: [] as Material[] };
+        }
+      }));
+
+      // Merge parsed results into registry (must be sequential for Map safety)
+      for (const { file, materials } of results) {
+        const fileName = file.name.replace('.json', '');
+        for (let i = 0; i < materials.length; i++) {
+          const material = materials[i];
+          const id = material.material_id || material.id || `${group}-${fileName}-${i.toString().padStart(4, '0')}`;
+          if (id) {
+            this.entries.set(id, {
+              id,
+              data: { ...material, material_id: id, iso_group: material.iso_group || group.charAt(0) },
+              metadata: { created: timestamp, updated: timestamp, version: 1, source: group }
+            });
+            this.layerCaches.get(DATA_LAYERS.CORE)?.set(id, material);
+          }
         }
       }
+      log.info(`  [loadISOGroup] ${group}: ${jsonFiles.length} files, ${this.entries.size} total entries`);
     } catch (error) {
       log.warn(`Failed to load ISO group ${group}: ${error}`);
     }

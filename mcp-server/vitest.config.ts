@@ -14,7 +14,7 @@ export default defineConfig({
     poolOptions: {
       threads: {
         minThreads: 2,
-        maxThreads: 8,
+        maxThreads: 4, // Reduced from 8: fewer threads = fewer registry initializations
       },
     },
     fileParallelism: true,
