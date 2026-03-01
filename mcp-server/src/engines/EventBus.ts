@@ -290,15 +290,23 @@ export class EventBus {
             this.debounceTimers.delete(debounceKey);
             try {
               await this.executeHandler(sub, event);
+              successfulHandlers++;
+              sub.callCount++;
+              sub.lastCalled = new Date();
+              if (sub.options.maxCalls && sub.callCount >= sub.options.maxCalls) {
+                this.unsubscribe(sub.id);
+              }
             } catch (err) {
+              failedHandlers++;
               log.error(`[EventBus] Debounced handler error for ${event.type}: ${err}`);
             }
           }, sub.options.debounce_ms);
           this.debounceTimers.set(debounceKey, timer);
+          return; // Skip fall-through — debounced handler tracks its own success/failure
         } else {
           await this.executeHandler(sub, event);
         }
-        
+
         successfulHandlers++;
         sub.callCount++;
         sub.lastCalled = new Date();

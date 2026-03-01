@@ -736,8 +736,8 @@ export function estimateCycleTime(
   // Total time
   const total_time = cutting_time + rapid_time + total_tool_change_time;
   
-  // Utilization (% time actually cutting)
-  const utilization_percent = (cutting_time / total_time) * 100;
+  // Utilization (% time actually cutting) — guard div-by-zero when total_time=0
+  const utilization_percent = total_time > 0 ? (cutting_time / total_time) * 100 : 0;
   
   // Warnings
   if (utilization_percent < 50) {

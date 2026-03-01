@@ -577,11 +577,22 @@ class WorkholdingEngine {
     // Calculate required clamp force
     // F_clamp = F_cutting × SafetyFactor × DynamicFactor / μ
     // Guard: friction-based formula is meaningless for vacuum/magnetic (mu=0)
-    const requiredClampForce = mu > 0 ? (F_cutting * safetyFactor * dynamicFactor) / mu : Infinity;
+    if (mu <= 0) {
+      warnings.push("Zero friction coefficient — friction-based clamping is not applicable for this workholding method (vacuum/magnetic). Verify holding force independently.");
+      return {
+        requiredClampForce: 0,
+        appliedClampForce: device.currentClampForce || device.maxClampForce || 0,
+        achievedSafetyFactor: 0,
+        isSafe: false,
+        warnings,
+        recommendations: [...recommendations, "Use vacuum/magnetic holding force calculation instead of friction-based model"],
+      } as any;
+    }
+    const requiredClampForce = (F_cutting * safetyFactor * dynamicFactor) / mu;
 
     // Get applied clamp force
     const appliedClampForce = device.currentClampForce || device.maxClampForce || 0;
-    
+
     // Check if max clamp force is sufficient
     if (device.maxClampForce && requiredClampForce > device.maxClampForce) {
       warnings.push(

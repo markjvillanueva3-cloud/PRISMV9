@@ -807,7 +807,7 @@ export function unifiedMachiningModel(input: UnifiedMachiningInput): UnifiedMach
     Rz = Ra * 4.5;
 
     // F-HYB-008: Thermal-deflection coupling
-    const overhang = input.tool_overhang_mm || (input.tool_diameter_mm * 3);
+    const overhang = input.tool_overhang_mm ?? (input.tool_diameter_mm * 3);
     const toolStiffness = (3 * 600000 * (Math.PI / 64) * Math.pow(D, 4)) / Math.pow(overhang, 3); // N/mm
     deflectionError = (Math.sqrt(Fc * Fc + Fr * Fr) / (toolStiffness + 1e-10)) * 1000; // μm
     thermalError = temperature_c * 0.012 * 3; // μm (thermal expansion coefficient × length)

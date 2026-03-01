@@ -53,9 +53,13 @@ Params vary by action — pass relevant fields in params object.`,
             const n = measurements.length || 1;
             const mean = measurements.length ? measurements.reduce((a: number, b: number) => a + b, 0) / n : 0;
             const std = n > 1 ? Math.sqrt(measurements.reduce((s: number, v: number) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
-            const cp = usl !== undefined && lsl !== undefined ? (usl - lsl) / (6 * std) : null;
-            const cpk = cp !== null ? Math.min((usl - mean) / (3 * std), (mean - lsl) / (3 * std)) : null;
-            result = { mean, std_dev: std, n, cp, cpk, usl, lsl, in_control: cpk !== null ? cpk >= 1.33 : null };
+            // Guard: std=0 (single measurement or identical values) makes Cp/Cpk undefined
+            const cp = usl !== undefined && lsl !== undefined && std > 0 ? (usl - lsl) / (6 * std) : null;
+            const cpk = cp !== null && std > 0 ? Math.min((usl - mean) / (3 * std), (mean - lsl) / (3 * std)) : null;
+            const spcWarnings: string[] = [];
+            if (n <= 1) spcWarnings.push("Insufficient data: Cp/Cpk require at least 2 measurements");
+            else if (std === 0) spcWarnings.push("Zero variance: all measurements identical — Cp/Cpk undefined");
+            result = { mean, std_dev: std, n, cp, cpk, usl, lsl, in_control: cpk !== null ? cpk >= 1.33 : null, ...(spcWarnings.length ? { warnings: spcWarnings } : {}) };
             break;
           }
           case "cpk_predict": {
