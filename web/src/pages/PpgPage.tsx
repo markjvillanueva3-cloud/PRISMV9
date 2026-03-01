@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 
 type PanelTab = "controller" | "templates" | "editor" | "preview" | "validation";
+type RightTab = "editor" | "preview";
 
 /**
  * PPG — Post Processor Generator page shell.
@@ -11,6 +12,7 @@ type PanelTab = "controller" | "templates" | "editor" | "preview" | "validation"
  */
 export default function PpgPage() {
   const [mobileTab, setMobileTab] = useState<PanelTab>("editor");
+  const [mdRightTab, setMdRightTab] = useState<RightTab>("editor");
 
   const tabs: { id: PanelTab; label: string }[] = [
     { id: "controller", label: "Controllers" },
@@ -66,18 +68,41 @@ export default function PpgPage() {
       {/* Desktop/tablet layout */}
       <div className="flex-1 overflow-hidden">
         {/* 3-column: xl+ | 2-column: md-xl | tabbed: <md */}
-        <div className="hidden h-full md:grid md:grid-cols-[1fr_1fr] md:gap-0 xl:grid-cols-[280px_1fr_320px]">
+        <div className="hidden h-full md:grid md:grid-cols-[280px_1fr] md:gap-0 xl:grid-cols-[280px_1fr_320px]">
           {/* Left sidebar — controller + templates */}
           <aside className="flex flex-col overflow-y-auto border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
             <SidebarPanel />
           </aside>
 
-          {/* Center — editor */}
+          {/* Center — editor OR preview (md toggle), always editor at xl */}
           <main className="flex flex-col overflow-hidden">
-            <EditorPanel />
+            {/* md-only tab toggle between Editor and Preview */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700 xl:hidden">
+              {(["editor", "preview"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setMdRightTab(tab)}
+                  className={`flex-1 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors ${
+                    mdRightTab === tab
+                      ? "border-primary-600 text-primary-600"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {tab === "editor" ? "Editor" : "Preview / Validation"}
+                </button>
+              ))}
+            </div>
+            {/* At xl: always show editor. At md-lg: show based on tab */}
+            <div className={`flex-1 flex-col overflow-hidden xl:flex ${mdRightTab === "editor" ? "flex" : "hidden xl:flex"}`}>
+              <EditorPanel />
+            </div>
+            <div className={`flex-1 flex-col overflow-y-auto xl:hidden ${mdRightTab === "preview" ? "flex" : "hidden"}`}>
+              <PreviewPanel />
+            </div>
           </main>
 
-          {/* Right panel — preview + validation (hidden at md, shown at xl) */}
+          {/* Right panel — preview + validation (xl only, always visible) */}
           <aside className="hidden flex-col overflow-y-auto border-l border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50 xl:flex">
             <PreviewPanel />
           </aside>
