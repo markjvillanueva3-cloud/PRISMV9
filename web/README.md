@@ -1,73 +1,180 @@
-# React + TypeScript + Vite
+# PRISM Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Manufacturing intelligence web application built with React 19, TypeScript, Tailwind CSS 4, and Vite 7.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 22+
+- npm 10+
+- PRISM MCP Server running on `localhost:3000` (for API calls)
 
-## React Compiler
+## Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the ESLint configuration
+# Start dev server (port 5173, proxies /api to MCP server)
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Build for production
+npm run build
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | TypeScript check + Vite production build |
+| `npm run preview` | Serve production build locally |
+| `npm run lint` | ESLint check |
+| `npm run e2e` | Run Playwright E2E tests (headless) |
+| `npm run e2e:headed` | Run Playwright E2E tests (visible browser) |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Architecture
+
+### Component Tree
+
 ```
+App
+ └─ AppShell (sidebar nav + header + ErrorBoundary + OfflineBanner)
+     └─ Routes
+         └─ /sfc → SfcCalculatorPage (lazy-loaded)
+              ├─ SmartMaterialSelector  (7 ISO groups, search + filter)
+              ├─ OperationSelector      (milling, turning, drilling, etc.)
+              ├─ SmartToolSelector      (filtered by operation)
+              ├─ SmartMachineSelector   (filtered by compatibility)
+              ├─ ParameterPanel         (tool_diameter, teeth, depth, width, coolant)
+              ├─ CompatibilityValidator (material-tool-machine cross-check)
+              ├─ ResultsDisplay         (speed, feed, force, power, safety)
+              ├─ AdvancedCharts         (Recharts visualizations)
+              ├─ ComparisonView         (side-by-side result comparison)
+              ├─ CalculationHistory     (localStorage-persisted history)
+              └─ PresetManager          (save/load parameter presets)
+```
+
+### State Flow
+
+```
+User Input → SfcCalculatorPage (local state)
+  → useSfcCalculate() hook
+    → sfcApi.calculate() (POST /api/v1/sfc/calculate)
+      → MCP Server prism_calc dispatcher
+        → ManufacturingCalculations engine
+  → ResultsDisplay + AdvancedCharts (render response)
+  → ComparisonView (localStorage snapshots)
+```
+
+- **State management**: React useState + custom hooks (no external state library)
+- **API layer**: `src/api/client.ts` — fetch wrapper with 15s timeout, AbortController, typed errors
+- **Hooks**: `src/hooks/useSfc.ts` — `useApiCall` generic with loading/error/abort states
+- **Persistence**: localStorage for comparison snapshots and calculation history
+
+### API Integration
+
+All API calls go through `/api/v1/sfc/*` endpoints, proxied to the MCP server:
+
+| Endpoint | Dispatcher Action | Engine |
+|----------|------------------|--------|
+| `/calculate` | `speed_feed` | ManufacturingCalculations |
+| `/cycle-time` | `cycle_time` | ManufacturingCalculations |
+| `/engagement` | `cutting_force` | ManufacturingCalculations |
+| `/deflection` | `tool_deflection` | AdvancedCalculations |
+| `/power-torque` | `power_torque` | ManufacturingCalculations |
+| `/surface-finish` | `surface_finish` | ManufacturingCalculations |
+| `/tool-life` | `tool_life` | ManufacturingCalculations |
+
+### Key Directories
+
+```
+web/
+├── e2e/                    # Playwright E2E tests
+├── src/
+│   ├── api/                # API client + SFC endpoint wrappers
+│   ├── components/
+│   │   ├── layout/         # AppShell (sidebar + header)
+│   │   ├── sfc/            # SFC Calculator components (13 files)
+│   │   └── ui/             # Reusable UI primitives (Button, Card, Input, etc.)
+│   ├── data/               # Static data (materials, operations, tools, machines)
+│   ├── hooks/              # Custom React hooks (useSfc)
+│   ├── pages/              # Page-level components
+│   ├── types/              # TypeScript type definitions
+│   └── utils/              # Utilities (PDF report generation)
+├── Dockerfile              # Multi-stage: node build → nginx serve
+├── nginx.conf              # SPA fallback + API proxy + security headers
+├── playwright.config.ts    # Playwright config (Chromium headless)
+└── vite.config.ts          # Vite config (proxy, chunk splitting)
+```
+
+## Testing
+
+### E2E Tests (Playwright)
+
+```bash
+# Install Playwright browsers (first time)
+npx playwright install --with-deps chromium
+
+# Run tests
+npm run e2e
+
+# Run with visible browser
+npm run e2e:headed
+```
+
+10 E2E tests cover the SFC calculator flow: material selection, operation selection, parameter entry, calculation, tab navigation, presets, and keyboard accessibility.
+
+## Deployment
+
+### Docker
+
+```bash
+# Build and run with Docker Compose
+docker compose up --build
+
+# Frontend: http://localhost:8080
+# API: http://localhost:3000
+```
+
+The frontend Dockerfile uses a multi-stage build (node 22 → nginx alpine) and runs as non-root user. The nginx config handles SPA routing fallback and proxies `/api` to the MCP server.
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VITE_API_URL` | `http://localhost:3000` | MCP server URL |
+| `VITE_WS_URL` | `ws://localhost:3000` | WebSocket URL |
+| `VITE_ENABLE_PPG` | `false` | Enable Post Processor Generator |
+| `VITE_ENABLE_LEARNING` | `false` | Enable Learning module |
+| `VITE_ENABLE_ERP` | `false` | Enable ERP module |
+| `VITE_ENABLE_VIEWER` | `false` | Enable 3D Viewer |
+
+### CI/CD
+
+GitHub Actions workflow (`.github/workflows/web.yml`) runs on pushes to `web/`:
+1. Install dependencies
+2. Lint
+3. TypeScript check + build
+4. Install Playwright browsers (cached)
+5. Run E2E tests
+6. Upload test report artifact
+
+## Accessibility
+
+- Skip-to-content link for keyboard navigation
+- ARIA landmarks (navigation, main)
+- `prefers-reduced-motion` CSS support
+- Focus-visible outlines on interactive elements
+- All SVG icons marked `aria-hidden="true"`
+
+## Performance
+
+- **Code splitting**: SfcCalculatorPage lazy-loaded via `React.lazy`
+- **Chunk splitting**: react, recharts, jspdf in separate chunks (all < 400KB)
+- **AbortController**: In-flight requests cancelled on new calculation
+- **Offline detection**: Banner with auto-reconnect
