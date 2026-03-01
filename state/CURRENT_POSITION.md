@@ -1,12 +1,11 @@
 # CURRENT POSITION
 ## Updated: 2026-02-28
 
-**Phase:** FORGE-DEBUG SWEEP COMPLETE — 25 fixes across 14 files
-**Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 69 complete)
-**Aggregate OQA:** 4.35 avg (min=3.24 QA-MS10, max=5.00 QA-MS14) | 93% pass rate | 71 code fixes + 75 new tests
-**Test Suite:** 1275 backend (1274 pass, 1 pre-existing Kienzle) + 11 Playwright E2E
-**FORGE-DEBUG Result:** Full P0-P9 audit of 45 dispatchers + 125 engines. 8 CRITICAL, 48 MAJOR, 76 MINOR found. 25 fixes applied (2 commits: d082c7c4, fa4d57a0). Key: grinding RPM overspeed, turning dead wiring, GCode operator precedence, SPC div-by-zero, EventBus debounce, WorkholdingEngine Infinity guard.
-**Next:** SYS-MS2 (test coverage) or MASTER_INDEX action count reconciliation (825 actual vs 1060 listed)
+**Phase:** SYS-MS2 COMPLETE — Test Coverage Phase 2
+**Build:** PASS | Roadmap Index: v5.3.0 (94 milestones, 70 complete)
+**Test Suite:** 1661 backend (1661 pass) + 11 Playwright E2E
+**SYS-MS2 Result:** 6 units, 284 new tests — engine test harness (25), core manufacturing (82), safety engines (42), specialty engines (43), intelligence engines (62), remaining cadences (72). Test count 1243→1661 (+33.6%). All 103 cadence functions now tested.
+**Next:** SYS-MS3 (automation) or L8-MS2 (web UIs)
 **Slash commands (34):** `/smart`, `/pick-task`, `/audit-task`, `/commands`, `/startup`, `/ship`, `/health`, `/sync`, `/rgs`, `/yolo-mode`, `/auto-commit`, `/addtomatrix`, `/check-dsl`, `/update-all-docs`, `/forge`, `/autopilot`, `/test`, `/findings`, `/trace`, `/forge-postflight`, `/forge-skills`, `/forge-hooks`, `/forge-engines`, `/forge-tests`, `/forge-safety`, `/forge-debug`, `/forge-perf`, `/forge-materials`, `/milestone`, `/scope`, `/context`, `/remember`, `/slim`, `/handoff`
 **Schema validation:** 7 dispatchers (147 actions) with per-action Zod schemas + type coercion [SYS-MS6]
 **Auto-registration:** 3-layer system (hookify drift rule + pick-task checklist + audit-task post-hoc)
@@ -271,9 +270,9 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 - **Priority:** All P1. SYS-MS6 (schema validation) is highest impact.
 
 ## Milestone Summary
-- Complete: 67 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0, SYS-MS4, SYS-MS5, SYS-MS7)
+- Complete: 70 milestones (S0-S4, L0-L10, QA-MS0-MS14, REM-MS0-MS5, SYS-MS0-MS2, SYS-MS4, SYS-MS5, SYS-MS7)
 - In Progress: 0
-- Not Started: 27 milestones (SYS-MS1-MS3, SYS-MS6, L8-MS2s, L9, CC, CC-EXT)
+- Not Started: 24 milestones (SYS-MS3, SYS-MS6, L8-MS2s, L9, CC, CC-EXT)
 
 ## Active Track: QA Audit (15 milestones, 94 units)
 | Milestone | Title | Units | Status |
@@ -297,7 +296,7 @@ Deep system-wide gap analysis identified 4 structural improvement areas after QA
 ## Available Tracks (31 milestones remaining)
 | Track | Milestones | Description | Unblocked |
 |-------|-----------|-------------|-----------|
-| SYS | 5 | System Optimization (mega-dispatcher decomp, tests, automation, param schemas) | SYS-MS1, SYS-MS6 |
+| SYS | 3 | System Optimization (automation, param schemas) | SYS-MS3, SYS-MS6 |
 | L8-MS2s | 3 | Web UIs (PPG, CAD/CAM Learning, ERP) | All 3 |
 | L9 | 1 | WebGL 3D Viewer | L9-P2-MS1 |
 | CC | 12 | CAD/CAM/Machining Learning Engine | CC-MS0 |
