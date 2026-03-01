@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0.0",
+  "domain": "drilling_cycles",
+  "updated_at": "2026-03-01T22:20:00Z",
+  "description": "G-code canned cycle equivalencies across CNC controls",
+  "controls": ["fanuc", "haas", "siemens_840d", "mazak", "okuma", "heidenhain"],
+  "cycle_count": 12,
+  "cycles": [
+    {
+      "canonical": "spot_drill",
+      "description": "Center drilling / spot drilling for hole start",
+      "gcode": {
+        "fanuc": {"code": "G81", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G81", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "siemens_840d": {"code": "CYCLE81", "params": ["RTP", "RFP", "SDIS", "DP"]},
+        "mazak": {"code": "G81", "params": ["X", "Y", "Z", "R", "F"]},
+        "okuma": {"code": "G81", "params": ["X", "Y", "Z", "R", "F"]},
+        "heidenhain": {"code": "CYCL DEF 200", "params": ["Q200", "Q201", "Q206", "Q202", "Q210"]}
+      }
+    },
+    {
+      "canonical": "standard_drill",
+      "description": "Standard single-pass drilling",
+      "gcode": {
+        "fanuc": {"code": "G81", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G81", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "siemens_840d": {"code": "CYCLE81", "params": ["RTP", "RFP", "SDIS", "DP"]},
+        "mazak": {"code": "G81", "params": ["X", "Y", "Z", "R", "F"]},
+        "okuma": {"code": "G81", "params": ["X", "Y", "Z", "R", "F"]},
+        "heidenhain": {"code": "CYCL DEF 200", "params": ["Q200", "Q201", "Q206", "Q202", "Q210"]}
+      }
+    },
+    {
+      "canonical": "peck_drill_high_speed",
+      "description": "High-speed peck drilling with partial retract",
+      "gcode": {
+        "fanuc": {"code": "G73", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "haas": {"code": "G73", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "siemens_840d": {"code": "CYCLE83", "params": ["RTP", "RFP", "SDIS", "DP", "FDEP", "DAM", "DTB", "VARI=1"]},
+        "mazak": {"code": "G73", "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "okuma": {"code": "G73", "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "heidenhain": {"code": "CYCL DEF 200", "params": ["Q200", "Q201", "Q206", "Q202", "Q210", "Q211"]}
+      }
+    },
+    {
+      "canonical": "peck_drill_full_retract",
+      "description": "Deep hole peck drilling with full retract to R-plane",
+      "gcode": {
+        "fanuc": {"code": "G83", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "haas": {"code": "G83", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "F", "I", "J", "K"]},
+        "siemens_840d": {"code": "CYCLE83", "params": ["RTP", "RFP", "SDIS", "DP", "FDEP", "DAM", "DTB", "VARI=0"]},
+        "mazak": {"code": "G83", "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "okuma": {"code": "G83", "params": ["X", "Y", "Z", "R", "Q", "F"]},
+        "heidenhain": {"code": "CYCL DEF 205", "params": ["Q200", "Q201", "Q206", "Q202", "Q210", "Q211"]}
+      }
+    },
+    {
+      "canonical": "tapping_right",
+      "description": "Right-hand rigid tapping",
+      "gcode": {
+        "fanuc": {"code": "G84", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G84", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F", "J"]},
+        "siemens_840d": {"code": "CYCLE84", "params": ["RTP", "RFP", "SDIS", "DP", "DPR", "DTB"]},
+        "mazak": {"code": "G84", "params": ["X", "Y", "Z", "R", "F"]},
+        "okuma": {"code": "G84", "params": ["X", "Y", "Z", "R", "F"]},
+        "heidenhain": {"code": "CYCL DEF 206", "params": ["Q200", "Q201", "Q206", "Q211"]}
+      }
+    },
+    {
+      "canonical": "tapping_left",
+      "description": "Left-hand rigid tapping",
+      "gcode": {
+        "fanuc": {"code": "G84 (M04)", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G84 (M04)", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "siemens_840d": {"code": "CYCLE84", "params": ["RTP", "RFP", "SDIS", "DP", "VARI=1"]},
+        "mazak": {"code": "G84 (M04)", "params": ["X", "Y", "Z", "R", "F"]},
+        "heidenhain": {"code": "CYCL DEF 207", "params": ["Q200", "Q201", "Q206", "Q211"]}
+      }
+    },
+    {
+      "canonical": "reaming",
+      "description": "Reaming cycle with controlled retract feed",
+      "gcode": {
+        "fanuc": {"code": "G85", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G85", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "siemens_840d": {"code": "CYCLE85", "params": ["RTP", "RFP", "SDIS", "DP", "DTB"]},
+        "mazak": {"code": "G85", "params": ["X", "Y", "Z", "R", "F"]},
+        "okuma": {"code": "G85", "params": ["X", "Y", "Z", "R", "F"]},
+        "heidenhain": {"code": "CYCL DEF 201", "params": ["Q200", "Q201", "Q206", "Q211"]}
+      }
+    },
+    {
+      "canonical": "boring_g86",
+      "description": "Boring with spindle stop at bottom, rapid retract",
+      "gcode": {
+        "fanuc": {"code": "G86", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "haas": {"code": "G86", "modal_group": 9, "params": ["X", "Y", "Z", "R", "F"]},
+        "siemens_840d": {"code": "CYCLE86", "params": ["RTP", "RFP", "SDIS", "DP", "DTB"]},
+        "mazak": {"code": "G86", "params": ["X", "Y", "Z", "R", "F"]}
+      }
+    },
+    {
+      "canonical": "boring_orient_retract",
+      "description": "Fine boring with orient spindle and shift retract",
+      "gcode": {
+        "fanuc": {"code": "G76", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "P", "F"]},
+        "haas": {"code": "G76", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "I", "P", "F"]},
+        "siemens_840d": {"code": "CYCLE86", "params": ["RTP", "RFP", "SDIS", "DP", "SDIR"]},
+        "mazak": {"code": "G76", "params": ["X", "Y", "Z", "R", "Q", "P", "F"]},
+        "heidenhain": {"code": "CYCL DEF 202", "params": ["Q200", "Q201", "Q206", "Q211", "Q214"]}
+      }
+    },
+    {
+      "canonical": "back_boring",
+      "description": "Boring from back side of workpiece",
+      "gcode": {
+        "fanuc": {"code": "G87", "modal_group": 9, "params": ["X", "Y", "Z", "R", "Q", "P", "F"]},
+        "haas": {"code": "G87", "modal_group": 9, "params": ["X", "Y", "Z", "R", "I", "J", "F"]},
+        "siemens_840d": {"code": "CYCLE86 (VARI)", "params": ["RTP", "RFP", "SDIS", "DP", "SDIR"]}
+      }
+    },
+    {
+      "canonical": "bore_dwell",
+      "description": "Boring with dwell at bottom for surface finish",
+      "gcode": {
+        "fanuc": {"code": "G89", "modal_group": 9, "params": ["X", "Y", "Z", "R", "P", "F"]},
+        "haas": {"code": "G89", "modal_group": 9, "params": ["X", "Y", "Z", "R", "P", "F"]},
+        "siemens_840d": {"code": "CYCLE85", "params": ["RTP", "RFP", "SDIS", "DP", "DTB"]},
+        "mazak": {"code": "G89", "params": ["X", "Y", "Z", "R", "P", "F"]}
+      }
+    },
+    {
+      "canonical": "cancel_canned_cycle",
+      "description": "Cancel active canned cycle",
+      "gcode": {
+        "fanuc": {"code": "G80", "modal_group": 9},
+        "haas": {"code": "G80", "modal_group": 9},
+        "siemens_840d": {"code": "MCALL (no cycle)", "notes": "Cancel modal call"},
+        "mazak": {"code": "G80"},
+        "okuma": {"code": "G80"},
+        "heidenhain": {"code": "CYCL DEF (none)", "notes": "No explicit cancel needed"}
+      }
+    }
+  ]
+}

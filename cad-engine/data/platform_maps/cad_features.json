@@ -1,0 +1,388 @@
+{
+  "schema_version": "1.0.0",
+  "domain": "cad_features",
+  "updated_at": "2026-03-01T22:20:00Z",
+  "platforms": ["solidworks", "fusion360", "autocad", "cadquery", "freecad", "onshape"],
+  "feature_count": 28,
+  "features": [
+    {
+      "canonical": "extrude",
+      "category": "additive",
+      "description": "Linear extrusion of a 2D sketch profile along a direction",
+      "platforms": {
+        "solidworks": {"term": "Boss-Extrude", "menu": "Insert > Boss/Base > Extrude", "api": "FeatureExtrusion"},
+        "fusion360": {"term": "Extrude", "menu": "Create > Extrude", "api": "ExtrudeFeature"},
+        "autocad": {"term": "Extrude", "menu": "3D Modeling > Extrude", "api": "acdb3dSolid.extrudeFaces"},
+        "cadquery": {"term": "extrude", "api": "Workplane.extrude()"},
+        "freecad": {"term": "Pad", "menu": "Part Design > Pad", "api": "PartDesign::Pad"},
+        "onshape": {"term": "Extrude", "menu": "Feature toolbar > Extrude", "api": "BTMFeature"}
+      },
+      "parameters": ["distance", "direction", "draft_angle", "both_directions"]
+    },
+    {
+      "canonical": "cut_extrude",
+      "category": "subtractive",
+      "description": "Linear extrusion cut (material removal) along a direction",
+      "platforms": {
+        "solidworks": {"term": "Cut-Extrude", "menu": "Insert > Cut > Extrude", "api": "FeatureCut"},
+        "fusion360": {"term": "Extrude (Cut)", "menu": "Create > Extrude (operation: Cut)", "api": "ExtrudeFeature"},
+        "autocad": {"term": "Subtract", "menu": "3D Modeling > Subtract", "api": "acdb3dSolid.booleanOperation"},
+        "cadquery": {"term": "cutBlind", "api": "Workplane.cutBlind()"},
+        "freecad": {"term": "Pocket", "menu": "Part Design > Pocket", "api": "PartDesign::Pocket"},
+        "onshape": {"term": "Extrude (Remove)", "api": "BTMFeature"}
+      },
+      "parameters": ["depth", "direction", "through_all", "draft_angle"]
+    },
+    {
+      "canonical": "revolve",
+      "category": "additive",
+      "description": "Revolution of a 2D profile around an axis",
+      "platforms": {
+        "solidworks": {"term": "Revolve", "menu": "Insert > Boss/Base > Revolve", "api": "FeatureRevolve"},
+        "fusion360": {"term": "Revolve", "menu": "Create > Revolve", "api": "RevolveFeature"},
+        "autocad": {"term": "Revolve", "menu": "3D Modeling > Revolve", "api": "acdb3dSolid.revolve"},
+        "cadquery": {"term": "revolve", "api": "Workplane.revolve()"},
+        "freecad": {"term": "Revolution", "menu": "Part Design > Revolution", "api": "PartDesign::Revolution"},
+        "onshape": {"term": "Revolve", "api": "BTMFeature"}
+      },
+      "parameters": ["angle", "axis", "both_directions"]
+    },
+    {
+      "canonical": "cut_revolve",
+      "category": "subtractive",
+      "description": "Revolution cut around an axis",
+      "platforms": {
+        "solidworks": {"term": "Cut-Revolve", "menu": "Insert > Cut > Revolve", "api": "FeatureRevolveCut"},
+        "fusion360": {"term": "Revolve (Cut)", "api": "RevolveFeature"},
+        "cadquery": {"term": "cut + revolve", "api": "Workplane.revolve() with cut"},
+        "freecad": {"term": "Groove", "menu": "Part Design > Groove", "api": "PartDesign::Groove"},
+        "onshape": {"term": "Revolve (Remove)", "api": "BTMFeature"}
+      },
+      "parameters": ["angle", "axis"]
+    },
+    {
+      "canonical": "sweep",
+      "category": "additive",
+      "description": "Profile swept along a path curve",
+      "platforms": {
+        "solidworks": {"term": "Sweep", "menu": "Insert > Boss/Base > Sweep", "api": "FeatureSweep"},
+        "fusion360": {"term": "Sweep", "menu": "Create > Sweep", "api": "SweepFeature"},
+        "autocad": {"term": "Sweep", "menu": "3D Modeling > Sweep", "api": "acdb3dSolid.sweep"},
+        "cadquery": {"term": "sweep", "api": "Workplane.sweep()"},
+        "freecad": {"term": "Additive Pipe", "menu": "Part Design > Additive Pipe", "api": "PartDesign::AdditivePipe"},
+        "onshape": {"term": "Sweep", "api": "BTMFeature"}
+      },
+      "parameters": ["profile", "path", "twist_angle", "scale"]
+    },
+    {
+      "canonical": "loft",
+      "category": "additive",
+      "description": "Shape created by blending between multiple profiles",
+      "platforms": {
+        "solidworks": {"term": "Loft", "menu": "Insert > Boss/Base > Loft", "api": "FeatureLoft"},
+        "fusion360": {"term": "Loft", "menu": "Create > Loft", "api": "LoftFeature"},
+        "autocad": {"term": "Loft", "menu": "3D Modeling > Loft", "api": "acdb3dSolid.loft"},
+        "cadquery": {"term": "loft", "api": "Workplane.loft() (via Wire)"},
+        "freecad": {"term": "Additive Loft", "menu": "Part Design > Additive Loft", "api": "PartDesign::AdditiveLoft"},
+        "onshape": {"term": "Loft", "api": "BTMFeature"}
+      },
+      "parameters": ["profiles", "guide_curves", "closed"]
+    },
+    {
+      "canonical": "fillet",
+      "category": "modify",
+      "description": "Rounded edge transition",
+      "platforms": {
+        "solidworks": {"term": "Fillet", "menu": "Insert > Features > Fillet/Round", "api": "FeatureFillet"},
+        "fusion360": {"term": "Fillet", "menu": "Modify > Fillet", "api": "FilletFeature"},
+        "autocad": {"term": "Fillet Edge", "menu": "Solid Editing > Fillet Edge", "api": "acdb3dSolid.filletEdges"},
+        "cadquery": {"term": "fillet", "api": "Workplane.fillet()"},
+        "freecad": {"term": "Fillet", "menu": "Part Design > Fillet", "api": "PartDesign::Fillet"},
+        "onshape": {"term": "Fillet", "api": "BTMFeature"}
+      },
+      "parameters": ["radius", "variable_radius", "edges"]
+    },
+    {
+      "canonical": "chamfer",
+      "category": "modify",
+      "description": "Angled edge transition",
+      "platforms": {
+        "solidworks": {"term": "Chamfer", "menu": "Insert > Features > Chamfer", "api": "FeatureChamfer"},
+        "fusion360": {"term": "Chamfer", "menu": "Modify > Chamfer", "api": "ChamferFeature"},
+        "autocad": {"term": "Chamfer Edge", "menu": "Solid Editing > Chamfer Edge", "api": "acdb3dSolid.chamferEdges"},
+        "cadquery": {"term": "chamfer", "api": "Workplane.chamfer()"},
+        "freecad": {"term": "Chamfer", "menu": "Part Design > Chamfer", "api": "PartDesign::Chamfer"},
+        "onshape": {"term": "Chamfer", "api": "BTMFeature"}
+      },
+      "parameters": ["distance", "angle", "two_distances"]
+    },
+    {
+      "canonical": "hole",
+      "category": "subtractive",
+      "description": "Standard hole feature (simple, counterbore, countersink)",
+      "platforms": {
+        "solidworks": {"term": "Hole Wizard", "menu": "Insert > Features > Hole Wizard", "api": "FeatureHoleWizard"},
+        "fusion360": {"term": "Hole", "menu": "Create > Hole", "api": "HoleFeature"},
+        "autocad": {"term": "Subtract (cylinder)", "api": "manual cylinder subtraction"},
+        "cadquery": {"term": "hole", "api": "Workplane.hole()"},
+        "freecad": {"term": "Hole", "menu": "Part Design > Hole", "api": "PartDesign::Hole"},
+        "onshape": {"term": "Hole", "api": "BTMFeature"}
+      },
+      "parameters": ["diameter", "depth", "type", "thread", "counterbore_diameter", "countersink_angle"]
+    },
+    {
+      "canonical": "counterbore",
+      "category": "subtractive",
+      "description": "Flat-bottomed enlarged hole for bolt head clearance",
+      "platforms": {
+        "solidworks": {"term": "Hole Wizard > Counterbore", "api": "FeatureHoleWizard(type=cbore)"},
+        "fusion360": {"term": "Hole > Counterbore", "api": "HoleFeature(holeType=CounterboreHoleType)"},
+        "cadquery": {"term": "cboreHole", "api": "Workplane.cboreHole()"},
+        "freecad": {"term": "Hole > Counterbore", "api": "PartDesign::Hole(type=Counterbore)"},
+        "onshape": {"term": "Hole > Counterbore", "api": "BTMFeature"}
+      },
+      "parameters": ["hole_diameter", "cbore_diameter", "cbore_depth", "hole_depth"]
+    },
+    {
+      "canonical": "countersink",
+      "category": "subtractive",
+      "description": "Conical enlarged hole for flat-head screw seating",
+      "platforms": {
+        "solidworks": {"term": "Hole Wizard > Countersink", "api": "FeatureHoleWizard(type=csink)"},
+        "fusion360": {"term": "Hole > Countersink", "api": "HoleFeature(holeType=CountersinkHoleType)"},
+        "cadquery": {"term": "cskHole", "api": "Workplane.cskHole()"},
+        "freecad": {"term": "Hole > Countersink", "api": "PartDesign::Hole(type=Countersink)"},
+        "onshape": {"term": "Hole > Countersink", "api": "BTMFeature"}
+      },
+      "parameters": ["hole_diameter", "csink_diameter", "csink_angle", "hole_depth"]
+    },
+    {
+      "canonical": "thread",
+      "category": "modify",
+      "description": "Helical thread on cylindrical feature",
+      "platforms": {
+        "solidworks": {"term": "Thread", "menu": "Insert > Features > Thread", "api": "FeatureThread"},
+        "fusion360": {"term": "Thread", "menu": "Create > Thread", "api": "ThreadFeature"},
+        "cadquery": {"term": "helix + sweep", "api": "manual helix construction"},
+        "freecad": {"term": "Thread (external/internal)", "api": "PartDesign::Thread"},
+        "onshape": {"term": "Thread", "api": "BTMFeature"}
+      },
+      "parameters": ["diameter", "pitch", "thread_type", "depth", "class"]
+    },
+    {
+      "canonical": "linear_pattern",
+      "category": "pattern",
+      "description": "Repeat features in a linear direction",
+      "platforms": {
+        "solidworks": {"term": "Linear Pattern", "menu": "Insert > Pattern > Linear", "api": "FeatureLinearPattern"},
+        "fusion360": {"term": "Rectangular Pattern", "menu": "Create > Pattern > Rectangular", "api": "RectangularPatternFeature"},
+        "autocad": {"term": "3D Array (Rectangular)", "api": "array command"},
+        "cadquery": {"term": "rarray", "api": "Workplane.rarray()"},
+        "freecad": {"term": "Linear Pattern", "menu": "Part Design > Linear Pattern", "api": "PartDesign::LinearPattern"},
+        "onshape": {"term": "Linear Pattern", "api": "BTMFeature"}
+      },
+      "parameters": ["direction", "count", "spacing", "second_direction"]
+    },
+    {
+      "canonical": "circular_pattern",
+      "category": "pattern",
+      "description": "Repeat features around an axis",
+      "platforms": {
+        "solidworks": {"term": "Circular Pattern", "menu": "Insert > Pattern > Circular", "api": "FeatureCircularPattern"},
+        "fusion360": {"term": "Circular Pattern", "menu": "Create > Pattern > Circular", "api": "CircularPatternFeature"},
+        "autocad": {"term": "3D Array (Polar)", "api": "array command"},
+        "cadquery": {"term": "polarArray", "api": "Workplane.polarArray()"},
+        "freecad": {"term": "Polar Pattern", "menu": "Part Design > Polar Pattern", "api": "PartDesign::PolarPattern"},
+        "onshape": {"term": "Circular Pattern", "api": "BTMFeature"}
+      },
+      "parameters": ["axis", "count", "angle", "equal_spacing"]
+    },
+    {
+      "canonical": "mirror",
+      "category": "pattern",
+      "description": "Mirror features across a plane",
+      "platforms": {
+        "solidworks": {"term": "Mirror", "menu": "Insert > Pattern > Mirror", "api": "FeatureMirror"},
+        "fusion360": {"term": "Mirror", "menu": "Create > Mirror", "api": "MirrorFeature"},
+        "autocad": {"term": "Mirror 3D", "api": "mirror3d command"},
+        "cadquery": {"term": "mirror", "api": "Workplane.mirror()"},
+        "freecad": {"term": "Mirrored", "menu": "Part Design > Mirrored", "api": "PartDesign::Mirrored"},
+        "onshape": {"term": "Mirror", "api": "BTMFeature"}
+      },
+      "parameters": ["mirror_plane"]
+    },
+    {
+      "canonical": "shell",
+      "category": "modify",
+      "description": "Hollow out a solid leaving specified wall thickness",
+      "platforms": {
+        "solidworks": {"term": "Shell", "menu": "Insert > Features > Shell", "api": "FeatureShell"},
+        "fusion360": {"term": "Shell", "menu": "Modify > Shell", "api": "ShellFeature"},
+        "autocad": {"term": "Shell", "menu": "Solid Editing > Shell", "api": "acdb3dSolid.shell"},
+        "cadquery": {"term": "shell", "api": "Workplane.shell()"},
+        "freecad": {"term": "Thickness", "menu": "Part Design > Thickness", "api": "PartDesign::Thickness"},
+        "onshape": {"term": "Shell", "api": "BTMFeature"}
+      },
+      "parameters": ["wall_thickness", "open_faces"]
+    },
+    {
+      "canonical": "draft",
+      "category": "modify",
+      "description": "Apply draft angle to faces for mold release",
+      "platforms": {
+        "solidworks": {"term": "Draft", "menu": "Insert > Features > Draft", "api": "FeatureDraft"},
+        "fusion360": {"term": "Draft", "menu": "Modify > Draft", "api": "DraftFeature"},
+        "cadquery": {"term": "extrude(taper=)", "api": "Workplane.extrude(taper=angle)"},
+        "freecad": {"term": "Draft", "menu": "Part Design > Draft", "api": "PartDesign::Draft"},
+        "onshape": {"term": "Draft", "api": "BTMFeature"}
+      },
+      "parameters": ["angle", "neutral_plane", "faces"]
+    },
+    {
+      "canonical": "rib",
+      "category": "additive",
+      "description": "Structural reinforcement between walls",
+      "platforms": {
+        "solidworks": {"term": "Rib", "menu": "Insert > Features > Rib", "api": "FeatureRib"},
+        "fusion360": {"term": "Rib", "menu": "Create > Rib", "api": "RibFeature"},
+        "cadquery": {"term": "extrude sketch", "api": "manual extrude of rib profile"},
+        "freecad": {"term": "Rib/Web", "api": "PartDesign custom"},
+        "onshape": {"term": "Rib", "api": "BTMFeature"}
+      },
+      "parameters": ["thickness", "direction", "draft"]
+    },
+    {
+      "canonical": "slot",
+      "category": "subtractive",
+      "description": "Elongated hole or channel",
+      "platforms": {
+        "solidworks": {"term": "Slot (sketch) + Cut-Extrude", "api": "SketchSlot + FeatureCut"},
+        "fusion360": {"term": "Slot (sketch) + Extrude Cut", "api": "SketchSlot"},
+        "cadquery": {"term": "slot2D + cutBlind", "api": "Workplane.slot2D().cutBlind()"},
+        "freecad": {"term": "Slot sketch + Pocket", "api": "Sketcher::SketchSlot + Pocket"},
+        "onshape": {"term": "Slot sketch + Extrude Remove", "api": "BTMFeature"}
+      },
+      "parameters": ["length", "width", "depth"]
+    },
+    {
+      "canonical": "pocket",
+      "category": "subtractive",
+      "description": "Enclosed material removal cavity",
+      "platforms": {
+        "solidworks": {"term": "Cut-Extrude (pocket profile)", "api": "FeatureCut"},
+        "fusion360": {"term": "Extrude Cut (pocket profile)", "api": "ExtrudeFeature(operation=Cut)"},
+        "cadquery": {"term": "cutBlind (rect/polygon)", "api": "Workplane.rect().cutBlind()"},
+        "freecad": {"term": "Pocket", "menu": "Part Design > Pocket", "api": "PartDesign::Pocket"},
+        "onshape": {"term": "Extrude Remove", "api": "BTMFeature"}
+      },
+      "parameters": ["width", "length", "depth", "corner_radius"]
+    },
+    {
+      "canonical": "boss",
+      "category": "additive",
+      "description": "Raised cylindrical feature for alignment or fastening",
+      "platforms": {
+        "solidworks": {"term": "Boss-Extrude (circular)", "api": "FeatureExtrusion"},
+        "fusion360": {"term": "Extrude (circular profile)", "api": "ExtrudeFeature"},
+        "cadquery": {"term": "circle + extrude", "api": "Workplane.circle().extrude()"},
+        "freecad": {"term": "Pad (circular)", "api": "PartDesign::Pad"},
+        "onshape": {"term": "Extrude (circular)", "api": "BTMFeature"}
+      },
+      "parameters": ["diameter", "height", "draft"]
+    },
+    {
+      "canonical": "groove",
+      "category": "subtractive",
+      "description": "Ring-shaped channel typically for O-rings or snap rings",
+      "platforms": {
+        "solidworks": {"term": "Cut-Revolve (groove profile)", "api": "FeatureRevolveCut"},
+        "fusion360": {"term": "Revolve Cut (groove profile)", "api": "RevolveFeature(operation=Cut)"},
+        "cadquery": {"term": "revolve cut", "api": "cut + revolve"},
+        "freecad": {"term": "Groove", "menu": "Part Design > Groove", "api": "PartDesign::Groove"},
+        "onshape": {"term": "Revolve Remove", "api": "BTMFeature"}
+      },
+      "parameters": ["width", "depth", "diameter"]
+    },
+    {
+      "canonical": "face",
+      "category": "subtractive",
+      "description": "Flat surface machining / facing operation",
+      "platforms": {
+        "solidworks": {"term": "Cut-Extrude (face)", "api": "FeatureCut"},
+        "fusion360": {"term": "Extrude Cut (thin face)", "api": "ExtrudeFeature"},
+        "cadquery": {"term": "cutBlind (large rect)", "api": "Workplane.rect().cutBlind()"},
+        "freecad": {"term": "Pocket (face)", "api": "PartDesign::Pocket"},
+        "onshape": {"term": "Extrude Remove", "api": "BTMFeature"}
+      },
+      "parameters": ["depth", "area"]
+    },
+    {
+      "canonical": "helix",
+      "category": "additive",
+      "description": "Helical/spiral feature",
+      "platforms": {
+        "solidworks": {"term": "Helix + Sweep", "api": "FeatureHelix + FeatureSweep"},
+        "fusion360": {"term": "Coil", "menu": "Create > Coil", "api": "CoilFeature"},
+        "cadquery": {"term": "helix wire + sweep", "api": "Wire.makeHelix() + sweep"},
+        "freecad": {"term": "Helix + Additive Pipe", "api": "Part::Helix + AdditivePipe"},
+        "onshape": {"term": "Helix", "api": "BTMFeature"}
+      },
+      "parameters": ["pitch", "height", "radius", "taper"]
+    },
+    {
+      "canonical": "offset_surface",
+      "category": "modify",
+      "description": "Create surface offset from existing face",
+      "platforms": {
+        "solidworks": {"term": "Offset Surface", "api": "FeatureOffsetSurface"},
+        "fusion360": {"term": "Offset Face", "menu": "Modify > Offset Face", "api": "OffsetFaceFeature"},
+        "cadquery": {"term": "shell (single face)", "api": "Workplane.shell()"},
+        "freecad": {"term": "Offset 3D Surface", "api": "Part::Offset3DSurface"},
+        "onshape": {"term": "Offset Surface", "api": "BTMFeature"}
+      },
+      "parameters": ["distance", "faces"]
+    },
+    {
+      "canonical": "boolean_union",
+      "category": "combine",
+      "description": "Combine two solid bodies",
+      "platforms": {
+        "solidworks": {"term": "Combine (Add)", "api": "FeatureCombine(type=Add)"},
+        "fusion360": {"term": "Combine (Join)", "api": "CombineFeature(operation=Join)"},
+        "autocad": {"term": "Union", "api": "acdb3dSolid.booleanOperation(Union)"},
+        "cadquery": {"term": "union", "api": "Workplane.union()"},
+        "freecad": {"term": "Boolean Union", "api": "Part::Cut"},
+        "onshape": {"term": "Boolean (Union)", "api": "BTMFeature"}
+      },
+      "parameters": ["body_a", "body_b"]
+    },
+    {
+      "canonical": "boolean_subtract",
+      "category": "combine",
+      "description": "Subtract one body from another",
+      "platforms": {
+        "solidworks": {"term": "Combine (Subtract)", "api": "FeatureCombine(type=Subtract)"},
+        "fusion360": {"term": "Combine (Cut)", "api": "CombineFeature(operation=Cut)"},
+        "autocad": {"term": "Subtract", "api": "acdb3dSolid.booleanOperation(Subtract)"},
+        "cadquery": {"term": "cut", "api": "Workplane.cut()"},
+        "freecad": {"term": "Boolean Cut", "api": "Part::Cut"},
+        "onshape": {"term": "Boolean (Subtract)", "api": "BTMFeature"}
+      },
+      "parameters": ["body_a", "body_b"]
+    },
+    {
+      "canonical": "boolean_intersect",
+      "category": "combine",
+      "description": "Keep only the intersection of two bodies",
+      "platforms": {
+        "solidworks": {"term": "Combine (Intersect)", "api": "FeatureCombine(type=Intersect)"},
+        "fusion360": {"term": "Combine (Intersect)", "api": "CombineFeature(operation=Intersect)"},
+        "autocad": {"term": "Intersect", "api": "acdb3dSolid.booleanOperation(Intersect)"},
+        "cadquery": {"term": "intersect", "api": "Workplane.intersect()"},
+        "freecad": {"term": "Boolean Intersection", "api": "Part::Common"},
+        "onshape": {"term": "Boolean (Intersect)", "api": "BTMFeature"}
+      },
+      "parameters": ["body_a", "body_b"]
+    }
+  ]
+}
