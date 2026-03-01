@@ -295,7 +295,7 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (124 exported + 67 unwired = 191 total .ts files)
+## 4. ENGINES (125 exported + 66 unwired = 191 total .ts files)
 ## Regenerated: SYS-MS5 audit (2026-02-28) — line counts verified from filesystem
 
 ### 4a. Calculation Engines (10 exported)
@@ -344,7 +344,7 @@ Health: prism_bridge→health
 - WorkCoordinateEngine.ts (227L) — Work coordinate system setup
 - CollisionEngine.ts (2089L) — Full collision analysis engine
 
-### 4e. CAD/CAM Engines (7 exported)
+### 4e. CAD/CAM Engines (8 exported)
 - CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
 - CAMKernelEngine.ts (874L) — CAM kernel operations
 - CAMIntegrationEngine.ts (1230L) — CAM system integration
@@ -352,6 +352,7 @@ Health: prism_bridge→health
 - FeatureRecognitionEngine.ts (247L) — Feature recognition from geometry
 - GeometryEngine.ts (224L) — Geometry operations facade
 - MeshEngine.ts (286L) — Mesh generation and operations
+- ToolAssemblyEngine.ts (182L) — Tool assembly management (holder + collet + tool, gauge length, stickout, runout)
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
@@ -450,15 +451,15 @@ Health: prism_bridge→health
 - UserAssistanceSkillsEngine.ts (541L) — User assistance skills
 - UserWorkflowSkillsEngine.ts (606L) — User workflow skills
 
-### 4o. Unwired Engines (66 on-disk, not in index.ts barrel)
+### 4o. Unwired Engines (66 on-disk, not in index.ts barrel export)
 Reserved for future wiring. Top 10 by size:
 - ProcessPlanEngine.ts (363L), FixtureDesignEngine.ts (334L), MasterIndexGenerator.ts (323L)
 - TroubleshootingEngine.ts (315L), DigitalTwinEngine.ts (311L), ToolSelectionEngine.ts (277L)
 - BatchOptimizationEngine.ts (241L), HarmonicAnalysisEngine.ts (234L), DampingOptimizationEngine.ts (234L)
 - ClampingSimEngine.ts (234L)
-Total unwired: 67 files, ~12,938 lines
+Total unwired: 66 files, ~12,938 lines
 
-### index.ts (1567L) — Barrel export file re-exporting 124 engines
+### index.ts (1567L) — Barrel export file re-exporting 125 engines
 
 ## 5. REGISTRIES (19 files)
 
@@ -569,7 +570,7 @@ Total skill files: 119
 ## 15. SUMMARY (Updated 2026-02-28, SYS-MS5 regeneration)
 
 - Dispatchers: 45 (1060 verified actions — QA-MS0 audit)
-- Engines: 124 active barrel exports + 67 unwired on disk = 191 total .ts files (SYS-MS5 audit)
+- Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
 - Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
 - Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
 - Services: 2 (TaskClaimService, RoadmapLoader) — multi-Claude coordination
@@ -583,7 +584,7 @@ Total skill files: 119
 - Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
 - Coordination files: TaskClaimService + 5 orchestration actions
 - Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
-- Roadmap: v5.3.0, 94 milestones, 66 complete
+- Roadmap: v5.3.0, 94 milestones, 67 complete
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |
