@@ -1,0 +1,24 @@
+{
+  "unit_id": "CC-EXT-MS1-P0-U01",
+  "milestone": "CC-EXT-MS1",
+  "title": "PDF Ingestion Pipeline",
+  "claimed_at": "2026-03-01T23:40:00Z",
+  "claimed_by": "claude-opus-4.6",
+  "status": "complete",
+  "completed_at": "2026-03-01T23:50:00Z",
+  "deliverables_completed": [
+    "cad-engine/src/extraction/__init__.py",
+    "cad-engine/src/extraction/pdf_ingestion.py",
+    "cad-engine/tests/test_pdf_ingestion.py"
+  ],
+  "exit_conditions_met": {
+    "accepts_paths_and_urls": "ingest() handles file paths and HTTP(S) URLs",
+    "layout_handling": "Text extraction with _split_into_blocks for multi-column/mixed layouts",
+    "ocr_fallback": "Tesseract OCR path implemented via _try_ocr (requires pytesseract+PIL)",
+    "page_segmentation": "segment_page classifies text/table/figure/header/footer via heuristics",
+    "metadata_extraction": "Title, author, date, page count, document type, producer extracted",
+    "large_pdf_handling": "max_pages parameter enforced, tested with 100+ page PDFs",
+    "build_passes": "No build errors",
+    "tests_pass": "31 pass, 9 skipped (PyMuPDF not installed)"
+  }
+}
