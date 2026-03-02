@@ -265,7 +265,7 @@ def extract_from_document(
             title=doc_title,
             transcript=ingest_result.text[:5000],
             ocr_text="",
-            vision_text="",
+            frame_analysis="",
         )
         primary_domain = domain_result.primary_domain
         domain_confidence = domain_result.confidence

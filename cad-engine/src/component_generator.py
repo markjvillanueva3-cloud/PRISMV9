@@ -142,8 +142,8 @@ def _generate_tribal_tip(
     mat_line = f'material_groups: {json.dumps(material_groups)}, ' if material_groups else ""
     ops_line = f'operation_types: {json.dumps(operation_types)}, ' if operation_types else ""
 
-    ts_body = body.replace('"', '\\"').replace("\n", " ")
-    ts_title = title.replace('"', '\\"')
+    ts_body = _escape_ts_string(body)
+    ts_title = _escape_ts_string(title)
 
     content = (
         f'  {{ id: "{tip_id}", '
@@ -190,7 +190,7 @@ def _generate_engine(
         input_fields.append(f"  {_to_camel(k)}: {ts_type};")
 
     input_interface = "\n".join(input_fields) if input_fields else "  // Add input fields based on domain"
-    ts_body = body.replace("`", "'")
+    ts_body = _escape_ts_string(body)
 
     content = textwrap.dedent(f"""\
         /**
@@ -324,8 +324,8 @@ def _generate_algorithm(
 
     validation_block = "\n".join(validations) if validations else "    // Add input validation"
 
-    ts_body = body.replace("`", "'").replace('"', '\\"')
-    ts_eq = equation.replace("`", "'").replace('"', '\\"')
+    ts_body = _escape_ts_string(body)
+    ts_eq = _escape_ts_string(equation)
 
     content = textwrap.dedent(f"""\
         /**
@@ -421,7 +421,7 @@ def _generate_hook(
     priority = cd.get("priority", "normal")
 
     hook_id = _to_kebab(spec.name)
-    ts_body = body.replace("`", "'").replace('"', '\\"')
+    ts_body = _escape_ts_string(body)
 
     content = textwrap.dedent(f"""\
         /**
@@ -811,6 +811,19 @@ def _generate_formula(
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _escape_ts_string(text: str) -> str:
+    """Escape text for safe embedding in a TypeScript double-quoted string.
+
+    Handles: backslashes (first!), double quotes, newlines, carriage returns, tabs.
+    """
+    text = text.replace("\\", "\\\\")   # Must be first
+    text = text.replace('"', '\\"')
+    text = text.replace("\n", " ")
+    text = text.replace("\r", "")
+    text = text.replace("\t", " ")
+    return text
+
 
 def _to_camel(text: str, lower_first: bool = False) -> str:
     """Convert text to camelCase or PascalCase."""
