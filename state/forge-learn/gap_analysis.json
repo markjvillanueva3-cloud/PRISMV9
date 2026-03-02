@@ -1,0 +1,140 @@
+{
+  "last_updated": "2026-03-01T23:50:00Z",
+  "analysis_version": "1.0.0",
+  "learning_status": {
+    "total_sources": 6,
+    "videos_processed": 2,
+    "documents_processed": 4,
+    "total_components": 160,
+    "components_by_type": {
+      "tribal_tip": 157,
+      "skill": 3,
+      "engine": 0,
+      "algorithm": 0,
+      "hook": 0,
+      "formula": 0
+    },
+    "domains_covered": {
+      "cam": 5,
+      "cad": 1,
+      "shop": 0,
+      "material": 0,
+      "safety": 0
+    },
+    "platforms_covered": ["Mastercam 2024", "hyperMILL"],
+    "strategy_db_status": "EMPTY",
+    "tool_rationale_kb_status": "NOT_CREATED",
+    "op_sequences_status": "NOT_CREATED"
+  },
+  "engine_gaps": [
+    {
+      "rank": 1,
+      "name": "GrindingSurfaceFinishEngine",
+      "domain": "grinding",
+      "description": "Surface grinding finish prediction — no engine computes expected Ra/Rz from wheel+material+params. GrindingForceEngine exists but only handles force/power.",
+      "evidence": "GrindingForceEngine covers force only. 3 catalogs available (Metalmorphosis, Cutting Tools Master). 0 learning sources for grinding.",
+      "priority": "CRITICAL",
+      "catalog_sources": ["Metalmorphosis-2021-FINAL-reduced-for-Web.pdf"],
+      "existing_engine": "GrindingForceEngine (partial)"
+    },
+    {
+      "rank": 2,
+      "name": "DrillCycleOptimizationEngine",
+      "domain": "drilling",
+      "description": "Peck drilling cycle optimization — drill cycle selection (standard/peck/gun), chip break parameters, dwell times. DrillBreakthroughForceEngine only handles exit force.",
+      "evidence": "DrillBreakthroughForceEngine exists but no cycle selection. 4 drilling catalogs available (GC Drilling, OSG, Holemaking, guhring). 0 learning sources for drilling.",
+      "priority": "HIGH",
+      "catalog_sources": ["GC_2023-2024_US_Drilling.pdf", "OSG.pdf", "Holemaking.pdf"],
+      "existing_engine": "DrillBreakthroughForceEngine (partial)"
+    },
+    {
+      "rank": 3,
+      "name": "ThreadMillingEngine",
+      "domain": "threading",
+      "description": "Thread milling parameter engine — thread mill vs tap selection, helix interpolation, radial engagement. ThreadCalculationEngine handles geometry but not thread milling CAM params.",
+      "evidence": "ThreadCalculationEngine + SinglePointThreadEngine exist but no thread milling. Threading catalog + EMUGE catalog available.",
+      "priority": "HIGH",
+      "catalog_sources": ["Threading 2018.1.pdf", "ZK12023_DEGB RevA EMUGE Katalog 160.pdf"],
+      "existing_engine": "ThreadCalculationEngine (geometry only)"
+    },
+    {
+      "rank": 4,
+      "name": "ToolCoatingSelectionEngine",
+      "domain": "tooling",
+      "description": "Coating selection for material/operation — TiAlN vs AlCrN vs TiN vs uncoated, temperature limits, friction coefficients.",
+      "evidence": "No coating engine exists. Multiple tool catalogs have coating data. Key for tool life optimization.",
+      "priority": "HIGH",
+      "catalog_sources": ["SGS_Global_Catalog_v26.1.pdf", "Solid End Mills.pdf", "guhring full catalog.pdf"],
+      "existing_engine": null
+    },
+    {
+      "rank": 5,
+      "name": "ToolGeometrySelectionEngine",
+      "domain": "tooling",
+      "description": "End mill geometry selection — flute count, helix angle, corner radius, variable helix. Currently no engine maps material+operation to optimal geometry.",
+      "evidence": "ToolAssemblyEngine handles holder geometry only. 10+ endmill catalogs available with geometry recommendations per material.",
+      "priority": "MEDIUM",
+      "catalog_sources": ["Solid End Mills.pdf", "Flash_Solid_catalog_INCH.pdf", "MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf"],
+      "existing_engine": "ToolAssemblyEngine (holder only)"
+    },
+    {
+      "rank": 6,
+      "name": "InsertGradeSelectionEngine",
+      "domain": "turning",
+      "description": "Insert grade selection for turning — map material class to ISO insert grade (P/M/K/N/S/H), substrate, coating. TurningForceEngine computes forces but no grade selection.",
+      "evidence": "3 turning catalogs available. TurningForceEngine exists but no grade/insert selection.",
+      "priority": "MEDIUM",
+      "catalog_sources": ["TURNING_CATALOG_PART 1.pdf", "GC_2023-2024_US_Turning-Grooving.pdf", "korloy turning.pdf"],
+      "existing_engine": "TurningForceEngine (force only)"
+    },
+    {
+      "rank": 7,
+      "name": "CoolantStrategyEngine",
+      "domain": "coolant",
+      "description": "Coolant strategy selection — flood vs MQL vs through-tool vs dry, pressure/flow recommendations by material+operation. CoolantValidationEngine validates but doesn't recommend.",
+      "evidence": "CoolantValidationEngine exists for validation. No recommendation engine. Shop practices have coolant rules but no structured engine.",
+      "priority": "MEDIUM",
+      "catalog_sources": [],
+      "existing_engine": "CoolantValidationEngine (validation only)"
+    }
+  ],
+  "algorithm_gaps": [
+    {
+      "rank": 1,
+      "name": "ToolSelectionAlgorithm",
+      "description": "Material+operation -> optimal tool geometry+coating+grade. No algorithm maps the full selection chain.",
+      "evidence": "Catalogs have per-material recommendations. 8 tips reference tool selection.",
+      "priority": "HIGH"
+    },
+    {
+      "rank": 2,
+      "name": "ProcessPlanningAlgorithm",
+      "description": "Feature list -> operation sequence. No algorithm generates an operation order from part features.",
+      "evidence": "Operation sequences field exists in strategy_db but is empty.",
+      "priority": "MEDIUM"
+    }
+  ],
+  "integration_gaps": [
+    {
+      "type": "strategy_db_empty",
+      "description": "Strategy DB has 0 entries. Strategy recommender has no data to rank. Catalogs could populate it.",
+      "priority": "CRITICAL"
+    },
+    {
+      "type": "tool_rationale_kb_missing",
+      "description": "Tool rationale KB file doesn't exist. No structured tool selection rationale captured.",
+      "priority": "HIGH"
+    },
+    {
+      "type": "no_shop_learning",
+      "description": "0 learning sources processed for SHOP domain. 36 practices exist from seed data only.",
+      "priority": "MEDIUM"
+    },
+    {
+      "type": "no_material_learning",
+      "description": "0 learning sources processed for material-specific knowledge beyond seed tips.",
+      "priority": "MEDIUM"
+    }
+  ],
+  "next_priority": "Populate strategy_db.json by running /pdf-learn on Sandvik (GC_2023-2024_US_Milling.pdf) — the single highest-value catalog for speeds/feeds consensus data."
+}
