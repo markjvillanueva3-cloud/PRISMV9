@@ -191,8 +191,8 @@ describe("CollisionDetectionEngine (SAFETY)", () => {
       { from: { x: 100, y: 0, z: 50 }, to: { x: 100, y: 0, z: -5 }, type: "rapid" as const },
     ];
     const check = collisionDetectionEngine.checkRapids(moves, 5);
-    // Move #2 triggers both below-safeZ and large-descent (dz=-55) rules
-    expect(check.unsafe_rapids).toBe(2);
+    // Move #2 triggers below-safeZ (large-descent deduped since already below safeZ)
+    expect(check.unsafe_rapids).toBe(1);
     expect(check.safe).toBe(false);
   });
 });

@@ -110,12 +110,12 @@ export function registerSafetyDispatcher(server: any): void {
         }
         // Auto-populate tool geometry defaults
         if (params.tool) {
-          if (!params.tool.shankDiameter) params.tool.shankDiameter = params.tool.diameter;
-          if (!params.tool.fluteLength) params.tool.fluteLength = params.tool.diameter * 2.5;
-          if (!params.tool.overallLength) params.tool.overallLength = (params.tool.stickout || params.tool.diameter * 4) * 1.5;
-          if (!params.tool.stickout) params.tool.stickout = params.tool.fluteLength * 1.5;
-          if (!params.tool.numberOfFlutes) params.tool.numberOfFlutes = 4;
-          if (!params.tool.coreRatio) params.tool.coreRatio = 0.6;
+          if (params.tool.shankDiameter == null) params.tool.shankDiameter = params.tool.diameter;
+          if (params.tool.fluteLength == null) params.tool.fluteLength = params.tool.diameter * 2.5;
+          if (params.tool.stickout == null) params.tool.stickout = params.tool.fluteLength * 1.5;
+          if (params.tool.overallLength == null) params.tool.overallLength = params.tool.stickout * 1.5;
+          if (params.tool.numberOfFlutes == null) params.tool.numberOfFlutes = 4;
+          if (params.tool.coreRatio == null) params.tool.coreRatio = 0.6;
         }
         // Auto-populate forces from cutting params if not provided
         if (!params.forces && params.cutting_force) {

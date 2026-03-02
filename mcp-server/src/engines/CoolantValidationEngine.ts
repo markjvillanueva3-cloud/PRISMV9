@@ -459,6 +459,11 @@ class CoolantValidationEngine {
     const recommendations: string[] = [];
 
     // Calculate L/D ratio
+    if (!params.toolDiameter || params.toolDiameter <= 0) {
+      return { ldRatio: 0, evacuationType: 'STANDARD' as const, minPressureRequired: 0,
+               minFlowRequired: 0, isAdequate: false,
+               warnings: ['Invalid tool diameter'], recommendations: [] };
+    }
     const holeDepth = params.holeDepth || params.toolDiameter * 2;
     const ldRatio = holeDepth / params.toolDiameter;
 
@@ -684,8 +689,9 @@ class CoolantValidationEngine {
     if (params.holeDepth && params.holeDepth / params.toolDiameter > 5) {
       recommendedDelivery = 'THROUGH_SPINDLE';
     }
-    if (params.operation === 'MILLING_HSM' && system.delivery === 'FLOOD') {
-      recommendedDelivery = 'AIR_BLAST'; // HSM often better with air
+    if (params.operation === 'MILLING_HSM' && system.delivery === 'FLOOD' &&
+        params.materialType !== 'TITANIUM' && params.materialType !== 'SUPERALLOY') {
+      recommendedDelivery = 'AIR_BLAST'; // HSM often better with air (except fire-risk materials)
     }
 
     // Recommend coolant type

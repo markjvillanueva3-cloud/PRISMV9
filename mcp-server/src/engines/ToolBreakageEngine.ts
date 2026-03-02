@@ -440,7 +440,7 @@ class ToolBreakageEngine {
       requiredSF = SAFETY_FACTORS.STRESS_INTERRUPTED;
     }
 
-    const safetyFactor = props.yieldStrength / vonMisesStress;
+    const safetyFactor = vonMisesStress > 0 ? props.yieldStrength / vonMisesStress : 999;
     const isSafe = safetyFactor >= requiredSF;
 
     // Warnings
@@ -505,6 +505,11 @@ class ToolBreakageEngine {
     // Effective diameter for stiffness (use shank for most of length)
     const d = tool.shankDiameter;
     const L = tool.stickout;
+    if (d <= 0 || L <= 0) {
+      return { maxDeflection: Infinity, deflectionAtTip: Infinity, deflectionRatio: Infinity,
+        allowableDeflection: 0, isSafe: false, safetyFactor: 0, surfaceFinishImpact: 'Invalid',
+        warnings: ['Shank diameter or stickout is 0 — tool geometry invalid'] } as any;
+    }
     const E = props.elasticModulus * 1000; // Convert GPa to MPa
 
     // Resultant radial force
@@ -527,7 +532,7 @@ class ToolBreakageEngine {
       allowableDeflection = Math.min(allowableDeflection, tolerance * 0.3);
     }
 
-    const safetyFactor = allowableDeflection / deflection;
+    const safetyFactor = deflection > 0 ? allowableDeflection / deflection : 999;
     const isSafe = deflection <= allowableDeflection;
 
     // Surface finish impact assessment
@@ -805,6 +810,12 @@ class ToolBreakageEngine {
       case 'SUPERALLOY': materialFactor = 0.5; break;
     }
 
+    // Guard against invalid tool geometry
+    if (tool.diameter <= 0 || tool.stickout <= 0) {
+      return { maxAxialDepth: 0, maxRadialDepth: 0, maxFeedPerTooth: 0,
+        maxCuttingSpeed: 0, maxSpindleSpeed: 0, maxTorque: 0, maxForce: 0, derateFactor: 0 } as any;
+    }
+
     // L/D derating
     const LD = tool.stickout / tool.diameter;
     let LDDerating = 1.0;
@@ -1036,8 +1047,14 @@ class ToolBreakageEngine {
     numberOfFlutes: number
   ): CuttingForces {
     // Average chip thickness
+    if (toolDiameter <= 0 || numberOfFlutes <= 0) {
+      return { Fc: 0, Ff: 0, Fp: 0, torque: 0 };
+    }
     const h = conditions.feedPerTooth * Math.sqrt(conditions.radialDepth / toolDiameter);
-    
+    if (h <= 1e-9) {
+      return { Fc: 0, Ff: 0, Fp: 0, torque: 0 };
+    }
+
     // Specific cutting force
     const kc = kc1_1 * Math.pow(h, -mc);
     

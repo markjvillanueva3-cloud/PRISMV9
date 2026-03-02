@@ -188,9 +188,9 @@ export class CollisionDetectionEngine {
         });
       }
 
-      // Rapid move with large Z-negative change (potential crash)
+      // Rapid move with large Z-negative change (potential crash) — only if not already flagged
       const dz = move.to.z - move.from.z;
-      if (dz < -50) {
+      if (dz < -50 && move.to.z >= safeZ) {
         unsafe.push({
           move_index: i,
           issue: `Large rapid descent: ${Math.abs(dz).toFixed(1)}mm — verify clearance`,

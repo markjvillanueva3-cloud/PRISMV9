@@ -464,7 +464,7 @@ class SpindleProtectionEngine {
 
     // Calculate margins
     const torqueMargin = availableTorque - requiredTorque;
-    const loadPercent = (requiredTorque / availableTorque) * 100;
+    const loadPercent = availableTorque > 0 ? (requiredTorque / availableTorque) * 100 : (requiredTorque > 0 ? 999 : 0);
 
     // Safety checks
     const isWithinContinuous = requiredTorque <= availableTorque;
@@ -555,7 +555,7 @@ class SpindleProtectionEngine {
 
     // Calculate margins
     const powerMargin = availablePower - requiredPower;
-    const loadPercent = (requiredPower / availablePower) * 100;
+    const loadPercent = availablePower > 0 ? (requiredPower / availablePower) * 100 : (requiredPower > 0 ? 999 : 0);
 
     // Safety checks
     const isWithinContinuous = requiredPower <= availablePower;
@@ -841,7 +841,9 @@ class SpindleProtectionEngine {
       commandedSpeed: requirements.targetSpeed,
       currentTorque: requirements.requiredTorque,
       currentPower: requirements.requiredPower,
-      loadPercent: 0,
+      loadPercent: spindle.ratedTorque > 0
+        ? Math.max((requirements.requiredTorque / spindle.ratedTorque) * 100, (requirements.requiredPower / spindle.ratedPower) * 100)
+        : 0,
       temperature: spindle.ambientTemperature || 30,
       runTime: 0
     };
@@ -980,6 +982,7 @@ class SpindleProtectionEngine {
    */
   calculateTorque(power: number, speed: number): number {
     // T = P × 9549 / n (Nm)
+    if (speed <= 0) return 0;
     return (power * 9549) / speed;
   }
 
