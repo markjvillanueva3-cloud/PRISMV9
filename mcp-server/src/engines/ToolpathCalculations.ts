@@ -326,8 +326,9 @@ export function calculateEngagementAngle(
   }
   
   // Chip thickness calculations
-  // h_max = fz × sin(engagement_angle/2)
-  const max_chip_thickness = feed_per_tooth * Math.sin(half_angle_rad);
+  // h_max = fz × sin(arc_of_engagement/2) — use clamped arc angle, not raw half_angle_rad
+  const engagement_half_rad = (arc_of_engagement / 2) * Math.PI / 180;
+  const max_chip_thickness = feed_per_tooth * Math.sin(engagement_half_rad);
   
   // Average chip thickness: h_avg = fz × ae / (R × φ_rad)
   // Ref: Altintas "Manufacturing Automation" Eq 2.22 — integral-based mean
@@ -429,7 +430,7 @@ export function calculateTrochoidalParams(
   // Calculate MRR — in trochoidal, low ae means ~1 tooth engaged at a time
   // Effective MRR = RPM × fz × ap × ae / 1000 [cm³/min]
   // Ref: Sandvik Coromant "Modern Metal Cutting" Ch.9 — trochoidal strategies
-  const mrr = (spindle_speed * feed_per_tooth * axial_depth * trochoidal_width) / 1000;
+  const mrr = (spindle_speed * feed_per_tooth * number_of_teeth * axial_depth * trochoidal_width) / 1000;
   
   // Maximum engagement angle from ae — corrected for trochoidal path curvature
   // In trochoidal milling, the tool follows a curved path which reduces effective engagement
@@ -590,8 +591,8 @@ export function calculateScallopHeight(
   // Number of passes required
   const passes_required = Math.ceil(surface_width / stepover);
   
-  // Total toolpath length (simplified - assumes parallel passes)
-  const pass_length = surface_width * 1.1; // 10% overlap
+  // Total toolpath length — assumes square surface (no surface_length param available)
+  const pass_length = surface_width * 1.1; // uses surface_width as proxy for pass length
   const total_toolpath_length = passes_required * pass_length;
   
   // Machining time
@@ -887,16 +888,14 @@ export function calculateChipThinning(
   // Engagement angle (radians)
   const engagement_angle = Math.acos(1 - (2 * radial_depth / tool_diameter));
   
-  // Average chip thickness
-  const hex = programmed_fz * Math.sin(engagement_angle) * (180 / Math.PI) / (engagement_angle * 180 / Math.PI);
-  
   // True hex using radial chip thinning formula
-  // hex = fz × (ae/D) when ae < D/2, simplified
-  const hex_actual = programmed_fz * Math.sqrt(2 * radial_depth / tool_diameter - Math.pow(radial_depth / tool_diameter, 2));
-  
+  const sqrt_arg = 2 * ae_ratio - ae_ratio * ae_ratio;
+  const denom = sqrt_arg > 1e-6 ? Math.sqrt(sqrt_arg) : 0;
+  const hex_actual = programmed_fz * denom;
+
   // Compensated fz to achieve target hex = programmed_fz
-  const fz_compensated = ae_ratio < 0.5 
-    ? programmed_fz / Math.sqrt(2 * ae_ratio - ae_ratio * ae_ratio)
+  const fz_compensated = (ae_ratio < 0.5 && denom > 1e-6)
+    ? programmed_fz / denom
     : programmed_fz;
   
   // Compensated feed rate
@@ -964,7 +963,8 @@ export function calculateMultiPassStrategy(
   const efficiency = 0.8;
   // Solve for max ap: ap_max = P × 60000 × eff / (kc1_1 × ae × fz × z × n)
   const z = 4; // assume 4 flutes
-  const ap_max_power = (machine_power_kw * 60000 * efficiency) / (material_kc1_1 * rough_ae * fz_rough * z * rough_rpm / 1000);
+  const power_denom = material_kc1_1 * rough_ae * fz_rough * z * rough_rpm / 1000;
+  const ap_max_power = power_denom > 0 ? (machine_power_kw * 60000 * efficiency) / power_denom : tool_diameter * 1.5;
   const ap_max = Math.min(ap_max_power, tool_diameter * 1.5, rough_stock);
   
   // Number of roughing passes

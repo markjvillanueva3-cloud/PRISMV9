@@ -425,7 +425,7 @@ export function calculateDrillingForce(
       confidence: 0.75,
       source: "drilling_model"
     },
-    force_ratios: { Ff_over_Fc: Ff_thrust / Fc_tangential, Fp_over_Fc: 0, iso_group: "drilling" },
+    force_ratios: { Ff_over_Fc: Fc_tangential > 0 ? Ff_thrust / Fc_tangential : 0, Fp_over_Fc: 0, iso_group: "drilling" },
     calculation_method: "Drilling (Sandvik/Shaw: M=kc×D²×fn/8000, Ff=0.5×kc×D×fn×sin(κr)×chisel)"
   };
 }
@@ -455,6 +455,7 @@ export function calculateTaylorToolLife(
   }
   
   const { C, n } = coefficients;
+  if (n <= 0) throw new Error(`Taylor exponent n must be > 0 (got ${n})`);
   let tool_life = Math.pow(C / cutting_speed, 1 / n);
   
   // Extended corrections
@@ -521,6 +522,7 @@ export function calculateJohnsonCookStress(
   
   let thermal_term = 1.0;
   if (temperature > T_ref) {
+    if (T_melt <= T_ref) throw new Error(`T_melt (${T_melt}) must be > T_ref (${T_ref})`);
     const T_star = Math.min((temperature - T_ref) / (T_melt - T_ref), 0.999);
     thermal_term = 1 - Math.pow(T_star, m);
     if (temperature > T_melt * 0.9) {
@@ -562,7 +564,7 @@ export function calculateSurfaceFinish(
   // regardless of radial engagement. Standard Brammertz formula: Ra = f^2/(32*r)
   // applies to both turning and milling. The ae/D ratio affects scallop height
   // (stepover-direction roughness), not feed-direction Ra.
-  Ra_theoretical = (feed * feed) / (32 * nose_radius);
+  Ra_theoretical = nose_radius > 0 ? (feed * feed) / (32 * nose_radius) : 0;
   Ra_theoretical *= 1000; // to μm
   
   const process_factor = 2.0;
@@ -799,9 +801,11 @@ export function calculateSpindlePower(
   tool_diameter: number,    // mm (for RPM derivation)
   efficiency: number = 0.80 // machine spindle efficiency (0.7-0.9 typical)
 ): any {
-  if (!cutting_force || !cutting_speed) {
+  if (cutting_force == null || cutting_speed == null || isNaN(cutting_force) || isNaN(cutting_speed)) {
     throw new Error("cutting_force and cutting_speed are required");
   }
+  if (cutting_force < 0) throw new Error(`cutting_force must be >= 0 (got ${cutting_force})`);
+  if (cutting_speed < 0) throw new Error(`cutting_speed must be >= 0 (got ${cutting_speed})`);
   if (efficiency < 0.1 || efficiency > 1.0) {
     throw new Error(`Invalid efficiency ${efficiency}: must be 0.1-1.0`);
   }
@@ -854,7 +858,7 @@ export function calculateChipLoad(
     const engagement_ratio = radial_depth / tool_diameter;
     const phi_e = Math.acos(Math.max(-1, 1 - 2 * engagement_ratio));
     hex = phi_e > 0.001 ? fz * (1 - Math.cos(phi_e)) / phi_e : fz;
-    chip_thinning_factor = fz / hex;
+    chip_thinning_factor = hex > 0 ? fz / hex : 1.0;
     // If hex < fz, recommend compensated feed
     fz_effective = fz * chip_thinning_factor;
   }
@@ -888,14 +892,8 @@ export function calculateTorque(
     throw new Error("cutting_force and tool_diameter are required");
   }
 
-  let torque_nm: number;
-  if (operation === "turning") {
-    // For turning: torque at the workpiece = Fc × (workpiece_diameter/2) / 1000
-    torque_nm = (cutting_force * (tool_diameter / 2)) / 1000;
-  } else {
-    // For milling: torque at spindle = Fc × (tool_diameter/2) / 1000
-    torque_nm = (cutting_force * (tool_diameter / 2)) / 1000;
-  }
+  // M = Fc × (D/2) / 1000 — for turning, caller passes workpiece diameter as tool_diameter
+  const torque_nm = (cutting_force * (tool_diameter / 2)) / 1000;
 
   const torque_ft_lbs = torque_nm * 0.7376;
 
@@ -952,7 +950,7 @@ export function calculateProductivityMetrics(
   // Cost analysis
   const cost_per_min_cutting = machine_rate;
   const cost_per_tool_change = machine_rate * 1.0 + tool_cost; // 1 min tool change assumed
-  const cost_per_mm3 = (cost_per_min_cutting + cost_per_tool_change / tool_life_min) / mrr;
+  const cost_per_mm3 = mrr > 0 ? (cost_per_min_cutting + cost_per_tool_change / tool_life_min) / mrr : 0;
   const cost_per_cm3 = cost_per_mm3 * 1000;
 
   return {

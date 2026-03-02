@@ -292,9 +292,9 @@ export function calculateToolDeflection(
   // Static deflection: δ = F × L³ / (3 × E × I)
   const static_deflection = (cutting_force * Math.pow(overhang_length, 3)) / (3 * E * I);
   
-  // Dynamic amplification factor (assume Q ≈ 20 for typical setup)
-  const Q_factor = 20;
-  const dynamic_factor = 1.5; // Conservative estimate
+  // Dynamic amplification factor — use 1/2ζ estimate (Q = 1/(2ζ) ≈ 20 for ζ=0.025)
+  // Clamp to conservative 1.5 (sub-resonant operation assumed)
+  const dynamic_factor = Math.min(1 / (2 * 0.025), 1.5);
   const dynamic_deflection = static_deflection * dynamic_factor;
   
   // Surface error includes deflection and runout
@@ -471,7 +471,7 @@ export function calculateMinimumCostSpeed(
   let cost_per_part: number | undefined;
   let tool_changes: number | undefined;
   
-  if (volume_to_remove && mrr_at_ref) {
+  if (volume_to_remove != null && volume_to_remove > 0 && mrr_at_ref != null && mrr_at_ref > 0) {
     // Scale MRR with speed (simplified linear scaling)
     const mrr_at_opt = mrr_at_ref * (optimal_speed / 100); // Assuming ref is 100 m/min
     const machining_time = volume_to_remove / mrr_at_opt;
@@ -562,6 +562,7 @@ export function optimizeCuttingParameters(
   
   let best_score = -Infinity;
   let best_params = { speed: 150, feed: 0.1, depth: 2 };
+  let found_feasible = false;
   let iterations = 0;
   
   // Grid search (simplified - production would use PSO or GA)
@@ -584,7 +585,7 @@ export function optimizeCuttingParameters(
         const power = (force * speed) / 60000;
         
         // Surface finish (simplified)
-        const Ra = (feed * feed) / (32 * 0.8) * 1000 * 2; // μm
+        const Ra = (feed * feed) / (32 * 0.8) * 1000; // μm (Brammertz formula)
         
         // Check constraints
         let feasible = true;
@@ -607,6 +608,7 @@ export function optimizeCuttingParameters(
         if (score > best_score) {
           best_score = score;
           best_params = { speed, feed, depth };
+          found_feasible = true;
         }
       }
     }
@@ -621,7 +623,7 @@ export function optimizeCuttingParameters(
   const kc = material_kc * Math.pow(chip_thickness, -0.25);
   const final_force = kc * best_params.depth * chip_thickness;
   const final_power = (final_force * best_params.speed) / 60000;
-  const final_Ra = (best_params.feed * best_params.feed) / (32 * 0.8) * 1000 * 2;
+  const final_Ra = (best_params.feed * best_params.feed) / (32 * 0.8) * 1000;
   const cost_per_part = 1 / final_tool_life * 50; // Simplified cost
   
   log.debug(`[MultiOpt] Best: Vc=${best_params.speed}, fz=${best_params.feed}, ap=${best_params.depth}`);
@@ -637,8 +639,8 @@ export function optimizeCuttingParameters(
       surface_finish: Math.round(final_Ra * 100) / 100,
       power: Math.round(final_power * 100) / 100
     },
-    pareto_optimal: true,
-    constraints_satisfied: true,
+    pareto_optimal: found_feasible,
+    constraints_satisfied: found_feasible,
     iterations,
     warnings
   };
