@@ -56,6 +56,10 @@ import type { RoughnessScale } from "../../engines/RoughnessConversionEngine.js"
 import { peckDrillingOptimizationEngine } from "../../engines/PeckDrillingOptimizationEngine.js";
 import type { DrillType } from "../../engines/PeckDrillingOptimizationEngine.js";
 import type { EnergySource } from "../../engines/SpecificCuttingEnergyEngine.js";
+import { drillCycleOptimizationEngine } from "../../engines/DrillCycleOptimizationEngine.js";
+import type { MaterialChipBehavior, CoolantDelivery } from "../../engines/DrillCycleOptimizationEngine.js";
+import { toolCoatingSelectionEngine } from "../../engines/ToolCoatingSelectionEngine.js";
+import type { MaterialClass, OperationType, CoolantStrategy } from "../../engines/ToolCoatingSelectionEngine.js";
 
 import {
   calculateStabilityLobes,
@@ -256,6 +260,10 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { from: result.input_scale, to: result.output_scale, value: result.output_value, n_grade: result.n_grade_label, process: result.typical_process, unc_pct: result.uncertainty_pct };
     case "peck_drill_optimize":
       return { ld_ratio: result.ld_ratio, strategy: result.peck_strategy, peck_mm: result.peck_depth_mm, pecks: result.num_pecks, feed_adj: result.adjusted_feed_mm_rev, time_s: result.estimated_cycle_time_s };
+    case "drill_cycle_optimize":
+      return { cycle: result.recommended_cycle, ld: result.depth_to_diameter_ratio, peck_mm: result.peck_depth_mm?.value, pecks: result.number_of_pecks, dwell_s: result.dwell_time_s?.value, time_s: result.estimated_cycle_time_s?.value, chip_risk: result.chip_evacuation_risk, safe: result.is_safe };
+    case "coating_select":
+      return { coating: result.primary_recommendation, score: result.suitability_score?.value, max_temp_C: result.max_service_temperature_C?.value, friction: result.friction_coefficient?.value, speed_mult: result.speed_multiplier?.value, coolant: result.coolant_recommendation, safe: result.is_safe };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -303,7 +311,8 @@ const ACTIONS = [
   "bore_finishing", "finishing_pass", "turning_force",
   "tapping_torque", "power_budget",
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
-  "roughness_convert", "peck_drill_optimize"
+  "roughness_convert", "peck_drill_optimize",
+  "drill_cycle_optimize", "coating_select"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1646,6 +1655,39 @@ export function registerCalcDispatcher(server: any): void {
               cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc || 80,
               feed_per_rev_mm: params.feed_per_rev || params.feed || params.fn || 0.15,
               coolant_through_spindle: params.coolant_through_spindle ?? params.tsc ?? false,
+            });
+            break;
+          }
+
+          case "drill_cycle_optimize": {
+            result = drillCycleOptimizationEngine.calculate({
+              drill_diameter_mm: params.drill_diameter || params.diameter || params.D || 10,
+              hole_depth_mm: params.hole_depth || params.depth || params.L || 30,
+              material_chip_behavior: (params.chip_behavior || params.material_chip_behavior || "moderate") as MaterialChipBehavior,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hardness,
+              feed_mm_rev: params.feed_per_rev || params.feed || params.fn || 0.15,
+              spindle_rpm: params.spindle_rpm || params.rpm || params.N || 3000,
+              is_through_hole: params.is_through_hole ?? params.through ?? true,
+              coolant_delivery: (params.coolant_delivery || params.coolant || "flood_external") as CoolantDelivery,
+              has_pilot_hole: params.has_pilot_hole ?? params.pilot ?? false,
+              is_interrupted_cut: params.is_interrupted_cut ?? params.interrupted ?? false,
+              minimum_wall_thickness_mm: params.min_wall_mm || params.wall_thickness,
+              machine_rapid_mm_min: params.rapid_rate || params.rapid,
+              spot_drill_used: params.spot_drill ?? true,
+            });
+            break;
+          }
+
+          case "coating_select": {
+            result = toolCoatingSelectionEngine.calculate({
+              material_class: (params.material_class || params.material || "carbon_steel") as MaterialClass,
+              operation_type: (params.operation_type || params.operation || "roughing") as OperationType,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc,
+              coolant_strategy: params.coolant_strategy as CoolantStrategy | undefined,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hardness,
+              tool_substrate: params.tool_substrate || params.substrate,
+              is_interrupted_cut: params.is_interrupted_cut ?? params.interrupted,
+              requires_re_grind: params.requires_re_grind ?? params.regrind,
             });
             break;
           }

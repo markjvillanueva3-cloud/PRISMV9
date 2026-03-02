@@ -1594,6 +1594,31 @@ export {
   type BurrRisk,
 } from "./DrillBreakthroughForceEngine.js";
 
+export {
+  grindingSurfaceFinishEngine,
+  GrindingSurfaceFinishEngine,
+  type GrindingSurfaceFinishInput,
+  type GrindingSurfaceFinishResult,
+} from "./GrindingSurfaceFinishEngine.js";
+
+export {
+  drillCycleOptimizationEngine,
+  DrillCycleOptimizationEngine,
+  type DrillCycleInput,
+  type DrillCycleResult,
+  type DrillCycleType,
+  type MaterialChipBehavior,
+} from "./DrillCycleOptimizationEngine.js";
+
+export {
+  toolCoatingSelectionEngine,
+  ToolCoatingSelectionEngine,
+  type ToolCoatingInput,
+  type ToolCoatingResult,
+  type CoatingType,
+  type MaterialClass,
+} from "./ToolCoatingSelectionEngine.js";
+
 // Wire existing RegenerativeChatterPredictor (was on-disk but unexported)
 export {
   regenerativeChatterPredictor,

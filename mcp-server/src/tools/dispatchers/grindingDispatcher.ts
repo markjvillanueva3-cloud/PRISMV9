@@ -12,9 +12,11 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { grindingForceEngine } from "../../engines/GrindingForceEngine.js";
 import type { GrindingMode, CoolantType } from "../../engines/GrindingForceEngine.js";
+import { grindingSurfaceFinishEngine } from "../../engines/GrindingSurfaceFinishEngine.js";
+import type { GrindingMode as SFGrindingMode, DressingCondition } from "../../engines/GrindingSurfaceFinishEngine.js";
 
 const ACTIONS = [
-  "wheel_select", "dress_params", "burn_threshold", "surface_integrity", "grinding_force",
+  "wheel_select", "dress_params", "burn_threshold", "surface_integrity", "grinding_force", "surface_finish_predict",
 ] as const;
 
 // Grinding wheel bond/abrasive constants
@@ -144,6 +146,27 @@ Actions: ${ACTIONS.join(", ")}.`,
               grain_radius_um: params.grain_radius_um,
             });
             result = gfResult;
+            break;
+          }
+          case "surface_finish_predict": {
+            const sfResult = grindingSurfaceFinishEngine.calculate({
+              wheel_diameter_mm: params.wheel_diameter_mm || 200,
+              wheel_speed_m_s: params.wheel_speed_m_s || 30,
+              work_speed_m_min: params.work_speed_m_min || 15,
+              depth_of_cut_mm: params.depth_of_cut_mm || 0.02,
+              width_of_cut_mm: params.width_of_cut_mm || 20,
+              grinding_mode: (params.grinding_mode || "surface") as SFGrindingMode,
+              workpiece_diameter_mm: params.workpiece_diameter_mm,
+              grain_size_mesh: params.grain_size_mesh || 60,
+              grain_density_per_mm2: params.grain_density,
+              dressing_condition: (params.dressing_condition || "medium") as DressingCondition,
+              dressing_overlap_ratio: params.dressing_overlap_ratio,
+              spark_out_passes: params.spark_out_passes,
+              coolant_type: (params.coolant_type || "flood") as CoolantType,
+              workpiece_hardness_hrc: params.hardness_hrc,
+              target_Ra_um: params.target_Ra_um,
+            });
+            result = sfResult;
             break;
           }
           default:

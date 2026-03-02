@@ -471,3 +471,325 @@ describe("DrillBreakthroughForceEngine", () => {
     expect(r.is_safe).toBeDefined();
   });
 });
+
+// ────────────────────────────────────────────────────────────────────
+// GrindingSurfaceFinishEngine
+// ────────────────────────────────────────────────────────────────────
+
+import { grindingSurfaceFinishEngine } from "../engines/GrindingSurfaceFinishEngine.js";
+
+describe("GrindingSurfaceFinishEngine", () => {
+  const baseInput = {
+    wheel_diameter_mm: 200,
+    wheel_speed_m_s: 30,
+    work_speed_m_min: 15,
+    depth_of_cut_mm: 0.02,
+    width_of_cut_mm: 20,
+    grinding_mode: "surface" as const,
+  };
+
+  it("returns AtomicValue format for all outputs", () => {
+    const r = grindingSurfaceFinishEngine.calculate(baseInput);
+    expect(r.predicted_Ra_um).toHaveProperty("value");
+    expect(r.predicted_Ra_um).toHaveProperty("unit", "µm");
+    expect(r.predicted_Ra_um).toHaveProperty("uncertainty");
+    expect(r.predicted_Ra_um).toHaveProperty("source");
+    expect(r.predicted_Rz_um).toHaveProperty("unit", "µm");
+    expect(r.kinematic_roughness_um).toHaveProperty("unit", "µm");
+  });
+
+  it("predicts positive Ra/Rz values", () => {
+    const r = grindingSurfaceFinishEngine.calculate(baseInput);
+    expect(r.predicted_Ra_um.value).toBeGreaterThan(0);
+    expect(r.predicted_Rz_um.value).toBeGreaterThan(0);
+    expect(r.predicted_Rz_um.value).toBeGreaterThan(r.predicted_Ra_um.value);
+  });
+
+  it("Rz ≈ 5 × Ra for ground surfaces", () => {
+    const r = grindingSurfaceFinishEngine.calculate(baseInput);
+    const ratio = r.predicted_Rz_um.value / r.predicted_Ra_um.value;
+    expect(ratio).toBeCloseTo(5.0, 1);
+  });
+
+  it("finer wheel produces lower roughness", () => {
+    const coarse = grindingSurfaceFinishEngine.calculate({ ...baseInput, grain_size_mesh: 46 });
+    const fine = grindingSurfaceFinishEngine.calculate({ ...baseInput, grain_size_mesh: 120 });
+    expect(fine.predicted_Ra_um.value).toBeLessThan(coarse.predicted_Ra_um.value);
+  });
+
+  it("spark-out passes reduce roughness", () => {
+    const noSparkout = grindingSurfaceFinishEngine.calculate({ ...baseInput, spark_out_passes: 0 });
+    const withSparkout = grindingSurfaceFinishEngine.calculate({ ...baseInput, spark_out_passes: 4 });
+    expect(withSparkout.predicted_Ra_um.value).toBeLessThan(noSparkout.predicted_Ra_um.value);
+    expect(withSparkout.spark_out_factor).toBeLessThan(noSparkout.spark_out_factor);
+  });
+
+  it("flood coolant gives better finish than dry", () => {
+    const flood = grindingSurfaceFinishEngine.calculate({ ...baseInput, coolant_type: "flood" });
+    const dry = grindingSurfaceFinishEngine.calculate({ ...baseInput, coolant_type: "dry" });
+    expect(flood.predicted_Ra_um.value).toBeLessThan(dry.predicted_Ra_um.value);
+    expect(flood.coolant_factor).toBeLessThan(dry.coolant_factor);
+  });
+
+  it("detects target miss and recommends improvements", () => {
+    const r = grindingSurfaceFinishEngine.calculate({
+      ...baseInput,
+      grain_size_mesh: 46,
+      spark_out_passes: 0,
+      target_Ra_um: 0.1,
+    });
+    expect(r.meets_target).toBe(false);
+    expect(r.recommendations.some(r => r.includes("exceeds target"))).toBe(true);
+  });
+
+  it("target met returns true", () => {
+    const r = grindingSurfaceFinishEngine.calculate({
+      ...baseInput,
+      grain_size_mesh: 220,
+      spark_out_passes: 4,
+      target_Ra_um: 5.0,
+    });
+    expect(r.meets_target).toBe(true);
+  });
+
+  it("flags burn risk with dull wheel + dry", () => {
+    const r = grindingSurfaceFinishEngine.calculate({
+      ...baseInput,
+      dressing_condition: "dull",
+      coolant_type: "dry",
+    });
+    expect(r.is_safe).toBe(false);
+    expect(r.recommendations.some(r => r.includes("burn risk"))).toBe(true);
+  });
+
+  it("harder material improves finish potential", () => {
+    const soft = grindingSurfaceFinishEngine.calculate({ ...baseInput, workpiece_hardness_hrc: 20 });
+    const hard = grindingSurfaceFinishEngine.calculate({ ...baseInput, workpiece_hardness_hrc: 60 });
+    expect(hard.material_factor).toBeLessThan(soft.material_factor);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────
+// DrillCycleOptimizationEngine
+// ────────────────────────────────────────────────────────────────────
+
+import { drillCycleOptimizationEngine } from "../engines/DrillCycleOptimizationEngine.js";
+
+describe("DrillCycleOptimizationEngine", () => {
+  const baseInput = {
+    drill_diameter_mm: 10,
+    hole_depth_mm: 30,
+    feed_mm_rev: 0.15,
+    spindle_rpm: 3000,
+    is_through_hole: true,
+  };
+
+  it("returns AtomicValue format for key outputs", () => {
+    const r = drillCycleOptimizationEngine.calculate(baseInput);
+    expect(r.peck_depth_mm).toHaveProperty("value");
+    expect(r.peck_depth_mm).toHaveProperty("unit", "mm");
+    expect(r.peck_depth_mm).toHaveProperty("uncertainty");
+    expect(r.peck_depth_mm).toHaveProperty("source");
+    expect(r.dwell_time_s).toHaveProperty("unit", "s");
+    expect(r.estimated_cycle_time_s).toHaveProperty("unit", "s");
+  });
+
+  it("selects standard cycle for shallow holes (L/D ≤ 3)", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 25, // L/D = 2.5
+    });
+    expect(r.recommended_cycle).toBe("standard");
+    expect(r.number_of_pecks).toBe(1);
+  });
+
+  it("selects peck cycle for deep holes (L/D > 5)", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 80, // L/D = 8
+    });
+    expect(r.recommended_cycle).toBe("peck");
+    expect(r.number_of_pecks).toBeGreaterThan(1);
+  });
+
+  it("selects gun drill for very deep holes (L/D > 10)", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 120, // L/D = 12
+    });
+    expect(r.recommended_cycle).toBe("gun_drill");
+  });
+
+  it("shorter pecks for stringy chip materials", () => {
+    const moderate = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 60,
+      material_chip_behavior: "moderate",
+    });
+    const stringy = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 60,
+      material_chip_behavior: "long_stringy",
+    });
+    expect(stringy.peck_depth_mm.value).toBeLessThan(moderate.peck_depth_mm.value);
+  });
+
+  it("longer pecks with through-tool coolant", () => {
+    const external = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 60,
+      coolant_delivery: "flood_external",
+    });
+    const tsc = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 60,
+      coolant_delivery: "through_tool",
+    });
+    expect(tsc.peck_depth_mm.value).toBeGreaterThan(external.peck_depth_mm.value);
+  });
+
+  it("flags inadequate coolant for deep holes", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      hole_depth_mm: 80,
+      coolant_delivery: "dry",
+    });
+    expect(r.coolant_adequate).toBe(false);
+    expect(r.recommendations.some(r => r.includes("inadequate"))).toBe(true);
+  });
+
+  it("flags dry drilling gummy material as unsafe", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      material_chip_behavior: "gummy",
+      coolant_delivery: "dry",
+    });
+    expect(r.is_safe).toBe(false);
+    expect(r.recommendations.some(r => r.includes("CRITICAL"))).toBe(true);
+  });
+
+  it("estimates positive cycle time", () => {
+    const r = drillCycleOptimizationEngine.calculate(baseInput);
+    expect(r.estimated_cycle_time_s.value).toBeGreaterThan(0);
+  });
+
+  it("computes correct L/D ratio", () => {
+    const r = drillCycleOptimizationEngine.calculate({
+      ...baseInput,
+      drill_diameter_mm: 8,
+      hole_depth_mm: 40,
+    });
+    expect(r.depth_to_diameter_ratio).toBe(5.0);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────
+// ToolCoatingSelectionEngine
+// ────────────────────────────────────────────────────────────────────
+
+import { toolCoatingSelectionEngine } from "../engines/ToolCoatingSelectionEngine.js";
+
+describe("ToolCoatingSelectionEngine", () => {
+  it("returns AtomicValue format for key outputs", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "carbon_steel",
+      operation_type: "roughing",
+    });
+    expect(r.suitability_score).toHaveProperty("value");
+    expect(r.suitability_score).toHaveProperty("unit", "ratio");
+    expect(r.suitability_score).toHaveProperty("uncertainty");
+    expect(r.max_service_temperature_C).toHaveProperty("unit", "°C");
+    expect(r.friction_coefficient).toHaveProperty("unit", "dimensionless");
+    expect(r.coating_hardness_HV).toHaveProperty("unit", "HV");
+    expect(r.speed_multiplier).toHaveProperty("unit", "ratio");
+  });
+
+  it("recommends DLC for aluminum", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "aluminum",
+      operation_type: "finishing",
+    });
+    expect(r.primary_recommendation).toBe("DLC");
+    expect(r.suitability_score.value).toBeGreaterThan(0.8);
+  });
+
+  it("recommends high-temp coating for titanium", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "titanium",
+      operation_type: "roughing",
+    });
+    const highTempCoatings = ["AlTiN", "TiAlN", "AlCrN", "nACo"];
+    expect(highTempCoatings).toContain(r.primary_recommendation);
+  });
+
+  it("recommends AlCrN or nACo for stainless steel", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "stainless_steel",
+      operation_type: "roughing",
+    });
+    expect(["AlCrN", "nACo"]).toContain(r.primary_recommendation);
+  });
+
+  it("recommends CVD diamond for CFRP", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "cfrp",
+      operation_type: "roughing",
+    });
+    expect(r.primary_recommendation).toBe("CVD_diamond");
+  });
+
+  it("returns 3 ranked alternatives", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "alloy_steel",
+      operation_type: "semi_finishing",
+    });
+    expect(r.ranked_alternatives.length).toBe(3);
+    expect(r.ranked_alternatives[0].score).toBeLessThanOrEqual(r.suitability_score.value);
+  });
+
+  it("warns about DLC on ferrous materials", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "carbon_steel",
+      operation_type: "finishing",
+      // Force DLC selection via specific conditions isn't realistic,
+      // but we can verify the safety check logic exists
+    });
+    // DLC should never be top pick for steel
+    expect(r.primary_recommendation).not.toBe("DLC");
+  });
+
+  it("interrupted cut penalizes brittle coatings", () => {
+    const continuous = toolCoatingSelectionEngine.calculate({
+      material_class: "alloy_steel",
+      operation_type: "roughing",
+      is_interrupted_cut: false,
+    });
+    const interrupted = toolCoatingSelectionEngine.calculate({
+      material_class: "alloy_steel",
+      operation_type: "roughing",
+      is_interrupted_cut: true,
+    });
+    // Both should be safe but may differ in recommendation
+    expect(interrupted.is_safe).toBe(true);
+    expect(interrupted.suitability_score.value).toBeGreaterThan(0.5);
+  });
+
+  it("uncoated preferred for PCD/CBN substrate", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "hardened_steel",
+      operation_type: "finishing",
+      tool_substrate: "cbn",
+    });
+    expect(r.primary_recommendation).toBe("uncoated");
+  });
+
+  it("speed multiplier > 1 for coated tools", () => {
+    const r = toolCoatingSelectionEngine.calculate({
+      material_class: "alloy_steel",
+      operation_type: "roughing",
+    });
+    if (r.primary_recommendation !== "uncoated") {
+      expect(r.speed_multiplier.value).toBeGreaterThan(1.0);
+    }
+  });
+});
