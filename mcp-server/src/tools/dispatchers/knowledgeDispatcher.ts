@@ -30,7 +30,7 @@ export function registerKnowledgeDispatcher(server: any): void {
     `Unified knowledge query across 9 PRISM registries. Actions: ${ACTIONS.join(", ")}`,
     {
       action: z.enum(ACTIONS).describe("Knowledge action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_knowledge] Action: ${action}`);

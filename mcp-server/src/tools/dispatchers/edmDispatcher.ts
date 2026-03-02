@@ -31,7 +31,7 @@ export function registerEdmDispatcher(server: any): void {
     "prism_edm",
     `EDM Process dispatcher — electrode design, wire EDM settings, surface integrity assessment, micro-EDM parameters.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_edm] Action: ${action}`);
       let result: any;

@@ -79,7 +79,7 @@ export const MaterialAddInputSchema = z.object({
 export const MaterialEnhanceInputSchema = z.object({
   material_id: z.string().min(1)
     .describe("ID of material to enhance"),
-  enhancements: z.record(z.unknown())
+  enhancements: z.record(z.string(), z.unknown())
     .describe("Fields to add or update"),
   source: z.string().optional()
     .describe("Data source reference for traceability")
@@ -222,9 +222,9 @@ export const ToolLifeInputSchema = z.object({
 export const FormulaCalcInputSchema = z.object({
   formula_id: z.string().regex(/^F-[A-Z]+-[0-9]{3}$/)
     .describe("Formula ID (e.g., 'F-KIENZLE-001')"),
-  inputs: z.record(z.number())
+  inputs: z.record(z.string(), z.number())
     .describe("Input values keyed by symbol"),
-  units: z.record(z.string()).optional()
+  units: z.record(z.string(), z.string()).optional()
     .describe("Unit overrides for inputs")
 }).strict();
 
@@ -245,7 +245,7 @@ export const AgentInvokeInputSchema = z.object({
     .describe("Agent ID to invoke"),
   task: z.string().min(1)
     .describe("Task description for the agent"),
-  context: z.record(z.unknown()).optional()
+  context: z.record(z.string(), z.unknown()).optional()
     .describe("Additional context for the agent"),
   timeout_ms: z.number().int().min(1000).max(300000).default(30000)
     .describe("Timeout in milliseconds (default: 30s)")
@@ -257,7 +257,7 @@ export const AgentSwarmInputSchema = z.object({
   tasks: z.array(z.object({
     id: z.string(),
     description: z.string(),
-    inputs: z.record(z.unknown()).optional()
+    inputs: z.record(z.string(), z.unknown()).optional()
   })),
   pattern: z.enum(SWARM_PATTERNS)
     .describe("Swarm execution pattern"),
@@ -298,19 +298,19 @@ export const ScriptRunInputSchema = z.object({
 export const HookTriggerInputSchema = z.object({
   hook_id: z.string().min(1)
     .describe("Hook ID to trigger"),
-  inputs: z.record(z.unknown()).optional()
+  inputs: z.record(z.string(), z.unknown()).optional()
     .describe("Input values for the hook")
 }).strict();
 
 export const SafetyCheckInputSchema = z.object({
-  content: z.record(z.unknown())
+  content: z.record(z.string(), z.unknown())
     .describe("Content to validate for safety"),
   context: z.string().optional()
     .describe("Additional context for validation")
 }).strict();
 
 export const QualityCheckInputSchema = z.object({
-  content: z.record(z.unknown())
+  content: z.record(z.string(), z.unknown())
     .describe("Content to evaluate for quality")
 }).strict();
 
@@ -349,7 +349,7 @@ export const KnowledgeQueryInputSchema = z.object({
 // ============================================================================
 
 export const StateSaveInputSchema = z.object({
-  state: z.record(z.unknown())
+  state: z.record(z.string(), z.unknown())
     .describe("State object to save"),
   path: z.string().optional()
     .describe("Custom path (default: CURRENT_STATE.json)")
@@ -386,7 +386,7 @@ export const GitCommitInputSchema = z.object({
 }).strict();
 
 export const ExportReportInputSchema = z.object({
-  data: z.record(z.unknown())
+  data: z.record(z.string(), z.unknown())
     .describe("Data to export"),
   format: z.enum(EXPORT_FORMATS)
     .describe("Export format"),

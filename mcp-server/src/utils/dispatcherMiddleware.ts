@@ -172,9 +172,10 @@ function coerceValue(value: string, schema: z.ZodType): unknown {
 
 /** Unwrap ZodOptional/ZodNullable/ZodDefault to get inner type. */
 function unwrapZod(schema: z.ZodType): z.ZodType {
-  if (schema instanceof z.ZodOptional) return unwrapZod(schema.unwrap());
-  if (schema instanceof z.ZodNullable) return unwrapZod(schema.unwrap());
-  if (schema instanceof z.ZodDefault) return unwrapZod(schema.removeDefault());
+  const s = schema as any;
+  if (s._zod?.def?.type === "optional" || s instanceof (z as any).ZodOptional) return unwrapZod(s.unwrap());
+  if (s._zod?.def?.type === "nullable" || s instanceof (z as any).ZodNullable) return unwrapZod(s.unwrap());
+  if (s._zod?.def?.type === "default" || s instanceof (z as any).ZodDefault) return unwrapZod(s.removeDefault());
   return schema;
 }
 

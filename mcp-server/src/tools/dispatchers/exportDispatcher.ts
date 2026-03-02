@@ -32,7 +32,7 @@ export function registerExportDispatcher(server: any): void {
     `Document Export dispatcher — render PDF, CSV, Excel, DXF, STEP, G-code, setup sheets. Batch export support.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_export] Action: ${action}`);
       let result: any;

@@ -20,7 +20,7 @@ export function registerGeneratorDispatcher(server: any): void {
   server.tool(
     "prism_generator",
     `Hook generator tools (7 tools → 1). Actions: ${ACTIONS.join(", ")}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_generator] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

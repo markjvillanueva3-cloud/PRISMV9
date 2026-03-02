@@ -32,7 +32,7 @@ export function registerAutomationDispatcher(server: any): void {
     "prism_automation",
     `Shop Floor Automation dispatcher — OEE calculation, bottleneck analysis, digital thread tracing, work instructions, shift handoff reports.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_automation] Action: ${action}`);
       let result: any;

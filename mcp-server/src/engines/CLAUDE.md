@@ -25,7 +25,7 @@ interface AtomicValue {
 - Uncertainty propagation: RSS (root-sum-square) for independent variables
 - Safety factor: always applied AFTER uncertainty, never before
 
-## Key Engines (125 active exports, 64 unwired on disk)
+## Key Engines (125 active exports, 66 unwired on disk)
 Manufacturing Intelligence (L2-P1): CuttingForceEngine, ToolLifeEngine, SpeedFeedEngine,
   ThermalEngine, StabilityEngine, DeflectionEngine, SurfaceFinishEngine, etc.
 CAD/CAM (L2-P2): ToolpathEngine, PostProcessorEngine, CadValidationEngine, etc.

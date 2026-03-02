@@ -37,7 +37,7 @@ export function registerPFPDispatcher(server: McpServer): void {
         "force_extract",
         "update_config",
       ]).describe("PFP action"),
-      params: z.record(z.any()).optional().describe("Action parameters"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
       const { action, params: rawParams = {} } = args;

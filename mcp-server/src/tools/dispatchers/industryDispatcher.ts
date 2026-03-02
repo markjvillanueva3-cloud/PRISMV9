@@ -20,7 +20,7 @@ export function registerIndustryDispatcher(server: any): void {
     "prism_industry",
     `Industry Compliance dispatcher — aerospace (AS9100/NADCAP), medical (ISO 13485), automotive (IATF 16949), oil & gas (API) compliance checks.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_industry] Action: ${action}`);
       let result: any;

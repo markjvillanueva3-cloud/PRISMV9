@@ -25,7 +25,7 @@ export function registerComplianceDispatcher(server: McpServer): void {
         "audit_status", "check_compliance", "resolve_conflicts",
         "gap_analysis", "config",
       ]).describe("Compliance action"),
-      params: z.record(z.any()).optional().describe("Action parameters"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
       const { action, params: rawParams = {} } = args;

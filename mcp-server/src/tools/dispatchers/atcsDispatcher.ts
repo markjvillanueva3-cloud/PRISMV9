@@ -384,7 +384,7 @@ export function registerAtcsDispatcher(server: any): void {
   server.tool(
     "prism_atcs",
     `Autonomous Task Completion System — file-system state machine for multi-session execution with quality gates. Actions: ${ACTIONS.join(", ")}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_atcs] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

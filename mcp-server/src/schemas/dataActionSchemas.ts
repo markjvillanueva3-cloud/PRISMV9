@@ -142,7 +142,7 @@ const formula_get = z.object({
 
 const formula_calculate = z.object({
   formula_id: z.string().min(1),
-  inputs: z.record(z.any()),
+  inputs: z.record(z.string(), z.any()),
 }).passthrough();
 
 // ============================================================================

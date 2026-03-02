@@ -48,7 +48,7 @@ export function registerAutoPilotDispatcher(server: any): void {
     `AutoPilot workflow orchestration. Actions: ${ACTIONS.join(", ")}`,
     {
       action: z.enum(ACTIONS).describe("AutoPilot action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_autopilot_d] Action: ${action}`);

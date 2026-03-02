@@ -99,7 +99,7 @@ export function registerDocumentDispatcher(server: any): void {
     "prism_doc",
     `Document management dispatcher. Actions: list, read, write, append, roadmap_status, action_tracker, migrate.
 Params: read/write/append need 'name'. write needs 'content'. read accepts 'detail':true for full content.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_doc] Action: ${action}`);
       let result: any;

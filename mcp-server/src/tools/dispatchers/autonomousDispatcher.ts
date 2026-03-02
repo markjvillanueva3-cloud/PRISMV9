@@ -654,7 +654,7 @@ export function registerAutonomousDispatcher(server: any): void {
     "prism_autonomous",
     `Autonomous execution engine — bridges ATCS state machine + AgentExecutor for background task processing.
 Actions: ${ACTIONS.join(", ")}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_autonomous] ${action}`);
       const config = loadConfig();

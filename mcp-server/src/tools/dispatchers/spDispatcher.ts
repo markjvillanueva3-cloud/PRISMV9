@@ -346,7 +346,7 @@ export function registerSpDispatcher(server: any): void {
   server.tool(
     "prism_sp",
     `Development protocol dispatcher (19 actions). Superpowers workflow, cognitive system, ILP, validation gates.\nActions: ${ACTIONS.join(", ")}\n\nbrainstorm: ENHANCED - Real 7-lens analysis (problem, context?, domain?, depth?:"quick"|"standard"|"deep", constraints?, max_lenses?). Quick=free/fast, Standard=5 parallel API calls, Deep=7 lenses+Opus synthesis. Grounded in PRISM knowledge.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string,any> }) => {
       log.info(`[prism_sp] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

@@ -128,7 +128,7 @@ export function registerGsdDispatcher(server: any): void {
     `GSD (Get Shit Done) protocol access — FILE-BASED v3.0.\nActions: ${ACTIONS.join(", ")}\n\ncore: Full GSD (GSD_QUICK.md + DEV_PROTOCOL.md combined)\nquick: Quick reference from data/docs/gsd/GSD_QUICK.md\nget: Section from data/docs/gsd/sections/{section}.md (${VALID_SECTIONS.join("|")})\ndev_protocol: Dev protocol from data/docs/gsd/DEV_PROTOCOL.md\nresources_summary: Resource counts from CURRENT_STATE.json\nquick_resume: Quick resume from CURRENT_STATE.json\n\nEdit .md files directly — changes reflect immediately, no rebuild needed.`,
     {
       action: z.enum(ACTIONS).describe("GSD action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_gsd] Action: ${action}`);

@@ -134,7 +134,7 @@ export function registerManusDispatcher(server: any): void {
     `Manus AI agent + development hooks. Actions: ${ACTIONS.join(", ")}`,
     {
       action: z.enum(ACTIONS).describe("Manus action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_manus] Action: ${action}`);

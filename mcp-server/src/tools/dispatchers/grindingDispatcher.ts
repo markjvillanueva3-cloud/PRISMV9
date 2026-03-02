@@ -30,7 +30,7 @@ export function registerGrindingDispatcher(server: any): void {
     "prism_grinding",
     `Grinding Process dispatcher — wheel selection, dressing parameters, burn threshold detection, grinding surface integrity.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_grinding] Action: ${action}`);
       let result: any;

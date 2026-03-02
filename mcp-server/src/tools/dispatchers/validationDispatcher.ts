@@ -22,7 +22,7 @@ export function registerValidationDispatcher(server: any): void {
     `Validation dispatcher. Actions: material, kienzle, taylor, johnson_cook, safety, completeness, anti_regression.
 Safety threshold S(x)≥0.70. Completeness≥80%. Anti-regression: new_count≥old_count.
 Params vary by action - see individual action docs.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_validate] Action: ${action}`);
       let result: any;

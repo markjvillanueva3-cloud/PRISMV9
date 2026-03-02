@@ -31,7 +31,7 @@ const optPosInt = z.number().int().positive().optional();
 // Common render fields shared across most render_* actions
 const renderBase = {
   title: optStr,
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
   template: optStr,
 };
 
@@ -49,8 +49,8 @@ const render_pdf = z.object({
 
 const render_csv = z.object({
   ...renderBase,
-  data: z.union([z.record(z.any()), z.array(z.record(z.any()))]).optional(),
-  rows: z.array(z.record(z.any())).optional(),
+  data: z.union([z.record(z.string(), z.any()), z.array(z.record(z.string(), z.any()))]).optional(),
+  rows: z.array(z.record(z.string(), z.any())).optional(),
   columns: z.array(z.string()).optional(),
 }).passthrough();
 
@@ -107,7 +107,7 @@ const batch_export = z.object({
   items: z.array(z.object({
     format: optStr,
     title: optStr,
-    data: z.record(z.any()).optional(),
+    data: z.record(z.string(), z.any()).optional(),
   }).passthrough()).min(1),
 }).passthrough();
 

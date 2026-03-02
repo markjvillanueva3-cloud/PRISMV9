@@ -25,7 +25,7 @@ export function registerBridgeDispatcher(server: McpServer): void {
         "create_key", "revoke_key", "validate_key", "list_keys",
         "route", "route_map", "health", "stats", "config",
       ]).describe("Bridge action"),
-      params: z.record(z.any()).optional().describe("Action parameters"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
       const { action, params: rawParams = {} } = args;

@@ -33,7 +33,7 @@ export function registerSchedulingDispatcher(server: any): void {
     `Production Scheduling dispatcher — job scheduling, machine assignment, capacity planning, bottleneck analysis, lead time estimation.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_scheduling] Action: ${action}`);
       let result: any;

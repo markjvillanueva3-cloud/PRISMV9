@@ -77,7 +77,7 @@ export function registerOmegaDispatcher(server: any): void {
 Actions: compute, breakdown, validate, optimize, history, auto_score.
 auto_score: Auto-derive all 5 components. Pulls R/C/P/L from SP cog.metrics, S from material via computeSafetyScore. Override any with explicit params. All inputs clamped to [0,1].
 Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_omega] Action: ${action}`);
       let result: any;

@@ -52,7 +52,7 @@ describe("prism_product dispatcher", () => {
   });
 
   it("has 40 actions in schema", () => {
-    const actionEnum = product.schema.action._def?.values;
+    const actionEnum = product.schema.action.options ?? (schema.action as any)._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(40);
   });
@@ -95,7 +95,7 @@ describe("prism_machine_live dispatcher", () => {
   });
 
   it("has 40 actions in schema", () => {
-    const actionEnum = ml.schema.action._def?.values;
+    const actionEnum = ml.schema.action.options ?? (schema.action as any)._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(40);
   });
@@ -138,7 +138,7 @@ describe("prism_integration dispatcher", () => {
   });
 
   it("has 42 actions in schema", () => {
-    const actionEnum = integ.schema.action._def?.values;
+    const actionEnum = integ.schema.action.options ?? (schema.action as any)._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(42);
   });
@@ -187,7 +187,7 @@ describe("prism_knowledge_ext dispatcher", () => {
   });
 
   it("has 40 actions in schema", () => {
-    const actionEnum = know.schema.action._def?.values;
+    const actionEnum = know.schema.action.options ?? (schema.action as any)._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(40);
   });
@@ -230,7 +230,7 @@ describe("prism_diagnosis dispatcher", () => {
   });
 
   it("has 38 actions in schema", () => {
-    const actionEnum = diag.schema.action._def?.values;
+    const actionEnum = diag.schema.action.options ?? (schema.action as any)._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(38);
   });
@@ -371,11 +371,11 @@ describe("SYS-MS1 action count verification", () => {
     registerKnowledgeExtDispatcher(s4);
     registerDiagnosisDispatcher(s5);
 
-    const productCount = t1[0].schema.action._def?.values?.length ?? 0;
-    const machineCount = t2[0].schema.action._def?.values?.length ?? 0;
-    const integCount = t3[0].schema.action._def?.values?.length ?? 0;
-    const knowCount = t4[0].schema.action._def?.values?.length ?? 0;
-    const diagCount = t5[0].schema.action._def?.values?.length ?? 0;
+    const productCount = t1[0].schema.action.options?.length ?? t1[0].schema.action._def?.values?.length ?? 0;
+    const machineCount = t2[0].schema.action.options?.length ?? t2[0].schema.action._def?.values?.length ?? 0;
+    const integCount = t3[0].schema.action.options?.length ?? t3[0].schema.action._def?.values?.length ?? 0;
+    const knowCount = t4[0].schema.action.options?.length ?? t4[0].schema.action._def?.values?.length ?? 0;
+    const diagCount = t5[0].schema.action.options?.length ?? t5[0].schema.action._def?.values?.length ?? 0;
 
     expect(productCount).toBe(40);
     expect(machineCount).toBe(40);

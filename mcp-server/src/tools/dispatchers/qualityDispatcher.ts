@@ -33,7 +33,7 @@ export function registerQualityDispatcher(server: any): void {
     `Quality & Metrology dispatcher — SPC, Cpk prediction, CMM planning, tolerance stack analysis, GD&T validation, gauge R&R.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_quality] Action: ${action}`);
       let result: any;

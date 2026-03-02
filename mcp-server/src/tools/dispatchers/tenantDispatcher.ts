@@ -25,7 +25,7 @@ export function registerTenantDispatcher(server: McpServer): void {
         "get_context", "check_limit", "publish_pattern", "consume_patterns",
         "promote_pattern", "quarantine_pattern", "slb_stats", "stats", "config",
       ]).describe("Tenant action"),
-      params: z.record(z.any()).optional().describe("Action parameters"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
       const { action, params: rawParams = {} } = args;

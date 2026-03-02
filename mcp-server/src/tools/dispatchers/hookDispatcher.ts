@@ -27,7 +27,7 @@ export function registerHookDispatcher(server: any): void {
   server.tool(
     "prism_hook",
     `Hook & event management (20 actions, consolidates 28 tools). Actions: ${ACTIONS.join(", ")}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_hook] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

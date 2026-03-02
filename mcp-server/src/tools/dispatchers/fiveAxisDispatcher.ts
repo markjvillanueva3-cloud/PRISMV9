@@ -35,7 +35,7 @@ export function registerFiveAxisDispatcher(server: any): void {
     "prism_5axis",
     `5-Axis Kinematics dispatcher — SAFETY CRITICAL. RTCP compensation, singularity avoidance, tilt optimization, work envelope validation, inverse kinematics.
 Actions: ${ACTIONS.join(", ")}.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_5axis] Action: ${action}`);
       let result: any;

@@ -227,7 +227,7 @@ export function registerSessionDispatcher(server: any): void {
   server.tool(
     "prism_session",
     "Session state management: save/load/checkpoint/diff, handoff, memory, context pressure, workflows, health. Use 'action' param.",
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_session] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

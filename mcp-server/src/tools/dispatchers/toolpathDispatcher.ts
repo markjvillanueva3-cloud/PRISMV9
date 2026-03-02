@@ -34,7 +34,7 @@ export function registerToolpathDispatcher(server: any): void {
         "prism_novel",
         "generate"
       ]),
-      params: z.record(z.any()).optional()
+      params: z.record(z.string(), z.any()).optional()
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       // H1-MS2: Auto-normalize snake_case → camelCase params

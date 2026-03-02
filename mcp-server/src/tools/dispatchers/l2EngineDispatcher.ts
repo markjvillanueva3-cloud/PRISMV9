@@ -54,7 +54,7 @@ export function registerL2EngineDispatcher(server: any): void {
     `L2 Engine dispatcher — 8 ported monolith engines (AI/ML, CAD, CAM, File I/O, Simulation, Visualization, Reports, Settings).
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_l2] Action: ${action}`);
       let result: any;

@@ -59,7 +59,7 @@ export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",
     "Agent orchestration, swarm coordination, and roadmap execution. Multi-Claude parallel via claim/release/heartbeat. Use 'action' param.",
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_orchestrate] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

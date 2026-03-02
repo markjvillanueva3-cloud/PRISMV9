@@ -286,7 +286,7 @@ export function registerDocumentLearningDispatcher(server: any): void {
     "Document knowledge extraction: upload PDFs/notes/articles/academic papers, extract CAD/CAM/SHOP knowledge, query stored document knowledge. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_doc_learn] Action: ${action}`);

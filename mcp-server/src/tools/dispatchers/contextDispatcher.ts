@@ -120,7 +120,7 @@ export function registerContextDispatcher(server: any): void {
   server.tool(
     "prism_context",
     "Context engineering: KV-cache stability, tool masking, memory externalize/restore, todo, error tracking, teams, budget. Use 'action' param.",
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_context] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

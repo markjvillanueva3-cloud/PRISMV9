@@ -176,7 +176,7 @@ export function registerKnowledgeExtDispatcher(server: any): void {
     "Knowledge management: apprentice training, manufacturing genome fingerprinting, knowledge graph queries/inference, federated learning network. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_knowledge_ext] Action: ${action}`);

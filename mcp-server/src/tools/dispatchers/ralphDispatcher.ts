@@ -70,7 +70,7 @@ export function registerRalphDispatcher(server: any): void {
     `Execute 4-phase Ralph validation with REAL Claude API calls.\nActions: ${ACTIONS.join(", ")}\n\nloop: Full 4-phase validation (SCRUTINIZE→IMPROVE→VALIDATE→ASSESS)\nscrutinize: Single validator pass\nassess: Standalone Phase 4 assessment with OPUS\n\nAll phases make REAL Claude API calls - no simulation.`,
     {
       action: z.enum(ACTIONS).describe("Ralph action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_ralph] Action: ${action}`);

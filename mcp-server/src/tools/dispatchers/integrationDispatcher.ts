@@ -184,7 +184,7 @@ export function registerIntegrationDispatcher(server: any): void {
     "External system integration: CAM software, DNC transfer, ERP work orders/costing, mobile shop floor, CMM/probing measurement. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_integration] Action: ${action}`);

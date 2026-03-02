@@ -34,7 +34,7 @@ export function registerNLHookDispatcher(server: any): void {
   server.tool(
     'prism_nl_hook',
     `Natural language hook authoring (8 actions). Parse NL descriptions into live hooks. Actions: ${ACTIONS.join(', ')}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_nl_hook] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

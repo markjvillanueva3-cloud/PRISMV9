@@ -28,7 +28,7 @@ const DataDispatcherSchema = z.object({
     "cross_lookup", "dsl_lookup", "database_list", "database_search",
     "workholding_get", "workholding_search", "insert_get", "insert_search"
   ]),
-  params: z.record(z.any()).optional()
+  params: z.record(z.string(), z.any()).optional()
 });
 
 function jsonResponse(data: any) {

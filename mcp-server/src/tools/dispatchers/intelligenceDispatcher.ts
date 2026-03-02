@@ -482,7 +482,7 @@ export function registerIntelligenceDispatcher(server: any): void {
     "Manufacturing intelligence: job planning, setup sheets, costing, recommendations, what-if, diagnosis, optimization, scheduling. Use 'action' param.",
     {
       action: z.enum(ALL_ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_intelligence] Action: ${action}`);

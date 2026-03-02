@@ -36,7 +36,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "get_node",
         "run_integrity",
       ]).describe("Memory graph action"),
-      params: z.record(z.any()).optional().describe("Action parameters"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args) => {
       const { action, params: rawParams = {} } = args;

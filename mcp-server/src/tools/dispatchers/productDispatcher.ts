@@ -174,7 +174,7 @@ export function registerProductDispatcher(server: any): void {
     "Product tools: SFC (surface finish calc), PPG (post processor generator), Shop Manager (job costing/quoting), ACNC (adaptive CNC programming). Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_product] Action: ${action}`);

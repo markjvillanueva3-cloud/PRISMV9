@@ -376,7 +376,7 @@ export function registerGuardDispatcher(server: any): void {
   server.tool(
     "prism_guard",
     `Reasoning + Enforcement + AutoHook diagnostics (8 actions). Actions: ${ACTIONS.join(", ")}`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_guard] ${action}`);
       // H1-MS2: Auto-normalize snake_case → camelCase params

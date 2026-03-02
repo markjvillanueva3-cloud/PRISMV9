@@ -378,7 +378,7 @@ export const RoadmapEnvelope = z.object({
 
   // ── Scrutinization ───
   /** How scrutinization works for this roadmap. */
-  scrutiny_config: ScrutinyConfig.default({}),
+  scrutiny_config: ScrutinyConfig.default({} as any),
   /** Path to scrutiny-log.json. */
   scrutiny_log: z.string().optional(),
 

@@ -161,7 +161,7 @@ export function registerDiagnosisDispatcher(server: any): void {
     "Diagnostics & analysis: failure forensics (tool autopsy, chip/surface/crash), inverse problem solving, generative process planning, sustainability optimization. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_diagnosis] Action: ${action}`);

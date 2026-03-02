@@ -85,7 +85,7 @@ export function registerSafetyDispatcher(server: any): void {
     `Safety-critical manufacturing validations: collision detection, coolant/spindle/tool/workholding checks. SAFETY CRITICAL.`,
     {
       action: z.enum(ALL_ACTIONS as unknown as [string, ...string[]]),
-      params: z.record(z.any()).optional()
+      params: z.record(z.string(), z.any()).optional()
     },
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       try {

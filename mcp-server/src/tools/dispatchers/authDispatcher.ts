@@ -39,7 +39,7 @@ export function registerAuthDispatcher(server: any): void {
     `Authentication & Authorization dispatcher — login, registration, token management, RBAC, MFA. SECURITY CRITICAL.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object. NEVER include raw passwords in logs.`,
-    { action: z.enum(ACTIONS), params: z.record(z.any()).optional() },
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_auth] Action: ${action}`); // never log params for auth
       let result: any;

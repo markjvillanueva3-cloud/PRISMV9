@@ -217,7 +217,7 @@ export function registerMachineLiveDispatcher(server: any): void {
     "Machine live monitoring & control: real-time connectivity, adaptive feed/speed/thermal control, predictive maintenance, Industry 4.0 (tool crib, digital twin, energy). Use 'action' param.",
     {
       action: z.enum(ACTIONS),
-      params: z.record(z.any()).optional(),
+      params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_machine_live] Action: ${action}`);

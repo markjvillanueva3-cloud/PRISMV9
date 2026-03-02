@@ -33,7 +33,7 @@ export function registerThreadDispatcher(server: any): void {
         "generate_thread_gcode",
         "calculate_thread_stripping"
       ]),
-      params: z.record(z.any()).optional()
+      params: z.record(z.string(), z.any()).optional()
     },
     async ({ action, params: rawParams = {} }) => {
       try {

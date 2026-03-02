@@ -30,7 +30,7 @@ const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
   index_import: `import { registerMyTools } from "./tools/myTools.js";\nregisterMyTools(server); log.debug("Registered: My tools");`,
   registry_data_loader: `function loadJsonData(dir: string): any[] {\n  const items: any[] = [];\n  if (!fs.existsSync(dir)) return items;\n  for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".json"))) {\n    try { const d = JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")); Array.isArray(d) ? items.push(...d) : items.push(d); } catch (e) { /* parse error */ }\n  }\n  return items;\n}`,
-  zod_schemas: `z.string()  z.string().optional()  z.number().min(0).max(100)\nz.boolean().default(false)  z.enum(["a","b"])  z.record(z.any())\nz.array(z.string())  z.object({ key: z.string() })`
+  zod_schemas: `z.string()  z.string().optional()  z.number().min(0).max(100)\nz.boolean().default(false)  z.enum(["a","b"])  z.record(z.string(), z.any())\nz.array(z.string())  z.object({ key: z.string() })`
 };
 
 function searchFiles(dir: string, pattern: string, maxResults: number = 20): any[] {
@@ -67,7 +67,7 @@ export function registerDevDispatcher(server: any): void {
     `Dev workflow tools. Actions: ${ACTIONS.join(", ")}`,
     {
       action: z.enum(ACTIONS).describe("Dev action"),
-      params: z.record(z.any()).optional().describe("Action parameters")
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
     },
     async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_dev] Action: ${action}`);
