@@ -131,6 +131,9 @@ Actions (11): toolpath_generate, toolpath_simulate, toolpath_optimize, post_proc
 ### prism_quality (qualityDispatcher.ts)
 Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
 
+### prism_process_control (processControlDispatcher.ts)
+Actions (6): ctc_analyze, ctc_optimal_gain, ctc_autocorrelation, spc_ewma, spc_cusum, doe_analyze
+
 ### prism_export (exportDispatcher.ts)
 Actions (8): render_pdf, render_csv, render_excel, render_dxf, render_step, render_gcode, render_setup_sheet, batch_export
 
@@ -398,6 +401,9 @@ Health: prism_bridge→health
 - MeshEngine.ts (286L) — Mesh generation and operations
 - ToolAssemblyEngine.ts (182L) — Tool assembly management (holder + collet + tool, gauge length, stickout, runout)
 - HyperMillStrategyEngine.ts (441L) — hyperMILL CAM strategy selector: 25 strategies (2D/3D/turning), slope-dependent selection, material warnings
+- CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
+- SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
+- DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)

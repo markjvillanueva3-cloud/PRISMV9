@@ -120,6 +120,7 @@ import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatch
 import { registerCadDispatcher } from "./tools/dispatchers/cadDispatcher.js";
 import { registerCamDispatcher } from "./tools/dispatchers/camDispatcher.js";
 import { registerQualityDispatcher } from "./tools/dispatchers/qualityDispatcher.js";
+import { registerProcessControlDispatcher } from "./tools/dispatchers/processControlDispatcher.js";
 import { registerSchedulingDispatcher } from "./tools/dispatchers/schedulingDispatcher.js";
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
@@ -509,6 +510,7 @@ async function registerTools(): Promise<void> {
   registerCadDispatcher(server);
   registerCamDispatcher(server);
   registerQualityDispatcher(server);
+  registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
   registerAuthDispatcher(server);
   registerExportDispatcher(server);
