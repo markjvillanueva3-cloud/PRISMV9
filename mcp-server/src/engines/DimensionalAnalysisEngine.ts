@@ -205,6 +205,9 @@ export class DimensionalAnalysisEngine {
   toleranceBudget(totalTolerance_mm: number, sources: string[]): ToleranceBudget {
     // Equal allocation by default
     const n = sources.length;
+    if (n === 0) {
+      return { total_tolerance_mm: totalTolerance_mm, allocated: [], remaining_mm: totalTolerance_mm, feasible: false };
+    }
     const perSource = totalTolerance_mm / n;
     const allocated = sources.map(s => ({
       source: s,

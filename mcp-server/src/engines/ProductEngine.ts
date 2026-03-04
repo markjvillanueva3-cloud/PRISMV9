@@ -676,8 +676,8 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
 
   // 9. Surface finish grade
   const ra = raResult.Ra;
-  const sfGrade = ra <= 0.4 ? "N3 (mirror)" : ra <= 0.8 ? "N4 (fine)" : ra <= 1.6 ? "N5 (smooth)"
-    : ra <= 3.2 ? "N6 (good)" : ra <= 6.3 ? "N7 (fair)" : "N8+ (rough)";
+  const sfGrade = ra <= 0.1 ? "N3 (mirror)" : ra <= 0.2 ? "N4 (fine)" : ra <= 0.4 ? "N5 (smooth)"
+    : ra <= 0.8 ? "N6 (good)" : ra <= 1.6 ? "N7 (fair)" : ra <= 3.2 ? "N8 (standard)" : ra <= 6.3 ? "N9 (rough)" : "N10+ (very rough)";
 
   // Formulas used
   const formulas = ["Kienzle cutting force", "Taylor tool life"];
@@ -827,6 +827,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
   let bestAp = ap;
   let bestAe = ae;
   let bestScore = -Infinity;
+  let foundValid = false;
   let iterations = 0;
 
   const vcRange = [sf.cutting_speed * 0.7, sf.cutting_speed * 1.3];
@@ -875,7 +876,9 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
       } else if (objective === "cost") {
         const toolCostPerMin = 0.5;
         const machineCostPerMin = 2.0;
-        const costPerPart = (10 / mrr.mrr) * machineCostPerMin + (10 / tl.tool_life_minutes) * toolCostPerMin * 30;
+        const safeMrr = Math.max(mrr.mrr, 0.001);
+        const safeLife = Math.max(tl.tool_life_minutes, 0.01);
+        const costPerPart = (10 / safeMrr) * machineCostPerMin + (10 / safeLife) * toolCostPerMin * 30;
         score = -costPerPart; // Minimize cost
       } else {
         // Balanced
@@ -891,6 +894,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
         bestScore = score;
         bestVc = testVc;
         bestFz = testFz;
+        foundValid = true;
       }
     }
   }
@@ -926,7 +930,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
         ae: Math.round(bestAe * 10) / 10,
       },
       improvement_pct: Math.round(improvement * 10) / 10,
-      constraints_met: true,
+      constraints_met: foundValid,
       iterations,
     },
   };
@@ -1357,8 +1361,8 @@ export function productPPG(action: string, params: Record<string, any>): any {
     case "ppg_generate": {
       const controller = params.controller || "fanuc";
       const operation = params.operation || "facing";
-      const rpm = params.rpm || 3200;
-      const feedRate = params.feed_rate || params.vf || 800;
+      const rpm = params.rpm ?? 3200;
+      const feedRate = params.feed_rate ?? params.vf ?? 800;
 
       // Multi-operation mode
       if (params.operations && Array.isArray(params.operations)) {
@@ -1370,13 +1374,13 @@ export function productPPG(action: string, params: Record<string, any>): any {
 
       // Single operation
       const gcParams: GCodeParams = {
-        tool_number: params.tool_number || 1,
+        tool_number: params.tool_number ?? 1,
         rpm,
         feed_rate: feedRate,
-        coolant: params.coolant || "flood",
-        z_safe: params.z_safe || 5,
-        z_depth: params.z_depth || -3,
-        work_offset: params.work_offset || "G54",
+        coolant: params.coolant ?? "flood",
+        z_safe: params.z_safe ?? 5,
+        z_depth: params.z_depth ?? -3,
+        work_offset: params.work_offset ?? "G54",
         peck_depth: params.peck_depth,
         dwell: params.dwell,
         pitch: params.pitch,
@@ -1586,8 +1590,8 @@ function shopEstimateOpCycleTime(
 
   // Volume to remove (cm³)
   const depth = dimensions.depth;
-  const width = dimensions.width || 50;
-  const length = dimensions.length || 50;
+  const width = dimensions.width ?? 50;
+  const length = dimensions.length ?? 50;
   const volume = (depth * width * length) / 1000; // mm³ → cm³
 
   // Cycle time = volume / MRR + rapids + tool changes
@@ -1616,9 +1620,9 @@ function shopEstimateOpCycleTime(
 function shopJobPlan(params: Record<string, any>): any {
   const material = params.material || "4140";
   const features = params.features || params.operations || [{ feature: "pocket", depth: 10, width: 50, length: 100 }];
-  const toolDiam = params.tool_diameter || 12;
-  const numTeeth = params.number_of_teeth || 4;
-  const batchSize = Math.max(1, params.batch_size || 1);
+  const toolDiam = params.tool_diameter ?? 12;
+  const numTeeth = params.number_of_teeth ?? 4;
+  const batchSize = Math.max(1, params.batch_size ?? 1);
 
   const operations = features.map((f: any, i: number) => {
     const feat = typeof f === "string" ? { feature: f, depth: 10, width: 50, length: 50 } : f;
@@ -1658,12 +1662,12 @@ function shopCostBreakdown(params: Record<string, any>): any {
   const machineId = params.machine || "3axis_vertical";
   const machine = MACHINE_RATES[machineId] || MACHINE_RATES["3axis_vertical"];
   const batchSize = jobPlan.batch_size;
-  const setupTimeMin = params.setup_time_min || 30;
-  const programmingMin = params.programming_time_min || (jobPlan.operations.length * 20);
-  const inspectionMin = params.inspection_time_min || 5;
-  const toolCost = params.tool_cost || 45;
-  const materialCostPerPart = params.material_cost_per_part || 15;
-  const margin = params.margin_percent || 30;
+  const setupTimeMin = params.setup_time_min ?? 30;
+  const programmingMin = params.programming_time_min ?? (jobPlan.operations.length * 20);
+  const inspectionMin = params.inspection_time_min ?? 5;
+  const toolCost = params.tool_cost ?? 45;
+  const materialCostPerPart = params.material_cost_per_part ?? 15;
+  const margin = params.margin_percent ?? 30;
 
   // Machine cost per part
   const machineCostPerPart = (jobPlan.total_cycle_time_min / 60) * machine.rate_per_hour;
@@ -2048,17 +2052,17 @@ function acncFeatureRecognition(params: Record<string, any>): any {
   if (description && typeof description === "string") {
     const parsed = acncParseFeature(description);
     feature = parsed.feature;
-    depth = params.depth || parsed.depth;
-    width = params.width || parsed.width;
-    length = params.length || parsed.length;
-    diameter = params.diameter || parsed.diameter;
-    tolerance = params.tolerance || parsed.tolerance;
-    finish = params.finish || parsed.finish;
+    depth = params.depth ?? parsed.depth;
+    width = params.width ?? parsed.width;
+    length = params.length ?? parsed.length;
+    diameter = params.diameter ?? parsed.diameter;
+    tolerance = params.tolerance ?? parsed.tolerance;
+    finish = params.finish ?? parsed.finish;
   } else {
-    feature = params.feature || "pocket";
-    depth = params.depth || 10;
-    width = params.width || 50;
-    length = params.length || 50;
+    feature = params.feature ?? "pocket";
+    depth = params.depth ?? 10;
+    width = params.width ?? 50;
+    length = params.length ?? 50;
     diameter = params.diameter;
     tolerance = params.tolerance;
     finish = params.finish;

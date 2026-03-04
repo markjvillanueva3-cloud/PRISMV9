@@ -202,8 +202,8 @@ export class ToleranceStackEngine {
 
     const newTotal = current.total_tolerance_mm - deficit + Math.max(remaining, 0);
     // Tighter tolerance = higher cost (roughly exponential)
-    const tighteningRatio = newTotal / current.total_tolerance_mm;
-    const costImpact = (1 / tighteningRatio - 1) * 100;
+    const tighteningRatio = current.total_tolerance_mm > 0 ? newTotal / current.total_tolerance_mm : 1;
+    const costImpact = tighteningRatio > 0 ? (1 / tighteningRatio - 1) * 100 : 0;
 
     return {
       current_total_tolerance_mm: current.total_tolerance_mm,

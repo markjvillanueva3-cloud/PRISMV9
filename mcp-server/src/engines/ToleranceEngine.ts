@@ -472,7 +472,8 @@ export interface CpkResult {
 export function calculateCpk(
   nominal_mm: number,
   tolerance_mm: number,
-  process_sigma_mm: number
+  process_sigma_mm: number,
+  process_mean_mm?: number
 ): CpkResult {
   if (process_sigma_mm <= 0) {
     throw new Error("[ToleranceEngine] calculateCpk: process_sigma must be > 0");
@@ -488,9 +489,10 @@ export function calculateCpk(
   // Cp = (USL - LSL) / (6σ) — process potential (centered)
   const cp = totalTolerance / (6 * process_sigma_mm);
 
-  // Cpk = min((USL - μ) / 3σ, (μ - LSL) / 3σ) — assumes μ = nominal (centered)
-  const cpk_upper = (USL - nominal_mm) / (3 * process_sigma_mm);
-  const cpk_lower = (nominal_mm - LSL) / (3 * process_sigma_mm);
+  // Cpk = min((USL - μ) / 3σ, (μ - LSL) / 3σ)
+  const mu = process_mean_mm ?? nominal_mm;
+  const cpk_upper = (USL - mu) / (3 * process_sigma_mm);
+  const cpk_lower = (mu - LSL) / (3 * process_sigma_mm);
   const cpk = Math.min(cpk_upper, cpk_lower);
 
   // Rating per automotive/aerospace standards

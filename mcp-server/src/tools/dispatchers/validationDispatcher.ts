@@ -44,12 +44,12 @@ Params vary by action - see individual action docs.`,
             break;
           }
           case "kienzle": {
-            const r = validateKienzle(params.iso_group, params.kc1_1, params.mc);
+            const r = validateKienzle(params.kc1_1, params.mc, params.iso_group);
             result = r;
             break;
           }
           case "taylor": {
-            const r = validateTaylor(params.iso_group, params.C, params.n);
+            const r = validateTaylor(params.C, params.n, params.iso_group);
             result = r;
             break;
           }
@@ -60,7 +60,7 @@ Params vary by action - see individual action docs.`,
           }
           case "safety": {
             // Accept either params.material (wrapped) or flat params
-            const materialData = params.material || (params.density || params.kc1_1 ? params : {});
+            const materialData = params.material ?? ((params.density != null || params.kc1_1 != null) ? params : {});
             const r = computeSafetyScore(materialData);
             result = r;
             break;

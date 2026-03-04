@@ -50,7 +50,7 @@ Params vary by action — pass relevant fields in params object.`,
             const measurements = params.measurements || params.data || [];
             const usl = params.usl ?? params.upper_spec_limit;
             const lsl = params.lsl ?? params.lower_spec_limit;
-            const n = measurements.length || 1;
+            const n = measurements.length ?? 1;
             const mean = measurements.length ? measurements.reduce((a: number, b: number) => a + b, 0) / n : 0;
             const std = n > 1 ? Math.sqrt(measurements.reduce((s: number, v: number) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
             // Guard: std=0 (single measurement or identical values) makes Cp/Cpk undefined
@@ -65,7 +65,7 @@ Params vary by action — pass relevant fields in params object.`,
           case "cpk_predict": {
             const engine = await getEngine("quality");
             result = engine.predict?.(params) ?? {
-              predicted_cpk: params.current_cpk ? params.current_cpk * 0.95 : 1.33,
+              predicted_cpk: params.current_cpk != null ? params.current_cpk * 0.95 : 1.33,
               confidence: 0.85,
               trend: "stable",
             };
@@ -73,7 +73,7 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "cmm_plan": {
             const features = params.features || [];
-            const points_per_feature = params.points_per_feature || 5;
+            const points_per_feature = params.points_per_feature ?? 5;
             const total_points = features.length * points_per_feature;
             const est_time_min = total_points * 0.1 + features.length * 0.5; // 6s per point + 30s per feature setup
             result = {
@@ -87,12 +87,13 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "measurement_analyze": {
             const engine = await getEngine("dimensional");
-            result = engine.analyze?.(params) ?? engine.compute?.(params) ?? { analysis: params };
+            result = engine.validate?.(params) ?? engine.predict?.(params) ?? { analysis: params };
             break;
           }
           case "tolerance_stack": {
             const engine = await getEngine("tolerance");
-            result = engine.analyze?.(params) ?? engine.compute?.(params) ?? { stack: params };
+            const method = params.method === "rss" ? "rss" : "worstCase";
+            result = engine[method]?.(params.dimensions ?? [], params.min_gap_mm ?? 0) ?? { stack: params };
             break;
           }
           case "gdt_validate": {
@@ -121,10 +122,10 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "gauge_rr": {
             // Gauge R&R study — AIAG method
-            const parts = params.parts || 10;
-            const operators = params.operators || 3;
-            const trials = params.trials || 3;
-            const tolerance = params.tolerance || 0.1;
+            const parts = params.parts ?? 10;
+            const operators = params.operators ?? 3;
+            const trials = params.trials ?? 3;
+            const tolerance = params.tolerance ?? 0.1;
             const ev = params.equipment_variation ?? tolerance * 0.05;
             const av = params.appraiser_variation ?? tolerance * 0.03;
             const grr = Math.sqrt(ev ** 2 + av ** 2);

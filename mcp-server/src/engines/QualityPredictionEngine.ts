@@ -188,7 +188,7 @@ function calculateCpk(tolerance_mm: number, processError_mm: number, machineAccu
 
 export class QualityPredictionEngine {
   predict(input: QualityInput): QualityPrediction {
-    const feedPerRev = input.feed_rate_mmmin / Math.max(input.spindle_rpm, 1);
+    const feedPerRev = input.spindle_rpm > 0 ? input.feed_rate_mmmin / input.spindle_rpm : 0;
     const toolRadius = input.tool_diameter_mm / 2;
     const condition = input.tool_condition || "normal";
 
