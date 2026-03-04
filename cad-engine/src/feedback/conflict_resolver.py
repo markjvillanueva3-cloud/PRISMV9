@@ -11,10 +11,11 @@ experience-based tiebreak, and escalation to human review.
 
 from __future__ import annotations
 
+import math
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from .feedback_schema import OperatorFeedback
 from .experience_scorer import ExperienceScorer, ExperienceScore
@@ -56,7 +57,7 @@ class Conflict:
     parameter: str
     operation_type: str
     material: str
-    details: dict = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     # For operator-vs-operator: {operators: [{id, value, weight}]}
     # For operator-vs-physics: {operator_id, operator_value, physics_range}
     # For operator-vs-knowledge: {operator_id, operator_value, kb_value, kb_confidence}
@@ -104,7 +105,7 @@ class EscalationEntry:
     """A conflict escalated to human review."""
     conflict: Conflict
     resolution_attempts: list[Resolution] = field(default_factory=list)
-    context: dict = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
     status: str = "pending"  # pending, approved, rejected
     reviewer_decision: Optional[str] = None
     reviewed_at: Optional[float] = None
@@ -279,7 +280,6 @@ class ConflictResolver:
             if mean == 0:
                 continue
             variance = sum((v - mean) ** 2 for v in vals) / len(vals)
-            import math
             cv = math.sqrt(variance) / abs(mean)
 
             if cv > self.OPERATOR_DISAGREEMENT_CV:

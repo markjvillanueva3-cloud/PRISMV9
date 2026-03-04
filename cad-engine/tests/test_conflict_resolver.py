@@ -243,8 +243,8 @@ class TestOperatorVsKnowledge:
         ]
         conflicts, resolutions = resolver.detect_and_resolve(entries)
         kb_res = [r for r in resolutions if r.conflict_type == ConflictType.OPERATOR_VS_KNOWLEDGE]
-        if kb_res:
-            assert kb_res[0].resolved_value == 300.0
+        assert len(kb_res) >= 1, "Expected KB conflict to be detected"
+        assert kb_res[0].resolved_value == 300.0
 
     def test_low_conf_kb_yields_to_expert(self):
         """Low-confidence KB yields to high-weight operator."""
@@ -265,8 +265,8 @@ class TestOperatorVsKnowledge:
         ]
         conflicts, resolutions = resolver.detect_and_resolve(entries)
         kb_res = [r for r in resolutions if r.conflict_type == ConflictType.OPERATOR_VS_KNOWLEDGE]
-        if kb_res:
-            assert kb_res[0].resolved_value == 450.0
+        assert len(kb_res) >= 1, "Expected KB conflict to be detected"
+        assert kb_res[0].resolved_value == 450.0
 
 
 # ===========================================================================

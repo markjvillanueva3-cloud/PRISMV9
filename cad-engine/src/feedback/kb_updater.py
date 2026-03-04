@@ -347,12 +347,8 @@ class KBUpdater:
         if consensus_confidence >= self.HIGH_CONFIDENCE_OVERRIDE:
             return UpdateMode.OVERRIDE
 
-        # Check if consensus tightens the range
-        current_range = existing.current.range_high - existing.current.range_low
-        new_range = pc.confidence_interval[1] - pc.confidence_interval[0]
-        if new_range < current_range * self.REFINE_FACTOR:
-            return UpdateMode.REFINE
-
+        # Check if consensus tightens the range → REFINE, otherwise no-op REFINE
+        # (both paths refine, but tight range gets logged differently)
         return UpdateMode.REFINE
 
     def _apply_new(self, key, consensus, param_name, pc) -> ChangeLogEntry:

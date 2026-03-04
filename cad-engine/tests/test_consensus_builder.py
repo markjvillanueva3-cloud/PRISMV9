@@ -133,12 +133,18 @@ class TestConfidenceScoring:
         assert results[0].confidence < 0.65
 
     def test_many_operators_higher_confidence(self, builder):
+        # Single operator baseline
+        single = [_make_feedback("OP-0", parameters_used={"speed": 300.0})]
+        single_conf = builder.build_consensus(single)[0].confidence
+
+        # Multiple operators should have higher confidence
+        builder2 = ConsensusBuilder()
         entries = [
             _make_feedback(f"OP-{i}", parameters_used={"speed": 300.0 + i})
             for i in range(5)
         ]
-        results = builder.build_consensus(entries)
-        assert results[0].confidence > results[0].confidence * 0  # Non-zero
+        results = builder2.build_consensus(entries)
+        assert results[0].confidence > single_conf
 
     def test_tight_agreement_higher_confidence(self, builder):
         # Tight agreement: all report ~300
@@ -200,14 +206,16 @@ class TestOutlierDetection:
             _make_feedback("OP-A", parameters_used={"speed": 300.0}),
             _make_feedback("OP-B", parameters_used={"speed": 305.0}),
             _make_feedback("OP-C", parameters_used={"speed": 310.0}),
+            _make_feedback("OP-D", parameters_used={"speed": 302.0}),
+            _make_feedback("OP-E", parameters_used={"speed": 308.0}),
             _make_feedback("OP-OUTLIER", parameters_used={"speed": 1000.0}),
         ]
         results = builder.build_consensus(entries)
         outliers = results[0].outliers
-        if outliers:
-            o = outliers[0]
-            assert o.deviation_stddevs > 2.0
-            assert o.parameter == "speed"
+        assert len(outliers) >= 1, "Expected outlier to be detected"
+        o = outliers[0]
+        assert o.deviation_stddevs > 2.0
+        assert o.parameter == "speed"
 
     def test_minimum_3_entries_for_outlier(self, builder):
         """Outlier detection requires at least 3 entries."""

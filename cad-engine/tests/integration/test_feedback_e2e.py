@@ -85,7 +85,7 @@ class FeedbackPipeline:
     def submit_and_validate(self, feedback: OperatorFeedback) -> dict:
         """Submit feedback through full pipeline: collect → validate → score."""
         # 1. Collect via API
-        fb_id = self.api.collect_feedback(feedback)
+        submit_result = self.api.collect_feedback(feedback)
 
         # 2. Validate
         result = self.validator.validate(feedback)
@@ -112,7 +112,7 @@ class FeedbackPipeline:
         )
 
         return {
-            "feedback_id": fb_id,
+            "feedback_id": submit_result.feedback_id,
             "validation_tier": tier_str,
             "experience_weight": score.total,
         }
@@ -500,12 +500,8 @@ class TestE2EMetricsAccuracy:
         ]
         cr = pipeline.build_consensus_and_resolve(entries)
 
-        # Update KB
+        # Update KB (metrics recorded inside update_kb)
         changes = pipeline.update_kb(cr["consensus_results"])
-
-        # Record KB metrics
-        for c in changes:
-            pipeline.metrics.record_kb_update(c.mode.value)
 
         # Generate dashboard
         dashboard = pipeline.metrics.generate_dashboard()
