@@ -284,11 +284,6 @@ class ToleranceCorrelator:
 
         results = []
         for pname in param_names:
-            x_vals = [getattr(e.parameters, f"{pname}_mpm" if pname == "cutting_speed"
-                              else f"{pname}_mm" if pname != "tool_wear_vb"
-                              else f"{pname}_mm", 0.0)
-                       for e in entries]
-            # Use the param_vector instead
             x_vals = [e.parameters.param_vector.get(pname, 0.0) for e in entries]
             y_vals = [abs(e.feature.deviation) for e in entries]
 
