@@ -126,7 +126,7 @@ Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_mode
 Actions (10): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup
 
 ### prism_cam (camDispatcher.ts)
-Actions (9): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize
+Actions (11): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, cam_strategy_recommend, cam_safety_validate
 
 ### prism_quality (qualityDispatcher.ts)
 Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
@@ -206,7 +206,7 @@ Forensics/inverse/genplan/sustain → prism_diagnosis (38)
 Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
 CAD geometry/mesh → prism_cad (10)
-CAM toolpath/post → prism_cam (9)
+CAM toolpath/post/strategy → prism_cam (11)
 Quality/SPC/GD&T → prism_quality (8)
 Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
 Job scheduling → prism_scheduling (8)
