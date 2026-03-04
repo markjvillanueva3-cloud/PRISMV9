@@ -1750,3 +1750,48 @@ export {
   validateTurningHPM,
   validateRestMaterialToolChange,
 } from "./HyperMillSafetyHooks.js";
+
+// ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
+
+// Cycle-to-Cycle Feedback Control (Hardt/Siu)
+export {
+  analyzeCtCControl,
+  findOptimalGain,
+  analyzeAutocorrelation,
+  type ControllerType as CtCControllerType,
+  type DisturbanceType,
+  type CtCProcessInput,
+  type CtCResult,
+  type CtCOptimalGainResult,
+  type AutocorrelationResult,
+} from "./CycleToControlEngine.js";
+
+// Advanced SPC Charts: EWMA, CUSUM, Moving Average, Xbar-S
+export {
+  computeEWMA,
+  computeCUSUM,
+  computeMovingAverage,
+  computeXbarS,
+  type ChartType,
+  type EWMAInput,
+  type CUSUMInput,
+  type MovingAverageInput,
+  type XbarSInput,
+  type ChartPoint,
+  type SPCChartResult,
+} from "./SPCChartingEngine.js";
+
+// Design of Experiments: Factorial, Fractional Factorial, ANOVA
+export {
+  analyzeFactorial,
+  generateFullFactorial,
+  generateFractionalFactorial,
+  type FactorDef,
+  type ExperimentRun,
+  type DOEInput,
+  type EffectEstimate,
+  type ANOVATable,
+  type DOEResult,
+  type DesignMatrix,
+  type FractionalDesignResult,
+} from "./DOEAnalysisEngine.js";
