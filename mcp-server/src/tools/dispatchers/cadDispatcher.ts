@@ -1,19 +1,21 @@
 /**
  * prism_cad — CAD/Geometry Dispatcher
  *
- * 10 actions: geometry_create, geometry_transform, geometry_analyze,
+ * 13 actions: geometry_create, geometry_transform, geometry_analyze,
  *   mesh_generate, mesh_import, mesh_export, feature_recognize,
- *   feature_edit, stock_model, wcs_setup
+ *   feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select,
+ *   deep_hole_technique
  *
  * Engine dependencies: CADKernelEngine, GeometryEngine, MeshEngine,
- *   FeatureRecognitionEngine, StockModelEngine, WorkCoordinateEngine
+ *   FeatureRecognitionEngine, StockModelEngine, WorkCoordinateEngine,
+ *   DfMRulesEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any;
+let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -22,6 +24,7 @@ async function getEngine(name: string): Promise<any> {
     case "feature": return _feature ??= (await import("../../engines/FeatureRecognitionEngine.js")).featureRecognitionEngine;
     case "stock": return _stock ??= (await import("../../engines/StockModelEngine.js")).stockModelEngine;
     case "wcs": return _wcs ??= (await import("../../engines/WorkCoordinateEngine.js")).workCoordinateEngine;
+    case "dfm": return _dfm ??= await import("../../engines/DfMRulesEngine.js");
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -31,12 +34,13 @@ const ACTIONS = [
   "mesh_generate", "mesh_import", "mesh_export",
   "feature_recognize", "feature_edit",
   "stock_model", "wcs_setup",
+  "dfm_check", "face_mill_select", "deep_hole_technique",
 ] as const;
 
 export function registerCadDispatcher(server: any): void {
   server.tool(
     "prism_cad",
-    `CAD/Geometry dispatcher — geometry operations, meshing, feature recognition, stock modeling, WCS setup.
+    `CAD/Geometry dispatcher — geometry operations, meshing, feature recognition, stock modeling, WCS setup, DfM checking.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
@@ -99,6 +103,21 @@ Params vary by action — pass relevant fields in params object.`,
           case "wcs_setup": {
             const engine = await getEngine("wcs");
             result = engine.setup?.(params) ?? engine.compute?.(params) ?? { wcs: params };
+            break;
+          }
+          case "dfm_check": {
+            const dfm = await getEngine("dfm");
+            result = dfm.checkDfMRules(params);
+            break;
+          }
+          case "face_mill_select": {
+            const dfm = await getEngine("dfm");
+            result = dfm.selectFaceMillGeometry(params);
+            break;
+          }
+          case "deep_hole_technique": {
+            const dfm = await getEngine("dfm");
+            result = dfm.selectDeepHoleTechnique(params);
             break;
           }
           default:

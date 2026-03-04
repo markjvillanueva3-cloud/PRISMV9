@@ -1795,3 +1795,22 @@ export {
   type DesignMatrix,
   type FractionalDesignResult,
 } from "./DOEAnalysisEngine.js";
+
+// ─── CNC Batch 1: DfM Rules Engine (pdf-learn forge-triple) ─────────
+
+// Design for Manufacturability rules, face mill selection, deep hole technique
+export {
+  checkDfMRules,
+  selectFaceMillGeometry,
+  selectDeepHoleTechnique,
+  estimateMachineCost,
+  type DfMCheckInput,
+  type DfMFeature,
+  type DfMViolation,
+  type DfMCheckResult,
+  type FaceMillSelectionInput,
+  type FaceMillRecommendation,
+  type DeepHoleInput,
+  type DeepHoleTechnique,
+  type MachineCostEstimate,
+} from "./DfMRulesEngine.js";

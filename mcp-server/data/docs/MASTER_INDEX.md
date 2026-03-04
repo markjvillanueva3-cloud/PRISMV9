@@ -123,7 +123,7 @@ NOTE: 200 deprecated actions still accepted for backward compatibility, forwarde
 Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_models, cad_geometry, cad_mesh, cad_curve, cad_capabilities, cam_toolpath, cam_gcode, cam_collision, cam_chip_thinning, cam_capabilities, file_parse, file_generate, file_formats, sim_gcode, sim_cycle_time, sim_verify, sim_capabilities, viz_scene, viz_toolpath, viz_heatmap, viz_presets, report_setup_sheet, report_cost, report_tool_list, report_speed_feed, report_alarm, report_inspection, report_templates, settings_get, settings_update, settings_convert, settings_presets, settings_safety, settings_apply_preset
 
 ### prism_cad (cadDispatcher.ts)
-Actions (10): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup
+Actions (13): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select, deep_hole_technique
 
 ### prism_cam (camDispatcher.ts)
 Actions (11): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, cam_strategy_recommend, cam_safety_validate
@@ -208,7 +208,7 @@ Knowledge graph/apprentice/genome → prism_knowledge_ext (40)
 Forensics/inverse/genplan/sustain → prism_diagnosis (38)
 Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
-CAD geometry/mesh → prism_cad (10)
+CAD geometry/mesh/DfM → prism_cad (13)
 CAM toolpath/post/strategy → prism_cam (11)
 Quality/SPC/GD&T → prism_quality (8)
 Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
@@ -404,6 +404,7 @@ Health: prism_bridge→health
 - CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
 - SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
 - DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
+- DfMRulesEngine.ts — Design for Manufacturability rules checker: 8 feature type checks (wall/cavity/hole/thread/undercut/tall/small/fillet), tolerance feasibility, face mill geometry selection (45°/90°/button), deep hole technique by L/D ratio, CNC machine cost estimation. Source: CNC Complete Engineering Guide, CNCCookbook guides
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
@@ -634,7 +635,7 @@ Total skill files: 119
 
 ## 15. SUMMARY (Updated 2026-03-01, SYS-MS6 schema validation)
 
-- Dispatchers: 46 (1100 verified actions — QA-MS0 audit + SYS-MS1)
+- Dispatchers: 46 (1103 verified actions — QA-MS0 audit + SYS-MS1)
 - Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
 - Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
 - Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
