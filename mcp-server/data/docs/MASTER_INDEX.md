@@ -323,7 +323,7 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (138 exported + 63 unwired = 201 total .ts files)
+## 4. ENGINES (140 exported + 63 unwired = 203 total .ts files)
 ## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R3 (2026-03-01)
 
 ### 4a. Calculation Engines (22 exported)
@@ -350,13 +350,14 @@ Health: prism_bridge→health
 - ChipFormationPredictionEngine.ts (240L) — Merchant's shear angle, chip compression ratio, chip type classification, BUE prediction
 - SpecificCuttingEnergyEngine.ts (235L) — Specific energy (J/mm³), energy efficiency, CO₂ per part, energy cost (Gutowski/ISO 14955)
 
-### 4b. Safety Engines (6 exported)
+### 4b. Safety Engines (7 exported)
 - CoolantValidationEngine.ts (767L) — Coolant flow, MQL validation, dry machining safety
 - SpindleProtectionEngine.ts (1009L) — Spindle overload, vibration monitoring
 - ToolBreakageEngine.ts (1071L) — Tool breakage prediction and monitoring
 - WorkEnvelopeValidatorEngine.ts (201L) — Work envelope limits, C-axis validation
 - RTCP_CompensationEngine.ts (213L) — Rotary tool center point compensation
 - CollisionDetectionEngine.ts (278L) — Real-time collision detection
+- HyperMillSafetyHooks.ts (252L) — hyperMILL safety validations: clearance plane, negative allowance, geometry check, measurement system, HPM inserts, rest material
 
 ### 4c. Manufacturing Process Engines (16 exported)
 - PostProcessorEngine.ts (381L) — G-code post-processing, 6 controller dialects
@@ -384,7 +385,7 @@ Health: prism_bridge→health
 - WorkCoordinateEngine.ts (227L) — Work coordinate system setup
 - CollisionEngine.ts (2089L) — Full collision analysis engine
 
-### 4e. CAD/CAM Engines (8 exported)
+### 4e. CAD/CAM Engines (9 exported)
 - CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
 - CAMKernelEngine.ts (874L) — CAM kernel operations
 - CAMIntegrationEngine.ts (1230L) — CAM system integration
@@ -393,6 +394,7 @@ Health: prism_bridge→health
 - GeometryEngine.ts (224L) — Geometry operations facade
 - MeshEngine.ts (286L) — Mesh generation and operations
 - ToolAssemblyEngine.ts (182L) — Tool assembly management (holder + collet + tool, gauge length, stickout, runout)
+- HyperMillStrategyEngine.ts (441L) — hyperMILL CAM strategy selector: 25 strategies (2D/3D/turning), slope-dependent selection, material warnings
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
@@ -499,7 +501,7 @@ Reserved for future wiring. Top 10 by size:
 - ClampingSimEngine.ts (234L)
 Total unwired: 63 files (RegenerativeChatterPredictor wired in FORGE-ENGINES)
 
-### index.ts (1590L) — Barrel export file re-exporting 128 engines
+### index.ts (1720L) — Barrel export file re-exporting 140 engines
 
 ## 5. REGISTRIES (19 files)
 

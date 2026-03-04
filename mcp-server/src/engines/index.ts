@@ -1698,3 +1698,23 @@ export {
   type SpecificCuttingEnergyInput,
   type SpecificCuttingEnergyResult,
 } from "./SpecificCuttingEnergyEngine.js";
+
+// hyperMILL CAM Strategy & Safety (from pdf-learn forge-triple)
+export {
+  hyperMillStrategyEngine,
+  HyperMillStrategyEngine,
+  type GeometryType,
+  type OperationGoal,
+  type StrategyInput,
+  type StrategyRecommendation,
+  type StrategyEngineStats,
+} from "./HyperMillStrategyEngine.js";
+
+export {
+  validateClearancePlane,
+  validateNegativeAllowance,
+  validateGeometryCheckEnabled,
+  validateMeasurementSystem,
+  validateTurningHPM,
+  validateRestMaterialToolChange,
+} from "./HyperMillSafetyHooks.js";
