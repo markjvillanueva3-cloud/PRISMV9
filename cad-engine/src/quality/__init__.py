@@ -19,6 +19,14 @@ from .cmm_importer import (
     QIFParser,
     VendorFormat,
 )
+from .tolerance_correlator import (
+    ToleranceCorrelator,
+    CuttingParameterRecord,
+    ToleranceCorrelationEntry,
+    TolerancePrediction,
+    SensitivityResult,
+    deviation_to_it_grade,
+)
 
 __all__ = [
     "FeatureType",
@@ -31,4 +39,10 @@ __all__ = [
     "DMISParser",
     "QIFParser",
     "VendorFormat",
+    "ToleranceCorrelator",
+    "CuttingParameterRecord",
+    "ToleranceCorrelationEntry",
+    "TolerancePrediction",
+    "SensitivityResult",
+    "deviation_to_it_grade",
 ]
