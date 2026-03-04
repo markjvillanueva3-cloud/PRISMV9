@@ -1420,18 +1420,18 @@ export function productPPG(action: string, params: Record<string, any>): any {
 
     case "ppg_compare": {
       const operation = params.operation || "drilling";
-      const rpm = params.rpm || 2000;
-      const feedRate = params.feed_rate || params.vf || 500;
-      const controllers = params.controllers || ["fanuc", "siemens", "heidenhain"];
+      const rpm = params.rpm ?? 2000;
+      const feedRate = params.feed_rate ?? params.vf ?? 500;
+      const controllers = params.controllers ?? ["fanuc", "siemens", "heidenhain"];
 
       const gcParams: GCodeParams = {
-        tool_number: params.tool_number || 1,
+        tool_number: params.tool_number ?? 1,
         rpm,
         feed_rate: feedRate,
-        coolant: params.coolant || "flood",
-        z_safe: params.z_safe || 5,
-        z_depth: params.z_depth || -15,
-        peck_depth: params.peck_depth || 3,
+        coolant: params.coolant ?? "flood",
+        z_safe: params.z_safe ?? 5,
+        z_depth: params.z_depth ?? -15,
+        peck_depth: params.peck_depth ?? 3,
       };
 
       const results = controllers.map((ctrl: string) => {
@@ -1629,14 +1629,14 @@ function shopJobPlan(params: Record<string, any>): any {
     const estimate = shopEstimateOpCycleTime(
       material,
       feat.feature || "pocket",
-      { depth: feat.depth || 10, width: feat.width || 50, length: feat.length || 50, diameter: feat.diameter },
+      { depth: feat.depth ?? 10, width: feat.width ?? 50, length: feat.length ?? 50, diameter: feat.diameter },
       toolDiam,
       numTeeth,
     );
     return {
       step: i + 1,
-      feature: feat.feature || "pocket",
-      dimensions: { depth: feat.depth || 10, width: feat.width || 50, length: feat.length || 50 },
+      feature: feat.feature ?? "pocket",
+      dimensions: { depth: feat.depth ?? 10, width: feat.width ?? 50, length: feat.length ?? 50 },
       ...estimate,
     };
   });
@@ -1721,7 +1721,7 @@ function shopQuote(params: Record<string, any>): any {
   const partName = params.part_name || "Custom Part";
   const leadTimeDays = params.lead_time_days || Math.max(5, Math.ceil(cost.batch_size / 10) + 3);
   const quoteNumber = `Q-${Date.now().toString(36).toUpperCase()}`;
-  const validDays = params.quote_valid_days || 30;
+  const validDays = params.quote_valid_days ?? 30;
 
   return {
     quote_number: quoteNumber,
@@ -1755,9 +1755,9 @@ function shopQuote(params: Record<string, any>): any {
 function shopSchedule(params: Record<string, any>): any {
   const cost = shopCostBreakdown(params);
   const startDate = params.start_date ? new Date(params.start_date) : new Date();
-  const setupTimeMin = params.setup_time_min || 30;
-  const hoursPerDay = params.hours_per_day || 8;
-  const efficiency = params.efficiency || 0.85; // 85% OEE
+  const setupTimeMin = params.setup_time_min ?? 30;
+  const hoursPerDay = params.hours_per_day ?? 8;
+  const efficiency = params.efficiency ?? 0.85; // 85% OEE
 
   const totalMachineMin = cost.cycle_time_min * cost.batch_size + setupTimeMin;
   const effectiveMinPerDay = hoursPerDay * 60 * efficiency;
@@ -1883,7 +1883,7 @@ function shopCompare(params: Record<string, any>): any {
 
   return {
     material: params.material || "4140",
-    batch_size: params.batch_size || 1,
+    batch_size: params.batch_size ?? 1,
     results,
     recommendation: results[0]
       ? `${results[0].machine.name} is most cost-effective at $${results[0].cost_per_part}/part`
@@ -2201,11 +2201,11 @@ function acncGenerateGCode(
     return {
       operation: gcodeOp,
       params: {
-        x: 0, y: 0, z_depth: -(params.axial_depth_mm || 5),
-        depth: params.axial_depth_mm || 5,
+        x: 0, y: 0, z_depth: -(params.axial_depth_mm ?? 5),
+        depth: params.axial_depth_mm ?? 5,
         diameter: params.radial_depth_mm ? params.radial_depth_mm * 2 : 20,
-        feed_rate: params.feed_rate_mm_min || 500,
-        rpm: params.spindle_rpm || 5000,
+        feed_rate: params.feed_rate_mm_min ?? 500,
+        rpm: params.spindle_rpm ?? 5000,
         tool_number: 1,
       },
     };
@@ -2227,7 +2227,7 @@ function acncGenerateGCode(
   return {
     controller: resolved.name,
     controller_family: resolved.family,
-    program_number: programNumber || 1001,
+    program_number: programNumber ?? 1001,
     gcode: programResult.gcode,
     operations_count: gcodeOps.length,
     line_count: programResult.line_count,
@@ -2238,23 +2238,23 @@ function acncGenerateGCode(
 /** Step 6: Simulation/safety check */
 function acncSimulate(params: any, gcodeResult: any): any {
   // Use collision engine for basic clearance check
-  const toolDiam = params.tool?.diameter || 12;
-  const depth = params.dimensions?.depth || 10;
-  const width = params.dimensions?.width || 50;
+  const toolDiam = params.tool?.diameter ?? 12;
+  const depth = params.dimensions?.depth ?? 10;
+  const width = params.dimensions?.width ?? 50;
 
   // Simplified simulation using safety score
-  const matPhysics = MATERIAL_HARDNESS[params.material || "4140"] || MATERIAL_HARDNESS["4140"];
-  const cuttingSpeed = params.parameters?.cutting_speed_m_min || 100;
-  const feedPerTooth = params.parameters?.feed_per_tooth_mm || 0.1;
-  const ap = params.parameters?.axial_depth_mm || 5;
-  const ae = params.parameters?.radial_depth_mm || 7;
+  const matPhysics = MATERIAL_HARDNESS[params.material ?? "4140"] ?? MATERIAL_HARDNESS["4140"];
+  const cuttingSpeed = params.parameters?.cutting_speed_m_min ?? 100;
+  const feedPerTooth = params.parameters?.feed_per_tooth_mm ?? 0.1;
+  const ap = params.parameters?.axial_depth_mm ?? 5;
+  const ae = params.parameters?.radial_depth_mm ?? 7;
 
   const estimatedPower = (matPhysics.kc1_1 * feedPerTooth * ap * ae) * cuttingSpeed / (60000 * 1000);
   const safetyResult = calculateSafetyScore(cuttingSpeed, feedPerTooth, ap, ae, toolDiam, estimatedPower);
 
   // Estimate cycle time
-  const volume = (depth * width * (params.dimensions?.length || 50)) / 1000; // mm³ → cm³
-  const mrr = params.parameters?.mrr_cm3_min || 50;
+  const volume = (depth * width * (params.dimensions?.length ?? 50)) / 1000; // mm³ → cm³
+  const mrr = params.parameters?.mrr_cm3_min ?? 50;
   const cuttingTime = mrr > 0 ? volume / mrr : 5;
   const totalTime = cuttingTime * 1.2; // 20% overhead for rapids/tool changes
 
@@ -2371,7 +2371,7 @@ function acncBatch(params: Record<string, any>): any {
   const results = features.map((f: any, idx: number) => {
     const featureParams = typeof f === "string"
       ? { description: f, material, controller, program_number: 1001 + idx }
-      : { ...f, material: f.material || material, controller: f.controller || controller, program_number: f.program_number || 1001 + idx };
+      : { ...f, material: f.material ?? material, controller: f.controller ?? controller, program_number: f.program_number ?? 1001 + idx };
 
     return acncCompleteProgram(featureParams);
   });
@@ -2448,18 +2448,18 @@ export function productACNC(action: string, params: Record<string, any>): any {
       // Quick simulation without full program generation
       const simParams = {
         material: params.material || "4140",
-        tool: { diameter: params.tool_diameter || 12 },
+        tool: { diameter: params.tool_diameter ?? 12 },
         dimensions: {
-          depth: params.depth || 10,
-          width: params.width || 50,
-          length: params.length || 50,
+          depth: params.depth ?? 10,
+          width: params.width ?? 50,
+          length: params.length ?? 50,
         },
         parameters: {
-          cutting_speed_m_min: params.cutting_speed || 100,
-          feed_per_tooth_mm: params.feed_per_tooth || 0.1,
-          axial_depth_mm: params.axial_depth || 5,
-          radial_depth_mm: params.radial_depth || 7,
-          mrr_cm3_min: params.mrr || 50,
+          cutting_speed_m_min: params.cutting_speed ?? 100,
+          feed_per_tooth_mm: params.feed_per_tooth ?? 0.1,
+          axial_depth_mm: params.axial_depth ?? 5,
+          radial_depth_mm: params.radial_depth ?? 7,
+          mrr_cm3_min: params.mrr ?? 50,
         },
       };
       const result = acncSimulate(simParams, {});
@@ -2484,7 +2484,7 @@ export function productACNC(action: string, params: Record<string, any>): any {
       });
 
       const result = acncGenerateGCode(feature, controller, {
-        axial_depth_mm: params.depth || 5,
+        axial_depth_mm: params.depth ?? 5,
         radial_depth_mm: featureDef.default_tool_diam * 0.6,
         feed_rate_mm_min: Math.round(sfResult.feed_rate),
         spindle_rpm: Math.round((sfResult.cutting_speed * 1000) / (Math.PI * featureDef.default_tool_diam)),
