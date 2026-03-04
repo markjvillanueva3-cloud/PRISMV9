@@ -1,21 +1,24 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 12 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 14 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
- *   sequence_operations, linking_move
+ *   sequence_operations, linking_move, cam_strategy_recommend,
+ *   cam_safety_validate
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
- *   ToolAssemblyEngine, ModularFixtureLayoutEngine
+ *   ToolAssemblyEngine, ModularFixtureLayoutEngine,
+ *   HyperMillStrategyEngine, HyperMillSafetyHooks
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -25,6 +28,8 @@ async function getEngine(name: string): Promise<any> {
     case "stock": return _stock ??= (await import("../../engines/StockModelEngine.js")).stockModelEngine;
     case "toolasm": return _toolAsm ??= (await import("../../engines/ToolAssemblyEngine.js")).toolAssemblyEngine;
     case "fixture": return _fixture ??= (await import("../../engines/ModularFixtureLayoutEngine.js")).modularFixtureLayoutEngine;
+    case "hmStrategy": return _hmStrategy ??= (await import("../../engines/HyperMillStrategyEngine.js")).hyperMillStrategyEngine;
+    case "hmSafety": return _hmSafety ??= await import("../../engines/HyperMillSafetyHooks.js");
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -34,6 +39,7 @@ const ACTIONS = [
   "post_process", "collision_check_full", "stock_update",
   "tool_assembly", "fixture_setup", "nesting_optimize",
   "clearance_plane", "sequence_operations", "linking_move",
+  "cam_strategy_recommend", "cam_safety_validate",
 ] as const;
 
 export function registerCamDispatcher(server: any): void {
@@ -53,6 +59,23 @@ Params vary by action — pass relevant fields in params object.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // PRE-TOOLPATH SAFETY HOOKS — collision detection, G-code safety, toolpath safety
+        const hookCtx = {
+          operation: action,
+          target: { type: "calculation" as const, id: action, data: params },
+          metadata: { dispatcher: "camDispatcher", action, params }
+        };
+        const preResult = await hookExecutor.execute("pre-toolpath", hookCtx);
+        if (preResult.blocked) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({
+              blocked: true, blocker: preResult.blockedBy,
+              reason: preResult.summary, action,
+            }) }]
+          };
+        }
+
         switch (action) {
           case "toolpath_generate": {
             const engine = await getEngine("toolpath");
@@ -129,10 +152,43 @@ Params vary by action — pass relevant fields in params object.`,
             );
             break;
           }
+          case "cam_strategy_recommend": {
+            const engine = await getEngine("hmStrategy");
+            result = engine.recommend(params) ?? { error: "HyperMillStrategyEngine.recommend returned null" };
+            break;
+          }
+          case "cam_safety_validate": {
+            const hmSafety = await getEngine("hmSafety");
+            const validations = [
+              params.clearance_plane ? hmSafety.validateClearancePlane(params) : null,
+              params.allowance != null ? hmSafety.validateNegativeAllowance(params) : null,
+              params.geometry_check != null ? hmSafety.validateGeometryCheckEnabled(params) : null,
+              params.measurement_system ? hmSafety.validateMeasurementSystem(params) : null,
+              params.insert_type ? hmSafety.validateTurningHPM(params) : null,
+              params.rest_material ? hmSafety.validateRestMaterialToolChange(params) : null,
+            ].filter(Boolean);
+            const blocked = validations.filter((v: any) => v?.severity === "BLOCK");
+            result = {
+              validations,
+              safe: blocked.length === 0,
+              blocked_count: blocked.length,
+              warning_count: validations.length - blocked.length,
+            };
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (error) {
+        // POST-TOOLPATH HOOKS
+        try {
+          await hookExecutor.execute("post-toolpath", {
+            ...hookCtx, metadata: { ...hookCtx.metadata, result }
+          });
+        } catch (postErr) {
+          log.warn(`[prism_cam] Post-toolpath hook error: ${postErr}`);
+        }
+      } catch (error: any) {
+        if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_cam");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };

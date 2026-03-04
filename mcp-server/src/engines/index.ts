@@ -1,8 +1,7 @@
 /**
- * PRISM MCP Server - Engines Index v12
- * Re-exports 128 active calculation, orchestration, and infrastructure engines
- * Updated: SYS-MS4-U01 — Removed 64 dead (unwired) engine exports
- * Note: 64 specialty engine .ts files remain on disk for future wiring
+ * PRISM MCP Server - Engines Index v13
+ * Re-exports 150 active calculation, orchestration, and infrastructure engines
+ * Updated: 2026-03-03 audit — 218 total .ts files, 150 exported, 68 unwired on disk
  */
 
 // Manufacturing Calculations (Kienzle, Taylor, Johnson-Cook, etc.)
@@ -1814,3 +1813,30 @@ export {
   type DeepHoleTechnique,
   type MachineCostEstimate,
 } from "./DfMRulesEngine.js";
+
+// Part-Off Force Calculation (Forge R3)
+export {
+  partOffForceEngine,
+  PartOffForceEngine,
+  type PartOffInput,
+  type PartOffResult,
+} from "./PartOffForceEngine.js";
+
+// Roughness Scale Conversion (Forge R3)
+export {
+  roughnessConversionEngine,
+  RoughnessConversionEngine,
+  type RoughnessScale,
+  type RoughnessConversionInput,
+  type RoughnessConversionResult,
+} from "./RoughnessConversionEngine.js";
+
+// Peck Drilling Optimization (Forge R3)
+export {
+  peckDrillingOptimizationEngine,
+  PeckDrillingOptimizationEngine,
+  type DrillType,
+  type PeckStrategy,
+  type PeckDrillingInput,
+  type PeckDrillingResult,
+} from "./PeckDrillingOptimizationEngine.js";

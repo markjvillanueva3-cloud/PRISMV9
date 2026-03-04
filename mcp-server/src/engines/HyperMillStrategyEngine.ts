@@ -342,6 +342,9 @@ export class HyperMillStrategyEngine {
       );
     }
 
+    // Sort by priority first, then apply slope-dependent overrides
+    candidates.sort((a, b) => b.priority - a.priority);
+
     // Slope-dependent selection for 3D finishing
     if (
       operationGoal === "finishing" &&
@@ -388,8 +391,6 @@ export class HyperMillStrategyEngine {
       );
     }
 
-    // Sort by priority
-    candidates.sort((a, b) => b.priority - a.priority);
     const best = candidates[0];
 
     if (!best) {

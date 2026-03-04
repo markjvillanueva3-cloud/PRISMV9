@@ -498,7 +498,22 @@ var DISPATCHER_HOOK_MAP = {
   prism_hook: { before: "before_mutate", after: "after_mutate", category: "STATE" },
   prism_generator: { before: "before_apply", after: "after_apply", category: "FORMULA" },
   prism_guard: { before: "before_read", after: "after_read", category: "FILE" },
-  prism_atcs: { before: "before_spawn", after: "on_complete", category: "AGENT" }
+  prism_atcs: { before: "before_spawn", after: "on_complete", category: "AGENT" },
+  // Safety-critical manufacturing dispatchers (audit fix 2026-03-03)
+  prism_turning: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_grinding: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_cam: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_5axis: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_edm: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_process_control: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_machine_live: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_quality: { before: "before_apply", after: "after_apply", category: "FORMULA" },
+  prism_export: { before: "before_write", after: "after_write", category: "FILE" },
+  prism_cad: { before: "before_calculation", after: "after_calculation", category: "CALC" },
+  prism_scheduling: { before: "before_mutate", after: "after_mutate", category: "STATE" },
+  prism_shop_practice: { before: "before_read", after: "after_read", category: "FILE" },
+  prism_doc_learn: { before: "before_read", after: "after_read", category: "FILE" },
+  prism_automation: { before: "before_spawn", after: "on_complete", category: "AGENT" },
 };
 var globalDispatchCount = 0;
 var lastTodoReminder = 0;
@@ -664,6 +679,19 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         }
       } catch (e: any) { log.debug(`[hook-cadence] journal trim: ${e?.message?.slice(0, 80)}`); }
     } catch (e: any) { log.debug(`[hook-cadence] journal write: ${e?.message?.slice(0, 80)}`); }
+    // DoS guard: reject oversized/deeply-nested payloads (audit fix 2026-03-03)
+    const rawParams = args[0]?.params;
+    if (rawParams && typeof rawParams === "object") {
+      try {
+        const { validateInputParams: vip } = await import("../utils/dispatcherMiddleware.js");
+        const dosErr = vip(rawParams as Record<string, unknown>);
+        if (dosErr) {
+          log.warn(`[universal-hook] DoS guard BLOCKED ${toolName}:${action2}: ${dosErr}`);
+          return { content: [{ type: "text", text: JSON.stringify({ blocked: true, reason: dosErr, action: action2 }) }] };
+        }
+      } catch { /* middleware not available */ }
+    }
+
     recentToolCalls.push(`${toolName}:${action2}`);
     if (recentToolCalls.length > 20) recentToolCalls = recentToolCalls.slice(-20);
     const now = Date.now();

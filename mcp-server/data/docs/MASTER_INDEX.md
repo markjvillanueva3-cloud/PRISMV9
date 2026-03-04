@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (46 dispatchers, 1103 verified actions)
+## 1. DISPATCHERS (53 dispatchers, 1286 verified actions)
 ## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
 ## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
@@ -167,7 +167,7 @@ Actions (5): doc_upload, doc_extract, doc_list, doc_get, doc_delete
 ### prism_shop_practice (shopPracticeDispatcher.ts) — CC-MS6
 Actions (12): practice_ingest, practice_search, practice_get, practice_list, practice_audit, practice_recommend, tree_build, tree_navigate, tree_search, tips_add, tips_get, tips_conflicts
 
-**Total: 52 dispatchers, 1280 actions** (updated FORGE-TRIPLE 2026-03-01, +1 dispatcher, +12 shop practice actions)
+**Total: 53 dispatchers, 1286 actions** (verified audit 2026-03-03)
 
 ---
 
@@ -633,26 +633,26 @@ Total skill files: 119
 - validation/actionParamValidator.ts — Standalone validator with coercion + structured errors
 - utils/dispatcherMiddleware.ts — validateActionParams() with type coercion (string→number/boolean)
 
-## 15. SUMMARY (Updated 2026-03-01, SYS-MS6 schema validation)
+## 15. SUMMARY (Verified audit 2026-03-03)
 
-- Dispatchers: 46 (1103 verified actions — QA-MS0 audit + SYS-MS1)
-- Engines: 125 active barrel exports + 66 unwired on disk = 191 total .ts files (SYS-MS5 audit)
-- Algorithms: 50 standalone Algorithm<I,O> implementations (QA-MS5 verified)
-- Registries: 15 (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 5 more)
+- Dispatchers: 53 (1286 verified actions)
+- Engines: 150 active barrel exports + 68 unwired on disk = 218 total .ts files
+- Algorithms: 52 standalone Algorithm<I,O> implementations
+- Registries: 23 .ts files (material, machine, tool, alarm, formula, agent, hook, skill, script, toolpath + 13 more)
 - Services: 2 (TaskClaimService, RoadmapLoader) — multi-Claude coordination
 - Skills: 153 with SKILL.md (C:\PRISM\skills-consolidated)
 - Scripts: 275 Python/PowerShell (C:\PRISM\scripts)
 - Agents: 70 definitions (14 OPUS, 35 SONNET, 9 HAIKU)
-- Cadences: 103 functions (QA-MS13 verified)
-- Hooks: 220 total (179 domain + 41 Phase0) — QA-MS12 verified
-- Tests: 43 test files, 1243 total (1242 passing, 1 pre-existing Merchant's force_ratios)
+- Cadences: 101 exported functions + 2 core definitions = 103 total
+- Hooks: 220 total (179 domain + 41 Phase0) — 6 safety-critical dispatchers now wired
+- Tests: 75 test files, 2571 total (2570 passing, 1 pre-existing hypermill strategy)
 - Type definitions: 13 files (including coordinationTypes.ts)
-- Formulas: 500 (11 built-in + 489 JSON) — QA-MS7 verified
+- Formulas: 499 (11 built-in + 488 JSON) in C:\PRISM\data\FORMULA_REGISTRY.json
 - Coordination files: TaskClaimService + 5 orchestration actions
-- Build: npm run build (esbuild) → dist/index.js, 6.6MB, 0 TS errors
-- Action Param Schemas: 8 files covering 7 dispatchers, 147 actions (SYS-MS6)
-- Slash commands: 34 (16 core + 10 forge family + 8 utility)
-- Roadmap: v5.3.0, 94 milestones, 68 complete
+- Build: npm run build (esbuild) → dist/index.js, 6.9MB, 0 TS errors
+- Action Param Schemas: 7 files covering 7 dispatchers, 154 actions
+- Slash commands: 60 (16 core + 19 forge family + 25 utility)
+- Roadmap: v5.3.0, 95 milestones, 95 complete (ALL DONE)
 
 ### F-SERIES FEATURES (all Ralph-validated A-/A, Ω≥0.89)
 | Feature | Engine | Dispatcher | Ω Score |

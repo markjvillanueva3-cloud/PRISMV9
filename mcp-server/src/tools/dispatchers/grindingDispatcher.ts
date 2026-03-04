@@ -10,6 +10,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { hookExecutor } from "../../engines/HookExecutor.js";
 import { grindingForceEngine } from "../../engines/GrindingForceEngine.js";
 import type { GrindingMode, CoolantType } from "../../engines/GrindingForceEngine.js";
 import { grindingSurfaceFinishEngine } from "../../engines/GrindingSurfaceFinishEngine.js";
@@ -43,6 +44,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // PRE-CALCULATION SAFETY HOOKS — blocks unsafe grinding params (white-layer, burn risk)
+        const hookCtx = {
+          operation: action,
+          target: { type: "calculation" as const, id: action, data: params },
+          metadata: { dispatcher: "grindingDispatcher", action, params }
+        };
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+        if (preResult.blocked) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({
+              blocked: true, blocker: preResult.blockedBy,
+              reason: preResult.summary, action,
+            }) }]
+          };
+        }
+
         switch (action) {
           case "wheel_select": {
             const material = (params.material || "steel").toLowerCase();
@@ -172,7 +190,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (error) {
+        // POST-CALCULATION HOOKS
+        try {
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx, metadata: { ...hookCtx.metadata, result }
+          });
+        } catch (postErr) {
+          log.warn(`[prism_grinding] Post-calculation hook error: ${postErr}`);
+        }
+      } catch (error: any) {
+        if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_grinding");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };

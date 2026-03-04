@@ -1,7 +1,7 @@
 # PRISM Manufacturing Intelligence — Core Rules
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 50 dispatchers, 1260 actions, 125 engines.
+Safety-critical CNC manufacturing MCP server. 53 dispatchers, 1286 actions, 150 engines.
 Mathematical errors cause tool explosions and operator injuries.
 **Lives depend on correctness. Zero tolerance for shortcuts or placeholders.**
 
@@ -29,14 +29,14 @@ npm run build:fast     # esbuild only (no type-check)
 
 ## Key Paths
 ```
-src/tools/dispatchers/       — 50 dispatcher files (see dispatchers/CLAUDE.md)
-src/engines/                 — 125 engine exports (see engines/CLAUDE.md)
+src/tools/dispatchers/       — 53 dispatcher files (see dispatchers/CLAUDE.md)
+src/engines/                 — 150 engine exports (see engines/CLAUDE.md)
 src/tools/autoHookWrapper.ts — Central hook/cadence/logging wrapper
 src/tools/cadenceExecutor.ts — Cadence functions (checkpoint, pressure, etc.)
 src/utils/paramNormalizer.ts — Snake-to-camel param aliases
 src/utils/smokeTest.ts       — 5 boot canary tests
 src/utils/responseSlimmer.ts — Token optimization
-data/roadmap-index.json      — Master roadmap index (v5.3.0, 94 milestones)
+data/roadmap-index.json      — Master roadmap index (v5.3.0, 95 milestones)
 data/milestones/             — 94 milestone envelope JSON files
 data/docs/gsd/GSD_QUICK.md   — GSD v22.0 canonical protocol
 C:/PRISM/state/              — Runtime state (logs, checkpoints, position)

@@ -12,6 +12,8 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { hookExecutor } from "../../engines/HookExecutor.js";
+import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 
 let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, _partoff: any;
 async function getEngine(name: string): Promise<any> {
@@ -49,6 +51,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // PRE-CALCULATION SAFETY HOOKS — blocks unsafe turning params
+        const hookCtx = {
+          operation: action,
+          target: { type: "calculation" as const, id: action, data: params },
+          metadata: { dispatcher: "turningDispatcher", action, params }
+        };
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+        if (preResult.blocked) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({
+              blocked: true, blocker: preResult.blockedBy,
+              reason: preResult.summary, action,
+            }) }]
+          };
+        }
+
         switch (action) {
           case "chuck_force": {
             const engine = await getEngine("chuck");
@@ -88,7 +107,28 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (error) {
+        // POST-CALCULATION HOOKS
+        try {
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx, metadata: { ...hookCtx.metadata, result }
+          });
+        } catch (postErr) {
+          log.warn(`[prism_turning] Post-calculation hook error: ${postErr}`);
+        }
+
+        // Cross-field physics validation for force-producing actions
+        const physicsActions = new Set(["chuck_force", "tailstock", "part_off_force"]);
+        if (physicsActions.has(action) && result && !result.error && result.Vc !== undefined) {
+          try {
+            const material = params.material_id || params.material || "unknown";
+            validateCrossFieldPhysics({ ...result, material, operation: action });
+          } catch (physicsErr: any) {
+            if (physicsErr?.name === "SafetyBlockError") throw physicsErr;
+            log.warn(`[prism_turning] Cross-field physics check: ${physicsErr}`);
+          }
+        }
+      } catch (error: any) {
+        if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_turning");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };

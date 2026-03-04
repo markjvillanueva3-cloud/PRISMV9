@@ -14,8 +14,8 @@
 - PYTHON: `C:/Users/Admin.DIGITALSTORM-PC/AppData/Local/Programs/Python/Python312/python.exe`
 
 ## MCP Server Source
-- Dispatchers: `mcp/src/tools/dispatchers/*Dispatcher.ts` (51 files)
-- Engines: `mcp/src/engines/*.ts` (198 total, index at `engines/index.ts`)
+- Dispatchers: `mcp/src/tools/dispatchers/*Dispatcher.ts` (53 files)
+- Engines: `mcp/src/engines/*.ts` (218 total, index at `engines/index.ts`)
 - Algorithms: `mcp/src/algorithms/*.ts` (51 files)
 - Hooks: `mcp/src/hooks/*.ts` (220 hooks)
 - Schemas: `mcp/src/schemas/*.ts`
@@ -27,7 +27,7 @@
 ## MCP Server Data
 - MASTER_INDEX: `mcp/data/docs/MASTER_INDEX.md`
 - PATH_INDEX: `mcp/data/docs/PATH_INDEX.md` (this file)
-- Formulas: `mcp/data/formulas/*.json` (500 formulas)
+- Formulas: `C:/PRISM/data/FORMULA_REGISTRY.json` (499 formulas, external)
 - Materials DB: `mcp/data/materials/` (15 registries)
 - Roadmap: `mcp/data/roadmap-index.json`
 - Milestones: `mcp/data/milestones/*.json`
@@ -91,9 +91,9 @@
 - Trouble Trees: `trouble_trees/{chatter,surface_finish,tool_wear,dimensional_accuracy,chip_evacuation}.json`
 - Material Tips: `material_tips/{aluminum,steel,stainless_steel,titanium,cast_iron}.json`
 
-## Key Counts (verify with disk if stale)
-- 51 dispatchers, 1265 actions, 198 engines (135 exported), 51 algorithms
-- 220 hooks, 103 cadences, 500 formulas, 15 registries
-- 60 slash commands, 88 hookify rules
-- 2232 backend tests, 76 web tests, 11 E2E, 550 cad-engine tests
-- 84/95 milestones complete
+## Key Counts (verified 2026-03-03)
+- 53 dispatchers, 1286 actions, 218 engines (150 exported), 52 algorithms
+- 220 hooks, 103 cadences, 499 formulas, 23 registries
+- 60 slash commands, 93 hookify rules
+- 2571 backend tests, 76 web tests, 11 E2E, 2085 cad-engine tests
+- 95/95 milestones complete

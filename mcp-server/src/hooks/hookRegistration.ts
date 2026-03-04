@@ -2,7 +2,7 @@
  * PRISM Hook Registration Bridge
  * ================================
  * 
- * Registers all 112 domain hooks with the HookExecutor at startup.
+ * Registers all 220 domain hooks with the HookExecutor at startup.
  * This bridges the gap between hook definitions (hooks/*.ts) and
  * the execution engine (engines/HookExecutor.ts).
  * 

@@ -1,6 +1,6 @@
-# PRISM Quick Reference v22.0
-## 45 dispatchers | 1060 verified actions | 40 cadence auto-functions | 185 engines | 179 hooks
-## F1-F8 COMPLETE | R0-P0 Audit COMPLETE | See MASTER_INDEX.md for full reference
+# PRISM Quick Reference v23.1
+## 53 dispatchers | 1286 verified actions | 101 cadence auto-functions | 218 engines (150 exported) | 220 hooks
+## All 95 milestones COMPLETE | See MASTER_INDEX.md for full reference
 
 ## SESSION LIFECYCLE
 START: prism_dev→session_boot THEN prism_context→todo_update (2 calls, always)
@@ -16,33 +16,61 @@ END: prism_session→state_save → prism_doc→append(ACTION_TRACKER.md) → pr
 5. NO DUPLICATES — check before creating, one source of truth
 6. 100% UTILIZATION — if it exists, use it everywhere
 
-## DECISION TREE — What Tool For What Task
-Manufacturing calculation → prism_calc (91 actions) + prism_safety (29 tools)
-Intelligence/learning/patterns → prism_intelligence (238 actions)
-Material/machine/tool data → prism_data (14 actions)
-Thread operations → prism_thread (12 actions)
+## DECISION TREE — What Tool For What Task (53 dispatchers)
+### Core Manufacturing
+Manufacturing calculation → prism_calc (75 actions) + prism_safety (29 actions)
+Turning operations → prism_turning (7 actions) — SAFETY CRITICAL
+Grinding operations → prism_grinding (6 actions) — SAFETY CRITICAL
+CAM/Toolpath generation → prism_cam (14 actions) — SAFETY CRITICAL
+5-axis kinematics → prism_5axis (5 actions) — SAFETY CRITICAL
+EDM processes → prism_edm (4 actions)
+Thread operations → prism_thread (13 actions)
 Toolpath strategy → prism_toolpath (8 actions)
-Alarm decode/fix → prism_data alarm_decode/search/fix
+Process control/SPC → prism_process_control (6 actions)
+### Data & Intelligence
+Material/machine/tool data → prism_data (27 actions)
+Intelligence/learning → prism_intelligence (49 core + 200 legacy forwarding)
+Knowledge query → prism_knowledge (5 actions)
+Knowledge extraction → prism_knowledge_ext (44 actions)
+Shop practice → prism_shop_practice (12 actions)
+Document learning → prism_doc_learn (5 actions)
+### Quality & Safety
+Quality/inspection → prism_quality (8 actions)
+Validation → prism_validate (7) + prism_omega (5) + prism_ralph (3)
+Machine live/adaptive → prism_machine_live (40 actions)
+### Integration & Export
+CAD integration → prism_cad (10 actions)
+Export/post-process → prism_export (8 actions)
+Scheduling → prism_scheduling (8 actions)
+Industry standards → prism_industry (4 actions)
+### Session & Infrastructure
 Session management → prism_session (30 actions)
 Context/attention → prism_context (18 actions)
 Read/write docs → prism_doc (7 actions)
 Find skills/scripts → prism_skill_script (23 actions)
 Hook management → prism_hook (18 actions)
-Quality validation → prism_validate (7) + prism_omega (5) + prism_ralph (3)
-Agent orchestration → prism_orchestrate (14 actions)
-Autonomous tasks → prism_atcs (10) + prism_autonomous (8)
-System diagnostics → prism_telemetry (7) + prism_pfp (6) + prism_memory (6)
 GSD/protocol reference → prism_gsd (6 actions)
 Development workflow → prism_dev (9 actions) + prism_sp (19 actions)
 Code generation → prism_generator (6 actions)
+### Orchestration & Agents
+Agent orchestration → prism_orchestrate (14 actions)
+Autonomous tasks → prism_atcs (12 actions) + prism_autonomous (8 actions)
 External research → prism_manus (11 actions)
-Knowledge query → prism_knowledge (5 actions)
-Reasoning/enforcement → prism_ralph_loop (14 actions)
 Workflow orchestration → prism_autopilot_d (8 actions)
+Reasoning/enforcement → prism_guard (14 actions)
+### Infrastructure
+System diagnostics → prism_telemetry (7) + prism_pfp (6) + prism_memory (6)
 Natural language hooks → prism_nl_hook (8 actions)
 Compliance templates → prism_compliance (8 actions)
 Multi-tenant management → prism_tenant (15 actions)
 Protocol bridge / API → prism_bridge (13 actions)
+Automation → prism_automation (5 actions)
+Auth management → prism_auth (8 actions)
+Alarm decode/fix → prism_data alarm_decode/search/fix
+L2 engine dispatch → prism_l2 (38 actions)
+Diagnosis → prism_diagnosis (42 actions)
+Integration → prism_integration (47 actions)
+Product management → prism_product (44 actions)
 
 ## ORCHESTRATOR-FIRST — When to Use Automation vs Manual
 

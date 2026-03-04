@@ -12,6 +12,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_FIVEAXIS_SCHEMAS } from "../../schemas/fiveAxisActionSchemas.js";
+import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _rtcp: any, _sing: any, _tilt: any, _envelope: any, _ik: any;
 async function getEngine(name: string): Promise<any> {
@@ -57,6 +58,22 @@ Actions: ${ACTIONS.join(", ")}.`,
           );
         }
 
+        // PRE-CALCULATION SAFETY HOOKS — singularity, RTCP, work envelope blocking
+        const hookCtx = {
+          operation: action,
+          target: { type: "calculation" as const, id: action, data: params },
+          metadata: { dispatcher: "fiveAxisDispatcher", action, params }
+        };
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+        if (preResult.blocked) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({
+              blocked: true, blocker: preResult.blockedBy,
+              reason: preResult.summary, action,
+            }) }]
+          };
+        }
+
         switch (action) {
           case "rtcp_calc": {
             const engine = await getEngine("rtcp");
@@ -86,7 +103,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (error) {
+        // POST-CALCULATION HOOKS
+        try {
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx, metadata: { ...hookCtx.metadata, result }
+          });
+        } catch (postErr) {
+          log.warn(`[prism_5axis] Post-calculation hook error: ${postErr}`);
+        }
+      } catch (error: any) {
+        if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_5axis");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };

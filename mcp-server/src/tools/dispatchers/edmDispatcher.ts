@@ -10,6 +10,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _electrode: any, _wire: any, _surface: any, _micro: any;
 async function getEngine(name: string): Promise<any> {
@@ -42,6 +43,22 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // PRE-CALCULATION SAFETY HOOKS — recast layer, dielectric safety
+        const hookCtx = {
+          operation: action,
+          target: { type: "calculation" as const, id: action, data: params },
+          metadata: { dispatcher: "edmDispatcher", action, params }
+        };
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx);
+        if (preResult.blocked) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({
+              blocked: true, blocker: preResult.blockedBy,
+              reason: preResult.summary, action,
+            }) }]
+          };
+        }
+
         switch (action) {
           case "electrode_design": {
             const engine = await getEngine("electrode");
@@ -66,7 +83,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           default:
             result = { error: `Unknown action: ${action}` };
         }
-      } catch (error) {
+        // POST-CALCULATION HOOKS
+        try {
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx, metadata: { ...hookCtx.metadata, result }
+          });
+        } catch (postErr) {
+          log.warn(`[prism_edm] Post-calculation hook error: ${postErr}`);
+        }
+      } catch (error: any) {
+        if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_edm");
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
