@@ -54,6 +54,11 @@ async function forwardToNewDispatcher(action: string, params: Record<string, any
   }
   // Machine-live (40 actions)
   if ((MACHINE_LIVE_FWD as readonly string[]).includes(action)) {
+    const L3_INLINE = ["tool_crib_status","digital_twin_state","predictive_maintenance_alert","energy_report"];
+    if (L3_INLINE.includes(action)) {
+      const { l3IndustryAction } = await import("./machineLiveDispatcher.js");
+      return { result: l3IndustryAction(action, params), dispatcher: "prism_machine_live" };
+    }
     const engine = action.startsWith("adaptive_")
       ? (await import("../../engines/AdaptiveControlEngine.js")).adaptiveControl
       : action.startsWith("maint_")
@@ -503,7 +508,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         // H1-MS2: Auto-normalize snake_case → camelCase params
         try {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
-          Object.assign(params, normalizeParams(rawParams));
+          Object.assign(params, normalizeParams(params));
         } catch { /* normalizer not available */ }
 
         // === PRE-INTELLIGENCE HOOKS ===

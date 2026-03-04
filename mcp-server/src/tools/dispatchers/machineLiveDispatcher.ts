@@ -72,7 +72,7 @@ const ACTIONS = [
 // INDUSTRY 4.0 INLINE HANDLER
 // ============================================================================
 
-function l3IndustryAction(action: string, params: Record<string, any>): any {
+export function l3IndustryAction(action: string, params: Record<string, any>): any {
   switch (action) {
     case "tool_crib_status": {
       const tools = params.tools || [];

@@ -102,7 +102,7 @@ export function normalizeISOGroup(input: string): string {
   const s = input.trim().toUpperCase();
 
   // Already a valid single letter
-  if (/^[PMKNS H]$/.test(s)) return s;
+  if (/^[PMKNSH]$/.test(s)) return s;
 
   // Exact ISO prefix match (e.g. "P10", "M20")
   if (/^[PMKNSH]\d/.test(s)) return s[0];
@@ -677,6 +677,8 @@ export interface SelectWorkholdingParams {
   part_material?: string;
   quantity?: number;
   part_weight_kg?: number;
+  length_mm?: number;
+  diameter_mm?: number;
 }
 
 export function selectWorkholding(params: SelectWorkholdingParams): WorkholdingDecision {
@@ -799,7 +801,9 @@ export function selectWorkholding(params: SelectWorkholdingParams): WorkholdingD
       fixture_type = "between_centers";
       clamping_method = "drive_dog_and_live_center";
       reasoning.push("Long shaft: between-centres with drive dog for runout control.");
-      const ldRatio = force > 0 ? force / 100 : 0; // proxy; actual L/D would be better
+      const shaftL = params.length_mm ?? 0;
+      const shaftD = params.diameter_mm ?? 0;
+      const ldRatio = shaftD > 0 ? shaftL / shaftD : 0;
       if (ldRatio > 8 || weight > 5) {
         supports = ["steady_rest", "follow_rest"];
         warnings.push("L/D >8 suspected: add steady rest or follow rest to prevent deflection.");
@@ -839,6 +843,7 @@ export interface SelectStrategyParams {
   width_mm?: number;
   roughing_finishing?: string;
   wall_count?: number;
+  tool_diameter_mm?: number;
 }
 
 export function selectStrategy(params: SelectStrategyParams): StrategyDecision {
@@ -890,8 +895,9 @@ export function selectStrategy(params: SelectStrategyParams): StrategyDecision {
     }
 
     case "slot": {
-      if (width > 0 && depth > 0 && Math.abs(width - depth) < 0.1) {
-        // width ≈ tool diameter (slotting)
+      const slotToolDiam = params.tool_diameter_mm ?? 0;
+      if (width > 0 && slotToolDiam > 0 && Math.abs(width - slotToolDiam) < 0.5) {
+        // width ≈ tool diameter (full-width slotting)
         strategy = "slotting_full_width";
         entry_method = "plunge_or_ramp";
         passes = "single_pass_reduced_feed";

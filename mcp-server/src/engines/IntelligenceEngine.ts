@@ -408,7 +408,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
 
   // -- 2. Extract Kienzle and Taylor coefficients --
   let kienzle: KienzleCoefficients;
-  if (mat?.kienzle?.kc1_1 && mat?.kienzle?.mc) {
+  if (mat?.kienzle?.kc1_1 != null && mat?.kienzle?.mc != null) {
     kienzle = { kc1_1: mat.kienzle.kc1_1, mc: mat.kienzle.mc };
   } else {
     kienzle = getDefaultKienzle(mapIsoToKienzleGroup(isoGroup));
@@ -416,7 +416,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
   }
 
   let taylor: TaylorCoefficients;
-  if (mat?.taylor?.C && mat?.taylor?.n) {
+  if (mat?.taylor?.C != null && mat?.taylor?.n != null) {
     taylor = { C: mat.taylor.C, n: mat.taylor.n };
   } else {
     taylor = getDefaultTaylor(mapIsoToTaylorGroup(isoGroup), DEFAULT_TOOL.tool_material);
@@ -902,9 +902,9 @@ async function setupSheet(params: Record<string, any>): Promise<any> {
       material: materialName,
       feature: op.feature || "pocket",
       dimensions: {
-        depth: op.depth || 10,
-        width: op.width || 50,
-        length: op.length || 100,
+        depth: op.depth ?? 10,
+        width: op.width ?? 50,
+        length: op.length ?? 100,
         diameter: op.diameter,
       },
       tolerance: op.tolerance ?? params.tolerance,
@@ -1052,9 +1052,9 @@ async function processCost(params: Record<string, any>): Promise<any> {
       material: materialName,
       feature: op.feature || "pocket",
       dimensions: {
-        depth: op.depth || 10,
-        width: op.width || 50,
-        length: op.length || 100,
+        depth: op.depth ?? 10,
+        width: op.width ?? 50,
+        length: op.length ?? 100,
         diameter: op.diameter,
       },
       machine_id: params.machine_id,
@@ -1474,9 +1474,9 @@ async function machineRecommend(params: Record<string, any>): Promise<any> {
 
     // Utilization efficiency — penalize oversized machines (0-0.20)
     if (xFits && yFits && zFits) {
-      const utilX = envelope.x / xTravel;
-      const utilY = envelope.y / yTravel;
-      const utilZ = envelope.z / zTravel;
+      const utilX = xTravel > 0 ? envelope.x / xTravel : 0;
+      const utilY = yTravel > 0 ? envelope.y / yTravel : 0;
+      const utilZ = zTravel > 0 ? envelope.z / zTravel : 0;
       const avgUtil = (utilX + utilY + utilZ) / 3;
       // Sweet spot: 40-80% utilization
       if (avgUtil >= 0.3 && avgUtil <= 0.85) {
@@ -1690,7 +1690,7 @@ async function whatIf(params: Record<string, any>): Promise<any> {
     if (baseValue !== undefined && typeof baseValue === "number" && baseValue > 0) {
       const minVal = baseValue * (1 - sweepRange / 100);
       const maxVal = baseValue * (1 + sweepRange / 100);
-      const step = (maxVal - minVal) / (sweepSteps - 1);
+      const step = sweepSteps > 1 ? (maxVal - minVal) / (sweepSteps - 1) : 0;
 
       const sweepPoints: Array<{
         [key: string]: number;
@@ -2326,10 +2326,10 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
   let deflection: any;
   try {
     deflection = calculateToolDeflection(
-      Fc, overhang, D, D * 0.7, // assume solid core ~70% of D
+      Fc, D, overhang, 600, // (force, diameter, overhang, E_carbide_GPa)
     );
   } catch {
-    deflection = { max_deflection: 0, warnings: ["Deflection calc skipped"] };
+    deflection = { static_deflection: 0, dynamic_deflection: 0, surface_error: 0, warnings: ["Deflection calc skipped"] };
   }
 
   // 4. Thermal effects
@@ -2337,17 +2337,17 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
   try {
     const thermalCond = mat?.thermal?.thermal_conductivity ?? 50;
     thermal = calculateCuttingTemperature(
-      Vc, fz * z * ((1000 * Vc) / (Math.PI * D)), // feed_rate
-      ap, D, thermalCond,
+      Vc, fz, // feed per tooth (mm)
+      ap, kienzle?.kc1_1 ?? 1800, thermalCond,
     );
   } catch {
-    thermal = { max_temperature: 0, warnings: ["Thermal calc skipped"] };
+    thermal = { cutting_temperature: 0, chip_temperature: 0, warnings: ["Thermal calc skipped"] };
   }
 
   // 5. Quality assessment — ISO 286 tolerance lookup via ToleranceEngine
   const qualityWarnings: string[] = [...surfaceFinish.warnings];
   const nominalForTolerance = params.nominal_mm ?? D; // use tool diameter as proxy if no nominal given
-  const deflMm = deflection.max_deflection ?? 0;
+  const deflMm = deflection.static_deflection ?? 0;
 
   let toleranceEstimate: string;
   let tolerance_um: number | undefined;
@@ -2365,13 +2365,13 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
   if (deflMm > 0.05) {
     qualityWarnings.push(`Tool deflection ${deflMm.toFixed(3)} mm may affect dimensional accuracy`);
   }
-  if (thermal.max_temperature > 500) {
+  if ((thermal.cutting_temperature ?? 0) > 500) {
     qualityWarnings.push("High cutting temperature may cause thermal distortion and affect surface integrity");
   }
 
   log.info(
     `[IntelligenceEngine] quality_predict: ${materialName} → Ra=${surfaceFinish.Ra}, ` +
-    `deflection=${deflection.max_deflection?.toFixed(3) ?? "?"}mm, temp=${thermal.max_temperature?.toFixed(0) ?? "?"}°C`
+    `deflection=${deflection.static_deflection?.toFixed(3) ?? "?"}mm, temp=${thermal.cutting_temperature?.toFixed(0) ?? "?"}°C`
   );
 
   return {
@@ -2385,11 +2385,11 @@ async function qualityPredict(params: Record<string, any>): Promise<any> {
       theoretical_Ra: surfaceFinish.theoretical_Ra,
     },
     deflection: {
-      max_deflection_mm: deflection.max_deflection ?? 0,
+      max_deflection_mm: deflection.static_deflection ?? 0,
       stiffness_ratio: deflection.stiffness_ratio,
     },
     thermal: {
-      max_temperature_C: thermal.max_temperature ?? 0,
+      max_temperature_C: thermal.cutting_temperature ?? 0,
       chip_temperature_C: thermal.chip_temperature,
     },
     achievable_tolerance: {
