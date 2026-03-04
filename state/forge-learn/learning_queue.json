@@ -1,85 +1,72 @@
 {
-  "last_updated": "2026-03-01T23:50:00Z",
-  "queue_version": "1.0.0",
+  "last_updated": "2026-03-03T19:10:00Z",
+  "queue_version": "1.1.0",
+  "processed_catalogs": [
+    {
+      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Milling.pdf",
+      "processed_date": "2026-03-04",
+      "actual_content": "Tungaloy General Catalog (turning, milling, boring, grooving, threading, drilling)",
+      "yield": "66 strategies, 16 materials, 6 operations, 1345 raw entries",
+      "commit": "a7dc5a3b"
+    }
+  ],
   "suggested_catalogs": [
     {
       "rank": 1,
-      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Milling.pdf",
-      "reason": "Sandvik milling catalog — industry gold standard for speeds/feeds by material. Will populate strategy_db with consensus parameters for ALL milling operations + ALL material classes.",
+      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Drilling.pdf",
+      "reason": "Drilling catalog — peck cycle recommendations, drill point angles, breakthrough parameters.",
       "domain": "cam",
-      "expected_yield": "50+ strategy entries, 8+ materials, speeds/feeds/DOC tables",
-      "priority": "CRITICAL",
-      "pages_of_interest": "Speed & feed tables, application guides"
+      "expected_yield": "20+ drilling strategies, coolant-through data, peck depth tables",
+      "priority": "HIGH"
     },
     {
       "rank": 2,
-      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Drilling.pdf",
-      "reason": "Sandvik drilling catalog — peck cycle recommendations, drill point angles, breakthrough parameters. Will fill DrillCycleOptimization gap.",
+      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Turning-Grooving.pdf",
+      "reason": "Turning catalog — insert grade selection, cutting data by material.",
       "domain": "cam",
-      "expected_yield": "20+ drilling strategies, coolant-through data, peck depth tables",
-      "priority": "HIGH",
-      "pages_of_interest": "Drill selection charts, speeds/feeds tables"
+      "expected_yield": "30+ turning strategies, grade selection tables",
+      "priority": "HIGH"
     },
     {
       "rank": 3,
-      "path": "C:/PRISM/CATALOGS/GC_2023-2024_US_Turning-Grooving.pdf",
-      "reason": "Sandvik turning catalog — insert grade selection (P/M/K/N/S/H), cutting data by material. Will fill InsertGradeSelection gap.",
+      "path": "C:/PRISM/CATALOGS/Threading 2018.1.pdf",
+      "reason": "Threading catalog — thread milling vs tapping decision trees.",
       "domain": "cam",
-      "expected_yield": "30+ turning strategies, grade selection tables, chip breaker recommendations",
-      "priority": "HIGH",
-      "pages_of_interest": "ISO turning insert classification, cutting data"
+      "expected_yield": "15+ threading strategies",
+      "priority": "HIGH"
     },
     {
       "rank": 4,
-      "path": "C:/PRISM/CATALOGS/Threading 2018.1.pdf",
-      "reason": "Threading catalog — thread milling vs tapping decision trees, thread mill feeds/speeds. Will fill ThreadMilling gap.",
-      "domain": "cam",
-      "expected_yield": "15+ threading strategies, tap/thread mill selection logic",
-      "priority": "HIGH",
-      "pages_of_interest": "Thread milling parameters, tap selection charts"
+      "path": "C:/PRISM/CATALOGS/Solid End Mills.pdf",
+      "reason": "End mill geometry catalog — flute count, helix angle, coating by material.",
+      "domain": "tooling",
+      "expected_yield": "Tool geometry selection rules",
+      "priority": "MEDIUM"
     },
     {
       "rank": 5,
-      "path": "C:/PRISM/CATALOGS/Solid End Mills.pdf",
-      "reason": "End mill geometry catalog — flute count, helix angle, coating by material. Will fill ToolGeometrySelection gap.",
-      "domain": "tooling",
-      "expected_yield": "Tool geometry selection rules, coating recommendations",
-      "priority": "MEDIUM",
-      "pages_of_interest": "Application charts, geometry selection guides"
-    },
-    {
-      "rank": 6,
       "path": "C:/PRISM/CATALOGS/Metalmorphosis-2021-FINAL-reduced-for-Web.pdf",
-      "reason": "Comprehensive metalworking reference — grinding, EDM, surface finish. Will fill grinding domain gap.",
+      "reason": "Comprehensive metalworking reference — grinding, EDM, surface finish.",
       "domain": "cam",
-      "expected_yield": "Grinding parameters, surface finish tables, process selection",
-      "priority": "MEDIUM",
-      "pages_of_interest": "Grinding sections, surface finish charts"
+      "expected_yield": "Grinding parameters, surface finish tables",
+      "priority": "MEDIUM"
     }
   ],
   "suggested_videos": [
     {
       "query": "CNC milling speeds and feeds aluminum steel titanium tutorial",
-      "reason": "Populate strategy_db with video-sourced speeds/feeds for cross-validation against catalog data",
+      "reason": "Cross-validate catalog data with video-sourced speeds/feeds",
       "priority": "MEDIUM"
     },
     {
       "query": "surface grinding setup feeds speeds tutorial",
-      "reason": "Grinding domain has 0 learning sources — need at least 1 to establish baseline",
+      "reason": "Grinding domain has 0 learning sources",
       "priority": "MEDIUM"
-    },
-    {
-      "query": "CNC turning insert selection grade recommendation",
-      "reason": "Turning insert selection has no learning data — catalogs provide theory, videos provide practice",
-      "priority": "LOW"
     }
   ],
   "thin_domains": [
-    {"domain": "grinding", "source_count": 0, "engine_count": 1, "gap": "No surface finish prediction"},
-    {"domain": "turning", "source_count": 0, "engine_count": 2, "gap": "No insert/grade selection"},
+    {"domain": "turning", "source_count": 1, "engine_count": 2, "gap": "No insert/grade selection"},
     {"domain": "threading", "source_count": 0, "engine_count": 2, "gap": "No thread milling params"},
-    {"domain": "drilling", "source_count": 0, "engine_count": 1, "gap": "No cycle optimization"},
-    {"domain": "shop", "source_count": 0, "engine_count": 0, "gap": "Seed data only, no learned sources"},
-    {"domain": "tooling", "source_count": 0, "engine_count": 1, "gap": "No coating/geometry selection"}
+    {"domain": "shop", "source_count": 0, "engine_count": 0, "gap": "Seed data only"}
   ]
 }

@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (46 dispatchers, 1100 verified actions)
+## 1. DISPATCHERS (46 dispatchers, 1103 verified actions)
 ## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
 ## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
@@ -17,7 +17,7 @@ Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, au
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
 ### prism_calc (calcDispatcher.ts, 1520L)
-Actions (70): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy, roughness_convert, peck_drill_optimize
+Actions (72): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy, roughness_convert, peck_drill_optimize, drill_cycle_optimize, coating_select
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -147,7 +147,7 @@ Actions (5): rtcp_calc, singularity_check, tilt_optimize, work_envelope, inverse
 Actions (4): electrode_design, wire_settings, surface_integrity, micro_edm
 
 ### prism_grinding (grindingDispatcher.ts)
-Actions (5): wheel_select, dress_params, burn_threshold, surface_integrity, grinding_force
+Actions (6): wheel_select, dress_params, burn_threshold, surface_integrity, grinding_force, surface_finish_predict
 
 ### prism_industry (industryDispatcher.ts)
 Actions (4): aerospace_check, medical_check, automotive_check, oil_gas_check
@@ -323,10 +323,10 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (140 exported + 63 unwired = 203 total .ts files)
-## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R3 (2026-03-01)
+## 4. ENGINES (143 exported + 63 unwired = 206 total .ts files)
+## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R4 (2026-03-03)
 
-### 4a. Calculation Engines (22 exported)
+### 4a. Calculation Engines (25 exported)
 - ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
 - AdvancedCalculations.ts (639L) — Stability lobes, tool deflection, cutting temperature, cost optimization
 - ToolpathCalculations.ts (1304L) — Engagement angles, trochoidal, HSM, scallop height, stepover
@@ -349,6 +349,9 @@ Health: prism_bridge→health
 - ToolDeflectionPredictionEngine.ts (230L) — Euler-Bernoulli cantilever beam deflection, stepped shaft, bending stress, safety factor
 - ChipFormationPredictionEngine.ts (240L) — Merchant's shear angle, chip compression ratio, chip type classification, BUE prediction
 - SpecificCuttingEnergyEngine.ts (235L) — Specific energy (J/mm³), energy efficiency, CO₂ per part, energy cost (Gutowski/ISO 14955)
+- GrindingSurfaceFinishEngine.ts (200L) — Malkin kinematic roughness (Ra/Rz), dressing/spark-out/coolant/material correction factors
+- DrillCycleOptimizationEngine.ts (230L) — Drill cycle selection (standard/peck/chip_break/gun_drill/BTA), peck depth optimization
+- ToolCoatingSelectionEngine.ts (260L) — 10 coatings × 16 materials scoring, operation/coolant/interruption/substrate factors
 
 ### 4b. Safety Engines (7 exported)
 - CoolantValidationEngine.ts (767L) — Coolant flow, MQL validation, dry machining safety
