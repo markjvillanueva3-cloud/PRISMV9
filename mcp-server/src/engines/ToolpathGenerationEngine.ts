@@ -101,16 +101,55 @@ const STRATEGY_MAP: Record<string, { strategy: ToolpathStrategy; stepoverPct: nu
 };
 
 // ============================================================================
+// MATERIAL STEPDOWN FACTORS (from hyperMILL Manual 4)
+// ============================================================================
+
+const MATERIAL_STEPDOWN_FACTORS: Record<string, number> = {
+  aluminium: 1.5,
+  aluminum: 1.5,
+  steel: 0.5,
+  titanium: 0.3,
+  cast_iron: 0.8,
+  inconel: 0.2,
+  stainless: 0.4,
+  brass: 1.2,
+  copper: 1.0,
+  plastic: 2.0,
+};
+
+const DEFAULT_STEPDOWN_FACTOR = 0.5;
+
+// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
 export class ToolpathGenerationEngine {
-  generate(featureType: string, dimensions: { width_mm?: number; length_mm?: number; depth_mm?: number; diameter_mm?: number }, params: ToolpathParams): GeneratedToolpath {
-    const mapping = STRATEGY_MAP[featureType] || STRATEGY_MAP["pocket_rectangular"];
+  /** Get material-aware stepdown (ap) = factor * toolDiameter */
+  getStepdownForMaterial(material: string, toolDiameter: number): number {
+    const factor = MATERIAL_STEPDOWN_FACTORS[material.toLowerCase()]
+      ?? DEFAULT_STEPDOWN_FACTOR;
+    return factor * toolDiameter;
+  }
+
+  generate(
+    featureType: string,
+    dimensions: {
+      width_mm?: number;
+      length_mm?: number;
+      depth_mm?: number;
+      diameter_mm?: number;
+    },
+    params: ToolpathParams,
+    material?: string,
+  ): GeneratedToolpath {
+    const mapping = STRATEGY_MAP[featureType]
+      || STRATEGY_MAP["pocket_rectangular"];
     const segments: ToolpathSegment[] = [];
     const toolD = params.tool_diameter_mm;
     const stepover = toolD * (params.stepover_pct / 100);
-    const stepdown = params.stepdown_mm;
+    const stepdown = material
+      ? this.getStepdownForMaterial(material, toolD)
+      : params.stepdown_mm;
 
     const width = dimensions.width_mm || dimensions.diameter_mm || 50;
     const length = dimensions.length_mm || dimensions.diameter_mm || 50;
@@ -134,6 +173,55 @@ export class ToolpathGenerationEngine {
         segments.push({ type: "retract", z: retract, description: "Retract" });
         cuttingDist += Math.abs(z);
         rapidDist += retract;
+      } else if (
+        mapping.strategy === "rest_machining"
+        || params.strategy === "rest_machining"
+      ) {
+        // Rest machining: passes in offset band between prev and current tool
+        const prevToolD = (
+          params as ToolpathParams & { previousToolDiameter?: number }
+        ).previousToolDiameter ?? toolD * 2;
+        const prevRadius = prevToolD / 2;
+        const currRadius = toolD / 2;
+        const bandWidth = prevRadius - currRadius;
+        if (bandWidth > 0) {
+          const nBandPasses = Math.max(
+            1, Math.ceil(bandWidth / stepover)
+          );
+          for (let b = 0; b < nBandPasses; b++) {
+            const offset = currRadius + b * stepover;
+            const x0 = -width / 2 + offset;
+            const x1 = width / 2 - offset;
+            const y0 = -length / 2 + offset;
+            const y1 = length / 2 - offset;
+            if (x0 >= x1 || y0 >= y1) break;
+
+            segments.push({
+              type: "rapid", x: x0, y: y0, z: retract,
+            });
+            segments.push({
+              type: "plunge", x: x0, y: y0, z,
+              feed: params.plunge_rate_mmmin,
+            });
+            segments.push({
+              type: "feed", x: x1, y: y0, z,
+              feed: params.feed_rate_mmmin,
+            });
+            segments.push({
+              type: "feed", x: x1, y: y1, z,
+              feed: params.feed_rate_mmmin,
+            });
+            segments.push({
+              type: "feed", x: x0, y: y1, z,
+              feed: params.feed_rate_mmmin,
+            });
+            segments.push({
+              type: "feed", x: x0, y: y0, z,
+              feed: params.feed_rate_mmmin,
+            });
+            cuttingDist += 2 * (x1 - x0) + 2 * (y1 - y0);
+          }
+        }
       } else if (mapping.strategy === "face_mill") {
         // Face mill passes
         const nSteps = Math.max(1, Math.ceil(width / stepover));

@@ -1215,35 +1215,82 @@ export class CollisionEngine {
   /**
    * Generate swept volume for a toolpath move
    */
-  generateSweptVolumeForMove(move: ToolpathMove, tool: ToolAssembly): SweptVolumeSegment[] {
+  generateSweptVolumeForMove(
+    move: ToolpathMove, tool: ToolAssembly,
+  ): SweptVolumeSegment[] {
     const segments: SweptVolumeSegment[] = [];
     const { start, end, type } = move;
 
     if (type === 'LINEAR' || type === 'RAPID') {
-      // Linear move - single capsule segment
       const aabb = this.createAABBFromPoints([start, end]);
-      const expandedAABB = this.expandAABB(aabb, tool.diameter / 2);
-
       segments.push({
         start,
         end,
         diameter: tool.diameter,
-        boundingBox: expandedAABB
+        boundingBox: this.expandAABB(aabb, tool.diameter / 2),
       });
+      // Holder swept volume
+      segments.push(
+        ...this.sweepHolderForMove(start, end, tool),
+      );
+
     } else if (type === 'ARC_CW' || type === 'ARC_CCW') {
-      // Arc move - sample into linear segments
-      const arcSegments = this.sampleArc(move, this.samplingResolution);
+      const arcSegments = this.sampleArc(
+        move, this.samplingResolution,
+      );
       for (const seg of arcSegments) {
         const aabb = this.createAABBFromPoints([seg.start, seg.end]);
         segments.push({
           ...seg,
           diameter: tool.diameter,
-          boundingBox: this.expandAABB(aabb, tool.diameter / 2)
+          boundingBox: this.expandAABB(aabb, tool.diameter / 2),
         });
+        segments.push(
+          ...this.sweepHolderForMove(seg.start, seg.end, tool),
+        );
+      }
+
+    } else if (type === 'HELICAL') {
+      // Helical move — sample as linear segments with Z interp
+      const arcSegments = this.sampleArc(
+        move, this.samplingResolution,
+      );
+      for (const seg of arcSegments) {
+        const aabb = this.createAABBFromPoints([seg.start, seg.end]);
+        segments.push({
+          ...seg,
+          diameter: tool.diameter,
+          boundingBox: this.expandAABB(aabb, tool.diameter / 2),
+        });
+        segments.push(
+          ...this.sweepHolderForMove(seg.start, seg.end, tool),
+        );
       }
     }
 
     return segments;
+  }
+
+  /** Generate holder swept volume segments for a linear move */
+  private sweepHolderForMove(
+    moveStart: Vector3, moveEnd: Vector3, tool: ToolAssembly,
+  ): SweptVolumeSegment[] {
+    if (!tool.holder) return [];
+    const holderOffset = tool.fluteLength;
+    const holderDia = tool.holder.maxDiameter;
+    const hStart = new Vector3(
+      moveStart.x, moveStart.y, moveStart.z + holderOffset,
+    );
+    const hEnd = new Vector3(
+      moveEnd.x, moveEnd.y, moveEnd.z + holderOffset,
+    );
+    const aabb = this.createAABBFromPoints([hStart, hEnd]);
+    return [{
+      start: hStart,
+      end: hEnd,
+      diameter: holderDia,
+      boundingBox: this.expandAABB(aabb, holderDia / 2),
+    }];
   }
 
   /**
@@ -1582,9 +1629,20 @@ export class CollisionEngine {
   validateRapidMoves(
     toolpath: Toolpath,
     machine: MachineEnvelope,
-    fixtures: Fixture[]
+    fixtures: Fixture[],
+    workpiece?: Workpiece,
+    clearanceMarginMm: number = 5,
   ): { safe: boolean; issues: string[] } {
     const issues: string[] = [];
+
+    // Pre-compute stock AABB if workpiece provided
+    let stockAABB: AABB | null = null;
+    if (workpiece?.stockGeometry) {
+      const sg = workpiece.stockGeometry;
+      if ('min' in sg && 'max' in sg) {
+        stockAABB = sg as unknown as AABB;
+      }
+    }
 
     for (let i = 0; i < toolpath.moves.length; i++) {
       const move = toolpath.moves[i];
@@ -1596,50 +1654,89 @@ export class CollisionEngine {
           start: move.start,
           end: move.end,
           diameter: toolpath.tool.diameter,
-          boundingBox: this.createAABBFromPoints([move.start, move.end])
+          boundingBox: this.createAABBFromPoints(
+            [move.start, move.end],
+          ),
         },
-        machine
+        machine,
       );
 
       if (envCheck.collision) {
-        issues.push(`Rapid move at line ${move.lineNumber || i} exceeds machine limits`);
+        issues.push(
+          `Rapid move at line ${move.lineNumber ?? i}`
+          + ` exceeds machine limits`,
+        );
       }
 
       // Check rapid doesn't go through fixtures
       for (const fixture of fixtures) {
-        const capsule: Capsule = {
-          type: 'capsule',
+        const seg = {
           start: move.start,
           end: move.end,
-          radius: toolpath.tool.diameter / 2
+          diameter: toolpath.tool.diameter,
+          boundingBox: this.expandAABB(
+            this.createAABBFromPoints([move.start, move.end]),
+            toolpath.tool.diameter / 2,
+          ),
         };
 
         for (const geom of fixture.geometry) {
-          const result = this.checkSegmentVsGeometry(
-            {
-              start: move.start,
-              end: move.end,
-              diameter: toolpath.tool.diameter,
-              boundingBox: this.expandAABB(
-                this.createAABBFromPoints([move.start, move.end]),
-                toolpath.tool.diameter / 2
-              )
-            },
-            geom
-          );
-
+          const result = this.checkSegmentVsGeometry(seg, geom);
           if (result.collision) {
             issues.push(
-              `Rapid at line ${move.lineNumber || i} collides with fixture ${fixture.fixtureId}`
+              `Rapid at line ${move.lineNumber ?? i}`
+              + ` collides with fixture ${fixture.fixtureId}`,
             );
           }
+        }
+
+        // Check rapid Z vs fixture top + margin
+        if (fixture.clearanceZone) {
+          const fTopZ = fixture.clearanceZone.max.z;
+          const rapidMinZ = Math.min(move.start.z, move.end.z);
+          if (rapidMinZ < fTopZ + clearanceMarginMm) {
+            issues.push(
+              `Rapid at line ${move.lineNumber ?? i}`
+              + ` within ${(fTopZ + clearanceMarginMm - rapidMinZ).toFixed(1)}mm`
+              + ` of fixture ${fixture.fixtureId}`,
+            );
+          }
+        }
+      }
+
+      // Check rapid against workpiece stock bounding box
+      if (stockAABB) {
+        const toolR = toolpath.tool.diameter / 2;
+        const rapidMinZ = Math.min(move.start.z, move.end.z);
+        const stockTopZ = stockAABB.max.z;
+        const safeZ = stockTopZ + clearanceMarginMm;
+
+        const inXRange = move.end.x >= stockAABB.min.x - toolR
+          && move.end.x <= stockAABB.max.x + toolR;
+        const inYRange = move.end.y >= stockAABB.min.y - toolR
+          && move.end.y <= stockAABB.max.y + toolR;
+
+        if (inXRange && inYRange && rapidMinZ < stockTopZ) {
+          issues.push(
+            `CRITICAL: Rapid at line ${move.lineNumber ?? i}`
+            + ` passes through stock`
+            + ` (Z=${rapidMinZ.toFixed(1)}`
+            + ` < stockTop=${stockTopZ.toFixed(1)})`,
+          );
+        } else if (inXRange && inYRange && rapidMinZ < safeZ) {
+          issues.push(
+            `Rapid at line ${move.lineNumber ?? i}`
+            + ` near stock surface`
+            + ` (clearance ${(rapidMinZ - stockTopZ).toFixed(1)}mm`
+            + ` < ${clearanceMarginMm}mm margin)`,
+          );
         }
       }
     }
 
     return {
-      safe: issues.length === 0,
-      issues
+      safe: issues.filter(i => i.startsWith('CRITICAL')).length === 0,
+      issues,
     };
   }
 

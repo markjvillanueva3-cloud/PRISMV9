@@ -158,20 +158,103 @@ export interface CollisionCheckResult {
   safe: boolean;
 }
 
+// ── Clearance Plane Types ─────────────────────────────────────────
+
+export interface ClearancePlaneConfig {
+  globalClearanceZ: number;
+  localClearanceZ?: number;
+  linkingMode: "direct" | "z_clearance" | "full_retract";
+  minClearanceMm: number;
+  warnings?: string[];
+}
+
+// ── Operation Sequencing Types ────────────────────────────────────
+
+export interface SequencedOperation {
+  id: string;
+  type: OperationType | string;
+  tool_diameter: number;
+  feature_id: string;
+  depends_on?: string[];
+  category?: "2D" | "3D" | "HOLE";
+  is_roughing?: boolean;
+  is_finishing?: boolean;
+  is_rest?: boolean;
+  rest_reference_id?: string;
+}
+
+export interface SequenceResult {
+  sorted: SequencedOperation[];
+  warnings: string[];
+}
+
 // ── Constants ─────────────────────────────────────────────────────────
 
-const MATERIAL_ENTRY_FACTORS: Record<string, { helix_angle_max: number; ramp_angle_max: number; plunge_ok: boolean }> = {
-  aluminum: { helix_angle_max: 5, ramp_angle_max: 10, plunge_ok: true },
-  steel_mild: { helix_angle_max: 3, ramp_angle_max: 5, plunge_ok: false },
-  steel: { helix_angle_max: 2.5, ramp_angle_max: 4, plunge_ok: false },
-  steel_alloy: { helix_angle_max: 2, ramp_angle_max: 3, plunge_ok: false },
-  stainless: { helix_angle_max: 2, ramp_angle_max: 3, plunge_ok: false },
-  titanium: { helix_angle_max: 1.5, ramp_angle_max: 2, plunge_ok: false },
-  inconel: { helix_angle_max: 1, ramp_angle_max: 1.5, plunge_ok: false },
-  cast_iron: { helix_angle_max: 3, ramp_angle_max: 5, plunge_ok: true },
-  brass: { helix_angle_max: 5, ramp_angle_max: 8, plunge_ok: true },
-  copper: { helix_angle_max: 4, ramp_angle_max: 7, plunge_ok: true },
-  plastic: { helix_angle_max: 8, ramp_angle_max: 15, plunge_ok: true },
+interface MaterialEntryFactor {
+  helix_angle_max: number;
+  ramp_angle_max: number;
+  plunge_ok: boolean;
+  helix_diameter_pct: number;
+  min_helix_diameter_mm: number;
+  pitch_chipload_factor: number;
+}
+
+const MATERIAL_ENTRY_FACTORS: Record<string, MaterialEntryFactor> = {
+  aluminum: {
+    helix_angle_max: 5, ramp_angle_max: 10, plunge_ok: true,
+    helix_diameter_pct: 0.80, min_helix_diameter_mm: 3.0,
+    pitch_chipload_factor: 1.2,
+  },
+  steel_mild: {
+    helix_angle_max: 3, ramp_angle_max: 5, plunge_ok: false,
+    helix_diameter_pct: 0.70, min_helix_diameter_mm: 4.0,
+    pitch_chipload_factor: 0.8,
+  },
+  steel: {
+    helix_angle_max: 2.5, ramp_angle_max: 4, plunge_ok: false,
+    helix_diameter_pct: 0.65, min_helix_diameter_mm: 4.0,
+    pitch_chipload_factor: 0.7,
+  },
+  steel_alloy: {
+    helix_angle_max: 2, ramp_angle_max: 3, plunge_ok: false,
+    helix_diameter_pct: 0.60, min_helix_diameter_mm: 5.0,
+    pitch_chipload_factor: 0.6,
+  },
+  stainless: {
+    helix_angle_max: 2, ramp_angle_max: 3, plunge_ok: false,
+    helix_diameter_pct: 0.60, min_helix_diameter_mm: 5.0,
+    pitch_chipload_factor: 0.6,
+  },
+  titanium: {
+    helix_angle_max: 1.5, ramp_angle_max: 2, plunge_ok: false,
+    helix_diameter_pct: 0.50, min_helix_diameter_mm: 6.0,
+    pitch_chipload_factor: 0.4,
+  },
+  inconel: {
+    helix_angle_max: 1, ramp_angle_max: 1.5, plunge_ok: false,
+    helix_diameter_pct: 0.45, min_helix_diameter_mm: 6.0,
+    pitch_chipload_factor: 0.3,
+  },
+  cast_iron: {
+    helix_angle_max: 3, ramp_angle_max: 5, plunge_ok: true,
+    helix_diameter_pct: 0.70, min_helix_diameter_mm: 4.0,
+    pitch_chipload_factor: 0.9,
+  },
+  brass: {
+    helix_angle_max: 5, ramp_angle_max: 8, plunge_ok: true,
+    helix_diameter_pct: 0.80, min_helix_diameter_mm: 3.0,
+    pitch_chipload_factor: 1.1,
+  },
+  copper: {
+    helix_angle_max: 4, ramp_angle_max: 7, plunge_ok: true,
+    helix_diameter_pct: 0.75, min_helix_diameter_mm: 3.0,
+    pitch_chipload_factor: 1.0,
+  },
+  plastic: {
+    helix_angle_max: 8, ramp_angle_max: 15, plunge_ok: true,
+    helix_diameter_pct: 0.85, min_helix_diameter_mm: 2.0,
+    pitch_chipload_factor: 1.5,
+  },
 };
 
 // ── Engine ────────────────────────────────────────────────────────────
@@ -488,19 +571,44 @@ export class CAMKernelEngine {
   // ── Entry/Exit Strategy ─────────────────────────────────────────
 
   /** Select best entry strategy for material and geometry */
-  selectEntryStrategy(tool: ToolSpec, material: MaterialType, featureWidth: number, depth: number): EntryParams {
-    const factors = MATERIAL_ENTRY_FACTORS[material] ?? MATERIAL_ENTRY_FACTORS.steel;
+  selectEntryStrategy(
+    tool: ToolSpec, material: MaterialType,
+    featureWidth: number, depth: number,
+  ): EntryParams {
+    const factors = MATERIAL_ENTRY_FACTORS[material]
+      ?? MATERIAL_ENTRY_FACTORS.steel;
 
-    // Decision tree for entry strategy
+    // Drills/taps always plunge
     if (tool.type === "drill" || tool.type === "tap") {
-      return { strategy: "plunge", moves: [{ type: "feed", z: -depth }], description: "Direct plunge (drill/tap)" };
+      return {
+        strategy: "plunge",
+        moves: [{ type: "feed", z: -depth }],
+        description: "Direct plunge (drill/tap)",
+      };
     }
 
-    // Helix if feature is wide enough (diameter > 1.5x tool diameter)
-    if (featureWidth > tool.diameter * 1.5) {
+    // Material-specific helix diameter
+    const helixDia = Math.max(
+      tool.diameter * factors.helix_diameter_pct,
+      factors.min_helix_diameter_mm,
+    );
+    // Min helix diameter from corner radius (only when corner exists)
+    const cornerRadius = tool.corner_radius ?? 0;
+    const effectiveHelixDia = cornerRadius > 0
+      ? Math.max(helixDia, 2 * cornerRadius + tool.diameter)
+      : helixDia;
+
+    // Compute pitch from chip load factor
+    const chipLoadBase = 0.05; // mm/tooth baseline
+    const pitchPerRev = chipLoadBase
+      * (tool.number_of_flutes ?? 4)
+      * factors.pitch_chipload_factor;
+
+    // Helix if feature wide enough for helix diameter
+    if (featureWidth > effectiveHelixDia + tool.diameter) {
       const helixResult = this.generateHelicalRamp({
         center: { x: 0, y: 0 },
-        diameter: tool.diameter * 0.7,
+        diameter: effectiveHelixDia,
         z_start: 0,
         z_end: -depth,
         helix_angle_deg: factors.helix_angle_max,
@@ -510,34 +618,118 @@ export class CAMKernelEngine {
       return {
         strategy: "helix",
         moves: helixResult.moves,
-        description: `Helical ramp at ${factors.helix_angle_max}° (${material})`,
+        description: `Helical ramp D${effectiveHelixDia.toFixed(1)}mm`
+          + ` at ${factors.helix_angle_max}\u00B0`
+          + ` pitch ${pitchPerRev.toFixed(3)}mm (${material})`,
       };
     }
 
-    // Ramp if feature is narrower
+    // Ramp-then-helix fallback for narrow feature
+    if (featureWidth > tool.diameter * 1.2) {
+      const rampDepth = Math.min(depth, tool.diameter * 0.3);
+      const rampLen = rampDepth
+        / Math.tan(factors.ramp_angle_max * Math.PI / 180);
+      return {
+        strategy: "ramp",
+        moves: [
+          { type: "feed", x: rampLen, z: -rampDepth, f: 300 },
+          { type: "feed", x: 0, z: -rampDepth, f: 500 },
+        ],
+        description: `Ramp entry at ${factors.ramp_angle_max}\u00B0`
+          + ` over ${rampLen.toFixed(1)}mm`
+          + ` (narrow feature, ${material})`,
+      };
+    }
+
+    // Ramp if wider than tool
     if (featureWidth > tool.diameter) {
-      const rampLength = depth / Math.tan(factors.ramp_angle_max * Math.PI / 180);
+      const rampLength = depth
+        / Math.tan(factors.ramp_angle_max * Math.PI / 180);
       return {
         strategy: "ramp",
         moves: [
           { type: "feed", x: rampLength, z: -depth, f: 300 },
           { type: "feed", x: 0, z: -depth, f: 500 },
         ],
-        description: `Linear ramp at ${factors.ramp_angle_max}° over ${rampLength.toFixed(1)}mm`,
+        description: `Linear ramp at ${factors.ramp_angle_max}\u00B0`
+          + ` over ${rampLength.toFixed(1)}mm`,
       };
     }
 
     // Plunge only for soft materials
     if (factors.plunge_ok) {
-      return { strategy: "plunge", moves: [{ type: "feed", z: -depth, f: 200 }], description: "Plunge entry (soft material)" };
+      return {
+        strategy: "plunge",
+        moves: [{ type: "feed", z: -depth, f: 200 }],
+        description: "Plunge entry (soft material)",
+      };
     }
 
     // Pre-drill required
     return {
       strategy: "pre_drill",
-      moves: [{ type: "comment", text: "PRE-DRILL REQUIRED — tool cannot plunge in this material" }],
-      description: `Pre-drill required for ${material} — cannot plunge or ramp`,
+      moves: [{
+        type: "comment",
+        text: "PRE-DRILL REQUIRED",
+      }],
+      description: `Pre-drill required for ${material}`,
     };
+  }
+
+  // ── Clearance Plane & Linking Moves (hyperMILL Manual 1) ────────
+
+  /** Compute safe clearance Z above all obstacles */
+  computeClearancePlane(
+    stockTopZ: number, fixtureTopZ: number,
+    workpieceTopZ: number, marginMm: number = 5,
+  ): ClearancePlaneConfig {
+    const highestZ = Math.max(stockTopZ, fixtureTopZ, workpieceTopZ);
+    const globalZ = highestZ + marginMm;
+    const warnings: string[] = [];
+    if (marginMm < 2) {
+      warnings.push(
+        `Clearance margin ${marginMm}mm is < 2mm — collision risk`,
+      );
+    }
+    return {
+      globalClearanceZ: globalZ,
+      linkingMode: "z_clearance",
+      minClearanceMm: marginMm,
+      warnings,
+    };
+  }
+
+  /** Generate safe linking moves between operations */
+  generateLinkingMove(
+    fromPos: Vec3, toPos: Vec3,
+    config: ClearancePlaneConfig,
+  ): ToolpathMove[] {
+    const moves: ToolpathMove[] = [];
+    const clearZ = config.localClearanceZ ?? config.globalClearanceZ;
+
+    if (config.linkingMode === "direct") {
+      const minZ = Math.min(fromPos.z, toPos.z);
+      if (minZ >= clearZ) {
+        moves.push({
+          type: "rapid", x: toPos.x, y: toPos.y, z: toPos.z,
+        });
+        return moves;
+      }
+    }
+
+    if (config.linkingMode === "full_retract") {
+      const homeZ = config.globalClearanceZ + 50;
+      moves.push({ type: "rapid", z: homeZ });
+      moves.push({ type: "rapid", x: toPos.x, y: toPos.y });
+      moves.push({ type: "rapid", z: clearZ });
+      return moves;
+    }
+
+    // Default: z_clearance
+    moves.push({ type: "rapid", z: clearZ });
+    moves.push({ type: "rapid", x: toPos.x, y: toPos.y });
+    moves.push({ type: "rapid", z: toPos.z });
+    return moves;
   }
 
   // ── G-Code Serialization ────────────────────────────────────────
@@ -729,6 +921,123 @@ export class CAMKernelEngine {
       near_miss_count: nearMissCount,
       safe: collisions.filter(c => c.severity === "critical").length === 0,
     };
+  }
+
+  // ── Operation Sequencing (hyperMILL rules) ─────────────────────
+
+  /** Sequence operations using hyperMILL ordering rules */
+  sequenceOperations(
+    operations: SequencedOperation[],
+  ): SequenceResult {
+    const warnings: string[] = [];
+    const ops = operations.map(op => ({ ...op }));
+
+    const HOLE_TYPES = new Set([
+      "drill_peck", "drill_chip_break", "helix_bore", "tapping",
+    ]);
+    const ROUGHING_TYPES = new Set([
+      "adaptive_clear", "hsm_pocket", "z_level_rough",
+      "plunge_rough", "zigzag_pocket",
+    ]);
+    const THREE_D_TYPES = new Set([
+      "waterline", "parallel_3d", "scallop_3d", "pencil_mill",
+      "z_level_rough", "plunge_rough", "swarf_5ax",
+    ]);
+
+    for (const op of ops) {
+      if (!op.category) {
+        if (HOLE_TYPES.has(op.type)) op.category = "HOLE";
+        else if (THREE_D_TYPES.has(op.type)) op.category = "3D";
+        else op.category = "2D";
+      }
+      if (op.is_roughing === undefined) {
+        op.is_roughing = ROUGHING_TYPES.has(op.type);
+      }
+    }
+
+    const priority = (op: SequencedOperation): number => {
+      let score = 500;
+      if (op.type === "face_mill") score = 100;
+      else if (op.category === "2D") score = 200;
+      else if (op.category === "3D") score = 300;
+      if (op.category === "HOLE") score = 800;
+      if (op.is_roughing) score -= 50;
+      if (op.is_finishing) score += 25;
+      if (op.is_rest) score += 50;
+      score -= op.tool_diameter * 0.1;
+      return score;
+    };
+
+    // Build implicit dependencies per feature
+    const byFeature = new Map<string, SequencedOperation[]>();
+    for (const op of ops) {
+      const list = byFeature.get(op.feature_id) ?? [];
+      list.push(op);
+      byFeature.set(op.feature_id, list);
+    }
+
+    for (const [, featureOps] of byFeature) {
+      const roughing = featureOps.filter(o => o.is_roughing);
+      const finishing = featureOps.filter(o => o.is_finishing);
+      for (const fin of finishing) {
+        for (const rough of roughing) {
+          if (!fin.depends_on) fin.depends_on = [];
+          if (!fin.depends_on.includes(rough.id)) {
+            fin.depends_on.push(rough.id);
+          }
+        }
+      }
+      const rest = featureOps.filter(o => o.is_rest);
+      for (const r of rest) {
+        if (
+          r.rest_reference_id
+          && !r.depends_on?.includes(r.rest_reference_id)
+        ) {
+          if (!r.depends_on) r.depends_on = [];
+          r.depends_on.push(r.rest_reference_id);
+        }
+      }
+    }
+
+    // Topological sort with priority
+    const sorted: SequencedOperation[] = [];
+    const visited = new Set<string>();
+    const remaining = new Set(ops.map(o => o.id));
+    const opById = new Map(ops.map(o => [o.id, o]));
+
+    while (remaining.size > 0) {
+      const ready = [...remaining]
+        .map(id => opById.get(id)!)
+        .filter(op =>
+          !op.depends_on
+          || op.depends_on.every(d => visited.has(d)),
+        );
+
+      if (ready.length === 0) {
+        warnings.push("Circular dependency — breaking cycle");
+        const fallback = [...remaining]
+          .map(id => opById.get(id)!)
+          .sort((a, b) => priority(a) - priority(b));
+        ready.push(fallback[0]);
+      }
+
+      ready.sort((a, b) => priority(a) - priority(b));
+      const next = ready[0];
+      sorted.push(next);
+      visited.add(next.id);
+      remaining.delete(next.id);
+    }
+
+    for (let i = 0; i < sorted.length; i++) {
+      const op = sorted[i];
+      if (op.type === "face_mill" && i > 0) {
+        warnings.push(
+          `face_mill (${op.id}) not first — at position ${i}`,
+        );
+      }
+    }
+
+    return { sorted, warnings };
   }
 
   // ── Helper Methods ──────────────────────────────────────────────

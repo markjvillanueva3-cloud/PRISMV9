@@ -1619,6 +1619,35 @@ export {
   type MaterialClass,
 } from "./ToolCoatingSelectionEngine.js";
 
+export {
+  toolGeometrySelectionEngine,
+  ToolGeometrySelectionEngine,
+  type ToolGeometryInput,
+  type ToolGeometryResult,
+  type EndMillMaterial,
+  type MillingOperation,
+} from "./ToolGeometrySelectionEngine.js";
+
+export {
+  insertGradeSelectionEngine,
+  InsertGradeSelectionEngine,
+  type InsertGradeInput,
+  type InsertGradeResult,
+  type WorkpieceMaterial,
+  type TurningOp,
+  type InsertShape,
+} from "./InsertGradeSelectionEngine.js";
+
+export {
+  coolantStrategyEngine,
+  CoolantStrategyEngine,
+  type CoolantStrategyInput,
+  type CoolantStrategyResult,
+  type CoolantMaterial,
+  type CoolantOperation as CoolantStrategyOperation,
+  type CoolantMethod,
+} from "./CoolantStrategyEngine.js";
+
 // Wire existing RegenerativeChatterPredictor (was on-disk but unexported)
 export {
   regenerativeChatterPredictor,

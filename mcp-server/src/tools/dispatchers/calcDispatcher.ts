@@ -60,6 +60,12 @@ import { drillCycleOptimizationEngine } from "../../engines/DrillCycleOptimizati
 import type { MaterialChipBehavior, CoolantDelivery } from "../../engines/DrillCycleOptimizationEngine.js";
 import { toolCoatingSelectionEngine } from "../../engines/ToolCoatingSelectionEngine.js";
 import type { MaterialClass, OperationType, CoolantStrategy } from "../../engines/ToolCoatingSelectionEngine.js";
+import { toolGeometrySelectionEngine } from "../../engines/ToolGeometrySelectionEngine.js";
+import type { EndMillMaterial, MillingOperation } from "../../engines/ToolGeometrySelectionEngine.js";
+import { insertGradeSelectionEngine } from "../../engines/InsertGradeSelectionEngine.js";
+import type { WorkpieceMaterial, TurningOp } from "../../engines/InsertGradeSelectionEngine.js";
+import { coolantStrategyEngine } from "../../engines/CoolantStrategyEngine.js";
+import type { CoolantMaterial, CoolantOperation as CoolantStrategyOp } from "../../engines/CoolantStrategyEngine.js";
 
 import {
   calculateStabilityLobes,
@@ -264,6 +270,12 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { cycle: result.recommended_cycle, ld: result.depth_to_diameter_ratio, peck_mm: result.peck_depth_mm?.value, pecks: result.number_of_pecks, dwell_s: result.dwell_time_s?.value, time_s: result.estimated_cycle_time_s?.value, chip_risk: result.chip_evacuation_risk, safe: result.is_safe };
     case "coating_select":
       return { coating: result.primary_recommendation, score: result.suitability_score?.value, max_temp_C: result.max_service_temperature_C?.value, friction: result.friction_coefficient?.value, speed_mult: result.speed_multiplier?.value, coolant: result.coolant_recommendation, safe: result.is_safe };
+    case "geometry_select":
+      return { flutes: result.recommended_flutes?.value, helix: result.helix_angle_deg?.value, corner: result.corner_treatment, radius_mm: result.corner_radius_mm?.value, var_helix: result.variable_helix, rake: result.rake_angle_deg?.value };
+    case "insert_grade_select":
+      return { group: result.iso_application_group, grade: result.iso_range?.unit, substrate: result.substrate_class, chipbreaker: result.chipbreaker, shape: result.insert_shape, nose_r: result.nose_radius_mm?.value };
+    case "coolant_recommend":
+      return { method: result.primary_method, fluid: result.fluid_type, conc_pct: result.concentration_pct?.value, pressure_bar: result.pressure_bar?.value, flow_lpm: result.flow_rate_l_min?.value, alt: result.alternative_method };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -312,7 +324,8 @@ const ACTIONS = [
   "tapping_torque", "power_budget",
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
   "roughness_convert", "peck_drill_optimize",
-  "drill_cycle_optimize", "coating_select"
+  "drill_cycle_optimize", "coating_select",
+  "geometry_select", "insert_grade_select", "coolant_recommend"
 ] as const;
 
 export function registerCalcDispatcher(server: any): void {
@@ -1688,6 +1701,51 @@ export function registerCalcDispatcher(server: any): void {
               tool_substrate: params.tool_substrate || params.substrate,
               is_interrupted_cut: params.is_interrupted_cut ?? params.interrupted,
               requires_re_grind: params.requires_re_grind ?? params.regrind,
+            });
+            break;
+          }
+
+          case "geometry_select": {
+            result = toolGeometrySelectionEngine.calculate({
+              workpiece_material: (params.material || params.workpiece_material || "carbon_steel") as EndMillMaterial,
+              operation: (params.operation || params.op || "side_milling") as MillingOperation,
+              tool_diameter_mm: params.tool_diameter || params.diameter || params.D || 10,
+              axial_depth_mm: params.axial_depth || params.ap,
+              radial_depth_mm: params.radial_depth || params.ae,
+              machine_rigidity: params.machine_rigidity || params.rigidity,
+              is_long_reach: params.is_long_reach ?? params.long_reach,
+              requires_chip_breaking: params.requires_chip_breaking ?? params.chip_breaker,
+            });
+            break;
+          }
+
+          case "insert_grade_select": {
+            result = insertGradeSelectionEngine.calculate({
+              workpiece_material: (params.material || params.workpiece_material || "medium_carbon_steel") as WorkpieceMaterial,
+              operation: (params.operation || params.op || "medium") as TurningOp,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || params.doc,
+              feed_mm_rev: params.feed || params.fn || params.f,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hardness,
+              interrupted_cut: params.interrupted_cut ?? params.interrupted,
+              requires_chip_control: params.requires_chip_control ?? params.chip_control,
+              coolant_available: params.coolant_available ?? params.coolant,
+            });
+            break;
+          }
+
+          case "coolant_recommend": {
+            result = coolantStrategyEngine.calculate({
+              workpiece_material: (params.material || params.workpiece_material || "carbon_steel") as CoolantMaterial,
+              operation: (params.operation || params.op || "milling_rough") as CoolantStrategyOp,
+              cutting_speed_m_min: params.cutting_speed || params.Vc || params.vc,
+              depth_of_cut_mm: params.depth_of_cut || params.ap || params.doc,
+              hole_depth_mm: params.hole_depth || params.depth,
+              hole_diameter_mm: params.hole_diameter || params.diameter,
+              tool_has_through_coolant: params.through_coolant ?? params.tsc,
+              machine_max_pressure_bar: params.max_pressure || params.pressure,
+              environmental_priority: params.environmental_priority ?? params.eco,
+              workpiece_hardness_hrc: params.hardness_hrc || params.hardness,
             });
             break;
           }
