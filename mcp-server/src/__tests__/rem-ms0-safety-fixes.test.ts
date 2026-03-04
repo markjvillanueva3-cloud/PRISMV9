@@ -225,11 +225,13 @@ describe("M-002: G28 Z0 safe retract", () => {
         safe_start_block: true, program_end: "M30", use_tool_length_comp: true }
     );
     const lines = r.gcode.split("\n");
-    const g28Idx = lines.findIndex(l => l.includes("G28 Z0"));
+    const g28Idx = lines.findIndex(l => l.includes("G28 G91 Z0"));
+    const g90Idx = lines.findIndex(l => l === "G90");
     const toolIdx = lines.findIndex(l => l.includes("M06") || l.includes("M6"));
     expect(g28Idx).toBeGreaterThan(-1);
+    expect(g90Idx).toBeGreaterThan(g28Idx);  // G90 restores absolute mode after incremental G28
     expect(toolIdx).toBeGreaterThan(-1);
-    expect(g28Idx).toBeLessThan(toolIdx);  // G28 Z0 must come BEFORE tool change
+    expect(g28Idx).toBeLessThan(toolIdx);  // G28 G91 Z0 must come BEFORE tool change
   });
 });
 

@@ -450,7 +450,7 @@ const SIEMENS_CONFIG: ControllerConfig = {
   cutterCompLeft: (offset) => `G41 D${offset}`,
   cutterCompRight: (offset) => `G42 D${offset}`,
   cutterCompCancel: "G40",
-  subCall: (num, repeats) => `${String(num).padStart(4, "0")} P${repeats}`,
+  subCall: (num, repeats) => `L${num} P${repeats}`,
 };
 
 // ============================================================================
@@ -689,7 +689,7 @@ function genFacing(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   const zSafe = d.z_safe;
   const stepover = p.tool_diameter ? p.tool_diameter * 0.75 : 10;
 
-  if (!p.z_depth) warnings.push("z_depth not specified; defaulting to -0.5 mm");
+  if (p.z_depth === undefined) warnings.push("z_depth not specified; defaulting to -0.5 mm");
   if (!p.tool_diameter) notes.push("tool_diameter not given; stepover estimated at 10 mm");
 
   const lines: string[] = [
@@ -751,7 +751,7 @@ function genDrilling(
   const zSafe = d.z_safe;
   const rPlane = 2; // clearance above part
 
-  if (!p.z_depth) warnings.push("z_depth not specified; defaulting to -20 mm");
+  if (p.z_depth === undefined) warnings.push("z_depth not specified; defaulting to -20 mm");
 
   const opLabel: Record<DrillCycleType, string> = {
     G81: "STANDARD DRILLING",
@@ -891,8 +891,8 @@ function genTapping(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   const pitch = p.pitch ?? 1.5;
   const rPlane = 2;
 
-  if (!p.pitch) warnings.push("pitch not specified; defaulting to 1.5 mm (M10 coarse)");
-  if (!p.z_depth) warnings.push("z_depth not specified; defaulting to -20 mm");
+  if (p.pitch === undefined) warnings.push("pitch not specified; defaulting to 1.5 mm (M10 coarse)");
+  if (p.z_depth === undefined) warnings.push("z_depth not specified; defaulting to -20 mm");
 
   // For rigid tapping: F = S × pitch
   const tapFeed = p.rpm * pitch;
@@ -959,7 +959,7 @@ function genBoring(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   const orientAngle = p.orient_angle ?? 0;
   const shiftAmt = p.shift_amount ?? 0.1;
 
-  if (!p.z_depth) warnings.push("z_depth not specified; defaulting to -20 mm");
+  if (p.z_depth === undefined) warnings.push("z_depth not specified; defaulting to -20 mm");
 
   const lines: string[] = [
     ctrl.comment("FINE BORING (G76 type — orient + shift retract)"),
@@ -1028,7 +1028,7 @@ function genThreadMilling(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   const direction = p.thread_direction ?? "right";
 
   if (!p.thread_diameter) warnings.push("thread_diameter not specified; defaulting to 20 mm");
-  if (!p.thread_pitch && !p.pitch) warnings.push("thread_pitch not specified; defaulting to 1.5 mm");
+  if (p.thread_pitch === undefined && p.pitch === undefined) warnings.push("thread_pitch not specified; defaulting to 1.5 mm");
 
   // Thread milling radius = (thread major dia - tool dia) / 2
   const millingRadius = (threadDia - toolDia) / 2;
@@ -1042,8 +1042,8 @@ function genThreadMilling(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   const helixCode = direction === "right" ? "G02" : "G03";
   const approachCode = direction === "right" ? "G03" : "G02";
 
-  // Z start: one pitch above bottom of thread
-  const zThreadStart = -(threadDepth) + threadPitch;
+  // Z start: at thread top (surface), spiral down to full depth
+  const zThreadStart = 0;
   const zThreadEnd = -threadDepth;
 
   // Number of helix revolutions needed
@@ -1064,9 +1064,8 @@ function genThreadMilling(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
     ctrl.rapidZ(zSafe),
     ctrl.comment("Plunge to thread start Z"),
     ctrl.linearZ(zThreadStart, p.feed_rate * 0.3),
-    ctrl.comment("Arc approach to thread diameter"),
-    // Approach: move to start position on X offset then arc in
-    ctrl.rapidXY(xCenter + millingRadius, yCenter),
+    ctrl.comment("Arc approach to thread diameter — controlled feed, not rapid"),
+    ctrl.linearXY(xCenter + millingRadius, yCenter, p.feed_rate * 0.3),
   ];
 
   if (ctrl.family === "heidenhain") {
@@ -1229,7 +1228,7 @@ function genProfile(ctrl: ControllerConfig, p: GCodeParams): GCodeResult {
   ];
 
   if (!p.profile_points) warnings.push("profile_points not specified; using default square 100×50 mm");
-  if (!p.z_depth) warnings.push("z_depth not specified; defaulting to -5 mm");
+  if (p.z_depth === undefined) warnings.push("z_depth not specified; defaulting to -5 mm");
 
   const compCode = compSide === "left"
     ? ctrl.cutterCompLeft(toolNum)
@@ -1455,7 +1454,7 @@ function dispatchOperationInner(
 export function resolveController(name: string): ControllerConfig {
   const normalized = name.toLowerCase().trim();
   for (const cfg of CONTROLLER_REGISTRY) {
-    if (cfg.aliases.some((a) => a === normalized || normalized.includes(a))) {
+    if (cfg.aliases.some((a) => a === normalized || a.includes(normalized))) {
       return cfg;
     }
   }

@@ -106,15 +106,15 @@ function rotaryCoords(move: PostMove, dp: number): string {
 
 const DIALECTS: Record<PostController, ControllerDialect> = {
   fanuc: {
-    safeStart: "G90 G80 G40 G49",
+    safeStart: "G90 G80 G40 G49 G17 G94",
     toolChange: (t, rpm, dir) => `T${t} M06\nS${rpm} M0${dir === "ccw" ? "4" : "3"}`,
     coolantOn: (type) => type === "mist" ? "M07" : "M08",
     coolantOff: "M09",
     workOffset: (g) => g,
     rapid: (x, y, z, dp = 3) => `G00 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)}`.trim(),
-    feed: (x, y, z, f, dp = 3) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
+    feed: (x, y, z, f, dp = 3) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
@@ -122,15 +122,15 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     comment: (text) => `(${text})`,
   },
   haas: {
-    safeStart: "G90 G80 G40 G49 G17",
+    safeStart: "G90 G80 G40 G49 G17 G94",
     toolChange: (t, rpm, dir) => `T${t} M06\nS${rpm} M0${dir === "ccw" ? "4" : "3"}`,
     coolantOn: (type) => type === "mist" ? "M07" : "M08",
     coolantOff: "M09",
     workOffset: (g) => g,
     rapid: (x, y, z, dp = 4) => `G00 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)}`.trim(),
-    feed: (x, y, z, f, dp = 4) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
+    feed: (x, y, z, f, dp = 4) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
     tcpmOn: (t) => `G234 H${t}`,
     tcpmOff: () => "G49",
@@ -138,16 +138,16 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     comment: (text) => `(${text})`,
   },
   siemens: {
-    safeStart: "G90 G40 G17 CYCLE800()",
+    safeStart: "G90 G40 G17 G94 CYCLE800()",
     toolChange: (t, rpm, dir) => `T${t} D1\nM6\nS${rpm} M${dir === "ccw" ? "4" : "3"}`,
     coolantOn: () => "M8",
     coolantOff: "M9",
     workOffset: (g) => g.replace("G54", "G500"),
     rapid: (x, y, z, dp = 3) => `G0 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)}`.trim(),
-    feed: (x, y, z, f, dp = 3) => `G1 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 3) => `G2 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 3) => `G3 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    drillCanned: (z, r, f) => `CYCLE81(${r.toFixed(3)},0,${z.toFixed(3)})`,
+    feed: (x, y, z, f, dp = 3) => `G1 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 3) => `G2 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 3) => `G3 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    drillCanned: (z, r, f) => `CYCLE81(${r.toFixed(3)}, 0, 2.000, ${z.toFixed(3)}) F${f}`,
     tcpmOn: () => "TRAORI\nG43.4",
     tcpmOff: () => "TRAFOOF",
     programEnd: "M30",
@@ -160,9 +160,9 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     coolantOff: "M9",
     workOffset: () => "",
     rapid: (x, y, z, dp = 3) => `L ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} R0 FMAX`.trim(),
-    feed: (x, y, z, f, dp = 3) => `L ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} R0 ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR- ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR+ ${f ? `F${f}` : ""}`.trim(),
+    feed: (x, y, z, f, dp = 3) => `L ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} R0 ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR- ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 3) => `CC ${coord("X", i, dp)} ${coord("Y", j, dp)}\nC ${coord("X", x, dp)} ${coord("Y", y, dp)} DR+ ${f != null ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `CYCL DEF 1.0 DRILLING\nCYCL DEF 1.1 SET UP ${r.toFixed(3)}\nCYCL DEF 1.2 DEPTH ${z.toFixed(3)}\nCYCL DEF 1.3 FEED ${f}`,
     tcpmOn: () => "M128",
     tcpmOff: () => "M129",
@@ -170,15 +170,15 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     comment: (text) => `; ${text}`,
   },
   mazak: {
-    safeStart: "G90 G80 G40 G49 G17",
+    safeStart: "G90 G80 G40 G49 G17 G94",
     toolChange: (t, rpm, dir) => `T${t.toString().padStart(4, "0")}\nM06\nS${rpm} M0${dir === "ccw" ? "4" : "3"}`,
     coolantOn: (type) => type === "mist" ? "M07" : "M08",
     coolantOff: "M09",
     workOffset: (g) => g,
     rapid: (x, y, z, dp = 3) => `G00 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)}`.trim(),
-    feed: (x, y, z, f, dp = 3) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
+    feed: (x, y, z, f, dp = 3) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 3) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 3) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
@@ -186,15 +186,15 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     comment: (text) => `(${text})`,
   },
   okuma: {
-    safeStart: "G90 G80 G40 G49 G15 H0",
+    safeStart: "G90 G80 G40 G49 G15 H0 G94",
     toolChange: (t, rpm, dir) => `T${t.toString().padStart(4, "0")}\nM06\nS${rpm} M0${dir === "ccw" ? "4" : "3"}`,
     coolantOn: (type) => type === "mist" ? "M51" : "M50",
     coolantOff: "M09",
     workOffset: (g) => g.replace("G54", "G15 H1"),
     rapid: (x, y, z, dp = 4) => `G00 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)}`.trim(),
-    feed: (x, y, z, f, dp = 4) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
-    arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f ? `F${f}` : ""}`.trim(),
+    feed: (x, y, z, f, dp = 4) => `G01 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("Z", z, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCW: (x, y, i, j, f, dp = 4) => `G02 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
+    arcCCW: (x, y, i, j, f, dp = 4) => `G03 ${coord("X", x, dp)} ${coord("Y", y, dp)} ${coord("I", i, dp)} ${coord("J", j, dp)} ${f != null ? `F${f}` : ""}`.trim(),
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
@@ -210,16 +210,16 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
 export class PostProcessorEngine {
   process(input: PostInput, config: PostConfig): PostResult {
     const dialect = DIALECTS[config.controller] || DIALECTS.fanuc;
-    const dp = config.decimal_places || 3;
+    const dp = config.decimal_places ?? 3;
     const lines: string[] = [];
     const cannedCyclesUsed: string[] = [];
     const warnings: string[] = [];
-    let lineNum = config.line_number_increment || 10;
+    let lineNum = config.line_number_increment ?? 10;
 
     const addLine = (line: string) => {
       if (config.line_numbers) {
         lines.push(`N${lineNum} ${line}`);
-        lineNum += config.line_number_increment || 10;
+        lineNum += config.line_number_increment ?? 10;
       } else {
         lines.push(line);
       }
@@ -236,7 +236,8 @@ export class PostProcessorEngine {
     if (input.work_offset) addLine(dialect.workOffset(input.work_offset));
 
     // Safe retract before tool change (M-002 fix: prevent collision during ATC)
-    addLine("G28 Z0");
+    addLine("G28 G91 Z0");
+    addLine("G90");
 
     // Tool change
     addLine(dialect.toolChange(input.tool_number, input.spindle_rpm, "cw"));
@@ -264,7 +265,7 @@ export class PostProcessorEngine {
           break;
         }
         case "feed": {
-          let line = dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin, dp);
+          let line = dialect.feed(move.x, move.y, move.z, move.feed ?? input.feed_rate_mmmin, dp);
           const fRot = rotaryCoords(move, dp);
           if (fRot) line = `${line} ${fRot}`.trim();
           addLine(line);
@@ -272,40 +273,40 @@ export class PostProcessorEngine {
           break;
         }
         case "arc_cw":
-          addLine(dialect.arcCW(move.x, move.y, move.i, move.j, move.feed || input.feed_rate_mmmin, dp));
+          addLine(dialect.arcCW(move.x, move.y, move.i, move.j, move.feed ?? input.feed_rate_mmmin, dp));
           totalFeedDist += 15;
           break;
         case "arc_ccw":
-          addLine(dialect.arcCCW(move.x, move.y, move.i, move.j, move.feed || input.feed_rate_mmmin, dp));
+          addLine(dialect.arcCCW(move.x, move.y, move.i, move.j, move.feed ?? input.feed_rate_mmmin, dp));
           totalFeedDist += 15;
           break;
         case "drill":
           if (config.use_canned_cycles && move.z !== undefined) {
-            addLine(dialect.drillCanned(move.z, 2, move.feed || input.feed_rate_mmmin));
+            addLine(dialect.drillCanned(move.z, 2, move.feed ?? input.feed_rate_mmmin));
             cannedCyclesUsed.push("G81");
           } else {
-            addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin / 2, dp));
+            addLine(dialect.feed(move.x, move.y, move.z, move.feed ?? input.feed_rate_mmmin / 2, dp));
           }
           totalFeedDist += 20;
           break;
         case "tap":
           // C-003 fix: tapping cycle (was previously silently dropped)
           if (config.use_canned_cycles && move.z !== undefined) {
-            const pitch = move.pitch || 1.0;
+            const pitch = move.pitch ?? 1.0;
             addLine(`G84 Z${move.z.toFixed(dp)} R2.000 F${(input.spindle_rpm * pitch).toFixed(0)}`);
             cannedCyclesUsed.push("G84");
           } else {
-            addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin / 4, dp));
+            addLine(dialect.feed(move.x, move.y, move.z, move.feed ?? input.feed_rate_mmmin / 4, dp));
           }
           totalFeedDist += 20;
           break;
         case "bore":
           // C-003 fix: boring cycle (was previously silently dropped)
           if (config.use_canned_cycles && move.z !== undefined) {
-            addLine(`G76 Z${move.z.toFixed(dp)} R2.000 F${move.feed || input.feed_rate_mmmin / 2}`);
+            addLine(`G76 Z${move.z.toFixed(dp)} R2.000 F${move.feed ?? input.feed_rate_mmmin / 2}`);
             cannedCyclesUsed.push("G76");
           } else {
-            addLine(dialect.feed(move.x, move.y, move.z, move.feed || input.feed_rate_mmmin / 2, dp));
+            addLine(dialect.feed(move.x, move.y, move.z, move.feed ?? input.feed_rate_mmmin / 2, dp));
           }
           totalFeedDist += 20;
           break;
@@ -319,6 +320,9 @@ export class PostProcessorEngine {
       }
     }
 
+    // Cancel canned cycle modal if any were used
+    if (cannedCyclesUsed.length > 0) addLine("G80");
+
     // TCPM off before coolant off (C-004: must cancel before tool change/end)
     if (config.five_axis_mode === "tcpm") {
       addLine(dialect.tcpmOff());
@@ -328,7 +332,9 @@ export class PostProcessorEngine {
     addLine(dialect.coolantOff);
     addLine(dialect.programEnd);
 
-    const estimatedTime = totalFeedDist / input.feed_rate_mmmin * 60 + lines.length * 0.05;
+    const estimatedTime = input.feed_rate_mmmin > 0
+      ? totalFeedDist / input.feed_rate_mmmin * 60 + lines.length * 0.05
+      : lines.length * 0.05;
 
     return {
       controller: config.controller,

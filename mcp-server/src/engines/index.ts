@@ -1063,6 +1063,9 @@ export {
   type CollisionCheckResult as CAMCollisionCheckResult,
   type Vec2 as CAMVec2,
   type Vec3 as CAMVec3,
+  type ClearancePlaneConfig,
+  type SequencedOperation,
+  type SequenceResult as CAMSequenceResult,
 } from "./CAMKernelEngine.js";
 
 // Report Generation (Setup Sheets, Process Plans, Cost Estimates)

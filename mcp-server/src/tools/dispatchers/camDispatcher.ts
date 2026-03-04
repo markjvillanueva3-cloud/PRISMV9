@@ -1,9 +1,10 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 9 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 12 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
- *   fixture_setup, nesting_optimize
+ *   fixture_setup, nesting_optimize, clearance_plane,
+ *   sequence_operations, linking_move
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -32,6 +33,7 @@ const ACTIONS = [
   "toolpath_generate", "toolpath_simulate", "toolpath_optimize",
   "post_process", "collision_check_full", "stock_update",
   "tool_assembly", "fixture_setup", "nesting_optimize",
+  "clearance_plane", "sequence_operations", "linking_move",
 ] as const;
 
 export function registerCamDispatcher(server: any): void {
@@ -95,6 +97,36 @@ Params vary by action — pass relevant fields in params object.`,
           case "nesting_optimize": {
             const engine = await getEngine("cam");
             result = engine.nest?.(params) ?? { nesting: "optimized", parts: params.parts || 1 };
+            break;
+          }
+          case "clearance_plane": {
+            const engine = await getEngine("cam");
+            result = engine.computeClearancePlane(
+              params.stockTopZ ?? 0,
+              params.fixtureTopZ ?? 0,
+              params.workpieceTopZ ?? 0,
+              params.marginMm ?? 5,
+            );
+            break;
+          }
+          case "sequence_operations": {
+            const engine = await getEngine("cam");
+            result = engine.sequenceOperations(
+              params.operations ?? [],
+            );
+            break;
+          }
+          case "linking_move": {
+            const engine = await getEngine("cam");
+            result = engine.generateLinkingMove(
+              params.fromPos ?? { x: 0, y: 0, z: 0 },
+              params.toPos ?? { x: 0, y: 0, z: 0 },
+              params.config ?? {
+                globalClearanceZ: 50,
+                linkingMode: "z_clearance",
+                minClearanceMm: 5,
+              },
+            );
             break;
           }
           default:

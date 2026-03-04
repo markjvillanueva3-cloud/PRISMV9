@@ -111,21 +111,21 @@ export function registerToolpathDispatcher(server: any): void {
               depth_mm: params.depth_mm, diameter_mm: params.diameter_mm,
             };
             result = toolpathGenerationEngine.generate(
-              params.feature_type || "pocket_rectangular",
+              params.feature_type ?? "pocket_rectangular",
               dims,
               {
-                strategy: params.strategy || "adaptive_clearing",
-                tool_diameter_mm: params.tool_diameter_mm || 10,
-                stepover_pct: params.stepover_pct || 40,
-                stepdown_mm: params.stepdown_mm || 2,
-                feed_rate_mmmin: params.feed_rate_mmmin || 1000,
-                plunge_rate_mmmin: params.plunge_rate_mmmin || 300,
-                spindle_rpm: params.spindle_rpm || 8000,
-                cut_direction: params.cut_direction || "climb",
-                coolant: params.coolant || "flood",
-                retract_height_mm: params.retract_height_mm || 5,
+                strategy: params.strategy ?? "adaptive_clearing",
+                tool_diameter_mm: params.tool_diameter_mm ?? 10,
+                stepover_pct: params.stepover_pct ?? 40,
+                stepdown_mm: params.stepdown_mm ?? 2,
+                feed_rate_mmmin: params.feed_rate_mmmin ?? 1000,
+                plunge_rate_mmmin: params.plunge_rate_mmmin ?? 300,
+                spindle_rpm: params.spindle_rpm ?? 8000,
+                cut_direction: params.cut_direction ?? "climb",
+                coolant: params.coolant ?? "flood",
+                retract_height_mm: params.retract_height_mm ?? 5,
                 stock_to_leave_mm: params.stock_to_leave_mm,
-                entry_strategy: params.entry_strategy || "ramp",
+                entry_strategy: params.entry_strategy ?? "ramp",
               }
             );
             break;
