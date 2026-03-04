@@ -461,7 +461,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       PATHS.EXTRACTED_DIR, 
       "controllers", 
       "alarms", 
-      alarm.controller_family.toUpperCase()
+      (alarm.controller_family || 'UNKNOWN').toUpperCase()
     );
     
     try {

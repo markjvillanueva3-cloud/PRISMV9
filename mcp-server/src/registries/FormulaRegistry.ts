@@ -206,8 +206,8 @@ const BUILT_IN_FORMULAS: Formula[] = [
     name: "Kienzle Cutting Force",
     domain: "physics",
     category: "cutting_force",
-    equation: "F_c = k_{c1.1} \\cdot h^{-m_c} \\cdot b",
-    equation_plain: "Fc = kc1.1 * h^(-mc) * b",
+    equation: "F_c = k_{c1.1} \\cdot h^{1-m_c} \\cdot b",
+    equation_plain: "Fc = kc1.1 * h^(1-mc) * b",
     parameters: [
       { name: "kc1_1", symbol: "k_{c1.1}", unit: "N/mm²", description: "Specific cutting force at h=1mm", type: "input", range: { min: 500, max: 5000 } },
       { name: "mc", symbol: "m_c", unit: "-", description: "Kienzle exponent", type: "input", range: { min: 0.15, max: 0.45 } },
@@ -227,7 +227,7 @@ const BUILT_IN_FORMULAS: Formula[] = [
     references: ["Kienzle, O. (1952). Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen"],
     consumers: ["speed_feed", "cutting_force", "power_calc", "chatter_predict"],
     examples: [
-      { inputs: { kc1_1: 1800, mc: 0.25, h: 0.1, b: 4.0 }, output: 4032, description: "Milling AISI 1045 steel" }
+      { inputs: { kc1_1: 1800, mc: 0.25, h: 0.1, b: 4.0 }, output: 1280, description: "Milling AISI 1045 steel" }
     ]
   },
   
@@ -844,7 +844,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     
     switch (formulaId) {
       case "F-KIENZLE-001":
-        result = inputs.kc1_1 * Math.pow(inputs.h, -inputs.mc) * inputs.b;
+        result = inputs.kc1_1 * Math.pow(inputs.h, 1 - inputs.mc) * inputs.b;
         break;
         
       case "F-TAYLOR-001":
@@ -856,16 +856,16 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         break;
         
       case "F-POWER-001":
-        const eta = inputs.eta || 0.85;
+        const eta = (inputs.eta != null && inputs.eta > 0 && inputs.eta <= 1) ? inputs.eta : 0.85;
         result = (inputs.Fc * inputs.Vc) / (60000 * eta);
         break;
         
       case "F-SURFACE-001":
-        result = (inputs.f * inputs.f) / (32 * inputs.r);
+        result = inputs.r > 0 ? (inputs.f * inputs.f) / (32 * inputs.r) * 1000 : 0; // mm → µm
         break;
         
       case "F-CHIPTHK-001":
-        result = inputs.fz * Math.sqrt(inputs.ae / inputs.D);
+        result = inputs.D > 0 ? inputs.fz * Math.sqrt(inputs.ae / inputs.D) : 0;
         break;
         
       case "F-DEFLECT-001":
@@ -874,7 +874,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         break;
         
       case "F-CHATTER-001":
-        result = -1 / (2 * inputs.Ks * inputs.ReG);
+        result = (inputs.Ks !== 0 && inputs.ReG !== 0) ? -1 / (2 * inputs.Ks * inputs.ReG) : 0;
         break;
         
       case "F-OMEGA-001":
@@ -890,11 +890,11 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       case "F-CALC-001": result = (inputs.Vc * 1000) / (Math.PI * inputs.D); break;
       case "F-CALC-002": result = inputs.n_rpm * inputs.fz * inputs.z; break;
       case "F-CALC-003": result = (Math.PI * inputs.D * inputs.n_rpm) / 1000; break;
-      case "F-CALC-004": result = inputs.fz * inputs.D / (2 * Math.sqrt(inputs.D * inputs.ae - inputs.ae * inputs.ae)); break;
+      case "F-CALC-004": { const sqArg = inputs.D * inputs.ae - inputs.ae * inputs.ae; const denom4 = 2 * Math.sqrt(Math.max(sqArg, 0)); result = denom4 > 1e-9 ? inputs.fz * inputs.D / denom4 : inputs.fz; break; }
       case "F-CALC-005": result = (inputs.P_kw * 30000) / (Math.PI * inputs.n_rpm); break;
       case "F-CALC-006": result = 25.4 / inputs.pitch_mm; break;
       case "F-CALC-007": result = inputs.D_major - inputs.pitch_mm; break;
-      case "F-CALC-008": result = inputs.L_mm / inputs.Vf; break;
+      case "F-CALC-008": result = inputs.Vf > 0 ? inputs.L_mm / inputs.Vf : 0; break;
       case "F-CALC-009": result = (Math.PI * inputs.D_mm * inputs.n_rpm) / 1000; break;
 
       default: {

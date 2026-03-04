@@ -978,7 +978,7 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       const type = (tool.type || 'unknown').toLowerCase();
       typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
       
-      const coating = ((tool.coating as any) || 'unknown').toLowerCase();
+      const coating = ((tool.coating as any)?.type || (tool.coating as any) || tool.coating_type || 'unknown').toString().toLowerCase();
       coatingCounts.set(coating, (coatingCounts.get(coating) || 0) + 1);
       
       // Material groups from cutting_params

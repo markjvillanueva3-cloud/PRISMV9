@@ -947,7 +947,7 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     
     for (const id of mfrMachines) {
       const machine = this.get(id);
-      if (machine?.model.toLowerCase() === model.toLowerCase()) {
+      if (machine?.model?.toLowerCase() === model.toLowerCase()) {
         return machine;
       }
     }
@@ -1008,27 +1008,27 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     }
     
     if (options.min_x_travel !== undefined) {
-      results = results.filter(m => m.envelope.x_travel >= options.min_x_travel!);
+      results = results.filter(m => (m.envelope?.x_travel ?? 0) >= options.min_x_travel!);
     }
-    
+
     if (options.min_y_travel !== undefined) {
-      results = results.filter(m => m.envelope.y_travel >= options.min_y_travel!);
+      results = results.filter(m => (m.envelope?.y_travel ?? 0) >= options.min_y_travel!);
     }
-    
+
     if (options.min_z_travel !== undefined) {
-      results = results.filter(m => m.envelope.z_travel >= options.min_z_travel!);
+      results = results.filter(m => (m.envelope?.z_travel ?? 0) >= options.min_z_travel!);
     }
-    
+
     if (options.min_spindle_rpm !== undefined) {
-      results = results.filter(m => m.spindle.max_rpm >= options.min_spindle_rpm!);
+      results = results.filter(m => (m.spindle?.max_rpm ?? 0) >= options.min_spindle_rpm!);
     }
-    
+
     if (options.min_spindle_power !== undefined) {
-      results = results.filter(m => m.spindle.power_continuous >= options.min_spindle_power!);
+      results = results.filter(m => (m.spindle?.power_continuous ?? 0) >= options.min_spindle_power!);
     }
-    
+
     if (options.min_tool_capacity !== undefined) {
-      results = results.filter(m => m.tool_changer.capacity >= options.min_tool_capacity!);
+      results = results.filter(m => (m.tool_changer?.capacity ?? 0) >= options.min_tool_capacity!);
     }
     
     if (options.simultaneous_axes !== undefined) {
@@ -1095,22 +1095,22 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     if (machine.rigid_tapping) features.push("rigid_tapping");
     if (machine.probing_ready) features.push("probing_ready");
     if (machine.automation_ready) features.push("automation_ready");
-    if (machine.spindle.coolant_through) features.push("coolant_through_spindle");
-    
+    if (machine.spindle?.coolant_through) features.push("coolant_through_spindle");
+
     return {
       machining_envelope: {
-        x: machine.envelope.x_travel,
-        y: machine.envelope.y_travel,
-        z: machine.envelope.z_travel
+        x: machine.envelope?.x_travel ?? 0,
+        y: machine.envelope?.y_travel ?? 0,
+        z: machine.envelope?.z_travel ?? 0
       },
       spindle_capability: {
-        rpm: machine.spindle.max_rpm,
-        power: machine.spindle.power_continuous,
-        torque: machine.spindle.torque_max
+        rpm: machine.spindle?.max_rpm ?? 0,
+        power: machine.spindle?.power_continuous ?? 0,
+        torque: machine.spindle?.torque_max ?? 0
       },
-      axis_count: machine.axes.length,
-      simultaneous_axes: machine.simultaneous_axes,
-      tool_capacity: machine.tool_changer.capacity,
+      axis_count: machine.axes?.length ?? 0,
+      simultaneous_axes: machine.simultaneous_axes ?? 0,
+      tool_capacity: machine.tool_changer?.capacity ?? 0,
       features
     };
   }
@@ -1126,14 +1126,14 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     controller_preference?: string[];
   }): Machine[] {
     return this.all().filter(m => {
-      if (requirements.min_envelope.x && m.envelope.x_travel < requirements.min_envelope.x) return false;
-      if (requirements.min_envelope.y && m.envelope.y_travel < requirements.min_envelope.y) return false;
-      if (requirements.min_envelope.z && m.envelope.z_travel < requirements.min_envelope.z) return false;
-      if (requirements.min_spindle_rpm && m.spindle.max_rpm < requirements.min_spindle_rpm) return false;
-      if (requirements.min_spindle_power && m.spindle.power_continuous < requirements.min_spindle_power) return false;
-      if (requirements.simultaneous_axes && m.simultaneous_axes < requirements.simultaneous_axes) return false;
+      if (requirements.min_envelope.x != null && (m.envelope?.x_travel ?? 0) < requirements.min_envelope.x) return false;
+      if (requirements.min_envelope.y != null && (m.envelope?.y_travel ?? 0) < requirements.min_envelope.y) return false;
+      if (requirements.min_envelope.z != null && (m.envelope?.z_travel ?? 0) < requirements.min_envelope.z) return false;
+      if (requirements.min_spindle_rpm != null && (m.spindle?.max_rpm ?? 0) < requirements.min_spindle_rpm) return false;
+      if (requirements.min_spindle_power != null && (m.spindle?.power_continuous ?? 0) < requirements.min_spindle_power) return false;
+      if (requirements.simultaneous_axes != null && (m.simultaneous_axes ?? 0) < requirements.simultaneous_axes) return false;
       if (requirements.controller_preference?.length) {
-        const ctrl = m.controller.manufacturer.toLowerCase();
+        const ctrl = (m.controller?.manufacturer ?? '').toLowerCase();
         if (!requirements.controller_preference.some(p => ctrl.includes(p.toLowerCase()))) return false;
       }
       return true;

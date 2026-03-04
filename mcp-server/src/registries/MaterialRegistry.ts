@@ -357,7 +357,7 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     if (options.iso_group && !this.indexByISO.has(options.iso_group)) {
-      results = results.filter(m => m.classification?.iso_group === options.iso_group);
+      results = results.filter(m => m.classification?.iso_group === options.iso_group || (m as any).iso_group === options.iso_group);
     }
     
     if (options.category && !this.indexByCategory.has(options.category)) {
@@ -365,17 +365,24 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     if (options.hardness_min !== undefined) {
-      results = results.filter(m =>
-        (m.mechanical?.hardness?.rockwell_c || 0) >= options.hardness_min! ||
-        (m.mechanical?.hardness?.brinell || 0) >= options.hardness_min!
-      );
+      results = results.filter(m => {
+        const hrc = m.mechanical?.hardness?.rockwell_c;
+        const hb = m.mechanical?.hardness?.brinell;
+        // Use Brinell if available (broader range), else Rockwell C
+        if (hb != null) return hb >= options.hardness_min!;
+        if (hrc != null) return hrc >= options.hardness_min!;
+        return false; // no hardness data → exclude
+      });
     }
 
     if (options.hardness_max !== undefined) {
-      results = results.filter(m =>
-        (m.mechanical?.hardness?.rockwell_c || 999) <= options.hardness_max! ||
-        (m.mechanical?.hardness?.brinell || 999) <= options.hardness_max!
-      );
+      results = results.filter(m => {
+        const hrc = m.mechanical?.hardness?.rockwell_c;
+        const hb = m.mechanical?.hardness?.brinell;
+        if (hb != null) return hb <= options.hardness_max!;
+        if (hrc != null) return hrc <= options.hardness_max!;
+        return false; // no hardness data → exclude
+      });
     }
     
     if (options.machinability_min !== undefined) {
@@ -385,11 +392,11 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
     
     if (options.has_kienzle) {
-      results = results.filter(m => m.kienzle?.kc1_1 && m.kienzle?.mc);
+      results = results.filter(m => m.kienzle?.kc1_1 != null && m.kienzle?.mc != null);
     }
-    
+
     if (options.has_taylor) {
-      results = results.filter(m => m.taylor?.C && m.taylor?.n);
+      results = results.filter(m => m.taylor?.C != null && m.taylor?.n != null);
     }
     
     // Pagination
@@ -564,9 +571,9 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     for (const entry of this.entries.values()) {
       const m = entry.data;
-      if (m.kienzle?.kc1_1 && m.kienzle?.mc) stats.withKienzle++;
-      if (m.taylor?.C && m.taylor?.n) stats.withTaylor++;
-      if (m.johnson_cook?.A) stats.withJohnsonCook++;
+      if (m.kienzle?.kc1_1 != null && m.kienzle?.mc != null) stats.withKienzle++;
+      if (m.taylor?.C != null && m.taylor?.n != null) stats.withTaylor++;
+      if (m.johnson_cook?.A != null && m.johnson_cook?.B != null && m.johnson_cook?.n != null) stats.withJohnsonCook++;
     }
     
     return stats;

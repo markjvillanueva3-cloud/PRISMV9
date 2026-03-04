@@ -169,7 +169,7 @@ export function registerDataDispatcher(server: any): void {
             const recMatId = params.material_id || params.material || params.identifier;
             if (!recMatId) return jsonResponse({ error: "tool_recommend requires 'material_id' or 'material' parameter" });
             const mat = await registryManager.materials.getByIdOrName(recMatId);
-            if (!mat) return jsonResponse({ error: `Material not found: ${params.material_id}` });
+            if (!mat) return jsonResponse({ error: `Material not found: ${recMatId}` });
             const recTools = registryManager.tools.recommendTools({
               material_iso_group: mat.iso_group, operation: params.operation || "milling",
               diameter_target: params.diameter, max_results: params.limit ?? 5
@@ -228,7 +228,7 @@ export function registerDataDispatcher(server: any): void {
             const fixAlarmId = params.alarm_id || params.id || params.code;
             if (!fixAlarmId) return jsonResponse({ error: "alarm_fix requires 'alarm_id' or 'code' parameter" });
             const alm = await registryManager.alarms.get(fixAlarmId);
-            if (!alm) return jsonResponse({ error: `Alarm not found: ${params.alarm_id}` });
+            if (!alm) return jsonResponse({ error: `Alarm not found: ${fixAlarmId}` });
             result = { alarm_id: alm.alarm_id, name: alm.name, quick_fix: alm.quick_fix,
               fix_procedures: alm.fix_procedures, related_alarms: alm.related_alarms };
             break;
@@ -239,7 +239,7 @@ export function registerDataDispatcher(server: any): void {
             const fid = params.formula_id || params.id || params.name;
             if (!fid) return jsonResponse({ error: "formula_get requires 'formula_id' parameter" });
             const formula = await registryManager.formulas.getFormula(fid);
-            if (!formula) return jsonResponse({ error: `Formula not found: ${params.formula_id}` });
+            if (!formula) return jsonResponse({ error: `Formula not found: ${fid}` });
             result = formula;
             break;
           }
@@ -318,7 +318,8 @@ export function registerDataDispatcher(server: any): void {
             let safetyWarnings: string[] = [];
             if (machineConstraints.max_power_kw && kienzle?.kc1_1) {
               // Rough estimate: typical milling at full engagement
-              const estForce = kienzle.kc1_1 * 2; // very rough N
+              // Rough estimate: 1mm² chip area (1mm depth * 1mm width)
+              const estForce = kienzle.kc1_1; // kc at h=1mm, typical chip area ~1mm²
               const estPower = (estForce * (opRec.speed_roughing || 150)) / 60000;
               if (estPower > machineConstraints.max_power_kw * 0.9) {
                 safetyWarnings.push(`Estimated cutting power (${estPower.toFixed(1)}kW) may approach machine limit (${machineConstraints.max_power_kw}kW)`);
@@ -509,8 +510,8 @@ export function registerDataDispatcher(server: any): void {
           case "speed_feed_calc": {
             const sfMat = params.material ? await registryManager.materials.getByIdOrName(params.material) : null;
             if (!sfMat) return jsonResponse({ error: "speed_feed_calc requires 'material'" });
-            const sfToolDiam = params.tool_diameter || params.diameter || 10;
-            const sfFlutes = params.flutes || 4;
+            const sfToolDiam = params.tool_diameter ?? params.diameter ?? 10;
+            const sfFlutes = params.flutes ?? 4;
             const sfOp = (params.operation || "milling").toLowerCase();
             const sfAp = params.depth_of_cut || params.ap;
             const sfAe = params.width_of_cut || params.ae;
@@ -521,8 +522,8 @@ export function registerDataDispatcher(server: any): void {
             const recSection = cutRec?.[sfOp === 'turning' ? 'turning' : 'milling'] || {};
             // Handle both nested (roughing: {speed, fz}) and flat (speed_roughing, speed_finishing) schemas
             const recBlock = recSection[isRoughing ? 'roughing' : 'finishing'] || recSection || {};
-            let maxRPM = params.max_rpm || 12000;
-            let maxPower = params.max_power_kw || 15;
+            let maxRPM = params.max_rpm ?? 12000;
+            let maxPower = params.max_power_kw ?? 15;
             if (params.machine) {
               const sfMach = getMach(params.machine);
               if (sfMach) {
@@ -541,7 +542,7 @@ export function registerDataDispatcher(server: any): void {
             const mrr = Math.round(ae * ap * feedRate / 1000 * 10) / 10;
             const h = fzRec * Math.sin(Math.acos(Math.max(-1, Math.min(1, 1 - (2 * ae / sfToolDiam)))));
             const hex = Math.max(h, 0.01);
-            const Fc = kienzle ? Math.round(kienzle.kc1_1 * Math.pow(hex, -kienzle.mc) * ap * ae / sfToolDiam) : null;
+            const Fc = kienzle ? Math.round(kienzle.kc1_1 * Math.pow(hex, 1 - kienzle.mc) * ap) : null;
             const Pc = Fc ? Math.round((Fc * actualVc / 60000) * 100) / 100 : null;
             const powerPct = Pc && maxPower ? Math.round((Pc / maxPower) * 100) : null;
             // Tool life — select best Taylor constants for the actual cutting speed
@@ -549,10 +550,10 @@ export function registerDataDispatcher(server: any): void {
             if (taylor) {
               // If speed exceeds carbide C, try ceramic/CBN which have higher C values
               if (actualVc > (taylor.C || 0) && taylor.C_ceramic) { tlC = taylor.C_ceramic; tlN = taylor.n_ceramic; tlGrade = "ceramic"; }
-              if (actualVc > (taylor.C || 0) && taylor.C_cbn) { tlC = taylor.C_cbn; tlN = taylor.n_cbn; tlGrade = "cbn"; }
+              if (actualVc > (taylor.C_ceramic || taylor.C || 0) && taylor.C_cbn) { tlC = taylor.C_cbn; tlN = taylor.n_cbn; tlGrade = "cbn"; }
               // If speed is below carbide C but very low, the formula still works
             }
-            const toolLifeRaw = tlC && tlN ? Math.pow(tlC / actualVc, 1 / tlN) : null;
+            const toolLifeRaw = (tlC != null && tlN != null && tlN > 0 && actualVc > 0) ? Math.pow(tlC / actualVc, 1 / tlN) : null;
             const toolLife = toolLifeRaw !== null ? Math.max(1, Math.round(toolLifeRaw)) : null;
             const toolGrade = tlGrade;
             const warnings: string[] = [];
@@ -584,9 +585,10 @@ export function registerDataDispatcher(server: any): void {
             // Handle both nested (.materials.P_STEELS) and flat (.P_STEELS) schemas
             const cp1src = cp1.materials || cp1;
             const cp2src = cp2.materials || cp2;
-            const isoKey = Object.keys(cp1src).find(k => k.startsWith(tcIsoGroup + '_'));
-            const t1cp = isoKey ? cp1src[isoKey] : null;
-            const t2cp = isoKey ? cp2src[isoKey] : null;
+            const isoKey1 = Object.keys(cp1src).find(k => k.startsWith(tcIsoGroup + '_'));
+            const isoKey2 = Object.keys(cp2src).find(k => k.startsWith(tcIsoGroup + '_'));
+            const t1cp = isoKey1 ? cp1src[isoKey1] : null;
+            const t2cp = isoKey2 ? cp2src[isoKey2] : null;
             result = {
               tool_1: { id: (tool1 as any).id, name: tool1.name, vendor: (tool1 as any).vendor, diameter: (tool1 as any).cutting_diameter_mm, flutes: (tool1 as any).flute_count, coating: (tool1 as any).coating || (tool1 as any).coating_type, coolant_through: (tool1 as any).coolant_through, price: (tool1 as any).price_usd, taylor_C: (tool1 as any).taylor_C, cutting_params: t1cp },
               tool_2: { id: (tool2 as any).id, name: tool2.name, vendor: (tool2 as any).vendor, diameter: (tool2 as any).cutting_diameter_mm, flutes: (tool2 as any).flute_count, coating: (tool2 as any).coating || (tool2 as any).coating_type, coolant_through: (tool2 as any).coolant_through, price: (tool2 as any).price_usd, taylor_C: (tool2 as any).taylor_C, cutting_params: t2cp },
@@ -607,9 +609,9 @@ export function registerDataDispatcher(server: any): void {
             const source = await registryManager.materials.getByIdOrName(subMat);
             if (!source) return jsonResponse({ error: `Source material not found: ${subMat}` });
             const srcGroup = (source as any).iso_group || "P";
-            const srcHardness = (source as any).hardness_hb || (source as any).hardness || 200;
-            const srcTensile = (source as any).tensile_strength_mpa || (source as any).tensile_strength || 500;
-            const srcMachinability = (source as any).machinability_rating || (source as any).machinability || 50;
+            const srcHardness = (source as any).hardness_hb ?? (source as any).hardness ?? 200;
+            const srcTensile = (source as any).tensile_strength_mpa ?? (source as any).tensile_strength ?? 500;
+            const srcMachinability = (source as any).machinability_rating ?? (source as any).machinability ?? 50;
 
             // 2. Find candidates in same ISO group
             const candidates = await registryManager.materials.search({
@@ -621,11 +623,11 @@ export function registerDataDispatcher(server: any): void {
             const scored = candidateList
               .filter((c: any) => c.name !== source.name && c.id !== (source as any).id)
               .map((c: any) => {
-                const cHardness = c.hardness_hb || c.hardness || 200;
-                const cTensile = c.tensile_strength_mpa || c.tensile_strength || 500;
-                const cMachinability = c.machinability_rating || c.machinability || 50;
-                const hardnessDiff = Math.abs(cHardness - srcHardness) / srcHardness;
-                const tensileDiff = Math.abs(cTensile - srcTensile) / srcTensile;
+                const cHardness = c.hardness_hb ?? c.hardness ?? 200;
+                const cTensile = c.tensile_strength_mpa ?? c.tensile_strength ?? 500;
+                const cMachinability = c.machinability_rating ?? c.machinability ?? 50;
+                const hardnessDiff = Math.abs(cHardness - srcHardness) / Math.max(srcHardness, 1);
+                const tensileDiff = Math.abs(cTensile - srcTensile) / Math.max(srcTensile, 1);
                 const machinabilityImprovement = ((cMachinability - srcMachinability) / Math.max(srcMachinability, 1)) * 100;
 
                 let score = 0;
