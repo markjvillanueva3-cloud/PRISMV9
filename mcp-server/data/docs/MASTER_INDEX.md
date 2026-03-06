@@ -126,7 +126,7 @@ Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_mode
 Actions (13): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select, deep_hole_technique
 
 ### prism_cam (camDispatcher.ts)
-Actions (28): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map, cam_cycle_catalog, lathe_post_process, probe_generate, subprogram_call, subprogram_pattern, cam_controller_catalog, cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance, cam_translate, cam_compare_controllers, cam_material_recommend
+Actions (32): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map, cam_cycle_catalog, lathe_post_process, probe_generate, subprogram_call, subprogram_pattern, cam_controller_catalog, cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance, cam_translate, cam_compare_controllers, cam_material_recommend, cam_multicam_recommend, cam_multicam_list, cam_multicam_compare, cam_multicam_flagship
 
 ### prism_quality (qualityDispatcher.ts)
 Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
@@ -212,7 +212,7 @@ Forensics/inverse/genplan/sustain → prism_diagnosis (38)
 Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
 CAD geometry/mesh/DfM → prism_cad (13)
-CAM toolpath/post/strategy → prism_cam (28)
+CAM toolpath/post/strategy → prism_cam (32)
 Quality/SPC/GD&T → prism_quality (8)
 Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
 Job scheduling → prism_scheduling (8)
@@ -410,7 +410,8 @@ Health: prism_bridge→health
 - HyperMillControllerCatalogEngine.ts (430L) — CNC controller catalog from NcGenerator 33.0: 16 families, 59 variants, 5 G-code dialects with features, search/filter by axis count/capability
 - HyperMillCycleDefaultsEngine.ts (450L) — hyperMILL cycle defaults from Metric.cfg: 26 cycles across 10 categories, formula resolver (T:Dia, mtol, T:Rad variables), collision clearances, FRTYP tool type map
 - HyperMillThreadStandardEngine.ts (260L) — Thread standard database: 11 standards (ISO Metric, ANSI Unified, BSP, DIN, ISO Pipe, JIS, GB), 77 entries with tap drill/minor dia lookups, size search
-- CamKnowledgePortabilityEngine.ts (700L) — Cross-CAM knowledge bridge: 22 intents, 6 controllers, 6 ISO groups, formula resolver, G-code generation, HSM smoothing, controller comparison, source-agnostic (hypermill/fusion360/mastercam/solidcam/esprit)
+- CamKnowledgePortabilityEngine.ts (700L) — Cross-CAM knowledge bridge: 22 intents, 6 controllers, 6 ISO groups, formula resolver, G-code generation, HSM smoothing, controller comparison, source-agnostic (hypermill/fusion360/mastercam/solidcam/esprit/siemensnx/gibbscam/surfcam)
+- MultiCamStrategyEngine.ts (1050L) — 6-system CAM strategy database: Fusion 360 (23 strategies), Mastercam (22), ESPRIT (19), Siemens NX (17), GibbsCAM (18), SurfCAM (17). Flagship strategies, cross-system comparison, portability intent mapping. 56 tests
 - CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
 - SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
 - DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
