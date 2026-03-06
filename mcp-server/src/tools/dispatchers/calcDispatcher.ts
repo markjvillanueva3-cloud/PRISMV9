@@ -399,7 +399,9 @@ const ACTIONS = [
   "pid_simulate", "pid_step", "discretize_tf",
   "lp_solve", "lp_resource_allocation",
   "material_interpolate", "material_similarity", "material_compare",
-  "ziegler_nichols", "step_response"
+  "ziegler_nichols", "step_response",
+  "fft_analyze", "dominant_frequency", "design_fir_filter", "spectrogram",
+  "gradient_optimize", "bfgs_optimize", "golden_section"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3416,9 +3418,9 @@ export function registerCalcDispatcher(server: any): void {
           case "monte_carlo_simulate": {
             const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
             if (params.mode === "tool_life") {
-              result = monteCarloEngine.predictToolLife(params);
+              result = monteCarloEngine.predictToolLife(params as any);
             } else if (params.mode === "tolerance") {
-              result = monteCarloEngine.toleranceStackUp(params);
+              result = monteCarloEngine.toleranceStackUp(params as any);
             } else {
               result = monteCarloEngine.simulate(params.model, params.samples);
             }
@@ -3445,7 +3447,7 @@ export function registerCalcDispatcher(server: any): void {
 
           case "oee_calculate": {
             const { oeeCalculatorEngine } = await import("../../engines/OEECalculatorEngine.js");
-            result = oeeCalculatorEngine.calculate(params);
+            result = oeeCalculatorEngine.calculate(params as any);
             break;
           }
 
@@ -3463,7 +3465,7 @@ export function registerCalcDispatcher(server: any): void {
 
           case "bottleneck_identify": {
             const { bottleneckIdentificationEngine } = await import("../../engines/BottleneckIdentificationEngine.js");
-            result = bottleneckIdentificationEngine.identify(params);
+            result = bottleneckIdentificationEngine.identify(params as any);
             break;
           }
 
@@ -3479,7 +3481,7 @@ export function registerCalcDispatcher(server: any): void {
 
           case "doe_analyze": {
             const { analyzeFactorial } = await import("../../engines/DOEAnalysisEngine.js");
-            result = analyzeFactorial(params);
+            result = analyzeFactorial(params as any);
             break;
           }
 
@@ -3492,31 +3494,31 @@ export function registerCalcDispatcher(server: any): void {
             } else if (params.list === "quality") {
               result = waterjetCuttingEngine.listQualityLevels();
             } else {
-              result = waterjetCuttingEngine.calculateParams(params);
+              result = waterjetCuttingEngine.calculateParams(params as any);
             }
             break;
           }
 
           case "shot_peening": {
             const { shotPeeningEngine } = await import("../../engines/ShotPeeningEngine.js");
-            result = shotPeeningEngine.calculate(params);
+            result = shotPeeningEngine.calculate(params as any);
             break;
           }
 
           case "damping_optimize": {
             const { dampingOptimizationEngine } = await import("../../engines/DampingOptimizationEngine.js");
-            result = dampingOptimizationEngine.optimize(params);
+            result = dampingOptimizationEngine.optimize(params as any);
             break;
           }
 
           case "troubleshoot": {
             const { troubleshootingEngine } = await import("../../engines/TroubleshootingEngine.js");
             if (params.mode === "root_cause") {
-              result = troubleshootingEngine.rootCause(params);
+              result = troubleshootingEngine.rootCause(params as any);
             } else if (params.mode === "corrective") {
-              result = troubleshootingEngine.correctiveActions(params);
+              result = troubleshootingEngine.correctiveActions(params as any);
             } else {
-              result = troubleshootingEngine.diagnose(params);
+              result = troubleshootingEngine.diagnose(params as any);
             }
             break;
           }
@@ -3889,6 +3891,95 @@ export function registerCalcDispatcher(server: any): void {
               points.push({ t: Math.round(t * 1000) / 1000, y: Math.round(y * 10000) / 10000 });
             }
             result = { order, points, params: { gain: params.gain ?? 1, duration } };
+            break;
+          }
+
+          // --- Round 6: Signal Processing & Gradient Optimization ---
+
+          case "fft_analyze": {
+            const { signalProcessingEngine: spe } = await import("../../engines/SignalProcessingEngine.js");
+            const signal: number[] = params.signal ?? [];
+            const fs = params.sample_rate ?? 1;
+            const spectrum = spe.fft(signal);
+            const psd = spe.psd(signal, fs);
+            result = {
+              spectrum_length: spectrum.length,
+              psd: psd.slice(0, params.max_bins ?? 64),
+              peak: psd.reduce((best: any, p: any) => (!best || p.power > best.power) ? p : best, null),
+            };
+            break;
+          }
+
+          case "dominant_frequency": {
+            const { signalProcessingEngine: spe2 } = await import("../../engines/SignalProcessingEngine.js");
+            const sig: number[] = params.signal ?? [];
+            const sampleRate = params.sample_rate ?? 1;
+            result = spe2.dominantFrequency(sig, sampleRate);
+            break;
+          }
+
+          case "design_fir_filter": {
+            const { signalProcessingEngine: spe3 } = await import("../../engines/SignalProcessingEngine.js");
+            result = spe3.designFIR(
+              params.type ?? "lowpass",
+              params.cutoff ?? 0.25,
+              params.order ?? 20,
+              { window: params.window ?? "hamming", fs: params.sample_rate ?? 1 },
+            );
+            break;
+          }
+
+          case "spectrogram": {
+            const { signalProcessingEngine: spe4 } = await import("../../engines/SignalProcessingEngine.js");
+            const specSig: number[] = params.signal ?? [];
+            result = spe4.spectrogram(
+              specSig,
+              params.window_size ?? 64,
+              params.hop_size ?? 32,
+              { window: params.window ?? "hamming", fs: params.sample_rate ?? 1 },
+            );
+            break;
+          }
+
+          case "gradient_optimize": {
+            const { gradientOptimizationEngine: goe } = await import("../../engines/GradientOptimizationEngine.js");
+            // For dispatcher use: optimize a built-in test function or accept coefficients
+            // Quadratic: f(x) = sum(c_i * (x_i - target_i)^2)
+            const coeffs: number[] = params.coefficients ?? [1];
+            const targets: number[] = params.targets ?? coeffs.map(() => 0);
+            const x0: number[] = params.x0 ?? coeffs.map(() => 1);
+            const objFn = (x: number[]) => coeffs.reduce((s, c, i) => s + c * (x[i] - targets[i]) ** 2, 0);
+            const gradFn = (x: number[]) => coeffs.map((c, i) => 2 * c * (x[i] - targets[i]));
+            result = goe.gradientDescent(objFn, gradFn, x0, {
+              variant: params.variant ?? "adam",
+              learningRate: params.learning_rate ?? 0.01,
+              maxIter: params.max_iter ?? 1000,
+            });
+            break;
+          }
+
+          case "bfgs_optimize": {
+            const { gradientOptimizationEngine: goe2 } = await import("../../engines/GradientOptimizationEngine.js");
+            const bCoeffs: number[] = params.coefficients ?? [1];
+            const bTargets: number[] = params.targets ?? bCoeffs.map(() => 0);
+            const bx0: number[] = params.x0 ?? bCoeffs.map(() => 1);
+            const bObj = (x: number[]) => bCoeffs.reduce((s, c, i) => s + c * (x[i] - bTargets[i]) ** 2, 0);
+            const bGrad = (x: number[]) => bCoeffs.map((c, i) => 2 * c * (x[i] - bTargets[i]));
+            result = goe2.bfgs(bObj, bGrad, bx0, { maxIter: params.max_iter ?? 200 });
+            break;
+          }
+
+          case "golden_section": {
+            const { gradientOptimizationEngine: goe3 } = await import("../../engines/GradientOptimizationEngine.js");
+            // 1D optimization: f(x) = a*(x-b)^2 + c
+            const gsA = params.a ?? 1;
+            const gsB = params.b ?? 0;
+            const gsC = params.c ?? 0;
+            result = goe3.goldenSection(
+              (x) => gsA * (x - gsB) ** 2 + gsC,
+              params.lower ?? -10,
+              params.upper ?? 10,
+            );
             break;
           }
 
