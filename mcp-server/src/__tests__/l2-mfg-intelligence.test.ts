@@ -409,6 +409,46 @@ describe("TribalKnowledgeEngine", () => {
     const tips = tribalKnowledgeEngine.search({ query: "LAP", limit: 10 });
     expect(tips.some(t => t.id === "TK-DL-okuma-002")).toBe(true);
   });
+
+  test("search finds SWARF machining tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "SWARF", limit: 10 });
+    expect(tips.some(t => t.id === "TK-DL-swarf-001")).toBe(true);
+  });
+
+  test("search finds sim 5-axis strategy selection tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "Geodesic", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-sim5x-001")).toBe(true);
+  });
+
+  test("search finds 5-axis gouge avoidance tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "pole singularity", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-sim5x-002")).toBe(true);
+  });
+
+  test("search finds turning partial machining tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "balanced rough", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-turning-001")).toBe(true);
+  });
+
+  test("search finds mill-turn tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "turret safety", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-millturn-001")).toBe(true);
+  });
+
+  test("search finds workholding selection tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "vacuum", limit: 10 });
+    expect(tips.some(t => t.id === "TK-DL-workholding-001")).toBe(true);
+  });
+
+  test("search finds chip thinning correction tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "chip thinning", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-chip-thin-001")).toBe(true);
+  });
+
+  test("search finds Siemens 3D tool comp tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "CUT3DCC", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-siemens-3d-comp-001")).toBe(true);
+  });
 });
 
 // ============================================================================
