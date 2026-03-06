@@ -3389,6 +3389,27 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "xai_lime": {
+            const { xaiEngine } = await import("../../engines/XAIEngine.js");
+            const limePredictFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            result = xaiEngine.limeExplain(limePredictFn, params.instance, params.num_samples, params.num_features);
+            break;
+          }
+
+          case "xai_shap": {
+            const { xaiEngine } = await import("../../engines/XAIEngine.js");
+            const shapPredictFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            result = xaiEngine.shapExplain(shapPredictFn, params.instance, params.background, params.num_samples);
+            break;
+          }
+
+          case "xai_permutation_importance": {
+            const { xaiEngine } = await import("../../engines/XAIEngine.js");
+            const piFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            result = xaiEngine.permutationImportance(piFn, params.X, params.y, params.num_repeats);
+            break;
+          }
+
           case "time_series_smooth": {
             const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
             const method = params.method ?? "ses";
