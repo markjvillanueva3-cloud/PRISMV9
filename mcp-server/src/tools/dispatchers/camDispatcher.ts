@@ -1,7 +1,7 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 28 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 32 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
@@ -9,7 +9,9 @@
  *   cam_cycle_catalog, lathe_post_process, probe_generate,
  *   subprogram_call, subprogram_pattern, cam_controller_catalog,
  *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance,
- *   cam_translate, cam_compare_controllers, cam_material_recommend
+ *   cam_translate, cam_compare_controllers, cam_material_recommend,
+ *   cam_multicam_recommend, cam_multicam_list, cam_multicam_compare,
+ *   cam_multicam_flagship
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -23,7 +25,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -48,6 +50,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
+    case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -69,6 +72,10 @@ const ACTIONS = [
   "cam_translate",
   "cam_compare_controllers",
   "cam_material_recommend",
+  "cam_multicam_recommend",
+  "cam_multicam_list",
+  "cam_multicam_compare",
+  "cam_multicam_flagship",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -459,6 +466,49 @@ Params vary by action — pass relevant fields in params object.`,
             result = port.materialRecommendation(
               params.material ?? { name: params.material_name ?? "1045 Steel", iso_group: params.iso_group, hardness_hrc: params.hardness_hrc }
             );
+            break;
+          }
+          case "cam_multicam_recommend": {
+            const mc = await getEngine("multiCam");
+            result = mc.recommend({
+              camSystem: params.cam_system ?? params.camSystem,
+              geometryType: params.geometry_type ?? params.geometryType,
+              operationGoal: params.operation_goal ?? params.operationGoal,
+              materialGroup: params.material_group ?? params.materialGroup,
+              toolDiameterMm: params.tool_diameter_mm ?? params.toolDiameterMm,
+              wallAngleDeg: params.wall_angle_deg ?? params.wallAngleDeg,
+              hasPreviousRoughing: params.has_previous_roughing ?? params.hasPreviousRoughing,
+              axisCount: params.axis_count ?? params.axisCount,
+            });
+            break;
+          }
+          case "cam_multicam_list": {
+            const mc = await getEngine("multiCam");
+            if (params.cam_system ?? params.camSystem) {
+              result = mc.listStrategies(params.cam_system ?? params.camSystem);
+            } else {
+              result = { systems: mc.listSystems(), stats: mc.stats() };
+            }
+            break;
+          }
+          case "cam_multicam_compare": {
+            const mc = await getEngine("multiCam");
+            result = mc.compareAcrossSystems(
+              params.geometry_type ?? params.geometryType,
+              params.operation_goal ?? params.operationGoal
+            );
+            break;
+          }
+          case "cam_multicam_flagship": {
+            const mc = await getEngine("multiCam");
+            const sys = params.cam_system ?? params.camSystem;
+            if (sys) {
+              result = mc.getFlagship(sys);
+            } else {
+              const all: Record<string, any> = {};
+              for (const s of mc.listSystems()) { all[s] = mc.getFlagship(s); }
+              result = all;
+            }
             break;
           }
           default:

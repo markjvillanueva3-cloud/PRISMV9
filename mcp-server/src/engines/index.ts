@@ -1825,6 +1825,18 @@ export {
   type MachineContext,
 } from "./CamKnowledgePortabilityEngine.js";
 
+// ─── Multi-CAM Strategy Engine (Fusion/Mastercam/ESPRIT/NX/GibbsCAM/SurfCAM) ─
+export {
+  MultiCamStrategyEngine,
+  multiCamStrategyEngine,
+  type MultiCamSource,
+  type CamGeometryType,
+  type CamOperationGoal,
+  type CamStrategyInput,
+  type CamStrategyResult,
+  type MultiCamStats,
+} from "./MultiCamStrategyEngine.js";
+
 // ─── Unwired Engine Batch (forge-learn wiring) ─────
 
 // Gear Hobbing

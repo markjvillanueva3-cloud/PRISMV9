@@ -58,6 +58,9 @@ export type CamSource =
   | "mastercam"
   | "solidcam"
   | "esprit"
+  | "siemensnx"
+  | "gibbscam"
+  | "surfcam"
   | "generic";
 
 export interface MaterialContext {
