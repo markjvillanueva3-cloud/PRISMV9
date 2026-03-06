@@ -3389,6 +3389,60 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "time_series_smooth": {
+            const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
+            const method = params.method ?? "ses";
+            if (method === "holt") {
+              result = timeSeriesEngine.holtSmoothing(params.data, params.alpha, params.beta);
+            } else if (method === "holt_winters") {
+              result = timeSeriesEngine.holtWinters(params.data, params.config ?? {});
+            } else {
+              result = { smoothed: timeSeriesEngine.simpleExponentialSmoothing(params.data, params.alpha) };
+            }
+            break;
+          }
+
+          case "time_series_seasonality": {
+            const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
+            result = timeSeriesEngine.detectSeasonality(params.data, params.max_period);
+            break;
+          }
+
+          case "time_series_decompose": {
+            const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
+            result = timeSeriesEngine.decompose(params.data, params.period, params.multiplicative ?? false);
+            break;
+          }
+
+          case "time_series_forecast": {
+            const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
+            const fMethod = params.method ?? "holt";
+            if (fMethod === "ses") {
+              result = { forecasts: timeSeriesEngine.forecastSES(params.data, params.horizon, params.alpha) };
+            } else {
+              result = { forecasts: timeSeriesEngine.forecastHolt(params.data, params.horizon, params.alpha, params.beta) };
+            }
+            break;
+          }
+
+          case "cluster_kmedoids": {
+            const { clusteringEngine } = await import("../../engines/ClusteringEngine.js");
+            result = clusteringEngine.kMedoids(params.data, params.k, undefined, params.max_iter);
+            break;
+          }
+
+          case "cluster_meanshift": {
+            const { clusteringEngine } = await import("../../engines/ClusteringEngine.js");
+            result = clusteringEngine.meanShift(params.data, params.bandwidth, params.max_iter);
+            break;
+          }
+
+          case "cluster_silhouette": {
+            const { clusteringEngine } = await import("../../engines/ClusteringEngine.js");
+            result = clusteringEngine.silhouetteScore(params.data, params.labels);
+            break;
+          }
+
           case "spc_cpk": {
             const { leanSixSigmaEngine } = await import("../../engines/LeanSixSigmaEngine.js");
             result = leanSixSigmaEngine.calculateCpk(params.USL, params.LSL, params.mean, params.sigma);
