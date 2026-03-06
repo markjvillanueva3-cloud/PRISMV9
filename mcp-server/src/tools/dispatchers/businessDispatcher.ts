@@ -1,7 +1,7 @@
 /**
  * prism_business — Business Operations Dispatcher
  *
- * 122 actions across 22 engines:
+ * 169 actions across 29 engines:
  *   Financial (4): financial_npv, financial_irr, financial_breakeven,
  *                  financial_machine_investment
  *   Inventory (4): inventory_eoq, inventory_safety_stock,
@@ -35,6 +35,9 @@
  *   Quote Analytics (6): analytics_record, analytics_update_outcome,
  *                        analytics_record_actuals, analytics_accuracy,
  *                        analytics_conversion, analytics_calibration
+ *   HR Compliance (16): hr_benefits_list..hr_dashboard
+ *   Customer Mgmt (14): customer_create..customer_top
+ *   Integration (6): integration_export_qb..integration_formats
  *
  * @milestone AUDIT-FT-BIZ
  */
@@ -66,6 +69,13 @@ let _purchaseOrder: any;
 let _generalLedger: any;
 let _capacityPlanning: any;
 let _qualityMgmt: any;
+let _machineRateDb: any;
+let _blueprintQuoteBridge: any;
+let _sheetMetalQuote: any;
+let _additiveQuote: any;
+let _hrCompliance: any;
+let _customerMgmt: any;
+let _integrationAdapter: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -157,6 +167,34 @@ async function getEngine(name: string): Promise<any> {
       return _qualityMgmt ??= (
         await import("../../engines/QualityManagementEngine.js")
       ).qualityManagementEngine;
+    case "machineRateDb":
+      return _machineRateDb ??= (
+        await import("../../engines/MachineRateDatabaseEngine.js")
+      ).machineRateDatabaseEngine;
+    case "blueprintQuoteBridge":
+      return _blueprintQuoteBridge ??= (
+        await import("../../engines/BlueprintToQuoteBridgeEngine.js")
+      ).blueprintToQuoteBridgeEngine;
+    case "sheetMetalQuote":
+      return _sheetMetalQuote ??= (
+        await import("../../engines/SheetMetalQuoteEngine.js")
+      ).sheetMetalQuoteEngine;
+    case "additiveQuote":
+      return _additiveQuote ??= (
+        await import("../../engines/AdditiveQuoteEngine.js")
+      ).additiveQuoteEngine;
+    case "hrCompliance":
+      return _hrCompliance ??= (
+        await import("../../engines/HRComplianceEngine.js")
+      ).hrComplianceEngine;
+    case "customerMgmt":
+      return _customerMgmt ??= (
+        await import("../../engines/CustomerManagementEngine.js")
+      ).customerManagementEngine;
+    case "integrationAdapter":
+      return _integrationAdapter ??= (
+        await import("../../engines/IntegrationAdapterEngine.js")
+      ).integrationAdapterEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -298,6 +336,58 @@ const ACTIONS = [
   "quality_fai_create",
   "quality_fai_list",
   "quality_kpis",
+  // ── Machine Rate Database ──
+  "machine_rate_lookup",
+  "machine_rate_list",
+  "machine_rate_compare",
+  "machine_rate_effective",
+  // ── Blueprint → Quote Bridge ──
+  "blueprint_to_quote",
+  "blueprint_resolve_material",
+  // ── Sheet Metal Quoting ──
+  "sheet_metal_quote",
+  // ── Additive Manufacturing Quoting ──
+  "additive_quote",
+  "additive_list_materials",
+  "additive_compare_technologies",
+  // ── HR & Compliance ──
+  "hr_benefits_list",
+  "hr_enroll",
+  "hr_enrollment",
+  "hr_pto_init",
+  "hr_pto_request",
+  "hr_pto_approve",
+  "hr_pto_balance",
+  "hr_training_add",
+  "hr_training_history",
+  "hr_training_expiring",
+  "hr_review_create",
+  "hr_reviews",
+  "hr_compensation_history",
+  "hr_compliance_alerts",
+  "hr_dashboard",
+  // ── Customer Management ──
+  "customer_create",
+  "customer_get",
+  "customer_update",
+  "customer_search",
+  "customer_list",
+  "customer_credit_check",
+  "customer_log_comm",
+  "customer_comm_history",
+  "customer_follow_ups",
+  "customer_create_opportunity",
+  "customer_update_opportunity",
+  "customer_pipeline",
+  "customer_analytics",
+  "customer_top",
+  // ── Integration / Export ──
+  "integration_export_qb",
+  "integration_export_csv",
+  "integration_export_payroll_tax",
+  "integration_reconcile_bank",
+  "integration_export_ar_aging",
+  "integration_formats",
 ] as const;
 
 /** Registers business dispatcher.
@@ -1263,6 +1353,345 @@ Params vary by action — pass relevant fields in params object.`,
           case "quality_kpis": {
             const engine = await getEngine("qualityMgmt");
             result = engine.qualityKPIs();
+            break;
+          }
+
+          // ── Machine Rate Database ──
+          case "machine_rate_lookup": {
+            const engine = await getEngine("machineRateDb");
+            result = engine.getRate(params.machine_id ?? params.machine_type);
+            break;
+          }
+          case "machine_rate_list": {
+            const engine = await getEngine("machineRateDb");
+            result = engine.listMachines(params.family);
+            break;
+          }
+          case "machine_rate_compare": {
+            const engine = await getEngine("machineRateDb");
+            result = engine.compareMachines(params.machine_ids ?? []);
+            break;
+          }
+          case "machine_rate_effective": {
+            const engine = await getEngine("machineRateDb");
+            result = { machine_id: params.machine_id, oee_level: params.oee_level ?? "typical",
+              effective_rate_hr: engine.getEffectiveRate(params.machine_id, params.oee_level) };
+            break;
+          }
+
+          // ── Blueprint → Quote Bridge ──
+          case "blueprint_to_quote": {
+            const engine = await getEngine("blueprintQuoteBridge");
+            result = engine.bridge(params.analysis ?? params, params.overrides);
+            break;
+          }
+          case "blueprint_resolve_material": {
+            const engine = await getEngine("blueprintQuoteBridge");
+            result = { input: params.material, resolved: engine.resolveMaterial(params.material) };
+            break;
+          }
+
+          // ── Sheet Metal Quoting ──
+          case "sheet_metal_quote": {
+            const engine = await getEngine("sheetMetalQuote");
+            result = engine.quote(params);
+            break;
+          }
+
+          // ── Additive Manufacturing Quoting ──
+          case "additive_quote": {
+            const engine = await getEngine("additiveQuote");
+            result = engine.quote(params);
+            break;
+          }
+          case "additive_list_materials": {
+            const engine = await getEngine("additiveQuote");
+            result = engine.listMaterials(params.technology);
+            break;
+          }
+          case "additive_compare_technologies": {
+            const engine = await getEngine("additiveQuote");
+            result = engine.compareTechnologies(params, params.options ?? []);
+            break;
+          }
+
+          // ── HR & Compliance ──
+          case "hr_benefits_list": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.listBenefitPlans();
+            break;
+          }
+          case "hr_enroll": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.enrollEmployee(
+              params.employee_id ?? "",
+              params.plan_ids ?? [],
+            );
+            break;
+          }
+          case "hr_enrollment": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getEnrollment(params.employee_id ?? "");
+            break;
+          }
+          case "hr_pto_init": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.initializePTO(
+              params.employee_id ?? "",
+              params.years_of_service ?? 0,
+            );
+            break;
+          }
+          case "hr_pto_request": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.requestPTO({
+              employee_id: params.employee_id ?? "",
+              type: params.type ?? "vacation",
+              start_date: params.start_date ?? "",
+              end_date: params.end_date ?? "",
+              hours: params.hours ?? 8,
+              notes: params.notes,
+            });
+            break;
+          }
+          case "hr_pto_approve": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.approvePTO(
+              params.request_id ?? "",
+              params.approved_by ?? "",
+            );
+            break;
+          }
+          case "hr_pto_balance": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getPTOBalance(params.employee_id ?? "");
+            break;
+          }
+          case "hr_training_add": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.addTraining({
+              employee_id: params.employee_id ?? "",
+              course_name: params.course_name ?? "",
+              category: params.category ?? "technical",
+              completed_date: params.completed_date ?? new Date().toISOString().slice(0, 10),
+              expiration_date: params.expiration_date,
+              instructor: params.instructor,
+              score: params.score,
+              certificate_id: params.certificate_id,
+            });
+            break;
+          }
+          case "hr_training_history": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getTrainingHistory(params.employee_id ?? "");
+            break;
+          }
+          case "hr_training_expiring": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getExpiringTraining(params.within_days ?? 90);
+            break;
+          }
+          case "hr_review_create": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.createReview({
+              employee_id: params.employee_id ?? "",
+              reviewer_id: params.reviewer_id ?? "",
+              review_date: params.review_date ?? new Date().toISOString().slice(0, 10),
+              period: params.period ?? "",
+              overall_rating: params.overall_rating ?? 3,
+              categories: params.categories ?? [],
+              goals: params.goals ?? [],
+              compensation_change: params.compensation_change,
+              notes: params.notes,
+            });
+            break;
+          }
+          case "hr_reviews": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getReviews(params.employee_id ?? "");
+            break;
+          }
+          case "hr_compensation_history": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.getCompensationHistory(params.employee_id ?? "");
+            break;
+          }
+          case "hr_compliance_alerts": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.complianceAlerts();
+            break;
+          }
+          case "hr_dashboard": {
+            const engine = await getEngine("hrCompliance");
+            result = engine.hrDashboard();
+            break;
+          }
+
+          // ── Customer Management ──
+          case "customer_create": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.createCustomer({
+              name: params.name ?? "",
+              company: params.company ?? "",
+              contact_name: params.contact_name ?? "",
+              email: params.email ?? "",
+              phone: params.phone ?? "",
+              address: params.address ?? { street: "", city: "", state: "", zip: "" },
+              credit_limit: params.credit_limit ?? 0,
+              payment_terms: params.payment_terms ?? "Net 30",
+              pricing_tier: params.pricing_tier ?? "standard",
+              discount_pct: params.discount_pct ?? 0,
+              tax_exempt: params.tax_exempt ?? false,
+              tax_id: params.tax_id,
+              tags: params.tags ?? [],
+              notes: params.notes,
+              status: params.status,
+            });
+            break;
+          }
+          case "customer_get": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.getCustomer(params.customer_id ?? params.id ?? "");
+            break;
+          }
+          case "customer_update": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.updateCustomer(
+              params.customer_id ?? params.id ?? "",
+              params.updates ?? params,
+            );
+            break;
+          }
+          case "customer_search": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.searchCustomers(params.query ?? params.q ?? "");
+            break;
+          }
+          case "customer_list": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.listCustomers({
+              status: params.status,
+              tier: params.tier ?? params.pricing_tier,
+            });
+            break;
+          }
+          case "customer_credit_check": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.checkCredit(
+              params.customer_id ?? "",
+              params.order_amount ?? 0,
+            );
+            break;
+          }
+          case "customer_log_comm": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.logCommunication({
+              customer_id: params.customer_id ?? "",
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+              type: params.type ?? "note",
+              subject: params.subject ?? "",
+              details: params.details ?? "",
+              logged_by: params.logged_by ?? "",
+              follow_up_date: params.follow_up_date,
+              follow_up_done: params.follow_up_done,
+            });
+            break;
+          }
+          case "customer_comm_history": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.getCommHistory(
+              params.customer_id ?? "",
+              params.limit,
+            );
+            break;
+          }
+          case "customer_follow_ups": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.getPendingFollowUps();
+            break;
+          }
+          case "customer_create_opportunity": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.createOpportunity({
+              customer_id: params.customer_id ?? "",
+              description: params.description ?? "",
+              estimated_value: params.estimated_value ?? 0,
+              stage: params.stage ?? "prospect",
+              probability_pct: params.probability_pct ?? 10,
+              close_date: params.close_date,
+              quote_id: params.quote_id,
+            });
+            break;
+          }
+          case "customer_update_opportunity": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.updateOpportunity(
+              params.opportunity_id ?? params.id ?? "",
+              {
+                stage: params.stage,
+                probability_pct: params.probability_pct,
+                close_date: params.close_date,
+                lost_reason: params.lost_reason,
+              },
+            );
+            break;
+          }
+          case "customer_pipeline": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.salesPipeline();
+            break;
+          }
+          case "customer_analytics": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.customerAnalytics(params.customer_id ?? "");
+            break;
+          }
+          case "customer_top": {
+            const engine = await getEngine("customerMgmt");
+            result = engine.topCustomers(params.limit ?? 10);
+            break;
+          }
+
+          // ── Integration / Export ──
+          case "integration_export_qb": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.exportQuickBooksIIF(params.transactions ?? []);
+            break;
+          }
+          case "integration_export_csv": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.exportCSV(params.transactions ?? []);
+            break;
+          }
+          case "integration_export_payroll_tax": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.exportPayrollTaxSummary({
+              period: params.period ?? "",
+              employees: params.employees ?? [],
+            });
+            break;
+          }
+          case "integration_reconcile_bank": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.reconcileBank({
+              statement_date: params.statement_date ?? "",
+              bank_balance: params.bank_balance ?? 0,
+              book_balance: params.book_balance ?? 0,
+              deposits_in_transit: params.deposits_in_transit ?? [],
+              outstanding_checks: params.outstanding_checks ?? [],
+              bank_charges: params.bank_charges,
+              interest_earned: params.interest_earned,
+            });
+            break;
+          }
+          case "integration_export_ar_aging": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.exportARAging(params.invoices ?? []);
+            break;
+          }
+          case "integration_formats": {
+            const engine = await getEngine("integrationAdapter");
+            result = engine.listFormats();
             break;
           }
 
