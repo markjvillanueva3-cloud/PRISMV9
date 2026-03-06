@@ -2935,6 +2935,30 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Solid Editing ──
+          case "solid_press_pull": {
+            const { solidEditingEngine } = await import("../../engines/SolidEditingEngine.js");
+            result = solidEditingEngine.pressPull(params.face, params.distance);
+            break;
+          }
+          case "solid_scale": {
+            const { solidEditingEngine } = await import("../../engines/SolidEditingEngine.js");
+            result = solidEditingEngine.scaleBody(params.body, params.point, params.factors);
+            break;
+          }
+          case "solid_move": {
+            const { solidEditingEngine } = await import("../../engines/SolidEditingEngine.js");
+            result = solidEditingEngine.moveBody(params.body, params.transform, params.copy ?? false);
+            break;
+          }
+
+          // ── Surface Reconstruction ──
+          case "surface_reconstruct": {
+            const { surfaceReconstructionEngine } = await import("../../engines/SurfaceReconstructionEngine.js");
+            result = surfaceReconstructionEngine.ballPivoting(params.points, { radius: params.radius, maxIterations: params.max_iterations });
+            break;
+          }
+
           // ── Swarm Algorithms (PSO + ACO) ──
           case "pso_optimize": {
             const { swarmAlgorithmsEngine } = await import("../../engines/SwarmAlgorithmsEngine.js");
