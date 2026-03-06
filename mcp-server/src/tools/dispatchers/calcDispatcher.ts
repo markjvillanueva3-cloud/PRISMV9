@@ -3382,6 +3382,13 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "swarm_neural_optimize": {
+            const { swarmNeuralHybridEngine } = await import("../../engines/SwarmNeuralHybridEngine.js");
+            const objFn = new Function("x", params.objective_body) as (x: number[]) => number;
+            result = swarmNeuralHybridEngine.optimize(objFn, params.bounds, params.config ?? {});
+            break;
+          }
+
           case "spc_cpk": {
             const { leanSixSigmaEngine } = await import("../../engines/LeanSixSigmaEngine.js");
             result = leanSixSigmaEngine.calculateCpk(params.USL, params.LSL, params.mean, params.sigma);
