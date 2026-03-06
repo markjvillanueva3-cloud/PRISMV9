@@ -23,6 +23,9 @@ const DigitalTwin = lazy(() => import("./components/learning/DigitalTwin"));
 const CamStrategyPage = lazy(() => import("./pages/CamStrategyPage"));
 const DataManagementPage = lazy(() => import("./pages/DataManagementPage"));
 const SafetyDashboardPage = lazy(() => import("./pages/SafetyDashboardPage"));
+const QualityPage = lazy(() => import("./pages/QualityPage"));
+const CostEstimatorPage = lazy(() => import("./pages/CostEstimatorPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
 
 // ERP module
 const ErpLayout = lazy(() => import("./layouts/ErpLayout"));
@@ -104,6 +107,14 @@ export default function App() {
           element={<Suspense fallback={<PageLoader />}><SafetyDashboardPage /></Suspense>}
         />
         <Route
+          path="/quality"
+          element={<Suspense fallback={<PageLoader />}><QualityPage /></Suspense>}
+        />
+        <Route
+          path="/cost"
+          element={<Suspense fallback={<PageLoader />}><CostEstimatorPage /></Suspense>}
+        />
+        <Route
           path="/erp"
           element={
             <ErpProvider>
@@ -125,6 +136,10 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/sfc" replace />} />
       </Route>
+      <Route
+        path="/login"
+        element={<Suspense fallback={<PageLoader />}><LoginPage /></Suspense>}
+      />
     </Routes>
   );
 }
