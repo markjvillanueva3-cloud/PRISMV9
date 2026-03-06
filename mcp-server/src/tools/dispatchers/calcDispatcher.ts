@@ -3256,6 +3256,30 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "thermal_expansion": {
+            const { thermalExpansionEngine } = await import("../../engines/ThermalExpansionEngine.js");
+            result = thermalExpansionEngine.linearExpansion(params.length, params.temperature_change, params.material, params.cte);
+            break;
+          }
+
+          case "thermal_machine_error": {
+            const { thermalExpansionEngine } = await import("../../engines/ThermalExpansionEngine.js");
+            result = thermalExpansionEngine.machineToolThermalError(params.geometry ?? {}, params.temperatures ?? {});
+            break;
+          }
+
+          case "multiaxis_tool_axis": {
+            const { multiaxisToolpathEngine } = await import("../../engines/MultiaxisToolpathEngine.js");
+            result = multiaxisToolpathEngine.toolAxisFromNormal(params.normal, params.feed_direction, params.angles ?? {});
+            break;
+          }
+
+          case "multiaxis_gouge_check": {
+            const { multiaxisToolpathEngine } = await import("../../engines/MultiaxisToolpathEngine.js");
+            result = multiaxisToolpathEngine.detectGouge(params.toolpath, params.tool_radius, params.max_angle);
+            break;
+          }
+
           case "bayesian_tool_life_predict": {
             const { bayesianToolLifeEngine } = await import("../../engines/BayesianToolLifeEngine.js");
             const predictor = bayesianToolLifeEngine.createPredictor(params.gp_config);
