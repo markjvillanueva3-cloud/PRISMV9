@@ -352,6 +352,8 @@ const ACTIONS = [
   "vibration_sdof", "vibration_free_response", "vibration_forced_response",
   "vibration_frf", "vibration_modal",
   "thermal_loewen_shaw", "thermal_trigger", "thermal_fourier_1d", "thermal_expansion_calc",
+  "chatter_stability_lobes", "chatter_check_stability", "chatter_detect", "chatter_critical_speeds",
+  "heat_conduction_1d", "heat_lumped_capacitance", "heat_convection_coeff", "heat_coolant_effectiveness",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2088,6 +2090,83 @@ export function registerCalcDispatcher(server: any): void {
               length: params.length,
               temperatureChange: params.temperature_change ?? params.temperatureChange,
               expansionCoefficient: params.expansion_coefficient ?? params.expansionCoefficient,
+            });
+            break;
+          }
+
+          // ── Chatter Prediction ──
+          case "chatter_stability_lobes": {
+            const { chatterPredictionEngine } = await import("../../engines/ChatterPredictionEngine.js");
+            result = chatterPredictionEngine.generateStabilityLobes(
+              { mass: params.mass, stiffness: params.stiffness, damping: params.damping,
+                naturalFreq: params.natural_freq, dampingRatio: params.damping_ratio },
+              { Kt: params.Kt, radialImmersion: params.radial_immersion, numTeeth: params.num_teeth ?? params.teeth },
+              { min: params.rpm_min ?? 1000, max: params.rpm_max ?? 20000, points: params.points },
+            );
+            break;
+          }
+          case "chatter_check_stability": {
+            const { chatterPredictionEngine } = await import("../../engines/ChatterPredictionEngine.js");
+            const lobes = chatterPredictionEngine.generateStabilityLobes(
+              { mass: params.mass, stiffness: params.stiffness, damping: params.damping },
+              { Kt: params.Kt, numTeeth: params.num_teeth ?? params.teeth ?? 4 },
+              { min: params.rpm_min ?? 1000, max: params.rpm_max ?? 20000 },
+            );
+            result = chatterPredictionEngine.checkStability(
+              params.rpm, params.axial_depth ?? params.depth, lobes,
+            );
+            break;
+          }
+          case "chatter_detect": {
+            const { chatterPredictionEngine } = await import("../../engines/ChatterPredictionEngine.js");
+            result = chatterPredictionEngine.detectChatter(
+              params.signal,
+              { sampleRate: params.sample_rate, teeth: params.teeth ?? 4, rpm: params.rpm },
+            );
+            break;
+          }
+          case "chatter_critical_speeds": {
+            const { chatterPredictionEngine } = await import("../../engines/ChatterPredictionEngine.js");
+            result = chatterPredictionEngine.criticalSpeeds(
+              { length: params.length, diameter: params.diameter, E: params.E ?? params.youngs_modulus ?? 200e9, density: params.density ?? 7850 },
+              params.support_type,
+            );
+            break;
+          }
+
+          // ── Heat Transfer ──
+          case "heat_conduction_1d": {
+            const { heatTransferEngine } = await import("../../engines/HeatTransferEngine.js");
+            result = heatTransferEngine.steadyStateConduction1D({
+              thermalConductivity: params.thermal_conductivity ?? params.k,
+              length: params.length, crossSectionArea: params.cross_section_area ?? params.area,
+              T_hot: params.T_hot, T_cold: params.T_cold,
+            });
+            break;
+          }
+          case "heat_lumped_capacitance": {
+            const { heatTransferEngine } = await import("../../engines/HeatTransferEngine.js");
+            result = heatTransferEngine.transientLumpedCapacitance({
+              mass: params.mass, specificHeat: params.specific_heat ?? 500,
+              surfaceArea: params.surface_area, heatTransferCoeff: params.heat_transfer_coeff ?? params.h,
+              T_initial: params.T_initial, T_ambient: params.T_ambient, time: params.time,
+            });
+            break;
+          }
+          case "heat_convection_coeff": {
+            const { heatTransferEngine } = await import("../../engines/HeatTransferEngine.js");
+            result = heatTransferEngine.forcedConvectionCoefficient({
+              velocity: params.velocity, characteristicLength: params.characteristic_length ?? params.length,
+              fluidType: params.fluid_type ?? params.fluid,
+            });
+            break;
+          }
+          case "heat_coolant_effectiveness": {
+            const { heatTransferEngine } = await import("../../engines/HeatTransferEngine.js");
+            result = heatTransferEngine.coolantEffectiveness({
+              cuttingSpeed: params.cutting_speed ?? params.speed, flowRate: params.flow_rate,
+              coolantType: params.coolant_type, nozzleDiameter: params.nozzle_diameter,
+              nozzleDistance: params.nozzle_distance,
             });
             break;
           }
