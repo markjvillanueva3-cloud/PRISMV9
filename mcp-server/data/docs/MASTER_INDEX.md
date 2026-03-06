@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (53 dispatchers, 1286 verified actions)
+## 1. DISPATCHERS (53 dispatchers, 1292 verified actions)
 ## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
 ## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
@@ -126,7 +126,7 @@ Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_mode
 Actions (13): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select, deep_hole_technique
 
 ### prism_cam (camDispatcher.ts)
-Actions (18): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map, cam_cycle_catalog, cam_controller_catalog
+Actions (24): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map, cam_cycle_catalog, lathe_post_process, probe_generate, subprogram_call, subprogram_pattern, cam_controller_catalog, cam_cycle_defaults, cam_thread_lookup
 
 ### prism_quality (qualityDispatcher.ts)
 Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
@@ -212,7 +212,7 @@ Forensics/inverse/genplan/sustain → prism_diagnosis (38)
 Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
 CAD geometry/mesh/DfM → prism_cad (13)
-CAM toolpath/post/strategy → prism_cam (18)
+CAM toolpath/post/strategy → prism_cam (24)
 Quality/SPC/GD&T → prism_quality (8)
 Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
 Job scheduling → prism_scheduling (8)
@@ -394,7 +394,7 @@ Health: prism_bridge→health
 - WorkCoordinateEngine.ts (227L) — Work coordinate system setup
 - CollisionEngine.ts (2089L) — Full collision analysis engine
 
-### 4e. CAD/CAM Engines (9 exported)
+### 4e. CAD/CAM Engines (11 exported)
 - CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
 - CAMKernelEngine.ts (874L) — CAM kernel operations
 - CAMIntegrationEngine.ts (1230L) — CAM system integration
@@ -408,6 +408,8 @@ Health: prism_bridge→health
 - HyperMillMaterialMapEngine.ts (410L) — hyperMILL material taxonomy: 10 groups, 57 subgroups, 133 quality grades, ISO P/M/K/N/S/H mapping, cutter material recommendations, safety warnings
 - HyperMillCycleCatalogEngine.ts (250L) — Complete hyperMILL cycle catalog: 125+ cycle types, 9 categories (drilling/2D/tapping/3D/5axis/millturn/APT/probing/grinding), alias lookup, search
 - HyperMillControllerCatalogEngine.ts (430L) — CNC controller catalog from NcGenerator 33.0: 16 families, 59 variants, 5 G-code dialects with features, search/filter by axis count/capability
+- HyperMillCycleDefaultsEngine.ts (350L) — hyperMILL cycle defaults from Metric.cfg: 22 cycles across 8 categories, formula resolver (T:Dia, mtol, T:Rad variables), collision clearances, FRTYP tool type map
+- HyperMillThreadStandardEngine.ts (260L) — Thread standard database: 11 standards (ISO Metric, ANSI Unified, BSP, DIN, ISO Pipe, JIS, GB), 77 entries with tap drill/minor dia lookups, size search
 - CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
 - SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
 - DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
