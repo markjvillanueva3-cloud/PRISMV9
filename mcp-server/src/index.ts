@@ -122,6 +122,7 @@ import { registerCamDispatcher } from "./tools/dispatchers/camDispatcher.js";
 import { registerQualityDispatcher } from "./tools/dispatchers/qualityDispatcher.js";
 import { registerProcessControlDispatcher } from "./tools/dispatchers/processControlDispatcher.js";
 import { registerSchedulingDispatcher } from "./tools/dispatchers/schedulingDispatcher.js";
+import { registerBusinessDispatcher } from "./tools/dispatchers/businessDispatcher.js";
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
@@ -512,6 +513,7 @@ async function registerTools(): Promise<void> {
   registerQualityDispatcher(server);
   registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
+  registerBusinessDispatcher(server);
   registerAuthDispatcher(server);
   registerExportDispatcher(server);
 
