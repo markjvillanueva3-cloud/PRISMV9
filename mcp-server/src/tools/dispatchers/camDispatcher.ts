@@ -1,13 +1,13 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 21 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 22 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
  *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
  *   cam_cycle_catalog, lathe_post_process, probe_generate,
- *   subprogram_call, subprogram_pattern
+ *   subprogram_call, subprogram_pattern, cam_controller_catalog
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -21,7 +21,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _lathePost: any, _probing: any, _subprogram: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -39,6 +39,9 @@ async function getEngine(name: string): Promise<any> {
     case "lathePost": return _lathePost ??= (await import("../../engines/LathePostProcessorEngine.js")).lathePostProcessorEngine;
     case "probing": return _probing ??= (await import("../../engines/ProbingCycleEngine.js")).probingCycleEngine;
     case "subprogram": return _subprogram ??= (await import("../../engines/SubprogramEngine.js")).subprogramEngine;
+    case "nesting": return _nesting ??= (await import("../../engines/NestingEngine.js")).nestingEngine;
+    case "tpSim": return _tpSim ??= (await import("../../engines/ToolpathSimulationEngine.js")).toolpathSimulationEngine;
+    case "hmController": return _hmController ??= (await import("../../engines/HyperMillControllerCatalogEngine.js")).hyperMillControllerCatalogEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -53,6 +56,7 @@ const ACTIONS = [
   "cam_cycle_catalog",
   "lathe_post_process", "probe_generate",
   "subprogram_call", "subprogram_pattern",
+  "cam_controller_catalog",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -100,8 +104,14 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
           case "toolpath_simulate": {
-            const engine = await getEngine("cam");
-            result = engine.simulateToolpath?.(params) ?? { simulation: "complete", params };
+            const engine = await getEngine("tpSim");
+            result = engine.simulate(params.moves ?? [], {
+              feed_rate_mmmin: params.feed_rate_mmmin ?? 1000,
+              rapid_rate_mmmin: params.rapid_rate_mmmin ?? 10000,
+              tool_diameter: params.tool_diameter,
+              stock_bounds: params.stock_bounds,
+              fixture_bounds: params.fixture_bounds,
+            });
             break;
           }
           case "toolpath_optimize": {
@@ -116,12 +126,28 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "collision_check_full": {
             const engine = await getEngine("collision");
-            result = engine.check?.(params) ?? engine.compute?.(params) ?? { collision_free: true, params };
+            result = engine.checkFull(
+              params.bodies ?? [],
+              params.moves ?? [],
+              params.safety_margin_mm ?? 2,
+            );
             break;
           }
           case "stock_update": {
             const engine = await getEngine("stock");
-            result = engine.update?.(params) ?? engine.compute?.(params) ?? { stock_updated: true, params };
+            if (params.create) {
+              result = engine.create(params.stock ?? params, params.part_volume_mm3 ?? 0);
+            } else if (params.analyze) {
+              result = engine.analyze(params.stock_id, params.material ?? "steel", params.cost_per_kg ?? 5);
+            } else {
+              result = engine.removeVolume(params.stock_id, {
+                operation_id: params.operation_id ?? "op-1",
+                operation_type: params.operation_type ?? "roughing",
+                volume_removed_mm3: params.volume_removed_mm3 ?? 0,
+                tool_used: params.tool_used ?? "unknown",
+                time_sec: params.time_sec ?? 0,
+              }) ?? { error: `Stock not found: ${params.stock_id}` };
+            }
             break;
           }
           case "tool_assembly": {
@@ -135,8 +161,16 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
           case "nesting_optimize": {
-            const engine = await getEngine("cam");
-            result = engine.nest?.(params) ?? { nesting: "optimized", parts: params.parts || 1 };
+            const engine = await getEngine("nesting");
+            if (params.compare_stock) {
+              result = engine.compareStock(params.parts ?? [], params.stocks ?? []);
+            } else {
+              result = engine.nest(
+                params.parts ?? [],
+                params.stock ?? { width_mm: 1220, height_mm: 2440, thickness_mm: 6, material: "steel" },
+                params.kerf_mm ?? 3,
+              );
+            }
             break;
           }
           case "clearance_plane": {
@@ -279,6 +313,27 @@ Params vary by action — pass relevant fields in params object.`,
                 return_to_zero: params.return_to_zero ?? true },
               params.controller ?? "fanuc"
             );
+            break;
+          }
+          case "cam_controller_catalog": {
+            const hmCtrl = await getEngine("hmController");
+            if (params.search) {
+              result = hmCtrl.search(params.search);
+            } else if (params.family) {
+              result = hmCtrl.getFamily(params.family)
+                ?? { error: `No controller family found: ${params.family}` };
+            } else if (params.axis_count) {
+              result = hmCtrl.byAxisCount(params.axis_count);
+            } else if (params.capability) {
+              result = hmCtrl.byCapability(params.capability);
+            } else if (params.dialect) {
+              result = hmCtrl.getDialect(params.dialect)
+                ?? { error: `No dialect found: ${params.dialect}` };
+            } else if (params.stats) {
+              result = hmCtrl.stats();
+            } else {
+              result = hmCtrl.listFamilies();
+            }
             break;
           }
           default:

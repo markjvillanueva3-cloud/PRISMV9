@@ -729,3 +729,67 @@ describe("HyperMillCycleCatalogEngine", () => {
     expect(g.length).toBeGreaterThanOrEqual(1);
   });
 });
+
+// ============================================================================
+// HyperMillControllerCatalogEngine
+// ============================================================================
+import { hyperMillControllerCatalogEngine as ctrlCatalog } from "../engines/HyperMillControllerCatalogEngine.js";
+
+describe("HyperMillControllerCatalogEngine", () => {
+  it("lists 16 controller families", () => {
+    const families = ctrlCatalog.listFamilies();
+    expect(families.length).toBe(16);
+    expect(families.map((f: any) => f.id)).toContain("fanuc");
+    expect(families.map((f: any) => f.id)).toContain("siemens");
+  });
+
+  it("stats returns valid counts", () => {
+    const s = ctrlCatalog.stats();
+    expect(s.families).toBe(16);
+    expect(s.totalVariants).toBeGreaterThanOrEqual(55);
+    expect(s.dialects).toBeGreaterThanOrEqual(5);
+  });
+
+  it("getFamily returns Fanuc details", () => {
+    const f = ctrlCatalog.getFamily("fanuc");
+    expect(f).toBeDefined();
+    expect(f!.name).toContain("Fanuc");
+    expect(f!.variants.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("getFamily returns null for unknown", () => {
+    expect(ctrlCatalog.getFamily("nonexistent")).toBeNull();
+  });
+
+  it("search finds Heidenhain variants", () => {
+    const results = ctrlCatalog.search("heidenhain");
+    expect(results.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("search is case-insensitive", () => {
+    const a = ctrlCatalog.search("FANUC");
+    const b = ctrlCatalog.search("fanuc");
+    expect(a.length).toBe(b.length);
+  });
+
+  it("byAxisCount filters 5-axis controllers", () => {
+    const five = ctrlCatalog.byAxisCount(5);
+    expect(five.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("byCapability finds turning capable", () => {
+    const mt = ctrlCatalog.byCapability("turning");
+    expect(mt.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("getDialect returns fanuc dialect features", () => {
+    const d = ctrlCatalog.getDialect("fanuc");
+    expect(d).toBeDefined();
+    expect(d!.programStart).toBeDefined();
+    expect(d!.programEnd).toBeDefined();
+  });
+
+  it("getDialect returns null for unknown dialect", () => {
+    expect(ctrlCatalog.getDialect("nonexistent")).toBeNull();
+  });
+});

@@ -15,7 +15,7 @@ function makeCtx(data: Record<string, any> = {}): HookContext {
 // ============================================================================
 describe("L4 PASS2 registration", () => {
   it("specialtyManufacturingHooks exports 20 hooks", () => {
-    expect(specialtyManufacturingHooks.length).toBe(20);
+    expect(specialtyManufacturingHooks.length).toBe(23);
   });
 
   it("specialtyCadences exports 6 cadences", () => {
@@ -33,7 +33,7 @@ describe("L4 PASS2 registration", () => {
     const warning = specialtyManufacturingHooks.filter(
       h => h.mode === "warning"
     );
-    expect(warning.length).toBe(14);
+    expect(warning.length).toBe(17);
   });
 
   it("all unique ids", () => {
