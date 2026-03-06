@@ -365,6 +365,14 @@ const ACTIONS = [
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection",
   "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
+  "machine_recommend", "machine_compare", "machine_validate",
+  "tool_select_recommend", "tool_select_compare", "tool_select_alternatives",
+  "tool_crib_checkout", "tool_crib_checkin", "tool_crib_inventory", "tool_crib_reorder",
+  "toolholder_frf", "toolholder_compare",
+  "machinability_rate", "machinability_compare",
+  "material_equivalent", "material_equiv_compare",
+  "material_select_recommend", "material_select_compare", "material_machinability",
+  "tensile_to_machinability",
   "heat_treat_predict", "heat_treat_temper_curve", "heat_treat_recommend",
   "passivation_calc",
   "plating_allowance", "plating_tolerance", "plating_recommend",
@@ -2450,6 +2458,122 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Machine Selection ──
+          case "machine_recommend": {
+            const { machineSelectionEngine } = await import("../../engines/MachineSelectionEngine.js");
+            result = machineSelectionEngine.recommend(params as any);
+            break;
+          }
+          case "machine_compare": {
+            const { machineSelectionEngine } = await import("../../engines/MachineSelectionEngine.js");
+            result = machineSelectionEngine.compare(params.machine_ids ?? []);
+            break;
+          }
+          case "machine_validate": {
+            const { machineSelectionEngine } = await import("../../engines/MachineSelectionEngine.js");
+            result = machineSelectionEngine.validate(params.machine_id ?? "", params as any);
+            break;
+          }
+
+          // ── Tool Selection ──
+          case "tool_select_recommend": {
+            const { toolSelectionEngine } = await import("../../engines/ToolSelectionEngine.js");
+            result = toolSelectionEngine.recommend(params as any);
+            break;
+          }
+          case "tool_select_compare": {
+            const { toolSelectionEngine } = await import("../../engines/ToolSelectionEngine.js");
+            result = toolSelectionEngine.compare(params.tool_ids ?? [], params as any);
+            break;
+          }
+          case "tool_select_alternatives": {
+            const { toolSelectionEngine } = await import("../../engines/ToolSelectionEngine.js");
+            result = toolSelectionEngine.alternatives(params.tool_id ?? "", params as any);
+            break;
+          }
+
+          // ── Tool Crib ──
+          case "tool_crib_checkout": {
+            const { toolCribEngine } = await import("../../engines/ToolCribEngine.js");
+            result = toolCribEngine.checkout(params.tool_id ?? "", params.operator_id ?? "", params.machine_id ?? "", params.job_id ?? "");
+            break;
+          }
+          case "tool_crib_checkin": {
+            const { toolCribEngine } = await import("../../engines/ToolCribEngine.js");
+            result = toolCribEngine.checkin(params.tool_id ?? "", params.operator_id ?? "", params.usage_min ?? 0, params.condition ?? "good");
+            break;
+          }
+          case "tool_crib_inventory": {
+            const { toolCribEngine } = await import("../../engines/ToolCribEngine.js");
+            result = toolCribEngine.inventoryReport();
+            break;
+          }
+          case "tool_crib_reorder": {
+            const { toolCribEngine } = await import("../../engines/ToolCribEngine.js");
+            result = toolCribEngine.reorderRecommendations();
+            break;
+          }
+
+          // ── Toolholder Dynamics ──
+          case "toolholder_frf": {
+            const { toolholderDynamicsEngine } = await import("../../engines/ToolholderDynamicsEngine.js");
+            result = toolholderDynamicsEngine.analyzeFRF(params as any);
+            break;
+          }
+          case "toolholder_compare": {
+            const { toolholderDynamicsEngine } = await import("../../engines/ToolholderDynamicsEngine.js");
+            result = toolholderDynamicsEngine.compare(params.holder_a, params.holder_b);
+            break;
+          }
+
+          // ── Machinability Rating ──
+          case "machinability_rate": {
+            const { machinabilityRatingEngine } = await import("../../engines/MachinabilityRatingEngine.js");
+            result = machinabilityRatingEngine.rate(params as any);
+            break;
+          }
+          case "machinability_compare": {
+            const { machinabilityRatingEngine } = await import("../../engines/MachinabilityRatingEngine.js");
+            result = machinabilityRatingEngine.compare(params.materials ?? []);
+            break;
+          }
+
+          // ── Material Equivalence ──
+          case "material_equivalent": {
+            const { materialEquivalenceEngine } = await import("../../engines/MaterialEquivalenceEngine.js");
+            result = materialEquivalenceEngine.findEquivalent(params as any);
+            break;
+          }
+          case "material_equiv_compare": {
+            const { materialEquivalenceEngine } = await import("../../engines/MaterialEquivalenceEngine.js");
+            result = materialEquivalenceEngine.compare(params.material_a ?? "", params.material_b ?? "");
+            break;
+          }
+
+          // ── Material Selection ──
+          case "material_select_recommend": {
+            const { materialSelectionEngine } = await import("../../engines/MaterialSelectionEngine.js");
+            result = materialSelectionEngine.recommend(params as any);
+            break;
+          }
+          case "material_select_compare": {
+            const { materialSelectionEngine } = await import("../../engines/MaterialSelectionEngine.js");
+            result = materialSelectionEngine.compare(params.material_ids ?? []);
+            break;
+          }
+          case "material_machinability": {
+            const { materialSelectionEngine } = await import("../../engines/MaterialSelectionEngine.js");
+            result = materialSelectionEngine.machinability(params.material_id ?? "");
+            break;
+          }
+
+          // ── Tensile to Machinability ──
+          case "tensile_to_machinability": {
+            const { tensileToMachinabilityEngine } = await import("../../engines/TensileToMachinabilityEngine.js");
+            result = tensileToMachinabilityEngine.convert(params as any);
+            break;
+          }
+
           // ── Heat Treatment Response ──
           case "heat_treat_predict": {
             const { heatTreatmentResponseEngine } = await import("../../engines/HeatTreatmentResponseEngine.js");
@@ -3258,6 +3382,24 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "spc_cpk": {
+            const { leanSixSigmaEngine } = await import("../../engines/LeanSixSigmaEngine.js");
+            result = leanSixSigmaEngine.calculateCpk(params.USL, params.LSL, params.mean, params.sigma);
+            break;
+          }
+
+          case "spc_xbar_r_chart": {
+            const { leanSixSigmaEngine } = await import("../../engines/LeanSixSigmaEngine.js");
+            result = leanSixSigmaEngine.xBarRChart(params.subgroups);
+            break;
+          }
+
+          case "spc_imr_chart": {
+            const { leanSixSigmaEngine } = await import("../../engines/LeanSixSigmaEngine.js");
+            result = leanSixSigmaEngine.iMRChart(params.individuals);
+            break;
+          }
+
           case "thermal_expansion": {
             const { thermalExpansionEngine } = await import("../../engines/ThermalExpansionEngine.js");
             result = thermalExpansionEngine.linearExpansion(params.length, params.temperature_change, params.material, params.cte);
@@ -3408,6 +3550,80 @@ export function registerCalcDispatcher(server: any): void {
           case "aggressiveness_levels": {
             const { feedOptimizationEngine: foe4 } = await import("../../engines/FeedOptimizationEngine.js");
             result = foe4.listAggressivenessLevels();
+            break;
+          }
+
+          // ── Numerical Methods (reverse-engineered from monolith MIT batch) ──
+          case "ode_solve": {
+            const { numericalMethodsEngine: nme } = await import("../../engines/NumericalMethodsEngine.js");
+            const method = params.method ?? "rk4";
+            // f(t, y) provided as coefficients for linear ODE: dy/dt = a*y + b*t + c
+            const a = params.coeff_y ?? -1;
+            const b = params.coeff_t ?? 0;
+            const c = params.coeff_const ?? 0;
+            const f = (t: number, y: number) => a * y + b * t + c;
+            if (method === "euler") {
+              result = nme.eulerForward(f, params.y0 ?? 1, params.t0 ?? 0, params.tf ?? 1, params.steps ?? 100);
+            } else {
+              result = nme.rk4(f, params.y0 ?? 1, params.t0 ?? 0, params.tf ?? 1, params.steps ?? 100);
+            }
+            break;
+          }
+          case "ode_solve_system": {
+            const { numericalMethodsEngine: nme2 } = await import("../../engines/NumericalMethodsEngine.js");
+            // System coefficients: dY/dt = A*Y (matrix A provided as flat array)
+            const dim = params.dimensions ?? 2;
+            const coeffs: number[] = params.coefficients ?? [-1, 0, 0, -2];
+            const F = (_t: number, Y: number[]) => {
+              const dY = Array(dim).fill(0);
+              for (let i = 0; i < dim; i++) {
+                for (let j = 0; j < dim; j++) {
+                  dY[i] += (coeffs[i * dim + j] ?? 0) * Y[j];
+                }
+              }
+              return dY;
+            };
+            const Y0: number[] = params.y0 ?? Array(dim).fill(1);
+            result = nme2.rk4System(F, Y0, params.t0 ?? 0, params.tf ?? 1, params.steps ?? 100);
+            break;
+          }
+          case "linear_solve": {
+            const { numericalMethodsEngine: nme3 } = await import("../../engines/NumericalMethodsEngine.js");
+            result = { solution: nme3.solveLU(params.matrix, params.rhs) };
+            break;
+          }
+          case "least_squares": {
+            const { numericalMethodsEngine: nme4 } = await import("../../engines/NumericalMethodsEngine.js");
+            result = nme4.leastSquaresQR(params.matrix, params.rhs);
+            break;
+          }
+          case "pid_simulate": {
+            const { numericalMethodsEngine: nme5 } = await import("../../engines/NumericalMethodsEngine.js");
+            result = nme5.simulatePID({
+              setpoint: params.setpoint ?? 1,
+              Kp: params.kp ?? 1, Ki: params.ki ?? 0, Kd: params.kd ?? 0,
+              T: params.sample_period ?? 0.01,
+              plantGain: params.plant_gain, plantTimeConstant: params.plant_time_constant,
+              duration: params.duration ?? 5,
+              disturbance: params.disturbance, disturbanceTime: params.disturbance_time,
+            });
+            break;
+          }
+          case "pid_step": {
+            const { numericalMethodsEngine: nme6 } = await import("../../engines/NumericalMethodsEngine.js");
+            const pidState = params.state ?? nme6.createPIDState();
+            result = nme6.computePID(
+              params.setpoint ?? 1, params.measured ?? 0,
+              params.kp ?? 1, params.ki ?? 0, params.kd ?? 0,
+              params.sample_period ?? 0.01, pidState,
+            );
+            break;
+          }
+          case "discretize_tf": {
+            const { numericalMethodsEngine: nme7 } = await import("../../engines/NumericalMethodsEngine.js");
+            result = nme7.tustinDiscretize(
+              params.gain ?? 1, params.time_constant ?? 1, params.sample_period ?? 0.01,
+            );
             break;
           }
 
