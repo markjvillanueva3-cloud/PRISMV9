@@ -326,7 +326,8 @@ const ACTIONS = [
   "roughness_convert", "peck_drill_optimize",
   "drill_cycle_optimize", "coating_select",
   "geometry_select", "insert_grade_select", "coolant_recommend",
-  "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram"
+  "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram",
+  "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1788,6 +1789,41 @@ export function registerCalcDispatcher(server: any): void {
             const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
             const samples = params.samples_array ?? params.data ?? [];
             result = monteCarloEngine.histogram(samples, params.bins ?? 20);
+            break;
+          }
+
+          // ── G-Code Validation & Optimization ──
+          case "gcode_validate": {
+            const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
+            result = gcodeValidationEngine.validate(
+              params.gcode ?? "", params.controller ?? "FANUC",
+            );
+            break;
+          }
+          case "gcode_envelope": {
+            const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
+            result = gcodeValidationEngine.validateEnvelope(
+              params.gcode ?? "", params.envelope,
+            );
+            break;
+          }
+          case "gcode_optimize": {
+            const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
+            result = gcodeValidationEngine.optimizeMotion(params.gcode ?? "");
+            break;
+          }
+          case "gcode_compress": {
+            const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
+            result = gcodeValidationEngine.compress(params.gcode ?? "", {
+              removeComments: params.remove_comments,
+              removeBlockNumbers: params.remove_block_numbers,
+              precision: params.precision,
+            });
+            break;
+          }
+          case "gcode_analyze": {
+            const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
+            result = gcodeValidationEngine.analyzeProgram(params.gcode ?? "");
             break;
           }
 
