@@ -223,6 +223,9 @@ async function loadCurrentState(): Promise<any> {
   };
 }
 
+/** Registers session dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerSessionDispatcher(server: any): void {
   server.tool(
     "prism_session",
@@ -405,7 +408,7 @@ export function registerSessionDispatcher(server: any): void {
           }
           
           case "context_pressure": {
-            let tokensUsed = params.estimated_tokens || 50000;
+            let tokensUsed = params.estimated_tokens ?? 50000;
             const percentage = tokensUsed / THRESHOLDS.MAX_TOKENS;
             const level = getPressureLevel(percentage);
             const reading = {
@@ -547,7 +550,7 @@ export function registerSessionDispatcher(server: any): void {
               const content = fs.readFileSync(transcriptPath, 'utf-8');
               const lines = content.split('\n');
               const totalLines = lines.length;
-              const numLines = params.lines || 200;
+              const numLines = params.lines ?? 200;
               
               let selectedLines: string[];
               if (params.from_end !== false) {
@@ -694,7 +697,7 @@ export function registerSessionDispatcher(server: any): void {
               };
             }
             
-            state.quickResume = params.quick_resume;
+            state.quickResume = params.quick_resume ?? state.quickResume ?? "Session ended";
             state.lastUpdated = endTime;
             
             saveJsonFile(CURRENT_STATE_FILE, state);
@@ -750,7 +753,7 @@ export function registerSessionDispatcher(server: any): void {
             let zone = "GREEN";
             let shouldCheckpoint = params.force || false;
             
-            const toolCalls = params.tool_calls || 0;
+            const toolCalls = params.tool_calls ?? 0;
             
             if (toolCalls >= 19) {
               zone = "BLACK";
@@ -778,8 +781,8 @@ export function registerSessionDispatcher(server: any): void {
             state.lastUpdated = new Date().toISOString();
             
             // D5: Session quality metric — tracks error rate, checkpoint frequency, pressure trend
-            const errorCount = params.error_count || 0;
-            const successCount = params.success_count || toolCalls - errorCount;
+            const errorCount = params.error_count ?? 0;
+            const successCount = params.success_count ?? (toolCalls - errorCount);
             const errorRate = toolCalls > 0 ? errorCount / toolCalls : 0;
             const sessionQuality = Math.max(0, Math.min(1, 1 - (errorRate * 2) - (zone === "BLACK" ? 0.3 : zone === "RED" ? 0.15 : 0)));
             
@@ -926,7 +929,7 @@ export function registerSessionDispatcher(server: any): void {
               if (Array.isArray(history)) {
                 callCount = history.length;
                 if (history.length > 0) {
-                  latestTokens = history[history.length - 1].tokens_used || 0;
+                  latestTokens = history[history.length - 1].tokens_used ?? 0;
                 }
               }
             }
@@ -944,8 +947,8 @@ export function registerSessionDispatcher(server: any): void {
             }
 
             // Allow override from params
-            const estimatedTokens = params.estimated_tokens || latestTokens || 0;
-            const calls = params.call_count || callCount;
+            const estimatedTokens = params.estimated_tokens ?? latestTokens ?? 0;
+            const calls = params.call_count ?? callCount;
             const compactions = params.compaction_count ?? compactionCount;
 
             // Determine health status

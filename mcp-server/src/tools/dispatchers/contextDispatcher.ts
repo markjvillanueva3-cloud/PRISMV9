@@ -1,3 +1,13 @@
+/**
+ * Context Dispatcher — Session state, memory, and attention management.
+ *
+ * Handles key-value storage, tool masking, memory externalization/restoration,
+ * TODO management, error preservation, team coordination (spawn, broadcast, tasks),
+ * budget tracking, attention scoring, focus optimization, relevance filtering,
+ * context monitoring, and catalog browsing.
+ *
+ * @module contextDispatcher
+ */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
@@ -116,6 +126,9 @@ function appendJsonl(filepath: string, data: any): void {
   fs.appendFileSync(filepath, JSON.stringify(sorted) + '\n');
 }
 
+/** Registers context dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerContextDispatcher(server: any): void {
   server.tool(
     "prism_context",
@@ -203,7 +216,7 @@ export function registerContextDispatcher(server: any): void {
               }
             };
             
-            const state = TOOL_STATES[current_state || "EXECUTION"];
+            const state = TOOL_STATES[current_state];
             if (!state) {
               return ok({
                 status: "TOOL MASK STATE",
@@ -229,6 +242,9 @@ export function registerContextDispatcher(server: any): void {
 
           case "memory_externalize": {
             const { memory_type, content, restoration_key } = params;
+            if (!memory_type) {
+              return ok({ error: "Required: memory_type (event|decision|error|snapshot)" });
+            }
             const eventId = generateEventId(memory_type.toUpperCase().slice(0, 3));
             const timestamp = new Date().toISOString();
             
@@ -279,7 +295,10 @@ export function registerContextDispatcher(server: any): void {
 
           case "memory_restore": {
             const { restoration_key, memory_type } = params;
-            const searchDirs = memory_type ? 
+            if (!restoration_key) {
+              return ok({ error: "Required: restoration_key" });
+            }
+            const searchDirs = memory_type ?
               [memory_type === "event" ? EVENTS_DIR : 
                memory_type === "decision" ? DECISIONS_DIR :
                memory_type === "error" ? ERRORS_DIR : SNAPSHOTS_DIR] :
@@ -346,9 +365,9 @@ export function registerContextDispatcher(server: any): void {
             const { task_name, current_focus, steps, next_action, blocking_issues, quality_S, quality_omega } = params;
             
             if (task_name) todoState.taskName = task_name;
-            todoState.currentFocus = current_focus;
+            if (current_focus !== undefined) todoState.currentFocus = current_focus;
             if (steps) todoState.steps = steps;
-            todoState.nextAction = next_action;
+            if (next_action !== undefined) todoState.nextAction = next_action;
             if (blocking_issues) todoState.blockingIssues = blocking_issues;
             if (quality_S !== undefined) todoState.qualityGates.S = quality_S;
             if (quality_omega !== undefined) todoState.qualityGates.omega = quality_omega;
@@ -526,13 +545,16 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
 
           case "vary_response": {
             const { content, variation_level = "MEDIUM" } = params;
-            const strategies = {
+            if (!content) {
+              return ok({ error: "Required: content (string to vary)" });
+            }
+            const strategies: Record<string, string[]> = {
               LOW: ["synonym_swap", "punctuation_vary"],
               MEDIUM: ["synonym_swap", "punctuation_vary", "sentence_reorder", "phrase_alternate"],
               HIGH: ["synonym_swap", "punctuation_vary", "sentence_reorder", "phrase_alternate", "structure_vary"]
             };
-            
-            const appliedStrategies = strategies[variation_level];
+
+            const appliedStrategies = strategies[variation_level] ?? strategies["MEDIUM"];
             
             return ok({
               status: "VARIATION APPLIED",
@@ -784,7 +806,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
 
           case "context_monitor_check": {
             // Enhanced context monitoring with trend analysis
-            const tokens = params.tokens || params.estimated_tokens || 100000;
+            const tokens = params.tokens ?? params.estimated_tokens ?? 100000;
             const pyArgs = ["--check", String(tokens)];
             if (params.trend) pyArgs.push("--trend");
             if (params.demo) pyArgs.push("--demo");

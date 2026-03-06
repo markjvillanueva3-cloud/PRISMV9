@@ -53,6 +53,28 @@ function ensureStateDir(): void {
 // SHA-256 FOR GRAPH NODES
 // ============================================================================
 
+/** Deep-copy EMPTY_INDEX so mutable inner arrays aren't shared across instances/resets */
+function deepCopyIndex(src: GraphIndex): GraphIndex {
+  return {
+    nodeCount: src.nodeCount,
+    edgeCount: src.edgeCount,
+    nodesByType: {
+      DECISION: [...src.nodesByType.DECISION],
+      OUTCOME: [...src.nodesByType.OUTCOME],
+      CONTEXT: [...src.nodesByType.CONTEXT],
+      ERROR: [...src.nodesByType.ERROR],
+      PATTERN: [...src.nodesByType.PATTERN],
+    },
+    edgesBySource: {},
+    edgesByTarget: {},
+    nodesByDispatcher: {},
+    nodesBySession: {},
+    similarToCount: {},
+    checkpointByteOffset: src.checkpointByteOffset,
+    lastUpdated: Date.now(),
+  };
+}
+
 function computeNodeChecksum(node: Omit<GraphNode, 'checksum'>): string {
   const payload = `${node.id}|${node.type}|${node.timestamp}|${node.sessionId}|${JSON.stringify(node.tags)}`;
   return crc32(payload);
@@ -62,11 +84,13 @@ function computeNodeChecksum(node: Omit<GraphNode, 'checksum'>): string {
 // MEMORY GRAPH ENGINE — SINGLETON
 // ============================================================================
 
+/** Memory Graph Engine engine/manager.
+ */
 export class MemoryGraphEngine {
   private config: MemoryGraphConfig;
   private nodes: Map<string, GraphNode> = new Map();
   private edges: Map<string, GraphEdge> = new Map();
-  private index: GraphIndex = { ...EMPTY_INDEX };
+  private index: GraphIndex = deepCopyIndex(EMPTY_INDEX);
   private walBuffer: WALEntry[] = [];
   private walSeq: number = 0;
   private walFlushTimer: ReturnType<typeof setInterval> | null = null;
@@ -645,10 +669,16 @@ export class MemoryGraphEngine {
   private loadCheckpoint(): void {
     try {
       // Load index first (has checkpoint offset)
+      let indexLoaded = false;
       const indexPath = path.join(STATE_DIR, 'index.json');
       if (fs.existsSync(indexPath)) {
-        const raw = fs.readFileSync(indexPath, 'utf-8');
-        this.index = JSON.parse(raw);
+        try {
+          const raw = fs.readFileSync(indexPath, 'utf-8');
+          this.index = JSON.parse(raw);
+          indexLoaded = true;
+        } catch {
+          log.warn('[GRAPH] Corrupt index.json — will rebuild from nodes/edges');
+        }
       }
 
       // Load nodes
@@ -677,6 +707,11 @@ export class MemoryGraphEngine {
         }
       }
 
+      // If index wasn't loaded but we have nodes/edges, rebuild it
+      if (!indexLoaded && this.nodes.size > 0) {
+        this.rebuildIndex();
+      }
+
       if (this.nodes.size > 0) {
         log.info(`[GRAPH] Checkpoint loaded (${this.nodes.size} nodes, ${this.edges.size} edges)`);
       }
@@ -684,8 +719,20 @@ export class MemoryGraphEngine {
       log.warn(`[GRAPH] Checkpoint load failed, starting fresh: ${(e as Error).message}`);
       this.nodes.clear();
       this.edges.clear();
-      this.index = { ...EMPTY_INDEX };
+      this.index = deepCopyIndex(EMPTY_INDEX);
     }
+  }
+
+  /** Rebuild index from in-memory nodes and edges (used after corrupt index load) */
+  private rebuildIndex(): void {
+    this.index = deepCopyIndex(EMPTY_INDEX);
+    for (const node of this.nodes.values()) {
+      this.updateIndexForNode(node, 'add');
+    }
+    for (const edge of this.edges.values()) {
+      this.updateIndexForEdge(edge, 'add');
+    }
+    log.info(`[GRAPH] Index rebuilt (${this.nodes.size} nodes, ${this.edges.size} edges)`);
   }
 
   // ==========================================================================
@@ -917,4 +964,6 @@ export class MemoryGraphEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Memory Graph Engine constant.
+ */
 export const memoryGraphEngine = new MemoryGraphEngine();
