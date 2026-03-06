@@ -1,7 +1,7 @@
 /**
  * prism_business — Business Operations Dispatcher
  *
- * 82 actions across 18 engines:
+ * 122 actions across 22 engines:
  *   Financial (4): financial_npv, financial_irr, financial_breakeven,
  *                  financial_machine_investment
  *   Inventory (4): inventory_eoq, inventory_safety_stock,
@@ -62,6 +62,10 @@ let _actualCost: any;
 let _quoteEstimator: any;
 let _secondaryOps: any;
 let _quoteAnalytics: any;
+let _purchaseOrder: any;
+let _generalLedger: any;
+let _capacityPlanning: any;
+let _qualityMgmt: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -137,6 +141,22 @@ async function getEngine(name: string): Promise<any> {
       return _quoteAnalytics ??= (
         await import("../../engines/QuoteAnalyticsEngine.js")
       ).quoteAnalyticsEngine;
+    case "purchaseOrder":
+      return _purchaseOrder ??= (
+        await import("../../engines/PurchaseOrderEngine.js")
+      ).purchaseOrderEngine;
+    case "generalLedger":
+      return _generalLedger ??= (
+        await import("../../engines/GeneralLedgerEngine.js")
+      ).generalLedgerEngine;
+    case "capacityPlanning":
+      return _capacityPlanning ??= (
+        await import("../../engines/CapacityPlanningEngine.js")
+      ).capacityPlanningEngine;
+    case "qualityMgmt":
+      return _qualityMgmt ??= (
+        await import("../../engines/QualityManagementEngine.js")
+      ).qualityManagementEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -235,6 +255,49 @@ const ACTIONS = [
   "analytics_accuracy",
   "analytics_conversion",
   "analytics_calibration",
+  // ── Actual Cost Enhancements ──
+  "actual_cost_forecast",
+  "actual_cost_margin_alerts",
+  "actual_cost_trend",
+  // ── Purchase Orders (AP) ──
+  "po_create",
+  "po_approve",
+  "po_receive",
+  "po_three_way_match",
+  "po_list",
+  "po_ap_aging",
+  "po_spend_by_category",
+  // ── General Ledger ──
+  "gl_chart_of_accounts",
+  "gl_journal_entry",
+  "gl_record_invoice",
+  "gl_record_payment",
+  "gl_record_purchase",
+  "gl_record_payroll",
+  "gl_trial_balance",
+  "gl_income_statement",
+  "gl_balance_sheet",
+  // ── Capacity Planning ──
+  "capacity_machines",
+  "capacity_schedule_job",
+  "capacity_machine_load",
+  "capacity_all_loads",
+  "capacity_bottlenecks",
+  "capacity_what_if",
+  "capacity_summary",
+  // ── Quality Management ──
+  "quality_spc_chart",
+  "quality_calibration_add",
+  "quality_calibration_dashboard",
+  "quality_material_cert",
+  "quality_trace_heat_lot",
+  "quality_trace_job",
+  "quality_ncr_create",
+  "quality_ncr_update",
+  "quality_ncr_dashboard",
+  "quality_fai_create",
+  "quality_fai_list",
+  "quality_kpis",
 ] as const;
 
 /** Registers business dispatcher.
@@ -890,6 +953,316 @@ Params vary by action — pass relevant fields in params object.`,
           case "order_metrics": {
             const engine = await getEngine("orderManager");
             result = engine.metrics();
+            break;
+          }
+
+          // ── Actual Cost Enhancements ──
+          case "actual_cost_forecast": {
+            const engine = await getEngine("actualCost");
+            result = engine.forecastToComplete(params.job_id ?? "", params.pct_complete ?? 50);
+            break;
+          }
+          case "actual_cost_margin_alerts": {
+            const engine = await getEngine("actualCost");
+            result = engine.marginAlerts(params.threshold_pct ?? 10);
+            break;
+          }
+          case "actual_cost_trend": {
+            const engine = await getEngine("actualCost");
+            result = engine.costTrend(params.job_ids ?? []);
+            break;
+          }
+
+          // ── Purchase Orders ──
+          case "po_create": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.createOrder({
+              supplier_id: params.supplier_id ?? "",
+              supplier_name: params.supplier_name ?? "",
+              line_items: params.line_items ?? [],
+              payment_terms: params.payment_terms,
+              notes: params.notes,
+              linked_jobs: params.linked_jobs,
+            });
+            break;
+          }
+          case "po_approve": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.approveOrder(params.po_id ?? "", params.approved_by ?? "");
+            break;
+          }
+          case "po_receive": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.receiveGoods({
+              po_id: params.po_id ?? "",
+              received_by: params.received_by ?? "",
+              line_items: params.line_items ?? [],
+              packing_slip: params.packing_slip,
+            });
+            break;
+          }
+          case "po_three_way_match": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.threeWayMatch(
+              params.po_id ?? "",
+              params.invoice_total ?? 0,
+              params.invoice_line_prices,
+            );
+            break;
+          }
+          case "po_list": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.listOrders({ status: params.status, supplier: params.supplier });
+            break;
+          }
+          case "po_ap_aging": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.getAPAging();
+            break;
+          }
+          case "po_spend_by_category": {
+            const engine = await getEngine("purchaseOrder");
+            result = engine.spendByCategory();
+            break;
+          }
+
+          // ── General Ledger ──
+          case "gl_chart_of_accounts": {
+            const engine = await getEngine("generalLedger");
+            result = engine.getChartOfAccounts();
+            break;
+          }
+          case "gl_journal_entry": {
+            const engine = await getEngine("generalLedger");
+            result = engine.createJournalEntry({
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+              description: params.description ?? "",
+              source: params.source ?? "manual",
+              reference_id: params.reference_id,
+              lines: params.lines ?? [],
+              auto_post: params.auto_post,
+            });
+            break;
+          }
+          case "gl_record_invoice": {
+            const engine = await getEngine("generalLedger");
+            result = engine.recordInvoice({
+              invoice_id: params.invoice_id ?? "",
+              amount: params.amount ?? 0,
+              tax: params.tax ?? 0,
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+            });
+            break;
+          }
+          case "gl_record_payment": {
+            const engine = await getEngine("generalLedger");
+            result = engine.recordPayment({
+              invoice_id: params.invoice_id ?? "",
+              amount: params.amount ?? 0,
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+            });
+            break;
+          }
+          case "gl_record_purchase": {
+            const engine = await getEngine("generalLedger");
+            result = engine.recordPurchase({
+              po_id: params.po_id ?? "",
+              amount: params.amount ?? 0,
+              tax: params.tax ?? 0,
+              category: params.category ?? "other",
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+            });
+            break;
+          }
+          case "gl_record_payroll": {
+            const engine = await getEngine("generalLedger");
+            result = engine.recordPayroll({
+              period: params.period ?? "",
+              gross: params.gross ?? 0,
+              taxes: params.taxes ?? 0,
+              net: params.net ?? 0,
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+            });
+            break;
+          }
+          case "gl_trial_balance": {
+            const engine = await getEngine("generalLedger");
+            result = engine.getTrialBalance(params.as_of);
+            break;
+          }
+          case "gl_income_statement": {
+            const engine = await getEngine("generalLedger");
+            result = engine.getIncomeStatement(
+              params.period_start ?? "",
+              params.period_end ?? new Date().toISOString().slice(0, 10),
+            );
+            break;
+          }
+          case "gl_balance_sheet": {
+            const engine = await getEngine("generalLedger");
+            result = engine.getBalanceSheet(params.as_of);
+            break;
+          }
+
+          // ── Capacity Planning ──
+          case "capacity_machines": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.getMachines();
+            break;
+          }
+          case "capacity_schedule_job": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.scheduleJob({
+              job_id: params.job_id ?? "",
+              operations: params.operations ?? [],
+              due_date: params.due_date ?? "",
+              priority: params.priority,
+            });
+            break;
+          }
+          case "capacity_machine_load": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.getMachineLoad(params.machine_id ?? "", params.period_weeks);
+            break;
+          }
+          case "capacity_all_loads": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.getAllMachineLoads(params.period_weeks);
+            break;
+          }
+          case "capacity_bottlenecks": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.findBottlenecks(params.period_weeks);
+            break;
+          }
+          case "capacity_what_if": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.whatIfJob({
+              operations: params.operations ?? [],
+              desired_start: params.desired_start,
+              desired_end: params.desired_end,
+            });
+            break;
+          }
+          case "capacity_summary": {
+            const engine = await getEngine("capacityPlanning");
+            result = engine.shopFloorSummary();
+            break;
+          }
+
+          // ── Quality Management ──
+          case "quality_spc_chart": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.createSPCChart({
+              characteristic: params.characteristic ?? "",
+              part_number: params.part_number ?? "",
+              operation: params.operation ?? "",
+              nominal: params.nominal ?? 0,
+              usl: params.usl ?? 0,
+              lsl: params.lsl ?? 0,
+              data: params.data ?? [],
+              subgroup_size: params.subgroup_size,
+            });
+            break;
+          }
+          case "quality_calibration_add": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.addCalibration({
+              equipment_id: params.equipment_id ?? "",
+              equipment_name: params.equipment_name ?? "",
+              type: params.type ?? "other",
+              serial_number: params.serial_number ?? "",
+              last_calibration: params.last_calibration ?? "",
+              next_calibration: params.next_calibration ?? "",
+              calibrated_by: params.calibrated_by ?? "",
+              certificate_number: params.certificate_number,
+              accuracy: params.accuracy ?? "",
+            });
+            break;
+          }
+          case "quality_calibration_dashboard": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.getCalibrationDashboard();
+            break;
+          }
+          case "quality_material_cert": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.addMaterialCert({
+              heat_lot: params.heat_lot ?? "",
+              material: params.material ?? "",
+              supplier: params.supplier ?? "",
+              po_number: params.po_number,
+              cert_date: params.cert_date ?? "",
+              properties: params.properties ?? [],
+              linked_jobs: params.linked_jobs ?? [],
+              document_ref: params.document_ref,
+            });
+            break;
+          }
+          case "quality_trace_heat_lot": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.traceByHeatLot(params.heat_lot ?? "");
+            break;
+          }
+          case "quality_trace_job": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.traceByJob(params.job_id ?? "");
+            break;
+          }
+          case "quality_ncr_create": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.createNCR({
+              job_id: params.job_id ?? "",
+              part_number: params.part_number ?? "",
+              created_at: new Date().toISOString(),
+              created_by: params.created_by ?? "",
+              description: params.description ?? "",
+              severity: params.severity ?? "minor",
+              category: params.category ?? "dimensional",
+              disposition: params.disposition ?? "pending",
+              root_cause: params.root_cause,
+              corrective_action: params.corrective_action,
+              cost_impact: params.cost_impact ?? 0,
+              quantity_affected: params.quantity_affected ?? 1,
+            });
+            break;
+          }
+          case "quality_ncr_update": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.updateNCR(params.ncr_id ?? "", {
+              disposition: params.disposition,
+              root_cause: params.root_cause,
+              corrective_action: params.corrective_action,
+              status: params.status,
+            });
+            break;
+          }
+          case "quality_ncr_dashboard": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.getNCRDashboard();
+            break;
+          }
+          case "quality_fai_create": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.createFAI({
+              job_id: params.job_id ?? "",
+              part_number: params.part_number ?? "",
+              revision: params.revision ?? "A",
+              inspection_date: params.inspection_date ?? new Date().toISOString().slice(0, 10),
+              inspector: params.inspector ?? "",
+              characteristics: params.characteristics ?? [],
+              notes: params.notes,
+            });
+            break;
+          }
+          case "quality_fai_list": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.listFAIs(params.job_id);
+            break;
+          }
+          case "quality_kpis": {
+            const engine = await getEngine("qualityMgmt");
+            result = engine.qualityKPIs();
             break;
           }
 

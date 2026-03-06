@@ -222,6 +222,110 @@ class ActualCostEngine {
       status: actualMargin > 0 ? "profitable" : actualMargin === 0 ? "break_even" : "loss",
     };
   }
+
+  /** Forecast to complete — predict final cost if job continues at current rate. */
+  forecastToComplete(jobId: string, pctComplete: number): {
+    job_id: string;
+    pct_complete: number;
+    actual_to_date: number;
+    forecast_remaining: number;
+    forecast_total: number;
+    estimated_total: number;
+    forecast_variance: number;
+    forecast_status: string;
+  } {
+    const actual = this.calculate({ job_id: jobId });
+    const est = this.estimates.get(jobId) ?? {};
+    const estimatedTotal = Object.values(est).reduce((s, v) => s + v, 0);
+    const pct = Math.max(Math.min(pctComplete, 100), 1) / 100;
+
+    const forecastTotal = actual.total_cost / pct;
+    const forecastRemaining = forecastTotal - actual.total_cost;
+    const forecastVariance = forecastTotal - estimatedTotal;
+
+    return {
+      job_id: jobId,
+      pct_complete: pctComplete,
+      actual_to_date: round2(actual.total_cost),
+      forecast_remaining: round2(forecastRemaining),
+      forecast_total: round2(forecastTotal),
+      estimated_total: round2(estimatedTotal),
+      forecast_variance: round2(forecastVariance),
+      forecast_status: forecastVariance > estimatedTotal * 0.15 ? 'CRITICAL — over 15% projected overrun' :
+        forecastVariance > estimatedTotal * 0.05 ? 'WARNING — over 5% projected overrun' :
+        forecastVariance < -estimatedTotal * 0.10 ? 'UNDER — running below estimate' : 'ON TRACK',
+    };
+  }
+
+  /** Margin erosion alerts across all tracked jobs. */
+  marginAlerts(threshold_pct: number = 10): {
+    alerts: { job_id: string; estimated_margin_pct: number; actual_margin_pct: number; erosion_pct: number; severity: string }[];
+    jobs_at_risk: number;
+    total_margin_erosion: number;
+  } {
+    const alerts: { job_id: string; estimated_margin_pct: number; actual_margin_pct: number; erosion_pct: number; severity: string }[] = [];
+
+    for (const [jobId] of this.estimates) {
+      const revenue = this.revenues.get(jobId);
+      if (revenue == null || revenue === 0) continue;
+
+      const prof = this.profitability(jobId);
+      const erosion = prof.estimated_margin_pct - prof.actual_margin_pct;
+
+      if (erosion > threshold_pct) {
+        alerts.push({
+          job_id: jobId,
+          estimated_margin_pct: prof.estimated_margin_pct,
+          actual_margin_pct: prof.actual_margin_pct,
+          erosion_pct: round2(erosion),
+          severity: prof.actual_margin_pct < 0 ? 'CRITICAL' : erosion > 20 ? 'HIGH' : 'MEDIUM',
+        });
+      }
+    }
+
+    return {
+      alerts: alerts.sort((a, b) => b.erosion_pct - a.erosion_pct),
+      jobs_at_risk: alerts.length,
+      total_margin_erosion: round2(alerts.reduce((s, a) => s + a.erosion_pct, 0)),
+    };
+  }
+
+  /** Cost trend — compare costs across multiple jobs. */
+  costTrend(jobIds: string[]): {
+    jobs: { job_id: string; total: number; labor_pct: number; material_pct: number; tooling_pct: number; margin_pct: number }[];
+    avg_cost: number;
+    avg_margin: number;
+    cost_trend: 'increasing' | 'stable' | 'decreasing';
+  } {
+    const jobs = jobIds.map((id) => {
+      const actual = this.calculate({ job_id: id });
+      const revenue = this.revenues.get(id) ?? 0;
+      const margin = revenue > 0 ? ((revenue - actual.total_cost) / revenue) * 100 : 0;
+      return {
+        job_id: id,
+        total: round2(actual.total_cost),
+        labor_pct: actual.total_cost > 0 ? round2((actual.labor.cost / actual.total_cost) * 100) : 0,
+        material_pct: actual.total_cost > 0 ? round2((actual.material.cost / actual.total_cost) * 100) : 0,
+        tooling_pct: actual.total_cost > 0 ? round2((actual.tooling.cost / actual.total_cost) * 100) : 0,
+        margin_pct: round2(margin),
+      };
+    });
+
+    const avgCost = jobs.length > 0 ? jobs.reduce((s, j) => s + j.total, 0) / jobs.length : 0;
+    const avgMargin = jobs.length > 0 ? jobs.reduce((s, j) => s + j.margin_pct, 0) / jobs.length : 0;
+
+    let trend: 'increasing' | 'stable' | 'decreasing' = 'stable';
+    if (jobs.length >= 3) {
+      const firstHalf = jobs.slice(0, Math.floor(jobs.length / 2));
+      const secondHalf = jobs.slice(Math.floor(jobs.length / 2));
+      const firstAvg = firstHalf.reduce((s, j) => s + j.total, 0) / firstHalf.length;
+      const secondAvg = secondHalf.reduce((s, j) => s + j.total, 0) / secondHalf.length;
+      const change = firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
+      trend = change > 5 ? 'increasing' : change < -5 ? 'decreasing' : 'stable';
+    }
+
+    return { jobs, avg_cost: round2(avgCost), avg_margin: round2(avgMargin), cost_trend: trend };
+  }
 }
 
 function round2(n: number): number {
