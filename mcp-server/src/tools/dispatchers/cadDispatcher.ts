@@ -15,7 +15,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _sketch: any;
+let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _sketch: any, _partLib: any, _assembly: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -26,6 +26,8 @@ async function getEngine(name: string): Promise<any> {
     case "wcs": return _wcs ??= (await import("../../engines/WorkCoordinateEngine.js")).workCoordinateEngine;
     case "dfm": return _dfm ??= await import("../../engines/DfMRulesEngine.js");
     case "sketch": return _sketch ??= (await import("../../engines/SketchEngine.js")).sketchEngine;
+    case "partLib": return _partLib ??= (await import("../../engines/ParametricPartLibraryEngine.js")).parametricPartLibraryEngine;
+    case "assembly": return _assembly ??= (await import("../../engines/AssemblyEngine.js")).assemblyEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -41,6 +43,9 @@ const ACTIONS = [
   "part_create", "part_add_feature", "part_estimate_volume",
   "part_template_box", "part_template_cylinder", "part_template_flange",
   "part_template_bracket",
+  "part_library_create", "part_library_list_types",
+  "assembly_create", "assembly_add_component", "assembly_add_mate",
+  "assembly_position", "assembly_bom", "assembly_to_cadquery",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -225,6 +230,65 @@ Params vary by action — pass relevant fields in params object.`,
               params.wall_height, params.wall_thickness,
               params.hole_diameter, params.material,
             );
+            break;
+          }
+          // ── Parametric Part Library ──
+          case "part_library_create": {
+            const pl = await getEngine("partLib");
+            result = pl.createPart(params.part_type, params);
+            break;
+          }
+          case "part_library_list_types": {
+            const pl = await getEngine("partLib");
+            result = pl.listPartTypes();
+            break;
+          }
+          // ── Assembly ──
+          case "assembly_create": {
+            const ae = await getEngine("assembly");
+            result = ae.createAssembly(params.name ?? "Assembly", params.description);
+            break;
+          }
+          case "assembly_add_component": {
+            const ae = await getEngine("assembly");
+            if (!params.assembly) { result = { error: "assembly object required" }; break; }
+            result = ae.addComponent(params.assembly, params.name, params.part_type,
+              params.cadquery_build_code ?? "", {
+                position: params.position, rotation: params.rotation,
+                quantity: params.quantity, material: params.material, color: params.color,
+              });
+            break;
+          }
+          case "assembly_add_mate": {
+            const ae = await getEngine("assembly");
+            if (!params.assembly) { result = { error: "assembly object required" }; break; }
+            result = ae.addMate(params.assembly, params.mate_type,
+              params.component_a_id, params.component_b_id, {
+                selector_a: params.selector_a, selector_b: params.selector_b,
+                value: params.value, flip: params.flip,
+              });
+            break;
+          }
+          case "assembly_position": {
+            const ae = await getEngine("assembly");
+            if (!params.assembly) { result = { error: "assembly object required" }; break; }
+            ae.positionComponent(params.assembly, params.component_id,
+              params.position, params.rotation);
+            result = params.assembly;
+            break;
+          }
+          case "assembly_bom": {
+            const ae = await getEngine("assembly");
+            if (!params.assembly) { result = { error: "assembly object required" }; break; }
+            result = params.markdown
+              ? { markdown: ae.toBOMMarkdown(params.assembly) }
+              : { bom: ae.generateBOM(params.assembly) };
+            break;
+          }
+          case "assembly_to_cadquery": {
+            const ae = await getEngine("assembly");
+            if (!params.assembly) { result = { error: "assembly object required" }; break; }
+            result = { python_code: ae.toCadQueryPython(params.assembly) };
             break;
           }
           default:
