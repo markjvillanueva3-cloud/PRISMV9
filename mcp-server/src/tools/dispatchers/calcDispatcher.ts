@@ -330,7 +330,9 @@ const ACTIONS = [
   "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze",
   "backplot_parse", "backplot_statistics",
   "jc_flow_stress", "jc_params", "jc_search", "jc_list",
-  "rl_post_create", "rl_post_generate", "rl_post_learn"
+  "rl_post_create", "rl_post_generate", "rl_post_learn",
+  "merchant_analysis", "milling_forces", "cutting_temperature",
+  "crater_wear", "material_cutting_data"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1906,6 +1908,38 @@ export function registerCalcDispatcher(server: any): void {
             const proc = params.processor;
             if (!proc) { result = { error: "processor required" }; break; }
             result = rlPostProcessorEngine.learn(proc, params.feedback ?? params);
+            break;
+          }
+
+          // ── Cutting Mechanics ──
+          case "merchant_analysis": {
+            const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
+            result = cuttingMechanicsEngine.merchantAnalysis(params);
+            break;
+          }
+          case "milling_forces": {
+            const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
+            result = cuttingMechanicsEngine.millingForces(
+              params.tool ?? params,
+              params.conditions ?? params,
+            );
+            break;
+          }
+          case "cutting_temperature": {
+            const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
+            result = cuttingMechanicsEngine.cuttingTemperature(params);
+            break;
+          }
+          case "crater_wear": {
+            const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
+            result = cuttingMechanicsEngine.craterWear(params);
+            break;
+          }
+          case "material_cutting_data": {
+            const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
+            result = params.material
+              ? cuttingMechanicsEngine.getMaterialCuttingData(params.material)
+              : cuttingMechanicsEngine.listMaterials();
             break;
           }
 
