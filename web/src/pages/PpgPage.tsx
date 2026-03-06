@@ -5,6 +5,7 @@ import GcodeEditor from "../components/ppg/GcodeEditor";
 import GcodePreview from "../components/ppg/GcodePreview";
 import ValidationPanel from "../components/ppg/ValidationPanel";
 import OptimizeDownload from "../components/ppg/OptimizeDownload";
+import AdvancedEnhancer from "../components/ppg/AdvancedEnhancer";
 import GcodeDiff from "../components/ppg/GcodeDiff";
 import { PpgProvider, usePpgContext } from "../contexts/PpgContext";
 import { usePpgControllers } from "../hooks/usePpg";
@@ -298,6 +299,16 @@ function RightPanel({ showDiff }: { showDiff: boolean }) {
         gcode={editorContent}
         controller={activeController?.id}
       />
+
+      {/* Advanced Enhancer */}
+      <PanelHeader title="Advanced Enhancer" />
+      <div className="px-3 py-2">
+        <AdvancedEnhancer
+          controller={activeController?.id ?? "fanuc"}
+          gcode={editorContent}
+          onEnhanced={setEditorContent}
+        />
+      </div>
 
       {/* Optimize & Download */}
       <PanelHeader title="Optimize & Download" />
