@@ -15,7 +15,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any;
+let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _sketch: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -25,6 +25,7 @@ async function getEngine(name: string): Promise<any> {
     case "stock": return _stock ??= (await import("../../engines/StockModelEngine.js")).stockModelEngine;
     case "wcs": return _wcs ??= (await import("../../engines/WorkCoordinateEngine.js")).workCoordinateEngine;
     case "dfm": return _dfm ??= await import("../../engines/DfMRulesEngine.js");
+    case "sketch": return _sketch ??= (await import("../../engines/SketchEngine.js")).sketchEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -35,6 +36,11 @@ const ACTIONS = [
   "feature_recognize", "feature_edit",
   "stock_model", "wcs_setup",
   "dfm_check", "face_mill_select", "deep_hole_technique",
+  "sketch_create", "sketch_add_entity", "sketch_analyze",
+  "sketch_to_svg", "sketch_to_cadquery",
+  "part_create", "part_add_feature", "part_estimate_volume",
+  "part_template_box", "part_template_cylinder", "part_template_flange",
+  "part_template_bracket",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -122,6 +128,103 @@ Params vary by action — pass relevant fields in params object.`,
           case "deep_hole_technique": {
             const dfm = await getEngine("dfm");
             result = dfm.selectDeepHoleTechnique(params);
+            break;
+          }
+          // ── Sketch & Part (SketchEngine) ──
+          case "sketch_create": {
+            const sk = await getEngine("sketch");
+            result = sk.createSketch(params.name, params.plane);
+            break;
+          }
+          case "sketch_add_entity": {
+            const sk = await getEngine("sketch");
+            const sketch = params.sketch;
+            if (!sketch) { result = { error: "sketch object required" }; break; }
+            switch (params.entity_type) {
+              case "line": sk.addLine(sketch, params.start, params.end, params.construction); break;
+              case "arc": sk.addArc(sketch, params.center, params.radius, params.start_angle, params.end_angle); break;
+              case "circle": sk.addCircle(sketch, params.center, params.radius, params.construction); break;
+              case "rectangle": sk.addRectangle(sketch, params.corner ?? { x: 0, y: 0 }, params.width, params.height); break;
+              case "polygon": sk.addPolygon(sketch, params.center ?? { x: 0, y: 0 }, params.radius, params.sides); break;
+              case "ellipse": sk.addEllipse(sketch, params.center ?? { x: 0, y: 0 }, params.major_radius, params.minor_radius); break;
+              case "slot": sk.addSlot(sketch, params.center1, params.center2, params.width); break;
+              case "spline": sk.addSpline(sketch, params.points, params.closed); break;
+              default: result = { error: `Unknown entity type: ${params.entity_type}` }; break;
+            }
+            result = result ?? sketch;
+            break;
+          }
+          case "sketch_analyze": {
+            const sk = await getEngine("sketch");
+            result = sk.analyzeProfile(params.sketch);
+            break;
+          }
+          case "sketch_to_svg": {
+            const sk = await getEngine("sketch");
+            result = { svg: sk.toSVG(params.sketch, params.view_box) };
+            break;
+          }
+          case "sketch_to_cadquery": {
+            const sk = await getEngine("sketch");
+            result = { python_code: sk.toCadQueryPython(params.part) };
+            break;
+          }
+          case "part_create": {
+            const sk = await getEngine("sketch");
+            result = sk.createPart(params.name, params.material);
+            break;
+          }
+          case "part_add_feature": {
+            const sk = await getEngine("sketch");
+            const part = params.part;
+            if (!part) { result = { error: "part object required" }; break; }
+            const f = params.feature;
+            switch (f?.type) {
+              case "extrude": sk.addFeatureToPart(part, sk.createExtrude(f.sketch_id, f.depth, f.symmetric, f.draft_angle)); break;
+              case "extrude_cut": sk.addFeatureToPart(part, sk.createExtrudeCut(f.sketch_id, f.depth, f.through_all)); break;
+              case "revolve": sk.addFeatureToPart(part, sk.createRevolve(f.sketch_id, f.angle, f.axis_entity_id)); break;
+              case "hole": sk.addFeatureToPart(part, sk.createHole(f.diameter, f.depth, f.position, f.countersink, f.counterbore)); break;
+              case "fillet": sk.addFeatureToPart(part, sk.createFillet3D(f.radius, f.edge_ids)); break;
+              case "chamfer": sk.addFeatureToPart(part, sk.createChamfer(f.distance, f.edge_ids, f.angle)); break;
+              case "shell": sk.addFeatureToPart(part, sk.createShell(f.thickness, f.faces_to_remove)); break;
+              default: result = { error: `Unknown feature type: ${f?.type}` }; break;
+            }
+            result = result ?? part;
+            break;
+          }
+          case "part_estimate_volume": {
+            const sk = await getEngine("sketch");
+            result = { volume_mm3: sk.estimatePartVolume(params.part) };
+            break;
+          }
+          case "part_template_box": {
+            const sk = await getEngine("sketch");
+            result = sk.createBoxPart(params.name ?? "Box", params.width, params.height, params.depth, params.material);
+            break;
+          }
+          case "part_template_cylinder": {
+            const sk = await getEngine("sketch");
+            result = sk.createCylinderPart(params.name ?? "Cylinder", params.diameter, params.height, params.material);
+            break;
+          }
+          case "part_template_flange": {
+            const sk = await getEngine("sketch");
+            result = sk.createFlangedPart(
+              params.name ?? "Flange",
+              params.outer_diameter, params.bore_diameter, params.thickness,
+              params.bolt_circle_diameter, params.hole_count, params.hole_diameter,
+              params.material,
+            );
+            break;
+          }
+          case "part_template_bracket": {
+            const sk = await getEngine("sketch");
+            result = sk.createBracketPart(
+              params.name ?? "Bracket",
+              params.base_width, params.base_height, params.base_thickness,
+              params.wall_height, params.wall_thickness,
+              params.hole_diameter, params.material,
+            );
             break;
           }
           default:
