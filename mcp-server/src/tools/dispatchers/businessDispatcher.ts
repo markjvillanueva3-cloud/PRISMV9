@@ -76,6 +76,9 @@ let _additiveQuote: any;
 let _hrCompliance: any;
 let _customerMgmt: any;
 let _integrationAdapter: any;
+let _injectionMoldQuote: any;
+let _stockSizeOptimizer: any;
+let _marketMaterialPricing: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -195,6 +198,18 @@ async function getEngine(name: string): Promise<any> {
       return _integrationAdapter ??= (
         await import("../../engines/IntegrationAdapterEngine.js")
       ).integrationAdapterEngine;
+    case "injectionMoldQuote":
+      return _injectionMoldQuote ??= (
+        await import("../../engines/InjectionMoldQuoteEngine.js")
+      ).injectionMoldQuoteEngine;
+    case "stockSizeOptimizer":
+      return _stockSizeOptimizer ??= (
+        await import("../../engines/StockSizeOptimizerEngine.js")
+      ).stockSizeOptimizerEngine;
+    case "marketMaterialPricing":
+      return _marketMaterialPricing ??= (
+        await import("../../engines/MarketMaterialPricingEngine.js")
+      ).marketMaterialPricingEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -350,6 +365,19 @@ const ACTIONS = [
   "additive_quote",
   "additive_list_materials",
   "additive_compare_technologies",
+  // ── Injection Mold Quoting ──
+  "injection_mold_quote",
+  "injection_mold_materials",
+  "injection_mold_dfm",
+  // ── Stock Size Optimizer ──
+  "stock_size_optimize",
+  "stock_size_catalog",
+  "stock_size_nesting",
+  // ── Market Material Pricing ──
+  "material_price_lookup",
+  "material_price_adjust",
+  "material_price_compare",
+  "material_surcharge",
   // ── HR & Compliance ──
   "hr_benefits_list",
   "hr_enroll",
@@ -1412,6 +1440,71 @@ Params vary by action — pass relevant fields in params object.`,
           case "additive_compare_technologies": {
             const engine = await getEngine("additiveQuote");
             result = engine.compareTechnologies(params, params.options ?? []);
+            break;
+          }
+
+          // ── Injection Mold Quoting ──
+          case "injection_mold_quote": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.quote(params);
+            break;
+          }
+          case "injection_mold_materials": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.listMaterials();
+            break;
+          }
+          case "injection_mold_dfm": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.analyzeDfm(params);
+            break;
+          }
+
+          // ── Stock Size Optimizer ──
+          case "stock_size_optimize": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.optimize(params);
+            break;
+          }
+          case "stock_size_catalog": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.catalog(params.material ?? "");
+            break;
+          }
+          case "stock_size_nesting": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.nesting(params);
+            break;
+          }
+
+          // ── Market Material Pricing ──
+          case "material_price_lookup": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.lookup(params);
+            break;
+          }
+          case "material_price_adjust": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.adjustIndex(
+              params.index ?? "",
+              params.multiplier ?? 1,
+              params.as_of ?? new Date().toISOString().slice(0, 10),
+              params.trend ?? "stable",
+            );
+            break;
+          }
+          case "material_price_compare": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.compare(
+              params.materials ?? [],
+              params.form,
+              params.region,
+            );
+            break;
+          }
+          case "material_surcharge": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.surcharge(params);
             break;
           }
 

@@ -2112,6 +2112,9 @@ export { machineRateDatabaseEngine, MachineRateDatabaseEngine } from "./MachineR
 export { blueprintToQuoteBridgeEngine, BlueprintToQuoteBridgeEngine } from "./BlueprintToQuoteBridgeEngine.js";
 export { sheetMetalQuoteEngine, SheetMetalQuoteEngine } from "./SheetMetalQuoteEngine.js";
 export { additiveQuoteEngine, AdditiveQuoteEngine } from "./AdditiveQuoteEngine.js";
+export { injectionMoldQuoteEngine, InjectionMoldQuoteEngine } from "./InjectionMoldQuoteEngine.js";
+export { stockSizeOptimizerEngine, StockSizeOptimizerEngine } from "./StockSizeOptimizerEngine.js";
+export { marketMaterialPricingEngine, MarketMaterialPricingEngine } from "./MarketMaterialPricingEngine.js";
 // Batch 31-34: 132 previously unexported engines
 export { acoSequencerEngine } from "./AcoSequencerEngine.js";
 export { adaptiveClearingEngine } from "./AdaptiveClearingEngine.js";

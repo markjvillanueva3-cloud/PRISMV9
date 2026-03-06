@@ -53,11 +53,6 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.calculate?.(params) ?? { error: "OEECalculator.calculate() not available" };
             break;
           }
-          case "bottleneck": {
-            const engine = await getEngine("bottleneck");
-            result = engine.identify?.(params) ?? { error: "BottleneckIdentification.identify() not available" };
-            break;
-          }
           case "digital_thread": {
             const engine = await getEngine("thread");
             result = engine.trace?.(params) ?? { error: "DigitalThread.trace() not available" };
