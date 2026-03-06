@@ -363,7 +363,8 @@ const ACTIONS = [
   "graph_mst_kruskal", "graph_bellman_ford", "graph_topo_sort", "graph_scc", "graph_cpm",
   "surface_intersect", "mesh_offset", "mesh_shell",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
-  "archard_wear", "wear_force_correction", "thermal_deflection"
+  "archard_wear", "wear_force_correction", "thermal_deflection",
+  "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1974,6 +1975,33 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Cutting Data Lookup (ISO-based) ──
+          case "cutting_data_recommend": {
+            const { cuttingDataLookupEngine } = await import("../../engines/CuttingDataLookupEngine.js");
+            result = cuttingDataLookupEngine.recommend({
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation,
+              tool_type: params.tool_type,
+              tool_diameter_mm: params.tool_diameter_mm ?? params.tool_diameter,
+              cut_type: params.cut_type,
+              hardness_hb: params.hardness_hb ?? params.hardness,
+            });
+            break;
+          }
+
+          case "cutting_data_list_groups": {
+            const { cuttingDataLookupEngine } = await import("../../engines/CuttingDataLookupEngine.js");
+            result = cuttingDataLookupEngine.listGroups();
+            break;
+          }
+
+          case "cutting_data_list": {
+            const { cuttingDataLookupEngine } = await import("../../engines/CuttingDataLookupEngine.js");
+            result = cuttingDataLookupEngine.listAvailableData();
+            break;
+          }
+
           // ── Kinematics ──
           case "kinematics_fk": {
             const { kinematicsEngine } = await import("../../engines/KinematicsEngine.js");
@@ -2334,6 +2362,35 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Filleting & Chamfer ──
+          case "fillet_edges": {
+            const { filletingEngine } = await import("../../engines/FilletingEngine.js");
+            result = filletingEngine.filletEdges(params.solid, params.edgeIndices, params.radius);
+            break;
+          }
+          case "fillet_variable": {
+            const { filletingEngine } = await import("../../engines/FilletingEngine.js");
+            result = filletingEngine.variableRadiusFillet(params.solid, params.edgeIdx, params.radiusStart, params.radiusEnd);
+            break;
+          }
+          case "chamfer_edges": {
+            const { filletingEngine } = await import("../../engines/FilletingEngine.js");
+            result = filletingEngine.chamferEdges(params.solid, params.edgeIndices, params.distance1, params.distance2);
+            break;
+          }
+          case "fillet_preview": {
+            const { filletingEngine } = await import("../../engines/FilletingEngine.js");
+            result = filletingEngine.previewFillet(params.solid, params.edgeIndices, params.radius);
+            break;
+          }
+
+          // ── Mesh Decimation ──
+          case "mesh_decimate": {
+            const { meshDecimationEngine } = await import("../../engines/MeshDecimationEngine.js");
+            result = meshDecimationEngine.decimate(params.mesh, params.targetTriangles);
+            break;
+          }
+
           // ── Spindle Harmonics Quality ──
           case "spindle_harmonic_analysis": {
             result = spindleHarmonicsQualityEngine.analyze({
@@ -2546,6 +2603,141 @@ export function registerCalcDispatcher(server: any): void {
                 target_engagement_deg: params.target_engagement_deg,
                 prioritize_mrr: params.prioritize_mrr,
                 prioritize_tool_life: params.prioritize_tool_life,
+              },
+            );
+            break;
+          }
+
+          // ── Feed Rate Optimization ──
+          case "feed_optimize": {
+            const { feedRateOptimizationEngine } = await import("../../engines/FeedRateOptimizationEngine.js");
+            result = feedRateOptimizationEngine.optimize({
+              base_feed_per_tooth: params.feed_per_tooth ?? params.fz,
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              number_of_flutes: params.number_of_flutes ?? params.number_of_teeth ?? 4,
+              spindle_rpm: params.spindle_rpm ?? params.rpm,
+              radial_depth: params.radial_depth ?? params.ae,
+              axial_depth: params.axial_depth ?? params.ap,
+              material: params.material,
+              operation: params.operation,
+              spindle_power_kw: params.spindle_power_kw,
+              specific_cutting_force: params.specific_cutting_force ?? params.kc1_1,
+              max_acceleration_mm_s2: params.max_acceleration,
+              target_chip_thickness: params.target_chip_thickness,
+            });
+            break;
+          }
+          case "corner_feed": {
+            const { feedRateOptimizationEngine } = await import("../../engines/FeedRateOptimizationEngine.js");
+            result = feedRateOptimizationEngine.cornerFeed({
+              straight_feed: params.straight_feed ?? params.feed_rate,
+              arc_radius: params.arc_radius,
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              is_internal: params.is_internal ?? true,
+            });
+            break;
+          }
+          case "constant_chip_load": {
+            const { feedRateOptimizationEngine } = await import("../../engines/FeedRateOptimizationEngine.js");
+            result = feedRateOptimizationEngine.constantChipLoad({
+              target_chip_mm: params.target_chip_mm ?? params.target_chip,
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              number_of_flutes: params.number_of_flutes ?? params.number_of_teeth ?? 4,
+              spindle_rpm: params.spindle_rpm ?? params.rpm,
+              engagement_profile: params.engagement_profile ?? [],
+            });
+            break;
+          }
+
+          // ── Entry/Exit Strategy ──
+          case "entry_strategy": {
+            const { entryExitStrategyEngine } = await import("../../engines/EntryExitStrategyEngine.js");
+            result = entryExitStrategyEngine.selectEntry({
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              pocket_width: params.pocket_width,
+              pocket_depth: params.pocket_depth ?? params.depth,
+              material: params.material,
+              center_cutting: params.center_cutting,
+              has_pre_drill: params.has_pre_drill,
+              pre_drill_diameter: params.pre_drill_diameter,
+              max_helix_angle_deg: params.max_helix_angle_deg,
+              max_ramp_angle_deg: params.max_ramp_angle_deg,
+              feed_per_tooth: params.feed_per_tooth ?? params.fz,
+            });
+            break;
+          }
+          case "exit_strategy": {
+            const { entryExitStrategyEngine } = await import("../../engines/EntryExitStrategyEngine.js");
+            result = entryExitStrategyEngine.selectExit(
+              params.tool_diameter ?? params.Dc,
+              params.operation,
+            );
+            break;
+          }
+          case "validate_entry": {
+            const { entryExitStrategyEngine } = await import("../../engines/EntryExitStrategyEngine.js");
+            result = entryExitStrategyEngine.validateEntry(
+              params.method,
+              params.tool_diameter ?? params.Dc,
+              params.pocket_width,
+              params.material,
+            );
+            break;
+          }
+
+          // ── Z-Level Optimization ──
+          case "z_level_optimize": {
+            const { zLevelOptimizationEngine } = await import("../../engines/ZLevelOptimizationEngine.js");
+            result = zLevelOptimizationEngine.calculateZLevels({
+              total_depth: params.total_depth ?? params.depth,
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              tool_flute_length: params.tool_flute_length ?? params.flute_length,
+              material: params.material,
+              operation: params.operation,
+              stock_to_leave: params.stock_to_leave,
+              stability_limited_ap: params.stability_limited_ap,
+              even_levels: params.even_levels,
+            });
+            break;
+          }
+          case "rest_machining_levels": {
+            const { zLevelOptimizationEngine } = await import("../../engines/ZLevelOptimizationEngine.js");
+            result = zLevelOptimizationEngine.restMachiningLevels({
+              previous_tool_diameter: params.previous_tool_diameter ?? params.prev_Dc,
+              current_tool_diameter: params.current_tool_diameter ?? params.tool_diameter ?? params.Dc,
+              total_depth: params.total_depth ?? params.depth,
+              corner_radius_prev: params.corner_radius_prev,
+              material: params.material,
+            });
+            break;
+          }
+
+          // ── Toolpath Linking ──
+          case "toolpath_link_optimize": {
+            const { toolpathLinkingEngine } = await import("../../engines/ToolpathLinkingEngine.js");
+            result = toolpathLinkingEngine.optimizeLinking(
+              params.segments ?? [],
+              {
+                clearance_height: params.clearance_height ?? 50,
+                retract_height: params.retract_height ?? 5,
+                stay_down_max_distance: params.stay_down_max_distance,
+                rapid_feed: params.rapid_feed,
+                cutting_feed: params.cutting_feed,
+                allow_stay_down: params.allow_stay_down,
+                link_method: params.link_method,
+              },
+            );
+            break;
+          }
+          case "toolpath_link_time": {
+            const { toolpathLinkingEngine } = await import("../../engines/ToolpathLinkingEngine.js");
+            result = toolpathLinkingEngine.estimateTimeSavings(
+              params.segments ?? [],
+              {
+                clearance_height: params.clearance_height ?? 50,
+                retract_height: params.retract_height ?? 5,
+                rapid_feed: params.rapid_feed,
+                cutting_feed: params.cutting_feed,
               },
             );
             break;
