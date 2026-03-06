@@ -42,6 +42,14 @@ data/docs/gsd/GSD_QUICK.md   — GSD v22.0 canonical protocol
 C:/PRISM/state/              — Runtime state (logs, checkpoints, position)
 ```
 
+## Thoroughness Law (HARD RULE)
+- **NEVER skim, skip, or dismiss content without deep reading.** Every source gets a full assessment.
+- ZIPs with "0 PDFs" must still be checked for HTML, text, XML, JSON, CSV, and code files.
+- "Low novelty" and "already covered" claims require citing the SPECIFIC existing engine/tip that covers it.
+- Before committing any learning/extraction batch, verify: "Did I read EVERY file? Did I extract EVERYTHING useful?"
+- Optimize for COMPLETENESS over speed. Missing useful content is worse than spending extra time.
+- When processing large documents (>100 pages), read at least the TOC + 3 representative sections before any novelty judgment.
+
 ## Code Conventions
 - TypeScript strict mode, esbuild bundles to single dist/index.js
 - All file writes use atomic pattern (write .tmp then rename)
