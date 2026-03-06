@@ -354,6 +354,7 @@ const ACTIONS = [
   "thermal_loewen_shaw", "thermal_trigger", "thermal_fourier_1d", "thermal_expansion_calc",
   "chatter_stability_lobes", "chatter_check_stability", "chatter_detect", "chatter_critical_speeds",
   "heat_conduction_1d", "heat_lumped_capacitance", "heat_convection_coeff", "heat_coolant_effectiveness",
+  "geometry_delaunay", "geometry_convex_hull", "geometry_polygon_info", "geometry_point_in_polygon", "geometry_polygon_offset",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2168,6 +2169,36 @@ export function registerCalcDispatcher(server: any): void {
               coolantType: params.coolant_type, nozzleDiameter: params.nozzle_diameter,
               nozzleDistance: params.nozzle_distance,
             });
+            break;
+          }
+
+          // ── Geometry Algorithms ──
+          case "geometry_delaunay": {
+            const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
+            result = geometryAlgorithmsEngine.delaunayTriangulate(params.points);
+            break;
+          }
+          case "geometry_convex_hull": {
+            const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
+            const method = params.method ?? "graham";
+            result = method === "jarvis"
+              ? geometryAlgorithmsEngine.jarvisMarch(params.points)
+              : geometryAlgorithmsEngine.grahamScan(params.points);
+            break;
+          }
+          case "geometry_polygon_info": {
+            const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
+            result = geometryAlgorithmsEngine.polygonInfo(params.vertices);
+            break;
+          }
+          case "geometry_point_in_polygon": {
+            const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
+            result = { inside: geometryAlgorithmsEngine.pointInPolygon(params.vertices, params.point) };
+            break;
+          }
+          case "geometry_polygon_offset": {
+            const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
+            result = geometryAlgorithmsEngine.polygonOffset(params.vertices, params.distance);
             break;
           }
 
