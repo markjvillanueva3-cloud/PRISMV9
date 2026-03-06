@@ -357,6 +357,8 @@ const ACTIONS = [
   "geometry_delaunay", "geometry_convex_hull", "geometry_polygon_info", "geometry_point_in_polygon", "geometry_polygon_offset",
   "nurbs_curve_evaluate", "nurbs_curve_tangent", "nurbs_curve_curvature", "nurbs_surface_evaluate", "nurbs_surface_closest_point",
   "mesh_curvature_all", "mesh_curvature_classify",
+  "silhouette_extract", "silhouette_crease", "silhouette_all_edges",
+  "isosurface_marching_cubes",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2241,6 +2243,30 @@ export function registerCalcDispatcher(server: any): void {
             const { curvatureAnalysisEngine } = await import("../../engines/CurvatureAnalysisEngine.js");
             const curv = curvatureAnalysisEngine.computeAll(params.mesh);
             result = curvatureAnalysisEngine.classifySurface(curv);
+            break;
+          }
+
+          // ── Silhouette ──
+          case "silhouette_extract": {
+            const { silhouetteEngine } = await import("../../engines/SilhouetteEngine.js");
+            result = { edges: silhouetteEngine.extractSilhouette(params.vertices, params.faces, params.viewDir) };
+            break;
+          }
+          case "silhouette_crease": {
+            const { silhouetteEngine } = await import("../../engines/SilhouetteEngine.js");
+            result = { edges: silhouetteEngine.extractCreaseEdges(params.vertices, params.faces, params.angleThreshold) };
+            break;
+          }
+          case "silhouette_all_edges": {
+            const { silhouetteEngine } = await import("../../engines/SilhouetteEngine.js");
+            result = silhouetteEngine.extractAllEdges(params.vertices, params.faces, params.viewDir, params.creaseAngle);
+            break;
+          }
+
+          // ── Isosurface ──
+          case "isosurface_marching_cubes": {
+            const { isosurfaceEngine } = await import("../../engines/IsosurfaceEngine.js");
+            result = isosurfaceEngine.marchingCubes(params.grid, params.isovalue);
             break;
           }
 
