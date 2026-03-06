@@ -96,6 +96,7 @@ interface ControllerDialect {
   tcpmOff: () => string;                 // C-004: 5-axis TCPM deactivation
   smoothingOn: (mode: "rough" | "finish") => string;   // C-005: HSM smoothing activation
   smoothingOff: () => string;                          // C-005: HSM smoothing deactivation
+  safeRetract: () => string;                           // C-006: controller-specific safe Z retract
   programEnd: string;
   comment: (text: string) => string;
 }
@@ -133,6 +134,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "G49",
     smoothingOn: (mode) => mode === "finish" ? "G5.1 Q1" : "G64",
     smoothingOff: () => "G5.1 Q0",
+    safeRetract: () => "G28 G91 Z0\nG90",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -151,6 +153,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "G49",
     smoothingOn: (mode) => mode === "finish" ? "G187 P3 E0.005" : "G187 P1 E0.05",
     smoothingOff: () => "G187 P1",
+    safeRetract: () => "G28 G91 Z0\nG90",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -169,6 +172,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "TRAFOOF",
     smoothingOn: (mode) => mode === "finish" ? "CYCLE832(0.01, 112011) ;COMPCAD" : "CYCLE832(0.05, 112001)",
     smoothingOff: () => "CYCLE832()",
+    safeRetract: () => "SUPA G0 Z=R2\nG90",
     programEnd: "M30",
     comment: (text) => `; ${text}`,
   },
@@ -187,6 +191,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "M129",
     smoothingOn: (mode) => mode === "finish" ? "M120 L20\nFN 18: SYSREAD D970 = ID270 NR1" : "M120 L5",
     smoothingOff: () => "M120 L0",
+    safeRetract: () => "L Z+0 R0 FMAX M91",
     programEnd: "END PGM PART MM",
     comment: (text) => `; ${text}`,
   },
@@ -205,6 +210,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "G49",
     smoothingOn: (mode) => mode === "finish" ? "G5.1 Q1" : "G64",
     smoothingOff: () => "G5.1 Q0",
+    safeRetract: () => "G28 G91 Z0\nG90",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -223,6 +229,7 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     tcpmOff: () => "G49",
     smoothingOn: (mode) => mode === "finish" ? "G08 P1" : "G08 P1",
     smoothingOff: () => "G08 P0",
+    safeRetract: () => "G20 Z0\nG90",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -267,8 +274,10 @@ export class PostProcessorEngine {
     if (input.work_offset) addLine(dialect.workOffset(input.work_offset));
 
     // Safe retract before tool change (M-002 fix: prevent collision during ATC)
-    addLine("G28 G91 Z0");
-    addLine("G90");
+    // C-006: controller-specific retract (Okuma uses G20, Heidenhain uses M91, etc.)
+    for (const retractLine of dialect.safeRetract().split("\n")) {
+      addLine(retractLine);
+    }
 
     // Tool change
     addLine(dialect.toolChange(input.tool_number, input.spindle_rpm, "cw"));

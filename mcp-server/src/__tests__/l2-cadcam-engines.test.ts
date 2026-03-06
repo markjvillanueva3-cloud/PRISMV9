@@ -178,6 +178,22 @@ describe("PostProcessorEngine", () => {
     expect(result.gcode).toContain("G08 P1");
     expect(result.gcode).toContain("G08 P0");
   });
+  it("uses Okuma G20 (not G28) for safe retract", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "okuma", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 4, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30" }
+    );
+    expect(result.gcode).toContain("G20 Z0");
+    expect(result.gcode).not.toContain("G28");
+  });
+  it("uses Heidenhain M91 (not G28) for safe retract", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "heidenhain", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 3, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30" }
+    );
+    expect(result.gcode).toContain("M91");
+    expect(result.gcode).not.toMatch(/G28 G91/);
+  });
   it("omits smoothing codes when smoothing_mode is off", () => {
     const result = postProcessorEngine.process(
       { moves: [{ type: "feed", x: 100, y: 0, z: -5, feed: 500 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 500, coolant: "flood", work_offset: "G54" },
