@@ -1,7 +1,7 @@
 /**
  * prism_business — Business Operations Dispatcher
  *
- * 67 actions across 15 engines:
+ * 82 actions across 18 engines:
  *   Financial (4): financial_npv, financial_irr, financial_breakeven,
  *                  financial_machine_investment
  *   Inventory (4): inventory_eoq, inventory_safety_stock,
@@ -28,6 +28,13 @@
  *                   tool_regrind, tool_job_cost, tool_reorder_alerts
  *   Actual Cost (3): actual_cost_calculate, actual_cost_variance,
  *                    actual_cost_profitability
+ *   Quote Estimator (4): quote_estimate, quote_compare_materials,
+ *                        quote_what_if, quote_price_breaks_advanced
+ *   Secondary Ops (5): sec_ops_list, sec_ops_quote, sec_ops_batch_quote,
+ *                      sec_ops_find_vendors, sec_ops_recommend
+ *   Quote Analytics (6): analytics_record, analytics_update_outcome,
+ *                        analytics_record_actuals, analytics_accuracy,
+ *                        analytics_conversion, analytics_calibration
  *
  * @milestone AUDIT-FT-BIZ
  */
@@ -52,6 +59,9 @@ let _payroll: any;
 let _invoicing: any;
 let _toolUsage: any;
 let _actualCost: any;
+let _quoteEstimator: any;
+let _secondaryOps: any;
+let _quoteAnalytics: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -115,6 +125,18 @@ async function getEngine(name: string): Promise<any> {
       return _actualCost ??= (
         await import("../../engines/ActualCostEngine.js")
       ).actualCostEngine;
+    case "quoteEstimator":
+      return _quoteEstimator ??= (
+        await import("../../engines/QuoteEstimatorEngine.js")
+      ).quoteEstimatorEngine;
+    case "secondaryOps":
+      return _secondaryOps ??= (
+        await import("../../engines/SecondaryOpsEngine.js")
+      ).secondaryOpsEngine;
+    case "quoteAnalytics":
+      return _quoteAnalytics ??= (
+        await import("../../engines/QuoteAnalyticsEngine.js")
+      ).quoteAnalyticsEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -195,6 +217,24 @@ const ACTIONS = [
   "actual_cost_calculate",
   "actual_cost_variance",
   "actual_cost_profitability",
+  // ── Quote Estimator (physics-backed) ──
+  "quote_estimate",
+  "quote_compare_materials",
+  "quote_what_if",
+  "quote_price_breaks_advanced",
+  // ── Secondary Ops ──
+  "sec_ops_list",
+  "sec_ops_quote",
+  "sec_ops_batch_quote",
+  "sec_ops_find_vendors",
+  "sec_ops_recommend",
+  // ── Quote Analytics ──
+  "analytics_record",
+  "analytics_update_outcome",
+  "analytics_record_actuals",
+  "analytics_accuracy",
+  "analytics_conversion",
+  "analytics_calibration",
 ] as const;
 
 /** Registers business dispatcher.
@@ -688,6 +728,115 @@ Params vary by action — pass relevant fields in params object.`,
             result = engine.profitability(
               params.job_id ?? params.jobId,
             );
+            break;
+          }
+
+          // ── Quote Estimator (physics-backed) ──
+          case "quote_estimate": {
+            const engine = await getEngine("quoteEstimator");
+            result = engine.estimate(params);
+            break;
+          }
+          case "quote_compare_materials": {
+            const engine = await getEngine("quoteEstimator");
+            result = engine.compareMaterials(params, params.materials ?? []);
+            break;
+          }
+          case "quote_what_if": {
+            const engine = await getEngine("quoteEstimator");
+            result = engine.whatIf(params, params.scenarios ?? []);
+            break;
+          }
+          case "quote_price_breaks_advanced": {
+            const engine = await getEngine("quoteEstimator");
+            result = engine.estimate(params).price_breaks;
+            break;
+          }
+
+          // ── Secondary Ops ──
+          case "sec_ops_list": {
+            const engine = await getEngine("secondaryOps");
+            result = engine.listOperations(params.category);
+            break;
+          }
+          case "sec_ops_quote": {
+            const engine = await getEngine("secondaryOps");
+            result = engine.quote({
+              operation_id: params.operation_id ?? params.operationId,
+              quantity: params.quantity ?? 1,
+              material: params.material,
+              requires_masking: params.requires_masking ?? params.requiresMasking,
+              masking_areas: params.masking_areas ?? params.maskingAreas,
+              rush: params.rush,
+              vendor_quote_override: params.vendor_quote_override ?? params.vendorQuoteOverride,
+            });
+            break;
+          }
+          case "sec_ops_batch_quote": {
+            const engine = await getEngine("secondaryOps");
+            result = engine.quoteBatch(params.operations ?? []);
+            break;
+          }
+          case "sec_ops_find_vendors": {
+            const engine = await getEngine("secondaryOps");
+            result = engine.findVendors(
+              params.operation_id ?? params.operationId,
+            );
+            break;
+          }
+          case "sec_ops_recommend": {
+            const engine = await getEngine("secondaryOps");
+            result = engine.recommend(
+              params.material ?? "",
+              params.application ?? "",
+            );
+            break;
+          }
+
+          // ── Quote Analytics ──
+          case "analytics_record": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.recordQuote(params);
+            break;
+          }
+          case "analytics_update_outcome": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.updateOutcome(
+              params.quote_id ?? params.quoteId,
+              params.status,
+              {
+                loss_reason: params.loss_reason ?? params.lossReason,
+                loss_notes: params.loss_notes ?? params.lossNotes,
+                competing_price: params.competing_price ?? params.competingPrice,
+              },
+            );
+            break;
+          }
+          case "analytics_record_actuals": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.recordActuals(
+              params.quote_id ?? params.quoteId,
+              {
+                cost_breakdown: params.cost_breakdown ?? params.costBreakdown,
+                cycle_time_min: params.cycle_time_min ?? params.cycleTimeMin,
+                lead_days: params.lead_days ?? params.leadDays,
+              },
+            );
+            break;
+          }
+          case "analytics_accuracy": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.accuracyMetrics(params);
+            break;
+          }
+          case "analytics_conversion": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.conversionMetrics();
+            break;
+          }
+          case "analytics_calibration": {
+            const engine = await getEngine("quoteAnalytics");
+            result = engine.calibrationSuggestions();
             break;
           }
 

@@ -2098,3 +2098,6 @@ export { payrollEngine, PayrollEngine } from "./PayrollEngine.js";
 export { invoicingEngine, InvoicingEngine } from "./InvoicingEngine.js";
 export { toolUsageEngine, ToolUsageEngine } from "./ToolUsageEngine.js";
 export { actualCostEngine, ActualCostEngine } from "./ActualCostEngine.js";
+export { quoteEstimatorEngine, QuoteEstimatorEngine } from "./QuoteEstimatorEngine.js";
+export { secondaryOpsEngine, SecondaryOpsEngine } from "./SecondaryOpsEngine.js";
+export { quoteAnalyticsEngine, QuoteAnalyticsEngine } from "./QuoteAnalyticsEngine.js";

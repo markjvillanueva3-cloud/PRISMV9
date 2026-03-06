@@ -16,7 +16,7 @@ import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _electrode: any, _wire: any, _surface: any, _micro: any;
-let _laser: any, _waterjet: any;
+let _laser: any, _waterjet: any, _sinker: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "electrode": return _electrode ??= (await import("../../engines/ElectrodeDesignEngine.js")).electrodeDesignEngine;
@@ -25,6 +25,7 @@ async function getEngine(name: string): Promise<any> {
     case "micro": return _micro ??= (await import("../../engines/MicroEDMEngine.js")).microEDMEngine;
     case "laser": return _laser ??= (await import("../../engines/LaserCuttingEngine.js")).laserCuttingEngine;
     case "waterjet": return _waterjet ??= (await import("../../engines/WaterjetCuttingEngine.js")).waterjetCuttingEngine;
+    case "sinker": return _sinker ??= (await import("../../engines/SinkerEDMCalculatorEngine.js")).sinkerEDMCalculatorEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -33,6 +34,7 @@ const ACTIONS = [
   "electrode_design", "wire_settings", "surface_integrity", "micro_edm",
   "laser_calculate", "laser_materials", "laser_machines", "laser_gas_recommend",
   "waterjet_calculate", "waterjet_materials", "waterjet_abrasives", "waterjet_quality_levels",
+  "sinker_calculate", "sinker_materials", "sinker_vdi_scale", "sinker_recommend",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -148,6 +150,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "waterjet_quality_levels": {
             const engine = await getEngine("waterjet");
             result = engine.listQualityLevels();
+            break;
+          }
+
+          // --- Sinker EDM Calculator (reverse-engineered from monolith) ---
+          case "sinker_calculate": {
+            const engine = await getEngine("sinker");
+            result = engine.calculate(params);
+            break;
+          }
+          case "sinker_materials": {
+            const engine = await getEngine("sinker");
+            result = {
+              electrode: engine.listElectrodeMaterials(),
+              workpiece: engine.listWorkpieceMaterials(),
+            };
+            break;
+          }
+          case "sinker_vdi_scale": {
+            const engine = await getEngine("sinker");
+            result = engine.listVDIScale();
+            break;
+          }
+          case "sinker_recommend": {
+            const engine = await getEngine("sinker");
+            result = engine.recommendSettings(params);
             break;
           }
 
