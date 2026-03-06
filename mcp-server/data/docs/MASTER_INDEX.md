@@ -329,7 +329,7 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (143 exported + 63 unwired = 206 total .ts files)
+## 4. ENGINES (144 exported + 63 unwired = 207 total .ts files)
 ## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R4 (2026-03-03)
 
 ### 4a. Calculation Engines (25 exported)
@@ -394,7 +394,7 @@ Health: prism_bridge→health
 - WorkCoordinateEngine.ts (227L) — Work coordinate system setup
 - CollisionEngine.ts (2089L) — Full collision analysis engine
 
-### 4e. CAD/CAM Engines (12 exported)
+### 4e. CAD/CAM Engines (13 exported)
 - CADKernelEngine.ts (758L) — CAD geometry kernel (BREP, CSG)
 - CAMKernelEngine.ts (874L) — CAM kernel operations
 - CAMIntegrationEngine.ts (1230L) — CAM system integration
@@ -411,11 +411,12 @@ Health: prism_bridge→health
 - HyperMillCycleDefaultsEngine.ts (450L) — hyperMILL cycle defaults from Metric.cfg: 26 cycles across 10 categories, formula resolver (T:Dia, mtol, T:Rad variables), collision clearances, FRTYP tool type map
 - HyperMillThreadStandardEngine.ts (260L) — Thread standard database: 11 standards (ISO Metric, ANSI Unified, BSP, DIN, ISO Pipe, JIS, GB), 77 entries with tap drill/minor dia lookups, size search
 - CamKnowledgePortabilityEngine.ts (700L) — Cross-CAM knowledge bridge: 22 intents, 6 controllers, 6 ISO groups, formula resolver, G-code generation, HSM smoothing, controller comparison, source-agnostic (hypermill/fusion360/mastercam/solidcam/esprit/siemensnx/gibbscam/surfcam)
-- MultiCamStrategyEngine.ts (1050L) — 6-system CAM strategy database: Fusion 360 (23 strategies), Mastercam (22), ESPRIT (19), Siemens NX (17), GibbsCAM (18), SurfCAM (17). Flagship strategies, cross-system comparison, portability intent mapping. 56 tests
+- MultiCamStrategyEngine.ts (1800L) — 7-system CAM strategy database: Fusion 360 (23), Mastercam (22), ESPRIT (19), Siemens NX (17), GibbsCAM (18), SurfCAM (17), SolidCAM/InventorCAM (34, from InventorCAM 2024 HSR/HSM/HSS PDFs). 150 strategies, flagship comparison, portability intent mapping. 67 tests
 - CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
 - SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
 - DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
 - DfMRulesEngine.ts — Design for Manufacturability rules checker: 8 feature type checks (wall/cavity/hole/thread/undercut/tall/small/fillet), tolerance feasibility, face mill geometry selection (45°/90°/button), deep hole technique by L/D ratio, CNC machine cost estimation. Source: CNC Complete Engineering Guide, CNCCookbook guides
+- SketchEngine.ts — 2D sketch primitives (line/arc/circle/rect/polygon/slot/ellipse/spline), 14 constraint types, profile analysis (area/perimeter/centroid/bbox), 13 3D feature types (extrude/revolve/hole/fillet/chamfer/shell/pattern/mirror), 4 part templates (box/cylinder/flange/bracket), volume estimation, CadQuery Python codegen, SVG export. Wired to cadDispatcher (12 actions)
 
 ### 4f. Intelligence & Knowledge Engines (14 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
