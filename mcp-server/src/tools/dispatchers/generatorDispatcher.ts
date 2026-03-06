@@ -92,7 +92,7 @@ export function registerGeneratorDispatcher(server: any): void {
               domain: domain.toUpperCase(),
               hooks_generated: hooks.length, 
               duration_ms: duration,
-              rate_per_second: Math.round(hooks.length / (duration / 1000)),
+              rate_per_second: duration > 0 ? Math.round(hooks.length / (duration / 1000)) : hooks.length * 1000,
               validation_errors: validationErrors.length,
               sample_hooks: hooks.slice(0, 3).map(h => ({
                 hook_id: h.hook_id, 
@@ -126,7 +126,7 @@ export function registerGeneratorDispatcher(server: any): void {
               domains_processed: results.length,
               total_hooks_generated: totalHooks, 
               total_duration_ms: totalDuration,
-              rate_per_second: Math.round(totalHooks / (totalDuration / 1000)),
+              rate_per_second: totalDuration > 0 ? Math.round(totalHooks / (totalDuration / 1000)) : totalHooks * 1000,
               total_errors: totalErrors, 
               output_directory: config.output_dir,
               results: results.map((r: any) => ({ 
@@ -152,7 +152,7 @@ export function registerGeneratorDispatcher(server: any): void {
               valid_hooks: hooks.length - errors.length,
               error_count: errors.length, 
               errors: errors.slice(0, 20),
-              validation_rate: ((hooks.length - errors.length) / hooks.length * 100).toFixed(2) + "%"
+              validation_rate: hooks.length > 0 ? ((hooks.length - errors.length) / hooks.length * 100).toFixed(2) + "%" : "N/A"
             });
           }
 

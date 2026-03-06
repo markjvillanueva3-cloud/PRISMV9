@@ -66,10 +66,10 @@ Actions: ${ACTIONS.join(", ")}.`,
 
         switch (action) {
           case "wheel_select": {
-            const material = (params.material || "steel").toLowerCase();
-            const hardness_hrc = params.hardness_hrc || 60;
-            const operation = params.operation || "surface";
-            const finish_Ra = params.target_Ra_um || 0.8;
+            const material = (params.material ?? "steel").toLowerCase();
+            const hardness_hrc = params.hardness_hrc ?? 60;
+            const operation = params.operation ?? "surface";
+            const finish_Ra = params.target_Ra_um ?? 0.8;
             let wheelType = "aluminum_oxide";
             if (hardness_hrc > 55) wheelType = "cbn";
             if (material.includes("carbide") || material.includes("ceramic")) wheelType = "diamond";
@@ -89,17 +89,18 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "dress_params": {
-            const wheelDia = params.wheel_diameter_mm || 200;
-            const dresserType = params.dresser_type || "single_point_diamond";
-            const depth = params.dress_depth_um || (dresserType.includes("rotary") ? 5 : 15);
-            const lead = params.dress_lead_mm_rev || 0.1;
-            const overlapRatio = 1 / lead;
+            const wheelDia = params.wheel_diameter_mm ?? 200;
+            const dresserType = params.dresser_type ?? "single_point_diamond";
+            const depth = params.dress_depth_um ?? (dresserType.includes("rotary") ? 5 : 15);
+            const lead = params.dress_lead_mm_rev ?? 0.1;
+            const safeLead = Math.max(lead, 0.001); // guard div/0
+            const overlapRatio = 1 / safeLead;
             result = {
               dresser_type: dresserType,
               dress_depth_um: depth,
               dress_lead_mm_rev: lead,
               overlap_ratio: Math.round(overlapRatio * 10) / 10,
-              passes: params.passes || 2,
+              passes: params.passes ?? 2,
               wheel_speed_rpm: Math.round((30 * 60) / (Math.PI * wheelDia / 1000)),
               traverse_speed_mm_min: Math.round(lead * result?.wheel_speed_rpm || 300),
               recommendation: overlapRatio > 10 ? "Fine dress — good for finish grinding" : "Open dress — good for stock removal",
@@ -109,11 +110,11 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "burn_threshold": {
-            const specific_energy = params.specific_energy_J_mm3 || 40;
-            const stock_removal = params.stock_removal_mm3_s || 5;
+            const specific_energy = params.specific_energy_J_mm3 ?? 40;
+            const stock_removal = params.stock_removal_mm3_s ?? 5;
             const coolant_factor = params.coolant === "none" ? 0.3 : params.coolant === "mist" ? 0.6 : 1.0;
             const power_W = specific_energy * stock_removal;
-            const threshold_W = (params.burn_threshold_W || 500) * coolant_factor;
+            const threshold_W = (params.burn_threshold_W ?? 500) * coolant_factor;
             const burnRisk = power_W / threshold_W;
             result = {
               grinding_power_W: Math.round(power_W),
@@ -128,10 +129,10 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "surface_integrity": {
-            const Ra = params.Ra_um || 0.4;
-            const residual_stress = params.residual_stress_MPa || -200; // compressive = negative
-            const burn_detected = params.burn_detected || false;
-            const micro_cracks = params.micro_cracks || false;
+            const Ra = params.Ra_um ?? 0.4;
+            const residual_stress = params.residual_stress_MPa ?? -200; // compressive = negative
+            const burn_detected = params.burn_detected ?? false;
+            const micro_cracks = params.micro_cracks ?? false;
             result = {
               surface_roughness_Ra_um: Ra,
               residual_stress_MPa: residual_stress,
@@ -153,16 +154,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "grinding_force": {
             const gfResult = grindingForceEngine.calculate({
-              wheel_diameter_mm: params.wheel_diameter_mm || 200,
-              wheel_speed_m_s: params.wheel_speed_m_s || 30,
-              work_speed_m_min: params.work_speed_m_min || 15,
-              depth_of_cut_mm: params.depth_of_cut_mm || 0.02,
-              width_of_cut_mm: params.width_of_cut_mm || 20,
-              grinding_mode: (params.grinding_mode || "surface") as GrindingMode,
+              wheel_diameter_mm: params.wheel_diameter_mm ?? 200,
+              wheel_speed_m_s: params.wheel_speed_m_s ?? 30,
+              work_speed_m_min: params.work_speed_m_min ?? 15,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 0.02,
+              width_of_cut_mm: params.width_of_cut_mm ?? 20,
+              grinding_mode: (params.grinding_mode ?? "surface") as GrindingMode,
               workpiece_diameter_mm: params.workpiece_diameter_mm,
               material_specific_energy_J_mm3: params.specific_energy_J_mm3,
-              workpiece_hardness_hrc: params.hardness_hrc || 40,
-              coolant_type: (params.coolant_type || "flood") as CoolantType,
+              workpiece_hardness_hrc: params.hardness_hrc ?? 40,
+              coolant_type: (params.coolant_type ?? "flood") as CoolantType,
               grain_density_per_mm2: params.grain_density,
               grain_radius_um: params.grain_radius_um,
             });
@@ -171,19 +172,19 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "surface_finish_predict": {
             const sfResult = grindingSurfaceFinishEngine.calculate({
-              wheel_diameter_mm: params.wheel_diameter_mm || 200,
-              wheel_speed_m_s: params.wheel_speed_m_s || 30,
-              work_speed_m_min: params.work_speed_m_min || 15,
-              depth_of_cut_mm: params.depth_of_cut_mm || 0.02,
-              width_of_cut_mm: params.width_of_cut_mm || 20,
-              grinding_mode: (params.grinding_mode || "surface") as SFGrindingMode,
+              wheel_diameter_mm: params.wheel_diameter_mm ?? 200,
+              wheel_speed_m_s: params.wheel_speed_m_s ?? 30,
+              work_speed_m_min: params.work_speed_m_min ?? 15,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 0.02,
+              width_of_cut_mm: params.width_of_cut_mm ?? 20,
+              grinding_mode: (params.grinding_mode ?? "surface") as SFGrindingMode,
               workpiece_diameter_mm: params.workpiece_diameter_mm,
-              grain_size_mesh: params.grain_size_mesh || 60,
+              grain_size_mesh: params.grain_size_mesh ?? 60,
               grain_density_per_mm2: params.grain_density,
-              dressing_condition: (params.dressing_condition || "medium") as DressingCondition,
+              dressing_condition: (params.dressing_condition ?? "medium") as DressingCondition,
               dressing_overlap_ratio: params.dressing_overlap_ratio,
               spark_out_passes: params.spark_out_passes,
-              coolant_type: (params.coolant_type || "flood") as CoolantType,
+              coolant_type: (params.coolant_type ?? "flood") as CoolantType,
               workpiece_hardness_hrc: params.hardness_hrc,
               target_Ra_um: params.target_Ra_um,
             });

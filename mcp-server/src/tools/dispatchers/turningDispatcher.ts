@@ -121,7 +121,7 @@ Actions: ${ACTIONS.join(", ")}.`,
 
         // Cross-field physics validation for force-producing actions
         const physicsActions = new Set(["chuck_force", "tailstock", "part_off_force"]);
-        if (physicsActions.has(action) && result && !result.error && result.Vc !== undefined) {
+        if (physicsActions.has(action) && result && !result.error) {
           try {
             const material = params.material_id || params.material || "unknown";
             validateCrossFieldPhysics({ ...result, material, operation: action });

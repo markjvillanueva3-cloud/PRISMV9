@@ -75,7 +75,7 @@ Params vary by action — pass relevant fields in params object.`,
           case "render_excel": {
             const engine = await getEngine("export");
             const xlJob = engine.render("excel", params.title || "Export", "prism_export", params.data || {});
-            result = { format: "xlsx", sheets: params.sheets || 1, status: xlJob.status, job_id: xlJob.id };
+            result = { format: "xlsx", sheets: params.sheets ?? 1, status: xlJob.status, job_id: xlJob.id };
             break;
           }
           case "render_dxf": {
@@ -87,7 +87,7 @@ Params vary by action — pass relevant fields in params object.`,
           case "render_step": {
             const engine = await getEngine("export");
             const stepJob = engine.render("step", params.title || "STEP Export", "prism_export", params.data || {});
-            result = { format: "step", protocol: "AP214", bodies: params.bodies || 1, status: stepJob.status, job_id: stepJob.id };
+            result = { format: "step", protocol: "AP214", bodies: params.bodies ?? 1, status: stepJob.status, job_id: stepJob.id };
             break;
           }
           case "render_gcode": {

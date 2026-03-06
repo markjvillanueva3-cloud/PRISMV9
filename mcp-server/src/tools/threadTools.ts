@@ -253,16 +253,17 @@ export async function handleThreadTool(name: string, args: Record<string, any>):
         if (!designation) {
           return { error: "Missing required param: thread_designation (e.g. 'M10x1.5' or '1/4-20')" };
         }
+        const engPct = args.engagement_percent ?? 75;
         const result = threadEngine.calculateTapDrill(
           designation,
-          args.engagement_percent || 75
+          engPct
         );
         if (!result) {
           return { error: `Could not find thread: ${designation}` };
         }
         // Add material-specific recommendations
         if (args.material) {
-          if (['titanium', 'stainless'].includes(args.material) && args.engagement_percent > 65) {
+          if (['titanium', 'stainless'].includes(args.material) && engPct > 65) {
             result.warnings.push(`For ${args.material}, recommend 50-65% engagement`);
           }
         }
@@ -430,7 +431,7 @@ export async function handleThreadTool(name: string, args: Record<string, any>):
         const result = threadEngine.calculateStrippingStrength(
           designation,
           args.engagement_length,
-          args.tensile_strength_mpa || 400
+          args.tensile_strength_mpa ?? 400
         );
         if (!result) {
           return { error: `Could not find thread: ${designation}` };
@@ -444,8 +445,8 @@ export async function handleThreadTool(name: string, args: Record<string, any>):
             gcode: threadEngine.generateTappingGcode(
               args.thread_designation,
               args.depth,
-              args.controller || 'FANUC',
-              args.spindle_speed || 500
+              args.controller ?? 'FANUC',
+              args.spindle_speed ?? 500
             )
           };
         } else {
