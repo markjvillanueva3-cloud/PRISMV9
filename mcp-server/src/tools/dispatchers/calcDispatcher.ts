@@ -2935,6 +2935,43 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Swarm Algorithms (PSO + ACO) ──
+          case "pso_optimize": {
+            const { swarmAlgorithmsEngine } = await import("../../engines/SwarmAlgorithmsEngine.js");
+            const fitFn = new Function("pos", params.fitness_body ?? "return -(pos[0]**2+pos[1]**2)") as (pos: number[]) => number;
+            result = swarmAlgorithmsEngine.psoOptimize(fitFn, params.bounds, {
+              swarmSize: params.swarm_size, maxIterations: params.max_iterations,
+              w: params.w, c1: params.c1, c2: params.c2, wDecay: params.w_decay,
+            });
+            break;
+          }
+          case "aco_optimize": {
+            const { swarmAlgorithmsEngine } = await import("../../engines/SwarmAlgorithmsEngine.js");
+            result = swarmAlgorithmsEngine.acoOptimize(params.cost_matrix, {
+              numAnts: params.num_ants, maxIterations: params.max_iterations,
+              alpha: params.alpha, beta: params.beta, evaporation: params.evaporation,
+            });
+            break;
+          }
+
+          // ── Voxel Stock Simulation ──
+          case "voxel_init": {
+            const { voxelStockEngine } = await import("../../engines/VoxelStockEngine.js");
+            const { minX, minY, minZ, maxX, maxY, maxZ } = params;
+            result = voxelStockEngine.initializeFromBox(minX, minY, minZ, maxX, maxY, maxZ, params.resolution).result;
+            break;
+          }
+          case "voxel_remove_path": {
+            const { voxelStockEngine } = await import("../../engines/VoxelStockEngine.js");
+            const { grid } = voxelStockEngine.initializeFromBox(
+              params.stock_min_x, params.stock_min_y, params.stock_min_z,
+              params.stock_max_x, params.stock_max_y, params.stock_max_z,
+              params.resolution,
+            );
+            result = voxelStockEngine.removeAlongPath(grid, params.path, params.tool, params.step_size);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

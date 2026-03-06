@@ -1222,4 +1222,204 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   // Toolpath linking
   toolpath_link_optimize,
   toolpath_link_time,
+
+  // ── Gear Hobbing ──
+  hobbing_calc: z.object({
+    num_teeth: z.number().int().positive(),
+    module_mm: z.number().positive(),
+    pressure_angle_deg: z.number().positive().default(20),
+    helix_angle_deg: z.number().min(0).default(0),
+    face_width_mm: z.number().positive(),
+    hob_diameter_mm: z.number().positive(),
+    hob_num_starts: z.number().int().min(1).max(3).default(1),
+    hob_num_gashes: z.number().int().positive(),
+    hobbing_method: z.enum(["conventional", "climb", "diagonal"]).default("climb"),
+    axial_feed_mm_per_rev: z.number().positive(),
+    hob_rpm: z.number().positive(),
+    num_cuts: z.number().int().min(1).max(3).default(1),
+    stock_allowance_mm: z.number().positive().optional(),
+  }).passthrough(),
+
+  hobbing_shift: z.object({
+    num_teeth: z.number().int().positive(),
+    module_mm: z.number().positive(),
+    pressure_angle_deg: z.number().positive().default(20),
+    helix_angle_deg: z.number().min(0).default(0),
+    face_width_mm: z.number().positive(),
+    hob_diameter_mm: z.number().positive(),
+    hob_num_starts: z.number().int().min(1).max(3).default(1),
+    hob_num_gashes: z.number().int().positive(),
+    hobbing_method: z.enum(["conventional", "climb", "diagonal"]).default("climb"),
+    axial_feed_mm_per_rev: z.number().positive(),
+    hob_rpm: z.number().positive(),
+    num_cuts: z.number().int().min(1).max(3).default(1),
+    parts_per_shift: z.number().int().positive().default(100),
+  }).passthrough(),
+
+  // ── Cryogenic Treatment ──
+  cryo_predict: z.object({
+    material_type: z.enum(["HSS", "carbide", "tool_steel", "bearing_steel", "stainless"]),
+    carbon_pct: z.number().min(0).max(5),
+    retained_austenite_pct: z.number().min(0).max(100),
+    prior_hardness_HRC: z.number().min(10).max(75),
+    cryo_level: z.enum(["shallow", "deep", "ultra_deep"]),
+    soak_time_hr: z.number().positive(),
+    material_grade: z.string().optional(),
+    cobalt_pct: z.number().optional(),
+    ramp_rate_C_per_min: z.number().optional(),
+    post_temper_temp_C: z.number().optional(),
+  }).passthrough(),
+
+  cryo_recommend: z.object({
+    material_type: z.enum(["HSS", "carbide", "tool_steel", "bearing_steel", "stainless"]),
+    retained_austenite_pct: z.number().min(0).max(100).default(10),
+  }).passthrough(),
+
+  cryo_roi: z.object({
+    material_type: z.enum(["HSS", "carbide", "tool_steel", "bearing_steel", "stainless"]),
+    carbon_pct: z.number().min(0).max(5),
+    retained_austenite_pct: z.number().min(0).max(100),
+    prior_hardness_HRC: z.number().min(10).max(75),
+    cryo_level: z.enum(["shallow", "deep", "ultra_deep"]),
+    soak_time_hr: z.number().positive(),
+    tool_cost_usd: z.number().positive().default(50),
+    tools_per_year: z.number().int().positive().default(100),
+  }).passthrough(),
+
+  // ── Hardness Conversion (ASTM E140) ──
+  hardness_convert: z.object({
+    value: z.number().positive(),
+    from_scale: z.enum(["HRC", "HRB", "HBW", "HV", "HK", "HRA"]),
+    to_scale: z.enum(["HRC", "HRB", "HBW", "HV", "HK", "HRA"]),
+  }).passthrough(),
+
+  hardness_batch: z.object({
+    values: z.array(z.number().positive()),
+    from_scale: z.enum(["HRC", "HRB", "HBW", "HV", "HK", "HRA"]),
+    to_scale: z.enum(["HRC", "HRB", "HBW", "HV", "HK", "HRA"]),
+  }).passthrough(),
+
+  // ── Bend Allowance (Sheet Metal) ──
+  bend_allowance_calc: z.object({
+    material: z.string(),
+    thickness_mm: z.number().positive(),
+    bend_angle_deg: z.number().positive(),
+    inside_radius_mm: z.number().positive(),
+    bend_method: z.enum(["air_bend", "bottom_bend", "coining", "folding", "roll_bend"]),
+    k_factor: z.number().min(0).max(1).optional(),
+    die_opening_mm: z.number().positive().optional(),
+    tensile_strength_MPa: z.number().positive().optional(),
+    yield_strength_MPa: z.number().positive().optional(),
+  }).passthrough(),
+
+  // ── Anodize Allowance ──
+  anodize_allowance: z.object({
+    anodize_type: z.enum(["type_I_chromic", "type_II_sulfuric", "type_IIB_thin", "type_III_hard"]),
+    target_thickness_um: z.number().positive(),
+    alloy: z.string(),
+    dimension_type: z.enum(["od", "id", "flat"]),
+    nominal_dimension_mm: z.number().positive(),
+    tolerance_mm: z.number().positive(),
+    is_dyed: z.boolean().default(false),
+    seal_type: z.enum(["hot_water", "nickel_acetate", "dichromate", "none"]).default("hot_water"),
+  }).passthrough(),
+
+  // ── Clamping Simulation (SAFETY CRITICAL) ──
+  clamp_simulate: z.object({
+    clamp_points: z.array(z.object({
+      id: z.string(),
+      type: z.enum(["vise_jaw", "toe_clamp", "strap_clamp", "magnetic", "vacuum", "collet", "chuck_jaw"]),
+      position: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+      force_direction: z.object({ fx: z.number(), fy: z.number(), fz: z.number() }),
+      max_force_N: z.number().positive(),
+      contact_area_mm2: z.number().positive(),
+      friction_coefficient: z.number().min(0).max(1),
+    })).min(1),
+    cutting_forces: z.object({
+      fx_N: z.number(), fy_N: z.number(), fz_N: z.number(),
+      torque_Nm: z.number(), max_resultant_N: z.number().positive(),
+    }),
+    part_mass_kg: z.number().positive(),
+    part_material: z.string(),
+    part_dimensions: z.object({ width_mm: z.number().positive(), height_mm: z.number().positive(), depth_mm: z.number().positive() }),
+  }).passthrough(),
+
+  clamp_validate: z.object({
+    clamp_points: z.array(z.object({
+      id: z.string(),
+      type: z.enum(["vise_jaw", "toe_clamp", "strap_clamp", "magnetic", "vacuum", "collet", "chuck_jaw"]),
+      position: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+      force_direction: z.object({ fx: z.number(), fy: z.number(), fz: z.number() }),
+      max_force_N: z.number().positive(),
+      contact_area_mm2: z.number().positive(),
+      friction_coefficient: z.number().min(0).max(1),
+    })).min(1),
+    cutting_forces: z.object({
+      fx_N: z.number(), fy_N: z.number(), fz_N: z.number(),
+      torque_Nm: z.number(), max_resultant_N: z.number().positive(),
+    }),
+    part_mass_kg: z.number().positive(),
+    part_material: z.string(),
+    part_dimensions: z.object({ width_mm: z.number().positive(), height_mm: z.number().positive(), depth_mm: z.number().positive() }),
+  }).passthrough(),
+
+  clamp_optimize: z.object({
+    clamp_points: z.array(z.object({
+      id: z.string(),
+      type: z.enum(["vise_jaw", "toe_clamp", "strap_clamp", "magnetic", "vacuum", "collet", "chuck_jaw"]),
+      position: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+      force_direction: z.object({ fx: z.number(), fy: z.number(), fz: z.number() }),
+      max_force_N: z.number().positive(),
+      contact_area_mm2: z.number().positive(),
+      friction_coefficient: z.number().min(0).max(1),
+    })).min(1),
+    cutting_forces: z.object({
+      fx_N: z.number(), fy_N: z.number(), fz_N: z.number(),
+      torque_Nm: z.number(), max_resultant_N: z.number().positive(),
+    }),
+    part_mass_kg: z.number().positive(),
+    part_material: z.string(),
+    part_dimensions: z.object({ width_mm: z.number().positive(), height_mm: z.number().positive(), depth_mm: z.number().positive() }),
+  }).passthrough(),
+
+  // ── Damping Optimization ──
+  damping_optimize: z.object({
+    target_freq_Hz: z.number().positive(),
+    structure_mass_kg: z.number().positive(),
+    structure_stiffness_N_per_m: z.number().positive(),
+    structure_damping_ratio: z.number().min(0).max(1),
+    available_mass_ratio: z.number().min(0).max(0.5).optional(),
+    space_constraint_mm: z.number().positive().optional(),
+    strategies: z.array(z.enum([
+      "tuned_mass_damper", "viscoelastic_damper", "impact_damper",
+      "mr_fluid", "constrained_layer", "variable_speed",
+      "variable_pitch", "process_damping", "none"
+    ])).optional(),
+  }).passthrough(),
+
+  // ── Cost Estimation ──
+  cost_estimate: z.object({
+    material_name: z.string(),
+    material_iso_group: z.string(),
+    stock_volume_cm3: z.number().positive(),
+    part_volume_cm3: z.number().positive(),
+    machine_rate_per_hour: z.number().positive(),
+    cycle_time_min: z.number().positive(),
+    setup_time_min: z.number().min(0),
+    num_tools: z.number().int().positive(),
+    batch_size: z.number().int().positive(),
+    labor_rate_per_hour: z.number().positive().optional(),
+    overhead_pct: z.number().min(0).max(200).optional(),
+  }).passthrough(),
+
+  cost_compare_materials: z.object({
+    materials: z.array(z.object({ name: z.string(), iso_group: z.string() })).min(2),
+    stock_volume_cm3: z.number().positive(),
+    part_volume_cm3: z.number().positive(),
+    machine_rate_per_hour: z.number().positive(),
+    cycle_time_min: z.number().positive(),
+    setup_time_min: z.number().min(0),
+    num_tools: z.number().int().positive(),
+    batch_size: z.number().int().positive(),
+  }).passthrough(),
 };
