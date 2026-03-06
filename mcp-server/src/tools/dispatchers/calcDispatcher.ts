@@ -386,7 +386,9 @@ const ACTIONS = [
   "damping_optimize",
   "cost_estimate", "cost_compare_materials",
   "feed_optimize", "corner_dynamics", "arc_feed_correction",
-  "balance_grade", "aggressiveness_levels"
+  "balance_grade", "aggressiveness_levels",
+  "ode_solve", "ode_solve_system", "linear_solve", "least_squares",
+  "pid_simulate", "pid_step", "discretize_tf"
 ] as const;
 
 /** Registers calc dispatcher.
