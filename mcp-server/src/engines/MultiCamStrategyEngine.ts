@@ -45,7 +45,13 @@ export type CamGeometryType =
   | "turning_groove"
   | "thread"
   | "hole"
-  | "bore";
+  | "bore"
+  | "impeller_blade"
+  | "port_inlet"
+  | "ruled_surface"
+  | "trimming_edge"
+  | "undercut"
+  | "turbine_blade";
 
 export type CamOperationGoal =
   | "roughing"
@@ -53,7 +59,8 @@ export type CamOperationGoal =
   | "semi_finishing"
   | "rest_machining"
   | "drilling"
-  | "adaptive_clearing";
+  | "adaptive_clearing"
+  | "deburring";
 
 export interface CamStrategyInput {
   camSystem: MultiCamSource;
@@ -1708,27 +1715,344 @@ const SOLIDCAM_STRATEGIES: StrategyEntry[] = [
     priority: 10,
     equivalentIntents: ["turning_thread"],
   },
-  // --- 5-Axis ---
+  // --- Sim. 5-Axis Strategies (from InventorCAM 2024 5-Axis Training Vol 1-3) ---
   {
-    nativeCycle: "Sim. 5-Axis",
-    description: "Simultaneous 5-axis machining with surface normal, swarf, or tilted tool axis control.",
+    nativeCycle: "Sim 5-Axis Parallel Cuts",
+    description: "Simultaneous 5-axis parallel cutting. Cuts normal to X/Y/Z axis on drive surfaces. Uses surface normals for tool orientation. Best for cylindrical parts and general 5-axis surface finishing. Cut tolerance 0.02mm typical, max step-over 3mm. Ball nose or bull nose tools. Source: InventorCAM 2024 5-Axis Vol.1.",
     stepdownFactor: null,
     stepoverFactor: 0.1,
     cuttingMode: "climb",
     suitableFor: { geometry: ["freeform_3d", "steep_wall"], goal: ["finishing"] },
     priority: 11,
-    equivalentIntents: ["5axis_multiaxis", "5axis_swarf"],
+    equivalentIntents: ["5axis_multiaxis", "finish_3d"],
+    materialNotes: {
+      P: "Tilt angle 15-25 deg to avoid tip rubbing at 0 RPM",
+      N: "Tilt angle 10-20 deg, higher feeds possible",
+      S: "Tilt angle 20-30 deg, controlled engagement critical",
+    },
   },
-  // --- Mill-Turn ---
   {
-    nativeCycle: "Advanced Mill-Turn",
-    description: "Combined mill/turn with C-axis, Y-axis, and B-axis control. Live tooling on turning centers.",
+    nativeCycle: "Sim 5-Axis Morph Between Curves",
+    description: "Morphed toolpath between two boundary curves. Gradually interpolates between start/end edges for homogeneous coverage. Ideal for impeller blades and turbine surfaces. Tilt angle 70-80 deg typical. Step-over 0.8mm. Caution: varying surface widths can squeeze passes causing rubbing. Source: InventorCAM 2024 5-Axis Vol.2.",
+    stepdownFactor: null,
+    stepoverFactor: 0.03,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["impeller_blade", "turbine_blade", "freeform_3d"], goal: ["finishing", "semi_finishing"] },
+    priority: 13,
+    equivalentIntents: ["5axis_multiaxis", "impeller_finishing"],
+    materialNotes: {
+      S: "Titanium impellers: 70 deg tilt, conservative step-over 0.5mm",
+      N: "Aluminum impellers: 80 deg tilt, step-over up to 1.2mm",
+    },
+  },
+  {
+    nativeCycle: "Sim 5-Axis Parallel to Curves",
+    description: "Toolpath segments parallel to a leading curve with uniform offset spacing. Each pass is an offset of the previous (not a copy). Provides uniform cut distribution on complex blade surfaces. Source: InventorCAM 2024 5-Axis Vol.2.",
+    stepdownFactor: null,
+    stepoverFactor: 0.03,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["impeller_blade", "turbine_blade", "freeform_3d"], goal: ["finishing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_multiaxis", "impeller_finishing"],
+  },
+  {
+    nativeCycle: "Sim 5-Axis Morph Between Surfaces",
+    description: "Morphed toolpath on drive surface enclosed by two check surfaces. Approximates between check surfaces with even distribution. Great for impeller machining with twisted turbine blades. Supports tool center based calculation and surface compensation with margin offsets. Source: InventorCAM 2024 5-Axis Vol.2.",
+    stepdownFactor: null,
+    stepoverFactor: 0.03,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["impeller_blade", "turbine_blade", "freeform_3d"], goal: ["finishing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_multiaxis", "impeller_finishing"],
+  },
+  {
+    nativeCycle: "Sim 5-Axis Perpendicular to Curve",
+    description: "Toolpath perpendicular to a lead/drive curve on drive surfaces. Points distributed at step-over intervals along lead curve, slices taken normal to curve at each point. Ideal for port inlet machining with lollipop mills. Uses 'Back to clearance through tube center' retract for safe exit. Source: InventorCAM 2024 5-Axis Vol.3.",
+    stepdownFactor: null,
+    stepoverFactor: 0.05,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["port_inlet", "freeform_3d"], goal: ["finishing", "semi_finishing"] },
+    priority: 13,
+    equivalentIntents: ["5axis_multiaxis", "port_machining"],
+    materialNotes: {
+      P: "Lollipop mill recommended, tube center retract essential",
+      K: "Cast iron ports: reduce tilt, increase step-over",
+    },
+  },
+  // --- 5-Axis Tool Axis Control Modes (Vol.1-3) ---
+  {
+    nativeCycle: "Sim 5-Axis Tilted Through Curve",
+    description: "Tool axis follows a tilt guide curve from start to end. 'From start to end' tilt type forces tool axis alignment along the curve. Essential for port/manifold machining where tool must track internal passage shape. Gouge check with 'Retract tool along to cut center' prevents collisions. Source: InventorCAM 2024 5-Axis Vol.3.",
+    stepdownFactor: null,
+    stepoverFactor: 0.05,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["port_inlet", "freeform_3d", "undercut"], goal: ["finishing"] },
+    priority: 13,
+    equivalentIntents: ["5axis_multiaxis", "port_machining"],
+  },
+  // --- Contour 5-Axis (from InventorCAM 2024 Contour 5X Machining) ---
+  {
+    nativeCycle: "Contour 5-Axis",
+    description: "Tilts tool along a chained 3D profile drive curve with orientation lines controlling tool axis. Wireframe-driven — no machining surfaces required. Ideal for deburring and trimming operations. Uses taper mill with orientation lines for axis control. Source: InventorCAM 2024 Contour 5X.",
     stepdownFactor: null,
     stepoverFactor: null,
     cuttingMode: "climb",
-    suitableFor: { geometry: ["pocket_2d", "hole", "contour_2d"], goal: ["roughing", "finishing", "drilling"] },
+    suitableFor: { geometry: ["trimming_edge", "contour_2d", "chamfer"], goal: ["deburring", "finishing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_contour", "deburring", "trimming"],
+  },
+  // --- SWARF Machining (from InventorCAM 2024 SWARF Machining) ---
+  {
+    nativeCycle: "SWARF Semi-Finishing",
+    description: "Side-Wall Axial Relief Finishing. Machining by tool side — contact area is a line for superior surface quality with minimum cuts. Strategies: Automatic (auto-detect wall orientation) or Shortest distance. Requires swarf surfaces + floor surfaces definition. Max angle step 3 deg, minimize rotation axis changes. Source: InventorCAM 2024 SWARF.",
+    stepdownFactor: null,
+    stepoverFactor: 0.1,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["ruled_surface", "steep_wall", "freeform_3d"], goal: ["semi_finishing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_swarf", "semi_finishing"],
+    materialNotes: {
+      P: "Bull nose mill for semi-finish, stock-to-leave 0.5mm typical",
+      S: "Reduced feed, conservative angle step 2 deg",
+    },
+  },
+  {
+    nativeCycle: "SWARF Finishing",
+    description: "SWARF finishing pass with taper ball nose tools. Automatic strategy auto-detects wall orientation for tool axis alignment. Provides excellent surface quality on ruled surfaces and aerospace structural parts. Combines with HSM Horizontal Machining for flat areas and Sim 5-Axis Parallel to Curves for blends. Source: InventorCAM 2024 SWARF.",
+    stepdownFactor: null,
+    stepoverFactor: 0.05,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["ruled_surface", "steep_wall", "freeform_3d"], goal: ["finishing"] },
+    priority: 13,
+    equivalentIntents: ["5axis_swarf", "finish_3d"],
+    materialNotes: {
+      S: "Aerospace titanium: taper ball nose, angle step max 3 deg",
+      N: "Aluminum aerospace: higher feeds, wider step-over OK",
+    },
+  },
+  {
+    nativeCycle: "SWARF Roughing",
+    description: "SWARF used for roughing steep-wall pockets. 'Shortest distance' strategy for corner faces. End mill with sharp corner and roll-around outside corners. Custom triangulation for precision. Stock-to-leave for subsequent finishing. Source: InventorCAM 2024 Multiaxis Roughing Pt1.",
+    stepdownFactor: null,
+    stepoverFactor: 0.3,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["ruled_surface", "steep_wall"], goal: ["roughing"] },
+    priority: 10,
+    equivalentIntents: ["5axis_swarf", "rough_3d"],
+  },
+  // --- Geodesic Machining (from InventorCAM 2024 Geodesic Machining) ---
+  {
+    nativeCycle: "Geodesic Multiaxis",
+    description: "Constant stepover pattern generator using global distance field without fixed direction. Step-over remains constant on steep AND shallow walls, including undercuts and fillets. Wraps continuously around model with single entry/exit. Uses lollipop mills for undercut access. Cut tolerance 0.05mm typical. Tool axis: tilted to axis by fixed angle. Source: InventorCAM 2024 Geodesic.",
+    stepdownFactor: null,
+    stepoverFactor: 0.05,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["freeform_3d", "undercut", "impeller_blade"], goal: ["finishing"] },
+    priority: 14,
+    equivalentIntents: ["5axis_multiaxis", "geodesic_finishing", "finish_3d"],
+    materialNotes: {
+      S: "Titanium: lollipop mill, constant step-over ensures uniform load",
+      N: "Aluminum: wider step-over achievable, single-pass coverage",
+      P: "Steel: conservative step-over, monitor tool deflection on undercuts",
+    },
+  },
+  // --- Multiaxis Machining (from InventorCAM 2024 Multiaxis Machining User Guide + Roughing Pt1-2) ---
+  {
+    nativeCycle: "Multiaxis Radial Roughing Offset",
+    description: "Multiaxis roughing for pocket-shaped geometries. Offset strategy generates cuts parallel to floor or ceiling. Sub-strategies: Offset from floor (cuts parallel to floor, upper cuts trimmed), Offset from ceiling, Morph between floor and ceiling. Requires machining surfaces + floor + ceiling definitions. Stock-model-aware with auto-updated stock. Source: InventorCAM 2024 Multiaxis User Guide.",
+    stepdownFactor: 0.5,
+    stepoverFactor: 0.3,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["freeform_3d", "pocket_2d", "undercut"], goal: ["roughing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_multiaxis", "rough_3d", "multiaxis_roughing"],
+    materialNotes: {
+      P: "Step-down by distance, bull nose mill, stock-to-leave 0.5mm",
+      N: "Aggressive step-down, full DOC possible with stock awareness",
+      S: "Offset from floor preferred, conservative step-over",
+    },
+  },
+  {
+    nativeCycle: "Multiaxis Radial Roughing Adaptive",
+    description: "Adaptive multiaxis roughing maintaining constant cutting conditions. Avoids full-width cuts by measuring engagement volume and gradually removing stock. Results in stable tool load at higher feed rates. Uses full cutting length of tool in single step with spiral patterns. Desired/Climb/Conventional step-over control. Source: InventorCAM 2024 Multiaxis Roughing Pt1-2.",
+    stepdownFactor: 1.5,
+    stepoverFactor: 0.15,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["freeform_3d", "pocket_2d", "undercut"], goal: ["roughing", "adaptive_clearing"] },
+    priority: 13,
+    equivalentIntents: ["5axis_multiaxis", "adaptive_clearing", "multiaxis_roughing"],
+    materialNotes: {
+      P: "Full flute engagement, spiral entry, monitor vibration",
+      N: "Aggressive: full DOC, high feed rates achievable",
+      S: "Managed engagement critical — use adaptive clearance parameter",
+    },
+  },
+  {
+    nativeCycle: "Multiaxis Wall Finishing",
+    description: "5-axis wall finishing with contact point height control. Strategies: Morph between floor and ceiling, or Parallel (with floor/ceiling/user-defined guide curve). Preferred/Min/Max contact point as % of flute length. Lag angle control (preferred/min/max). Spiral/Zigzag/One-way sorting. Source: InventorCAM 2024 Multiaxis User Guide.",
+    stepdownFactor: 0.1,
+    stepoverFactor: null,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["steep_wall", "freeform_3d", "ruled_surface"], goal: ["finishing"] },
+    priority: 12,
+    equivalentIntents: ["5axis_multiaxis", "finish_3d", "wall_finishing"],
+  },
+  {
+    nativeCycle: "Multiaxis Floor Finishing",
+    description: "5-axis floor finishing for pocket-shaped geometries. Strategies: Offset from wall (concentric passes inward from wall), or Parallel (longest dimension or user-defined guide curve). Tool axis normal to floor. Source: InventorCAM 2024 Multiaxis User Guide.",
+    stepdownFactor: null,
+    stepoverFactor: 0.15,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["flat_area", "freeform_3d", "pocket_2d"], goal: ["finishing"] },
+    priority: 11,
+    equivalentIntents: ["5axis_multiaxis", "finish_3d", "floor_finishing"],
+  },
+  // --- Turning Operations (from InventorCAM 2024 Turning & Mill-Turn Training) ---
+  {
+    nativeCycle: "Face Turning",
+    description: "Facial profile turning with principal working direction along X-axis. Separate from longitudinal turning. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: 0.5,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["face", "turning_external"], goal: ["roughing", "finishing"] },
+    priority: 10,
+    equivalentIntents: ["turning_face"],
+  },
+  {
+    nativeCycle: "Turning Roughing",
+    description: "OD/ID rough turning — longitudinal, facial (front/back). Auto-generates minimum tool movements accounting for material boundary. Automatic profile adjustment for gouge avoidance. Rest material auto-detection for unmachined areas. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: 1.0,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external", "turning_internal"], goal: ["roughing"] },
+    priority: 10,
+    equivalentIntents: ["turning_rough"],
+  },
+  {
+    nativeCycle: "Turning Finishing",
+    description: "Profile finishing with spring pass and nose radius compensation (TNRC). Supports longitudinal and facial profiles. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external", "turning_internal"], goal: ["finishing"] },
+    priority: 10,
+    equivalentIntents: ["turning_finish"],
+  },
+  {
+    nativeCycle: "Turning Grooving",
+    description: "OD/ID/face grooving with pecking and side-clearing. Can use single machine cycle or generate all G0/G1 movements. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_groove", "groove"], goal: ["roughing", "finishing"] },
+    priority: 10,
+    equivalentIntents: ["turning_groove"],
+  },
+  {
+    nativeCycle: "Angled Grooving",
+    description: "Inclined groove machining. Geometry must be inclined relative to Z-axis. Tool angle parameter adjusts cutting angle. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_groove", "groove"], goal: ["roughing", "finishing"] },
     priority: 9,
-    equivalentIntents: ["pocket_2d", "drilling", "contour_2d"],
+    equivalentIntents: ["turning_groove"],
+  },
+  {
+    nativeCycle: "Turning Threading",
+    description: "Single-point threading — longitudinal (internal/external) or facial. Requires CNC thread cycle. Output matches defined geometry length exactly without material collision checking. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["thread"], goal: ["finishing"] },
+    priority: 10,
+    equivalentIntents: ["turning_thread"],
+  },
+  {
+    nativeCycle: "Turning Cutoff",
+    description: "Part cutoff/parting with groove width equal to tool width. Supports CNC machine cycles, chamfers and fillets. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_groove"], goal: ["finishing"] },
+    priority: 10,
+    equivalentIntents: ["turning_cutoff"],
+  },
+  {
+    nativeCycle: "Trochoidal Turning",
+    description: "Complex profile turning with trochoidal cutting strategy. Rounded passes at start/end for smooth optimized toolpath. Enables high cutting speed with reduced tool wear. Cannot use CNC machine cycles. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: 0.5,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external", "turning_internal"], goal: ["roughing"] },
+    priority: 12,
+    equivalentIntents: ["turning_rough", "trochoidal_turning"],
+    materialNotes: {
+      P: "Excellent for interrupted cuts on steel",
+      S: "Superior tool life on superalloys vs conventional turning",
+      H: "Hardened material: reduced DOC, high SFM",
+    },
+  },
+  {
+    nativeCycle: "Balanced Rough Turning",
+    description: "Dual-tool simultaneous roughing — Master and Slave submachines work in parallel. Both submachines must share the same Table. Halves roughing cycle time. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: 1.0,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external"], goal: ["roughing"] },
+    priority: 11,
+    equivalentIntents: ["turning_rough", "balanced_turning"],
+  },
+  {
+    nativeCycle: "Manual Turning",
+    description: "User-defined geometry turning independent of stock/target/envelope. Reverse cutting path option enables effective undercut machining. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external", "turning_internal", "undercut"], goal: ["roughing", "finishing"] },
+    priority: 8,
+    equivalentIntents: ["turning_manual"],
+  },
+  {
+    nativeCycle: "Sim. Tilted Turning",
+    description: "Curve-shaped toolpath using tilting capabilities of round-insert tools. Tool vector changes defined by specifying tilt lines. Machines undercut areas in a single step. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["turning_external", "turning_internal", "undercut"], goal: ["finishing"] },
+    priority: 11,
+    equivalentIntents: ["turning_tilted", "turning_finish"],
+  },
+  {
+    nativeCycle: "Turning Drilling",
+    description: "On-axis drilling along revolution axis. No geometry definition needed — only drill start and end positions. Supports spot, drill, peck, deep peck, tap, bore, ream cycles. Source: InventorCAM 2024 Turning.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "conventional",
+    suitableFor: { geometry: ["hole", "bore"], goal: ["drilling"] },
+    priority: 10,
+    equivalentIntents: ["drilling", "turning_drill"],
+  },
+  // --- Mill-Turn (from InventorCAM 2024 Turning & Mill-Turn Training) ---
+  {
+    nativeCycle: "Advanced Mill-Turn",
+    description: "Combined mill/turn with C-axis, Y-axis, and B-axis control. Full milling + turning in single setup. Supports facial milling, back spindle operations, machine device control (tailstock, steady rest, bar feeder). Multi-turret and multi-spindle programming with turret synchronization. Operation Sequence Manager for multi-channel sync. Source: InventorCAM 2024 Mill-Turn.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["pocket_2d", "hole", "contour_2d", "turning_external", "turning_internal"], goal: ["roughing", "finishing", "drilling"] },
+    priority: 9,
+    equivalentIntents: ["pocket_2d", "drilling", "contour_2d", "mill_turn"],
+  },
+  {
+    nativeCycle: "Swiss-Type",
+    description: "Swiss-type CNC programming with guide bushing support. Multi-channel synchronized operations for sliding headstock machines. Source: InventorCAM 2024 Mill-Turn.",
+    stepdownFactor: null,
+    stepoverFactor: null,
+    cuttingMode: "climb",
+    suitableFor: { geometry: ["turning_external", "turning_internal", "hole", "thread"], goal: ["roughing", "finishing", "drilling"] },
+    priority: 10,
+    equivalentIntents: ["swiss_type", "turning_rough", "turning_finish"],
   },
 ];
 
