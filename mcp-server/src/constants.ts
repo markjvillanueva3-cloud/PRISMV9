@@ -79,8 +79,9 @@ export const PATHS = {
   // GSD protocol
   GSD_DIR: "C:\\PRISM\\mcp-server\\data\\docs\\gsd",
 
-  // Python runtime
-  PYTHON: "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  // Python runtime — env var override for portability
+  PYTHON: process.env.PRISM_PYTHON_PATH ||
+    "C:\\Users\\Admin.DIGITALSTORM-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
 
   // Knowledge
   KNOWLEDGE_DIR: "C:\\PRISM\\knowledge",

@@ -25,6 +25,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { PATHS } from "../../constants.js";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import * as path from "node:path";
@@ -46,9 +47,8 @@ const ACTIONS = [
   "tips_conflicts",
 ] as const;
 
-// Python & cad-engine paths
-const PYTHON_PATH = process.env.PRISM_PYTHON_PATH ||
-  "C:/Users/Admin.DIGITALSTORM-PC/AppData/Local/Programs/Python/Python312/python.exe";
+// Python & cad-engine paths — uses centralized PATHS.PYTHON
+const PYTHON_PATH = PATHS.PYTHON;
 const CAD_ENGINE_DIR = path.resolve(
   process.env.PRISM_CAD_ENGINE_DIR || path.join(__dirname, "../../../../cad-engine")
 );

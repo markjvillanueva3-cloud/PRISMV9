@@ -10,12 +10,15 @@ Part of CC-MS1: Video Ingestion Pipeline + Vision Analysis.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class FrameExtractError(Exception):
@@ -64,42 +67,61 @@ class FrameExtractionResult:
 # ffmpeg helpers
 # ---------------------------------------------------------------------------
 
-def _find_ffmpeg() -> str:
-    """Find ffmpeg executable."""
-    candidates = ["ffmpeg"]
-    local_app = os.environ.get("LOCALAPPDATA", "")
-    if local_app:
-        candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", "ffmpeg.exe"))
-    candidates.append(r"C:\ffmpeg\bin\ffmpeg.exe")
+import platform as _platform
+import shutil as _shutil
+
+# Cache discovered binary paths
+_ffmpeg_cache: str | None = None
+_ffprobe_cache: str | None = None
+
+
+def _find_binary(name: str) -> str:
+    """Find a binary by name, checking PATH then platform-specific locations."""
+    # Check PATH first via shutil.which
+    which_result = _shutil.which(name)
+    if which_result:
+        return which_result
+
+    candidates: list[str] = []
+    if _platform.system() == "Windows":
+        local_app = os.environ.get("LOCALAPPDATA", "")
+        if local_app:
+            candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", f"{name}.exe"))
+        candidates.append(rf"C:\ffmpeg\bin\{name}.exe")
+    else:
+        candidates.extend([
+            f"/usr/bin/{name}",
+            f"/usr/local/bin/{name}",
+            f"/opt/homebrew/bin/{name}",
+        ])
+
     for candidate in candidates:
-        try:
-            subprocess.run(
-                [candidate, "-version"],
-                capture_output=True, check=True, timeout=10,
-            )
-            return candidate
-        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            continue
-    raise FrameExtractError("ffmpeg not found")
+        if os.path.isfile(candidate):
+            try:
+                subprocess.run(
+                    [candidate, "-version"],
+                    capture_output=True, check=True, timeout=10,
+                )
+                return candidate
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                continue
+    raise FrameExtractError(f"{name} not found. Install from https://ffmpeg.org/download.html")
+
+
+def _find_ffmpeg() -> str:
+    """Find ffmpeg executable (cached)."""
+    global _ffmpeg_cache
+    if _ffmpeg_cache is None:
+        _ffmpeg_cache = _find_binary("ffmpeg")
+    return _ffmpeg_cache
 
 
 def _find_ffprobe() -> str:
-    """Find ffprobe executable."""
-    candidates = ["ffprobe"]
-    local_app = os.environ.get("LOCALAPPDATA", "")
-    if local_app:
-        candidates.append(os.path.join(local_app, "Microsoft", "WinGet", "Links", "ffprobe.exe"))
-    candidates.append(r"C:\ffmpeg\bin\ffprobe.exe")
-    for candidate in candidates:
-        try:
-            subprocess.run(
-                [candidate, "-version"],
-                capture_output=True, check=True, timeout=10,
-            )
-            return candidate
-        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            continue
-    raise FrameExtractError("ffprobe not found")
+    """Find ffprobe executable (cached)."""
+    global _ffprobe_cache
+    if _ffprobe_cache is None:
+        _ffprobe_cache = _find_binary("ffprobe")
+    return _ffprobe_cache
 
 
 def get_video_duration(video_path: str) -> float:
@@ -116,7 +138,8 @@ def get_video_duration(video_path: str) -> float:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=True)
         info = json.loads(result.stdout)
         return float(info.get("format", {}).get("duration", 0))
-    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as exc:
+        logger.warning("Failed to get video duration for %s: %s", video_path, exc)
         return 0.0
 
 
@@ -137,8 +160,8 @@ def get_video_resolution(video_path: str) -> tuple[int, int]:
         streams = info.get("streams", [])
         if streams:
             return int(streams[0].get("width", 0)), int(streams[0].get("height", 0))
-    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
-        pass
+    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as exc:
+        logger.warning("Failed to get video resolution for %s: %s", video_path, exc)
     return 0, 0
 
 

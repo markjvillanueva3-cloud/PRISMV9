@@ -12,11 +12,14 @@ OCR: Tesseract via pytesseract for scanned pages.
 from __future__ import annotations
 
 import io
+import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -665,7 +668,14 @@ class PDFIngestionPipeline:
             pages: list[PageContent] = []
             total_words = 0
 
-            for page_num in range(min(pdf.page_count, self._max_pages)):
+            ocr_page_count = min(pdf.page_count, self._max_pages)
+            if pdf.page_count > self._max_pages:
+                logger.warning(
+                    "OCR truncating %d pages to max %d for %s",
+                    pdf.page_count, self._max_pages, source,
+                )
+
+            for page_num in range(ocr_page_count):
                 page = pdf[page_num]
                 # Render page to image at 300 DPI
                 mat = fitz.Matrix(300 / 72, 300 / 72)
