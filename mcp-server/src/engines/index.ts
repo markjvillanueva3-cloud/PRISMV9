@@ -2090,3 +2090,11 @@ export {
   type RevisionComparison,
   type DxfDimensionResult,
 } from "./PrintReadingEngine.js";
+
+// ERP Engines — Employee, TimeClock, Payroll, Invoicing, ToolUsage, ActualCost
+export { employeeEngine, EmployeeEngine } from "./EmployeeEngine.js";
+export { timeClockEngine, TimeClockEngine } from "./TimeClockEngine.js";
+export { payrollEngine, PayrollEngine } from "./PayrollEngine.js";
+export { invoicingEngine, InvoicingEngine } from "./InvoicingEngine.js";
+export { toolUsageEngine, ToolUsageEngine } from "./ToolUsageEngine.js";
+export { actualCostEngine, ActualCostEngine } from "./ActualCostEngine.js";
