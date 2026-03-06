@@ -332,7 +332,9 @@ const ACTIONS = [
   "jc_flow_stress", "jc_params", "jc_search", "jc_list",
   "rl_post_create", "rl_post_generate", "rl_post_learn",
   "merchant_analysis", "milling_forces", "cutting_temperature",
-  "crater_wear", "material_cutting_data"
+  "crater_wear", "material_cutting_data",
+  "kinematics_fk", "kinematics_5axis_ik", "kinematics_singularity",
+  "kinematics_transform"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1940,6 +1942,50 @@ export function registerCalcDispatcher(server: any): void {
             result = params.material
               ? cuttingMechanicsEngine.getMaterialCuttingData(params.material)
               : cuttingMechanicsEngine.listMaterials();
+            break;
+          }
+
+          // ── Kinematics ──
+          case "kinematics_fk": {
+            const { kinematicsEngine } = await import("../../engines/KinematicsEngine.js");
+            result = kinematicsEngine.forwardKinematicsDH(
+              params.dh_table ?? params.dhTable ?? [],
+              params.joint_values ?? params.jointValues ?? [],
+            );
+            break;
+          }
+          case "kinematics_5axis_ik": {
+            const { kinematicsEngine } = await import("../../engines/KinematicsEngine.js");
+            result = kinematicsEngine.fiveAxisIK(
+              { position: params.position, axis: params.axis },
+              {
+                type: params.machine_type ?? params.machineType,
+                pivotOffset: params.pivot_offset ?? params.pivotOffset,
+                limits: params.limits,
+              },
+            );
+            break;
+          }
+          case "kinematics_singularity": {
+            const { kinematicsEngine } = await import("../../engines/KinematicsEngine.js");
+            result = kinematicsEngine.detectSingularity(
+              params.joints ?? params,
+              params.threshold,
+            );
+            break;
+          }
+          case "kinematics_transform": {
+            const { kinematicsEngine } = await import("../../engines/KinematicsEngine.js");
+            const point = params.point ?? { x: 0, y: 0, z: 0 };
+            const T = kinematicsEngine.chainTransforms(
+              kinematicsEngine.translate(
+                params.dx ?? 0, params.dy ?? 0, params.dz ?? 0,
+              ),
+              kinematicsEngine.rotX(params.rx ?? 0),
+              kinematicsEngine.rotY(params.ry ?? 0),
+              kinematicsEngine.rotZ(params.rz ?? 0),
+            );
+            result = kinematicsEngine.transformPoint(T, point);
             break;
           }
 
