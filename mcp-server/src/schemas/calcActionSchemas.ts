@@ -1223,6 +1223,155 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   toolpath_link_optimize,
   toolpath_link_time,
 
+  // ── Heat Treatment Response ──
+  heat_treat_predict: z.object({
+    process: z.enum(["anneal", "normalize", "harden_quench", "temper", "carburize", "nitride", "induction", "case_harden"]),
+    material: z.string(),
+    carbon_pct: z.number().min(0).max(3),
+    austenitize_temp_C: z.number().positive(),
+    hold_time_min: z.number().positive(),
+    quench_medium: z.enum(["water", "oil", "polymer", "air", "salt_bath", "gas"]).default("oil"),
+    temper_temp_C: z.number().min(0).optional(),
+    section_thickness_mm: z.number().positive(),
+  }).passthrough(),
+
+  heat_treat_temper_curve: z.object({
+    carbon_pct: z.number().min(0).max(3).default(0.4),
+    start_HRC: z.number().min(20).max(70).default(60),
+  }).passthrough(),
+
+  heat_treat_recommend: z.object({
+    material: z.string(),
+    target_hardness_HRC: z.number().min(10).max(70).default(50),
+    section_mm: z.number().positive().default(25),
+  }).passthrough(),
+
+  // ── Passivation ──
+  passivation_calc: z.object({
+    method: z.enum(["nitric_acid", "citric_acid", "electropolish"]),
+    family: z.enum(["austenitic", "ferritic", "martensitic", "duplex", "PH"]),
+    alloy: z.string(),
+    surface_condition: z.enum(["machined", "ground", "welded", "as_received"]),
+    contamination_level: z.enum(["light", "moderate", "heavy"]),
+    part_surface_area_cm2: z.number().positive(),
+    tank_volume_liters: z.number().positive(),
+  }).passthrough(),
+
+  // ── Plating Allowance ──
+  plating_allowance: z.object({
+    process: z.enum(["hard_chrome", "electroless_nickel", "zinc", "cadmium", "tin", "silver", "gold", "copper"]),
+    target_thickness_um: z.number().positive(),
+    dimension_type: z.enum(["od", "id", "flat", "thread"]),
+    nominal_dimension_mm: z.number().positive(),
+    tolerance_mm: z.number().positive(),
+    substrate: z.string().optional(),
+  }).passthrough(),
+
+  plating_tolerance: z.object({
+    process: z.enum(["hard_chrome", "electroless_nickel", "zinc", "cadmium", "tin", "silver", "gold", "copper"]),
+    target_thickness_um: z.number().positive(),
+    dimension_type: z.enum(["od", "id", "flat", "thread"]),
+    nominal_dimension_mm: z.number().positive(),
+    tolerance_mm: z.number().positive(),
+  }).passthrough(),
+
+  plating_recommend: z.object({
+    substrate: z.string(),
+    application: z.enum(["wear", "corrosion", "cosmetic", "electrical"]),
+  }).passthrough(),
+
+  // ── Shot Peening ──
+  shot_peen_calc: z.object({
+    material: z.string(),
+    target_intensity: z.number().positive(),
+    almen_strip: z.enum(["N", "A", "C"]),
+    shot_media: z.enum(["steel_shot", "steel_cut_wire", "ceramic", "glass_bead", "conditioned_cut_wire"]),
+    shot_size_mm: z.number().positive(),
+    coverage_pct: z.number().min(100).max(600).default(200),
+    surface_area_cm2: z.number().positive().optional(),
+  }).passthrough(),
+
+  // ── Recast Layer ──
+  recast_layer_predict: z.object({
+    process: z.enum(["wire_edm", "sinker_edm", "laser_cut", "laser_drill", "micro_edm"]),
+    material: z.string(),
+    discharge_energy_mJ: z.number().positive().optional(),
+    current_A: z.number().positive().optional(),
+    pulse_on_us: z.number().positive().optional(),
+    pulse_off_us: z.number().positive().optional(),
+  }).passthrough(),
+
+  recast_layer_validate: z.object({
+    process: z.enum(["wire_edm", "sinker_edm", "laser_cut", "laser_drill", "micro_edm"]),
+    material: z.string(),
+    discharge_energy_mJ: z.number().positive().optional(),
+    current_A: z.number().positive().optional(),
+    pulse_on_us: z.number().positive().optional(),
+  }).passthrough(),
+
+  // ── White Layer Detection ──
+  white_layer_predict: z.object({
+    material: z.string(),
+    hardness_HRC: z.number().min(10).max(70),
+    cutting_speed_m_per_min: z.number().positive(),
+    feed_mm_per_rev: z.number().positive(),
+    depth_of_cut_mm: z.number().positive(),
+    tool_wear_VB_mm: z.number().min(0).optional(),
+    coolant: z.boolean().default(true),
+  }).passthrough(),
+
+  white_layer_validate: z.object({
+    material: z.string(),
+    hardness_HRC: z.number().min(10).max(70),
+    cutting_speed_m_per_min: z.number().positive(),
+    feed_mm_per_rev: z.number().positive(),
+    depth_of_cut_mm: z.number().positive(),
+    tool_wear_VB_mm: z.number().min(0).optional(),
+  }).passthrough(),
+
+  // ── Masking Calculator ──
+  masking_calc: z.object({
+    process: z.enum(["plating", "anodize", "paint_coat", "heat_treat", "shot_peen", "passivation"]),
+    features: z.array(z.object({
+      id: z.string(),
+      type: z.string(),
+      area_cm2: z.number().positive().optional(),
+      method: z.enum(["tape", "paint", "plug", "cap", "fixture", "wax"]).optional(),
+    })).min(1),
+  }).passthrough(),
+
+  // ── Process Plan ──
+  process_plan_generate: z.object({
+    part_name: z.string(),
+    material: z.string(),
+    features: z.array(z.object({
+      id: z.string(),
+      category: z.enum(["hole", "pocket", "slot", "face", "profile", "thread", "chamfer", "bore", "groove", "freeform"]),
+      dimensions: z.record(z.string(), z.number()).optional(),
+    })).min(1),
+    tolerance_class: z.string().optional(),
+    batch_size: z.number().int().positive().optional(),
+  }).passthrough(),
+
+  process_plan_optimize: z.object({
+    plan: z.object({
+      operations: z.array(z.any()).min(1),
+    }).passthrough(),
+  }).passthrough(),
+
+  process_plan_estimate_time: z.object({
+    plan: z.object({
+      operations: z.array(z.any()).min(1),
+    }).passthrough(),
+    setup_time_min: z.number().min(0).default(20),
+  }).passthrough(),
+
+  process_plan_validate: z.object({
+    plan: z.object({
+      operations: z.array(z.any()).min(1),
+    }).passthrough(),
+  }).passthrough(),
+
   // ── Thread Calculation ──
   thread_parse: z.object({
     designation: z.string().min(1),
