@@ -23,6 +23,9 @@ let _financial: any;
 let _inventory: any;
 let _jobLifecycle: any;
 let _purchasing: any;
+let _jobCosting: any;
+let _quoting: any;
+let _scheduling: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -42,6 +45,18 @@ async function getEngine(name: string): Promise<any> {
       return _purchasing ??= (
         await import("../../engines/PurchasingDirectoryEngine.js")
       ).purchasingDirectoryEngine;
+    case "jobCosting":
+      return _jobCosting ??= (
+        await import("../../engines/JobCostingEngine.js")
+      ).jobCostingEngine;
+    case "quoting":
+      return _quoting ??= (
+        await import("../../engines/QuotingEngine.js")
+      ).quotingEngine;
+    case "scheduling":
+      return _scheduling ??= (
+        await import("../../engines/JobShopSchedulingEngine.js")
+      ).jobShopSchedulingEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -64,6 +79,15 @@ const ACTIONS = [
   "purchasing_recommend",
   "purchasing_manufacturers",
   "purchasing_summary",
+  "costing_job_cost",
+  "costing_material",
+  "costing_machining",
+  "quoting_generate",
+  "quoting_price_breaks",
+  "scheduling_single_machine",
+  "scheduling_johnsons",
+  "scheduling_job_shop",
+  "scheduling_cpm",
 ] as const;
 
 /** Registers business dispatcher.
@@ -211,6 +235,75 @@ Params vary by action — pass relevant fields in params object.`,
           case "purchasing_summary": {
             const engine = await getEngine("purchasing");
             result = engine.summary();
+            break;
+          }
+
+          // ── Job Costing ──
+          case "costing_job_cost": {
+            const engine = await getEngine("jobCosting");
+            result = engine.calculateJobCost(params);
+            break;
+          }
+          case "costing_material": {
+            const engine = await getEngine("jobCosting");
+            result = engine.calculateMaterialCost(params);
+            break;
+          }
+          case "costing_machining": {
+            const engine = await getEngine("jobCosting");
+            result = engine.calculateMachiningCost(params);
+            break;
+          }
+
+          // ── Quoting ──
+          case "quoting_generate": {
+            const engine = await getEngine("quoting");
+            result = engine.generateQuote(params, {
+              rush: params.rush,
+              repeatOrder: params.repeat_order ?? params.repeatOrder,
+              targetMargin: params.target_margin ?? params.targetMargin,
+              customer: params.customer,
+              notes: params.notes,
+            });
+            break;
+          }
+          case "quoting_price_breaks": {
+            const engine = await getEngine("quoting");
+            result = engine.generatePriceBreaks(
+              params,
+              params.quantities,
+            );
+            break;
+          }
+
+          // ── Scheduling ──
+          case "scheduling_single_machine": {
+            const engine = await getEngine("scheduling");
+            result = engine.scheduleSingleMachine(
+              params.jobs ?? [],
+              params.rule ?? "SPT",
+            );
+            break;
+          }
+          case "scheduling_johnsons": {
+            const engine = await getEngine("scheduling");
+            result = engine.johnsonsAlgorithm(params.jobs ?? []);
+            break;
+          }
+          case "scheduling_job_shop": {
+            const engine = await getEngine("scheduling");
+            result = engine.scheduleJobShop(
+              params.jobs ?? [],
+              params.machines ?? [],
+              params.rule ?? "SPT",
+            );
+            break;
+          }
+          case "scheduling_cpm": {
+            const engine = await getEngine("scheduling");
+            result = engine.criticalPathMethod(
+              params.activities ?? [],
+            );
             break;
           }
 
