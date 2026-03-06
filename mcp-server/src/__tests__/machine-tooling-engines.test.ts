@@ -69,8 +69,8 @@ describe("ToolCribEngine", () => {
   it("checks out a tool", () => {
     const r = toolCribEngine.checkout("EM-10-4F", "OP-001", "HAAS-VF2", "JOB-100");
     expect(r).toBeDefined();
-    // inventory starts empty, so checkout fails gracefully
     expect(r.success).toBeDefined();
+    expect(r.message).toBeDefined();
   });
 
   it("checks in a tool", () => {
@@ -114,8 +114,8 @@ describe("ToolholderDynamicsEngine", () => {
   it("compares two holders", () => {
     const collet = { ...input, holder_type: "collet" as const };
     const r = toolholderDynamicsEngine.compare(input, collet);
-    expect(r).toBeDefined();
     expect(r.recommended).toBeDefined();
+    expect(r.stiffness_ratio).toBeGreaterThan(0);
   });
 
   it("shrink fit stiffer than collet", () => {
@@ -152,7 +152,7 @@ describe("MachinabilityRatingEngine", () => {
       { material_name: "1018" },
       { material_name: "316L" },
     ]);
-    expect(r).toBeDefined();
+    expect(r.materials).toBeDefined();
     expect(r.materials.length).toBe(2);
   });
 });

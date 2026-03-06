@@ -401,7 +401,27 @@ const ACTIONS = [
   "material_interpolate", "material_similarity", "material_compare",
   "ziegler_nichols", "step_response",
   "fft_analyze", "dominant_frequency", "design_fir_filter", "spectrogram",
-  "gradient_optimize", "bfgs_optimize", "golden_section"
+  "gradient_optimize", "bfgs_optimize", "golden_section",
+  // Batch 13: Workholding & Fixture
+  "fixture_design_recommend", "fixture_design_validate", "fixture_clamp_force", "fixture_deflection_calc",
+  "soft_jaw_design", "magnetic_chuck_calc", "tombstone_layout",
+  "workholding_clamp_force", "workholding_pullout", "workholding_liftoff",
+  "fixture_3dp_evaluate", "weld_prep_calc",
+  "twin_create", "twin_predict", "twin_simulate",
+  // Batch 14: Machining Physics & Probing
+  "spline_mill_calc", "spline_mill_validate",
+  "thin_floor_analyze", "thin_floor_min_thickness",
+  "regen_chatter_predict", "regen_chatter_lobes",
+  "harmonic_analyze",
+  "thread_mill_calc", "thread_mill_gcode",
+  "gcode_opt_analyze", "gcode_opt_optimize", "gcode_opt_compare",
+  "probe_routine_generate", "probe_gdt_interpret", "probe_report",
+  "thermal_sim_predict", "thermal_sim_validate", "thermal_sim_optimize",
+  // Batch 15: Specialty Processes
+  "hybrid_laser_calc", "laser_cut_calc", "laser_mark_calc",
+  "waterjet_taper_calc",
+  "microstructure_analyze", "microstructure_recommend",
+  "energy_analyze", "energy_optimize", "energy_compare"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3980,6 +4000,530 @@ export function registerCalcDispatcher(server: any): void {
               params.lower ?? -10,
               params.upper ?? 10,
             );
+            break;
+          }
+
+          // ── Batch 13: Workholding & Fixture ────────────────────────
+          case "fixture_design_recommend": {
+            const { fixtureDesignEngine } = await import("../../engines/FixtureDesignEngine.js");
+            result = fixtureDesignEngine.recommend(
+              { shape: params.shape ?? "prismatic", length_mm: params.length_mm ?? 100, width_mm: params.width_mm ?? 100, height_mm: params.height_mm ?? 50, weight_kg: params.weight_kg ?? 5, material_iso_group: params.material_iso_group ?? "P" },
+              { max_force_N: params.max_force_N ?? 1000, force_direction: params.force_direction ?? "tangential", max_torque_Nm: params.max_torque_Nm, spindle_rpm: params.spindle_rpm }
+            );
+            break;
+          }
+          case "fixture_design_validate": {
+            const { fixtureDesignEngine: fde2 } = await import("../../engines/FixtureDesignEngine.js");
+            result = fde2.validate(
+              { shape: params.shape ?? "prismatic", length_mm: params.length_mm ?? 100, width_mm: params.width_mm ?? 100, height_mm: params.height_mm ?? 50, weight_kg: params.weight_kg ?? 5, material_iso_group: params.material_iso_group ?? "P" },
+              { max_force_N: params.max_force_N ?? 1000, force_direction: params.force_direction ?? "tangential" },
+              params.fixture_type ?? "vise", params.tolerance_mm ?? 0.05
+            );
+            break;
+          }
+          case "fixture_clamp_force": {
+            const { fixtureDesignEngine: fde3 } = await import("../../engines/FixtureDesignEngine.js");
+            result = fde3.clampForce(params.cutting_force_N ?? 1000, params.material_iso_group ?? "P", params.fixture_type ?? "vise", params.serrated ?? true, params.num_clamps ?? 2);
+            break;
+          }
+          case "fixture_deflection_calc": {
+            const { fixtureDesignEngine: fde4 } = await import("../../engines/FixtureDesignEngine.js");
+            result = fde4.deflection(
+              { shape: params.shape ?? "prismatic", length_mm: params.length_mm ?? 100, width_mm: params.width_mm ?? 100, height_mm: params.height_mm ?? 50, weight_kg: params.weight_kg ?? 5, material_iso_group: params.material_iso_group ?? "P" },
+              { max_force_N: params.max_force_N ?? 1000, force_direction: params.force_direction ?? "tangential" },
+              params.fixture_type ?? "vise", params.tolerance_mm ?? 0.05
+            );
+            break;
+          }
+          case "soft_jaw_design": {
+            const { softJawProfileEngine } = await import("../../engines/SoftJawProfileEngine.js");
+            result = softJawProfileEngine.design({
+              workpiece_shape: params.workpiece_shape ?? "round",
+              workpiece_dimension_mm: params.workpiece_dimension_mm ?? 50,
+              workpiece_height_mm: params.workpiece_height_mm ?? 30,
+              workpiece_material: params.workpiece_material ?? "steel",
+              jaw_material: params.jaw_material ?? "6061_aluminum",
+              num_jaws: params.num_jaws ?? 3,
+              chuck_or_vise: params.chuck_or_vise ?? "chuck",
+              clamping_force_N: params.clamping_force_N ?? 5000,
+              grip_depth_mm: params.grip_depth_mm ?? 10,
+              surface_finish_critical: params.surface_finish_critical ?? false,
+            });
+            break;
+          }
+          case "magnetic_chuck_calc": {
+            const { magneticChuckEngine } = await import("../../engines/MagneticChuckEngine.js");
+            result = magneticChuckEngine.calculate({
+              chuck_type: params.chuck_type ?? "permanent",
+              chuck_pull_force_N_per_cm2: params.chuck_pull_force_N_per_cm2 ?? 120,
+              workpiece_length_mm: params.workpiece_length_mm ?? 200,
+              workpiece_width_mm: params.workpiece_width_mm ?? 100,
+              workpiece_thickness_mm: params.workpiece_thickness_mm ?? 20,
+              workpiece_material: params.workpiece_material ?? "steel",
+              workpiece_weight_N: params.workpiece_weight_N ?? 30,
+              contact_area_pct: params.contact_area_pct ?? 100,
+              cutting_force_tangential_N: params.cutting_force_tangential_N ?? 200,
+              cutting_force_normal_N: params.cutting_force_normal_N ?? 100,
+              operation: params.operation ?? "surface_grinding",
+              surface_roughness_Ra_um: params.surface_roughness_Ra_um ?? 0.8,
+            });
+            break;
+          }
+          case "tombstone_layout": {
+            const { tombstoneLayoutEngine } = await import("../../engines/TombstoneLayoutEngine.js");
+            result = tombstoneLayoutEngine.layout({
+              tombstone_faces: params.tombstone_faces ?? 4,
+              face_width_mm: params.face_width_mm ?? 400,
+              face_height_mm: params.face_height_mm ?? 400,
+              part_width_mm: params.part_width_mm ?? 100,
+              part_height_mm: params.part_height_mm ?? 80,
+              part_depth_mm: params.part_depth_mm ?? 50,
+              part_weight_kg: params.part_weight_kg ?? 2,
+              machining_time_per_part_min: params.machining_time_per_part_min ?? 5,
+              tool_change_time_sec: params.tool_change_time_sec ?? 8,
+              index_time_sec: params.index_time_sec ?? 5,
+              load_unload_time_per_part_sec: params.load_unload_time_per_part_sec ?? 30,
+              pallet_change_time_sec: params.pallet_change_time_sec ?? 15,
+              clearance_mm: params.clearance_mm ?? 20,
+              max_table_load_kg: params.max_table_load_kg ?? 500,
+              spindle_reach_mm: params.spindle_reach_mm ?? 500,
+            });
+            break;
+          }
+          case "workholding_clamp_force": {
+            const { workholdingEngine } = await import("../../engines/WorkholdingEngine.js");
+            result = workholdingEngine.calculateClampForceRequired(
+              { Fc: params.Fc ?? 500, Ff: params.Ff ?? 200, Fp: params.Fp ?? 150 },
+              { type: params.device_type ?? "VICE_SERRATED", surfaceCondition: params.surface_condition, frictionCoefficient: params.friction_coefficient, maxClampForce: params.max_clamp_force_N },
+              { operationType: params.operation_type ?? "MILLING", cuttingForces: { Fc: params.Fc ?? 500, Ff: params.Ff ?? 200, Fp: params.Fp ?? 150 }, forceApplicationPoint: params.force_point ?? { x: 0, y: 0, z: 0 } },
+              params.safety_factor
+            );
+            break;
+          }
+          case "workholding_pullout": {
+            const { workholdingEngine: whe2 } = await import("../../engines/WorkholdingEngine.js");
+            result = whe2.calculatePulloutResistance(
+              params.axial_force_N ?? 500,
+              { device: { type: params.device_type ?? "VICE_SERRATED" }, clampLocations: params.clamp_locations ?? [{ id: "c1", x: 0, y: 0, z: 0, forceDirection: "DOWN", clampForce: params.clamp_force_N ?? 5000 }], partOrientation: params.part_orientation ?? "HORIZONTAL" },
+              { type: params.device_type ?? "VICE_SERRATED" },
+              params.safety_factor ?? 2.5
+            );
+            break;
+          }
+          case "workholding_liftoff": {
+            const { workholdingEngine: whe3 } = await import("../../engines/WorkholdingEngine.js");
+            result = whe3.analyzeLiftoffMoment(
+              { Fc: params.Fc ?? 500, Ff: params.Ff ?? 200, Fp: params.Fp ?? 150 },
+              { operationType: params.operation_type ?? "MILLING", cuttingForces: { Fc: params.Fc ?? 500, Ff: params.Ff ?? 200, Fp: params.Fp ?? 150 }, forceApplicationPoint: params.force_point ?? { x: 50, y: 25, z: 0 } },
+              { device: { type: params.device_type ?? "VICE_SERRATED" }, clampLocations: params.clamp_locations ?? [{ id: "c1", x: 0, y: 0, z: 0, forceDirection: "DOWN", clampForce: params.clamp_force_N ?? 5000 }], partOrientation: "HORIZONTAL" },
+              { material: params.material ?? "steel", elasticModulus: params.elastic_modulus_GPa ?? 200, length: params.length_mm ?? 100, width: params.width_mm ?? 50, height: params.height_mm ?? 30 }
+            );
+            break;
+          }
+          case "fixture_3dp_evaluate": {
+            const { threeDPrintedFixtureEngine } = await import("../../engines/ThreeDPrintedFixtureEngine.js");
+            result = threeDPrintedFixtureEngine.evaluate({
+              process: params.process ?? "FDM",
+              material: params.material ?? "PETG",
+              fixture_volume_cm3: params.fixture_volume_cm3 ?? 200,
+              max_cutting_force_N: params.max_cutting_force_N ?? 500,
+              max_temperature_C: params.max_temperature_C ?? 40,
+              coolant_exposure: params.coolant_exposure ?? true,
+              required_accuracy_mm: params.required_accuracy_mm ?? 0.1,
+              batch_size: params.batch_size ?? 10,
+              conventional_cost_USD: params.conventional_cost_USD ?? 500,
+              conventional_lead_days: params.conventional_lead_days ?? 10,
+            });
+            break;
+          }
+          case "weld_prep_calc": {
+            const { weldPrepEngine } = await import("../../engines/WeldPrepEngine.js");
+            result = weldPrepEngine.calculate({
+              joint_type: params.joint_type ?? "butt",
+              groove_type: params.groove_type ?? "V",
+              plate_thickness_mm: params.plate_thickness_mm ?? 12,
+              material: params.material ?? "mild_steel",
+              weld_process: params.weld_process ?? "GMAW",
+              bevel_angle_deg: params.bevel_angle_deg,
+              root_gap_mm: params.root_gap_mm,
+              root_face_mm: params.root_face_mm,
+              groove_radius_mm: params.groove_radius_mm,
+            });
+            break;
+          }
+          case "twin_create": {
+            const { digitalTwinEngine } = await import("../../engines/DigitalTwinEngine.js");
+            result = digitalTwinEngine.create(params.machine_id ?? "MC-001", params.machine_name ?? "CNC Mill", params.model ?? "VMC-500");
+            break;
+          }
+          case "twin_predict": {
+            const { digitalTwinEngine: dte2 } = await import("../../engines/DigitalTwinEngine.js");
+            result = dte2.predict(params.machine_id ?? "MC-001");
+            break;
+          }
+          case "twin_simulate": {
+            const { digitalTwinEngine: dte3 } = await import("../../engines/DigitalTwinEngine.js");
+            result = dte3.simulate(params.machine_id ?? "MC-001", params.scenario ?? "spindle_speed", params.parameter_change ?? 10);
+            break;
+          }
+
+          // ── Batch 14: Machining Physics & Probing ─────────────────
+          case "spline_mill_calc": {
+            const { splineMillingEngine } = await import("../../engines/SplineMillingEngine.js");
+            result = splineMillingEngine.calculate({
+              spline_type: params.spline_type ?? "involute",
+              num_teeth: params.num_teeth ?? 20,
+              module_mm: params.module_mm,
+              pressure_angle_deg: params.pressure_angle_deg ?? 30,
+              major_diameter_mm: params.major_diameter_mm ?? 50,
+              minor_diameter_mm: params.minor_diameter_mm ?? 42,
+              face_width_mm: params.face_width_mm ?? 20,
+              internal: params.internal ?? false,
+              index_method: params.index_method ?? "c_axis",
+              tool_diameter_mm: params.tool_diameter_mm ?? 6,
+              tool_num_flutes: params.tool_num_flutes ?? 4,
+              spindle_rpm: params.spindle_rpm ?? 3000,
+              feed_per_tooth_mm: params.feed_per_tooth_mm ?? 0.04,
+              num_depth_passes: params.num_depth_passes ?? 3,
+            });
+            break;
+          }
+          case "spline_mill_validate": {
+            const { splineMillingEngine: sme2 } = await import("../../engines/SplineMillingEngine.js");
+            const calcInput = {
+              spline_type: params.spline_type ?? "involute",
+              num_teeth: params.num_teeth ?? 20,
+              module_mm: params.module_mm,
+              pressure_angle_deg: params.pressure_angle_deg ?? 30,
+              major_diameter_mm: params.major_diameter_mm ?? 50,
+              minor_diameter_mm: params.minor_diameter_mm ?? 42,
+              face_width_mm: params.face_width_mm ?? 20,
+              internal: params.internal ?? false,
+              index_method: params.index_method ?? "c_axis",
+              tool_diameter_mm: params.tool_diameter_mm ?? 6,
+              tool_num_flutes: params.tool_num_flutes ?? 4,
+              spindle_rpm: params.spindle_rpm ?? 3000,
+              feed_per_tooth_mm: params.feed_per_tooth_mm ?? 0.04,
+              num_depth_passes: params.num_depth_passes ?? 3,
+            };
+            result = sme2.validate(calcInput, params.fit_class ?? "B");
+            break;
+          }
+          case "thin_floor_analyze": {
+            const { thinFloorVibrationEngine } = await import("../../engines/ThinFloorVibrationEngine.js");
+            result = thinFloorVibrationEngine.analyze({
+              geometry: params.geometry ?? "floor",
+              thickness_mm: params.thickness_mm ?? 1.5,
+              unsupported_length_mm: params.unsupported_length_mm ?? 80,
+              unsupported_width_mm: params.unsupported_width_mm,
+              material_E_GPa: params.material_E_GPa ?? 70,
+              material_density_kgm3: params.material_density_kgm3 ?? 2700,
+              material_poisson: params.material_poisson ?? 0.33,
+              cutting_force_N: params.cutting_force_N ?? 50,
+              spindle_rpm: params.spindle_rpm ?? 8000,
+              num_flutes: params.num_flutes ?? 2,
+              tool_diameter_mm: params.tool_diameter_mm ?? 6,
+            });
+            break;
+          }
+          case "thin_floor_min_thickness": {
+            const { thinFloorVibrationEngine: tfv2 } = await import("../../engines/ThinFloorVibrationEngine.js");
+            const tfInput = {
+              geometry: params.geometry ?? "floor",
+              thickness_mm: 1, // placeholder
+              unsupported_length_mm: params.unsupported_length_mm ?? 80,
+              unsupported_width_mm: params.unsupported_width_mm,
+              material_E_GPa: params.material_E_GPa ?? 70,
+              material_density_kgm3: params.material_density_kgm3 ?? 2700,
+              material_poisson: params.material_poisson ?? 0.33,
+              cutting_force_N: params.cutting_force_N ?? 50,
+              spindle_rpm: params.spindle_rpm ?? 8000,
+              num_flutes: params.num_flutes ?? 2,
+              tool_diameter_mm: params.tool_diameter_mm ?? 6,
+            };
+            result = { min_thickness_mm: tfv2.minThickness(tfInput, params.target_deflection_um ?? 10) };
+            break;
+          }
+          case "regen_chatter_predict": {
+            const { regenerativeChatterPredictor } = await import("../../engines/RegenerativeChatterPredictor.js");
+            result = regenerativeChatterPredictor.predict({
+              cut_type: params.cut_type ?? "half_immersion_down",
+              spindle_rpm: params.spindle_rpm ?? 6000,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 3,
+              num_flutes: params.num_flutes ?? 4,
+              tool_diameter_mm: params.tool_diameter_mm ?? 12,
+              natural_freq_Hz: params.natural_freq_Hz ?? 800,
+              stiffness_N_per_m: params.stiffness_N_per_m ?? 1e7,
+              damping_ratio: params.damping_ratio ?? 0.03,
+              specific_cutting_force_N_mm2: params.specific_cutting_force_N_mm2 ?? 2000,
+              radial_depth_mm: params.radial_depth_mm,
+            });
+            break;
+          }
+          case "regen_chatter_lobes": {
+            const { regenerativeChatterPredictor: rcp2 } = await import("../../engines/RegenerativeChatterPredictor.js");
+            const rcInput = {
+              cut_type: params.cut_type ?? "half_immersion_down",
+              spindle_rpm: 0, depth_of_cut_mm: 0,
+              num_flutes: params.num_flutes ?? 4,
+              tool_diameter_mm: params.tool_diameter_mm ?? 12,
+              natural_freq_Hz: params.natural_freq_Hz ?? 800,
+              stiffness_N_per_m: params.stiffness_N_per_m ?? 1e7,
+              damping_ratio: params.damping_ratio ?? 0.03,
+              specific_cutting_force_N_mm2: params.specific_cutting_force_N_mm2 ?? 2000,
+              radial_depth_mm: params.radial_depth_mm,
+            };
+            result = rcp2.stabilityLobes(rcInput, [params.rpm_min ?? 2000, params.rpm_max ?? 12000]);
+            break;
+          }
+          case "harmonic_analyze": {
+            const { harmonicAnalysisEngine } = await import("../../engines/HarmonicAnalysisEngine.js");
+            result = harmonicAnalysisEngine.analyze({
+              spindle_rpm: params.spindle_rpm ?? 6000,
+              num_flutes: params.num_flutes ?? 4,
+              vibration_spectrum: params.vibration_spectrum ?? [{ freq_Hz: 400, amplitude_um: 8 }],
+              bearing_params: params.bearing_params,
+              machine_natural_freqs_Hz: params.machine_natural_freqs_Hz,
+              threshold_um: params.threshold_um,
+            });
+            break;
+          }
+          case "thread_mill_calc": {
+            const { threadMillingEngine } = await import("../../engines/ThreadMillingEngine.js");
+            result = threadMillingEngine.calculate({
+              thread_form: params.thread_form ?? "metric",
+              nominal_diameter_mm: params.nominal_diameter_mm ?? 20,
+              pitch_mm: params.pitch_mm ?? 2.5,
+              internal: params.internal ?? true,
+              direction: params.direction ?? "right_hand",
+              thread_depth_mm: params.thread_depth_mm ?? 1.35,
+              thread_length_mm: params.thread_length_mm ?? 20,
+              mill_approach: params.mill_approach ?? "single_form",
+              tool_diameter_mm: params.tool_diameter_mm ?? 14,
+              num_flutes: params.num_flutes ?? 3,
+              num_radial_passes: params.num_radial_passes ?? 1,
+              spindle_rpm: params.spindle_rpm ?? 2000,
+              material_specific_force_N_mm2: params.material_specific_force_N_mm2 ?? 2000,
+            });
+            break;
+          }
+          case "thread_mill_gcode": {
+            const { threadMillingEngine: tme2 } = await import("../../engines/ThreadMillingEngine.js");
+            result = tme2.generateGCode({
+              thread_form: params.thread_form ?? "metric",
+              nominal_diameter_mm: params.nominal_diameter_mm ?? 20,
+              pitch_mm: params.pitch_mm ?? 2.5,
+              internal: params.internal ?? true,
+              direction: params.direction ?? "right_hand",
+              thread_depth_mm: params.thread_depth_mm ?? 1.35,
+              thread_length_mm: params.thread_length_mm ?? 20,
+              mill_approach: params.mill_approach ?? "single_form",
+              tool_diameter_mm: params.tool_diameter_mm ?? 14,
+              num_flutes: params.num_flutes ?? 3,
+              num_radial_passes: params.num_radial_passes ?? 1,
+              spindle_rpm: params.spindle_rpm ?? 2000,
+              material_specific_force_N_mm2: params.material_specific_force_N_mm2 ?? 2000,
+            }, params.controller ?? "fanuc");
+            break;
+          }
+          case "gcode_opt_analyze": {
+            const { gcodeOptimizationEngine } = await import("../../engines/GCodeOptimizationEngine.js");
+            result = gcodeOptimizationEngine.analyze(params.gcode ?? "");
+            break;
+          }
+          case "gcode_opt_optimize": {
+            const { gcodeOptimizationEngine: goe4 } = await import("../../engines/GCodeOptimizationEngine.js");
+            result = goe4.optimize(params.gcode ?? "");
+            break;
+          }
+          case "gcode_opt_compare": {
+            const { gcodeOptimizationEngine: goe5 } = await import("../../engines/GCodeOptimizationEngine.js");
+            result = goe5.compare(params.gcode_a ?? "", params.gcode_b ?? "");
+            break;
+          }
+          case "probe_routine_generate": {
+            const { probeRoutineEngine } = await import("../../engines/ProbeRoutineEngine.js");
+            result = probeRoutineEngine.generate({
+              id: params.id ?? "F1",
+              callout: params.callout ?? "position",
+              tolerance_mm: params.tolerance_mm ?? 0.05,
+              datum_refs: params.datum_refs,
+              mmc: params.mmc,
+              feature_type: params.feature_type ?? "hole",
+              nominal: params.nominal ?? { diameter_mm: 10, x_mm: 50, y_mm: 50 },
+            });
+            break;
+          }
+          case "probe_gdt_interpret": {
+            const { probeRoutineEngine: pre2 } = await import("../../engines/ProbeRoutineEngine.js");
+            result = pre2.interpretGDT(params.callout ?? "position", params.tolerance_mm ?? 0.05, params.datum_refs);
+            break;
+          }
+          case "probe_report": {
+            const { probeRoutineEngine: pre3 } = await import("../../engines/ProbeRoutineEngine.js");
+            result = pre3.report(
+              { id: params.id ?? "F1", callout: params.callout ?? "position", tolerance_mm: params.tolerance_mm ?? 0.05, feature_type: params.feature_type ?? "hole", nominal: params.nominal ?? { diameter_mm: 10 } },
+              params.measured ?? {}
+            );
+            break;
+          }
+          case "thermal_sim_predict": {
+            const { thermalSimEngine } = await import("../../engines/ThermalSimEngine.js");
+            result = thermalSimEngine.predict({
+              cutting_speed_mmin: params.cutting_speed_mmin ?? 150,
+              feed_mm: params.feed_mm ?? 0.1,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 2,
+              iso_material_group: params.iso_material_group ?? "P",
+              tool_material: params.tool_material ?? "carbide",
+              coolant: params.coolant ?? "flood",
+              operation: params.operation ?? "milling",
+              part_thickness_mm: params.part_thickness_mm,
+              ambient_temp_C: params.ambient_temp_C,
+            });
+            break;
+          }
+          case "thermal_sim_validate": {
+            const { thermalSimEngine: tse2 } = await import("../../engines/ThermalSimEngine.js");
+            result = tse2.validate({
+              cutting_speed_mmin: params.cutting_speed_mmin ?? 150,
+              feed_mm: params.feed_mm ?? 0.1,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 2,
+              iso_material_group: params.iso_material_group ?? "P",
+              tool_material: params.tool_material ?? "carbide",
+              coolant: params.coolant ?? "flood",
+              operation: params.operation ?? "milling",
+            });
+            break;
+          }
+          case "thermal_sim_optimize": {
+            const { thermalSimEngine: tse3 } = await import("../../engines/ThermalSimEngine.js");
+            result = tse3.optimize({
+              cutting_speed_mmin: params.cutting_speed_mmin ?? 150,
+              feed_mm: params.feed_mm ?? 0.1,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? 2,
+              iso_material_group: params.iso_material_group ?? "P",
+              tool_material: params.tool_material ?? "carbide",
+              coolant: params.coolant ?? "flood",
+              operation: params.operation ?? "milling",
+            });
+            break;
+          }
+
+          // ── Batch 15: Specialty Processes ──────────────────────────
+          case "hybrid_laser_calc": {
+            const { hybridLaserMachineEngine } = await import("../../engines/HybridLaserMachineEngine.js");
+            result = hybridLaserMachineEngine.calculate({
+              process: params.process ?? "laser_assisted_milling",
+              laser_power_W: params.laser_power_W ?? 500,
+              spot_diameter_mm: params.spot_diameter_mm ?? 3,
+              workpiece_material: params.workpiece_material ?? "titanium",
+              preheat_target_C: params.preheat_target_C,
+              cutting_speed_m_per_min: params.cutting_speed_m_per_min,
+              feed_mm_per_rev: params.feed_mm_per_rev,
+              depth_of_cut_mm: params.depth_of_cut_mm,
+              clad_material: params.clad_material,
+              powder_feed_g_per_min: params.powder_feed_g_per_min,
+              layer_height_mm: params.layer_height_mm,
+              track_width_mm: params.track_width_mm,
+            });
+            break;
+          }
+          case "laser_cut_calc": {
+            const { laserCutInterfaceEngine } = await import("../../engines/LaserCutInterfaceEngine.js");
+            result = laserCutInterfaceEngine.calculate({
+              laser_type: params.laser_type ?? "fiber",
+              power_W: params.power_W ?? 4000,
+              material: params.material ?? "mild_steel",
+              thickness_mm: params.thickness_mm ?? 6,
+              assist_gas: params.assist_gas ?? "N2",
+              gas_pressure_bar: params.gas_pressure_bar ?? 12,
+              focus_position_mm: params.focus_position_mm ?? -1,
+              nozzle_diameter_mm: params.nozzle_diameter_mm ?? 2.0,
+              beam_quality_mm_mrad: params.beam_quality_mm_mrad,
+            });
+            break;
+          }
+          case "laser_mark_calc": {
+            const { laserMarkingEngine } = await import("../../engines/LaserMarkingEngine.js");
+            result = laserMarkingEngine.calculate({
+              laser_source: params.laser_source ?? "fiber_1064",
+              power_W: params.power_W ?? 30,
+              mark_type: params.mark_type ?? "engrave",
+              content_type: params.content_type ?? "data_matrix",
+              material: params.material ?? "stainless",
+              mark_area_mm2: params.mark_area_mm2 ?? 100,
+              character_height_mm: params.character_height_mm ?? 3,
+              line_count: params.line_count,
+              scan_speed_mm_per_sec: params.scan_speed_mm_per_sec,
+              frequency_kHz: params.frequency_kHz,
+              compliance_standard: params.compliance_standard,
+            });
+            break;
+          }
+          case "waterjet_taper_calc": {
+            const { waterjetTaperEngine } = await import("../../engines/WaterjetTaperEngine.js");
+            result = waterjetTaperEngine.calculate({
+              material: params.material ?? "mild_steel",
+              thickness_mm: params.thickness_mm ?? 25,
+              cutting_speed_mm_per_min: params.cutting_speed_mm_per_min ?? 200,
+              pump_pressure_MPa: params.pump_pressure_MPa ?? 400,
+              orifice_diameter_mm: params.orifice_diameter_mm ?? 0.35,
+              mixing_tube_diameter_mm: params.mixing_tube_diameter_mm ?? 1.0,
+              abrasive_flow_g_per_min: params.abrasive_flow_g_per_min ?? 350,
+              standoff_mm: params.standoff_mm ?? 2,
+              target_quality: params.target_quality ?? "Q3_medium",
+              has_tilt_head: params.has_tilt_head ?? false,
+            });
+            break;
+          }
+          case "microstructure_analyze": {
+            const { microstructureEffectEngine } = await import("../../engines/MicrostructureEffectEngine.js");
+            result = microstructureEffectEngine.analyze({
+              material_class: params.material_class ?? "steel",
+              grain_size_ASTM: params.grain_size_ASTM ?? 7,
+              hardness_HRC: params.hardness_HRC ?? 30,
+              phases: params.phases ?? [{ phase: "pearlite", fraction_pct: 60 }, { phase: "ferrite", fraction_pct: 40 }],
+              prior_processing: params.prior_processing,
+              inclusion_rating: params.inclusion_rating,
+            });
+            break;
+          }
+          case "microstructure_recommend": {
+            const { microstructureEffectEngine: mee2 } = await import("../../engines/MicrostructureEffectEngine.js");
+            result = mee2.recommend({
+              material_class: params.material_class ?? "steel",
+              grain_size_ASTM: params.grain_size_ASTM ?? 7,
+              hardness_HRC: params.hardness_HRC ?? 30,
+              phases: params.phases ?? [{ phase: "pearlite", fraction_pct: 60 }, { phase: "ferrite", fraction_pct: 40 }],
+              prior_processing: params.prior_processing,
+              inclusion_rating: params.inclusion_rating,
+            });
+            break;
+          }
+          case "energy_analyze": {
+            const { energyOptimizationEngine } = await import("../../engines/EnergyOptimizationEngine.js");
+            result = energyOptimizationEngine.analyze({
+              operations: params.operations ?? [{ operation_name: "roughing", cutting_time_min: 10, spindle_rpm: 3000, feed_rate_mmmin: 500, depth_of_cut_mm: 3, radial_depth_mm: 10, tool_diameter_mm: 20, material_iso_group: "P", coolant_active: true }],
+              machine_power_kW: params.machine_power_kW ?? 22,
+              idle_power_kW: params.idle_power_kW,
+              coolant_pump_kW: params.coolant_pump_kW,
+              electricity_cost_per_kWh: params.electricity_cost_per_kWh,
+            });
+            break;
+          }
+          case "energy_optimize": {
+            const { energyOptimizationEngine: eoe2 } = await import("../../engines/EnergyOptimizationEngine.js");
+            result = eoe2.optimize({
+              operations: params.operations ?? [{ operation_name: "roughing", cutting_time_min: 10, spindle_rpm: 3000, feed_rate_mmmin: 500, depth_of_cut_mm: 3, radial_depth_mm: 10, tool_diameter_mm: 20, material_iso_group: "P", coolant_active: true }],
+              machine_power_kW: params.machine_power_kW ?? 22,
+              idle_power_kW: params.idle_power_kW,
+              electricity_cost_per_kWh: params.electricity_cost_per_kWh,
+            });
+            break;
+          }
+          case "energy_compare": {
+            const { energyOptimizationEngine: eoe3 } = await import("../../engines/EnergyOptimizationEngine.js");
+            result = eoe3.compare(params.scenarios ?? []);
             break;
           }
 
