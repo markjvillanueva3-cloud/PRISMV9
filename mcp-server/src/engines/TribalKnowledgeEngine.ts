@@ -27,6 +27,8 @@ export interface KnowledgeTip {
 }
 
 // Core manufacturing categories (always tracked for coverage gaps)
+/** C O R E_ C A T E G O R I E S constant.
+ */
 export const CORE_CATEGORIES = [
   "setup", "tooling", "speeds_feeds", "fixturing",
   "surface_finish", "thread", "safety", "maintenance",
@@ -34,6 +36,8 @@ export const CORE_CATEGORIES = [
 ] as const;
 
 // Extended categories for non-machining domains (auto-created by /video-learn)
+/** Knowledge Category type definition.
+ */
 export type KnowledgeCategory =
   | typeof CORE_CATEGORIES[number]
   | "programming" | "electronics" | "automation" | "metrology"
@@ -41,6 +45,8 @@ export type KnowledgeCategory =
   | "lean_manufacturing" | "additive" | "inspection"
   | (string & {});  // extensible — any string accepted for dynamic categories
 
+/** Knowledge Search Input configuration/data structure.
+ */
 export interface KnowledgeSearchInput {
   query?: string;
   material_iso_group?: string;
@@ -50,12 +56,16 @@ export interface KnowledgeSearchInput {
   limit?: number;
 }
 
+/** Knowledge Suggestion configuration/data structure.
+ */
 export interface KnowledgeSuggestion {
   tips: KnowledgeTip[];
   relevance_scores: Record<string, number>;
   context_match: string;
 }
 
+/** Knowledge Stats configuration/data structure.
+ */
 export interface KnowledgeStats {
   total_tips: number;
   by_category: Record<string, number>;
@@ -207,12 +217,20 @@ const KNOWLEDGE_BASE: KnowledgeTip[] = [
   { id: "TK-DL-mazak-008", title: "Automatic corner override — feed reduction at direction changes", body: "Both Mazatrol and EIA programs benefit from automatic corner override: the control reduces feed rate when approaching sharp direction changes to prevent tool shock, surface marks, and overshooting. In Mazatrol line machining, the override angle and deceleration factor are set per unit. For EIA programs, parameter-based corner deceleration activates when the included angle between consecutive moves falls below a threshold. This is especially important for finish passes where corner quality directly impacts part accuracy and surface finish.", category: "strategy", tags: ["mazak", "corner-override", "feed-reduction", "direction-change", "surface-quality"], confidence: 85, source: "document:mazak-mazatrol-matrix@ch3-6-7", created_at: "2026-03-06", usage_count: 0 },
   { id: "TK-DL-mazak-009", title: "INTEGREX mill-turn: upper/lower turret priority and synchronization", body: "INTEGREX IV machines have upper milling spindle + lower turret for simultaneous operations. The 'Priority Function for Same Tool' optimizes tool changes by reusing the same tool across multiple units without returning to the magazine. Lower turret control allows turning operations to run simultaneously with milling operations on the upper spindle. Key constraint: when both turrets are active, the feed rate is limited by the slower operation. Program synchronization points (M-codes) ensure turret positions don't conflict. This dual-turret capability can reduce cycle times by 30-50% on complex parts.", category: "strategy", tags: ["mazak", "integrex", "mill-turn", "dual-turret", "synchronization", "cycle-time"], confidence: 85, source: "document:mazak-mazatrol-matrix@ch4-5", created_at: "2026-03-06", usage_count: 0 },
   { id: "TK-DL-mazak-010", title: "Mazatrol 3D units: 11 curved surface types for conversational 3D machining", body: "Mazatrol Matrix 3D provides 11 unit types for machining free-form curved surfaces using conversational programming (no CAM software needed). Surfaces are defined by guide lines (GL) and cross-sections. The system generates roughing and finishing toolpaths automatically. Key advantage: shop-floor programmers can create 3D programs directly on the control without CAD/CAM knowledge. Limitations: complex multi-surface blends and undercuts still require external CAM. Best used for simple molds, dies, and sculptured features on INTEGREX machines where the geometry can be described by cross-sectional profiles.", category: "strategy", tags: ["mazak", "mazatrol", "3d-machining", "conversational", "curved-surface", "mold"], confidence: 82, source: "document:mazak-3d-unit@ch1-2", created_at: "2026-03-06", usage_count: 0 },
+  // --- Batch 5: Okuma OSP-P300 Special Functions + CNCCookbook ---
+  { id: "TK-DL-okuma-001", title: "Okuma TAS-S/TAS-C: real-time thermal deformation compensation at 0.1um", body: "Okuma's Thermo-Active Stabilizer has three modes: TAS-S compensates spindle bearing/motor heat during rotation, TAS-C compensates machine body deformation from ambient temperature changes, and TAS-C with thermal expansion handles differential expansion across wide-travel machines (double-column). Temperature sensors embedded throughout the machine feed data to the NC which calculates and applies compensation in real-time at 0.1um resolution — finer than the 1um minimum NC data unit. Always active in all modes (auto/MDI/manual). Compensation is transparent to the operator (doesn't affect displayed coordinates or tool offsets).", category: "setup", tags: ["okuma", "osp-p300", "thermal-compensation", "tas", "accuracy", "real-time"], confidence: 92, source: "document:okuma-osp-p300-special@sec28", created_at: "2026-03-06", usage_count: 0 },
+  { id: "TK-DL-okuma-002", title: "Okuma tool life management: 7 determination modes for automatic replacement", body: "Okuma OSP-P300 supports 7 tool life determination modes: (1) used time, (2) travel distance, (3) machining cycle count, and combinations thereof. Tools are organized in groups; when a tool reaches its life limit, the control automatically selects the next tool in the group. The TOOL LIFE sheet displays current tool status with the active tool highlighted yellow. Life data can be reset per-tool or per-group. This enables lights-out machining by pre-loading redundant tools and letting the control manage replacements automatically.", category: "setup", tags: ["okuma", "osp-p300", "tool-life", "management", "automatic-replacement", "lights-out"], confidence: 88, source: "document:okuma-osp-p300-special@sec21", created_at: "2026-03-06", usage_count: 0 },
+  { id: "TK-DL-okuma-003", title: "Okuma simplified load monitor: detect tool breakage and overload in real-time", body: "The OSP-P300 simplified load monitor continuously tracks spindle and axis servo loads during machining. When load exceeds programmed thresholds, the control can alarm, retract, or skip to the next tool. Key for detecting: broken tools (sudden load drop), worn tools (gradual load increase), and collision events (spike). Set upper limit slightly above normal cutting load for the operation. The monitor displays real-time load bars on screen. Particularly valuable for unattended production runs where operator visual/audio detection is unavailable.", category: "safety", tags: ["okuma", "osp-p300", "load-monitor", "tool-breakage", "overload", "unattended"], confidence: 88, source: "document:okuma-osp-p300-special@sec6", created_at: "2026-03-06", usage_count: 0 },
+  { id: "TK-DL-okuma-004", title: "Okuma cycle time reduction: block overlap and corner smoothing", body: "OSP-P300 cycle time reduction function optimizes motion by overlapping block processing and smoothing corner transitions. Instead of decelerating to zero at each block boundary, the control calculates allowable corner speed based on axis acceleration limits and programmed tolerance. This is most effective for programs with many short linear segments (typical CAM output). The function is similar to Fanuc's AI Contour Control and Siemens CYCLE832 but uses Okuma-specific parameters. Enable via NC parameter; the effect is most dramatic on 3D surface finishing where thousands of micro-segments would otherwise cause jerky motion.", category: "strategy", tags: ["okuma", "osp-p300", "cycle-time", "corner-smoothing", "block-overlap", "hsm"], confidence: 85, source: "document:okuma-osp-p300-special@sec9", created_at: "2026-03-06", usage_count: 0 },
+  { id: "TK-DL-cnc-021", title: "Mill CAM engraving trick: generate lathe profiles using mill CAM software", body: "If you have mill CAM but no lathe CAM, use the engraving/profiling toolpath to generate turning profiles. Draw the desired turned profile in CAD (XZ cross-section), import to mill CAM, and run an engraving toolpath along the contour. The output G-code contains the XZ coordinates of your profile. Strip the mill-specific codes (G17, spindle, etc.) and wrap the coordinates with G71 (rough turning cycle) header. The G71 cycle handles roughing passes automatically from the profile. This avoids manual coordinate calculation for complex turned profiles with arcs and tapers.", category: "programming", tags: ["lathe", "mill-cam", "engraving", "g71", "profile", "workaround"], confidence: 82, source: "document:cnccookbook-mill-cam-lathe@trick", created_at: "2026-03-06", usage_count: 0 },
 ];
 
 // ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
+/** Tribal Knowledge Engine engine/manager.
+ */
 export class TribalKnowledgeEngine {
   private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE];
 
@@ -288,4 +306,6 @@ export class TribalKnowledgeEngine {
   }
 }
 
+/** Tribal Knowledge Engine constant.
+ */
 export const tribalKnowledgeEngine = new TribalKnowledgeEngine();
