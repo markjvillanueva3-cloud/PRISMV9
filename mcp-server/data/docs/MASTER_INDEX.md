@@ -329,8 +329,8 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (282 exported + 49 unwired = 331 total .ts files)
-## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE B31-34 (2026-03-06)
+## 4. ENGINES (330 exported + 5 infra = 335 total .ts files, 100% tested)
+## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE B31-35 (2026-03-06)
 
 ### 4a. Calculation Engines (25 exported)
 - ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
