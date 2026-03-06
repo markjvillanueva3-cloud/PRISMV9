@@ -369,6 +369,46 @@ describe("TribalKnowledgeEngine", () => {
     expect(stats.total_tips).toBeGreaterThanOrEqual(12);
     expect(stats.most_used.length).toBeGreaterThan(0);
   });
+
+  test("search finds Siemens SINUMERIK 5-axis tips", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "TRAORI", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-siemens-5ax-001")).toBe(true);
+  });
+
+  test("search finds COMPCAD vs COMPCURV strategy tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "COMPCURV", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-siemens-5ax-002")).toBe(true);
+  });
+
+  test("search finds G71 rough turning tip with U-word overload", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "U-word", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-g71-001")).toBe(true);
+  });
+
+  test("search finds G76 threading with constant-area scheduling", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "constant-area", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-g76-001")).toBe(true);
+  });
+
+  test("search finds face milling lead angle tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "wiper insert", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-face-mill-001")).toBe(true);
+  });
+
+  test("search finds deep hole drilling L/D ratio tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "gun drill", limit: 5 });
+    expect(tips.some(t => t.id === "TK-DL-deep-hole-001")).toBe(true);
+  });
+
+  test("search finds InventorCAM HSM finishing strategies", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "iMachining", limit: 5 });
+    expect(tips.some(t => t.id.startsWith("TK-DL-inventorcam-hs"))).toBe(true);
+  });
+
+  test("search finds Okuma named variables and LAP tip", () => {
+    const tips = tribalKnowledgeEngine.search({ query: "LAP", limit: 10 });
+    expect(tips.some(t => t.id === "TK-DL-okuma-002")).toBe(true);
+  });
 });
 
 // ============================================================================
