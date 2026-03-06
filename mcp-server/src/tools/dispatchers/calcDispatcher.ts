@@ -325,7 +325,8 @@ const ACTIONS = [
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
   "roughness_convert", "peck_drill_optimize",
   "drill_cycle_optimize", "coating_select",
-  "geometry_select", "insert_grade_select", "coolant_recommend"
+  "geometry_select", "insert_grade_select", "coolant_recommend",
+  "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -487,7 +488,7 @@ export function registerCalcDispatcher(server: any): void {
               radial_depth: params.radial_depth,
               tool_diameter: params.tool_diameter,
               number_of_teeth: params.number_of_teeth,
-              rake_angle: params.rake_angle || 6
+              rake_angle: params.rake_angle ?? 6
             };
             
             let coefficients: KienzleCoefficients;
@@ -547,11 +548,11 @@ export function registerCalcDispatcher(server: any): void {
           case "speed_feed": {
             // R1: Pass SpeedFeedInput object, not positional args
             const sfInput = {
-              material_hardness: params.material_hardness || 200,
-              tool_material: params.tool_material || "Carbide",
-              operation: params.operation || "semi-finishing",
-              tool_diameter: params.tool_diameter || 12,
-              number_of_teeth: params.number_of_teeth || 4,
+              material_hardness: params.material_hardness ?? 200,
+              tool_material: params.tool_material ?? "Carbide",
+              operation: params.operation ?? "semi-finishing",
+              tool_diameter: params.tool_diameter ?? 12,
+              number_of_teeth: params.number_of_teeth ?? 4,
               kienzle: undefined as any,
               taylor: undefined as any,
             };
@@ -1750,6 +1751,43 @@ export function registerCalcDispatcher(server: any): void {
               environmental_priority: params.environmental_priority ?? params.eco,
               workpiece_hardness_hrc: params.hardness_hrc || params.hardness,
             });
+            break;
+          }
+
+          // ── Monte Carlo Simulation ──
+          case "monte_carlo_simulate": {
+            const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
+            const model = () => monteCarloEngine.random.normal(
+              params.mean ?? 0, params.std_dev ?? 1,
+            );
+            result = monteCarloEngine.simulate(model, params.samples ?? 10000);
+            break;
+          }
+          case "monte_carlo_tool_life": {
+            const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
+            result = monteCarloEngine.predictToolLife({
+              cutting_speed: params.cutting_speed ?? params.vc,
+              feedrate: params.feedrate ?? params.fz,
+              depth_of_cut: params.depth_of_cut ?? params.ap,
+              taylor_C: params.taylor_C ?? params.C,
+              taylor_n: params.taylor_n ?? params.n,
+              samples: params.samples,
+            });
+            break;
+          }
+          case "monte_carlo_tolerance": {
+            const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
+            result = monteCarloEngine.toleranceStackUp({
+              dimensions: params.dimensions ?? [],
+              target_tolerance: params.target_tolerance,
+              samples: params.samples,
+            });
+            break;
+          }
+          case "monte_carlo_histogram": {
+            const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
+            const samples = params.samples_array ?? params.data ?? [];
+            result = monteCarloEngine.histogram(samples, params.bins ?? 20);
             break;
           }
 
