@@ -692,7 +692,7 @@ export function registerDataDispatcher(server: any): void {
             result = registryManager.coolants.searchCoolants({
               query: params.query, category: params.category, delivery: params.delivery,
               material_group: params.material_group || params.material || params.iso_group,
-              operation: params.operation, limit: params.limit || 10
+              operation: params.operation, limit: params.limit ?? 10
             });
             break;
           }
@@ -719,7 +719,7 @@ export function registerDataDispatcher(server: any): void {
             result = registryManager.coatings.searchCoatings({
               query: params.query, category: params.category, process: params.process,
               material_group: params.material_group || params.material || params.iso_group,
-              application: params.application, limit: params.limit || 10
+              application: params.application, limit: params.limit ?? 10
             });
             break;
           }
@@ -739,7 +739,7 @@ export function registerDataDispatcher(server: any): void {
             const to = params.to || params.target;
             const id = params.id || params.query || params.identifier;
             if (!from || !to || !id) return jsonResponse({ error: "cross_lookup requires 'from', 'to', and 'id' params. Example: from='material', to='tools', id='AISI 4140'" });
-            result = await registryManager.crossLookup({ from, to, id, limit: params.limit || 10 });
+            result = await registryManager.crossLookup({ from, to, id, limit: params.limit ?? 10 });
             break;
           }
 
@@ -764,10 +764,10 @@ export function registerDataDispatcher(server: any): void {
               // Search specific database
               const db = registryManager.databases.getData(dbId);
               if (!db) return jsonResponse({ error: `Database not found: ${dbId}` });
-              const searchResults = registryManager.databases.search(dbQuery, params.limit || 10);
+              const searchResults = registryManager.databases.search(dbQuery, params.limit ?? 10);
               result = searchResults.filter(r => r.database_id === dbId);
             } else {
-              result = registryManager.databases.search(dbQuery, params.limit || 10);
+              result = registryManager.databases.search(dbQuery, params.limit ?? 10);
             }
             break;
           }
@@ -784,7 +784,7 @@ export function registerDataDispatcher(server: any): void {
           case "workholding_search": {
             const whQuery = params.query || params.q || params.type;
             if (!whQuery) return jsonResponse({ error: "workholding_search requires 'query' param." });
-            result = registryManager.databases?.search?.(whQuery, params.limit || 10) || [];
+            result = registryManager.databases?.search?.(whQuery, params.limit ?? 10) || [];
             break;
           }
           case "insert_get": {
@@ -798,7 +798,7 @@ export function registerDataDispatcher(server: any): void {
           case "insert_search": {
             const insQuery = params.query || params.q || params.material;
             if (!insQuery) return jsonResponse({ error: "insert_search requires 'query' param." });
-            result = await registryManager.tools.search({ query: insQuery, limit: params.limit || 10 });
+            result = await registryManager.tools.search({ query: insQuery, limit: params.limit ?? 10 });
             break;
           }
 

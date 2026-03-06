@@ -76,7 +76,7 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "mesh_generate": {
             const engine = await getEngine("mesh");
-            result = engine.generate?.(params) ?? { mesh_generated: true, element_size: params.element_size_mm || 1.0 };
+            result = engine.generate?.(params) ?? { mesh_generated: true, element_size: params.element_size_mm ?? 1.0 };
             break;
           }
           case "mesh_import": {

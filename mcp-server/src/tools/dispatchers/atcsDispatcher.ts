@@ -417,7 +417,7 @@ export function registerAtcsDispatcher(server: any): void {
             }
 
             ensureTaskDirs(taskId);
-            const batchSize = params.batch_size || DEFAULT_BATCH_SIZE;
+            const batchSize = params.batch_size ?? DEFAULT_BATCH_SIZE;
             const totalUnits = params.units.length;
             const totalBatches = Math.ceil(totalUnits / batchSize);
 
@@ -482,7 +482,7 @@ export function registerAtcsDispatcher(server: any): void {
               },
               context_management: {
                 checkpoint_every_n_units: params.checkpoint_every_n_units || DEFAULT_BATCH_SIZE,
-                max_units_per_session: params.max_units_per_session || 100,
+                max_units_per_session: params.max_units_per_session ?? 100,
                 save_on_exit: true
               },
               resume_instructions: "Read TASK_MANIFEST.json → Load WORK_QUEUE.json → Skip to current_unit_pointer → Execute next batch → Validate → Checkpoint → Update manifest → Continue or report."
@@ -1287,7 +1287,7 @@ export function registerAtcsDispatcher(server: any): void {
             let unitIds: number[] = params.unit_ids || [];
             if (unitIds.length === 0) {
               // Default: delegate all PENDING units (up to batch_size)
-              const batchSize = params.batch_size || manifest.decomposition?.batch_size || 10;
+              const batchSize = params.batch_size ?? (manifest.decomposition?.batch_size || 10);
               unitIds = queue
                 .filter(u => u.status === "PENDING")
                 .slice(0, batchSize)
