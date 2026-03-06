@@ -26,6 +26,8 @@ let _purchasing: any;
 let _jobCosting: any;
 let _quoting: any;
 let _scheduling: any;
+let _reporting: any;
+let _orderManager: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -57,6 +59,14 @@ async function getEngine(name: string): Promise<any> {
       return _scheduling ??= (
         await import("../../engines/JobShopSchedulingEngine.js")
       ).jobShopSchedulingEngine;
+    case "reporting":
+      return _reporting ??= (
+        await import("../../engines/ReportingEngine.js")
+      ).reportingEngine;
+    case "orderManager":
+      return _orderManager ??= (
+        await import("../../engines/OrderManagerEngine.js")
+      ).orderManagerEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -88,6 +98,20 @@ const ACTIONS = [
   "scheduling_johnsons",
   "scheduling_job_shop",
   "scheduling_cpm",
+  "reporting_dashboard",
+  "reporting_pareto",
+  "reporting_production",
+  "reporting_quality",
+  "reporting_financial",
+  "reporting_trend",
+  "order_create",
+  "order_update_status",
+  "order_list",
+  "order_work_order_create",
+  "order_log_time",
+  "order_log_production",
+  "order_machine_queue",
+  "order_metrics",
 ] as const;
 
 /** Registers business dispatcher.
@@ -304,6 +328,98 @@ Params vary by action — pass relevant fields in params object.`,
             result = engine.criticalPathMethod(
               params.activities ?? [],
             );
+            break;
+          }
+
+          // ── Reporting ──
+          case "reporting_dashboard": {
+            const engine = await getEngine("reporting");
+            result = engine.dashboard(
+              params.production ?? [],
+              params.quality ?? [],
+              params.period,
+            );
+            break;
+          }
+          case "reporting_pareto": {
+            const engine = await getEngine("reporting");
+            result = engine.paretoAnalysis(params.data ?? []);
+            break;
+          }
+          case "reporting_production": {
+            const engine = await getEngine("reporting");
+            result = engine.productionReport(params.records ?? []);
+            break;
+          }
+          case "reporting_quality": {
+            const engine = await getEngine("reporting");
+            result = engine.qualityReport(params.records ?? []);
+            break;
+          }
+          case "reporting_financial": {
+            const engine = await getEngine("reporting");
+            result = engine.financialReport(params.records ?? []);
+            break;
+          }
+          case "reporting_trend": {
+            const engine = await getEngine("reporting");
+            result = engine.trendAnalysis(
+              params.data ?? [],
+              params.window_size ?? params.windowSize ?? 3,
+            );
+            break;
+          }
+
+          // ── Order Manager ──
+          case "order_create": {
+            const engine = await getEngine("orderManager");
+            result = engine.createOrder(params);
+            break;
+          }
+          case "order_update_status": {
+            const engine = await getEngine("orderManager");
+            result = engine.updateOrderStatus(
+              params.order_id ?? params.orderId,
+              params.status,
+              { notes: params.notes },
+            );
+            break;
+          }
+          case "order_list": {
+            const engine = await getEngine("orderManager");
+            result = engine.listOrders(params.status);
+            break;
+          }
+          case "order_work_order_create": {
+            const engine = await getEngine("orderManager");
+            result = engine.createWorkOrder(params);
+            break;
+          }
+          case "order_log_time": {
+            const engine = await getEngine("orderManager");
+            result = engine.logTime(
+              params.wo_id ?? params.woId,
+              params.minutes ?? 0,
+            );
+            break;
+          }
+          case "order_log_production": {
+            const engine = await getEngine("orderManager");
+            result = engine.logProduction(
+              params.wo_id ?? params.woId,
+              params.quantity ?? 0,
+              params.scrap ?? 0,
+            );
+            break;
+          }
+          case "order_machine_queue": {
+            const engine = await getEngine("orderManager");
+            result = engine.machineQueue(params.machine ?? "");
+            break;
+          }
+          case "order_metrics": {
+            const engine = await getEngine("orderManager");
+            result = engine.metrics();
             break;
           }
 
