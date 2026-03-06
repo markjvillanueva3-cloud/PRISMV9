@@ -1825,6 +1825,80 @@ export {
   type MachineContext,
 } from "./CamKnowledgePortabilityEngine.js";
 
+// ─── Unwired Engine Batch (forge-learn wiring) ─────
+
+// Gear Hobbing
+export {
+  GearHobbingEngine,
+  gearHobbingEngine,
+  type GearHobbingInput,
+  type GearHobbingResult,
+  type HobbingMethod,
+} from "./GearHobbingEngine.js";
+
+// Cryogenic Treatment
+export {
+  CryogenicTreatmentEngine,
+  cryogenicTreatmentEngine,
+  type CryoTreatmentInput,
+  type CryoTreatmentResult,
+  type CryoLevel,
+} from "./CryogenicTreatmentEngine.js";
+
+// Hardness Conversion (ASTM E140)
+export {
+  HardnessConversionEngine,
+  hardnessConversionEngine,
+  type HardnessConvertInput,
+  type HardnessConvertResult,
+  type HardnessScale,
+} from "./HardnessConversionEngine.js";
+
+// Bend Allowance (Sheet Metal)
+export {
+  BendAllowanceEngine,
+  bendAllowanceEngine,
+  type BendAllowanceInput,
+  type BendAllowanceResult,
+  type BendMethod,
+} from "./BendAllowanceEngine.js";
+
+// Anodize Allowance
+export {
+  AnodizeAllowanceEngine,
+  anodizeAllowanceEngine,
+  type AnodizeAllowanceInput,
+  type AnodizeAllowanceResult,
+  type AnodizeType,
+} from "./AnodizeAllowanceEngine.js";
+
+// Clamping Simulation (SAFETY CRITICAL)
+export {
+  ClampingSimEngine,
+  clampingSimEngine,
+  type ClampSimInput,
+  type ClampPoint,
+  type CuttingForceProfile,
+} from "./ClampingSimEngine.js";
+
+// Damping Optimization
+export {
+  DampingOptimizationEngine,
+  dampingOptimizationEngine,
+  type DampingInput,
+  type DampingResult,
+  type DampingStrategy,
+} from "./DampingOptimizationEngine.js";
+
+// Cost Estimation
+export {
+  CostEstimationEngine,
+  costEstimationEngine,
+  type CostInput,
+  type CostBreakdown,
+  type CostDriver,
+} from "./CostEstimationEngine.js";
+
 // ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
 
 // Cycle-to-Cycle Feedback Control (Hardt/Siu)
