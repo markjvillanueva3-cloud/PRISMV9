@@ -214,12 +214,20 @@ export class ProcessPlanEngine {
       return (order[a.type] || 5) - (order[b.type] || 5);
     });
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const feature of sorted) {
       const ops = this.generateOpsForFeature(feature, ++seq, setup, baseSpeed, toolSet, false);
       operations.push(...ops);
       seq += ops.length - 1;
 
       // If tight tolerance or finish needed, add finish pass
+      /** If.
+       * @param feature.tolerance_mm - feature.tolerance_mm
+       * @returns void
+       */
       if (feature.tolerance_mm && feature.tolerance_mm < 0.05) {
         const finishOps = this.generateOpsForFeature(feature, ++seq, setup, baseSpeed * 0.8, toolSet, true);
         operations.push(...finishOps);
@@ -244,13 +252,25 @@ export class ProcessPlanEngine {
     };
   }
 
+  /** Optimize.
+   * @param plan - plan
+   * @returns plan optimization
+   */
   optimize(plan: ProcessPlan): PlanOptimization {
     const changes: string[] = [];
     let savings = 0;
 
     // Optimization 1: Combine sequential operations using same tool
     let prevTool = "";
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of plan.operations) {
+      /** If.
+       * @param op.tool.description - op.tool.description
+       * @returns void
+       */
       if (op.tool.description === prevTool) {
         savings += TOOL_CHANGE_SEC / 60; // save one tool change
         changes.push(`Combine ${op.operation} with previous (same tool) — save tool change`);
@@ -259,6 +279,10 @@ export class ProcessPlanEngine {
     }
 
     // Optimization 2: Increase feed rates for roughing by 10%
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of plan.operations) {
       if (op.operation.includes("Rough")) {
         const oldTime = op.estimated_time_min;
@@ -279,11 +303,20 @@ export class ProcessPlanEngine {
     };
   }
 
+  /** Estimates time.
+   * @param plan - plan
+   * @param setupTimeMin - setup time min
+   * @returns time estimate
+   */
   estimateTime(plan: ProcessPlan, setupTimeMin: number = 20): TimeEstimate {
     let cuttingTime = 0;
     const rapidTime = plan.total_operations * 0.05; // ~3 sec rapid per op
     const toolChangeTime = (new Set(plan.operations.map(o => o.tool.description)).size * TOOL_CHANGE_SEC) / 60;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of plan.operations) {
       cuttingTime += op.estimated_time_min;
     }
@@ -300,6 +333,10 @@ export class ProcessPlanEngine {
     };
   }
 
+  /** Validate.
+   * @param plan - plan
+   * @returns { valid: boolean; issues: string[] }
+   */
   validate(plan: ProcessPlan): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
 
@@ -307,6 +344,10 @@ export class ProcessPlanEngine {
     if (plan.total_time_min <= 0) issues.push("Invalid total time");
 
     // Check sequential ordering
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < plan.operations.length; i++) {
       const prev = plan.operations[i - 1];
       const curr = plan.operations[i];
@@ -316,11 +357,19 @@ export class ProcessPlanEngine {
     // Check roughing before finishing
     const roughIdx = plan.operations.findIndex(o => o.operation.includes("Rough"));
     const finishIdx = plan.operations.findIndex(o => o.operation.includes("Finish"));
+    /** If.
+     * @param roughIdx - rough idx
+     * @returns void
+     */
     if (roughIdx >= 0 && finishIdx >= 0 && roughIdx > finishIdx) {
       issues.push("Finishing before roughing — incorrect sequence");
     }
 
     // Check each operation has valid params
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of plan.operations) {
       if (op.cutting_params.rpm <= 0) issues.push(`Op ${op.seq}: Invalid RPM`);
       if (op.cutting_params.feed_rate_mmmin <= 0) issues.push(`Op ${op.seq}: Invalid feed rate`);
@@ -340,6 +389,10 @@ export class ProcessPlanEngine {
     const opsToUse = isFinish ? [template.ops[template.ops.length - 1]] : template.ops;
     const toolsToUse = isFinish ? [template.tools[template.tools.length - 1]] : template.tools;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < opsToUse.length; i++) {
       const toolType = toolsToUse[i];
       const diameter = selectToolDiameter(feature, toolType);

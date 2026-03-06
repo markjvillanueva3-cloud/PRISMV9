@@ -72,14 +72,26 @@ function mulberry32(seed: number) {
  */
 export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: MonteCarloInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.variables?.length) issues.push({ field: "variables", message: "At least 1 variable required", severity: "error" });
     input.variables?.forEach((v, i) => {
       if (!v.name) issues.push({ field: `variables[${i}].name`, message: "Name required", severity: "error" });
+      /** If.
+       * @param v.distribution - v.distribution
+       * @returns void
+       */
       if (v.distribution === "triangular" && v.param3 === undefined) {
         issues.push({ field: `variables[${i}].param3`, message: "Mode required for triangular", severity: "error" });
       }
+      /** If.
+       * @param v.distribution - v.distribution
+       * @returns void
+       */
       if (v.distribution === "normal" && v.param2 <= 0) {
         issues.push({ field: `variables[${i}].param2`, message: "Std dev must be > 0", severity: "error" });
       }
@@ -88,6 +100,10 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns monte carlo output
+   */
   calculate(input: MonteCarloInput): MonteCarloOutput {
     const warnings: string[] = [];
     const { variables } = input;
@@ -103,6 +119,10 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
     };
 
     const sample = (v: MCVariable): number => {
+      /** Switch.
+       * @param v.distribution - v.distribution
+       * @returns void
+       */
       switch (v.distribution) {
         case "normal": return v.param1 + v.param2 * randn();
         case "uniform": return v.param1 + rand() * (v.param2 - v.param1);
@@ -126,6 +146,10 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
     const results: number[] = [];
     const varSamples: number[][] = variables.map(() => []);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let s = 0; s < nSamples; s++) {
       const vals = variables.map((v, i) => {
         const sv = sample(v);
@@ -159,6 +183,10 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
 
     // First-order sensitivity indices (variance-based, Sobol)
     const sensitivity_indices: Record<string, number> = {};
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < variables.length; i++) {
       const varMean = varSamples[i].reduce((s, v) => s + v, 0) / nSamples;
       const cov = varSamples[i].reduce((s, v, j) => s + (v - varMean) * (results[j] - mean), 0) / (nSamples - 1);
@@ -179,6 +207,9 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "monte-carlo",

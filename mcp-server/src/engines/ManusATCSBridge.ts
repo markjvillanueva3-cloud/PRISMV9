@@ -159,6 +159,9 @@ function buildUnitUserPrompt(task: DelegatedUnit): string {
 /**
  * Delegate ATCS work units to background Claude API execution.
  * Creates async tasks for each unit and returns immediately with task IDs.
+  * @param units - units
+  * @param acceptanceCriteria - acceptance criteria
+  * @returns promise resolving to delegation result
  */
 export async function delegateUnits(
   units: Array<{ unit_id: number; type: string; description: string }>,
@@ -209,6 +212,8 @@ export async function delegateUnits(
 /**
  * Poll for completed delegated units.
  * Returns completed results ready to feed into ATCS unit_complete.
+  * @param taskIds - task ids
+  * @returns poll result
  */
 export function pollResults(taskIds?: string[]): PollResult {
   const targets = taskIds
@@ -244,6 +249,8 @@ export function pollResults(taskIds?: string[]): PollResult {
 
 /**
  * Get status of a specific delegated task.
+  * @param taskId - task identifier
+  * @returns delegated unit | null
  */
 export function getDelegationStatus(taskId: string): DelegatedUnit | null {
   return delegatedTasks.get(taskId) || null;
@@ -251,6 +258,7 @@ export function getDelegationStatus(taskId: string): DelegatedUnit | null {
 
 /**
  * Get all active delegations for an ATCS task (by unit_id range).
+  * @returns array of delegated unit items
  */
 export function getActiveDelegations(): DelegatedUnit[] {
   return Array.from(delegatedTasks.values()).filter(t => t.status === "pending" || t.status === "running");
@@ -258,6 +266,7 @@ export function getActiveDelegations(): DelegatedUnit[] {
 
 /**
  * Clear completed/failed delegations to free memory.
+  * @returns computed numeric result
  */
 export function clearCompletedDelegations(): number {
   let cleared = 0;
@@ -277,6 +286,8 @@ export function clearCompletedDelegations(): number {
 /**
  * Auto-poll for completed delegated units (cadence function).
  * Called periodically from autoHookWrapper to surface completion status.
+  * @param callNumber - call number value
+  * @returns { completed: number; running: number; failed: number }
  */
 export function autoManusATCSPoll(callNumber: number): { completed: number; running: number; failed: number } {
   const all = Array.from(delegatedTasks.values());
@@ -291,6 +302,11 @@ export function autoManusATCSPoll(callNumber: number): { completed: number; runn
 
 /**
  * Get bridge status summary for _context injection.
+  * @returns {
+  active_delegations: number;
+  total_tracked: number;
+  by_status:  record<string, number>;
+}
  */
 export function getBridgeStatus(): {
   active_delegations: number;

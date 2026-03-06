@@ -50,6 +50,7 @@ const ACTIONS = [
 
 /** Registers l2 engine dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerL2EngineDispatcher(server: any): void {
   server.tool(

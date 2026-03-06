@@ -149,18 +149,38 @@ export class ToolholderDynamicsEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param overhangRatio - overhang ratio
+     * @returns void
+     */
     if (overhangRatio > 5) {
       recs.push(`Overhang ratio ${overhangRatio.toFixed(1)}:1 is high — consider shorter tool or shrink-fit holder`);
     }
+    /** If.
+     * @param combinedStiffness - combined stiffness
+     * @returns void
+     */
     if (combinedStiffness < 10) {
       recs.push("Very low static stiffness — expect surface finish issues and chatter risk");
     }
+    /** If.
+     * @param input.holder_type - input.holder_type
+     * @returns void
+     */
     if (input.holder_type === "collet_ER" || input.holder_type === "weldon") {
       recs.push("Upgrade to shrink-fit or hydraulic holder for better dynamic performance");
     }
+    /** If.
+     * @param fn - callback function
+     * @returns void
+     */
     if (fn < 500) {
       recs.push(`Low natural frequency (${Math.round(fn)} Hz) — limits stable cutting speed range`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Toolholder dynamics acceptable for standard operations");
     }
@@ -176,6 +196,11 @@ export class ToolholderDynamicsEngine {
     };
   }
 
+  /** Compare.
+   * @param inputA - input a
+   * @param inputB - input b
+   * @returns toolholder comparison
+   */
   compare(inputA: ToolholderInput, inputB: ToolholderInput): ToolholderComparison {
     const a = this.analyzeFRF(inputA);
     const b = this.analyzeFRF(inputB);

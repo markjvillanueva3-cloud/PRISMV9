@@ -202,11 +202,19 @@ export class SwarmExecutor {
 
     // Validate agents
     const invalidAgents = config.agents.filter(id => !agentRegistry.get(id));
+    /** If.
+     * @param invalidAgents.length - invalid agents.length
+     * @returns void
+     */
     if (invalidAgents.length > 0) {
       warnings.push(`Unknown agents: ${invalidAgents.join(", ")}`);
     }
 
     const validAgents = config.agents.filter(id => agentRegistry.get(id));
+    /** If.
+     * @param validAgents.length - valid agents.length
+     * @returns void
+     */
     if (validAgents.length === 0) {
       throw new Error("No valid agents in swarm");
     }
@@ -239,6 +247,10 @@ export class SwarmExecutor {
 
     try {
       // Execute based on pattern
+      /** Switch.
+       * @param config.pattern - config.pattern
+       * @returns void
+       */
       switch (config.pattern) {
         case "parallel":
           await this.executeParallel(config, validAgents, result);
@@ -361,6 +373,10 @@ export class SwarmExecutor {
     const timeout = config.timeout_ms || SWARM_CONSTANTS.DEFAULT_TIMEOUT_MS;
     let currentInput = { ...config.input };
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const agentId of agents) {
       const startTime = Date.now();
       try {
@@ -375,6 +391,10 @@ export class SwarmExecutor {
         };
         result.agentResults.set(agentId, agentResult);
 
+        /** If.
+         * @param taskResult.status - task result.status
+         * @returns void
+         */
         if (taskResult.status === "completed" && taskResult.output) {
           result.successCount++;
           // Pass output to next agent
@@ -447,9 +467,17 @@ export class SwarmExecutor {
     const voteCounts = new Map<string, number>();
 
     result.agentResults.forEach((agentResult, agentId) => {
+      /** If.
+       * @param agentResult.status - agent result.status
+       * @returns void
+       */
       if (agentResult.status === "success" && agentResult.output !== undefined) {
         // Extract vote value
         let voteValue: unknown;
+        /** If.
+         * @param consensusField - consensus field
+         * @returns void
+         */
         if (consensusField && typeof agentResult.output === "object" && agentResult.output !== null) {
           voteValue = (agentResult.output as Record<string, unknown>)[consensusField];
         } else {
@@ -471,6 +499,10 @@ export class SwarmExecutor {
     let consensusKey = "";
 
     voteCounts.forEach((count, key) => {
+      /** If.
+       * @param count - number of items
+       * @returns void
+       */
       if (count > maxVotes) {
         maxVotes = count;
         consensusKey = key;
@@ -500,6 +532,10 @@ export class SwarmExecutor {
 
     result.aggregatedOutput = reached ? consensusValue : null;
 
+    /** If.
+     * @param !reached - !reached
+     * @returns void
+     */
     if (!reached) {
       result.warnings.push(`Consensus not reached: ${(actualAgreement * 100).toFixed(0)}% < ${(threshold * 100).toFixed(0)}%`);
     }
@@ -533,6 +569,10 @@ export class SwarmExecutor {
     let layerInput = { ...config.input };
     let layerNum = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const layer of layers) {
       layerNum++;
       log.debug(`[SwarmExecutor] Executing hierarchical layer ${layerNum}/${layers.length}`);
@@ -568,6 +608,10 @@ export class SwarmExecutor {
         .filter(r => r && r.status === "success" && r.output)
         .map(r => r!.output);
 
+      /** If.
+       * @param layerOutputs.length - layer outputs.length
+       * @returns void
+       */
       if (layerOutputs.length > 0) {
         layerInput = {
           ...config.input,
@@ -606,6 +650,10 @@ export class SwarmExecutor {
     const weightedOutputs: Array<{ output: unknown; weight: number }> = [];
 
     result.agentResults.forEach((agentResult, agentId) => {
+      /** If.
+       * @param agentResult.status - agent result.status
+       * @returns void
+       */
       if (agentResult.status === "success" && agentResult.output !== undefined) {
         const weight = weights[agentId] || 1.0;
         weightedOutputs.push({ output: agentResult.output, weight });
@@ -613,6 +661,10 @@ export class SwarmExecutor {
     });
 
     // Aggregate based on method
+    /** Switch.
+     * @param method - method
+     * @returns void
+     */
     switch (method) {
       case "weighted_avg":
         result.aggregatedOutput = this.weightedAverage(weightedOutputs);
@@ -650,8 +702,16 @@ export class SwarmExecutor {
     const rankings: Array<{ agentId: string; score: number; output: unknown }> = [];
 
     result.agentResults.forEach((agentResult, agentId) => {
+      /** If.
+       * @param agentResult.status - agent result.status
+       * @returns void
+       */
       if (agentResult.status === "success" && agentResult.output !== undefined) {
         let score = 0;
+        /** If.
+         * @param typeof - typeof
+         * @returns void
+         */
         if (typeof agentResult.output === "object" && agentResult.output !== null) {
           const outputObj = agentResult.output as Record<string, unknown>;
           score = typeof outputObj[scoreField] === "number" ? outputObj[scoreField] as number : 0;
@@ -699,6 +759,10 @@ export class SwarmExecutor {
     let converged = false;
     let iteration = 0;
 
+    /** While.
+     * @param iteration - iteration
+     * @returns void
+     */
     while (iteration < maxIterations && !converged) {
       iteration++;
       log.debug(`[SwarmExecutor] Collaboration iteration ${iteration}/${maxIterations}`);
@@ -712,6 +776,10 @@ export class SwarmExecutor {
       };
 
       // Run agents in sequence for collaboration
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const agentId of agents) {
         const startTime = Date.now();
         try {
@@ -727,6 +795,10 @@ export class SwarmExecutor {
           };
           result.agentResults.set(`${agentId}_I${iteration}`, agentResult);
 
+          /** If.
+           * @param taskResult.status - task result.status
+           * @returns void
+           */
           if (taskResult.status === "completed" && taskResult.output) {
             result.successCount++;
             currentOutput = taskResult.output;
@@ -743,6 +815,10 @@ export class SwarmExecutor {
       history.push({ iteration, output: currentOutput, delta });
 
       // Check convergence
+      /** If.
+       * @param delta - delta
+       * @returns void
+       */
       if (delta < convergenceThreshold) {
         converged = true;
       }
@@ -759,6 +835,10 @@ export class SwarmExecutor {
 
     result.aggregatedOutput = currentOutput;
 
+    /** If.
+     * @param !converged - !converged
+     * @returns void
+     */
     if (!converged) {
       result.warnings.push(`Collaboration did not converge after ${iteration} iterations`);
     }
@@ -795,12 +875,20 @@ export class SwarmExecutor {
   private reduce(outputs: unknown[], fn: ReduceFunction): unknown {
     if (outputs.length === 0) return null;
 
+    /** Switch.
+     * @param fn - callback function
+     * @returns void
+     */
     switch (fn) {
       case "concat":
         return outputs.flat();
 
       case "merge":
         return outputs.reduce((acc: Record<string, unknown>, curr) => {
+          /** If.
+           * @param typeof - typeof
+           * @returns void
+           */
           if (typeof curr === "object" && curr !== null) {
             return { ...acc, ...curr };
           }
@@ -837,6 +925,10 @@ export class SwarmExecutor {
         let maxCount = 0;
         let winner: unknown = null;
         counts.forEach((count, key) => {
+          /** If.
+           * @param count - number of items
+           * @returns void
+           */
           if (count > maxCount) {
             maxCount = count;
             winner = JSON.parse(key);
@@ -855,6 +947,10 @@ export class SwarmExecutor {
   private weightedAverage(items: Array<{ output: unknown; weight: number }>): unknown {
     // For numeric outputs
     const numericItems = items.filter(i => typeof i.output === "number");
+    /** If.
+     * @param numericItems.length - numeric items.length
+     * @returns void
+     */
     if (numericItems.length > 0) {
       const totalWeight = numericItems.reduce((sum, i) => sum + i.weight, 0);
       const weightedSum = numericItems.reduce((sum, i) => sum + (i.output as number) * i.weight, 0);
@@ -879,6 +975,10 @@ export class SwarmExecutor {
     let maxWeight = 0;
     let winner: unknown = null;
     votes.forEach((weight, key) => {
+      /** If.
+       * @param weight - weight
+       * @returns void
+       */
       if (weight > maxWeight) {
         maxWeight = weight;
         winner = JSON.parse(key);
@@ -909,11 +1009,19 @@ export class SwarmExecutor {
     if (curr === null || curr === undefined) return 1.0;
 
     // Numeric comparison
+    /** If.
+     * @param typeof - typeof
+     * @returns void
+     */
     if (typeof prev === "number" && typeof curr === "number") {
       return Math.abs(curr - prev) / Math.max(Math.abs(prev), 1);
     }
 
     // String comparison
+    /** If.
+     * @param typeof - typeof
+     * @returns void
+     */
     if (typeof prev === "string" && typeof curr === "string") {
       return prev === curr ? 0 : 1;
     }
@@ -978,6 +1086,8 @@ export const swarmExecutor = new SwarmExecutor();
 
 /**
  * Execute a swarm with specified pattern
+  * @param config - configuration options
+  * @returns promise resolving to swarm result
  */
 export async function executeSwarm(config: SwarmConfig): Promise<SwarmResult> {
   return swarmExecutor.execute(config);
@@ -985,6 +1095,10 @@ export async function executeSwarm(config: SwarmConfig): Promise<SwarmResult> {
 
 /**
  * Execute parallel swarm
+  * @param name - name string
+  * @param agents - agents
+  * @param input - input data
+  * @returns promise resolving to swarm result
  */
 export async function executeParallelSwarm(
   name: string,
@@ -996,6 +1110,11 @@ export async function executeParallelSwarm(
 
 /**
  * Execute consensus swarm
+  * @param name - name string
+  * @param agents - agents
+  * @param input - input data
+  * @param threshold - threshold value
+  * @returns promise resolving to swarm result
  */
 export async function executeConsensusSwarm(
   name: string,

@@ -100,28 +100,60 @@ const YIELD_STRENGTH: Record<string, number> = {
  */
 export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolDeflectionOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ToolDeflectionInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param input.cutting_force - input.cutting_force
+     * @returns void
+     */
     if (input.cutting_force === undefined || input.cutting_force < 0) {
       issues.push({ field: "cutting_force", message: `Cutting force must be >= 0 N, got ${input.cutting_force}`, severity: "error" });
     }
+    /** If.
+     * @param input.cutting_force - input.cutting_force
+     * @returns void
+     */
     if (input.cutting_force > LIMITS.MAX_FORCE) {
       issues.push({ field: "cutting_force", message: `Cutting force ${input.cutting_force} N exceeds ${LIMITS.MAX_FORCE} N`, severity: "warning" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter < LIMITS.MIN_DIAMETER || input.tool_diameter > LIMITS.MAX_DIAMETER) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be ${LIMITS.MIN_DIAMETER}-${LIMITS.MAX_DIAMETER} mm, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param !input.overhang_length - !input.overhang_length
+     * @returns void
+     */
     if (!input.overhang_length || input.overhang_length < LIMITS.MIN_OVERHANG || input.overhang_length > LIMITS.MAX_OVERHANG) {
       issues.push({ field: "overhang_length", message: `Overhang must be ${LIMITS.MIN_OVERHANG}-${LIMITS.MAX_OVERHANG} mm, got ${input.overhang_length}`, severity: "error" });
     }
+    /** If.
+     * @param input.youngs_modulus - input.youngs_modulus
+     * @returns void
+     */
     if (input.youngs_modulus !== undefined && input.youngs_modulus <= 0) {
       issues.push({ field: "youngs_modulus", message: `Young's modulus must be > 0 GPa, got ${input.youngs_modulus}`, severity: "error" });
     }
 
     // L/D ratio warning
+    /** If.
+     * @param input.overhang_length - input.overhang_length
+     * @returns void
+     */
     if (input.overhang_length && input.tool_diameter) {
       const ld = input.overhang_length / input.tool_diameter;
+      /** If.
+       * @param ld - ld
+       * @returns void
+       */
       if (ld > 6) {
         issues.push({ field: "overhang_length", message: `L/D ratio ${ld.toFixed(1)} > 6: high deflection risk`, severity: "warning" });
       }
@@ -130,6 +162,10 @@ export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolD
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns tool deflection output
+   */
   calculate(input: ToolDeflectionInput): ToolDeflectionOutput {
     const warnings: string[] = [];
     const {
@@ -174,12 +210,20 @@ export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolD
     const safety_factor = cutting_force > 0 ? max_force_before_yield / cutting_force : 999;
 
     // Warnings
+    /** If.
+     * @param static_deflection - static_deflection
+     * @returns void
+     */
     if (static_deflection > LIMITS.MAX_DEFLECTION) {
       warnings.push(`EXCESSIVE_DEFLECTION: Static deflection ${static_deflection.toFixed(3)} mm exceeds ${LIMITS.MAX_DEFLECTION} mm limit.`);
     } else if (static_deflection > LIMITS.MAX_DEFLECTION * 0.5) {
       warnings.push(`HIGH_DEFLECTION: Static deflection ${static_deflection.toFixed(3)} mm approaching limit.`);
     }
 
+    /** If.
+     * @param safety_factor - safety_factor
+     * @returns void
+     */
     if (safety_factor < LIMITS.MIN_SAFETY_FACTOR) {
       warnings.push(`LOW_SAFETY_FACTOR: ${safety_factor.toFixed(2)} < ${LIMITS.MIN_SAFETY_FACTOR}. Risk of tool breakage.`);
     } else if (safety_factor < LIMITS.CRITICAL_SAFETY_FACTOR) {
@@ -187,12 +231,20 @@ export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolD
     }
 
     const ld_ratio = L / d;
+    /** If.
+     * @param ld_ratio - ld_ratio
+     * @returns void
+     */
     if (ld_ratio > 8) {
       warnings.push(`EXTREME_OVERHANG: L/D = ${ld_ratio.toFixed(1)}. Use vibration damping or support.`);
     } else if (ld_ratio > 5) {
       warnings.push(`LONG_OVERHANG: L/D = ${ld_ratio.toFixed(1)}. Consider shorter tool or reduced parameters.`);
     }
 
+    /** If.
+     * @param surface_error - surface_error
+     * @returns void
+     */
     if (surface_error > 0.05) {
       warnings.push(`SURFACE_ERROR: Total error ${(surface_error * 1000).toFixed(1)} um may exceed IT7 tolerance.`);
     }
@@ -211,6 +263,9 @@ export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolD
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "tool-deflection",

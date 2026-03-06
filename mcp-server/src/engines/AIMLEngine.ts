@@ -316,6 +316,10 @@ export class AIMLEngine {
   private trainingData: Map<string, Array<{ features: Record<string, number>; target: number }>> = new Map();
 
   constructor() {
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const model of BUILT_IN_MODELS) {
       this.models.set(model.id, { ...model });
     }
@@ -353,6 +357,10 @@ export class AIMLEngine {
     let explanation: string;
     const featureImportance: Record<string, number> = {};
 
+    /** Switch.
+     * @param model.domain - model.domain
+     * @returns void
+     */
     switch (model.domain) {
       case "speed_feed": {
         const hardness = Number(input.features.material_hardness ?? 200);
@@ -465,6 +473,10 @@ export class AIMLEngine {
 
     for (const [intent, keywords] of Object.entries(INTENT_KEYWORDS)) {
       scores[intent] = 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const kw of keywords) {
         if (lower.includes(kw)) {
           scores[intent] += kw.split(" ").length; // multi-word keywords score higher
@@ -534,13 +546,25 @@ export class AIMLEngine {
     const maxIter = 50;
     let assignments = new Array(data.length).fill(0);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iter = 0; iter < maxIter; iter++) {
       // Assign each point to nearest centroid
       const newAssignments = data.map(point => {
         let minDist = Infinity;
         let bestCluster = 0;
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let c = 0; c < centroids.length; c++) {
           let dist = 0;
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const key of featureKeys) {
             dist += (point[key] - centroids[c][key]) ** 2;
           }
@@ -558,6 +582,10 @@ export class AIMLEngine {
         const members = data.filter((_, i) => assignments[i] === c);
         if (members.length === 0) return centroids[c];
         const centroid: Record<string, number> = {};
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const key of featureKeys) {
           centroid[key] = members.reduce((sum, m) => sum + m[key], 0) / members.length;
         }
@@ -578,21 +606,37 @@ export class AIMLEngine {
 
     // Compute silhouette score (simplified)
     let silhouetteSum = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < data.length; i++) {
       const ownCluster = assignments[i];
       const ownMembers = clusters[ownCluster].members.filter(m => m !== i);
       if (ownMembers.length === 0) continue;
 
       let a = 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const j of ownMembers) {
         for (const key of featureKeys) a += (data[i][key] - data[j][key]) ** 2;
       }
       a = Math.sqrt(a / ownMembers.length);
 
       let minB = Infinity;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let c = 0; c < k; c++) {
         if (c === ownCluster || clusters[c].members.length === 0) continue;
         let b = 0;
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const j of clusters[c].members) {
           for (const key of featureKeys) b += (data[i][key] - data[j][key]) ** 2;
         }
@@ -643,6 +687,10 @@ export class AIMLEngine {
       const range = expectedRanges[feature] ?? { mean: value, std: Math.abs(value) * 0.3 || 1 };
       const zScore = Math.abs(value - range.mean) / (range.std || 1);
 
+      /** If.
+       * @param zScore - z score
+       * @returns void
+       */
       if (zScore > 1.5) {
         contributing.push({
           feature,
@@ -677,6 +725,10 @@ export class AIMLEngine {
     const features: Record<string, number> = {};
 
     if (data.material?.hardness) features.material_hardness = data.material.hardness;
+    /** If.
+     * @param data.material?.iso_group - data.material?.iso_group
+     * @returns void
+     */
     if (data.material?.iso_group) {
       const groupMap: Record<string, number> = { P: 1, M: 2, K: 3, N: 4, S: 5, H: 6 };
       features.material_group_code = groupMap[data.material.iso_group] ?? 0;

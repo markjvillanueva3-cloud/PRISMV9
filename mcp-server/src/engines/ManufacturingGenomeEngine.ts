@@ -378,6 +378,9 @@ function compareGenomes(params: Record<string, any>): any {
  *   genome_search      — Search genomes by property range
  *   genome_history     — Get prediction history
  *   genome_get         — Get specific prediction by ID
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function manufacturingGenome(action: string, params: Record<string, any>): any {
   switch (action) {

@@ -103,6 +103,10 @@ export class PassivationEngine {
       "DI water rinse (ambient, 2 min minimum)",
       "Inspect for water break — film should sheet uniformly",
     ];
+    /** If.
+     * @param input.method - input.method
+     * @returns void
+     */
     if (input.method === "nitric_acid") {
       rinse.unshift("Alkaline degrease if contaminated with oil/grease");
     }
@@ -130,15 +134,31 @@ export class PassivationEngine {
       : "ASTM B912 (Electropolishing)";
 
     const recs: string[] = [];
+    /** If.
+     * @param loadingRatio - loading ratio
+     * @returns void
+     */
     if (loadingRatio > maxLoading) {
       recs.push(`Tank loading ${loadingRatio.toFixed(1)} cm²/L exceeds max ${maxLoading} — use larger tank or smaller batch`);
     }
+    /** If.
+     * @param input.surface_condition - input.surface_condition
+     * @returns void
+     */
     if (input.surface_condition === "welded") {
       recs.push("Welded surfaces — ensure heat tint removed by mechanical or chemical means before passivation");
     }
+    /** If.
+     * @param input.family - input.family
+     * @returns void
+     */
     if (input.family === "martensitic" && input.method === "nitric_acid") {
       recs.push("Martensitic SS with nitric acid — monitor closely, risk of flash attack on low-Cr grades");
     }
+    /** If.
+     * @param input.method - input.method
+     * @returns void
+     */
     if (input.method === "citric_acid") {
       recs.push("Citric acid method — environmentally preferred, verify acceptance with customer spec");
     }

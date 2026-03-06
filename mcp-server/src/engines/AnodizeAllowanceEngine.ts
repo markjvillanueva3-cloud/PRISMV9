@@ -84,6 +84,10 @@ export class AnodizeAllowanceEngine {
 
     // Machine-to dimension
     let machineTo: number;
+    /** If.
+     * @param input.dimension_type - input.dimension_type
+     * @returns void
+     */
     if (input.dimension_type === "od") {
       machineTo = input.nominal_dimension_mm - 2 * buildupMm;
     } else if (input.dimension_type === "id") {
@@ -113,9 +117,17 @@ export class AnodizeAllowanceEngine {
       : "fair";
 
     const recs: string[] = [];
+    /** If.
+     * @param input.target_thickness_um - input.target_thickness_um
+     * @returns void
+     */
     if (input.target_thickness_um > maxThickness) {
       recs.push(`Target ${input.target_thickness_um}µm exceeds max achievable ${maxThickness}µm for ${input.alloy}`);
     }
+    /** If.
+     * @param input.anodize_type - input.anodize_type
+     * @returns void
+     */
     if (input.anodize_type === "type_III_hard" && input.is_dyed) {
       recs.push("Hard anodize dyeing produces limited colors (black/dark only) — verify color requirement");
     }

@@ -84,6 +84,10 @@ export class LiveToolingEngine {
 
     // C-axis feed for cross milling on diameter
     let cAxisFeed: number | undefined;
+    /** If.
+     * @param input.c_axis_interpolation - input.c_axis_interpolation
+     * @returns void
+     */
     if (input.c_axis_interpolation && input.workpiece_diameter_mm > 0) {
       // Linear feed on workpiece surface → angular C-axis feed
       const circumference = Math.PI * input.workpiece_diameter_mm;
@@ -92,6 +96,10 @@ export class LiveToolingEngine {
 
     // Cycle time estimate
     let cycleTime: number;
+    /** If.
+     * @param input.operation - input.operation
+     * @returns void
+     */
     if (input.operation === "cross_drill" || input.operation === "axial_drill") {
       // Drill: time = depth / (feed_per_rev * rpm)
       const feedPerRev = input.feed_per_tooth_mm * Z;
@@ -107,21 +115,41 @@ export class LiveToolingEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param powerUtil - power util
+     * @returns void
+     */
     if (powerUtil > 90) {
       recs.push("Live tool power >90% utilized — reduce depth of cut or feed");
     }
+    /** If.
+     * @param powerUtil - power util
+     * @returns void
+     */
     if (powerUtil > 100) {
       recs.push(`OVERLOAD: Required ${power.toFixed(2)}kW exceeds live tool capacity ${input.live_tool_power_kW}kW`);
     }
     if (!input.y_axis_available && (input.operation === "flat_mill" || input.operation === "keyway")) {
       recs.push("Y-axis not available — flat milling requires C-axis interpolation (slower, less accurate)");
     }
+    /** If.
+     * @param input.live_tool_rpm - input.live_tool_rpm
+     * @returns void
+     */
     if (input.live_tool_rpm > input.max_live_tool_rpm) {
       recs.push(`Requested RPM ${input.live_tool_rpm} exceeds max ${input.max_live_tool_rpm}`);
     }
+    /** If.
+     * @param rpm - rpm
+     * @returns void
+     */
     if (rpm < 500 && d < 10) {
       recs.push("Low RPM for small tool — increase to improve surface finish");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Live tooling parameters acceptable — proceed");
     }

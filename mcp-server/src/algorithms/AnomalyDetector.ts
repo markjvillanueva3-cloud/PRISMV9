@@ -68,8 +68,16 @@ export interface AnomalyDetectorOutput extends WithWarnings {
  */
 export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyDetectorOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: AnomalyDetectorInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.data?.length - !input.data?.length
+     * @returns void
+     */
     if (!input.data?.length || input.data.length < 5) {
       issues.push({ field: "data", message: "At least 5 data points required", severity: "error" });
     }
@@ -79,6 +87,10 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns anomaly detector output
+   */
   calculate(input: AnomalyDetectorInput): AnomalyDetectorOutput {
     const warnings: string[] = [];
     const { data } = input;
@@ -97,18 +109,34 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
     const anomalies: AnomalyResult[] = [];
 
     // Rule 1: Point beyond ±3σ
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       if (Math.abs(zScores[i]) > k) {
         anomalies.push({ index: i, value: data[i], z_score: zScores[i], rule_violated: "Beyond ±3σ", severity: "alarm" });
       }
     }
 
+    /** If.
+     * @param useWE - use w e
+     * @returns void
+     */
     if (useWE) {
       // Rule 2: 2 of 3 consecutive points beyond ±2σ (same side)
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 2; i < n; i++) {
         const window = [zScores[i - 2], zScores[i - 1], zScores[i]];
         const above2 = window.filter(z => z > 2).length;
         const below2 = window.filter(z => z < -2).length;
+        /** If.
+         * @param above2 - above2
+         * @returns void
+         */
         if (above2 >= 2 || below2 >= 2) {
           if (!anomalies.some(a => a.index === i)) {
             anomalies.push({ index: i, value: data[i], z_score: zScores[i], rule_violated: "WE Rule 2: 2/3 beyond ±2σ", severity: "warning" });
@@ -117,10 +145,18 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
       }
 
       // Rule 3: 4 of 5 consecutive points beyond ±1σ (same side)
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 4; i < n; i++) {
         const window = zScores.slice(i - 4, i + 1);
         const above1 = window.filter(z => z > 1).length;
         const below1 = window.filter(z => z < -1).length;
+        /** If.
+         * @param above1 - above1
+         * @returns void
+         */
         if (above1 >= 4 || below1 >= 4) {
           if (!anomalies.some(a => a.index === i)) {
             anomalies.push({ index: i, value: data[i], z_score: zScores[i], rule_violated: "WE Rule 3: 4/5 beyond ±1σ", severity: "warning" });
@@ -129,6 +165,10 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
       }
 
       // Rule 4: 8 consecutive points on same side of mean
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 7; i < n; i++) {
         const window = zScores.slice(i - 7, i + 1);
         if (window.every(z => z > 0) || window.every(z => z < 0)) {
@@ -139,12 +179,24 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
       }
     }
 
+    /** If.
+     * @param useNelson - use nelson
+     * @returns void
+     */
     if (useNelson) {
       // Nelson Rule 5: 6 consecutive increasing or decreasing
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 5; i < n; i++) {
         const window = data.slice(i - 5, i + 1);
         const increasing = window.every((v, j) => j === 0 || v > window[j - 1]);
         const decreasing = window.every((v, j) => j === 0 || v < window[j - 1]);
+        /** If.
+         * @param increasing - increasing
+         * @returns void
+         */
         if (increasing || decreasing) {
           if (!anomalies.some(a => a.index === i)) {
             anomalies.push({ index: i, value: data[i], z_score: zScores[i], rule_violated: "Nelson: 6 monotonic", severity: "warning" });
@@ -171,6 +223,9 @@ export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyD
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "anomaly-detector",

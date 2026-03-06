@@ -234,6 +234,11 @@ const KNOWLEDGE_BASE: KnowledgeTip[] = [
 export class TribalKnowledgeEngine {
   private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE];
 
+  /** Capture.
+   * @param tip - tip
+   * @param "id" - "id"
+   * @returns knowledge tip
+   */
   capture(tip: Omit<KnowledgeTip, "id" | "created_at" | "usage_count">): KnowledgeTip {
     const newTip: KnowledgeTip = {
       ...tip,
@@ -245,6 +250,10 @@ export class TribalKnowledgeEngine {
     return newTip;
   }
 
+  /** Search.
+   * @param input - input data
+   * @returns knowledge tip[]
+   */
   search(input: KnowledgeSearchInput): KnowledgeTip[] {
     let results = [...this.tips];
 
@@ -253,6 +262,10 @@ export class TribalKnowledgeEngine {
     if (input.operation_type) results = results.filter(t => !t.operation_types || t.operation_types.includes(input.operation_type!));
     if (input.min_confidence) results = results.filter(t => t.confidence >= input.min_confidence!);
 
+    /** If.
+     * @param input.query - input.query
+     * @returns void
+     */
     if (input.query) {
       const q = input.query.toLowerCase();
       results = results.filter(t =>
@@ -268,10 +281,19 @@ export class TribalKnowledgeEngine {
     return results.slice(0, input.limit || 5);
   }
 
+  /** Suggest.
+   * @param materialIso - material iso
+   * @param operationType - operation type
+   * @returns knowledge suggestion
+   */
   suggest(materialIso: string, operationType: string): KnowledgeSuggestion {
     const tips = this.search({ material_iso_group: materialIso, operation_type: operationType, limit: 5 });
     const relevance: Record<string, number> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tip of tips) {
       let score = tip.confidence / 100;
       if (tip.material_groups?.includes(materialIso)) score += 0.2;
@@ -285,10 +307,17 @@ export class TribalKnowledgeEngine {
     };
   }
 
+  /** Stats.
+   * @returns knowledge stats
+   */
   stats(): KnowledgeStats {
     const byCategory: Record<string, number> = {};
     let high = 0, medium = 0, low = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tip of this.tips) {
       byCategory[tip.category] = (byCategory[tip.category] || 0) + 1;
       if (tip.confidence >= 85) high++;

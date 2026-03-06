@@ -100,6 +100,10 @@ export class MachinabilityRatingEngine {
     // Look up material or estimate from properties
     let data = this.findMaterial(input.material_name);
 
+    /** If.
+     * @param !data - !data
+     * @returns void
+     */
     if (!data) {
       // Estimate from properties
       data = this.estimateFromProperties(input);
@@ -107,9 +111,17 @@ export class MachinabilityRatingEngine {
 
     // Hardness adjustment
     let ratingAdj = data.rating;
+    /** If.
+     * @param input.hardness_HRC - input.hardness_ h r c
+     * @returns void
+     */
     if (input.hardness_HRC && input.hardness_HRC > 40) {
       ratingAdj *= Math.max(0.3, 1 - (input.hardness_HRC - 40) * 0.015);
     }
+    /** If.
+     * @param input.condition - input.condition
+     * @returns void
+     */
     if (input.condition === "cold_worked" || input.condition === "aged") {
       ratingAdj *= 0.85;
     }
@@ -149,9 +161,17 @@ export class MachinabilityRatingEngine {
     };
   }
 
+  /** Compare.
+   * @param inputs - inputs
+   * @returns machinability comparison
+   */
   compare(inputs: MachinabilityInput[]): MachinabilityComparison {
     const ratings = inputs.map(i => this.rate(i));
     let bestIdx = 0, worstIdx = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < ratings.length; i++) {
       if (ratings[i].overall_rating > ratings[bestIdx].overall_rating) bestIdx = i;
       if (ratings[i].overall_rating < ratings[worstIdx].overall_rating) worstIdx = i;
@@ -166,6 +186,9 @@ export class MachinabilityRatingEngine {
     };
   }
 
+  /** List Materials.
+   * @returns string[]
+   */
   listMaterials(): string[] {
     return Object.keys(MATERIAL_DB);
   }
@@ -187,6 +210,10 @@ export class MachinabilityRatingEngine {
     const baseRatings: Record<string, number> = { P: 60, M: 35, K: 70, N: 90, S: 20, H: 25 };
     let rating = baseRatings[iso] || 50;
 
+    /** If.
+     * @param input.tensile_strength_MPa - input.tensile_strength_ m pa
+     * @returns void
+     */
     if (input.tensile_strength_MPa) {
       // Higher strength = lower machinability
       rating *= Math.max(0.3, 1 - (input.tensile_strength_MPa - 500) / 2000);

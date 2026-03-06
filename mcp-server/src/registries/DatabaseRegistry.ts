@@ -67,6 +67,9 @@ export class DatabaseRegistry {
     }
   }
 
+  /** Load.
+   * @returns void
+   */
   async load(): Promise<void> {
     if (this._loaded) return;
 
@@ -80,8 +83,16 @@ export class DatabaseRegistry {
       this.manifest = JSON.parse(fs.readFileSync(this.manifestPath, "utf-8"));
       if (!this.manifest) return;
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const entry of this.manifest.databases) {
         // Only load file-backed databases (registry-backed ones are already loaded by their own registries)
+        /** If.
+         * @param entry.type - entry.type
+         * @returns void
+         */
         if (entry.type === "file-backed" && entry.source_file && entry.status !== "deferred") {
           const filePath = path.resolve(PATHS.MCP_SERVER, "..", entry.source_file);
           let data: any = null;
@@ -127,10 +138,16 @@ export class DatabaseRegistry {
     return this.databases.size;
   }
 
+  /** Checks whether is loaded.
+   * @returns true if condition is met
+   */
   isLoaded(): boolean {
     return this._loaded;
   }
 
+  /** Clear.
+   * @returns void
+   */
   clear(): void {
     this.databases.clear();
     this.manifest = null;
@@ -163,6 +180,11 @@ export class DatabaseRegistry {
     const results: { database_id: string; matches: any[] }[] = [];
     const q = query.toLowerCase();
 
+    /** For.
+     * @param const - const
+     * @param db] - db]
+     * @returns void
+     */
     for (const [id, db] of this.databases) {
       if (!db.data || db.type !== "file-backed") continue;
 
@@ -180,12 +202,20 @@ export class DatabaseRegistry {
         }
 
         if (Array.isArray(obj)) {
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let i = 0; i < obj.length && matches.length < limit; i++) {
             searchObj(obj[i], `${path}[${i}]`);
           }
           return;
         }
 
+        /** If.
+         * @param typeof - typeof
+         * @returns void
+         */
         if (typeof obj === "object") {
           for (const [key, val] of Object.entries(obj)) {
             if (matches.length >= limit) break;
@@ -201,6 +231,10 @@ export class DatabaseRegistry {
 
       searchObj(data, id);
 
+      /** If.
+       * @param matches.length - matches.length
+       * @returns void
+       */
       if (matches.length > 0) {
         results.push({ database_id: id, matches: matches.slice(0, limit) });
       }
@@ -209,6 +243,9 @@ export class DatabaseRegistry {
     return results;
   }
 
+  /** Gets stats.
+   * @returns void
+   */
   getStats(): {
     total: number;
     file_backed: number;

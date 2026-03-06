@@ -29,6 +29,7 @@ const ACTIONS = [
 
 /** Registers automation dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerAutomationDispatcher(server: any): void {
   server.tool(

@@ -130,6 +130,9 @@ export class ProtocolBridgeEngine {
     log.info('[BRIDGE] Dispatch handler registered — live routing enabled');
   }
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
     ensureDirs();
@@ -147,12 +150,20 @@ export class ProtocolBridgeEngine {
     dispatcher: string, action: string, auth?: AuthMethod,
     rateLimit?: Partial<RateLimit>): { success: boolean; endpoint?: ProtocolEndpoint; reason?: string } {
     this.init();
+    /** If.
+     * @param this.endpoints.size - this.endpoints.size
+     * @returns void
+     */
     if (this.endpoints.size >= this.config.max_endpoints) {
       return { success: false, reason: `Maximum ${this.config.max_endpoints} endpoints reached` };
     }
 
     // Check for duplicate path+protocol
     const existing = [...this.endpoints.values()].find(e => e.path === pathStr && e.protocol === protocol);
+    /** If.
+     * @param existing - existing
+     * @returns void
+     */
     if (existing) {
       return { success: false, reason: `Endpoint already exists: ${protocol}:${pathStr}` };
     }
@@ -172,6 +183,10 @@ export class ProtocolBridgeEngine {
     return { success: true, endpoint };
   }
 
+  /** Removes endpoint.
+   * @param endpointId - endpoint id
+   * @returns { success: boolean; reason?: string }
+   */
   removeEndpoint(endpointId: string): { success: boolean; reason?: string } {
     this.init();
     if (!this.endpoints.has(endpointId)) {
@@ -183,6 +198,11 @@ export class ProtocolBridgeEngine {
     return { success: true };
   }
 
+  /** Sets endpoint status.
+   * @param endpointId - endpoint id
+   * @param status - status
+   * @returns { success: boolean; reason?: string }
+   */
   setEndpointStatus(endpointId: string, status: EndpointStatus): { success: boolean; reason?: string } {
     this.init();
     const ep = this.endpoints.get(endpointId);
@@ -200,6 +220,10 @@ export class ProtocolBridgeEngine {
   createApiKey(name: string, scopes: string[], expiresInDays?: number,
     rateLimit?: Partial<RateLimit>): { success: boolean; key?: string; key_id?: string; reason?: string } {
     this.init();
+    /** If.
+     * @param this.apiKeys.size - this.api keys.size
+     * @returns void
+     */
     if (this.apiKeys.size >= this.config.max_api_keys) {
       return { success: false, reason: `Maximum ${this.config.max_api_keys} API keys reached` };
     }
@@ -225,6 +249,10 @@ export class ProtocolBridgeEngine {
     return { success: true, key: rawKey, key_id: keyId };
   }
 
+  /** Revokes api key.
+   * @param keyId - key id
+   * @returns { success: boolean; reason?: string }
+   */
   revokeApiKey(keyId: string): { success: boolean; reason?: string } {
     this.init();
     const record = this.apiKeys.get(keyId);
@@ -236,8 +264,17 @@ export class ProtocolBridgeEngine {
     return { success: true };
   }
 
+  /** Validates api key.
+   * @param rawKey - raw key
+   * @returns { valid: boolean; key_id?: string; scopes?: string[]; reason?: string }
+   */
   validateApiKey(rawKey: string): { valid: boolean; key_id?: string; scopes?: string[]; reason?: string } {
     const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+    /** For.
+     * @param const - const
+     * @param record] - record]
+     * @returns void
+     */
     for (const [, record] of this.apiKeys) {
       // Timing-safe comparison to prevent side-channel attacks
       const hashBuf = Buffer.from(keyHash, 'hex');
@@ -258,16 +295,28 @@ export class ProtocolBridgeEngine {
   // REQUEST ROUTING — Process incoming bridge requests
   // ==========================================================================
 
+  /** Route Request.
+   * @param request - request
+   * @returns bridge response
+   */
   async routeRequest(request: BridgeRequest): Promise<BridgeResponse> {
     this.init();
     const start = Date.now();
     this.metrics.requests_total++;
 
     // INPUT VALIDATION — Sanitize external requests before routing
+    /** If.
+     * @param !request.dispatcher - !request.dispatcher
+     * @returns void
+     */
     if (!request.dispatcher || typeof request.dispatcher !== 'string' || request.dispatcher.length > 100) {
       this.metrics.requests_error++;
       return this.errorResponse(request.request_id, 'Invalid dispatcher name', start);
     }
+    /** If.
+     * @param !request.action - !request.action
+     * @returns void
+     */
     if (!request.action || typeof request.action !== 'string' || request.action.length > 100) {
       this.metrics.requests_error++;
       return this.errorResponse(request.request_id, 'Invalid action name', start);
@@ -290,18 +339,34 @@ export class ProtocolBridgeEngine {
         [...this.endpoints.values()].find(e =>
           e.dispatcher === request.dispatcher && e.action === request.action && e.protocol === request.protocol);
 
+      /** If.
+       * @param !endpoint - !endpoint
+       * @returns void
+       */
       if (!endpoint || endpoint.status !== 'active') {
         this.metrics.requests_error++;
         return this.errorResponse(request.request_id, 'Endpoint not found or disabled', start);
       }
 
       // Auth check
+      /** If.
+       * @param endpoint.auth - endpoint.auth
+       * @returns void
+       */
       if (endpoint.auth !== 'none') {
+        /** If.
+         * @param !request.auth.key_id - !request.auth.key_id
+         * @returns void
+         */
         if (!request.auth.key_id) {
           this.metrics.requests_unauthorized++;
           return { request_id: request.request_id, status: 'unauthorized', error: 'Authentication required', latency_ms: Date.now() - start, timestamp: Date.now() };
         }
         const keyRecord = this.apiKeys.get(request.auth.key_id);
+        /** If.
+         * @param !keyRecord - !key record
+         * @returns void
+         */
         if (!keyRecord || keyRecord.status !== 'active') {
           this.metrics.requests_unauthorized++;
           return { request_id: request.request_id, status: 'unauthorized', error: 'Invalid or revoked API key', latency_ms: Date.now() - start, timestamp: Date.now() };
@@ -317,6 +382,10 @@ export class ProtocolBridgeEngine {
       // Rate limit check
       const limitKey = request.auth.key_id || request.client_ip || 'anonymous';
       const rateCheck = this.rateLimiter.check(limitKey, endpoint.rate_limit);
+      /** If.
+       * @param !rateCheck.allowed - !rate check.allowed
+       * @returns void
+       */
       if (!rateCheck.allowed) {
         this.metrics.requests_rate_limited++;
         return { request_id: request.request_id, status: 'rate_limited', error: rateCheck.reason, latency_ms: Date.now() - start, timestamp: Date.now() };
@@ -324,6 +393,10 @@ export class ProtocolBridgeEngine {
 
       // Route to dispatcher — live routing via dispatchHandler, or simulated passthrough
       let responseData: Record<string, unknown>;
+      /** If.
+       * @param this.dispatchHandler - this.dispatch handler
+       * @returns void
+       */
       if (this.dispatchHandler) {
         try {
           responseData = await this.dispatchHandler(endpoint.dispatcher, endpoint.action, request.params || {});
@@ -357,6 +430,10 @@ export class ProtocolBridgeEngine {
       this.updateAvgLatency(response.latency_ms);
 
       // Log if enabled
+      /** If.
+       * @param this.config.log_requests - this.config.log_requests
+       * @returns void
+       */
       if (this.config.log_requests) {
         this.logRequest(request, response);
       }
@@ -388,6 +465,9 @@ export class ProtocolBridgeEngine {
   // ROUTE MAP — Auto-generate from registered endpoints
   // ==========================================================================
 
+  /** Generates route map.
+   * @returns route map
+   */
   generateRouteMap(): RouteMap {
     this.init();
     const routes: RouteEntry[] = [...this.endpoints.values()]
@@ -405,11 +485,20 @@ export class ProtocolBridgeEngine {
   // QUERIES
   // ==========================================================================
 
+  /** Gets endpoint.
+   * @param endpointId - endpoint id
+   * @returns protocol endpoint | null
+   */
   getEndpoint(endpointId: string): ProtocolEndpoint | null {
     this.init();
     return this.endpoints.get(endpointId) || null;
   }
 
+  /** List Endpoints.
+   * @param protocol - protocol
+   * @param status - status
+   * @returns protocol endpoint[]
+   */
   listEndpoints(protocol?: ProtocolType, status?: EndpointStatus): ProtocolEndpoint[] {
     this.init();
     let eps = [...this.endpoints.values()];
@@ -418,6 +507,9 @@ export class ProtocolBridgeEngine {
     return eps;
   }
 
+  /** List Api Keys.
+   * @returns omit< api key record, 'key_hash'>[]
+   */
   listApiKeys(): Omit<ApiKeyRecord, 'key_hash'>[] {
     this.init();
     return [...this.apiKeys.values()].map(({ key_hash, ...rest }) => rest);
@@ -441,6 +533,10 @@ export class ProtocolBridgeEngine {
     try {
       if (fs.existsSync(ENDPOINTS_PATH)) {
         const raw = JSON.parse(fs.readFileSync(ENDPOINTS_PATH, 'utf-8'));
+        /** If.
+         * @param raw.endpoints - raw.endpoints
+         * @returns void
+         */
         if (raw.endpoints) {
           for (const [k, v] of Object.entries(raw.endpoints)) this.endpoints.set(k, v as ProtocolEndpoint);
         }
@@ -462,6 +558,10 @@ export class ProtocolBridgeEngine {
     try {
       if (fs.existsSync(KEYS_PATH)) {
         const raw = JSON.parse(fs.readFileSync(KEYS_PATH, 'utf-8'));
+        /** If.
+         * @param raw.keys - raw.keys
+         * @returns void
+         */
         if (raw.keys) {
           for (const [k, v] of Object.entries(raw.keys)) this.apiKeys.set(k, v as ApiKeyRecord);
         }
@@ -473,6 +573,9 @@ export class ProtocolBridgeEngine {
   // METRICS & CONFIG
   // ==========================================================================
 
+  /** Gets stats.
+   * @returns void
+   */
   getStats(): {
     endpoints: number; active_endpoints: number; api_keys: number; active_keys: number;
     metrics: typeof this.metrics;
@@ -495,13 +598,23 @@ export class ProtocolBridgeEngine {
     };
   }
 
+  /** Gets config.
+   * @returns protocol bridge config { return { ...this.config }; }
+   */
   getConfig(): ProtocolBridgeConfig { return { ...this.config }; }
 
+  /** Updates config.
+   * @param updates - updates
+   * @returns protocol bridge config
+   */
   updateConfig(updates: Partial<ProtocolBridgeConfig>): ProtocolBridgeConfig {
     this.config = { ...this.config, ...updates };
     return { ...this.config };
   }
 
+  /** Shutdown.
+   * @returns void
+   */
   shutdown(): void {
     this.saveEndpoints();
     this.saveApiKeys();
@@ -593,6 +706,7 @@ export const PROTOCOL_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Return the ProtocolBridgeEngine source-file catalog for audit and traceability.
+  * @returns typeof  p r o t o c o l_ s o u r c e_ f i l e_ c a t a l o g
  */
 export function getProtocolSourceFileCatalog(): typeof PROTOCOL_SOURCE_FILE_CATALOG {
   return PROTOCOL_SOURCE_FILE_CATALOG;

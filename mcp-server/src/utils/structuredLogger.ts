@@ -43,6 +43,7 @@ export interface SafetyBlockRecord {
 /**
  * Generate a new correlation ID (UUID v4).
  * Use at the entry point of every API call chain.
+  * @returns formatted string result
  */
 export function generateCorrelationId(): string {
   return randomUUID();
@@ -51,6 +52,9 @@ export function generateCorrelationId(): string {
 /**
  * Generate a child correlation ID from a parent.
  * Used for swarm sub-tasks: parent="abc-123", child="abc-123:1"
+  * @param parentId - parent identifier
+  * @param childIndex - child index value
+  * @returns formatted string result
  */
 export function childCorrelationId(parentId: string, childIndex: number): string {
   return `${parentId}:${childIndex}`;
@@ -58,6 +62,8 @@ export function childCorrelationId(parentId: string, childIndex: number): string
 
 /**
  * Emit a structured log record to stderr (MCP-compliant).
+  * @param record - record
+  * @returns void
  */
 export function structuredLog(record: Partial<LogRecord> & { level: LogLevel; message: string }): void {
   const full: LogRecord = {
@@ -70,6 +76,8 @@ export function structuredLog(record: Partial<LogRecord> & { level: LogLevel; me
 
 /**
  * Log a safety block decision.
+  * @param record - record
+  * @returns void
  */
 export function logSafetyBlock(record: Omit<SafetyBlockRecord, 'type' | 'timestamp'>): void {
   const full: SafetyBlockRecord = {

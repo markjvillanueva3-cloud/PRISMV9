@@ -33,6 +33,10 @@ export interface SafetyRule {
  * Validate a regex pattern for ReDoS safety.
  * Rejects patterns with nested quantifiers that cause exponential backtracking.
  * Returns the compiled RegExp or null if unsafe/invalid.
+  * @param pattern - pattern string
+  * @param flags - flags string
+  * @param maxLen - max len
+  * @returns reg exp | null
  */
 export function safeRegex(pattern: string, flags?: string, maxLen = 200): RegExp | null {
   if (pattern.length > maxLen) return null;

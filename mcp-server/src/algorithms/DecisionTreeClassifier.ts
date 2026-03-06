@@ -64,10 +64,18 @@ export interface DecisionTreeClassifierOutput extends WithWarnings {
  */
 export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierInput, DecisionTreeClassifierOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: DecisionTreeClassifierInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.X_train?.length) issues.push({ field: "X_train", message: "Required", severity: "error" });
     if (!input.y_train?.length) issues.push({ field: "y_train", message: "Required", severity: "error" });
+    /** If.
+     * @param input.X_train?.length - input. x_train?.length
+     * @returns void
+     */
     if (input.X_train?.length !== input.y_train?.length) {
       issues.push({ field: "y_train", message: "Must match X_train length", severity: "error" });
     }
@@ -75,6 +83,10 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns decision tree classifier output
+   */
   calculate(input: DecisionTreeClassifierInput): DecisionTreeClassifierOutput {
     const warnings: string[] = [];
     const { X_train, y_train, X_test } = input;
@@ -113,6 +125,10 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
       const imp = impurityFn(labels);
 
       // Leaf conditions
+      /** If.
+       * @param depth - recursion or nesting depth
+       * @returns void
+       */
       if (depth >= maxDepth || indices.length < minSplit || imp === 0) {
         const counts = new Map<number, number>();
         labels.forEach(l => counts.set(l, (counts.get(l) ?? 0) + 1));
@@ -124,8 +140,16 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
       let bestFeature = 0, bestThreshold = 0, bestGain = -1;
       let bestLeft: number[] = [], bestRight: number[] = [];
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let f = 0; f < nFeatures; f++) {
         const values = [...new Set(indices.map(i => X_train[i][f]))].sort((a, b) => a - b);
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let v = 0; v < values.length - 1; v++) {
           const thresh = (values[v] + values[v + 1]) / 2;
           const left = indices.filter(i => X_train[i][f] <= thresh);
@@ -136,6 +160,10 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
           const rightImp = impurityFn(right.map(i => y_train[i]));
           const gain = imp - (left.length / indices.length) * leftImp - (right.length / indices.length) * rightImp;
 
+          /** If.
+           * @param gain - gain
+           * @returns void
+           */
           if (gain > bestGain) {
             bestGain = gain;
             bestFeature = f;
@@ -146,6 +174,10 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
         }
       }
 
+      /** If.
+       * @param bestGain - best gain
+       * @returns void
+       */
       if (bestGain <= 0) {
         const counts = new Map<number, number>();
         labels.forEach(l => counts.set(l, (counts.get(l) ?? 0) + 1));
@@ -170,6 +202,10 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
 
     const predict = (x: number[]): { label: number; probs: number[] } => {
       let node = tree;
+      /** While.
+       * @param node.prediction - node.prediction
+       * @returns void
+       */
       while (node.prediction === undefined) {
         node = x[node.feature!] <= node.threshold! ? node.left! : node.right!;
       }
@@ -204,6 +240,9 @@ export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierI
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "decision-tree-classifier",

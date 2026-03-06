@@ -20,6 +20,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 
 /** Registers toolpath dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerToolpathDispatcher(server: any): void {
   server.tool(

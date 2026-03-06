@@ -66,8 +66,16 @@ function mulberry32(seed: number) {
  */
 export class ClusteringEngine implements Algorithm<ClusteringEngineInput, ClusteringEngineOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ClusteringEngineInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.data?.length - !input.data?.length
+     * @returns void
+     */
     if (!input.data?.length || input.data.length < 2) {
       issues.push({ field: "data", message: "At least 2 data points required", severity: "error" });
     }
@@ -80,6 +88,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns clustering engine output
+   */
   calculate(input: ClusteringEngineInput): ClusteringEngineOutput {
     const warnings: string[] = [];
     const { data } = input;
@@ -97,13 +109,25 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
       let bestCentroids: number[][] = [];
       let bestInertia = Infinity;
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let r = 0; r < nRestarts; r++) {
         // K-Means++ initialization
         const centroids: number[][] = [data[Math.floor(rand() * n)]];
+        /** While.
+         * @param centroids.length - centroids.length
+         * @returns void
+         */
         while (centroids.length < k) {
           const dists = data.map(p => Math.min(...centroids.map(c => dist(p, c) ** 2)));
           const total = dists.reduce((s, d) => s + d, 0);
           let target = rand() * total;
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let i = 0; i < n; i++) {
             target -= dists[i];
             if (target <= 0) { centroids.push([...data[i]]); break; }
@@ -113,6 +137,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
         }
 
         let labels = new Array(n).fill(0);
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let iter = 0; iter < maxIter; iter++) {
           // Assign
           const newLabels = data.map(p => {
@@ -123,6 +151,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
 
           // Update centroids
           let changed = false;
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let ki = 0; ki < k; ki++) {
             const members = data.filter((_, i) => newLabels[i] === ki);
             if (members.length === 0) continue;
@@ -136,6 +168,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
         }
 
         const inertia = data.reduce((s, p, i) => s + dist(p, centroids[labels[i]]) ** 2, 0);
+        /** If.
+         * @param inertia - inertia
+         * @returns void
+         */
         if (inertia < bestInertia) {
           bestInertia = inertia;
           bestLabels = labels;
@@ -148,7 +184,15 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
     // Elbow method if k=0
     const elbowScores: Array<{ k: number; inertia: number }> = [];
     let chosenK = input.k ?? 0;
+    /** If.
+     * @param chosenK - chosen k
+     * @returns void
+     */
     if (chosenK === 0) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 1; k <= maxK; k++) {
         const { inertia } = runKMeans(k);
         elbowScores.push({ k, inertia });
@@ -156,6 +200,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
       // Find elbow: max second derivative
       let maxDiff2 = 0;
       chosenK = 2;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 1; i < elbowScores.length - 1; i++) {
         const diff2 = Math.abs(elbowScores[i - 1].inertia - 2 * elbowScores[i].inertia + elbowScores[i + 1].inertia);
         if (diff2 > maxDiff2) { maxDiff2 = diff2; chosenK = elbowScores[i].k; }
@@ -177,6 +225,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
 
     // Silhouette score
     let silhouetteSum = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const myCluster = labels[i];
       const sameCluster = labels.filter((l, j) => l === myCluster && j !== i);
@@ -184,6 +236,10 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
         ? data.reduce((s, p, j) => labels[j] === myCluster && j !== i ? s + dist(data[i], p) : s, 0) / sameCluster.length
         : 0;
       let minB = Infinity;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let ki = 0; ki < chosenK; ki++) {
         if (ki === myCluster) continue;
         const otherMembers = labels.filter(l => l === ki);
@@ -208,6 +264,9 @@ export class ClusteringEngine implements Algorithm<ClusteringEngineInput, Cluste
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "clustering-engine",

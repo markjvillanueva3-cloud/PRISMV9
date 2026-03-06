@@ -79,6 +79,10 @@ export interface DigitalTwinEstimatorOutput extends WithWarnings {
  */
 export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput, DigitalTwinEstimatorOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: DigitalTwinEstimatorInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.states?.length) issues.push({ field: "states", message: "At least 1 state required", severity: "error" });
@@ -89,6 +93,10 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns digital twin estimator output
+   */
   calculate(input: DigitalTwinEstimatorInput): DigitalTwinEstimatorOutput {
     const warnings: string[] = [];
     const anomalies: string[] = [];
@@ -102,6 +110,10 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
     let totalAgreement = 0;
     let agreementCount = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const state of states) {
       const modelConf = state.model_confidence ?? 0.5;
       const sensorNoise = state.sensor_noise ?? 0.1;
@@ -111,6 +123,10 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
       let source: "model" | "sensor" | "fused";
       let confidence: number;
 
+      /** If.
+       * @param hasSensor - has sensor
+       * @returns void
+       */
       if (hasSensor) {
         // Complementary filter: blend model and sensor
         const sensorConf = 1 / (1 + sensorNoise * sensorNoise);
@@ -129,6 +145,10 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
         totalAgreement += agreement;
         agreementCount++;
 
+        /** If.
+         * @param deviation - deviation
+         * @returns void
+         */
         if (deviation * 100 > healthThresh) {
           anomalies.push(`${state.name}: model-sensor deviation ${(deviation * 100).toFixed(1)}% exceeds ${healthThresh}%`);
         }
@@ -139,6 +159,10 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
       }
 
       // Temporal smoothing
+      /** If.
+       * @param prevEst[state.name] - prev est[state.name]
+       * @returns void
+       */
       if (prevEst[state.name] !== undefined) {
         fused = smoothing * prevEst[state.name] + (1 - smoothing) * fused;
       }
@@ -173,6 +197,9 @@ export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "digital-twin-estimator",

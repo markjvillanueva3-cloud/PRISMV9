@@ -131,6 +131,12 @@ export class MeshEngine {
     return { id: `mesh-box-${Date.now().toString(36)}`, vertices, triangles, name: "box" };
   }
 
+  /** Generates cylinder.
+   * @param diameter - diameter
+   * @param height - height
+   * @param segments - segments
+   * @returns mesh data
+   */
   generateCylinder(diameter: number, height: number, segments: number = 24): MeshData {
     const r = diameter / 2;
     const vertices: MeshVertex[] = [];
@@ -140,6 +146,10 @@ export class MeshEngine {
     vertices.push({ x: 0, y: 0, z: 0 });        // 0: bottom center
     vertices.push({ x: 0, y: 0, z: height });    // 1: top center
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       const angle = (2 * Math.PI * i) / segments;
       const x = r * Math.cos(angle), y = r * Math.sin(angle);
@@ -147,6 +157,10 @@ export class MeshEngine {
       vertices.push({ x, y, z: height });        // top ring: 2 + segments + i
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       const bi = 2 + i, bNext = 2 + ((i + 1) % segments);
       const ti = 2 + segments + i, tNext = 2 + segments + ((i + 1) % segments);
@@ -162,6 +176,10 @@ export class MeshEngine {
     return { id: `mesh-cyl-${Date.now().toString(36)}`, vertices, triangles, name: "cylinder" };
   }
 
+  /** Analyze.
+   * @param mesh - mesh
+   * @returns mesh quality
+   */
   analyze(mesh: MeshData): MeshQuality {
     const verts = mesh.vertices;
     const tris = mesh.triangles;
@@ -174,11 +192,19 @@ export class MeshEngine {
     let minX = Infinity, minY = Infinity, minZ = Infinity;
     let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const v of verts) {
       minX = Math.min(minX, v.x); minY = Math.min(minY, v.y); minZ = Math.min(minZ, v.z);
       maxX = Math.max(maxX, v.x); maxY = Math.max(maxY, v.y); maxZ = Math.max(maxZ, v.z);
     }
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of tris) {
       const v0 = verts[t.v0], v1 = verts[t.v1], v2 = verts[t.v2];
       if (!v0 || !v1 || !v2) continue;
@@ -189,6 +215,22 @@ export class MeshEngine {
 
       if (area < 1e-10) degenerate++;
 
+      /** For.
+       * @param const - const
+       * @param ei - ei
+       * @param ej] - ej]
+       * @param t.v0 - t.v0
+       * @param t.v1] - t.v1]
+       * @param [b - [b
+       * @param t.v1 - t.v1
+       * @param t.v2] - t.v2]
+       * @param [c - [c
+       * @param t.v2 - t.v2
+       * @param t.v0]] - t.v0]]
+       * @param number - number
+       * @param number][] - number][]
+       * @returns void
+       */
       for (const [len, ei, ej] of [[a, t.v0, t.v1], [b, t.v1, t.v2], [c, t.v2, t.v0]] as [number, number, number][]) {
         const key = `${Math.min(ei, ej)}-${Math.max(ei, ej)}`;
         if (!edgeSet.has(key)) {
@@ -200,6 +242,10 @@ export class MeshEngine {
         }
       }
 
+      /** If.
+       * @param a - a
+       * @returns void
+       */
       if (a > 1e-10 && b > 1e-10 && c > 1e-10) {
         const angA = triangleAngle(b, c, a);
         const angB = triangleAngle(a, c, b);
@@ -213,6 +259,10 @@ export class MeshEngine {
 
     // Simple volume estimate: signed tetrahedron method
     let volume = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of tris) {
       const v0 = verts[t.v0], v1 = verts[t.v1], v2 = verts[t.v2];
       if (!v0 || !v1 || !v2) continue;
@@ -243,6 +293,11 @@ export class MeshEngine {
     };
   }
 
+  /** Simplify.
+   * @param mesh - mesh
+   * @param targetReductionPct - target reduction pct
+   * @returns simplify result
+   */
   simplify(mesh: MeshData, targetReductionPct: number): SimplifyResult {
     const origCount = mesh.triangles.length;
     const targetCount = Math.max(4, Math.round(origCount * (1 - targetReductionPct / 100)));
@@ -256,6 +311,11 @@ export class MeshEngine {
     };
   }
 
+  /** Subdivide.
+   * @param mesh - mesh
+   * @param iterations - iterations
+   * @returns subdivide result
+   */
   subdivide(mesh: MeshData, iterations: number = 1): SubdivideResult {
     const origCount = mesh.triangles.length;
     // Loop subdivision: each triangle → 4 per iteration
@@ -263,6 +323,10 @@ export class MeshEngine {
     return { original_triangles: origCount, subdivided_triangles: newCount, iterations };
   }
 
+  /** Repair.
+   * @param mesh - mesh
+   * @returns repair result
+   */
   repair(mesh: MeshData): RepairResult {
     const quality = this.analyze(mesh);
     // Simulated repair
@@ -276,8 +340,16 @@ export class MeshEngine {
     };
   }
 
+  /** Exports s t l.
+   * @param mesh - mesh
+   * @returns formatted string result
+   */
   exportSTL(mesh: MeshData): string {
     const lines = [`solid ${mesh.name || "mesh"}`];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of mesh.triangles) {
       const v0 = mesh.vertices[t.v0], v1 = mesh.vertices[t.v1], v2 = mesh.vertices[t.v2];
       if (!v0 || !v1 || !v2) continue;

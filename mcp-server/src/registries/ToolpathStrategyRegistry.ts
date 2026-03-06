@@ -2038,6 +2038,10 @@ export class ToolpathStrategyRegistry {
   private constructor() {}
 
   public static getInstance(): ToolpathStrategyRegistry {
+    /** If.
+     * @param !ToolpathStrategyRegistry.instance - ! toolpath strategy registry.instance
+     * @returns void
+     */
     if (!ToolpathStrategyRegistry.instance) {
       ToolpathStrategyRegistry.instance = new ToolpathStrategyRegistry();
     }
@@ -2078,6 +2082,10 @@ export class ToolpathStrategyRegistry {
     // Get applicable categories
     const categories = this.featureMap[type] || ['milling_roughing', 'milling_finishing'];
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const cat of categories) {
       const categoryStrategies = this.strategies[cat];
       if (!categoryStrategies) continue;
@@ -2126,6 +2134,10 @@ export class ToolpathStrategyRegistry {
   ): StrategySelectionResult {
     const strategies = this.getStrategiesForFeature(featureType, { material, operation });
     
+    /** If.
+     * @param strategies.length - strategies.length
+     * @returns void
+     */
     if (strategies.length === 0) {
       // Return failsafe
       const fallback: ToolpathStrategy = {
@@ -2150,6 +2162,10 @@ export class ToolpathStrategyRegistry {
     let best = strategies[0];
     let bestScore = 0;
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const strategy of strategies) {
       let score = 50;
       
@@ -2172,6 +2188,10 @@ export class ToolpathStrategyRegistry {
       }
       
       // Priority adjustments
+      /** If.
+       * @param options.priority - options.priority
+       * @returns void
+       */
       if (options.priority === 'time' && strategy.subcategory === 'hsm') {
         score += 15;
       }
@@ -2180,10 +2200,18 @@ export class ToolpathStrategyRegistry {
       }
       
       // PRISM novel bonus for optimization
+      /** If.
+       * @param strategy.prismNovel - strategy.prism novel
+       * @returns void
+       */
       if (strategy.prismNovel && options.priority) {
         score += 10;
       }
       
+      /** If.
+       * @param score - score
+       * @returns void
+       */
       if (score > bestScore) {
         bestScore = score;
         best = strategy;
@@ -2216,6 +2244,10 @@ export class ToolpathStrategyRegistry {
     
     for (const cat of Object.values(this.strategies)) {
       for (const s of Object.values(cat)) {
+        /** If.
+         * @param s.id - s.id
+         * @returns void
+         */
         if (s.id === strategyId) {
           strategy = s;
           break;
@@ -2253,10 +2285,22 @@ export class ToolpathStrategyRegistry {
     }
     
     // Apply strategy-specific overrides
+    /** If.
+     * @param strategy?.params - strategy?.params
+     * @returns void
+     */
     if (strategy?.params) {
+      /** If.
+       * @param typeof - typeof
+       * @returns void
+       */
       if (typeof strategy.params.engagement === 'number') {
         engagement = strategy.params.engagement;
       }
+      /** If.
+       * @param typeof - typeof
+       * @returns void
+       */
       if (typeof strategy.params.stepover === 'number') {
         stepoverMult = strategy.params.stepover;
       }
@@ -2308,6 +2352,10 @@ export class ToolpathStrategyRegistry {
   public getStrategyById(id: string): ToolpathStrategy | null {
     for (const cat of Object.values(this.strategies)) {
       for (const strategy of Object.values(cat)) {
+        /** If.
+         * @param strategy.id - strategy.id
+         * @returns void
+         */
         if (strategy.id === id) {
           return strategy;
         }
@@ -4259,6 +4307,7 @@ export const MULTIAXIS_EXTENDED: Record<string, ToolpathStrategy> = {
 
 /**
  * Consolidate all extended strategy maps into the main registry
+  * @returns map<string,  toolpath strategy>
  */
 export function consolidateExtendedStrategies(): Map<string, ToolpathStrategy> {
   const allStrategies = new Map<string, ToolpathStrategy>();
@@ -4292,6 +4341,12 @@ export const EXTENDED_STRATEGIES = consolidateExtendedStrategies();
 
 /**
  * Get comprehensive strategy statistics
+  * @returns {
+  total: number;
+  by category:  record<string, number>;
+  by subcategory:  record<string,  record<string, number>>;
+  prism novel: number;
+}
  */
 export function getExtendedStats(): {
   total: number;
@@ -4330,6 +4385,9 @@ export function getExtendedStats(): {
 
 /**
  * Search extended strategies
+  * @param query - query string
+  * @param options - configuration options
+  * @returns array of toolpath strategy items
  */
 export function searchExtendedStrategies(
   query: string,
@@ -4377,6 +4435,13 @@ export function searchExtendedStrategies(
 
 /**
  * Get strategies by feature type
+  * @param featureType - feature type string
+  * @returns {
+  roughing:  toolpath strategy[];
+  finishing:  toolpath strategy[];
+  drilling:  toolpath strategy[];
+  specialty:  toolpath strategy[];
+}
  */
 export function getStrategiesByFeature(featureType: string): {
   roughing: ToolpathStrategy[];
@@ -4415,6 +4480,10 @@ export function getStrategiesByFeature(featureType: string): {
 
 /**
  * Get optimal strategy for material and operation
+  * @param material - material identifier or specification
+  * @param operation - operation
+  * @param featureType - feature type string
+  * @returns { strategy:  toolpath strategy; confidence: number; reasoning: string } | null
  */
 export function getOptimalStrategy(
   material: string,

@@ -121,6 +121,10 @@ export class SchedulingEngine {
   schedule(jobs: Job[], machines: MachineSlot[], strategy: ScheduleStrategy = "balanced"): ScheduleResult {
     const sortedJobs = sortByStrategy(jobs, strategy);
     const machineLoads = new Map<string, number>(); // machine_id → cumulative hours
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of machines) {
       machineLoads.set(m.machine_id, m.current_load_hours);
     }
@@ -129,12 +133,20 @@ export class SchedulingEngine {
     const today = new Date().toISOString().slice(0, 10);
     const lateJobs: string[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const job of sortedJobs) {
       // Find best machine for this job
       const eligible = machines.filter(m =>
         !job.required_machine_type || m.type === job.required_machine_type
       );
 
+      /** If.
+       * @param eligible.length - eligible.length
+       * @returns void
+       */
       if (eligible.length === 0) {
         // No eligible machine — assign to first available
         const fallback = machines[0];
@@ -144,6 +156,10 @@ export class SchedulingEngine {
       // Pick machine with least load (load balancing)
       let bestMachine = eligible[0];
       let bestLoad = machineLoads.get(bestMachine.machine_id) || 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const m of eligible) {
         const load = machineLoads.get(m.machine_id) || 0;
         if (load < bestLoad) { bestMachine = m; bestLoad = load; }
@@ -175,6 +191,10 @@ export class SchedulingEngine {
     // Machine utilization
     const utilization: Record<string, number> = {};
     const maxEndDay = assignments.reduce((max, a) => Math.max(max, a.end_day), 0);
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of machines) {
       const totalLoad = machineLoads.get(m.machine_id) || 0;
       const totalAvailable = maxEndDay * m.available_hours_per_day;
@@ -195,15 +215,28 @@ export class SchedulingEngine {
     };
   }
 
+  /** Optimize.
+   * @param jobs - jobs
+   * @param machines - machines
+   * @returns { best_strategy:  schedule strategy; results:  record<string,  schedule result> }
+   */
   optimize(jobs: Job[], machines: MachineSlot[]): { best_strategy: ScheduleStrategy; results: Record<string, ScheduleResult> } {
     const strategies: ScheduleStrategy[] = ["EDD", "SPT", "priority", "balanced"];
     const results: Record<string, ScheduleResult> = {};
     let bestStrategy: ScheduleStrategy = "balanced";
     let bestScore = -1;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const s of strategies) {
       const result = this.schedule(jobs, machines, s);
       results[s] = result;
+      /** If.
+       * @param result.schedule_score - result.schedule_score
+       * @returns void
+       */
       if (result.schedule_score > bestScore) {
         bestScore = result.schedule_score;
         bestStrategy = s;
@@ -213,6 +246,12 @@ export class SchedulingEngine {
     return { best_strategy: bestStrategy, results };
   }
 
+  /** Capacity.
+   * @param jobs - jobs
+   * @param machines - machines
+   * @param horizonDays - horizon days
+   * @returns capacity report
+   */
   capacity(jobs: Job[], machines: MachineSlot[], horizonDays: number = 30): CapacityReport {
     let totalNeeded = 0;
     for (const job of jobs) totalNeeded += jobDuration(job);
@@ -221,6 +260,10 @@ export class SchedulingEngine {
     let bottleneck: string | null = null;
     let bottleneckUtil = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of machines) {
       const avail = m.available_hours_per_day * horizonDays * m.efficiency;
       totalAvailable += avail;

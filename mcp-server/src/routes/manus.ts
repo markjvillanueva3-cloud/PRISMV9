@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates manus router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createManusRouter(callTool: CallToolFn): Router {
   const router = Router();
 

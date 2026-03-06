@@ -172,18 +172,30 @@ export class ToolGeometrySelectionEngine {
     flutes = Math.max(fMin, Math.min(fMax, flutes));
 
     // Slotting with small diameter: prefer fewer flutes
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "slotting" && input.tool_diameter_mm <= 6) {
       flutes = Math.max(fMin, flutes - 1);
       recs.push("Small-diameter slotting — reduced flute count for chip space");
     }
 
     // Long reach: fewer flutes for rigidity
+    /** If.
+     * @param input.is_long_reach - input.is_long_reach
+     * @returns void
+     */
     if (input.is_long_reach) {
       flutes = Math.max(fMin, flutes - 1);
       recs.push("Long-reach tool — reduced flute count; consider stub-length alternative");
     }
 
     // Low rigidity machine: fewer flutes reduce cutting forces
+    /** If.
+     * @param input.machine_rigidity - input.machine_rigidity
+     * @returns void
+     */
     if (input.machine_rigidity === "low") {
       flutes = Math.max(fMin, flutes - 1);
       recs.push("Low-rigidity machine — fewer flutes to reduce cutting forces");
@@ -194,14 +206,26 @@ export class ToolGeometrySelectionEngine {
     let helix = hTyp;
 
     // Slotting prefers lower helix (pulling force management)
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "slotting") {
       helix = Math.max(hMin, hTyp - 5);
     }
     // Finishing prefers higher helix (smoother cut)
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "finishing") {
       helix = Math.min(hMax, hTyp + 5);
     }
     // Adaptive/trochoidal: higher helix for lower forces
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "adaptive") {
       helix = Math.min(hMax, hTyp + 3);
     }
@@ -213,6 +237,10 @@ export class ToolGeometrySelectionEngine {
       (input.is_long_reach === true);
     const variablePitch = variableHelix; // typically paired
 
+    /** If.
+     * @param variableHelix - variable helix
+     * @returns void
+     */
     if (variableHelix) {
       recs.push("Variable helix/pitch recommended to suppress chatter harmonics");
     }
@@ -221,6 +249,10 @@ export class ToolGeometrySelectionEngine {
     let cornerTreatment: CornerTreatment = "sharp";
     let cornerRadius = 0;
 
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "finishing") {
       // Ball nose for 3D finishing, corner radius for 2.5D
       if (input.axial_depth_mm && input.radial_depth_mm &&
@@ -250,6 +282,10 @@ export class ToolGeometrySelectionEngine {
       mat === "stainless_steel" || mat === "titanium" || mat === "nickel_alloy" ||
       mat === "aluminum";
 
+    /** If.
+     * @param chipBreaker - chip breaker
+     * @returns void
+     */
     if (chipBreaker && !input.requires_chip_breaking) {
       recs.push("Chip breaker geometry recommended for this material's chip characteristics");
     }
@@ -267,16 +303,32 @@ export class ToolGeometrySelectionEngine {
     if (input.is_long_reach) corePct += 5;  // extra rigidity for long reach
 
     // --- Alternatives ---
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "aluminum" && flutes >= 3) {
       alts.push("Consider 2-flute polished for high-speed aluminum roughing (better chip evacuation)");
     }
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "hardened_steel" && op === "finishing") {
       alts.push("Consider ball-nose CBN insert cutter for hardened steel finishing >55 HRC");
     }
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "cfrp") {
       alts.push("Consider compression router (up/down cut combination) for delamination-free CFRP machining");
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Standard geometry suitable for this material and operation");
     }

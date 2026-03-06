@@ -134,6 +134,10 @@ const LD_STRATEGIES: { maxLD: number; strategy: string; pressure: number; flowMu
  */
 export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlowOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: CoolantFlowInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
@@ -141,9 +145,17 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     if (!input.operation || !validOps.includes(input.operation)) {
       issues.push({ field: "operation", message: `Operation must be one of: ${validOps.join(", ")}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0 || input.tool_diameter > 500) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be 0-500 mm, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed <= 0) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be > 0, got ${input.cutting_speed}`, severity: "error" });
     }
@@ -151,9 +163,17 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     if (!input.material_class || !validMats.includes(input.material_class)) {
       issues.push({ field: "material_class", message: `Material class must be one of: ${validMats.join(", ")}`, severity: "error" });
     }
+    /** If.
+     * @param input.system_flow_rate - input.system_flow_rate
+     * @returns void
+     */
     if (input.system_flow_rate === undefined || input.system_flow_rate < 0) {
       issues.push({ field: "system_flow_rate", message: `System flow rate must be >= 0, got ${input.system_flow_rate}`, severity: "error" });
     }
+    /** If.
+     * @param input.system_pressure - input.system_pressure
+     * @returns void
+     */
     if (input.system_pressure === undefined || input.system_pressure < 0) {
       issues.push({ field: "system_pressure", message: `System pressure must be >= 0, got ${input.system_pressure}`, severity: "error" });
     }
@@ -161,6 +181,10 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns coolant flow output
+   */
   calculate(input: CoolantFlowInput): CoolantFlowOutput {
     const warnings: string[] = [];
     const recommendations: string[] = [];
@@ -178,6 +202,10 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     let required_flow = baseFlow * tool_diameter * materialFactor;
 
     // Speed adjustment
+    /** If.
+     * @param cutting_speed - cutting_speed
+     * @returns void
+     */
     if (cutting_speed > 300) {
       required_flow *= 1.4;
     } else if (cutting_speed > 200) {
@@ -185,6 +213,10 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     }
 
     // Through-spindle bonus: more effective, less volume needed
+    /** If.
+     * @param coolant_through - coolant_through
+     * @returns void
+     */
     if (coolant_through) {
       required_flow *= 0.7; // TSC is more efficient
     }
@@ -210,16 +242,32 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
       required_pressure = Math.max(required_pressure, ldPressure);
       required_flow = Math.max(required_flow, ldFlow);
 
+      /** If.
+       * @param strategy.peckMult - strategy.peck mult
+       * @returns void
+       */
       if (strategy.peckMult > 0) {
         peck_depth = strategy.peckMult * tool_diameter;
       }
+      /** If.
+       * @param strategy.dwell - strategy.dwell
+       * @returns void
+       */
       if (strategy.dwell > 0) {
         dwell_time = strategy.dwell;
       }
 
+      /** If.
+       * @param ld_ratio - ld_ratio
+       * @returns void
+       */
       if (ld_ratio > 3 && !coolant_through) {
         recommendations.push(`L/D = ${ld_ratio.toFixed(1)}: Through-spindle coolant strongly recommended.`);
       }
+      /** If.
+       * @param ld_ratio - ld_ratio
+       * @returns void
+       */
       if (ld_ratio > 20) {
         warnings.push(`EXTREME_LD: L/D = ${ld_ratio.toFixed(1)}. Gundrilling required. Standard drilling not feasible.`);
       }
@@ -233,19 +281,35 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     const utilization_pct = system_flow_rate > 0 ? (required_flow / system_flow_rate) * 100 : 999;
 
     // Warnings
+    /** If.
+     * @param !flow_adequate - !flow_adequate
+     * @returns void
+     */
     if (!flow_adequate) {
       warnings.push(`INSUFFICIENT_FLOW: Need ${required_flow.toFixed(1)} L/min, have ${system_flow_rate.toFixed(1)}.`);
       recommendations.push("Increase coolant pump capacity or reduce cutting parameters.");
     }
+    /** If.
+     * @param !pressure_adequate - !pressure_adequate
+     * @returns void
+     */
     if (!pressure_adequate) {
       warnings.push(`INSUFFICIENT_PRESSURE: Need ${required_pressure.toFixed(0)} bar, have ${system_pressure.toFixed(0)}.`);
       recommendations.push("Upgrade to high-pressure coolant system or use peck drilling.");
     }
 
     // Material-specific warnings
+    /** If.
+     * @param material_class - material_class
+     * @returns void
+     */
     if (material_class === "titanium" || material_class === "superalloy") {
       recommendations.push(`${material_class}: Maintain continuous coolant flow. Dry cutting risks thermal damage and fire.`);
     }
+    /** If.
+     * @param material_class - material_class
+     * @returns void
+     */
     if (material_class === "aluminum" && cutting_speed > 500) {
       recommendations.push("HSM aluminum: Consider MQL (Minimum Quantity Lubrication) over flood coolant.");
     }
@@ -268,6 +332,9 @@ export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlow
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "coolant-flow",

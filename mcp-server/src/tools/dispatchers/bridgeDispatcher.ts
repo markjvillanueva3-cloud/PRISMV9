@@ -17,6 +17,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers bridge dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerBridgeDispatcher(server: McpServer): void {
   (server as any).tool(

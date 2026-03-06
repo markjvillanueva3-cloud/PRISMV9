@@ -397,6 +397,10 @@ export class HookExecutor {
     if (!hookIds) return 0;
 
     let count = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of hookIds) {
       if (this.setEnabled(id, enabled)) count++;
     }
@@ -422,6 +426,10 @@ export class HookExecutor {
     };
 
     const hookIds = this.phaseHooks.get(phase);
+    /** If.
+     * @param !hookIds - !hook ids
+     * @returns void
+     */
     if (!hookIds || hookIds.size === 0) {
       return {
         phase,
@@ -440,8 +448,16 @@ export class HookExecutor {
 
     // Get and sort hooks by priority
     const hooks: HookDefinition[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of hookIds) {
       const hook = this.hooks.get(id);
+      /** If.
+       * @param hook - hook
+       * @returns void
+       */
       if (hook && hook.enabled) {
         hooks.push(hook);
       }
@@ -454,6 +470,10 @@ export class HookExecutor {
     let blockedBy: string | undefined;
 
     // Execute hooks in order
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of hooks) {
       // Check condition
       if (hook.condition && !hook.condition(fullContext)) {
@@ -469,11 +489,19 @@ export class HookExecutor {
         this.updateStats(hook, result);
 
         // Add to audit log
+        /** If.
+         * @param this.config.enableAuditLog - this.config.enable audit log
+         * @returns void
+         */
         if (this.config.enableAuditLog) {
           this.addToAuditLog(result);
         }
 
         // Check for blocking
+        /** If.
+         * @param result.blocked - result.blocked
+         * @returns void
+         */
         if (result.blocked) {
           blocked = true;
           blockedBy = hook.id;
@@ -482,6 +510,10 @@ export class HookExecutor {
           await eventBus.publish("hook.blocked", { hookId: hook.id, phase, message: result.message }, { source: "HookExecutor" });
 
           // Stop chain if blocking hook failed
+          /** If.
+           * @param !this.config.continueOnError - !this.config.continue on error
+           * @returns void
+           */
           if (!this.config.continueOnError) {
             break;
           }
@@ -507,6 +539,10 @@ export class HookExecutor {
 
         results.push(errorResult);
 
+        /** If.
+         * @param hook.mode - hook.mode
+         * @returns void
+         */
         if (hook.mode === "blocking" && !this.config.continueOnError) {
           blocked = true;
           blockedBy = hook.id;
@@ -522,6 +558,10 @@ export class HookExecutor {
     const blockCount = results.filter(r => r.blocked).length;
     let summary: string;
 
+    /** If.
+     * @param blocked - blocked
+     * @returns void
+     */
     if (blocked) {
       summary = `🚫 BLOCKED by ${blockedBy}: ${results.find(r => r.hookId === blockedBy)?.message}`;
     } else if (blockCount > 0) {
@@ -593,11 +633,19 @@ export class HookExecutor {
     if (!hook.stats) return;
 
     hook.stats.executions++;
+    /** If.
+     * @param result.success - result.success
+     * @returns void
+     */
     if (result.success) {
       hook.stats.successes++;
     } else {
       hook.stats.failures++;
     }
+    /** If.
+     * @param result.blocked - result.blocked
+     * @returns void
+     */
     if (result.blocked) {
       hook.stats.blocks++;
     }
@@ -614,6 +662,10 @@ export class HookExecutor {
     this.auditLog.push(result);
     
     // Trim if over max size
+    /** If.
+     * @param this.auditLog.length - this.audit log.length
+     * @returns void
+     */
     if (this.auditLog.length > this.config.auditLogMaxSize) {
       this.auditLog = this.auditLog.slice(-this.config.auditLogMaxSize);
     }
@@ -667,15 +719,31 @@ export class HookExecutor {
   }): HookResult[] {
     let results = [...this.auditLog];
 
+    /** If.
+     * @param options?.hookId - options?.hook id
+     * @returns void
+     */
     if (options?.hookId) {
       results = results.filter(r => r.hookId === options.hookId);
     }
+    /** If.
+     * @param options?.phase - options?.phase
+     * @returns void
+     */
     if (options?.phase) {
       results = results.filter(r => r.phase === options.phase);
     }
+    /** If.
+     * @param options?.category - options?.category
+     * @returns void
+     */
     if (options?.category) {
       results = results.filter(r => r.category === options.category);
     }
+    /** If.
+     * @param options?.blocked - options?.blocked
+     * @returns void
+     */
     if (options?.blocked !== undefined) {
       results = results.filter(r => r.blocked === options.blocked);
     }
@@ -683,6 +751,10 @@ export class HookExecutor {
     // Most recent first
     results.reverse();
 
+    /** If.
+     * @param options?.limit - options?.limit
+     * @returns void
+     */
     if (options?.limit) {
       results = results.slice(0, options.limit);
     }
@@ -711,11 +783,19 @@ export class HookExecutor {
     let totalExecutions = 0;
     let totalBlocks = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of hooks) {
       byCategory[hook.category] = (byCategory[hook.category] || 0) + 1;
       byPhase[hook.phase] = (byPhase[hook.phase] || 0) + 1;
       byMode[hook.mode] = (byMode[hook.mode] || 0) + 1;
       
+      /** If.
+       * @param hook.stats - hook.stats
+       * @returns void
+       */
       if (hook.stats) {
         totalExecutions += hook.stats.executions;
         totalBlocks += hook.stats.blocks;
@@ -765,6 +845,10 @@ export class HookExecutor {
 
 /**
  * Create a standard hook result (success)
+  * @param hook - hook
+  * @param message - message string
+  * @param options - configuration options
+  * @returns hook result
  */
 export function hookSuccess(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },
@@ -792,6 +876,10 @@ export function hookSuccess(
 
 /**
  * Create a standard hook result (failure/block)
+  * @param hook - hook
+  * @param message - message string
+  * @param options - configuration options
+  * @returns hook result
  */
 export function hookBlock(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },
@@ -820,6 +908,10 @@ export function hookBlock(
 
 /**
  * Create a standard hook result (warning)
+  * @param hook - hook
+  * @param message - message string
+  * @param options - configuration options
+  * @returns hook result
  */
 export function hookWarning(
   hook: { id: string; name: string; phase: HookPhase; category: HookCategory; mode: HookMode },

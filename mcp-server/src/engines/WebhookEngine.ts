@@ -82,6 +82,13 @@ export class WebhookEngine {
   private maxRetries = 3;
   private autoDisableThreshold = 10;
 
+  /** Register.
+   * @param url - resource URL
+   * @param events - events
+   * @param headers - headers
+   * @param string> - string>
+   * @returns webhook registration
+   */
   register(url: string, events: WebhookEvent[], headers?: Record<string, string>): WebhookRegistration {
     webhookIdCounter++;
     const id = `WHK-${String(webhookIdCounter).padStart(4, "0")}`;
@@ -97,10 +104,18 @@ export class WebhookEngine {
     return webhook;
   }
 
+  /** Delete.
+   * @param webhookId - webhook id
+   * @returns true if condition is met
+   */
   delete(webhookId: string): boolean {
     return this.webhooks.delete(webhookId);
   }
 
+  /** Disable.
+   * @param webhookId - webhook id
+   * @returns true if condition is met
+   */
   disable(webhookId: string): boolean {
     const wh = this.webhooks.get(webhookId);
     if (!wh) return false;
@@ -108,6 +123,10 @@ export class WebhookEngine {
     return true;
   }
 
+  /** Enable.
+   * @param webhookId - webhook id
+   * @returns true if condition is met
+   */
   enable(webhookId: string): boolean {
     const wh = this.webhooks.get(webhookId);
     if (!wh) return false;
@@ -116,6 +135,11 @@ export class WebhookEngine {
     return true;
   }
 
+  /** Deliver.
+   * @param event - event
+   * @param payload - payload
+   * @returns webhook delivery[]
+   */
   deliver(event: WebhookEvent, payload: unknown): WebhookDelivery[] {
     const results: WebhookDelivery[] = [];
 
@@ -150,6 +174,10 @@ export class WebhookEngine {
     return results;
   }
 
+  /** Simulate Failure.
+   * @param webhookId - webhook id
+   * @returns webhook delivery | undefined
+   */
   simulateFailure(webhookId: string): WebhookDelivery | undefined {
     const wh = this.webhooks.get(webhookId);
     if (!wh) return undefined;
@@ -170,6 +198,10 @@ export class WebhookEngine {
 
     wh.total_failures++;
     wh.consecutive_failures++;
+    /** If.
+     * @param wh.consecutive_failures - wh.consecutive_failures
+     * @returns void
+     */
     if (wh.consecutive_failures >= this.autoDisableThreshold) {
       wh.status = "failing";
     }
@@ -178,16 +210,28 @@ export class WebhookEngine {
     return delivery;
   }
 
+  /** List.
+   * @param status - status
+   * @returns webhook registration[]
+   */
   list(status?: WebhookStatus): WebhookRegistration[] {
     let result = [...this.webhooks.values()];
     if (status) result = result.filter(w => w.status === status);
     return result;
   }
 
+  /** Gets deliveries.
+   * @param webhookId - webhook id
+   * @param limit - maximum number of results
+   * @returns webhook delivery[]
+   */
   getDeliveries(webhookId: string, limit: number = 50): WebhookDelivery[] {
     return this.deliveries.filter(d => d.webhook_id === webhookId).slice(-limit);
   }
 
+  /** Stats.
+   * @returns webhook stats
+   */
   stats(): WebhookStats {
     const all = [...this.webhooks.values()];
     const active = all.filter(w => w.status === "active").length;
@@ -207,6 +251,9 @@ export class WebhookEngine {
     };
   }
 
+  /** Clear.
+   * @returns void { this.webhooks.clear(); this.deliveries = []; webhook id counter = 0; delivery id counter = 0; }
+   */
   clear(): void { this.webhooks.clear(); this.deliveries = []; webhookIdCounter = 0; deliveryIdCounter = 0; }
 
   // ---- PRIVATE ----

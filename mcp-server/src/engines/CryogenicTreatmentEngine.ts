@@ -122,6 +122,10 @@ export class CryogenicTreatmentEngine {
 
     // Toughness change: slight decrease from more martensite, but post-temper helps
     let toughnessChange = -5 - raConverted * 0.3; // slight loss
+    /** If.
+     * @param input.post_temper_temp_C - input.post_temper_temp_ c
+     * @returns void
+     */
     if (input.post_temper_temp_C && input.post_temper_temp_C >= 150) {
       toughnessChange += 8; // post-cryo temper recovers toughness
     }
@@ -136,21 +140,45 @@ export class CryogenicTreatmentEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param input.cryo_level - input.cryo_level
+     * @returns void
+     */
     if (input.cryo_level === "shallow" && input.retained_austenite_pct > 10) {
       recs.push("Shallow cryo insufficient for high RA — switch to deep cryogenic treatment");
     }
+    /** If.
+     * @param input.soak_time_hr - input.soak_time_hr
+     * @returns void
+     */
     if (input.soak_time_hr < 12) {
       recs.push("Minimum 12hr soak recommended for eta-carbide precipitation");
     }
+    /** If.
+     * @param !input.post_temper_temp_C - !input.post_temper_temp_ c
+     * @returns void
+     */
     if (!input.post_temper_temp_C) {
       recs.push("Add post-cryo temper (150-200°C, 2hr) to relieve transformation stress and recover toughness");
     }
+    /** If.
+     * @param rampRate - ramp rate
+     * @returns void
+     */
     if (rampRate > 3) {
       recs.push("Reduce cooling rate to ≤2°C/min to prevent thermal shock cracking");
     }
+    /** If.
+     * @param input.material_type - input.material_type
+     * @returns void
+     */
     if (input.material_type === "carbide" && input.cryo_level === "deep") {
       recs.push("Carbide benefits mainly from stress relief and cobalt phase refinement, not RA conversion");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Cryogenic treatment parameters are optimal — proceed");
     }
@@ -168,6 +196,11 @@ export class CryogenicTreatmentEngine {
     };
   }
 
+  /** Recommend.
+   * @param material_type - material_type
+   * @param ra_pct - ra_pct
+   * @returns void
+   */
   recommend(material_type: string, ra_pct: number): {
     cryo_level: CryoLevel; soak_hr: number; post_temper_C: number; notes: string;
   } {
@@ -182,6 +215,12 @@ export class CryogenicTreatmentEngine {
     };
   }
 
+  /** Calculates r o i.
+   * @param input - input data
+   * @param toolCost_usd - tool cost_usd
+   * @param toolsPerYear - tools per year
+   * @returns cryo r o i
+   */
   calculateROI(input: CryoTreatmentInput, toolCost_usd: number, toolsPerYear: number): CryoROI {
     const result = this.predict(input);
     const lifeMultiplier = 1 + result.wear_improvement_pct / 100;

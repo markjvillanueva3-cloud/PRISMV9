@@ -167,6 +167,10 @@ export class BatchOptimizationEngine {
     return groupJobs(jobs);
   }
 
+  /** Sequence.
+   * @param jobs - jobs
+   * @returns batch sequence
+   */
   sequence(jobs: BatchJob[]): BatchSequence {
     const groups = groupJobs(jobs);
 
@@ -186,7 +190,15 @@ export class BatchOptimizationEngine {
     let totalSetup = 0;
     let totalWithoutGrouping = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < groups.length; i++) {
+      /** If.
+       * @param i - index position
+       * @returns void
+       */
       if (i === 0) {
         totalSetup += jobs.find(j => j.id === groups[i].jobs[0])?.setup_time_min || 20;
       } else {
@@ -194,6 +206,10 @@ export class BatchOptimizationEngine {
       }
     }
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const job of jobs) {
       totalWithoutGrouping += job.setup_time_min;
     }
@@ -212,12 +228,24 @@ export class BatchOptimizationEngine {
     };
   }
 
+  /** Sets up matrix.
+   * @param jobs - jobs
+   * @returns setup matrix
+   */
   setupMatrix(jobs: BatchJob[]): SetupMatrix {
     const groups = groupJobs(jobs);
     const matrix: Record<string, Record<string, number>> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const from of groups) {
       matrix[from.group_id] = {};
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const to of groups) {
         matrix[from.group_id][to.group_id] = from.group_id === to.group_id
           ? 0
@@ -228,6 +256,12 @@ export class BatchOptimizationEngine {
     return { matrix, groups: groups.map(g => g.group_id) };
   }
 
+  /** Capacity.
+   * @param jobs - jobs
+   * @param availableHoursPerDay - available hours per day
+   * @param horizonDays - horizon days
+   * @returns batch capacity
+   */
   capacity(jobs: BatchJob[], availableHoursPerDay: number = 16, horizonDays: number = 30): BatchCapacity {
     const sequence = this.sequence(jobs);
     const totalDemand = sequence.total_makespan_min / 60;

@@ -75,8 +75,16 @@ export class SteadyRestPlacementEngine {
 
     // Optimal placement: divide span equally
     const positions: number[] = [];
+    /** If.
+     * @param numSupports - num supports
+     * @returns void
+     */
     if (numSupports > 0) {
       const spacing = input.chuck_to_tailstock_mm / (numSupports + 1);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 1; i <= numSupports; i++) {
         positions.push(Math.round(spacing * i));
       }
@@ -101,24 +109,52 @@ export class SteadyRestPlacementEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param numSupports - num supports
+     * @returns void
+     */
     if (numSupports === 0 && deflWithoutUm > input.max_deflection_um) {
       recs.push(`L/D=${LD.toFixed(1)} with ${deflWithoutUm.toFixed(0)}µm deflection exceeds limit — add steady rest`);
     }
+    /** If.
+     * @param numSupports - num supports
+     * @returns void
+     */
     if (numSupports > 0 && deflWithUm > input.max_deflection_um) {
       recs.push(`Even with ${numSupports} support(s), deflection ${deflWithUm.toFixed(0)}µm exceeds ${input.max_deflection_um}µm — add more supports or reduce force`);
     }
+    /** If.
+     * @param input.steady_rest_type - input.steady_rest_type
+     * @returns void
+     */
     if (input.steady_rest_type === "fixed" && surfaceSpeed > 100) {
       recs.push("High surface speed at fixed steady rest — use roller-type jaws with lubrication");
     }
+    /** If.
+     * @param input.steady_rest_type - input.steady_rest_type
+     * @returns void
+     */
     if (input.steady_rest_type === "traveling") {
       recs.push("Traveling steady rest follows tool — optimal for full-length turning");
     }
+    /** If.
+     * @param contactForce - contact force
+     * @returns void
+     */
     if (contactForce > 500) {
       recs.push("High contact force — risk of marking workpiece; use soft jaws or reduce cutting force");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0 && numSupports > 0) {
       recs.push(`${numSupports} steady rest(s) placed — deflection reduced from ${deflWithoutUm.toFixed(0)}µm to ${deflWithUm.toFixed(0)}µm`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("No steady rest needed — workpiece stiffness adequate");
     }

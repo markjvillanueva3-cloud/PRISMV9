@@ -83,6 +83,13 @@ export class NotificationEngine {
   private notifications = new Map<string, Notification>();
   private templates = new Map<string, NotificationTemplate>();
 
+  /** Send.
+   * @param recipient - recipient
+   * @param subject - subject
+   * @param body - body
+   * @param options - configuration options
+   * @returns notification
+   */
   send(recipient: string, subject: string, body: string, options?: SendOptions): Notification {
     notifIdCounter++;
     const id = `NTF-${String(notifIdCounter).padStart(6, "0")}`;
@@ -90,8 +97,16 @@ export class NotificationEngine {
     let finalSubject = subject;
     let finalBody = body;
 
+    /** If.
+     * @param options?.template_id - options?.template_id
+     * @returns void
+     */
     if (options?.template_id) {
       const tpl = this.templates.get(options.template_id);
+      /** If.
+       * @param tpl - tpl
+       * @returns void
+       */
       if (tpl) {
         finalSubject = this.renderTemplate(tpl.subject_template, options.context || {});
         finalBody = this.renderTemplate(tpl.body_template, options.context || {});
@@ -117,6 +132,10 @@ export class NotificationEngine {
     return notification;
   }
 
+  /** Mark Read.
+   * @param notificationId - notification id
+   * @returns true if condition is met
+   */
   markRead(notificationId: string): boolean {
     const n = this.notifications.get(notificationId);
     if (!n) return false;
@@ -125,6 +144,10 @@ export class NotificationEngine {
     return true;
   }
 
+  /** Mark Delivered.
+   * @param notificationId - notification id
+   * @returns true if condition is met
+   */
   markDelivered(notificationId: string): boolean {
     const n = this.notifications.get(notificationId);
     if (!n || n.status === "read") return false;
@@ -132,20 +155,35 @@ export class NotificationEngine {
     return true;
   }
 
+  /** List.
+   * @param recipient - recipient
+   * @param unreadOnly - unread only
+   * @returns notification[]
+   */
   list(recipient: string, unreadOnly: boolean = false): Notification[] {
     let result = [...this.notifications.values()].filter(n => n.recipient === recipient);
     if (unreadOnly) result = result.filter(n => n.status !== "read");
     return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
+  /** Registers template.
+   * @param template - template
+   * @returns void
+   */
   registerTemplate(template: NotificationTemplate): void {
     this.templates.set(template.id, template);
   }
 
+  /** List Templates.
+   * @returns notification template[]
+   */
   listTemplates(): NotificationTemplate[] {
     return [...this.templates.values()];
   }
 
+  /** Stats.
+   * @returns notification stats
+   */
   stats(): NotificationStats {
     const byChannel: Record<NotificationChannel, number> = { in_app: 0, email: 0, webhook: 0, sms: 0, push: 0 };
     const byPriority: Record<NotificationPriority, number> = { critical: 0, high: 0, normal: 0, low: 0 };
@@ -172,6 +210,9 @@ export class NotificationEngine {
     };
   }
 
+  /** Clear.
+   * @returns void { this.notifications.clear(); this.templates.clear(); notif id counter = 0; }
+   */
   clear(): void { this.notifications.clear(); this.templates.clear(); notifIdCounter = 0; }
 
   // ---- PRIVATE ----

@@ -25,6 +25,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers memory dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as any).tool(

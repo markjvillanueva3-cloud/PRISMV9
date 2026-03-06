@@ -157,6 +157,7 @@ function diagnosisExtractKeyValues(action: string, result: any): Record<string, 
 
 /** Registers diagnosis dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerDiagnosisDispatcher(server: any): void {
   server.tool(

@@ -177,9 +177,17 @@ export class ToolpathGenerationEngine {
     let cuttingDist = 0;
     let rapidDist = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let pass = 0; pass < nPasses; pass++) {
       const z = -Math.min((pass + 1) * stepdown, depth);
 
+      /** If.
+       * @param mapping.strategy - mapping.strategy
+       * @returns void
+       */
       if (mapping.strategy === "drilling" || mapping.strategy === "peck_drill") {
         // Drill cycle
         segments.push({ type: "rapid", x: 0, y: 0, z: retract, description: `Drill pass ${pass + 1}` });
@@ -198,10 +206,18 @@ export class ToolpathGenerationEngine {
         const prevRadius = prevToolD / 2;
         const currRadius = toolD / 2;
         const bandWidth = prevRadius - currRadius;
+        /** If.
+         * @param bandWidth - band width
+         * @returns void
+         */
         if (bandWidth > 0) {
           const nBandPasses = Math.max(
             1, Math.ceil(bandWidth / stepover)
           );
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let b = 0; b < nBandPasses; b++) {
             const offset = currRadius + b * stepover;
             const x0 = -width / 2 + offset;
@@ -239,6 +255,10 @@ export class ToolpathGenerationEngine {
       } else if (mapping.strategy === "face_mill") {
         // Face mill passes
         const nSteps = Math.max(1, Math.ceil(width / stepover));
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let s = 0; s < nSteps; s++) {
           const y = -width / 2 + s * stepover;
           segments.push({ type: "rapid", x: -toolD, y, z, description: `Face pass ${s + 1}` });
@@ -248,6 +268,10 @@ export class ToolpathGenerationEngine {
       } else {
         // Generic contour/pocket pattern
         const nSteps = Math.max(1, Math.ceil(width / (2 * stepover)));
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let s = 0; s < nSteps; s++) {
           const offset = (s + 1) * stepover;
           const x0 = -width / 2 + offset, x1 = width / 2 - offset;
@@ -288,11 +312,19 @@ export class ToolpathGenerationEngine {
     };
   }
 
+  /** Selects strategy.
+   * @param featureType - feature type
+   * @returns { strategy:  toolpath strategy; stepover_pct: number; stepdown_factor: number }
+   */
   selectStrategy(featureType: string): { strategy: ToolpathStrategy; stepover_pct: number; stepdown_factor: number } {
     const m = STRATEGY_MAP[featureType] || STRATEGY_MAP["pocket_rectangular"];
     return { strategy: m.strategy, stepover_pct: m.stepoverPct, stepdown_factor: m.stepdownFactor };
   }
 
+  /** Optimize.
+   * @param toolpath - toolpath
+   * @returns toolpath optimization
+   */
   optimize(toolpath: GeneratedToolpath): ToolpathOptimization {
     const origTime = toolpath.estimated_time_sec;
     // Optimization: remove redundant rapids, smooth corners, combine passes
@@ -313,6 +345,11 @@ export class ToolpathGenerationEngine {
     };
   }
 
+  /** Simulate.
+   * @param toolpath - toolpath
+   * @param stockVolume_mm3 - stock volume_mm3
+   * @returns toolpath simulation
+   */
   simulate(toolpath: GeneratedToolpath, stockVolume_mm3: number): ToolpathSimulation {
     const cuttingMoves = toolpath.segments.filter(s => s.type === "feed" || s.type === "plunge");
     const stepover = toolpath.tool_diameter_mm * 0.5; // estimated
@@ -321,6 +358,10 @@ export class ToolpathGenerationEngine {
 
     const maxEngagement = toolpath.strategy === "adaptive" ? 15 : 65;
     const overloads: string[] = [];
+    /** If.
+     * @param maxEngagement - max engagement
+     * @returns void
+     */
     if (maxEngagement > 50 && toolpath.strategy !== "drilling") {
       overloads.push(`High radial engagement: ${maxEngagement}% — consider reducing stepover`);
     }

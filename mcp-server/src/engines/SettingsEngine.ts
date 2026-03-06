@@ -196,6 +196,10 @@ export class SettingsEngine {
     if (from === to) return { value, from, to };
 
     // Temperature special cases
+    /** If.
+     * @param category - category
+     * @returns void
+     */
     if (category === "temperature") {
       let celsius: number;
       if (from === "celsius") celsius = value;
@@ -212,6 +216,10 @@ export class SettingsEngine {
 
     const key = `${from}_to_${to}`;
     const catConversions = CONVERSIONS[category];
+    /** If.
+     * @param catConversions - cat conversions
+     * @returns void
+     */
     if (catConversions && catConversions[key]) {
       return { value: value * catConversions[key], from, to };
     }
@@ -222,6 +230,10 @@ export class SettingsEngine {
   /** Convert all values in a result object to the user's unit system */
   convertResults(results: Record<string, number>, fromSystem: UnitSystem, toUser: string = "default"): Record<string, { value: number; unit: string }> {
     const settings = this.getSettings(toUser);
+    /** If.
+     * @param fromSystem - from system
+     * @returns void
+     */
     if (fromSystem === settings.units.system) {
       return Object.fromEntries(
         Object.entries(results).map(([k, v]) => [k, { value: v, unit: fromSystem === "metric" ? "metric" : "imperial" }])
@@ -231,6 +243,10 @@ export class SettingsEngine {
     const converted: Record<string, { value: number; unit: string }> = {};
     for (const [key, val] of Object.entries(results)) {
       const category = this.inferCategory(key);
+      /** If.
+       * @param category - category
+       * @returns void
+       */
       if (category) {
         const fromUnit = fromSystem === "metric" ? this.metricUnit(category) : this.imperialUnit(category);
         const toUnit = fromSystem === "metric" ? this.imperialUnit(category) : this.metricUnit(category);
@@ -261,6 +277,10 @@ export class SettingsEngine {
     for (const [key, factor] of Object.entries(preset.settings)) {
       if (key.endsWith("_factor") && typeof factor === "number") {
         const paramKey = key.replace("_factor", "");
+        /** If.
+         * @param result[paramKey] - result[param key]
+         * @returns void
+         */
         if (result[paramKey] !== undefined) {
           result[paramKey] *= factor;
         }
@@ -279,15 +299,31 @@ export class SettingsEngine {
     const safety = this.getSafetyLimits(user_id);
     const violations: string[] = [];
 
+    /** If.
+     * @param params.rpm - params.rpm
+     * @returns void
+     */
     if (params.rpm !== undefined && safety.max_spindle_rpm_override !== null && params.rpm > safety.max_spindle_rpm_override) {
       violations.push(`RPM ${params.rpm} exceeds limit ${safety.max_spindle_rpm_override}`);
     }
+    /** If.
+     * @param params.force_N - params.force_ n
+     * @returns void
+     */
     if (params.force_N !== undefined && params.force_N > safety.force_limit_N) {
       violations.push(`Force ${params.force_N} N exceeds limit ${safety.force_limit_N} N`);
     }
+    /** If.
+     * @param params.deflection_mm - params.deflection_mm
+     * @returns void
+     */
     if (params.deflection_mm !== undefined && params.deflection_mm > safety.deflection_limit_mm) {
       violations.push(`Deflection ${params.deflection_mm} mm exceeds limit ${safety.deflection_limit_mm} mm`);
     }
+    /** If.
+     * @param params.temperature_C - params.temperature_ c
+     * @returns void
+     */
     if (params.temperature_C !== undefined && params.temperature_C > safety.temperature_limit_C) {
       violations.push(`Temperature ${params.temperature_C} °C exceeds limit ${safety.temperature_limit_C} °C`);
     }

@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates orchestration router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createOrchestrationRouter(callTool: CallToolFn): Router {
   const router = Router();
 

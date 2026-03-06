@@ -123,22 +123,46 @@ export class TailstockForceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param !isSafe - !is safe
+     * @returns void
+     */
     if (!isSafe) {
       recs.push(`SAFETY: Required force ${recommendedForce.toFixed(0)}N exceeds center hole capacity ${maxForce.toFixed(0)}N`);
       recs.push("Increase center hole diameter or reduce cutting forces");
     }
+    /** If.
+     * @param input.center_type - input.center_type
+     * @returns void
+     */
     if (input.center_type === "dead" && input.spindle_rpm > 800) {
       recs.push("Dead center at high RPM — risk of thermal seizure; switch to live center");
     }
+    /** If.
+     * @param thermalGrowth - thermal growth
+     * @returns void
+     */
     if (thermalGrowth > 50) {
       recs.push(`Thermal growth ${thermalGrowth.toFixed(0)}µm — use spring-loaded tailstock or re-clamp during cuts`);
     }
+    /** If.
+     * @param sagUm - sag um
+     * @returns void
+     */
     if (sagUm > 100) {
       recs.push(`Workpiece sag ${sagUm.toFixed(0)}µm without support — steady rest recommended at midpoint`);
     }
+    /** If.
+     * @param contactPressure - contact pressure
+     * @returns void
+     */
     if (contactPressure > MAX_CENTER_PRESSURE_MPA * 0.8) {
       recs.push("Center hole near pressure limit — reduce tailstock force or enlarge center hole");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Tailstock force adequate — safe to proceed");
     }
@@ -157,6 +181,10 @@ export class TailstockForceEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; message: string }
+   */
   validate(input: TailstockInput): { safe: boolean; message: string } {
     const result = this.calculate(input);
     return {

@@ -166,6 +166,10 @@ export class ChipFormationPredictionEngine {
       ? Math.min(1.0, (bueThreshold - Vc) / bueThreshold * (coolant ? 0.6 : 1.0))
       : 0;
 
+    /** If.
+     * @param ductility - ductility
+     * @returns void
+     */
     if (ductility === "brittle") {
       chipType = "discontinuous";
       confidence = 0.85;
@@ -190,6 +194,10 @@ export class ChipFormationPredictionEngine {
     const baseRadius = noseR ? noseR * 3 : 5;  // base curl radius
     const feedFactor = Math.max(0.5, f / 0.2);   // higher feed → tighter curl
     const curlRadius = baseRadius / feedFactor;
+    /** If.
+     * @param hasBreaker - has breaker
+     * @returns void
+     */
     if (hasBreaker) {
       // Chipbreaker typically reduces curl radius by 50–70%
     }
@@ -197,6 +205,10 @@ export class ChipFormationPredictionEngine {
 
     // ── 9. Chip breakability ──
     let breakability: "easy" | "moderate" | "difficult";
+    /** If.
+     * @param chipType - chip type
+     * @returns void
+     */
     if (chipType === "discontinuous" || chipType === "segmented") {
       breakability = "easy";
     } else if (hasBreaker || effectiveCurl < 3 || chipType === "lamellar") {
@@ -209,6 +221,10 @@ export class ChipFormationPredictionEngine {
     const isSafe = chipType !== "built_up_edge" && breakability !== "difficult";
 
     // ── 11. Recommendations ──
+    /** If.
+     * @param chipType - chip type
+     * @returns void
+     */
     if (chipType === "built_up_edge") {
       recs.push(
         `BUE risk ${(bueRisk * 100).toFixed(0)}% at Vc=${Vc} m/min — `
@@ -217,6 +233,10 @@ export class ChipFormationPredictionEngine {
       );
     }
 
+    /** If.
+     * @param chipType - chip type
+     * @returns void
+     */
     if (chipType === "continuous" && !hasBreaker) {
       recs.push(
         `Continuous chips expected — use chipbreaker geometry, `
@@ -225,6 +245,10 @@ export class ChipFormationPredictionEngine {
       );
     }
 
+    /** If.
+     * @param breakability - breakability
+     * @returns void
+     */
     if (breakability === "difficult") {
       recs.push(
         `CHIP CONTROL: Difficult chip breaking — risk of bird-nesting. `
@@ -232,6 +256,10 @@ export class ChipFormationPredictionEngine {
       );
     }
 
+    /** If.
+     * @param chipType - chip type
+     * @returns void
+     */
     if (chipType === "segmented" && Vc > 200) {
       recs.push(
         `Segmented chips at high speed — acceptable for HSM, `
@@ -239,6 +267,10 @@ export class ChipFormationPredictionEngine {
       );
     }
 
+    /** If.
+     * @param gamma_deg - gamma_deg
+     * @returns void
+     */
     if (gamma_deg < -10) {
       recs.push(
         `Highly negative rake (${gamma_deg}°) — high compression ratio `
@@ -246,6 +278,10 @@ export class ChipFormationPredictionEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Chip formation nominal — ${chipType} chips, `

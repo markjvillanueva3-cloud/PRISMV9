@@ -171,12 +171,21 @@ export class ToolSelectionEngine {
     return candidates.slice(0, 5);
   }
 
+  /** Compare.
+   * @param toolIds - tool ids
+   * @param req - req
+   * @returns tool comparison result
+   */
   compare(toolIds: string[], req: ToolRequirements): ToolComparisonResult {
     const isoGroup = req.material_iso_group || "P";
     const opMap = OPERATION_TOOL_MAP[req.operation_type] || OPERATION_TOOL_MAP["pocket"];
     const tools: ToolRecommendation[] = [];
     const matrix: Record<string, Record<string, number>> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of toolIds) {
       const diameter = this.extractDiameter(id);
       const flutes = this.extractFlutes(id);
@@ -206,6 +215,11 @@ export class ToolSelectionEngine {
     };
   }
 
+  /** Validate.
+   * @param toolId - tool id
+   * @param req - req
+   * @returns tool validation result
+   */
   validate(toolId: string, req: ToolRequirements): ToolValidationResult {
     const diameter = this.extractDiameter(toolId);
     const depth = req.feature_depth_mm || 10;
@@ -220,6 +234,10 @@ export class ToolSelectionEngine {
     const issues: string[] = [];
     if (deflection > maxDeflection) issues.push(`Deflection ${deflection.toFixed(4)}mm exceeds limit ${maxDeflection.toFixed(4)}mm`);
     if (overhangRatio > 5) issues.push(`Overhang ratio ${overhangRatio.toFixed(1)}:1 too high`);
+    /** If.
+     * @param req.max_rpm - req.max_rpm
+     * @returns void
+     */
     if (req.max_rpm && diameter > 0) {
       const achievableSpeed = (Math.PI * diameter * req.max_rpm) / 1000;
       if (achievableSpeed < baseSpeed * 0.5) issues.push("Machine RPM insufficient for recommended speed");
@@ -234,6 +252,11 @@ export class ToolSelectionEngine {
     };
   }
 
+  /** Alternatives.
+   * @param toolId - tool id
+   * @param req - req
+   * @returns tool recommendation[]
+   */
   alternatives(toolId: string, req: ToolRequirements): ToolRecommendation[] {
     const recs = this.recommend(req);
     return recs.filter(r => r.tool_id !== toolId);
@@ -247,6 +270,10 @@ export class ToolSelectionEngine {
     const coatings = [opMap.preferred_coating, "TiAlN", "AlCrN", "TiN", "DLC"];
     const results: ToolRecommendation[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const d of diameters) {
       for (const f of fluteCounts.slice(0, 2)) {
         for (const c of coatings.slice(0, 2)) {

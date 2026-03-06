@@ -235,6 +235,10 @@ export class TroubleshootingEngine {
   diagnose(input: DiagnosisInput): Diagnosis {
     const matchingRules: { rule: FaultRule; score: number }[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const rule of FAULT_RULES) {
       const symptomOverlap = rule.symptoms.filter(s => input.symptoms.includes(s)).length;
       if (symptomOverlap === 0) continue;
@@ -269,13 +273,25 @@ export class TroubleshootingEngine {
     };
   }
 
+  /** Root Cause.
+   * @param input - input data
+   * @returns root cause analysis
+   */
   rootCause(input: DiagnosisInput): RootCauseAnalysis {
     const diag = this.diagnose(input);
     const fishbone: Record<string, string[]> = {
       Man: [], Machine: [], Method: [], Material: [], Measurement: [], Environment: [],
     };
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const cause of diag.all_causes) {
+      /** Switch.
+       * @param cause.category - cause.category
+       * @returns void
+       */
       switch (cause.category) {
         case "parameters": fishbone.Method.push(cause.cause); break;
         case "tooling": fishbone.Machine.push(cause.cause); break;
@@ -298,6 +314,10 @@ export class TroubleshootingEngine {
     };
   }
 
+  /** Corrective Actions.
+   * @param input - input data
+   * @returns corrective action[]
+   */
   correctiveActions(input: DiagnosisInput): CorrectiveAction[] {
     const diag = this.diagnose(input);
     // Collect all unique actions from top 3 diagnoses
@@ -306,7 +326,15 @@ export class TroubleshootingEngine {
 
     for (const cause of diag.all_causes.slice(0, 3)) {
       const rule = FAULT_RULES.find(r => r.cause === cause.cause);
+      /** If.
+       * @param rule - rule
+       * @returns void
+       */
       if (rule) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const a of rule.actions) {
           if (!seen.has(a.action)) {
             seen.add(a.action);

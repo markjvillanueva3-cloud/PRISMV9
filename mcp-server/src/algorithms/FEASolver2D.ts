@@ -100,6 +100,10 @@ export interface FEASolver2DOutput extends WithWarnings {
  */
 export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: FEASolver2DInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.nodes?.length || input.nodes.length < 3) issues.push({ field: "nodes", message: "At least 3 nodes required", severity: "error" });
@@ -111,6 +115,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns f e a solver2 d output
+   */
   calculate(input: FEASolver2DInput): FEASolver2DOutput {
     const warnings: string[] = [];
     const { nodes, elements, boundary_conditions, loads } = input;
@@ -126,6 +134,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
 
     // Constitutive matrix D
     let D: number[][];
+    /** If.
+     * @param type - type identifier
+     * @returns void
+     */
     if (type === "plane_stress") {
       const c = E / (1 - nu * nu);
       D = [[c, c * nu, 0], [c * nu, c, 0], [0, 0, c * (1 - nu) / 2]];
@@ -142,6 +154,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
     // Element B matrices for stress recovery
     const elementBs: Map<number, { B: number[][]; area: number }> = new Map();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const elem of elements) {
       const [n1, n2, n3] = elem.nodes.map(id => nodeMap.get(id)!);
       const idx = elem.nodes.map(id => nodeIndex.get(id)!);
@@ -177,7 +193,15 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
 
       // Assemble into global K
       const dofs = idx.flatMap(i => [2 * i, 2 * i + 1]);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < 6; i++) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < 6; j++) {
           K[dofs[i]][dofs[j]] += ke[i][j];
         }
@@ -185,6 +209,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
     }
 
     // Apply loads
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const load of loads) {
       const idx = nodeIndex.get(load.node_id);
       if (idx === undefined) continue;
@@ -195,15 +223,27 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
     // Apply boundary conditions (penalty method)
     const penalty = 1e20;
     const fixedDofs = new Set<number>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const bc of boundary_conditions) {
       const idx = nodeIndex.get(bc.node_id);
       if (idx === undefined) continue;
       const val = bc.value ?? 0;
+      /** If.
+       * @param bc.dof - bc.dof
+       * @returns void
+       */
       if (bc.dof === "x" || bc.dof === "xy") {
         K[2 * idx][2 * idx] += penalty;
         F[2 * idx] += penalty * val;
         fixedDofs.add(2 * idx);
       }
+      /** If.
+       * @param bc.dof - bc.dof
+       * @returns void
+       */
       if (bc.dof === "y" || bc.dof === "xy") {
         K[2 * idx + 1][2 * idx + 1] += penalty;
         F[2 * idx + 1] += penalty * val;
@@ -213,8 +253,16 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
 
     // Solve K×u = F via Gauss elimination
     const aug = K.map((row, i) => [...row, F[i]]);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let col = 0; col < nDofs; col++) {
       let maxRow = col;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let row = col + 1; row < nDofs; row++) {
         if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row;
       }
@@ -222,6 +270,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
       const pivot = aug[col][col];
       if (Math.abs(pivot) < 1e-20) continue;
       for (let j = col; j <= nDofs; j++) aug[col][j] /= pivot;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let row = 0; row < nDofs; row++) {
         if (row === col) continue;
         const f = aug[row][col];
@@ -238,6 +290,10 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
 
     // Element stresses
     const elementResults: ElementResult[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const elem of elements) {
       const bd = elementBs.get(elem.id);
       if (!bd) continue;
@@ -281,6 +337,9 @@ export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutpu
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "fea-solver-2d",

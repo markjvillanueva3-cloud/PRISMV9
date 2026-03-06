@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates telemetry router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createTelemetryRouter(callTool: CallToolFn): Router {
   const router = Router();
 

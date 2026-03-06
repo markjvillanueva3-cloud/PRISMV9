@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates context router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createContextRouter(callTool: CallToolFn): Router {
   const router = Router();
 

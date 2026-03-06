@@ -129,6 +129,10 @@ export class SpecificCuttingEnergyEngine {
     let u: number;  // J/mm³ = N/mm² × mm / mm = W·s/mm³
     let u_source: string;
 
+    /** If.
+     * @param Fc - fc
+     * @returns void
+     */
     if (Fc && b && h && b > 0 && h > 0) {
       // Method 1: Direct from force and chip cross-section
       // u = Fc / (b × h) [N/mm²] = [J/mm³]
@@ -160,6 +164,10 @@ export class SpecificCuttingEnergyEngine {
 
     // ── 2. Material removal rate ──
     let mrr_mm3_s: number;
+    /** If.
+     * @param mrrInput - mrr input
+     * @returns void
+     */
     if (mrrInput) {
       mrr_mm3_s = mrrInput * 1000 / 60;  // cm³/min → mm³/s
     } else if (Vc && ap && ae) {
@@ -185,6 +193,10 @@ export class SpecificCuttingEnergyEngine {
 
     // ── 5. Total energy ──
     let total_time_s: number;
+    /** If.
+     * @param time - time
+     * @returns void
+     */
     if (time) {
       total_time_s = time * 60;
     } else if (vol && mrr_cm3_min > 0) {
@@ -221,6 +233,10 @@ export class SpecificCuttingEnergyEngine {
     const isSafe = u < 10 && P_cutting_kW < 50;
 
     // ── 11. Recommendations ──
+    /** If.
+     * @param energyClass - energy class
+     * @returns void
+     */
     if (energyClass === "very_high") {
       recs.push(
         `Very high specific energy ${u.toFixed(1)} J/mm³ — `
@@ -229,6 +245,10 @@ export class SpecificCuttingEnergyEngine {
       );
     }
 
+    /** If.
+     * @param efficiency_ratio - efficiency_ratio
+     * @returns void
+     */
     if (efficiency_ratio < 0.3 && mrr_mm3_s > 0) {
       recs.push(
         `Low energy efficiency ${(efficiency_ratio * 100).toFixed(0)}% — `
@@ -237,6 +257,10 @@ export class SpecificCuttingEnergyEngine {
       );
     }
 
+    /** If.
+     * @param P_cutting_kW - p_cutting_k w
+     * @returns void
+     */
     if (P_cutting_kW > 10) {
       recs.push(
         `High cutting power ${P_cutting_kW.toFixed(1)}kW — `
@@ -244,6 +268,10 @@ export class SpecificCuttingEnergyEngine {
       );
     }
 
+    /** If.
+     * @param co2_g - co2_g
+     * @returns void
+     */
     if (co2_g > 100) {
       recs.push(
         `CO₂ emissions ${co2_g.toFixed(0)}g/part — consider: `
@@ -252,8 +280,16 @@ export class SpecificCuttingEnergyEngine {
       );
     }
 
+    /** If.
+     * @param u - u
+     * @returns void
+     */
     if (u > 1.5 && u_source !== "default_mild_steel") {
       const aluminumRef = REFERENCE_SPECIFIC_ENERGY.aluminum;
+      /** If.
+       * @param u - u
+       * @returns void
+       */
       if (u > aluminumRef.high * 3) {
         recs.push(
           `Specific energy ${u.toFixed(1)} J/mm³ suggests hard material — `
@@ -262,6 +298,10 @@ export class SpecificCuttingEnergyEngine {
       }
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Energy profile nominal — u=${u.toFixed(2)} J/mm³ (${energyClass}), `

@@ -268,10 +268,18 @@ export class ReportEngine {
     const safety_warnings: string[] = [];
 
     // Auto-generate safety warnings
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of input.operations) {
       if (op.spindle_rpm > (input.machine.axes >= 5 ? 20000 : 15000)) {
         safety_warnings.push(`Op ${op.seq}: High RPM (${op.spindle_rpm}) — verify tool balance`);
       }
+      /** If.
+       * @param op.depth_of_cut - op.depth_of_cut
+       * @returns void
+       */
       if (op.depth_of_cut > 10) {
         safety_warnings.push(`Op ${op.seq}: Deep cut (${op.depth_of_cut}mm) — verify machine rigidity`);
       }

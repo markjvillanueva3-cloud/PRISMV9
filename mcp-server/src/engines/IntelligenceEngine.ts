@@ -196,6 +196,15 @@ const INTELLIGENCE_SOURCE_FILE_COUNT = 87;
 /**
  * Returns the full source file catalog plus aggregate statistics.
  * Use this from MCP tool handlers to expose AI/ML source inventory.
+  * @returns {
+  files:  record<string,  intelligence source entry>;
+  stats: {
+    total_files: number;
+    total_lines: number;
+    by_domain:  record<string, number>;
+    by_source_dir:  record<string, number>;
+  };
+}
  */
 export function getSourceFileCatalog(): {
   files: Record<string, IntelligenceSourceEntry>;

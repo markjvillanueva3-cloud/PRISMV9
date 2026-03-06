@@ -86,18 +86,38 @@ export class BarPullerTimingEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param utilization - utilization
+     * @returns void
+     */
     if (utilization < 85) {
       recs.push(`Material utilization ${utilization.toFixed(1)}% — consider adjusting part nesting or remnant minimum`);
     }
+    /** If.
+     * @param totalAddition - total addition
+     * @returns void
+     */
     if (totalAddition > 15) {
       recs.push("Bar pull cycle >15s — optimize collet timing or increase pull speed");
     }
+    /** If.
+     * @param input.sub_spindle_available - input.sub_spindle_available
+     * @returns void
+     */
     if (input.sub_spindle_available) {
       recs.push("Sub-spindle available — consider simultaneous bar pull during back-work for zero added cycle time");
     }
+    /** If.
+     * @param partsPerBar - parts per bar
+     * @returns void
+     */
     if (partsPerBar < 5) {
       recs.push("Fewer than 5 parts per bar — consider longer bar stock");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Bar pull parameters optimized — proceed");
     }

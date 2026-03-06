@@ -26,6 +26,7 @@ async function getEngine(): Promise<any> {
 
 /** Registers knowledge dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerKnowledgeDispatcher(server: any): void {
   server.tool(

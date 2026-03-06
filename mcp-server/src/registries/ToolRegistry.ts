@@ -343,6 +343,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     ]);
     this.buildIndexes();
     
+    /** If.
+     * @param this.entries.size - this.entries.size
+     * @returns void
+     */
     if (this.entries.size > 0) {
       this.loaded = true;
       log.info(`ToolRegistry loaded: ${this.entries.size} tools`);
@@ -375,6 +379,11 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
         }
       }));
 
+      /** For.
+       * @param const - const
+       * @param data - input data
+       * @returns void
+       */
       for (const { file, data } of results) {
         if (!data) continue;
         // R1: Handle both direct arrays and wrapper format {category, count, tools: [...]}
@@ -387,7 +396,15 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
           tools = [data];
         }
 
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const tool of tools) {
+          /** If.
+           * @param tool.id - tool.id
+           * @returns void
+           */
           if (tool.id) {
             if (this.entries.has(tool.id)) {
               log.warn(`ToolRegistry: duplicate tool ID '${tool.id}' in ${file.name} — skipping (first-wins)`);
@@ -413,10 +430,19 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     this.indexByCoating.clear();
     this.indexByCategory.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const tool = entry.data;
       
       // Index by type
+      /** If.
+       * @param tool.type - tool.type
+       * @returns void
+       */
       if (tool.type) {
         const type = tool.type.toLowerCase();
         if (!this.indexByType.has(type)) {
@@ -427,6 +453,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Index by manufacturer/vendor — R1-MS5: data uses 'vendor', interface uses 'manufacturer'
       const mfrName = tool.manufacturer || tool.vendor;
+      /** If.
+       * @param mfrName - mfr name
+       * @returns void
+       */
       if (mfrName) {
         const mfr = String(mfrName).toLowerCase();
         if (!this.indexByManufacturer.has(mfr)) {
@@ -437,6 +467,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Index by category (R1-MS5: new index for faceted search)
       const catName = tool.category;
+      /** If.
+       * @param catName - cat name
+       * @returns void
+       */
       if (catName) {
         const cat = String(catName).toLowerCase();
         if (!this.indexByCategory.has(cat)) {
@@ -447,6 +481,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Index by coating (R1-MS5: new index for faceted search)
       const coatingName = (tool.coating as any) || tool.coating_type;
+      /** If.
+       * @param coatingName - coating name
+       * @returns void
+       */
       if (coatingName) {
         const coat = String(coatingName).toLowerCase();
         if (!this.indexByCoating.has(coat)) {
@@ -457,7 +495,15 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Index by material group
       // Source 1: explicit material_groups array
+      /** If.
+       * @param tool.material_groups - tool.material_groups
+       * @returns void
+       */
       if (tool.material_groups) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const group of tool.material_groups) {
           if (!this.indexByMaterialGroup.has(group)) {
             this.indexByMaterialGroup.set(group, new Set());
@@ -467,6 +513,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       // Source 2: derive from cutting_params.materials keys (P_STEELS → P, M_STAINLESS → M, etc.)
       const cpMaterials = tool.cutting_params?.materials;
+      /** If.
+       * @param cpMaterials - cp materials
+       * @returns void
+       */
       if (cpMaterials && typeof cpMaterials === 'object') {
         for (const matKey of Object.keys(cpMaterials)) {
           // Extract ISO group letter: P_STEELS → P, M_STAINLESS → M, K_CAST_IRON → K, etc.
@@ -482,6 +532,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Index by diameter (rounded to nearest 0.5mm)
       const toolDiameter = tool.cutting_diameter_mm || tool.geometry?.diameter;
+      /** If.
+       * @param toolDiameter - tool diameter
+       * @returns void
+       */
       if (toolDiameter) {
         const d = Math.round(toolDiameter * 2) / 2;
         if (!this.indexByDiameter.has(d)) {
@@ -563,24 +617,44 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     let results: CuttingTool[] = [];
     
     // Start with most selective filter
+    /** If.
+     * @param options.diameter_exact - options.diameter_exact
+     * @returns void
+     */
     if (options.diameter_exact !== undefined) {
       const d = Math.round(options.diameter_exact * 2) / 2;
       const ids = this.indexByDiameter.get(d);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
     } else if (options.type) {
       const ids = this.indexByType.get(options.type.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
     } else if (options.material_group) {
       const ids = this.indexByMaterialGroup.get(options.material_group);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
     } else if (options.manufacturer) {
       const ids = this.indexByManufacturer.get(options.manufacturer.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
@@ -590,6 +664,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     // Apply additional filters — R1-MS5: multi-term AND search across all fields
     // "sandvik milling" → both "sandvik" AND "milling" must match (in any field combination)
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query && options.query !== "*") {
       const normalize = (s: string) => s.toLowerCase().replace(/[_-]/g, '');
       const terms = options.query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
@@ -617,6 +695,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       });
     }
     
+    /** If.
+     * @param options.diameter_min - options.diameter_min
+     * @returns void
+     */
     if (options.diameter_min !== undefined) {
       results = results.filter(t => {
         const d = (t as any).cutting_diameter_mm || t.geometry?.diameter || 0;
@@ -624,6 +706,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       });
     }
     
+    /** If.
+     * @param options.diameter_max - options.diameter_max
+     * @returns void
+     */
     if (options.diameter_max !== undefined) {
       results = results.filter(t => {
         const d = (t as any).cutting_diameter_mm || t.geometry?.diameter || 0;
@@ -631,6 +717,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       });
     }
     
+    /** If.
+     * @param options.flutes - options.flutes
+     * @returns void
+     */
     if (options.flutes !== undefined) {
       results = results.filter(t => {
         const f = (t as any).flute_count || t.geometry?.flutes;
@@ -638,6 +728,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       });
     }
     
+    /** If.
+     * @param options.coating - options.coating
+     * @returns void
+     */
     if (options.coating) {
       const coatQuery = options.coating.toLowerCase();
       results = results.filter(t => {
@@ -646,12 +740,20 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       });
     }
     
+    /** If.
+     * @param options.substrate - options.substrate
+     * @returns void
+     */
     if (options.substrate) {
       results = results.filter(t => 
         ((t as any).substrate || "").toLowerCase().includes(options.substrate!.toLowerCase())
       );
     }
     
+    /** If.
+     * @param options.application - options.application
+     * @returns void
+     */
     if (options.application) {
       results = results.filter(t => 
         t.application?.some(a => a.toLowerCase().includes(options.application!.toLowerCase()))
@@ -690,8 +792,16 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     const groupsToTry = groupFallbacks[options.material_iso_group] || [options.material_iso_group];
     const compatibleIdSet = new Set<string>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const group of groupsToTry) {
       const ids = this.indexByMaterialGroup.get(group);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         for (const id of ids) compatibleIdSet.add(id);
       }
@@ -705,6 +815,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     // Filter by operation compatibility using PRISM taxonomy
     const op = options.operation.toLowerCase();
     candidates = candidates.filter(t => {
+      /** If.
+       * @param t.application?.length - t.application?.length
+       * @returns void
+       */
       if (t.application?.length > 0) {
         return t.application.some(a => a.toLowerCase().includes(op));
       }
@@ -717,6 +831,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       if (cat === 'toolholders' || cat === 'toolholding') return false;
       
       // Strict category-based filtering using PRISM taxonomy
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'milling' || op === 'roughing' || op === 'finishing') {
         return cat === 'milling' || cat === 'indexable_milling' || cat === 'milling_inserts' ||
                subcat.includes('end_mill') || subcat.includes('face_mill') ||
@@ -724,6 +842,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
                type.includes('high_feed') || type.includes('roughing') || type.includes('finishing') ||
                type.includes('shoulder_mill') || type.includes('face_mill') || type.includes('exchangeable');
       }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'turning') {
         return cat === 'turning' || cat === 'turning_inserts' ||
                subcat.includes('insert') && !cat.includes('mill') || // inserts but NOT milling inserts
@@ -732,19 +854,35 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
                type.includes('wnmg') || type.includes('snmg') || type.includes('vnmg') ||
                type.includes('ccmt') || type.includes('dcmt') || type.includes('tcmt');
       }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'drilling') {
         return cat === 'drilling' || subcat.includes('drill') || subcat.includes('twist') ||
                subcat.includes('spot') || subcat.includes('indexable') && type.includes('drill') ||
                type.includes('drill') || type.includes('step_drill');
       }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'boring') {
         return cat === 'boring' || subcat.includes('boring') ||
                type.includes('boring') || type.includes('fine_boring');
       }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'threading') {
         return cat === 'threading' || subcat.includes('tap') || subcat.includes('thread') ||
                type.includes('tap') || type.includes('thread');
       }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'reaming') {
         return cat === 'hole_finishing' || subcat.includes('ream') || type.includes('ream');
       }
@@ -776,11 +914,19 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     const subcat = (tool.subcategory || '').toLowerCase();
     
     // Prefer actual cutting tools over inserts for milling/drilling
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === 'milling' || op === 'roughing' || op === 'finishing' || op === 'drilling') {
       if (cat === 'milling' || cat === 'drilling') score += 15; // Solid tools preferred
       if (cat.includes('insert')) score -= 5; // Inserts are less useful without a body
     }
     // For turning, prefer inserts
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === 'turning') {
       if (cat === 'turning_inserts' || type.includes('insert')) score += 15;
       if (cat === 'turning' && subcat === 'external_holders') score += 10;
@@ -800,8 +946,16 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     if (tool.coolant_through) score += 8;
     
     // Diameter match
+    /** If.
+     * @param options.diameter_target - options.diameter_target
+     * @returns void
+     */
     if (options.diameter_target) {
       const toolDiam = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
+      /** If.
+       * @param toolDiam - tool diam
+       * @returns void
+       */
       if (toolDiam > 0) {
         const diamDiff = Math.abs(toolDiam - options.diameter_target);
         if (diamDiff === 0) score += 30;
@@ -813,28 +967,56 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     // Coating quality for material ISO group
     const coating = ((tool.coating as any)?.type || (tool.coating as any) || tool.coating_type || '').toString().toUpperCase();
+    /** If.
+     * @param coating - coating
+     * @returns void
+     */
     if (coating) {
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "P") {
         if (coating.includes("ALTI") || coating.includes("TIAL")) score += 15;
         else if (coating.includes("TICN") || coating.includes("TICRN")) score += 10;
         else if (coating.includes("CVD")) score += 8;
       }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "M") {
         if (coating.includes("ALTI") || coating.includes("TIAL")) score += 12;
         else if (coating.includes("TICN")) score += 8;
       }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "N") {
         if (coating.includes("DLC") || coating.includes("DIAMOND") || coating.includes("UNCOATED")) score += 15;
         else if (coating.includes("ZRN")) score += 10;
       }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "K") {
         if (coating.includes("CVD") || coating.includes("AL2O3")) score += 12;
         else if (coating.includes("TICN")) score += 8;
       }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "S") {
         if (coating.includes("ALTI") || coating.includes("TIAL")) score += 10;
         if (tool.coolant_through) score += 5; // Extra bonus for S group
       }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
       if (options.material_iso_group === "H") {
         if (coating.includes("ALCRN") || coating.includes("TISIN")) score += 15;
         else if (coating.includes("ALTI")) score += 10;
@@ -844,7 +1026,15 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     
     // Flute count optimization (milling only)
     const flutes = tool.flute_count || tool.geometry?.flutes || 0;
+    /** If.
+     * @param flutes - flutes
+     * @returns void
+     */
     if (flutes > 0) {
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === 'roughing') {
         if (flutes <= 3) score += 10;
         if (options.material_iso_group === "N" && flutes <= 2) score += 5; // Fewer flutes for aluminum
@@ -920,31 +1110,63 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       // Apply filters to get intersection
       const sets: Set<string>[] = [];
       
+      /** If.
+       * @param filters.category - filters.category
+       * @returns void
+       */
       if (filters.category) {
         const ids = this.indexByCategory.get(filters.category.toLowerCase());
         if (ids) sets.push(ids); else sets.push(new Set());
       }
+      /** If.
+       * @param filters.vendor - filters.vendor
+       * @returns void
+       */
       if (filters.vendor) {
         const ids = this.indexByManufacturer.get(filters.vendor.toLowerCase());
         if (ids) sets.push(ids); else sets.push(new Set());
       }
+      /** If.
+       * @param filters.type - filters.type
+       * @returns void
+       */
       if (filters.type) {
         const ids = this.indexByType.get(filters.type.toLowerCase());
         if (ids) sets.push(ids); else sets.push(new Set());
       }
+      /** If.
+       * @param filters.coating - filters.coating
+       * @returns void
+       */
       if (filters.coating) {
         const ids = this.indexByCoating.get(filters.coating.toLowerCase());
         if (ids) sets.push(ids); else sets.push(new Set());
       }
+      /** If.
+       * @param filters.material_group - filters.material_group
+       * @returns void
+       */
       if (filters.material_group) {
         const ids = this.indexByMaterialGroup.get(filters.material_group);
         if (ids) sets.push(ids); else sets.push(new Set());
       }
       
+      /** If.
+       * @param sets.length - sets.length
+       * @returns void
+       */
       if (sets.length > 0) {
         // Intersection of all filter sets
         toolIds = new Set(sets[0]);
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let i = 1; i < sets.length; i++) {
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const id of toolIds) {
             if (!sets[i].has(id)) toolIds.delete(id);
           }
@@ -954,8 +1176,16 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       // Apply diameter filter (requires checking actual values)
+      /** If.
+       * @param filters.diameter_min - filters.diameter_min
+       * @returns void
+       */
       if (filters.diameter_min !== undefined || filters.diameter_max !== undefined) {
         const filtered = new Set<string>();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const id of toolIds) {
           const tool = this.get(id);
           if (!tool) continue;
@@ -979,6 +1209,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     const matGroupCounts = new Map<string, number>();
     let dMin = Infinity, dMax = -Infinity;
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of toolIds) {
       const tool = this.get(id);
       if (!tool) continue;
@@ -997,6 +1231,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       
       // Material groups from cutting_params
       const cpMaterials = tool.cutting_params?.materials;
+      /** If.
+       * @param cpMaterials - cp materials
+       * @returns void
+       */
       if (cpMaterials && typeof cpMaterials === 'object') {
         for (const matKey of Object.keys(cpMaterials)) {
           const isoGroup = matKey.split('_')[0].toUpperCase();
@@ -1007,6 +1245,10 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       }
       
       const d = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
+      /** If.
+       * @param d - d
+       * @returns void
+       */
       if (d > 0) {
         if (d < dMin) dMin = d;
         if (d > dMax) dMax = d;
@@ -1074,10 +1316,20 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
       withCoating: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [type, ids] of this.indexByType) {
       stats.byType[type] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [mfr, ids] of this.indexByManufacturer) {
       stats.byManufacturer[mfr] = ids.size;
     }
@@ -1119,9 +1371,17 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
     const byCategory: Record<string, string[]> = {};
     let totalLines = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const key of keys) {
       const entry = entries[key as keyof typeof entries];
       totalLines += entry.lines;
+      /** If.
+       * @param !byCategory[entry.category] - !by category[entry.category]
+       * @returns void
+       */
       if (!byCategory[entry.category]) {
         byCategory[entry.category] = [];
       }

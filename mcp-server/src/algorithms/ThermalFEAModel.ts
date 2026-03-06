@@ -118,18 +118,38 @@ const TAU_SPINDLE = 25;
  */
 export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ThermalFEAInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed <= 0 || input.cutting_speed > LIMITS.MAX_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be 0-${LIMITS.MAX_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param !input.feed_per_tooth - !input.feed_per_tooth
+     * @returns void
+     */
     if (!input.feed_per_tooth || input.feed_per_tooth <= 0 || input.feed_per_tooth > LIMITS.MAX_FEED) {
       issues.push({ field: "feed_per_tooth", message: `Feed must be 0-${LIMITS.MAX_FEED} mm/tooth, got ${input.feed_per_tooth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.axial_depth - !input.axial_depth
+     * @returns void
+     */
     if (!input.axial_depth || input.axial_depth <= 0 || input.axial_depth > LIMITS.MAX_DEPTH) {
       issues.push({ field: "axial_depth", message: `Axial depth must be 0-${LIMITS.MAX_DEPTH} mm, got ${input.axial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param input.thermal_conductivity - input.thermal_conductivity
+     * @returns void
+     */
     if (input.thermal_conductivity !== undefined && input.thermal_conductivity <= 0) {
       issues.push({ field: "thermal_conductivity", message: `Thermal conductivity must be > 0, got ${input.thermal_conductivity}`, severity: "error" });
     }
@@ -137,6 +157,10 @@ export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOut
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns thermal f e a output
+   */
   calculate(input: ThermalFEAInput): ThermalFEAOutput {
     const warnings: string[] = [];
     const {
@@ -195,6 +219,10 @@ export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOut
 
     // Temperature risk assessment
     let temperature_risk: ThermalFEAOutput["temperature_risk"];
+    /** If.
+     * @param cutting_temperature - cutting_temperature
+     * @returns void
+     */
     if (cutting_temperature > LIMITS.CRITICAL_TEMP) {
       temperature_risk = "critical";
       warnings.push(`CRITICAL_TEMP: Cutting temperature ${cutting_temperature.toFixed(0)}C exceeds ${LIMITS.CRITICAL_TEMP}C. Rapid tool degradation.`);
@@ -207,9 +235,17 @@ export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOut
       temperature_risk = "low";
     }
 
+    /** If.
+     * @param thermal_error_um - thermal_error_um
+     * @returns void
+     */
     if (thermal_error_um > 20) {
       warnings.push(`THERMAL_DRIFT: Workpiece expansion ${thermal_error_um.toFixed(1)} um may exceed tolerance.`);
     }
+    /** If.
+     * @param z_drift - z_drift
+     * @returns void
+     */
     if (z_drift > 15) {
       warnings.push(`SPINDLE_DRIFT: Z-axis thermal drift ${z_drift.toFixed(1)} um. Apply compensation.`);
     }
@@ -231,6 +267,9 @@ export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOut
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "thermal-fea",

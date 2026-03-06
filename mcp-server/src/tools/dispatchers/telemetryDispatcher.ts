@@ -27,6 +27,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers telemetry dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerTelemetryDispatcher(server: McpServer): void {
   (server as any).tool(

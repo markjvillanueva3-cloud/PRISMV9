@@ -934,6 +934,7 @@ export const KNOWLEDGE_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Static accessor for the extracted knowledge-base source file catalog.
+  * @returns typeof  k n o w l e d g e_ s o u r c e_ f i l e_ c a t a l o g
  */
 export function getKnowledgeSourceFileCatalog(): typeof KNOWLEDGE_SOURCE_FILE_CATALOG {
   return KNOWLEDGE_SOURCE_FILE_CATALOG;

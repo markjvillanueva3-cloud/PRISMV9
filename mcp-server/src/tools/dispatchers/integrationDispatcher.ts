@@ -180,6 +180,7 @@ function integrationExtractKeyValues(action: string, result: any): Record<string
 
 /** Registers integration dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerIntegrationDispatcher(server: any): void {
   server.tool(

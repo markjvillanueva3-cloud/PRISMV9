@@ -32,6 +32,7 @@ function ok(data: any) {
 
 /** Registers skill script dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerSkillScriptDispatcher(server: any): void {
   server.tool(

@@ -68,6 +68,7 @@ const ACTIONS = [
 
 /** Registers business dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerBusinessDispatcher(server: any): void {
   server.tool(

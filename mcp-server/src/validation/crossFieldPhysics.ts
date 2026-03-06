@@ -44,6 +44,8 @@ function classifyMaterial(material: string): MaterialClass {
  * 4. Feed rate vs material class: fz limits vary by hardness
  * 
  * @throws {SafetyBlockError} with S(x)=0.0 for physically impossible results
+  * @param result - result
+  * @returns void
  */
 export function validateCrossFieldPhysics(result: SafetyCalcResult): void {
   const materialClass = classifyMaterial(result.material);

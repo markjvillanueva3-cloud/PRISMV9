@@ -201,10 +201,18 @@ export class ScriptExecutor {
     try {
       // Get script from registry
       const script = scriptRegistry.getScript(scriptId);
+      /** If.
+       * @param !script - !script
+       * @returns void
+       */
       if (!script) {
         return this.createErrorResult(scriptId, `Script not found: ${scriptId}`, params, startTime, startedAt);
       }
 
+      /** If.
+       * @param !script.enabled - !script.enabled
+       * @returns void
+       */
       if (!script.enabled) {
         return this.createErrorResult(scriptId, `Script is disabled: ${scriptId}`, params, startTime, startedAt);
       }
@@ -220,6 +228,10 @@ export class ScriptExecutor {
 
       // Validate parameters
       const validationError = this.validateParams(script, params);
+      /** If.
+       * @param validationError - validation error
+       * @returns void
+       */
       if (validationError) {
         return this.createErrorResult(scriptId, validationError, params, startTime, startedAt);
       }
@@ -234,6 +246,10 @@ export class ScriptExecutor {
       result.started_at = startedAt;
 
       // Track history
+      /** If.
+       * @param this.config.enable_history - this.config.enable_history
+       * @returns void
+       */
       if (this.config.enable_history) {
         this.addToHistory(result);
       }
@@ -271,6 +287,10 @@ export class ScriptExecutor {
 
       if (key.startsWith("-")) {
         // Named parameter
+        /** If.
+         * @param typeof - typeof
+         * @returns void
+         */
         if (typeof value === "boolean") {
           if (value) args.push(key);
         } else {
@@ -373,9 +393,17 @@ export class ScriptExecutor {
    */
   private validateParams(script: Script, params: ExecutionParams): string | null {
     for (const paramDef of script.parameters) {
+      /** If.
+       * @param paramDef.required - param def.required
+       * @returns void
+       */
       if (paramDef.required) {
         const key = paramDef.name.replace(/^-+/, "");
         const hasParam = params[paramDef.name] !== undefined || params[key] !== undefined;
+        /** If.
+         * @param !hasParam - !has param
+         * @returns void
+         */
         if (!hasParam && paramDef.default === undefined) {
           return `Required parameter missing: ${paramDef.name}`;
         }
@@ -434,18 +462,35 @@ export class ScriptExecutor {
     };
 
     // Check queue size
+    /** If.
+     * @param this.queue.size - this.queue.size
+     * @returns void
+     */
     if (this.queue.size >= this.config.max_queue_size) {
       // Remove lowest priority pending item
       let lowestId: string | null = null;
       let lowestPriority = Infinity;
 
+      /** For.
+       * @param const - const
+       * @param q] - q]
+       * @returns void
+       */
       for (const [qId, q] of this.queue) {
+        /** If.
+         * @param q.status - q.status
+         * @returns void
+         */
         if (q.status === "pending" && q.priority < lowestPriority) {
           lowestPriority = q.priority;
           lowestId = qId;
         }
       }
 
+      /** If.
+       * @param lowestId - lowest id
+       * @returns void
+       */
       if (lowestId && lowestPriority < priority) {
         this.queue.delete(lowestId);
       }
@@ -469,6 +514,10 @@ export class ScriptExecutor {
     // Process up to max_concurrent
     const toProcess = pending.slice(0, this.config.max_concurrent - this.running.size);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const execution of toProcess) {
       execution.status = "running";
       
@@ -522,7 +571,16 @@ export class ScriptExecutor {
    */
   clearCompleted(): number {
     let cleared = 0;
+    /** For.
+     * @param const - const
+     * @param e] - e]
+     * @returns void
+     */
     for (const [id, e] of this.queue) {
+      /** If.
+       * @param e.status - e.status
+       * @returns void
+       */
       if (e.status === "completed" || e.status === "failed" || e.status === "cancelled") {
         this.queue.delete(id);
         cleared++;
@@ -547,9 +605,21 @@ export class ScriptExecutor {
     // Match against task patterns
     for (const [category, config] of Object.entries(TASK_SCRIPT_PATTERNS)) {
       const matches = config.patterns.some(p => p.test(task));
+      /** If.
+       * @param matches - matches
+       * @returns void
+       */
       if (matches) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const scriptId of config.scripts) {
           const script = scriptRegistry.getScript(scriptId);
+          /** If.
+           * @param script - script
+           * @returns void
+           */
           if (script && script.enabled) {
             this.addScriptRecommendation(recommendations, script, `Matches ${category} pattern`, 0.4);
           }
@@ -559,7 +629,15 @@ export class ScriptExecutor {
 
     // Search registry for additional matches
     const searchResults = scriptRegistry.search({ query: taskDescription.split(" ")[0], limit: 10 });
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const script of searchResults.scripts) {
+      /** If.
+       * @param script.enabled - script.enabled
+       * @returns void
+       */
       if (script.enabled) {
         this.addScriptRecommendation(recommendations, script, "Name/description match", 0.3);
       }
@@ -583,6 +661,10 @@ export class ScriptExecutor {
     scoreBoost: number
   ): void {
     const existing = map.get(script.script_id);
+    /** If.
+     * @param existing - existing
+     * @returns void
+     */
     if (existing) {
       existing.relevance_score = Math.min(1.0, existing.relevance_score + scoreBoost);
       if (!existing.match_reasons.includes(reason)) {
@@ -613,6 +695,10 @@ export class ScriptExecutor {
     this.history.push(result);
 
     // Trim history if needed
+    /** While.
+     * @param this.history.length - this.history.length
+     * @returns void
+     */
     while (this.history.length > this.config.max_history_entries) {
       this.history.shift();
     }
@@ -628,10 +714,18 @@ export class ScriptExecutor {
   }): ExecutionResult[] {
     let results = [...this.history];
 
+    /** If.
+     * @param options?.script_id - options?.script_id
+     * @returns void
+     */
     if (options?.script_id) {
       results = results.filter(r => r.script_id === options.script_id);
     }
 
+    /** If.
+     * @param options?.success - options?.success
+     * @returns void
+     */
     if (options?.success !== undefined) {
       results = results.filter(r => r.success === options.success);
     }
@@ -639,6 +733,10 @@ export class ScriptExecutor {
     // Return most recent first
     results.reverse();
 
+    /** If.
+     * @param options?.limit - options?.limit
+     * @returns void
+     */
     if (options?.limit) {
       results = results.slice(0, options.limit);
     }
@@ -665,6 +763,10 @@ export class ScriptExecutor {
 
     // Calculate most executed
     const executionCounts = new Map<string, number>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const r of this.history) {
       executionCounts.set(r.script_id, (executionCounts.get(r.script_id) || 0) + 1);
     }
@@ -841,6 +943,7 @@ export const SCRIPT_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Return the ScriptExecutor source-file catalog for audit and traceability.
+  * @returns typeof  s c r i p t_ s o u r c e_ f i l e_ c a t a l o g
  */
 export function getScriptSourceFileCatalog(): typeof SCRIPT_SOURCE_FILE_CATALOG {
   return SCRIPT_SOURCE_FILE_CATALOG;

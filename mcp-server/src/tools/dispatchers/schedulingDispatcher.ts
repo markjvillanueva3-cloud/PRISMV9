@@ -29,6 +29,7 @@ const ACTIONS = [
 
 /** Registers scheduling dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerSchedulingDispatcher(server: any): void {
   server.tool(

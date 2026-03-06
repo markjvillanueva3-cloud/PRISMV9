@@ -194,9 +194,17 @@ export class ThreadCalculationEngine {
     const warnings: string[] = [];
     
     // Validate engagement
+    /** If.
+     * @param engagementPercent - engagement percent
+     * @returns void
+     */
     if (engagementPercent < 50) {
       warnings.push('WARNING: Engagement below 50% may result in weak threads');
     }
+    /** If.
+     * @param engagementPercent - engagement percent
+     * @returns void
+     */
     if (engagementPercent > 85) {
       warnings.push('WARNING: Engagement above 85% increases tap breakage risk');
     }
@@ -221,6 +229,10 @@ export class ThreadCalculationEngine {
     const theoreticalMinor = thread.majorDiameter - (2 * H);
     
     // Material-specific warnings
+    /** If.
+     * @param engagementPercent - engagement percent
+     * @returns void
+     */
     if (engagementPercent > 70) {
       warnings.push('For hardened steel (>35 HRC), consider 50-60% engagement');
     }
@@ -270,6 +282,10 @@ export class ThreadCalculationEngine {
     const warnings: string[] = [];
     
     // Validate tool diameter (must be smaller than minor diameter)
+    /** If.
+     * @param toolDiameter - tool diameter
+     * @returns void
+     */
     if (toolDiameter >= thread.minorDiameter) {
       warnings.push(`ERROR: Tool diameter ${toolDiameter}mm must be smaller than minor diameter ${thread.minorDiameter}mm`);
     }
@@ -373,9 +389,17 @@ export class ThreadCalculationEngine {
     // Minimum engagement for SF=2
     const minEngagement = (2 * boltTensile) / (shearStrength * Math.PI * n * Dp);
     
+    /** If.
+     * @param safetyFactor - safety factor
+     * @returns void
+     */
     if (safetyFactor < 1.5) {
       warnings.push('WARNING: Low safety factor - increase engagement length');
     }
+    /** If.
+     * @param engagementPercent - engagement percent
+     * @returns void
+     */
     if (engagementPercent < 60) {
       warnings.push('WARNING: Low engagement - risk of thread stripping');
     }
@@ -410,6 +434,10 @@ export class ThreadCalculationEngine {
     
     let goGauge, noGoGauge;
     
+    /** If.
+     * @param isInternal - is internal
+     * @returns void
+     */
     if (isInternal) {
       // Internal thread (plug gauge)
       goGauge = {
@@ -472,6 +500,10 @@ export class ThreadCalculationEngine {
       `M05 (Spindle stop)`,
     ];
     
+    /** If.
+     * @param controller - controller
+     * @returns void
+     */
     if (controller === 'HAAS') {
       code[4] = `G84 Z-${depth} R0.1 F${feedRate.toFixed(1)} J2 (Rigid tap, J=retract multiply)`;
     } else if (controller === 'SIEMENS') {
@@ -608,9 +640,18 @@ export class ThreadCalculationEngine {
     ];
     let closest = '1/4';
     let minDiff = 999;
+    /** For.
+     * @param const - const
+     * @param d] - d]
+     * @returns void
+     */
     for (const [n, d] of fractions) {
       const val = n / d;
       const diff = Math.abs(val - inch);
+      /** If.
+       * @param diff - diff
+       * @returns void
+       */
       if (diff < minDiff) {
         minDiff = diff;
         closest = `${n}/${d}`;
@@ -631,6 +672,10 @@ export class ThreadCalculationEngine {
     let minDiff = 0.01;
     for (const [letter, size] of Object.entries(letters)) {
       const diff = Math.abs(size - inch);
+      /** If.
+       * @param diff - diff
+       * @returns void
+       */
       if (diff < minDiff) {
         minDiff = diff;
         closest = letter;
@@ -658,6 +703,10 @@ export class ThreadCalculationEngine {
     let minDiff = 0.01;
     for (const [num, size] of Object.entries(numbers)) {
       const diff = Math.abs(size - inch);
+      /** If.
+       * @param diff - diff
+       * @returns void
+       */
       if (diff < minDiff) {
         minDiff = diff;
         closest = `#${num}`;

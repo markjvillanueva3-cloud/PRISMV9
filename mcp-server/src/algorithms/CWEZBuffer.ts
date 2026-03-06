@@ -96,26 +96,54 @@ export interface CWEZBufferOutput extends WithWarnings {
  */
 export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: CWEZBufferInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0) {
       issues.push({ field: "tool_diameter", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.depth_of_cut - !input.depth_of_cut
+     * @returns void
+     */
     if (!input.depth_of_cut || input.depth_of_cut <= 0) {
       issues.push({ field: "depth_of_cut", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.width_of_cut - !input.width_of_cut
+     * @returns void
+     */
     if (!input.width_of_cut || input.width_of_cut <= 0) {
       issues.push({ field: "width_of_cut", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param input.width_of_cut - input.width_of_cut
+     * @returns void
+     */
     if (input.width_of_cut > input.tool_diameter) {
       issues.push({ field: "width_of_cut", message: "Cannot exceed tool diameter", severity: "error" });
     }
+    /** If.
+     * @param !input.current_position - !input.current_position
+     * @returns void
+     */
     if (!input.current_position) {
       issues.push({ field: "current_position", message: "Required", severity: "error" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns c w e z buffer output
+   */
   calculate(input: CWEZBufferInput): CWEZBufferOutput {
     const warnings: string[] = [];
     const D = input.tool_diameter;
@@ -144,6 +172,10 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
 
     // Update Z-buffer with previous tool positions (material removed)
     const allPositions = [...(input.previous_positions ?? []), pos];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const prevPos of input.previous_positions ?? []) {
       this.updateZBuffer(zBuffer, prevPos, pos, R, nSlices, nAngular, angRes, sliceHeight);
     }
@@ -160,6 +192,10 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
     const aeRatio = ae / D;
     const isSlotting = aeRatio >= 0.99;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iz = 0; iz < nSlices; iz++) {
       const zHeight = (iz + 0.5) * sliceHeight;
 
@@ -169,6 +205,10 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
       let entryAngle: number;
       let exitAngle: number;
 
+      /** If.
+       * @param isSlotting - is slotting
+       * @returns void
+       */
       if (isSlotting) {
         entryAngle = 0;
         exitAngle = 180;
@@ -202,9 +242,17 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
     const avgArc = activeSlices > 0 ? totalArc / activeSlices : 0;
     const engRatio = avgArc / 360;
 
+    /** If.
+     * @param isSlotting - is slotting
+     * @returns void
+     */
     if (isSlotting) {
       warnings.push("Full slotting engagement — high tool load");
     }
+    /** If.
+     * @param maxArc - max arc
+     * @returns void
+     */
     if (maxArc > 270) {
       warnings.push("Very high engagement arc — consider reducing ae");
     }
@@ -228,7 +276,15 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
     R: number, nSlices: number, nAngular: number, angRes: number, sliceHeight: number
   ): void {
     // Mark sectors where previous tool pass removed material
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iz = 0; iz < nSlices; iz++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let ia = 0; ia < nAngular; ia++) {
         const angle = (ia * angRes) * Math.PI / 180;
         // Point on tool periphery
@@ -241,6 +297,10 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         // If previous tool was inside current tool radius → material removed
+        /** If.
+         * @param dist - dist
+         * @returns void
+         */
         if (dist < R) {
           zBuffer[iz][ia] = Math.min(zBuffer[iz][ia], dist);
         }
@@ -248,6 +308,9 @@ export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> 
     }
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "cwe-z-buffer",

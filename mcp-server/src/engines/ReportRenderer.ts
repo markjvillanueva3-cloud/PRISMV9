@@ -1121,6 +1121,11 @@ export function renderReport(type: string, data: Record<string, any>): ReportRes
 
 /**
  * List all supported report types with their descriptions and required fields.
+  * @returns array<{
+  type:  report type;
+  description: string;
+  required_fields: string[];
+}>
  */
 export function listReportTypes(): Array<{
   type: ReportType;

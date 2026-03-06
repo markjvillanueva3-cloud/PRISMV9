@@ -454,6 +454,10 @@ export class ResponseTemplateEngine {
   private constructor() {}
 
   static getInstance(): ResponseTemplateEngine {
+    /** If.
+     * @param !ResponseTemplateEngine.instance - ! response template engine.instance
+     * @returns void
+     */
     if (!ResponseTemplateEngine.instance) {
       ResponseTemplateEngine.instance = new ResponseTemplateEngine();
     }
@@ -476,8 +480,16 @@ export class ResponseTemplateEngine {
   private getAvailableFields(resultData: any, sectionFields: string[]): string[] {
     if (!resultData || typeof resultData !== "object") return [];
     const available: string[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const field of sectionFields) {
       const val = this.resolveField(resultData, field);
+      /** If.
+       * @param val - value to set
+       * @returns void
+       */
       if (val !== undefined && val !== null && val !== "" && val !== 0) {
         available.push(field);
       }
@@ -493,7 +505,20 @@ export class ResponseTemplateEngine {
     // Direct lookup
     if (field in obj) return obj[field];
     // Check inside nested 'result', 'data', 'material', 'machine', 'alarm' wrappers
+    /** For.
+     * @param const - const
+     * @param "data" - "data"
+     * @param "material" - "material"
+     * @param "machine" - "machine"
+     * @param "alarm" - "alarm"
+     * @param "tool"] - "tool"]
+     * @returns void
+     */
     for (const wrapper of ["result", "data", "material", "machine", "alarm", "tool"]) {
+      /** If.
+       * @param obj[wrapper] - obj[wrapper]
+       * @returns void
+       */
       if (obj[wrapper] && typeof obj[wrapper] === "object" && field in obj[wrapper]) {
         return obj[wrapper][field];
       }
@@ -519,6 +544,10 @@ export class ResponseTemplateEngine {
 
     // Pressure gate
     const level = this.getSizeLevel(pressurePct);
+    /** If.
+     * @param !level - !level
+     * @returns void
+     */
     if (!level) {
       this.skipCount++;
       return null;
@@ -536,6 +565,10 @@ export class ResponseTemplateEngine {
 
     // Parse result data if it's a string
     let parsed = resultData;
+    /** If.
+     * @param typeof - typeof
+     * @returns void
+     */
     if (typeof resultData === "string") {
       try { parsed = JSON.parse(resultData); } catch { return null; }
     }
@@ -546,6 +579,10 @@ export class ResponseTemplateEngine {
     const filteredSections: TemplateSectionOutput[] = [];
     const allAvailableFields: string[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const section of template.sections) {
       // Level filter: include section if it meets the minimum level threshold
       const levelOrder: TemplateSizeLevel[] = ["minimal", "compact", "full"];
@@ -593,6 +630,10 @@ export class ResponseTemplateEngine {
     coverage: Record<string, string[]>;
   } {
     const coverage: Record<string, string[]> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tpl of TEMPLATES) {
       coverage[tpl.template_id] = tpl.actions;
     }
@@ -654,6 +695,7 @@ export class ResponseTemplateEngine {
  * @param action - The action within that dispatcher (e.g., "material_get")
  * @param resultText - The raw result text from the dispatcher
  * @param pressurePct - Current context pressure percentage
+  * @returns template match | null
  */
 export function autoResponseTemplate(
   dispatcher: string,
@@ -671,6 +713,7 @@ export function autoResponseTemplate(
 
 /**
  * getResponseTemplateStats — for telemetry integration
+  * @returns void
  */
 export function getResponseTemplateStats() {
   try {

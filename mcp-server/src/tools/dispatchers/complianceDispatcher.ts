@@ -17,6 +17,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers compliance dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerComplianceDispatcher(server: McpServer): void {
   (server as any).tool(

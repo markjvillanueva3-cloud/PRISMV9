@@ -173,18 +173,34 @@ export class ClampingSimEngine {
     const liftOff = Math.abs(cf.fz_N) > verticalClampForce + input.part_mass_kg * 9.81;
 
     const recommendations: string[] = [];
+    /** If.
+     * @param actualSafetyFactor - actual safety factor
+     * @returns void
+     */
     if (actualSafetyFactor < MIN_SAFETY_FACTOR) {
       recommendations.push(`UNSAFE: Safety factor ${actualSafetyFactor.toFixed(2)} < ${MIN_SAFETY_FACTOR} minimum. Increase clamping force.`);
     }
     if (pressures.some(p => !p.within_limit)) {
       recommendations.push("Contact pressure exceeds 60% yield — use larger contact area or softer jaws");
     }
+    /** If.
+     * @param maxDeflection - max deflection
+     * @returns void
+     */
     if (maxDeflection > 25) {
       recommendations.push(`Part deformation ${maxDeflection.toFixed(1)}µm — add support or reduce clamping force`);
     }
+    /** If.
+     * @param liftOff - lift off
+     * @returns void
+     */
     if (liftOff) {
       recommendations.push("LIFT-OFF RISK: Axial cutting force exceeds vertical clamping. Add downward clamps.");
     }
+    /** If.
+     * @param slipRisk - slip risk
+     * @returns void
+     */
     if (slipRisk === "none" && recommendations.length === 0) {
       recommendations.push("Clamping setup is adequate — proceed with confidence");
     }
@@ -203,6 +219,10 @@ export class ClampingSimEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { valid: boolean; issues: string[] }
+   */
   validate(input: ClampSimInput): { valid: boolean; issues: string[] } {
     const result = this.simulate(input);
     const issues: string[] = [];
@@ -215,6 +235,10 @@ export class ClampingSimEngine {
     return { valid: issues.length === 0, issues };
   }
 
+  /** Optimize.
+   * @param input - input data
+   * @returns clamp optimization
+   */
   optimize(input: ClampSimInput): ClampOptimization {
     const current = this.simulate(input);
     const targetSF = MIN_SAFETY_FACTOR * 1.2; // 20% above minimum
@@ -222,6 +246,10 @@ export class ClampingSimEngine {
     const changes: ClampOptimization["changes"] = [];
     let newTotal = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const c of input.clamp_points) {
       const ratio = targetSF / Math.max(current.safety_factor, 0.1);
       const newForce = Math.round(c.max_force_N * Math.min(ratio, 1.5)); // cap at 1.5× increase

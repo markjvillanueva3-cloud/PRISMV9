@@ -4,6 +4,9 @@
  */
 import { Router } from "express";
 
+/** Creates open api router.
+ * @returns router
+ */
 export function createOpenApiRouter(): Router {
   const router = Router();
 

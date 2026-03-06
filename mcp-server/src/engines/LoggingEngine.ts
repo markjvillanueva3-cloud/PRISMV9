@@ -82,6 +82,15 @@ export class LoggingEngine {
     namespaces_disabled: [],
   };
 
+  /** Log.
+   * @param level - depth or severity level
+   * @param namespace - namespace
+   * @param message - message
+   * @param context - execution context
+   * @param unknown> - unknown>
+   * @param correlationId - correlation id
+   * @returns log entry | undefined
+   */
   log(level: LogLevel, namespace: string, message: string, context?: Record<string, unknown>, correlationId?: string): LogEntry | undefined {
     if (LEVEL_ORDER[level] < LEVEL_ORDER[this.config.min_level]) return undefined;
 
@@ -102,16 +111,66 @@ export class LoggingEngine {
     return entry;
   }
 
+  /** Trace.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("trace", ns, msg, ctx); }
+   */
   trace(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("trace", ns, msg, ctx); }
+  /** Debug.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("debug", ns, msg, ctx); }
+   */
   debug(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("debug", ns, msg, ctx); }
+  /** Info.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("info", ns, msg, ctx); }
+   */
   info(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("info", ns, msg, ctx); }
+  /** Warn.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("warn", ns, msg, ctx); }
+   */
   warn(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("warn", ns, msg, ctx); }
+  /** Error.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("error", ns, msg, ctx); }
+   */
   error(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("error", ns, msg, ctx); }
+  /** Fatal.
+   * @param ns - ns
+   * @param msg - msg
+   * @param ctx - execution context
+   * @param unknown> - unknown>
+   * @returns log entry | undefined { return this.log("fatal", ns, msg, ctx); }
+   */
   fatal(ns: string, msg: string, ctx?: Record<string, unknown>): LogEntry | undefined { return this.log("fatal", ns, msg, ctx); }
 
+  /** Query.
+   * @param q - q
+   * @returns log entry[]
+   */
   query(q: LogQuery): LogEntry[] {
     let result = [...this.entries];
 
+    /** If.
+     * @param q.level - q.level
+     * @returns void
+     */
     if (q.level) {
       const minOrder = LEVEL_ORDER[q.level];
       result = result.filter(e => LEVEL_ORDER[e.level] >= minOrder);
@@ -126,12 +185,19 @@ export class LoggingEngine {
     return result.slice(-limit);
   }
 
+  /** Stats.
+   * @returns log stats
+   */
   stats(): LogStats {
     const byLevel: Record<LogLevel, number> = { trace: 0, debug: 0, info: 0, warn: 0, error: 0, fatal: 0 };
     const byNs: Record<string, number> = {};
     const oneHourAgo = Date.now() - 3600000;
     let errorsLastHour = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const e of this.entries) {
       byLevel[e.level]++;
       byNs[e.namespace] = (byNs[e.namespace] || 0) + 1;
@@ -150,13 +216,23 @@ export class LoggingEngine {
     };
   }
 
+  /** Configure.
+   * @param config - configuration options
+   * @returns log config
+   */
   configure(config: Partial<LogConfig>): LogConfig {
     Object.assign(this.config, config);
     return { ...this.config };
   }
 
+  /** Gets config.
+   * @returns log config { return { ...this.config }; }
+   */
   getConfig(): LogConfig { return { ...this.config }; }
 
+  /** Clear.
+   * @returns void { this.entries = []; log id counter = 0; }
+   */
   clear(): void { this.entries = []; logIdCounter = 0; }
 }
 

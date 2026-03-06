@@ -52,6 +52,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     await Promise.all(isoGroups.map(async (group) => {
       const groupPath = path.join(PATHS.MATERIALS_DB, group);
       const exists = await fileExists(groupPath);
+      /** If.
+       * @param exists - exists
+       * @returns void
+       */
       if (exists) {
         await this.loadISOGroup(group, groupPath);
       } else {
@@ -64,12 +68,20 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     // W5: Only mark loaded if we actually loaded data or no data files exist
     // Prevents marking "loaded" with 0 entries when files exist but failed to read
+    /** If.
+     * @param this.entries.size - this.entries.size
+     * @returns void
+     */
     if (this.entries.size > 0) {
       this.loaded = true;
       log.info(`MaterialRegistry loaded: ${this.entries.size} materials`);
     } else {
       // Check if data files exist — if they do, something went wrong
       let hasDataFiles = false;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const group of isoGroups) {
         const groupPath = path.join(PATHS.MATERIALS_DB, group);
         if (await fileExists(groupPath)) {
@@ -80,6 +92,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
           }
         }
       }
+      /** If.
+       * @param hasDataFiles - has data files
+       * @returns void
+       */
       if (hasDataFiles) {
         log.warn(`MaterialRegistry: 0 materials loaded despite data files existing! NOT marking as loaded — will retry on next call.`);
         // Don't set this.loaded = true — allow retry
@@ -111,11 +127,24 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       }));
 
       // Merge parsed results into registry (must be sequential for Map safety)
+      /** For.
+       * @param const - const
+       * @param materials - materials
+       * @returns void
+       */
       for (const { file, materials } of results) {
         const fileName = file.name.replace('.json', '');
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let i = 0; i < materials.length; i++) {
           const material = materials[i];
           const id = material.material_id || material.id || `${group}-${fileName}-${i.toString().padStart(4, '0')}`;
+          /** If.
+           * @param id - id identifier
+           * @returns void
+           */
           if (id) {
             this.entries.set(id, {
               id,
@@ -145,20 +174,36 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       const files = await listDirectory(layerPath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of jsonFiles) {
         const filePath = file.path;
         try {
           const data = await readJsonFile<Material | Material[]>(filePath);
           const materials = Array.isArray(data) ? data : [data];
           
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const material of materials) {
             const id = material.material_id || material.id;
+            /** If.
+             * @param id - id identifier
+             * @returns void
+             */
             if (id) {
               // Higher layers override lower layers
               const existingEntry = this.entries.get(id);
               const shouldOverride = !existingEntry || 
                 this.getLayerPriority(layer) > this.getLayerPriority(existingEntry.metadata.source || DATA_LAYERS.CORE);
               
+              /** If.
+               * @param shouldOverride - should override
+               * @returns void
+               */
               if (shouldOverride) {
                 this.entries.set(id, {
                   id,
@@ -208,10 +253,19 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     this.indexByISO.clear();
     this.indexByCategory.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const material = entry.data;
       
       // Index by name (normalized for case-insensitive search) — multi-value
+      /** If.
+       * @param material.name - material.name
+       * @returns void
+       */
       if (material.name) {
         const normalizedName = material.name.toLowerCase().trim().replace(/\s+/g, ' ');
         if (!this.indexByName.has(normalizedName)) {
@@ -222,6 +276,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       
       // Index by ISO group — check both classification.iso_group AND top-level iso_group
       const iso = material.classification?.iso_group || material.iso_group;
+      /** If.
+       * @param iso - iso
+       * @returns void
+       */
       if (iso) {
         if (!this.indexByISO.has(iso)) {
           this.indexByISO.set(iso, []);
@@ -231,6 +289,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
 
       // Index by category — check classification.category, material_type, and subcategory
       const category = material.classification?.category || material.material_type || material.subcategory;
+      /** If.
+       * @param category - category
+       * @returns void
+       */
       if (category) {
         if (!this.indexByCategory.has(category)) {
           this.indexByCategory.set(category, []);
@@ -255,6 +317,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
 
     const iso = material.classification?.iso_group || material.iso_group;
+    /** If.
+     * @param iso - iso
+     * @returns void
+     */
     if (iso) {
       if (!this.indexByISO.has(iso)) {
         this.indexByISO.set(iso, []);
@@ -263,6 +329,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     }
 
     const category = material.classification?.category || material.material_type || material.subcategory;
+    /** If.
+     * @param category - category
+     * @returns void
+     */
     if (category) {
       if (!this.indexByCategory.has(category)) {
         this.indexByCategory.set(category, []);
@@ -286,12 +356,21 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     // Try name lookup (case-insensitive, whitespace-normalized)
     const normalizedSearch = identifier.toLowerCase().trim().replace(/\s+/g, ' ');
     const idsFromName = this.indexByName.get(normalizedSearch);
+    /** If.
+     * @param idsFromName - ids from name
+     * @returns void
+     */
     if (idsFromName && idsFromName.length > 0) {
       return this.get(idsFromName[0]);
     }
     
     // Try partial name match - ALL words must be present
     const searchWords = identifier.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [name, ids] of this.indexByName) {
       // Check if ALL search words are in the name
       if (searchWords.every(word => name.includes(word))) {
@@ -338,6 +417,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     // W5 DEBUG: Log entry count and sample for search diagnostics
     log.info(`  Search: ${results.length} candidates, query="${options.query}", iso="${options.iso_group}"`);
+    /** If.
+     * @param results.length - results.length
+     * @returns void
+     */
     if (results.length > 0) {
       const sample = results[0] as any;
       log.info(`  Sample[0]: id=${sample.material_id||sample.id}, name=${sample.name}, type=${sample.material_type}, sub=${sample.subcategory}`);
@@ -345,6 +428,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     // Apply additional filters
     // Treat "*" or empty query as "return all" — skip text filter
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(m => 
@@ -366,6 +453,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       results = results.filter(m => m.classification?.category === options.category);
     }
     
+    /** If.
+     * @param options.hardness_min - options.hardness_min
+     * @returns void
+     */
     if (options.hardness_min !== undefined) {
       results = results.filter(m => {
         const hrc = m.mechanical?.hardness?.rockwell_c;
@@ -377,6 +468,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       });
     }
 
+    /** If.
+     * @param options.hardness_max - options.hardness_max
+     * @returns void
+     */
     if (options.hardness_max !== undefined) {
       results = results.filter(m => {
         const hrc = m.mechanical?.hardness?.rockwell_c;
@@ -387,16 +482,28 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       });
     }
     
+    /** If.
+     * @param options.machinability_min - options.machinability_min
+     * @returns void
+     */
     if (options.machinability_min !== undefined) {
       results = results.filter(m => 
         (m.machining?.machinability_rating || 0) >= options.machinability_min!
       );
     }
     
+    /** If.
+     * @param options.has_kienzle - options.has_kienzle
+     * @returns void
+     */
     if (options.has_kienzle) {
       results = results.filter(m => m.kienzle?.kc1_1 != null && m.kienzle?.mc != null);
     }
 
+    /** If.
+     * @param options.has_taylor - options.has_taylor
+     * @returns void
+     */
     if (options.has_taylor) {
       results = results.filter(m => m.taylor?.C != null && m.taylor?.n != null);
     }
@@ -443,6 +550,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     const id = material.material_id || material.id || `MAT-${Date.now()}`;
     
     // Validate layer
+    /** If.
+     * @param layer - layer
+     * @returns void
+     */
     if (layer !== DATA_LAYERS.USER && layer !== DATA_LAYERS.LEARNED) {
       throw new Error(`Can only add materials to USER or LEARNED layer, not ${layer}`);
     }
@@ -480,6 +591,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     await this.load();
     
     const existing = this.get(id);
+    /** If.
+     * @param !existing - !existing
+     * @returns void
+     */
     if (!existing) {
       throw new Error(`Material ${id} not found`);
     }
@@ -589,6 +704,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     
     const materials = ids.map(id => this.get(id)).filter(Boolean) as Material[];
     
+    /** If.
+     * @param materials.length - materials.length
+     * @returns void
+     */
     if (materials.length < 2) {
       return { materials: [], comparison: [] };
     }
@@ -611,6 +730,10 @@ export class MaterialRegistry extends BaseRegistry<Material> {
     const comparison = materials.map(m => {
       const result: Record<string, any> = { material_id: m.material_id || m.id, name: m.name };
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const prop of propsToCompare) {
         const value = this.getNestedValue(m, prop);
         result[prop] = value;

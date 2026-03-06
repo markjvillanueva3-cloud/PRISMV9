@@ -86,26 +86,50 @@ export interface DPMultiPassOutput extends WithWarnings {
  */
 export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: DPMultiPassInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.total_stock - !input.total_stock
+     * @returns void
+     */
     if (!input.total_stock || input.total_stock <= 0) {
       issues.push({ field: "total_stock", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.workpiece_diameter - !input.workpiece_diameter
+     * @returns void
+     */
     if (!input.workpiece_diameter || input.workpiece_diameter <= 0) {
       issues.push({ field: "workpiece_diameter", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.cut_length - !input.cut_length
+     * @returns void
+     */
     if (!input.cut_length || input.cut_length <= 0) {
       issues.push({ field: "cut_length", message: "Must be > 0", severity: "error" });
     }
     if ((input.min_depth ?? 0.5) >= (input.max_depth ?? 5)) {
       issues.push({ field: "min_depth", message: "Must be less than max_depth", severity: "error" });
     }
+    /** If.
+     * @param input.total_stock - input.total_stock
+     * @returns void
+     */
     if (input.total_stock > input.workpiece_diameter / 2) {
       issues.push({ field: "total_stock", message: "Stock exceeds half the diameter", severity: "error" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns d p multi pass output
+   */
   calculate(input: DPMultiPassInput): DPMultiPassOutput {
     const warnings: string[] = [];
     const totalStock = input.total_stock;
@@ -133,13 +157,25 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
 
     dp[0][0] = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let k = 1; k <= maxPasses; k++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let s = 1; s <= nSteps; s++) {
         const stockRemoved = s * stepSize;
         // Try all possible depths for pass k
         const minSteps = Math.max(1, Math.ceil(minAp / stepSize));
         const maxSteps = Math.min(s, Math.floor(maxAp / stepSize));
 
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let d = minSteps; d <= maxSteps; d++) {
           const prev = s - d;
           if (prev < 0 || dp[k - 1][prev] >= INF) continue;
@@ -157,6 +193,10 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
           const time = L / (f * n_rpm);
 
           const totalTime = dp[k - 1][prev] + time;
+          /** If.
+           * @param totalTime - total time
+           * @returns void
+           */
           if (totalTime < dp[k][s]) {
             dp[k][s] = totalTime;
             choice[k][s] = d;
@@ -168,8 +208,16 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
     // Find optimal number of passes
     let bestK = 1;
     let bestTotal = INF;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let k = 1; k <= maxPasses; k++) {
       const t = dp[k][nSteps] + (k - 1) * tChange; // Include tool changes between passes
+      /** If.
+       * @param t - t
+       * @returns void
+       */
       if (t < bestTotal) {
         bestTotal = t;
         bestK = k;
@@ -180,6 +228,10 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
     const passes: PassAllocation[] = [];
     let remaining = nSteps;
     const depthSteps: number[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let k = bestK; k >= 1; k--) {
       const d = choice[k][remaining];
       depthSteps.unshift(d);
@@ -191,6 +243,10 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
     let cumStock = 0;
     let feasible = true;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < depthSteps.length; i++) {
       const depth = depthSteps[i] * stepSize;
       const diamBefore = D0 - 2 * cumStock;
@@ -223,6 +279,10 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
     const equalDepth = totalStock / passes.length;
     let equalTime = 0;
     let eqCumStock = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < passes.length; i++) {
       const diamBefore = D0 - 2 * eqCumStock;
       eqCumStock += equalDepth;
@@ -233,6 +293,10 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
 
     const savings = equalTime > 0 ? ((equalTime - totalWithChanges) / equalTime) * 100 : 0;
 
+    /** If.
+     * @param !feasible - !feasible
+     * @returns void
+     */
     if (!feasible) {
       warnings.push("One or more passes exceed power limit — reduce max depth or increase power");
     }
@@ -251,6 +315,9 @@ export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutpu
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "dp-multi-pass",

@@ -99,6 +99,10 @@ export class InverseKinematicsSolverEngine {
       solutions.push({ ...sol1, A_deg, C_deg, is_preferred: false, total_axis_motion_deg: 0 });
 
       // Solution 2: alternate (A negated, C + 180°)
+      /** If.
+       * @param !degenerate - !degenerate
+       * @returns void
+       */
       if (!degenerate) {
         const A2 = -A_deg;
         const C2 = C_deg + 180;
@@ -120,6 +124,10 @@ export class InverseKinematicsSolverEngine {
       const sol1 = this._computeLinearAxes(input, B_deg, C_deg, "B");
       solutions.push({ ...sol1, B_deg, C_deg, is_preferred: false, total_axis_motion_deg: 0 });
 
+      /** If.
+       * @param !degenerate - !degenerate
+       * @returns void
+       */
       if (!degenerate) {
         const B2 = -B_deg;
         const C2 = C_deg + 180;
@@ -129,14 +137,30 @@ export class InverseKinematicsSolverEngine {
     }
 
     // Calculate total motion from previous position
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const sol of solutions) {
       let motion = 0;
+      /** If.
+       * @param input.prev_A_deg - input.prev_ a_deg
+       * @returns void
+       */
       if (input.prev_A_deg !== undefined && sol.A_deg !== undefined) {
         motion += Math.abs(sol.A_deg - input.prev_A_deg);
       }
+      /** If.
+       * @param input.prev_B_deg - input.prev_ b_deg
+       * @returns void
+       */
       if (input.prev_B_deg !== undefined && sol.B_deg !== undefined) {
         motion += Math.abs(sol.B_deg - input.prev_B_deg);
       }
+      /** If.
+       * @param input.prev_C_deg - input.prev_ c_deg
+       * @returns void
+       */
       if (input.prev_C_deg !== undefined) {
         let dC = Math.abs(sol.C_deg - input.prev_C_deg);
         if (dC > 180) dC = 360 - dC;
@@ -155,12 +179,24 @@ export class InverseKinematicsSolverEngine {
     };
 
     const recs: string[] = [];
+    /** If.
+     * @param degenerate - degenerate
+     * @returns void
+     */
     if (degenerate) {
       recs.push("Near-singular orientation — C-axis position is ambiguous; using previous value");
     }
+    /** If.
+     * @param selected.total_axis_motion_deg - selected.total_axis_motion_deg
+     * @returns void
+     */
     if (selected.total_axis_motion_deg > 90) {
       recs.push("Large axis motion (>90°) — consider alternative solution or toolpath smoothing");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("IK solution found — verify with machine simulation");
     }
@@ -185,6 +221,10 @@ export class InverseKinematicsSolverEngine {
 
     let dx = 0, dy = 0, dz = 0;
 
+    /** If.
+     * @param primaryAxis - primary axis
+     * @returns void
+     */
     if (primaryAxis === "A") {
       dx = L * Math.sin(r1) * Math.sin(c);
       dy = -L * Math.sin(r1) * Math.cos(c);

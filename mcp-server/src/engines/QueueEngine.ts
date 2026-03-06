@@ -96,6 +96,10 @@ export class QueueEngine {
     return job;
   }
 
+  /** Dequeue.
+   * @param queueName - queue name
+   * @returns queue job | undefined
+   */
   dequeue(queueName: string): QueueJob | undefined {
     const now = Date.now();
     const pending = [...this.jobs.values()]
@@ -112,6 +116,11 @@ export class QueueEngine {
     return job;
   }
 
+  /** Complete.
+   * @param jobId - job id
+   * @param result - result
+   * @returns true if condition is met
+   */
   complete(jobId: string, result?: unknown): boolean {
     const job = this.jobs.get(jobId);
     if (!job || job.status !== "processing") return false;
@@ -120,6 +129,10 @@ export class QueueEngine {
     job.completed_at = new Date().toISOString();
     job.result = result;
 
+    /** If.
+     * @param job.started_at - job.started_at
+     * @returns void
+     */
     if (job.started_at) {
       const elapsed = Date.now() - new Date(job.started_at).getTime();
       this.processingTimes.push(elapsed);
@@ -129,12 +142,21 @@ export class QueueEngine {
     return true;
   }
 
+  /** Fail.
+   * @param jobId - job id
+   * @param error - error
+   * @returns true if condition is met
+   */
   fail(jobId: string, error: string): boolean {
     const job = this.jobs.get(jobId);
     if (!job || job.status !== "processing") return false;
 
     job.error = error;
 
+    /** If.
+     * @param job.attempts - job.attempts
+     * @returns void
+     */
     if (job.attempts < job.max_attempts) {
       job.status = "pending"; // Will be retried
     } else {
@@ -144,6 +166,10 @@ export class QueueEngine {
     return true;
   }
 
+  /** Checks whether cancel.
+   * @param jobId - job id
+   * @returns true if condition is met
+   */
   cancel(jobId: string): boolean {
     const job = this.jobs.get(jobId);
     if (!job || job.status === "completed") return false;
@@ -151,6 +177,10 @@ export class QueueEngine {
     return true;
   }
 
+  /** Retry.
+   * @param jobId - job id
+   * @returns true if condition is met
+   */
   retry(jobId: string): boolean {
     const job = this.jobs.get(jobId);
     if (!job || (job.status !== "failed" && job.status !== "dead_letter")) return false;
@@ -160,16 +190,29 @@ export class QueueEngine {
     return true;
   }
 
+  /** Gets job.
+   * @param jobId - job id
+   * @returns queue job | undefined
+   */
   getJob(jobId: string): QueueJob | undefined {
     return this.jobs.get(jobId);
   }
 
+  /** List Jobs.
+   * @param queueName - queue name
+   * @param status - status
+   * @returns queue job[]
+   */
   listJobs(queueName: string, status?: JobStatus): QueueJob[] {
     let result = [...this.jobs.values()].filter(j => j.queue_name === queueName);
     if (status) result = result.filter(j => j.status === status);
     return result;
   }
 
+  /** Stats.
+   * @param queueName - queue name
+   * @returns queue stats
+   */
   stats(queueName: string): QueueStats {
     const jobs = [...this.jobs.values()].filter(j => j.queue_name === queueName);
     const counts: Record<JobStatus, number> = { pending: 0, processing: 0, completed: 0, failed: 0, cancelled: 0, dead_letter: 0 };
@@ -191,15 +234,32 @@ export class QueueEngine {
     };
   }
 
+  /** List Queues.
+   * @returns string[]
+   */
   listQueues(): string[] {
     const queues = new Set<string>();
     for (const j of this.jobs.values()) queues.add(j.queue_name);
     return [...queues];
   }
 
+  /** Purge.
+   * @param queueName - queue name
+   * @param status - status
+   * @returns computed numeric result
+   */
   purge(queueName: string, status: JobStatus = "completed"): number {
     let count = 0;
+    /** For.
+     * @param const - const
+     * @param job] - job]
+     * @returns void
+     */
     for (const [id, job] of this.jobs) {
+      /** If.
+       * @param job.queue_name - job.queue_name
+       * @returns void
+       */
       if (job.queue_name === queueName && job.status === status) {
         this.jobs.delete(id);
         count++;
@@ -208,6 +268,9 @@ export class QueueEngine {
     return count;
   }
 
+  /** Clear.
+   * @returns void { this.jobs.clear(); this.processing times = []; job id counter = 0; }
+   */
   clear(): void { this.jobs.clear(); this.processingTimes = []; jobIdCounter = 0; }
 }
 

@@ -72,17 +72,33 @@ export interface FFTAnalyzerOutput extends WithWarnings {
  */
 export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: FFTAnalyzerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.signal?.length - !input.signal?.length
+     * @returns void
+     */
     if (!input.signal?.length || input.signal.length < 4) {
       issues.push({ field: "signal", message: "At least 4 samples required", severity: "error" });
     }
+    /** If.
+     * @param !input.sample_rate - !input.sample_rate
+     * @returns void
+     */
     if (!input.sample_rate || input.sample_rate <= 0) {
       issues.push({ field: "sample_rate", message: "Must be > 0", severity: "error" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns f f t analyzer output
+   */
   calculate(input: FFTAnalyzerInput): FFTAnalyzerOutput {
     const warnings: string[] = [];
     const { sample_rate } = input;
@@ -131,7 +147,15 @@ export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutpu
     const maxIdx = Math.min(half - 1, Math.ceil(maxFreq / freqRes));
 
     const peakIndices: number[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = minIdx + 1; i < maxIdx; i++) {
+      /** If.
+       * @param magnitudes[i] - magnitudes[i]
+       * @returns void
+       */
       if (magnitudes[i] > magnitudes[i - 1] && magnitudes[i] > magnitudes[i + 1]) {
         peakIndices.push(i);
       }
@@ -143,12 +167,20 @@ export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutpu
     const topPeaks = peakIndices.slice(0, nPeaks);
     const fundamentalFreq = topPeaks.length > 0 ? frequencies[topPeaks[0]] : 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const idx of topPeaks) {
       const freq = frequencies[idx];
       let isHarmonic = false;
       let harmonicOf: number | undefined;
 
       // Check if harmonic of fundamental
+      /** If.
+       * @param fundamentalFreq - fundamental freq
+       * @returns void
+       */
       if (fundamentalFreq > 0 && freq !== fundamentalFreq) {
         const ratio = freq / fundamentalFreq;
         if (Math.abs(ratio - Math.round(ratio)) < 0.05) {
@@ -184,6 +216,10 @@ export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutpu
 
   private window(i: number, N: number, type: WindowFunction): number {
     const x = (2 * Math.PI * i) / (N - 1);
+    /** Switch.
+     * @param type - type identifier
+     * @returns void
+     */
     switch (type) {
       case "hann": return 0.5 * (1 - Math.cos(x));
       case "hamming": return 0.54 - 0.46 * Math.cos(x);
@@ -209,16 +245,32 @@ export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutpu
       return result;
     };
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < N; i++) {
       const j = bitReverse(i);
       real[j] = signal[i];
     }
 
     // Butterfly operations
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let size = 2; size <= N; size *= 2) {
       const halfSize = size / 2;
       const angle = -2 * Math.PI / size;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < N; i += size) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < halfSize; j++) {
           const wr = Math.cos(angle * j);
           const wi = Math.sin(angle * j);
@@ -235,6 +287,9 @@ export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutpu
     return { real, imag };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "fft-analyzer",

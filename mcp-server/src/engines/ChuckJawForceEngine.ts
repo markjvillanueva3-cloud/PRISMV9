@@ -147,18 +147,38 @@ export class ChuckJawForceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param !isSafe - !is safe
+     * @returns void
+     */
     if (!isSafe) {
       recs.push(`SAFETY: Insufficient gripping force — safety factor ${sf.toFixed(1)} below minimum ${SAFETY_FACTOR_MIN}`);
     }
+    /** If.
+     * @param input.spindle_rpm - input.spindle_rpm
+     * @returns void
+     */
     if (input.spindle_rpm > maxSafeRpm * 0.9) {
       recs.push(`Operating near max safe RPM (${maxSafeRpm}) — reduce speed or increase chuck pressure`);
     }
+    /** If.
+     * @param deformRisk - deform risk
+     * @returns void
+     */
     if (deformRisk === "high") {
       recs.push("High jaw contact pressure — use soft jaws bored to size to distribute force");
     }
+    /** If.
+     * @param gripLoss - grip loss
+     * @returns void
+     */
     if (gripLoss > 30) {
       recs.push(`${gripLoss.toFixed(0)}% grip loss at RPM — consider counterbalanced chuck or lower speed`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Chuck gripping force adequate — safe to proceed");
     }
@@ -177,6 +197,10 @@ export class ChuckJawForceEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; safety_factor: number; message: string }
+   */
   validate(input: ChuckForceInput): { safe: boolean; safety_factor: number; message: string } {
     const result = this.calculate(input);
     return {

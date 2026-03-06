@@ -87,24 +87,52 @@ const LIMITS = {
  */
 export class ChipThinningCompensation implements Algorithm<ChipThinningInput, ChipThinningOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ChipThinningInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.feed_per_tooth - !input.feed_per_tooth
+     * @returns void
+     */
     if (!input.feed_per_tooth || input.feed_per_tooth < LIMITS.MIN_FEED || input.feed_per_tooth > LIMITS.MAX_FEED) {
       issues.push({ field: "feed_per_tooth", message: `Feed must be ${LIMITS.MIN_FEED}-${LIMITS.MAX_FEED} mm/tooth, got ${input.feed_per_tooth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.radial_depth - !input.radial_depth
+     * @returns void
+     */
     if (!input.radial_depth || input.radial_depth < LIMITS.MIN_DEPTH) {
       issues.push({ field: "radial_depth", message: `Radial depth must be >= ${LIMITS.MIN_DEPTH} mm, got ${input.radial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter < LIMITS.MIN_DIAMETER || input.tool_diameter > LIMITS.MAX_DIAMETER) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be ${LIMITS.MIN_DIAMETER}-${LIMITS.MAX_DIAMETER} mm, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param input.radial_depth - input.radial_depth
+     * @returns void
+     */
     if (input.radial_depth && input.tool_diameter && input.radial_depth > input.tool_diameter) {
       issues.push({ field: "radial_depth", message: `Radial depth (${input.radial_depth}) exceeds tool diameter (${input.tool_diameter})`, severity: "warning" });
     }
+    /** If.
+     * @param input.number_of_teeth - input.number_of_teeth
+     * @returns void
+     */
     if (input.number_of_teeth !== undefined && input.number_of_teeth < 1) {
       issues.push({ field: "number_of_teeth", message: `Number of teeth must be >= 1, got ${input.number_of_teeth}`, severity: "error" });
     }
+    /** If.
+     * @param input.spindle_speed - input.spindle_speed
+     * @returns void
+     */
     if (input.spindle_speed !== undefined && input.spindle_speed <= 0) {
       issues.push({ field: "spindle_speed", message: `Spindle speed must be > 0, got ${input.spindle_speed}`, severity: "error" });
     }
@@ -112,6 +140,10 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns chip thinning output
+   */
   calculate(input: ChipThinningInput): ChipThinningOutput {
     const warnings: string[] = [];
     const { feed_per_tooth, radial_depth, tool_diameter, number_of_teeth, spindle_speed } = input;
@@ -125,6 +157,10 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
 
     // Martellotti mean chip thickness
     let hex: number;
+    /** If.
+     * @param phi_e - phi_e
+     * @returns void
+     */
     if (phi_e > 0.001) {
       hex = feed_per_tooth * (1 - Math.cos(phi_e)) / phi_e;
     } else {
@@ -136,6 +172,10 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
     let chip_thinning_factor = hex > 0 ? feed_per_tooth / hex : 1.0;
 
     // When ae >= D, there's no thinning (full slot)
+    /** If.
+     * @param engagement_ratio - engagement_ratio
+     * @returns void
+     */
     if (engagement_ratio >= 0.999) {
       hex = feed_per_tooth;
       chip_thinning_factor = 1.0;
@@ -145,6 +185,10 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
     let fz_compensated = feed_per_tooth * chip_thinning_factor;
 
     // Safety cap on compensation
+    /** If.
+     * @param chip_thinning_factor - chip_thinning_factor
+     * @returns void
+     */
     if (chip_thinning_factor > LIMITS.MAX_COMPENSATION) {
       warnings.push(`Extreme thinning factor ${chip_thinning_factor.toFixed(2)} — capped at ${LIMITS.MAX_COMPENSATION}x`);
       chip_thinning_factor = LIMITS.MAX_COMPENSATION;
@@ -154,17 +198,29 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
     // Feed rate if RPM and teeth provided
     let feed_rate_compensated: number | undefined;
     let feed_rate_original: number | undefined;
+    /** If.
+     * @param number_of_teeth - number_of_teeth
+     * @returns void
+     */
     if (number_of_teeth && spindle_speed) {
       feed_rate_original = feed_per_tooth * number_of_teeth * spindle_speed;
       feed_rate_compensated = fz_compensated * number_of_teeth * spindle_speed;
     }
 
     // Warnings
+    /** If.
+     * @param chip_thinning_factor - chip_thinning_factor
+     * @returns void
+     */
     if (chip_thinning_factor > 1.5) {
       warnings.push(`Significant chip thinning (${chip_thinning_factor.toFixed(2)}x). Increase programmed feed to ${fz_compensated.toFixed(3)} mm/tooth for target chip load.`);
     } else if (chip_thinning_factor > 1.2) {
       warnings.push(`Moderate chip thinning (${chip_thinning_factor.toFixed(2)}x). Consider feed compensation.`);
     }
+    /** If.
+     * @param engagement_ratio - engagement_ratio
+     * @returns void
+     */
     if (engagement_ratio < 0.05) {
       warnings.push("Very light radial engagement — consider increasing ae for stability");
     }
@@ -184,6 +240,9 @@ export class ChipThinningCompensation implements Algorithm<ChipThinningInput, Ch
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "chip-thinning",

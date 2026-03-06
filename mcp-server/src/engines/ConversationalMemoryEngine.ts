@@ -133,6 +133,9 @@ const TRANSITION_PATTERNS: Record<string, { to: ConversationState; keywords: str
 /**
  * Detect state transition from user message.
  * Returns new state if transition detected, null otherwise.
+  * @param currentState - current state
+  * @param message - message string
+  * @returns conversation state | null
  */
 export function detectTransition(
   currentState: ConversationState,
@@ -154,6 +157,9 @@ export function detectTransition(
 
 /**
  * Force a state transition (manual override).
+  * @param sessionId - session identifier
+  * @param newState - new state
+  * @returns conversation context
  */
 export function transitionState(
   sessionId: string,
@@ -199,6 +205,9 @@ function getResponseStyle(state: ConversationState): ResponseStyle {
 
 /**
  * Start a new job context.
+  * @param sessionId - session identifier
+  * @param details - details
+  * @returns job context
  */
 export function startJob(
   sessionId: string,
@@ -243,6 +252,9 @@ export function startJob(
 
 /**
  * Update the active job context with new information.
+  * @param sessionId - session identifier
+  * @param updates - updates
+  * @returns job context | null
  */
 export function updateJob(
   sessionId: string,
@@ -292,6 +304,8 @@ export function updateJob(
 
 /**
  * Find a job by search query (material, part description, etc.)
+  * @param query - query string
+  * @returns job context | null
  */
 export function findJob(query: string): JobContext | null {
   const lower = query.toLowerCase();
@@ -309,6 +323,9 @@ export function findJob(query: string): JobContext | null {
 
 /**
  * Resume a previously active job.
+  * @param sessionId - session identifier
+  * @param jobId - job identifier
+  * @returns job context | null
  */
 export function resumeJob(sessionId: string, jobId: string): JobContext | null {
   const job = allJobs.get(jobId);
@@ -328,6 +345,8 @@ export function resumeJob(sessionId: string, jobId: string): JobContext | null {
 
 /**
  * Get the active job context for a session.
+  * @param sessionId - session identifier
+  * @returns job context | null
  */
 export function getActiveJob(sessionId: string): JobContext | null {
   const ctx = getSession(sessionId);
@@ -336,6 +355,8 @@ export function getActiveJob(sessionId: string): JobContext | null {
 
 /**
  * Get the conversation context for a session.
+  * @param sessionId - session identifier
+  * @returns conversation context
  */
 export function getConversationContext(sessionId: string): ConversationContext {
   return { ...getSession(sessionId) };
@@ -343,6 +364,8 @@ export function getConversationContext(sessionId: string): ConversationContext {
 
 /**
  * Get recent jobs for a session.
+  * @param sessionId - session identifier
+  * @returns array of { id: string; material: string; state:  conversation state; last_accessed: string } items
  */
 export function getRecentJobs(sessionId: string): { id: string; material: string; state: ConversationState; last_accessed: string }[] {
   return [...getSession(sessionId).recent_jobs];
@@ -350,6 +373,8 @@ export function getRecentJobs(sessionId: string): { id: string; material: string
 
 /**
  * Complete the active job and transition to IDLE.
+  * @param sessionId - session identifier
+  * @returns job context | null
  */
 export function completeJob(sessionId: string): JobContext | null {
   const ctx = getSession(sessionId);
@@ -366,6 +391,8 @@ export function completeJob(sessionId: string): JobContext | null {
 
 /**
  * Reset session (for testing).
+  * @param sessionId - session identifier
+  * @returns void
  */
 export function resetConversation(sessionId: string): void {
   sessions.delete(sessionId);
@@ -384,6 +411,9 @@ export function resetConversation(sessionId: string): void {
  *   job_resume             — Resume a previous job
  *   job_complete           — Complete active job
  *   job_list_recent        — List recent jobs
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function conversationalMemory(action: string, params: Record<string, any>): any {
   const sessionId = params.session_id ?? "default";

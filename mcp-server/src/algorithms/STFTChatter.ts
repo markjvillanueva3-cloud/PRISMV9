@@ -88,26 +88,54 @@ export interface STFTChatterOutput extends WithWarnings {
  */
 export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTChatterOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: STFTChatterInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.signal?.length - !input.signal?.length
+     * @returns void
+     */
     if (!input.signal?.length || input.signal.length < 64) {
       issues.push({ field: "signal", message: "At least 64 samples required", severity: "error" });
     }
+    /** If.
+     * @param !input.sample_rate - !input.sample_rate
+     * @returns void
+     */
     if (!input.sample_rate || input.sample_rate <= 0) {
       issues.push({ field: "sample_rate", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.spindle_speed - !input.spindle_speed
+     * @returns void
+     */
     if (!input.spindle_speed || input.spindle_speed <= 0) {
       issues.push({ field: "spindle_speed", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.n_flutes - !input.n_flutes
+     * @returns void
+     */
     if (!input.n_flutes || input.n_flutes < 1) {
       issues.push({ field: "n_flutes", message: "Must be >= 1", severity: "error" });
     }
+    /** If.
+     * @param input.sample_rate - input.sample_rate
+     * @returns void
+     */
     if (input.sample_rate < input.spindle_speed / 60 * input.n_flutes * 4) {
       issues.push({ field: "sample_rate", message: "Sample rate too low for tooth-passing frequency", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns s t f t chatter output
+   */
   calculate(input: STFTChatterInput): STFTChatterOutput {
     const warnings: string[] = [];
     const { signal, sample_rate, spindle_speed, n_flutes } = input;
@@ -148,12 +176,20 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
     const backgroundFrames = Math.min(3, nFrames);
     const backgroundSpectrum = new Array(halfFFT).fill(0);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let frame = 0; frame < nFrames; frame++) {
       const start = frame * hopSize;
       const time = start / sample_rate;
 
       // Apply window
       const windowed = new Array(nFFT).fill(0);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < windowSize; i++) {
         windowed[i] = signal[start + i] * win[i];
       }
@@ -164,13 +200,25 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
       // Magnitude spectrum
       const magnitudes = new Array(halfFFT);
       const frequencies = new Array(halfFFT);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 0; k < halfFFT; k++) {
         frequencies[k] = k * freqRes;
         magnitudes[k] = 2 * Math.sqrt(real[k] ** 2 + imag[k] ** 2) / nFFT;
       }
 
       // Update background estimate
+      /** If.
+       * @param frame - frame
+       * @returns void
+       */
       if (frame < backgroundFrames) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let k = 0; k < halfFFT; k++) {
           backgroundSpectrum[k] += magnitudes[k] / backgroundFrames;
         }
@@ -181,7 +229,15 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
       let frameChatterFreq = 0;
       let frameChatterMag = 0;
 
+      /** If.
+       * @param frame - frame
+       * @returns void
+       */
       if (frame >= backgroundFrames) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let k = 2; k < halfFFT - 1; k++) {
           const freq = frequencies[k];
           const mag = magnitudes[k];
@@ -200,8 +256,16 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
           const bgLevel = backgroundSpectrum[k] || 1e-10;
           const ratio = mag / bgLevel;
 
+          /** If.
+           * @param ratio - ratio
+           * @returns void
+           */
           if (ratio > threshold) {
             frameChatter = true;
+            /** If.
+             * @param mag - mag
+             * @returns void
+             */
             if (mag > frameChatterMag) {
               frameChatterMag = mag;
               frameChatterFreq = freq;
@@ -210,13 +274,25 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
         }
       }
 
+      /** If.
+       * @param frameChatter - frame chatter
+       * @returns void
+       */
       if (frameChatter) {
         chatterFrames++;
+        /** If.
+         * @param !chatterDetected - !chatter detected
+         * @returns void
+         */
         if (!chatterDetected) {
           chatterDetected = true;
           chatterOnset = time;
         }
         const csr = frameChatterMag / (rms || 1e-10);
+        /** If.
+         * @param csr - csr
+         * @returns void
+         */
         if (csr > maxCSR) {
           maxCSR = csr;
           chatterFreq = frameChatterFreq;
@@ -245,6 +321,10 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
 
     // Recommendation
     let recommendation: string;
+    /** Switch.
+     * @param severity - severity
+     * @returns void
+     */
     switch (severity) {
       case "none": recommendation = "No action needed — stable cutting"; break;
       case "mild": recommendation = "Monitor closely — consider reducing depth of cut by 10-20%"; break;
@@ -252,6 +332,10 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
       case "severe": recommendation = "STOP — severe chatter. Reduce ap significantly or change spindle speed"; break;
     }
 
+    /** If.
+     * @param chatterDetected - chatter detected
+     * @returns void
+     */
     if (chatterDetected) {
       warnings.push(`CHATTER at ${chatterFreq.toFixed(0)}Hz (severity: ${severity})`);
     }
@@ -275,6 +359,10 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
   private makeWindow(n: number, type: string): number[] {
     return Array.from({ length: n }, (_, i) => {
       const x = (2 * Math.PI * i) / (n - 1);
+      /** Switch.
+       * @param type - type identifier
+       * @returns void
+       */
       switch (type) {
         case "hann": return 0.5 * (1 - Math.cos(x));
         case "hamming": return 0.54 - 0.46 * Math.cos(x);
@@ -297,10 +385,22 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
 
     for (let i = 0; i < N; i++) real[bitReverse(i)] = signal[i];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let size = 2; size <= N; size *= 2) {
       const half = size / 2;
       const angle = -2 * Math.PI / size;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < N; i += size) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < half; j++) {
           const wr = Math.cos(angle * j);
           const wi = Math.sin(angle * j);
@@ -317,6 +417,9 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
     return { real, imag };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "stft-chatter",

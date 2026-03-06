@@ -143,11 +143,18 @@ export class CertificateEngine {
     this.config = { ...DEFAULT_CERT_CONFIG, ...configOverrides };
   }
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
 
     ensureDirs();
 
+    /** If.
+     * @param this.config.signCertificates - this.config.sign certificates
+     * @returns void
+     */
     if (this.config.signCertificates) {
       try {
         this.keyPair = loadOrGenerateKeyPair();
@@ -208,6 +215,10 @@ export class CertificateEngine {
 
       // Sign if enabled
       let signature: CertSignature;
+      /** If.
+       * @param this.config.signCertificates - this.config.sign certificates
+       * @returns void
+       */
       if (this.config.signCertificates && this.keyPair) {
         const sig = crypto.sign(null, Buffer.from(canonicalStr), {
           key: this.keyPair.privateKey,
@@ -267,6 +278,10 @@ export class CertificateEngine {
   // VERIFICATION
   // ==========================================================================
 
+  /** Verifies certificate.
+   * @param cert - cert
+   * @returns { valid: boolean; reason?: string }
+   */
   verifyCertificate(cert: VerificationCertificate): { valid: boolean; reason?: string } {
     this.metrics.verify_calls++;
     try {
@@ -291,12 +306,20 @@ export class CertificateEngine {
       const canonicalStr = canonicalize(canonicalData);
       const expectedHash = sha256(canonicalStr);
 
+      /** If.
+       * @param expectedHash - expected hash
+       * @returns void
+       */
       if (expectedHash !== cert.canonicalHash) {
         this.metrics.verify_fail++;
         return { valid: false, reason: 'Hash mismatch — certificate data has been tampered with' };
       }
 
       // Verify signature if present
+      /** If.
+       * @param cert.signature.signature - cert.signature.signature
+       * @returns void
+       */
       if (cert.signature.signature !== 'unsigned' && this.keyPair) {
         const isValid = crypto.verify(
           null,
@@ -304,6 +327,10 @@ export class CertificateEngine {
           { key: this.keyPair.publicKey },
           Buffer.from(cert.signature.signature, 'hex')
         );
+        /** If.
+         * @param !isValid - !is valid
+         * @returns void
+         */
         if (!isValid) {
           this.metrics.verify_fail++;
           return { valid: false, reason: 'Ed25519 signature verification failed' };
@@ -349,22 +376,38 @@ export class CertificateEngine {
       this.index.totalCerts++;
       this.index.lastUpdated = Date.now();
 
+      /** If.
+       * @param !this.index.byDispatcher[cert.dispatcher] - !this.index.by dispatcher[cert.dispatcher]
+       * @returns void
+       */
       if (!this.index.byDispatcher[cert.dispatcher]) {
         this.index.byDispatcher[cert.dispatcher] = [];
       }
       this.index.byDispatcher[cert.dispatcher].push(cert.certId);
 
+      /** If.
+       * @param !this.index.byResult[cert.overallResult] - !this.index.by result[cert.overall result]
+       * @returns void
+       */
       if (!this.index.byResult[cert.overallResult]) {
         this.index.byResult[cert.overallResult] = [];
       }
       this.index.byResult[cert.overallResult].push(cert.certId);
 
       // Evict if over limit
+      /** If.
+       * @param this.index.entries.length - this.index.entries.length
+       * @returns void
+       */
       if (this.index.entries.length > this.config.maxCerts) {
         this.evictOldest();
       }
 
       // Save index periodically (every 10 certs)
+      /** If.
+       * @param this.index.totalCerts - this.index.total certs
+       * @returns void
+       */
       if (this.index.totalCerts % 10 === 0) {
         this.saveIndex();
       }
@@ -377,6 +420,10 @@ export class CertificateEngine {
     const cutoff = Date.now() - (this.config.retainDays * 86_400_000);
     const toRemove = this.index.entries.filter(e => e.timestamp < cutoff);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const entry of toRemove) {
       try {
         const filePath = path.join(CERTS_DIR, entry.filePath);
@@ -389,11 +436,23 @@ export class CertificateEngine {
     // Rebuild byDispatcher and byResult
     this.index.byDispatcher = {};
     this.index.byResult = { VERIFIED: [], PARTIAL: [], FAILED: [] };
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const entry of this.index.entries) {
+      /** If.
+       * @param !this.index.byDispatcher[entry.dispatcher] - !this.index.by dispatcher[entry.dispatcher]
+       * @returns void
+       */
       if (!this.index.byDispatcher[entry.dispatcher]) {
         this.index.byDispatcher[entry.dispatcher] = [];
       }
       this.index.byDispatcher[entry.dispatcher].push(entry.certId);
+      /** If.
+       * @param !this.index.byResult[entry.result] - !this.index.by result[entry.result]
+       * @returns void
+       */
       if (!this.index.byResult[entry.result]) {
         this.index.byResult[entry.result] = [];
       }
@@ -432,6 +491,10 @@ export class CertificateEngine {
         if (fs.existsSync(checksumPath)) {
           const expectedChecksum = fs.readFileSync(checksumPath, 'utf-8').trim();
           const actualChecksum = sha256(raw);
+          /** If.
+           * @param expectedChecksum - expected checksum
+           * @returns void
+           */
           if (expectedChecksum !== actualChecksum) {
             log.warn(`[CERT] Index checksum mismatch — possible corruption. Rebuilding.`);
             this.index = { ...EMPTY_CERT_INDEX };
@@ -451,6 +514,10 @@ export class CertificateEngine {
   // QUERIES
   // ==========================================================================
 
+  /** Gets cert.
+   * @param certId - cert id
+   * @returns verification certificate | null
+   */
   getCert(certId: string): VerificationCertificate | null {
     try {
       const entry = this.index.entries.find(e => e.certId === certId);
@@ -463,17 +530,29 @@ export class CertificateEngine {
     }
   }
 
+  /** Gets recent certs.
+   * @param limit - maximum number of results
+   * @returns cert index entry[]
+   */
   getRecentCerts(limit: number = 20): CertIndexEntry[] {
     return this.index.entries
       .slice(-limit)
       .reverse();
   }
 
+  /** Gets certs by dispatcher.
+   * @param dispatcher - dispatcher
+   * @returns cert index entry[]
+   */
   getCertsByDispatcher(dispatcher: string): CertIndexEntry[] {
     const certIds = this.index.byDispatcher[dispatcher] || [];
     return this.index.entries.filter(e => certIds.includes(e.certId));
   }
 
+  /** Gets certs by result.
+   * @param result - result
+   * @returns cert index entry[]
+   */
   getCertsByResult(result: 'VERIFIED' | 'PARTIAL' | 'FAILED'): CertIndexEntry[] {
     const certIds = this.index.byResult[result] || [];
     return this.index.entries.filter(e => certIds.includes(e.certId));
@@ -484,6 +563,10 @@ export class CertificateEngine {
   // ==========================================================================
 
   private selfTest(): void {
+    /** If.
+     * @param !this.config.signCertificates - !this.config.sign certificates
+     * @returns void
+     */
     if (!this.config.signCertificates || !this.keyPair) {
       this.metrics.self_test_passed = true; // signing disabled, nothing to test
       return;
@@ -493,6 +576,10 @@ export class CertificateEngine {
       const sig = crypto.sign(null, Buffer.from(testData), { key: this.keyPair.privateKey });
       const verified = crypto.verify(null, Buffer.from(testData), { key: this.keyPair.publicKey }, sig);
       this.metrics.self_test_passed = verified;
+      /** If.
+       * @param !verified - !verified
+       * @returns void
+       */
       if (!verified) {
         log.error('[CERT] Self-test FAILED — sign/verify cycle broken. Disabling signing.');
         this.config.signCertificates = false;
@@ -508,6 +595,9 @@ export class CertificateEngine {
   // KEY ROTATION — Old key signs endorsement of new key
   // ==========================================================================
 
+  /** Rotates key.
+   * @returns { success: boolean; reason?: string; public key hex?: string }
+   */
   rotateKey(): { success: boolean; reason?: string; publicKeyHex?: string } {
     if (!this.keyPair) return { success: false, reason: 'No existing key to rotate from' };
     try {
@@ -552,6 +642,11 @@ export class CertificateEngine {
   // REVOCATION — Signed revocation entries
   // ==========================================================================
 
+  /** Revokes certificate.
+   * @param certId - cert id
+   * @param reason - reason
+   * @returns { success: boolean; reason?: string }
+   */
   revokeCertificate(certId: string, reason: string): { success: boolean; reason?: string } {
     const entry = this.index.entries.find(e => e.certId === certId);
     if (!entry) return { success: false, reason: 'Certificate not found' };
@@ -561,6 +656,10 @@ export class CertificateEngine {
       const revocationStr = canonicalize(revocation);
 
       let signature = 'unsigned';
+      /** If.
+       * @param this.config.signCertificates - this.config.sign certificates
+       * @returns void
+       */
       if (this.config.signCertificates && this.keyPair) {
         const sig = crypto.sign(null, Buffer.from(revocationStr), { key: this.keyPair.privateKey });
         signature = sig.toString('hex');
@@ -579,19 +678,35 @@ export class CertificateEngine {
     }
   }
 
+  /** Checks whether is revoked.
+   * @param certId - cert id
+   * @returns true if condition is met
+   */
   isRevoked(certId: string): boolean {
     try {
       const revocationsPath = path.join(STATE_DIR, 'revocations.jsonl');
       if (!fs.existsSync(revocationsPath)) return false;
       const lines = fs.readFileSync(revocationsPath, 'utf-8').split('\n').filter(Boolean);
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const line of lines) {
         try {
           const entry = JSON.parse(line);
           if (entry.certId !== certId) continue;
           // Verify revocation signature if signing enabled
+          /** If.
+           * @param entry.signature - entry.signature
+           * @returns void
+           */
           if (entry.signature && entry.signature !== 'unsigned' && this.keyPair) {
             const revData = canonicalize({ certId: entry.certId, reason: entry.reason, timestamp: entry.timestamp, revokedBy: entry.revokedBy });
             const sigValid = crypto.verify(null, Buffer.from(revData), { key: this.keyPair.publicKey }, Buffer.from(entry.signature, 'hex'));
+            /** If.
+             * @param !sigValid - !sig valid
+             * @returns void
+             */
             if (!sigValid) {
               this.metrics.revocation_verify_fail++;
               log.warn(`[CERT] Revocation signature invalid for ${certId} — ignoring tampered revocation`);
@@ -612,6 +727,9 @@ export class CertificateEngine {
 
   getMetrics() { return { ...this.metrics }; }
 
+  /** Gets stats.
+   * @returns void
+   */
   getStats(): {
     total: number; verified: number; partial: number; failed: number;
     dispatchers: number; signing: boolean; metrics: typeof this.metrics;
@@ -627,10 +745,16 @@ export class CertificateEngine {
     };
   }
 
+  /** Gets config.
+   * @returns certificate config
+   */
   getConfig(): CertificateConfig {
     return { ...this.config };
   }
 
+  /** Shutdown.
+   * @returns void
+   */
   shutdown(): void {
     this.saveIndex();
     this.initialized = false;

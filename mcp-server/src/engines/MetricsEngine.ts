@@ -81,10 +81,21 @@ export class MetricsEngine {
   private definitions = new Map<string, MetricDefinition>();
   private labels = new Map<string, Record<string, string>>();
 
+  /** Define.
+   * @param def - def
+   * @returns void
+   */
   define(def: MetricDefinition): void {
     this.definitions.set(def.name, def);
   }
 
+  /** Increment.
+   * @param name - name identifier
+   * @param value - value to set
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns computed numeric result
+   */
   increment(name: string, value: number = 1, lbls?: Record<string, string>): number {
     const key = this.makeKey(name, lbls);
     const current = (this.counters.get(key) || 0) + value;
@@ -93,12 +104,26 @@ export class MetricsEngine {
     return current;
   }
 
+  /** Gauge.
+   * @param name - name identifier
+   * @param value - value to set
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns void
+   */
   gauge(name: string, value: number, lbls?: Record<string, string>): void {
     const key = this.makeKey(name, lbls);
     this.gauges.set(key, value);
     if (lbls) this.labels.set(key, lbls);
   }
 
+  /** Observe.
+   * @param name - name identifier
+   * @param value - value to set
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns void
+   */
   observe(name: string, value: number, lbls?: Record<string, string>): void {
     const key = this.makeKey(name, lbls);
     let data = this.histogramData.get(key);
@@ -108,6 +133,12 @@ export class MetricsEngine {
     if (lbls) this.labels.set(key, lbls);
   }
 
+  /** Starts timer.
+   * @param name - name identifier
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns () => number
+   */
   startTimer(name: string, lbls?: Record<string, string>): () => number {
     const start = performance.now();
     return () => {
@@ -117,18 +148,41 @@ export class MetricsEngine {
     };
   }
 
+  /** Gets counter.
+   * @param name - name identifier
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns computed numeric result
+   */
   getCounter(name: string, lbls?: Record<string, string>): number {
     return this.counters.get(this.makeKey(name, lbls)) || 0;
   }
 
+  /** Gets gauge.
+   * @param name - name identifier
+   * @param lbls - lbls
+   * @param string> - string>
+   * @returns computed numeric result
+   */
   getGauge(name: string, lbls?: Record<string, string>): number {
     return this.gauges.get(this.makeKey(name, lbls)) || 0;
   }
 
+  /** Gets histogram.
+   * @param name - name identifier
+   * @param lbls - lbls
+   * @param string> - string>
+   * @param buckets - buckets
+   * @returns histogram summary
+   */
   getHistogram(name: string, lbls?: Record<string, string>, buckets: number[] = DEFAULT_BUCKETS): HistogramSummary {
     const key = this.makeKey(name, lbls);
     const data = this.histogramData.get(key) || [];
 
+    /** If.
+     * @param data.length - data.length
+     * @returns void
+     */
     if (data.length === 0) {
       return { name, count: 0, sum: 0, min: 0, max: 0, avg: 0, p50: 0, p90: 0, p99: 0, buckets: buckets.map(le => ({ le, count: 0 })) };
     }
@@ -150,16 +204,29 @@ export class MetricsEngine {
     };
   }
 
+  /** Export.
+   * @returns metrics export
+   */
   export(): MetricsExport {
     const now = new Date().toISOString();
     const counterValues: MetricValue[] = [];
     const gaugeValues: MetricValue[] = [];
     const histogramSummaries: HistogramSummary[] = [];
 
+    /** For.
+     * @param const - const
+     * @param value] - value]
+     * @returns void
+     */
     for (const [key, value] of this.counters) {
       const name = key.split("{")[0];
       counterValues.push({ name, type: "counter", labels: this.labels.get(key) || {}, value, timestamp: now });
     }
+    /** For.
+     * @param const - const
+     * @param value] - value]
+     * @returns void
+     */
     for (const [key, value] of this.gauges) {
       const name = key.split("{")[0];
       gaugeValues.push({ name, type: "gauge", labels: this.labels.get(key) || {}, value, timestamp: now });
@@ -178,6 +245,9 @@ export class MetricsEngine {
     };
   }
 
+  /** Reset.
+   * @returns void
+   */
   reset(): void {
     this.counters.clear();
     this.gauges.clear();

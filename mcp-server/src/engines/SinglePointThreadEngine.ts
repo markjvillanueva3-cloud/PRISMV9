@@ -108,9 +108,17 @@ export class SinglePointThreadEngine {
     let cumDepth = 0;
     const infeedAngle = INFEED_ANGLE[input.infeed_method] || 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i <= numCutPasses; i++) {
       let doc: number;
 
+      /** If.
+       * @param input.infeed_method - input.infeed_method
+       * @returns void
+       */
       if (input.infeed_method === "constant_area") {
         // Constant chip area: d_n = totalDepth * sqrt(n/N)
         const cumTarget = totalDepth * Math.sqrt(i / numCutPasses);
@@ -142,6 +150,10 @@ export class SinglePointThreadEngine {
 
       // Alternating flank: alternate sides each pass
       let passAngle = infeedAngle;
+      /** If.
+       * @param input.infeed_method - input.infeed_method
+       * @returns void
+       */
       if (input.infeed_method === "alternating_flank") {
         passAngle = i % 2 === 0 ? -infeedAngle : infeedAngle;
       }
@@ -158,6 +170,10 @@ export class SinglePointThreadEngine {
     }
 
     // Spring passes (no additional infeed)
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let s = 1; s <= input.spring_passes; s++) {
       const lastCutPass = passes[passes.length - 1];
       passes.push({
@@ -198,6 +214,10 @@ export class SinglePointThreadEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns s p t validation
+   */
   validate(input: SPTInput): SPTValidation {
     const warnings: string[] = [];
 
@@ -210,6 +230,10 @@ export class SinglePointThreadEngine {
     const minOvertravel = overtravel * 1.2; // 20% safety margin
 
     const clearanceOk = input.lead_out_mm >= minOvertravel;
+    /** If.
+     * @param !clearanceOk - !clearance ok
+     * @returns void
+     */
     if (!clearanceOk) {
       warnings.push(`SAFETY: Overtravel ${overtravel.toFixed(1)}mm exceeds lead-out ${input.lead_out_mm}mm — risk of tool crash at thread end`);
     }
@@ -217,6 +241,10 @@ export class SinglePointThreadEngine {
     // Synchronization check
     const maxSyncRpm = 3000; // typical max for reliable threading
     const syncOk = input.spindle_rpm <= maxSyncRpm;
+    /** If.
+     * @param !syncOk - !sync ok
+     * @returns void
+     */
     if (!syncOk) {
       warnings.push(`SAFETY: ${input.spindle_rpm} RPM exceeds reliable threading speed — reduce to ≤${maxSyncRpm} RPM`);
     }
@@ -224,6 +252,10 @@ export class SinglePointThreadEngine {
     // Force check
     const plan = this.calculatePassPlan(input);
     const maxForce = plan.max_chip_area_mm2 * input.material_tensile_MPa;
+    /** If.
+     * @param maxForce - max force
+     * @returns void
+     */
     if (maxForce > 500) {
       warnings.push(`High cutting force (${maxForce.toFixed(0)}N) — risk of insert breakage or part deflection`);
     }

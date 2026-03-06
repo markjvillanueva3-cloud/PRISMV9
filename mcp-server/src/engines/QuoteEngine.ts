@@ -170,6 +170,11 @@ export class QuoteEngine {
     };
   }
 
+  /** Quantity Breaks.
+   * @param input - input data
+   * @param quantities - quantities
+   * @returns quantity break[]
+   */
   quantityBreaks(input: QuoteInput, quantities: number[]): QuantityBreak[] {
     const baseQuote = this.generate(input);
     return quantities.map(qty => {
@@ -183,6 +188,10 @@ export class QuoteEngine {
     });
   }
 
+  /** Margin Analysis.
+   * @param input - input data
+   * @returns margin analysis
+   */
   marginAnalysis(input: QuoteInput): MarginAnalysis {
     const quote = this.generate(input);
     const profit = (quote.unit_price - input.cost_per_part) * input.quantity;

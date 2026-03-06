@@ -111,18 +111,38 @@ const ISO_CHIP_BEHAVIOR: Record<string, {
  */
 export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreakingOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ChipBreakingInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.feed_per_tooth - !input.feed_per_tooth
+     * @returns void
+     */
     if (!input.feed_per_tooth || input.feed_per_tooth < LIMITS.MIN_FEED || input.feed_per_tooth > LIMITS.MAX_FEED) {
       issues.push({ field: "feed_per_tooth", message: `Feed must be ${LIMITS.MIN_FEED}-${LIMITS.MAX_FEED} mm/tooth, got ${input.feed_per_tooth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.axial_depth - !input.axial_depth
+     * @returns void
+     */
     if (!input.axial_depth || input.axial_depth < 0 || input.axial_depth > LIMITS.MAX_DEPTH) {
       issues.push({ field: "axial_depth", message: `Axial depth must be 0-${LIMITS.MAX_DEPTH} mm, got ${input.axial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed <= 0 || input.cutting_speed > LIMITS.MAX_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be > 0 and <= ${LIMITS.MAX_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be > 0, got ${input.tool_diameter}`, severity: "error" });
     }
@@ -134,6 +154,10 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns chip breaking output
+   */
   calculate(input: ChipBreakingInput): ChipBreakingOutput {
     const warnings: string[] = [];
     const recommendations: string[] = [];
@@ -160,6 +184,10 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
     let chip_type: ChipBreakingOutput["chip_type"];
     let chip_form_code: number;
 
+    /** If.
+     * @param iso_group - iso_group
+     * @returns void
+     */
     if (iso_group === "K" || iso_group === "H") {
       // Cast iron / hardened: naturally segmented
       chip_type = "segmented";
@@ -187,6 +215,10 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
 
     // Breaking feasibility
     let breaking_feasibility: ChipBreakingOutput["breaking_feasibility"];
+    /** If.
+     * @param chip_type - chip_type
+     * @returns void
+     */
     if (chip_type === "broken" || chip_type === "segmented") {
       breaking_feasibility = "good";
     } else if (has_chipbreaker && chip_thickness >= LIMITS.RUBBING_THRESHOLD) {
@@ -198,6 +230,10 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
     // BUE risk
     let bue_risk: ChipBreakingOutput["bue_risk"] = "low";
     const [bueMin, bueMax] = behavior.bue_speed_range;
+    /** If.
+     * @param bueMin - bue min
+     * @returns void
+     */
     if (bueMin > 0 && cutting_speed >= bueMin && cutting_speed <= bueMax) {
       bue_risk = "high";
       warnings.push(`BUE_RISK: Cutting speed ${cutting_speed} m/min is in BUE range (${bueMin}-${bueMax}) for ${iso_group}.`);
@@ -207,20 +243,40 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
     }
 
     // Warnings and recommendations
+    /** If.
+     * @param chip_thickness - chip_thickness
+     * @returns void
+     */
     if (chip_thickness < LIMITS.RUBBING_THRESHOLD) {
       warnings.push(`RUBBING: Chip thickness ${chip_thickness.toFixed(3)} mm < ${LIMITS.RUBBING_THRESHOLD} mm. Work hardening risk.`);
       recommendations.push("Increase feed per tooth to ensure proper chip formation.");
     }
+    /** If.
+     * @param chip_thickness - chip_thickness
+     * @returns void
+     */
     if (chip_thickness > LIMITS.JAM_THRESHOLD) {
       warnings.push(`CHIP_JAM: Chip thickness ${chip_thickness.toFixed(3)} mm > ${LIMITS.JAM_THRESHOLD} mm. Jamming/breakage risk.`);
       recommendations.push("Reduce feed or increase lead angle to thin chip.");
     }
+    /** If.
+     * @param breaking_feasibility - breaking_feasibility
+     * @returns void
+     */
     if (breaking_feasibility === "poor") {
       recommendations.push("Use insert with chipbreaker geometry for this material/feed combination.");
     }
+    /** If.
+     * @param iso_group - iso_group
+     * @returns void
+     */
     if (iso_group === "N" && !has_chipbreaker) {
       recommendations.push("Aluminum: use polished insert with chipbreaker. Consider high-pressure coolant.");
     }
+    /** If.
+     * @param iso_group - iso_group
+     * @returns void
+     */
     if (iso_group === "M" && chip_thickness > 0.15) {
       warnings.push("Stainless steel: thick chips increase BUE risk and work hardening.");
     }
@@ -239,6 +295,9 @@ export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreak
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "chip-breaking",

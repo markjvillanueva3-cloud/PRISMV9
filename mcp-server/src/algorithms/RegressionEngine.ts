@@ -62,6 +62,10 @@ export interface RegressionEngineOutput extends WithWarnings {
  */
 export class RegressionEngine implements Algorithm<RegressionEngineInput, RegressionEngineOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: RegressionEngineInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.X?.length || input.X.length < 2) issues.push({ field: "X", message: "At least 2 observations required", severity: "error" });
@@ -71,6 +75,10 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns regression engine output
+   */
   calculate(input: RegressionEngineInput): RegressionEngineOutput {
     const warnings: string[] = [];
     const { X, y } = input;
@@ -82,7 +90,15 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
     // Expand polynomial features
     const expandPoly = (row: number[]): number[] => {
       const expanded: number[] = [];
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let f = 0; f < nFeatures; f++) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let d = 1; d <= degree; d++) {
           expanded.push(row[f] ** d);
         }
@@ -95,7 +111,15 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
 
     // Build feature names
     const featureNames: string[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let f = 0; f < nFeatures; f++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let d = 1; d <= degree; d++) {
         featureNames.push(d === 1 ? `x${f}` : `x${f}^${d}`);
       }
@@ -115,8 +139,16 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
 
     // Solve via Gauss-Jordan
     const aug = XtX.map((row, i) => [...row, Xty[i]]);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let col = 0; col < m; col++) {
       let maxRow = col;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let row = col + 1; row < m; row++) {
         if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row;
       }
@@ -124,6 +156,10 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
       const pivot = aug[col][col];
       if (Math.abs(pivot) < 1e-12) { warnings.push("Near-singular matrix — results may be unreliable"); continue; }
       for (let j = 0; j <= m; j++) aug[col][j] /= pivot;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let row = 0; row < m; row++) {
         if (row === col) continue;
         const factor = aug[row][col];
@@ -152,7 +188,15 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
 
     // Predictions
     const predictions: RegressionPrediction[] = [];
+    /** If.
+     * @param input.X_predict - input. x_predict
+     * @returns void
+     */
     if (input.X_predict) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const xNew of input.X_predict) {
         const xPoly = [1, ...expandPoly(xNew)];
         const yHat = xPoly.reduce((s, v, i) => s + v * beta[i], 0);
@@ -169,6 +213,9 @@ export class RegressionEngine implements Algorithm<RegressionEngineInput, Regres
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "regression-engine",

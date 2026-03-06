@@ -44,6 +44,7 @@ const ACTIONS = [
 
 /** Registers cam dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerCamDispatcher(server: any): void {
   server.tool(

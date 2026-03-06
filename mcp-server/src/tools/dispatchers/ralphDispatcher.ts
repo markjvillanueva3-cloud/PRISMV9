@@ -66,6 +66,7 @@ async function executeAssessment(content: string, context?: string): Promise<any
 
 /** Registers ralph dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerRalphDispatcher(server: any): void {
   server.tool(

@@ -134,6 +134,10 @@ const LIMITS = {
  */
 export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInput, AdaptiveControllerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: AdaptiveControllerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     const validModes: AdaptiveMode[] = ["chipload", "chatter", "wear", "thermal"];
@@ -142,25 +146,57 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
       issues.push({ field: "mode", message: `Mode must be one of: ${validModes.join(", ")}`, severity: "error" });
     }
 
+    /** If.
+     * @param input.mode - input.mode
+     * @returns void
+     */
     if (input.mode === "chipload") {
+      /** If.
+       * @param !input.target_chipload - !input.target_chipload
+       * @returns void
+       */
       if (!input.target_chipload || input.target_chipload <= 0) {
         issues.push({ field: "target_chipload", message: "Target chipload must be > 0", severity: "error" });
       }
+      /** If.
+       * @param !input.feed_rate - !input.feed_rate
+       * @returns void
+       */
       if (!input.feed_rate || input.feed_rate <= 0) {
         issues.push({ field: "feed_rate", message: "Feed rate must be > 0", severity: "error" });
       }
+      /** If.
+       * @param !input.spindle_rpm - !input.spindle_rpm
+       * @returns void
+       */
       if (!input.spindle_rpm || input.spindle_rpm <= 0) {
         issues.push({ field: "spindle_rpm", message: "Spindle RPM must be > 0", severity: "error" });
       }
+      /** If.
+       * @param !input.flutes - !input.flutes
+       * @returns void
+       */
       if (!input.flutes || input.flutes < 1) {
         issues.push({ field: "flutes", message: "Flutes must be >= 1", severity: "error" });
       }
     }
 
+    /** If.
+     * @param input.mode - input.mode
+     * @returns void
+     */
     if (input.mode === "chatter") {
+      /** If.
+       * @param input.vibration_mm_s - input.vibration_mm_s
+       * @returns void
+       */
       if (input.vibration_mm_s === undefined) {
         issues.push({ field: "vibration_mm_s", message: "Vibration amplitude required for chatter mode", severity: "error" });
       }
+      /** If.
+       * @param !input.spindle_rpm - !input.spindle_rpm
+       * @returns void
+       */
       if (!input.spindle_rpm || input.spindle_rpm <= 0) {
         issues.push({ field: "spindle_rpm", message: "Spindle RPM required for chatter mode", severity: "error" });
       }
@@ -169,7 +205,15 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns adaptive controller output
+   */
   calculate(input: AdaptiveControllerInput): AdaptiveControllerOutput {
+    /** Switch.
+     * @param input.mode - input.mode
+     * @returns void
+     */
     switch (input.mode) {
       case "chipload": return this.calculateChipload(input);
       case "chatter": return this.calculateChatter(input);
@@ -179,6 +223,9 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
     }
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "adaptive-controller",
@@ -228,6 +275,10 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
     let feed_override_pct = Math.round((adjustedFeed / feed_rate) * 100);
     feed_override_pct = Math.max(LIMITS.MIN_FEED_OVERRIDE, Math.min(LIMITS.MAX_FEED_OVERRIDE, feed_override_pct));
 
+    /** If.
+     * @param spindle_load_pct - spindle_load_pct
+     * @returns void
+     */
     if (spindle_load_pct > 80) {
       feed_override_pct = Math.min(feed_override_pct, 90);
       alerts.push("Spindle load > 80%. Feed override limited.");
@@ -263,9 +314,17 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
     let spindle_override_pct = 100;
     let urgency: AdaptiveControllerOutput["urgency"] = "none";
 
+    /** If.
+     * @param isChatter - is chatter
+     * @returns void
+     */
     if (isChatter && dominant_frequency_hz > 0) {
       // Find stable RPM via stability lobe pockets
       const stableOptions: number[] = [];
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 1; k <= 5; k++) {
         stableOptions.push(Math.round((60 * dominant_frequency_hz) / (flutes * (k + 0.5))));
         stableOptions.push(Math.round((60 * dominant_frequency_hz) / (flutes * k)));
@@ -275,6 +334,10 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
       const validOptions = stableOptions.filter(rpm => rpm > 100 && rpm < 50000);
       validOptions.sort((a, b) => Math.abs(a - spindle_rpm) - Math.abs(b - spindle_rpm));
 
+      /** If.
+       * @param validOptions.length - valid options.length
+       * @returns void
+       */
       if (validOptions.length > 0) {
         spindle_override_pct = Math.round((validOptions[0] / spindle_rpm) * 100);
         spindle_override_pct = Math.max(LIMITS.MIN_SPINDLE_OVERRIDE, Math.min(LIMITS.MAX_SPINDLE_OVERRIDE, spindle_override_pct));
@@ -324,12 +387,20 @@ export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInpu
 
     // Feed compensation: reduce 0.3% per 1% wear above 50%
     let feed_override_pct = 100;
+    /** If.
+     * @param estimated_wear_pct - estimated_wear_pct
+     * @returns void
+     */
     if (estimated_wear_pct > 50) {
       feed_override_pct = Math.round(100 - (estimated_wear_pct - 50) * 0.3);
       feed_override_pct = Math.max(LIMITS.MIN_FEED_OVERRIDE, feed_override_pct);
     }
 
     let urgency: AdaptiveControllerOutput["urgency"] = "none";
+    /** If.
+     * @param estimated_wear_pct - estimated_wear_pct
+     * @returns void
+     */
     if (estimated_wear_pct > 90) {
       urgency = "emergency";
       alerts.push("Tool at 90%+ wear. Replace immediately.");

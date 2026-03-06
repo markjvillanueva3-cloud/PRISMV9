@@ -229,6 +229,10 @@ export class PostProcessorEngine {
     let lineNum = config.line_number_increment ?? 10;
 
     const addLine = (line: string) => {
+      /** If.
+       * @param config.line_numbers - config.line_numbers
+       * @returns void
+       */
       if (config.line_numbers) {
         lines.push(`N${lineNum} ${line}`);
         lineNum += config.line_number_increment ?? 10;
@@ -255,6 +259,10 @@ export class PostProcessorEngine {
     addLine(dialect.toolChange(input.tool_number, input.spindle_rpm, "cw"));
 
     // Tool length comp (skip if TCPM — TCPM replaces G43)
+    /** If.
+     * @param config.five_axis_mode - config.five_axis_mode
+     * @returns void
+     */
     if (config.five_axis_mode === "tcpm") {
       addLine(dialect.comment("5-AXIS TCPM MODE ACTIVE"));
       addLine(dialect.tcpmOn(input.tool_number));
@@ -267,7 +275,15 @@ export class PostProcessorEngine {
 
     // Process moves
     let totalFeedDist = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of input.moves) {
+      /** Switch.
+       * @param move.type - move.type
+       * @returns void
+       */
       switch (move.type) {
         case "rapid": {
           let line = dialect.rapid(move.x, move.y, move.z, dp);
@@ -293,6 +309,10 @@ export class PostProcessorEngine {
           totalFeedDist += 15;
           break;
         case "drill":
+          /** If.
+           * @param config.use_canned_cycles - config.use_canned_cycles
+           * @returns void
+           */
           if (config.use_canned_cycles && move.z !== undefined) {
             addLine(dialect.drillCanned(move.z, 2, move.feed ?? input.feed_rate_mmmin));
             cannedCyclesUsed.push("G81");
@@ -303,6 +323,10 @@ export class PostProcessorEngine {
           break;
         case "tap":
           // C-003 fix: tapping cycle (was previously silently dropped)
+          /** If.
+           * @param config.use_canned_cycles - config.use_canned_cycles
+           * @returns void
+           */
           if (config.use_canned_cycles && move.z !== undefined) {
             const pitch = move.pitch ?? 1.0;
             addLine(`G84 Z${move.z.toFixed(dp)} R2.000 F${(input.spindle_rpm * pitch).toFixed(0)}`);
@@ -314,6 +338,10 @@ export class PostProcessorEngine {
           break;
         case "bore":
           // C-003 fix: boring cycle (was previously silently dropped)
+          /** If.
+           * @param config.use_canned_cycles - config.use_canned_cycles
+           * @returns void
+           */
           if (config.use_canned_cycles && move.z !== undefined) {
             addLine(`G76 Z${move.z.toFixed(dp)} R2.000 F${move.feed ?? input.feed_rate_mmmin / 2}`);
             cannedCyclesUsed.push("G76");
@@ -336,6 +364,10 @@ export class PostProcessorEngine {
     if (cannedCyclesUsed.length > 0) addLine("G80");
 
     // TCPM off before coolant off (C-004: must cancel before tool change/end)
+    /** If.
+     * @param config.five_axis_mode - config.five_axis_mode
+     * @returns void
+     */
     if (config.five_axis_mode === "tcpm") {
       addLine(dialect.tcpmOff());
     }
@@ -358,12 +390,21 @@ export class PostProcessorEngine {
     };
   }
 
+  /** Validate.
+   * @param gcode - gcode
+   * @param controller - controller
+   * @returns post validation
+   */
   validate(gcode: string, controller: PostController): PostValidation {
     const errors: string[] = [];
     const warnings: string[] = [];
     const unsupported: string[] = [];
     const lines = gcode.split("\n").filter(l => l.trim().length > 0);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       // Check for common issues
@@ -391,6 +432,9 @@ export class PostProcessorEngine {
     };
   }
 
+  /** Supported Controllers.
+   * @returns post controller[]
+   */
   supportedControllers(): PostController[] {
     return Object.keys(DIALECTS) as PostController[];
   }

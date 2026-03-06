@@ -149,6 +149,12 @@ function calculateOEE(
 export class DigitalTwinEngine {
   private twins = new Map<string, MachineTwin>();
 
+  /** Create.
+   * @param machineId - machine id
+   * @param machineName - machine name
+   * @param model - model
+   * @returns machine twin
+   */
   create(machineId: string, machineName: string, model: string): MachineTwin {
     const now = new Date().toISOString();
     const twin: MachineTwin = {
@@ -180,6 +186,11 @@ export class DigitalTwinEngine {
     return twin;
   }
 
+  /** Updates state.
+   * @param machineId - machine id
+   * @param stateUpdate - state update
+   * @returns machine twin | null
+   */
   updateState(machineId: string, stateUpdate: Partial<MachineState>): MachineTwin | null {
     const twin = this.twins.get(machineId);
     if (!twin) return null;
@@ -188,6 +199,10 @@ export class DigitalTwinEngine {
     twin.last_updated = new Date().toISOString();
 
     // Update health based on state
+    /** If.
+     * @param stateUpdate.temperature_spindle_C - state update.temperature_spindle_ c
+     * @returns void
+     */
     if (stateUpdate.temperature_spindle_C && stateUpdate.temperature_spindle_C > 60) {
       twin.health.alerts = twin.health.alerts.filter(a => a.component !== "spindle_temp");
       twin.health.alerts.push({
@@ -200,6 +215,10 @@ export class DigitalTwinEngine {
     return twin;
   }
 
+  /** Predict.
+   * @param machineId - machine id
+   * @returns twin prediction[]
+   */
   predict(machineId: string): TwinPrediction[] {
     const twin = this.twins.get(machineId);
     if (!twin) return [];
@@ -208,6 +227,10 @@ export class DigitalTwinEngine {
     const hours = twin.health.hours_since_maintenance;
 
     // Spindle bearing prediction
+    /** If.
+     * @param twin.health.spindle_health - twin.health.spindle_health
+     * @returns void
+     */
     if (twin.health.spindle_health < 60) {
       const ttf = ((twin.health.spindle_health / 100) * 5000); // rough estimate
       predictions.push({
@@ -221,6 +244,10 @@ export class DigitalTwinEngine {
 
     // Maintenance prediction
     const hoursToMaint = twin.health.next_maintenance_hours - hours;
+    /** If.
+     * @param hoursToMaint - hours to maint
+     * @returns void
+     */
     if (hoursToMaint < 200) {
       predictions.push({
         component: "general_maintenance", predicted_event: "scheduled_maintenance_due",
@@ -231,6 +258,10 @@ export class DigitalTwinEngine {
     }
 
     // Coolant depletion
+    /** If.
+     * @param twin.health.coolant_level_pct - twin.health.coolant_level_pct
+     * @returns void
+     */
     if (twin.health.coolant_level_pct < 40) {
       const hoursToEmpty = (twin.health.coolant_level_pct / 100) * 160;
       predictions.push({
@@ -243,6 +274,10 @@ export class DigitalTwinEngine {
 
     // Axis degradation
     for (const [axis, health] of Object.entries(twin.health.axis_health)) {
+      /** If.
+       * @param health - health
+       * @returns void
+       */
       if (health < 70) {
         predictions.push({
           component: `${axis}_axis`, predicted_event: "ballscrew_wear_critical",
@@ -257,8 +292,18 @@ export class DigitalTwinEngine {
     return predictions;
   }
 
+  /** Simulate.
+   * @param machineId - machine id
+   * @param scenario - scenario
+   * @param parameterChange - parameter change
+   * @returns simulation result
+   */
   simulate(machineId: string, scenario: string, parameterChange: number): SimulationResult {
     const twin = this.twins.get(machineId);
+    /** If.
+     * @param !twin - !twin
+     * @returns void
+     */
     if (!twin) {
       return {
         scenario, original_value: 0, simulated_value: 0, change_pct: 0,
@@ -270,6 +315,10 @@ export class DigitalTwinEngine {
     let simulatedVal: number;
     const impacts: { metric: string; change: string }[] = [];
 
+    /** Switch.
+     * @param scenario - scenario
+     * @returns void
+     */
     switch (scenario) {
       case "increase_spindle_speed": {
         originalVal = twin.state.spindle_rpm;
@@ -313,10 +362,17 @@ export class DigitalTwinEngine {
     };
   }
 
+  /** Gets twin.
+   * @param machineId - machine id
+   * @returns machine twin | undefined
+   */
   getTwin(machineId: string): MachineTwin | undefined {
     return this.twins.get(machineId);
   }
 
+  /** List Twins.
+   * @returns machine twin[]
+   */
   listTwins(): MachineTwin[] {
     return Array.from(this.twins.values());
   }

@@ -242,10 +242,23 @@ export class QualityPredictionEngine {
     };
   }
 
+  /** Cpk.
+   * @param tolerance_mm - tolerance_mm
+   * @param machineAccuracy_mm - machine accuracy_mm
+   * @param processError_mm - process error_mm
+   * @returns cpk result
+   */
   cpk(tolerance_mm: number, machineAccuracy_mm: number, processError_mm: number): CpkResult {
     return calculateCpk(tolerance_mm, processError_mm, machineAccuracy_mm);
   }
 
+  /** Surface Roughness.
+   * @param feedPerRev_mm - feed per rev_mm
+   * @param toolRadius_mm - tool radius_mm
+   * @param materialIso - material iso
+   * @param coolant - coolant
+   * @returns surface roughness result
+   */
   surfaceRoughness(feedPerRev_mm: number, toolRadius_mm: number, materialIso: string, coolant: boolean): SurfaceRoughnessResult {
     const Ra = predictRa(feedPerRev_mm, toolRadius_mm, materialIso, "normal", coolant);
     const Rz = predictRz(Ra);
@@ -261,19 +274,39 @@ export class QualityPredictionEngine {
     };
   }
 
+  /** Risk Assessment.
+   * @param input - input data
+   * @returns quality risk assessment
+   */
   riskAssessment(input: QualityInput): QualityRiskAssessment {
     const prediction = this.predict(input);
     const risks: QualityRiskAssessment["risks"] = [];
 
+    /** If.
+     * @param prediction.predicted_Cpk - prediction.predicted_ cpk
+     * @returns void
+     */
     if (prediction.predicted_Cpk < 1.33) {
       risks.push({ category: "Process Capability", probability: 0.7, severity: "high", mitigation: "Add finishing pass or tighten process controls" });
     }
+    /** If.
+     * @param !prediction.surface_finish_ok - !prediction.surface_finish_ok
+     * @returns void
+     */
     if (!prediction.surface_finish_ok) {
       risks.push({ category: "Surface Finish", probability: 0.6, severity: "moderate", mitigation: "Reduce feed rate or use finer tool" });
     }
+    /** If.
+     * @param input.tool_condition - input.tool_condition
+     * @returns void
+     */
     if (input.tool_condition === "worn") {
       risks.push({ category: "Tool Wear", probability: 0.8, severity: "high", mitigation: "Replace tool before production run" });
     }
+    /** If.
+     * @param input.depth_of_cut_mm - input.depth_of_cut_mm
+     * @returns void
+     */
     if (input.depth_of_cut_mm > input.tool_diameter_mm * 0.5) {
       risks.push({ category: "Chatter", probability: 0.5, severity: "moderate", mitigation: "Reduce depth of cut or increase rigidity" });
     }

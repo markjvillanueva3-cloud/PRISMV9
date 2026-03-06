@@ -22,6 +22,7 @@ let registered = false;
 /**
  * Register all domain hooks with the HookExecutor.
  * Safe to call multiple times — only registers once.
+  * @returns { registered: number; skipped: number; errors: string[] }
  */
 export function registerDomainHooks(): { registered: number; skipped: number; errors: string[] } {
   if (registered) {

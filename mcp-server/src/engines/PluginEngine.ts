@@ -70,6 +70,10 @@ export class PluginEngine {
   private plugins = new Map<string, Plugin>();
   private hooks = new Map<string, PluginHook[]>();
 
+  /** Register.
+   * @param manifest - manifest
+   * @returns plugin
+   */
   register(manifest: PluginManifest): Plugin {
     // Check dependencies
     const missingDeps = (manifest.dependencies || []).filter(d => !this.plugins.has(d));
@@ -85,6 +89,10 @@ export class PluginEngine {
     return plugin;
   }
 
+  /** Enable.
+   * @param pluginId - plugin id
+   * @returns { success: boolean; error?: string }
+   */
   enable(pluginId: string): { success: boolean; error?: string } {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) return { success: false, error: "Plugin not found" };
@@ -93,7 +101,15 @@ export class PluginEngine {
     const start = performance.now();
 
     // Register hooks
+    /** If.
+     * @param plugin.manifest.hooks - plugin.manifest.hooks
+     * @returns void
+     */
     if (plugin.manifest.hooks) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const hookName of plugin.manifest.hooks) {
         this.registerHook(pluginId, hookName, 100, (ctx) => ctx);
         plugin.hooks_registered.push(hookName);
@@ -108,13 +124,25 @@ export class PluginEngine {
     return { success: true };
   }
 
+  /** Disable.
+   * @param pluginId - plugin id
+   * @returns true if condition is met
+   */
   disable(pluginId: string): boolean {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) return false;
 
     // Unregister hooks
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hookName of plugin.hooks_registered) {
       const hookList = this.hooks.get(hookName);
+      /** If.
+       * @param hookList - hook list
+       * @returns void
+       */
       if (hookList) {
         this.hooks.set(hookName, hookList.filter(h => h.plugin_id !== pluginId));
       }
@@ -126,11 +154,22 @@ export class PluginEngine {
     return true;
   }
 
+  /** Unregister.
+   * @param pluginId - plugin id
+   * @returns true if condition is met
+   */
   unregister(pluginId: string): boolean {
     this.disable(pluginId);
     return this.plugins.delete(pluginId);
   }
 
+  /** Registers hook.
+   * @param pluginId - plugin id
+   * @param hookName - hook name
+   * @param priority - priority
+   * @param handler - handler
+   * @returns void
+   */
   registerHook(pluginId: string, hookName: string, priority: number, handler: PluginHook["handler"]): void {
     const hook: PluginHook = { plugin_id: pluginId, hook_name: hookName, priority, handler };
     const existing = this.hooks.get(hookName) || [];
@@ -139,11 +178,21 @@ export class PluginEngine {
     this.hooks.set(hookName, existing);
   }
 
+  /** Executes hook.
+   * @param hookName - hook name
+   * @param context - execution context
+   * @param unknown> - unknown>
+   * @returns record<string, unknown>
+   */
   executeHook(hookName: string, context: Record<string, unknown>): Record<string, unknown> {
     const hookList = this.hooks.get(hookName);
     if (!hookList) return context;
 
     let result = { ...context };
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of hookList) {
       try {
         result = hook.handler(result);
@@ -154,16 +203,27 @@ export class PluginEngine {
     return result;
   }
 
+  /** Get.
+   * @param pluginId - plugin id
+   * @returns plugin | undefined
+   */
   get(pluginId: string): Plugin | undefined {
     return this.plugins.get(pluginId);
   }
 
+  /** List.
+   * @param status - status
+   * @returns plugin[]
+   */
   list(status?: PluginStatus): Plugin[] {
     let result = [...this.plugins.values()];
     if (status) result = result.filter(p => p.status === status);
     return result;
   }
 
+  /** List Hooks.
+   * @returns { hook_name: string; plugin_count: number }[]
+   */
   listHooks(): { hook_name: string; plugin_count: number }[] {
     return [...this.hooks.entries()].map(([name, hooks]) => ({
       hook_name: name,
@@ -171,6 +231,9 @@ export class PluginEngine {
     }));
   }
 
+  /** Stats.
+   * @returns plugin stats
+   */
   stats(): PluginStats {
     const byStatus: Record<PluginStatus, number> = { registered: 0, enabled: 0, disabled: 0, error: 0, incompatible: 0 };
     let totalHooks = 0;
@@ -190,6 +253,9 @@ export class PluginEngine {
     };
   }
 
+  /** Clear.
+   * @returns void { this.plugins.clear(); this.hooks.clear(); }
+   */
   clear(): void { this.plugins.clear(); this.hooks.clear(); }
 }
 

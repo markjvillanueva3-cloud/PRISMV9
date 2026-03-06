@@ -79,6 +79,10 @@ function mulberry32(seed: number) {
  */
 export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, GeneticOptimizerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: GeneticOptimizerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.dimensions || input.dimensions < 1) issues.push({ field: "dimensions", message: "Must be >= 1", severity: "error" });
@@ -87,6 +91,10 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
     if (!input.upper_bounds?.length) issues.push({ field: "upper_bounds", message: "Required", severity: "error" });
     if (input.lower_bounds?.length !== input.dimensions) issues.push({ field: "lower_bounds", message: "Length must match dimensions", severity: "error" });
     if (input.upper_bounds?.length !== input.dimensions) issues.push({ field: "upper_bounds", message: "Length must match dimensions", severity: "error" });
+    /** If.
+     * @param input.lower_bounds - input.lower_bounds
+     * @returns void
+     */
     if (input.lower_bounds && input.upper_bounds) {
       for (let i = 0; i < Math.min(input.lower_bounds.length, input.upper_bounds.length); i++) {
         if (input.lower_bounds[i] >= input.upper_bounds[i]) issues.push({ field: `bounds[${i}]`, message: "Lower must be < upper", severity: "error" });
@@ -95,6 +103,10 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns genetic optimizer output
+   */
   calculate(input: GeneticOptimizerInput): GeneticOptimizerOutput {
     const warnings: string[] = [];
     const { dimensions, objectives, lower_bounds, upper_bounds } = input;
@@ -114,12 +126,20 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
 
     // Initialize population
     let population: number[][] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < popSize; i++) {
       population.push(lower_bounds.map((lo, d) => lo + rand() * (upper_bounds[d] - lo)));
     }
 
     const convergence: number[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let g = 0; g < gens; g++) {
       const fitnesses = population.map(p => fitnessFn(p));
       const scalarized = fitnesses.map(f => f.reduce((s, v, i) => s + v * weights[i], 0));
@@ -128,16 +148,28 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
 
       // Tournament selection + SBX crossover + polynomial mutation
       const offspring: number[][] = [];
+      /** While.
+       * @param offspring.length - offspring.length
+       * @returns void
+       */
       while (offspring.length < popSize) {
         const p1 = this.tournament(population, scalarized, rand);
         const p2 = this.tournament(population, scalarized, rand);
         let c1 = [...p1], c2 = [...p2];
 
         if (rand() < crossRate) {
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let d = 0; d < dimensions; d++) {
             if (rand() < 0.5) { [c1[d], c2[d]] = [c2[d], c1[d]]; }
           }
         }
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let d = 0; d < dimensions; d++) {
           if (rand() < mutRate) {
             c1[d] = lower_bounds[d] + rand() * (upper_bounds[d] - lower_bounds[d]);
@@ -160,27 +192,55 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
 
     // Build Pareto front (non-dominated sorting)
     const paretoFront: ParetoSolution[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < population.length; i++) {
       let dominated = false;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j = 0; j < population.length; j++) {
         if (i === j) continue;
         if (finalFit[j].every((v, k) => v <= finalFit[i][k]) && finalFit[j].some((v, k) => v < finalFit[i][k])) {
           dominated = true; break;
         }
       }
+      /** If.
+       * @param !dominated - !dominated
+       * @returns void
+       */
       if (!dominated) {
         paretoFront.push({ parameters: population[i], objectives: finalFit[i], crowding_distance: 0, rank: 1 });
       }
     }
 
     // Crowding distance
+    /** If.
+     * @param paretoFront.length - pareto front.length
+     * @returns void
+     */
     if (paretoFront.length > 2) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let m = 0; m < objectives; m++) {
         paretoFront.sort((a, b) => a.objectives[m] - b.objectives[m]);
         paretoFront[0].crowding_distance = Infinity;
         paretoFront[paretoFront.length - 1].crowding_distance = Infinity;
         const range = paretoFront[paretoFront.length - 1].objectives[m] - paretoFront[0].objectives[m];
+        /** If.
+         * @param range - range
+         * @returns void
+         */
         if (range > 0) {
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let i = 1; i < paretoFront.length - 1; i++) {
             paretoFront[i].crowding_distance += (paretoFront[i + 1].objectives[m] - paretoFront[i - 1].objectives[m]) / range;
           }
@@ -206,6 +266,9 @@ export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, Geneti
     return fitness[i] <= fitness[j] ? pop[i] : pop[j];
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "genetic-optimizer",

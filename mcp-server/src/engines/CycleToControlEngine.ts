@@ -257,6 +257,8 @@ function computeAutocorrelation(data: number[], maxLag: number): number[] {
 
 /**
  * Main CtC analysis: predict performance of a cycle-to-cycle controller
+  * @param input - input data
+  * @returns ct c result
  */
 export function analyzeCtCControl(input: CtCProcessInput): CtCResult {
   const { Kp, Kc, controllerType } = {
@@ -398,6 +400,8 @@ export function analyzeCtCControl(input: CtCProcessInput): CtCResult {
 /**
  * Find optimal controller gain that minimizes expected quality loss
  * Searches over stable gain range with 0.01 resolution
+  * @param input - input data
+  * @returns ct c optimal gain result
  */
 export function findOptimalGain(input: CtCProcessInput): CtCOptimalGainResult {
   const Kp = input.process_gain_Kp;
@@ -470,6 +474,9 @@ export function findOptimalGain(input: CtCProcessInput): CtCOptimalGainResult {
 
 /**
  * Analyze output data autocorrelation to determine disturbance type
+  * @param data - input data
+  * @param maxLag - max lag value
+  * @returns autocorrelation result
  */
 export function analyzeAutocorrelation(
   data: number[],

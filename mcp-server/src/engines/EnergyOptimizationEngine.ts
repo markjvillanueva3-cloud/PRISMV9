@@ -114,6 +114,10 @@ export class EnergyOptimizationEngine {
     let totalVolumeRemoved = 0;
     const byOp: EnergyAnalysis["by_operation"] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of input.operations) {
       const kc = (SPECIFIC_CUTTING_ENERGY[op.material_iso_group] || 2.5) * 1000; // convert to N/mm²
       const Pc = cuttingPower(kc, op.radial_depth_mm, op.depth_of_cut_mm, op.feed_rate_mmmin);
@@ -155,6 +159,10 @@ export class EnergyOptimizationEngine {
     };
   }
 
+  /** Optimize.
+   * @param input - input data
+   * @returns energy optimization
+   */
   optimize(input: EnergyInput): EnergyOptimization {
     const original = this.analyze(input);
     const changes: EnergyChange[] = [];
@@ -163,12 +171,20 @@ export class EnergyOptimizationEngine {
     // Clone operations for optimization
     const optimizedOps = input.operations.map(op => ({ ...op }));
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < optimizedOps.length; i++) {
       const op = optimizedOps[i];
       const origOp = input.operations[i];
 
       // Strategy 1: Optimize MRR — increase depth of cut, reduce speed
       // Higher MRR at lower speed = same throughput with less energy
+      /** If.
+       * @param op.depth_of_cut_mm - op.depth_of_cut_mm
+       * @returns void
+       */
       if (op.depth_of_cut_mm < op.tool_diameter_mm * 0.4) {
         const newDoc = Math.min(op.tool_diameter_mm * 0.5, op.depth_of_cut_mm * 1.3);
         const rpmReduction = 0.9; // reduce RPM 10% to compensate
@@ -180,6 +196,10 @@ export class EnergyOptimizationEngine {
         op.cutting_time_min = Math.round(op.cutting_time_min * timeReduction * 100) / 100;
         const newEnergy = this.opEnergy(op, input.machine_power_kW);
 
+        /** If.
+         * @param newEnergy - new energy
+         * @returns void
+         */
         if (newEnergy < oldEnergy) {
           changes.push({
             operation: op.operation_name, parameter: "depth_of_cut_mm",
@@ -191,8 +211,16 @@ export class EnergyOptimizationEngine {
       }
 
       // Strategy 2: Switch to mist coolant if flooding
+      /** If.
+       * @param op.coolant_active - op.coolant_active
+       * @returns void
+       */
       if (op.coolant_active && op.material_iso_group !== "S" && op.material_iso_group !== "M") {
         const coolantSaved = (input.coolant_pump_kW || 2.2) * 0.6 * (op.cutting_time_min / 60);
+        /** If.
+         * @param coolantSaved - coolant saved
+         * @returns void
+         */
         if (coolantSaved > 0.01) {
           changes.push({
             operation: op.operation_name, parameter: "coolant",
@@ -218,6 +246,10 @@ export class EnergyOptimizationEngine {
     };
   }
 
+  /** Compare.
+   * @param scenarios - scenarios
+   * @returns { name: string; analysis:  energy analysis }[]
+   */
   compare(scenarios: { name: string; input: EnergyInput }[]): { name: string; analysis: EnergyAnalysis }[] {
     return scenarios.map(s => ({ name: s.name, analysis: this.analyze(s.input) }));
   }

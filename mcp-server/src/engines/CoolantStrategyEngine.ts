@@ -184,12 +184,24 @@ export class CoolantStrategyEngine {
     const safety: string[] = [];
 
     // --- Safety checks first ---
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "magnesium") {
       safety.push("CRITICAL: Magnesium — fire risk. Never use water-based coolant. Use straight oil or dry with spark containment.");
+      /** If.
+       * @param op - op
+       * @returns void
+       */
       if (op === "grinding") {
         safety.push("CRITICAL: Magnesium grinding — extreme fire risk. Ensure fire suppression is available. Never let swarf accumulate.");
       }
     }
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "titanium" && input.cutting_speed_m_min && input.cutting_speed_m_min > 80) {
       safety.push("WARNING: Titanium at high speed — fire risk if dry. Ensure adequate flood coolant or through-tool delivery.");
     }
@@ -214,11 +226,19 @@ export class CoolantStrategyEngine {
     // --- Pressure ---
     let pressure = BASE_PRESSURE[op];
     // Through-spindle/tool increases effective pressure
+    /** If.
+     * @param method - method
+     * @returns void
+     */
     if (method === "through_spindle" || method === "through_tool") {
       pressure = Math.max(pressure, 40); // minimum 40 bar for through-tool
       if (op === "deep_hole_drilling") pressure = Math.max(pressure, 70);
     }
     // Machine limit check
+    /** If.
+     * @param input.machine_max_pressure_bar - input.machine_max_pressure_bar
+     * @returns void
+     */
     if (input.machine_max_pressure_bar && pressure > input.machine_max_pressure_bar) {
       const limited = input.machine_max_pressure_bar;
       recs.push(`Machine pressure limited to ${limited} bar (recommended: ${pressure} bar) — reduce feed or use through-tool coolant`);
@@ -233,11 +253,19 @@ export class CoolantStrategyEngine {
     // --- Flow rate ---
     let flow = BASE_FLOW[op];
     // Scale by cutting speed (higher speed = more heat = more coolant)
+    /** If.
+     * @param input.cutting_speed_m_min - input.cutting_speed_m_min
+     * @returns void
+     */
     if (input.cutting_speed_m_min) {
       const speedFactor = Math.max(0.5, Math.min(2.0, input.cutting_speed_m_min / 100));
       flow *= speedFactor;
     }
     // Deep hole drilling: scale by L/D ratio
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "deep_hole_drilling" && input.hole_depth_mm && input.hole_diameter_mm) {
       const ld = input.hole_depth_mm / Math.max(input.hole_diameter_mm, 0.1);
       flow *= Math.max(1.0, ld / 5);
@@ -251,12 +279,20 @@ export class CoolantStrategyEngine {
     const [concMin, concMax] = CONCENTRATION[op];
     let concentration = (concMin + concMax) / 2;
     // Harder materials need higher concentration (more lubricity)
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "titanium" || mat === "nickel_alloy" || mat === "stainless_steel") {
       concentration = concMax;
     }
     if (method === "mql" || method === "dry" || method.startsWith("cryogenic") || method === "air_blast") {
       concentration = 0;
     }
+    /** If.
+     * @param fluid - fluid
+     * @returns void
+     */
     if (fluid === "straight_oil") {
       concentration = 100; // neat oil
     }
@@ -273,12 +309,24 @@ export class CoolantStrategyEngine {
     if (method === "flood" && (op === "drilling" || op === "deep_hole_drilling") && input.tool_has_through_coolant) {
       recs.push("Through-tool coolant available — switch to through_tool for better chip evacuation");
     }
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "grinding" && concentration > 5) {
       recs.push("Grinding: keep concentration 3-5% to avoid wheel loading; higher concentration reduces cooling capacity");
     }
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "aluminum" && fluid === "water_soluble_emulsion") {
       recs.push("Aluminum: ensure coolant has anti-staining additives to prevent workpiece discoloration");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Standard coolant strategy — monitor coolant condition (pH, concentration, contamination) per manufacturer schedule");
     }
@@ -323,6 +371,10 @@ export class CoolantStrategyEngine {
     if (mat === "magnesium") return op === "grinding" ? "flood" : "mql"; // straight oil via MQL
 
     // Deep hole drilling: through-tool mandatory
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === "deep_hole_drilling") {
       if (input.tool_has_through_coolant) return "through_tool";
       return "flood"; // fallback, but warn

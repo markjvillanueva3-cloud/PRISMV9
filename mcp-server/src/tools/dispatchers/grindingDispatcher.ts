@@ -9,7 +9,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { GRINDING_ACTION_SCHEMAS } from "../../schemas/grindingActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { grindingForceEngine } from "../../engines/GrindingForceEngine.js";
 import type { GrindingMode, CoolantType } from "../../engines/GrindingForceEngine.js";
@@ -30,6 +31,7 @@ const WHEEL_GRADES: Record<string, { abrasive: string; bond: string; hardness: s
 
 /** Registers grinding dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerGrindingDispatcher(server: any): void {
   server.tool(
@@ -47,6 +49,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation — burn/white-layer prevention
+        const validation = validateActionParams(action, params, GRINDING_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_grinding"
+          );
+        }
 
         // PRE-CALCULATION SAFETY HOOKS — blocks unsafe grinding params (white-layer, burn risk)
         const hookCtx = {

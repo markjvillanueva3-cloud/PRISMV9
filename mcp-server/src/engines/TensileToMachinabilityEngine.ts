@@ -50,6 +50,10 @@ export class TensileToMachinabilityEngine {
     const uts = input.ultimate_tensile_MPa;
     const elong = input.elongation_pct;
 
+    /** Switch.
+     * @param input.material_class - input.material_class
+     * @returns void
+     */
     switch (input.material_class) {
       case "carbon_steel":
         // Low carbon is harder to machine (gummy), medium is best

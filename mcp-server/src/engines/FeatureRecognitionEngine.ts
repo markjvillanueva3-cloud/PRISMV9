@@ -132,6 +132,10 @@ export class FeatureRecognitionEngine {
     const recognized: RecognizedFeature[] = [];
     const warnings: string[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < features.length; i++) {
       const f = features[i];
       const rule = FEATURE_RULES[f.type];
@@ -148,9 +152,17 @@ export class FeatureRecognitionEngine {
       };
 
       // Validate dimensions
+      /** If.
+       * @param f.dimensions.diameter_mm - f.dimensions.diameter_mm
+       * @returns void
+       */
       if (f.dimensions.diameter_mm && f.dimensions.diameter_mm < 1) {
         warnings.push(`Feature ${feat.id}: diameter ${f.dimensions.diameter_mm}mm is very small — consider micro-machining`);
       }
+      /** If.
+       * @param f.dimensions.depth_mm - f.dimensions.depth_mm
+       * @returns void
+       */
       if (f.dimensions.depth_mm && f.dimensions.diameter_mm && f.dimensions.depth_mm / f.dimensions.diameter_mm > 10) {
         warnings.push(`Feature ${feat.id}: L/D ratio ${(f.dimensions.depth_mm / f.dimensions.diameter_mm).toFixed(1)} — deep hole strategy required`);
         feat.notes.push("Deep hole — requires peck drilling or gun drilling");
@@ -175,6 +187,10 @@ export class FeatureRecognitionEngine {
     };
   }
 
+  /** Classify.
+   * @param feature - feature
+   * @returns feature classification
+   */
   classify(feature: RecognizedFeature): FeatureClassification {
     const rule = FEATURE_RULES[feature.type] || FEATURE_RULES["pocket_rectangular"];
     let cycleTime = rule.baseCycleTimeSec;
@@ -199,11 +215,20 @@ export class FeatureRecognitionEngine {
     const groups: FeatureGroup[] = [];
     const byType = new Map<FeatureType, RecognizedFeature[]>();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
       if (!byType.has(f.type)) byType.set(f.type, []);
       byType.get(f.type)!.push(f);
     }
 
+    /** For.
+     * @param const - const
+     * @param feats] - feats]
+     * @returns void
+     */
     for (const [type, feats] of byType) {
       if (feats.length < 2) continue;
 
@@ -218,6 +243,10 @@ export class FeatureRecognitionEngine {
       const ySpread = Math.max(...feats.map(f => f.position.y)) - Math.min(...feats.map(f => f.position.y));
       const xSpread = Math.max(...feats.map(f => f.position.x)) - Math.min(...feats.map(f => f.position.x));
 
+      /** If.
+       * @param ySpread - y spread
+       * @returns void
+       */
       if (ySpread < 1 && xSpread > 1 && feats.length >= 2) {
         patternType = "linear";
         spacing = xSpread / (feats.length - 1);
@@ -226,6 +255,10 @@ export class FeatureRecognitionEngine {
         spacing = ySpread / (feats.length - 1);
       }
 
+      /** If.
+       * @param patternType - pattern type
+       * @returns void
+       */
       if (patternType !== "none" || feats.length >= 3) {
         groups.push({
           group_id: `G-${type}-${groups.length + 1}`,
@@ -242,9 +275,17 @@ export class FeatureRecognitionEngine {
 
   private complexityScore(features: RecognizedFeature[]): number {
     let score = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
       const rule = FEATURE_RULES[f.type];
       if (!rule) { score += 0.5; continue; }
+      /** Switch.
+       * @param rule.difficulty - rule.difficulty
+       * @returns void
+       */
       switch (rule.difficulty) {
         case "simple": score += 0.3; break;
         case "moderate": score += 0.6; break;

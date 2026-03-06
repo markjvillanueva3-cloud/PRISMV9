@@ -112,6 +112,9 @@ export class AgentError extends PrismError {
 
 /**
  * Wrap async tool handler with error handling
+  * @param toolName - tool name
+  * @param handler - handler
+  * @returns (...args:  t) =>  promise< r | { is error: true; content: [{ type: "text"; text: string }] }>
  */
 export function withErrorHandling<T extends unknown[], R>(
   toolName: string,
@@ -150,6 +153,9 @@ export function withErrorHandling<T extends unknown[], R>(
 
 /**
  * Create actionable error message with suggestions
+  * @param message - message string
+  * @param suggestions - suggestions
+  * @returns { is error: true; content: [{ type: "text"; text: string }] }
  */
 export function actionableError(
   message: string,
@@ -170,6 +176,9 @@ export function actionableError(
 
 /**
  * Validate required fields and return actionable error if missing
+  * @param input - input data
+  * @param requiredFields - required fields
+  * @returns { valid: true } | { valid: false; error:  return type<typeof actionable error> }
  */
 export function validateRequired<T extends Record<string, unknown>>(
   input: T,

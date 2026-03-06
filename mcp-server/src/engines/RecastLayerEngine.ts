@@ -135,6 +135,10 @@ export class RecastLayerEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param risk - risk
+     * @returns void
+     */
     if (risk === "critical" || risk === "high") {
       recs.push("SAFETY: Recast layer exceeds acceptable limits for fatigue-critical parts");
       if (input.num_skim_passes < 3) recs.push(`Add ${3 - input.num_skim_passes} more skim passes to reduce recast depth`);
@@ -160,6 +164,10 @@ export class RecastLayerEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; risk:  recast risk; message: string }
+   */
   validate(input: RecastLayerInput): { safe: boolean; risk: RecastRisk; message: string } {
     const result = this.predict(input);
     return {
@@ -171,6 +179,10 @@ export class RecastLayerEngine {
     };
   }
 
+  /** Mitigate.
+   * @param input - input data
+   * @returns { original_risk:  recast risk; mitigated_risk:  recast risk; changes: string[] }
+   */
   mitigate(input: RecastLayerInput): { original_risk: RecastRisk; mitigated_risk: RecastRisk; changes: string[] } {
     const original = this.predict(input);
     const changes: string[] = [];

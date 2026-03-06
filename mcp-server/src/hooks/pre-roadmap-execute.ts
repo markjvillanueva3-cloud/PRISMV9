@@ -49,6 +49,10 @@ const KNOWN_TOOL_PREFIXES = [
 /**
  * Validate that a unit is ready to execute.
  * Checks: entry conditions, dependencies, tools, skills.
+  * @param unit - unit
+  * @param position - position
+  * @param roadmap - roadmap
+  * @returns pre execute result
  */
 export function validatePreExecution(
   unit: Unit,

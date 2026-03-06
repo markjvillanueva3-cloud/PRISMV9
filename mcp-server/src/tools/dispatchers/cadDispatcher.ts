@@ -39,6 +39,7 @@ const ACTIONS = [
 
 /** Registers cad dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerCadDispatcher(server: any): void {
   server.tool(

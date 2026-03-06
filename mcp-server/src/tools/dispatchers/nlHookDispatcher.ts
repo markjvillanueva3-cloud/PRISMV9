@@ -32,6 +32,7 @@ function ok(data: any) {
 
 /** Registers n l hook dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerNLHookDispatcher(server: any): void {
   server.tool(

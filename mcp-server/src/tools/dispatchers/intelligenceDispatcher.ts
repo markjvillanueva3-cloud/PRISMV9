@@ -483,6 +483,7 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
 
 /** Registers intelligence dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(

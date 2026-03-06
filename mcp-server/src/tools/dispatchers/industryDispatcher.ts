@@ -17,6 +17,7 @@ const ACTIONS = [
 
 /** Registers industry dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerIndustryDispatcher(server: any): void {
   server.tool(

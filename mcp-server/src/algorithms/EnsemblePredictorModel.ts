@@ -90,12 +90,20 @@ export interface EnsemblePredictorOutput extends WithWarnings {
  */
 export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput, EnsemblePredictorOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: EnsemblePredictorInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
     if (!input.members || !Array.isArray(input.members) || input.members.length === 0) {
       issues.push({ field: "members", message: "At least one ensemble member is required", severity: "error" });
     }
+    /** If.
+     * @param input.members - input.members
+     * @returns void
+     */
     if (input.members && input.members.length < 2) {
       issues.push({ field: "members", message: "Ensemble with < 2 members provides no consensus benefit", severity: "warning" });
     }
@@ -109,9 +117,17 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns ensemble predictor output
+   */
   calculate(input: EnsemblePredictorInput): EnsemblePredictorOutput {
     const { members, problem_type, consensus_threshold = 0.5 } = input;
 
+    /** Switch.
+     * @param problem_type - problem_type
+     * @returns void
+     */
     switch (problem_type) {
       case "prediction":
       case "tool_life":
@@ -128,6 +144,9 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     }
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "ensemble-predictor",
@@ -158,6 +177,10 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     const warnings: string[] = [];
     const numericMembers = members.filter(m => typeof m.prediction === "number");
 
+    /** If.
+     * @param numericMembers.length - numeric members.length
+     * @returns void
+     */
     if (numericMembers.length === 0) {
       warnings.push("No numeric predictions to average. Returning first member.");
       return this.fallbackResult(members, "weighted_average", warnings, threshold);
@@ -189,6 +212,10 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     const cv = mean !== 0 ? spread / Math.abs(mean) : 1;
     const agreement = Math.max(0, Math.min(1, 1 - cv));
 
+    /** If.
+     * @param cv - cv
+     * @returns void
+     */
     if (cv > 0.5) {
       warnings.push(`HIGH_VARIANCE: Predictions vary by ${(cv * 100).toFixed(0)}%. Low consensus.`);
     }
@@ -231,6 +258,10 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     let winner = "";
     let maxVotes = 0;
     for (const [pred, count] of Object.entries(votes)) {
+      /** If.
+       * @param count - number of items
+       * @returns void
+       */
       if (count > maxVotes) {
         maxVotes = count;
         winner = pred;
@@ -242,6 +273,10 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
       c.influence = String(c.prediction) === winner ? (c.weight / totalWeight) : 0;
     });
 
+    /** If.
+     * @param agreement - agreement
+     * @returns void
+     */
     if (agreement < threshold) {
       warnings.push(`LOW_CONSENSUS: Only ${(agreement * 100).toFixed(0)}% agreement. No clear majority.`);
     }
@@ -269,6 +304,10 @@ export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput,
     const feasible = members.filter(m => m.feasible !== false);
     const pool = feasible.length > 0 ? feasible : members;
 
+    /** If.
+     * @param feasible.length - feasible.length
+     * @returns void
+     */
     if (feasible.length === 0) {
       warnings.push("NO_FEASIBLE: No feasible solutions. Using best infeasible.");
     }

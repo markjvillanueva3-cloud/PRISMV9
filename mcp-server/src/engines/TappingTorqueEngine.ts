@@ -138,11 +138,19 @@ export class TappingTorqueEngine {
     let Md = (kc * As_per_tooth * z_eff * D_pitch) / (4 * Math.PI * 1000); // Nm
 
     // ── 5. Form tap multiplier ──
+    /** If.
+     * @param tapType - tap type
+     * @returns void
+     */
     if (tapType === "form") {
       Md *= FORM_TAP_MULTIPLIER;
     }
 
     // ── 6. Blind hole chip packing ──
+    /** If.
+     * @param holeType - hole type
+     * @returns void
+     */
     if (holeType === "blind") {
       const LD_ratio = threadDepth / D;
       Md *= 1 + BLIND_HOLE_K * LD_ratio;
@@ -152,6 +160,10 @@ export class TappingTorqueEngine {
     Md *= coolant ? COOLANT_TORQUE_FACTOR.wet : COOLANT_TORQUE_FACTOR.dry;
 
     // ── 8. Hardness correction ──
+    /** If.
+     * @param hrc - hrc
+     * @returns void
+     */
     if (hrc !== undefined) {
       if (hrc > 45) Md *= 1.3;
       else if (hrc > 35) Md *= 1.1;
@@ -188,6 +200,10 @@ export class TappingTorqueEngine {
     const isSafe = breakageRisk < 0.6 && torqueMargin > 15;
 
     // ── 15. Recommendations ──
+    /** If.
+     * @param torqueMargin - torque margin
+     * @returns void
+     */
     if (torqueMargin < 20 && machTorque) {
       recs.push(
         `SAFETY: Torque margin only ${torqueMargin.toFixed(0)}% — `
@@ -196,6 +212,10 @@ export class TappingTorqueEngine {
       );
     }
 
+    /** If.
+     * @param rpm - rpm
+     * @returns void
+     */
     if (rpm > maxRPM * 1.1) {
       recs.push(
         `Tapping speed exceeds recommended max for ${iso} material. `
@@ -203,6 +223,10 @@ export class TappingTorqueEngine {
       );
     }
 
+    /** If.
+     * @param holeType - hole type
+     * @returns void
+     */
     if (holeType === "blind" && tapType === "cut_spiral_point") {
       recs.push(
         `Spiral point (gun) tap in blind hole — chips pushed forward, `
@@ -217,6 +241,10 @@ export class TappingTorqueEngine {
       );
     }
 
+    /** If.
+     * @param !coolant - !coolant
+     * @returns void
+     */
     if (!coolant && iso !== "K") {
       recs.push(
         `Dry tapping — risk of galling and accelerated tap wear. `
@@ -224,6 +252,10 @@ export class TappingTorqueEngine {
       );
     }
 
+    /** If.
+     * @param breakageRisk - breakage risk
+     * @returns void
+     */
     if (breakageRisk >= 0.5) {
       recs.push(
         `HIGH breakage risk (${(breakageRisk * 100).toFixed(0)}%) — `
@@ -231,6 +263,10 @@ export class TappingTorqueEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Tapping parameters nominal — torque ${Md.toFixed(2)}Nm, `

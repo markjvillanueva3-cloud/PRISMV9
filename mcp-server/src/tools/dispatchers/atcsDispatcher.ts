@@ -382,6 +382,7 @@ function err(message: string, extra?: any) {
 
 /** Registers atcs dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerAtcsDispatcher(server: any): void {
   server.tool(

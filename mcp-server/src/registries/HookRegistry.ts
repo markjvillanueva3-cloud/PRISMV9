@@ -672,6 +672,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
       }
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of builtIns) {
       this.builtInHooks.set(hook.hook_id, hook);
     }
@@ -688,6 +692,11 @@ export class HookRegistry extends BaseRegistry<Hook> {
     log.info("Loading HookRegistry...");
     
     // Start with built-in hooks
+    /** For.
+     * @param const - const
+     * @param hook] - hook]
+     * @returns void
+     */
     for (const [id, hook] of this.builtInHooks) {
       this.set(id, hook);
     }
@@ -715,6 +724,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
       const files = await listDirectory(basePath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of jsonFiles) {
         try {
           const filePath = file.path;
@@ -722,10 +735,22 @@ export class HookRegistry extends BaseRegistry<Hook> {
           
           const hooks = Array.isArray(data) ? data : [data];
           
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const hook of hooks) {
+            /** If.
+             * @param hook.hook_id - hook.hook_id
+             * @returns void
+             */
             if (hook.hook_id) {
               // Merge with built-in if exists
               const existing = this.builtInHooks.get(hook.hook_id);
+              /** If.
+               * @param existing - existing
+               * @returns void
+               */
               if (existing) {
                 this.set(hook.hook_id, { ...existing, ...hook });
               } else {
@@ -751,6 +776,11 @@ export class HookRegistry extends BaseRegistry<Hook> {
     this.indexByPriority.clear();
     this.indexByTiming.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const hook = entry.data;
       
@@ -796,6 +826,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
       .map(id => this.get(id)!)
       .filter(h => h && h.enabled && h.status === "active");
     
+    /** If.
+     * @param timing - timing
+     * @returns void
+     */
     if (timing) {
       hooks = hooks.filter(h => h.timing === timing);
     }
@@ -847,6 +881,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
     let results: Hook[] = [];
     
     // Start with most selective filter
+    /** If.
+     * @param options.event - options.event
+     * @returns void
+     */
     if (options.event) {
       results = this.getForEvent(options.event);
     } else if (options.category) {
@@ -858,6 +896,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
     }
     
     // Apply additional filters
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query) {
       const query = options.query.toLowerCase();
       results = results.filter(h =>
@@ -867,10 +909,18 @@ export class HookRegistry extends BaseRegistry<Hook> {
       );
     }
     
+    /** If.
+     * @param options.timing - options.timing
+     * @returns void
+     */
     if (options.timing) {
       results = results.filter(h => h.timing === options.timing);
     }
     
+    /** If.
+     * @param options.enabled - options.enabled
+     * @returns void
+     */
     if (options.enabled !== undefined) {
       results = results.filter(h => h.enabled === options.enabled);
     }
@@ -927,14 +977,29 @@ export class HookRegistry extends BaseRegistry<Hook> {
       totalHandlers: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [priority, ids] of this.indexByPriority) {
       stats.byPriority[priority] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [timing, ids] of this.indexByTiming) {
       stats.byTiming[timing] = ids.size;
     }
@@ -960,12 +1025,20 @@ export class HookRegistry extends BaseRegistry<Hook> {
     const results: unknown[] = [];
     const errors: Error[] = [];
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of hooks) {
       // Check conditions
       if (hook.conditions && !this.checkConditions(hook.conditions, context)) {
         continue;
       }
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const handler of hook.handlers) {
         if (!handler.enabled) continue;
         
@@ -974,6 +1047,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
           log.debug(`Would fire hook ${hook.hook_id} handler ${handler.handler_id}`);
           results.push({ hook_id: hook.hook_id, handler_id: handler.handler_id, status: "fired" });
         } catch (err) {
+          /** If.
+           * @param !hook.fail_silent - !hook.fail_silent
+           * @returns void
+           */
           if (!hook.fail_silent) {
             errors.push(err as Error);
           }
@@ -991,6 +1068,10 @@ export class HookRegistry extends BaseRegistry<Hook> {
     for (const cond of conditions) {
       const value = context[cond.field];
       
+      /** Switch.
+       * @param cond.operator - cond.operator
+       * @returns void
+       */
       switch (cond.operator) {
         case "eq": if (value !== cond.value) return false; break;
         case "ne": if (value === cond.value) return false; break;

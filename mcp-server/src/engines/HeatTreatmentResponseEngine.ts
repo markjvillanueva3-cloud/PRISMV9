@@ -108,6 +108,10 @@ export class HeatTreatmentResponseEngine {
 
     // Ideal critical diameter (hardenability)
     let DI = 25.4 * (0.54 * input.carbon_pct + 0.14); // base DI from carbon
+    /** If.
+     * @param input.alloy_elements - input.alloy_elements
+     * @returns void
+     */
     if (input.alloy_elements) {
       for (const [el, pct] of Object.entries(input.alloy_elements)) {
         const fn = ALLOY_DI_MULTIPLIER[el];
@@ -121,6 +125,10 @@ export class HeatTreatmentResponseEngine {
 
     // Surface hardness: full martensite if criticalRatio > 1
     let surfaceHRC: number;
+    /** If.
+     * @param criticalRatio - critical ratio
+     * @returns void
+     */
     if (criticalRatio >= 1.5) {
       surfaceHRC = maxHRC;
     } else if (criticalRatio >= 0.5) {
@@ -134,6 +142,10 @@ export class HeatTreatmentResponseEngine {
     let coreHRC = coreRatio >= 1.0 ? surfaceHRC * 0.95 : surfaceHRC * coreRatio * 0.7;
 
     // Process-specific adjustments
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "anneal") {
       surfaceHRC = Math.min(25, input.carbon_pct * 30 + 5);
       coreHRC = surfaceHRC;
@@ -153,6 +165,10 @@ export class HeatTreatmentResponseEngine {
     }
 
     // Tempering reduction
+    /** If.
+     * @param input.temper_temp_C - input.temper_temp_ c
+     * @returns void
+     */
     if (input.temper_temp_C && input.temper_time_min) {
       const reduction = TEMPER_REDUCTION(input.temper_temp_C, input.temper_time_min);
       surfaceHRC = Math.max(15, surfaceHRC - reduction);
@@ -197,8 +213,17 @@ export class HeatTreatmentResponseEngine {
     };
   }
 
+  /** Temper Curve.
+   * @param carbon_pct - carbon_pct
+   * @param startHRC - start h r c
+   * @returns temper curve point[]
+   */
   temperCurve(carbon_pct: number, startHRC: number): TemperCurvePoint[] {
     const points: TemperCurvePoint[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let t = 100; t <= 700; t += 50) {
       const reduction = TEMPER_REDUCTION(t, 60); // 1 hour soak
       const hrc = Math.max(15, startHRC - reduction);
@@ -210,6 +235,12 @@ export class HeatTreatmentResponseEngine {
     return points;
   }
 
+  /** Recommend.
+   * @param material - material
+   * @param target_hardness_HRC - target_hardness_ h r c
+   * @param section_mm - section_mm
+   * @returns void
+   */
   recommend(material: string, target_hardness_HRC: number, section_mm: number): {
     process: HeatTreatProcess; austenitize_C: number; quench: QuenchMedium; temper_C: number; notes: string;
   } {

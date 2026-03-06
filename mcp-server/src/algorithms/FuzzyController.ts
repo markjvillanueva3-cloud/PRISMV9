@@ -79,6 +79,10 @@ export interface FuzzyControllerOutput extends WithWarnings {
  */
 export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyControllerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: FuzzyControllerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.inputs?.length) issues.push({ field: "inputs", message: "At least 1 input variable required", severity: "error" });
@@ -90,6 +94,10 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns fuzzy controller output
+   */
   calculate(input: FuzzyControllerInput): FuzzyControllerOutput {
     const warnings: string[] = [];
     const { inputs, outputs, rules, values } = input;
@@ -102,6 +110,10 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
     // Membership function evaluation
     const mu = (set: FuzzySet, x: number): number => {
       const p = set.params;
+      /** Switch.
+       * @param set.type - set.type
+       * @returns void
+       */
       switch (set.type) {
         case "triangular": {
           const [a, b, c] = p;
@@ -124,9 +136,17 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
 
     // Step 1: Fuzzify inputs
     const membershipValues: Record<string, Record<string, number>> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const iv of inputs) {
       const x = values[iv.name] ?? 0;
       membershipValues[iv.name] = {};
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const set of iv.sets) {
         membershipValues[iv.name][set.name] = mu(set, x);
       }
@@ -136,18 +156,30 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
     const ruleActivations: Array<{ rule_index: number; strength: number }> = [];
     const outputAggregation = new Map<string, number[]>();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ov of outputs) {
       const range = ov.range;
       const step = (range[1] - range[0]) / resolution;
       outputAggregation.set(ov.name, Array(resolution + 1).fill(0));
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let ri = 0; ri < rules.length; ri++) {
       const rule = rules[ri];
       const weight = rule.weight ?? 1.0;
 
       // AND all conditions (min)
       let strength = 1.0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const cond of rule.conditions) {
         const fv = membershipValues[cond.variable];
         strength = Math.min(strength, fv?.[cond.set] ?? 0);
@@ -167,6 +199,10 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
       const range = ov.range;
       const step = (range[1] - range[0]) / resolution;
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i <= resolution; i++) {
         const x = range[0] + i * step;
         agg[i] = Math.max(agg[i], Math.min(strength, mu(outSet, x)));
@@ -175,12 +211,20 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
 
     // Step 3: Defuzzify (centroid method)
     const crisp_outputs: Record<string, number> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ov of outputs) {
       const agg = outputAggregation.get(ov.name)!;
       const range = ov.range;
       const step = (range[1] - range[0]) / resolution;
 
       let num = 0, den = 0;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i <= resolution; i++) {
         const x = range[0] + i * step;
         num += x * agg[i];
@@ -198,6 +242,9 @@ export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyCon
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "fuzzy-controller",

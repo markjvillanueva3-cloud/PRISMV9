@@ -103,8 +103,17 @@ function densityFor(material: string): number {
 export class StockModelEngine {
   private states = new Map<string, StockState>();
 
+  /** Create.
+   * @param stock - stock
+   * @param partVolume_mm3 - part volume_mm3
+   * @returns stock state
+   */
   create(stock: StockDefinition, partVolume_mm3: number): StockState {
     let volume: number;
+    /** If.
+     * @param stock.dimensions.diameter_mm - stock.dimensions.diameter_mm
+     * @returns void
+     */
     if (stock.dimensions.diameter_mm) {
       // Cylindrical stock
       const r = stock.dimensions.diameter_mm / 2;
@@ -128,6 +137,11 @@ export class StockModelEngine {
     return state;
   }
 
+  /** Removes volume.
+   * @param stockId - stock id
+   * @param removal - removal
+   * @returns stock state | null
+   */
   removeVolume(stockId: string, removal: MaterialRemoval): StockState | null {
     const state = this.states.get(stockId);
     if (!state) return null;
@@ -141,6 +155,12 @@ export class StockModelEngine {
     return state;
   }
 
+  /** Analyze.
+   * @param stockId - stock id
+   * @param material - material
+   * @param costPerKg - cost per kg
+   * @returns stock analysis | null
+   */
   analyze(stockId: string, material: string, costPerKg: number = 5): StockAnalysis | null {
     const state = this.states.get(stockId);
     if (!state) return null;
@@ -157,12 +177,24 @@ export class StockModelEngine {
     const avgMRR = totalTime > 0 ? totalRemoved / totalTime : 0;
 
     const recommendations: string[] = [];
+    /** If.
+     * @param utilization - utilization
+     * @returns void
+     */
     if (utilization < 30) {
       recommendations.push("Low material utilization — consider near-net-shape blank (casting/forging)");
     }
+    /** If.
+     * @param buyToFly - buy to fly
+     * @returns void
+     */
     if (buyToFly > 10) {
       recommendations.push(`High buy-to-fly ratio (${buyToFly.toFixed(1)}:1) — significant waste. Evaluate additive manufacturing.`);
     }
+    /** If.
+     * @param state.remaining_excess_mm3 - state.remaining_excess_mm3
+     * @returns void
+     */
     if (state.remaining_excess_mm3 > 0 && state.remaining_excess_mm3 / state.original_volume_mm3 > 0.1) {
       recommendations.push("Excess stock remaining after all operations — verify stock dimensions are optimal");
     }
@@ -179,9 +211,19 @@ export class StockModelEngine {
     };
   }
 
+  /** Compares stocks.
+   * @param stocks - stocks
+   * @param partVolume_mm3 - part volume_mm3
+   * @param material - material
+   * @returns stock comparison
+   */
   compareStocks(stocks: StockDefinition[], partVolume_mm3: number, material: string): StockComparison {
     const analyses: StockAnalysis[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const s of stocks) {
       const state = this.create(s, partVolume_mm3);
       const analysis = this.analyze(s.id, material, s.cost_per_kg);
@@ -191,6 +233,10 @@ export class StockModelEngine {
 
     let bestIdx = 0;
     let bestScore = -Infinity;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < analyses.length; i++) {
       // Score: higher utilization + lower waste cost = better
       const score = analyses[i].material_utilization_pct - analyses[i].cost_of_waste * 0.1;
@@ -205,6 +251,10 @@ export class StockModelEngine {
     };
   }
 
+  /** Gets state.
+   * @param stockId - stock id
+   * @returns stock state | undefined
+   */
   getState(stockId: string): StockState | undefined {
     return this.states.get(stockId);
   }

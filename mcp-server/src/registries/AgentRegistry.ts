@@ -350,6 +350,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       }
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const agent of builtIns) {
       this.builtInAgents.set(agent.agent_id, agent);
     }
@@ -366,6 +370,11 @@ export class AgentRegistry extends BaseRegistry<Agent> {
     log.info("Loading AgentRegistry...");
     
     // Start with built-in agents
+    /** For.
+     * @param const - const
+     * @param agent] - agent]
+     * @returns void
+     */
     for (const [id, agent] of this.builtInAgents) {
       this.set(id, agent);
     }
@@ -392,6 +401,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       const files = await listDirectory(basePath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of jsonFiles) {
         try {
           const filePath = file.path;
@@ -399,10 +412,22 @@ export class AgentRegistry extends BaseRegistry<Agent> {
           
           const agents = Array.isArray(data) ? data : [data];
           
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const agent of agents) {
+            /** If.
+             * @param agent.agent_id - agent.agent_id
+             * @returns void
+             */
             if (agent.agent_id) {
               // Merge with built-in if exists
               const existing = this.builtInAgents.get(agent.agent_id);
+              /** If.
+               * @param existing - existing
+               * @returns void
+               */
               if (existing) {
                 // File data overrides built-in
                 this.set(agent.agent_id, { ...existing, ...agent });
@@ -429,6 +454,11 @@ export class AgentRegistry extends BaseRegistry<Agent> {
     this.indexByCapability.clear();
     this.indexByStatus.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const agent = entry.data;
       
@@ -439,6 +469,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       this.indexByCategory.get(agent.category)?.add(id);
       
       // Index by domain
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const domain of agent.domains || []) {
         if (!this.indexByDomain.has(domain)) {
           this.indexByDomain.set(domain, new Set());
@@ -447,6 +481,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       }
       
       // Index by capability
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const cap of agent.capabilities || []) {
         if (!this.indexByCapability.has(cap.name)) {
           this.indexByCapability.set(cap.name, new Set());
@@ -529,6 +567,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
     let results: Agent[] = [];
     
     // Start with category filter if specified
+    /** If.
+     * @param options.category - options.category
+     * @returns void
+     */
     if (options.category) {
       results = this.getByCategory(options.category);
     } else if (options.domain) {
@@ -540,6 +582,10 @@ export class AgentRegistry extends BaseRegistry<Agent> {
     }
     
     // Apply additional filters
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query) {
       const query = options.query.toLowerCase();
       results = results.filter(a =>
@@ -549,10 +595,18 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       );
     }
     
+    /** If.
+     * @param options.status - options.status
+     * @returns void
+     */
     if (options.status) {
       results = results.filter(a => a.status === options.status);
     }
     
+    /** If.
+     * @param options.enabled - options.enabled
+     * @returns void
+     */
     if (options.enabled !== undefined) {
       results = results.filter(a => a.enabled === options.enabled);
     }
@@ -583,10 +637,18 @@ export class AgentRegistry extends BaseRegistry<Agent> {
     let best: Agent | undefined;
     let bestConfidence = 0;
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const agent of agents) {
       if (!agent.enabled || agent.status !== "active") continue;
       
       const cap = agent.capabilities.find(c => c.name === taskType);
+      /** If.
+       * @param cap - cap
+       * @returns void
+       */
       if (cap && cap.confidence > bestConfidence) {
         best = agent;
         bestConfidence = cap.confidence;
@@ -632,10 +694,20 @@ export class AgentRegistry extends BaseRegistry<Agent> {
       totalCapabilities: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [status, ids] of this.indexByStatus) {
       stats.byStatus[status] = ids.size;
     }

@@ -28,6 +28,7 @@ const ACTIONS = [
 
 /** Registers export dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerExportDispatcher(server: any): void {
   server.tool(

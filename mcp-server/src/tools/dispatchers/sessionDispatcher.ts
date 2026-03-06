@@ -225,6 +225,7 @@ async function loadCurrentState(): Promise<any> {
 
 /** Registers session dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerSessionDispatcher(server: any): void {
   server.tool(

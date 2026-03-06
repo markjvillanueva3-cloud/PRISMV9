@@ -95,6 +95,10 @@ export class LaserCutInterfaceEngine {
     let effectivePower = input.power_W * absorb;
 
     // O2 boost for reactive cutting
+    /** If.
+     * @param input.assist_gas - input.assist_gas
+     * @returns void
+     */
     if (input.assist_gas === "O2") {
       effectivePower *= O2_BOOST[matKey] || 1.0;
     }
@@ -145,21 +149,45 @@ export class LaserCutInterfaceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param matKey - mat key
+     * @returns void
+     */
     if (matKey === "aluminum" && input.laser_type === "CO2") {
       recs.push("Fiber laser strongly preferred for aluminum — CO2 absorptivity only 8%");
     }
+    /** If.
+     * @param matKey - mat key
+     * @returns void
+     */
     if (matKey === "titanium" && input.assist_gas === "O2") {
       recs.push("CAUTION: O2 assist gas with titanium causes fire risk — use argon or N2");
     }
+    /** If.
+     * @param matKey - mat key
+     * @returns void
+     */
     if (matKey === "stainless" && input.assist_gas === "O2") {
       recs.push("O2 assist causes oxidized edge on stainless — use N2 for clean cut");
     }
+    /** If.
+     * @param input.thickness_mm - input.thickness_mm
+     * @returns void
+     */
     if (input.thickness_mm > 25 && input.laser_type === "fiber") {
       recs.push("Thick plate (>25mm) — verify power is sufficient; may need multi-pass or slower speed");
     }
+    /** If.
+     * @param drossRisk - dross risk
+     * @returns void
+     */
     if (drossRisk === "high") {
       recs.push("High dross risk — optimize gas pressure and consider deburring post-process");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Laser cutting parameters within normal range — proceed");
     }

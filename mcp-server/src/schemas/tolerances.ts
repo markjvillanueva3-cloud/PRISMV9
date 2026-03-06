@@ -59,6 +59,9 @@ export function withinTolerance(
 /**
  * Calculate the delta percentage between actual and reference.
  * Useful for reporting how far off a calculation is.
+  * @param actual - actual value
+  * @param reference - reference value
+  * @returns computed numeric result
  */
 export function toleranceDelta(actual: number, reference: number): number {
   if (reference === 0) return actual === 0 ? 0 : Infinity;

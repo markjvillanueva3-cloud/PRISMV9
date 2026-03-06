@@ -155,9 +155,17 @@ export class GrindingSurfaceFinishEngine {
 
     // ── Speed ratio check ──
     const speedRatio = vs_mm_s / Math.max(vw_mm_s, 0.001);
+    /** If.
+     * @param speedRatio - speed ratio
+     * @returns void
+     */
     if (speedRatio < 40) {
       recommendations.push(`Speed ratio (vs/vw) = ${speedRatio.toFixed(0)} is low — recommend ≥60 for good finish`);
     }
+    /** If.
+     * @param speedRatio - speed ratio
+     * @returns void
+     */
     if (speedRatio > 200) {
       recommendations.push(`Speed ratio (vs/vw) = ${speedRatio.toFixed(0)} is very high — risk of wheel loading`);
     }
@@ -172,6 +180,10 @@ export class GrindingSurfaceFinishEngine {
 
     // ── Contact arc geometry ──
     let effectiveDiameter = ds;
+    /** If.
+     * @param input.grinding_mode - input.grinding_mode
+     * @returns void
+     */
     if (input.grinding_mode === "cylindrical_external" && input.workpiece_diameter_mm) {
       effectiveDiameter = (ds * input.workpiece_diameter_mm) / (ds + input.workpiece_diameter_mm);
     } else if (input.grinding_mode === "cylindrical_internal" && input.workpiece_diameter_mm) {
@@ -212,32 +224,64 @@ export class GrindingSurfaceFinishEngine {
     const Rth_uncertainty = Rth_um * 0.15;
 
     // ── Safety checks ──
+    /** If.
+     * @param dressCond - dress cond
+     * @returns void
+     */
     if (dressCond === "dull" && coolantType === "dry") {
       recommendations.push("CRITICAL: Dull wheel + dry grinding — high burn risk. Dress wheel and add coolant.");
       isSafe = false;
     }
+    /** If.
+     * @param dressCond - dress cond
+     * @returns void
+     */
     if (dressCond === "dull" && Ra_um < BURN_RISK_THRESHOLD_UM * 10) {
       recommendations.push("WARNING: Very low predicted Ra with dull wheel — possible thermal damage masking actual roughness.");
     }
+    /** If.
+     * @param ae - ae
+     * @returns void
+     */
     if (ae > 0.05 && meshSize >= 120) {
       recommendations.push(`Fine wheel (${meshSize} mesh) with ${ae} mm DOC — risk of wheel loading. Reduce DOC to ≤0.02 mm.`);
     }
+    /** If.
+     * @param coolantType - coolant type
+     * @returns void
+     */
     if (coolantType === "dry" && ae > 0.03) {
       recommendations.push("Dry grinding with DOC > 0.03 mm — thermal damage risk. Add flood coolant or reduce DOC.");
     }
 
     // ── Improvement recommendations ──
+    /** If.
+     * @param sparkOutPasses - spark out passes
+     * @returns void
+     */
     if (sparkOutPasses === 0) {
       recommendations.push("Add 2–4 spark-out passes to improve finish by ~75%.");
     }
+    /** If.
+     * @param Ud - ud
+     * @returns void
+     */
     if (Ud < 3) {
       recommendations.push(`Dressing overlap Ud = ${Ud} is low — increase to 4–6 for better finish.`);
     }
 
     // ── Target comparison ──
     let meetsTarget: boolean | null = null;
+    /** If.
+     * @param input.target_Ra_um - input.target_ ra_um
+     * @returns void
+     */
     if (input.target_Ra_um !== undefined) {
       meetsTarget = Ra_um <= input.target_Ra_um;
+      /** If.
+       * @param !meetsTarget - !meets target
+       * @returns void
+       */
       if (!meetsTarget) {
         const deficit = ((Ra_um - input.target_Ra_um) / input.target_Ra_um * 100).toFixed(0);
         recommendations.push(

@@ -9,7 +9,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -29,6 +30,7 @@ const ACTIONS = [
 
 /** Registers edm dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerEdmDispatcher(server: any): void {
   server.tool(
@@ -46,6 +48,17 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation — electrode/wire/surface params
+        const validation = validateActionParams(action, params, EDM_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_edm"
+          );
+        }
+
         // PRE-CALCULATION SAFETY HOOKS — recast layer, dielectric safety
         const hookCtx = {
           operation: action,

@@ -359,6 +359,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
     log.info("Loading AlgorithmRegistry...");
 
     // Load built-in algorithms first
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const algo of BUILT_IN_ALGORITHMS) {
       this.entries.set(algo.id, {
         id: algo.id,
@@ -396,6 +400,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       path.join(PATHS.STATE_DIR, "algorithm-registry.json"),
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const scanPath of scanPaths) {
       try {
         if (!(await fileExists(scanPath))) continue;
@@ -407,6 +415,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
         if (!Array.isArray(files)) continue;
 
         let loaded = 0;
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const file of files) {
           const algId = this.fileNameToId(file.name);
           if (this.has(algId)) continue;
@@ -427,6 +439,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
           loaded++;
         }
 
+        /** If.
+         * @param loaded - loaded
+         * @returns void
+         */
         if (loaded > 0) {
           log.info(`Loaded ${loaded} algorithms from ${scanPath}`);
           return; // Use first successful source
@@ -454,6 +470,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
         (f) => f.name.endsWith(".js") || f.name.endsWith(".json")
       );
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of jsFiles) {
         const algId = this.fileNameToId(file.name);
 
@@ -499,10 +519,19 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
     this.indexByWave.clear();
     this.indexByConsumer.clear();
 
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const algo = entry.data;
 
       // Index by type
+      /** If.
+       * @param algo.type - algo.type
+       * @returns void
+       */
       if (algo.type) {
         if (!this.indexByType.has(algo.type)) {
           this.indexByType.set(algo.type, []);
@@ -511,6 +540,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       }
 
       // Index by safety class
+      /** If.
+       * @param algo.safety_class - algo.safety_class
+       * @returns void
+       */
       if (algo.safety_class) {
         if (!this.indexBySafetyClass.has(algo.safety_class)) {
           this.indexBySafetyClass.set(algo.safety_class, []);
@@ -519,6 +552,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       }
 
       // Index by mfg relevance
+      /** If.
+       * @param algo.mfg_relevance - algo.mfg_relevance
+       * @returns void
+       */
       if (algo.mfg_relevance) {
         if (!this.indexByRelevance.has(algo.mfg_relevance)) {
           this.indexByRelevance.set(algo.mfg_relevance, []);
@@ -527,6 +564,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       }
 
       // Index by integration wave
+      /** If.
+       * @param algo.integration_wave - algo.integration_wave
+       * @returns void
+       */
       if (algo.integration_wave) {
         if (!this.indexByWave.has(algo.integration_wave)) {
           this.indexByWave.set(algo.integration_wave, []);
@@ -535,7 +576,15 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       }
 
       // Index by consumer
+      /** If.
+       * @param algo.consumers - algo.consumers
+       * @returns void
+       */
       if (algo.consumers) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const consumer of algo.consumers) {
           if (!this.indexByConsumer.has(consumer)) {
             this.indexByConsumer.set(consumer, []);
@@ -627,6 +676,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
     let results: AlgorithmEntry[] = [];
 
     // Start with most selective index
+    /** If.
+     * @param options.type - options.type
+     * @returns void
+     */
     if (options.type) {
       results = await this.getByType(options.type);
     } else if (options.safety_class) {
@@ -640,9 +693,17 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
     }
 
     // Apply additional filters
+    /** If.
+     * @param options.type - options.type
+     * @returns void
+     */
     if (options.type && !options.safety_class && !options.mfg_relevance) {
       // Already filtered by type
     } else {
+      /** If.
+       * @param options.type - options.type
+       * @returns void
+       */
       if (options.type) {
         results = results.filter((a) => a.type === options.type);
       }
@@ -660,11 +721,19 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
         (a) => a.safety_class === options.safety_class
       );
     }
+    /** If.
+     * @param options.mfg_relevance - options.mfg_relevance
+     * @returns void
+     */
     if (options.mfg_relevance) {
       results = results.filter(
         (a) => a.mfg_relevance === options.mfg_relevance
       );
     }
+    /** If.
+     * @param options.integration_wave - options.integration_wave
+     * @returns void
+     */
     if (options.integration_wave !== undefined) {
       results = results.filter(
         (a) => a.integration_wave === options.integration_wave
@@ -672,6 +741,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
     }
 
     // Text search (multi-term AND across all fields)
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query && options.query !== "*") {
       const terms = options.query
         .toLowerCase()
@@ -717,6 +790,10 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
 
     let results: AlgorithmEntry[];
 
+    /** If.
+     * @param options?.type - options?.type
+     * @returns void
+     */
     if (options?.type) {
       results = await this.getByType(options.type);
     } else if (options?.safety_class) {
@@ -759,18 +836,38 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
       consumerCount: this.indexByConsumer.size,
     };
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [type, ids] of this.indexByType) {
       stats.byType[type] = ids.length;
     }
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [sc, ids] of this.indexBySafetyClass) {
       stats.bySafetyClass[sc] = ids.length;
     }
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [rel, ids] of this.indexByRelevance) {
       stats.byRelevance[rel] = ids.length;
     }
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [wave, ids] of this.indexByWave) {
       stats.byWave[`wave_${wave}`] = ids.length;
     }

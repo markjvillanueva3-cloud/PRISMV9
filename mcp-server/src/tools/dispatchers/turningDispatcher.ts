@@ -11,7 +11,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { TURNING_ACTION_SCHEMAS } from "../../schemas/turningActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 
@@ -37,6 +38,7 @@ const ACTIONS = [
 
 /** Registers turning dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerTurningDispatcher(server: any): void {
   server.tool(
@@ -54,6 +56,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation — SAFETY CRITICAL
+        const validation = validateActionParams(action, params, TURNING_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_turning"
+          );
+        }
 
         // PRE-CALCULATION SAFETY HOOKS — blocks unsafe turning params
         const hookCtx = {

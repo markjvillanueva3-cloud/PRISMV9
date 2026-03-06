@@ -374,6 +374,10 @@ export class KnowledgeQueryEngine {
 
     const results: UnifiedSearchResult[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const registry of registries) {
       const registryResults = await this.searchRegistry(registry, query, limit);
       results.push(...registryResults);
@@ -400,9 +404,17 @@ export class KnowledgeQueryEngine {
     const results: UnifiedSearchResult[] = [];
     const queryLower = query.toLowerCase();
 
+    /** Switch.
+     * @param registry - registry
+     * @returns void
+     */
     switch (registry) {
       case "materials": {
         const materials = await materialRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const m of materials.materials) {
           const mAny = m as any;
           const extraContext = [mAny.material_type, m.iso_group, mAny.material_id ?? m.id, m.category].filter(Boolean).join(" ");
@@ -422,6 +434,10 @@ export class KnowledgeQueryEngine {
 
       case "machines": {
         const machineResult = machineRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const m of machineResult.machines) {
           const mAnyMach = m as any;
           const extraContext = [m.manufacturer, m.model, m.type, mAnyMach.machine_id ?? m.id].filter(Boolean).map(String).join(" ");
@@ -441,6 +457,10 @@ export class KnowledgeQueryEngine {
 
       case "tools": {
         const toolResult = toolRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const t of toolResult.tools) {
           const tAny = t as any;
           const extraContext = [t.type, t.manufacturer, t.substrate, t.catalog_number, tAny.tool_id ?? t.id].filter(Boolean).map(String).join(" ");
@@ -460,6 +480,10 @@ export class KnowledgeQueryEngine {
 
       case "alarms": {
         const alarms = await alarmRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const a of alarms.alarms) {
           results.push({
             registry: "alarms",
@@ -486,6 +510,10 @@ export class KnowledgeQueryEngine {
           f.domain?.toLowerCase().includes(queryLC)
         );
         const formulas = { formulas: formulaResults.slice(0, limit) };
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const f of formulas.formulas) {
           results.push({
             registry: "formulas",
@@ -503,6 +531,10 @@ export class KnowledgeQueryEngine {
 
       case "skills": {
         const skills = await skillRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const s of skills.skills) {
           results.push({
             registry: "skills",
@@ -520,6 +552,10 @@ export class KnowledgeQueryEngine {
 
       case "scripts": {
         const scripts = await scriptRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const s of scripts.scripts) {
           results.push({
             registry: "scripts",
@@ -537,6 +573,10 @@ export class KnowledgeQueryEngine {
 
       case "agents": {
         const agents = await agentRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const a of agents.agents) {
           results.push({
             registry: "agents",
@@ -554,6 +594,10 @@ export class KnowledgeQueryEngine {
 
       case "hooks": {
         const hooks = await hookRegistry.search({ query, limit });
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const h of hooks.hooks) {
           results.push({
             registry: "hooks",
@@ -580,6 +624,10 @@ export class KnowledgeQueryEngine {
     const relevant: Set<RegistryType> = new Set();
 
     for (const [registry, patterns] of Object.entries(REGISTRY_PATTERNS)) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const pattern of patterns) {
         if (pattern.test(query)) {
           relevant.add(registry as RegistryType);
@@ -589,11 +637,19 @@ export class KnowledgeQueryEngine {
     }
 
     // If no specific match, search all
+    /** If.
+     * @param relevant.size - relevant.size
+     * @returns void
+     */
     if (relevant.size === 0) {
       return Object.keys(REGISTRY_PATTERNS) as RegistryType[];
     }
 
     // Add related registries
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const reg of [...relevant]) {
       const related = REGISTRY_RELATIONSHIPS[reg] || [];
       related.forEach(r => relevant.add(r));
@@ -626,10 +682,22 @@ export class KnowledgeQueryEngine {
     const registries = query.required_registries || this.detectRelevantRegistries(query.task);
 
     // Search each registry
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const registry of registries) {
       const searchResults = await this.searchRegistry(registry, query.task, 5);
       
+      /** If.
+       * @param searchResults.length - search results.length
+       * @returns void
+       */
       if (searchResults.length > 0) {
+        /** Switch.
+         * @param registry - registry
+         * @returns void
+         */
         switch (registry) {
           case "materials":
             result.results.materials = searchResults.map(r => r.data as Material);
@@ -675,9 +743,25 @@ export class KnowledgeQueryEngine {
     const relations: KnowledgeRelation[] = [];
 
     // Materials → Formulas
+    /** If.
+     * @param results.materials - results.materials
+     * @returns void
+     */
     if (results.materials && results.formulas) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const m of results.materials) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const f of results.formulas) {
+          /** If.
+           * @param f.category - f.category
+           * @returns void
+           */
           if (f.category === "cutting_force" || f.category === "tool_life") {
             relations.push({
               source_registry: "materials",
@@ -693,8 +777,20 @@ export class KnowledgeQueryEngine {
     }
 
     // Machines → Alarms
+    /** If.
+     * @param results.machines - results.machines
+     * @returns void
+     */
     if (results.machines && results.alarms) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const m of results.machines) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const a of results.alarms) {
           if (a.controller_family?.toLowerCase().includes(String(m.controller || "").toLowerCase())) {
             relations.push({
@@ -711,10 +807,26 @@ export class KnowledgeQueryEngine {
     }
 
     // Skills → Scripts
+    /** If.
+     * @param results.skills - results.skills
+     * @returns void
+     */
     if (results.skills && results.scripts) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const sk of results.skills) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const sc of results.scripts) {
           const commonTags = sk.tags?.filter(t => sc.tags?.includes(t)) || [];
+          /** If.
+           * @param commonTags.length - common tags.length
+           * @returns void
+           */
           if (commonTags.length > 0) {
             relations.push({
               source_registry: "skills",
@@ -739,31 +851,55 @@ export class KnowledgeQueryEngine {
     const workflow: string[] = [];
 
     // Material selection first
+    /** If.
+     * @param results.materials?.length - results.materials?.length
+     * @returns void
+     */
     if (results.materials?.length) {
       workflow.push(`1. Select material: ${results.materials[0].name} (${results.materials[0].material_id})`);
     }
 
     // Then machine
+    /** If.
+     * @param results.machines?.length - results.machines?.length
+     * @returns void
+     */
     if (results.machines?.length) {
       workflow.push(`2. Configure machine: ${results.machines[0].name}`);
     }
 
     // Tool selection
+    /** If.
+     * @param results.tools?.length - results.tools?.length
+     * @returns void
+     */
     if (results.tools?.length) {
       workflow.push(`3. Select tooling: ${results.tools[0].name}`);
     }
 
     // Apply formulas
+    /** If.
+     * @param results.formulas?.length - results.formulas?.length
+     * @returns void
+     */
     if (results.formulas?.length) {
       workflow.push(`4. Calculate parameters using: ${results.formulas.map(f => f.name).join(", ")}`);
     }
 
     // Load relevant skills
+    /** If.
+     * @param results.skills?.length - results.skills?.length
+     * @returns void
+     */
     if (results.skills?.length) {
       workflow.push(`5. Load skill guidance: ${results.skills.map(s => s.skill_id).join(", ")}`);
     }
 
     // Run automation
+    /** If.
+     * @param results.scripts?.length - results.scripts?.length
+     * @returns void
+     */
     if (results.scripts?.length) {
       workflow.push(`6. Execute automation: ${results.scripts[0].script_id}`);
     }
@@ -801,6 +937,10 @@ export class KnowledgeQueryEngine {
     // Also search by domain if detectable
     for (const [domain, categories] of Object.entries(FORMULA_DOMAINS)) {
       if (needLower.includes(domain)) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const cat of categories) {
           const catFormulas = await formulaRegistry.getByCategory(cat);
           formulas.push(...catFormulas);
@@ -816,6 +956,10 @@ export class KnowledgeQueryEngine {
       return true;
     });
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const formula of formulas) {
       const matchReasons: string[] = [];
       let matchScore = 0;
@@ -833,6 +977,10 @@ export class KnowledgeQueryEngine {
       }
 
       // Check category relevance
+      /** If.
+       * @param options?.category - options?.category
+       * @returns void
+       */
       if (options?.category && formula.category === options.category) {
         matchScore += 0.2;
         matchReasons.push("Category match");
@@ -843,10 +991,18 @@ export class KnowledgeQueryEngine {
 
       // Find related formulas
       let relatedFormulas: string[] = [];
+      /** If.
+       * @param options?.include_related - options?.include_related
+       * @returns void
+       */
       if (options?.include_related) {
         relatedFormulas = await this.findRelatedFormulas(formula);
       }
 
+      /** If.
+       * @param matchScore - match score
+       * @returns void
+       */
       if (matchScore > 0 || matchReasons.length > 0) {
         results.push({
           formula,
@@ -869,7 +1025,15 @@ export class KnowledgeQueryEngine {
 
     // Find formulas in same category
     const sameCategory = await formulaRegistry.getByCategory(formula.category);
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of sameCategory) {
+      /** If.
+       * @param f.formula_id - f.formula_id
+       * @returns void
+       */
       if (f.formula_id !== formula.formula_id) {
         related.push(f.formula_id);
       }
@@ -879,6 +1043,10 @@ export class KnowledgeQueryEngine {
     const allFormulas = formulaRegistry.all();
     const inputNames = new Set(((formula as any).inputs ?? formula.parameters ?? []).map((i: any) => i.name.toLowerCase()));
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of allFormulas) {
       if (f.formula_id === formula.formula_id) continue;
       const fInputs = new Set(((f as any).inputs ?? f.parameters ?? []).map((i: any) => i.name.toLowerCase()));
@@ -917,6 +1085,10 @@ export class KnowledgeQueryEngine {
 
     // --- Positional bonus (0–0.4) for exact/prefix/substring matches ---
     let positionalBonus = 0;
+    /** If.
+     * @param nameLower - name lower
+     * @returns void
+     */
     if (nameLower === queryLower) {
       positionalBonus = 0.4;
     } else if (nameLower.startsWith(queryLower)) {
@@ -937,6 +1109,10 @@ export class KnowledgeQueryEngine {
 
     // Build doc term frequency map
     const docTf = new Map<string, number>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of docTokens) {
       docTf.set(t, (docTf.get(t) || 0) + 1);
     }
@@ -949,11 +1125,20 @@ export class KnowledgeQueryEngine {
 
     // Unique query terms with their TF
     const queryTf = new Map<string, number>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of queryTokens) {
       queryTf.set(t, (queryTf.get(t) || 0) + 1);
     }
     const queryLen = queryTokens.length;
 
+    /** For.
+     * @param const - const
+     * @param qCount] - q count]
+     * @returns void
+     */
     for (const [term, qCount] of queryTf) {
       const idf = this.getIdf(term);
       const qTfIdf = (qCount / queryLen) * idf;
@@ -965,6 +1150,11 @@ export class KnowledgeQueryEngine {
     }
 
     // Add remaining doc terms to docMag for proper normalization
+    /** For.
+     * @param const - const
+     * @param dCount] - d count]
+     * @returns void
+     */
     for (const [term, dCount] of docTf) {
       if (!queryTf.has(term)) {
         const idf = this.getIdf(term);
@@ -1015,6 +1205,10 @@ export class KnowledgeQueryEngine {
     // Collect documents from each registry
     const collectDoc = (text: string) => {
       const tokens = new Set(this.tokenize(text.toLowerCase()));
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const t of tokens) {
         docFreq.set(t, (docFreq.get(t) || 0) + 1);
       }
@@ -1081,6 +1275,11 @@ export class KnowledgeQueryEngine {
 
     // Compute IDF: log(N / df) for each term
     this.idfCache.clear();
+    /** For.
+     * @param const - const
+     * @param df] - df]
+     * @returns void
+     */
     for (const [term, df] of docFreq) {
       this.idfCache.set(term, Math.log(totalDocs / df));
     }
@@ -1123,6 +1322,10 @@ export class KnowledgeQueryEngine {
     if (!this.config.enable_cache) return;
 
     // Evict if at max
+    /** If.
+     * @param this.cache.size - this.cache.size
+     * @returns void
+     */
     if (this.cache.size >= this.config.max_cache_entries) {
       const oldestKey = this.cache.keys().next().value;
       if (oldestKey) this.cache.delete(oldestKey);
@@ -1198,9 +1401,17 @@ export class KnowledgeQueryEngine {
     const byCategory: Record<string, string[]> = {};
     let totalLines = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const key of keys) {
       const entry = entries[key as keyof typeof entries];
       totalLines += entry.lines;
+      /** If.
+       * @param !byCategory[entry.category] - !by category[entry.category]
+       * @returns void
+       */
       if (!byCategory[entry.category]) {
         byCategory[entry.category] = [];
       }

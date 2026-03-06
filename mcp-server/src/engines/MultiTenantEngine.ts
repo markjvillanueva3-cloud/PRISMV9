@@ -117,6 +117,9 @@ export class MultiTenantEngine {
     this.config = { ...DEFAULT_MT_CONFIG, ...configOverrides };
   }
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
     ensureDirs(BASE_DIR);
@@ -142,6 +145,10 @@ export class MultiTenantEngine {
     
     // Gate: max tenants
     const activeCount = [...this.tenants.values()].filter(t => t.status === 'active').length;
+    /** If.
+     * @param activeCount - active count
+     * @returns void
+     */
     if (activeCount >= this.config.max_tenants) {
       return { success: false, reason: `Maximum ${this.config.max_tenants} tenants reached` };
     }
@@ -181,10 +188,18 @@ export class MultiTenantEngine {
     }
   }
 
+  /** Suspend Tenant.
+   * @param tenantId - tenant id
+   * @returns { success: boolean; reason?: string }
+   */
   suspendTenant(tenantId: string): { success: boolean; reason?: string } {
     this.init();
     const tenant = this.tenants.get(tenantId);
     if (!tenant) return { success: false, reason: 'Tenant not found' };
+    /** If.
+     * @param tenant.id - tenant.id
+     * @returns void
+     */
     if (tenant.id === this.config.default_tenant_id) {
       return { success: false, reason: 'Cannot suspend default tenant' };
     }
@@ -196,6 +211,10 @@ export class MultiTenantEngine {
     return { success: true };
   }
 
+  /** Reactivate Tenant.
+   * @param tenantId - tenant id
+   * @returns { success: boolean; reason?: string }
+   */
   reactivateTenant(tenantId: string): { success: boolean; reason?: string } {
     this.init();
     const tenant = this.tenants.get(tenantId);
@@ -209,14 +228,27 @@ export class MultiTenantEngine {
   }
 
   // 2-phase deletion: soft_delete → hard_purge after delay
+  /** Deletes tenant.
+   * @param tenantId - tenant id
+   * @param deletedBy - deleted by
+   * @returns { success: boolean; phase: string; reason?: string }
+   */
   deleteTenant(tenantId: string, deletedBy: string = 'system'): { success: boolean; phase: string; reason?: string } {
     this.init();
     const tenant = this.tenants.get(tenantId);
     if (!tenant) return { success: false, phase: 'none', reason: 'Tenant not found' };
+    /** If.
+     * @param tenant.id - tenant.id
+     * @returns void
+     */
     if (tenant.id === this.config.default_tenant_id) {
       return { success: false, phase: 'none', reason: 'Cannot delete default tenant' };
     }
 
+    /** If.
+     * @param tenant.status - tenant.status
+     * @returns void
+     */
     if (tenant.status !== 'soft_deleted') {
       // Phase 1: Soft delete
       const updated: Tenant = { ...tenant, status: 'soft_deleted', updated_at: Date.now() };
@@ -228,6 +260,10 @@ export class MultiTenantEngine {
     } else {
       // Phase 2: Hard purge (only if soft_delete age > purge_delay)
       const ageHours = (Date.now() - tenant.updated_at) / 3_600_000;
+      /** If.
+       * @param ageHours - age hours
+       * @returns void
+       */
       if (ageHours < this.config.purge_delay_hours) {
         return { success: false, phase: 'waiting', reason: `Purge available in ${(this.config.purge_delay_hours - ageHours).toFixed(1)} hours` };
       }
@@ -245,6 +281,10 @@ export class MultiTenantEngine {
 
       if (fs.existsSync(tenantDir)) {
         const files = this.walkDir(tenantDir);
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const file of files) {
           try {
             const stat = fs.statSync(file);
@@ -283,6 +323,10 @@ export class MultiTenantEngine {
   // TENANT CONTEXT — Frozen injection for dispatcher calls
   // ==========================================================================
 
+  /** Gets tenant context.
+   * @param tenantId - tenant id
+   * @returns tenant context | null
+   */
   getTenantContext(tenantId: string): TenantContext | null {
     this.init();
     const tenant = this.tenants.get(tenantId);
@@ -316,6 +360,10 @@ export class MultiTenantEngine {
     const stats = tenant.stats;
     let current: number, limit: number;
 
+    /** Switch.
+     * @param resource - resource
+     * @returns void
+     */
     switch (resource) {
       case 'dispatchers': current = stats.dispatchers_registered; limit = cfg.max_dispatchers; break;
       case 'hooks': current = stats.hooks_active; limit = cfg.max_hooks; break;
@@ -323,6 +371,10 @@ export class MultiTenantEngine {
       case 'sessions': current = stats.sessions_this_hour; limit = cfg.max_sessions_per_hour; break;
     }
 
+    /** If.
+     * @param current - current
+     * @returns void
+     */
     if (current >= limit) {
       this.metrics.resource_limit_hits++;
       return { allowed: false, current, limit, reason: `${resource} limit reached (${current}/${limit})` };
@@ -341,6 +393,10 @@ export class MultiTenantEngine {
     if (!tenant) return { success: false, reason: 'Tenant not found' };
     if (!tenant.config.slb_publish) return { success: false, reason: 'SLB publishing disabled for this tenant' };
     if (!this.config.slb.enabled) return { success: false, reason: 'SLB globally disabled' };
+    /** If.
+     * @param confidence - confidence
+     * @returns void
+     */
     if (confidence < this.config.slb.min_confidence_publish) {
       return { success: false, reason: `Confidence ${confidence.toFixed(2)} below minimum ${this.config.slb.min_confidence_publish}` };
     }
@@ -374,6 +430,10 @@ export class MultiTenantEngine {
     };
 
     // Enforce max patterns
+    /** If.
+     * @param this.slbPatterns.size - this.slb patterns.size
+     * @returns void
+     */
     if (this.slbPatterns.size >= this.config.slb.max_patterns) {
       // Evict oldest non-promoted pattern
       const oldest = [...this.slbPatterns.entries()]
@@ -398,6 +458,10 @@ export class MultiTenantEngine {
     { patterns: SharedPattern[]; count: number } {
     this.init();
     const tenant = this.tenants.get(tenantId);
+    /** If.
+     * @param !tenant - !tenant
+     * @returns void
+     */
     if (!tenant || !tenant.config.slb_subscribe || !this.config.slb.enabled) {
       return { patterns: [], count: 0 };
     }
@@ -407,6 +471,10 @@ export class MultiTenantEngine {
       .filter(p => p.source_tenant !== hashTenantId(tenantId)); // Don't consume own patterns
 
     if (type) patterns = patterns.filter(p => p.type === type);
+    /** If.
+     * @param tenant.config.slb_pattern_filter.length - tenant.config.slb_pattern_filter.length
+     * @returns void
+     */
     if (tenant.config.slb_pattern_filter.length > 0) {
       patterns = patterns.filter(p => tenant.config.slb_pattern_filter.includes(p.type));
     }
@@ -421,6 +489,10 @@ export class MultiTenantEngine {
     return { patterns, count: patterns.length };
   }
 
+  /** Promote Pattern.
+   * @param patternId - pattern id
+   * @returns { success: boolean; promotions?: number; reason?: string }
+   */
   promotePattern(patternId: string): { success: boolean; promotions?: number; reason?: string } {
     const pattern = this.slbPatterns.get(patternId);
     if (!pattern) return { success: false, reason: 'Pattern not found' };
@@ -433,6 +505,10 @@ export class MultiTenantEngine {
     return { success: true, promotions: updated.promotions };
   }
 
+  /** Quarantine Pattern.
+   * @param patternId - pattern id
+   * @returns { success: boolean; reason?: string }
+   */
   quarantinePattern(patternId: string): { success: boolean; reason?: string } {
     const pattern = this.slbPatterns.get(patternId);
     if (!pattern) return { success: false, reason: 'Pattern not found' };
@@ -448,11 +524,19 @@ export class MultiTenantEngine {
   // QUERIES
   // ==========================================================================
 
+  /** Gets tenant.
+   * @param tenantId - tenant id
+   * @returns tenant | null
+   */
   getTenant(tenantId: string): Tenant | null {
     this.init();
     return this.tenants.get(tenantId) || null;
   }
 
+  /** List Tenants.
+   * @param status - status
+   * @returns tenant[]
+   */
   listTenants(status?: TenantStatus): Tenant[] {
     this.init();
     let tenants = [...this.tenants.values()];
@@ -460,6 +544,9 @@ export class MultiTenantEngine {
     return tenants;
   }
 
+  /** Gets s l b stats.
+   * @returns void
+   */
   getSLBStats(): {
     total_patterns: number; quarantined: number; avg_confidence: number;
     by_type: Record<string, number>; top_promoted: { id: string; promotions: number }[];
@@ -468,6 +555,10 @@ export class MultiTenantEngine {
     const patterns = [...this.slbPatterns.values()];
     const active = patterns.filter(p => !p.quarantined);
     const byType: Record<string, number> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const p of active) {
       byType[p.type] = (byType[p.type] || 0) + 1;
     }
@@ -506,6 +597,10 @@ export class MultiTenantEngine {
     try {
       if (fs.existsSync(REGISTRY_PATH)) {
         const raw = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8'));
+        /** If.
+         * @param raw.tenants - raw.tenants
+         * @returns void
+         */
         if (raw.tenants) {
           for (const [k, v] of Object.entries(raw.tenants)) {
             this.tenants.set(k, v as Tenant);
@@ -533,6 +628,10 @@ export class MultiTenantEngine {
     try {
       if (fs.existsSync(SLB_PATH)) {
         const raw = JSON.parse(fs.readFileSync(SLB_PATH, 'utf-8'));
+        /** If.
+         * @param raw.patterns - raw.patterns
+         * @returns void
+         */
         if (raw.patterns) {
           for (const [k, v] of Object.entries(raw.patterns)) {
             this.slbPatterns.set(k, v as SharedPattern);
@@ -555,6 +654,9 @@ export class MultiTenantEngine {
   // METRICS & CONFIG
   // ==========================================================================
 
+  /** Gets stats.
+   * @returns void
+   */
   getStats(): {
     total_tenants: number; active: number; suspended: number; deleted: number;
     slb: ReturnType<typeof this.getSLBStats>; metrics: typeof this.metrics;
@@ -571,13 +673,23 @@ export class MultiTenantEngine {
     };
   }
 
+  /** Gets config.
+   * @returns multi tenant config { return { ...this.config }; }
+   */
   getConfig(): MultiTenantConfig { return { ...this.config }; }
 
+  /** Updates config.
+   * @param updates - updates
+   * @returns multi tenant config
+   */
   updateConfig(updates: Partial<MultiTenantConfig>): MultiTenantConfig {
     this.config = { ...this.config, ...updates };
     return { ...this.config };
   }
 
+  /** Shutdown.
+   * @returns void
+   */
   shutdown(): void {
     this.saveRegistry();
     this.saveSLB();

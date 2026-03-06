@@ -185,6 +185,10 @@ export class FixtureDesignEngine {
       ? ["3_jaw_chuck", "4_jaw_chuck", "collet", "soft_jaws"]
       : ["vise", "fixture_plate", "soft_jaws", "hydraulic_clamp", "vacuum", "tombstone"];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ft of fixtureTypes) {
       const mu = getFriction(part.material_iso_group, ft, ft !== "vacuum" && ft !== "magnetic");
       const nSurfaces = ft === "vise" ? 2 : ft.includes("chuck") ? 3 : ft === "vacuum" ? 1 : 2;
@@ -197,6 +201,10 @@ export class FixtureDesignEngine {
       const warnings: string[] = [];
 
       // Force adequacy — SAFETY CRITICAL
+      /** If.
+       * @param achievable - achievable
+       * @returns void
+       */
       if (achievable >= reqForce) {
         score += 20;
         rationale.push(`Clamp force ${Math.round(achievable)}N ≥ required ${Math.round(reqForce)}N`);
@@ -255,6 +263,10 @@ export class FixtureDesignEngine {
     const perClamp = reqForce / Math.max(numClamps, 1);
     const notes: string[] = [];
 
+    /** If.
+     * @param reqForce - req force
+     * @returns void
+     */
     if (reqForce > achievable) {
       notes.push(`SAFETY WARNING: Required ${Math.round(reqForce)}N exceeds ${fixtureType} capacity ${achievable}N`);
     }

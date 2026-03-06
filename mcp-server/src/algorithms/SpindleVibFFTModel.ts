@@ -118,6 +118,10 @@ const LIMITS = {
  */
 export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, SpindleVibFFTOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: SpindleVibFFTInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
@@ -128,12 +132,24 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     } else if (input.signal.length > LIMITS.MAX_SAMPLES) {
       issues.push({ field: "signal", message: `Signal exceeds ${LIMITS.MAX_SAMPLES} samples. Truncate or decimate.`, severity: "warning" });
     }
+    /** If.
+     * @param !input.sample_rate_hz - !input.sample_rate_hz
+     * @returns void
+     */
     if (!input.sample_rate_hz || input.sample_rate_hz < LIMITS.MIN_SAMPLE_RATE || input.sample_rate_hz > LIMITS.MAX_SAMPLE_RATE) {
       issues.push({ field: "sample_rate_hz", message: `Sample rate must be ${LIMITS.MIN_SAMPLE_RATE}-${LIMITS.MAX_SAMPLE_RATE} Hz, got ${input.sample_rate_hz}`, severity: "error" });
     }
+    /** If.
+     * @param !input.spindle_rpm - !input.spindle_rpm
+     * @returns void
+     */
     if (!input.spindle_rpm || input.spindle_rpm <= 0) {
       issues.push({ field: "spindle_rpm", message: `Spindle RPM must be > 0, got ${input.spindle_rpm}`, severity: "error" });
     }
+    /** If.
+     * @param !input.flutes - !input.flutes
+     * @returns void
+     */
     if (!input.flutes || input.flutes < 1) {
       issues.push({ field: "flutes", message: `Flutes must be >= 1, got ${input.flutes}`, severity: "error" });
     }
@@ -141,6 +157,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns spindle vib f f t output
+   */
   calculate(input: SpindleVibFFTInput): SpindleVibFFTOutput {
     const warnings: string[] = [];
     const {
@@ -156,6 +176,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
 
     // Apply window function
     const windowed = new Array(N);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < N; i++) {
       windowed[i] = signal[i] * this.windowFunc(window, i, N);
     }
@@ -164,8 +188,16 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     const halfN = Math.floor(N / 2);
     const spectrum: { freq: number; mag: number }[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let k = 1; k <= halfN; k++) {
       let re = 0, im = 0;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let n = 0; n < N; n++) {
         const angle = -2 * Math.PI * k * n / N;
         re += windowed[n] * Math.cos(angle);
@@ -203,6 +235,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     let chatter_frequency_hz: number | null = null;
     let chatter_severity: SpindleVibFFTOutput["chatter_severity"] = "none";
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const peak of peaks) {
       if (!peak.is_harmonic
         && peak.frequency_hz >= min_chatter_freq
@@ -223,16 +259,32 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     const stable_rpm_options: StableRPMOption[] = [];
     let spindle_override_pct = 100;
 
+    /** If.
+     * @param chatter_detected - chatter_detected
+     * @returns void
+     */
     if (chatter_detected && chatter_frequency_hz) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 1; k <= 5; k++) {
         // Between lobes: RPM = 60 x f_chatter / (z x (k + 0.5))
         const rpm1 = Math.round((60 * chatter_frequency_hz) / (flutes * (k + 0.5)));
         // On lobe crests: RPM = 60 x f_chatter / (z x k)
         const rpm2 = Math.round((60 * chatter_frequency_hz) / (flutes * k));
 
+        /** If.
+         * @param rpm1 - rpm1
+         * @returns void
+         */
         if (rpm1 > 100 && rpm1 < 50000) {
           stable_rpm_options.push({ rpm: rpm1, lobe_number: k, method: "between_lobes" });
         }
+        /** If.
+         * @param rpm2 - rpm2
+         * @returns void
+         */
         if (rpm2 > 100 && rpm2 < 50000) {
           stable_rpm_options.push({ rpm: rpm2, lobe_number: k, method: "on_lobe" });
         }
@@ -244,6 +296,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
       );
 
       // Calculate override for best option
+      /** If.
+       * @param stable_rpm_options.length - stable_rpm_options.length
+       * @returns void
+       */
       if (stable_rpm_options.length > 0) {
         spindle_override_pct = Math.round((stable_rpm_options[0].rpm / spindle_rpm) * 100);
       }
@@ -252,6 +308,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
         `Recommend RPM change to ${stable_rpm_options[0]?.rpm || "N/A"}.`);
     }
 
+    /** If.
+     * @param N - n
+     * @returns void
+     */
     if (N < 256) {
       warnings.push(`LOW_RESOLUTION: ${N} samples gives ${freq_resolution.toFixed(1)} Hz resolution. 1024+ recommended.`);
     }
@@ -274,6 +334,9 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "spindle-vib-fft",
@@ -302,6 +365,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
 
   private windowFunc(type: string, n: number, N: number): number {
     const x = (2 * Math.PI * n) / (N - 1);
+    /** Switch.
+     * @param type - type identifier
+     * @returns void
+     */
     switch (type) {
       case "hamming": return 0.54 - 0.46 * Math.cos(x);
       case "blackman": return 0.42 - 0.50 * Math.cos(x) + 0.08 * Math.cos(2 * x);
@@ -312,6 +379,10 @@ export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, Spindle
 
   private isNearHarmonic(freq: number, fundamental: number): { is_harmonic: boolean; harmonic_order: number | null } {
     if (fundamental <= 0) return { is_harmonic: false, harmonic_order: null };
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let h = 1; h <= 10; h++) {
       const harmFreq = fundamental * h;
       if (Math.abs(freq - harmFreq) / harmFreq < LIMITS.HARMONIC_TOLERANCE) {

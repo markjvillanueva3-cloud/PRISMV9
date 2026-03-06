@@ -80,6 +80,10 @@ export class ToleranceStackEngine {
     let minGap = 0;
     let totalTol = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const d of dimensions) {
       const sign = d.direction === "positive" ? 1 : -1;
       nominalGap += sign * d.nominal_mm;
@@ -117,6 +121,10 @@ export class ToleranceStackEngine {
     let varianceSum = 0;
     let totalTol = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const d of dimensions) {
       const sign = d.direction === "positive" ? 1 : -1;
       nominalGap += sign * d.nominal_mm;
@@ -173,6 +181,10 @@ export class ToleranceStackEngine {
    */
   optimize(dimensions: StackDimension[], targetMinGap_mm: number): StackOptimization {
     const current = this.worstCase(dimensions, targetMinGap_mm);
+    /** If.
+     * @param current.passes - current.passes
+     * @returns void
+     */
     if (current.passes) {
       return {
         current_total_tolerance_mm: current.total_tolerance_mm,
@@ -191,6 +203,10 @@ export class ToleranceStackEngine {
 
     const adjustments: StackOptimization["adjustments"] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const c of sorted) {
       if (remaining <= 0) break;
       const dim = dimensions.find(d => d.id === c.dimension_id);

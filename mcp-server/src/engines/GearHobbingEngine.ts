@@ -112,9 +112,17 @@ export class GearHobbingEngine {
     if (cuttingSpeed > 200) recs.push("High cutting speed — verify hob coating (TiAlN recommended)");
     if (cuttingSpeed < 30) recs.push("Low cutting speed — consider increasing hob RPM for productivity");
     if (scallopHeight > 10) recs.push(`Scallop height ${scallopHeight.toFixed(1)}µm — reduce axial feed or add finish pass`);
+    /** If.
+     * @param input.hob_num_starts - input.hob_num_starts
+     * @returns void
+     */
     if (input.hob_num_starts > 1 && input.num_teeth % input.hob_num_starts === 0) {
       recs.push("Gear teeth divisible by hob starts — all teeth cut by same gash (hunting tooth issue)");
     }
+    /** If.
+     * @param input.hobbing_method - input.hobbing_method
+     * @returns void
+     */
     if (input.hobbing_method === "conventional" && input.module_mm > 4) {
       recs.push("Climb hobbing recommended for module >4mm — better chip evacuation and tool life");
     }
@@ -136,6 +144,11 @@ export class GearHobbingEngine {
     };
   }
 
+  /** Shift Plan.
+   * @param input - input data
+   * @param partsPerShift - parts per shift
+   * @returns hobbing shift plan
+   */
   shiftPlan(input: GearHobbingInput, partsPerShift: number): HobbingShiftPlan {
     const result = this.calculate(input);
     const totalRange = result.hob_shift_increment_mm * result.shifts_per_hob_life;

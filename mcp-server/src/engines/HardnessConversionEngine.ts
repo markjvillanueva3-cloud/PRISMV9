@@ -84,6 +84,12 @@ export class HardnessConversionEngine {
     };
   }
 
+  /** Batch Convert.
+   * @param values - values
+   * @param from - from
+   * @param to - to
+   * @returns hardness convert result[]
+   */
   batchConvert(values: number[], from: HardnessScale, to: HardnessScale): HardnessConvertResult[] {
     return values.map(v => this.convert({ value: v, from_scale: from, to_scale: to }));
   }
@@ -101,6 +107,10 @@ export class HardnessConversionEngine {
   private _fromHRC(hrc: number, scale: HardnessScale): number {
     if (scale === "HRC") return hrc;
     if (scale === "HV") return this._interpolate(TABLE, "hrc", "hv", hrc);
+    /** If.
+     * @param scale - scale
+     * @returns void
+     */
     if (scale === "HBW") {
       const filtered = TABLE.filter(r => r.hbw > 0);
       return filtered.length > 0 ? this._interpolate(filtered, "hrc", "hbw", hrc) : 0;
@@ -122,6 +132,10 @@ export class HardnessConversionEngine {
     let lower = table[table.length - 1];
     let upper = table[0];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < table.length - 1; i++) {
       const a = table[i];
       const b = table[i + 1];

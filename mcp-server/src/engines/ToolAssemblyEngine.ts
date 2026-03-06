@@ -115,21 +115,37 @@ export class ToolAssemblyEngine {
     };
   }
 
+  /** Validate.
+   * @param assembly - assembly
+   * @returns assembly validation
+   */
   validate(assembly: ToolAssembly): AssemblyValidation {
     const issues: string[] = [];
     const warnings: string[] = [];
 
     // Shank must fit holder bore
+    /** If.
+     * @param assembly.tool.shank_diameter_mm - assembly.tool.shank_diameter_mm
+     * @returns void
+     */
     if (assembly.tool.shank_diameter_mm > assembly.holder.bore_diameter_mm) {
       issues.push(`Tool shank ${assembly.tool.shank_diameter_mm}mm exceeds holder bore ${assembly.holder.bore_diameter_mm}mm`);
     }
 
     // Tool diameter must be within holder spec
+    /** If.
+     * @param assembly.tool.cutting_diameter_mm - assembly.tool.cutting_diameter_mm
+     * @returns void
+     */
     if (assembly.tool.cutting_diameter_mm > assembly.holder.max_tool_diameter_mm * 1.5) {
       warnings.push("Cutting diameter significantly exceeds holder spec — verify clearance");
     }
 
     // Overhang ratio
+    /** If.
+     * @param assembly.overhang_ratio - assembly.overhang_ratio
+     * @returns void
+     */
     if (assembly.overhang_ratio > 5) {
       issues.push(`Overhang ratio ${assembly.overhang_ratio} exceeds safe limit of 5:1 — excessive deflection`);
     } else if (assembly.overhang_ratio > 3.5) {
@@ -137,6 +153,10 @@ export class ToolAssemblyEngine {
     }
 
     // Runout budget
+    /** If.
+     * @param assembly.total_runout_um - assembly.total_runout_um
+     * @returns void
+     */
     if (assembly.total_runout_um > 15) {
       warnings.push(`Total runout ${assembly.total_runout_um}µm — poor surface finish expected`);
     }
@@ -149,6 +169,10 @@ export class ToolAssemblyEngine {
     const L = assembly.stickout_mm;
     const deflection = (F * L * L * L) / (3 * E * I) * 1000; // µm
 
+    /** If.
+     * @param deflection - deflection
+     * @returns void
+     */
     if (deflection > 50) {
       warnings.push(`Predicted deflection ${deflection.toFixed(1)}µm at tool tip — may cause dimensional error`);
     }
@@ -162,6 +186,11 @@ export class ToolAssemblyEngine {
     };
   }
 
+  /** Reach.
+   * @param assembly - assembly
+   * @param holderDiameter_mm - holder diameter_mm
+   * @returns reach analysis
+   */
   reach(assembly: ToolAssembly, holderDiameter_mm: number = 50): ReachAnalysis {
     const maxDepth = assembly.stickout_mm - 3; // 3mm minimum grip
     const holderClearance = (holderDiameter_mm - assembly.tool.cutting_diameter_mm) / 2;
@@ -185,6 +214,10 @@ export class ToolAssemblyEngine {
     };
   }
 
+  /** List Holders.
+   * @param taper - taper
+   * @returns holder spec[]
+   */
   listHolders(taper?: string): HolderSpec[] {
     if (taper) return HOLDER_DB.filter(h => h.taper === taper);
     return [...HOLDER_DB];

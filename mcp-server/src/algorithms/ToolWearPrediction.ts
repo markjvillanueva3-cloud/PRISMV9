@@ -97,18 +97,38 @@ const LIMITS = {
  */
 export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: TWPInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed < LIMITS.MIN_SPEED || input.cutting_speed > LIMITS.MAX_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be ${LIMITS.MIN_SPEED}-${LIMITS.MAX_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param input.cutting_time - input.cutting_time
+     * @returns void
+     */
     if (input.cutting_time === undefined || input.cutting_time < 0 || input.cutting_time > LIMITS.MAX_TIME) {
       issues.push({ field: "cutting_time", message: `Cutting time must be 0-${LIMITS.MAX_TIME} min, got ${input.cutting_time}`, severity: "error" });
     }
+    /** If.
+     * @param !input.taylor_C - !input.taylor_ c
+     * @returns void
+     */
     if (!input.taylor_C || input.taylor_C < LIMITS.MIN_TAYLOR_C || input.taylor_C > LIMITS.MAX_TAYLOR_C) {
       issues.push({ field: "taylor_C", message: `Taylor C must be ${LIMITS.MIN_TAYLOR_C}-${LIMITS.MAX_TAYLOR_C}, got ${input.taylor_C}`, severity: "error" });
     }
+    /** If.
+     * @param !input.taylor_n - !input.taylor_n
+     * @returns void
+     */
     if (!input.taylor_n || input.taylor_n < LIMITS.MIN_TAYLOR_N || input.taylor_n > LIMITS.MAX_TAYLOR_N) {
       issues.push({ field: "taylor_n", message: `Taylor n must be ${LIMITS.MIN_TAYLOR_N}-${LIMITS.MAX_TAYLOR_N}, got ${input.taylor_n}`, severity: "error" });
     }
@@ -119,6 +139,10 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns t w p output
+   */
   calculate(input: TWPInput): TWPOutput {
     const warnings: string[] = [];
     const {
@@ -173,6 +197,10 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
     let wear_zone: TWPOutput["wear_zone"];
     let wear_rate: number;
 
+    /** If.
+     * @param t - t
+     * @returns void
+     */
     if (t <= break_in_end) {
       flank_wear_vb = VB0 + k_breakin * Math.sqrt(t);
       wear_zone = "break-in";
@@ -189,8 +217,16 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
     }
 
     // Calibration: if measured VB provided, adjust prediction
+    /** If.
+     * @param measured_vb - measured_vb
+     * @returns void
+     */
     if (measured_vb !== undefined && measured_vb > 0) {
       const ratio = measured_vb / flank_wear_vb;
+      /** If.
+       * @param ratio - ratio
+       * @returns void
+       */
       if (ratio > 1.3) {
         warnings.push(`WEAR_FASTER: Measured VB (${measured_vb.toFixed(3)}) is ${((ratio - 1) * 100).toFixed(0)}% above predicted. Accelerated wear.`);
       } else if (ratio < 0.7) {
@@ -203,6 +239,10 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
 
     // Recommendation
     let recommendation: string;
+    /** If.
+     * @param wear_percentage - wear_percentage
+     * @returns void
+     */
     if (wear_percentage > 100) {
       recommendation = "REPLACE: Tool has exceeded wear threshold. Replace immediately.";
       warnings.push("THRESHOLD_EXCEEDED: VB exceeds ISO 3685 end-of-life criterion.");
@@ -215,6 +255,10 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
       recommendation = "OK: Tool wear within normal limits.";
     }
 
+    /** If.
+     * @param total_tool_life - total_tool_life
+     * @returns void
+     */
     if (total_tool_life < 5) {
       warnings.push(`SHORT_LIFE: Tool life ${total_tool_life.toFixed(1)} min. Consider reducing speed.`);
     }
@@ -234,6 +278,9 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "tool-wear-prediction",

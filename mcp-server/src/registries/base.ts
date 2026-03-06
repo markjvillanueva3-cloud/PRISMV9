@@ -195,8 +195,17 @@ export class BaseRegistry<T> {
   search(...args: any[]): any {
     // Default: treat first arg as predicate if it's a function
     const predicate = args[0];
+    /** If.
+     * @param typeof - typeof
+     * @returns void
+     */
     if (typeof predicate === "function") {
       const results: T[] = [];
+      /** For.
+       * @param const - const
+       * @param entry] - entry]
+       * @returns void
+       */
       for (const [id, entry] of this.entries) {
         if (predicate(entry.data, id)) {
           results.push(entry.data);
@@ -235,6 +244,9 @@ export class RegistryManager {
     return this.registries.get(name) as BaseRegistry<T> | undefined;
   }
   
+  /** Loads all.
+   * @returns void
+   */
   async loadAll(): Promise<void> {
     log.info(`Loading ${this.registries.size} registries...`);
     
@@ -245,6 +257,9 @@ export class RegistryManager {
     log.info("All registries loaded");
   }
   
+  /** Saves all.
+   * @returns void
+   */
   async saveAll(): Promise<void> {
     log.info(`Saving ${this.registries.size} registries...`);
     
@@ -255,8 +270,16 @@ export class RegistryManager {
     log.info("All registries saved");
   }
   
+  /** Stats.
+   * @returns record<string, number>
+   */
   stats(): Record<string, number> {
     const stats: Record<string, number> = {};
+    /** For.
+     * @param const - const
+     * @param registry] - registry]
+     * @returns void
+     */
     for (const [name, registry] of this.registries) {
       stats[name] = registry.count();
     }

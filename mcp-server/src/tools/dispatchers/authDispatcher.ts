@@ -35,6 +35,7 @@ const ACTIONS = [
 
 /** Registers auth dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerAuthDispatcher(server: any): void {
   server.tool(

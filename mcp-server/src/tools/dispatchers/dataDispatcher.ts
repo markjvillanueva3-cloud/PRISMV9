@@ -37,6 +37,7 @@ function jsonResponse(data: any) {
 
 /** Registers data dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerDataDispatcher(server: any): void {
   server.tool(

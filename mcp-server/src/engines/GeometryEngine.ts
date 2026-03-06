@@ -116,10 +116,18 @@ export class GeometryEngine {
     return { id, type, params };
   }
 
+  /** Bounding Box.
+   * @param primitives - primitives
+   * @returns bounding box3 d
+   */
   boundingBox(primitives: GeomPrimitive[]): BoundingBox3D {
     let minX = Infinity, minY = Infinity, minZ = Infinity;
     let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const p of primitives) {
       const extents = this.primitiveExtents(p);
       minX = Math.min(minX, extents.min.x);
@@ -150,6 +158,10 @@ export class GeometryEngine {
 
   private primitiveExtents(p: GeomPrimitive): { min: GeomPoint; max: GeomPoint } {
     const pr = p.params;
+    /** Switch.
+     * @param p.type - p.type
+     * @returns void
+     */
     switch (p.type) {
       case "box": {
         const hw = this.num(pr, "width", 100) / 2, hh = this.num(pr, "height", 100) / 2, hd = this.num(pr, "depth", 100) / 2;
@@ -174,10 +186,20 @@ export class GeometryEngine {
     }
   }
 
+  /** Transform.
+   * @param primitive - primitive
+   * @param t - t
+   * @returns geom primitive
+   */
   transform(primitive: GeomPrimitive, t: GeomTransform): GeomPrimitive {
     return { ...primitive, transform: { ...primitive.transform, ...t } };
   }
 
+  /** Distance.
+   * @param a - a
+   * @param b - b
+   * @returns distance result
+   */
   distance(a: GeomPoint, b: GeomPoint): DistanceResult {
     const dx = b.x - a.x, dy = b.y - a.y, dz = (b.z ?? 0) - (a.z ?? 0);
     return {
@@ -187,8 +209,18 @@ export class GeometryEngine {
     };
   }
 
+  /** Boolean.
+   * @param op - op
+   * @param volumeA_mm3 - volume a_mm3
+   * @param volumeB_mm3 - volume b_mm3
+   * @returns boolean result
+   */
   boolean(op: BooleanOp, volumeA_mm3: number, volumeB_mm3: number): BooleanResult {
     let resultVol: number;
+    /** Switch.
+     * @param op - op
+     * @returns void
+     */
     switch (op) {
       case "union": resultVol = volumeA_mm3 + volumeB_mm3 * 0.95; break; // overlap estimate
       case "subtract": resultVol = Math.max(0, volumeA_mm3 - volumeB_mm3); break;
@@ -197,6 +229,11 @@ export class GeometryEngine {
     return { operation: op, success: true, result_volume_mm3: Math.round(resultVol), notes: [] };
   }
 
+  /** Offset2 D.
+   * @param contourLength_mm - contour length_mm
+   * @param offsetDistance_mm - offset distance_mm
+   * @returns offset result
+   */
   offset2D(contourLength_mm: number, offsetDistance_mm: number): OffsetResult {
     const selfIntersect = offsetDistance_mm < 0 && Math.abs(offsetDistance_mm) > contourLength_mm / (2 * Math.PI);
     return {
@@ -207,6 +244,11 @@ export class GeometryEngine {
     };
   }
 
+  /** Fillet.
+   * @param radius_mm - radius_mm
+   * @param edgeCount - edge count
+   * @returns fillet result
+   */
   fillet(radius_mm: number, edgeCount: number): FilletResult {
     return {
       success: radius_mm > 0 && edgeCount > 0,
@@ -216,12 +258,20 @@ export class GeometryEngine {
     };
   }
 
+  /** Analyze.
+   * @param primitives - primitives
+   * @returns geom analysis
+   */
   analyze(primitives: GeomPrimitive[]): GeomAnalysis {
     const bb = this.boundingBox(primitives);
     let totalVol = 0;
     let totalSA = 0;
     let smallest = Infinity;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const p of primitives) {
       const ext = this.primitiveExtents(p);
       const sx = ext.max.x - ext.min.x;

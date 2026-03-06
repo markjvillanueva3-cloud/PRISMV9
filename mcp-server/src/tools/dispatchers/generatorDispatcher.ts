@@ -27,6 +27,7 @@ function ok(data: any) {
 
 /** Registers generator dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerGeneratorDispatcher(server: any): void {
   server.tool(

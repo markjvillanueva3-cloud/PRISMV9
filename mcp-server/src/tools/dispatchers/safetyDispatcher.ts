@@ -81,6 +81,7 @@ const ALL_ACTIONS = [
 
 /** Registers safety dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerSafetyDispatcher(server: any): void {
   server.tool(

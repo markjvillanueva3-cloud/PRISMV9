@@ -150,18 +150,34 @@ export class ThermalSimEngine {
       T_workpiece_max > maxSafe * 0.7 ? "tensile" : T_workpiece_max < maxSafe * 0.3 ? "compressive" : "neutral";
 
     const recommendations: string[] = [];
+    /** If.
+     * @param burnRisk - burn risk
+     * @returns void
+     */
     if (burnRisk === "high" || burnRisk === "critical") {
       recommendations.push("REDUCE cutting speed or increase coolant flow to prevent thermal damage");
     }
+    /** If.
+     * @param whiteLayer - white layer
+     * @returns void
+     */
     if (whiteLayer) {
       recommendations.push("White layer risk on hardened steel — reduce speed, use CBN tooling");
     }
+    /** If.
+     * @param expansion - expansion
+     * @returns void
+     */
     if (expansion > 10) {
       recommendations.push(`Thermal expansion ${expansion.toFixed(1)}µm — allow warm-up cycle before finishing`);
     }
     if (T_tool > (TOOL_TEMP_MAX[input.tool_material] || 1000) * 0.8) {
       recommendations.push("Tool temperature approaching limit — reduce speed or improve coolant delivery");
     }
+    /** If.
+     * @param burnRisk - burn risk
+     * @returns void
+     */
     if (burnRisk === "none" && recommendations.length === 0) {
       recommendations.push("Thermal conditions within safe limits");
     }
@@ -189,16 +205,32 @@ export class ThermalSimEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; issues: string[] }
+   */
   validate(input: ThermalInput): { safe: boolean; issues: string[] } {
     const result = this.predict(input);
     const issues: string[] = [];
 
+    /** If.
+     * @param result.damage_risk.burn_risk - result.damage_risk.burn_risk
+     * @returns void
+     */
     if (result.damage_risk.burn_risk === "high" || result.damage_risk.burn_risk === "critical") {
       issues.push(`Burn risk: ${result.damage_risk.burn_risk} — workpiece temp ${result.max_workpiece_temp_C}°C exceeds safe limit ${result.damage_risk.max_safe_temp_C}°C`);
     }
+    /** If.
+     * @param result.damage_risk.white_layer_risk - result.damage_risk.white_layer_risk
+     * @returns void
+     */
     if (result.damage_risk.white_layer_risk) {
       issues.push("White layer formation risk — subsurface metallurgical damage");
     }
+    /** If.
+     * @param result.thermal_expansion_um - result.thermal_expansion_um
+     * @returns void
+     */
     if (result.thermal_expansion_um > 50) {
       issues.push(`Excessive thermal expansion: ${result.thermal_expansion_um}µm`);
     }
@@ -206,6 +238,10 @@ export class ThermalSimEngine {
     return { safe: issues.length === 0, issues };
   }
 
+  /** Optimize.
+   * @param input - input data
+   * @returns thermal optimization
+   */
   optimize(input: ThermalInput): ThermalOptimization {
     const current = this.predict(input);
     const changes: ThermalOptimization["changes"] = [];
@@ -213,6 +249,10 @@ export class ThermalSimEngine {
     let optimized = { ...input };
 
     // Strategy 1: Reduce speed if thermal damage risk
+    /** If.
+     * @param current.damage_risk.burn_risk - current.damage_risk.burn_risk
+     * @returns void
+     */
     if (current.damage_risk.burn_risk !== "none" && current.damage_risk.burn_risk !== "low") {
       const newSpeed = input.cutting_speed_mmin * 0.7;
       changes.push({ parameter: "cutting_speed", old_value: input.cutting_speed_mmin, new_value: Math.round(newSpeed), unit: "m/min" });
@@ -220,6 +260,10 @@ export class ThermalSimEngine {
     }
 
     // Strategy 2: Upgrade coolant
+    /** If.
+     * @param input.coolant - input.coolant
+     * @returns void
+     */
     if (input.coolant === "none" || input.coolant === "air") {
       changes.push({ parameter: "coolant", old_value: 0, new_value: 1, unit: "flood→mist" });
       optimized.coolant = "mist";

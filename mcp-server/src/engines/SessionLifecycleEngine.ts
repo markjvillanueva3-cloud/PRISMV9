@@ -96,6 +96,10 @@ export class SessionLifecycleEngine {
   }
 
   static getInstance(): SessionLifecycleEngine {
+    /** If.
+     * @param !SessionLifecycleEngine.instance - ! session lifecycle engine.instance
+     * @returns void
+     */
     if (!SessionLifecycleEngine.instance) {
       SessionLifecycleEngine.instance = new SessionLifecycleEngine();
     }
@@ -119,6 +123,11 @@ export class SessionLifecycleEngine {
 
   // ─── Metric Recording (called by cadence) ──────────────────────────────────
 
+  /** Record Tool Call.
+   * @param success - success
+   * @param latencyMs - latency ms
+   * @returns void
+   */
   recordToolCall(success: boolean, latencyMs: number): void {
     this.metrics.tool_calls++;
     if (success) this.metrics.successful_calls++;
@@ -127,30 +136,65 @@ export class SessionLifecycleEngine {
     this.metrics.avg_latency_ms = this.metrics.total_latency_ms / this.metrics.tool_calls;
   }
 
+  /** Record Hook Execution.
+   * @param blocked - blocked
+   * @returns void
+   */
   recordHookExecution(blocked: boolean): void {
     this.metrics.hook_executions++;
     if (blocked) this.metrics.hook_blocks++;
   }
 
+  /** Record Skill Injection.
+   * @returns void { this.metrics.skill_injections++; }
+   */
   recordSkillInjection(): void { this.metrics.skill_injections++; }
+  /** Record Template Match.
+   * @returns void { this.metrics.template_matches++; }
+   */
   recordTemplateMatch(): void { this.metrics.template_matches++; }
+  /** Record Cadence Tick.
+   * @returns void { this.metrics.cadence_ticks++; }
+   */
   recordCadenceTick(): void { this.metrics.cadence_ticks++; }
+  /** Record Checkpoint.
+   * @returns void { this.metrics.checkpoints_saved++; }
+   */
   recordCheckpoint(): void { this.metrics.checkpoints_saved++; }
+  /** Record Compaction Recovery.
+   * @returns void { this.metrics.compaction_recoveries++; }
+   */
   recordCompactionRecovery(): void { this.metrics.compaction_recoveries++; }
+  /** Record Error.
+   * @param resolved - resolved
+   * @returns void
+   */
   recordError(resolved: boolean): void {
     this.metrics.errors_captured++;
     if (resolved) this.metrics.errors_resolved++;
   }
+  /** Record Task Progress.
+   * @param completed - completed
+   * @param total - total
+   * @returns void
+   */
   recordTaskProgress(completed: number, total: number): void {
     this.metrics.tasks_completed = completed;
     this.metrics.tasks_total = total;
   }
+  /** Record Pressure.
+   * @param pct - pct
+   * @returns void
+   */
   recordPressure(pct: number): void {
     if (pct > this.metrics.peak_pressure_pct) this.metrics.peak_pressure_pct = pct;
   }
 
   // ─── Quality Scoring ────────────────────────────────────────────────────────
 
+  /** Computes quality score.
+   * @returns session quality score
+   */
   computeQualityScore(): SessionQualityScore {
     const m = this.metrics;
 
@@ -227,10 +271,23 @@ export class SessionLifecycleEngine {
 
   // ─── Incremental Prep (crash recovery) ──────────────────────────────────────
 
+  /** Checks whether should write incremental prep.
+   * @param callNumber - call number
+   * @returns true if condition is met
+   */
   shouldWriteIncrementalPrep(callNumber: number): boolean {
     return callNumber > 0 && callNumber % this.PREP_INTERVAL_CALLS === 0 && callNumber !== this.lastPrepWrite;
   }
 
+  /** Write Incremental Prep.
+   * @param callNumber - call number
+   * @param phase - phase
+   * @param quickResume - quick resume
+   * @param pendingTasks - pending tasks
+   * @param keyFindings - key findings
+   * @param activeFiles - active files
+   * @returns void
+   */
   writeIncrementalPrep(callNumber: number, phase: string, quickResume: string, pendingTasks: string[], keyFindings: string[], activeFiles: string[]): void {
     try {
       this.lastPrepWrite = callNumber;
@@ -252,6 +309,13 @@ export class SessionLifecycleEngine {
 
   // ─── Final Handoff Generation ──────────────────────────────────────────────
 
+  /** Generates final handoff.
+   * @param phase - phase
+   * @param quickResume - quick resume
+   * @param pendingTasks - pending tasks
+   * @param keyFindings - key findings
+   * @returns record<string, any>
+   */
   generateFinalHandoff(phase: string, quickResume: string, pendingTasks: string[], keyFindings: string[]): Record<string, any> {
     const quality = this.computeQualityScore();
     const handoff = {
@@ -296,8 +360,17 @@ export class SessionLifecycleEngine {
 
   // ─── Getters ────────────────────────────────────────────────────────────────
 
+  /** Gets metrics.
+   * @returns session metrics { return { ...this.metrics }; }
+   */
   getMetrics(): SessionMetrics { return { ...this.metrics }; }
+  /** Gets session id.
+   * @returns string { return this.metrics.session_id; }
+   */
   getSessionId(): string { return this.metrics.session_id; }
+  /** Gets call count.
+   * @returns number { return this.metrics.tool_calls; }
+   */
   getCallCount(): number { return this.metrics.tool_calls; }
 }
 
@@ -306,6 +379,7 @@ export class SessionLifecycleEngine {
 /** Record Session Tool Call.
  * @param success - whether success
  * @param latencyMs - latency ms value
+  * @returns void
  */
 export function recordSessionToolCall(success: boolean, latencyMs: number): void {
   try { SessionLifecycleEngine.getInstance().recordToolCall(success, latencyMs); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -313,18 +387,21 @@ export function recordSessionToolCall(success: boolean, latencyMs: number): void
 
 /** Record Session Hook.
  * @param blocked - whether blocked
+  * @returns void
  */
 export function recordSessionHook(blocked: boolean): void {
   try { SessionLifecycleEngine.getInstance().recordHookExecution(blocked); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 /** Record Session Skill Injection.
+  * @returns void
  */
 export function recordSessionSkillInjection(): void {
   try { SessionLifecycleEngine.getInstance().recordSkillInjection(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 /** Record Session Template Match.
+  * @returns void
  */
 export function recordSessionTemplateMatch(): void {
   try { SessionLifecycleEngine.getInstance().recordTemplateMatch(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -332,18 +409,21 @@ export function recordSessionTemplateMatch(): void {
 
 /** Record Session Pressure.
  * @param pct - pct value
+  * @returns void
  */
 export function recordSessionPressure(pct: number): void {
   try { SessionLifecycleEngine.getInstance().recordPressure(pct); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 /** Record Session Checkpoint.
+  * @returns void
  */
 export function recordSessionCheckpoint(): void {
   try { SessionLifecycleEngine.getInstance().recordCheckpoint(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
 /** Record Session Compaction Recovery.
+  * @returns void
  */
 export function recordSessionCompactionRecovery(): void {
   try { SessionLifecycleEngine.getInstance().recordCompactionRecovery(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -351,6 +431,7 @@ export function recordSessionCompactionRecovery(): void {
 
 /** Record Session Error.
  * @param resolved - whether resolved
+  * @returns void
  */
 export function recordSessionError(resolved: boolean): void {
   try { SessionLifecycleEngine.getInstance().recordError(resolved); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -370,6 +451,7 @@ export function getSessionQualityScore(): SessionQualityScore | null {
  * @param pendingTasks - pending tasks
  * @param keyFindings - key findings
  * @param activeFiles - active files
+  * @returns void
  */
 export function writeSessionIncrementalPrep(
   callNumber: number, phase: string, quickResume: string,

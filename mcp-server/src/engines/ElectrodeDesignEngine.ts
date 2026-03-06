@@ -78,6 +78,10 @@ export class ElectrodeDesignEngine {
     const stages: ElectrodeDesignResult["electrode_stages"] = [];
     let totalElectrodes = 0;
 
+    /** If.
+     * @param input.surface_finish_target_Ra_um - input.surface_finish_target_ ra_um
+     * @returns void
+     */
     if (input.surface_finish_target_Ra_um > 6.3) {
       // Rough only
       stages.push({ stage: "rough", gap_mm: GAP_BY_STAGE.rough, electrode_count: 1 });
@@ -121,18 +125,38 @@ export class ElectrodeDesignEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param input.cavity_depth_mm - input.cavity_depth_mm
+     * @returns void
+     */
     if (input.cavity_depth_mm > input.cavity_width_mm * 3) {
       recs.push("Deep narrow cavity — use orbital motion and through-electrode flushing");
     }
+    /** If.
+     * @param wearRatio - wear ratio
+     * @returns void
+     */
     if (wearRatio > 30) {
       recs.push(`High electrode wear (${wearRatio}%) — consider copper-tungsten for reduced wear`);
     }
+    /** If.
+     * @param input.tolerance_mm - input.tolerance_mm
+     * @returns void
+     */
     if (input.tolerance_mm < 0.02) {
       recs.push("Tight tolerance (<0.02mm) — use separate finish electrode with orbital compensation");
     }
+    /** If.
+     * @param input.num_cavities - input.num_cavities
+     * @returns void
+     */
     if (input.num_cavities > 4) {
       recs.push("Multiple cavities — consider gang electrode or pallet system for automation");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Electrode design within standard parameters — proceed");
     }

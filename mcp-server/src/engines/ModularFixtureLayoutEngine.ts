@@ -111,6 +111,10 @@ export class ModularFixtureLayoutEngine {
     locators.push({ id: "L6", type: "edge_stop", grid_x: 0, grid_y: Math.floor(ySlots / 2), constrains: ["X trans"] });
 
     // Extra supports for thin-wall parts
+    /** If.
+     * @param input.is_thin_wall - input.is_thin_wall
+     * @returns void
+     */
     if (input.is_thin_wall) {
       locators.push({ id: "L7", type: "rest_pad", grid_x: Math.floor(xSlots / 2), grid_y: Math.floor(ySlots / 2), constrains: ["support"] });
     }
@@ -122,6 +126,10 @@ export class ModularFixtureLayoutEngine {
     const numClamps = Math.max(2, Math.ceil(requiredForce / perClampForce));
 
     const clamps: ClampPoint[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < numClamps; i++) {
       const gx = Math.round((i / (numClamps - 1 || 1)) * xSlots);
       clamps.push({

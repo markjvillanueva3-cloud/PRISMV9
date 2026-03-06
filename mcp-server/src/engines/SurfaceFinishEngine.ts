@@ -90,6 +90,10 @@ export class SurfaceFinishEngine {
     const corrections: { factor: string; multiplier: number }[] = [];
     let theoreticalRa: number;
 
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "turning" || input.process === "reaming") {
       // Turning: Ra = f² / (32 × r)
       const f = input.feed_per_rev_mm || 0.15;
@@ -109,6 +113,10 @@ export class SurfaceFinishEngine {
     let correctedRa = theoreticalRa;
 
     // Material correction
+    /** If.
+     * @param input.iso_material_group - input.iso_material_group
+     * @returns void
+     */
     if (input.iso_material_group) {
       const matCorr = MATERIAL_CORRECTION[input.iso_material_group] || 1.0;
       corrections.push({ factor: "material", multiplier: matCorr });
@@ -116,6 +124,10 @@ export class SurfaceFinishEngine {
     }
 
     // Tool wear correction
+    /** If.
+     * @param input.tool_wear_pct - input.tool_wear_pct
+     * @returns void
+     */
     if (input.tool_wear_pct !== undefined && input.tool_wear_pct > 0) {
       const wearCorr = 1 + (input.tool_wear_pct / 100) * 0.8; // up to 1.8× at 100% wear
       corrections.push({ factor: "tool_wear", multiplier: Math.round(wearCorr * 100) / 100 });
@@ -123,6 +135,10 @@ export class SurfaceFinishEngine {
     }
 
     // Coolant correction
+    /** If.
+     * @param input.coolant - input.coolant
+     * @returns void
+     */
     if (input.coolant) {
       const coolantCorr = input.coolant === "flood" ? 0.85 : input.coolant === "mist" ? 0.92 : input.coolant === "air" ? 0.98 : 1.0;
       corrections.push({ factor: "coolant", multiplier: coolantCorr });
@@ -130,6 +146,10 @@ export class SurfaceFinishEngine {
     }
 
     // Speed correction (higher speed generally improves finish)
+    /** If.
+     * @param input.cutting_speed_mmin - input.cutting_speed_mmin
+     * @returns void
+     */
     if (input.cutting_speed_mmin && input.cutting_speed_mmin > 150) {
       const speedCorr = Math.max(0.8, 1 - (input.cutting_speed_mmin - 150) / 1000);
       corrections.push({ factor: "cutting_speed", multiplier: Math.round(speedCorr * 100) / 100 });
@@ -140,12 +160,24 @@ export class SurfaceFinishEngine {
     const range = PROCESS_RANGES[input.process];
     const recommendations: string[] = [];
 
+    /** If.
+     * @param ra - ra
+     * @returns void
+     */
     if (ra > range.max) {
       recommendations.push("Predicted Ra exceeds typical range — reduce feed or increase tool radius");
     }
+    /** If.
+     * @param input.tool_wear_pct - input.tool_wear_pct
+     * @returns void
+     */
     if (input.tool_wear_pct && input.tool_wear_pct > 60) {
       recommendations.push("Tool wear >60% — replace tool for better surface finish");
     }
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "milling" && input.feed_per_tooth_mm && input.feed_per_tooth_mm > 0.2) {
       recommendations.push("High feed per tooth — consider finishing pass with lower feed");
     }
@@ -163,6 +195,10 @@ export class SurfaceFinishEngine {
     };
   }
 
+  /** Achievable.
+   * @param process - process
+   * @returns achievable finish[]
+   */
   achievable(process?: SurfaceProcess): AchievableFinish[] {
     const processes = process ? [process] : Object.keys(PROCESS_RANGES) as SurfaceProcess[];
     return processes.map(p => {
@@ -176,9 +212,17 @@ export class SurfaceFinishEngine {
     });
   }
 
+  /** Compare.
+   * @param inputs - inputs
+   * @returns { inputs:  surface finish input[]; results:  surface finish result[]; best_index: number }
+   */
   compare(inputs: SurfaceFinishInput[]): { inputs: SurfaceFinishInput[]; results: SurfaceFinishResult[]; best_index: number } {
     const results = inputs.map(i => this.predict(i));
     let bestIdx = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < results.length; i++) {
       if (results[i].ra_um < results[bestIdx].ra_um) bestIdx = i;
     }

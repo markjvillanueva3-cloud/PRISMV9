@@ -132,6 +132,9 @@ function mmpmToIpm(mmpm: number): number {
 /**
  * Build a professional setup sheet from raw IntelligenceEngine setup_sheet output.
  * This is the main transformation function.
+  * @param rawData - raw data
+  * @param options - configuration options
+  * @returns setup sheet
  */
 export function buildSetupSheet(
   rawData: Record<string, any>,
@@ -513,6 +516,9 @@ function renderMarkdown(
  * Actions:
  *   setup_sheet_format — Transform raw setup data into professional format
  *   setup_sheet_template — Get empty template for manual filling
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function setupSheetEngine(action: string, params: Record<string, any>): any {
   switch (action) {

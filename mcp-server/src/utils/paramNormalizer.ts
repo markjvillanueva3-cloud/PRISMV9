@@ -70,6 +70,8 @@ for (const [snake, camel] of Object.entries(PARAM_ALIASES)) {
  * Normalize params: convert any snake_case keys to their camelCase equivalents.
  * Does NOT remove original keys — adds camelCase versions alongside.
  * Returns new object (does not mutate input).
+  * @param params - configuration options
+  * @returns result object
  */
 export function normalizeParams(params: Record<string, any>): Record<string, any> {
   if (!params || typeof params !== "object") return params;
@@ -122,6 +124,8 @@ export function normalizeParams(params: Record<string, any>): Record<string, any
 
 /**
  * Normalize params to snake_case (for engines that expect snake_case).
+  * @param params - configuration options
+  * @returns result object
  */
 export function normalizeParamsSnake(params: Record<string, any>): Record<string, any> {
   if (!params || typeof params !== "object") return params;

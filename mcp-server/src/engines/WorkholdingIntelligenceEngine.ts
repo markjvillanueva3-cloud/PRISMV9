@@ -474,6 +474,7 @@ export const WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Static accessor for the extracted workholding-intelligence source file catalog.
+  * @returns typeof  w o r k h o l d i n g_ i n t e l l i g e n c e_ s o u r c e_ f i l e_ c a t a l o g
  */
 export function getWorkholdingIntelligenceSourceFileCatalog(): typeof WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG {
   return WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG;

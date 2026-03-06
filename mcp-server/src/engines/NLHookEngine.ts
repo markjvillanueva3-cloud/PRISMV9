@@ -214,11 +214,18 @@ export class NLHookEngine {
   private static _cachedConfig: NLHookConfig | null = null;
   private static _cachedRegistryData: Map<string, NLHookRecord> | null = null;
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
     ensureStateDir();
 
     // Reuse static cache if available (same process, avoids disk I/O)
+    /** If.
+     * @param NLHookEngine._cachedConfig - n l hook engine._cached config
+     * @returns void
+     */
     if (NLHookEngine._cachedConfig && NLHookEngine._cachedRegistryData) {
       this.config = { ...NLHookEngine._cachedConfig };
       this.registry = new Map(NLHookEngine._cachedRegistryData);
@@ -276,9 +283,17 @@ export class NLHookEngine {
   // PHASE 1: PARSER — Natural language → HookSpec
   // ==========================================================================
 
+  /** Parse.
+   * @param naturalLanguage - natural language
+   * @returns n l parse result
+   */
   parse(naturalLanguage: string): NLParseResult {
     this.init();
     const input = naturalLanguage.trim();
+    /** If.
+     * @param !input - !input
+     * @returns void
+     */
     if (!input || input.length < 10) {
       return { success: false, spec: null, confidence: 'low', ambiguities: [],
         suggestions: ['Please provide a more detailed description of the hook behavior.'],
@@ -294,6 +309,10 @@ export class NLHookEngine {
     for (const [keyword, p] of Object.entries(PHASE_KEYWORDS)) {
       if (lower.includes(keyword)) { phase = p; break; }
     }
+    /** If.
+     * @param phase - phase
+     * @returns void
+     */
     if (phase === 'on-tool-call') {
       ambiguities.push('Could not determine when this hook should fire. Defaulting to on-tool-call.');
     }
@@ -322,9 +341,21 @@ export class NLHookEngine {
 
     // 5. Extract conditions from template patterns
     const conditions: HookCondition[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tp of ALL_TEMPLATE_PATTERNS) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const pattern of tp.patterns) {
         const match = input.match(pattern);
+        /** If.
+         * @param match - match
+         * @returns void
+         */
         if (match) {
           const cond = tp.build(match, input);
           if (cond) conditions.push(cond);
@@ -360,6 +391,10 @@ export class NLHookEngine {
 
     // 10. Determine confidence
     let confidence: ParseConfidence = 'high';
+    /** If.
+     * @param conditions.length - conditions.length
+     * @returns void
+     */
     if (conditions.length === 0) {
       confidence = 'low';
       ambiguities.push('No conditions could be extracted. Hook will fire unconditionally on the detected phase.');
@@ -386,6 +421,10 @@ export class NLHookEngine {
   // PHASE 2: COMPILER — HookSpec → executable handler code
   // ==========================================================================
 
+  /** Compile.
+   * @param spec - spec
+   * @returns compile result
+   */
   compile(spec: HookSpec): CompileResult {
     this.init();
     const warnings: string[] = [];
@@ -393,8 +432,16 @@ export class NLHookEngine {
 
     // Build condition function from spec conditions
     const conditionParts: string[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const cond of spec.conditions) {
       const code = this.compileCondition(cond);
+      /** If.
+       * @param code - code
+       * @returns void
+       */
       if (code) {
         conditionParts.push(code);
       } else {
@@ -407,7 +454,15 @@ export class NLHookEngine {
 
     // Build handler function
     const actionParts: string[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const action of spec.actions) {
+      /** Switch.
+       * @param action.type - action.type
+       * @returns void
+       */
       switch (action.type) {
         case 'warn':
           actionParts.push(`issues.push(${JSON.stringify(action.message || 'NL hook triggered')});`);
@@ -460,8 +515,16 @@ export class NLHookEngine {
 
   private compileCondition(cond: HookCondition): string | null {
     const f = `ctx?.${cond.field.replace(/\./g, '?.')}`;
+    /** Switch.
+     * @param cond.type - cond.type
+     * @returns void
+     */
     switch (cond.type) {
       case 'threshold':
+        /** Switch.
+         * @param cond.operator - cond.operator
+         * @returns void
+         */
         switch (cond.operator) {
           case 'gt': return `(${f} > ${JSON.stringify(cond.value)})`;
           case 'gte': return `(${f} >= ${JSON.stringify(cond.value)})`;
@@ -500,6 +563,10 @@ export class NLHookEngine {
   // PHASE 3: VALIDATOR — Static analysis of compiled code
   // ==========================================================================
 
+  /** Validate.
+   * @param compileResult - compile result
+   * @returns validation result
+   */
   validate(compileResult: CompileResult): ValidationResult {
     const violations: ValidationViolation[] = [];
     const checks_run: string[] = [];
@@ -526,6 +593,12 @@ export class NLHookEngine {
       has_eval: false, has_process_access: false, estimated_complexity: 1, max_nesting_depth: 0,
     };
 
+    /** For.
+     * @param const - const
+     * @param rule - rule
+     * @param message] - message]
+     * @returns void
+     */
     for (const [pattern, rule, message] of dangerousPatterns) {
       checks_run.push(rule);
       if (pattern.test(code)) {
@@ -543,24 +616,40 @@ export class NLHookEngine {
     const branches = (code.match(/\bif\b|\belse\b|\bcase\b|\b\?\b|\b&&\b|\b\|\|\b/g) || []).length;
     analysis.estimated_complexity = 1 + branches;
     checks_run.push('complexity_check');
+    /** If.
+     * @param analysis.estimated_complexity - analysis.estimated_complexity
+     * @returns void
+     */
     if (analysis.estimated_complexity > 15) {
       violations.push({ rule: 'max_complexity', severity: 'warning', message: `Estimated complexity ${analysis.estimated_complexity} exceeds recommended max of 15` });
     }
 
     // Check nesting depth
     let depth = 0, maxDepth = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ch of code) {
       if (ch === '{') { depth++; maxDepth = Math.max(maxDepth, depth); }
       if (ch === '}') depth--;
     }
     analysis.max_nesting_depth = maxDepth;
     checks_run.push('nesting_depth_check');
+    /** If.
+     * @param maxDepth - max depth
+     * @returns void
+     */
     if (maxDepth > 5) {
       violations.push({ rule: 'max_nesting', severity: 'warning', message: `Nesting depth ${maxDepth} exceeds recommended max of 5` });
     }
 
     // Code length check
     checks_run.push('code_length_check');
+    /** If.
+     * @param code.length - code.length
+     * @returns void
+     */
     if (code.length > 5000) {
       violations.push({ rule: 'max_code_length', severity: 'warning', message: 'Generated code exceeds 5000 characters' });
     }
@@ -573,12 +662,21 @@ export class NLHookEngine {
   // PHASE 4: SANDBOX — Boundary value testing
   // ==========================================================================
 
+  /** Sandbox.
+   * @param spec - spec
+   * @param compileResult - compile result
+   * @returns sandbox result
+   */
   sandbox(spec: HookSpec, compileResult: CompileResult): SandboxResult {
     const testCases = this.generateTestCases(spec);
     const results: SandboxTestResult[] = [];
     let timeoutExceeded = false;
     const startTime = Date.now();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tc of testCases) {
       if (Date.now() - startTime > this.config.sandbox_timeout_ms * testCases.length) {
         timeoutExceeded = true;
@@ -622,7 +720,15 @@ export class NLHookEngine {
 
   private generateTestCases(spec: HookSpec): SandboxTestCase[] {
     const cases: SandboxTestCase[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const cond of spec.conditions) {
+      /** Switch.
+       * @param cond.type - cond.type
+       * @returns void
+       */
       switch (cond.type) {
         case 'threshold': {
           const val = cond.value as number;
@@ -650,6 +756,10 @@ export class NLHookEngine {
         }
         case 'enum': {
           const vals = cond.value as string[];
+          /** If.
+           * @param vals.length - vals.length
+           * @returns void
+           */
           if (vals.length > 0) {
             cases.push({ name: `${cond.field} = ${vals[0]} (in set)`, input: { [cond.field]: vals[0] },
               expected_outcome: 'warn', is_boundary: false });
@@ -672,6 +782,10 @@ export class NLHookEngine {
       }
     }
     // If no conditions, add a basic fire test
+    /** If.
+     * @param cases.length - cases.length
+     * @returns void
+     */
     if (cases.length === 0) {
       cases.push({ name: 'unconditional fire', input: {}, expected_outcome: 'warn', is_boundary: false });
     }
@@ -684,6 +798,10 @@ export class NLHookEngine {
     for (const [key, value] of Object.entries(input)) {
       const parts = key.split('.');
       let obj: any = ctx;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < parts.length - 1; i++) {
         if (!obj[parts[i]] || typeof obj[parts[i]] !== 'object') obj[parts[i]] = {};
         obj = obj[parts[i]];
@@ -697,19 +815,38 @@ export class NLHookEngine {
   // PHASE 5: DEPLOYER — Live registration with shadow + rollback
   // ==========================================================================
 
+  /** Deploy.
+   * @param spec - spec
+   * @param compileResult - compile result
+   * @param validationResult - validation result
+   * @param sandboxResult - sandbox result
+   * @returns deploy result
+   */
   deploy(spec: HookSpec, compileResult: CompileResult, validationResult: ValidationResult, sandboxResult: SandboxResult): DeployResult {
     this.init();
     const hookId = `nl-${randomUUID().slice(0, 8)}`;
 
     // Gate checks
+    /** If.
+     * @param !validationResult.passed - !validation result.passed
+     * @returns void
+     */
     if (!validationResult.passed) {
       return { status: 'failed', hook_id: hookId, registered: false, shadow_tested: false,
         error_count: 0, rollback_reason: 'Validation failed — code contains dangerous patterns', approval_required: false };
     }
+    /** If.
+     * @param !sandboxResult.passed - !sandbox result.passed
+     * @returns void
+     */
     if (!sandboxResult.passed) {
       return { status: 'failed', hook_id: hookId, registered: false, shadow_tested: false,
         error_count: 0, rollback_reason: `Sandbox failed — ${sandboxResult.failed_tests + sandboxResult.error_tests}/${sandboxResult.total_tests} tests failed`, approval_required: false };
     }
+    /** If.
+     * @param compileResult.requires_approval - compile result.requires_approval
+     * @returns void
+     */
     if (compileResult.requires_approval) {
       // Store as pending, don't register
       const record = this.buildRecord(hookId, spec, compileResult, validationResult, sandboxResult, 'pending_approval');
@@ -718,6 +855,10 @@ export class NLHookEngine {
       return { status: 'pending_approval', hook_id: hookId, registered: false, shadow_tested: true,
         error_count: 0, approval_required: true };
     }
+    /** If.
+     * @param this.registry.size - this.registry.size
+     * @returns void
+     */
     if (this.registry.size >= this.config.max_hooks) {
       return { status: 'failed', hook_id: hookId, registered: false, shadow_tested: true,
         error_count: 0, rollback_reason: `Max NL hooks limit reached (${this.config.max_hooks})`, approval_required: false };
@@ -803,6 +944,10 @@ export class NLHookEngine {
     // Phase 1: Parse
     const parse = this.parse(naturalLanguage);
     const t1 = Date.now();
+    /** If.
+     * @param !parse.success - !parse.success
+     * @returns void
+     */
     if (!parse.success || !parse.spec) {
       log.info(`[NLHook] Pipeline STOPPED at parse (${t1 - t0}ms)`);
       return { parse, stage_failed: 'parse', telemetry: { parse_ms: t1 - t0, total_ms: t1 - t0 } };
@@ -811,6 +956,10 @@ export class NLHookEngine {
     // Phase 2: Compile
     const compile = this.compile(parse.spec);
     const t2 = Date.now();
+    /** If.
+     * @param !compile.success - !compile.success
+     * @returns void
+     */
     if (!compile.success) {
       log.info(`[NLHook] Pipeline STOPPED at compile (parse=${t1 - t0}ms, compile=${t2 - t1}ms)`);
       return { parse, compile, stage_failed: 'compile', telemetry: { parse_ms: t1 - t0, compile_ms: t2 - t1, total_ms: t2 - t0 } };
@@ -819,6 +968,10 @@ export class NLHookEngine {
     // Phase 3: Validate
     const validation = this.validate(compile);
     const t3 = Date.now();
+    /** If.
+     * @param !validation.passed - !validation.passed
+     * @returns void
+     */
     if (!validation.passed) {
       log.info(`[NLHook] Pipeline STOPPED at validate (parse=${t1 - t0}ms, compile=${t2 - t1}ms, validate=${t3 - t2}ms)`);
       return { parse, compile, validation, stage_failed: 'validate', telemetry: { parse_ms: t1 - t0, compile_ms: t2 - t1, validate_ms: t3 - t2, total_ms: t3 - t0 } };
@@ -827,6 +980,10 @@ export class NLHookEngine {
     // Phase 4: Sandbox
     const sandbox = this.sandbox(parse.spec, compile);
     const t4 = Date.now();
+    /** If.
+     * @param !sandbox.passed - !sandbox.passed
+     * @returns void
+     */
     if (!sandbox.passed) {
       log.info(`[NLHook] Pipeline STOPPED at sandbox (parse=${t1 - t0}ms, compile=${t2 - t1}ms, validate=${t3 - t2}ms, sandbox=${t4 - t3}ms)`);
       return { parse, compile, validation, sandbox, stage_failed: 'sandbox', telemetry: { parse_ms: t1 - t0, compile_ms: t2 - t1, validate_ms: t3 - t2, sandbox_ms: t4 - t3, total_ms: t4 - t0 } };
@@ -843,10 +1000,18 @@ export class NLHookEngine {
   approve(hookId: string, approver: string): DeployResult {
     this.init();
     const record = this.registry.get(hookId);
+    /** If.
+     * @param !record - !record
+     * @returns void
+     */
     if (!record) {
       return { status: 'failed', hook_id: hookId, registered: false, shadow_tested: false,
         error_count: 0, rollback_reason: 'Hook not found', approval_required: false };
     }
+    /** If.
+     * @param record.deploy_status - record.deploy_status
+     * @returns void
+     */
     if (record.deploy_status !== 'pending_approval') {
       return { status: 'failed', hook_id: hookId, registered: false, shadow_tested: false,
         error_count: 0, rollback_reason: `Hook status is '${record.deploy_status}', not pending_approval`, approval_required: false };
@@ -895,6 +1060,10 @@ export class NLHookEngine {
     if (!record || record.deploy_status !== 'deployed') return { rolled_back: false };
 
     const updated: NLHookRecord = { ...record, error_count: record.error_count + 1, updated_at: Date.now() };
+    /** If.
+     * @param updated.error_count - updated.error_count
+     * @returns void
+     */
     if (updated.error_count >= updated.auto_rollback_threshold) {
       // Auto-rollback
       try { hookExecutor.unregister?.(hookId); } catch { /* */ }

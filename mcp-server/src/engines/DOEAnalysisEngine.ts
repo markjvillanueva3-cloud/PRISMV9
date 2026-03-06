@@ -169,6 +169,8 @@ function interactionColumn(
 
 /**
  * Analyze a factorial experiment: compute effects, ANOVA, model
+  * @param input - input data
+  * @returns d o e result
  */
 export function analyzeFactorial(input: DOEInput): DOEResult {
   const { factors, runs } = input;
@@ -359,6 +361,8 @@ export function analyzeFactorial(input: DOEInput): DOEResult {
 
 /**
  * Generate a full factorial 2^k design matrix
+  * @param factorNames - factor names
+  * @returns design matrix
  */
 export function generateFullFactorial(
   factorNames: string[]
@@ -386,6 +390,8 @@ export function generateFullFactorial(
 /**
  * Generate a half-fraction 2^{k-1} design with highest resolution
  * Defining relation: I = ±ABC...K (all factors)
+  * @param factorNames - factor names
+  * @returns fractional design result
  */
 export function generateFractionalFactorial(
   factorNames: string[]

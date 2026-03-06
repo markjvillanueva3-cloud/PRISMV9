@@ -15,6 +15,7 @@ const CODE_ACTIONS = new Set(["generate_thread_gcode"]);
 
 /** Registers thread dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerThreadDispatcher(server: any): void {
   server.tool(

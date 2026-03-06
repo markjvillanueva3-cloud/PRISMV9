@@ -6,6 +6,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates learning router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createLearningRouter(callTool: CallToolFn): Router {
   const router = Router();
 

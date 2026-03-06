@@ -127,6 +127,10 @@ export class TurningForceEngine {
     kc *= rakeCorrection(gamma);
 
     // Parting/grooving correction (higher force due to constrained chip flow)
+    /** If.
+     * @param operation - operation
+     * @returns void
+     */
     if (operation === "parting" || operation === "grooving") {
       kc *= 1.25;
     }
@@ -158,6 +162,10 @@ export class TurningForceEngine {
     const isSafe = powerUtil < 90 && Fc < 10000;
 
     // ── 11. Recommendations ──
+    /** If.
+     * @param powerUtil - power util
+     * @returns void
+     */
     if (powerUtil > 85) {
       recs.push(
         `SAFETY: Power utilization ${powerUtil.toFixed(0)}% — approaching machine limit. `
@@ -170,6 +178,10 @@ export class TurningForceEngine {
       );
     }
 
+    /** If.
+     * @param h - h
+     * @returns void
+     */
     if (h < 0.05) {
       recs.push(
         `Chip thickness ${(h * 1000).toFixed(0)}µm very thin — `
@@ -177,6 +189,10 @@ export class TurningForceEngine {
       );
     }
 
+    /** If.
+     * @param operation - operation
+     * @returns void
+     */
     if (operation === "parting" && f > 0.2) {
       recs.push(
         `Parting at f=${f} mm/rev is aggressive — `
@@ -184,6 +200,10 @@ export class TurningForceEngine {
       );
     }
 
+    /** If.
+     * @param iso - iso
+     * @returns void
+     */
     if (iso === "S" && Vc > 60) {
       recs.push(
         `Superalloy at Vc=${Vc} m/min — verify tool grade `
@@ -191,6 +211,10 @@ export class TurningForceEngine {
       );
     }
 
+    /** If.
+     * @param iso - iso
+     * @returns void
+     */
     if (iso === "H" && Vc > 150) {
       recs.push(
         `Hardened steel at Vc=${Vc} m/min — `
@@ -198,6 +222,10 @@ export class TurningForceEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Turning parameters nominal — Fc=${Math.round(Fc)}N, `

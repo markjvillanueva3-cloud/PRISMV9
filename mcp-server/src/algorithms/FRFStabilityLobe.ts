@@ -91,11 +91,23 @@ export interface FRFStabilityLobeOutput extends WithWarnings {
  */
 export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFStabilityLobeOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: FRFStabilityLobeInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.frf_data?.length - !input.frf_data?.length
+     * @returns void
+     */
     if (!input.frf_data?.length || input.frf_data.length < 10) {
       issues.push({ field: "frf_data", message: "At least 10 FRF data points required", severity: "error" });
     }
+    /** If.
+     * @param !input.n_flutes - !input.n_flutes
+     * @returns void
+     */
     if (!input.n_flutes || input.n_flutes < 1) {
       issues.push({ field: "n_flutes", message: "Must be >= 1", severity: "error" });
     }
@@ -108,6 +120,10 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns f r f stability lobe output
+   */
   calculate(input: FRFStabilityLobeInput): FRFStabilityLobeOutput {
     const warnings: string[] = [];
     const Nt = input.n_flutes;
@@ -133,8 +149,16 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
     let criticalFreq = 0;
     const nModes = this.countModes(input.frf_data, unitScale);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const pt of input.frf_data) {
       const realG = pt.compliance.real * unitScale * 1e3; // convert to mm/N
+      /** If.
+       * @param realG - real g
+       * @returns void
+       */
       if (realG < minRealG) {
         minRealG = realG;
         criticalFreq = pt.frequency;
@@ -146,7 +170,15 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
     let globalMinDepth = Infinity;
     let speedAtMinDepth = speedMin;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iLobe = 0; iLobe < nLobes; iLobe++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let iSpeed = 0; iSpeed < nSpeedPts; iSpeed++) {
         const speed = speedMin + (iSpeed / (nSpeedPts - 1)) * (speedMax - speedMin);
         const toothPassFreq = speed * Nt / 60; // Hz
@@ -173,6 +205,10 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
             lobe_number: iLobe,
           });
 
+          /** If.
+           * @param aLim - a lim
+           * @returns void
+           */
           if (aLim < globalMinDepth) {
             globalMinDepth = aLim;
             speedAtMinDepth = speed;
@@ -186,6 +222,10 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
 
     // Find sweet spots (local maxima in stability boundary)
     const sweetSpots: Array<{ speed_rpm: number; depth_limit_mm: number }> = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < boundary.length - 1; i++) {
       if (boundary[i].depth_limit_mm > boundary[i - 1].depth_limit_mm &&
           boundary[i].depth_limit_mm > boundary[i + 1].depth_limit_mm &&
@@ -197,6 +237,10 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
       }
     }
 
+    /** If.
+     * @param globalMinDepth - global min depth
+     * @returns void
+     */
     if (globalMinDepth < 0.5) {
       warnings.push(`Very low stability limit: ${globalMinDepth.toFixed(2)}mm — system is chatter-prone`);
     }
@@ -230,12 +274,24 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
   private interpolateFRF(frf: FRFPoint[], freq: number, scale: number): ComplexValue {
     // Linear interpolation of FRF data
     if (freq <= frf[0].frequency) return { real: frf[0].compliance.real * scale, imag: frf[0].compliance.imag * scale };
+    /** If.
+     * @param freq - freq
+     * @returns void
+     */
     if (freq >= frf[frf.length - 1].frequency) {
       const last = frf[frf.length - 1];
       return { real: last.compliance.real * scale, imag: last.compliance.imag * scale };
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < frf.length - 1; i++) {
+      /** If.
+       * @param frf[i].frequency - frf[i].frequency
+       * @returns void
+       */
       if (frf[i].frequency <= freq && freq <= frf[i + 1].frequency) {
         const t = (freq - frf[i].frequency) / (frf[i + 1].frequency - frf[i].frequency);
         return {
@@ -251,6 +307,10 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
   private countModes(frf: FRFPoint[], scale: number): number {
     // Count peaks in imaginary part (resonances)
     let modes = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < frf.length - 1; i++) {
       const prev = Math.abs(frf[i - 1].compliance.imag * scale);
       const curr = Math.abs(frf[i].compliance.imag * scale);
@@ -260,6 +320,9 @@ export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFSta
     return Math.max(1, modes);
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "frf-stability-lobe",

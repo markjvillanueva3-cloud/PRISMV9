@@ -12,6 +12,12 @@ const ALLOWED_ORIGINS = [
   "http://127.0.0.1:5173",
 ];
 
+/** Cors Middleware.
+ * @param req - req
+ * @param res - res
+ * @param next - next
+  * @returns void
+ */
 export function corsMiddleware(req: Request, res: Response, next: NextFunction): void {
   const origin = req.headers.origin;
 

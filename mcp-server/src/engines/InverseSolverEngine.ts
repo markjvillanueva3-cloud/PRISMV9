@@ -680,6 +680,9 @@ const solutionHistory: InverseSolution[] = [];
  *   inverse_troubleshoot   — General multi-symptom troubleshooter
  *   inverse_history        — Get previous inverse solutions
  *   inverse_get            — Get a specific solution by ID
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function inverseSolver(action: string, params: Record<string, any>): any {
   switch (action) {

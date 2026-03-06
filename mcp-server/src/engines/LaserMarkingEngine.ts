@@ -120,15 +120,27 @@ export class LaserMarkingEngine {
     if (input.material.toLowerCase().includes("stainless") && input.mark_type === "engrave") {
       recs.push("Anneal marking preferred for stainless steel — maintains corrosion resistance");
     }
+    /** If.
+     * @param input.content_type - input.content_type
+     * @returns void
+     */
     if (input.content_type === "data_matrix" && input.character_height_mm < 2) {
       recs.push("Data matrix <2mm — may not meet readability requirements; increase size");
     }
     if (input.laser_source === "co2_10600" && input.material.toLowerCase().includes("metal")) {
       recs.push("CO2 laser poor for metals — use fiber (1064nm) for metal marking");
     }
+    /** If.
+     * @param input.compliance_standard - input.compliance_standard
+     * @returns void
+     */
     if (input.compliance_standard === "AMS 2431" && input.mark_type !== "anneal") {
       recs.push("AMS 2431 may require low-stress marking — verify anneal type is acceptable");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Laser marking parameters acceptable — verify readability after first article");
     }

@@ -132,6 +132,10 @@ export class FinishingPassOptimizationEngine {
     const maxPasses = 5;
     const targetResidual = targetRa / 1000 * 0.5; // half of target Ra in mm
 
+    /** While.
+     * @param residual - residual
+     * @returns void
+     */
     while (residual > targetResidual && passes < maxPasses) {
       const F_pass = kc * finishingFeed * Math.max(residual, 0.001);
       residual = E > 0 && I > 0
@@ -162,6 +166,10 @@ export class FinishingPassOptimizationEngine {
     const isSafe = finalError < targetRa * 2 && passes <= 3;
 
     // ── 12. Recommendations ──
+    /** If.
+     * @param deflection_um - deflection_um
+     * @returns void
+     */
     if (deflection_um > 100) {
       recs.push(
         `SAFETY: Deflection ${deflection_um.toFixed(0)}µm exceeds safe limit. `
@@ -174,6 +182,10 @@ export class FinishingPassOptimizationEngine {
       );
     }
 
+    /** If.
+     * @param passes - passes
+     * @returns void
+     */
     if (passes > 2) {
       recs.push(
         `${passes} spring passes needed — indicates excessive deflection. `
@@ -181,6 +193,10 @@ export class FinishingPassOptimizationEngine {
       );
     }
 
+    /** If.
+     * @param finishingFeed - finishing feed
+     * @returns void
+     */
     if (finishingFeed < 0.02) {
       recs.push(
         `Very fine finishing feed ${finishingFeed.toFixed(4)} mm/rev — `
@@ -188,6 +204,10 @@ export class FinishingPassOptimizationEngine {
       );
     }
 
+    /** If.
+     * @param predictedRa - predicted ra
+     * @returns void
+     */
     if (predictedRa > targetRa) {
       recs.push(
         `Predicted Ra ${predictedRa.toFixed(3)}µm exceeds target ${targetRa}µm — `
@@ -195,6 +215,10 @@ export class FinishingPassOptimizationEngine {
       );
     }
 
+    /** If.
+     * @param type - type identifier
+     * @returns void
+     */
     if (type === "boring_bar" && L / d > 4) {
       recs.push(
         `Boring bar L/D ratio ${(L / d).toFixed(1)} exceeds 4:1 — `
@@ -202,6 +226,10 @@ export class FinishingPassOptimizationEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Finishing strategy nominal — ${passes} pass(es) at `

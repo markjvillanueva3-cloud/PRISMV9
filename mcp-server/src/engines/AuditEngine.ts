@@ -104,6 +104,10 @@ export class AuditEngine {
     return entry;
   }
 
+  /** Query.
+   * @param q - q
+   * @returns audit entry[]
+   */
   query(q: AuditQuery): AuditEntry[] {
     let result = [...this.entries];
 
@@ -119,6 +123,11 @@ export class AuditEngine {
     return result.slice(-(q.limit || 100));
   }
 
+  /** Report.
+   * @param periodStart - period start
+   * @param periodEnd - period end
+   * @returns audit report
+   */
   report(periodStart: string, periodEnd: string): AuditReport {
     const startMs = new Date(periodStart).getTime();
     const endMs = new Date(periodEnd).getTime();
@@ -132,6 +141,10 @@ export class AuditEngine {
     const actors = new Set<string>();
     const actionCounts = new Map<string, number>();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const e of filtered) {
       byCategory[e.category]++;
       bySeverity[e.severity]++;
@@ -156,12 +169,25 @@ export class AuditEngine {
     };
   }
 
+  /** Gets sequence.
+   * @returns number { return audit sequence; }
+   */
   getSequence(): number { return auditSequence; }
 
+  /** Sets retention.
+   * @param days - days
+   * @returns void { this.retention days = days; }
+   */
   setRetention(days: number): void { this.retentionDays = days; }
 
+  /** Gets entry count.
+   * @returns number { return this.entries.length; }
+   */
   getEntryCount(): number { return this.entries.length; }
 
+  /** Clear.
+   * @returns void { this.entries = []; audit sequence = 0; }
+   */
   clear(): void { this.entries = []; auditSequence = 0; }
 
   // ---- PRIVATE ----

@@ -70,14 +70,26 @@ export class ShiftHandoffEngine {
 
     // Critical items (things incoming shift MUST know)
     const critical: string[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of input.machines) {
       if (m.status === "down_unplanned") critical.push(`${m.machine_id} DOWN — unplanned: ${m.alerts.join(", ") || "investigate"}`);
       if (m.tool_changes_needed.length > 0) critical.push(`${m.machine_id} needs tool changes: ${m.tool_changes_needed.join(", ")}`);
       if (m.alerts.length > 0) critical.push(`${m.machine_id} alerts: ${m.alerts.join(", ")}`);
     }
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const qi of input.quality_issues) {
       critical.push(`Quality: ${qi.part} — ${qi.issue} (action: ${qi.action})`);
     }
+    /** If.
+     * @param input.safety_incidents.length - input.safety_incidents.length
+     * @returns void
+     */
     if (input.safety_incidents.length > 0) {
       critical.push(`SAFETY: ${input.safety_incidents.join("; ")}`);
     }

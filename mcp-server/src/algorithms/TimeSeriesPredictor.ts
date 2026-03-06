@@ -61,8 +61,16 @@ export interface TimeSeriesPredictorOutput extends WithWarnings {
  */
 export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, TimeSeriesPredictorOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: TimeSeriesPredictorInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.data?.length - !input.data?.length
+     * @returns void
+     */
     if (!input.data?.length || input.data.length < 3) {
       issues.push({ field: "data", message: "At least 3 data points required", severity: "error" });
     }
@@ -75,6 +83,10 @@ export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, 
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns time series predictor output
+   */
   calculate(input: TimeSeriesPredictorInput): TimeSeriesPredictorOutput {
     const warnings: string[] = [];
     const { data } = input;
@@ -92,9 +104,17 @@ export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, 
     const errors: number[] = [];
 
     // Holt's double exponential smoothing
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let t = 1; t < n; t++) {
       const forecast = level + trend;
       const newLevel = alpha * data[t] + (1 - alpha) * (level + trend);
+      /** If.
+       * @param useTrend - use trend
+       * @returns void
+       */
       if (useTrend) {
         trend = beta * (newLevel - level) + (1 - beta) * trend;
       }
@@ -114,6 +134,10 @@ export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, 
 
     // Forecast
     const forecasts: Forecast[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let h = 1; h <= horizon; h++) {
       const val = level + h * trend;
       const uncertainty = rmse * Math.sqrt(h) * z;
@@ -141,6 +165,9 @@ export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, 
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "time-series-predictor",

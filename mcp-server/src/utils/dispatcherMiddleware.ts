@@ -79,6 +79,9 @@ function checkArrayLengths(obj: unknown, max: number): string | null {
 /**
  * Validate incoming params for size, depth, and key count limits.
  * Returns null if valid, or an error string if limits exceeded.
+  * @param params - configuration options
+  * @param limits - limits
+  * @returns string | null
  */
 export function validateInputParams(
   params: Record<string, unknown>,
@@ -119,6 +122,10 @@ export function validateInputParams(
  * Validate action params against the schema registry.
  * Call AFTER normalizeParams(), BEFORE engine dispatch.
  * Actions without a registered schema pass through (graceful rollout).
+  * @param action - action string
+  * @param params - configuration options
+  * @param schemas - schemas
+  * @returns validation result
  */
 export function validateActionParams(
   action: string,
@@ -186,6 +193,9 @@ function unwrapZod(schema: z.ZodType): z.ZodType {
 /**
  * Standard success response in MCP format.
  * Applies response slimming by default to reduce context pressure.
+  * @param data - input data
+  * @param slim - whether slim
+  * @returns { content: { type: "text"; text: string }[] }
  */
 export function dispatcherResult(data: any, slim: boolean = true): { content: { type: "text"; text: string }[] } {
   const payload = slim ? slimResponse(data) : data;
@@ -195,6 +205,10 @@ export function dispatcherResult(data: any, slim: boolean = true): { content: { 
 /**
  * Standard error response in MCP format.
  * Consistent shape: { error, action, dispatcher }
+  * @param error - error
+  * @param action - action string
+  * @param dispatcher - dispatcher string
+  * @returns { content: { type: "text"; text: string }[]; is error: true }
  */
 export function dispatcherError(
   error: unknown,

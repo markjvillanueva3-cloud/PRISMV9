@@ -6,6 +6,8 @@ import type { Request, Response, NextFunction } from "express";
 
 /**
  * Validate that required fields exist in request body
+  * @param fields - fields
+  * @returns void
  */
 export function requireFields(...fields: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -27,6 +29,8 @@ export function requireFields(...fields: string[]) {
 
 /**
  * Validate numeric query/body parameters
+  * @param fields - fields
+  * @returns void
  */
 export function requireNumeric(...fields: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {

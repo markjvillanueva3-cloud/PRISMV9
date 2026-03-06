@@ -88,6 +88,10 @@ export class PeckDrillingOptimizationEngine {
 
     // Determine peck strategy
     let strategy: PeckStrategy;
+    /** If.
+     * @param input.drill_type - input.drill_type
+     * @returns void
+     */
     if (input.drill_type === "gun_drill") {
       strategy = "gun_drill_continuous";
     } else if (ldRatio <= 3 && chipFactor <= 1.0 && input.coolant_through_spindle) {
@@ -99,6 +103,10 @@ export class PeckDrillingOptimizationEngine {
     // Peck depth calculation
     // Base: peck = D × factor, reduced for deeper holes and difficult materials
     let peckDepth: number;
+    /** If.
+     * @param strategy - strategy
+     * @returns void
+     */
     if (strategy === "gun_drill_continuous") {
       peckDepth = L; // gun drills don't peck — continuous feed with through-coolant
     } else {
@@ -119,10 +127,18 @@ export class PeckDrillingOptimizationEngine {
     // Feed reduction for deep holes
     // Beyond base L/D, reduce feed progressively
     let feedReductionPct = 0;
+    /** If.
+     * @param ldRatio - ld ratio
+     * @returns void
+     */
     if (ldRatio > drillData.base_ld) {
       feedReductionPct = Math.min(40, (ldRatio - drillData.base_ld) * 5);
     }
     // Extra reduction for difficult materials at depth
+    /** If.
+     * @param chipFactor - chip factor
+     * @returns void
+     */
     if (chipFactor > 1.2 && ldRatio > 4) {
       feedReductionPct = Math.min(50, feedReductionPct + 10);
     }
@@ -140,21 +156,45 @@ export class PeckDrillingOptimizationEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param ldRatio - ld ratio
+     * @returns void
+     */
     if (ldRatio > 8 && input.drill_type === "hss_twist") {
       recs.push("L/D > 8 with HSS — consider carbide or gun drill for better chip evacuation");
     }
+    /** If.
+     * @param ldRatio - ld ratio
+     * @returns void
+     */
     if (ldRatio > 4 && !input.coolant_through_spindle) {
       recs.push("Deep hole without through-spindle coolant — strongly recommend TSC for chip evacuation");
     }
+    /** If.
+     * @param chipFactor - chip factor
+     * @returns void
+     */
     if (chipFactor > 1.3 && ldRatio > 5) {
       recs.push(`Difficult material (${matKey}) at L/D=${ldRatio.toFixed(1)} — use pecking with full retract and reduced feed`);
     }
+    /** If.
+     * @param ldRatio - ld ratio
+     * @returns void
+     */
     if (ldRatio > 20 && input.drill_type !== "gun_drill") {
       recs.push("L/D > 20 — gun drill recommended for reliable deep hole production");
     }
+    /** If.
+     * @param numPecks - num pecks
+     * @returns void
+     */
     if (numPecks > 15) {
       recs.push(`${numPecks} pecks needed — cycle time will be long; consider pilot + gun drill approach`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Drilling parameters within normal range — proceed");
     }

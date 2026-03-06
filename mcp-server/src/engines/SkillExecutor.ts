@@ -265,6 +265,10 @@ export class SkillExecutor {
 
     try {
       // Check cache first
+      /** If.
+       * @param this.config.cache_enabled - this.config.cache_enabled
+       * @returns void
+       */
       if (this.config.cache_enabled) {
         const cached = this.cache.get(skillId);
         if (cached && (Date.now() - cached.timestamp) < this.config.cache_ttl_ms) {
@@ -282,6 +286,10 @@ export class SkillExecutor {
 
       // Get skill from registry
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param !skill - !skill
+       * @returns void
+       */
       if (!skill) {
         return {
           success: false,
@@ -294,6 +302,10 @@ export class SkillExecutor {
 
       // Load content from filesystem
       const content = await skillRegistry.getContent(skillId);
+      /** If.
+       * @param !content - !content
+       * @returns void
+       */
       if (!content) {
         return {
           success: false,
@@ -307,6 +319,10 @@ export class SkillExecutor {
       const lines = content.split("\n").length;
 
       // Cache the content
+      /** If.
+       * @param this.config.cache_enabled - this.config.cache_enabled
+       * @returns void
+       */
       if (this.config.cache_enabled) {
         this.addToCache(skillId, content, lines);
       }
@@ -340,6 +356,10 @@ export class SkillExecutor {
   async loadSkills(skillIds: string[]): Promise<SkillLoadResult[]> {
     const results: SkillLoadResult[] = [];
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of skillIds) {
       const result = await this.loadSkill(skillId);
       results.push(result);
@@ -353,17 +373,34 @@ export class SkillExecutor {
    */
   private addToCache(skillId: string, content: string, lines: number): void {
     // Evict oldest entries if at capacity
+    /** While.
+     * @param this.cache.size - this.cache.size
+     * @returns void
+     */
     while (this.cache.size >= this.config.max_cache_entries) {
       let oldestKey: string | null = null;
       let oldestTime = Infinity;
       
+      /** For.
+       * @param const - const
+       * @param value] - value]
+       * @returns void
+       */
       for (const [key, value] of this.cache) {
+        /** If.
+         * @param value.timestamp - value.timestamp
+         * @returns void
+         */
         if (value.timestamp < oldestTime) {
           oldestTime = value.timestamp;
           oldestKey = key;
         }
       }
       
+      /** If.
+       * @param oldestKey - oldest key
+       * @returns void
+       */
       if (oldestKey) {
         this.cache.delete(oldestKey);
       }
@@ -400,6 +437,10 @@ export class SkillExecutor {
 
     // Determine complexity
     let complexity: "LOW" | "MEDIUM" | "HIGH" = "LOW";
+    /** If.
+     * @param detected_domains.length - detected_domains.length
+     * @returns void
+     */
     if (detected_domains.length >= 3 || detected_actions.length >= 3) {
       complexity = "HIGH";
     } else if (detected_domains.length >= 2 || detected_actions.length >= 2) {
@@ -421,6 +462,10 @@ export class SkillExecutor {
 
     // Generate approach suggestion
     let suggested_approach = "Direct execution";
+    /** If.
+     * @param requires_physics - requires_physics
+     * @returns void
+     */
     if (requires_physics && requires_safety) {
       suggested_approach = "Use Multi-Agent Orchestrator (Research→Physics→Code→Safety)";
     } else if (complexity === "HIGH") {
@@ -455,34 +500,62 @@ export class SkillExecutor {
     const recommendations: Map<string, SkillRecommendation> = new Map();
 
     // Add skills based on detected domains
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const domain of analysis.detected_domains) {
       const skillIds = DOMAIN_TO_SKILLS[domain] || [];
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const skillId of skillIds) {
         this.addRecommendation(recommendations, skillId, `Matches domain: ${domain}`, 0.4);
       }
     }
 
     // Add skills based on detected actions
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const action of analysis.detected_actions) {
       const skillIds = ACTION_TO_SKILLS[action] || [];
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const skillId of skillIds) {
         this.addRecommendation(recommendations, skillId, `Matches action: ${action}`, 0.3);
       }
     }
 
     // Add core skills for complex tasks
+    /** If.
+     * @param analysis.complexity - analysis.complexity
+     * @returns void
+     */
     if (analysis.complexity === "HIGH") {
       this.addRecommendation(recommendations, "prism-skill-orchestrator", "High complexity task", 0.5);
       this.addRecommendation(recommendations, "prism-cognitive-core", "High complexity task", 0.3);
     }
 
     // Add safety skills if needed
+    /** If.
+     * @param analysis.requires_safety - analysis.requires_safety
+     * @returns void
+     */
     if (analysis.requires_safety) {
       this.addRecommendation(recommendations, "prism-safety-framework", "Safety validation required", 0.5);
       this.addRecommendation(recommendations, "prism-master-equation", "Quality scoring required", 0.4);
     }
 
     // Add physics skills if needed
+    /** If.
+     * @param analysis.requires_physics - analysis.requires_physics
+     * @returns void
+     */
     if (analysis.requires_physics) {
       this.addRecommendation(recommendations, "prism-material-physics", "Physics calculations required", 0.5);
       this.addRecommendation(recommendations, "prism-universal-formulas", "Formulas required", 0.4);
@@ -490,14 +563,27 @@ export class SkillExecutor {
 
     // Use registry's findForTask for additional matches
     const registryMatches = skillRegistry.findForTask(taskDescription);
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skill of registryMatches) {
       this.addRecommendation(recommendations, skill.skill_id, "Registry pattern match", 0.35);
     }
 
     // Convert to array and enrich with skill data
     const results: SkillRecommendation[] = [];
+    /** For.
+     * @param const - const
+     * @param rec] - rec]
+     * @returns void
+     */
     for (const [skillId, rec] of recommendations) {
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param skill - skill
+       * @returns void
+       */
       if (skill && rec.relevance_score >= this.config.min_relevance_threshold) {
         results.push({
           ...rec,
@@ -528,6 +614,10 @@ export class SkillExecutor {
     scoreBoost: number
   ): void {
     const existing = map.get(skillId);
+    /** If.
+     * @param existing - existing
+     * @returns void
+     */
     if (existing) {
       existing.relevance_score = Math.min(1.0, existing.relevance_score + scoreBoost);
       if (!existing.match_reasons.includes(reason)) {
@@ -612,10 +702,26 @@ export class SkillExecutor {
     const executionOrder: string[] = [];
 
     // Resolve dependencies
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of skillIds) {
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param skill - skill
+       * @returns void
+       */
       if (skill) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const dep of skill.dependencies) {
+          /** If.
+           * @param !dep.optional - !dep.optional
+           * @returns void
+           */
           if (!dep.optional) {
             allSkills.add(dep.skill_id);
           }
@@ -637,7 +743,15 @@ export class SkillExecutor {
       visiting.add(skillId);
 
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param skill - skill
+       * @returns void
+       */
       if (skill) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const dep of skill.dependencies) {
           if (!dep.optional && allSkills.has(dep.skill_id)) {
             visit(dep.skill_id);
@@ -650,14 +764,26 @@ export class SkillExecutor {
       executionOrder.push(skillId);
     };
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of allSkills) {
       visit(skillId);
     }
 
     // Calculate total lines
     let totalLines = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of allSkills) {
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param skill - skill
+       * @returns void
+       */
       if (skill) {
         totalLines += skill.lines || 0;
       }
@@ -665,9 +791,21 @@ export class SkillExecutor {
 
     // Check if all dependencies are satisfied
     let dependencySatisfied = true;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of allSkills) {
       const skill = skillRegistry.getSkill(skillId);
+      /** If.
+       * @param skill - skill
+       * @returns void
+       */
       if (skill) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const dep of skill.dependencies) {
           if (!dep.optional && !allSkills.has(dep.skill_id)) {
             dependencySatisfied = false;
@@ -701,10 +839,18 @@ export class SkillExecutor {
     const loaded: SkillLoadResult[] = [];
     const contents: string[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const skillId of chain.execution_order) {
       const result = await this.loadSkill(skillId);
       loaded.push(result);
       
+      /** If.
+       * @param result.success - result.success
+       * @returns void
+       */
       if (result.success && result.content) {
         contents.push(`\n\n${"=".repeat(80)}\n# SKILL: ${skillId}\n${"=".repeat(80)}\n\n${result.content}`);
       }
@@ -734,6 +880,10 @@ export class SkillExecutor {
 
     const existing = this.usageStats.get(skillId);
     
+    /** If.
+     * @param existing - existing
+     * @returns void
+     */
     if (existing) {
       existing.load_count++;
       existing.last_loaded = new Date().toISOString();
@@ -794,6 +944,10 @@ export class SkillExecutor {
 
     for (const entry of this.cache.values()) {
       totalLines += entry.lines;
+      /** If.
+       * @param entry.timestamp - entry.timestamp
+       * @returns void
+       */
       if (entry.timestamp < oldestTime) {
         oldestTime = entry.timestamp;
       }

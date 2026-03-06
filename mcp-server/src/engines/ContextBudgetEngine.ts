@@ -119,6 +119,10 @@ export class ContextBudgetEngine {
 
     // Include any ad-hoc categories not in default allocations
     for (const [cat, used] of this.usage.entries()) {
+      /** If.
+       * @param !this.allocations[cat] - !this.allocations[cat]
+       * @returns void
+       */
       if (!this.allocations[cat]) {
         categories.push({ category: cat, percentage: 0, tokenLimit: 0, tokensUsed: used });
         overBudget.push(cat);

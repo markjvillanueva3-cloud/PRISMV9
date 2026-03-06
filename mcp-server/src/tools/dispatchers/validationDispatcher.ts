@@ -18,6 +18,7 @@ const ACTIONS = ["material", "kienzle", "taylor", "johnson_cook", "safety", "com
 
 /** Registers validation dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerValidationDispatcher(server: any): void {
   server.tool(

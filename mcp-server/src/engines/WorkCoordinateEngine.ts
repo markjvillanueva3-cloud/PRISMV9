@@ -99,6 +99,13 @@ const PROBE_SEQUENCES: Record<DatumPoint["type"], string[]> = {
 export class WorkCoordinateEngine {
   private offsets: WCSOffset[] = [];
 
+  /** Create.
+   * @param code - code
+   * @param origin - origin
+   * @param description - description
+   * @param rotation_deg - rotation_deg
+   * @returns w c s offset
+   */
   create(code: WCSCode, origin: { x: number; y: number; z: number }, description?: string, rotation_deg?: { a: number; b: number; c: number }): WCSOffset {
     const offset: WCSOffset = {
       id: `WCS-${code}-${Date.now().toString(36)}`,
@@ -111,10 +118,19 @@ export class WorkCoordinateEngine {
     return offset;
   }
 
+  /** Sets up from datums.
+   * @param code - code
+   * @param datums - datums
+   * @returns w c s setup
+   */
   setupFromDatums(code: WCSCode, datums: DatumPoint[]): WCSSetup {
     const probeSteps: string[] = [];
     let setupTime = 2; // base setup time in minutes
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const d of datums) {
       const steps = PROBE_SEQUENCES[d.type] || PROBE_SEQUENCES["surface"];
       probeSteps.push(`--- Datum ${d.name} (${d.type}) ---`);
@@ -141,6 +157,12 @@ export class WorkCoordinateEngine {
     };
   }
 
+  /** Transform.
+   * @param point - point
+   * @param from - from
+   * @param to - to
+   * @returns { x: number; y: number; z: number }
+   */
   transform(point: { x: number; y: number; z: number }, from: WCSOffset, to: WCSOffset): { x: number; y: number; z: number } {
     // Transform: subtract 'from' origin, add 'to' origin
     return {
@@ -150,6 +172,11 @@ export class WorkCoordinateEngine {
     };
   }
 
+  /** Coord Transform.
+   * @param fromCode - from code
+   * @param toCode - to code
+   * @returns coord transform | null
+   */
   coordTransform(fromCode: WCSCode, toCode: WCSCode): CoordTransform | null {
     const from = this.offsets.find(o => o.code === fromCode);
     const to = this.offsets.find(o => o.code === toCode);
@@ -171,10 +198,19 @@ export class WorkCoordinateEngine {
     };
   }
 
+  /** Multi Part Setup.
+   * @param parts - parts
+   * @param fixtureId - fixture id
+   * @returns multi part setup
+   */
   multiPartSetup(parts: Array<{ part_id: string; offset: { x: number; y: number; z: number } }>, fixtureId: string): MultiPartSetup {
     const partSetups: MultiPartSetup["parts"] = [];
     const availableCodes = [...STANDARD_WCS];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < parts.length; i++) {
       const code = i < availableCodes.length ? availableCodes[i] : `G54.1 P${i + 1}`;
       const wcs = this.create(code, parts[i].offset, `Part ${parts[i].part_id}`);
@@ -192,6 +228,9 @@ export class WorkCoordinateEngine {
     };
   }
 
+  /** Validate.
+   * @returns w c s validation
+   */
   validate(): WCSValidation {
     const issues: string[] = [];
     const warnings: string[] = [];
@@ -204,16 +243,32 @@ export class WorkCoordinateEngine {
 
     // Check Z convention
     const zPositiveUp = this.offsets.every(o => o.origin.z <= 0 || o.origin.z === 0);
+    /** If.
+     * @param !zPositiveUp - !z positive up
+     * @returns void
+     */
     if (!zPositiveUp && this.offsets.length > 0) {
       warnings.push("Some WCS origins have positive Z — verify Z+ is up convention");
     }
 
     // Check for very close origins (might be errors)
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < this.offsets.length; i++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j = i + 1; j < this.offsets.length; j++) {
         const dx = this.offsets[i].origin.x - this.offsets[j].origin.x;
         const dy = this.offsets[i].origin.y - this.offsets[j].origin.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
+        /** If.
+         * @param dist - dist
+         * @returns void
+         */
         if (dist < 5 && dist > 0) {
           warnings.push(`${this.offsets[i].code} and ${this.offsets[j].code} are only ${dist.toFixed(1)}mm apart — verify`);
         }
@@ -229,10 +284,16 @@ export class WorkCoordinateEngine {
     };
   }
 
+  /** List Offsets.
+   * @returns w c s offset[]
+   */
   listOffsets(): WCSOffset[] {
     return [...this.offsets];
   }
 
+  /** Clear.
+   * @returns void
+   */
   clear(): void {
     this.offsets = [];
   }

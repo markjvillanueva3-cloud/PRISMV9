@@ -29,6 +29,7 @@ const ACTIONS = [
 
 /** Registers quality dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerQualityDispatcher(server: any): void {
   server.tool(

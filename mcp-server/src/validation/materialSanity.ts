@@ -88,6 +88,7 @@ function inferMaterialClass(materialName: string): string | null {
  * @param density - Material density in g/cm³ (may be undefined if not in dataset)
  * @param hardness - Material hardness in HB (may be undefined if not in dataset)
  * @throws {DataError} severity='block' if parameters conflict with material class — DATA SWAP detected
+  * @returns void
  */
 export function validateMaterialSanity(
   materialName: string,

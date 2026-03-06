@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates gsd router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createGsdRouter(callTool: CallToolFn): Router {
   const router = Router();
 

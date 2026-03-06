@@ -83,6 +83,11 @@ export const UNITS_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Returns the units source file catalog for this engine.
+  * @returns {
+  total_files: number;
+  total_lines: number;
+  entries: typeof  u n i t s_ s o u r c e_ f i l e_ c a t a l o g;
+}
  */
 export function getUnitSourceFileCatalog(): {
   total_files: number;
@@ -253,6 +258,9 @@ const DEFAULT_TAYLOR: TaylorCoefficients = {
 /**
  * Calculate cutting forces using the Kienzle model
  * Fc = kc1.1 × h^(-mc) × b × correction_factors
+  * @param conditions - conditions
+  * @param coefficients - coefficients
+  * @returns cutting force result
  */
 export function calculateKienzleCuttingForce(
   conditions: CuttingConditions,
@@ -463,6 +471,11 @@ export function calculateDrillingForce(
 
 /**
  * Calculate tool life using Taylor's equation: V × T^n = C
+  * @param cutting_speed - cutting_speed value
+  * @param coefficients - coefficients
+  * @param feed - feed value
+  * @param depth - depth value
+  * @returns tool life result
  */
 export function calculateTaylorToolLife(
   cutting_speed: number,
@@ -531,6 +544,11 @@ export function calculateTaylorToolLife(
 
 /**
  * Calculate flow stress using Johnson-Cook model
+  * @param strain - strain value
+  * @param strain_rate - strain_rate value
+  * @param temperature - temperature value
+  * @param params - configuration options
+  * @returns { stress: number; components: { strain_term: number; rate_term: number; thermal_term: number }; warnings: string[] }
  */
 export function calculateJohnsonCookStress(
   strain: number,
@@ -572,6 +590,13 @@ export function calculateJohnsonCookStress(
 
 /**
  * Calculate theoretical surface finish
+  * @param feed - feed value
+  * @param nose_radius - nose_radius value
+  * @param is_milling - whether is_milling
+  * @param radial_depth - radial_depth value
+  * @param tool_diameter - tool_diameter value
+  * @param operation - operation string
+  * @returns surface finish result
  */
 export function calculateSurfaceFinish(
   feed: number,
@@ -638,6 +663,9 @@ export function calculateSurfaceFinish(
 
 /**
  * Calculate Material Removal Rate
+  * @param conditions - conditions
+  * @param volume - volume value
+  * @returns m r r result
  */
 export function calculateMRR(
   conditions: CuttingConditions,
@@ -701,6 +729,8 @@ export interface SpeedFeedResult {
 
 /**
  * Calculate recommended speeds and feeds
+  * @param input - input data
+  * @returns speed feed result
  */
 export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
   const warnings: string[] = [];
@@ -782,6 +812,8 @@ function validateCuttingConditions(conditions: CuttingConditions, warnings: stri
 
 /**
  * Get default Kienzle coefficients
+  * @param material_group - material_group string
+  * @returns kienzle coefficients
  */
 export function getDefaultKienzle(material_group: string): KienzleCoefficients {
   const defaults: Record<string, KienzleCoefficients> = {
@@ -805,6 +837,9 @@ export function getDefaultKienzle(material_group: string): KienzleCoefficients {
 
 /**
  * Get default Taylor coefficients
+  * @param material_group - material_group string
+  * @param tool_material - tool_material string
+  * @returns taylor coefficients
  */
 export function getDefaultTaylor(material_group: string, tool_material: string = "Carbide"): TaylorCoefficients {
   const key = `${material_group.toLowerCase()}_${tool_material.toLowerCase()}`;

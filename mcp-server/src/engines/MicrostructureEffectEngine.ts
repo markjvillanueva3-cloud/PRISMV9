@@ -114,6 +114,10 @@ export class MicrostructureEffectEngine {
     let totalFraction = 0;
     const phaseEffects: MicrostructureResult["phase_effects"] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const p of input.phases) {
       const mf = PHASE_MACHINABILITY[p.phase] || 0.8;
       const bf = PHASE_BUE_RISK[p.phase] || 0.3;
@@ -173,21 +177,41 @@ export class MicrostructureEffectEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param machinabilityIndex - machinability index
+     * @returns void
+     */
     if (machinabilityIndex < 30) {
       recs.push("Difficult-to-machine microstructure — use CBN/ceramic tooling and reduced speeds");
     }
+    /** If.
+     * @param bueRisk - bue risk
+     * @returns void
+     */
     if (bueRisk === "high") {
       recs.push("High BUE risk — increase cutting speed or use coated inserts with low-friction coating");
     }
+    /** If.
+     * @param workHardening - work hardening
+     * @returns void
+     */
     if (workHardening === "high") {
       recs.push("High work hardening — maintain feed above 0.1mm/rev to stay below hardened layer");
     }
+    /** If.
+     * @param input.grain_size_ASTM - input.grain_size_ a s t m
+     * @returns void
+     */
     if (input.grain_size_ASTM <= 3) {
       recs.push("Coarse grain structure — expect rough surface finish; consider normalizing heat treatment");
     }
     if ((input.inclusion_rating || 0) > 3) {
       recs.push("High inclusion content — expect accelerated tool wear; use tougher grade inserts");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Microstructure favorable for machining — standard parameters acceptable");
     }
@@ -204,11 +228,19 @@ export class MicrostructureEffectEngine {
     };
   }
 
+  /** Recommend.
+   * @param input - input data
+   * @returns { optimal_heat_treat: string; expected_improvement_pct: number }
+   */
   recommend(input: MicrostructureInput): { optimal_heat_treat: string; expected_improvement_pct: number } {
     const current = this.analyze(input);
     let treatment = "No heat treatment change recommended";
     let improvement = 0;
 
+    /** If.
+     * @param current.machinability_index - current.machinability_index
+     * @returns void
+     */
     if (current.machinability_index < 40 && input.material_class === "steel") {
       // Spheroidize annealing improves machinability of hard steels
       treatment = "Spheroidize anneal (700°C, slow cool) to break up cementite/martensite";

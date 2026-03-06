@@ -1533,6 +1533,13 @@ export function algorithmSelect(input: AlgorithmSelectInput): AlgorithmSelectRes
 /**
  * Returns the full source file catalog for all 52 MEDIUM-priority algorithm modules.
  * Optionally filters by algorithm_domain.
+  * @param params - configuration options
+  * @returns {
+  total_files: number;
+  total_lines: number;
+  files: ( source file catalog entry & { id: string })[];
+  domain_summary:  record<string, { count: number; lines: number }>;
+}
  */
 export function getSourceFileCatalog(params: {
   domain?: AlgorithmDomain;
@@ -1579,6 +1586,19 @@ export function getSourceFileCatalog(params: {
 /**
  * Returns a structured summary of cataloged source files grouped by algorithm domain,
  * with per-domain statistics and overall totals.
+  * @returns {
+  catalog_version: string;
+  safety_class: ' m e d i u m';
+  total_files: number;
+  total_lines: number;
+  domains: {
+    domain:  algorithm domain;
+    file_count: number;
+    total_lines: number;
+    files: { id: string; filename: string; lines: number; description: string }[];
+  }[];
+  largest_files: { id: string; filename: string; lines: number; algorithm_domain:  algorithm domain }[];
+}
  */
 export function catalogSourceFiles(): {
   catalog_version: string;

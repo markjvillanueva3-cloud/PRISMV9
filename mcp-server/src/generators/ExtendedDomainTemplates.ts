@@ -943,6 +943,7 @@ export const EXTENDED_DOMAIN_TEMPLATES: Record<string, DomainTemplate> = {
 
 /**
  * Get all domain templates (core + extended)
+  * @returns record<string,  domain template>
  */
 export function getAllDomainTemplates(): Record<string, DomainTemplate> {
   // Import core templates
@@ -956,6 +957,7 @@ export function getAllDomainTemplates(): Record<string, DomainTemplate> {
 
 /**
  * Calculate total hook count across all domains
+  * @returns { domains: number; patterns: number; hooks: number }
  */
 export function calculateTotalHooks(): { domains: number; patterns: number; hooks: number } {
   const allTemplates = { ...require("./HookGenerator.js").DOMAIN_TEMPLATES, ...EXTENDED_DOMAIN_TEMPLATES };

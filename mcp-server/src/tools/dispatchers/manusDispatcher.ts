@@ -137,6 +137,7 @@ function loadHookRegistry(): any {
 
 /** Registers manus dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerManusDispatcher(server: any): void {
   server.tool(

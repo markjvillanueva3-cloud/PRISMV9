@@ -225,7 +225,15 @@ export class Matrix4 {
     const b = other.elements;
     const r = result.elements;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let row = 0; row < 4; row++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let col = 0; col < 4; col++) {
         r[row * 4 + col] =
           a[row * 4 + 0] * b[0 * 4 + col] +
@@ -353,11 +361,19 @@ export class Quaternion {
     let cosHalfTheta = this.x * q.x + this.y * q.y + this.z * q.z + this.w * q.w;
     
     let qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+    /** If.
+     * @param cosHalfTheta - cos half theta
+     * @returns void
+     */
     if (cosHalfTheta < 0) {
       cosHalfTheta = -cosHalfTheta;
       qx = -qx; qy = -qy; qz = -qz; qw = -qw;
     }
 
+    /** If.
+     * @param cosHalfTheta - cos half theta
+     * @returns void
+     */
     if (cosHalfTheta >= 1.0) {
       return new Quaternion(this.x, this.y, this.z, this.w);
     }
@@ -876,6 +892,10 @@ export class CollisionEngine {
     let min = points[0].clone();
     let max = points[0].clone();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const p of points) {
       min = min.min(p);
       max = max.max(p);
@@ -901,6 +921,11 @@ export class CollisionEngine {
 
     // Generate bounding points
     const points: Vector3[] = [];
+    /** For.
+     * @param const - const
+     * @param topCenter] - top center]
+     * @returns void
+     */
     for (const center of [baseCenter, topCenter]) {
       points.push(center.add(perp1.multiply(radius)));
       points.push(center.subtract(perp1.multiply(radius)));
@@ -993,8 +1018,20 @@ export class CollisionEngine {
     const axes = this.getOBBAxes(obb);
     const vertices: Vector3[] = [];
     
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = -1; i <= 1; i += 2) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j = -1; j <= 1; j += 2) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let k = -1; k <= 1; k += 2) {
           const v = obb.center
             .add(axes[0].multiply(i * obb.halfExtents.x))
@@ -1020,6 +1057,10 @@ export class CollisionEngine {
     let min = vertices[0].dot(axis);
     let max = min;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < vertices.length; i++) {
       const projection = vertices[i].dot(axis);
       min = Math.min(min, projection);
@@ -1053,7 +1094,15 @@ export class CollisionEngine {
     ];
 
     // Add cross product axes
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const axisA of axesA) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const axisB of axesB) {
         const cross = axisA.cross(axisB);
         if (cross.lengthSquared() > 1e-10) {
@@ -1065,6 +1114,10 @@ export class CollisionEngine {
     let minOverlap = Infinity;
     let separatingAxis: Vector3 | null = null;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const axis of testAxes) {
       const projA = this.projectOBBOntoAxis(a, axis);
       const projB = this.projectOBBOntoAxis(b, axis);
@@ -1081,6 +1134,10 @@ export class CollisionEngine {
 
       // Calculate overlap
       const overlap = Math.min(projA.max - projB.min, projB.max - projA.min);
+      /** If.
+       * @param overlap - overlap
+       * @returns void
+       */
       if (overlap < minOverlap) {
         minOverlap = overlap;
         separatingAxis = axis;
@@ -1179,11 +1236,19 @@ export class CollisionEngine {
     const denom = aa * bb - ab * ab;
     let s = 0, t = 0;
 
+    /** If.
+     * @param denom - denom
+     * @returns void
+     */
     if (denom !== 0) {
       s = Math.max(0, Math.min(1, (ab * br - bb * ar) / denom));
     }
     t = (ab * s + br) / bb;
 
+    /** If.
+     * @param t - t
+     * @returns void
+     */
     if (t < 0) {
       t = 0;
       s = Math.max(0, Math.min(1, -ar / aa));
@@ -1221,6 +1286,10 @@ export class CollisionEngine {
     const segments: SweptVolumeSegment[] = [];
     const { start, end, type } = move;
 
+    /** If.
+     * @param type - type identifier
+     * @returns void
+     */
     if (type === 'LINEAR' || type === 'RAPID') {
       const aabb = this.createAABBFromPoints([start, end]);
       segments.push({
@@ -1238,6 +1307,10 @@ export class CollisionEngine {
       const arcSegments = this.sampleArc(
         move, this.samplingResolution,
       );
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const seg of arcSegments) {
         const aabb = this.createAABBFromPoints([seg.start, seg.end]);
         segments.push({
@@ -1255,6 +1328,10 @@ export class CollisionEngine {
       const arcSegments = this.sampleArc(
         move, this.samplingResolution,
       );
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const seg of arcSegments) {
         const aabb = this.createAABBFromPoints([seg.start, seg.end]);
         segments.push({
@@ -1306,6 +1383,10 @@ export class CollisionEngine {
     const numSegments = Math.max(4, Math.ceil(arcLength / resolution));
 
     let prev = move.start;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i <= numSegments; i++) {
       const t = i / numSegments;
       const current = this.interpolateArc(move, t);
@@ -1347,6 +1428,10 @@ export class CollisionEngine {
     let endAngle = Math.atan2(endVec.y, endVec.x);
 
     // Handle direction
+    /** If.
+     * @param move.type - move.type
+     * @returns void
+     */
     if (move.type === 'ARC_CW') {
       if (endAngle >= startAngle) endAngle -= 2 * Math.PI;
     } else {
@@ -1370,6 +1455,10 @@ export class CollisionEngine {
     const allSegments: SweptVolumeSegment[] = [];
     let totalLength = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of toolpath.moves) {
       const segments = this.generateSweptVolumeForMove(move, toolpath.tool);
       allSegments.push(...segments);
@@ -1378,6 +1467,10 @@ export class CollisionEngine {
 
     // Calculate overall bounding box
     let overallBB: AABB | null = null;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const seg of allSegments) {
       overallBB = overallBB 
         ? this.mergeAABBs(overallBB, seg.boundingBox)
@@ -1418,6 +1511,10 @@ export class CollisionEngine {
     const sweptVolume = this.generateSweptVolume(toolpath);
 
     // Check each segment
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const segment of sweptVolume.segments) {
       const segmentCapsule: Capsule = {
         type: 'capsule',
@@ -1428,6 +1525,10 @@ export class CollisionEngine {
 
       // Check machine envelope
       const envelopeResult = this.checkMachineEnvelope(segment, machine);
+      /** If.
+       * @param envelopeResult.collision - envelope result.collision
+       * @returns void
+       */
       if (envelopeResult.collision) {
         collisions.push({
           ...envelopeResult,
@@ -1436,10 +1537,22 @@ export class CollisionEngine {
       }
 
       // Check fixtures
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const fixture of fixtures) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const fixtureGeom of fixture.geometry) {
           const fixtureResult = this.checkSegmentVsGeometry(segment, fixtureGeom);
           
+          /** If.
+           * @param fixtureResult.collision - fixture result.collision
+           * @returns void
+           */
           if (fixtureResult.collision) {
             collisions.push({
               ...fixtureResult,
@@ -1458,6 +1571,10 @@ export class CollisionEngine {
             });
           }
 
+          /** If.
+           * @param fixtureResult.distance - fixture result.distance
+           * @returns void
+           */
           if (fixtureResult.distance < minClearance) {
             minClearance = fixtureResult.distance;
             minClearancePosition = segment.start.lerp(segment.end, 0.5);
@@ -1466,6 +1583,10 @@ export class CollisionEngine {
       }
 
       // Check workpiece
+      /** If.
+       * @param workpiece?.stockGeometry - workpiece?.stock geometry
+       * @returns void
+       */
       if (workpiece?.stockGeometry) {
         // For workpiece, we check for gouging (tool going into part)
         // This is complex - simplified here
@@ -1475,15 +1596,31 @@ export class CollisionEngine {
         );
         
         // Only flag if cutting into raw stock unexpectedly
+        /** If.
+         * @param workpieceResult.distance - workpiece result.distance
+         * @returns void
+         */
         if (workpieceResult.distance < minClearance) {
           minClearance = workpieceResult.distance;
         }
       }
 
       // Check spindle head (5-axis)
+      /** If.
+       * @param machine.spindleHead - machine.spindle head
+       * @returns void
+       */
       if (machine.spindleHead) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const headGeom of machine.spindleHead) {
           const headResult = this.checkSegmentVsGeometry(segment, headGeom);
+          /** If.
+           * @param headResult.collision - head result.collision
+           * @returns void
+           */
           if (headResult.collision) {
             collisions.push({
               ...headResult,
@@ -1518,6 +1655,11 @@ export class CollisionEngine {
     const radius = segment.diameter / 2;
     
     // Check start and end points against limits
+    /** For.
+     * @param const - const
+     * @param segment.end] - segment.end]
+     * @returns void
+     */
     for (const point of [segment.start, segment.end]) {
       if (
         point.x - radius < machine.xLimits.min ||
@@ -1554,6 +1696,10 @@ export class CollisionEngine {
       radius: segment.diameter / 2
     };
 
+    /** If.
+     * @param geometry.type - geometry.type
+     * @returns void
+     */
     if (geometry.type === 'AABB') {
       // Convert to sphere-AABB test at multiple points
       const points = [
@@ -1563,6 +1709,10 @@ export class CollisionEngine {
       ];
 
       let minDist = Infinity;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const point of points) {
         const sphere: Sphere = {
           type: 'sphere',
@@ -1571,6 +1721,10 @@ export class CollisionEngine {
         };
         const result = this.checkSphereAABBCollision(sphere, geometry);
         minDist = Math.min(minDist, result.distance);
+        /** If.
+         * @param result.collision - result.collision
+         * @returns void
+         */
         if (result.collision) {
           return result;
         }
@@ -1578,17 +1732,33 @@ export class CollisionEngine {
       return { collision: false, distance: minDist };
     }
 
+    /** If.
+     * @param geometry.type - geometry.type
+     * @returns void
+     */
     if (geometry.type === 'capsule') {
       return this.checkCapsuleCapsuleCollision(capsule, geometry);
     }
 
+    /** If.
+     * @param geometry.type - geometry.type
+     * @returns void
+     */
     if (geometry.type === 'sphere') {
       // Multiple point test
       const points = [segment.start, segment.end, segment.start.lerp(segment.end, 0.5)];
       let minDist = Infinity;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const point of points) {
         const dist = point.distanceTo(geometry.center) - geometry.radius - segment.diameter / 2;
         minDist = Math.min(minDist, dist);
+        /** If.
+         * @param dist - dist
+         * @returns void
+         */
         if (dist < 0) {
           return {
             collision: true,
@@ -1602,6 +1772,10 @@ export class CollisionEngine {
 
     // Default: check bounding boxes
     const segAABB = segment.boundingBox;
+    /** If.
+     * @param geometry.type - geometry.type
+     * @returns void
+     */
     if (geometry.type === 'OBB') {
       const segOBB = this.createOBBFromAABB(segAABB, new Quaternion());
       return this.checkOBBCollision(segOBB, geometry);
@@ -1637,13 +1811,25 @@ export class CollisionEngine {
 
     // Pre-compute stock AABB if workpiece provided
     let stockAABB: AABB | null = null;
+    /** If.
+     * @param workpiece?.stockGeometry - workpiece?.stock geometry
+     * @returns void
+     */
     if (workpiece?.stockGeometry) {
       const sg = workpiece.stockGeometry;
+      /** If.
+       * @param 'min' - 'min'
+       * @returns void
+       */
       if ('min' in sg && 'max' in sg) {
         stockAABB = sg as unknown as AABB;
       }
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < toolpath.moves.length; i++) {
       const move = toolpath.moves[i];
       if (move.type !== 'RAPID') continue;
@@ -1661,6 +1847,10 @@ export class CollisionEngine {
         machine,
       );
 
+      /** If.
+       * @param envCheck.collision - env check.collision
+       * @returns void
+       */
       if (envCheck.collision) {
         issues.push(
           `Rapid move at line ${move.lineNumber ?? i}`
@@ -1669,6 +1859,10 @@ export class CollisionEngine {
       }
 
       // Check rapid doesn't go through fixtures
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const fixture of fixtures) {
         const seg = {
           start: move.start,
@@ -1680,8 +1874,16 @@ export class CollisionEngine {
           ),
         };
 
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const geom of fixture.geometry) {
           const result = this.checkSegmentVsGeometry(seg, geom);
+          /** If.
+           * @param result.collision - result.collision
+           * @returns void
+           */
           if (result.collision) {
             issues.push(
               `Rapid at line ${move.lineNumber ?? i}`
@@ -1691,9 +1893,17 @@ export class CollisionEngine {
         }
 
         // Check rapid Z vs fixture top + margin
+        /** If.
+         * @param fixture.clearanceZone - fixture.clearance zone
+         * @returns void
+         */
         if (fixture.clearanceZone) {
           const fTopZ = fixture.clearanceZone.max.z;
           const rapidMinZ = Math.min(move.start.z, move.end.z);
+          /** If.
+           * @param rapidMinZ - rapid min z
+           * @returns void
+           */
           if (rapidMinZ < fTopZ + clearanceMarginMm) {
             issues.push(
               `Rapid at line ${move.lineNumber ?? i}`
@@ -1705,6 +1915,10 @@ export class CollisionEngine {
       }
 
       // Check rapid against workpiece stock bounding box
+      /** If.
+       * @param stockAABB - stock a a b b
+       * @returns void
+       */
       if (stockAABB) {
         const toolR = toolpath.tool.diameter / 2;
         const rapidMinZ = Math.min(move.start.z, move.end.z);
@@ -1716,6 +1930,10 @@ export class CollisionEngine {
         const inYRange = move.end.y >= stockAABB.min.y - toolR
           && move.end.y <= stockAABB.max.y + toolR;
 
+        /** If.
+         * @param inXRange - in x range
+         * @returns void
+         */
         if (inXRange && inYRange && rapidMinZ < stockTopZ) {
           issues.push(
             `CRITICAL: Rapid at line ${move.lineNumber ?? i}`
@@ -1755,7 +1973,15 @@ export class CollisionEngine {
     const nearMisses: NearMissResult[] = [];
     const sweptVolume = this.generateSweptVolume(toolpath);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const segment of sweptVolume.segments) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const obstacle of obstacles) {
         const geometry = 'geometry' in obstacle 
           ? obstacle.geometry 
@@ -1766,6 +1992,10 @@ export class CollisionEngine {
 
           const result = this.checkSegmentVsGeometry(segment, geom);
           
+          /** If.
+           * @param !result.collision - !result.collision
+           * @returns void
+           */
           if (!result.collision && result.distance < threshold) {
             const obstacleId = 'fixtureId' in obstacle 
               ? obstacle.fixtureId 
@@ -1811,6 +2041,10 @@ export class CollisionEngine {
       new Vector3(0, -1, 0),  // From -Y
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const approach of approaches) {
       // Check path along approach direction
       const approachLength = 50; // mm
@@ -1827,14 +2061,26 @@ export class CollisionEngine {
         )
       };
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const obstacle of obstacles) {
         const result = this.checkSegmentVsGeometry(segment, obstacle);
+        /** If.
+         * @param result.collision - result.collision
+         * @returns void
+         */
         if (result.collision || result.distance < clearance) {
           safe = false;
           break;
         }
       }
 
+      /** If.
+       * @param safe - safe
+       * @returns void
+       */
       if (safe) {
         return {
           approach,
@@ -1869,6 +2115,10 @@ export class CollisionEngine {
     const issues: string[] = [];
     let minClearance = Infinity;
 
+    /** If.
+     * @param !machine.spindleHead - !machine.spindle head
+     * @returns void
+     */
     if (!machine.spindleHead) {
       return { clear: true, minClearance: Infinity, issues: [] };
     }
@@ -1881,10 +2131,26 @@ export class CollisionEngine {
     );
 
     // Check against fixtures
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const fixture of fixtures) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const fixtureGeom of fixture.geometry) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const headGeom of headGeometries) {
           // Simplified: AABB check
+          /** If.
+           * @param headGeom.type - head geom.type
+           * @returns void
+           */
           if (headGeom.type === 'AABB' && fixtureGeom.type === 'AABB') {
             if (this.checkAABBOverlap(headGeom, fixtureGeom)) {
               issues.push(`Spindle head collision with fixture ${fixture.fixtureId}`);
@@ -1895,7 +2161,15 @@ export class CollisionEngine {
     }
 
     // Check against workpiece
+    /** If.
+     * @param workpiece?.stockGeometry - workpiece?.stock geometry
+     * @returns void
+     */
     if (workpiece?.stockGeometry) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const headGeom of headGeometries) {
         // Simplified check
         const result = this.checkSegmentVsGeometry(
@@ -1911,10 +2185,18 @@ export class CollisionEngine {
           workpiece.stockGeometry
         );
 
+        /** If.
+         * @param result.distance - result.distance
+         * @returns void
+         */
         if (result.distance < minClearance) {
           minClearance = result.distance;
         }
 
+        /** If.
+         * @param result.collision - result.collision
+         * @returns void
+         */
         if (result.collision) {
           issues.push('Spindle head collision with workpiece');
         }
@@ -1945,6 +2227,10 @@ export class CollisionEngine {
 
     // Transform each geometry
     return headGeometry.map(geom => {
+      /** If.
+       * @param geom.type - geom.type
+       * @returns void
+       */
       if (geom.type === 'AABB') {
         // Transform AABB corners and create new AABB
         const corners = [
@@ -1962,6 +2248,10 @@ export class CollisionEngine {
         return this.createAABBFromPoints(transformed);
       }
 
+      /** If.
+       * @param geom.type - geom.type
+       * @returns void
+       */
       if (geom.type === 'sphere') {
         return {
           ...geom,
@@ -1981,10 +2271,18 @@ export class CollisionEngine {
     const toNorm = to.normalize();
     const dot = fromNorm.dot(toNorm);
 
+    /** If.
+     * @param dot - dot
+     * @returns void
+     */
     if (dot > 0.9999) {
       return new Quaternion(0, 0, 0, 1);
     }
 
+    /** If.
+     * @param dot - dot
+     * @returns void
+     */
     if (dot < -0.9999) {
       // 180 degree rotation
       let axis = new Vector3(1, 0, 0).cross(fromNorm);
@@ -2027,7 +2325,15 @@ export class CollisionEngine {
 
     // Add rapid move validation
     const rapidCheck = this.validateRapidMoves(toolpath, machine, fixtures);
+    /** If.
+     * @param !rapidCheck.safe - !rapid check.safe
+     * @returns void
+     */
     if (!rapidCheck.safe) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const issue of rapidCheck.issues) {
         mainReport.collisions.push({
           collision: true,
@@ -2084,6 +2390,10 @@ export class CollisionEngine {
 
     // Create geometry for holder if present
     const holderGeoms: Capsule[] = [];
+    /** If.
+     * @param tool.holder - tool.holder
+     * @returns void
+     */
     if (tool.holder) {
       holderGeoms.push({
         type: 'capsule',
@@ -2096,6 +2406,10 @@ export class CollisionEngine {
     // Check all against obstacles
     const allToolGeoms = [toolGeom, shankGeom, ...holderGeoms];
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tGeom of allToolGeoms) {
       const segment: SweptVolumeSegment = {
         start: tGeom.start,
@@ -2107,13 +2421,25 @@ export class CollisionEngine {
         )
       };
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const obstacle of obstacles) {
         const result = this.checkSegmentVsGeometry(segment, obstacle);
         
+        /** If.
+         * @param result.collision - result.collision
+         * @returns void
+         */
         if (result.collision) {
           issues.push(`Tool assembly collision detected`);
         }
 
+        /** If.
+         * @param result.distance - result.distance
+         * @returns void
+         */
         if (result.distance < minClearance) {
           minClearance = result.distance;
         }
@@ -2157,15 +2483,27 @@ export class CollisionEngine {
     const byCategory: Record<string, string[]> = {};
     let totalLines = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const key of keys) {
       const entry = entries[key];
       totalLines += entry.lines;
 
+      /** If.
+       * @param !bySafetyClass[entry.safety_class] - !by safety class[entry.safety_class]
+       * @returns void
+       */
       if (!bySafetyClass[entry.safety_class]) {
         bySafetyClass[entry.safety_class] = [];
       }
       bySafetyClass[entry.safety_class].push(entry.filename);
 
+      /** If.
+       * @param !byCategory[entry.category] - !by category[entry.category]
+       * @returns void
+       */
       if (!byCategory[entry.category]) {
         byCategory[entry.category] = [];
       }

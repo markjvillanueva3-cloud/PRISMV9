@@ -132,6 +132,10 @@ export class WhiteLayerDetectionEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param risk - risk
+     * @returns void
+     */
     if (risk === "critical" || risk === "high") {
       recs.push("STOP — white layer risk is unacceptable for safety-critical parts");
       if (input.tool_wear_VB_mm > 0.2) recs.push("Replace tool immediately — wear VB > 0.2mm drives temperature");
@@ -156,6 +160,10 @@ export class WhiteLayerDetectionEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; risk:  white layer risk; message: string }
+   */
   validate(input: WhiteLayerInput): { safe: boolean; risk: WhiteLayerRisk; message: string } {
     const result = this.predict(input);
     return {
@@ -165,6 +173,10 @@ export class WhiteLayerDetectionEngine {
     };
   }
 
+  /** Mitigate.
+   * @param input - input data
+   * @returns { original_risk:  white layer risk; mitigated_risk:  white layer risk; changes: string[] }
+   */
   mitigate(input: WhiteLayerInput): { original_risk: WhiteLayerRisk; mitigated_risk: WhiteLayerRisk; changes: string[] } {
     const original = this.predict(input);
     const changes: string[] = [];

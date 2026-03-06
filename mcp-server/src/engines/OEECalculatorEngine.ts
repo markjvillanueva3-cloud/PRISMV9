@@ -94,15 +94,31 @@ export class OEECalculatorEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param availability - availability
+     * @returns void
+     */
     if (availability * 100 < 90) {
       recs.push(`Low availability (${(availability * 100).toFixed(1)}%) — focus on reducing unplanned downtime (${input.unplanned_downtime_min}min)`);
     }
+    /** If.
+     * @param performance - performance
+     * @returns void
+     */
     if (performance * 100 < 95) {
       recs.push(`Performance gap (${(performance * 100).toFixed(1)}%) — investigate speed losses and minor stops`);
     }
+    /** If.
+     * @param quality - quality
+     * @returns void
+     */
     if (quality * 100 < 99) {
       recs.push(`Quality below 99% (${(quality * 100).toFixed(1)}%) — ${rejects} rejects need root cause analysis`);
     }
+    /** If.
+     * @param oee - oee
+     * @returns void
+     */
     if (oee >= 85) {
       recs.push("World-class OEE (≥85%) — maintain current practices");
     } else if (oee >= 65) {

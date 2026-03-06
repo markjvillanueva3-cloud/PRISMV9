@@ -183,6 +183,8 @@ export function quickLookup(params: Record<string, any>): QuickLookupResult {
 /**
  * Parse a voice query and return parameters + spoken response.
  * In production, speech-to-text happens client-side; we get the text.
+  * @param query - query string
+  * @returns voice query result
  */
 export function processVoiceQuery(query: string): VoiceQueryResult {
   const q = query.toLowerCase();
@@ -355,6 +357,7 @@ export function listToolTimers(): ToolLifeTimer[] {
 /**
  * Generate an offline cache bundle with common material/tool/operation combos.
  * The machinist downloads this once; works without network.
+  * @returns offline cache bundle
  */
 export function generateOfflineCache(): OfflineCacheBundle {
   const materials = ["aluminum", "steel", "stainless", "titanium", "inconel"];
@@ -398,6 +401,9 @@ export function generateOfflineCache(): OfflineCacheBundle {
  *   mobile_timer_reset — Reset timer (new tool inserted)
  *   mobile_timer_list  — List active timers
  *   mobile_cache       — Generate offline cache bundle
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function mobileInterface(action: string, params: Record<string, any>): any {
   switch (action) {

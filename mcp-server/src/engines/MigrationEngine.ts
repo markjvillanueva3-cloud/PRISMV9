@@ -63,17 +63,29 @@ export class MigrationEngine {
   private migrations: Migration[] = [];
   private records = new Map<string, MigrationRecord>();
 
+  /** Register.
+   * @param migration - migration
+   * @returns void
+   */
   register(migration: Migration): void {
     if (this.migrations.find(m => m.version === migration.version)) return;
     this.migrations.push(migration);
     this.migrations.sort((a, b) => a.version.localeCompare(b.version));
   }
 
+  /** Apply.
+   * @param targetVersion - target version
+   * @returns migration record[]
+   */
   apply(targetVersion?: string): MigrationRecord[] {
     const results: MigrationRecord[] = [];
     const target = targetVersion || this.migrations[this.migrations.length - 1]?.version;
     if (!target) return results;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const mig of this.migrations) {
       if (mig.version > target) break;
 
@@ -115,12 +127,20 @@ export class MigrationEngine {
     return results;
   }
 
+  /** Rollback.
+   * @param targetVersion - target version
+   * @returns migration record[]
+   */
   rollback(targetVersion?: string): MigrationRecord[] {
     const results: MigrationRecord[] = [];
     const applied = [...this.records.values()]
       .filter(r => r.status === "applied")
       .sort((a, b) => b.version.localeCompare(a.version));
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const record of applied) {
       if (targetVersion && record.version <= targetVersion) break;
 
@@ -149,6 +169,9 @@ export class MigrationEngine {
     return results;
   }
 
+  /** Status.
+   * @returns migration plan
+   */
   status(): MigrationPlan {
     const applied = [...this.records.values()]
       .filter(r => r.status === "applied")
@@ -170,20 +193,34 @@ export class MigrationEngine {
     return { pending, applied, current_version: currentVersion, target_version: targetVersion, steps };
   }
 
+  /** Gets records.
+   * @returns migration record[]
+   */
   getRecords(): MigrationRecord[] {
     return [...this.records.values()].sort((a, b) => a.version.localeCompare(b.version));
   }
 
+  /** Validate.
+   * @returns { valid: boolean; issues: string[] }
+   */
   validate(): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
     const versions = new Set<string>();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const mig of this.migrations) {
       if (versions.has(mig.version)) issues.push(`Duplicate version: ${mig.version}`);
       versions.add(mig.version);
     }
 
     const applied = [...this.records.values()].filter(r => r.status === "applied").map(r => r.version).sort();
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < applied.length; i++) {
       const idx = this.migrations.findIndex(m => m.version === applied[i]);
       if (idx < 0) issues.push(`Applied migration ${applied[i]} not found in registry`);
@@ -192,6 +229,9 @@ export class MigrationEngine {
     return { valid: issues.length === 0, issues };
   }
 
+  /** Clear.
+   * @returns void { this.migrations = []; this.records.clear(); }
+   */
   clear(): void { this.migrations = []; this.records.clear(); }
 }
 

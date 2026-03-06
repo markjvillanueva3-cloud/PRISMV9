@@ -96,6 +96,7 @@ const ACTIONS = ["list", "read", "write", "append", "roadmap_status", "action_tr
 
 /** Registers document dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerDocumentDispatcher(server: any): void {
   server.tool(

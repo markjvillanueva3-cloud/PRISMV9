@@ -114,12 +114,24 @@ const LD_TABLE: { maxLD: number; strategy: ChipEvacuationOutput["strategy"]; bas
  */
 export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipEvacuationOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ChipEvacuationInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0 || input.tool_diameter > 200) {
       issues.push({ field: "tool_diameter", message: `Drill diameter must be 0-200 mm, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param !input.hole_depth - !input.hole_depth
+     * @returns void
+     */
     if (!input.hole_depth || input.hole_depth <= 0 || input.hole_depth > 5000) {
       issues.push({ field: "hole_depth", message: `Hole depth must be 0-5000 mm, got ${input.hole_depth}`, severity: "error" });
     }
@@ -127,9 +139,17 @@ export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipE
     if (!input.material_type || !validMats.includes(input.material_type)) {
       issues.push({ field: "material_type", message: `Material must be one of: ${validMats.join(", ")}`, severity: "error" });
     }
+    /** If.
+     * @param input.system_pressure - input.system_pressure
+     * @returns void
+     */
     if (input.system_pressure === undefined || input.system_pressure < 0) {
       issues.push({ field: "system_pressure", message: `System pressure must be >= 0, got ${input.system_pressure}`, severity: "error" });
     }
+    /** If.
+     * @param input.system_flow - input.system_flow
+     * @returns void
+     */
     if (input.system_flow === undefined || input.system_flow < 0) {
       issues.push({ field: "system_flow", message: `System flow must be >= 0, got ${input.system_flow}`, severity: "error" });
     }
@@ -137,6 +157,10 @@ export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipE
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns chip evacuation output
+   */
   calculate(input: ChipEvacuationInput): ChipEvacuationOutput {
     const warnings: string[] = [];
     const recommendations: string[] = [];
@@ -171,6 +195,10 @@ export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipE
     let retract_height: number | null = null;
     let chip_volume_per_peck: number | null = null;
 
+    /** If.
+     * @param row.peckMult - row.peck mult
+     * @returns void
+     */
     if (row.peckMult > 0) {
       const matPeckMult = PECK_DEPTH_MULT[material_type] || 1.5;
       peck_depth = tool_diameter * Math.min(row.peckMult, matPeckMult);
@@ -185,33 +213,65 @@ export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipE
     const max_depth_no_retract = tool_diameter * 3;
 
     // Warnings and recommendations
+    /** If.
+     * @param !pressure_adequate - !pressure_adequate
+     * @returns void
+     */
     if (!pressure_adequate) {
       warnings.push(`INSUFFICIENT_PRESSURE: Need ${required_pressure.toFixed(0)} bar, have ${system_pressure.toFixed(0)}.`);
       recommendations.push("Upgrade coolant system or use peck drilling with full retract.");
     }
+    /** If.
+     * @param !flow_adequate - !flow_adequate
+     * @returns void
+     */
     if (!flow_adequate) {
       warnings.push(`INSUFFICIENT_FLOW: Need ${required_flow.toFixed(1)} L/min, have ${effective_flow.toFixed(1)}.`);
     }
 
+    /** If.
+     * @param ld_ratio - ld_ratio
+     * @returns void
+     */
     if (ld_ratio > 3 && !coolant_through) {
       recommendations.push(`L/D = ${ld_ratio.toFixed(1)}: Through-spindle coolant strongly recommended.`);
     }
+    /** If.
+     * @param ld_ratio - ld_ratio
+     * @returns void
+     */
     if (ld_ratio > 20) {
       warnings.push(`EXTREME_LD: L/D = ${ld_ratio.toFixed(1)}. Specialized gundrilling equipment required.`);
       recommendations.push("Use single-flute gundrill with high-pressure internal coolant.");
     }
 
+    /** If.
+     * @param material_type - material_type
+     * @returns void
+     */
     if (material_type === "titanium" || material_type === "superalloy") {
       recommendations.push(`${material_type}: Reduce peck depth to ${(tool_diameter * 0.5).toFixed(1)} mm. Monitor torque for chip pack.`);
+      /** If.
+       * @param ld_ratio - ld_ratio
+       * @returns void
+       */
       if (ld_ratio > 5) {
         warnings.push("FIRE_RISK: Ti/superalloy deep drilling. Ensure continuous coolant flow. Never run dry.");
       }
     }
 
+    /** If.
+     * @param material_type - material_type
+     * @returns void
+     */
     if (material_type === "aluminum" && ld_ratio > 5) {
       recommendations.push("Aluminum: Use polished-flute drill. Chip welding risk at depth.");
     }
 
+    /** If.
+     * @param strategy - strategy
+     * @returns void
+     */
     if (strategy === "peck_cycle") {
       const numPecks = peck_depth ? Math.ceil(hole_depth / peck_depth) : 0;
       recommendations.push(`Peck drilling: ~${numPecks} pecks at ${peck_depth?.toFixed(1)} mm depth each.`);
@@ -235,6 +295,9 @@ export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipE
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "chip-evacuation",

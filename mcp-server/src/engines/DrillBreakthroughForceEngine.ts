@@ -159,6 +159,10 @@ export class DrillBreakthroughForceEngine {
 
     // ── 8. Exit burr risk ──
     let burrRisk: BurrRisk = "low";
+    /** If.
+     * @param isThrough - is through
+     * @returns void
+     */
     if (isThrough) {
       if (support === "none" && f > 0.15) burrRisk = "high";
       else if (support === "none" && f > 0.08) burrRisk = "medium";
@@ -174,6 +178,10 @@ export class DrillBreakthroughForceEngine {
     const isSafe = !inBreakthroughZone || support !== "none" || f <= exitFeed;
 
     // ── 10. Recommendations ──
+    /** If.
+     * @param inBreakthroughZone - in breakthrough zone
+     * @returns void
+     */
     if (inBreakthroughZone && support === "none") {
       recs.push(
         `SAFETY: Drill is ${remaining?.toFixed(2)}mm from exit `
@@ -182,6 +190,10 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    /** If.
+     * @param isThrough - is through
+     * @returns void
+     */
     if (isThrough && support === "none") {
       recs.push(
         `Through-hole with no exit support — peak thrust will spike `
@@ -191,6 +203,10 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    /** If.
+     * @param burrRisk - burr risk
+     * @returns void
+     */
     if (burrRisk === "high") {
       recs.push(
         `High exit burr risk — consider deburring pass, `
@@ -198,6 +214,10 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    /** If.
+     * @param web - web
+     * @returns void
+     */
     if (web / d > 0.25) {
       recs.push(
         `Large web ratio (${(web / d * 100).toFixed(0)}%) — `
@@ -206,6 +226,10 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    /** If.
+     * @param f - f
+     * @returns void
+     */
     if (f > 0.35 * d) {
       recs.push(
         `Feed ${f} mm/rev is very high for ${d}mm drill `
@@ -214,6 +238,10 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Drilling parameters nominal — thrust ${Math.round(Ft_total)}N, `

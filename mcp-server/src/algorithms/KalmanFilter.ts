@@ -71,6 +71,10 @@ export interface KalmanFilterOutput extends WithWarnings {
  */
 export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: KalmanFilterInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     const n = input.n_states, m = input.n_measurements;
@@ -86,6 +90,10 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns kalman filter output
+   */
   calculate(input: KalmanFilterInput): KalmanFilterOutput {
     const warnings: string[] = [];
     const { n_states: n, n_measurements: m, measurements } = input;
@@ -97,8 +105,20 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
 
     const matMul = (A: { flat: number[]; rows: number; cols: number }, B: { flat: number[]; rows: number; cols: number }) => {
       const C = mat(new Array(A.rows * B.cols).fill(0), A.rows, B.cols);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < A.rows; i++)
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < B.cols; j++)
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let k = 0; k < A.cols; k++)
             C.flat[i * B.cols + j] += get(A, i, k) * get(B, k, j);
       return C;
@@ -112,7 +132,15 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
 
     const transpose = (M: { flat: number[]; rows: number; cols: number }) => {
       const T = mat(new Array(M.rows * M.cols).fill(0), M.cols, M.rows);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < M.rows; i++)
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < M.cols; j++)
           T.flat[j * M.rows + i] = M.flat[i * M.cols + j];
       return T;
@@ -122,6 +150,10 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
       const sz = M.rows;
       const aug = Array.from({ length: sz }, (_, i) =>
         [...Array.from({ length: sz }, (_, j) => get(M, i, j)), ...Array(sz).fill(0).map((_, j) => i === j ? 1 : 0)]);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let col = 0; col < sz; col++) {
         let maxRow = col;
         for (let row = col + 1; row < sz; row++) if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row;
@@ -129,6 +161,10 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
         const pivot = aug[col][col];
         if (Math.abs(pivot) < 1e-15) { aug[col][col] = 1e-15; continue; }
         for (let j = 0; j < 2 * sz; j++) aug[col][j] /= pivot;
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let row = 0; row < sz; row++) {
           if (row === col) continue;
           const f = aug[row][col];
@@ -152,11 +188,19 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
     const innovations: number[][] = [];
     const nis: number[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let t = 0; t < measurements.length; t++) {
       const z = mat([...measurements[t]], m, 1);
 
       // Predict
       let xPred = matMul(F, x);
+      /** If.
+       * @param input.B - input. b
+       * @returns void
+       */
       if (input.B && input.u?.[t]) {
         const B = mat([...input.B], n, input.u[t].length);
         const u = mat([...input.u[t]], input.u[t].length, 1);
@@ -174,7 +218,15 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
       const I_KH = mat(Array(n * n).fill(0).map((_, i) => (Math.floor(i / n) === i % n ? 1 : 0) - K.flat[Math.floor(i / n) * m] * H.flat[(i % n)]), n, n);
       // Simplified: P = (I - KH) P_pred
       P = mat(new Array(n * n).fill(0), n, n);
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < n; i++)
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < n; j++) {
           let sum = 0;
           for (let k = 0; k < n; k++) sum += I_KH.flat[i * n + k] * PPred.flat[k * n + j];
@@ -209,6 +261,9 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "kalman-filter",

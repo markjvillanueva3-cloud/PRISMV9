@@ -6,6 +6,10 @@ import { Router } from "express";
 import { requireFields } from "../middleware/validation.js";
 import type { CallToolFn } from "./index.js";
 
+/** Creates export router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createExportRouter(callTool: CallToolFn): Router {
   const router = Router();
 

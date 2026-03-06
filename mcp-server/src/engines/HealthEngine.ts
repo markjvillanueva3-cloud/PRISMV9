@@ -64,19 +64,36 @@ export class HealthEngine {
   private version = "1.0.0";
   private maxHistory = 500;
 
+  /** Registers component.
+   * @param name - name identifier
+   * @param checker - checker
+   * @returns void
+   */
   registerComponent(name: string, checker: HealthChecker): void {
     this.components.set(name, checker);
   }
 
+  /** Unregister Component.
+   * @param name - name identifier
+   * @returns true if condition is met
+   */
   unregisterComponent(name: string): boolean {
     return this.components.delete(name);
   }
 
+  /** Check.
+   * @returns health check
+   */
   check(): HealthCheck {
     const results: HealthComponent[] = [];
     let passed = 0;
     let failed = 0;
 
+    /** For.
+     * @param const - const
+     * @param checker] - checker]
+     * @returns void
+     */
     for (const [name, checker] of this.components) {
       const start = performance.now();
       try {
@@ -128,12 +145,23 @@ export class HealthEngine {
     };
   }
 
+  /** Liveness.
+   * @returns { alive: boolean; uptime_sec: number }
+   */
   liveness(): { alive: boolean; uptime_sec: number } {
     return { alive: true, uptime_sec: Math.round((Date.now() - this.startTime) / 1000) };
   }
 
+  /** Readiness.
+   * @returns { ready: boolean; components: { name: string; ready: boolean }[] }
+   */
   readiness(): { ready: boolean; components: { name: string; ready: boolean }[] } {
     const components: { name: string; ready: boolean }[] = [];
+    /** For.
+     * @param const - const
+     * @param checker] - checker]
+     * @returns void
+     */
     for (const [name, checker] of this.components) {
       try {
         const result = checker();
@@ -145,18 +173,32 @@ export class HealthEngine {
     return { ready: components.every(c => c.ready), components };
   }
 
+  /** Gets history.
+   * @param limit - maximum number of results
+   * @returns health history entry[]
+   */
   getHistory(limit: number = 50): HealthHistoryEntry[] {
     return this.history.slice(-limit);
   }
 
+  /** Sets version.
+   * @param version - version
+   * @returns void
+   */
   setVersion(version: string): void {
     this.version = version;
   }
 
+  /** List Components.
+   * @returns string[]
+   */
   listComponents(): string[] {
     return [...this.components.keys()];
   }
 
+  /** Clear.
+   * @returns void
+   */
   clear(): void {
     this.components.clear();
     this.history = [];

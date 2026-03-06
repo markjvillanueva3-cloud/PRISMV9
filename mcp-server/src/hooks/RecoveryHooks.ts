@@ -627,6 +627,7 @@ const onStateRecovery: HookDefinition = {
 
 /**
  * Get recovery system status
+  * @returns void
  */
 export function getRecoveryStatus() {
   return {
@@ -640,6 +641,8 @@ export function getRecoveryStatus() {
 
 /**
  * Reset circuit breaker
+  * @param name - name string
+  * @returns true if condition is met
  */
 export function resetCircuitBreaker(name: string): boolean {
   const circuit = circuitStates.get(name);
@@ -656,6 +659,7 @@ export function resetCircuitBreaker(name: string): boolean {
 
 /**
  * Clear degraded features
+  * @returns void
  */
 export function clearDegradedFeatures(): void {
   recoveryState.degradedFeatures.clear();

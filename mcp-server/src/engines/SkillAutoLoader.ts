@@ -325,6 +325,11 @@ export function getChainForDomain(domain: string): ChainRecommendation | null {
  * - 50-70%: Load primary skill (medium) + chain recommendation — max 40 lines
  * - 70-85%: Primary skill hint only — max 15 lines
  * - >85%: Skip (autoSkillHint handles minimal hints)
+  * @param callNumber - call number value
+  * @param domain - domain string
+  * @param action - action string
+  * @param params - configuration options
+  * @returns skill auto load result
  */
 export function autoLoadForTask(
   callNumber: number,
@@ -442,6 +447,7 @@ export function getLoadedExcerptsBlock(result: SkillAutoLoadResult): string {
 // ============================================================================
 
 /** Clear Skill Cache.
+  * @returns void
  */
 export function clearSkillCache(): void {
   excerptCache.clear();

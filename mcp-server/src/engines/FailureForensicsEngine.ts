@@ -465,6 +465,9 @@ function investigateCrash(params: Record<string, any>): ForensicDiagnosis {
  *   forensic_crash_types      — List all crash scenario types
  *   forensic_history          — Get forensic diagnosis history
  *   forensic_get              — Get specific diagnosis by ID
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function failureForensics(action: string, params: Record<string, any>): any {
   switch (action) {

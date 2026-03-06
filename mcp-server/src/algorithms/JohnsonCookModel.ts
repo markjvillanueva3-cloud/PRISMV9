@@ -99,36 +99,80 @@ const LIMITS = {
  */
 export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCookOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: JohnsonCookInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param input.strain - input.strain
+     * @returns void
+     */
     if (input.strain === undefined || input.strain < 0) {
       issues.push({ field: "strain", message: `Strain must be >= 0, got ${input.strain}`, severity: "error" });
     }
+    /** If.
+     * @param input.strain - input.strain
+     * @returns void
+     */
     if (input.strain > LIMITS.MAX_STRAIN) {
       issues.push({ field: "strain", message: `Strain ${input.strain} exceeds max ${LIMITS.MAX_STRAIN}`, severity: "warning" });
     }
+    /** If.
+     * @param input.strain_rate - input.strain_rate
+     * @returns void
+     */
     if (input.strain_rate === undefined || input.strain_rate < LIMITS.MIN_STRAIN_RATE) {
       issues.push({ field: "strain_rate", message: `Strain rate must be >= ${LIMITS.MIN_STRAIN_RATE}, got ${input.strain_rate}`, severity: "error" });
     }
+    /** If.
+     * @param !input.A - !input. a
+     * @returns void
+     */
     if (!input.A || input.A < LIMITS.MIN_A || input.A > LIMITS.MAX_A) {
       issues.push({ field: "A", message: `A must be ${LIMITS.MIN_A}-${LIMITS.MAX_A} MPa, got ${input.A}`, severity: "error" });
     }
+    /** If.
+     * @param input.B - input. b
+     * @returns void
+     */
     if (input.B === undefined || input.B < 0) {
       issues.push({ field: "B", message: `B must be >= 0, got ${input.B}`, severity: "error" });
     }
+    /** If.
+     * @param input.n - input.n
+     * @returns void
+     */
     if (input.n === undefined || input.n < 0 || input.n > 2) {
       issues.push({ field: "n", message: `n must be 0-2, got ${input.n}`, severity: "error" });
     }
+    /** If.
+     * @param input.C - input. c
+     * @returns void
+     */
     if (input.C === undefined || input.C < 0 || input.C > 1) {
       issues.push({ field: "C", message: `C must be 0-1, got ${input.C}`, severity: "error" });
     }
+    /** If.
+     * @param input.m - input.m
+     * @returns void
+     */
     if (input.m === undefined || input.m < 0 || input.m > 5) {
       issues.push({ field: "m", message: `m must be 0-5, got ${input.m}`, severity: "error" });
     }
+    /** If.
+     * @param !input.T_melt - !input. t_melt
+     * @returns void
+     */
     if (!input.T_melt || input.T_melt < 100) {
       issues.push({ field: "T_melt", message: `T_melt must be >= 100°C, got ${input.T_melt}`, severity: "error" });
     }
+    /** If.
+     * @param input.temperature - input.temperature
+     * @returns void
+     */
     if (input.temperature !== undefined && input.T_melt && input.temperature >= input.T_melt) {
       issues.push({ field: "temperature", message: `Temperature ${input.temperature}°C >= T_melt ${input.T_melt}°C`, severity: "error" });
     }
@@ -136,6 +180,10 @@ export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCook
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns johnson cook output
+   */
   calculate(input: JohnsonCookInput): JohnsonCookOutput {
     const warnings: string[] = [];
     const {
@@ -161,9 +209,17 @@ export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCook
     // Thermal softening term: [1 - T*^m]
     let thermal_term = 1.0;
     let T_star = 0;
+    /** If.
+     * @param temperature - temperature
+     * @returns void
+     */
     if (temperature > T_ref) {
       T_star = Math.min((temperature - T_ref) / (T_melt - T_ref), 0.999);
       thermal_term = 1 - Math.pow(T_star, m);
+      /** If.
+       * @param temperature - temperature
+       * @returns void
+       */
       if (temperature > T_melt * 0.9) {
         warnings.push(`Temperature ${temperature}°C near melting ${T_melt}°C — thermal softening dominant`);
       }
@@ -173,6 +229,10 @@ export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCook
     let stress = strain_term * rate_term * thermal_term;
 
     // Safety clamp
+    /** If.
+     * @param stress - stress
+     * @returns void
+     */
     if (stress > LIMITS.MAX_STRESS) {
       warnings.push(`Stress ${stress.toFixed(0)} MPa exceeds limit, capped at ${LIMITS.MAX_STRESS}`);
       stress = LIMITS.MAX_STRESS;
@@ -180,9 +240,17 @@ export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCook
     stress = Math.max(stress, 0);
 
     // Warnings for extreme conditions
+    /** If.
+     * @param strain_rate - strain_rate
+     * @returns void
+     */
     if (strain_rate > 1e6) {
       warnings.push(`Very high strain rate (${strain_rate.toExponential(1)} /s) — J-C model may lose accuracy`);
     }
+    /** If.
+     * @param T_star - t_star
+     * @returns void
+     */
     if (T_star > 0.8) {
       warnings.push(`High homologous temperature T*=${T_star.toFixed(2)} — near-melt behavior`);
     }
@@ -198,6 +266,9 @@ export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCook
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "johnson-cook",

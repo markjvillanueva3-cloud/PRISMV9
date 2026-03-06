@@ -107,6 +107,10 @@ let tenantIdCounter = 0;
 export class TenantEngine {
   private tenants = new Map<string, Tenant>();
 
+  /** Create.
+   * @param input - input data
+   * @returns tenant
+   */
   create(input: TenantCreateInput): Tenant {
     tenantIdCounter++;
     const id = `TNT-${String(tenantIdCounter).padStart(4, "0")}`;
@@ -128,10 +132,18 @@ export class TenantEngine {
     return tenant;
   }
 
+  /** Get.
+   * @param tenantId - tenant id
+   * @returns tenant | undefined
+   */
   get(tenantId: string): Tenant | undefined {
     return this.tenants.get(tenantId);
   }
 
+  /** List.
+   * @param filters - filters
+   * @returns tenant[]
+   */
   list(filters?: { status?: TenantStatus; plan?: TenantPlan }): Tenant[] {
     let result = [...this.tenants.values()];
     if (filters?.status) result = result.filter(t => t.status === filters.status);
@@ -139,6 +151,11 @@ export class TenantEngine {
     return result;
   }
 
+  /** Update.
+   * @param tenantId - tenant id
+   * @param updates - updates
+   * @returns tenant | undefined
+   */
   update(tenantId: string, updates: { name?: string; plan?: TenantPlan; status?: TenantStatus; settings?: Partial<TenantSettings> }): Tenant | undefined {
     const t = this.tenants.get(tenantId);
     if (!t) return undefined;
@@ -152,6 +169,11 @@ export class TenantEngine {
     return t;
   }
 
+  /** Checks quota.
+   * @param tenantId - tenant id
+   * @param resource - resource
+   * @returns { within_quota: boolean; current: number; limit: number; pct_used: number }
+   */
   checkQuota(tenantId: string, resource: keyof TenantQuota): { within_quota: boolean; current: number; limit: number; pct_used: number } {
     const t = this.tenants.get(tenantId);
     if (!t) return { within_quota: false, current: 0, limit: 0, pct_used: 0 };
@@ -173,6 +195,12 @@ export class TenantEngine {
     };
   }
 
+  /** Record Usage.
+   * @param tenantId - tenant id
+   * @param resource - resource
+   * @param delta - delta
+   * @returns true if condition is met
+   */
   recordUsage(tenantId: string, resource: "users" | "machines" | "programs" | "storage_mb" | "api_calls", delta: number): boolean {
     const t = this.tenants.get(tenantId);
     if (!t) return false;
@@ -187,6 +215,9 @@ export class TenantEngine {
     return true;
   }
 
+  /** Gets stats.
+   * @returns { total: number; by_plan:  record< tenant plan, number>; by_status:  record< tenant status, number> }
+   */
   getStats(): { total: number; by_plan: Record<TenantPlan, number>; by_status: Record<TenantStatus, number> } {
     const byPlan: Record<TenantPlan, number> = { free: 0, starter: 0, professional: 0, enterprise: 0 };
     const byStatus: Record<TenantStatus, number> = { active: 0, suspended: 0, trial: 0, deactivated: 0 };
@@ -197,6 +228,9 @@ export class TenantEngine {
     return { total: this.tenants.size, by_plan: byPlan, by_status: byStatus };
   }
 
+  /** Clear.
+   * @returns void { this.tenants.clear(); tenant id counter = 0; }
+   */
   clear(): void { this.tenants.clear(); tenantIdCounter = 0; }
 }
 

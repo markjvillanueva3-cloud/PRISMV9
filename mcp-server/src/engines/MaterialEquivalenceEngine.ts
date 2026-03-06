@@ -87,12 +87,24 @@ export class MaterialEquivalenceEngine {
     const targets = input.target_standards || ["AISI", "DIN", "EN", "JIS", "UNS"];
     const equivalents: MaterialEquivalent[] = [];
 
+    /** If.
+     * @param match - match
+     * @returns void
+     */
     if (match) {
       const standardMap: Record<string, string> = {
         AISI: match.aisi, DIN: match.din, EN: match.en, JIS: match.jis, UNS: match.uns,
       };
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const std of targets) {
         const val = standardMap[std];
+        /** If.
+         * @param val - value to set
+         * @returns void
+         */
         if (val && val !== input.designation) {
           equivalents.push({ standard: std as MaterialStandard, designation: val, confidence: "exact" });
         }
@@ -117,6 +129,11 @@ export class MaterialEquivalenceEngine {
     };
   }
 
+  /** Compare.
+   * @param matA - mat a
+   * @param matB - mat b
+   * @returns { match_pct: number; differences: string[] }
+   */
   compare(matA: string, matB: string): { match_pct: number; differences: string[] } {
     const a = EQUIV_DB.find(r => r.aisi === matA || r.din === matA || r.en === matA);
     const b = EQUIV_DB.find(r => r.aisi === matB || r.din === matB || r.en === matB);

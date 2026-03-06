@@ -106,6 +106,13 @@ export class ToolCribEngine {
 
   private checkoutLog: CheckoutRecord[] = [];
 
+  /** Checks out.
+   * @param toolId - tool id
+   * @param operatorId - operator id
+   * @param machineId - machine id
+   * @param jobId - job id
+   * @returns tool crib checkout
+   */
   checkout(toolId: string, operatorId: string, machineId: string, jobId: string): ToolCribCheckout {
     const item = this.inventory.find(i => i.tool_id === toolId);
     if (!item) return { success: false, record: null, message: `Tool ${toolId} not found`, remaining_available: 0 };
@@ -125,12 +132,23 @@ export class ToolCribEngine {
     return { success: true, record, message: `Checked out ${item.description}`, remaining_available: item.available_quantity };
   }
 
+  /** Checks in.
+   * @param toolId - tool id
+   * @param operatorId - operator id
+   * @param usageMin - usage min
+   * @param condition - condition
+   * @returns tool crib checkin
+   */
   checkin(toolId: string, operatorId: string, usageMin: number, condition: CheckoutRecord["condition_on_return"]): ToolCribCheckin {
     const item = this.inventory.find(i => i.tool_id === toolId);
     if (!item) return { success: false, record: null, remaining_life_pct: 0, recommendation: "scrap" };
 
     // Find matching checkout record
     const record = this.checkoutLog.find(r => r.tool_id === toolId && r.operator_id === operatorId && !r.actual_return_time);
+    /** If.
+     * @param record - record
+     * @returns void
+     */
     if (record) {
       record.actual_return_time = new Date().toISOString();
       record.usage_min = usageMin;
@@ -143,6 +161,10 @@ export class ToolCribEngine {
     let recommendation: ToolCribCheckin["recommendation"];
     const remainingLife = Math.max(0, ((item.avg_life_min - usageMin) / item.avg_life_min) * 100);
 
+    /** If.
+     * @param condition - condition
+     * @returns void
+     */
     if (condition === "broken" || condition === "scrap") {
       recommendation = "scrap";
       item.total_quantity--;
@@ -157,6 +179,9 @@ export class ToolCribEngine {
     return { success: true, record: record || null, remaining_life_pct: Math.round(remainingLife), recommendation };
   }
 
+  /** Inventory Report.
+   * @returns inventory report
+   */
   inventoryReport(): InventoryReport {
     const belowReorder = this.inventory.filter(i => i.available_quantity <= i.reorder_point);
     const categories: Record<string, { count: number; value: number }> = {};
@@ -164,6 +189,10 @@ export class ToolCribEngine {
     let totalCheckedOut = 0;
     let totalItems = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const item of this.inventory) {
       totalValue += item.total_quantity * item.unit_cost;
       totalCheckedOut += item.checked_out;
@@ -187,10 +216,21 @@ export class ToolCribEngine {
     };
   }
 
+  /** Reorder Recommendations.
+   * @returns reorder recommendation[]
+   */
   reorderRecommendations(): ReorderRecommendation[] {
     const recs: ReorderRecommendation[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const item of this.inventory) {
+      /** If.
+       * @param item.available_quantity - item.available_quantity
+       * @returns void
+       */
       if (item.available_quantity <= item.reorder_point) {
         const urgency: ReorderRecommendation["urgency"] =
           item.available_quantity === 0 ? "immediate"
@@ -217,6 +257,10 @@ export class ToolCribEngine {
     return recs;
   }
 
+  /** Gets item.
+   * @param toolId - tool id
+   * @returns tool crib item | undefined
+   */
   getItem(toolId: string): ToolCribItem | undefined {
     return this.inventory.find(i => i.tool_id === toolId);
   }

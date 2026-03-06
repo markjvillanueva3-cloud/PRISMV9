@@ -21,6 +21,8 @@
  * boundaries in the Z direction." and "Traversing movements on the clearance
  * plane are not checked with regard to collisions. Therefore this plane must
  * be placed at a sufficient distance above the surface of the workpiece."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateClearancePlane(params: {
   clearancePlaneZ: number;
@@ -61,6 +63,8 @@ export function validateClearancePlane(params: {
  * From Manual 4: "Sum of (negative) stock allowance and tool corner radius
  * must not become negative." and "Surface gaps should not exceed:
  * 2 x (tool radius + negative allowance)."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateNegativeAllowance(params: {
   allowanceMm: number;
@@ -137,6 +141,8 @@ export function validateNegativeAllowance(params: {
  *
  * From Manual 1: "This function should always be enabled (it is active by
  * default) in order to avoid faulty calculations."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateGeometryCheckEnabled(params: {
   automaticGeometryCheck: boolean;
@@ -166,6 +172,8 @@ export function validateGeometryCheckEnabled(params: {
  * as definition values that have already been created will not be converted.
  * Copying jobs between hyperMILL documents with different measurement systems
  * is not allowed."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateMeasurementSystem(params: {
   currentSystem: "metric" | "inch";
@@ -196,6 +204,8 @@ export function validateMeasurementSystem(params: {
  *
  * From Manual 2: "Only turning tools with a round insert are permitted
  * in High Performance Mode."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateTurningHPM(params: {
   highPerformanceMode: boolean;
@@ -226,6 +236,8 @@ export function validateTurningHPM(params: {
  * generating the rest material, the corresponding rest material cycle must
  * also be changed. Otherwise, there is a risk that the tool could plunge
  * into the material."
+  * @param params - configuration options
+  * @returns { valid: boolean; warnings: string[] }
  */
 export function validateRestMaterialToolChange(params: {
   previousToolDiameterMm: number;

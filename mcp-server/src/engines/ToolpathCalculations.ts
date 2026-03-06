@@ -895,6 +895,12 @@ export const toolpathCalculations = {
  * When ae < 50% of tool diameter, the actual chip thickness is less than fz.
  * Must increase programmed fz to maintain effective chip load.
  * This is what separates advanced from basic speed/feed calculators.
+  * @param tool_diameter - tool_diameter value
+  * @param radial_depth - radial_depth value
+  * @param programmed_fz - programmed_fz value
+  * @param number_of_teeth - number_of_teeth value
+  * @param cutting_speed - cutting_speed value
+  * @returns result object
  */
 export function calculateChipThinning(
   tool_diameter: number,
@@ -950,6 +956,17 @@ export function calculateChipThinning(
  * Multi-Pass Strategy Optimizer
  * Given total stock to remove, calculates optimal number of passes,
  * DOC per pass, and parameters for rough → semi → finish sequence.
+  * @param total_stock - total_stock value
+  * @param tool_diameter - tool_diameter value
+  * @param material_kc1_1 - material_kc1_1 value
+  * @param machine_power_kw - machine_power_kw value
+  * @param cutting_speed_rough - cutting_speed_rough value
+  * @param cutting_speed_finish - cutting_speed_finish value
+  * @param fz_rough - fz_rough value
+  * @param fz_finish - fz_finish value
+  * @param target_Ra - target_ ra value
+  * @param cut_length_mm - cut_length_mm value
+  * @returns result object
  */
 export function calculateMultiPassStrategy(
   total_stock: number,        // mm to remove
@@ -1062,6 +1079,14 @@ export function calculateMultiPassStrategy(
 /**
  * Coolant Strategy Recommendation
  * Based on material, operation, speed, and tool — recommends optimal coolant approach.
+  * @param iso_group - iso_group string
+  * @param operation - operation string
+  * @param cutting_speed - cutting_speed value
+  * @param tool_has_coolant_through - whether tool_has_coolant_through
+  * @param material_thermal_conductivity - material_thermal_conductivity value
+  * @param machine_has_tsc - whether machine_has_tsc
+  * @param material_subtype - material_subtype string
+  * @returns result object
  */
 export function recommendCoolantStrategy(
   iso_group: string,
@@ -1208,6 +1233,10 @@ function getAlternatives(primary: string, iso_group: string): any[] {
 /**
  * G-Code Snippet Generator
  * Generates ready-to-paste G-code for common operations across controller families.
+  * @param controller - controller string
+  * @param operation - operation string
+  * @param params - configuration options
+  * @returns result object
  */
 export function generateGCodeSnippet(
   controller: string,

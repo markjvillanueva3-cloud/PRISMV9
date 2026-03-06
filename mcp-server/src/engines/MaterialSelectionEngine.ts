@@ -169,6 +169,10 @@ export class MaterialSelectionEngine {
   recommend(req: MaterialRequirements): MaterialCandidate[] {
     const candidates: MaterialCandidate[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const mat of MATERIALS) {
       const { score, rationale, trade_offs } = scoreMaterial(mat, req);
       candidates.push({
@@ -189,10 +193,18 @@ export class MaterialSelectionEngine {
     return candidates.slice(0, 5);
   }
 
+  /** Compare.
+   * @param materialIds - material ids
+   * @returns material comparison result
+   */
   compare(materialIds: string[]): MaterialComparisonResult {
     const candidates: MaterialCandidate[] = [];
     const table: Record<string, Record<string, number>> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of materialIds) {
       const mat = MATERIALS.find(m => m.name.toLowerCase().replace(/[\s-]+/g, "_") === id) || MATERIALS[0];
       const { score, rationale, trade_offs } = scoreMaterial(mat, {});
@@ -215,6 +227,10 @@ export class MaterialSelectionEngine {
     return { candidates, best_match: best.material_id, comparison_table: table };
   }
 
+  /** Machinability.
+   * @param materialId - material id
+   * @returns machinability report
+   */
   machinability(materialId: string): MachinabilityReport {
     const mat = MATERIALS.find(m => m.name.toLowerCase().replace(/[\s-]+/g, "_") === materialId) || MATERIALS[0];
     const speedFactor = mat.machinability / 100;

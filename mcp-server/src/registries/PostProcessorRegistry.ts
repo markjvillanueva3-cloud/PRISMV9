@@ -352,6 +352,10 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
     log.info("Loading PostProcessorRegistry...");
 
     // Load built-in post processors
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const pp of BUILT_IN_POST_PROCESSORS) {
       this.entries.set(pp.post_id, {
         id: pp.post_id,
@@ -384,6 +388,10 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
       path.join(PATHS.STATE_DIR, "post-processor-registry.json"),
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const dbPath of dbPaths) {
       try {
         if (!await fileExists(dbPath)) continue;
@@ -420,6 +428,11 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
     this.indexByController.clear();
     this.indexByType.clear();
 
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const pp = entry.data;
 
@@ -555,6 +568,10 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
   async handleTool(name: string, args: any): Promise<any> {
     await this.ensureLoaded();
 
+    /** Switch.
+     * @param name - name identifier
+     * @returns void
+     */
     switch (name) {
       case "post_get":
         return this.getPostProcessor(args.id || args.post_id);

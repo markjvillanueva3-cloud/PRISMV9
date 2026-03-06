@@ -477,6 +477,10 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
 
     log.info("Loading CoolantRegistry...");
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const coolant of COOLANT_DATA) {
       this.set(coolant.id, coolant, "built-in");
     }
@@ -499,21 +503,41 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
   }): { coolants: CoolantEntry[]; total: number } {
     let results = this.all();
 
+    /** If.
+     * @param opts.category - opts.category
+     * @returns void
+     */
     if (opts.category) {
       results = results.filter(c => c.category === opts.category);
     }
+    /** If.
+     * @param opts.base - opts.base
+     * @returns void
+     */
     if (opts.base) {
       results = results.filter(c => c.base === opts.base);
     }
+    /** If.
+     * @param opts.delivery - opts.delivery
+     * @returns void
+     */
     if (opts.delivery) {
       results = results.filter(c => c.delivery.includes(opts.delivery!));
     }
+    /** If.
+     * @param opts.material_group - opts.material_group
+     * @returns void
+     */
     if (opts.material_group) {
       const mg = opts.material_group.toUpperCase();
       results = results.filter(c =>
         c.compatible_materials.includes(mg) && !c.incompatible_materials.includes(mg)
       );
     }
+    /** If.
+     * @param opts.operation - opts.operation
+     * @returns void
+     */
     if (opts.operation) {
       const op = opts.operation.toLowerCase() as keyof CoolantEntry["suitability"];
       if (op in (results[0]?.suitability ?? {})) {
@@ -521,6 +545,10 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
         results.sort((a, b) => b.suitability[op] - a.suitability[op]);
       }
     }
+    /** If.
+     * @param opts.query - opts.query
+     * @returns void
+     */
     if (opts.query) {
       const q = opts.query.toLowerCase();
       results = results.filter(c =>
@@ -552,6 +580,10 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
       !c.incompatible_materials.includes(mg)
     );
 
+    /** If.
+     * @param opts.delivery - opts.delivery
+     * @returns void
+     */
     if (opts.delivery) {
       candidates = candidates.filter(c => c.delivery.includes(opts.delivery!));
     }
@@ -561,6 +593,10 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
       const suitA = a.suitability[op] ?? 0;
       const suitB = b.suitability[op] ?? 0;
       if (suitA !== suitB) return suitB - suitA;
+      /** If.
+       * @param a.sfc_factors.tool_life_factor - a.sfc_factors.tool_life_factor
+       * @returns void
+       */
       if (a.sfc_factors.tool_life_factor !== b.sfc_factors.tool_life_factor) {
         return b.sfc_factors.tool_life_factor - a.sfc_factors.tool_life_factor;
       }
@@ -592,9 +628,17 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
     const by_base: Record<string, number> = {};
     const by_delivery: Record<string, number> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const c of all) {
       by_category[c.category] = (by_category[c.category] || 0) + 1;
       by_base[c.base] = (by_base[c.base] || 0) + 1;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const d of c.delivery) {
         by_delivery[d] = (by_delivery[d] || 0) + 1;
       }

@@ -61,6 +61,13 @@ export class EventEngine {
   private topicCounts = new Map<string, number>();
   private maxHistory = 1000;
 
+  /** Emit.
+   * @param topic - topic
+   * @param payload - payload
+   * @param source - source
+   * @param correlationId - correlation id
+   * @returns event message
+   */
   emit(topic: string, payload: unknown, source: string = "system", correlationId?: string): EventMessage {
     eventIdCounter++;
     const event: EventMessage = {
@@ -87,6 +94,10 @@ export class EventEngine {
       }
     }
 
+    /** If.
+     * @param !delivered - !delivered
+     * @returns void
+     */
     if (!delivered) {
       this.deadLetter.push(event);
       if (this.deadLetter.length > 500) this.deadLetter.shift();
@@ -95,6 +106,12 @@ export class EventEngine {
     return event;
   }
 
+  /** Subscribe.
+   * @param topicPattern - topic pattern
+   * @param subscriber - subscriber
+   * @param handler - handler
+   * @returns event subscription
+   */
   subscribe(topicPattern: string, subscriber: string, handler: EventHandler): EventSubscription {
     subIdCounter++;
     const id = `SUB-${String(subIdCounter).padStart(6, "0")}`;
@@ -106,24 +123,46 @@ export class EventEngine {
     return sub;
   }
 
+  /** Unsubscribe.
+   * @param subscriptionId - subscription id
+   * @returns true if condition is met
+   */
   unsubscribe(subscriptionId: string): boolean {
     return this.subscriptions.delete(subscriptionId);
   }
 
+  /** Gets history.
+   * @param topic - topic
+   * @param limit - maximum number of results
+   * @returns event message[]
+   */
   getHistory(topic?: string, limit: number = 50): EventMessage[] {
     let result = [...this.history];
     if (topic) result = result.filter(e => this.matchTopic(topic, e.topic));
     return result.slice(-limit);
   }
 
+  /** Replay.
+   * @param topic - topic
+   * @param since - since
+   * @returns event message[]
+   */
   replay(topic: string, since?: string): EventMessage[] {
     let events = this.history.filter(e => this.matchTopic(topic, e.topic));
+    /** If.
+     * @param since - since
+     * @returns void
+     */
     if (since) {
       const sinceMs = new Date(since).getTime();
       events = events.filter(e => new Date(e.timestamp).getTime() >= sinceMs);
     }
 
     // Re-deliver to subscribers
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const event of events) {
       for (const { sub, handler } of this.subscriptions.values()) {
         if (this.matchTopic(sub.topic_pattern, event.topic)) {
@@ -135,14 +174,24 @@ export class EventEngine {
     return events;
   }
 
+  /** List Subscriptions.
+   * @returns event subscription[]
+   */
   listSubscriptions(): EventSubscription[] {
     return [...this.subscriptions.values()].map(s => s.sub);
   }
 
+  /** Gets dead letter.
+   * @param limit - maximum number of results
+   * @returns event message[]
+   */
   getDeadLetter(limit: number = 50): EventMessage[] {
     return this.deadLetter.slice(-limit);
   }
 
+  /** Stats.
+   * @returns event stats
+   */
   stats(): EventStats {
     const topicEntries: Record<string, number> = {};
     for (const [k, v] of this.topicCounts) topicEntries[k] = v;
@@ -156,6 +205,9 @@ export class EventEngine {
     };
   }
 
+  /** Clear.
+   * @returns void
+   */
   clear(): void {
     this.subscriptions.clear();
     this.history = [];

@@ -811,6 +811,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     this.buildIndexes();
     
     // W5: Only mark loaded if we actually got data, or if no data files exist
+    /** If.
+     * @param this.entries.size - this.entries.size
+     * @returns void
+     */
     if (this.entries.size > 0) {
       this.loaded = true;
       log.info(`MachineRegistry loaded: ${this.entries.size} machines`);
@@ -843,6 +847,11 @@ export class MachineRegistry extends BaseRegistry<Machine> {
         }
       }));
 
+      /** For.
+       * @param const - const
+       * @param data - input data
+       * @returns void
+       */
       for (const { file, data } of results) {
         if (!data) continue;
         // R1-MS2: Handle multiple formats
@@ -855,6 +864,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
           machines = [data];
         }
 
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let i = 0; i < machines.length; i++) {
           const machine = machines[i];
           const rawId = machine.id || machine.machine_id;
@@ -885,10 +898,19 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     this.indexByType.clear();
     this.indexByController.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const machine = entry.data;
       
       // Index by manufacturer
+      /** If.
+       * @param machine.manufacturer - machine.manufacturer
+       * @returns void
+       */
       if (machine.manufacturer && typeof machine.manufacturer === 'string') {
         const mfr = machine.manufacturer.toLowerCase();
         if (!this.indexByManufacturer.has(mfr)) {
@@ -898,6 +920,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       }
       
       // Index by type
+      /** If.
+       * @param machine.type - machine.type
+       * @returns void
+       */
       if (machine.type && typeof machine.type === 'string') {
         const type = machine.type.toLowerCase();
         if (!this.indexByType.has(type)) {
@@ -907,6 +933,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       }
       
       // Index by controller
+      /** If.
+       * @param machine.controller?.manufacturer - machine.controller?.manufacturer
+       * @returns void
+       */
       if (machine.controller?.manufacturer && typeof machine.controller.manufacturer === 'string') {
         const ctrl = machine.controller.manufacturer.toLowerCase();
         if (!this.indexByController.has(ctrl)) {
@@ -967,6 +997,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     const mfrMachines = this.indexByManufacturer.get(manufacturer.toLowerCase());
     if (!mfrMachines) return undefined;
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of mfrMachines) {
       const machine = this.get(id);
       if (machine?.model?.toLowerCase() === model.toLowerCase()) {
@@ -998,18 +1032,34 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     let results: Machine[] = [];
     
     // Start with manufacturer filter
+    /** If.
+     * @param options.manufacturer - options.manufacturer
+     * @returns void
+     */
     if (options.manufacturer) {
       const ids = this.indexByManufacturer.get(options.manufacturer.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
     } else if (options.type) {
       const ids = this.indexByType.get(options.type.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
     } else if (options.controller) {
       const ids = this.indexByController.get(options.controller.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
       if (ids) {
         results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
       }
@@ -1018,6 +1068,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
     }
     
     // Apply additional filters — treat "*" or empty as "return all"
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(m => {
@@ -1029,34 +1083,66 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       });
     }
     
+    /** If.
+     * @param options.min_x_travel - options.min_x_travel
+     * @returns void
+     */
     if (options.min_x_travel !== undefined) {
       results = results.filter(m => (m.envelope?.x_travel ?? 0) >= options.min_x_travel!);
     }
 
+    /** If.
+     * @param options.min_y_travel - options.min_y_travel
+     * @returns void
+     */
     if (options.min_y_travel !== undefined) {
       results = results.filter(m => (m.envelope?.y_travel ?? 0) >= options.min_y_travel!);
     }
 
+    /** If.
+     * @param options.min_z_travel - options.min_z_travel
+     * @returns void
+     */
     if (options.min_z_travel !== undefined) {
       results = results.filter(m => (m.envelope?.z_travel ?? 0) >= options.min_z_travel!);
     }
 
+    /** If.
+     * @param options.min_spindle_rpm - options.min_spindle_rpm
+     * @returns void
+     */
     if (options.min_spindle_rpm !== undefined) {
       results = results.filter(m => (m.spindle?.max_rpm ?? 0) >= options.min_spindle_rpm!);
     }
 
+    /** If.
+     * @param options.min_spindle_power - options.min_spindle_power
+     * @returns void
+     */
     if (options.min_spindle_power !== undefined) {
       results = results.filter(m => (m.spindle?.power_continuous ?? 0) >= options.min_spindle_power!);
     }
 
+    /** If.
+     * @param options.min_tool_capacity - options.min_tool_capacity
+     * @returns void
+     */
     if (options.min_tool_capacity !== undefined) {
       results = results.filter(m => (m.tool_changer?.capacity ?? 0) >= options.min_tool_capacity!);
     }
     
+    /** If.
+     * @param options.simultaneous_axes - options.simultaneous_axes
+     * @returns void
+     */
     if (options.simultaneous_axes !== undefined) {
       results = results.filter(m => m.simultaneous_axes >= options.simultaneous_axes!);
     }
     
+    /** If.
+     * @param options.high_speed - options.high_speed
+     * @returns void
+     */
     if (options.high_speed) {
       results = results.filter(m => m.high_speed_machining);
     }
@@ -1154,6 +1240,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       if (requirements.min_spindle_rpm != null && (m.spindle?.max_rpm ?? 0) < requirements.min_spindle_rpm) return false;
       if (requirements.min_spindle_power != null && (m.spindle?.power_continuous ?? 0) < requirements.min_spindle_power) return false;
       if (requirements.simultaneous_axes != null && (m.simultaneous_axes ?? 0) < requirements.simultaneous_axes) return false;
+      /** If.
+       * @param requirements.controller_preference?.length - requirements.controller_preference?.length
+       * @returns void
+       */
       if (requirements.controller_preference?.length) {
         const ctrl = (m.controller?.manufacturer ?? '').toLowerCase();
         if (!requirements.controller_preference.some(p => ctrl.includes(p.toLowerCase()))) return false;
@@ -1191,6 +1281,10 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       files: Array<{ id: string; filename: string; description: string }>;
     }>;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tier of tiers) {
       by_tier[tier] = { count: 0, lines: 0, files: [] };
     }
@@ -1232,14 +1326,29 @@ export class MachineRegistry extends BaseRegistry<Machine> {
       withLevel5: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [mfr, ids] of this.indexByManufacturer) {
       stats.byManufacturer[mfr] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [type, ids] of this.indexByType) {
       stats.byType[type] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [ctrl, ids] of this.indexByController) {
       stats.byController[ctrl] = ids.size;
     }

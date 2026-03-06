@@ -55,6 +55,10 @@ export class MaskingCalculatorEngine {
     let remTime = 0;
     let costPerPart = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const area of input.areas_to_mask) {
       const { method, material, notes, areaEst, time, cost } = this._selectMask(area, input);
       assignments.push({ area_id: area.id, method, material, notes });
@@ -74,12 +78,24 @@ export class MaskingCalculatorEngine {
       : 500;
 
     const recs: string[] = [];
+    /** If.
+     * @param input.process_temp_C - input.process_temp_ c
+     * @returns void
+     */
     if (input.process_temp_C > maxTemp) {
       recs.push(`Process temp ${input.process_temp_C}°C exceeds mask limit ${maxTemp}°C — use fixture masking or high-temp mask`);
     }
+    /** If.
+     * @param bleedRisk - bleed risk
+     * @returns void
+     */
     if (bleedRisk > 0.2) {
       recs.push("Tight mask edge tolerance — use precision fixture masking instead of tape/paint");
     }
+    /** If.
+     * @param input.batch_size - input.batch_size
+     * @returns void
+     */
     if (input.batch_size > 100 && appTime > 10) {
       recs.push("High volume + long mask time — invest in fixture masking for consistency and speed");
     }
@@ -103,6 +119,10 @@ export class MaskingCalculatorEngine {
     const dim = area.dimension_mm;
     const areaEst = dim * dim * Math.PI * 0.25; // rough area
 
+    /** If.
+     * @param area.geometry - area.geometry
+     * @returns void
+     */
     if (area.geometry === "bore" || area.geometry === "thread") {
       return {
         method: "plug", material: "Silicone plug",
@@ -110,6 +130,10 @@ export class MaskingCalculatorEngine {
         areaEst, time: 0.5, cost: 0.50,
       };
     }
+    /** If.
+     * @param area.geometry - area.geometry
+     * @returns void
+     */
     if (area.geometry === "od" && dim > 50) {
       return {
         method: "tape", material: "Polyester high-temp tape",
@@ -117,6 +141,10 @@ export class MaskingCalculatorEngine {
         areaEst: dim * Math.PI * 10, time: 2, cost: 0.30,
       };
     }
+    /** If.
+     * @param area.geometry - area.geometry
+     * @returns void
+     */
     if (area.geometry === "cavity" || area.geometry === "groove") {
       return {
         method: "wax", material: "Maskant wax",
@@ -124,6 +152,10 @@ export class MaskingCalculatorEngine {
         areaEst, time: 3, cost: 0.80,
       };
     }
+    /** If.
+     * @param input.process_temp_C - input.process_temp_ c
+     * @returns void
+     */
     if (input.process_temp_C > 200) {
       return {
         method: "paint", material: "High-temp stop-off paint",

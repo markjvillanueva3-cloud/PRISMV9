@@ -101,6 +101,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       const files = await listDirectory(alarmBasePath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of jsonFiles) {
         await this.loadAlarmFile(file.path);
       }
@@ -113,12 +117,21 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     }
     
     // Load verified/accurate alarm data (higher quality, override existing)
+    /** For.
+     * @param const - const
+     * @param "alarms_accurate"] - "alarms_accurate"]
+     * @returns void
+     */
     for (const subdir of ["alarms_verified", "alarms_accurate"]) {
       const verifiedPath = path.join(PATHS.EXTRACTED_DIR, "controllers", subdir);
       if (await fileExists(verifiedPath)) {
         const vFiles = await listDirectory(verifiedPath);
         const vJsonFiles = vFiles.filter(f => f.name.endsWith(".json"));
         const beforeCount = this.entries.size;
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const file of vJsonFiles) {
           await this.loadAlarmFile(file.path);
         }
@@ -131,6 +144,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     this.buildIndexes();
     
     // W5: Only mark loaded if we actually got data
+    /** If.
+     * @param this.entries.size - this.entries.size
+     * @returns void
+     */
     if (this.entries.size > 0) {
       this.loaded = true;
       log.info(`AlarmRegistry loaded: ${this.entries.size} alarms across ${this.indexByController.size} controllers`);
@@ -155,6 +172,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
         // Parse from filename: FANUC_ALARMS.json -> FANUC
         const filename = path.basename(filePath, '.json');
         const match = filename.match(/^([A-Z_]+?)(?:_ALARMS)?(?:_COMPLETE|_EXPANDED)?$/i);
+        /** If.
+         * @param match - match
+         * @returns void
+         */
         if (match) {
           controllerFamily = match[1].replace(/_/g, ' ').trim().toUpperCase();
           if (controllerFamily.includes(' ')) {
@@ -163,15 +184,35 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
         }
       }
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const alarm of alarms) {
+        /** If.
+         * @param alarm.alarm_id - alarm.alarm_id
+         * @returns void
+         */
         if (alarm.alarm_id) {
           // Ensure controller_family is set
+          /** If.
+           * @param !alarm.controller_family - !alarm.controller_family
+           * @returns void
+           */
           if (!alarm.controller_family && controllerFamily) {
             alarm.controller_family = controllerFamily;
           }
           // Fallback: extract from alarm_id (ALM-FANUC-0000 -> FANUC)
+          /** If.
+           * @param !alarm.controller_family - !alarm.controller_family
+           * @returns void
+           */
           if (!alarm.controller_family && alarm.alarm_id) {
             const idMatch = alarm.alarm_id.match(/^ALM-([A-Z_]+)-/i);
+            /** If.
+             * @param idMatch - id match
+             * @returns void
+             */
             if (idMatch) {
               alarm.controller_family = idMatch[1].toUpperCase();
             }
@@ -207,7 +248,15 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       }>(filePath);
       
       for (const [family, alarms] of Object.entries(data.families || {})) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const alarm of alarms) {
+          /** If.
+           * @param alarm.alarm_id - alarm.alarm_id
+           * @returns void
+           */
           if (alarm.alarm_id || alarm.code) {
             const id = alarm.alarm_id || `ALM-${family}-${alarm.code}`;
             alarm.alarm_id = id;
@@ -242,10 +291,19 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     this.indexBySeverity.clear();
     this.indexByCode.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const alarm = entry.data;
       
       // Index by controller family
+      /** If.
+       * @param alarm.controller_family - alarm.controller_family
+       * @returns void
+       */
       if (alarm.controller_family) {
         const controller = alarm.controller_family.toUpperCase();
         if (!this.indexByController.has(controller)) {
@@ -258,12 +316,20 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
           this.indexByCode.set(controller, new Map());
         }
         const alarmCodeVal = (alarm as any).alarm_code || alarm.code || ((alarm as any).alarm_number != null ? String((alarm as any).alarm_number) : null);
+        /** If.
+         * @param alarmCodeVal - alarm code val
+         * @returns void
+         */
         if (alarmCodeVal) {
           this.indexByCode.get(controller)!.set(String(alarmCodeVal).toUpperCase(), id);
         }
       }
       
       // Index by category
+      /** If.
+       * @param alarm.category - alarm.category
+       * @returns void
+       */
       if (alarm.category) {
         const category = alarm.category.toUpperCase();
         if (!this.indexByCategory.has(category)) {
@@ -273,6 +339,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       }
       
       // Index by severity
+      /** If.
+       * @param alarm.severity - alarm.severity
+       * @returns void
+       */
       if (alarm.severity) {
         const severity = alarm.severity.toUpperCase();
         if (!this.indexBySeverity.has(severity)) {
@@ -296,6 +366,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     
     // Try direct code lookup
     const codeIndex = this.indexByCode.get(controllerUpper);
+    /** If.
+     * @param codeIndex - code index
+     * @returns void
+     */
     if (codeIndex) {
       const id = codeIndex.get(codeUpper);
       if (id) return this.get(id);
@@ -313,6 +387,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     
     // Fallback: search through all alarms for this controller
     const controllerAlarms = this.indexByController.get(controllerUpper) || [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of controllerAlarms) {
       const alarm = this.get(id);
       if (alarm?.code?.toUpperCase().includes(codeUpper)) {
@@ -340,6 +418,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     let results: Alarm[] = [];
     
     // Start with most selective filter
+    /** If.
+     * @param options.controller - options.controller
+     * @returns void
+     */
     if (options.controller) {
       const ids = this.indexByController.get(options.controller.toUpperCase()) || [];
       results = ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
@@ -354,6 +436,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     }
     
     // Apply additional filters — treat "*" or empty as "return all"
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query && options.query !== "*") {
       const query = options.query.toLowerCase();
       results = results.filter(a =>
@@ -382,6 +468,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       );
     }
     
+    /** If.
+     * @param options.has_fix - options.has_fix
+     * @returns void
+     */
     if (options.has_fix) {
       results = results.filter(a => 
         a.fix_procedures && a.fix_procedures.length > 0
@@ -441,6 +531,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     await this.load();
     
     const alarm = this.get(alarmId);
+    /** If.
+     * @param !alarm - !alarm
+     * @returns void
+     */
     if (!alarm) {
       throw new Error(`Alarm ${alarmId} not found`);
     }
@@ -494,7 +588,15 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     const related: Alarm[] = [];
     
     // Add explicitly related alarms
+    /** If.
+     * @param alarm.related_alarms - alarm.related_alarms
+     * @returns void
+     */
     if (alarm.related_alarms) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const relId of alarm.related_alarms) {
         const rel = this.get(relId);
         if (rel) related.push(rel);
@@ -508,6 +610,10 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       limit: 10
     });
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const rel of sameCategory.alarms) {
       if (rel.alarm_id !== alarmId && !related.find(r => r.alarm_id === rel.alarm_id)) {
         related.push(rel);
@@ -539,14 +645,29 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       verified: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [controller, ids] of this.indexByController) {
       stats.byController[controller] = ids.length;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.length;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [severity, ids] of this.indexBySeverity) {
       stats.bySeverity[severity] = ids.length;
     }
@@ -569,8 +690,16 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     output += `**Category:** ${alarm.category}\n\n`;
     output += `### Description\n${alarm.description}\n\n`;
     
+    /** If.
+     * @param alarm.causes - alarm.causes
+     * @returns void
+     */
     if (alarm.causes && alarm.causes.length > 0) {
       output += `### Possible Causes\n`;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const cause of alarm.causes) {
         output += `- ${cause}\n`;
       }
@@ -579,12 +708,24 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     
     output += `### Quick Fix\n${alarm.quick_fix}\n\n`;
     
+    /** If.
+     * @param alarm.requires_power_cycle - alarm.requires_power_cycle
+     * @returns void
+     */
     if (alarm.requires_power_cycle) {
       output += `⚠️ **Requires Power Cycle**\n\n`;
     }
     
+    /** If.
+     * @param alarm.fix_procedures - alarm.fix_procedures
+     * @returns void
+     */
     if (alarm.fix_procedures && alarm.fix_procedures.length > 0) {
       output += `### Detailed Fix Procedure\n`;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const step of alarm.fix_procedures) {
         output += `${step.step}. ${step.action}\n`;
         if (step.details) output += `   ${step.details}\n`;

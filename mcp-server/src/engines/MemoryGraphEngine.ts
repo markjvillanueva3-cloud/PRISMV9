@@ -112,6 +112,9 @@ export class MemoryGraphEngine {
   // INITIALIZATION
   // ==========================================================================
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
 
@@ -128,6 +131,10 @@ export class MemoryGraphEngine {
     // Periodic checkpoint save (every 60s) — survives kill without shutdown()
     this.checkpointTimer = setInterval(() => {
       try {
+        /** If.
+         * @param this.nodes.size - this.nodes.size
+         * @returns void
+         */
         if (this.nodes.size > 0) {
           this.flushWAL();
           this.saveCheckpoint();
@@ -149,6 +156,9 @@ export class MemoryGraphEngine {
     log.info(`[GRAPH] Engine initialized (${this.nodes.size} nodes, ${this.edges.size} edges)`);
   }
 
+  /** Shutdown.
+   * @returns void
+   */
   shutdown(): void {
     if (this.walFlushTimer) clearInterval(this.walFlushTimer);
     if (this.checkpointTimer) clearInterval(this.checkpointTimer);
@@ -163,6 +173,10 @@ export class MemoryGraphEngine {
 
   private enqueueWrite(fn: () => void): void {
     this.writeQueue.push(fn);
+    /** If.
+     * @param !this.isProcessingQueue - !this.is processing queue
+     * @returns void
+     */
     if (!this.isProcessingQueue) {
       this.processQueue();
     }
@@ -170,6 +184,10 @@ export class MemoryGraphEngine {
 
   private processQueue(): void {
     this.isProcessingQueue = true;
+    /** While.
+     * @param this.writeQueue.length - this.write queue.length
+     * @returns void
+     */
     while (this.writeQueue.length > 0) {
       const fn = this.writeQueue.shift()!;
       try { fn(); } catch (e) {
@@ -183,9 +201,18 @@ export class MemoryGraphEngine {
   // NODE OPERATIONS
   // ==========================================================================
 
+  /** Adds node.
+   * @param node - node
+   * @param 'id' - 'id'
+   * @returns string | null
+   */
   addNode(node: Omit<GraphNode, 'id' | 'timestamp' | 'checksum'>): string | null {
     try {
       // Eviction check
+      /** If.
+       * @param this.nodes.size - this.nodes.size
+       * @returns void
+       */
       if (this.nodes.size >= this.config.maxNodes) {
         this.evict();
       }
@@ -210,6 +237,14 @@ export class MemoryGraphEngine {
     }
   }
 
+  /** Adds edge.
+   * @param sourceId - source id
+   * @param targetId - target id
+   * @param type - type identifier
+   * @param weight - weight
+   * @param metadata - metadata
+   * @returns string | null
+   */
   addEdge(sourceId: string, targetId: string, type: EdgeType, weight: number = 1.0, metadata?: string): string | null {
     try {
       // Validate source and target exist
@@ -218,8 +253,16 @@ export class MemoryGraphEngine {
       }
 
       // Cap SIMILAR_TO edges per node
+      /** If.
+       * @param type - type identifier
+       * @returns void
+       */
       if (type === 'SIMILAR_TO') {
         const currentCount = this.index.similarToCount[sourceId] || 0;
+        /** If.
+         * @param currentCount - current count
+         * @returns void
+         */
         if (currentCount >= this.config.maxSimilarTo) {
           return null; // Silently skip — not an error
         }
@@ -227,6 +270,10 @@ export class MemoryGraphEngine {
 
       // Cap total edges per node
       const sourceEdges = this.index.edgesBySource[sourceId]?.length || 0;
+      /** If.
+       * @param sourceEdges - source edges
+       * @returns void
+       */
       if (sourceEdges >= this.config.maxEdgesPerNode) {
         return null;
       }
@@ -254,17 +301,33 @@ export class MemoryGraphEngine {
   // ==========================================================================
 
   private updateIndexForNode(node: GraphNode, op: 'add' | 'remove'): void {
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === 'add') {
       this.index.nodeCount++;
       this.index.nodesByType[node.type].push(node.id);
 
+      /** If.
+       * @param 'dispatcher' - 'dispatcher'
+       * @returns void
+       */
       if ('dispatcher' in node && node.dispatcher) {
+        /** If.
+         * @param !this.index.nodesByDispatcher[node.dispatcher] - !this.index.nodes by dispatcher[node.dispatcher]
+         * @returns void
+         */
         if (!this.index.nodesByDispatcher[node.dispatcher]) {
           this.index.nodesByDispatcher[node.dispatcher] = [];
         }
         this.index.nodesByDispatcher[node.dispatcher].push(node.id);
       }
 
+      /** If.
+       * @param !this.index.nodesBySession[node.sessionId] - !this.index.nodes by session[node.session id]
+       * @returns void
+       */
       if (!this.index.nodesBySession[node.sessionId]) {
         this.index.nodesBySession[node.sessionId] = [];
       }
@@ -276,8 +339,16 @@ export class MemoryGraphEngine {
       if (typeIdx >= 0) typeArr.splice(typeIdx, 1);
 
       // Remove from dispatcher index
+      /** If.
+       * @param 'dispatcher' - 'dispatcher'
+       * @returns void
+       */
       if ('dispatcher' in node && node.dispatcher) {
         const dispArr = this.index.nodesByDispatcher[node.dispatcher];
+        /** If.
+         * @param dispArr - disp arr
+         * @returns void
+         */
         if (dispArr) {
           const dIdx = dispArr.indexOf(node.id);
           if (dIdx >= 0) dispArr.splice(dIdx, 1);
@@ -286,6 +357,10 @@ export class MemoryGraphEngine {
 
       // Remove from session index
       const sessArr = this.index.nodesBySession[node.sessionId];
+      /** If.
+       * @param sessArr - sess arr
+       * @returns void
+       */
       if (sessArr) {
         const sIdx = sessArr.indexOf(node.id);
         if (sIdx >= 0) sessArr.splice(sIdx, 1);
@@ -295,35 +370,63 @@ export class MemoryGraphEngine {
   }
 
   private updateIndexForEdge(edge: GraphEdge, op: 'add' | 'remove'): void {
+    /** If.
+     * @param op - op
+     * @returns void
+     */
     if (op === 'add') {
       this.index.edgeCount++;
+      /** If.
+       * @param !this.index.edgesBySource[edge.sourceId] - !this.index.edges by source[edge.source id]
+       * @returns void
+       */
       if (!this.index.edgesBySource[edge.sourceId]) {
         this.index.edgesBySource[edge.sourceId] = [];
       }
       this.index.edgesBySource[edge.sourceId].push(edge.id);
 
+      /** If.
+       * @param !this.index.edgesByTarget[edge.targetId] - !this.index.edges by target[edge.target id]
+       * @returns void
+       */
       if (!this.index.edgesByTarget[edge.targetId]) {
         this.index.edgesByTarget[edge.targetId] = [];
       }
       this.index.edgesByTarget[edge.targetId].push(edge.id);
 
+      /** If.
+       * @param edge.type - edge.type
+       * @returns void
+       */
       if (edge.type === 'SIMILAR_TO') {
         this.index.similarToCount[edge.sourceId] = (this.index.similarToCount[edge.sourceId] || 0) + 1;
       }
     } else {
       this.index.edgeCount--;
       const srcArr = this.index.edgesBySource[edge.sourceId];
+      /** If.
+       * @param srcArr - src arr
+       * @returns void
+       */
       if (srcArr) {
         const idx = srcArr.indexOf(edge.id);
         if (idx >= 0) srcArr.splice(idx, 1);
       }
 
       const tgtArr = this.index.edgesByTarget[edge.targetId];
+      /** If.
+       * @param tgtArr - tgt arr
+       * @returns void
+       */
       if (tgtArr) {
         const idx = tgtArr.indexOf(edge.id);
         if (idx >= 0) tgtArr.splice(idx, 1);
       }
 
+      /** If.
+       * @param edge.type - edge.type
+       * @returns void
+       */
       if (edge.type === 'SIMILAR_TO') {
         this.index.similarToCount[edge.sourceId] = Math.max(0, (this.index.similarToCount[edge.sourceId] || 0) - 1);
       }
@@ -339,11 +442,19 @@ export class MemoryGraphEngine {
     this.operationsSinceCheckpoint++;
     this.operationsSinceIntegrity++;
 
+    /** If.
+     * @param this.operationsSinceIntegrity - this.operations since integrity
+     * @returns void
+     */
     if (this.operationsSinceIntegrity >= this.config.integrityCheckInterval) {
       this.operationsSinceIntegrity = 0;
       try { this.runIntegrityCheck(); } catch { /* non-fatal */ }
     }
 
+    /** If.
+     * @param this.operationsSinceCheckpoint - this.operations since checkpoint
+     * @returns void
+     */
     if (this.operationsSinceCheckpoint >= this.config.checkpointInterval) {
       this.operationsSinceCheckpoint = 0;
       try { this.saveCheckpoint(); } catch { /* non-fatal */ }
@@ -382,11 +493,19 @@ export class MemoryGraphEngine {
 
       // Skip entries before checkpoint offset
       let replayed = 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const line of lines) {
         try {
           const entry: WALEntry = JSON.parse(line);
           if (entry.seq <= this.index.checkpointByteOffset) continue;
 
+          /** If.
+           * @param entry.type - entry.type
+           * @returns void
+           */
           if (entry.type === 'ADD_NODE') {
             const node = entry.data as GraphNode;
             if (!this.nodes.has(node.id)) {
@@ -406,6 +525,10 @@ export class MemoryGraphEngine {
         } catch { /* skip corrupt WAL line */ }
       }
 
+      /** If.
+       * @param replayed - replayed
+       * @returns void
+       */
       if (replayed > 0) {
         log.info(`[GRAPH] WAL replayed ${replayed} entries`);
       }
@@ -418,6 +541,10 @@ export class MemoryGraphEngine {
   // QUERY ENGINE
   // ==========================================================================
 
+  /** Traces decision.
+   * @param query - search query
+   * @returns { nodes:  graph node[]; edges:  graph edge[] }
+   */
   traceDecision(query: TraceDecisionQuery): { nodes: GraphNode[]; edges: GraphEdge[] } {
     const depth = query.depth ?? 3;
     const direction = query.direction ?? 'both';
@@ -433,8 +560,16 @@ export class MemoryGraphEngine {
       if (node) resultNodes.push(node);
 
       // Forward: follow outgoing edges
+      /** If.
+       * @param direction - direction
+       * @returns void
+       */
       if (direction === 'forward' || direction === 'both') {
         const outEdgeIds = this.index.edgesBySource[nodeId] || [];
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const eid of outEdgeIds) {
           const edge = this.edges.get(eid);
           if (edge && !visited.has(edge.targetId)) {
@@ -445,8 +580,16 @@ export class MemoryGraphEngine {
       }
 
       // Backward: follow incoming edges
+      /** If.
+       * @param direction - direction
+       * @returns void
+       */
       if (direction === 'backward' || direction === 'both') {
         const inEdgeIds = this.index.edgesByTarget[nodeId] || [];
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const eid of inEdgeIds) {
           const edge = this.edges.get(eid);
           if (edge && !visited.has(edge.sourceId)) {
@@ -466,6 +609,10 @@ export class MemoryGraphEngine {
     return { nodes: resultNodes, edges: resultEdges };
   }
 
+  /** Finds similar.
+   * @param query - search query
+   * @returns graph node[]
+   */
   findSimilar(query: FindSimilarQuery): GraphNode[] {
     const limit = query.limit ?? 10;
     const results: GraphNode[] = [];
@@ -473,6 +620,10 @@ export class MemoryGraphEngine {
     try {
       let candidates: string[] = [];
 
+      /** If.
+       * @param query.dispatcher - query.dispatcher
+       * @returns void
+       */
       if (query.dispatcher) {
         candidates = this.index.nodesByDispatcher[query.dispatcher] || [];
       } else if (query.nodeType) {
@@ -481,6 +632,10 @@ export class MemoryGraphEngine {
         candidates = Array.from(this.nodes.keys());
       }
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const id of candidates) {
         if (results.length >= limit) break;
         const node = this.nodes.get(id);
@@ -493,6 +648,10 @@ export class MemoryGraphEngine {
         if (query.errorClass && 'errorClass' in node && node.errorClass !== query.errorClass) continue;
 
         // Filter by confidence (PatternNode)
+        /** If.
+         * @param query.minConfidence - query.min confidence
+         * @returns void
+         */
         if (query.minConfidence && node.type === 'PATTERN') {
           if ((node as PatternNode).confidence < query.minConfidence) continue;
         }
@@ -506,10 +665,18 @@ export class MemoryGraphEngine {
     return results;
   }
 
+  /** Gets node.
+   * @param id - id identifier
+   * @returns graph node | null
+   */
   getNode(id: string): GraphNode | null {
     return this.nodes.get(id) || null;
   }
 
+  /** Gets nodes by session.
+   * @param sessionId - session id
+   * @returns graph node[]
+   */
   getNodesBySession(sessionId: string): GraphNode[] {
     const ids = this.index.nodesBySession[sessionId] || [];
     return ids.map(id => this.nodes.get(id)).filter(Boolean) as GraphNode[];
@@ -519,12 +686,20 @@ export class MemoryGraphEngine {
   // INTEGRITY CHECK
   // ==========================================================================
 
+  /** Runs integrity check.
+   * @returns { violations: number; fixed: number }
+   */
   runIntegrityCheck(): { violations: number; fixed: number } {
     let violations = 0;
     let fixed = 0;
 
     try {
       // 1. Validate edge references
+      /** For.
+       * @param const - const
+       * @param edge] - edge]
+       * @returns void
+       */
       for (const [edgeId, edge] of this.edges) {
         if (!this.nodes.has(edge.sourceId) || !this.nodes.has(edge.targetId)) {
           this.edges.delete(edgeId);
@@ -536,6 +711,10 @@ export class MemoryGraphEngine {
 
       // 2. Cap SIMILAR_TO edges (>10 per node)
       for (const [nodeId, count] of Object.entries(this.index.similarToCount)) {
+        /** If.
+         * @param count - number of items
+         * @returns void
+         */
         if (count > this.config.maxSimilarTo) {
           const edgeIds = this.index.edgesBySource[nodeId] || [];
           const similarEdges = edgeIds
@@ -543,6 +722,10 @@ export class MemoryGraphEngine {
             .filter(e => e && e.type === 'SIMILAR_TO')
             .sort((a, b) => (a!.weight - b!.weight)); // Remove lowest weight first
 
+          /** While.
+           * @param similarEdges.length - similar edges.length
+           * @returns void
+           */
           while (similarEdges.length > this.config.maxSimilarTo) {
             const edge = similarEdges.shift()!;
             this.edges.delete(edge.id);
@@ -556,7 +739,16 @@ export class MemoryGraphEngine {
       // 3. Remove expired nodes
       const now = Date.now();
       const cutoff = now - this.config.maxNodeAge_ms;
+      /** For.
+       * @param const - const
+       * @param node] - node]
+       * @returns void
+       */
       for (const [nodeId, node] of this.nodes) {
+        /** If.
+         * @param node.timestamp - node.timestamp
+         * @returns void
+         */
         if (node.timestamp < cutoff) {
           this.removeNodeAndEdges(nodeId);
           violations++;
@@ -564,6 +756,10 @@ export class MemoryGraphEngine {
         }
       }
 
+      /** If.
+       * @param violations - violations
+       * @returns void
+       */
       if (violations > 0) {
         log.info(`[GRAPH] Integrity check: ${violations} violations, ${fixed} fixed`);
       }
@@ -582,8 +778,17 @@ export class MemoryGraphEngine {
     const outEdgeIds = [...(this.index.edgesBySource[nodeId] || [])];
     const inEdgeIds = [...(this.index.edgesByTarget[nodeId] || [])];
 
+    /** For.
+     * @param const - const
+     * @param ...inEdgeIds] - ...in edge ids]
+     * @returns void
+     */
     for (const eid of [...outEdgeIds, ...inEdgeIds]) {
       const edge = this.edges.get(eid);
+      /** If.
+       * @param edge - edge
+       * @returns void
+       */
       if (edge) {
         this.edges.delete(eid);
         this.updateIndexForEdge(edge, 'remove');
@@ -608,16 +813,28 @@ export class MemoryGraphEngine {
       .filter(Boolean)
       .sort((a, b) => a!.timestamp - b!.timestamp) as GraphNode[];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const node of contextNodes) {
       if (this.nodes.size <= target) break;
       this.removeNodeAndEdges(node.id);
     }
 
     // Phase 2: If still over, remove oldest of any type
+    /** If.
+     * @param this.nodes.size - this.nodes.size
+     * @returns void
+     */
     if (this.nodes.size > target) {
       const allNodes = Array.from(this.nodes.values())
         .sort((a, b) => a.timestamp - b.timestamp);
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const node of allNodes) {
         if (this.nodes.size <= target) break;
         this.removeNodeAndEdges(node.id);
@@ -631,6 +848,9 @@ export class MemoryGraphEngine {
   // PERSISTENCE — Checkpoint save/load
   // ==========================================================================
 
+  /** Saves checkpoint.
+   * @returns void
+   */
   saveCheckpoint(): void {
     try {
       ensureStateDir();
@@ -686,6 +906,10 @@ export class MemoryGraphEngine {
       if (fs.existsSync(nodesPath)) {
         const content = fs.readFileSync(nodesPath, 'utf-8');
         const lines = content.split('\n').filter(l => l.trim());
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const line of lines) {
           try {
             const node: GraphNode = JSON.parse(line);
@@ -699,6 +923,10 @@ export class MemoryGraphEngine {
       if (fs.existsSync(edgesPath)) {
         const content = fs.readFileSync(edgesPath, 'utf-8');
         const lines = content.split('\n').filter(l => l.trim());
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const line of lines) {
           try {
             const edge: GraphEdge = JSON.parse(line);
@@ -708,10 +936,18 @@ export class MemoryGraphEngine {
       }
 
       // If index wasn't loaded but we have nodes/edges, rebuild it
+      /** If.
+       * @param !indexLoaded - !index loaded
+       * @returns void
+       */
       if (!indexLoaded && this.nodes.size > 0) {
         this.rebuildIndex();
       }
 
+      /** If.
+       * @param this.nodes.size - this.nodes.size
+       * @returns void
+       */
       if (this.nodes.size > 0) {
         log.info(`[GRAPH] Checkpoint loaded (${this.nodes.size} nodes, ${this.edges.size} edges)`);
       }
@@ -739,6 +975,9 @@ export class MemoryGraphEngine {
   // HEALTH REPORT
   // ==========================================================================
 
+  /** Gets health.
+   * @returns graph health report
+   */
   getHealth(): GraphHealthReport {
     let memoryEstimate = 0;
     memoryEstimate += this.nodes.size * 300;  // ~300 bytes per node
@@ -814,6 +1053,10 @@ export class MemoryGraphEngine {
       } as any);
 
       // Link decision → outcome
+      /** If.
+       * @param decisionId - decision id
+       * @returns void
+       */
       if (decisionId && outcomeId) {
         this.addEdge(decisionId, outcomeId, 'CAUSED');
       }
@@ -825,9 +1068,17 @@ export class MemoryGraphEngine {
       if (decisionId) this.lastDecisionId = decisionId;
 
       // Auto-link SIMILAR_TO: find recent decisions with same dispatcher+action
+      /** If.
+       * @param decisionId - decision id
+       * @returns void
+       */
       if (decisionId) {
         const candidates = this.index.nodesByDispatcher[dispatcher] || [];
         let linked = 0;
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let i = candidates.length - 1; i >= 0 && linked < 3; i--) {
           const cid = candidates[i];
           if (cid === decisionId) continue;
@@ -840,6 +1091,10 @@ export class MemoryGraphEngine {
       }
 
       // Auto-create CONTEXT node from params (extract key-value context)
+      /** If.
+       * @param decisionId - decision id
+       * @returns void
+       */
       if (decisionId && paramsSummary.length > 10) {
         const contextId = this.addNode({
           type: 'CONTEXT' as const,
@@ -847,6 +1102,10 @@ export class MemoryGraphEngine {
           tags: [dispatcher, action, 'auto-context'],
           values: paramsSummary.slice(0, 500),
         } as any);
+        /** If.
+         * @param contextId - context id
+         * @returns void
+         */
         if (contextId) {
           this.addEdge(contextId, decisionId, 'CONTEXT_OF');
         }
@@ -946,6 +1205,9 @@ export class MemoryGraphEngine {
   // STATS
   // ==========================================================================
 
+  /** Gets stats.
+   * @returns { nodes: number; edges: number; sessions: number; dispatchers: number }
+   */
   getStats(): { nodes: number; edges: number; sessions: number; dispatchers: number } {
     return {
       nodes: this.nodes.size,
@@ -955,6 +1217,9 @@ export class MemoryGraphEngine {
     };
   }
 
+  /** Gets config.
+   * @returns memory graph config
+   */
   getConfig(): MemoryGraphConfig {
     return { ...this.config };
   }

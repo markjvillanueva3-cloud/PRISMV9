@@ -329,6 +329,10 @@ export class CAMKernelEngine {
     // Chip thinning formula: actual_chip = programmed * (2 * ae/D) for small ae/D
     // More accurate: actual = programmed * sin(arccos(1 - 2*ae/D))
     let compensationFactor: number;
+    /** If.
+     * @param engagementRatio - engagement ratio
+     * @returns void
+     */
     if (engagementRatio >= 0.5) {
       compensationFactor = 1.0; // Full engagement, no thinning
     } else {
@@ -395,14 +399,26 @@ export class CAMKernelEngine {
     const halfTool = tool_diameter / 2;
 
     let z = z_top;
+    /** While.
+     * @param z - z
+     * @returns void
+     */
     while (z > z_bottom) {
       z = Math.max(z - step_down, z_bottom);
 
       // Zigzag pattern
       const passes = Math.ceil(width / stepover);
       let yPos = -halfTool;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i <= passes; i++) {
         yPos = Math.min(i * stepover - halfTool, width + halfTool);
+        /** If.
+         * @param i - index position
+         * @returns void
+         */
         if (i % 2 === 0) {
           moves.push({ type: "rapid", x: -halfTool, y: yPos, z: rapid_height });
           moves.push({ type: "rapid", z });
@@ -437,6 +453,10 @@ export class CAMKernelEngine {
     const stepover = tool_diameter * (stepover_percent / 100);
 
     let z = z_top;
+    /** While.
+     * @param z - z
+     * @returns void
+     */
     while (z > z_bottom) {
       z = Math.max(z - step_down, z_bottom);
 
@@ -448,6 +468,10 @@ export class CAMKernelEngine {
         if (contour.length < 3) break;
 
         // Approach
+        /** If.
+         * @param passCount - pass count
+         * @returns void
+         */
         if (passCount === 0) {
           moves.push({ type: "rapid", x: contour[0].x, y: contour[0].y, z: rapid_height });
           moves.push({ type: "rapid", z: z + 1 });
@@ -458,6 +482,10 @@ export class CAMKernelEngine {
 
         // Trace contour
         const order = climb ? contour : [...contour].reverse();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const pt of order) {
           moves.push({ type: "feed", x: pt.x, y: pt.y, z, f: feed_rate });
         }
@@ -495,6 +523,10 @@ export class CAMKernelEngine {
     if (offsetContour.length < 2) return this.buildToolpath("contour_2d", "contour_2d", [], rapid_height, z_top);
 
     let z = z_top;
+    /** While.
+     * @param z - z
+     * @returns void
+     */
     while (z > z_bottom) {
       z = Math.max(z - step_down, z_bottom);
 
@@ -502,6 +534,10 @@ export class CAMKernelEngine {
       moves.push({ type: "rapid", z: z + 1 });
       moves.push({ type: "feed", z, f: feed_rate * 0.5 });
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const pt of offsetContour) {
         moves.push({ type: "feed", x: pt.x, y: pt.y, z, f: feed_rate });
       }
@@ -542,10 +578,18 @@ export class CAMKernelEngine {
 
     // Generate helical arcs
     let z = z_start;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let rev = 0; rev < revolutions; rev++) {
       const zNext = Math.max(z - actualDepthPerRev, z_end);
       const zMid = (z + zNext) / 2;
 
+      /** If.
+       * @param climb - climb
+       * @returns void
+       */
       if (climb) {
         // CW helix (G2) for climb cutting
         moves.push({ type: "arc_cw", x: center.x - radius, y: center.y, z: zMid, i: -radius, j: 0, f: feed_rate });
@@ -559,6 +603,10 @@ export class CAMKernelEngine {
     }
 
     // Final full circle at bottom to clean up
+    /** If.
+     * @param climb - climb
+     * @returns void
+     */
     if (climb) {
       moves.push({ type: "arc_cw", x: center.x - radius, y: center.y, z: z_end, i: -radius, j: 0, f: feed_rate });
       moves.push({ type: "arc_cw", x: center.x + radius, y: center.y, z: z_end, i: radius, j: 0, f: feed_rate });
@@ -595,15 +643,27 @@ export class CAMKernelEngine {
     moves.push({ type: "rapid", z: z_top + 1 });
 
     let z = z_top;
+    /** While.
+     * @param z - z
+     * @returns void
+     */
     while (z > z_bottom) {
       z = Math.max(z - peck_depth, z_bottom);
       moves.push({ type: "feed", z, f: feed_rate });
+      /** If.
+       * @param z - z
+       * @returns void
+       */
       if (z > z_bottom) {
         moves.push({ type: "rapid", z: retract_height }); // Full retract
         moves.push({ type: "rapid", z: z + 1 }); // Rapid back near bottom
       }
     }
 
+    /** If.
+     * @param dwell_sec - dwell_sec
+     * @returns void
+     */
     if (dwell_sec) {
       moves.push({ type: "comment", text: `G4 P${(dwell_sec * 1000).toFixed(0)}` });
     }
@@ -623,6 +683,10 @@ export class CAMKernelEngine {
       ?? MATERIAL_ENTRY_FACTORS.steel;
 
     // Drills/taps always plunge
+    /** If.
+     * @param tool.type - tool.type
+     * @returns void
+     */
     if (tool.type === "drill" || tool.type === "tap") {
       return {
         strategy: "plunge",
@@ -649,6 +713,10 @@ export class CAMKernelEngine {
       * factors.pitch_chipload_factor;
 
     // Helix if feature wide enough for helix diameter
+    /** If.
+     * @param featureWidth - feature width
+     * @returns void
+     */
     if (featureWidth > effectiveHelixDia + tool.diameter) {
       const helixResult = this.generateHelicalRamp({
         center: { x: 0, y: 0 },
@@ -669,6 +737,10 @@ export class CAMKernelEngine {
     }
 
     // Ramp-then-helix fallback for narrow feature
+    /** If.
+     * @param featureWidth - feature width
+     * @returns void
+     */
     if (featureWidth > tool.diameter * 1.2) {
       const rampDepth = Math.min(depth, tool.diameter * 0.3);
       const rampLen = rampDepth
@@ -686,6 +758,10 @@ export class CAMKernelEngine {
     }
 
     // Ramp if wider than tool
+    /** If.
+     * @param featureWidth - feature width
+     * @returns void
+     */
     if (featureWidth > tool.diameter) {
       const rampLength = depth
         / Math.tan(factors.ramp_angle_max * Math.PI / 180);
@@ -701,6 +777,10 @@ export class CAMKernelEngine {
     }
 
     // Plunge only for soft materials
+    /** If.
+     * @param factors.plunge_ok - factors.plunge_ok
+     * @returns void
+     */
     if (factors.plunge_ok) {
       return {
         strategy: "plunge",
@@ -730,6 +810,10 @@ export class CAMKernelEngine {
     const highestZ = Math.max(stockTopZ, fixtureTopZ, workpieceTopZ);
     const globalZ = highestZ + marginMm;
     const warnings: string[] = [];
+    /** If.
+     * @param marginMm - margin mm
+     * @returns void
+     */
     if (marginMm < 2) {
       warnings.push(
         `Clearance margin ${marginMm}mm is < 2mm — collision risk`,
@@ -751,8 +835,16 @@ export class CAMKernelEngine {
     const moves: ToolpathMove[] = [];
     const clearZ = config.localClearanceZ ?? config.globalClearanceZ;
 
+    /** If.
+     * @param config.linkingMode - config.linking mode
+     * @returns void
+     */
     if (config.linkingMode === "direct") {
       const minZ = Math.min(fromPos.z, toPos.z);
+      /** If.
+       * @param minZ - min z
+       * @returns void
+       */
       if (minZ >= clearZ) {
         moves.push({
           type: "rapid", x: toPos.x, y: toPos.y, z: toPos.z,
@@ -761,6 +853,10 @@ export class CAMKernelEngine {
       }
     }
 
+    /** If.
+     * @param config.linkingMode - config.linking mode
+     * @returns void
+     */
     if (config.linkingMode === "full_retract") {
       const homeZ = config.globalClearanceZ + 50;
       moves.push({ type: "rapid", z: homeZ });
@@ -786,7 +882,15 @@ export class CAMKernelEngine {
 
     const fmt = (v: number): string => v.toFixed(dec);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of moves) {
+      /** If.
+       * @param move.type - move.type
+       * @returns void
+       */
       if (move.type === "comment") {
         lines.push(`(${move.text ?? ""})`);
         continue;
@@ -794,6 +898,10 @@ export class CAMKernelEngine {
 
       const parts: string[] = [];
 
+      /** Switch.
+       * @param move.type - move.type
+       * @returns void
+       */
       switch (move.type) {
         case "rapid": parts.push("G0"); break;
         case "feed": case "plunge": parts.push("G1"); break;
@@ -815,6 +923,10 @@ export class CAMKernelEngine {
       if (move.r !== undefined) parts.push(`R${fmt(move.r)}`);
 
       // Feed rate (modal)
+      /** If.
+       * @param move.f - move.f
+       * @returns void
+       */
       if (move.f !== undefined && move.f !== lastF && move.type !== "rapid") {
         parts.push(`F${fmt(move.f)}`);
         lastF = move.f;
@@ -845,6 +957,10 @@ export class CAMKernelEngine {
 
     let totalTime = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < toolpaths.length; i++) {
       const tp = toolpaths[i];
       const tool = tools[i] ?? tools[0];
@@ -902,6 +1018,10 @@ export class CAMKernelEngine {
     const holderR = (holder_diameter ?? tool.diameter * 1.5) / 2;
     const holderLen = holder_length ?? tool.total_length;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < toolpath.moves.length; i++) {
       const move = toolpath.moves[i];
       if (move.x === undefined && move.y === undefined && move.z === undefined) continue;
@@ -924,8 +1044,16 @@ export class CAMKernelEngine {
       }
 
       // Check holder collision with stock top
+      /** If.
+       * @param z - z
+       * @returns void
+       */
       if (z + holderLen > stock_bounds.min.z && z < stock_bounds.max.z + 5) {
         const holderZ = z + tool.flute_length;
+        /** If.
+         * @param holderZ - holder z
+         * @returns void
+         */
         if (holderZ < stock_bounds.max.z + 2) {
           // Holder is close to stock surface
           if (x >= stock_bounds.min.x - holderR && x <= stock_bounds.max.x + holderR &&
@@ -942,6 +1070,10 @@ export class CAMKernelEngine {
       }
 
       // Check over-travel below stock
+      /** If.
+       * @param z - z
+       * @returns void
+       */
       if (z < stock_bounds.min.z - 1 && move.type !== "rapid") {
         collisions.push({
           move_index: i,
@@ -953,6 +1085,10 @@ export class CAMKernelEngine {
       }
 
       // Near-miss detection (within 2mm of stock surface)
+      /** If.
+       * @param move.type - move.type
+       * @returns void
+       */
       if (move.type === "rapid" && z > stock_bounds.max.z && z < stock_bounds.max.z + 2) {
         nearMissCount++;
       }
@@ -988,12 +1124,24 @@ export class CAMKernelEngine {
       "z_level_rough", "plunge_rough", "swarf_5ax",
     ]);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of ops) {
+      /** If.
+       * @param !op.category - !op.category
+       * @returns void
+       */
       if (!op.category) {
         if (HOLE_TYPES.has(op.type)) op.category = "HOLE";
         else if (THREE_D_TYPES.has(op.type)) op.category = "3D";
         else op.category = "2D";
       }
+      /** If.
+       * @param op.is_roughing - op.is_roughing
+       * @returns void
+       */
       if (op.is_roughing === undefined) {
         op.is_roughing = ROUGHING_TYPES.has(op.type);
       }
@@ -1014,16 +1162,33 @@ export class CAMKernelEngine {
 
     // Build implicit dependencies per feature
     const byFeature = new Map<string, SequencedOperation[]>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of ops) {
       const list = byFeature.get(op.feature_id) ?? [];
       list.push(op);
       byFeature.set(op.feature_id, list);
     }
 
+    /** For.
+     * @param const - const
+     * @param featureOps] - feature ops]
+     * @returns void
+     */
     for (const [, featureOps] of byFeature) {
       const roughing = featureOps.filter(o => o.is_roughing);
       const finishing = featureOps.filter(o => o.is_finishing);
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const fin of finishing) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const rough of roughing) {
           if (!fin.depends_on) fin.depends_on = [];
           if (!fin.depends_on.includes(rough.id)) {
@@ -1032,6 +1197,10 @@ export class CAMKernelEngine {
         }
       }
       const rest = featureOps.filter(o => o.is_rest);
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const r of rest) {
         if (
           r.rest_reference_id
@@ -1049,6 +1218,10 @@ export class CAMKernelEngine {
     const remaining = new Set(ops.map(o => o.id));
     const opById = new Map(ops.map(o => [o.id, o]));
 
+    /** While.
+     * @param remaining.size - remaining.size
+     * @returns void
+     */
     while (remaining.size > 0) {
       const ready = [...remaining]
         .map(id => opById.get(id)!)
@@ -1057,6 +1230,10 @@ export class CAMKernelEngine {
           || op.depends_on.every(d => visited.has(d)),
         );
 
+      /** If.
+       * @param ready.length - ready.length
+       * @returns void
+       */
       if (ready.length === 0) {
         warnings.push("Circular dependency — breaking cycle");
         const fallback = [...remaining]
@@ -1072,8 +1249,16 @@ export class CAMKernelEngine {
       remaining.delete(next.id);
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < sorted.length; i++) {
       const op = sorted[i];
+      /** If.
+       * @param op.type - op.type
+       * @returns void
+       */
       if (op.type === "face_mill" && i > 0) {
         warnings.push(
           `face_mill (${op.id}) not first — at position ${i}`,
@@ -1092,6 +1277,10 @@ export class CAMKernelEngine {
     if (n < 3) return [...polygon];
 
     const result: Vec2[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const prev = polygon[(i - 1 + n) % n];
       const curr = polygon[i];
@@ -1122,6 +1311,10 @@ export class CAMKernelEngine {
     let totalDist = 0, cuttingDist = 0, rapidMoves = 0, cuttingMoves = 0;
     let lastX = 0, lastY = 0, lastZ = zSafe;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of moves) {
       if (move.type === "comment") continue;
       const dx = (move.x ?? lastX) - lastX;
@@ -1130,6 +1323,10 @@ export class CAMKernelEngine {
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
       totalDist += dist;
 
+      /** If.
+       * @param move.type - move.type
+       * @returns void
+       */
       if (move.type === "rapid") {
         rapidMoves++;
       } else {

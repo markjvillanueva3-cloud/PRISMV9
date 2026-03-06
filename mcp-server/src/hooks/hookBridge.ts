@@ -19,6 +19,7 @@ let PHASE0_HOOKS: HookDefinition[] = [];
 // Function to set PHASE0_HOOKS from hookToolsV3.ts after module loads
 /** Sets phase0 hooks.
  * @param hooks - hooks
+  * @returns void
  */
 export function setPhase0Hooks(hooks: HookDefinition[]): void {
   PHASE0_HOOKS = hooks;
@@ -236,6 +237,8 @@ export const COGNITIVE_HOOKS: CognitiveHook[] = [
 
 /**
  * Determines if a hook should be routed to Python
+  * @param hookId - hook identifier
+  * @returns true if condition is met
  */
 export function isCognitiveHook(hookId: string): boolean {
   return COGNITIVE_PREFIXES.some(prefix => hookId.startsWith(prefix));
@@ -243,6 +246,8 @@ export function isCognitiveHook(hookId: string): boolean {
 
 /**
  * Gets the server type for a hook
+  * @param hookId - hook identifier
+  * @returns "typescript" | "python"
  */
 export function getHookServer(hookId: string): "typescript" | "python" {
   return isCognitiveHook(hookId) ? "python" : "typescript";
@@ -394,6 +399,10 @@ async function fireTypescriptHook(hookId: string, data: Record<string, unknown>)
 /**
  * Universal hook fire function that routes to appropriate server
  * Falls back to TypeScript emulation if Python unavailable
+  * @param hookId - hook identifier
+  * @param data - input data
+  * @param options - configuration options
+  * @returns promise resolving to hook fire result
  */
 export async function fireHook(
   hookId: string, 
@@ -577,6 +586,7 @@ async function emulateInTypescript(hookId: string, data: Record<string, unknown>
 
 /**
  * Gets all available hooks from both systems
+  * @returns { typescript:  hook definition[]; cognitive:  cognitive hook[] }
  */
 export function getAllHooks(): { typescript: HookDefinition[]; cognitive: CognitiveHook[] } {
   return {
@@ -587,6 +597,8 @@ export function getAllHooks(): { typescript: HookDefinition[]; cognitive: Cognit
 
 /**
  * Gets hook by ID from either system
+  * @param hookId - hook identifier
+  * @returns hook definition |  cognitive hook | null
  */
 export function getHook(hookId: string): HookDefinition | CognitiveHook | null {
   if (isCognitiveHook(hookId)) {
@@ -597,6 +609,7 @@ export function getHook(hookId: string): HookDefinition | CognitiveHook | null {
 
 /**
  * Gets hook counts by server
+  * @returns { typescript: number; python: number; total: number }
  */
 export function getHookCounts(): { typescript: number; python: number; total: number } {
   const tsHooks = (hookEngine.listHooks?.()?.length || 0) + PHASE0_HOOKS.length;

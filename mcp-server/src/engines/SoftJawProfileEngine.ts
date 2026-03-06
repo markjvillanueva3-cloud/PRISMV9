@@ -81,6 +81,10 @@ export class SoftJawProfileEngine {
   design(input: SoftJawInput): SoftJawResult {
     // Select profile based on workpiece shape
     let profile: JawProfile;
+    /** If.
+     * @param input.workpiece_shape - input.workpiece_shape
+     * @returns void
+     */
     if (input.workpiece_shape === "round") {
       profile = input.surface_finish_critical ? "contour" : "vee_90";
     } else if (input.workpiece_shape === "hex") {
@@ -102,6 +106,10 @@ export class SoftJawProfileEngine {
 
     // Contact area
     let contactArea: number;
+    /** If.
+     * @param profile - profile
+     * @returns void
+     */
     if (profile === "contour" && input.workpiece_shape === "round") {
       // Wrap angle per jaw
       const wrapAngle = (2 * Math.PI) / input.num_jaws * 0.7; // ~70% wrap
@@ -140,9 +148,17 @@ export class SoftJawProfileEngine {
     const recs: string[] = [];
     if (marringRisk === "high") recs.push("High contact pressure — use softer jaw material (nylon/delrin) or increase contact area");
     if (deformation > 50) recs.push(`Jaw deformation ${deformation.toFixed(0)}µm — may affect part accuracy, use stiffer jaw material`);
+    /** If.
+     * @param input.surface_finish_critical - input.surface_finish_critical
+     * @returns void
+     */
     if (input.surface_finish_critical && input.jaw_material === "1018_steel") {
       recs.push("Steel jaws on finish-critical part — consider aluminum or nylon jaws to prevent marring");
     }
+    /** If.
+     * @param input.workpiece_shape - input.workpiece_shape
+     * @returns void
+     */
     if (input.workpiece_shape === "round" && profile !== "contour" && input.surface_finish_critical) {
       recs.push("Round part with finish requirement — contour-bored jaws recommended for maximum contact");
     }

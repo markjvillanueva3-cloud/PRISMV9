@@ -171,42 +171,70 @@ export class BoreFinishingEngine {
     const isSafe = predictedRa <= targetRa * 1.5 && totalGrowth < D * 10;
 
     // ── 10. Recommendations ──
+    /** If.
+     * @param predictedRa - predicted ra
+     * @returns void
+     */
     if (predictedRa > targetRa) {
       recs.push(
         `Target Ra ${targetRa}µm may not be achieved with ${grit} stones — `
         + `predicted ${predictedRa.toFixed(3)}µm. Consider finer grit or more passes`
       );
     }
+    /** If.
+     * @param targetRa - target ra
+     * @returns void
+     */
     if (targetRa < GRIT_RA_RANGE[grit].min) {
       recs.push(
         `Target Ra ${targetRa}µm below ${grit} stone capability `
         + `(min ${GRIT_RA_RANGE[grit].min}µm). Use ${autoSelectGrit(targetRa)} stones`
       );
     }
+    /** If.
+     * @param actualXH - actual x h
+     * @returns void
+     */
     if (actualXH < 20 || actualXH > 70) {
       recs.push(
         `Crosshatch angle ${actualXH.toFixed(1)}° outside optimal range (30-60°). `
         + `Adjust RPM/stroke rate ratio`
       );
     }
+    /** If.
+     * @param L - l
+     * @returns void
+     */
     if (L / D > 8) {
       recs.push(
         `High L/D ratio (${(L / D).toFixed(1)}) — risk of taper. `
         + `Use shorter stroke with overlap or segmented honing`
       );
     }
+    /** If.
+     * @param pressure - pressure
+     * @returns void
+     */
     if (pressure > 20) {
       recs.push(
         `Honing pressure ${pressure} bar is aggressive — `
         + `risk of stone breakage and bore distortion`
       );
     }
+    /** If.
+     * @param passes - passes
+     * @returns void
+     */
     if (passes > stoneLife * 0.8) {
       recs.push(
         `Estimated ${passes} passes approaches stone life (${stoneLife}). `
         + `Plan stone replacement during cycle`
       );
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Bore finishing parameters nominal — ${passes} passes, `

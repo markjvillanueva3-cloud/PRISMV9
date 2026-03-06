@@ -9,6 +9,9 @@
  * Parse a boolean environment variable.
  * Recognizes: 'true', '1', 'yes' (case-insensitive) as true.
  * Everything else (including undefined) returns the fallback.
+  * @param key - key string
+  * @param fallback - whether fallback
+  * @returns true if condition is met
  */
 export function envBool(key: string, fallback: boolean = false): boolean {
   const val = process.env[key]?.toLowerCase().trim();
@@ -19,6 +22,9 @@ export function envBool(key: string, fallback: boolean = false): boolean {
 /**
  * Parse a string environment variable with fallback.
  * Returns trimmed value or fallback if undefined/empty.
+  * @param key - key string
+  * @param fallback - fallback string
+  * @returns formatted string result
  */
 export function envString(key: string, fallback: string): string {
   return process.env[key]?.trim() || fallback;
@@ -27,6 +33,9 @@ export function envString(key: string, fallback: string): string {
 /**
  * Parse an integer environment variable with fallback.
  * Returns parsed integer or fallback if undefined/NaN.
+  * @param key - key string
+  * @param fallback - fallback value
+  * @returns computed numeric result
  */
 export function envInt(key: string, fallback: number): number {
   const val = parseInt(process.env[key] ?? '', 10);

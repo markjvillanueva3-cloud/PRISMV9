@@ -108,27 +108,55 @@ export class EDMSurfaceIntegrityEngine {
     if (spec.requires_removal || (input.is_fatigue_critical && finalRecast > 3)) {
       postProcess.push("Remove recast layer: chemical etch (HF/HNO3) or light grinding");
     }
+    /** If.
+     * @param residualStress - residual stress
+     * @returns void
+     */
     if (residualStress > 400 && input.is_fatigue_critical) {
       postProcess.push("Stress relief: shot peening (Almen A 0.010-0.014) or low-stress grinding");
     }
+    /** If.
+     * @param input.application - input.application
+     * @returns void
+     */
     if (input.application === "aerospace") {
       postProcess.push("Inspect per AMS 2628: etch inspect for recast, fluor penetrant for cracks");
     }
+    /** If.
+     * @param postProcess.length - post process.length
+     * @returns void
+     */
     if (postProcess.length === 0) {
       postProcess.push("No mandatory post-processing — standard QC inspection sufficient");
     }
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param !meetsSpec - !meets spec
+     * @returns void
+     */
     if (!meetsSpec) {
       recs.push(`SAFETY: Recast ${finalRecast.toFixed(1)}µm exceeds ${input.application} limit ${spec.max_recast_um}µm`);
+      /** If.
+       * @param input.num_skim_passes - input.num_skim_passes
+       * @returns void
+       */
       if (input.num_skim_passes < 4) {
         recs.push(`Add ${4 - input.num_skim_passes} more skim passes to reduce recast layer`);
       }
     }
+    /** If.
+     * @param input.is_fatigue_critical - input.is_fatigue_critical
+     * @returns void
+     */
     if (input.is_fatigue_critical && crackDensity !== "none") {
       recs.push("Microcracks detected in fatigue-critical zone — mandatory recast removal");
     }
+    /** If.
+     * @param meetsSpec - meets spec
+     * @returns void
+     */
     if (meetsSpec && recs.length === 0) {
       recs.push("EDM surface integrity within specification — proceed with post-processing if required");
     }
@@ -148,6 +176,10 @@ export class EDMSurfaceIntegrityEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns { safe: boolean; message: string }
+   */
   validate(input: EDMSurfaceInput): { safe: boolean; message: string } {
     const result = this.assess(input);
     return {

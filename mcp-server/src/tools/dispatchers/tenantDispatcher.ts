@@ -17,6 +17,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers tenant dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerTenantDispatcher(server: McpServer): void {
   (server as any).tool(

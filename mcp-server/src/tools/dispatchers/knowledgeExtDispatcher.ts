@@ -172,6 +172,7 @@ function knowledgeExtractKeyValues(action: string, result: any): Record<string, 
 
 /** Registers knowledge ext dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerKnowledgeExtDispatcher(server: any): void {
   server.tool(

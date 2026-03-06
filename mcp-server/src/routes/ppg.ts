@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates ppg router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createPpgRouter(callTool: CallToolFn): Router {
   const router = Router();
 

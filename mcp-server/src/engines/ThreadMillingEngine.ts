@@ -89,6 +89,10 @@ export class ThreadMillingEngine {
     // For single-form: one helix revolution per pitch
     // For multi-form: fewer revolutions (tool covers multiple pitches)
     let helicalRevs: number;
+    /** If.
+     * @param input.mill_approach - input.mill_approach
+     * @returns void
+     */
     if (input.mill_approach === "single_form") {
       helicalRevs = Math.ceil(input.thread_length_mm / P) + 1; // +1 for entry/exit
     } else if (input.mill_approach === "multi_form") {
@@ -126,18 +130,38 @@ export class ThreadMillingEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param radialPerPass - radial per pass
+     * @returns void
+     */
     if (radialPerPass > 0.5) {
       recs.push("Radial depth >0.5mm per pass — consider adding passes to reduce tool load");
     }
+    /** If.
+     * @param input.internal - input.internal
+     * @returns void
+     */
     if (input.internal && d > D * 0.7) {
       recs.push("Tool diameter >70% of bore — limited chip evacuation, use through-coolant");
     }
+    /** If.
+     * @param input.mill_approach - input.mill_approach
+     * @returns void
+     */
     if (input.mill_approach === "single_form" && input.thread_length_mm > P * 5) {
       recs.push("Long thread with single-form — consider multi-form cutter for faster cycle time");
     }
+    /** If.
+     * @param helicalDia - helical dia
+     * @returns void
+     */
     if (helicalDia < d * 1.1) {
       recs.push("Helical diameter too close to tool diameter — tool cannot fit; use smaller cutter");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Thread milling parameters acceptable — verify with dry run");
     }
@@ -156,6 +180,11 @@ export class ThreadMillingEngine {
     };
   }
 
+  /** Generates g code.
+   * @param input - input data
+   * @param controller - controller
+   * @returns thread g code
+   */
   generateGCode(input: ThreadMillInput, controller: "fanuc" | "siemens" | "haas"): ThreadGCode {
     const result = this.calculate(input);
     const lines: string[] = [];
@@ -180,6 +209,10 @@ export class ThreadMillingEngine {
 
     // Helical arc
     const revolutions = Math.ceil(input.thread_length_mm / P);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < revolutions; i++) {
       const zTarget = -(i + 1) * P;
       lines.push(`${arcCode} X${R.toFixed(3)} Y0 I${(-R).toFixed(3)} J0 Z${zTarget.toFixed(3)} F${Math.round(result.feed_rate_mm_per_min)}`);

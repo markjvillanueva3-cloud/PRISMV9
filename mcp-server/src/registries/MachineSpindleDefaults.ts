@@ -371,6 +371,8 @@ export const MACHINE_SPINDLE_DEFAULTS: Record<string, MachineSpindleDefault> = {
 
 /**
  * Get spindle defaults for a machine type, with fuzzy matching.
+  * @param machineType - machine type string
+  * @returns machine spindle default | undefined
  */
 export function getMachineSpindleDefault(machineType: string): MachineSpindleDefault | undefined {
   if (!machineType) return undefined;
@@ -431,6 +433,9 @@ export function getMachineSpindleDefault(machineType: string): MachineSpindleDef
 /**
  * Estimate torque from power and RPM using: T = (P × 9549) / n
  * Returns torque in Nm.
+  * @param powerKw - power kw value
+  * @param rpm - rpm value
+  * @returns computed numeric result
  */
 export function estimateTorqueFromPower(powerKw: number, rpm: number): number {
   if (rpm <= 0) return 0;
@@ -440,6 +445,9 @@ export function estimateTorqueFromPower(powerKw: number, rpm: number): number {
 /**
  * Estimate power from torque and RPM using: P = (T × n) / 9549
  * Returns power in kW.
+  * @param torqueNm - torque nm value
+  * @param rpm - rpm value
+  * @returns computed numeric result
  */
 export function estimatePowerFromTorque(torqueNm: number, rpm: number): number {
   return (torqueNm * rpm) / 9549;

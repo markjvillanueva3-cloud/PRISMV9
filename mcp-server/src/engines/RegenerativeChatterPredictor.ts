@@ -85,6 +85,10 @@ export class RegenerativeChatterPredictor {
     const lobes: StabilityLobe[] = [];
     let bestLobe: StabilityLobe | null = null;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let N = 0; N <= 20; N++) {
       // Phase: epsilon = 3*pi - 2*N*pi (for N=0,1,2...)
       // RPM at lobe center: n = 60 * fc / (Z * (N + epsilon/(2*pi)))
@@ -106,6 +110,10 @@ export class RegenerativeChatterPredictor {
         critical_depth_mm: Math.round(bLimPeak * 1000) / 1000,
       });
 
+      /** If.
+       * @param !bestLobe - !best lobe
+       * @returns void
+       */
       if (!bestLobe || bLimPeak > bestLobe.critical_depth_mm) {
         bestLobe = lobes[lobes.length - 1];
       }
@@ -119,8 +127,16 @@ export class RegenerativeChatterPredictor {
     const currentRpm = input.spindle_rpm;
     let criticalDepth = bLimMin; // conservative: between-lobe minimum
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const lobe of lobes) {
       const rpmDist = Math.abs(currentRpm - lobe.rpm) / lobe.rpm;
+      /** If.
+       * @param rpmDist - rpm dist
+       * @returns void
+       */
       if (rpmDist < 0.1) {
         // Near a lobe peak — interpolate
         criticalDepth = bLimMin + (lobe.critical_depth_mm - bLimMin) * (1 - rpmDist / 0.1);
@@ -144,10 +160,18 @@ export class RegenerativeChatterPredictor {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param severity - severity
+     * @returns void
+     */
     if (severity === "severe_chatter") {
       recs.push("SAFETY: Severe chatter predicted — STOP. Risk of tool breakage and workpiece ejection");
       recs.push(`Reduce depth of cut to ${criticalDepth.toFixed(2)}mm or less`);
     }
+    /** If.
+     * @param severity - severity
+     * @returns void
+     */
     if (severity === "chatter") {
       recs.push(`Chatter predicted at ${currentRpm} RPM with ${input.depth_of_cut_mm}mm depth`);
       recs.push(`Maximum stable depth: ${criticalDepth.toFixed(2)}mm`);
@@ -155,12 +179,24 @@ export class RegenerativeChatterPredictor {
     if (bestLobe && Math.abs(currentRpm - bestLobe.rpm) / bestLobe.rpm > 0.05) {
       recs.push(`Optimal RPM for max depth: ${bestLobe.rpm} RPM (allows ${bestLobe.critical_depth_mm.toFixed(2)}mm depth)`);
     }
+    /** If.
+     * @param severity - severity
+     * @returns void
+     */
     if (severity === "marginal") {
       recs.push("Operating near stability boundary — monitor vibration closely");
     }
+    /** If.
+     * @param zeta - zeta
+     * @returns void
+     */
     if (zeta < 0.02) {
       recs.push("Very low damping — consider damped toolholder or vibration absorber");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Cutting parameters within stable envelope — proceed");
     }
@@ -196,6 +232,13 @@ export class RegenerativeChatterPredictor {
     return Math.max(0.3, ratio);
   }
 
+  /** Stability Lobes.
+   * @param input - input data
+   * @param "spindle_rpm" - "spindle_rpm"
+   * @param rpmRange - rpm range
+   * @param number] - number]
+   * @returns stability lobe[]
+   */
   stabilityLobes(input: Omit<ChatterInput, "spindle_rpm" | "depth_of_cut_mm">, rpmRange: [number, number]): StabilityLobe[] {
     const fullInput: ChatterInput = { ...input, spindle_rpm: rpmRange[0], depth_of_cut_mm: 0 } as ChatterInput;
     const result = this.predict(fullInput);

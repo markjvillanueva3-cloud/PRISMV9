@@ -107,15 +107,31 @@ const LIMITS = {
  */
 export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ThermalInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.cutting_force - !input.cutting_force
+     * @returns void
+     */
     if (!input.cutting_force || input.cutting_force <= 0 || input.cutting_force > LIMITS.MAX_FORCE) {
       issues.push({ field: "cutting_force", message: `Cutting force must be 0-${LIMITS.MAX_FORCE} N, got ${input.cutting_force}`, severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed < LIMITS.MIN_CUTTING_SPEED || input.cutting_speed > LIMITS.MAX_CUTTING_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be ${LIMITS.MIN_CUTTING_SPEED}-${LIMITS.MAX_CUTTING_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be > 0, got ${input.tool_diameter}`, severity: "error" });
     }
@@ -129,6 +145,10 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns thermal output
+   */
   calculate(input: ThermalInput): ThermalOutput {
     const warnings: string[] = [];
     const {
@@ -149,6 +169,10 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
     let power_spindle_kw = power_cutting_kw / efficiency;
 
     // Safety cap
+    /** If.
+     * @param power_spindle_kw - power_spindle_kw
+     * @returns void
+     */
     if (power_spindle_kw > LIMITS.MAX_POWER) {
       warnings.push(`Spindle power ${power_spindle_kw.toFixed(1)} kW exceeds limit — verify machine rating`);
       power_spindle_kw = Math.min(power_spindle_kw, LIMITS.MAX_POWER);
@@ -160,6 +184,10 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
     const rpm = tool_diameter > 0 ? (cutting_speed * 1000) / (Math.PI * tool_diameter) : 0;
     let torque_nm = rpm > 0 ? (power_spindle_kw * 9549) / rpm : 0;
 
+    /** If.
+     * @param torque_nm - torque_nm
+     * @returns void
+     */
     if (torque_nm > LIMITS.MAX_TORQUE) {
       warnings.push(`Torque ${torque_nm.toFixed(0)} Nm exceeds limit — verify spindle rating`);
     }
@@ -170,6 +198,10 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
     let thermal_number: number | undefined;
     let heat_regime: "high_speed" | "low_speed" | undefined;
 
+    /** If.
+     * @param feed - feed
+     * @returns void
+     */
     if (feed && feed > 0) {
       // Thermal diffusivity
       const alpha_th = thermal_conductivity / (density * specific_heat);
@@ -190,6 +222,10 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
 
       // Temperature rise
       let theta_s: number;
+      /** If.
+       * @param R_t - r_t
+       * @returns void
+       */
       if (R_t > 10) {
         // High speed: most heat goes to chip
         theta_s = 0.4 * shear_strength * 1e6 / (density * specific_heat);
@@ -204,17 +240,29 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
       shear_zone_temp = ambient_temp + theta_s;
 
       // Clamp and warn
+      /** If.
+       * @param shear_zone_temp - shear_zone_temp
+       * @returns void
+       */
       if (shear_zone_temp > LIMITS.MAX_TEMP) {
         warnings.push(`Predicted shear zone temp ${shear_zone_temp.toFixed(0)}°C exceeds ${LIMITS.MAX_TEMP}°C — model may be inaccurate`);
         shear_zone_temp = LIMITS.MAX_TEMP;
         shear_zone_temp_rise = LIMITS.MAX_TEMP - ambient_temp;
       }
+      /** If.
+       * @param shear_zone_temp - shear_zone_temp
+       * @returns void
+       */
       if (shear_zone_temp > 700) {
         warnings.push(`High shear zone temperature (${shear_zone_temp.toFixed(0)}°C) — consider coolant or speed reduction`);
       }
     }
 
     // Power warnings
+    /** If.
+     * @param power_cutting_kw - power_cutting_kw
+     * @returns void
+     */
     if (power_cutting_kw > 50) {
       warnings.push(`High cutting power (${power_cutting_kw.toFixed(1)} kW) — verify machine capability`);
     }
@@ -235,6 +283,9 @@ export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOut
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "thermal-power",

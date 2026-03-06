@@ -342,6 +342,10 @@ export class HyperMillStrategyEngine {
         s.suitableFor.goal.includes(operationGoal),
     );
 
+    /** If.
+     * @param candidates.length - candidates.length
+     * @returns void
+     */
     if (candidates.length === 0) {
       // Fallback: match by goal only
       candidates = STRATEGIES.filter((s) =>
@@ -361,11 +365,19 @@ export class HyperMillStrategyEngine {
       wallAngleDeg !== undefined &&
       candidates.length > 1
     ) {
+      /** If.
+       * @param wallAngleDeg - wall angle deg
+       * @returns void
+       */
       if (wallAngleDeg > 60) {
         // Steep walls: prefer Z Level
         const zLevel = candidates.find((c) =>
           c.cycle.includes("Z Level"),
         );
+        /** If.
+         * @param zLevel - z level
+         * @returns void
+         */
         if (zLevel) {
           candidates = [zLevel, ...candidates.filter((c) => c !== zLevel)];
           warnings.push("Steep wall detected (>60°) — Z Level strategies preferred");
@@ -375,6 +387,10 @@ export class HyperMillStrategyEngine {
         const flat = candidates.find(
           (c) => c.cycle.includes("Plane") || c.cycle.includes("Equidistant"),
         );
+        /** If.
+         * @param flat - flat
+         * @returns void
+         */
         if (flat) {
           candidates = [flat, ...candidates.filter((c) => c !== flat)];
           warnings.push("Flat area detected (<20°) — planar strategy preferred");
@@ -383,6 +399,10 @@ export class HyperMillStrategyEngine {
     }
 
     // Rest machining requires previous roughing
+    /** If.
+     * @param operationGoal - operation goal
+     * @returns void
+     */
     if (operationGoal === "rest_machining" && !hasPreviousRoughing) {
       warnings.push(
         "Rest machining selected but no previous roughing indicated — ensure a roughing cycle exists",
@@ -390,11 +410,19 @@ export class HyperMillStrategyEngine {
     }
 
     // Material-specific warnings
+    /** If.
+     * @param input.materialGroup - input.material group
+     * @returns void
+     */
     if (input.materialGroup === "S") {
       warnings.push(
         "Superalloy (ISO S): reduce stepover to 60% of standard, use climb milling only",
       );
     }
+    /** If.
+     * @param input.materialGroup - input.material group
+     * @returns void
+     */
     if (input.materialGroup === "H") {
       warnings.push(
         "Hardened steel (ISO H): use small stepdown, high speed, low feed per tooth",
@@ -403,6 +431,10 @@ export class HyperMillStrategyEngine {
 
     const best = candidates[0];
 
+    /** If.
+     * @param !best - !best
+     * @returns void
+     */
     if (!best) {
       return {
         strategyName: "Manual Selection Required",
@@ -439,10 +471,16 @@ export class HyperMillStrategyEngine {
     }));
   }
 
+  /** Stats.
+   * @returns strategy engine stats
+   */
   stats(): StrategyEngineStats {
     return { calculations: this.calcCount, lastInput: this.lastInput };
   }
 
+  /** Clear.
+   * @returns void
+   */
   clear(): void {
     this.calcCount = 0;
     this.lastInput = null;

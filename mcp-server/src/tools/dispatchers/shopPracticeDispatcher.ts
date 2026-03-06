@@ -620,6 +620,7 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
 
 /** Registers shop practice dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerShopPracticeDispatcher(server: any): void {
   server.tool(

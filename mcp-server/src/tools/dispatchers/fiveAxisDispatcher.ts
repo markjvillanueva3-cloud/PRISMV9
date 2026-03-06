@@ -33,6 +33,7 @@ const ACTIONS = [
 
 /** Registers five axis dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerFiveAxisDispatcher(server: any): void {
   server.tool(

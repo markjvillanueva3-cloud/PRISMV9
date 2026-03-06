@@ -70,14 +70,30 @@ export interface MinkowskiSumOutput extends WithWarnings {
  */
 export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: MinkowskiSumInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.polygon_a?.length - !input.polygon_a?.length
+     * @returns void
+     */
     if (!input.polygon_a?.length || input.polygon_a.length < 3) {
       issues.push({ field: "polygon_a", message: "At least 3 vertices required", severity: "error" });
     }
+    /** If.
+     * @param !input.polygon_b?.length - !input.polygon_b?.length
+     * @returns void
+     */
     if (!input.polygon_b?.length || input.polygon_b.length < 3) {
       issues.push({ field: "polygon_b", message: "At least 3 vertices required", severity: "error" });
     }
+    /** If.
+     * @param input.polygon_a?.length - input.polygon_a?.length
+     * @returns void
+     */
     if (input.polygon_a?.length > 500 || input.polygon_b?.length > 500) {
       issues.push({ field: "polygon_a", message: "Max 500 vertices per polygon", severity: "warning" });
     }
@@ -91,6 +107,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns minkowski sum output
+   */
   calculate(input: MinkowskiSumInput): MinkowskiSumOutput {
     const warnings: string[] = [];
     const tol = input.tolerance ?? 1e-8;
@@ -115,6 +135,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
     // Minkowski difference: A ⊖ B = A ⊕ (-B)
     let diffPoly: Point2D[] = [];
     let accessible = false;
+    /** If.
+     * @param computeDiff - compute diff
+     * @returns void
+     */
     if (computeDiff) {
       const negB = b.map(p => ({ x: -p.x, y: -p.y }));
       const negBCCW = this.ensureCCW(negB);
@@ -140,9 +164,17 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
   private computeSum(a: Point2D[], b: Point2D[]): Point2D[] {
     // Find bottom-most points (starting vertices)
     let ai = 0, bi = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < a.length; i++) {
       if (a[i].y < a[ai].y || (a[i].y === a[ai].y && a[i].x < a[ai].x)) ai = i;
     }
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < b.length; i++) {
       if (b[i].y < b[bi].y || (b[i].y === b[bi].y && b[i].x < b[bi].x)) bi = i;
     }
@@ -151,6 +183,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
     const result: Point2D[] = [];
     let ia = 0, ib = 0;
 
+    /** While.
+     * @param ia - ia
+     * @returns void
+     */
     while (ia < na || ib < nb) {
       const pa = a[(ai + ia) % na];
       const pb = b[(bi + ib) % nb];
@@ -182,6 +218,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
   private isConvex(poly: Point2D[]): boolean {
     const n = poly.length;
     let sign = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const a = poly[i];
       const b = poly[(i + 1) % n];
@@ -201,6 +241,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
 
   private signedArea(poly: Point2D[]): number {
     let area = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < poly.length; i++) {
       const j = (i + 1) % poly.length;
       area += poly[i].x * poly[j].y - poly[j].x * poly[i].y;
@@ -214,6 +258,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
 
   private polygonPerimeter(poly: Point2D[]): number {
     let p = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < poly.length; i++) {
       const j = (i + 1) % poly.length;
       p += Math.sqrt((poly[j].x - poly[i].x) ** 2 + (poly[j].y - poly[i].y) ** 2);
@@ -223,6 +271,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
 
   private polygonCentroid(poly: Point2D[]): Point2D {
     let cx = 0, cy = 0, a = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < poly.length; i++) {
       const j = (i + 1) % poly.length;
       const f = poly[i].x * poly[j].y - poly[j].x * poly[i].y;
@@ -237,6 +289,10 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
   private removeCollinear(poly: Point2D[], tol: number): Point2D[] {
     const result: Point2D[] = [];
     const n = poly.length;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const a = poly[(i - 1 + n) % n];
       const b = poly[i];
@@ -247,6 +303,9 @@ export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOu
     return result.length >= 3 ? result : poly;
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "minkowski-sum",

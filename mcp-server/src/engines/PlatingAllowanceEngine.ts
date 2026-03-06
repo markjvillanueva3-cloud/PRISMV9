@@ -108,6 +108,10 @@ export class PlatingAllowanceEngine {
 
     // Buildup per side
     let buildupPerSide_um: number;
+    /** If.
+     * @param pd.growth_direction - pd.growth_direction
+     * @returns void
+     */
     if (pd.growth_direction === "penetrate") {
       buildupPerSide_um = 0; // phosphate — no dimensional change
     } else if (pd.growth_direction === "both") {
@@ -121,6 +125,10 @@ export class PlatingAllowanceEngine {
 
     // Machine-to dimension (pre-plating)
     let machineTo: number;
+    /** If.
+     * @param input.dimension_type - input.dimension_type
+     * @returns void
+     */
     if (input.dimension_type === "od") {
       // OD: machine undersized, plating builds it up
       machineTo = input.nominal_dimension_mm - 2 * allowancePerSide_mm;
@@ -156,21 +164,45 @@ export class PlatingAllowanceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param h2Risk - h2 risk
+     * @returns void
+     */
     if (h2Risk) {
       recs.push(`SAFETY: Hydrogen embrittlement risk — bake at ${pd.bake_temp_C}°C for ${pd.bake_time_hr}hr within 4 hours of plating`);
     }
+    /** If.
+     * @param input.target_thickness_um - input.target_thickness_um
+     * @returns void
+     */
     if (input.target_thickness_um > 100 && input.process === "hard_chrome") {
       recs.push("Thick chrome (>100µm) may need intermediate grinding between layers");
     }
+    /** If.
+     * @param input.surface_finish_Ra_before_um - input.surface_finish_ ra_before_um
+     * @returns void
+     */
     if (input.surface_finish_Ra_before_um > 3.2) {
       recs.push("Pre-plate finish >3.2µm Ra — consider polishing before plating for uniform deposition");
     }
+    /** If.
+     * @param input.dimension_type - input.dimension_type
+     * @returns void
+     */
     if (input.dimension_type === "thread" && input.process !== "electroless_nickel") {
       recs.push("Thread plating: electroless nickel preferred for uniform coverage in thread roots");
     }
+    /** If.
+     * @param pd.uniformity_pct - pd.uniformity_pct
+     * @returns void
+     */
     if (pd.uniformity_pct < 80) {
       recs.push(`Low uniformity process (${pd.uniformity_pct}%) — consider conforming anodes or auxiliary anodes`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Plating allowance within standard parameters — proceed");
     }
@@ -190,6 +222,10 @@ export class PlatingAllowanceEngine {
     };
   }
 
+  /** Calculates tolerance.
+   * @param input - input data
+   * @returns plating tolerance result
+   */
   calculateTolerance(input: PlatingAllowanceInput): PlatingToleranceResult {
     const pd = PROCESS_DATA[input.process];
     const toleranceUm = input.tolerance_um || input.target_thickness_um * 0.15;
@@ -199,12 +235,24 @@ export class PlatingAllowanceEngine {
     const totalTol = Math.sqrt(input.dimension_tolerance_mm ** 2 + platingContrib ** 2);
 
     const recs: string[] = [];
+    /** If.
+     * @param totalTol - total tol
+     * @returns void
+     */
     if (totalTol > input.dimension_tolerance_mm * 1.5) {
       recs.push("Plating thickness variation significantly affects part tolerance — consider post-plate grinding");
     }
+    /** If.
+     * @param pd.edge_factor - pd.edge_factor
+     * @returns void
+     */
     if (pd.edge_factor > 1.5) {
       recs.push(`Edge buildup ${pd.edge_factor}x average — radius sharp edges or use thieving electrodes`);
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Tolerance stack acceptable with plating process");
     }
@@ -218,9 +266,18 @@ export class PlatingAllowanceEngine {
     };
   }
 
+  /** Recommend.
+   * @param substrate - substrate
+   * @param application - application
+   * @returns void
+   */
   recommend(substrate: string, application: "wear" | "corrosion" | "cosmetic" | "electrical"): {
     process: PlatingProcess; typical_thickness_um: number; notes: string;
   } {
+    /** Switch.
+     * @param application - application
+     * @returns void
+     */
     switch (application) {
       case "wear":
         return { process: "hard_chrome", typical_thickness_um: 50, notes: "Hard chrome 50-100µm for wear surfaces. Grind to final dimension." };

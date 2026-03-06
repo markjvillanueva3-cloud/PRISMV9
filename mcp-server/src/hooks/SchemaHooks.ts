@@ -621,6 +621,7 @@ const preJsonStructureValidation: HookDefinition = {
 
 /**
  * Get schema information
+  * @returns void
  */
 export function getSchemaInfo() {
   return {
@@ -637,6 +638,8 @@ export function getSchemaInfo() {
 
 /**
  * Get deprecation info for entity type
+  * @param entityType - entity type string
+  * @returns void
  */
 export function getDeprecationInfo(entityType: string) {
   return DEPRECATED_FIELDS[entityType] || [];

@@ -226,6 +226,10 @@ export class InsertGradeSelectionEngine {
     // --- ISO sub-number ---
     let subNum = ISO_SUB_BASE[op] + ISO_SUB_ADJUST[mat];
     // Interrupted cut → tougher grade (+5)
+    /** If.
+     * @param input.interrupted_cut - input.interrupted_cut
+     * @returns void
+     */
     if (input.interrupted_cut) {
       subNum += 5;
       recs.push("Interrupted cut — tougher grade selected (+5 ISO sub-number)");
@@ -259,21 +263,37 @@ export class InsertGradeSelectionEngine {
     const toughness = Math.round(toughnessBase * 100) / 100;
 
     // --- Recommendations ---
+    /** If.
+     * @param substrate - substrate
+     * @returns void
+     */
     if (substrate === "cbn" && input.coolant_available !== false) {
       recs.push("CBN grade: dry machining recommended — coolant thermal shock can crack insert");
     }
     if (substrate === "pcd" && mat.startsWith("aluminum_cast")) {
       recs.push("High-Si aluminum: PCD grade essential — carbide wears rapidly above 12% Si");
     }
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "stainless_austenitic") {
       recs.push("Austenitic stainless: use positive rake to minimize work hardening layer");
     }
     if (mat === "titanium" && (op === "roughing" || op === "heavy_roughing")) {
       recs.push("Titanium roughing: limit Vc to 40-60 m/min, use uncoated carbide for heat management");
     }
+    /** If.
+     * @param input.interrupted_cut - input.interrupted_cut
+     * @returns void
+     */
     if (input.interrupted_cut && substrate === "ceramic") {
       recs.push("WARNING: Ceramic grade on interrupted cut — high breakage risk; consider CBN or coated carbide");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Standard grade selection — verify with manufacturer catalog for specific insert code");
     }

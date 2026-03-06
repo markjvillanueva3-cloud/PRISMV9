@@ -79,11 +79,23 @@ export interface AntColonyTSPOutput extends WithWarnings {
  */
 export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: AntColonyTSPInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.n_tools - !input.n_tools
+     * @returns void
+     */
     if (!input.n_tools || input.n_tools < 2) {
       issues.push({ field: "n_tools", message: "At least 2 tools required", severity: "error" });
     }
+    /** If.
+     * @param input.n_tools - input.n_tools
+     * @returns void
+     */
     if (input.n_tools > 100) {
       issues.push({ field: "n_tools", message: "Max 100 tools for this solver", severity: "warning" });
     }
@@ -93,6 +105,10 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns ant colony t s p output
+   */
   calculate(input: AntColonyTSPInput): AntColonyTSPOutput {
     const warnings: string[] = [];
     const n = input.n_tools;
@@ -113,7 +129,15 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
     // Build distance matrix
     const dist: number[][] = Array.from({ length: n }, () => new Array(n).fill(defaultTime));
     for (let i = 0; i < n; i++) dist[i][i] = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ct of input.change_times ?? []) {
+      /** If.
+       * @param ct.from - ct.from
+       * @returns void
+       */
       if (ct.from >= 0 && ct.from < n && ct.to >= 0 && ct.to < n) {
         dist[ct.from][ct.to] = ct.time;
       }
@@ -139,10 +163,18 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
     const naiveSeq = Array.from({ length: n }, (_, i) => i);
     const naiveTime = this.sequenceTime(naiveSeq, dist);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iter = 0; iter < nIter; iter++) {
       const iterBestSeqs: number[][] = [];
       const iterBestTimes: number[] = [];
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let ant = 0; ant < nAnts; ant++) {
         const visited = new Set<number>();
         const sequence: number[] = [];
@@ -152,12 +184,20 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
         sequence.push(current);
         visited.add(current);
 
+        /** While.
+         * @param sequence.length - sequence.length
+         * @returns void
+         */
         while (sequence.length < n) {
           // Probability distribution for next tool
           const probs: number[] = [];
           let probSum = 0;
           const candidates: number[] = [];
 
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let j = 0; j < n; j++) {
             if (visited.has(j)) continue;
             candidates.push(j);
@@ -170,6 +210,10 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
           if (probSum <= 0 || candidates.length === 0) break;
           let r = random() * probSum;
           let next = candidates[0];
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let k = 0; k < candidates.length; k++) {
             r -= probs[k];
             if (r <= 0) { next = candidates[k]; break; }
@@ -186,6 +230,10 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
         iterBestSeqs.push(sequence);
         iterBestTimes.push(time);
 
+        /** If.
+         * @param time - time
+         * @returns void
+         */
         if (time < bestTime) {
           bestTime = time;
           bestSequence = [...sequence];
@@ -195,7 +243,15 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
       }
 
       // Pheromone evaporation
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < n; i++) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < n; j++) {
           tau[i][j] *= (1 - rho);
         }
@@ -203,11 +259,19 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
 
       // Pheromone deposit (best ant of iteration)
       let iterBest = 0;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 1; k < iterBestTimes.length; k++) {
         if (iterBestTimes[k] < iterBestTimes[iterBest]) iterBest = k;
       }
       const deposit = 1 / iterBestTimes[iterBest];
       const seq = iterBestSeqs[iterBest];
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let k = 0; k < seq.length - 1; k++) {
         tau[seq[k]][seq[k + 1]] += deposit;
       }
@@ -217,6 +281,10 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
 
     const improvement = naiveTime > 0 ? ((naiveTime - bestTime) / naiveTime) * 100 : 0;
 
+    /** If.
+     * @param improvement - improvement
+     * @returns void
+     */
     if (improvement < 1) {
       warnings.push("Minimal improvement over sequential — may already be near-optimal");
     }
@@ -236,12 +304,19 @@ export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOu
 
   private sequenceTime(seq: number[], dist: number[][]): number {
     let time = 0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < seq.length - 1; i++) {
       time += dist[seq[i]][seq[i + 1]];
     }
     return time;
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "ant-colony-tsp",

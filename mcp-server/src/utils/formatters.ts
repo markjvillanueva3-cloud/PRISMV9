@@ -20,6 +20,9 @@ export interface ToolResponse {
 
 /**
  * Create successful tool response
+  * @param text - text string
+  * @param structuredContent - structured content
+  * @returns tool response
  */
 export function successResponse(
   text: string,
@@ -36,6 +39,11 @@ export function successResponse(
 
 /**
  * Create paginated response
+  * @param items - items
+  * @param total - total value
+  * @param offset - offset value
+  * @param formatter - formatter
+  * @returns tool response
  */
 export function paginatedResponse<T>(
   items: T[],
@@ -71,6 +79,9 @@ export function paginatedResponse<T>(
 
 /**
  * Truncate text if exceeds character limit
+  * @param text - text string
+  * @param limit - limit value
+  * @returns formatted string result
  */
 export function truncateIfNeeded(text: string, limit: number = CHARACTER_LIMIT): string {
   if (text.length <= limit) return text;

@@ -147,12 +147,22 @@ export class LearningPathEngine {
     return { operator_id: operatorId, role: targetRole, skills, overall_level: overall, strengths, gaps };
   }
 
+  /** Plan.
+   * @param operatorId - operator id
+   * @param assessment - assessment
+   * @param targetRole - target role
+   * @returns learning plan
+   */
   plan(operatorId: string, assessment: SkillAssessment, targetRole: OperatorRole): LearningPlan {
     const requirements = ROLE_SKILL_REQUIREMENTS[targetRole] || {};
     const modules: LearningModule[] = [];
     const milestones: LearningPlan["milestones"] = [];
 
     // Find modules that address gaps
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const gap of assessment.gaps) {
       const targetLevel = requirements[gap] || "intermediate";
       const relevantModules = LEARNING_MODULES.filter(m =>
@@ -160,6 +170,10 @@ export class LearningPathEngine {
       );
 
       // Check prerequisites and add in order
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const mod of relevantModules) {
         const prereqsMet = mod.prerequisite_skills.every(ps =>
           assessment.strengths.includes(ps) || modules.some(m => m.category === ps)
@@ -171,6 +185,10 @@ export class LearningPathEngine {
     }
 
     // If no specific modules found, add safety as baseline
+    /** If.
+     * @param modules.length - modules.length
+     * @returns void
+     */
     if (modules.length === 0) {
       const safetyModule = LEARNING_MODULES.find(m => m.id === "LM-001");
       if (safetyModule) modules.push(safetyModule);
@@ -178,6 +196,10 @@ export class LearningPathEngine {
 
     // Generate milestones
     let cumulativeWeeks = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const mod of modules) {
       cumulativeWeeks += Math.ceil(mod.duration_hours / 10); // ~10 hrs/week training pace
       milestones.push({
@@ -199,6 +221,12 @@ export class LearningPathEngine {
     };
   }
 
+  /** Progress.
+   * @param operatorId - operator id
+   * @param plan - plan
+   * @param completedModuleIds - completed module ids
+   * @returns progress report
+   */
   progress(operatorId: string, plan: LearningPlan, completedModuleIds: string[]): ProgressReport {
     const completed = plan.modules.filter(m => completedModuleIds.includes(m.id));
     const skillsImproved = [...new Set(completed.map(m => m.category))];
@@ -214,6 +242,11 @@ export class LearningPathEngine {
     };
   }
 
+  /** Recommend.
+   * @param currentSkills - current skills
+   * @param SkillLevel> - skill level>
+   * @returns learning module[]
+   */
   recommend(currentSkills: Record<string, SkillLevel>): LearningModule[] {
     return LEARNING_MODULES.filter(mod => {
       const currentLevel = currentSkills[mod.category] || "novice";

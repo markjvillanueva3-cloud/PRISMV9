@@ -99,6 +99,10 @@ export class AlgorithmEngine {
    */
   calculate(input: AlgorithmCalculateInput): AlgorithmCalculateResult {
     const algo = createAlgorithm(input.algorithm_id);
+    /** If.
+     * @param !algo - !algo
+     * @returns void
+     */
     if (!algo) {
       throw new Error(`Unknown algorithm: "${input.algorithm_id}". Use algorithm_list to see available IDs.`);
     }
@@ -107,6 +111,10 @@ export class AlgorithmEngine {
 
     // Validate first
     const validation = algo.validate(input.params as any);
+    /** If.
+     * @param !validation.valid - !validation.valid
+     * @returns void
+     */
     if (!validation.valid) {
       const errors = validation.issues
         .filter(i => i.severity === "error")
@@ -136,6 +144,10 @@ export class AlgorithmEngine {
    */
   validate(input: AlgorithmCalculateInput): AlgorithmValidateResult {
     const algo = createAlgorithm(input.algorithm_id);
+    /** If.
+     * @param !algo - !algo
+     * @returns void
+     */
     if (!algo) {
       return {
         algorithm_id: input.algorithm_id,
@@ -158,6 +170,10 @@ export class AlgorithmEngine {
     const ids = listAlgorithms();
     let metas: AlgorithmMeta[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of ids) {
       const algo = createAlgorithm(id);
       if (!algo) continue;
@@ -165,10 +181,18 @@ export class AlgorithmEngine {
     }
 
     // Filter by domain
+    /** If.
+     * @param options?.domain - options?.domain
+     * @returns void
+     */
     if (options?.domain) {
       metas = metas.filter(m => m.domain === options.domain);
     }
     // Filter by safety class
+    /** If.
+     * @param options?.safety_class - options?.safety_class
+     * @returns void
+     */
     if (options?.safety_class) {
       metas = metas.filter(m => m.safety_class === options.safety_class);
     }
@@ -178,6 +202,10 @@ export class AlgorithmEngine {
 
     // Safety summary
     const safety = { critical: 0, standard: 0, informational: 0 };
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of metas) {
       if (m.safety_class === "critical") safety.critical++;
       else if (m.safety_class === "standard") safety.standard++;
@@ -205,6 +233,10 @@ export class AlgorithmEngine {
     let failed = 0;
     const t0 = performance.now();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const calc of input.calculations) {
       try {
         const result = this.calculate(calc);
@@ -231,6 +263,10 @@ export class AlgorithmEngine {
    */
   benchmark(input: AlgorithmCalculateInput): AlgorithmBenchmarkResult {
     const algo = createAlgorithm(input.algorithm_id);
+    /** If.
+     * @param !algo - !algo
+     * @returns void
+     */
     if (!algo) {
       throw new Error(`Unknown algorithm: "${input.algorithm_id}"`);
     }

@@ -96,26 +96,50 @@ export interface SweptVolumeCollisionOutput extends WithWarnings {
  */
 export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput, SweptVolumeCollisionOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: SweptVolumeCollisionInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.toolpath?.length - !input.toolpath?.length
+     * @returns void
+     */
     if (!input.toolpath?.length || input.toolpath.length < 2) {
       issues.push({ field: "toolpath", message: "At least 2 toolpath points required", severity: "error" });
     }
+    /** If.
+     * @param !input.tool?.diameter - !input.tool?.diameter
+     * @returns void
+     */
     if (!input.tool?.diameter || input.tool.diameter <= 0) {
       issues.push({ field: "tool.diameter", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.obstacles?.length - !input.obstacles?.length
+     * @returns void
+     */
     if (!input.obstacles?.length) {
       issues.push({ field: "obstacles", message: "At least 1 obstacle required", severity: "warning" });
     }
     if ((input.clearance ?? 2) < 0) {
       issues.push({ field: "clearance", message: "Must be >= 0", severity: "error" });
     }
+    /** If.
+     * @param input.toolpath?.length - input.toolpath?.length
+     * @returns void
+     */
     if (input.toolpath?.length > 10000) {
       issues.push({ field: "toolpath", message: "Large toolpath — performance may degrade", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns swept volume collision output
+   */
   calculate(input: SweptVolumeCollisionInput): SweptVolumeCollisionOutput {
     const warnings: string[] = [];
     const { toolpath, tool, obstacles } = input;
@@ -133,6 +157,10 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
     const sweptMin: Point3D = { x: Infinity, y: Infinity, z: Infinity };
     const sweptMax: Point3D = { x: -Infinity, y: -Infinity, z: -Infinity };
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < toolpath.length; i++) {
       const p = toolpath[i];
       sweptMin.x = Math.min(sweptMin.x, p.x - effectiveRadius);
@@ -150,10 +178,18 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
     let minClearanceSeg = 0;
     let nChecks = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let seg = 0; seg < toolpath.length - 1; seg++) {
       const p0 = toolpath[seg];
       const p1 = toolpath[seg + 1];
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let s = 0; s <= samplesPerSeg; s++) {
         const t = s / samplesPerSeg;
         const pt: Point3D = {
@@ -162,6 +198,10 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
           z: p0.z + t * (p1.z - p0.z),
         };
 
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let oi = 0; oi < obstacles.length; oi++) {
           nChecks++;
           const obs = obstacles[oi];
@@ -176,11 +216,19 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
           const dist = this.cylinderAABBDistance(pt, toolRadius, holderRadius, fluteLen, totalLen, obs);
 
           const distWithClearance = dist - clearance;
+          /** If.
+           * @param distWithClearance - dist with clearance
+           * @returns void
+           */
           if (distWithClearance < minClearance) {
             minClearance = distWithClearance;
             minClearanceSeg = seg;
           }
 
+          /** If.
+           * @param distWithClearance - dist with clearance
+           * @returns void
+           */
           if (distWithClearance < 0) {
             collisions.push({
               obstacle_index: oi,
@@ -194,6 +242,10 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
       }
     }
 
+    /** If.
+     * @param collisions.length - collisions.length
+     * @returns void
+     */
     if (collisions.length > 0) {
       warnings.push(`COLLISION DETECTED: ${collisions.length} collision points found`);
     }
@@ -227,6 +279,11 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
       { z: tip.z - totalLen, r: holderR },               // holder end
     ];
 
+    /** For.
+     * @param const - const
+     * @param r - r
+     * @returns void
+     */
     for (const { z, r } of zLevels) {
       if (z > box.max.z || z < box.min.z) continue;
 
@@ -247,6 +304,9 @@ export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput
     return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2);
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "swept-volume-collision",

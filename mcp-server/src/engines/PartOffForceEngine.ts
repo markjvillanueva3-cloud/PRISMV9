@@ -136,27 +136,55 @@ export class PartOffForceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param fn - callback function
+     * @returns void
+     */
     if (fn > 0.15) {
       recs.push("Feed > 0.15mm/rev — high for parting; risk of insert chipping. Reduce to 0.08-0.12.");
     }
+    /** If.
+     * @param OD - o d
+     * @returns void
+     */
     if (OD > 60 && w < 3) {
       recs.push("Large bar (>60mm) with narrow blade (<3mm) — risk of blade breakage. Use wider insert.");
     }
+    /** If.
+     * @param stress - stress
+     * @returns void
+     */
     if (stress > 800) {
       recs.push(`High blade stress (${Math.round(stress)} MPa) — reduce feed or use wider/thicker blade`);
     }
+    /** If.
+     * @param deflection_um - deflection_um
+     * @returns void
+     */
     if (deflection_um > 50) {
       recs.push(`Blade deflection ${Math.round(deflection_um)}µm — may affect surface finish and dimensional accuracy`);
     }
+    /** If.
+     * @param Vc - vc
+     * @returns void
+     */
     if (Vc > 150 && matKey === "steel") {
       recs.push("Cutting speed > 150 m/min for steel parting — risk of built-up edge and poor chip control");
     }
+    /** If.
+     * @param matKey - mat key
+     * @returns void
+     */
     if (matKey === "stainless" || matKey === "titanium" || matKey === "inconel") {
       recs.push(`${matKey}: use positive rake insert with chipbreaker; flood coolant essential for chip evacuation`);
     }
     if (ID > 0 && (OD - ID) / 2 < w * 2) {
       recs.push("Thin wall parting — reduce feed 30-40% to prevent wall deformation");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Parting parameters within normal range — proceed");
     }

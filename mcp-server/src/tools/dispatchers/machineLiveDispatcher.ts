@@ -218,6 +218,7 @@ function machineLiveExtractKeyValues(action: string, result: any): Record<string
 
 /** Registers machine live dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerMachineLiveDispatcher(server: any): void {
   server.tool(

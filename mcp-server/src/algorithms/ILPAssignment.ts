@@ -93,18 +93,38 @@ export interface ILPAssignmentOutput extends WithWarnings {
  */
 export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmentOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ILPAssignmentInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.jobs?.length - !input.jobs?.length
+     * @returns void
+     */
     if (!input.jobs?.length) {
       issues.push({ field: "jobs", message: "At least 1 job required", severity: "error" });
     }
+    /** If.
+     * @param !input.machines?.length - !input.machines?.length
+     * @returns void
+     */
     if (!input.machines?.length) {
       issues.push({ field: "machines", message: "At least 1 machine required", severity: "error" });
     }
+    /** If.
+     * @param input.jobs?.length - input.jobs?.length
+     * @returns void
+     */
     if (input.jobs?.length > 50) {
       issues.push({ field: "jobs", message: "Large problem — may be slow", severity: "warning" });
     }
     // Check each job has correct number of processing times
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const job of input.jobs ?? []) {
       if (job.processing_times.length !== (input.machines?.length ?? 0)) {
         issues.push({ field: "jobs", message: `Job ${job.id}: processing_times length must match machine count`, severity: "error" });
@@ -113,6 +133,10 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns i l p assignment output
+   */
   calculate(input: ILPAssignmentInput): ILPAssignmentOutput {
     const warnings: string[] = [];
     const { jobs, machines } = input;
@@ -129,6 +153,10 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     let nodesExplored = 0;
     let isOptimal = false;
 
+    /** If.
+     * @param isOneToOne - is one to one
+     * @returns void
+     */
     if (isOneToOne && objective === "min_time") {
       // Hungarian method
       const result = this.hungarian(jobs, machines);
@@ -145,11 +173,19 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
 
     // Build result
     const machineLoads: number[] = new Array(nMachines).fill(0);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let m = 0; m < nMachines; m++) {
       machineLoads[m] = machines[m].current_load ?? 0;
     }
 
     const assignments: Assignment[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let j = 0; j < nJobs; j++) {
       const m = bestAssign[j];
       const procTime = jobs[j].processing_times[m];
@@ -185,9 +221,17 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
       utilization_pct: (m.capacity ?? Infinity) < Infinity ? (machineLoads[i] / m.capacity!) * 100 : 0,
     }));
 
+    /** If.
+     * @param nTardy - n tardy
+     * @returns void
+     */
     if (nTardy > 0) {
       warnings.push(`${nTardy} job(s) will be tardy`);
     }
+    /** If.
+     * @param cv - cv
+     * @returns void
+     */
     if (cv > 0.5) {
       warnings.push(`High load imbalance (CV=${cv.toFixed(2)}) — consider rebalancing`);
     }
@@ -218,12 +262,20 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     );
 
     // Row reduction
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const minVal = Math.min(...cost[i]);
       for (let j = 0; j < n; j++) cost[i][j] -= minVal;
     }
 
     // Column reduction
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let j = 0; j < n; j++) {
       let minVal = Infinity;
       for (let i = 0; i < n; i++) minVal = Math.min(minVal, cost[i][j]);
@@ -234,12 +286,28 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     const assign = new Array(jobs.length).fill(-1);
     const usedMachines = new Set<number>();
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iter = 0; iter < n; iter++) {
       let bestI = -1, bestJ = -1, bestCost = Infinity;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < jobs.length; i++) {
         if (assign[i] >= 0) continue;
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < machines.length; j++) {
           if (usedMachines.has(j)) continue;
+          /** If.
+           * @param cost[i][j] - cost[i][j]
+           * @returns void
+           */
           if (cost[i][j] < bestCost) {
             bestCost = cost[i][j];
             bestI = i;
@@ -247,6 +315,10 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
           }
         }
       }
+      /** If.
+       * @param bestI - best i
+       * @returns void
+       */
       if (bestI >= 0) {
         assign[bestI] = bestJ;
         usedMachines.add(bestJ);
@@ -254,8 +326,20 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     }
 
     // Handle unassigned
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < assign.length; i++) {
+      /** If.
+       * @param assign[i] - assign[i]
+       * @returns void
+       */
       if (assign[i] < 0) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = 0; j < machines.length; j++) {
           if (!usedMachines.has(j)) { assign[i] = j; usedMachines.add(j); break; }
         }
@@ -276,8 +360,16 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     const loads = new Array(nMachines).fill(0);
     for (let m = 0; m < nMachines; m++) loads[m] = machines[m].current_load ?? 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let j = 0; j < nJobs; j++) {
       let bestM = 0, bestCost = Infinity;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let m = 0; m < nMachines; m++) {
         if (jobs[j].processing_times[m] < 0) continue;
         const cost = objective === "balance_load"
@@ -292,10 +384,22 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     // Local search: swap pairs
     let improved = true;
     let iter = 0;
+    /** While.
+     * @param improved - improved
+     * @returns void
+     */
     while (improved && iter < maxIter) {
       improved = false;
       iter++;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j1 = 0; j1 < nJobs && !improved; j1++) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j2 = j1 + 1; j2 < nJobs && !improved; j2++) {
           const m1 = assign[j1], m2 = assign[j2];
           if (m1 === m2) continue;
@@ -306,6 +410,10 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
           assign[j1] = m2; assign[j2] = m1;
           const newCost = this.evalCost(assign, jobs, machines, objective);
 
+          /** If.
+           * @param newCost - new cost
+           * @returns void
+           */
           if (newCost < currentCost) {
             improved = true;
           } else {
@@ -324,16 +432,28 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     let totalTime = 0;
     let tardiness = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let j = 0; j < jobs.length; j++) {
       const m = assign[j];
       const t = jobs[j].processing_times[m] + (machines[m].setup_time ?? 0);
       loads[m] += t;
       totalTime += t;
+      /** If.
+       * @param jobs[j].due_date - jobs[j].due_date
+       * @returns void
+       */
       if (jobs[j].due_date !== undefined && loads[m] > jobs[j].due_date!) {
         tardiness += (loads[m] - jobs[j].due_date!) * (jobs[j].priority ?? 1);
       }
     }
 
+    /** If.
+     * @param objective - objective
+     * @returns void
+     */
     if (objective === "balance_load") {
       const avg = loads.reduce((s, l) => s + l, 0) / loads.length;
       return loads.reduce((s, l) => s + (l - avg) ** 2, 0);
@@ -342,6 +462,9 @@ export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmen
     return totalTime;
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "ilp-assignment",

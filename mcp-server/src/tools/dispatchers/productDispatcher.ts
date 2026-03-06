@@ -170,6 +170,7 @@ function productExtractKeyValues(action: string, result: any): Record<string, an
 
 /** Registers product dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerProductDispatcher(server: any): void {
   server.tool(

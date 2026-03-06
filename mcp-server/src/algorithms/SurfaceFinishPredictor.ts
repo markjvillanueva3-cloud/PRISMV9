@@ -112,23 +112,51 @@ const ISO_GRADES: Array<{ grade: string; max_ra: number }> = [
  */
 export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, SurfaceFinishOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: SurfaceFinishInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.feed - !input.feed
+     * @returns void
+     */
     if (!input.feed || input.feed < LIMITS.MIN_FEED || input.feed > LIMITS.MAX_FEED) {
       issues.push({ field: "feed", message: `Feed must be ${LIMITS.MIN_FEED}-${LIMITS.MAX_FEED} mm, got ${input.feed}`, severity: "error" });
     }
+    /** If.
+     * @param !input.nose_radius - !input.nose_radius
+     * @returns void
+     */
     if (!input.nose_radius || input.nose_radius < LIMITS.MIN_NOSE_RADIUS || input.nose_radius > LIMITS.MAX_NOSE_RADIUS) {
       issues.push({ field: "nose_radius", message: `Nose radius must be ${LIMITS.MIN_NOSE_RADIUS}-${LIMITS.MAX_NOSE_RADIUS} mm, got ${input.nose_radius}`, severity: "error" });
     }
+    /** If.
+     * @param input.is_milling - input.is_milling
+     * @returns void
+     */
     if (input.is_milling) {
+      /** If.
+       * @param !input.radial_depth - !input.radial_depth
+       * @returns void
+       */
       if (!input.radial_depth || input.radial_depth <= 0) {
         issues.push({ field: "radial_depth", message: `Radial depth required for milling, got ${input.radial_depth}`, severity: "warning" });
       }
+      /** If.
+       * @param !input.tool_diameter - !input.tool_diameter
+       * @returns void
+       */
       if (!input.tool_diameter || input.tool_diameter <= 0) {
         issues.push({ field: "tool_diameter", message: `Tool diameter required for milling, got ${input.tool_diameter}`, severity: "warning" });
       }
     }
+    /** If.
+     * @param input.operation - input.operation
+     * @returns void
+     */
     if (input.operation && !RZ_RA_RATIOS[input.operation]) {
       issues.push({ field: "operation", message: `Unknown operation "${input.operation}"`, severity: "warning" });
     }
@@ -139,6 +167,10 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns surface finish output
+   */
   calculate(input: SurfaceFinishInput): SurfaceFinishOutput {
     const warnings: string[] = [];
     const {
@@ -151,6 +183,10 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
 
     // Theoretical Ra
     let Ra_theoretical: number;
+    /** If.
+     * @param is_milling - is_milling
+     * @returns void
+     */
     if (is_milling && radial_depth && tool_diameter) {
       Ra_theoretical = (feed * feed * radial_depth) / (32 * tool_diameter * nose_radius);
     } else {
@@ -162,6 +198,10 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
     let Ra_actual = Ra_theoretical * process_factor;
 
     // Clamp
+    /** If.
+     * @param Ra_actual - ra_actual
+     * @returns void
+     */
     if (Ra_actual > LIMITS.MAX_RA) {
       warnings.push(`Ra ${Ra_actual.toFixed(1)}μm exceeds limit, capped at ${LIMITS.MAX_RA}μm`);
       Ra_actual = LIMITS.MAX_RA;
@@ -170,6 +210,10 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
     // Rz/Ra ratio selection
     const defaultOp = is_milling ? "milling" : "turning";
     const selectedOp = (operation && RZ_RA_RATIOS[operation]) ? operation : defaultOp;
+    /** If.
+     * @param operation - operation
+     * @returns void
+     */
     if (operation && !RZ_RA_RATIOS[operation]) {
       warnings.push(`Unknown operation "${operation}" — falling back to ${defaultOp}`);
     }
@@ -179,16 +223,32 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
     const Rt = Rz * 1.3;
 
     // Warnings
+    /** If.
+     * @param Ra_actual - ra_actual
+     * @returns void
+     */
     if (Ra_actual > 12.5) {
       warnings.push("Surface is rough (Ra > 12.5μm) — may not meet typical finish requirements");
     }
+    /** If.
+     * @param Ra_actual - ra_actual
+     * @returns void
+     */
     if (Ra_actual < 0.1 && process_factor >= 2.0) {
       warnings.push("Very fine finish predicted — consider if process_factor is realistic");
     }
 
     // ISO N grade
     let iso_grade: string | undefined;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const g of ISO_GRADES) {
+      /** If.
+       * @param Ra_actual - ra_actual
+       * @returns void
+       */
       if (Ra_actual <= g.max_ra) {
         iso_grade = g.grade;
         break;
@@ -208,6 +268,9 @@ export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, Sur
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "surface-finish",

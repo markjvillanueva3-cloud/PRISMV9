@@ -77,6 +77,10 @@ export class SingularityAvoidanceEngine {
     const singularPoints: SingularityPoint[] = [];
     let maxAngVel = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let idx = 0; idx < input.toolpath_points.length; idx++) {
       const pt = input.toolpath_points[idx];
 
@@ -115,6 +119,10 @@ export class SingularityAvoidanceEngine {
       }
 
       // Check angular velocity between consecutive points
+      /** If.
+       * @param idx - index position
+       * @returns void
+       */
       if (idx > 0) {
         const prevPt = input.toolpath_points[idx - 1];
         const prevAngles = this._vectorToAngles(prevPt.i, prevPt.j, prevPt.k, input.rotary_axis_1);
@@ -123,6 +131,10 @@ export class SingularityAvoidanceEngine {
         const dist = Math.sqrt((pt.x - prevPt.x) ** 2 + (pt.y - prevPt.y) ** 2 + (pt.z - prevPt.z) ** 2);
         const timeAtFeed = dist / (input.feed_rate_mm_per_min / 60); // seconds
 
+        /** If.
+         * @param timeAtFeed - time at feed
+         * @returns void
+         */
         if (timeAtFeed > 0.001) {
           // Angular change
           let dA1 = Math.abs(angles.axis1_deg - prevAngles.axis1_deg);
@@ -137,6 +149,10 @@ export class SingularityAvoidanceEngine {
 
           if (maxVel > maxAngVel) maxAngVel = maxVel;
 
+          /** If.
+           * @param maxVel - max vel
+           * @returns void
+           */
           if (maxVel > input.angular_velocity_limit_deg_per_sec) {
             singularPoints.push({
               point_index: idx,
@@ -150,6 +166,10 @@ export class SingularityAvoidanceEngine {
           }
 
           // Check axis reversal (sign change in angular velocity)
+          /** If.
+           * @param idx - index position
+           * @returns void
+           */
           if (idx > 1) {
             const prevPrevPt = input.toolpath_points[idx - 2];
             const ppAngles = this._vectorToAngles(prevPrevPt.i, prevPrevPt.j, prevPrevPt.k, input.rotary_axis_1);
@@ -174,16 +194,28 @@ export class SingularityAvoidanceEngine {
     const hasCritical = singularPoints.some(p => p.severity === "critical");
 
     const recs: string[] = [];
+    /** If.
+     * @param hasCritical - has critical
+     * @returns void
+     */
     if (hasCritical) {
       recs.push("SAFETY: Critical singularity detected — toolpath will cause machine fault or crash");
       recs.push("Re-orient part setup or modify toolpath to avoid singular orientations");
     }
+    /** If.
+     * @param maxAngVel - max ang vel
+     * @returns void
+     */
     if (maxAngVel > input.angular_velocity_limit_deg_per_sec * 0.8) {
       recs.push("Rotary axes near speed limit — reduce feed rate through critical sections");
     }
     if (singularPoints.filter(p => p.type === "pole").length > 3) {
       recs.push("Multiple pole singularities — consider tilting part to avoid near-vertical tool orientations");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("No singularities detected — toolpath is safe for 5-axis execution");
     }
@@ -199,6 +231,10 @@ export class SingularityAvoidanceEngine {
 
   private _vectorToAngles(i: number, j: number, k: number, primaryAxis: "A" | "B"): { axis1_deg: number; axis2_deg: number } {
     // Convert tool axis unit vector to rotary axis angles
+    /** If.
+     * @param primaryAxis - primary axis
+     * @returns void
+     */
     if (primaryAxis === "A") {
       // A rotates around X, C rotates around Z
       const a = Math.acos(Math.max(-1, Math.min(1, k))) * 180 / Math.PI;
@@ -212,6 +248,11 @@ export class SingularityAvoidanceEngine {
     }
   }
 
+  /** Maps singularities.
+   * @param kinematic_type - kinematic_type
+   * @param primaryAxis - primary axis
+   * @returns singularity map
+   */
   mapSingularities(kinematic_type: string, primaryAxis: "A" | "B"): SingularityMap {
     const zones: SingularityZone[] = [];
 

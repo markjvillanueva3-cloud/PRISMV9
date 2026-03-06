@@ -649,6 +649,9 @@ export { detectPersona, detectUnits };
 
 /**
  * Dispatcher entry point for intelligenceDispatcher routing.
+  * @param action - action string
+  * @param params - configuration options
+  * @returns result object
  */
 export function responseFormatter(action: string, params: Record<string, any>): any {
   if (action !== "format_response") {

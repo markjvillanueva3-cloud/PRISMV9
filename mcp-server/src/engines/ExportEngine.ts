@@ -98,6 +98,16 @@ export class ExportEngine {
     for (const t of DEFAULT_TEMPLATES) this.templates.set(t.id, t);
   }
 
+  /** Render.
+   * @param format - output format
+   * @param title - title
+   * @param dataSource - data source
+   * @param data - input data
+   * @param unknown> - unknown>
+   * @param options - configuration options
+   * @param templateId - template id
+   * @returns export job
+   */
   render(format: ExportFormat, title: string, dataSource: string, data: Record<string, unknown>, options?: ExportOptions, templateId?: string): ExportJob {
     exportIdCounter++;
     const id = `EXP-${String(exportIdCounter).padStart(6, "0")}`;
@@ -121,30 +131,55 @@ export class ExportEngine {
     return job;
   }
 
+  /** Batch Render.
+   * @param items - items
+   * @param unknown>; - unknown>;
+   * @returns export job[]
+   */
   batchRender(items: { format: ExportFormat; title: string; dataSource: string; data: Record<string, unknown>; options?: ExportOptions }[]): ExportJob[] {
     return items.map(item => this.render(item.format, item.title, item.dataSource, item.data, item.options));
   }
 
+  /** Gets job.
+   * @param jobId - job id
+   * @returns export job | undefined
+   */
   getJob(jobId: string): ExportJob | undefined {
     return this.jobs.get(jobId);
   }
 
+  /** List Jobs.
+   * @param format - output format
+   * @param limit - maximum number of results
+   * @returns export job[]
+   */
   listJobs(format?: ExportFormat, limit: number = 50): ExportJob[] {
     let result = [...this.jobs.values()];
     if (format) result = result.filter(j => j.format === format);
     return result.slice(-limit);
   }
 
+  /** Registers template.
+   * @param template - template
+   * @returns void
+   */
   registerTemplate(template: ExportTemplate): void {
     this.templates.set(template.id, template);
   }
 
+  /** List Templates.
+   * @param format - output format
+   * @returns export template[]
+   */
   listTemplates(format?: ExportFormat): ExportTemplate[] {
     let result = [...this.templates.values()];
     if (format) result = result.filter(t => t.format === format);
     return result;
   }
 
+  /** Stats.
+   * @returns export stats
+   */
   stats(): ExportStats {
     const byFormat: Record<ExportFormat, number> = { pdf: 0, csv: 0, excel: 0, dxf: 0, step: 0, gcode: 0, setup_sheet: 0, json: 0 };
     let totalSize = 0;
@@ -168,6 +203,9 @@ export class ExportEngine {
     };
   }
 
+  /** Clear.
+   * @returns void { this.jobs.clear(); export id counter = 0; }
+   */
   clear(): void { this.jobs.clear(); exportIdCounter = 0; }
 
   // ---- PRIVATE ----
@@ -175,6 +213,10 @@ export class ExportEngine {
   private generateContent(format: ExportFormat, title: string, data: Record<string, unknown>, templateId?: string): string {
     const tpl = templateId ? this.templates.get(templateId) : undefined;
 
+    /** Switch.
+     * @param format - output format
+     * @returns void
+     */
     switch (format) {
       case "csv": {
         const columns = tpl?.columns || Object.keys(data);

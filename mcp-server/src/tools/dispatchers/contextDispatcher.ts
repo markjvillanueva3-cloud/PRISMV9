@@ -128,6 +128,7 @@ function appendJsonl(filepath: string, data: any): void {
 
 /** Registers context dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerContextDispatcher(server: any): void {
   server.tool(

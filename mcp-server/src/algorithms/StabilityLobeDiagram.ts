@@ -120,27 +120,55 @@ const LIMITS = {
  */
 export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, StabilityLobeOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: StabilityLobeInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.natural_frequency - !input.natural_frequency
+     * @returns void
+     */
     if (!input.natural_frequency || input.natural_frequency < LIMITS.MIN_FREQ || input.natural_frequency > LIMITS.MAX_FREQ) {
       issues.push({ field: "natural_frequency", message: `Natural frequency must be ${LIMITS.MIN_FREQ}-${LIMITS.MAX_FREQ} Hz, got ${input.natural_frequency}`, severity: "error" });
     }
+    /** If.
+     * @param !input.damping_ratio - !input.damping_ratio
+     * @returns void
+     */
     if (!input.damping_ratio || input.damping_ratio < LIMITS.MIN_DAMPING || input.damping_ratio > LIMITS.MAX_DAMPING) {
       issues.push({ field: "damping_ratio", message: `Damping ratio must be ${LIMITS.MIN_DAMPING}-${LIMITS.MAX_DAMPING}, got ${input.damping_ratio}`, severity: "error" });
     }
+    /** If.
+     * @param !input.stiffness - !input.stiffness
+     * @returns void
+     */
     if (!input.stiffness || input.stiffness < LIMITS.MIN_STIFFNESS || input.stiffness > LIMITS.MAX_STIFFNESS) {
       issues.push({ field: "stiffness", message: `Stiffness must be ${LIMITS.MIN_STIFFNESS}-${LIMITS.MAX_STIFFNESS} N/m, got ${input.stiffness}`, severity: "error" });
     }
+    /** If.
+     * @param !input.specific_cutting_force - !input.specific_cutting_force
+     * @returns void
+     */
     if (!input.specific_cutting_force || input.specific_cutting_force < LIMITS.MIN_KS || input.specific_cutting_force > LIMITS.MAX_KS) {
       issues.push({ field: "specific_cutting_force", message: `Ks must be ${LIMITS.MIN_KS}-${LIMITS.MAX_KS} N/mm², got ${input.specific_cutting_force}`, severity: "error" });
     }
+    /** If.
+     * @param !input.num_teeth - !input.num_teeth
+     * @returns void
+     */
     if (!input.num_teeth || input.num_teeth < 1 || input.num_teeth > 100) {
       issues.push({ field: "num_teeth", message: `Number of teeth must be 1-100, got ${input.num_teeth}`, severity: "error" });
     }
     if (input.radial_immersion !== undefined && (input.radial_immersion <= 0 || input.radial_immersion > 1)) {
       issues.push({ field: "radial_immersion", message: `Radial immersion must be 0-1, got ${input.radial_immersion}`, severity: "error" });
     }
+    /** If.
+     * @param input.damping_ratio - input.damping_ratio
+     * @returns void
+     */
     if (input.damping_ratio && input.damping_ratio < 0.01) {
       issues.push({ field: "damping_ratio", message: `Very low damping (${input.damping_ratio}) — system is chatter-prone`, severity: "warning" });
     }
@@ -148,6 +176,10 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns stability lobe output
+   */
   calculate(input: StabilityLobeInput): StabilityLobeOutput {
     const warnings: string[] = [];
     const {
@@ -181,9 +213,17 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
     let unconditional_limit = Infinity;
 
     // Sweep ω_c from ω_n × 1.001 to ω_n × 2.0 (above resonance, G_real < 0 → positive b_lim)
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let k = 0; k < num_lobes; k++) {
       const lobe: StabilityLobe = { lobe_number: k, rpm: [], depth_limit: [] };
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < num_points; i++) {
         // Sweep ratio from just above 1.0 to ~2.0
         const r = 1.001 + (i / num_points) * 1.5;
@@ -206,16 +246,28 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
         // Spindle speed for lobe k
         const N = (60 * omega_c) / (2 * Math.PI * (k + epsilon / (2 * Math.PI)) * num_teeth);
 
+        /** If.
+         * @param N - n
+         * @returns void
+         */
         if (N >= rpm_range[0] && N <= rpm_range[1] && b_lim > 0 && b_lim < LIMITS.MAX_DEPTH) {
           lobe.rpm.push(N);
           lobe.depth_limit.push(b_lim);
 
+          /** If.
+           * @param b_lim - b_lim
+           * @returns void
+           */
           if (b_lim < unconditional_limit) {
             unconditional_limit = b_lim;
           }
         }
       }
 
+      /** If.
+       * @param lobe.rpm.length - lobe.rpm.length
+       * @returns void
+       */
       if (lobe.rpm.length > 0) {
         // Sort by RPM
         const sorted = lobe.rpm.map((rpm, i) => ({ rpm, doc: lobe.depth_limit[i] }))
@@ -228,7 +280,15 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
 
     // Find sweet spots (local maxima in each lobe)
     const sweet_spots: SweetSpot[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const lobe of lobes) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 1; i < lobe.depth_limit.length - 1; i++) {
         if (lobe.depth_limit[i] > lobe.depth_limit[i - 1] &&
             lobe.depth_limit[i] > lobe.depth_limit[i + 1]) {
@@ -243,16 +303,32 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
     sweet_spots.sort((a, b) => b.max_depth - a.max_depth);
 
     // Warnings
+    /** If.
+     * @param unconditional_limit - unconditional_limit
+     * @returns void
+     */
     if (unconditional_limit === Infinity) {
       unconditional_limit = 0;
       warnings.push("Could not determine stability boundary — check input parameters");
     }
+    /** If.
+     * @param unconditional_limit - unconditional_limit
+     * @returns void
+     */
     if (unconditional_limit < 0.5) {
       warnings.push(`Very low unconditional limit (${unconditional_limit.toFixed(2)}mm) — system is chatter-prone`);
     }
+    /** If.
+     * @param lobes.length - lobes.length
+     * @returns void
+     */
     if (lobes.length === 0) {
       warnings.push("No lobes generated in RPM range — try wider range or different parameters");
     }
+    /** If.
+     * @param alpha_xx - alpha_xx
+     * @returns void
+     */
     if (alpha_xx < 0.01) {
       warnings.push(`Very low directional factor (${alpha_xx.toFixed(4)}) — light radial engagement`);
     }
@@ -268,6 +344,9 @@ export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, Stabi
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "stability-lobe",

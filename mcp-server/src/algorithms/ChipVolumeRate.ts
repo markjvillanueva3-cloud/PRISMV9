@@ -84,29 +84,61 @@ export interface ChipVolumeRateOutput extends WithWarnings {
  */
 export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, ChipVolumeRateOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ChipVolumeRateInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0) {
       issues.push({ field: "tool_diameter", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.depth_of_cut - !input.depth_of_cut
+     * @returns void
+     */
     if (!input.depth_of_cut || input.depth_of_cut <= 0) {
       issues.push({ field: "depth_of_cut", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.width_of_cut - !input.width_of_cut
+     * @returns void
+     */
     if (!input.width_of_cut || input.width_of_cut <= 0) {
       issues.push({ field: "width_of_cut", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.feed_rate - !input.feed_rate
+     * @returns void
+     */
     if (!input.feed_rate || input.feed_rate <= 0) {
       issues.push({ field: "feed_rate", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed <= 0) {
       issues.push({ field: "cutting_speed", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param input.depth_of_cut - input.depth_of_cut
+     * @returns void
+     */
     if (input.depth_of_cut > input.tool_diameter * 3) {
       issues.push({ field: "depth_of_cut", message: "Very high ap/D ratio", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns chip volume rate output
+   */
   calculate(input: ChipVolumeRateInput): ChipVolumeRateOutput {
     const warnings: string[] = [];
     const D = input.tool_diameter;
@@ -125,6 +157,10 @@ export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, C
     let hMax: number; // max chip thickness
     let tableFeed: number; // mm/min
 
+    /** Switch.
+     * @param input.operation - input.operation
+     * @returns void
+     */
     switch (input.operation) {
       case "milling_slot":
       case "milling_side":
@@ -140,6 +176,10 @@ export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, C
         // h_avg = fz × (ae/D) for side milling
         // h_max = fz × sin(arccos(1 - 2ae/D)) for arc engagement
         const aeRatio = Math.min(ae / D, 1);
+        /** If.
+         * @param input.operation - input.operation
+         * @returns void
+         */
         if (input.operation === "milling_slot") {
           hAvg = fz * 2 / Math.PI; // slot: average over semicircle
           hMax = fz;
@@ -205,9 +245,17 @@ export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, C
     const specificMRR = powerKW > 0 ? mrrCm3 / powerKW : 0;
     const timePer = mrrCm3 > 0 ? 60 / mrrCm3 : Infinity;
 
+    /** If.
+     * @param !powerSufficient - !power sufficient
+     * @returns void
+     */
     if (!powerSufficient) {
       warnings.push(`Power required ${powerKW.toFixed(1)}kW exceeds 80% of spindle capacity`);
     }
+    /** If.
+     * @param hMax - h max
+     * @returns void
+     */
     if (hMax > 0.5) {
       warnings.push(`High chip thickness ${hMax.toFixed(3)}mm — verify tool can handle load`);
     }
@@ -230,6 +278,9 @@ export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, C
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "chip-volume-rate",

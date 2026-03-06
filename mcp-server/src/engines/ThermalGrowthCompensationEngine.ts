@@ -157,6 +157,10 @@ export class ThermalGrowthCompensationEngine {
       );
     }
 
+    /** If.
+     * @param rpm - rpm
+     * @returns void
+     */
     if (rpm > 15000 && bearingType !== "hydrostatic") {
       recs.push(
         `High-speed spindle at ${rpm} RPM with ${bearingType} bearings — `
@@ -164,6 +168,10 @@ export class ThermalGrowthCompensationEngine {
       );
     }
 
+    /** If.
+     * @param !coolant - !coolant
+     * @returns void
+     */
     if (!coolant && power > 2) {
       recs.push(
         `Dry cutting at ${power.toFixed(1)}kW — tool/workpiece thermal growth `
@@ -178,6 +186,10 @@ export class ThermalGrowthCompensationEngine {
       );
     }
 
+    /** If.
+     * @param t - t
+     * @returns void
+     */
     if (t < timeToStability * 0.5) {
       recs.push(
         `Spindle NOT thermally stable (${t.toFixed(0)} of ${Math.round(timeToStability)} min). `
@@ -185,6 +197,10 @@ export class ThermalGrowthCompensationEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Thermal growth nominal — total Z-error ${totalError.toFixed(1)}µm, `

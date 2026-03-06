@@ -28,6 +28,8 @@ import { listFiles } from "./files.js";
 /**
  * List directory contents (alias for listFiles)
  * @returns Array of filenames (not full paths) - use path.join(dirPath, filename) to get full path
+  * @param dirPath - file path
+  * @param options - configuration options
  */
 export async function listDirectory(
   dirPath: string,

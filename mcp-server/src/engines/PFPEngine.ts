@@ -130,6 +130,9 @@ export class PFPEngine {
     ensureStateDir();
   }
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
     this.initialized = true;
@@ -171,12 +174,20 @@ export class PFPEngine {
       this.history.push(record);
 
       // Enforce history size limit
+      /** If.
+       * @param this.history.length - this.history.length
+       * @returns void
+       */
       if (this.history.length > this.config.historySize!) {
         this.history = this.history.slice(-this.config.historySize!);
       }
 
       // Trigger pattern extraction periodically
       this.recordsSinceExtraction++;
+      /** If.
+       * @param this.recordsSinceExtraction - this.records since extraction
+       * @returns void
+       */
       if (this.recordsSinceExtraction >= this.config.patternExtractionInterval!) {
         this.extractPatterns();
         this.recordsSinceExtraction = 0;
@@ -199,6 +210,10 @@ export class PFPEngine {
 
       // Group history by dispatcher:action
       const groups = new Map<string, ActionRecord[]>();
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const r of this.history) {
         const key = `${r.dispatcher}:${r.action}`;
         let list = groups.get(key);
@@ -208,6 +223,11 @@ export class PFPEngine {
 
       const numComparisons = groups.size; // For Bonferroni correction
 
+      /** For.
+       * @param const - const
+       * @param records] - records]
+       * @returns void
+       */
       for (const [key, records] of groups) {
         if (records.length < this.config.minOccurrences!) continue;
 
@@ -219,6 +239,10 @@ export class PFPEngine {
 
         // --- REPEATED_ERROR pattern ---
         const errorGroups = new Map<string, ActionRecord[]>();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const f of failures) {
           const ec = f.errorClass || 'unknown';
           let list = errorGroups.get(ec);
@@ -226,6 +250,11 @@ export class PFPEngine {
           list.push(f);
         }
 
+        /** For.
+         * @param const - const
+         * @param errRecords] - err records]
+         * @returns void
+         */
         for (const [errorClass, errRecords] of errorGroups) {
           if (errRecords.length < this.config.minOccurrences!) continue;
 
@@ -234,12 +263,20 @@ export class PFPEngine {
             failures.length, successes.length, records.length, numComparisons
           );
 
+          /** If.
+           * @param confidence - confidence
+           * @returns void
+           */
           if (confidence >= this.config.confidenceThreshold!) {
             const decay = this.computeDecay(errRecords, now);
             const sig = `REPEATED:${key}:${errorClass}`;
 
             // Check for existing pattern to update
             const existing = this.patterns.find(p => p.signature === sig);
+            /** If.
+             * @param existing - existing
+             * @returns void
+             */
             if (existing) {
               // Update in place (TS readonly bypass for internal mutation)
               (existing as any).occurrences = errRecords.length;
@@ -266,8 +303,16 @@ export class PFPEngine {
 
         // --- CONTEXT_PRESSURE_FAIL pattern ---
         const highPressureFails = failures.filter(f => f.contextDepthPercent > 70);
+        /** If.
+         * @param highPressureFails.length - high pressure fails.length
+         * @returns void
+         */
         if (highPressureFails.length >= this.config.minOccurrences!) {
           const highPressureTotal = records.filter(r => r.contextDepthPercent > 70);
+          /** If.
+           * @param highPressureTotal.length - high pressure total.length
+           * @returns void
+           */
           if (highPressureTotal.length > 0) {
             const failRateHigh = highPressureFails.length / highPressureTotal.length;
             const failRateLow = (failures.length - highPressureFails.length) /
@@ -279,9 +324,17 @@ export class PFPEngine {
                 highPressureTotal.length, numComparisons
               );
 
+              /** If.
+               * @param confidence - confidence
+               * @returns void
+               */
               if (confidence >= this.config.confidenceThreshold!) {
                 const sig = `PRESSURE:${key}`;
                 const existing = this.patterns.find(p => p.signature === sig);
+                /** If.
+                 * @param !existing - !existing
+                 * @returns void
+                 */
                 if (!existing) {
                   newPatterns.push({
                     id: randomUUID(),
@@ -306,16 +359,32 @@ export class PFPEngine {
 
         // --- TEMPORAL_CLUSTER pattern ---
         // Check if failures cluster at certain call number ranges
+        /** If.
+         * @param failures.length - failures.length
+         * @returns void
+         */
         if (failures.length >= this.config.minOccurrences!) {
           const callNums = failures.map(f => f.callNumber).sort((a, b) => a - b);
           // Check if >60% of failures fall within a 5-call-number window
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let i = 0; i <= callNums.length - this.config.minOccurrences!; i++) {
             const windowStart = callNums[i];
             const windowEnd = windowStart + 5;
             const inWindow = callNums.filter(n => n >= windowStart && n <= windowEnd);
+            /** If.
+             * @param inWindow.length - in window.length
+             * @returns void
+             */
             if (inWindow.length / failures.length > 0.6) {
               const sig = `TEMPORAL:${key}:${windowStart}-${windowEnd}`;
               const existing = this.patterns.find(p => p.signature === sig);
+              /** If.
+               * @param !existing - !existing
+               * @returns void
+               */
               if (!existing) {
                 newPatterns.push({
                   id: randomUUID(),
@@ -341,17 +410,34 @@ export class PFPEngine {
 
         // --- PARAM_CORRELATION pattern ---
         // Detect if specific parameter signatures correlate with failures
+        /** If.
+         * @param failures.length - failures.length
+         * @returns void
+         */
         if (failures.length >= this.config.minOccurrences!) {
           const paramFailGroups = new Map<string, number>(); // paramSig → failure count
           const paramTotalGroups = new Map<string, number>(); // paramSig → total count
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const r of records) {
             const sig = r.paramSignature;
             paramTotalGroups.set(sig, (paramTotalGroups.get(sig) || 0) + 1);
+            /** If.
+             * @param r.outcome - r.outcome
+             * @returns void
+             */
             if (r.outcome === 'failure' || r.outcome === 'timeout') {
               paramFailGroups.set(sig, (paramFailGroups.get(sig) || 0) + 1);
             }
           }
 
+          /** For.
+           * @param const - const
+           * @param failCount] - fail count]
+           * @returns void
+           */
           for (const [paramSig, failCount] of paramFailGroups) {
             if (failCount < this.config.minOccurrences!) continue;
             const totalForSig = paramTotalGroups.get(paramSig) || 0;
@@ -361,13 +447,25 @@ export class PFPEngine {
             const overallFailRate = failures.length / records.length;
 
             // Only create pattern if param-specific fail rate is 2x overall
+            /** If.
+             * @param paramFailRate - param fail rate
+             * @returns void
+             */
             if (paramFailRate > overallFailRate * 2) {
               const confidence = this.chiSquaredConfidence(
                 failCount, totalForSig - failCount, totalForSig, numComparisons
               );
+              /** If.
+               * @param confidence - confidence
+               * @returns void
+               */
               if (confidence >= this.config.confidenceThreshold!) {
                 const pSig = `PARAM:${key}:${paramSig}`;
                 const existing = this.patterns.find(p => p.signature === pSig);
+                /** If.
+                 * @param !existing - !existing
+                 * @returns void
+                 */
                 if (!existing) {
                   newPatterns.push({
                     id: randomUUID(),
@@ -400,6 +498,10 @@ export class PFPEngine {
         .sort((a, b) => b.decayWeight * b.confidence - a.decayWeight * a.confidence)
         .slice(0, this.config.maxPatterns!);
 
+      /** If.
+       * @param newPatterns.length - new patterns.length
+       * @returns void
+       */
       if (newPatterns.length > 0) {
         log.info(`[PFP] Extracted ${newPatterns.length} new patterns (total: ${this.patterns.length})`);
       }
@@ -459,6 +561,10 @@ export class PFPEngine {
     const start = performance.now();
 
     try {
+      /** If.
+       * @param !this.config.enabled - !this.config.enabled
+       * @returns void
+       */
       if (!this.config.enabled) {
         return this.greenAssessment(dispatcher, action, start, 'PFP disabled');
       }
@@ -482,6 +588,10 @@ export class PFPEngine {
       const matchedPatterns: PatternMatch[] = [];
       let totalRisk = 0;
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const pattern of this.patterns) {
         const patternKey = `${pattern.dispatcher}:${pattern.action}`;
         if (patternKey !== key) continue;
@@ -494,19 +604,35 @@ export class PFPEngine {
         let contribution = pattern.confidence * currentDecay;
 
         // Boost for context pressure patterns when under pressure
+        /** If.
+         * @param pattern.type - pattern.type
+         * @returns void
+         */
         if (pattern.type === 'CONTEXT_PRESSURE_FAIL' && contextDepthPercent > 70) {
           contribution *= 1.5;
         }
 
         // Boost for temporal clusters if call number matches
+        /** If.
+         * @param pattern.type - pattern.type
+         * @returns void
+         */
         if (pattern.type === 'TEMPORAL_CLUSTER' && pattern.context?.callNumberRange) {
           const [lo, hi] = pattern.context!.callNumberRange;
+          /** If.
+           * @param callNumber - call number
+           * @returns void
+           */
           if (callNumber >= lo && callNumber <= hi) {
             contribution *= 1.3;
           }
         }
 
         // Boost for param correlation when matching param signature
+        /** If.
+         * @param pattern.type - pattern.type
+         * @returns void
+         */
         if (pattern.type === 'PARAM_CORRELATION' && paramKeys && pattern.context?.paramKeys) {
           const currentSig = sha256(paramKeys.sort().join(','));
           if (pattern.context!.paramKeys!.includes(currentSig)) {
@@ -533,6 +659,10 @@ export class PFPEngine {
       let recommendation: 'PROCEED' | 'WARN' | 'PRE_FILTER';
       let reason: string;
 
+      /** If.
+       * @param riskScore - risk score
+       * @returns void
+       */
       if (riskScore >= this.config.redThreshold!) {
         riskLevel = 'RED';
         recommendation = this.config.preFilterEnabled ? 'PRE_FILTER' : 'WARN';
@@ -556,11 +686,19 @@ export class PFPEngine {
       this.stats.assessmentsByRisk[riskLevel]++;
       if (recommendation === 'PRE_FILTER') this.stats.preFiltered++;
       this.stats.assessmentTimesMs.push(assessmentMs);
+      /** If.
+       * @param this.stats.assessmentTimesMs.length - this.stats.assessment times ms.length
+       * @returns void
+       */
       if (this.stats.assessmentTimesMs.length > 1000) {
         this.stats.assessmentTimesMs.splice(0, 500);
       }
 
       // Log non-GREEN assessments for telemetry/learning
+      /** If.
+       * @param riskLevel - risk level
+       * @returns void
+       */
       if (riskLevel !== 'GREEN') {
         log.info(`[PFP] ${riskLevel} risk: ${dispatcher}:${action} score=${riskScore.toFixed(3)} patterns=${matchedPatterns.length} rec=${recommendation} (${assessmentMs.toFixed(1)}ms)`);
       }
@@ -578,6 +716,10 @@ export class PFPEngine {
 
       // Store in memoization cache; prune if > 100 entries
       this._riskCache.set(key, { result: assessment, ts: Date.now() });
+      /** If.
+       * @param this._riskCache.size - this._risk cache.size
+       * @returns void
+       */
       if (this._riskCache.size > 100) {
         const firstKey = this._riskCache.keys().next().value;
         if (firstKey) this._riskCache.delete(firstKey);
@@ -607,6 +749,9 @@ export class PFPEngine {
   // DASHBOARD & QUERIES
   // ==========================================================================
 
+  /** Gets dashboard.
+   * @returns p f p dashboard
+   */
   getDashboard(): PFPDashboard {
     const timesMs = this.stats.assessmentTimesMs;
     const avgMs = timesMs.length > 0 ? timesMs.reduce((a, b) => a + b, 0) / timesMs.length : 0;
@@ -625,21 +770,37 @@ export class PFPEngine {
     };
   }
 
+  /** Gets patterns.
+   * @param type - type identifier
+   * @returns failure pattern[]
+   */
   getPatterns(type?: PatternType): FailurePattern[] {
     if (type) return this.patterns.filter(p => p.type === type);
     return [...this.patterns];
   }
 
+  /** Gets history.
+   * @param dispatcher - dispatcher
+   * @param limit - maximum number of results
+   * @returns action record[]
+   */
   getHistory(dispatcher?: string, limit: number = 50): ActionRecord[] {
     let filtered = this.history;
     if (dispatcher) filtered = filtered.filter(r => r.dispatcher === dispatcher);
     return filtered.slice(-limit);
   }
 
+  /** Gets config.
+   * @returns p f p config
+   */
   getConfig(): PFPConfig {
     return { ...this.config };
   }
 
+  /** Updates config.
+   * @param overrides - overrides
+   * @returns p f p config
+   */
   updateConfig(overrides: Partial<PFPConfig>): PFPConfig {
     this.config = validateConfig({ ...this.config, ...overrides });
     this.saveState();
@@ -647,6 +808,9 @@ export class PFPEngine {
     return this.config;
   }
 
+  /** Clears history.
+   * @returns void
+   */
   clearHistory(): void {
     this.history = [];
     this.patterns = [];
@@ -714,6 +878,9 @@ export class PFPEngine {
     return { patterns: this.patterns.length, history: this.history.length };
   }
 
+  /** Gets stats.
+   * @returns { history: number; patterns: number; assessments: number; pre filtered: number; avg ms: number }
+   */
   getStats(): { history: number; patterns: number; assessments: number; preFiltered: number; avgMs: number } {
     const timesMs = this.stats.assessmentTimesMs;
     const avgMs = timesMs.length > 0 ? timesMs.reduce((a, b) => a + b, 0) / timesMs.length : 0;
@@ -739,17 +906,28 @@ export class PFPEngine {
   //     GREEN on error — verified by try/catch in every code path
   //
 
+  /** Checks s l os.
+   * @returns { met: string[]; violated: string[] }
+   */
   checkSLOs(): { met: string[]; violated: string[] } {
     const met: string[] = [];
     const violated: string[] = [];
     const times = this.stats.assessmentTimesMs;
 
     // Risk scoring latency percentiles
+    /** If.
+     * @param times.length - times.length
+     * @returns void
+     */
     if (times.length > 0) {
       const sorted = [...times].sort((a, b) => a - b);
       const p50 = sorted[Math.ceil(sorted.length * 0.50) - 1] || 0;
       const p95 = sorted[Math.ceil(sorted.length * 0.95) - 1] || 0;
       const p99 = sorted[Math.ceil(sorted.length * 0.99) - 1] || 0;
+      /** If.
+       * @param p99 - p99
+       * @returns void
+       */
       if (p99 <= this.config.riskScoringTimeoutMs!) {
         met.push(`risk_scoring_p99: ${p99.toFixed(2)}ms ≤ ${this.config.riskScoringTimeoutMs!}ms (p50=${p50.toFixed(2)}ms, p95=${p95.toFixed(2)}ms)`);
       } else {
@@ -758,6 +936,10 @@ export class PFPEngine {
     }
 
     // History within bounds
+    /** If.
+     * @param this.history.length - this.history.length
+     * @returns void
+     */
     if (this.history.length <= this.config.historySize!) {
       met.push(`history_size: ${this.history.length} ≤ ${this.config.historySize!}`);
     } else {
@@ -765,6 +947,10 @@ export class PFPEngine {
     }
 
     // Pattern count within bounds
+    /** If.
+     * @param this.patterns.length - this.patterns.length
+     * @returns void
+     */
     if (this.patterns.length <= this.config.maxPatterns!) {
       met.push(`pattern_count: ${this.patterns.length} ≤ ${this.config.maxPatterns!}`);
     } else {
@@ -773,14 +959,26 @@ export class PFPEngine {
 
     // Fail-open guarantee check
     const totalAssessments = this.stats.assessmentsTotal;
+    /** If.
+     * @param totalAssessments - total assessments
+     * @returns void
+     */
     if (totalAssessments > 0) {
       const errorRate = this.stats.assessmentsByRisk['GREEN'] / totalAssessments;
       met.push(`fail_open: ${(errorRate * 100).toFixed(1)}% GREEN (try/catch guarantees GREEN on error)`);
     }
 
     // Data quality: pattern confidence distribution
+    /** If.
+     * @param this.patterns.length - this.patterns.length
+     * @returns void
+     */
     if (this.patterns.length > 0) {
       const avgConfidence = this.patterns.reduce((s, p) => s + p.confidence, 0) / this.patterns.length;
+      /** If.
+       * @param avgConfidence - avg confidence
+       * @returns void
+       */
       if (avgConfidence >= 0.3) {
         met.push(`pattern_quality: avg_confidence=${avgConfidence.toFixed(3)} ≥ 0.30`);
       } else {

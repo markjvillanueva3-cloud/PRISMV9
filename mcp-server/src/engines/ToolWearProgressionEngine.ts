@@ -146,6 +146,10 @@ export class ToolWearProgressionEngine {
     let stageMultiplier: number;
     let stage: WearStage;
 
+    /** If.
+     * @param wearRatio - wear ratio
+     * @returns void
+     */
     if (wearRatio < 0.15) {
       // Initial rapid wear (break-in): 2x rate, decreasing
       stageMultiplier = 2.0 - (wearRatio / 0.15);
@@ -190,12 +194,20 @@ export class ToolWearProgressionEngine {
     const isSafe = stage !== "critical" && wearRatio < 1.0;
 
     // ── 11. Recommendations ──
+    /** If.
+     * @param stage - stage
+     * @returns void
+     */
     if (stage === "critical") {
       recs.push(`SAFETY: Tool wear VB=${(vb * 1000).toFixed(0)}µm exceeds limit ${(vbLimit * 1000).toFixed(0)}µm — immediate tool change required`);
     } else if (stage === "accelerated") {
       recs.push(`WARNING: Tool in accelerated wear phase (VB=${(vb * 1000).toFixed(0)}µm, ${(wearRatio * 100).toFixed(0)}% of limit) — schedule tool change within ${Math.round(remainingLife)} min`);
     }
 
+    /** If.
+     * @param vc - vc
+     * @returns void
+     */
     if (vc > taylor.C * 0.8) {
       recs.push(`Cutting speed ${vc} m/min is near Taylor limit — consider reducing to ${Math.round(taylor.C * 0.6)} m/min for longer tool life`);
     }
@@ -204,10 +216,18 @@ export class ToolWearProgressionEngine {
       recs.push(`SAFETY: Estimated cutting temperature ${Math.round(theta)}°C exceeds HSS softening point — use carbide or ceramic tooling`);
     }
 
+    /** If.
+     * @param taylorLife - taylor life
+     * @returns void
+     */
     if (taylorLife < 5) {
       recs.push(`Taylor life estimate is only ${taylorLife.toFixed(1)} min — very aggressive parameters`);
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(`Tool wear nominal (${stage} phase, ${(wearRatio * 100).toFixed(0)}% of limit) — estimated ${Math.round(remainingLife)} min remaining`);
     }

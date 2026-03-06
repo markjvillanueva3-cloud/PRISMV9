@@ -133,6 +133,8 @@ export interface GateCheck {
 /**
  * Build a dependency DAG from a roadmap envelope.
  * Detects cycles and computes topological layers for parallel execution.
+  * @param roadmap - roadmap
+  * @returns dependency d a g
  */
 export function buildDependencyDAG(roadmap: RoadmapEnvelope): DependencyDAG {
   const nodes = new Map<string, DAGNode>();
@@ -256,6 +258,9 @@ function topologicalSort(
  * are all satisfied by the set of completed unit IDs.
  *
  * This is the core function that drives parallel execution.
+  * @param units - units
+  * @param completedIds - completed ids
+  * @returns array of roadmap unit items
  */
 export function getReadyUnits(
   units: RoadmapUnit[],
@@ -273,6 +278,9 @@ export function getReadyUnits(
 
 /**
  * Get ready units within a specific phase.
+  * @param phase - phase
+  * @param completedIds - completed ids
+  * @returns array of roadmap unit items
  */
 export function getReadyUnitsInPhase(
   phase: RoadmapPhase,
@@ -285,6 +293,10 @@ export function getReadyUnitsInPhase(
  * Get ready units across the entire roadmap.
  * Respects phase ordering — only returns units from the current or
  * unlocked phases (all prior phase gates must be passed).
+  * @param roadmap - roadmap
+  * @param completedIds - completed ids
+  * @param passedGates - passed gates
+  * @returns array of roadmap unit items
  */
 export function getReadyUnitsGlobal(
   roadmap: RoadmapEnvelope,
@@ -321,6 +333,9 @@ export function getReadyUnitsGlobal(
 /**
  * Generate a batched execution plan for a single phase.
  * Groups ready units into parallel batches.
+  * @param phase - phase
+  * @param completedIds - completed ids
+  * @returns phase execution plan
  */
 export function planPhaseExecution(
   phase: RoadmapPhase,
@@ -380,6 +395,9 @@ export function planPhaseExecution(
 
 /**
  * Generate a full execution plan for an entire roadmap.
+  * @param roadmap - roadmap
+  * @param completedIds - completed ids
+  * @returns roadmap execution plan
  */
 export function planRoadmapExecution(
   roadmap: RoadmapEnvelope,
@@ -434,6 +452,8 @@ export function planRoadmapExecution(
 
 /**
  * Create an initial position tracker for a roadmap.
+  * @param roadmap - roadmap
+  * @returns position tracker
  */
 export function createInitialPosition(
   roadmap: RoadmapEnvelope
@@ -458,6 +478,8 @@ export function createInitialPosition(
 
 /**
  * Get completed unit IDs from a position tracker.
+  * @param position - position
+  * @returns set<string>
  */
 export function getCompletedIds(position: PositionTracker): Set<string> {
   return new Set(position.history.map((h) => h.unit_id));
@@ -466,6 +488,10 @@ export function getCompletedIds(position: PositionTracker): Set<string> {
 /**
  * Advance position after a batch of units complete.
  * Returns the updated position tracker.
+  * @param position - position
+  * @param completedUnits - completed units
+  * @param roadmap - roadmap
+  * @returns position tracker
  */
 export function advancePosition(
   position: PositionTracker,
@@ -518,6 +544,10 @@ export function advancePosition(
 
 /**
  * Validate a unit is ready to execute using the pre-roadmap-execute hook.
+  * @param unit - unit
+  * @param position - position
+  * @param roadmap - roadmap
+  * @returns pre execute result
  */
 export function validateUnit(
   unit: RoadmapUnit,
@@ -542,6 +572,10 @@ export function validateUnit(
 /**
  * Validate all units in a batch before execution.
  * Returns units that passed validation and those that were blocked.
+  * @param units - units
+  * @param position - position
+  * @param roadmap - roadmap
+  * @returns { valid:  roadmap unit[]; blocked:  array<{ unit:  roadmap unit; blockers: string[] }> }
  */
 export function validateBatch(
   units: RoadmapUnit[],
@@ -566,6 +600,10 @@ export function validateBatch(
 /**
  * Check a phase gate.
  * Verifies: all units complete, omega threshold, build/test pass, anti-regression.
+  * @param phase - phase
+  * @param completedIds - completed ids
+  * @param metrics - metrics
+  * @returns gate result
  */
 export function checkPhaseGate(
   phase: RoadmapPhase,
@@ -655,6 +693,8 @@ export function checkPhaseGate(
 
 /**
  * Generate a summary of the execution plan for display.
+  * @param plan - plan
+  * @returns formatted string result
  */
 export function summarizePlan(plan: RoadmapExecutionPlan): string {
   const lines: string[] = [];
@@ -692,6 +732,15 @@ export function summarizePlan(plan: RoadmapExecutionPlan): string {
 /**
  * Generate the next-batch instruction for the continue-roadmap command.
  * This is the primary integration point for Claude Code.
+  * @param roadmap - roadmap
+  * @param position - position
+  * @returns {
+  batch:  execution batch | null;
+  gate pending: boolean;
+  gate phase id: string | null;
+  complete: boolean;
+  message: string;
+}
  */
 export function getNextBatch(
   roadmap: RoadmapEnvelope,

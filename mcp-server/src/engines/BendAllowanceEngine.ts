@@ -130,18 +130,38 @@ export class BendAllowanceEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param R - r
+     * @returns void
+     */
     if (R < minR) {
       recs.push(`CAUTION: Inside radius ${R}mm is below minimum ${minR.toFixed(1)}mm — risk of cracking`);
     }
+    /** If.
+     * @param springbackAngle - springback angle
+     * @returns void
+     */
     if (springbackAngle > 3) {
       recs.push(`Springback ${springbackAngle.toFixed(1)}° — overbend to ${compensatedAngle.toFixed(1)}° or use coining`);
     }
+    /** If.
+     * @param input.bend_method - input.bend_method
+     * @returns void
+     */
     if (input.bend_method === "air_bend" && rOverT < 0.5) {
       recs.push("Sharp bend (R/T < 0.5) — air bending may not achieve; consider bottoming or coining");
     }
+    /** If.
+     * @param input.die_opening_mm - input.die_opening_mm
+     * @returns void
+     */
     if (input.die_opening_mm && input.die_opening_mm < t * 6) {
       recs.push("Die opening < 6×thickness — excessive tonnage required, risk of die damage");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Bend parameters within normal range — proceed");
     }

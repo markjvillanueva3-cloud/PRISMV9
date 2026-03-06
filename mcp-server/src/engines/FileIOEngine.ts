@@ -302,6 +302,10 @@ export class FileIOEngine {
     const fmt = format ?? this.detectFormat(content);
     if (!fmt) throw new Error("Cannot detect file format. Specify format explicitly.");
 
+    /** Switch.
+     * @param fmt - fmt
+     * @returns void
+     */
     switch (fmt) {
       case "step": return this.parseSTEP(content);
       case "iges": return this.parseIGES(content);
@@ -338,6 +342,10 @@ export class FileIOEngine {
       entities.set(id, entity);
       entityGraph.set(id, refs);
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const ref of refs) {
         if (!reverseGraph.has(ref)) reverseGraph.set(ref, []);
         reverseGraph.get(ref)!.push(id);
@@ -352,6 +360,11 @@ export class FileIOEngine {
       "MANIFOLD_SURFACE_SHAPE_REPRESENTATION",
     ]);
     const rootEntities: number[] = [];
+    /** For.
+     * @param const - const
+     * @param entity] - entity]
+     * @returns void
+     */
     for (const [id, entity] of entities) {
       if (rootTypes.has(entity.type) && (!reverseGraph.has(id) || reverseGraph.get(id)!.length === 0)) {
         rootEntities.push(id);
@@ -408,18 +421,30 @@ export class FileIOEngine {
     let current = "";
     let inString = false;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < raw.length; i++) {
       const ch = raw[i];
       if (ch === "'" && !inString) { inString = true; current += ch; continue; }
       if (ch === "'" && inString) { inString = false; current += ch; continue; }
       if (inString) { current += ch; continue; }
 
+      /** If.
+       * @param ch - ch
+       * @returns void
+       */
       if (ch === "(") {
         if (depth === 0) { current = ""; depth++; continue; }
         depth++;
         current += ch;
       } else if (ch === ")") {
         depth--;
+        /** If.
+         * @param depth - recursion or nesting depth
+         * @returns void
+         */
         if (depth === 0) {
           args.push(this.parseSTEPArgs(current));
           current = "";
@@ -453,6 +478,10 @@ export class FileIOEngine {
   private extractRefs(args: any[]): number[] {
     const refs: number[] = [];
     const collectRefs = (arr: any[]) => {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const item of arr) {
         if (typeof item === "number" && Number.isInteger(item) && item > 0) {
           refs.push(item);
@@ -467,6 +496,10 @@ export class FileIOEngine {
 
   // ── STL Parser ────────────────────────────────────────────────────
 
+  /** Parses s t l ascii.
+   * @param content - content
+   * @returns s t l parse result
+   */
   parseSTLAscii(content: string): STLParseResult {
     const nameMatch = content.match(/solid\s+(.*?)$/m);
     const name = nameMatch?.[1]?.trim() ?? "unnamed";
@@ -497,7 +530,17 @@ export class FileIOEngine {
     let degenerate = 0;
     const vertexSet = new Set<string>();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tri of triangles) {
+      /** For.
+       * @param const - const
+       * @param tri.v2 - tri.v2
+       * @param tri.v3] - tri.v3]
+       * @returns void
+       */
       for (const v of [tri.v1, tri.v2, tri.v3]) {
         bb.min.x = Math.min(bb.min.x, v.x);
         bb.min.y = Math.min(bb.min.y, v.y);
@@ -525,6 +568,10 @@ export class FileIOEngine {
     const expectedVertices = triangles.length / 2 + 2;
     const isWatertight = triangles.length > 0 && Math.abs(vertexSet.size - expectedVertices) < triangles.length * 0.05;
 
+    /** If.
+     * @param triangles.length - triangles.length
+     * @returns void
+     */
     if (triangles.length === 0) {
       bb.min = { x: 0, y: 0, z: 0 };
       bb.max = { x: 0, y: 0, z: 0 };
@@ -548,16 +595,28 @@ export class FileIOEngine {
 
   // ── IGES Parser ───────────────────────────────────────────────────
 
+  /** Parses i g e s.
+   * @param content - content
+   * @returns i g e s parse result
+   */
   parseIGES(content: string): IGESParseResult {
     const lines = content.split(/\r?\n/);
     const startSection: string[] = [];
     const globalLines: string[] = [];
     const directoryEntries: string[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const line of lines) {
       if (line.length < 73) continue;
       const section = line[72];
       const data = line.substring(0, 72);
+      /** Switch.
+       * @param section - section
+       * @returns void
+       */
       switch (section) {
         case "S": startSection.push(data.trim()); break;
         case "G": globalLines.push(data); break;
@@ -585,6 +644,10 @@ export class FileIOEngine {
     };
 
     const entities: IGESEntity[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i + 1 < directoryEntries.length; i += 2) {
       const d1 = directoryEntries[i];
       const d2 = directoryEntries[i + 1];
@@ -607,6 +670,10 @@ export class FileIOEngine {
     }
 
     const byType: Record<string, number> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const e of entities) {
       byType[e.entity_type_name] = (byType[e.entity_type_name] ?? 0) + 1;
     }
@@ -627,7 +694,16 @@ export class FileIOEngine {
     const fields: string[] = [];
     let current = "";
     const inString = false;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const ch of text) {
+      /** If.
+       * @param ch - ch
+       * @param " - "
+       * @returns void
+       */
       if (ch === "," || ch === ";") {
         fields.push(current.trim());
         current = "";
@@ -641,10 +717,18 @@ export class FileIOEngine {
 
   // ── DXF Parser ────────────────────────────────────────────────────
 
+  /** Parses d x f.
+   * @param content - content
+   * @returns d x f parse result
+   */
   parseDXF(content: string): DXFParseResult {
     const lines = content.split(/\r?\n/);
     const pairs: Array<{ code: number; value: string }> = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i + 1 < lines.length; i += 2) {
       pairs.push({ code: parseInt(lines[i].trim(), 10), value: lines[i + 1]?.trim() ?? "" });
     }
@@ -660,9 +744,17 @@ export class FileIOEngine {
 
     const validTypes = new Set<string>(["LINE", "CIRCLE", "ARC", "POLYLINE", "LWPOLYLINE", "SPLINE", "POINT", "TEXT", "MTEXT", "INSERT", "DIMENSION", "3DFACE", "SOLID"]);
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < pairs.length; i++) {
       const { code, value } = pairs[i];
 
+      /** If.
+       * @param code - code
+       * @returns void
+       */
       if (code === 0 && value === "SECTION") {
         section = pairs[i + 1]?.value ?? "";
         i++;
@@ -670,20 +762,36 @@ export class FileIOEngine {
       }
       if (code === 0 && value === "ENDSEC") { section = ""; continue; }
 
+      /** If.
+       * @param section - section
+       * @returns void
+       */
       if (section === "HEADER" && code === 9) {
         const varName = value;
+        /** If.
+         * @param i - index position
+         * @returns void
+         */
         if (i + 1 < pairs.length) {
           header[varName] = pairs[i + 1].value;
           i++;
         }
       }
 
+      /** If.
+       * @param section - section
+       * @returns void
+       */
       if (section === "TABLES" && code === 0 && value === "LAYER") {
         const layer: Partial<DXFLayer> = { entity_count: 0, frozen: false, locked: false, line_type: "CONTINUOUS" };
         for (let j = i + 1; j < pairs.length && !(pairs[j].code === 0); j++) {
           if (pairs[j].code === 2) layer.name = pairs[j].value;
           if (pairs[j].code === 62) layer.color = parseInt(pairs[j].value, 10);
           if (pairs[j].code === 6) layer.line_type = pairs[j].value;
+          /** If.
+           * @param pairs[j].code - pairs[j].code
+           * @returns void
+           */
           if (pairs[j].code === 70) {
             const flags = parseInt(pairs[j].value, 10);
             layer.frozen = (flags & 1) !== 0;
@@ -694,6 +802,10 @@ export class FileIOEngine {
       }
 
       if ((section === "ENTITIES" || currentBlock) && code === 0) {
+        /** If.
+         * @param currentEntity?.type - current entity?.type
+         * @returns void
+         */
         if (currentEntity?.type) {
           const ent = currentEntity as DXFEntity;
           if (!ent.data) ent.data = {};
@@ -701,8 +813,16 @@ export class FileIOEngine {
           else entities.push(ent);
         }
 
+        /** If.
+         * @param value - value to set
+         * @returns void
+         */
         if (value === "ENDSEC" || value === "ENDBLK") {
           currentEntity = null;
+          /** If.
+           * @param value - value to set
+           * @returns void
+           */
           if (value === "ENDBLK" && currentBlock) {
             blocks.push(currentBlock);
             currentBlock = null;
@@ -718,6 +838,10 @@ export class FileIOEngine {
         continue;
       }
 
+      /** If.
+       * @param currentEntity - current entity
+       * @returns void
+       */
       if (currentEntity) {
         if (code === 8) currentEntity.layer = value;
         if (code === 62) currentEntity.color = parseInt(value, 10);
@@ -725,6 +849,10 @@ export class FileIOEngine {
         currentEntity.data[`g${code}`] = value;
       }
 
+      /** If.
+       * @param section - section
+       * @returns void
+       */
       if (section === "BLOCKS" && code === 0 && value === "BLOCK") {
         const blockName = pairs[i + 1]?.code === 2 ? pairs[i + 1].value : "unnamed";
         currentBlock = { name: blockName, entities: [] };
@@ -733,10 +861,18 @@ export class FileIOEngine {
 
     const byType: Record<string, number> = {};
     const byLayer: Record<string, number> = {};
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const e of entities) {
       byType[e.type] = (byType[e.type] ?? 0) + 1;
       byLayer[e.layer] = (byLayer[e.layer] ?? 0) + 1;
     }
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const l of layers) {
       l.entity_count = byLayer[l.name] ?? 0;
     }
@@ -761,6 +897,10 @@ export class FileIOEngine {
   /** Generate ASCII STL from triangles */
   generateSTL(name: string, triangles: Triangle[]): string {
     const lines: string[] = [`solid ${name}`];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const tri of triangles) {
       lines.push(`  facet normal ${tri.normal.x} ${tri.normal.y} ${tri.normal.z}`);
       lines.push("    outer loop");
@@ -781,7 +921,15 @@ export class FileIOEngine {
       "0", "SECTION", "2", "ENTITIES",
     ];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const e of entities) {
+      /** If.
+       * @param e.type - e.type
+       * @returns void
+       */
       if (e.type === "LINE" && e.points.length >= 2) {
         lines.push("0", "LINE", "8", e.layer ?? "0");
         lines.push("10", String(e.points[0].x), "20", String(e.points[0].y), "30", String(e.points[0].z));

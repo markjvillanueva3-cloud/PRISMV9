@@ -26,6 +26,7 @@ import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
 /** Registers p f p dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerPFPDispatcher(server: McpServer): void {
   (server as any).tool(

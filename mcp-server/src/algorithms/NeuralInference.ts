@@ -53,25 +53,53 @@ export interface NeuralInferenceOutput extends WithWarnings {
  */
 export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralInferenceOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: NeuralInferenceInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.features?.length) issues.push({ field: "features", message: "Required", severity: "error" });
+    /** If.
+     * @param !input.layer_sizes?.length - !input.layer_sizes?.length
+     * @returns void
+     */
     if (!input.layer_sizes?.length || input.layer_sizes.length < 2) {
       issues.push({ field: "layer_sizes", message: "At least 2 layers (input + output) required", severity: "error" });
     }
+    /** If.
+     * @param input.features?.length - input.features?.length
+     * @returns void
+     */
     if (input.features?.length && input.layer_sizes?.[0] !== input.features.length) {
       issues.push({ field: "layer_sizes[0]", message: "First layer must match feature count", severity: "error" });
     }
     // Validate weight count
+    /** If.
+     * @param input.layer_sizes?.length - input.layer_sizes?.length
+     * @returns void
+     */
     if (input.layer_sizes?.length >= 2) {
       let expectedWeights = 0, expectedBiases = 0;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 1; i < input.layer_sizes.length; i++) {
         expectedWeights += input.layer_sizes[i - 1] * input.layer_sizes[i];
         expectedBiases += input.layer_sizes[i];
       }
+      /** If.
+       * @param input.weights?.length - input.weights?.length
+       * @returns void
+       */
       if (input.weights?.length !== expectedWeights) {
         issues.push({ field: "weights", message: `Expected ${expectedWeights} weights, got ${input.weights?.length ?? 0}`, severity: "error" });
       }
+      /** If.
+       * @param input.biases?.length - input.biases?.length
+       * @returns void
+       */
       if (input.biases?.length !== expectedBiases) {
         issues.push({ field: "biases", message: `Expected ${expectedBiases} biases, got ${input.biases?.length ?? 0}`, severity: "error" });
       }
@@ -79,6 +107,10 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns neural inference output
+   */
   calculate(input: NeuralInferenceInput): NeuralInferenceOutput {
     const warnings: string[] = [];
     const { features, layer_sizes, weights, biases } = input;
@@ -86,6 +118,10 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
     const outputAct = input.output_activation ?? "linear";
 
     const activate = (x: number, fn: ActivationFn): number => {
+      /** Switch.
+       * @param fn - callback function
+       * @returns void
+       */
       switch (fn) {
         case "relu": return Math.max(0, x);
         case "sigmoid": return 1 / (1 + Math.exp(-Math.max(-500, Math.min(500, x))));
@@ -98,6 +134,10 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
     const layerOutputs: number[][] = [currentInput];
     let wOffset = 0, bOffset = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let l = 1; l < layer_sizes.length; l++) {
       const nIn = layer_sizes[l - 1];
       const nOut = layer_sizes[l];
@@ -105,8 +145,16 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
       const actFn = isOutput ? outputAct : activation;
       const output: number[] = [];
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j = 0; j < nOut; j++) {
         let sum = biases[bOffset + j];
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let i = 0; i < nIn; i++) {
           sum += currentInput[i] * weights[wOffset + j * nIn + i];
         }
@@ -121,6 +169,10 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
 
     // Confidence: based on output magnitude for sigmoid, or softmax-like for multi-output
     let confidence = 1.0;
+    /** If.
+     * @param outputAct - output act
+     * @returns void
+     */
     if (outputAct === "sigmoid") {
       confidence = currentInput.reduce((s, v) => s + Math.abs(v - 0.5) * 2, 0) / currentInput.length;
     } else if (currentInput.length > 1) {
@@ -138,6 +190,9 @@ export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralIn
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "neural-inference",

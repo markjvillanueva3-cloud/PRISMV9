@@ -80,6 +80,7 @@ const ACTIONS = ["compute", "breakdown", "validate", "optimize", "history", "aut
 
 /** Registers omega dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerOmegaDispatcher(server: any): void {
   server.tool(

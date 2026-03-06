@@ -78,11 +78,19 @@ export interface PIDControllerOutput extends WithWarnings {
  */
 export class PIDController implements Algorithm<PIDControllerInput, PIDControllerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: PIDControllerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (input.setpoint === undefined) issues.push({ field: "setpoint", message: "Required", severity: "error" });
     if (!input.process_values?.length) issues.push({ field: "process_values", message: "At least 1 value required", severity: "error" });
     if ((input.dt ?? 0.1) <= 0) issues.push({ field: "dt", message: "Must be > 0", severity: "error" });
+    /** If.
+     * @param input.auto_tune - input.auto_tune
+     * @returns void
+     */
     if (input.auto_tune) {
       if (input.auto_tune.ultimate_gain <= 0) issues.push({ field: "auto_tune.ultimate_gain", message: "Must be > 0", severity: "error" });
       if (input.auto_tune.ultimate_period <= 0) issues.push({ field: "auto_tune.ultimate_period", message: "Must be > 0", severity: "error" });
@@ -90,6 +98,10 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns p i d controller output
+   */
   calculate(input: PIDControllerInput): PIDControllerOutput {
     const warnings: string[] = [];
     const { setpoint, process_values } = input;
@@ -104,6 +116,10 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
 
     // Auto-tune via Ziegler-Nichols
     let tunedGains: { Kp: number; Ki: number; Kd: number } | null = null;
+    /** If.
+     * @param input.auto_tune - input.auto_tune
+     * @returns void
+     */
     if (input.auto_tune) {
       const { ultimate_gain: Ku, ultimate_period: Tu } = input.auto_tune;
       const type = input.auto_tune.controller_type ?? "PID";
@@ -121,6 +137,10 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
     let peakValue = -Infinity;
     let settlingTime: number | null = null;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let t = 0; t < process_values.length; t++) {
       const pv = process_values[t];
       const error = setpoint - pv;
@@ -131,6 +151,10 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
 
       // I term with anti-windup
       integral += error * dt;
+      /** If.
+       * @param antiWindup - anti windup
+       * @returns void
+       */
       if (antiWindup) {
         const maxIntegral = (outMax - outMin) / (2 * Math.max(Ki, 1e-10));
         integral = Math.max(-maxIntegral, Math.min(maxIntegral, integral));
@@ -140,6 +164,10 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
       // D term with low-pass filter
       let rawDeriv = t > 0 ? (error - prevError) / dt : 0;
       let dTerm: number;
+      /** If.
+       * @param derFilter - der filter
+       * @returns void
+       */
       if (derFilter > 0) {
         const filteredDeriv = derFilter * prevDerivative + (1 - derFilter) * rawDeriv;
         dTerm = Kd * filteredDeriv;
@@ -183,6 +211,9 @@ export class PIDController implements Algorithm<PIDControllerInput, PIDControlle
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "pid-controller",

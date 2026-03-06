@@ -93,6 +93,10 @@ export class TombstoneLayoutEngine {
     const hasPalletChanger = input.pallet_change_time_sec > 0;
     let cycleTime: number;
 
+    /** If.
+     * @param hasPalletChanger - has pallet changer
+     * @returns void
+     */
     if (hasPalletChanger && input.tombstone_faces >= 4) {
       // Operator loads while machining — cycle = max(machine_all_faces, load_all_faces) + index + pallet
       const totalMachineTime = machineTimePerFace * input.tombstone_faces + indexTimeTotalMin;

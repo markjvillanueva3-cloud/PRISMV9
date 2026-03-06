@@ -88,6 +88,10 @@ export class BottleneckIdentificationEngine {
 
     // Improvement actions
     const improvements: BottleneckResult["improvement_impact"] = [];
+    /** If.
+     * @param constraintType - constraint type
+     * @returns void
+     */
     if (constraintType === "capacity") {
       improvements.push({
         action: `Add machine at ${bottleneck.name}`,
@@ -98,6 +102,10 @@ export class BottleneckIdentificationEngine {
         throughput_gain_pct: Math.round(10 + (bottleneck.utilization_pct - 90)),
       });
     }
+    /** If.
+     * @param constraintType - constraint type
+     * @returns void
+     */
     if (constraintType === "reliability") {
       improvements.push({
         action: "Implement preventive maintenance",
@@ -111,6 +119,10 @@ export class BottleneckIdentificationEngine {
 
     const recs: string[] = [];
     recs.push(`Bottleneck: ${bottleneck.name} (${constraintType}) — ${bottleneck.utilization_pct}% util, ${bottleneck.wip_queue_parts} WIP`);
+    /** If.
+     * @param systemThroughput - system throughput
+     * @returns void
+     */
     if (systemThroughput < input.demand_parts_per_hr) {
       recs.push(`System output ${systemThroughput.toFixed(1)}/hr below demand ${input.demand_parts_per_hr}/hr — address bottleneck`);
     }

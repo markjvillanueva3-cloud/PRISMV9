@@ -111,21 +111,45 @@ export class SplineMillingEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param input.tool_diameter_mm - input.tool_diameter_mm
+     * @returns void
+     */
     if (input.tool_diameter_mm > toothSpaceWidth * 0.9) {
       recs.push("Tool diameter too large for tooth space — use smaller cutter or shaped form tool");
     }
+    /** If.
+     * @param input.internal - input.internal
+     * @returns void
+     */
     if (input.internal && input.index_method !== "c_axis" && input.index_method !== "gear_shaper") {
       recs.push("Internal splines best cut with C-axis or gear shaper — rotary table access limited");
     }
+    /** If.
+     * @param Z - z
+     * @returns void
+     */
     if (Z > 40 && input.index_method === "dividing_head") {
       recs.push("Many teeth with dividing head — cycle time excessive, consider C-axis or hobbing");
     }
+    /** If.
+     * @param formError - form error
+     * @returns void
+     */
     if (formError > 10) {
       recs.push("Expected form error >10µm — may not meet class B fit tolerance");
     }
+    /** If.
+     * @param depthPerPass - depth per pass
+     * @returns void
+     */
     if (depthPerPass > 1.0) {
       recs.push("Depth per pass >1mm — add more passes to reduce cutting force on thin tool");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Spline milling parameters acceptable — proceed with first article inspection");
     }
@@ -144,10 +168,19 @@ export class SplineMillingEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @param fit_class - fit_class
+   * @returns spline validation
+   */
   validate(input: SplineMillingInput, fit_class: "A" | "B" | "C"): SplineValidation {
     const issues: string[] = [];
 
     // Check geometry consistency
+    /** If.
+     * @param input.major_diameter_mm - input.major_diameter_mm
+     * @returns void
+     */
     if (input.major_diameter_mm <= input.minor_diameter_mm) {
       issues.push("Major diameter must be greater than minor diameter");
     }

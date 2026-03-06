@@ -149,6 +149,10 @@ function typicalProcess(ra_um: number): string {
  */
 export class RoughnessConversionEngine {
   convert(input: RoughnessConversionInput): RoughnessConversionResult {
+    /** If.
+     * @param input.value - input.value
+     * @returns void
+     */
     if (input.value < 0) {
       throw new Error("Roughness value must be non-negative");
     }

@@ -98,6 +98,10 @@ export class DigitalWorkInstructionEngine {
     });
 
     // Operation steps
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of input.operations) {
       stepNum++;
       steps.push({

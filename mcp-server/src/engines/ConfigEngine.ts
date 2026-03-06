@@ -51,6 +51,13 @@ const SOURCE_PRIORITY: Record<ConfigSource, number> = { default: 0, file: 1, env
 export class ConfigEngine {
   private entries = new Map<string, ConfigEntry[]>(); // key → entries from all sources
 
+  /** Set.
+   * @param key - key identifier
+   * @param value - value to set
+   * @param source - source
+   * @param meta - meta
+   * @returns void
+   */
   set(key: string, value: unknown, source: ConfigSource = "runtime", meta?: { description?: string; required?: boolean; secret?: boolean }): void {
     const type = typeof value === "number" ? "number" : typeof value === "boolean" ? "boolean" : typeof value === "object" ? "json" : "string";
     const entry: ConfigEntry = {
@@ -77,6 +84,10 @@ export class ConfigEngine {
     return sorted[0].value as T;
   }
 
+  /** Gets with meta.
+   * @param key - key identifier
+   * @returns config entry | undefined
+   */
   getWithMeta(key: string): ConfigEntry | undefined {
     const all = this.entries.get(key);
     if (!all || all.length === 0) return undefined;
@@ -84,10 +95,21 @@ export class ConfigEngine {
     return sorted[0];
   }
 
+  /** Gets all.
+   * @returns config entry[]
+   */
   getAll(): ConfigEntry[] {
     const result: ConfigEntry[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const [key] of this.entries) {
       const entry = this.getWithMeta(key);
+      /** If.
+       * @param entry - entry
+       * @returns void
+       */
       if (entry) {
         result.push(entry.secret ? { ...entry, value: "***REDACTED***" } : entry);
       }
@@ -95,11 +117,24 @@ export class ConfigEngine {
     return result.sort((a, b) => a.key.localeCompare(b.key));
   }
 
+  /** Gets by prefix.
+   * @param prefix - prefix
+   * @returns config entry[]
+   */
   getByPrefix(prefix: string): ConfigEntry[] {
     return this.getAll().filter(e => e.key.startsWith(prefix));
   }
 
+  /** Delete.
+   * @param key - key identifier
+   * @param source - source
+   * @returns true if condition is met
+   */
   delete(key: string, source?: ConfigSource): boolean {
+    /** If.
+     * @param source - source
+     * @returns void
+     */
     if (source) {
       const all = this.entries.get(key);
       if (!all) return false;
@@ -111,11 +146,19 @@ export class ConfigEngine {
     return this.entries.delete(key);
   }
 
+  /** Validate.
+   * @returns config validation
+   */
   validate(): ConfigValidation {
     const errors: { key: string; message: string }[] = [];
     const warnings: { key: string; message: string }[] = [];
     const missingRequired: string[] = [];
 
+    /** For.
+     * @param const - const
+     * @param all] - all]
+     * @returns void
+     */
     for (const [key, all] of this.entries) {
       const effective = [...all].sort((a, b) => SOURCE_PRIORITY[b.source] - SOURCE_PRIORITY[a.source])[0];
 
@@ -124,6 +167,10 @@ export class ConfigEngine {
         errors.push({ key, message: `Required config '${key}' is empty` });
       }
 
+      /** If.
+       * @param effective.type - effective.type
+       * @returns void
+       */
       if (effective.type === "number" && typeof effective.value !== "number") {
         warnings.push({ key, message: `Config '${key}' expected number but got ${typeof effective.value}` });
       }
@@ -136,6 +183,10 @@ export class ConfigEngine {
     };
   }
 
+  /** Exports config.
+   * @param includeSecrets - include secrets
+   * @returns record<string, unknown>
+   */
   exportConfig(includeSecrets: boolean = false): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     for (const entry of this.getAll()) {
@@ -144,6 +195,12 @@ export class ConfigEngine {
     return result;
   }
 
+  /** Imports config.
+   * @param data - input data
+   * @param unknown> - unknown>
+   * @param source - source
+   * @returns computed numeric result
+   */
   importConfig(data: Record<string, unknown>, source: ConfigSource = "file"): number {
     let count = 0;
     for (const [key, value] of Object.entries(data)) {
@@ -153,6 +210,11 @@ export class ConfigEngine {
     return count;
   }
 
+  /** Loads defaults.
+   * @param defaults - defaults
+   * @param { - {
+   * @returns computed numeric result
+   */
   loadDefaults(defaults: Record<string, { value: unknown; description?: string; required?: boolean; secret?: boolean }>): number {
     let count = 0;
     for (const [key, meta] of Object.entries(defaults)) {
@@ -162,6 +224,9 @@ export class ConfigEngine {
     return count;
   }
 
+  /** Clear.
+   * @returns void { this.entries.clear(); }
+   */
   clear(): void { this.entries.clear(); }
 }
 

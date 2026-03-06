@@ -107,30 +107,62 @@ const SPECIFIC_POWER_KW: Record<string, number> = {
  */
 export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: GilbertMRRInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed < LIMITS.MIN_CUTTING_SPEED || input.cutting_speed > LIMITS.MAX_CUTTING_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be ${LIMITS.MIN_CUTTING_SPEED}-${LIMITS.MAX_CUTTING_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param !input.feed_per_tooth - !input.feed_per_tooth
+     * @returns void
+     */
     if (!input.feed_per_tooth || input.feed_per_tooth < LIMITS.MIN_FEED || input.feed_per_tooth > LIMITS.MAX_FEED) {
       issues.push({ field: "feed_per_tooth", message: `Feed must be ${LIMITS.MIN_FEED}-${LIMITS.MAX_FEED} mm/tooth, got ${input.feed_per_tooth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.axial_depth - !input.axial_depth
+     * @returns void
+     */
     if (!input.axial_depth || input.axial_depth < LIMITS.MIN_DEPTH || input.axial_depth > LIMITS.MAX_DEPTH) {
       issues.push({ field: "axial_depth", message: `Axial depth must be ${LIMITS.MIN_DEPTH}-${LIMITS.MAX_DEPTH} mm, got ${input.axial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.radial_depth - !input.radial_depth
+     * @returns void
+     */
     if (!input.radial_depth || input.radial_depth < LIMITS.MIN_DEPTH) {
       issues.push({ field: "radial_depth", message: `Radial depth must be >= ${LIMITS.MIN_DEPTH} mm, got ${input.radial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter < LIMITS.MIN_DIAMETER || input.tool_diameter > LIMITS.MAX_DIAMETER) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be ${LIMITS.MIN_DIAMETER}-${LIMITS.MAX_DIAMETER} mm, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param !input.number_of_teeth - !input.number_of_teeth
+     * @returns void
+     */
     if (!input.number_of_teeth || input.number_of_teeth < 1) {
       issues.push({ field: "number_of_teeth", message: `Number of teeth must be >= 1, got ${input.number_of_teeth}`, severity: "error" });
     }
     if (input.taylor_n !== undefined && (input.taylor_n <= 0 || input.taylor_n >= 1)) {
       issues.push({ field: "taylor_n", message: `Taylor n must be 0 < n < 1, got ${input.taylor_n}`, severity: "error" });
     }
+    /** If.
+     * @param input.radial_depth - input.radial_depth
+     * @returns void
+     */
     if (input.radial_depth && input.tool_diameter && input.radial_depth > input.tool_diameter) {
       issues.push({ field: "radial_depth", message: `Radial depth (${input.radial_depth}) exceeds tool diameter (${input.tool_diameter})`, severity: "warning" });
     }
@@ -138,6 +170,10 @@ export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROut
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns gilbert m r r output
+   */
   calculate(input: GilbertMRRInput): GilbertMRROutput {
     const warnings: string[] = [];
     const {
@@ -157,6 +193,10 @@ export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROut
     const mrr_cm3 = mrr_mm3 / 1000;
 
     // Safety cap
+    /** If.
+     * @param mrr_cm3 - mrr_cm3
+     * @returns void
+     */
     if (mrr_cm3 > LIMITS.MAX_MRR) {
       warnings.push(`MRR ${mrr_cm3.toFixed(1)} cm^3/min exceeds practical limit of ${LIMITS.MAX_MRR}`);
     }
@@ -172,30 +212,54 @@ export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROut
     let optimal_tool_life: number | null = null;
     let current_tool_life: number | null = null;
 
+    /** If.
+     * @param taylor_C - taylor_ c
+     * @returns void
+     */
     if (taylor_C && taylor_n) {
       // Current tool life: T = (C / V)^(1/n)
       current_tool_life = Math.pow(taylor_C / cutting_speed, 1 / taylor_n);
 
+      /** If.
+       * @param tool_cost - tool_cost
+       * @returns void
+       */
       if (tool_cost !== undefined && machine_rate && tool_change_time !== undefined) {
         // Gilbert's equation: T_opt = (1/n - 1) x (Ct/Cm + tc)
         const cost_ratio = (tool_cost + tool_change_time * machine_rate) / machine_rate;
         const T_opt = (1 / taylor_n - 1) * cost_ratio;
 
+        /** If.
+         * @param T_opt - t_opt
+         * @returns void
+         */
         if (T_opt > 0) {
           optimal_tool_life = T_opt;
           optimal_speed = taylor_C / Math.pow(T_opt, taylor_n);
 
+          /** If.
+           * @param cutting_speed - cutting_speed
+           * @returns void
+           */
           if (cutting_speed > optimal_speed * 1.3) {
             warnings.push(`Speed ${cutting_speed.toFixed(0)} m/min exceeds optimal ${optimal_speed.toFixed(0)} by >${((cutting_speed / optimal_speed - 1) * 100).toFixed(0)}%. Higher cost per part.`);
           }
         }
       }
 
+      /** If.
+       * @param current_tool_life - current_tool_life
+       * @returns void
+       */
       if (current_tool_life < 5) {
         warnings.push(`Tool life ${current_tool_life.toFixed(1)} min is very short. Consider reducing speed.`);
       }
     }
 
+    /** If.
+     * @param power_estimate_kw - power_estimate_kw
+     * @returns void
+     */
     if (power_estimate_kw > 50) {
       warnings.push(`High power requirement: ${power_estimate_kw.toFixed(1)} kW. Verify machine capacity.`);
     }
@@ -211,6 +275,9 @@ export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROut
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "gilbert-mrr",

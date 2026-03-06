@@ -92,6 +92,10 @@ export class HybridLaserMachineEngine {
 
     // Process sequence
     const sequence: string[] = [];
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "laser_assisted_turning" || input.process === "laser_assisted_milling") {
       sequence.push("1. Position laser spot ahead of cutting tool (2-5mm lead)");
       sequence.push(`2. Activate laser at ${input.laser_power_W}W, spot ${input.spot_diameter_mm}mm`);
@@ -112,6 +116,10 @@ export class HybridLaserMachineEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param thermalRisk - thermal risk
+     * @returns void
+     */
     if (thermalRisk === "high") {
       recs.push("High thermal input — risk of phase transformation or surface damage; reduce laser power");
     }
@@ -121,9 +129,17 @@ export class HybridLaserMachineEngine {
     if (input.workpiece_material?.toLowerCase().includes("titanium") && achievedTemp > 500) {
       recs.push("Titanium above 500°C reacts with oxygen — use argon shielding gas");
     }
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "laser_clad_mill" && !input.powder_feed_g_per_min) {
       recs.push("Specify powder feed rate for cladding parameter optimization");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Hybrid process parameters acceptable — proceed with trial cuts");
     }

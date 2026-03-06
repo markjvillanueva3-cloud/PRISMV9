@@ -184,6 +184,10 @@ export class AgentExecutor {
     options: Partial<Omit<TaskDefinition, "id" | "agentId" | "input">> = {}
   ): TaskDefinition {
     const agent = agentRegistry.get(agentId);
+    /** If.
+     * @param !agent - !agent
+     * @returns void
+     */
     if (!agent) {
       throw new Error(`Agent not found: ${agentId}`);
     }
@@ -212,7 +216,15 @@ export class AgentExecutor {
     const weight = PRIORITY_WEIGHTS[task.priority];
     let insertIndex = this.taskQueue.length;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < this.taskQueue.length; i++) {
+      /** If.
+       * @param PRIORITY_WEIGHTS[this.taskQueue[i].priority] - p r i o r i t y_ w e i g h t s[this.task queue[i].priority]
+       * @returns void
+       */
       if (PRIORITY_WEIGHTS[this.taskQueue[i].priority] < weight) {
         insertIndex = i;
         break;
@@ -223,6 +235,10 @@ export class AgentExecutor {
     log.debug(`[AgentExecutor] Queued task ${task.id} at position ${insertIndex}`);
 
     // Fire hook
+    /** If.
+     * @param this.config.enableHooks - this.config.enable hooks
+     * @returns void
+     */
     if (this.config.enableHooks) {
       this.fireHook("task_queued", { task });
     }
@@ -246,10 +262,18 @@ export class AgentExecutor {
     session.lastActivity = new Date();
 
     // Fire pre-execution hook
+    /** If.
+     * @param this.config.enableHooks - this.config.enable hooks
+     * @returns void
+     */
     if (this.config.enableHooks) {
       this.fireHook("task_started", { task, session });
     }
 
+    /** While.
+     * @param retryCount - retry count
+     * @returns void
+     */
     while (retryCount <= task.retries) {
       try {
         log.info(`[AgentExecutor] Executing task ${task.id} (attempt ${retryCount + 1})`);
@@ -280,6 +304,10 @@ export class AgentExecutor {
         session.lastActivity = new Date();
 
         // Fire completion hook
+        /** If.
+         * @param this.config.enableHooks - this.config.enable hooks
+         * @returns void
+         */
         if (this.config.enableHooks) {
           this.fireHook("task_completed", { task, result, session });
         }
@@ -291,6 +319,10 @@ export class AgentExecutor {
         lastError = error instanceof Error ? error.message : String(error);
         retryCount++;
 
+        /** If.
+         * @param retryCount - retry count
+         * @returns void
+         */
         if (retryCount <= task.retries) {
           log.warn(`[AgentExecutor] Task ${task.id} failed, retrying (${retryCount}/${task.retries}): ${lastError}`);
           await this.delay(this.config.retryDelay_ms);
@@ -320,6 +352,10 @@ export class AgentExecutor {
     session.lastActivity = new Date();
 
     // Fire failure hook
+    /** If.
+     * @param this.config.enableHooks - this.config.enable hooks
+     * @returns void
+     */
     if (this.config.enableHooks) {
       this.fireHook("task_failed", { task, result, session });
     }
@@ -334,6 +370,10 @@ export class AgentExecutor {
    */
   private async executeAgentReal(task: TaskDefinition): Promise<unknown> {
     const agent = agentRegistry.get(task.agentId);
+    /** If.
+     * @param !agent - !agent
+     * @returns void
+     */
     if (!agent) {
       throw new Error(`Agent not found: ${task.agentId}`);
     }
@@ -414,6 +454,10 @@ export class AgentExecutor {
     
     prompt += `Role: ${behaviorSpec.role || agent.description || agent.name}\n\n`;
     
+    /** If.
+     * @param agent.capabilities?.length - agent.capabilities?.length
+     * @returns void
+     */
     if (agent.capabilities?.length) {
       prompt += `Capabilities:\n`;
       agent.capabilities.forEach(cap => {
@@ -422,12 +466,20 @@ export class AgentExecutor {
       prompt += '\n';
     }
 
+    /** If.
+     * @param behaviorSpec.goals?.length - behavior spec.goals?.length
+     * @returns void
+     */
     if (behaviorSpec.goals?.length) {
       prompt += `Goals:\n`;
       behaviorSpec.goals.forEach((g: string) => prompt += `- ${g}\n`);
       prompt += '\n';
     }
 
+    /** If.
+     * @param behaviorSpec.constraints?.length - behavior spec.constraints?.length
+     * @returns void
+     */
     if (behaviorSpec.constraints?.length) {
       prompt += `Constraints:\n`;
       behaviorSpec.constraints.forEach((c: string) => prompt += `- ${c}\n`);
@@ -482,10 +534,18 @@ export class AgentExecutor {
    */
   async executePlan(planId: string): Promise<ExecutionPlan> {
     const plan = this.plans.get(planId);
+    /** If.
+     * @param !plan - !plan
+     * @returns void
+     */
     if (!plan) {
       throw new Error(`Plan not found: ${planId}`);
     }
 
+    /** If.
+     * @param plan.status - plan.status
+     * @returns void
+     */
     if (plan.status === "running") {
       throw new Error(`Plan ${planId} is already running`);
     }
@@ -494,11 +554,19 @@ export class AgentExecutor {
     plan.startedAt = new Date();
 
     // Fire plan started hook
+    /** If.
+     * @param this.config.enableHooks - this.config.enable hooks
+     * @returns void
+     */
     if (this.config.enableHooks) {
       this.fireHook("plan_started", { plan });
     }
 
     try {
+      /** Switch.
+       * @param plan.mode - plan.mode
+       * @returns void
+       */
       switch (plan.mode) {
         case "sequential":
           await this.executeSequential(plan);
@@ -522,6 +590,10 @@ export class AgentExecutor {
       plan.completedAt = new Date();
 
       // Fire plan completed hook
+      /** If.
+       * @param this.config.enableHooks - this.config.enable hooks
+       * @returns void
+       */
       if (this.config.enableHooks) {
         this.fireHook("plan_completed", { plan });
       }
@@ -542,11 +614,19 @@ export class AgentExecutor {
   private async executeSequential(plan: ExecutionPlan): Promise<void> {
     for (const task of plan.tasks) {
       // Check dependencies
+      /** If.
+       * @param task.dependencies?.length - task.dependencies?.length
+       * @returns void
+       */
       if (task.dependencies?.length) {
         const unmet = task.dependencies.filter(depId => {
           const result = plan.results.get(depId);
           return !result || result.status !== "completed";
         });
+        /** If.
+         * @param unmet.length - unmet.length
+         * @returns void
+         */
         if (unmet.length > 0) {
           log.warn(`[AgentExecutor] Skipping task ${task.id} due to unmet dependencies: ${unmet.join(", ")}`);
           continue;
@@ -557,6 +637,10 @@ export class AgentExecutor {
       plan.results.set(task.id, result);
 
       // Stop on critical failure
+      /** If.
+       * @param result.status - result.status
+       * @returns void
+       */
       if (result.status === "failed" && task.priority === "critical") {
         log.error(`[AgentExecutor] Critical task failed, stopping plan`);
         break;
@@ -574,12 +658,20 @@ export class AgentExecutor {
 
     // Execute no-dependency tasks in parallel (respecting maxConcurrent)
     const batches = this.chunk(noDeps, this.config.maxConcurrent);
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const batch of batches) {
       const results = await Promise.all(batch.map(task => this.executeTask(task)));
       results.forEach((result, i) => plan.results.set(batch[i].id, result));
     }
 
     // Execute dependent tasks
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const task of withDeps) {
       const result = await this.executeTask(task);
       plan.results.set(task.id, result);
@@ -592,8 +684,16 @@ export class AgentExecutor {
   private async executePipeline(plan: ExecutionPlan): Promise<void> {
     let previousOutput: unknown = undefined;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const task of plan.tasks) {
       // Inject previous output into input
+      /** If.
+       * @param previousOutput - previous output
+       * @returns void
+       */
       if (previousOutput !== undefined) {
         task.input = { ...task.input, _pipelineInput: previousOutput };
       }
@@ -601,6 +701,10 @@ export class AgentExecutor {
       const result = await this.executeTask(task);
       plan.results.set(task.id, result);
 
+      /** If.
+       * @param result.status - result.status
+       * @returns void
+       */
       if (result.status === "completed") {
         previousOutput = result.output;
       } else {
@@ -633,6 +737,10 @@ export class AgentExecutor {
    */
   private getOrCreateSession(agentId: string): AgentSession {
     let session = this.sessions.get(agentId);
+    /** If.
+     * @param !session - !session
+     * @returns void
+     */
     if (!session) {
       const agent = agentRegistry.get(agentId);
       session = {
@@ -663,6 +771,10 @@ export class AgentExecutor {
    */
   terminateSession(agentId: string): boolean {
     const session = this.sessions.get(agentId);
+    /** If.
+     * @param session - session
+     * @returns void
+     */
     if (session) {
       session.status = "terminated";
       log.info(`[AgentExecutor] Terminated session for agent ${agentId}`);
@@ -775,6 +887,10 @@ export class AgentExecutor {
     const hookId = hookMap[event];
     try {
       log.debug(`[AgentExecutor] Hook fired: ${event} → ${hookId ?? "unmapped"}`);
+      /** If.
+       * @param hookId - hook id
+       * @returns void
+       */
       if (hookId) {
         void hookEngine.executeHook(hookId, { event, ...data }).catch((err) => {
           log.warn(`[AgentExecutor] Hook ${hookId} error: ${err}`);
@@ -795,6 +911,10 @@ export class AgentExecutor {
 
   private chunk<T>(array: T[], size: number): T[][] {
     const chunks: T[][] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < array.length; i += size) {
       chunks.push(array.slice(i, i + size));
     }
@@ -816,6 +936,10 @@ export const agentExecutor = new AgentExecutor();
 
 /**
  * Quick execute a single agent task
+  * @param agentId - agent identifier
+  * @param input - input data
+  * @param options - configuration options
+  * @returns promise resolving to task result
  */
 export async function executeAgent(
   agentId: string,
@@ -828,6 +952,8 @@ export async function executeAgent(
 
 /**
  * Execute multiple agents in parallel
+  * @param agents - agents
+  * @returns promise resolving to task result[]
  */
 export async function executeAgentsParallel(
   agents: Array<{ agentId: string; input: Record<string, unknown> }>
@@ -844,6 +970,8 @@ export async function executeAgentsParallel(
 
 /**
  * Execute agents as a pipeline
+  * @param agents - agents
+  * @returns promise resolving to execution plan
  */
 export async function executeAgentPipeline(
   agents: Array<{ agentId: string; input: Record<string, unknown> }>

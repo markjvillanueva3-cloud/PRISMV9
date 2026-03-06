@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates doc router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createDocRouter(callTool: CallToolFn): Router {
   const router = Router();
 

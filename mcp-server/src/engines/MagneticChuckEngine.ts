@@ -120,18 +120,38 @@ export class MagneticChuckEngine {
     const maxCuttingForce = (holdingForce / requiredSF) - input.workpiece_weight_N * 0.2;
 
     const recs: string[] = [];
+    /** If.
+     * @param permFactor - perm factor
+     * @returns void
+     */
     if (permFactor < 0.1) {
       recs.push(`${input.workpiece_material} is non-magnetic — magnetic chuck CANNOT hold this material`);
     }
+    /** If.
+     * @param !isSafe - !is safe
+     * @returns void
+     */
     if (!isSafe) {
       recs.push(`Safety factor ${sf.toFixed(1)} below required ${requiredSF} — UNSAFE, use mechanical clamping`);
     }
+    /** If.
+     * @param airGapDerating - air gap derating
+     * @returns void
+     */
     if (airGapDerating < 0.7) {
       recs.push(`Surface roughness Ra ${input.surface_roughness_Ra_um}µm reduces holding by ${((1 - airGapDerating) * 100).toFixed(0)}% — grind contact face`);
     }
+    /** If.
+     * @param thicknessDerating - thickness derating
+     * @returns void
+     */
     if (thicknessDerating < 0.7) {
       recs.push(`Thin part (${input.workpiece_thickness_mm}mm) reduces holding by ${((1 - thicknessDerating) * 100).toFixed(0)}% — consider pole extension`);
     }
+    /** If.
+     * @param input.contact_area_pct - input.contact_area_pct
+     * @returns void
+     */
     if (input.contact_area_pct < 50) {
       recs.push("Low contact area — use filler blocks or magnetic parallels to maximize contact");
     }

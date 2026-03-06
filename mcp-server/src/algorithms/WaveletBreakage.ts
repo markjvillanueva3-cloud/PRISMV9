@@ -91,11 +91,23 @@ export interface WaveletBreakageOutput extends WithWarnings {
  */
 export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, WaveletBreakageOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: WaveletBreakageInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.signal?.length - !input.signal?.length
+     * @returns void
+     */
     if (!input.signal?.length || input.signal.length < 32) {
       issues.push({ field: "signal", message: "At least 32 samples required", severity: "error" });
     }
+    /** If.
+     * @param !input.sample_rate - !input.sample_rate
+     * @returns void
+     */
     if (!input.sample_rate || input.sample_rate <= 0) {
       issues.push({ field: "sample_rate", message: "Must be > 0", severity: "error" });
     }
@@ -105,6 +117,10 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns wavelet breakage output
+   */
   calculate(input: WaveletBreakageInput): WaveletBreakageOutput {
     const warnings: string[] = [];
     const { signal, sample_rate } = input;
@@ -121,6 +137,10 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
 
     // Generate logarithmically-spaced scales
     const scales: number[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < nScales; i++) {
       const scale = minScale * Math.pow(maxScale / minScale, i / (nScales - 1));
       scales.push(scale);
@@ -132,11 +152,19 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     const energyPerSample = new Array(N).fill(0);
     const scaleEnergy: number[][] = Array.from({ length: nScales }, () => new Array(N).fill(0));
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let si = 0; si < nScales; si++) {
       const a = scales[si];
       const sqrtA = Math.sqrt(a);
       const waveletHalfWidth = Math.ceil(3 * a); // Morlet has ~3σ support
 
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let b = 0; b < N; b++) {
         let realCoeff = 0;
         let imagCoeff = 0;
@@ -161,6 +189,10 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     // Baseline energy estimation
     let baselineEnergy = 0;
     const blWindow = Math.min(baselineWindow, N);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < blWindow; i++) {
       baselineEnergy += energyPerSample[i];
     }
@@ -173,6 +205,10 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
 
     // Subsample for output
     const step = Math.max(1, Math.floor(N / 500));
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < N; i += step) {
       energyEnvelope.push({
         time: i / sample_rate,
@@ -190,10 +226,18 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     let eventPeakSample = 0;
     let maxEnergyRatio = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < N; i++) {
       const ratio = energyPerSample[i] / baselineEnergy;
       maxEnergyRatio = Math.max(maxEnergyRatio, ratio);
 
+      /** If.
+       * @param ratio - ratio
+       * @returns void
+       */
       if (ratio > threshold && !inEvent) {
         inEvent = true;
         eventStart = i;
@@ -208,10 +252,22 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
         inEvent = false;
         const duration = (i - eventStart) / sample_rate;
 
+        /** If.
+         * @param duration - duration
+         * @returns void
+         */
         if (duration >= minEventDuration) {
           // Find dominant scale at peak
           let maxScaleEnergy = 0;
+          /** For.
+           * @param let - let
+           * @returns void
+           */
           for (let si = 0; si < nScales; si++) {
+            /** If.
+             * @param scaleEnergy[si][eventPeakSample] - scale energy[si][event peak sample]
+             * @returns void
+             */
             if (scaleEnergy[si][eventPeakSample] > maxScaleEnergy) {
               maxScaleEnergy = scaleEnergy[si][eventPeakSample];
               eventPeakScale = si;
@@ -241,11 +297,27 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     }
 
     // Close any open event
+    /** If.
+     * @param inEvent - in event
+     * @returns void
+     */
     if (inEvent) {
       const duration = (N - eventStart) / sample_rate;
+      /** If.
+       * @param duration - duration
+       * @returns void
+       */
       if (duration >= minEventDuration) {
         let maxScaleEnergy = 0;
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let si = 0; si < nScales; si++) {
+          /** If.
+           * @param scaleEnergy[si][eventPeakSample] - scale energy[si][event peak sample]
+           * @returns void
+           */
           if (scaleEnergy[si][eventPeakSample] > maxScaleEnergy) {
             maxScaleEnergy = scaleEnergy[si][eventPeakSample];
             eventPeakScale = si;
@@ -280,6 +352,10 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
       ? events.reduce((worst, e) => e.energy_ratio > worst.energy_ratio ? e : worst).time
       : -1;
 
+    /** If.
+     * @param events.length - events.length
+     * @returns void
+     */
     if (events.length > 0) {
       const worst = events.reduce((w, e) => e.energy_ratio > w.energy_ratio ? e : w);
       warnings.push(`BREAKAGE DETECTED: ${worst.severity} at t=${worst.time.toFixed(3)}s (${events.length} events total)`);
@@ -299,6 +375,9 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "wavelet-breakage",

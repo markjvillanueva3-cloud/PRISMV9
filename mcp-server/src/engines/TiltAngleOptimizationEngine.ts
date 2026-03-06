@@ -66,9 +66,21 @@ export class TiltAngleOptimizationEngine {
     let bestEffectiveR = 0;
     let bestScallop = Infinity;
 
+    /** If.
+     * @param input.strategy - input.strategy
+     * @returns void
+     */
     if (input.strategy === "auto_optimal" || input.strategy === "lead_and_tilt") {
       // Search for optimal combination
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let lead = 1; lead <= maxTilt; lead += 0.5) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let tilt = 0; tilt <= maxTilt; tilt += 0.5) {
           const totalTilt = Math.sqrt(lead * lead + tilt * tilt);
           if (totalTilt > maxTilt) continue;
@@ -76,6 +88,10 @@ export class TiltAngleOptimizationEngine {
           const effR = this._effectiveRadius(input, totalTilt);
           const scallop = this._scallopHeight(effR, input.step_over_mm, input.surface_curvature_1_per_mm);
 
+          /** If.
+           * @param scallop - scallop
+           * @returns void
+           */
           if (scallop < bestScallop) {
             bestScallop = scallop;
             bestEffectiveR = effR;
@@ -85,9 +101,17 @@ export class TiltAngleOptimizationEngine {
         }
       }
     } else if (input.strategy === "lead_only") {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let lead = 1; lead <= maxTilt; lead += 0.5) {
         const effR = this._effectiveRadius(input, lead);
         const scallop = this._scallopHeight(effR, input.step_over_mm, input.surface_curvature_1_per_mm);
+        /** If.
+         * @param scallop - scallop
+         * @returns void
+         */
         if (scallop < bestScallop) {
           bestScallop = scallop;
           bestEffectiveR = effR;
@@ -95,9 +119,17 @@ export class TiltAngleOptimizationEngine {
         }
       }
     } else {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let tilt = 1; tilt <= maxTilt; tilt += 0.5) {
         const effR = this._effectiveRadius(input, tilt);
         const scallop = this._scallopHeight(effR, input.step_over_mm, input.surface_curvature_1_per_mm);
+        /** If.
+         * @param scallop - scallop
+         * @returns void
+         */
         if (scallop < bestScallop) {
           bestScallop = scallop;
           bestEffectiveR = effR;
@@ -118,18 +150,38 @@ export class TiltAngleOptimizationEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param input.tool_type - input.tool_type
+     * @returns void
+     */
     if (input.tool_type === "ball_nose" && totalAngle < 1) {
       recs.push("Ball nose at zero tilt has zero-speed zone — add minimum 3° lead angle");
     }
+    /** If.
+     * @param bestScallop - best scallop
+     * @returns void
+     */
     if (bestScallop > input.scallop_target_um) {
       recs.push(`Scallop ${bestScallop.toFixed(1)}µm exceeds target ${input.scallop_target_um}µm — reduce step-over to ${(input.step_over_mm * input.scallop_target_um / bestScallop).toFixed(2)}mm`);
     }
+    /** If.
+     * @param input.tool_type - input.tool_type
+     * @returns void
+     */
     if (input.tool_type === "barrel" && totalAngle < 5) {
       recs.push("Barrel cutter needs minimum 5° tilt to engage tangent radius effectively");
     }
+    /** If.
+     * @param speedPct - speed pct
+     * @returns void
+     */
     if (speedPct < 30) {
       recs.push("Effective cutting speed < 30% — poor surface finish expected, increase tilt");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Tilt angles optimized — proceed with toolpath generation");
     }
@@ -150,6 +202,10 @@ export class TiltAngleOptimizationEngine {
     const tiltRad = tiltDeg * Math.PI / 180;
     const R = input.tool_diameter_mm / 2;
 
+    /** Switch.
+     * @param input.tool_type - input.tool_type
+     * @returns void
+     */
     switch (input.tool_type) {
       case "ball_nose":
         // Effective radius = R * sin(tilt)

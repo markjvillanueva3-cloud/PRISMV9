@@ -624,6 +624,7 @@ const onStateAutoSave: HookDefinition = {
 
 /**
  * Get automation state
+  * @returns void
  */
 export function getAutomationState() {
   return {
@@ -643,6 +644,8 @@ export function getAutomationState() {
 
 /**
  * Get notifications
+  * @param acknowledged - whether acknowledged
+  * @returns void
  */
 export function getNotifications(acknowledged: boolean = false) {
   return automationState.notifications.filter(n => n.acknowledged === acknowledged);
@@ -650,6 +653,8 @@ export function getNotifications(acknowledged: boolean = false) {
 
 /**
  * Acknowledge notification
+  * @param id - id string
+  * @returns void
  */
 export function acknowledgeNotification(id: string) {
   const notification = automationState.notifications.find(n => n.id === id);
@@ -662,6 +667,8 @@ export function acknowledgeNotification(id: string) {
 
 /**
  * Get backups
+  * @param limit - limit value
+  * @returns void
  */
 export function getBackups(limit: number = 10) {
   return automationState.backups.slice(-limit);
@@ -669,6 +676,10 @@ export function getBackups(limit: number = 10) {
 
 /**
  * Set cache entry
+  * @param key - key string
+  * @param value - value
+  * @param ttlMs - ttl ms value
+  * @returns void
  */
 export function setCache(key: string, value: unknown, ttlMs: number = 3600000) {
   automationState.cache.set(key, {
@@ -681,6 +692,8 @@ export function setCache(key: string, value: unknown, ttlMs: number = 3600000) {
 
 /**
  * Get cache entry
+  * @param key - key string
+  * @returns unknown | undefined
  */
 export function getCache(key: string): unknown | undefined {
   const entry = automationState.cache.get(key);

@@ -65,6 +65,10 @@ export class DampingOptimizationEngine {
 
     const results: DampingResult[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const strategy of strategies) {
       const result = this._evaluateStrategy(strategy, input);
       if (result) results.push(result);
@@ -74,14 +78,26 @@ export class DampingOptimizationEngine {
     results.sort((a, b) => b.damping_improvement_ratio - a.damping_improvement_ratio);
 
     const recs: string[] = [];
+    /** If.
+     * @param results.length - results.length
+     * @returns void
+     */
     if (results.length > 0) {
       const best = results[0];
       recs.push(`Best strategy: ${best.strategy} — ${best.damping_improvement_ratio.toFixed(1)}x damping improvement`);
       if (best.cost_relative <= 2) recs.push("Cost-effective solution available");
+      /** If.
+       * @param best.critical_depth_improvement_pct - best.critical_depth_improvement_pct
+       * @returns void
+       */
       if (best.critical_depth_improvement_pct > 50) {
         recs.push(`Expected ${best.critical_depth_improvement_pct}% increase in stable cutting depth`);
       }
     }
+    /** If.
+     * @param input.structure_damping_ratio - input.structure_damping_ratio
+     * @returns void
+     */
     if (input.structure_damping_ratio < 0.01) {
       recs.push("Very low baseline damping — any damping strategy will show significant improvement");
     }
@@ -98,6 +114,10 @@ export class DampingOptimizationEngine {
     const fn = input.target_freq_Hz;
     const massRatio = input.available_mass_ratio || 0.05;
 
+    /** Switch.
+     * @param strategy - strategy
+     * @returns void
+     */
     switch (strategy) {
       case "tuned_mass_damper": {
         // Optimal TMD (Den Hartog): zeta_opt = sqrt(3*mu/(8*(1+mu)^3))

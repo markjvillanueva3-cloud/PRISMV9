@@ -383,6 +383,7 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
 
 /** Registers guard dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerGuardDispatcher(server: any): void {
   server.tool(

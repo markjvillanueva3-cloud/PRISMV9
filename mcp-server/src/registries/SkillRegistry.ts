@@ -1062,6 +1062,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
    */
   private initializeBuiltInSkills(): void {
     for (const skill of BUILT_IN_SKILLS) {
+      /** If.
+       * @param skill.skill_id - skill.skill_id
+       * @returns void
+       */
       if (skill.skill_id) {
         this.builtInSkills.set(skill.skill_id, skill);
       }
@@ -1104,6 +1108,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       const entries = await listDirectory(basePath);
       const dirs = entries.filter(e => e.isDirectory);
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const dir of dirs) {
         try {
           const skillPath = path.join(dir.path, "SKILL.md");
@@ -1176,11 +1184,19 @@ export class SkillRegistry extends BaseRegistry<Skill> {
   private extractDescription(content: string): string {
     // 1. Try YAML front-matter description field first
     const yamlMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    /** If.
+     * @param yamlMatch - yaml match
+     * @returns void
+     */
     if (yamlMatch) {
       const yamlBlock = yamlMatch[1];
       // Handle multi-line description (description: |\n  line1\n  line2)
       // Multi-line block: indented lines after "description: |", ends at unindented line
       const multiLineDesc = yamlBlock.match(/description:\s*\|\s*\r?\n((?:[ \t]+[^\r\n]*\r?\n?)*)/);
+      /** If.
+       * @param multiLineDesc - multi line desc
+       * @returns void
+       */
       if (multiLineDesc) {
         const desc = multiLineDesc[1].split(/\r?\n/).map((l: string) => l.trim()).filter(Boolean).join(" ");
         if (desc && desc !== "---" && desc.length > 3) return desc.slice(0, 300);
@@ -1188,6 +1204,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       // Handle single-line description (description: Some text here)
       // Exclude pipe char which indicates multi-line block
       const singleLineDesc = yamlBlock.match(/description:\s*([^|\r\n][^\r\n]*)/);
+      /** If.
+       * @param singleLineDesc - single line desc
+       * @returns void
+       */
       if (singleLineDesc) {
         const desc = singleLineDesc[1].trim();
         if (desc && desc !== "---" && desc.length > 3) return desc.slice(0, 300);
@@ -1196,6 +1216,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
 
     // 2. Try embedded YAML in code block (```yaml\nname:...\ndescription:...\n```)
     const embeddedYaml = content.match(/```yaml\r?\n[\s\S]*?description:\s*([^|\r\n][^\r\n]*)/);
+    /** If.
+     * @param embeddedYaml - embedded yaml
+     * @returns void
+     */
     if (embeddedYaml) {
       const desc = embeddedYaml[1].trim();
       if (desc && desc.length > 10) return desc.slice(0, 300);
@@ -1203,6 +1227,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
 
     // 3. Try markdown heading followed by paragraph  
     const descMatch = content.match(/^#[^#].*?\n\n([^\n#-][^\n]+)/m);
+    /** If.
+     * @param descMatch - desc match
+     * @returns void
+     */
     if (descMatch) {
       const desc = descMatch[1].trim();
       if (desc && desc !== "---" && desc.length > 10) return desc.slice(0, 300);
@@ -1210,6 +1238,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
 
     // 4. Try "Overview" or "Purpose" section content
     const overviewMatch = content.match(/##?\s*(?:OVERVIEW|Purpose|Summary|Description)\s*\r?\n+([^\n#][^\n]+)/mi);
+    /** If.
+     * @param overviewMatch - overview match
+     * @returns void
+     */
     if (overviewMatch) {
       const desc = overviewMatch[1].trim();
       if (desc && desc.length > 10) return desc.slice(0, 300);
@@ -1217,6 +1249,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
 
     // 5. Build from title: extract # heading text as description
     const titleMatch = content.match(/^#\s+(?:PRISM\s+)?(?:SKILL:\s*)?(.+)/m);
+    /** If.
+     * @param titleMatch - title match
+     * @returns void
+     */
     if (titleMatch) {
       const title = titleMatch[1].replace(/[═#*]/g, "").trim();
       if (title && title.length > 5) return title.slice(0, 300);
@@ -1249,6 +1285,11 @@ export class SkillRegistry extends BaseRegistry<Skill> {
     this.indexByTag.clear();
     this.indexByTrigger.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const skill = entry.data;
       
@@ -1259,6 +1300,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       this.indexByCategory.get(skill.category)?.add(id);
       
       // Index by tags
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const tag of skill.tags || []) {
         if (!this.indexByTag.has(tag)) {
           this.indexByTag.set(tag, new Set());
@@ -1267,6 +1312,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       }
       
       // Index by trigger patterns
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const trigger of skill.triggers || []) {
         if (!this.indexByTrigger.has(trigger.pattern)) {
           this.indexByTrigger.set(trigger.pattern, new Set());
@@ -1314,6 +1363,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       let score = 0;
       
       // Check triggers
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const trigger of skill.triggers || []) {
         try {
           const regex = new RegExp(trigger.pattern, "i");
@@ -1328,6 +1381,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       }
       
       // Check use cases
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const useCase of skill.use_cases || []) {
         if (desc.includes(useCase.toLowerCase())) {
           score += 5;
@@ -1335,6 +1392,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       }
       
       // Check tags
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const tag of skill.tags || []) {
         if (desc.includes(tag.toLowerCase())) {
           score += 3;
@@ -1348,6 +1409,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       // Add priority weight
       score += skill.priority * 0.5;
       
+      /** If.
+       * @param score - score
+       * @returns void
+       */
       if (score > 0) {
         results.push({ skill, score });
       }
@@ -1372,6 +1437,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
   }): { skills: Skill[]; total: number; hasMore: boolean } {
     let results: Skill[] = [];
     
+    /** If.
+     * @param options.category - options.category
+     * @returns void
+     */
     if (options.category) {
       results = this.getByCategory(options.category);
     } else if (options.tag) {
@@ -1380,6 +1449,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       results = this.all();
     }
     
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query) {
       const query = options.query.toLowerCase();
       results = results.filter(s =>
@@ -1389,6 +1462,10 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       );
     }
     
+    /** If.
+     * @param options.enabled - options.enabled
+     * @returns void
+     */
     if (options.enabled !== undefined) {
       results = results.filter(s => s.enabled === options.enabled);
     }
@@ -1437,6 +1514,11 @@ export class SkillRegistry extends BaseRegistry<Skill> {
       activeEnabled: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.size;
     }

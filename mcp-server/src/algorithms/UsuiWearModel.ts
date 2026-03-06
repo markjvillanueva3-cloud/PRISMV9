@@ -83,29 +83,61 @@ export interface UsuiWearModelOutput extends WithWarnings {
  */
 export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearModelOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: UsuiWearModelInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.contact_stress - !input.contact_stress
+     * @returns void
+     */
     if (!input.contact_stress || input.contact_stress <= 0) {
       issues.push({ field: "contact_stress", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.sliding_velocity - !input.sliding_velocity
+     * @returns void
+     */
     if (!input.sliding_velocity || input.sliding_velocity <= 0) {
       issues.push({ field: "sliding_velocity", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.interface_temperature - !input.interface_temperature
+     * @returns void
+     */
     if (!input.interface_temperature || input.interface_temperature <= 0) {
       issues.push({ field: "interface_temperature", message: "Must be > 0 °C", severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_time - !input.cutting_time
+     * @returns void
+     */
     if (!input.cutting_time || input.cutting_time <= 0) {
       issues.push({ field: "cutting_time", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param input.interface_temperature - input.interface_temperature
+     * @returns void
+     */
     if (input.interface_temperature > 1200) {
       issues.push({ field: "interface_temperature", message: "Temperature exceeds typical machining range", severity: "warning" });
     }
+    /** If.
+     * @param input.contact_stress - input.contact_stress
+     * @returns void
+     */
     if (input.contact_stress > 5000) {
       issues.push({ field: "contact_stress", message: "Very high contact stress — verify input", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns usui wear model output
+   */
   calculate(input: UsuiWearModelInput): UsuiWearModelOutput {
     const warnings: string[] = [];
     const sigma = input.contact_stress; // MPa
@@ -131,6 +163,10 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
     let toolLife = tTotal;
     let reachedLimit = false;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i <= nSteps; i++) {
       const t = i * actualDt;
 
@@ -143,11 +179,19 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
 
       wearHistory.push({ time: t, vb, wear_rate: wearRate });
 
+      /** If.
+       * @param vb - vb
+       * @returns void
+       */
       if (vb >= vbLimit && !reachedLimit) {
         toolLife = t;
         reachedLimit = true;
       }
 
+      /** If.
+       * @param i - index position
+       * @returns void
+       */
       if (i < nSteps) {
         // Break-in factor: higher wear rate in first 10% of life
         const breakInFactor = t < tTotal * 0.05 ? 1.5 : 1.0;
@@ -156,8 +200,16 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
     }
 
     // If tool life not reached within cutting time, extrapolate
+    /** If.
+     * @param !reachedLimit - !reached limit
+     * @returns void
+     */
     if (!reachedLimit) {
       const avgRate = vb / tTotal;
+      /** If.
+       * @param avgRate - avg rate
+       * @returns void
+       */
       if (avgRate > 0) {
         toolLife = vbLimit / avgRate;
       } else {
@@ -179,9 +231,17 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
     const withinLimit = vb < vbLimit;
     const remainingPct = withinLimit ? Math.max(0, (1 - vb / vbLimit) * 100) : 0;
 
+    /** If.
+     * @param !withinLimit - !within limit
+     * @returns void
+     */
     if (!withinLimit) {
       warnings.push(`Tool wear VB=${vb.toFixed(3)}mm exceeds limit ${vbLimit}mm`);
     }
+    /** If.
+     * @param regime - regime
+     * @returns void
+     */
     if (regime === "accelerated") {
       warnings.push("Accelerated wear regime detected — tool replacement recommended");
     }
@@ -200,6 +260,9 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "usui-wear-model",

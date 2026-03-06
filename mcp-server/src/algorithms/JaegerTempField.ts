@@ -83,14 +83,30 @@ export interface JaegerTempFieldOutput extends WithWarnings {
  */
 export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTempFieldOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: JaegerTempFieldInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.heat_flux - !input.heat_flux
+     * @returns void
+     */
     if (!input.heat_flux || input.heat_flux <= 0) {
       issues.push({ field: "heat_flux", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.contact_half_width - !input.contact_half_width
+     * @returns void
+     */
     if (!input.contact_half_width || input.contact_half_width <= 0) {
       issues.push({ field: "contact_half_width", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed <= 0) {
       issues.push({ field: "cutting_speed", message: "Must be > 0", severity: "error" });
     }
@@ -100,12 +116,20 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     if ((input.thermal_diffusivity ?? 14) <= 0) {
       issues.push({ field: "thermal_diffusivity", message: "Must be > 0", severity: "error" });
     }
+    /** If.
+     * @param input.heat_flux - input.heat_flux
+     * @returns void
+     */
     if (input.heat_flux > 500) {
       issues.push({ field: "heat_flux", message: "Very high heat flux — verify input", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns jaeger temp field output
+   */
   calculate(input: JaegerTempFieldInput): JaegerTempFieldOutput {
     const warnings: string[] = [];
     const q = input.heat_flux * (input.partition_ratio ?? 0.5); // W/mm² into workpiece
@@ -125,6 +149,10 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     // For high Pe (most machining): T_max ≈ 1.1284 × (q/k) × sqrt(α·a/V)
     // For low Pe: T_max ≈ (q·a/k) × (1 + 0.307/Pe + ...)
     let Tmax: number;
+    /** If.
+     * @param Pe - pe
+     * @returns void
+     */
     if (Pe > 5) {
       // High-speed regime
       Tmax = 1.1284 * (q / k) * Math.sqrt(alpha * a / V);
@@ -142,6 +170,10 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
 
     // Depth profile at x=0
     const depthProfile: Array<{ depth: number; temperature: number }> = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i <= nGrid; i++) {
       const z = (i / nGrid) * depthRange;
       const T = this.surfaceTemp(0, z, q, a, V, k, alpha);
@@ -150,7 +182,15 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
 
     // Half-temperature depth
     let halfTempDepth = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const dp of depthProfile) {
+      /** If.
+       * @param dp.temperature - dp.temperature
+       * @returns void
+       */
       if (dp.temperature - T0 < Tmax / 2) {
         halfTempDepth = dp.depth;
         break;
@@ -159,14 +199,26 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
 
     // Heat-affected depth (T > 200°C)
     let hadDepth = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const dp of depthProfile) {
       if (dp.temperature > 200) hadDepth = dp.depth;
     }
 
     // 2D temperature field
     const tempField: TempFieldPoint[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let ix = -nGrid; ix <= nGrid; ix++) {
       const x = (ix / nGrid) * 2 * a;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let iz = 0; iz <= nGrid / 2; iz++) {
         const z = (iz / (nGrid / 2)) * depthRange;
         const T = this.surfaceTemp(x, z, q, a, V, k, alpha) + T0;
@@ -177,9 +229,17 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     const maxSurfaceTemp = Tmax + T0;
     const burnRisk = maxSurfaceTemp > 600; // Approximate for steel
 
+    /** If.
+     * @param burnRisk - burn risk
+     * @returns void
+     */
     if (burnRisk) {
       warnings.push(`BURN RISK: max surface temperature ${maxSurfaceTemp.toFixed(0)}°C exceeds 600°C threshold`);
     }
+    /** If.
+     * @param Pe - pe
+     * @returns void
+     */
     if (Pe > 50) {
       warnings.push("Very high Peclet number — predominantly convective heat transfer");
     }
@@ -212,10 +272,18 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     const dx = (2 * a) / nSteps;
     let T = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i <= nSteps; i++) {
       const xPrime = -a + i * dx;
       const xi = x - xPrime;
       const r = Math.sqrt(xi * xi + z * z);
+      /** If.
+       * @param r - r
+       * @returns void
+       */
       if (r < 1e-10) {
         // Singularity at r=0 — use limiting form
         T += (q / (2 * Math.PI * k)) * dx * (Math.log(2 * alpha / (V * 1e-10)) + 0.5772);
@@ -226,6 +294,10 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
       // K0 approximation: K0(x) ≈ -ln(x/2) - 0.5772 for small x
       //                    K0(x) ≈ sqrt(π/(2x)) × exp(-x) for large x
       let K0: number;
+      /** If.
+       * @param arg - arg
+       * @returns void
+       */
       if (arg < 2) {
         const t = arg / 2;
         K0 = -Math.log(t) - 0.5772 + t * t * (0.4228 + t * t * (0.2307 + t * t * 0.0348));
@@ -240,6 +312,9 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     return Math.max(0, T);
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "jaeger-temp-field",

@@ -57,19 +57,43 @@ export interface InterpolationEngineOutput extends WithWarnings {
  */
 export class InterpolationEngine implements Algorithm<InterpolationEngineInput, InterpolationEngineOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: InterpolationEngineInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.x_data?.length - !input.x_data?.length
+     * @returns void
+     */
     if (!input.x_data?.length || input.x_data.length < 2) {
       issues.push({ field: "x_data", message: "At least 2 data points required", severity: "error" });
     }
     if (!input.y_data?.length) issues.push({ field: "y_data", message: "Required", severity: "error" });
+    /** If.
+     * @param input.x_data?.length - input.x_data?.length
+     * @returns void
+     */
     if (input.x_data?.length !== input.y_data?.length) {
       issues.push({ field: "y_data", message: "Must match x_data length", severity: "error" });
     }
     if (!input.x_query?.length) issues.push({ field: "x_query", message: "At least 1 query point required", severity: "error" });
     // Check sorted
+    /** If.
+     * @param input.x_data - input.x_data
+     * @returns void
+     */
     if (input.x_data) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 1; i < input.x_data.length; i++) {
+        /** If.
+         * @param input.x_data[i] - input.x_data[i]
+         * @returns void
+         */
         if (input.x_data[i] <= input.x_data[i - 1]) {
           issues.push({ field: "x_data", message: "Must be sorted ascending with unique values", severity: "error" });
           break;
@@ -82,6 +106,10 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns interpolation engine output
+   */
   calculate(input: InterpolationEngineInput): InterpolationEngineOutput {
     const warnings: string[] = [];
     const { x_data, y_data, x_query } = input;
@@ -92,6 +120,10 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
 
     // Precompute spline coefficients if needed
     let splineCoeffs: { a: number; b: number; c: number; d: number }[] = [];
+    /** If.
+     * @param method - method
+     * @returns void
+     */
     if (method === "cubic_spline") {
       splineCoeffs = this.computeNaturalSpline(x_data, y_data);
     }
@@ -99,12 +131,20 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
     const results: InterpolationResult[] = [];
     let nExtrap = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const xq of x_query) {
       const extrapolated = xq < xMin || xq > xMax;
       if (extrapolated) nExtrap++;
 
       let y: number, dy: number;
 
+      /** If.
+       * @param extrapolated - extrapolated
+       * @returns void
+       */
       if (extrapolated && extrap === "clamp") {
         const idx = xq < xMin ? 0 : n - 1;
         y = y_data[idx];
@@ -128,6 +168,10 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
       results.push({ x: xq, y, derivative: dy, extrapolated });
     }
 
+    /** If.
+     * @param nExtrap - n extrap
+     * @returns void
+     */
     if (nExtrap > 0 && extrap === "clamp") {
       warnings.push(`${nExtrap} points clamped to data range [${xMin}, ${xMax}]`);
     }
@@ -144,6 +188,10 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
 
   private findInterval(x: number[], xq: number): number {
     let lo = 0, hi = x.length - 1;
+    /** While.
+     * @param lo - lo
+     * @returns void
+     */
     while (lo < hi - 1) {
       const mid = (lo + hi) >> 1;
       if (x[mid] > xq) hi = mid; else lo = mid;
@@ -157,6 +205,10 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
 
     // Tridiagonal system for natural spline
     const alpha = [0];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < n; i++) {
       alpha.push(3 * ((y[i + 1] - y[i]) / h[i] - (y[i] - y[i - 1]) / h[i - 1]));
     }
@@ -164,17 +216,29 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
     const c = new Array(n + 1).fill(0);
     const l = [1], mu = [0], z = [0];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < n; i++) {
       l.push(2 * (x[i + 1] - x[i - 1]) - h[i - 1] * mu[i - 1]);
       mu.push(h[i] / l[i]);
       z.push((alpha[i] - h[i - 1] * z[i - 1]) / l[i]);
     }
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let j = n - 1; j >= 0; j--) {
       c[j] = z[j] - mu[j] * c[j + 1];
     }
 
     const coeffs: { a: number; b: number; c: number; d: number }[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       coeffs.push({
         a: y[i],
@@ -186,6 +250,9 @@ export class InterpolationEngine implements Algorithm<InterpolationEngineInput, 
     return coeffs;
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "interpolation-engine",

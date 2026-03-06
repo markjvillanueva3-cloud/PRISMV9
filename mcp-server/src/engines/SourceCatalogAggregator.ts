@@ -82,6 +82,12 @@ async function loadAll(): Promise<Record<string, Record<string, CatalogEntry>>> 
 
 /**
  * Get all catalogs aggregated by engine.
+  * @returns promise resolving to {
+  engines:  record<string, { entries: number; categories: string[]; total_lines: number }>;
+  total_entries: number;
+  total_lines: number;
+  total_engines: number;
+}
  */
 export async function getAllCatalogs(): Promise<{
   engines: Record<string, { entries: number; categories: string[]; total_lines: number }>;
@@ -106,6 +112,9 @@ export async function getAllCatalogs(): Promise<{
 
 /**
  * Search across all catalogs by keyword (matches filename, description, category).
+  * @param query - query string
+  * @param options - configuration options
+  * @returns promise resolving to array<{ engine: string; id: string; entry:  catalog entry }>
  */
 export async function searchCatalog(query: string, options?: {
   engine?: string;
@@ -135,6 +144,8 @@ export async function searchCatalog(query: string, options?: {
 
 /**
  * Get catalog entries for a specific engine.
+  * @param engineName - engine name
+  * @returns promise resolving to record<string,  catalog entry> | null
  */
 export async function getEngineCatalog(engineName: string): Promise<Record<string, CatalogEntry> | null> {
   const all = await loadAll();
@@ -143,6 +154,11 @@ export async function getEngineCatalog(engineName: string): Promise<Record<strin
 
 /**
  * Get stats grouped by category across all engines.
+  * @returns promise resolving to {
+  by_category:  record<string, { count: number; total_lines: number; engines: string[] }>;
+  by_safety_class:  record<string, number>;
+  total_entries: number;
+}
  */
 export async function getCatalogStats(): Promise<{
   by_category: Record<string, { count: number; total_lines: number; engines: string[] }>;

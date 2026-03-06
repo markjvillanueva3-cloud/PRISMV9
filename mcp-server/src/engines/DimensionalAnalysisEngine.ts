@@ -148,6 +148,10 @@ export class DimensionalAnalysisEngine {
     const cpk = halfTol / (3 * sigma);
 
     const recommendations: string[] = [];
+    /** If.
+     * @param !withinTol - !within tol
+     * @returns void
+     */
     if (!withinTol) {
       // Find biggest contributor
       const contributors = [
@@ -159,13 +163,25 @@ export class DimensionalAnalysisEngine {
 
       recommendations.push(`Largest error source: ${contributors[0].name} (${(contributors[0].val * 1000).toFixed(1)}µm)`);
 
+      /** If.
+       * @param contributors[0].name - contributors[0].name
+       * @returns void
+       */
       if (contributors[0].name === "tool_deflection") {
         recommendations.push("Reduce tool stickout or increase tool diameter to reduce deflection");
       }
+      /** If.
+       * @param contributors[0].name - contributors[0].name
+       * @returns void
+       */
       if (contributors[0].name === "thermal_growth") {
         recommendations.push("Allow thermal stabilization or use probing cycle for offset correction");
       }
     }
+    /** If.
+     * @param cpk - cpk
+     * @returns void
+     */
     if (cpk < 1.33) {
       recommendations.push(`Cpk ${cpk.toFixed(2)} < 1.33 — process is not capable for this tolerance`);
     }
@@ -183,14 +199,26 @@ export class DimensionalAnalysisEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @returns dimension validation
+   */
   validate(input: DimensionInput): DimensionValidation {
     const prediction = this.predict(input);
     const margin = input.tolerance_mm / 2 - prediction.total_error_mm;
     const issues: string[] = [];
 
+    /** If.
+     * @param !prediction.within_tolerance - !prediction.within_tolerance
+     * @returns void
+     */
     if (!prediction.within_tolerance) {
       issues.push(`Total error ${(prediction.total_error_mm * 1000).toFixed(1)}µm exceeds half-tolerance ${(input.tolerance_mm / 2 * 1000).toFixed(1)}µm`);
     }
+    /** If.
+     * @param prediction.cpk_estimate - prediction.cpk_estimate
+     * @returns void
+     */
     if (prediction.cpk_estimate < 1.0) {
       issues.push(`Process not capable: Cpk ${prediction.cpk_estimate.toFixed(2)} < 1.0`);
     }
@@ -212,9 +240,18 @@ export class DimensionalAnalysisEngine {
     };
   }
 
+  /** Converts to lerance budget.
+   * @param totalTolerance_mm - total tolerance_mm
+   * @param sources - sources
+   * @returns tolerance budget
+   */
   toleranceBudget(totalTolerance_mm: number, sources: string[]): ToleranceBudget {
     // Equal allocation by default
     const n = sources.length;
+    /** If.
+     * @param n - number of items
+     * @returns void
+     */
     if (n === 0) {
       return { total_tolerance_mm: totalTolerance_mm, allocated: [], remaining_mm: totalTolerance_mm, feasible: false };
     }

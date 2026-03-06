@@ -85,6 +85,10 @@ export class CuttingPowerBudgetEngine {
 
     // ── 1. Determine spindle RPM ──
     let rpm: number;
+    /** If.
+     * @param input.workpiece_diameter_mm - input.workpiece_diameter_mm
+     * @returns void
+     */
     if (input.workpiece_diameter_mm && input.workpiece_diameter_mm > 0) {
       // Turning: n = Vc×1000 / (π×D)
       rpm = (Vc * 1000) / (Math.PI * input.workpiece_diameter_mm);
@@ -122,6 +126,10 @@ export class CuttingPowerBudgetEngine {
 
     // Determine feed rate
     let f_rev: number; // feed per revolution
+    /** If.
+     * @param input.feed_mm_rev - input.feed_mm_rev
+     * @returns void
+     */
     if (input.feed_mm_rev) {
       f_rev = input.feed_mm_rev;
     } else if (input.feed_mm_tooth) {
@@ -170,6 +178,10 @@ export class CuttingPowerBudgetEngine {
     const isSafe = powerUtil < 95 && torqueUtil < 95;
 
     // ── 12. Recommendations ──
+    /** If.
+     * @param powerUtil - power util
+     * @returns void
+     */
     if (powerUtil > 95 || torqueUtil > 95) {
       const factor = powerUtil > torqueUtil ? "power" : "torque";
       recs.push(
@@ -183,6 +195,10 @@ export class CuttingPowerBudgetEngine {
       );
     }
 
+    /** If.
+     * @param rpm - rpm
+     * @returns void
+     */
     if (rpm <= baseRPM && torqueUtil > powerUtil * 1.2) {
       recs.push(
         `Operating in constant-torque region (${Math.round(rpm)} RPM < base ${baseRPM}). `
@@ -190,6 +206,10 @@ export class CuttingPowerBudgetEngine {
       );
     }
 
+    /** If.
+     * @param powerUtil - power util
+     * @returns void
+     */
     if (powerUtil < 30 && torqueUtil < 30) {
       recs.push(
         `Machine underutilized (${Math.max(powerUtil, torqueUtil).toFixed(0)}%). `
@@ -197,6 +217,10 @@ export class CuttingPowerBudgetEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Power budget OK — P=${P_required.toFixed(2)}kW/${P_available.toFixed(1)}kW `

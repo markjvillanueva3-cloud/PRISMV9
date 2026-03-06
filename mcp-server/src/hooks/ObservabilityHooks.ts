@@ -661,6 +661,7 @@ const onResourceMonitor: HookDefinition = {
 
 /**
  * Get all observability metrics
+  * @returns void
  */
 export function getObservabilityMetrics() {
   return {
@@ -675,6 +676,8 @@ export function getObservabilityMetrics() {
 
 /**
  * Get audit log
+  * @param limit - limit value
+  * @returns void
  */
 export function getAuditLog(limit: number = 100) {
   return metricsStore.auditLog.slice(-limit);
@@ -682,6 +685,8 @@ export function getAuditLog(limit: number = 100) {
 
 /**
  * Get performance metrics for an operation
+  * @param operation - operation string
+  * @returns void
  */
 export function getPerformanceMetric(operation: string) {
   return metricsStore.performance.get(operation);
@@ -689,6 +694,7 @@ export function getPerformanceMetric(operation: string) {
 
 /**
  * Reset metrics
+  * @returns void
  */
 export function resetMetrics() {
   metricsStore.performance.clear();

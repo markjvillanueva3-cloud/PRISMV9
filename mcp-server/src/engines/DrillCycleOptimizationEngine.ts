@@ -158,16 +158,28 @@ export class DrillCycleOptimizationEngine {
     let peckFraction = PECK_DEPTH_FRACTION[chipBehavior];
 
     // Reduce peck depth for deep holes
+    /** If.
+     * @param LD - l d
+     * @returns void
+     */
     if (LD > 5) {
       peckFraction *= DEEP_HOLE_REDUCTION;
     }
 
     // Through-tool coolant allows longer pecks
+    /** If.
+     * @param coolant - coolant
+     * @returns void
+     */
     if (coolant === "through_tool") {
       peckFraction *= 1.5;
     }
 
     // Interrupted cut — reduce peck depth for stability
+    /** If.
+     * @param input.is_interrupted_cut - input.is_interrupted_cut
+     * @returns void
+     */
     if (input.is_interrupted_cut) {
       peckFraction *= 0.7;
       recommendations.push("Interrupted cut detected — peck depth reduced 30% for stability.");
@@ -177,6 +189,10 @@ export class DrillCycleOptimizationEngine {
     peckDepth = Math.max(peckDepth, MIN_PECK_DEPTH_MM);
 
     // For standard cycle, peck depth = full hole depth
+    /** If.
+     * @param cycle - cycle
+     * @returns void
+     */
     if (cycle === "standard") {
       peckDepth = L;
     }
@@ -187,10 +203,18 @@ export class DrillCycleOptimizationEngine {
     // ── Dwell time ──
     let dwellBase = DWELL_TIME_BASE[chipBehavior];
     // Blind holes need longer dwell for chip clearing
+    /** If.
+     * @param !input.is_through_hole - !input.is_through_hole
+     * @returns void
+     */
     if (!input.is_through_hole) {
       dwellBase *= 1.5;
     }
     // Deep holes need more dwell
+    /** If.
+     * @param LD - l d
+     * @returns void
+     */
     if (LD > 5) {
       dwellBase *= 1.3;
     }
@@ -201,6 +225,10 @@ export class DrillCycleOptimizationEngine {
     const approachTime = RETRACT_CLEARANCE_MM / rapidRate * 60;
 
     let totalCycleTime: number;
+    /** If.
+     * @param cycle - cycle
+     * @returns void
+     */
     if (cycle === "standard") {
       totalCycleTime = (L / feedRate * 60) + approachTime + retractTime;
     } else if (cycle === "chip_break") {
@@ -210,6 +238,10 @@ export class DrillCycleOptimizationEngine {
     } else {
       // Full peck: each peck returns to surface
       totalCycleTime = 0;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < numPecks; i++) {
         const depthSoFar = Math.min((i + 1) * peckDepth, L);
         const thisPeckRetract = depthSoFar / rapidRate * 60;
@@ -228,6 +260,10 @@ export class DrillCycleOptimizationEngine {
 
     // ── Coolant check ──
     const coolantOk = coolantAdequate(LD, coolant);
+    /** If.
+     * @param !coolantOk - !coolant ok
+     * @returns void
+     */
     if (!coolantOk) {
       recommendations.push(
         `Coolant delivery "${coolant}" inadequate for L/D = ${LD.toFixed(1)}. ` +
@@ -236,29 +272,53 @@ export class DrillCycleOptimizationEngine {
     }
 
     // ── Safety checks ──
+    /** If.
+     * @param LD - l d
+     * @returns void
+     */
     if (LD > 10 && cycle !== "gun_drill" && cycle !== "bta") {
       recommendations.push(`L/D = ${LD.toFixed(1)} exceeds standard drill range. Consider gun drill or BTA.`);
       isSafe = false;
     }
 
+    /** If.
+     * @param chipRisk - chip risk
+     * @returns void
+     */
     if (chipRisk === "high") {
       recommendations.push("High chip evacuation risk — reduce feed, increase peck frequency, or use through-tool coolant.");
     }
 
+    /** If.
+     * @param input.minimum_wall_thickness_mm - input.minimum_wall_thickness_mm
+     * @returns void
+     */
     if (input.minimum_wall_thickness_mm !== undefined && input.minimum_wall_thickness_mm < D * 0.3) {
       recommendations.push(`Thin wall (${input.minimum_wall_thickness_mm} mm) — reduce feed by 30–50% to prevent deflection.`);
     }
 
+    /** If.
+     * @param coolant - coolant
+     * @returns void
+     */
     if (coolant === "dry" && chipBehavior === "gummy") {
       recommendations.push("CRITICAL: Dry drilling gummy material — tool failure and work hardening risk. Add coolant.");
       isSafe = false;
     }
 
+    /** If.
+     * @param !input.spot_drill_used - !input.spot_drill_used
+     * @returns void
+     */
     if (!input.spot_drill_used && !input.has_pilot_hole && D > 10) {
       recommendations.push("No spot drill for Ø > 10 mm — drill may walk. Use a spot drill or pilot hole.");
     }
 
     // ── Optimization recommendations ──
+    /** If.
+     * @param cycle - cycle
+     * @returns void
+     */
     if (cycle === "peck" && coolant === "flood_external") {
       recommendations.push("Consider through-tool coolant to reduce pecks and cycle time by ~40%.");
     }

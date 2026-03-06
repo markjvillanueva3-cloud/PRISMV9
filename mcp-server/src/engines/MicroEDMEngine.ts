@@ -58,6 +58,10 @@ export class MicroEDMEngine {
 
     // Electrode diameter
     let electrodeUm: number;
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "micro_drill" || input.process === "micro_sinker") {
       electrodeUm = input.electrode_diameter_um || (input.feature_size_um - 2 * gapUm);
     } else if (input.process === "micro_wire") {
@@ -94,18 +98,38 @@ export class MicroEDMEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param aspectRatio - aspect ratio
+     * @returns void
+     */
     if (aspectRatio > maxAspect) {
       recs.push(`Aspect ratio ${aspectRatio.toFixed(1)} exceeds max ${maxAspect} for ${input.process} — consider alternative process`);
     }
+    /** If.
+     * @param electrodeUm - electrode um
+     * @returns void
+     */
     if (electrodeUm < 20) {
       recs.push("Electrode <20µm — fragile; use WEDG (wire electro-discharge grinding) for electrode fabrication");
     }
+    /** If.
+     * @param input.feature_size_um - input.feature_size_um
+     * @returns void
+     */
     if (input.feature_size_um < 50) {
       recs.push("Feature <50µm — requires RC-pulse generator, not transistor; verify machine capability");
     }
+    /** If.
+     * @param input.process - input.process
+     * @returns void
+     */
     if (input.process === "micro_drill" && wearPct > 25) {
       recs.push("High electrode wear — use electrode wear compensation (EWC) with uniform wear method");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Micro-EDM parameters within achievable range — proceed with test cuts");
     }

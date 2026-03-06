@@ -86,6 +86,10 @@ export class RTCP_CompensationEngine {
     // Compensation depends on kinematic type
     let dx = 0, dy = 0, dz = 0;
 
+    /** If.
+     * @param input.kinematic_type - input.kinematic_type
+     * @returns void
+     */
     if (input.kinematic_type === "table_table") {
       // Table-table: rotary axes move the workpiece
       // Tool tip stays fixed in machine coords, table rotates under it
@@ -159,12 +163,20 @@ export class RTCP_CompensationEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param errorMm - error mm
+     * @returns void
+     */
     if (errorMm > 10) {
       recs.push(`Large RTCP compensation (${errorMm.toFixed(1)}mm) — verify pivot point calibration`);
     }
     if (Math.abs(input.A_deg) > 30) {
       recs.push("High tilt angle — verify machine travel limits and potential interference");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("RTCP compensation calculated — verify with test cut or touch probe");
     }
@@ -185,6 +197,11 @@ export class RTCP_CompensationEngine {
     };
   }
 
+  /** Validate.
+   * @param input - input data
+   * @param axis_limits - axis_limits
+   * @returns r t c p validation
+   */
   validate(input: RTCPInput, axis_limits: { A_min: number; A_max: number; C_min: number; C_max: number }): RTCPValidation {
     const warnings: string[] = [];
 
@@ -198,12 +215,20 @@ export class RTCP_CompensationEngine {
     const singularity = (input.kinematic_type === "head_head" || input.kinematic_type === "table_table")
       && Math.abs(input.A_deg) < 0.5;
 
+    /** If.
+     * @param singularity - singularity
+     * @returns void
+     */
     if (singularity) {
       warnings.push("CAUTION: Near singularity (A≈0°) — C-axis motion causes rapid linear axis compensation");
     }
 
     // Compensation magnitude check
     const result = this.compensate(input);
+    /** If.
+     * @param result.tool_tip_error_without_rtcp_mm - result.tool_tip_error_without_rtcp_mm
+     * @returns void
+     */
     if (result.tool_tip_error_without_rtcp_mm > 50) {
       warnings.push(`Large compensation vector (${result.tool_tip_error_without_rtcp_mm.toFixed(1)}mm) — potential calibration error`);
     }

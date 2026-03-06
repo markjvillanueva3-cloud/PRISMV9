@@ -120,6 +120,10 @@ export class GrindingForceEngine {
 
     // ── 1. Equivalent wheel diameter (for cylindrical modes) ──
     let de = ds;  // surface grinding: de = ds
+    /** If.
+     * @param mode - operation mode
+     * @returns void
+     */
     if (mode === "cylindrical_external" && dw && dw > 0) {
       de = (ds * dw) / (ds + dw);
     } else if (mode === "cylindrical_internal" && dw && dw > 0) {
@@ -182,6 +186,10 @@ export class GrindingForceEngine {
     const isSafe = burnRisk < 0.8 && surfaceTemp < 600;
 
     // ── 13. Recommendations ──
+    /** If.
+     * @param burnRisk - burn risk
+     * @returns void
+     */
     if (burnRisk >= 0.8) {
       recs.push(
         `SAFETY: Burn risk ${(burnRisk * 100).toFixed(0)}% — `
@@ -195,6 +203,10 @@ export class GrindingForceEngine {
       );
     }
 
+    /** If.
+     * @param mode - operation mode
+     * @returns void
+     */
     if (mode === "creep_feed" && ae > 1.0) {
       recs.push(
         `Creep-feed depth ${ae}mm — ensure high-pressure coolant `
@@ -202,6 +214,10 @@ export class GrindingForceEngine {
       );
     }
 
+    /** If.
+     * @param vs - vs
+     * @returns void
+     */
     if (vs > 45) {
       recs.push(
         `Wheel speed ${vs} m/s exceeds typical range (25–45 m/s) — `
@@ -209,6 +225,10 @@ export class GrindingForceEngine {
       );
     }
 
+    /** If.
+     * @param vs - vs
+     * @returns void
+     */
     if (vs < 20) {
       recs.push(
         `Wheel speed ${vs} m/s is low — risk of grain pullout `
@@ -216,6 +236,10 @@ export class GrindingForceEngine {
       );
     }
 
+    /** If.
+     * @param hm_max_um - hm_max_um
+     * @returns void
+     */
     if (hm_max_um < 0.1) {
       recs.push(
         `Very thin chips (${hm_max_um.toFixed(2)}µm) — `
@@ -223,6 +247,10 @@ export class GrindingForceEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Grinding parameters nominal — Ft=${Math.round(Ft)}N, `

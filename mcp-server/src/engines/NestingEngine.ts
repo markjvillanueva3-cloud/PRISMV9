@@ -171,6 +171,10 @@ export class NestingEngine {
 
       if (placements.length === 0) break; // nothing fits, stop
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const p of placements) {
         allPlacements.push({ ...p, instance: allPlacements.filter(x => x.part_id === p.part_id).length + 1 });
       }
@@ -203,6 +207,11 @@ export class NestingEngine {
     };
   }
 
+  /** Analyze.
+   * @param parts - parts
+   * @param stock - stock
+   * @returns nest analysis
+   */
   analyze(parts: NestPart[], stock: StockSheet): NestAnalysis {
     const partArea = parts.reduce((s, p) => s + p.width_mm * p.height_mm * p.quantity, 0);
     const stockArea = stock.width_mm * stock.height_mm;
@@ -222,6 +231,11 @@ export class NestingEngine {
     };
   }
 
+  /** Compares stock.
+   * @param parts - parts
+   * @param stocks - stocks
+   * @returns { stock:  stock sheet; result:  nest result }[]
+   */
   compareStock(parts: NestPart[], stocks: StockSheet[]): { stock: StockSheet; result: NestResult }[] {
     return stocks.map(stock => ({ stock, result: this.nest(parts, stock) }));
   }

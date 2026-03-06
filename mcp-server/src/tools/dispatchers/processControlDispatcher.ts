@@ -10,7 +10,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { PROCESS_CONTROL_ACTION_SCHEMAS } from "../../schemas/processControlActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _ctc: any, _spc: any, _doe: any;
@@ -30,6 +31,7 @@ const ACTIONS = [
 
 /** Registers process control dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerProcessControlDispatcher(server: any): void {
   server.tool(
@@ -47,6 +49,17 @@ Params vary by action — pass relevant fields in params object.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation — CTC/SPC/DOE params
+        const validation = validateActionParams(action, params, PROCESS_CONTROL_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_process_control"
+          );
+        }
+
         // PRE-CALCULATION SAFETY HOOKS — machine limit guard
         const hookCtx = {
           operation: action,

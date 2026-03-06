@@ -94,22 +94,46 @@ export interface CSPSetupPlanOutput extends WithWarnings {
  */
 export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: CSPSetupPlanInput): ValidationResult {
     const issues: ValidationIssue[] = [];
+    /** If.
+     * @param !input.features?.length - !input.features?.length
+     * @returns void
+     */
     if (!input.features?.length) {
       issues.push({ field: "features", message: "At least 1 feature required", severity: "error" });
     }
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of input.features ?? []) {
+      /** If.
+       * @param !f.access_directions?.length - !f.access_directions?.length
+       * @returns void
+       */
       if (!f.access_directions?.length) {
         issues.push({ field: `features[${f.id}]`, message: "At least 1 access direction required", severity: "error" });
       }
     }
+    /** If.
+     * @param input.features?.length - input.features?.length
+     * @returns void
+     */
     if (input.features?.length > 200) {
       issues.push({ field: "features", message: "Large feature set — performance may degrade", severity: "warning" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns c s p setup plan output
+   */
   calculate(input: CSPSetupPlanInput): CSPSetupPlanOutput {
     const warnings: string[] = [];
     const { features } = input;
@@ -123,7 +147,15 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
 
     // Build precedence graph
     const mustBefore = new Map<string, Set<string>>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
+      /** If.
+       * @param f.precedence_before - f.precedence_before
+       * @returns void
+       */
       if (f.precedence_before) {
         mustBefore.set(f.id, new Set(f.precedence_before));
       }
@@ -131,6 +163,10 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
 
     // Group features by compatible orientations
     const orientationGroups = new Map<string, FeatureSpec[]>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const orient of orientations) {
       orientationGroups.set(orient, []);
     }
@@ -141,7 +177,15 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
 
     // Phase 1: Tolerance groups — keep together
     const tolGroups = new Map<string, FeatureSpec[]>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
+      /** If.
+       * @param f.tolerance_group - f.tolerance_group
+       * @returns void
+       */
       if (f.tolerance_group) {
         const existing = tolGroups.get(f.tolerance_group) ?? [];
         existing.push(f);
@@ -150,21 +194,38 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     }
 
     // For each tolerance group, find common orientation
+    /** For.
+     * @param const - const
+     * @param groupFeatures] - group features]
+     * @returns void
+     */
     for (const [groupId, groupFeatures] of tolGroups) {
       // Find orientations common to all features in group
       const commonOrients = orientations.filter(o =>
         groupFeatures.every(f => f.access_directions.includes(o))
       );
 
+      /** If.
+       * @param commonOrients.length - common orients.length
+       * @returns void
+       */
       if (commonOrients.length > 0) {
         // Pick orientation that serves most other unassigned features too
         let bestOrient = commonOrients[0];
         let bestCount = 0;
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const o of commonOrients) {
           const count = features.filter(f => !assigned.has(f.id) && f.access_directions.includes(o)).length;
           if (count > bestCount) { bestCount = count; bestOrient = o; }
         }
 
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const f of groupFeatures) {
           featureOrientation.set(f.id, bestOrient);
           assigned.add(f.id);
@@ -176,12 +237,20 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     }
 
     // Phase 2: Assign remaining features
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
       if (assigned.has(f.id)) continue;
 
       // Pick orientation with most existing features (minimize setups)
       let bestOrient = f.access_directions[0];
       let bestCount = 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const o of f.access_directions) {
         if (!orientations.includes(o)) continue;
         const count = orientationGroups.get(o)!.length;
@@ -203,16 +272,28 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     const setups: SetupPlan[] = [];
     const unassigned: string[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < setupOrder.length; i++) {
       const orient = setupOrder[i];
       let setupFeatures = orientationGroups.get(orient)!;
 
       // Split if exceeding max per setup
+      /** While.
+       * @param setupFeatures.length - setup features.length
+       * @returns void
+       */
       while (setupFeatures.length > 0) {
         const batch = setupFeatures.slice(0, maxPerSetup);
         setupFeatures = setupFeatures.slice(maxPerSetup);
 
         // Sort by tool type if grouping enabled
+        /** If.
+         * @param groupByTool - group by tool
+         * @returns void
+         */
         if (groupByTool) {
           batch.sort((a, b) => (a.tool_type ?? "").localeCompare(b.tool_type ?? ""));
         }
@@ -230,6 +311,10 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     }
 
     // Check for unassigned features
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const f of features) {
       if (!assigned.has(f.id)) unassigned.push(f.id);
     }
@@ -237,13 +322,30 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     // Verify precedence
     let precViolations = 0;
     const featureSetupMap = new Map<string, number>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const setup of setups) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const fid of setup.features) {
         featureSetupMap.set(fid, setup.setup_number);
       }
     }
+    /** For.
+     * @param const - const
+     * @param mustBeforeSet] - must before set]
+     * @returns void
+     */
     for (const [fid, mustBeforeSet] of mustBefore) {
       const fSetup = featureSetupMap.get(fid) ?? 0;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const beforeId of mustBeforeSet) {
         const bSetup = featureSetupMap.get(beforeId) ?? 0;
         if (fSetup > bSetup) precViolations++; // Feature is after its dependent
@@ -252,6 +354,11 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
 
     // Count tolerance splits
     let tolSplits = 0;
+    /** For.
+     * @param const - const
+     * @param groupFeatures] - group features]
+     * @returns void
+     */
     for (const [, groupFeatures] of tolGroups) {
       const setupNums = new Set(groupFeatures.map(f => featureSetupMap.get(f.id)));
       if (setupNums.size > 1) tolSplits++;
@@ -285,11 +392,24 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     const setupDeps = new Map<AccessDirection, Set<AccessDirection>>();
     for (const o of orients) setupDeps.set(o, new Set());
 
+    /** For.
+     * @param const - const
+     * @param beforeSet] - before set]
+     * @returns void
+     */
     for (const [fid, beforeSet] of mustBefore) {
       const fOrient = featureOrient.get(fid);
       if (!fOrient) continue;
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const bid of beforeSet) {
         const bOrient = featureOrient.get(bid);
+        /** If.
+         * @param bOrient - b orient
+         * @returns void
+         */
         if (bOrient && bOrient !== fOrient) {
           setupDeps.get(bOrient)!.add(fOrient); // bOrient must come before fOrient
         }
@@ -299,18 +419,35 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     // Kahn's algorithm
     const inDegree = new Map<AccessDirection, number>();
     for (const o of orients) inDegree.set(o, 0);
+    /** For.
+     * @param const - const
+     * @param deps] - deps]
+     * @returns void
+     */
     for (const [, deps] of setupDeps) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const d of deps) {
         inDegree.set(d, (inDegree.get(d) ?? 0) + 1);
       }
     }
 
     const queue: AccessDirection[] = [];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const o of orients) {
       if ((inDegree.get(o) ?? 0) === 0) queue.push(o);
     }
 
     const result: AccessDirection[] = [];
+    /** While.
+     * @param queue.length - queue.length
+     * @returns void
+     */
     while (queue.length > 0) {
       // Pick orientation with most features (greedy)
       queue.sort((a, b) => (groups.get(b)?.length ?? 0) - (groups.get(a)?.length ?? 0));
@@ -325,6 +462,10 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     }
 
     // Add any remaining (cycle)
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const o of orients) {
       if (!result.includes(o)) result.push(o);
     }
@@ -332,6 +473,9 @@ export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOu
     return result;
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "csp-setup-plan",

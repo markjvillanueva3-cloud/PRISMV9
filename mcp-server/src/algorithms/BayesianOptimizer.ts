@@ -68,10 +68,18 @@ function mulberry32(seed: number) {
  */
 export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, BayesianOptimizerOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: BayesianOptimizerInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.X_observed?.length) issues.push({ field: "X_observed", message: "At least 1 observation required", severity: "error" });
     if (!input.y_observed?.length) issues.push({ field: "y_observed", message: "Required", severity: "error" });
+    /** If.
+     * @param input.X_observed?.length - input. x_observed?.length
+     * @returns void
+     */
     if (input.X_observed?.length !== input.y_observed?.length) {
       issues.push({ field: "y_observed", message: "Must match X_observed length", severity: "error" });
     }
@@ -80,6 +88,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns bayesian optimizer output
+   */
   calculate(input: BayesianOptimizerInput): BayesianOptimizerOutput {
     const warnings: string[] = [];
     const { X_observed, y_observed, dimensions, lower_bounds, upper_bounds } = input;
@@ -93,6 +105,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
 
     // Auto length scale: median pairwise distance
     let ls = input.length_scale ?? 1.0;
+    /** If.
+     * @param !input.length_scale - !input.length_scale
+     * @returns void
+     */
     if (!input.length_scale && n >= 2) {
       const dists: number[] = [];
       for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
@@ -133,6 +149,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
     let bestCandidate: number[] = lower_bounds.map((lo, d) => (lo + upper_bounds[d]) / 2);
     let bestMu = 0, bestSigma = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let c = 0; c < nCandidates; c++) {
       const x = lower_bounds.map((lo, d) => lo + rand() * (upper_bounds[d] - lo));
 
@@ -146,6 +166,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
 
       // Acquisition
       let acqVal = 0;
+      /** If.
+       * @param acquisition - acquisition
+       * @returns void
+       */
       if (acquisition === "EI") {
         const z = sigma > 1e-8 ? (bestY - mu) / sigma : 0;
         acqVal = sigma > 1e-8 ? (bestY - mu) * normCdf(z) + sigma * normPdf(z) : 0;
@@ -156,6 +180,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
         acqVal = normCdf(z);
       }
 
+      /** If.
+       * @param acqVal - acq val
+       * @returns void
+       */
       if (acqVal > bestEI) {
         bestEI = acqVal;
         bestCandidate = x;
@@ -167,6 +195,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
     // Model quality: leave-one-out cross-validation R²
     let ssRes = 0, ssTot = 0;
     const yMean = y_observed.reduce((s, v) => s + v, 0) / n;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const pred = y_observed[i] - alpha[i] / Kinv[i][i];
       ssRes += (y_observed[i] - pred) ** 2;
@@ -190,6 +222,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
   private invertMatrix(A: number[][]): number[][] {
     const n = A.length;
     const aug: number[][] = A.map((row, i) => [...row, ...Array(n).fill(0).map((_, j) => i === j ? 1 : 0)]);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let col = 0; col < n; col++) {
       let maxRow = col;
       for (let row = col + 1; row < n; row++) if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row;
@@ -197,6 +233,10 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
       const pivot = aug[col][col];
       if (Math.abs(pivot) < 1e-12) { aug[col][col] = 1e-12; continue; }
       for (let j = 0; j < 2 * n; j++) aug[col][j] /= pivot;
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let row = 0; row < n; row++) {
         if (row === col) continue;
         const factor = aug[row][col];
@@ -206,6 +246,9 @@ export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, Baye
     return aug.map(row => row.slice(n));
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "bayesian-optimizer",

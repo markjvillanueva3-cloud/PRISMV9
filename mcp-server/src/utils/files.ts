@@ -14,6 +14,8 @@ import { log } from "./Logger.js";
 
 /**
  * Read JSON file with type safety
+  * @param filePath - file path
+  * @returns promise resolving to t
  */
 export async function readJsonFile<T>(filePath: string): Promise<T> {
   try {
@@ -29,6 +31,8 @@ export async function readJsonFile<T>(filePath: string): Promise<T> {
 
 /**
  * Read text file
+  * @param filePath - file path
+  * @returns promise resolving to string
  */
 export async function readTextFile(filePath: string): Promise<string> {
   try {
@@ -40,6 +44,8 @@ export async function readTextFile(filePath: string): Promise<string> {
 
 /**
  * Check if file exists
+  * @param filePath - file path
+  * @returns promise resolving to boolean
  */
 export async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -52,6 +58,8 @@ export async function fileExists(filePath: string): Promise<boolean> {
 
 /**
  * Check if directory exists
+  * @param dirPath - file path
+  * @returns promise resolving to boolean
  */
 export async function directoryExists(dirPath: string): Promise<boolean> {
   try {
@@ -68,6 +76,9 @@ export async function directoryExists(dirPath: string): Promise<boolean> {
 
 /**
  * Write JSON file with pretty formatting
+  * @param filePath - file path
+  * @param data - input data
+  * @returns promise that resolves when complete
  */
 export async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
   try {
@@ -82,6 +93,9 @@ export async function writeJsonFile<T>(filePath: string, data: T): Promise<void>
 
 /**
  * Write text file
+  * @param filePath - file path
+  * @param content - content string
+  * @returns promise that resolves when complete
  */
 export async function writeTextFile(filePath: string, content: string): Promise<void> {
   try {
@@ -96,6 +110,9 @@ export async function writeTextFile(filePath: string, content: string): Promise<
 
 /**
  * Append to file
+  * @param filePath - file path
+  * @param content - content string
+  * @returns promise that resolves when complete
  */
 export async function appendToFile(filePath: string, content: string): Promise<void> {
   try {
@@ -112,6 +129,8 @@ export async function appendToFile(filePath: string, content: string): Promise<v
 /**
  * List files in directory with optional extension filter
  * @returns Array of filenames (not full paths) - use path.join(dirPath, filename) to get full path
+  * @param dirPath - file path
+  * @param options - configuration options
  */
 export async function listFiles(
   dirPath: string,
@@ -146,6 +165,13 @@ export async function listFiles(
 
 /**
  * Get file stats
+  * @param filePath - file path
+  * @returns promise resolving to {
+  size: number;
+  created:  date;
+  modified:  date;
+  is directory: boolean;
+}
  */
 export async function getFileStats(filePath: string): Promise<{
   size: number;
@@ -172,6 +198,10 @@ export async function getFileStats(filePath: string): Promise<{
 
 /**
  * Find files matching pattern
+  * @param dirPath - file path
+  * @param pattern - pattern
+  * @param options - configuration options
+  * @returns promise resolving to string[]
  */
 export async function findFiles(
   dirPath: string,
@@ -212,6 +242,10 @@ export async function findFiles(
 
 /**
  * Search file content for pattern
+  * @param files - files
+  * @param pattern - pattern
+  * @param options - configuration options
+  * @returns promise resolving to array<{ file: string; line: number; content: string; context?: string[] }>
  */
 export async function searchInFiles(
   files: string[],
@@ -261,6 +295,8 @@ export async function searchInFiles(
 
 /**
  * Normalize path for cross-platform compatibility
+  * @param inputPath - file path
+  * @returns formatted string result
  */
 export function normalizePath(inputPath: string): string {
   return path.normalize(inputPath).replace(/\\/g, "/");
@@ -268,6 +304,9 @@ export function normalizePath(inputPath: string): string {
 
 /**
  * Get relative path from base
+  * @param from - from string
+  * @param to - to string
+  * @returns formatted string result
  */
 export function relativePath(from: string, to: string): string {
   return path.relative(from, to).replace(/\\/g, "/");
@@ -275,6 +314,8 @@ export function relativePath(from: string, to: string): string {
 
 /**
  * Ensure directory exists
+  * @param dirPath - file path
+  * @returns promise that resolves when complete
  */
 export async function ensureDir(dirPath: string): Promise<void> {
   await fs.mkdir(dirPath, { recursive: true });
@@ -282,6 +323,8 @@ export async function ensureDir(dirPath: string): Promise<void> {
 
 /**
  * Count lines in file
+  * @param filePath - file path
+  * @returns promise resolving to number
  */
 export async function countLines(filePath: string): Promise<number> {
   const content = await fs.readFile(filePath, "utf-8");
@@ -290,6 +333,9 @@ export async function countLines(filePath: string): Promise<number> {
 
 /**
  * List directory contents (files and subdirectories)
+  * @param dirPath - file path
+  * @param options - configuration options
+  * @returns promise resolving to array<{ name: string; path: string; is directory: boolean; size?: number }>
  */
 export async function listDirectory(
   dirPath: string,

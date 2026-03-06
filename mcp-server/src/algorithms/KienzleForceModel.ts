@@ -116,33 +116,73 @@ const FORCE_RATIOS: Record<string, [number, number]> = {
  */
 export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: KienzleInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param !input.kc1_1 - !input.kc1_1
+     * @returns void
+     */
     if (!input.kc1_1 || input.kc1_1 < LIMITS.MIN_KC1_1 || input.kc1_1 > LIMITS.MAX_KC1_1) {
       issues.push({ field: "kc1_1", message: `kc1.1 must be ${LIMITS.MIN_KC1_1}-${LIMITS.MAX_KC1_1} N/mm², got ${input.kc1_1}`, severity: "error" });
     }
+    /** If.
+     * @param input.mc - input.mc
+     * @returns void
+     */
     if (input.mc === undefined || input.mc < 0 || input.mc > 1) {
       issues.push({ field: "mc", message: `mc must be 0-1, got ${input.mc}`, severity: "error" });
     }
+    /** If.
+     * @param !input.feed_per_tooth - !input.feed_per_tooth
+     * @returns void
+     */
     if (!input.feed_per_tooth || input.feed_per_tooth < LIMITS.MIN_FEED || input.feed_per_tooth > LIMITS.MAX_FEED) {
       issues.push({ field: "feed_per_tooth", message: `Feed must be ${LIMITS.MIN_FEED}-${LIMITS.MAX_FEED} mm/tooth, got ${input.feed_per_tooth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.axial_depth - !input.axial_depth
+     * @returns void
+     */
     if (!input.axial_depth || input.axial_depth < LIMITS.MIN_DEPTH || input.axial_depth > LIMITS.MAX_DEPTH) {
       issues.push({ field: "axial_depth", message: `Axial depth must be ${LIMITS.MIN_DEPTH}-${LIMITS.MAX_DEPTH} mm, got ${input.axial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.radial_depth - !input.radial_depth
+     * @returns void
+     */
     if (!input.radial_depth || input.radial_depth < LIMITS.MIN_DEPTH) {
       issues.push({ field: "radial_depth", message: `Radial depth must be >= ${LIMITS.MIN_DEPTH} mm, got ${input.radial_depth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.tool_diameter - !input.tool_diameter
+     * @returns void
+     */
     if (!input.tool_diameter || input.tool_diameter <= 0) {
       issues.push({ field: "tool_diameter", message: `Tool diameter must be > 0, got ${input.tool_diameter}`, severity: "error" });
     }
+    /** If.
+     * @param !input.number_of_teeth - !input.number_of_teeth
+     * @returns void
+     */
     if (!input.number_of_teeth || input.number_of_teeth < 1) {
       issues.push({ field: "number_of_teeth", message: `Number of teeth must be >= 1, got ${input.number_of_teeth}`, severity: "error" });
     }
+    /** If.
+     * @param !input.cutting_speed - !input.cutting_speed
+     * @returns void
+     */
     if (!input.cutting_speed || input.cutting_speed < LIMITS.MIN_CUTTING_SPEED || input.cutting_speed > LIMITS.MAX_CUTTING_SPEED) {
       issues.push({ field: "cutting_speed", message: `Cutting speed must be ${LIMITS.MIN_CUTTING_SPEED}-${LIMITS.MAX_CUTTING_SPEED} m/min, got ${input.cutting_speed}`, severity: "error" });
     }
+    /** If.
+     * @param input.radial_depth - input.radial_depth
+     * @returns void
+     */
     if (input.radial_depth && input.tool_diameter && input.radial_depth > input.tool_diameter) {
       issues.push({ field: "radial_depth", message: `Radial depth (${input.radial_depth}) exceeds tool diameter (${input.tool_diameter})`, severity: "warning" });
     }
@@ -150,6 +190,10 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns kienzle output
+   */
   calculate(input: KienzleInput): KienzleOutput {
     const warnings: string[] = [];
     const {
@@ -162,6 +206,10 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
     const engagement_ratio = Math.min(radial_depth / tool_diameter, 1.0);
     let h_mean: number;
 
+    /** If.
+     * @param number_of_teeth - number_of_teeth
+     * @returns void
+     */
     if (number_of_teeth === 1) {
       // Single-point (turning/boring): h = feed directly
       h_mean = feed_per_tooth;
@@ -185,6 +233,10 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
 
     // Engaged teeth for milling: z_e = z × φ_e / (2π)
     let z_e = 1;
+    /** If.
+     * @param number_of_teeth - number_of_teeth
+     * @returns void
+     */
     if (number_of_teeth > 1) {
       const phi_e = Math.acos(Math.max(-1, 1 - 2 * engagement_ratio));
       z_e = Math.max(number_of_teeth * phi_e / (2 * Math.PI), 0.1);
@@ -202,6 +254,10 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
 
     // Safety cap
     const Fc = Math.min(Fc_raw, LIMITS.MAX_FORCE);
+    /** If.
+     * @param Fc_raw - fc_raw
+     * @returns void
+     */
     if (Fc_raw > LIMITS.MAX_FORCE) {
       warnings.push(`Force ${Fc_raw.toFixed(0)}N exceeds limit, capped at ${LIMITS.MAX_FORCE}N`);
     }
@@ -213,11 +269,19 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
 
     // Warnings
     const kcInflation = kc / kc1_1;
+    /** If.
+     * @param kcInflation - kc inflation
+     * @returns void
+     */
     if (kcInflation > 3.0) {
       warnings.push(`KC_INFLATED: kc=${kc.toFixed(0)} is ${kcInflation.toFixed(1)}x kc1_1=${kc1_1}. Outside valid regime.`);
     } else if (kcInflation > 2.5) {
       warnings.push(`KC_ELEVATED: kc=${kc.toFixed(0)} is ${kcInflation.toFixed(1)}x kc1_1=${kc1_1}. Thin chip effect.`);
     }
+    /** If.
+     * @param radial_depth - radial_depth
+     * @returns void
+     */
     if (radial_depth >= tool_diameter * 0.99) {
       warnings.push(`FULL_SLOT: Full slotting detected (ae~=D). High tool load risk.`);
     }
@@ -243,6 +307,9 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "kienzle",

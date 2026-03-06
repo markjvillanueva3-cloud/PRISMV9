@@ -392,6 +392,10 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
 
     log.info("Loading CoatingRegistry...");
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const coating of COATING_DATA) {
       this.set(coating.id, coating, "built-in");
     }
@@ -413,17 +417,33 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
   }): { coatings: CoatingEntry[]; total: number } {
     let results = this.all();
 
+    /** If.
+     * @param opts.category - opts.category
+     * @returns void
+     */
     if (opts.category) {
       results = results.filter(c => c.category === opts.category);
     }
+    /** If.
+     * @param opts.process - opts.process
+     * @returns void
+     */
     if (opts.process) {
       results = results.filter(c => c.process === opts.process);
     }
+    /** If.
+     * @param opts.material_group - opts.material_group
+     * @returns void
+     */
     if (opts.material_group) {
       const mg = opts.material_group.toUpperCase();
       results = results.filter(c => (c.compatibility[mg] ?? 0) >= 3);
       results.sort((a, b) => (b.compatibility[mg] ?? 0) - (a.compatibility[mg] ?? 0));
     }
+    /** If.
+     * @param opts.application - opts.application
+     * @returns void
+     */
     if (opts.application) {
       const app = opts.application.toLowerCase() as keyof CoatingEntry["application"];
       if (app in (results[0]?.application ?? {})) {
@@ -431,6 +451,10 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
         results.sort((a, b) => b.application[app] - a.application[app]);
       }
     }
+    /** If.
+     * @param opts.query - opts.query
+     * @returns void
+     */
     if (opts.query) {
       const q = opts.query.toLowerCase();
       results = results.filter(c =>
@@ -462,6 +486,10 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
       (c.compatibility[mg] ?? 0) >= 3 && c.id !== "uncoated"
     );
 
+    /** If.
+     * @param opts.process - opts.process
+     * @returns void
+     */
     if (opts.process) {
       candidates = candidates.filter(c => c.process === opts.process);
     }
@@ -499,6 +527,10 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
     const by_category: Record<string, number> = {};
     const by_process: Record<string, number> = {};
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const c of all) {
       by_category[c.category] = (by_category[c.category] || 0) + 1;
       by_process[c.process] = (by_process[c.process] || 0) + 1;

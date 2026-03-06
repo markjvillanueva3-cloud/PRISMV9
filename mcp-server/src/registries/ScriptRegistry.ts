@@ -1351,6 +1351,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
    */
   private initializeBuiltInScripts(): void {
     for (const script of BUILT_IN_SCRIPTS) {
+      /** If.
+       * @param script.script_id - script.script_id
+       * @returns void
+       */
       if (script.script_id) {
         this.builtInScripts.set(script.script_id, script);
       }
@@ -1403,6 +1407,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
         f.name.endsWith(".ts"))
       );
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of scriptFiles) {
         try {
           const scriptPath = file.path;
@@ -1516,6 +1524,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
     
     // Look for argparse arguments
     const argMatches = content.matchAll(/add_argument\(['"](-{1,2}[\w-]+)['"]/g);
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const match of argMatches) {
       params.push({
         name: match[1],
@@ -1543,6 +1555,11 @@ export class ScriptRegistry extends BaseRegistry<Script> {
     this.indexByLanguage.clear();
     this.indexByTag.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const script = entry.data;
       
@@ -1559,6 +1576,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
       this.indexByLanguage.get(script.language)?.add(id);
       
       // Index by tags
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const tag of script.tags || []) {
         if (!this.indexByTag.has(tag)) {
           this.indexByTag.set(tag, new Set());
@@ -1605,6 +1626,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
   }): { scripts: Script[]; total: number; hasMore: boolean } {
     let results: Script[] = [];
     
+    /** If.
+     * @param options.category - options.category
+     * @returns void
+     */
     if (options.category) {
       results = this.getByCategory(options.category);
     } else if (options.language) {
@@ -1613,6 +1638,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
       results = this.all();
     }
     
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query) {
       const query = options.query.toLowerCase();
       results = results.filter(s =>
@@ -1622,10 +1651,18 @@ export class ScriptRegistry extends BaseRegistry<Script> {
       );
     }
     
+    /** If.
+     * @param options.tag - options.tag
+     * @returns void
+     */
     if (options.tag) {
       results = results.filter(s => s.tags?.includes(options.tag!));
     }
     
+    /** If.
+     * @param options.enabled - options.enabled
+     * @returns void
+     */
     if (options.enabled !== undefined) {
       results = results.filter(s => s.enabled === options.enabled);
     }
@@ -1651,6 +1688,10 @@ export class ScriptRegistry extends BaseRegistry<Script> {
     
     let cmd = `${script.interpreter} "${script.path}"`;
     
+    /** If.
+     * @param args - configuration options
+     * @returns void
+     */
     if (args) {
       for (const [key, value] of Object.entries(args)) {
         if (key.startsWith("-")) {
@@ -1682,10 +1723,20 @@ export class ScriptRegistry extends BaseRegistry<Script> {
       totalSizeKB: 0
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.size;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [language, ids] of this.indexByLanguage) {
       stats.byLanguage[language] = ids.size;
     }

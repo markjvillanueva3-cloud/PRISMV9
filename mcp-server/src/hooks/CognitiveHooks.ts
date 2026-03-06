@@ -700,6 +700,13 @@ const onDecision: HookDefinition = {
 
 /**
  * Get current cognitive state (for MCP tools)
+  * @returns {
+  priors:  array< bayesian prior>;
+  patterns:  array< pattern>;
+  lessons:  array< lesson>;
+  recent decisions: number;
+  anomaly threshold: number;
+}
  */
 export function getCognitiveState(): {
   priors: Array<BayesianPrior>;
@@ -719,6 +726,8 @@ export function getCognitiveState(): {
 
 /**
  * Add a known pattern
+  * @param pattern - pattern
+  * @returns void
  */
 export function addPattern(pattern: Pattern): void {
   cognitiveState.patterns.set(pattern.id, pattern);
@@ -726,6 +735,8 @@ export function addPattern(pattern: Pattern): void {
 
 /**
  * Add a lesson
+  * @param lesson - lesson
+  * @returns void
  */
 export function addLesson(lesson: Lesson): void {
   cognitiveState.lessons.set(lesson.id, lesson);

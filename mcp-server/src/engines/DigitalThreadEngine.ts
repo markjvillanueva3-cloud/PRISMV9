@@ -106,6 +106,12 @@ export class DigitalThreadEngine {
     };
   }
 
+  /** Link.
+   * @param nodeA - node a
+   * @param nodeB - node b
+   * @param relationship - relationship
+   * @returns thread link
+   */
   link(nodeA: string, nodeB: string, relationship: ThreadLink["relationship"]): ThreadLink {
     return {
       from_id: nodeA,

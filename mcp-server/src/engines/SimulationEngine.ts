@@ -171,6 +171,10 @@ export class SimulationEngine {
     const rawLines = program.split(/\r?\n/);
     const parsed: GCodeLine[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < rawLines.length; i++) {
       const line = rawLines[i].trim();
       if (!line || line.startsWith("%") || line.startsWith("(") || line.startsWith(";")) continue;
@@ -193,9 +197,17 @@ export class SimulationEngine {
       const tokens = clean.match(/[A-Za-z][+-]?[\d.]+/g);
       if (!tokens) continue;
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const token of tokens) {
         const letter = token[0].toUpperCase();
         const value = parseFloat(token.slice(1));
+        /** Switch.
+         * @param letter - letter
+         * @returns void
+         */
         switch (letter) {
           case "G": result.g_codes.push(value); break;
           case "M": result.m_codes.push(value); break;
@@ -243,7 +255,15 @@ export class SimulationEngine {
 
     // Tool lookup
     const toolMap = new Map<number, ToolDefinition>();
+    /** If.
+     * @param input.tools - input.tools
+     * @returns void
+     */
     if (input.tools) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < input.tools.length; i++) {
         toolMap.set(i + 1, input.tools[i]);
       }
@@ -273,8 +293,16 @@ export class SimulationEngine {
       max: { x: -Infinity, y: -Infinity, z: -Infinity },
     };
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const line of parsed) {
       // Update modal state
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const g of line.g_codes) {
         if (g === 0) state.motion = "G0";
         else if (g === 1) state.motion = "G1";
@@ -295,12 +323,20 @@ export class SimulationEngine {
       }
 
       // Handle M-codes
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const m of line.m_codes) {
         if (m === 3) state.spindle = "cw";
         else if (m === 4) state.spindle = "ccw";
         else if (m === 5) state.spindle = "off";
         else if (m === 6) {
           // Tool change
+          /** If.
+           * @param line.t - line.t
+           * @returns void
+           */
           if (line.t !== undefined) {
             state.tool = line.t;
             toolChangeTimeTot += toolChangeTime;
@@ -319,6 +355,10 @@ export class SimulationEngine {
       const hasMotion = line.x !== undefined || line.y !== undefined || line.z !== undefined;
       if (!hasMotion && line.g_codes.length === 0) continue;
 
+      /** If.
+       * @param hasMotion - has motion
+       * @returns void
+       */
       if (hasMotion) {
         const start: Vec3 = { x: state.x, y: state.y, z: state.z };
         const targetX = state.absolute ? (line.x ?? state.x) : state.x + (line.x ?? 0);
@@ -329,6 +369,10 @@ export class SimulationEngine {
         // Distance
         const dx = end.x - start.x, dy = end.y - start.y, dz = end.z - start.z;
         let dist: number;
+        /** If.
+         * @param state.motion - state.motion
+         * @returns void
+         */
         if (state.motion === "G2" || state.motion === "G3") {
           // Arc — approximate with linear distance * pi/2 factor
           const chordLen = Math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -345,6 +389,10 @@ export class SimulationEngine {
 
         // MRR estimation for cutting moves
         let mrr = 0;
+        /** If.
+         * @param state.motion - state.motion
+         * @returns void
+         */
         if (state.motion !== "G0" && dist > 0 && state.spindle !== "off") {
           const tool = toolMap.get(state.tool);
           const toolDia = tool?.diameter ?? 10;
@@ -372,6 +420,10 @@ export class SimulationEngine {
           mrr: mrr > 0 ? mrr : undefined,
         };
 
+        /** If.
+         * @param state.motion - state.motion
+         * @returns void
+         */
         if (state.motion === "G2" || state.motion === "G3") {
           move.arc_center = { x: start.x + (line.i ?? 0), y: start.y + (line.j ?? 0), z: start.z + (line.k ?? 0) };
           move.arc_direction = state.motion === "G2" ? "cw" : "ccw";
@@ -388,12 +440,21 @@ export class SimulationEngine {
         maxFeed = Math.max(maxFeed, feedRate);
 
         // Update bounding box
+        /** For.
+         * @param const - const
+         * @param end] - end]
+         * @returns void
+         */
         for (const p of [start, end]) {
           bb.min.x = Math.min(bb.min.x, p.x); bb.min.y = Math.min(bb.min.y, p.y); bb.min.z = Math.min(bb.min.z, p.z);
           bb.max.x = Math.max(bb.max.x, p.x); bb.max.y = Math.max(bb.max.y, p.y); bb.max.z = Math.max(bb.max.z, p.z);
         }
 
         // Tool usage tracking
+        /** If.
+         * @param state.motion - state.motion
+         * @returns void
+         */
         if (state.motion !== "G0") {
           const usage = toolUsage.get(toolId) ?? { cutting_time_sec: 0, distance_mm: 0, max_rpm: 0, max_feed: 0 };
           usage.cutting_time_sec += duration;
@@ -404,6 +465,10 @@ export class SimulationEngine {
         }
 
         // Collision checks
+        /** If.
+         * @param state.motion - state.motion
+         * @returns void
+         */
         if (state.motion === "G0" && dz < -5 && state.spindle === "off") {
           collisions.push({
             line_number: line.line_number,
@@ -416,6 +481,10 @@ export class SimulationEngine {
         }
 
         // Over-travel check
+        /** If.
+         * @param input.machine?.travel - input.machine?.travel
+         * @returns void
+         */
         if (input.machine?.travel) {
           const travel = input.machine.travel;
           if (Math.abs(end.x) > travel.x / 2 || Math.abs(end.y) > travel.y / 2 || Math.abs(end.z) > travel.z / 2) {
@@ -430,9 +499,17 @@ export class SimulationEngine {
         }
 
         // RPM/feed limit checks
+        /** If.
+         * @param state.s - state.s
+         * @returns void
+         */
         if (state.s > maxMachineRpm) {
           warnings.push(`Line ${line.line_number}: RPM ${state.s} exceeds machine limit ${maxMachineRpm}`);
         }
+        /** If.
+         * @param state.f - state.f
+         * @returns void
+         */
         if (state.f > maxMachineFeed && state.motion !== "G0") {
           warnings.push(`Line ${line.line_number}: Feed ${state.f} exceeds machine limit ${maxMachineFeed}`);
         }
@@ -451,6 +528,10 @@ export class SimulationEngine {
     }
 
     // Finalize bounding box
+    /** If.
+     * @param moves.length - moves.length
+     * @returns void
+     */
     if (moves.length === 0) {
       bb.min = { x: 0, y: 0, z: 0 };
       bb.max = { x: 0, y: 0, z: 0 };
@@ -502,6 +583,10 @@ export class SimulationEngine {
     const halfX = stock.dimensions.x / 2;
     const halfY = stock.dimensions.y / 2;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of moves) {
       if (move.move_type === "G0") continue;
       cuttingMoves++;
@@ -515,11 +600,19 @@ export class SimulationEngine {
       const withinY = Math.abs(p.y - stock.origin.y) <= halfY + toolRadius;
       const withinZ = p.z >= stock.origin.z - stock.dimensions.z - 1 && p.z <= stock.origin.z + toolRadius;
 
+      /** If.
+       * @param !withinX - !within x
+       * @returns void
+       */
       if (!withinX || !withinY || !withinZ) {
         airCutMoves++;
       }
 
       // Check if tool goes below stock bottom
+      /** If.
+       * @param p.z - p.z
+       * @returns void
+       */
       if (p.z < stock.origin.z - stock.dimensions.z - 1) {
         violations.push({
           line: move.line_number,
@@ -555,6 +648,10 @@ export class SimulationEngine {
     let cuttingSec = 0, rapidSec = 0, dwellSec = 0;
     const breakdown: Array<{ type: string; sec: number }> = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const op of input.operations) {
       const cutTime = (op.cutting_distance_mm / Math.max(op.feed_rate, 1)) * 60;
       const rapTime = ((op.rapid_distance_mm ?? op.cutting_distance_mm * 0.3) / rapidRate) * 60;

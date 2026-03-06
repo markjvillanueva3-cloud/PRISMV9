@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates data router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createDataRouter(callTool: CallToolFn): Router {
   const router = Router();
 

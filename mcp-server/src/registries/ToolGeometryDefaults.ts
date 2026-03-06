@@ -447,6 +447,8 @@ export const TOOL_GEOMETRY_DEFAULTS: Record<string, ToolGeometryDefault> = {
 /**
  * Get geometry defaults for a tool type, with fuzzy matching.
  * Returns undefined if no match found.
+  * @param toolType - tool type string
+  * @returns tool geometry default | undefined
  */
 export function getToolGeometryDefault(toolType: string): ToolGeometryDefault | undefined {
   if (!toolType) return undefined;
@@ -504,6 +506,8 @@ export function getToolGeometryDefault(toolType: string): ToolGeometryDefault | 
 
 /**
  * Check if a tool type represents a toolholder (not a cutting tool).
+  * @param toolType - tool type string
+  * @returns true if condition is met
  */
 export function isToolHolder(toolType: string): boolean {
   if (!toolType) return false;

@@ -133,6 +133,10 @@ export class ToolDeflectionPredictionEngine {
 
     // ── 3. Force decomposition for helical tools ──
     let F_radial = F;
+    /** If.
+     * @param dir - dir
+     * @returns void
+     */
     if (dir === "axial") {
       F_radial = 0;  // axial force doesn't cause lateral deflection
     } else if (dir === "resultant" && helix) {
@@ -145,6 +149,10 @@ export class ToolDeflectionPredictionEngine {
     // Cantilever beam with point load at free end
     let delta_mm: number;
 
+    /** If.
+     * @param dh - dh
+     * @returns void
+     */
     if (dh && Lh && dh > d) {
       // Stepped shaft model: holder section + tool section
       // Holder contributes deflection at holder tip + slope × tool length
@@ -200,6 +208,10 @@ export class ToolDeflectionPredictionEngine {
     const isSafe = SF > 1.5 && delta_um < 200;
 
     // ── 13. Recommendations ──
+    /** If.
+     * @param SF - s f
+     * @returns void
+     */
     if (SF < 1.5) {
       recs.push(
         `SAFETY: Safety factor ${SF.toFixed(2)} below minimum 1.5 — `
@@ -208,6 +220,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param delta_um - delta_um
+     * @returns void
+     */
     if (delta_um > 100) {
       recs.push(
         `HIGH DEFLECTION: ${delta_um.toFixed(1)}µm — consider shorter `
@@ -221,6 +237,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param L - l
+     * @returns void
+     */
     if (L / d > 5) {
       recs.push(
         `L/D ratio ${(L / d).toFixed(1)} exceeds 5:1 — high deflection `
@@ -233,6 +253,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param !withinTol - !within tol
+     * @returns void
+     */
     if (!withinTol && tolTarget) {
       recs.push(
         `Deflection ${delta_um.toFixed(1)}µm exceeds tolerance budget `
@@ -241,6 +265,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param mat - mat
+     * @returns void
+     */
     if (mat === "hss" && L / d > 3) {
       recs.push(
         `HSS tool with long overhang — E=${E_GPa}GPa is 2.8× lower `
@@ -248,6 +276,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param flutes - flutes
+     * @returns void
+     */
     if (flutes && flutes <= 2 && L / d > 3) {
       recs.push(
         `2-flute endmill has ${(correction * 100).toFixed(0)}% of solid `
@@ -255,6 +287,10 @@ export class ToolDeflectionPredictionEngine {
       );
     }
 
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push(
         `Tool deflection ${delta_um.toFixed(1)}µm — within limits, `

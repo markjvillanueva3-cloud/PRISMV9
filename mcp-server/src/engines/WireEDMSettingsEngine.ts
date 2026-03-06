@@ -92,6 +92,10 @@ export class WireEDMSettingsEngine {
     // Skim cut speeds — each progressively slower than rough cut for finer finish
     // M-007 fix: was (2.0 - i*0.3) giving speeds ABOVE rough cut — inverted
     const skimSpeeds: number[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < numSkims; i++) {
       skimSpeeds.push(Math.round(firstCutSpeed * Math.max(0.2, 0.8 - i * 0.15) * 10) / 10);
     }
@@ -118,6 +122,10 @@ export class WireEDMSettingsEngine {
     const wireSpeed = 8 + input.workpiece_thickness_mm * 0.05; // m/min
 
     // Taper adjustments
+    /** If.
+     * @param input.taper_angle_deg - input.taper_angle_deg
+     * @returns void
+     */
     if (input.taper_angle_deg > 0) {
       // Taper cutting is slower
       const taperFactor = 1 - input.taper_angle_deg * 0.03;
@@ -126,18 +134,34 @@ export class WireEDMSettingsEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param input.workpiece_thickness_mm - input.workpiece_thickness_mm
+     * @returns void
+     */
     if (input.workpiece_thickness_mm > 200) {
       recs.push("Thick workpiece (>200mm) — use coated wire for better flushing and speed");
     }
+    /** If.
+     * @param input.taper_angle_deg - input.taper_angle_deg
+     * @returns void
+     */
     if (input.taper_angle_deg > 15) {
       recs.push("High taper angle — reduce cutting speed 30% and increase flushing pressure");
     }
     if (matKey === "carbide" && input.wire_type.includes("brass")) {
       recs.push("Carbide cutting — coated wire or moly wire recommended for reduced wire breakage");
     }
+    /** If.
+     * @param input.target_accuracy_mm - input.target_accuracy_mm
+     * @returns void
+     */
     if (input.target_accuracy_mm < 0.005 && numSkims < 3) {
       recs.push("Tight accuracy (<5µm) — add more skim cuts for dimensional stability");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Wire EDM parameters within normal range — proceed");
     }

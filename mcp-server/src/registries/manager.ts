@@ -99,6 +99,10 @@ export class RegistryManager {
   async initialize(): Promise<void> {
     if (this.initialized) return;
     
+    /** If.
+     * @param this.initPromise - this.init promise
+     * @returns void
+     */
     if (this.initPromise) {
       return this.initPromise;
     }
@@ -207,6 +211,10 @@ export class RegistryManager {
       // If materials has data files but loaded 0, allow re-init
       const materialsLoaded = this.materials.size > 0;
       this.initialized = materialsLoaded;
+      /** If.
+       * @param !materialsLoaded - !materials loaded
+       * @returns void
+       */
       if (!materialsLoaded) {
         this.initPromise = null; // Allow retry
         log.warn("RegistryManager: materials registry loaded 0 entries — will retry on next call");
@@ -631,8 +639,16 @@ export class RegistryManager {
     const id = params.id;
 
     // Material → Tools: find tools suitable for this material's ISO group
+    /** If.
+     * @param from - from
+     * @returns void
+     */
     if (from === "material" && to === "tools") {
       const material = (await this.materials.search({ query: id, limit: 1 }))?.materials?.[0];
+      /** If.
+       * @param material?.iso_group - material?.iso_group
+       * @returns void
+       */
       if (material?.iso_group) {
         const toolResults = this.tools.search({ query: material.iso_group, limit });
         return { source: `material:${id}`, target: "tools", matches: toolResults.tools || [], count: toolResults.tools?.length || 0 };
@@ -640,8 +656,16 @@ export class RegistryManager {
     }
 
     // Material → Coatings: find coatings suitable for this material category
+    /** If.
+     * @param from - from
+     * @returns void
+     */
     if (from === "material" && to === "coatings") {
       const material = (await this.materials.search({ query: id, limit: 1 }))?.materials?.[0];
+      /** If.
+       * @param material - material
+       * @returns void
+       */
       if (material) {
         const coatingResults = this.coatings.searchCoatings({ query: material.iso_group || material.category || id, limit });
         return { source: `material:${id}`, target: "coatings", matches: coatingResults.coatings || [], count: coatingResults.coatings?.length || 0 };
@@ -649,15 +673,27 @@ export class RegistryManager {
     }
 
     // Material → Coolants: find coolants for this material
+    /** If.
+     * @param from - from
+     * @returns void
+     */
     if (from === "material" && to === "coolants") {
       const coolantResults = this.coolants.searchCoolants({ query: id, limit });
       return { source: `material:${id}`, target: "coolants", matches: coolantResults.coolants || [], count: coolantResults.coolants?.length || 0 };
     }
 
     // Machine → Alarms: find alarms for this machine's controller
+    /** If.
+     * @param from - from
+     * @returns void
+     */
     if (from === "machine" && to === "alarms") {
       const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
       const controllerName = machine?.controller?.cnc_type || machine?.controller?.manufacturer;
+      /** If.
+       * @param controllerName - controller name
+       * @returns void
+       */
       if (controllerName) {
         const alarmResults = await this.alarms.search({ query: controllerName, limit });
         return { source: `machine:${id}`, target: "alarms", matches: alarmResults.alarms || [], count: alarmResults.alarms?.length || 0 };
@@ -665,8 +701,16 @@ export class RegistryManager {
     }
 
     // Machine → PostProcessors: find post processors for this machine's controller
+    /** If.
+     * @param from - from
+     * @returns void
+     */
     if (from === "machine" && to === "postprocessors") {
       const machine = this.machines.search({ query: id, limit: 1 })?.machines?.[0];
+      /** If.
+       * @param machine - machine
+       * @returns void
+       */
       if (machine) {
         const controllerName = machine.controller?.cnc_type || machine.controller?.manufacturer || id;
         const ppResults = await this.postProcessors.search(controllerName);
@@ -676,6 +720,10 @@ export class RegistryManager {
 
     // Generic fallback: text search in target registry
     const targetReg = this.getRegistry(to);
+    /** If.
+     * @param targetReg - target reg
+     * @returns void
+     */
     if (targetReg && typeof targetReg.search === "function") {
       const results = await targetReg.search({ query: id, limit });
       const matchArray = results?.materials || results?.machines || results?.tools || results?.alarms ||

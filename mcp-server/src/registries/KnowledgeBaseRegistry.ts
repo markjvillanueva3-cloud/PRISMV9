@@ -332,6 +332,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
     // Load built-in knowledge bases first
     const now = new Date().toISOString();
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const kb of BUILT_IN_KNOWLEDGE_BASES) {
       if (!kb.id) continue;
 
@@ -388,6 +392,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
 
       const data = await readJsonFile<any>(this.filePath);
 
+      /** If.
+       * @param data?.entries - data?.entries
+       * @returns void
+       */
       if (data?.entries) {
         for (const [id, entry] of Object.entries(data.entries)) {
           // Don't overwrite built-in entries
@@ -416,6 +424,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
     try {
       const files = await listDirectory(kbDir);
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of files) {
         if (!file.name.endsWith(".js") && !file.name.endsWith(".json")) continue;
 
@@ -473,10 +485,19 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
     this.indexByKeyword.clear();
     this.indexByQueryType.clear();
 
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const kb = entry.data;
 
       // Index by topic
+      /** If.
+       * @param kb.topic - kb.topic
+       * @returns void
+       */
       if (kb.topic) {
         if (!this.indexByTopic.has(kb.topic)) {
           this.indexByTopic.set(kb.topic, new Set());
@@ -485,7 +506,15 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       }
 
       // Index by keywords
+      /** If.
+       * @param kb.keywords - kb.keywords
+       * @returns void
+       */
       if (kb.keywords) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const keyword of kb.keywords) {
           const lowerKeyword = keyword.toLowerCase();
           if (!this.indexByKeyword.has(lowerKeyword)) {
@@ -496,7 +525,15 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       }
 
       // Index by query type
+      /** If.
+       * @param kb.query_types - kb.query_types
+       * @returns void
+       */
       if (kb.query_types) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const qt of kb.query_types) {
           if (!this.indexByQueryType.has(qt)) {
             this.indexByQueryType.set(qt, new Set());
@@ -560,6 +597,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
   }): { knowledgeBases: KnowledgeBaseEntry[]; total: number; hasMore: boolean } {
     let results: KnowledgeBaseEntry[] = [];
 
+    /** If.
+     * @param options.topic - options.topic
+     * @returns void
+     */
     if (options.topic) {
       const ids = this.indexByTopic.get(options.topic);
       results = ids
@@ -575,6 +616,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
     }
 
     // Text search across name, description, keywords, sections
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
     if (options.query) {
       const query = options.query.toLowerCase();
       results = results.filter(kb =>
@@ -587,6 +632,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
     }
 
     // Filter by enabled status
+    /** If.
+     * @param options.enabled - options.enabled
+     * @returns void
+     */
     if (options.enabled !== undefined) {
       results = results.filter(kb => kb.enabled === options.enabled);
     }
@@ -625,6 +674,10 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
 
     let candidates: KnowledgeBaseEntry[] = [];
 
+    /** If.
+     * @param options?.topic - options?.topic
+     * @returns void
+     */
     if (options?.topic) {
       candidates = await this.getByTopic(options.topic);
     } else {
@@ -641,14 +694,26 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       matchedSections: string[];
     }[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const kb of candidates) {
       let relevance = 0;
       const matchedKeywords: string[] = [];
       const matchedSections: string[] = [];
 
       // Score keyword matches (highest weight)
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const keyword of kb.keywords) {
         const keyLower = keyword.toLowerCase();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const term of queryTerms) {
           if (keyLower.includes(term) || term.includes(keyLower)) {
             relevance += 3;
@@ -660,8 +725,16 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       }
 
       // Score section matches
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const section of kb.sections) {
         const secLower = section.toLowerCase();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const term of queryTerms) {
           if (secLower.includes(term)) {
             relevance += 2;
@@ -673,11 +746,19 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       }
 
       // Score name and description matches
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const term of queryTerms) {
         if (kb.name.toLowerCase().includes(term)) relevance += 2;
         if (kb.description.toLowerCase().includes(term)) relevance += 1;
       }
 
+      /** If.
+       * @param relevance - relevance
+       * @returns void
+       */
       if (relevance > 0) {
         scored.push({ knowledgeBase: kb, relevance, matchedKeywords, matchedSections });
       }
@@ -708,12 +789,20 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
 
     let results: KnowledgeBaseEntry[] = [];
 
+    /** If.
+     * @param options?.topic - options?.topic
+     * @returns void
+     */
     if (options?.topic) {
       results = await this.getByTopic(options.topic);
     } else {
       results = this.all();
     }
 
+    /** If.
+     * @param options?.enabled - options?.enabled
+     * @returns void
+     */
     if (options?.enabled !== undefined) {
       results = results.filter(kb => kb.enabled === options.enabled);
     }
@@ -744,6 +833,11 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
   getTopics(): { topic: KnowledgeBaseTopic; count: number }[] {
     const topics: { topic: KnowledgeBaseTopic; count: number }[] = [];
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [topic, ids] of this.indexByTopic) {
       topics.push({ topic, count: ids.size });
     }
@@ -771,6 +865,11 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
       activeEnabled: 0
     };
 
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [topic, ids] of this.indexByTopic) {
       stats.byTopic[topic] = ids.size;
     }

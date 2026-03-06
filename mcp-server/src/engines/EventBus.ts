@@ -300,9 +300,17 @@ export class EventBus {
     const handlerPromises = matchingSubscriptions.map(async (sub) => {
       try {
         // Check debounce — fire-and-forget debounced handlers to avoid hanging Promise.all
+        /** If.
+         * @param sub.options.debounce_ms - sub.options.debounce_ms
+         * @returns void
+         */
         if (sub.options.debounce_ms) {
           const debounceKey = `${sub.id}_${event.type}`;
           const existingTimer = this.debounceTimers.get(debounceKey);
+          /** If.
+           * @param existingTimer - existing timer
+           * @returns void
+           */
           if (existingTimer) {
             clearTimeout(existingTimer);
           }
@@ -313,6 +321,10 @@ export class EventBus {
               successfulHandlers++;
               sub.callCount++;
               sub.lastCalled = new Date();
+              /** If.
+               * @param sub.options.maxCalls - sub.options.max calls
+               * @returns void
+               */
               if (sub.options.maxCalls && sub.callCount >= sub.options.maxCalls) {
                 this.unsubscribe(sub.id);
               }
@@ -332,11 +344,19 @@ export class EventBus {
         sub.lastCalled = new Date();
 
         // Check max calls
+        /** If.
+         * @param sub.options.maxCalls - sub.options.max calls
+         * @returns void
+         */
         if (sub.options.maxCalls && sub.callCount >= sub.options.maxCalls) {
           this.unsubscribe(sub.id);
         }
 
         // Check once
+        /** If.
+         * @param sub.options.once - sub.options.once
+         * @returns void
+         */
         if (sub.options.once) {
           this.unsubscribe(sub.id);
         }
@@ -407,6 +427,10 @@ export class EventBus {
     handler: EventHandler<T>,
     options: SubscriptionOptions = {}
   ): string {
+    /** If.
+     * @param this.subscriptions.size - this.subscriptions.size
+     * @returns void
+     */
     if (this.subscriptions.size >= EVENT_CONSTANTS.MAX_SUBSCRIPTIONS) {
       throw new Error(`Max subscriptions reached: ${EVENT_CONSTANTS.MAX_SUBSCRIPTIONS}`);
     }
@@ -443,6 +467,10 @@ export class EventBus {
    */
   unsubscribe(subscriptionId: string): boolean {
     const deleted = this.subscriptions.delete(subscriptionId);
+    /** If.
+     * @param deleted - deleted
+     * @returns void
+     */
     if (deleted) {
       log.debug(`[EventBus] Subscription removed: ${subscriptionId}`);
     }
@@ -455,6 +483,10 @@ export class EventBus {
   unsubscribePattern(pattern: string): number {
     let count = 0;
     this.subscriptions.forEach((sub, id) => {
+      /** If.
+       * @param sub.pattern - sub.pattern
+       * @returns void
+       */
       if (sub.pattern === pattern) {
         this.subscriptions.delete(id);
         count++;
@@ -539,6 +571,10 @@ export class EventBus {
    */
   private addToHistory(entry: EventHistoryEntry): void {
     this.history.push(entry);
+    /** If.
+     * @param this.history.length - this.history.length
+     * @returns void
+     */
     if (this.history.length > EVENT_CONSTANTS.MAX_HISTORY) {
       this.history.shift();
     }
@@ -555,16 +591,32 @@ export class EventBus {
   } = {}): EventHistoryEntry[] {
     let results = [...this.history];
 
+    /** If.
+     * @param options.category - options.category
+     * @returns void
+     */
     if (options.category) {
       results = results.filter(e => e.event.category === options.category);
     }
+    /** If.
+     * @param options.type - options.type
+     * @returns void
+     */
     if (options.type) {
       results = results.filter(e => e.event.type === options.type);
     }
+    /** If.
+     * @param options.since - options.since
+     * @returns void
+     */
     if (options.since) {
       results = results.filter(e => e.event.timestamp >= options.since!);
     }
 
+    /** If.
+     * @param options.limit - options.limit
+     * @returns void
+     */
     if (options.limit) {
       results = results.slice(-options.limit);
     }
@@ -586,19 +638,39 @@ export class EventBus {
   ): Promise<number> {
     let events = this.history.map(h => h.event);
 
+    /** If.
+     * @param options.since - options.since
+     * @returns void
+     */
     if (options.since) {
       events = events.filter(e => e.timestamp >= options.since!);
     }
+    /** If.
+     * @param options.until - options.until
+     * @returns void
+     */
     if (options.until) {
       events = events.filter(e => e.timestamp <= options.until!);
     }
+    /** If.
+     * @param options.category - options.category
+     * @returns void
+     */
     if (options.category) {
       events = events.filter(e => e.category === options.category);
     }
+    /** If.
+     * @param options.type - options.type
+     * @returns void
+     */
     if (options.type) {
       events = events.filter(e => e.type === options.type);
     }
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const event of events) {
       await handler(event);
     }
@@ -665,6 +737,10 @@ export class EventBus {
     this.history.forEach(entry => {
       if (!seen.has(entry.event.type)) {
         seen.add(entry.event.type);
+        /** If.
+         * @param !category - !category
+         * @returns void
+         */
         if (!category || entry.event.category === category) {
           events.push({ type: entry.event.type, category: entry.event.category });
         }
@@ -708,6 +784,10 @@ export class EventBus {
    */
   unsubscribeTyped(subscriptionId: string): boolean {
     const deleted = this.typedSubscriptions.delete(subscriptionId);
+    /** If.
+     * @param deleted - deleted
+     * @returns void
+     */
     if (deleted) {
       log.debug(`[EventBus] TypedSubscription removed: ${subscriptionId}`);
     }
@@ -726,6 +806,10 @@ export class EventBus {
 
     // Store in typed history
     this.typedHistory.push(event);
+    /** If.
+     * @param this.typedHistory.length - this.typed history.length
+     * @returns void
+     */
     if (this.typedHistory.length > EVENT_CONSTANTS.MAX_HISTORY) {
       this.typedHistory.shift();
     }
@@ -733,6 +817,11 @@ export class EventBus {
     log.debug(`[EventBus] publishTyped: ${event.event} from ${event.source}`);
 
     // Notify matching subscriptions
+    /** For.
+     * @param const - const
+     * @param sub] - sub]
+     * @returns void
+     */
     for (const [, sub] of this.typedSubscriptions) {
       if (sub.active === false) continue;
       if (!this.matchesGlob(sub.event, event.event)) continue;
@@ -741,9 +830,17 @@ export class EventBus {
 
       // Additional payload filter keys (skip 'source' already handled)
       let payloadMatch = true;
+      /** If.
+       * @param sub.filter - sub.filter
+       * @returns void
+       */
       if (sub.filter) {
         for (const [key, value] of Object.entries(sub.filter)) {
           if (key === "source") continue;
+          /** If.
+           * @param event.payload[key] - event.payload[key]
+           * @returns void
+           */
           if (event.payload[key] !== value) {
             payloadMatch = false;
             break;
@@ -772,6 +869,11 @@ export class EventBus {
       return;
     }
 
+    /** For.
+     * @param const - const
+     * @param chain] - chain]
+     * @returns void
+     */
     for (const [, chain] of this.reactiveChains) {
       if (!chain.enabled) continue;
       if (!this.matchesGlob(chain.trigger_event, event.event)) continue;
@@ -800,6 +902,10 @@ export class EventBus {
   private async executeChain(chain: ReactiveChain, triggerEvent: TypedEvent): Promise<void> {
     const stepResults: Record<string, Record<string, any>> = {};
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < chain.steps.length; i++) {
       const step = chain.steps[i];
       log.info(`[EventBus] Chain "${chain.name}" step ${i + 1}/${chain.steps.length}: ${step.action}`);
@@ -809,6 +915,10 @@ export class EventBus {
         const handler = this.actionRegistry.get(step.action);
         let result: Record<string, any> = {};
 
+        /** If.
+         * @param handler - handler
+         * @returns void
+         */
         if (handler) {
           // Merge step params with trigger payload and previous step results
           const mergedParams: Record<string, any> = {
@@ -829,6 +939,10 @@ export class EventBus {
         }
 
         // If the step emits an event, publish it (may trigger further chains)
+        /** If.
+         * @param step.emit_event - step.emit_event
+         * @returns void
+         */
         if (step.emit_event) {
           const stepEvent: TypedEvent = {
             event: step.emit_event,
@@ -918,6 +1032,10 @@ export class EventBus {
    */
   replayEvents(since: Date, filter?: string): TypedEvent[] {
     let events = this.typedHistory.filter(e => e.timestamp && e.timestamp >= since);
+    /** If.
+     * @param filter - filter criteria
+     * @returns void
+     */
     if (filter) {
       events = events.filter(e => this.matchesGlob(filter, e.event));
     }
@@ -934,12 +1052,20 @@ export class EventBus {
   private startCleanup(): void {
     this.cleanupInterval = setInterval(() => {
       // Trim handler times array
+      /** If.
+       * @param this.handlerTimes.length - this.handler times.length
+       * @returns void
+       */
       if (this.handlerTimes.length > 1000) {
         this.handlerTimes = this.handlerTimes.slice(-500);
       }
 
       // Clean up expired subscriptions (if maxCalls reached)
       this.subscriptions.forEach((sub, id) => {
+        /** If.
+         * @param sub.options.maxCalls - sub.options.max calls
+         * @returns void
+         */
         if (sub.options.maxCalls && sub.callCount >= sub.options.maxCalls) {
           this.subscriptions.delete(id);
         }
@@ -989,6 +1115,10 @@ export const eventBus = new EventBus();
 
 /**
  * Publish an event
+  * @param type - type string
+  * @param payload - payload
+  * @param options - configuration options
+  * @returns promise resolving to prism event< t>
  */
 export function emit<T>(type: string, payload: T, options?: Partial<{ category: EventCategory; priority: EventPriority; source: string }>): Promise<PrismEvent<T>> {
   return eventBus.publish(type, payload, options);
@@ -996,6 +1126,10 @@ export function emit<T>(type: string, payload: T, options?: Partial<{ category: 
 
 /**
  * Subscribe to an event pattern
+  * @param pattern - pattern string
+  * @param handler - handler
+  * @param options - configuration options
+  * @returns formatted string result
  */
 export function on<T = unknown>(pattern: string, handler: EventHandler<T>, options?: SubscriptionOptions): string {
   return eventBus.subscribe(pattern, handler, options);
@@ -1003,6 +1137,9 @@ export function on<T = unknown>(pattern: string, handler: EventHandler<T>, optio
 
 /**
  * Subscribe once
+  * @param type - type string
+  * @param handler - handler
+  * @returns formatted string result
  */
 export function once<T = unknown>(type: string, handler: EventHandler<T>): string {
   return eventBus.once(type, handler);
@@ -1010,6 +1147,8 @@ export function once<T = unknown>(type: string, handler: EventHandler<T>): strin
 
 /**
  * Unsubscribe
+  * @param subscriptionId - subscription identifier
+  * @returns true if condition is met
  */
 export function off(subscriptionId: string): boolean {
   return eventBus.unsubscribe(subscriptionId);
@@ -1228,6 +1367,7 @@ export const EVENTBUS_SOURCE_FILE_CATALOG: Record<string, {
 
 /**
  * Return the EventBus source-file catalog for audit and traceability.
+  * @returns typeof  e v e n t b u s_ s o u r c e_ f i l e_ c a t a l o g
  */
 export function getEventBusSourceFileCatalog(): typeof EVENTBUS_SOURCE_FILE_CATALOG {
   return EVENTBUS_SOURCE_FILE_CATALOG;

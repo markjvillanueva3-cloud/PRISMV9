@@ -139,6 +139,8 @@ function getC4(n: number): number {
  * - Recursive: A_i = r·x_i + (1-r)·A_{i-1}
  * - σ_A = σ/√n · √(r/(2-r)) for large t
  * - Sensitive to small shifts (< 1.5σ)
+  * @param input - input data
+  * @returns s p c chart result
  */
 export function computeEWMA(input: EWMAInput): SPCChartResult {
   const { data, lambda } = input;
@@ -224,6 +226,8 @@ export function computeEWMA(input: EWMAInput): SPCChartResult {
  * C⁺_i = max(0, x_i - (μ₀ + k) + C⁺_{i-1})
  * C⁻_i = max(0, (μ₀ - k) - x_i + C⁻_{i-1})
  * Signal when C⁺ > h or C⁻ > h
+  * @param input - input data
+  * @returns s p c chart result
  */
 export function computeCUSUM(input: CUSUMInput): SPCChartResult {
   const { data } = input;
@@ -298,6 +302,8 @@ export function computeCUSUM(input: CUSUMInput): SPCChartResult {
 /**
  * Moving Average: MA_i = (1/w) Σ x_{i-j} for j=0..w-1
  * UCL/LCL = μ₀ ± L·σ/√(w·n)
+  * @param input - input data
+  * @returns s p c chart result
  */
 export function computeMovingAverage(
   input: MovingAverageInput
@@ -368,6 +374,8 @@ export function computeMovingAverage(
  * Xbar-S chart for subgrouped data
  * Xbar: UCL/LCL = x̿ ± L·S̄/(c4·√n)
  * S:    UCL = B4·S̄, LCL = B3·S̄
+  * @param input - input data
+  * @returns s p c chart result
  */
 export function computeXbarS(input: XbarSInput): SPCChartResult {
   const { subgroups } = input;

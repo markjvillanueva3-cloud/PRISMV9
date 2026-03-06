@@ -89,29 +89,57 @@ export interface RCSAOutput extends WithWarnings {
  */
 export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: RCSAInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     const a = input.substructure_a;
     const b = input.substructure_b;
 
+    /** If.
+     * @param !a?.frequencies?.length - !a?.frequencies?.length
+     * @returns void
+     */
     if (!a?.frequencies?.length || a.frequencies.length < 10) {
       issues.push({ field: "substructure_a", message: "At least 10 frequency points required", severity: "error" });
     }
+    /** If.
+     * @param !a?.H11?.length - !a?. h11?.length
+     * @returns void
+     */
     if (!a?.H11?.length) {
       issues.push({ field: "substructure_a.H11", message: "H11 receptance required", severity: "error" });
     }
+    /** If.
+     * @param !b?.frequencies?.length - !b?.frequencies?.length
+     * @returns void
+     */
     if (!b?.frequencies?.length || b.frequencies.length < 10) {
       issues.push({ field: "substructure_b", message: "At least 10 frequency points required", severity: "error" });
     }
+    /** If.
+     * @param !b?.H11?.length - !b?. h11?.length
+     * @returns void
+     */
     if (!b?.H11?.length) {
       issues.push({ field: "substructure_b.H11", message: "H11 receptance required", severity: "error" });
     }
+    /** If.
+     * @param a?.frequencies?.length - a?.frequencies?.length
+     * @returns void
+     */
     if (a?.frequencies?.length && b?.frequencies?.length && a.frequencies.length !== b.frequencies.length) {
       issues.push({ field: "frequencies", message: "Both substructures must have same number of frequency points", severity: "error" });
     }
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns r c s a output
+   */
   calculate(input: RCSAInput): RCSAOutput {
     const warnings: string[] = [];
     const a = input.substructure_a;
@@ -122,6 +150,10 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
     const n = a.frequencies.length;
     const coupledFRF: Array<{ frequency: number; compliance: ComplexVal }> = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < n; i++) {
       const freq = a.frequencies[i];
       const omega = 2 * Math.PI * freq;
@@ -151,6 +183,10 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
 
       // Invert S: S^(-1) = conj(S) / |S|²
       const Smag2 = S.re * S.re + S.im * S.im;
+      /** If.
+       * @param Smag2 - smag2
+       * @returns void
+       */
       if (Smag2 < 1e-30) {
         coupledFRF.push({ frequency: freq, compliance: { re: 0, im: 0 } });
         continue;
@@ -191,11 +227,19 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
     let peakMag = 0;
     let dominantFreq = 0;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 1; i < coupledFRF.length - 1; i++) {
       const mag = Math.sqrt(coupledFRF[i].compliance.re ** 2 + coupledFRF[i].compliance.im ** 2);
       const prevMag = Math.sqrt(coupledFRF[i - 1].compliance.re ** 2 + coupledFRF[i - 1].compliance.im ** 2);
       const nextMag = Math.sqrt(coupledFRF[i + 1].compliance.re ** 2 + coupledFRF[i + 1].compliance.im ** 2);
 
+      /** If.
+       * @param mag - mag
+       * @returns void
+       */
       if (mag > peakMag) {
         peakMag = mag;
         dominantFreq = coupledFRF[i].frequency;
@@ -206,18 +250,30 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
       const prevImag = Math.abs(coupledFRF[i - 1].compliance.im);
       const nextImag = Math.abs(coupledFRF[i + 1].compliance.im);
 
+      /** If.
+       * @param imagMag - imag mag
+       * @returns void
+       */
       if (imagMag > prevImag && imagMag > nextImag && imagMag > peakMag * 0.1) {
         // Half-power bandwidth for damping estimation
         const halfPower = imagMag / Math.sqrt(2);
         let bwLow = coupledFRF[i].frequency;
         let bwHigh = coupledFRF[i].frequency;
 
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = i - 1; j >= 0; j--) {
           if (Math.abs(coupledFRF[j].compliance.im) < halfPower) {
             bwLow = coupledFRF[j].frequency;
             break;
           }
         }
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let j = i + 1; j < coupledFRF.length; j++) {
           if (Math.abs(coupledFRF[j].compliance.im) < halfPower) {
             bwHigh = coupledFRF[j].frequency;
@@ -240,10 +296,18 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
 
     // Frequency shift from dominant mode of substructure A
     let aMaxMag = 0, aDominant = 0;
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const pt of a.H11) {
       const mag = Math.sqrt(pt.re ** 2 + pt.im ** 2);
       if (mag > aMaxMag) { aMaxMag = mag; }
     }
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < a.H11.length; i++) {
       const mag = Math.sqrt(a.H11[i].re ** 2 + a.H11[i].im ** 2);
       if (Math.abs(mag - aMaxMag) < 1e-15) { aDominant = a.frequencies[i]; break; }
@@ -251,6 +315,10 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
 
     const dynStiffness = peakMag > 0 ? 1 / peakMag : 0;
 
+    /** If.
+     * @param modes.length - modes.length
+     * @returns void
+     */
     if (modes.length === 0) {
       warnings.push("No clear modes detected in coupled FRF — check input data quality");
     }
@@ -268,6 +336,9 @@ export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "rcsa",

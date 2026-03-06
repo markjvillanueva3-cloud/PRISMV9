@@ -81,6 +81,10 @@ export class ThinFloorVibrationEngine {
     let fn: number;
     const bc = BC_FACTOR[input.geometry];
 
+    /** If.
+     * @param input.geometry - input.geometry
+     * @returns void
+     */
     if (input.geometry === "floor" && input.unsupported_width_mm) {
       // Plate model: fn = (lambda^2 / (2*pi*a^2)) * sqrt(D / (rho*t))
       // lambda for clamped plate ≈ 35.99 (first mode)
@@ -120,6 +124,10 @@ export class ThinFloorVibrationEngine {
     // Dynamic amplification near resonance
     const dampingRatio = 0.02; // typical for thin features
     let dynamicAmplification = 1.0;
+    /** If.
+     * @param freqRatio - freq ratio
+     * @returns void
+     */
     if (freqRatio > 0.01) {
       dynamicAmplification = 1 / Math.sqrt((1 - freqRatio ** 2) ** 2 + (2 * dampingRatio * freqRatio) ** 2);
       dynamicAmplification = Math.min(25, dynamicAmplification); // cap at Q=25
@@ -140,22 +148,46 @@ export class ThinFloorVibrationEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param resonanceRisk - resonance risk
+     * @returns void
+     */
     if (resonanceRisk) {
       const safeRpm = Math.round(fn * 60 / input.num_flutes * 0.7);
       recs.push(`Resonance risk at ${input.spindle_rpm} RPM — reduce to ${safeRpm} RPM or increase to ${Math.round(safeRpm * 2)} RPM`);
     }
+    /** If.
+     * @param totalDeflection_um - total deflection_um
+     * @returns void
+     */
     if (totalDeflection_um > deflLimit) {
       recs.push(`Deflection ${totalDeflection_um.toFixed(0)}µm exceeds limit ${deflLimit.toFixed(0)}µm — reduce cutting force or add support`);
     }
+    /** If.
+     * @param input.thickness_mm - input.thickness_mm
+     * @returns void
+     */
     if (input.thickness_mm < minThickness) {
       recs.push(`Minimum safe thickness: ${minThickness.toFixed(2)}mm for current parameters`);
     }
+    /** If.
+     * @param input.thickness_mm - input.thickness_mm
+     * @returns void
+     */
     if (input.thickness_mm < 1.0 && input.geometry === "floor") {
       recs.push("Very thin floor (<1mm) — use vacuum fixture or wax support from below");
     }
+    /** If.
+     * @param dynamicAmplification - dynamic amplification
+     * @returns void
+     */
     if (dynamicAmplification > 5) {
       recs.push("High dynamic amplification — consider damping (wax fill, constrained layer)");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Thin feature parameters acceptable — proceed with monitoring");
     }
@@ -174,12 +206,26 @@ export class ThinFloorVibrationEngine {
     };
   }
 
+  /** Min Thickness.
+   * @param input - input data
+   * @param "thickness_mm"> - "thickness_mm">
+   * @param target_deflection_um - target_deflection_um
+   * @returns computed numeric result
+   */
   minThickness(input: Omit<ThinFeatureInput, "thickness_mm">, target_deflection_um: number): number {
     // Binary search for minimum thickness
     let lo = 0.1, hi = 20.0;
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < 30; i++) {
       const mid = (lo + hi) / 2;
       const result = this.analyze({ ...input, thickness_mm: mid } as ThinFeatureInput);
+      /** If.
+       * @param result.max_deflection_um - result.max_deflection_um
+       * @returns void
+       */
       if (result.max_deflection_um > target_deflection_um) {
         lo = mid;
       } else {

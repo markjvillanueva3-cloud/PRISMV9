@@ -266,6 +266,10 @@ export class EventBus extends EventEmitter {
     
     // Track history
     this.emitHistory.push({ event, timestamp, data });
+    /** If.
+     * @param this.emitHistory.length - this.emit history.length
+     * @returns void
+     */
     if (this.emitHistory.length > this.maxHistorySize) {
       this.emitHistory.shift();
     }
@@ -463,6 +467,10 @@ export class HookEngine {
 
     // Subscribe to event bus
     this.eventBus.on(definition.event, (ctx: HookContext) => {
+      /** If.
+       * @param definition.enabled - definition.enabled
+       * @returns void
+       */
       if (definition.enabled) {
         this.executeHook(definition.id, ctx);
       }
@@ -490,6 +498,10 @@ export class HookEngine {
    */
   async executeHook(hookId: string, context: HookContext): Promise<HookResult> {
     const hook = this.hooks.get(hookId);
+    /** If.
+     * @param !hook - !hook
+     * @returns void
+     */
     if (!hook) {
       return {
         hookId,
@@ -499,6 +511,10 @@ export class HookEngine {
       };
     }
 
+    /** If.
+     * @param !hook.enabled - !hook.enabled
+     * @returns void
+     */
     if (!hook.enabled) {
       return {
         hookId,
@@ -523,6 +539,10 @@ export class HookEngine {
     const maxRetries = hook.retries || HOOK_CONSTANTS.DEFAULT_RETRIES;
     let lastError: string | undefined;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const result = await Promise.race([
@@ -542,6 +562,10 @@ export class HookEngine {
 
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
+        /** If.
+         * @param attempt - attempt
+         * @returns void
+         */
         if (attempt < maxRetries) {
           await this.delay(100 * (attempt + 1));
         }
@@ -575,6 +599,10 @@ export class HookEngine {
     const startTime = Date.now();
     const hookIds = this.eventHooks.get(event);
 
+    /** If.
+     * @param !hookIds - !hook ids
+     * @returns void
+     */
     if (!hookIds || hookIds.size === 0) {
       return {
         event,
@@ -614,6 +642,10 @@ export class HookEngine {
       previousResults: []
     };
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const hook of phaseHooks) {
       if (halted) break;
 
@@ -623,8 +655,16 @@ export class HookEngine {
       const result = await this.executeHook(hook.id, context);
       results.push(result);
 
+      /** If.
+       * @param !result.success - !result.success
+       * @returns void
+       */
       if (!result.success) {
         failedHooks++;
+        /** If.
+         * @param options?.stopOnError - options?.stop on error
+         * @returns void
+         */
         if (options?.stopOnError) {
           halted = true;
           haltedBy = hook.id;
@@ -632,11 +672,19 @@ export class HookEngine {
       }
 
       // Apply modifications
+      /** If.
+       * @param result.modified - result.modified
+       * @returns void
+       */
       if (result.modified) {
         currentData = { ...currentData, ...result.modified };
       }
 
       // Check for halt signal
+      /** If.
+       * @param result.halt - result.halt
+       * @returns void
+       */
       if (result.halt) {
         halted = true;
         haltedBy = hook.id;
@@ -670,6 +718,10 @@ export class HookEngine {
     // Execute before hooks
     const beforeHooks = await this.executeHookChain(event, "before", data, { stopOnHalt: true });
 
+    /** If.
+     * @param beforeHooks.halted - before hooks.halted
+     * @returns void
+     */
     if (beforeHooks.halted) {
       throw new Error(`Operation halted by hook: ${beforeHooks.haltedBy}`);
     }
@@ -801,6 +853,8 @@ export const hookEngine = new HookEngine(eventBus);
 
 /**
  * Register a hook
+  * @param definition - definition
+  * @returns void
  */
 export function registerHook(definition: HookDefinition): void {
   hookEngine.registerHook(definition);
@@ -808,6 +862,10 @@ export function registerHook(definition: HookDefinition): void {
 
 /**
  * Execute hooks for an event
+  * @param event - event string
+  * @param phase - phase
+  * @param data - input data
+  * @returns promise resolving to hook chain result
  */
 export async function executeHooks(
   event: string,
@@ -819,6 +877,9 @@ export async function executeHooks(
 
 /**
  * Emit an event
+  * @param event - event string
+  * @param data - input data
+  * @returns void
  */
 export function emitEvent(event: string, data: Record<string, unknown>): void {
   eventBus.emitEvent(event, data);
@@ -826,6 +887,12 @@ export function emitEvent(event: string, data: Record<string, unknown>): void {
 
 /**
  * Create a cognitive hook
+  * @param id - id string
+  * @param pattern - pattern
+  * @param event - event string
+  * @param handler - handler
+  * @param options - configuration options
+  * @returns hook definition
  */
 export function createCognitiveHook(
   id: string,

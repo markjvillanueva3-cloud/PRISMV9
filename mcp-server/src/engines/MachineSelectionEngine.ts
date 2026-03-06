@@ -162,6 +162,10 @@ export class MachineSelectionEngine {
   recommend(req: MachineRequirements): MachineCandidate[] {
     const candidates: MachineCandidate[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const m of MACHINES) {
       const { score, rationale, limitations } = scoreMachine(m, req);
       candidates.push({
@@ -177,9 +181,17 @@ export class MachineSelectionEngine {
     return candidates.slice(0, 5);
   }
 
+  /** Compare.
+   * @param machineIds - machine ids
+   * @returns machine comparison result
+   */
   compare(machineIds: string[]): MachineComparisonResult {
     const machines: MachineCandidate[] = [];
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const id of machineIds) {
       const m = MACHINES.find(mc => mc.id === id) || MACHINES[0];
       machines.push({
@@ -198,6 +210,11 @@ export class MachineSelectionEngine {
     };
   }
 
+  /** Validate.
+   * @param machineId - machine id
+   * @param req - req
+   * @returns machine validation result
+   */
   validate(machineId: string, req: MachineRequirements): MachineValidationResult {
     const m = MACHINES.find(mc => mc.id === machineId);
     if (!m) return { suitable: false, machine_id: machineId, issues: ["Machine not found"], travel_ok: false, spindle_ok: false, accuracy_ok: false, axes_ok: false };

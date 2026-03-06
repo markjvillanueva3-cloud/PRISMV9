@@ -5,6 +5,10 @@
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
 
+/** Creates cam router.
+ * @param callTool - call tool
+ * @returns router
+ */
 export function createCamRouter(callTool: CallToolFn): Router {
   const router = Router();
 

@@ -122,6 +122,10 @@ export class GCodeOptimizationEngine {
 
     let prevX = 0, prevY = 0, prevZ = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const line of lines) {
       if (line.code.length === 0) { blankLines++; continue; }
       if (line.is_comment) { commentLines++; continue; }
@@ -151,6 +155,10 @@ export class GCodeOptimizationEngine {
       if (line.s !== undefined) { minS = Math.min(minS, line.s); maxS = Math.max(maxS, line.s); }
 
       // Safety warnings
+      /** If.
+       * @param line.is_rapid - line.is_rapid
+       * @returns void
+       */
       if (line.is_rapid && z < prevZ - 50) {
         warnings.push(`Line ${line.number || codeLines}: Rapid Z descent of ${Math.abs(z - prevZ).toFixed(1)}mm`);
       }
@@ -182,6 +190,10 @@ export class GCodeOptimizationEngine {
     };
   }
 
+  /** Optimize.
+   * @param gcode - gcode
+   * @returns optimization result
+   */
   optimize(gcode: string): OptimizationResult {
     const original = this.analyze(gcode);
     const rawLines = gcode.split("\n");
@@ -192,6 +204,10 @@ export class GCodeOptimizationEngine {
     let removedCount = 0;
     let prevX: number | undefined, prevY: number | undefined, prevZ: number | undefined;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const raw of rawLines) {
       const line = parseLine(raw);
       const trimmed = raw.trim();
@@ -203,6 +219,10 @@ export class GCodeOptimizationEngine {
       }
 
       // Optimization 2: Remove redundant coordinates (same as previous)
+      /** If.
+       * @param !line.is_comment - !line.is_comment
+       * @returns void
+       */
       if (!line.is_comment && !line.is_rapid) {
         if (line.x !== undefined && line.x === prevX &&
             line.y !== undefined && line.y === prevY &&
@@ -246,11 +266,20 @@ export class GCodeOptimizationEngine {
     };
   }
 
+  /** Compare.
+   * @param gcodeA - gcode a
+   * @param gcodeB - gcode b
+   * @returns g code comparison
+   */
   compare(gcodeA: string, gcodeB: string): GCodeComparison {
     const a = this.analyze(gcodeA);
     const b = this.analyze(gcodeB);
 
     let recommendation: string;
+    /** If.
+     * @param a.estimated_time_sec - a.estimated_time_sec
+     * @returns void
+     */
     if (a.estimated_time_sec < b.estimated_time_sec) {
       recommendation = `Program A is ${b.estimated_time_sec - a.estimated_time_sec}s faster`;
     } else if (b.estimated_time_sec < a.estimated_time_sec) {

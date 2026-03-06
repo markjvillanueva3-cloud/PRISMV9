@@ -23,6 +23,7 @@ const writeChains = new Map<string, Promise<void>>();
  * @param filePath - Absolute or relative path to target file
  * @param data - String content to write
  * @throws {Error} If write or rename fails after cleanup attempt
+  * @returns promise that resolves when complete
  */
 export async function atomicWrite(filePath: string, data: string): Promise<void> {
   const resolved = path.resolve(filePath);
@@ -49,6 +50,10 @@ export async function atomicWrite(filePath: string, data: string): Promise<void>
  * Synchronous atomic write — drop-in replacement for fs.writeFileSync.
  * Writes to .tmp then renames for crash-safety.
  * Use this for all state/checkpoint file writes.
+  * @param filePath - file path
+  * @param data - input data
+  * @param encoding - encoding
+  * @returns void
  */
 export function safeWriteSync(filePath: string, data: string, encoding: BufferEncoding = 'utf-8'): void {
   const resolved = path.resolve(filePath);

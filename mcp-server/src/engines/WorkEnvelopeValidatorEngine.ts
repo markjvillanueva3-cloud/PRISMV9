@@ -94,6 +94,10 @@ export class WorkEnvelopeValidatorEngine {
     let bbYmin = Infinity, bbYmax = -Infinity;
     let bbZmin = Infinity, bbZmax = -Infinity;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let idx = 0; idx < input.toolpath_points.length; idx++) {
       const pt = input.toolpath_points[idx];
       const isRapid = pt.is_rapid || false;
@@ -113,7 +117,18 @@ export class WorkEnvelopeValidatorEngine {
         ["Z", pt.Z, zMinEffective, effLimits.Z_max],
       ];
 
+      /** For.
+       * @param const - const
+       * @param val - value to set
+       * @param min - min
+       * @param max] - max]
+       * @returns void
+       */
       for (const [axis, val, min, max] of checks) {
+        /** If.
+         * @param val - value to set
+         * @returns void
+         */
         if (val < min) {
           violations.push({
             point_index: idx, axis, value: val, limit: min,
@@ -122,6 +137,10 @@ export class WorkEnvelopeValidatorEngine {
             severity: isRapid ? "critical" : "warning",
           });
         }
+        /** If.
+         * @param val - value to set
+         * @returns void
+         */
         if (val > max) {
           violations.push({
             point_index: idx, axis, value: val, limit: max,
@@ -133,7 +152,15 @@ export class WorkEnvelopeValidatorEngine {
       }
 
       // Rotary axis checks
+      /** If.
+       * @param pt.A - pt. a
+       * @returns void
+       */
       if (pt.A !== undefined && lim.A_min_deg !== undefined && lim.A_max_deg !== undefined) {
+        /** If.
+         * @param pt.A - pt. a
+         * @returns void
+         */
         if (pt.A < lim.A_min_deg! + margin * 0.1 || pt.A > lim.A_max_deg! - margin * 0.1) {
           violations.push({
             point_index: idx, axis: "A", value: pt.A,
@@ -143,7 +170,15 @@ export class WorkEnvelopeValidatorEngine {
           });
         }
       }
+      /** If.
+       * @param pt.B - pt. b
+       * @returns void
+       */
       if (pt.B !== undefined && lim.B_min_deg !== undefined && lim.B_max_deg !== undefined) {
+        /** If.
+         * @param pt.B - pt. b
+         * @returns void
+         */
         if (pt.B < lim.B_min_deg! + margin * 0.1 || pt.B > lim.B_max_deg! - margin * 0.1) {
           violations.push({
             point_index: idx, axis: "B", value: pt.B,
@@ -154,7 +189,15 @@ export class WorkEnvelopeValidatorEngine {
         }
       }
       // C-axis rotary limit check (C-001 fix: was previously missing)
+      /** If.
+       * @param pt.C - pt. c
+       * @returns void
+       */
       if (pt.C !== undefined && lim.C_min_deg !== undefined && lim.C_max_deg !== undefined) {
+        /** If.
+         * @param pt.C - pt. c
+         * @returns void
+         */
         if (pt.C < lim.C_min_deg! + margin * 0.1 || pt.C > lim.C_max_deg! - margin * 0.1) {
           violations.push({
             point_index: idx, axis: "C", value: pt.C,
@@ -180,14 +223,26 @@ export class WorkEnvelopeValidatorEngine {
     // Recommendations
     const recs: string[] = [];
     const critCount = violations.filter(v => v.severity === "critical").length;
+    /** If.
+     * @param critCount - crit count
+     * @returns void
+     */
     if (critCount > 0) {
       recs.push(`SAFETY: ${critCount} critical envelope violations — toolpath MUST be corrected before running`);
       const axesViolated = [...new Set(violations.map(v => v.axis))];
       recs.push(`Violated axes: ${axesViolated.join(", ")}`);
     }
+    /** If.
+     * @param utilization.X_pct - utilization. x_pct
+     * @returns void
+     */
     if (utilization.X_pct > 90 || utilization.Y_pct > 90 || utilization.Z_pct > 90) {
       recs.push("Toolpath uses >90% of machine travel — consider re-positioning workpiece origin");
     }
+    /** If.
+     * @param violations.length - violations.length
+     * @returns void
+     */
     if (violations.length === 0) {
       recs.push("All toolpath points within work envelope — safe to proceed");
     }

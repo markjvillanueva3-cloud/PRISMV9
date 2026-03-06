@@ -77,12 +77,24 @@ export interface BayesianWearOutput extends WithWarnings {
  */
 export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianWearOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: BayesianWearInput): ValidationResult {
     const issues: ValidationIssue[] = [];
 
+    /** If.
+     * @param input.prior_mean - input.prior_mean
+     * @returns void
+     */
     if (input.prior_mean === undefined) {
       issues.push({ field: "prior_mean", message: "Prior mean is required", severity: "error" });
     }
+    /** If.
+     * @param !input.prior_std - !input.prior_std
+     * @returns void
+     */
     if (!input.prior_std || input.prior_std <= 0) {
       issues.push({ field: "prior_std", message: `Prior std must be > 0, got ${input.prior_std}`, severity: "error" });
     }
@@ -92,6 +104,10 @@ export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianW
     if (input.observations && input.observations.some(v => typeof v !== "number" || isNaN(v))) {
       issues.push({ field: "observations", message: "All observations must be valid numbers", severity: "error" });
     }
+    /** If.
+     * @param input.likelihood_std - input.likelihood_std
+     * @returns void
+     */
     if (input.likelihood_std !== undefined && input.likelihood_std <= 0) {
       issues.push({ field: "likelihood_std", message: `Likelihood std must be > 0, got ${input.likelihood_std}`, severity: "error" });
     }
@@ -99,6 +115,10 @@ export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianW
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns bayesian wear output
+   */
   calculate(input: BayesianWearInput): BayesianWearOutput {
     const warnings: string[] = [];
     const {
@@ -138,6 +158,10 @@ export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianW
 
     // Probability of exceeding threshold (using standard normal CDF approximation)
     let probability_exceed_threshold: number | null = null;
+    /** If.
+     * @param vb_threshold - vb_threshold
+     * @returns void
+     */
     if (vb_threshold !== undefined) {
       const z = (vb_threshold - posterior_mean) / posterior_std;
       probability_exceed_threshold = 1 - this.normalCDF(z);
@@ -147,15 +171,27 @@ export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianW
     if (shrinkage > 0.8 && Math.abs(data_mean - prior_mean) > 2 * prior_std) {
       warnings.push(`PRIOR_MISMATCH: Data mean (${data_mean.toFixed(3)}) differs significantly from prior (${prior_mean.toFixed(3)}). Prior may be miscalibrated.`);
     }
+    /** If.
+     * @param n - number of items
+     * @returns void
+     */
     if (n < 3) {
       warnings.push("FEW_OBSERVATIONS: < 3 data points. Posterior still heavily influenced by prior.");
     }
+    /** If.
+     * @param probability_exceed_threshold - probability_exceed_threshold
+     * @returns void
+     */
     if (probability_exceed_threshold !== null && probability_exceed_threshold > 0.8) {
       warnings.push(`HIGH_EXCEED_PROB: ${(probability_exceed_threshold * 100).toFixed(0)}% probability of exceeding VB threshold ${vb_threshold} mm.`);
     }
 
     // Recommendation
     let recommendation: string;
+    /** If.
+     * @param probability_exceed_threshold - probability_exceed_threshold
+     * @returns void
+     */
     if (probability_exceed_threshold !== null && probability_exceed_threshold > 0.9) {
       recommendation = "REPLACE: Very high probability of threshold exceedance. Replace tool.";
     } else if (probability_exceed_threshold !== null && probability_exceed_threshold > 0.5) {
@@ -183,6 +219,9 @@ export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianW
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "bayesian-wear",

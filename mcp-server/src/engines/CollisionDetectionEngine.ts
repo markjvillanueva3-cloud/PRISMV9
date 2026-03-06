@@ -107,10 +107,22 @@ export class CollisionDetectionEngine {
     const movingBodies = bodies.filter(b => b.is_moving);
 
     // Check static-static (shouldn't overlap)
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < staticBodies.length; i++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let j = i + 1; j < staticBodies.length; j++) {
         const clearance = this.aabbClearance(staticBodies[i].aabb, staticBodies[j].aabb);
         minClearance = Math.min(minClearance, clearance);
+        /** If.
+         * @param clearance - clearance
+         * @returns void
+         */
         if (clearance < effectiveMargin) {
           details.push({
             body_a: staticBodies[i].id,
@@ -127,17 +139,33 @@ export class CollisionDetectionEngine {
     }
 
     // Check each move against all static bodies
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let mi = 0; mi < moves.length; mi++) {
       const move = moves[mi];
 
       // Swept volume of moving bodies along this move
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const mb of movingBodies) {
         const swept = this.sweptAABB(mb.aabb, move.from, move.to);
 
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const sb of staticBodies) {
           const clearance = this.aabbClearance(swept, sb.aabb);
           minClearance = Math.min(minClearance, clearance);
 
+          /** If.
+           * @param clearance - clearance
+           * @returns void
+           */
           if (clearance < effectiveMargin) {
             const severity: CollisionSeverity =
               clearance <= 0 ? "collision"
@@ -188,11 +216,19 @@ export class CollisionDetectionEngine {
     const rapids = moves.filter(m => m.type === "rapid");
     const unsafe: { move_index: number; issue: string; from_z: number; to_z: number }[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < moves.length; i++) {
       const move = moves[i];
       if (move.type !== "rapid") continue;
 
       // Rapid move going below safe Z
+      /** If.
+       * @param move.to.z - move.to.z
+       * @returns void
+       */
       if (move.to.z < safeZ) {
         unsafe.push({
           move_index: i,
@@ -204,6 +240,10 @@ export class CollisionDetectionEngine {
 
       // Rapid move with large Z-negative change (potential crash) — only if not already flagged
       const dz = move.to.z - move.from.z;
+      /** If.
+       * @param dz - dz
+       * @returns void
+       */
       if (dz < -50 && move.to.z >= safeZ) {
         unsafe.push({
           move_index: i,
@@ -247,6 +287,10 @@ export class CollisionDetectionEngine {
     const dy = Math.max(a.min.y - b.max.y, b.min.y - a.max.y, 0);
     const dz = Math.max(a.min.z - b.max.z, b.min.z - a.max.z, 0);
 
+    /** If.
+     * @param dx - dx
+     * @returns void
+     */
     if (dx > 0 || dy > 0 || dz > 0) {
       return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }

@@ -62,6 +62,10 @@ function mulberry32(seed: number) {
  */
 export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, SimulatedAnnealingOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: SimulatedAnnealingInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.dimensions || input.dimensions < 1) issues.push({ field: "dimensions", message: "Must be >= 1", severity: "error" });
@@ -71,6 +75,10 @@ export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, Si
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns simulated annealing output
+   */
   calculate(input: SimulatedAnnealingInput): SimulatedAnnealingOutput {
     const warnings: string[] = [];
     const { dimensions, lower_bounds, upper_bounds } = input;
@@ -101,7 +109,15 @@ export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, Si
     const maxSteps = Math.ceil(Math.log(Tf / T0) / Math.log(alpha)) * itersPerTemp;
     if (maxSteps > 1e6) warnings.push("Very large iteration count — consider increasing cooling_rate.");
 
+    /** While.
+     * @param T - t
+     * @returns void
+     */
     while (T > Tf) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let i = 0; i < itersPerTemp; i++) {
         totalIter++;
         // Generate neighbor
@@ -117,6 +133,10 @@ export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, Si
           current = neighbor;
           currentCost = neighborCost;
           accepted++;
+          /** If.
+           * @param currentCost - current cost
+           * @returns void
+           */
           if (currentCost < bestCost) {
             best = [...current];
             bestCost = currentCost;
@@ -145,6 +165,9 @@ export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, Si
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "simulated-annealing",

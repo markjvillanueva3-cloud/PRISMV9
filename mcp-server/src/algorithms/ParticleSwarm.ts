@@ -59,6 +59,10 @@ function mulberry32(seed: number) {
  */
 export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwarmOutput> {
 
+  /** Validate.
+   * @param input - input data
+   * @returns validation result
+   */
   validate(input: ParticleSwarmInput): ValidationResult {
     const issues: ValidationIssue[] = [];
     if (!input.dimensions || input.dimensions < 1) issues.push({ field: "dimensions", message: "Must be >= 1", severity: "error" });
@@ -68,6 +72,10 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
     return { valid: issues.filter(i => i.severity === "error").length === 0, issues };
   }
 
+  /** Calculate.
+   * @param input - input data
+   * @returns particle swarm output
+   */
   calculate(input: ParticleSwarmInput): ParticleSwarmOutput {
     const warnings: string[] = [];
     const { dimensions, lower_bounds, upper_bounds } = input;
@@ -90,6 +98,10 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
     const pBest: number[][] = [];
     const pBestFit: number[] = [];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let p = 0; p < nParticles; p++) {
       const pos = lower_bounds.map((lo, d) => lo + rand() * (upper_bounds[d] - lo));
       const vel = lower_bounds.map((lo, d) => (rand() - 0.5) * (upper_bounds[d] - lo) * 0.1);
@@ -104,9 +116,21 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
     let gBestFit = pBestFit[gBestIdx];
     const convergence: number[] = [gBestFit];
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let iter = 0; iter < maxIter; iter++) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let p = 0; p < nParticles; p++) {
         // Update velocity
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let d = 0; d < dimensions; d++) {
           const r1 = rand(), r2 = rand();
           velocities[p][d] = w * velocities[p][d]
@@ -119,6 +143,10 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
         }
 
         // Update position
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let d = 0; d < dimensions; d++) {
           positions[p][d] += velocities[p][d];
           positions[p][d] = Math.max(lower_bounds[d], Math.min(upper_bounds[d], positions[p][d]));
@@ -126,9 +154,17 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
 
         // Evaluate
         const fit = fitness(positions[p]);
+        /** If.
+         * @param fit - fit
+         * @returns void
+         */
         if (fit < pBestFit[p]) {
           pBest[p] = [...positions[p]];
           pBestFit[p] = fit;
+          /** If.
+           * @param fit - fit
+           * @returns void
+           */
           if (fit < gBestFit) {
             gBest = [...positions[p]];
             gBestFit = fit;
@@ -155,6 +191,9 @@ export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwar
     };
   }
 
+  /** Gets metadata.
+   * @returns algorithm meta
+   */
   getMetadata(): AlgorithmMeta {
     return {
       id: "particle-swarm",

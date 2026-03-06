@@ -130,10 +130,20 @@ export class AuthEngine {
   private sessions = new Map<string, AuthSession>();
   private tokens = new Map<string, { user_id: string; expires_at: number; type: "access" | "refresh" }>();
 
+  /** Register.
+   * @param username - username
+   * @param password - password
+   * @param roles - roles
+   * @returns auth result
+   */
   register(username: string, password: string, roles: AuthRole[] = ["viewer"]): AuthResult {
     if (this.findByUsername(username)) {
       return { success: false, error: "Username already exists" };
     }
+    /** If.
+     * @param password.length - password.length
+     * @returns void
+     */
     if (password.length < 8) {
       return { success: false, error: "Password must be at least 8 characters" };
     }
@@ -160,13 +170,28 @@ export class AuthEngine {
     return { success: true, user_id: userId };
   }
 
+  /** Logs in.
+   * @param username - username
+   * @param password - password
+   * @param ip - ip
+   * @param userAgent - user agent
+   * @returns auth result
+   */
   login(username: string, password: string, ip: string = "0.0.0.0", userAgent: string = "unknown"): AuthResult {
     const user = this.findByUsername(username);
+    /** If.
+     * @param !user - !user
+     * @returns void
+     */
     if (!user) {
       return { success: false, error: "Invalid credentials" };
     }
 
     // Check lockout
+    /** If.
+     * @param user.locked_until - user.locked_until
+     * @returns void
+     */
     if (user.locked_until) {
       const lockExpiry = new Date(user.locked_until).getTime();
       if (Date.now() < lockExpiry) {
@@ -179,8 +204,16 @@ export class AuthEngine {
     }
 
     const hash = crypto.pbkdf2Sync(password, user.salt, HASH_ITERATIONS, HASH_KEYLEN, HASH_DIGEST).toString("hex");
+    /** If.
+     * @param hash - hash
+     * @returns void
+     */
     if (hash !== user.password_hash) {
       user.failed_attempts++;
+      /** If.
+       * @param user.failed_attempts - user.failed_attempts
+       * @returns void
+       */
       if (user.failed_attempts >= MAX_FAILED_ATTEMPTS) {
         user.locked_until = new Date(Date.now() + LOCKOUT_DURATION_MS).toISOString();
       }
@@ -191,6 +224,10 @@ export class AuthEngine {
     user.failed_attempts = 0;
     user.last_login = new Date().toISOString();
 
+    /** If.
+     * @param user.mfa_enabled - user.mfa_enabled
+     * @returns void
+     */
     if (user.mfa_enabled) {
       return { success: false, requires_mfa: true, user_id: user.id, error: "MFA required" };
     }
@@ -201,6 +238,10 @@ export class AuthEngine {
     return { success: true, user_id: user.id, token };
   }
 
+  /** Refresh Token.
+   * @param refreshTokenStr - refresh token str
+   * @returns auth result
+   */
   refreshToken(refreshTokenStr: string): AuthResult {
     const tokenData = this.tokens.get(refreshTokenStr);
     if (!tokenData || tokenData.type !== "refresh" || tokenData.expires_at < Date.now()) {
@@ -208,6 +249,10 @@ export class AuthEngine {
     }
 
     const user = this.users.get(tokenData.user_id);
+    /** If.
+     * @param !user - !user
+     * @returns void
+     */
     if (!user) {
       return { success: false, error: "User not found" };
     }
@@ -219,8 +264,17 @@ export class AuthEngine {
     return { success: true, user_id: user.id, token };
   }
 
+  /** Checks permission.
+   * @param userId - user id
+   * @param permission - permission
+   * @returns permission check
+   */
   checkPermission(userId: string, permission: string): PermissionCheck {
     const user = this.users.get(userId);
+    /** If.
+     * @param !user - !user
+     * @returns void
+     */
     if (!user) {
       return { allowed: false, user_id: userId, permission, roles: [], reason: "User not found" };
     }
@@ -244,6 +298,11 @@ export class AuthEngine {
     };
   }
 
+  /** Returns as sign role.
+   * @param userId - user id
+   * @param role - role
+   * @returns { success: boolean; error?: string }
+   */
   assignRole(userId: string, role: AuthRole): { success: boolean; error?: string } {
     const user = this.users.get(userId);
     if (!user) return { success: false, error: "User not found" };
@@ -256,6 +315,10 @@ export class AuthEngine {
     return { success: true };
   }
 
+  /** Sets up m f a.
+   * @param userId - user id
+   * @returns { success: boolean; secret?: string; error?: string }
+   */
   setupMFA(userId: string): { success: boolean; secret?: string; error?: string } {
     const user = this.users.get(userId);
     if (!user) return { success: false, error: "User not found" };
@@ -267,12 +330,24 @@ export class AuthEngine {
     return { success: true, secret };
   }
 
+  /** List Sessions.
+   * @param userId - user id
+   * @returns auth session[]
+   */
   listSessions(userId: string): AuthSession[] {
     return [...this.sessions.values()].filter(s => s.user_id === userId && s.is_active);
   }
 
+  /** Revokes session.
+   * @param sessionId - session id
+   * @returns true if condition is met
+   */
   revokeSession(sessionId: string): boolean {
     const session = this.sessions.get(sessionId);
+    /** If.
+     * @param session - session
+     * @returns void
+     */
     if (session) {
       session.is_active = false;
       return true;
@@ -280,10 +355,16 @@ export class AuthEngine {
     return false;
   }
 
+  /** Gets roles.
+   * @returns role definition[]
+   */
   getRoles(): RoleDefinition[] {
     return Object.values(ROLE_DB);
   }
 
+  /** Gets user count.
+   * @returns computed numeric result
+   */
   getUserCount(): number {
     return this.users.size;
   }
@@ -299,6 +380,10 @@ export class AuthEngine {
 
   private resolvePermissions(roles: AuthRole[]): string[] {
     const perms = new Set<string>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const r of roles) {
       const def = ROLE_DB[r];
       if (def) def.permissions.forEach(p => perms.add(p));

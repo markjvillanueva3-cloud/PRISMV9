@@ -985,6 +985,13 @@ export function couplingSensitivity(input: SensitivityInput): SensitivityResult 
 /**
  * Returns the full PHYSICS_SOURCE_FILE_CATALOG for inspection and traceability.
  * Every entry is safety_class "CRITICAL" -- these files govern real machine motion.
+  * @returns {
+  total_files: number;
+  total_lines: number;
+  safety_class: " c r i t i c a l";
+  categories:  record<string, string[]>;
+  catalog:  record<string,  physics source file entry>;
+}
  */
 export function getSourceFileCatalog(): {
   total_files: number;
@@ -1016,6 +1023,13 @@ export function getSourceFileCatalog(): {
 /**
  * Filters and summarizes the source file catalog by category and/or physics domain.
  * Useful for auditing which extracted JS files feed into a given physics subsystem.
+  * @param params - configuration options
+  * @returns {
+  matched_files: number;
+  matched_lines: number;
+  safety_class: " c r i t i c a l";
+  entries:  record<string,  physics source file entry>;
+}
  */
 export function catalogSourceFiles(params: {
   category?: string;

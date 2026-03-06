@@ -71,6 +71,10 @@ export class CacheEngine {
     const fullKey = `${namespace}:${key}`;
     const entry = this.entries.get(fullKey);
 
+    /** If.
+     * @param !entry - !entry
+     * @returns void
+     */
     if (!entry) {
       this.misses++;
       return undefined;
@@ -121,6 +125,11 @@ export class CacheEngine {
     return true;
   }
 
+  /** Delete.
+   * @param key - key identifier
+   * @param namespace - namespace
+   * @returns true if condition is met
+   */
   delete(key: string, namespace: string = "default"): boolean {
     const fullKey = `${namespace}:${key}`;
     const existed = this.entries.delete(fullKey);
@@ -128,6 +137,11 @@ export class CacheEngine {
     return existed;
   }
 
+  /** Checks whether has.
+   * @param key - key identifier
+   * @param namespace - namespace
+   * @returns true if condition is met
+   */
   has(key: string, namespace: string = "default"): boolean {
     const fullKey = `${namespace}:${key}`;
     const entry = this.entries.get(fullKey);
@@ -140,9 +154,22 @@ export class CacheEngine {
     return true;
   }
 
+  /** Clears namespace.
+   * @param namespace - namespace
+   * @returns computed numeric result
+   */
   clearNamespace(namespace: string): number {
     let count = 0;
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [key, entry] of this.entries) {
+      /** If.
+       * @param entry.namespace - entry.namespace
+       * @returns void
+       */
       if (entry.namespace === namespace) {
         this.entries.delete(key);
         this.removeFromOrder(key);
@@ -152,6 +179,9 @@ export class CacheEngine {
     return count;
   }
 
+  /** Clears all.
+   * @returns void
+   */
   clearAll(): void {
     this.entries.clear();
     this.accessOrder = [];
@@ -160,6 +190,9 @@ export class CacheEngine {
     this.evictions = 0;
   }
 
+  /** Stats.
+   * @returns cache stats
+   */
   stats(): CacheStats {
     const namespaces = new Set<string>();
     let oldestAge = 0;
@@ -184,6 +217,9 @@ export class CacheEngine {
     };
   }
 
+  /** Gets config.
+   * @returns cache config
+   */
   getConfig(): CacheConfig {
     return { ...this.config };
   }

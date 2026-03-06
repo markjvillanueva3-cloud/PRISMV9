@@ -194,6 +194,12 @@ export class ProbeRoutineEngine {
     };
   }
 
+  /** Interpret G D T.
+   * @param callout - callout
+   * @param tolerance_mm - tolerance_mm
+   * @param datumRefs - datum refs
+   * @returns g d t interpretation
+   */
   interpretGDT(callout: GDTCallout, tolerance_mm: number, datumRefs?: string[]): GDTInterpretation {
     const rule = GDT_RULES[callout] || GDT_RULES["position"];
     return {
@@ -204,6 +210,12 @@ export class ProbeRoutineEngine {
     };
   }
 
+  /** Report.
+   * @param spec - spec
+   * @param measured - measured
+   * @param number> - number>
+   * @returns probe report
+   */
   report(spec: GDTSpec, measured: Record<string, number>): ProbeReport {
     const nominal: Record<string, number> = {};
     if (spec.nominal.x_mm !== undefined) nominal.x = spec.nominal.x_mm;
@@ -212,6 +224,10 @@ export class ProbeRoutineEngine {
     if (spec.nominal.diameter_mm !== undefined) nominal.diameter = spec.nominal.diameter_mm;
 
     let deviation = 0;
+    /** If.
+     * @param spec.callout - spec.callout
+     * @returns void
+     */
     if (spec.callout === "position" && nominal.x !== undefined && nominal.y !== undefined) {
       const dx = (measured.x || 0) - nominal.x;
       const dy = (measured.y || 0) - nominal.y;

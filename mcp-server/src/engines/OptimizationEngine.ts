@@ -1056,6 +1056,15 @@ export function ecoOptimize(input: EcoOptimizeInput): EcoOptimizeResult {
 /**
  * Returns the full OPTIMIZATION_SOURCE_FILE_CATALOG for programmatic access.
  * Includes summary statistics by category and safety class.
+  * @returns {
+  catalog: typeof  o p t i m i z a t i o n_ s o u r c e_ f i l e_ c a t a l o g;
+  summary: {
+    total_files: number;
+    total_lines: number;
+    by_category:  record<string, number>;
+    by_safety_class:  record<string, number>;
+  };
+}
  */
 export function getSourceFileCatalog(): {
   catalog: typeof OPTIMIZATION_SOURCE_FILE_CATALOG;
@@ -1091,6 +1100,13 @@ export function getSourceFileCatalog(): {
 /**
  * Logs catalog status to console for diagnostics.
  * Returns a structured status report suitable for health checks.
+  * @returns {
+  status: string;
+  cataloged: number;
+  total_lines: number;
+  critical_modules: string[];
+  categories: string[];
+}
  */
 export function catalogSourceFiles(): {
   status: string;

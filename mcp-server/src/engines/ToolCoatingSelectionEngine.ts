@@ -198,19 +198,35 @@ export class ToolCoatingSelectionEngine {
     const compatMap = COMPATIBILITY[material] ?? {};
 
     const allCoatings = Object.keys(COATING_PROPERTIES) as CoatingType[];
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const coating of allCoatings) {
       let score = compatMap[coating] ?? 0.1; // low default if not in matrix
       let reasons: string[] = [];
 
       // Operation adjustments
+      /** If.
+       * @param operation - operation
+       * @returns void
+       */
       if (operation === "finishing" && COATING_PROPERTIES[coating].friction_coeff < 0.30) {
         score += 0.05;
         reasons.push("low friction for finishing");
       }
+      /** If.
+       * @param operation - operation
+       * @returns void
+       */
       if (operation === "roughing" && COATING_PROPERTIES[coating].max_temp_C >= 800) {
         score += 0.05;
         reasons.push("high temp tolerance for roughing");
       }
+      /** If.
+       * @param operation - operation
+       * @returns void
+       */
       if (operation === "tapping") {
         // Tapping needs low friction + toughness
         if (coating === "TiCN" || coating === "TiN") score += 0.10;
@@ -219,21 +235,41 @@ export class ToolCoatingSelectionEngine {
       }
 
       // Dry/MQL machining bonus
+      /** If.
+       * @param coolant - coolant
+       * @returns void
+       */
       if (coolant === "dry" || coolant === "mql") {
         score += DRY_MACHINING_BONUS[coating] ?? 0;
       }
 
       // Interrupted cut
+      /** If.
+       * @param input.is_interrupted_cut - input.is_interrupted_cut
+       * @returns void
+       */
       if (input.is_interrupted_cut) {
         score += INTERRUPTED_CUT_BONUS[coating] ?? 0;
       }
 
       // Hardness-based adjustments
+      /** If.
+       * @param input.workpiece_hardness_hrc - input.workpiece_hardness_hrc
+       * @returns void
+       */
       if (input.workpiece_hardness_hrc !== undefined) {
+        /** If.
+         * @param input.workpiece_hardness_hrc - input.workpiece_hardness_hrc
+         * @returns void
+         */
         if (input.workpiece_hardness_hrc >= 50 && COATING_PROPERTIES[coating].hardness_HV >= 3500) {
           score += 0.05;
           reasons.push("hard coating for hard material");
         }
+        /** If.
+         * @param input.workpiece_hardness_hrc - input.workpiece_hardness_hrc
+         * @returns void
+         */
         if (input.workpiece_hardness_hrc >= 55 && coating === "uncoated") {
           score -= 0.20;
           reasons.push("uncoated inadequate for hardened steel");
@@ -241,16 +277,32 @@ export class ToolCoatingSelectionEngine {
       }
 
       // Substrate compatibility
+      /** If.
+       * @param substrate - substrate
+       * @returns void
+       */
       if (substrate === "hss") {
+        /** If.
+         * @param coating - coating
+         * @returns void
+         */
         if (coating === "CVD_diamond" || coating === "nACo") {
           score -= 0.30; // not suitable for HSS substrate
           reasons.push("not compatible with HSS");
         }
+        /** If.
+         * @param coating - coating
+         * @returns void
+         */
         if (coating === "TiN" || coating === "TiCN") {
           score += 0.05;
           reasons.push("good HSS coating");
         }
       }
+      /** If.
+       * @param substrate - substrate
+       * @returns void
+       */
       if (substrate === "pcd" || substrate === "cbn") {
         // These substrates are typically uncoated — coating adhesion is poor
         if (coating === "uncoated") score += 0.40;
@@ -258,6 +310,10 @@ export class ToolCoatingSelectionEngine {
       }
 
       // Regrinding preference
+      /** If.
+       * @param input.requires_re_grind - input.requires_re_grind
+       * @returns void
+       */
       if (input.requires_re_grind && coating !== "uncoated" && coating !== "TiN") {
         score -= 0.10; // thick/hard coatings complicate regrinding
         reasons.push("regrind penalty");
@@ -275,12 +331,20 @@ export class ToolCoatingSelectionEngine {
     const bestProps = COATING_PROPERTIES[best.coating];
 
     // ── Safety checks ──
+    /** If.
+     * @param best.score - best.score
+     * @returns void
+     */
     if (best.score < 0.3) {
       recommendations.push("Low confidence in coating selection — verify with tooling supplier.");
       isSafe = false;
     }
 
     // Check cutting speed vs coating temp limit
+    /** If.
+     * @param input.cutting_speed_m_min - input.cutting_speed_m_min
+     * @returns void
+     */
     if (input.cutting_speed_m_min !== undefined) {
       // Rough temperature estimation: T ≈ Vc × material_factor
       const tempFactors: Partial<Record<MaterialClass, number>> = {
@@ -290,6 +354,10 @@ export class ToolCoatingSelectionEngine {
       };
       const tempFactor = tempFactors[material] ?? 3;
       const estTemp = input.cutting_speed_m_min * tempFactor;
+      /** If.
+       * @param estTemp - est temp
+       * @returns void
+       */
       if (estTemp > bestProps.max_temp_C * 0.9) {
         recommendations.push(
           `Estimated cutting temperature ~${Math.round(estTemp)}°C approaches ${best.coating} limit of ${bestProps.max_temp_C}°C. ` +
@@ -312,6 +380,10 @@ export class ToolCoatingSelectionEngine {
 
     // Coolant recommendation
     let coolantRec: CoolantStrategy = coolant;
+    /** If.
+     * @param bestProps.max_temp_C - best props.max_temp_ c
+     * @returns void
+     */
     if (bestProps.max_temp_C >= 900 && coolant === "flood") {
       coolantRec = "mql"; // high-temp coatings benefit from MQL or dry
       recommendations.push(`${best.coating} performs well with MQL or dry machining — flood coolant can cause thermal shock.`);

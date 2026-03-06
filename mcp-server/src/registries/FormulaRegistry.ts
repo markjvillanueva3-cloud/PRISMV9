@@ -481,6 +481,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     log.info("Loading FormulaRegistry...");
     
     // Load built-in formulas first
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const formula of BUILT_IN_FORMULAS) {
       this.entries.set(formula.formula_id, {
         id: formula.formula_id,
@@ -519,6 +523,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       path.join(PATHS.DATA_DIR, "FORMULA_REGISTRY.json")
     ];
     
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const registryPath of registryPaths) {
       try {
         if (!await fileExists(registryPath)) continue;
@@ -532,6 +540,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         let formulaEntries: any[] = [];
         
         const rawFormulas = data?.formulaRegistry?.formulas || data?.formulas;
+        /** If.
+         * @param rawFormulas - raw formulas
+         * @returns void
+         */
         if (rawFormulas) {
           if (Array.isArray(rawFormulas)) {
             formulaEntries = rawFormulas;
@@ -545,6 +557,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
         
         let loaded = 0;
         
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const formula of formulaEntries) {
           // Map schema: registry uses "id", built-in uses "formula_id"
           const formulaId = formula.formula_id || formula.id;
@@ -608,12 +624,20 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     try {
       const files = await listDirectory(formulaSkillPath);
       
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of files) {
         if (file.name.endsWith(".json")) {
           const filePath = file.path;
           const data = await readJsonFile<Formula | Formula[]>(filePath);
           const formulas = Array.isArray(data) ? data : [data];
           
+          /** For.
+           * @param const - const
+           * @returns void
+           */
           for (const formula of formulas) {
             if (formula.formula_id && !this.has(formula.formula_id)) {
               this.entries.set(formula.formula_id, {
@@ -651,12 +675,20 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       const files = await listDirectory(formulasDir);
       let cataloged = 0;
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const file of files) {
         if (!file.name.endsWith(".js")) continue;
 
         const moduleName = file.name.replace(".js", "");
         const catalogEntry = FORMULA_SOURCE_FILE_CATALOG[moduleName];
 
+        /** If.
+         * @param catalogEntry - catalog entry
+         * @returns void
+         */
         if (catalogEntry) {
           cataloged++;
           log.debug(`Formula source cataloged: ${moduleName} (${catalogEntry.category}, ${catalogEntry.lines} lines, ${catalogEntry.safety_class})`);
@@ -705,10 +737,19 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     this.indexByCategory.clear();
     this.indexByConsumer.clear();
     
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
     for (const [id, entry] of this.entries) {
       const formula = entry.data;
       
       // Index by domain
+      /** If.
+       * @param formula.domain - formula.domain
+       * @returns void
+       */
       if (formula.domain) {
         if (!this.indexByDomain.has(formula.domain)) {
           this.indexByDomain.set(formula.domain, []);
@@ -717,6 +758,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       }
       
       // Index by category
+      /** If.
+       * @param formula.category - formula.category
+       * @returns void
+       */
       if (formula.category) {
         if (!this.indexByCategory.has(formula.category)) {
           this.indexByCategory.set(formula.category, []);
@@ -725,7 +770,15 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       }
       
       // Index by consumer
+      /** If.
+       * @param formula.consumers - formula.consumers
+       * @returns void
+       */
       if (formula.consumers) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const consumer of formula.consumers) {
           if (!this.indexByConsumer.has(consumer)) {
             this.indexByConsumer.set(consumer, []);
@@ -787,6 +840,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     
     let results: Formula[] = [];
     
+    /** If.
+     * @param options?.domain - options?.domain
+     * @returns void
+     */
     if (options?.domain) {
       results = await this.getByDomain(options.domain);
     } else if (options?.category) {
@@ -816,6 +873,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     await this.load();
     
     const formula = this.get(formulaId);
+    /** If.
+     * @param !formula - !formula
+     * @returns void
+     */
     if (!formula) {
       throw new Error(`Formula ${formulaId} not found`);
     }
@@ -823,7 +884,15 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     const validation = { valid: true, errors: [] as string[], warnings: [] as string[] };
     
     // Check required inputs
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const required of formula.validation.required_inputs) {
+      /** If.
+       * @param inputs[required] - inputs[required]
+       * @returns void
+       */
       if (inputs[required] === undefined) {
         validation.valid = false;
         validation.errors.push(`Missing required input: ${required}`);
@@ -831,13 +900,33 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     }
     
     // Check input ranges
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const param of formula.parameters) {
+      /** If.
+       * @param param.type - param.type
+       * @returns void
+       */
       if (param.type === "input" && inputs[param.name] !== undefined) {
         const value = inputs[param.name];
+        /** If.
+         * @param param.range - param.range
+         * @returns void
+         */
         if (param.range) {
+          /** If.
+           * @param value - value to set
+           * @returns void
+           */
           if (value < param.range.min) {
             validation.warnings.push(`${param.name} (${value}) below minimum (${param.range.min})`);
           }
+          /** If.
+           * @param value - value to set
+           * @returns void
+           */
           if (value > param.range.max) {
             validation.warnings.push(`${param.name} (${value}) above maximum (${param.range.max})`);
           }
@@ -845,6 +934,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       }
     }
     
+    /** If.
+     * @param !validation.valid - !validation.valid
+     * @returns void
+     */
     if (!validation.valid) {
       return { result: NaN, formula, validation };
     }
@@ -852,6 +945,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     // Calculate result based on formula ID
     let result: number;
     
+    /** Switch.
+     * @param formulaId - formula id
+     * @returns void
+     */
     switch (formulaId) {
       case "F-KIENZLE-001":
         result = inputs.kc1_1 * Math.pow(inputs.h, 1 - inputs.mc) * inputs.b;
@@ -890,6 +987,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       case "F-OMEGA-001":
         result = 0.25 * inputs.R + 0.20 * inputs.C + 0.15 * inputs.P + 0.30 * inputs.S + 0.10 * inputs.L;
         // Safety hard block check
+        /** If.
+         * @param inputs.S - inputs. s
+         * @returns void
+         */
         if (inputs.S < 0.70) {
           validation.errors.push("HARD BLOCK: S(x) < 0.70");
           validation.valid = false;
@@ -910,6 +1011,10 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       default: {
         // R1-MS8: formula_js fallback for registry formulas
         const formulaJs = (formula as any).formula_js;
+        /** If.
+         * @param formulaJs - formula js
+         * @returns void
+         */
         if (formulaJs && typeof formulaJs === "string") {
           try {
             const fn = new Function("return " + formulaJs)();
@@ -930,7 +1035,15 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
     }
     
     // Check output range
+    /** If.
+     * @param formula.validation.output_range - formula.validation.output_range
+     * @returns void
+     */
     if (formula.validation.output_range) {
+      /** If.
+       * @param result - result
+       * @returns void
+       */
       if (result < formula.validation.output_range.min || result > formula.validation.output_range.max) {
         validation.warnings.push(`Result ${result} outside expected range`);
       }
@@ -968,10 +1081,20 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
       }
     };
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [domain, ids] of this.indexByDomain) {
       stats.byDomain[domain] = ids.length;
     }
     
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
     for (const [category, ids] of this.indexByCategory) {
       stats.byCategory[category] = ids.length;
     }

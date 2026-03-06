@@ -99,9 +99,17 @@ export class ShotPeeningEngine {
     const recs: string[] = [];
     if (input.coverage_pct < 100) recs.push("Coverage below 100% — not acceptable for fatigue-critical parts");
     if (input.coverage_pct > 200) recs.push("Coverage >200% may cause over-peening and surface damage");
+    /** If.
+     * @param raIncrease - ra increase
+     * @returns void
+     */
     if (raIncrease > 5 && input.is_fatigue_critical) {
       recs.push("Significant roughness increase — consider polishing after peening for best fatigue life");
     }
+    /** If.
+     * @param input.shot_media - input.shot_media
+     * @returns void
+     */
     if (input.shot_media === "glass_bead" && input.workpiece_hardness_HRC > 45) {
       recs.push("Glass beads may not achieve sufficient intensity for hard materials — use steel shot");
     }

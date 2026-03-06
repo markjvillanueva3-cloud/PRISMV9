@@ -108,18 +108,38 @@ export class WaterjetTaperEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param taperDeg - taper deg
+     * @returns void
+     */
     if (taperDeg > 0.5 && !input.has_tilt_head) {
       recs.push(`Taper ${taperDeg.toFixed(2)}° — consider dynamic tilt head for compensation`);
     }
+    /** If.
+     * @param achievedQuality - achieved quality
+     * @returns void
+     */
     if (achievedQuality !== input.target_quality) {
       recs.push(`Speed produces ${achievedQuality} quality instead of target ${input.target_quality} — adjust speed to ${recSpeed.toFixed(0)} mm/min`);
     }
+    /** If.
+     * @param input.thickness_mm - input.thickness_mm
+     * @returns void
+     */
     if (input.thickness_mm > 150) {
       recs.push("Thick material (>150mm) — expect significant taper and reduced bottom edge quality");
     }
+    /** If.
+     * @param input.standoff_mm - input.standoff_mm
+     * @returns void
+     */
     if (input.standoff_mm > 3) {
       recs.push("Standoff >3mm — increases kerf width and taper; reduce to 1-2mm");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Waterjet parameters acceptable — proceed");
     }

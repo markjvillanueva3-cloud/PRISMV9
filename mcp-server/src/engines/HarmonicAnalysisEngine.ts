@@ -79,6 +79,10 @@ export class HarmonicAnalysisEngine {
 
     // Calculate bearing defect frequencies if params provided
     let bearingFreqs: HarmonicResult["bearing_defect_freqs"];
+    /** If.
+     * @param input.bearing_params - input.bearing_params
+     * @returns void
+     */
     if (input.bearing_params) {
       const bp = input.bearing_params;
       const cosA = Math.cos(bp.contact_angle_deg * Math.PI / 180);
@@ -98,6 +102,10 @@ export class HarmonicAnalysisEngine {
       .filter(p => p.amplitude_um >= threshold * 0.5)
       .sort((a, b) => b.amplitude_um - a.amplitude_um);
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const peak of significantPeaks) {
       const identified = this._identifyPeak(peak.freq_Hz, spindleFreq, toothPassFreq, bearingFreqs, input.machine_natural_freqs_Hz);
       peaks.push({
@@ -157,6 +165,10 @@ export class HarmonicAnalysisEngine {
     const tol = 0.03; // 3% frequency tolerance
 
     // Check spindle harmonics
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let n = 1; n <= 5; n++) {
       if (Math.abs(freq - spindleFreq * n) / (spindleFreq * n) < tol) {
         return {
@@ -169,6 +181,10 @@ export class HarmonicAnalysisEngine {
     }
 
     // Check tooth passing harmonics
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let n = 1; n <= 4; n++) {
       if (Math.abs(freq - toothPassFreq * n) / (toothPassFreq * n) < tol) {
         return {
@@ -181,6 +197,10 @@ export class HarmonicAnalysisEngine {
     }
 
     // Check bearing defect frequencies
+    /** If.
+     * @param bearingFreqs - bearing freqs
+     * @returns void
+     */
     if (bearingFreqs) {
       const checks: [string, number, HarmonicSource][] = [
         ["BPFO", bearingFreqs.BPFO_Hz, "bearing_outer"],
@@ -188,7 +208,17 @@ export class HarmonicAnalysisEngine {
         ["BSF", bearingFreqs.BSF_Hz, "bearing_ball"],
         ["FTF", bearingFreqs.FTF_Hz, "bearing_cage"],
       ];
+      /** For.
+       * @param const - const
+       * @param bf - bf
+       * @param source] - source]
+       * @returns void
+       */
       for (const [label, bf, source] of checks) {
+        /** For.
+         * @param let - let
+         * @returns void
+         */
         for (let n = 1; n <= 3; n++) {
           if (Math.abs(freq - bf * n) / (bf * n) < tol) {
             return {
@@ -203,7 +233,16 @@ export class HarmonicAnalysisEngine {
     }
 
     // Check electrical (50/60 Hz and harmonics)
+    /** For.
+     * @param const - const
+     * @param 60] - 60]
+     * @returns void
+     */
     for (const base of [50, 60]) {
+      /** For.
+       * @param let - let
+       * @returns void
+       */
       for (let n = 1; n <= 3; n++) {
         if (Math.abs(freq - base * n) < 2) {
           return {
@@ -217,7 +256,15 @@ export class HarmonicAnalysisEngine {
     }
 
     // Check structural resonances
+    /** If.
+     * @param naturalFreqs - natural freqs
+     * @returns void
+     */
     if (naturalFreqs) {
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const nf of naturalFreqs) {
         if (Math.abs(freq - nf) / nf < tol) {
           return {

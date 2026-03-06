@@ -91,12 +91,20 @@ export class WeldPrepEngine {
 
     // Groove depth
     let grooveDepth = t - rootFace;
+    /** If.
+     * @param input.groove_type - input.groove_type
+     * @returns void
+     */
     if (input.groove_type === "double_V" || input.groove_type === "double_U") {
       grooveDepth = (t - rootFace) / 2; // each side
     }
 
     // Included angle
     let includedAngle: number;
+    /** If.
+     * @param input.groove_type - input.groove_type
+     * @returns void
+     */
     if (input.groove_type === "V" || input.groove_type === "double_V") {
       includedAngle = bevelAngle * 2;
     } else if (input.groove_type === "single_bevel") {
@@ -109,6 +117,10 @@ export class WeldPrepEngine {
     let area: number;
     const tanBevel = Math.tan(bevelAngle * Math.PI / 180);
 
+    /** If.
+     * @param input.groove_type - input.groove_type
+     * @returns void
+     */
     if (input.groove_type === "V" || input.groove_type === "double_V") {
       // Triangular cross-section + root gap rectangle
       const triangleArea = grooveDepth * grooveDepth * tanBevel;
@@ -142,18 +154,38 @@ export class WeldPrepEngine {
 
     // Recommendations
     const recs: string[] = [];
+    /** If.
+     * @param t - t
+     * @returns void
+     */
     if (t > 25 && input.groove_type === "V") {
       recs.push("Plate >25mm with V-groove — consider double-V or J-groove to reduce weld volume");
     }
+    /** If.
+     * @param t - t
+     * @returns void
+     */
     if (t < 6 && input.groove_type !== "square") {
       recs.push("Thin plate (<6mm) — square butt joint may be sufficient");
     }
+    /** If.
+     * @param input.weld_process - input.weld_process
+     * @returns void
+     */
     if (input.weld_process === "SAW" && rootGap > 3) {
       recs.push("SAW with large root gap — use backing bar or reduce gap");
     }
+    /** If.
+     * @param bevelAngle - bevel angle
+     * @returns void
+     */
     if (bevelAngle > 35 && input.groove_type === "V") {
       recs.push("Steep bevel angle — excessive weld metal; consider reducing to 30° per side");
     }
+    /** If.
+     * @param recs.length - recs.length
+     * @returns void
+     */
     if (recs.length === 0) {
       recs.push("Weld prep geometry within standard parameters — proceed");
     }

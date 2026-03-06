@@ -219,6 +219,10 @@ export class VisualizationEngine {
 
     const c = color ?? COLORS.stock;
     const colors: number[] = [];
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < 24; i++) {
       colors.push(c.r, c.g, c.b, c.a ?? 1);
     }
@@ -235,6 +239,10 @@ export class VisualizationEngine {
     const halfH = height / 2;
 
     // Side vertices
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i <= segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
       const cos = Math.cos(angle), sin = Math.sin(angle);
@@ -248,6 +256,10 @@ export class VisualizationEngine {
     }
 
     // Side faces
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       const a = i * 2, b = a + 1, c = a + 2, d = a + 3;
       indices.push(a, c, b, b, c, d);
@@ -257,11 +269,19 @@ export class VisualizationEngine {
     const topCenter = vertices.length / 3;
     vertices.push(0, 0, halfH);
     normals.push(0, 0, 1);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
       vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius, halfH);
       normals.push(0, 0, 1);
     }
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       indices.push(topCenter, topCenter + 1 + i, topCenter + 1 + ((i + 1) % segments));
     }
@@ -270,11 +290,19 @@ export class VisualizationEngine {
     const botCenter = vertices.length / 3;
     vertices.push(0, 0, -halfH);
     normals.push(0, 0, -1);
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
       vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius, -halfH);
       normals.push(0, 0, -1);
     }
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < segments; i++) {
       indices.push(botCenter, botCenter + 1 + ((i + 1) % segments), botCenter + 1 + i);
     }
@@ -302,10 +330,18 @@ export class VisualizationEngine {
 
     let totalPoints = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const move of moves) {
       const type = move.move_type === "G0" ? "rapid" : move.move_type === "G2" ? "arc_cw" : move.move_type === "G3" ? "arc_ccw" : "feed";
 
       let color: Color;
+      /** Switch.
+       * @param colorMode - color mode
+       * @returns void
+       */
       switch (colorMode) {
         case "by_type":
           color = type === "rapid" ? COLORS.rapid : type === "feed" ? COLORS.feed : type.startsWith("arc") ? COLORS.arc : COLORS.plunge;
@@ -370,6 +406,10 @@ export class VisualizationEngine {
     const children: SceneNode[] = [];
 
     // Stock
+    /** If.
+     * @param input.stock - input.stock
+     * @returns void
+     */
     if (input.stock) {
       const stockMesh = this.generateBoxMesh("stock", "Workpiece Stock", input.stock.width, input.stock.height, input.stock.depth, COLORS.stock);
       children.push({
@@ -389,6 +429,10 @@ export class VisualizationEngine {
     }
 
     // Toolpath
+    /** If.
+     * @param input.toolpath - input.toolpath
+     * @returns void
+     */
     if (input.toolpath) {
       children.push({
         id: "toolpath_node",
@@ -401,6 +445,10 @@ export class VisualizationEngine {
     }
 
     // Tool
+    /** If.
+     * @param input.tool - input.tool
+     * @returns void
+     */
     if (input.tool) {
       const toolMesh = this.generateCylinderMesh("tool_cutting", "Cutting Tool", input.tool.diameter / 2, input.tool.length, 24, COLORS.tool);
       const toolChildren: SceneNode[] = [{
@@ -412,6 +460,10 @@ export class VisualizationEngine {
         mesh: toolMesh,
       }];
 
+      /** If.
+       * @param input.tool.holder_diameter - input.tool.holder_diameter
+       * @returns void
+       */
       if (input.tool.holder_diameter && input.tool.holder_length) {
         const holderMesh = this.generateCylinderMesh("tool_holder", "Tool Holder", input.tool.holder_diameter / 2, input.tool.holder_length, 24, COLORS.holder);
         toolChildren.push({
@@ -466,9 +518,17 @@ export class VisualizationEngine {
     if (value <= heatmap.min_value) return heatmap.color_stops[0].color;
     if (value >= heatmap.max_value) return heatmap.color_stops[heatmap.color_stops.length - 1].color;
 
+    /** For.
+     * @param let - let
+     * @returns void
+     */
     for (let i = 0; i < heatmap.color_stops.length - 1; i++) {
       const a = heatmap.color_stops[i];
       const b = heatmap.color_stops[i + 1];
+      /** If.
+       * @param value - value to set
+       * @returns void
+       */
       if (value >= a.value && value <= b.value) {
         const t = (value - a.value) / (b.value - a.value);
         return {

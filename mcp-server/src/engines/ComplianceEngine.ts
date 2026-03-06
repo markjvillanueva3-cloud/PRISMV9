@@ -311,11 +311,18 @@ export class ComplianceEngine {
     this.config = { ...DEFAULT_COMPLIANCE_CONFIG, ...configOverrides };
   }
 
+  /** Init.
+   * @returns void
+   */
   init(): void {
     if (this.initialized) return;
     ensureDirs();
 
     // Load built-in templates
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const t of BUILTIN_TEMPLATES) {
       this.templates.set(t.id, t);
     }
@@ -339,17 +346,29 @@ export class ComplianceEngine {
     const disclaimer = COMPLIANCE_DISCLAIMER;
 
     // Gate: disclaimer acknowledgment
+    /** If.
+     * @param this.config.require_disclaimer_ack - this.config.require_disclaimer_ack
+     * @returns void
+     */
     if (this.config.require_disclaimer_ack && !disclaimerAcknowledged) {
       return { success: false, reason: 'Disclaimer must be acknowledged before provisioning. Templates are guidance only, not legal advice.', disclaimer };
     }
 
     const template = this.templates.get(templateId);
+    /** If.
+     * @param !template - !template
+     * @returns void
+     */
     if (!template) {
       return { success: false, reason: `Template '${templateId}' not found. Available: ${[...this.templates.keys()].join(', ')}`, disclaimer };
     }
 
     // Gate: max templates
     const activeCount = [...this.provisioned.values()].filter(p => p.status === 'active').length;
+    /** If.
+     * @param activeCount - active count
+     * @returns void
+     */
     if (activeCount >= this.config.max_templates) {
       return { success: false, reason: `Maximum ${this.config.max_templates} templates reached`, disclaimer };
     }
@@ -363,20 +382,36 @@ export class ComplianceEngine {
       const hookIds: string[] = [];
 
       // Auto-provision hooks via F6
+      /** If.
+       * @param this.config.auto_provision_hooks - this.config.auto_provision_hooks
+       * @returns void
+       */
       if (this.config.auto_provision_hooks) {
         // M-027: Collect existing hook IDs from previous provision to avoid duplicates on re-apply
         const prevProvision = this.provisioned.get(templateId);
         const existingHookIds = new Set(
           prevProvision?.hook_ids?.filter(id => { try { return nlHookEngine.get(id) !== null; } catch { return false; } }) || []
         );
+        /** For.
+         * @param const - const
+         * @returns void
+         */
         for (const req of template.requirements) {
           if (!req.hook_spec) continue;
           try {
             // M-027: Skip hook creation if a hook from a prior provision is still active
+            /** If.
+             * @param existingHookIds.size - existing hook ids.size
+             * @returns void
+             */
             if (existingHookIds.size > 0) {
               const alreadyHooked = [...existingHookIds].some(id => {
                 try { return nlHookEngine.get(id) !== null; } catch { return false; }
               });
+              /** If.
+               * @param alreadyHooked - already hooked
+               * @returns void
+               */
               if (alreadyHooked && hookIds.length < existingHookIds.size) {
                 // Reuse existing hook
                 const reused = [...existingHookIds][hookIds.length];
@@ -384,6 +419,10 @@ export class ComplianceEngine {
               }
             }
             const result = nlHookEngine.createFromNL(req.hook_spec.natural_language);
+            /** If.
+             * @param result.deploy?.hook_id - result.deploy?.hook_id
+             * @returns void
+             */
             if (result.deploy?.hook_id) {
               hookIds.push(result.deploy.hook_id);
               this.metrics.hooks_created++;
@@ -395,6 +434,10 @@ export class ComplianceEngine {
       }
 
       // Auto-configure certificates via F4
+      /** If.
+       * @param this.config.auto_configure_certs - this.config.auto_configure_certs
+       * @returns void
+       */
       if (this.config.auto_configure_certs) {
         try {
           certificateEngine.init(); // Ensure initialized
@@ -434,15 +477,27 @@ export class ComplianceEngine {
   // TEMPLATE REMOVAL
   // ==========================================================================
 
+  /** Removes template.
+   * @param templateId - template id
+   * @returns { success: boolean; reason?: string }
+   */
   removeTemplate(templateId: string): { success: boolean; reason?: string } {
     this.init();
     const record = this.provisioned.get(templateId);
+    /** If.
+     * @param !record - !record
+     * @returns void
+     */
     if (!record || record.status !== 'active') {
       return { success: false, reason: `Template '${templateId}' not active` };
     }
 
     try {
       // Remove F6 hooks
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const hookId of record.hook_ids) {
         try { nlHookEngine.remove(hookId); } catch { /* best-effort */ }
       }
@@ -466,6 +521,10 @@ export class ComplianceEngine {
   // COMPLIANCE AUDIT — Check active templates against current state
   // ==========================================================================
 
+  /** Runs audit.
+   * @param templateId - template id
+   * @returns void
+   */
   runAudit(templateId?: string): {
     results: { template_id: string; framework: RegulatoryFramework; score: number; details: string }[];
     total_score: number; disclaimer: string;
@@ -478,6 +537,10 @@ export class ComplianceEngine {
       ? [this.provisioned.get(templateId)].filter(Boolean) as ProvisionedTemplate[]
       : [...this.provisioned.values()].filter(p => p.status === 'active');
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const prov of targets) {
       const template = this.templates.get(prov.template_id);
       if (!template) continue;
@@ -487,6 +550,10 @@ export class ComplianceEngine {
       let weightedPassing = 0;
       let totalWeight = 0;
 
+      /** For.
+       * @param const - const
+       * @returns void
+       */
       for (const req of template.requirements) {
         const weight = severityWeights[req.severity] || 1;
         totalWeight += weight;
@@ -535,9 +602,17 @@ export class ComplianceEngine {
   // GAP ANALYSIS — Identify missing controls per template
   // ==========================================================================
 
+  /** Gap Analysis.
+   * @param templateId - template id
+   * @returns gap analysis result | { error: string; disclaimer: string }
+   */
   gapAnalysis(templateId: string): GapAnalysisResult | { error: string; disclaimer: string } {
     this.init();
     const template = this.templates.get(templateId);
+    /** If.
+     * @param !template - !template
+     * @returns void
+     */
     if (!template) {
       return { error: `Template '${templateId}' not found`, disclaimer: COMPLIANCE_DISCLAIMER };
     }
@@ -546,11 +621,19 @@ export class ComplianceEngine {
     const gaps: ComplianceGap[] = [];
     let compliant = 0, partial = 0, non_compliant = 0, not_assessed = 0;
 
+    /** For.
+     * @param const - const
+     * @returns void
+     */
     for (const req of template.requirements) {
       let status: ComplianceStatus = 'not_assessed';
       let reason = '';
       let remediation = '';
 
+      /** If.
+       * @param !prov - !prov
+       * @returns void
+       */
       if (!prov || prov.status !== 'active') {
         status = 'not_assessed';
         reason = 'Template not provisioned';
@@ -559,6 +642,10 @@ export class ComplianceEngine {
         const hookActive = prov.hook_ids.some(id => {
           try { return nlHookEngine.get(id) !== null; } catch { return false; }
         });
+        /** If.
+         * @param hookActive - hook active
+         * @returns void
+         */
         if (hookActive) {
           status = 'compliant';
         } else {
@@ -578,6 +665,10 @@ export class ComplianceEngine {
       else if (status === 'non_compliant') non_compliant++;
       else not_assessed++;
 
+      /** If.
+       * @param status - status
+       * @returns void
+       */
       if (status !== 'compliant') {
         gaps.push({
           requirement_id: req.id, regulation_clause: req.regulation_clause,
@@ -601,6 +692,9 @@ export class ComplianceEngine {
   // CONFLICT RESOLUTION — Multi-template overlap handling
   // ==========================================================================
 
+  /** Resolves conflicts.
+   * @returns void
+   */
   resolveConflicts(): {
     conflicts: { field: string; templates: string[]; values: unknown[]; resolved: unknown; strategy: ConflictStrategy }[];
     disclaimer: string;
@@ -611,6 +705,10 @@ export class ComplianceEngine {
       .map(([id]) => this.templates.get(id))
       .filter(Boolean) as ComplianceTemplate[];
 
+    /** If.
+     * @param active.length - active.length
+     * @returns void
+     */
     if (active.length <= 1) {
       return { conflicts: [], disclaimer: COMPLIANCE_DISCLAIMER };
     }
@@ -651,6 +749,10 @@ export class ComplianceEngine {
     const allAccessControls = active.flatMap(t =>
       t.requirements.filter(r => r.access_control).map(r => ({ templateId: t.id, req: r.id, ac: r.access_control! }))
     );
+    /** If.
+     * @param allAccessControls.length - all access controls.length
+     * @returns void
+     */
     if (allAccessControls.length > 1) {
       // INTERSECT: union all required_roles, union all deny_roles (most restrictive)
       const mergedRequired = [...new Set(allAccessControls.flatMap(a => a.ac.required_roles || []))];
@@ -698,6 +800,9 @@ export class ComplianceEngine {
   // QUERIES
   // ==========================================================================
 
+  /** List Templates.
+   * @returns { available: { id: string; framework:  regulatory framework; title: string; strictness: number; legal_review: boolean }[];
+   */
   listTemplates(): { available: { id: string; framework: RegulatoryFramework; title: string; strictness: number; legal_review: boolean }[];
                      provisioned: { id: string; framework: RegulatoryFramework; status: string; score: number }[];
                      disclaimer: string } {
@@ -715,11 +820,20 @@ export class ComplianceEngine {
     };
   }
 
+  /** Gets template.
+   * @param templateId - template id
+   * @returns compliance template | null
+   */
   getTemplate(templateId: string): ComplianceTemplate | null {
     this.init();
     return this.templates.get(templateId) || null;
   }
 
+  /** Gets audit log.
+   * @param limit - maximum number of results
+   * @param framework - framework
+   * @returns compliance audit entry[]
+   */
   getAuditLog(limit: number = 50, framework?: RegulatoryFramework): ComplianceAuditEntry[] {
     try {
       if (!fs.existsSync(AUDIT_LOG_PATH)) return [];
@@ -753,6 +867,10 @@ export class ComplianceEngine {
     try {
       if (fs.existsSync(REGISTRY_PATH)) {
         const raw = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8'));
+        /** If.
+         * @param raw.provisioned - raw.provisioned
+         * @returns void
+         */
         if (raw.provisioned) {
           for (const [key, val] of Object.entries(raw.provisioned)) {
             this.provisioned.set(key, val as ProvisionedTemplate);
@@ -768,6 +886,9 @@ export class ComplianceEngine {
   // METRICS & CONFIG
   // ==========================================================================
 
+  /** Gets stats.
+   * @returns void
+   */
   getStats(): {
     templates_available: number; templates_active: number;
     total_requirements: number; metrics: typeof this.metrics;
@@ -788,8 +909,15 @@ export class ComplianceEngine {
     };
   }
 
+  /** Gets config.
+   * @returns compliance config { return { ...this.config }; }
+   */
   getConfig(): ComplianceConfig { return { ...this.config }; }
 
+  /** Updates config.
+   * @param updates - updates
+   * @returns compliance config
+   */
   updateConfig(updates: Partial<ComplianceConfig>): ComplianceConfig {
     this.config = { ...this.config, ...updates };
     try {
@@ -813,6 +941,9 @@ export class ComplianceEngine {
     return QUALITY_SOURCE_FILE_CATALOG;
   }
 
+  /** Shutdown.
+   * @returns void
+   */
   shutdown(): void {
     this.saveRegistry();
     this.initialized = false;

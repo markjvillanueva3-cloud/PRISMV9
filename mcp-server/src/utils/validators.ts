@@ -178,6 +178,10 @@ export const REGRESSION_THRESHOLD = 0.20;  // Max 20% reduction allowed
 
 /**
  * Validate a value against a field specification
+  * @param value - value
+  * @param spec - spec
+  * @param fieldName - field name
+  * @returns array of validation issue items
  */
 export function validateField(
   value: unknown,
@@ -334,6 +338,9 @@ export function validateField(
 
 /**
  * Validate an object against a schema
+  * @param data - input data
+  * @param schema - schema
+  * @returns validation result
  */
 export function validateSchema(
   data: Record<string, unknown>,
@@ -378,6 +385,10 @@ export function validateSchema(
 
 /**
  * Validate Kienzle coefficients against known ranges
+  * @param kc1_1 - kc1_1 value
+  * @param mc - mc value
+  * @param isoGroup - iso group string
+  * @returns validation result
  */
 export function validateKienzle(
   kc1_1: number,
@@ -428,6 +439,10 @@ export function validateKienzle(
 
 /**
  * Validate Taylor tool life coefficients
+  * @param C - c value
+  * @param n - n value
+  * @param isoGroup - iso group string
+  * @returns validation result
  */
 export function validateTaylor(
   C: number,
@@ -474,6 +489,14 @@ export function validateTaylor(
 
 /**
  * Validate Johnson-Cook parameters for physical consistency
+  * @param A - a value
+  * @param B - b value
+  * @param n - n value
+  * @param C - c value
+  * @param m - m value
+  * @param yieldStrength - yield strength value
+  * @param tensileStrength - tensile strength value
+  * @returns validation result
  */
 export function validateJohnsonCook(
   A: number,
@@ -566,6 +589,8 @@ export function validateJohnsonCook(
 /**
  * Compute safety score S(x) for a material
  * Returns score 0-1, BLOCKED if < 0.70
+  * @param material - material identifier or specification
+  * @returns safety result
  */
 export function computeSafetyScore(material: Record<string, unknown>): SafetyResult {
   const components: SafetyComponents = {
@@ -739,6 +764,8 @@ export const MATERIAL_REQUIRED_PARAMS = {
 
 /**
  * Check material parameter completeness
+  * @param material - material identifier or specification
+  * @returns { percentage: number; filled: number; total: number; missing: string[]; level: string }
  */
 export function checkMaterialCompleteness(
   material: Record<string, unknown>
@@ -794,6 +821,9 @@ export function checkMaterialCompleteness(
 
 /**
  * Count items in content based on type
+  * @param content - content string
+  * @param fileType - file type string
+  * @returns count result
  */
 export function countItems(content: string, fileType: string): CountResult {
   // JSON files
@@ -848,6 +878,10 @@ export function countItems(content: string, fileType: string): CountResult {
 
 /**
  * Check for anti-regression before file replacement
+  * @param oldContent - old content string
+  * @param newContent - new content string
+  * @param fileType - file type string
+  * @returns regression check result
  */
 export function checkAntiRegression(
   oldContent: string,
@@ -982,6 +1016,13 @@ export function isValidSeverity(value: unknown): value is string {
 
 /**
  * Full material validation combining all checks
+  * @param material - material identifier or specification
+  * @returns {
+  valid: boolean;
+  safety:  safety result;
+  completeness:  return type<typeof check material completeness>;
+  issues:  validation issue[];
+}
  */
 export function validateMaterial(material: Record<string, unknown>): {
   valid: boolean;
@@ -1034,6 +1075,9 @@ export function validateMaterial(material: Record<string, unknown>): {
 
 /**
  * Log validation result
+  * @param context - execution context
+  * @param result - result
+  * @returns void
  */
 export function logValidation(
   context: string,
