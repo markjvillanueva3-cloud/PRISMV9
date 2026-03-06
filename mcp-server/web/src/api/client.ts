@@ -347,3 +347,131 @@ export async function inventoryABC(params: { items: Record<string, unknown>[] })
 export async function schedulingJobShop(params: Record<string, unknown>): Promise<PrismResponse> {
   return request('POST', '/erp/scheduling-job-shop', params);
 }
+
+// === Quoting ===
+
+export async function quotingGenerate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/generate', params);
+}
+
+export async function quotingPriceBreaks(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/price-breaks', params);
+}
+
+// === Quote Estimator (physics-backed) ===
+
+export async function quoteEstimate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/estimate', params);
+}
+
+export async function quoteCompareMaterials(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/compare-materials', params);
+}
+
+export async function quoteWhatIf(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/what-if', params);
+}
+
+// === Secondary Ops ===
+
+export async function secOpsList(params?: { category?: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/sec-ops-list', params ?? {});
+}
+
+export async function secOpsQuote(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/sec-ops-quote', params);
+}
+
+export async function secOpsBatchQuote(params: { operations: Record<string, unknown>[] }): Promise<PrismResponse> {
+  return request('POST', '/quote/sec-ops-batch', params);
+}
+
+export async function secOpsFindVendors(params: { operation_id: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/sec-ops-vendors', params);
+}
+
+export async function secOpsRecommend(params: { material: string; application: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/sec-ops-recommend', params);
+}
+
+// === Quote Analytics ===
+
+export async function analyticsAccuracy(params?: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/analytics-accuracy', params ?? {});
+}
+
+export async function analyticsConversion(): Promise<PrismResponse> {
+  return request('GET', '/quote/analytics-conversion');
+}
+
+export async function analyticsCalibration(): Promise<PrismResponse> {
+  return request('GET', '/quote/analytics-calibration');
+}
+
+// === Blueprint to Quote ===
+
+export async function blueprintToQuote(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/blueprint', params);
+}
+
+// === Sheet Metal Quote ===
+
+export async function sheetMetalQuote(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/sheet-metal', params);
+}
+
+// === Additive Quote ===
+
+export async function additiveQuote(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/additive', params);
+}
+
+export async function additiveListMaterials(params?: { technology?: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/additive-materials', params ?? {});
+}
+
+export async function additiveCompareTech(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/additive-compare', params);
+}
+
+// === Injection Mold Quote ===
+
+export async function injectionMoldQuote(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/injection-mold', params);
+}
+
+export async function injectionMoldMaterials(): Promise<PrismResponse> {
+  return request('GET', '/quote/injection-mold-materials');
+}
+
+export async function injectionMoldDfm(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/injection-mold-dfm', params);
+}
+
+// === Stock Size Optimizer ===
+
+export async function stockSizeOptimize(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/stock-optimize', params);
+}
+
+export async function stockSizeCatalog(params: { material: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/stock-catalog', params);
+}
+
+export async function stockSizeNesting(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/stock-nesting', params);
+}
+
+// === Market Material Pricing ===
+
+export async function materialPriceLookup(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/material-price', params);
+}
+
+export async function materialPriceCompare(params: { materials: string[]; form?: string; region?: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/material-compare', params);
+}
+
+export async function materialSurcharge(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/material-surcharge', params);
+}

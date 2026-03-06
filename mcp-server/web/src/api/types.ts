@@ -461,3 +461,185 @@ export interface ScheduleResult {
   makespan: number;
   utilization: number;
 }
+
+// === Quoting Types ===
+
+export interface QuoteResult {
+  quote_id: string;
+  material_cost: number;
+  labor_cost: number;
+  overhead: number;
+  markup: number;
+  total: number;
+  unit_price: number;
+  lead_time_days: number;
+  price_breaks?: { quantity: number; unit_price: number; total: number }[];
+}
+
+export interface QuoteEstimate {
+  material_cost: number;
+  machining_cost: number;
+  setup_cost: number;
+  tooling_cost: number;
+  overhead: number;
+  margin: number;
+  total: number;
+  unit_price: number;
+  cycle_time_min: number;
+  confidence: number;
+  price_breaks?: { quantity: number; unit_price: number; savings_pct: number }[];
+}
+
+export interface MaterialComparison {
+  material: string;
+  unit_price: number;
+  total: number;
+  cycle_time_min: number;
+  tool_life_factor: number;
+}
+
+export interface SecondaryOp {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  typical_cost_range: { min: number; max: number };
+  lead_time_days: number;
+}
+
+export interface SecOpsQuote {
+  operation: string;
+  quantity: number;
+  unit_cost: number;
+  total: number;
+  lead_time_days: number;
+  vendor?: string;
+}
+
+export interface QuoteAccuracy {
+  total_quotes: number;
+  avg_variance_pct: number;
+  over_estimated_pct: number;
+  under_estimated_pct: number;
+  categories: { category: string; avg_variance: number; count: number }[];
+}
+
+export interface QuoteConversion {
+  total_quotes: number;
+  won: number;
+  lost: number;
+  pending: number;
+  win_rate: number;
+  avg_won_value: number;
+  avg_lost_value: number;
+}
+
+export interface CalibrationSuggestion {
+  category: string;
+  adjustment_pct: number;
+  reason: string;
+  confidence: number;
+}
+
+// === Blueprint to Quote Types ===
+
+export interface BlueprintQuoteResult {
+  material: string;
+  operations: { type: string; time_min: number; cost: number }[];
+  total_cost: number;
+  unit_price: number;
+  lead_time_days: number;
+}
+
+// === Sheet Metal Quote Types ===
+
+export interface SheetMetalQuoteResult {
+  material_cost: number;
+  cutting_cost: number;
+  bending_cost: number;
+  finishing_cost: number;
+  total: number;
+  unit_price: number;
+  lead_time_days: number;
+}
+
+// === Additive Quote Types ===
+
+export interface AdditiveQuoteResult {
+  technology: string;
+  material: string;
+  build_time_hours: number;
+  material_cost: number;
+  machine_cost: number;
+  post_processing_cost: number;
+  total: number;
+  unit_price: number;
+}
+
+export interface AdditiveMaterial {
+  id: string;
+  name: string;
+  technology: string;
+  price_per_kg: number;
+  properties: Record<string, number>;
+}
+
+// === Injection Mold Quote Types ===
+
+export interface InjectionMoldQuoteResult {
+  mold_cost: number;
+  per_part_cost: number;
+  cycle_time_s: number;
+  total_cost: number;
+  unit_price: number;
+  amortized_mold_cost: number;
+  material_cost_per_part: number;
+}
+
+export interface InjectionMoldMaterial {
+  key: string;
+  name: string;
+  price_per_kg: number;
+  shrinkage_pct: number;
+  max_wall_mm: number;
+  min_wall_mm: number;
+}
+
+export interface DfmResult {
+  warnings: { severity: string; message: string; recommendation: string }[];
+  score: number;
+  pass: boolean;
+}
+
+// === Stock Size Optimizer Types ===
+
+export interface StockOptimizeResult {
+  recommended: { form: string; size: string; material: string; waste_pct: number; cost: number }[];
+  best: { form: string; size: string; waste_pct: number; cost: number };
+}
+
+export interface StockCatalog {
+  round_bars: number[];
+  flat_bars: number[][];
+  plate_thicknesses: number[];
+  cost_per_kg: number;
+  density_kg_m3: number;
+}
+
+// === Market Material Pricing Types ===
+
+export interface PriceLookupResult {
+  material: string;
+  form: string;
+  base_price_kg: number;
+  adjusted_price_kg: number;
+  region: string;
+  surcharges: { type: string; amount: number }[];
+  total_per_kg: number;
+}
+
+export interface PriceComparison {
+  material: string;
+  total_per_kg: number;
+  rank: number;
+}
