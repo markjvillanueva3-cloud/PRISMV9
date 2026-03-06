@@ -26,6 +26,7 @@ const SafetyDashboardPage = lazy(() => import("./pages/SafetyDashboardPage"));
 const QualityPage = lazy(() => import("./pages/QualityPage"));
 const CostEstimatorPage = lazy(() => import("./pages/CostEstimatorPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
 // ERP module
 const ErpLayout = lazy(() => import("./layouts/ErpLayout"));
@@ -113,6 +114,10 @@ export default function App() {
         <Route
           path="/cost"
           element={<Suspense fallback={<PageLoader />}><CostEstimatorPage /></Suspense>}
+        />
+        <Route
+          path="/settings"
+          element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>}
         />
         <Route
           path="/erp"
