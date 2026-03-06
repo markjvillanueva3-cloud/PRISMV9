@@ -170,6 +170,8 @@ Params vary by action — pass relevant fields in params object.`,
               result = hmMA.listStrategies();
             } else if (params.defaults) {
               result = hmMA.getDefaults(params.domain ?? "milling");
+            } else if (!params.geometry || !params.goal) {
+              result = { error: "cam_multiaxis_recommend requires 'geometry' and 'goal' params (or 'list'/'defaults' flags)" };
             } else {
               result = hmMA.calculate(params);
             }
@@ -178,7 +180,7 @@ Params vary by action — pass relevant fields in params object.`,
           case "cam_material_map": {
             const hmMat = await getEngine("hmMaterialMap");
             if (params.quality_id) {
-              result = hmMat.lookupByQualityId(params.quality_id);
+              result = hmMat.lookupByQualityId(params.quality_id) ?? { error: `No material found for quality_id: ${params.quality_id}` };
             } else if (params.search) {
               result = hmMat.searchByName(params.search);
             } else if (params.iso_group) {

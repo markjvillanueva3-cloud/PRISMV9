@@ -187,7 +187,7 @@ const MATERIAL_GROUPS: HyperMillMaterialGroup[] = [
         { id: "3_5_1", name: "Cobalt-chromium alloys" },
       ]},
       { id: "3_6", name: "Nickel-chromium alloys", qualities: [
-        { id: "3_6_1", name: "Cobalt-chromium alloys" },
+        { id: "3_6_1", name: "Nickel-chromium alloys" },
       ]},
       { id: "3_7", name: "High temperature alloys", qualities: [
         { id: "3_7_1", name: "High temperature alloys" },
@@ -288,7 +288,7 @@ const MATERIAL_GROUPS: HyperMillMaterialGroup[] = [
     ],
   },
   {
-    id: 8, name: "Graphite", isoGroup: "H",
+    id: 8, name: "Graphite", isoGroup: "N",
     subgroups: [
       { id: "8_1", name: "Graphite", qualities: [
         { id: "8_1_1", name: "Graphite standard" },
@@ -482,7 +482,7 @@ export class HyperMillMaterialMapEngine {
               ISO_GROUP_NAMES[group.isoGroup] ?? "Unknown",
             suggestedCutterMaterials:
               CUTTER_RECOMMENDATIONS[group.isoGroup] ?? [],
-            warnings: [],
+            warnings: this.getWarnings(group, q),
           });
         }
       }
@@ -548,6 +548,11 @@ export class HyperMillMaterialMapEngine {
     if (quality.name.includes("fiber reinforced")) {
       warnings.push(
         "FRP: use PCD or diamond-coated tools, watch for delamination",
+      );
+    }
+    if (group.id === 8) {
+      warnings.push(
+        "Graphite: use diamond-coated carbide or PCD, abrasive dust requires extraction, dry machining only",
       );
     }
     return warnings;

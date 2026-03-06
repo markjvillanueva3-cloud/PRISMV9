@@ -482,10 +482,43 @@ describe("HyperMillMultiAxisEngine", () => {
     expect(d).toHaveProperty("holderClearance");
   });
 
-  it("getDefaults returns turning defaults", () => {
-    const d = engine.getDefaults("turning");
+  it("getDefaults returns turning defaults from hmTrnr.cfg", () => {
+    const d = engine.getDefaults("turning") as any;
     expect(d).toHaveProperty("cuttingSpeed", 200);
-    expect(d).toHaveProperty("feedRate", 0.1);
+    expect(d).toHaveProperty("feedRate", 0.3);
+    expect(d).toHaveProperty("finishFeedRate", 0.1);
+    expect(d).toHaveProperty("clearanceDistance", 5);
+    expect(d).toHaveProperty("chamferLength", 0.5);
+    expect(d).toHaveProperty("filletRadiusFormula", "T:CornerRad * 0.1");
+  });
+
+  it("getDefaults returns impeller defaults from hmIrX5.cfg", () => {
+    const d = engine.getDefaults("impeller") as any;
+    expect(d.bladeCount).toBe(6);
+    expect(d.hubAllowance).toBe(0.5);
+    expect(d.horizontalInfeed).toBe(1.5);
+    expect(d.openSpindle).toBe(2000);
+    expect(d.leadAngle).toBe(5);
+    expect(d.precision).toBe(0.05);
+  });
+
+  it("getDefaults returns blade defaults from hmBrX5.cfg", () => {
+    const d = engine.getDefaults("blade") as any;
+    expect(d.allowance).toBe(0.5);
+    expect(d.horizontalInfeed).toBe(5);
+    expect(d.tiltAngle).toBe(10);
+    expect(d.tiltMinAngle).toBe(2);
+    expect(d.fanDistance).toBe(20);
+    expect(d.approachMacro).toBe("circular");
+  });
+
+  it("getDefaults returns 5X drilling defaults from hmDdaX5.cfg", () => {
+    const d = engine.getDefaults("drilling_5x") as any;
+    expect(d.guideSleeveLength).toBe(5.2);
+    expect(d.infeedSpindleSpeed).toBe(600);
+    expect(d.clearanceSideFormula).toBe("10 * T:Dia");
+    expect(d.fchFeedFactor).toBe(500);
+    expect(d.retractFeedFactor).toBe(500);
   });
 
   it("stats tracks calculations", () => {
@@ -603,5 +636,29 @@ describe("HyperMillMaterialMapEngine", () => {
     const total = engine.totalQualities();
     expect(total).toBeGreaterThanOrEqual(130);
     expect(total).toBeLessThanOrEqual(200);
+  });
+
+  // --- Audit regression tests ---
+
+  it("graphite is mapped to ISO N (not H)", () => {
+    const r = engine.lookupByQualityId("8_1_1");
+    expect(r).not.toBeNull();
+    expect(r!.isoGroup).toBe("N");
+    expect(r!.warnings).toContainEqual(expect.stringContaining("Graphite"));
+    expect(r!.suggestedCutterMaterials).toContain("PCD");
+  });
+
+  it("nickel-chromium quality name is correct (not cobalt-chromium)", () => {
+    const r = engine.lookupByQualityId("3_6_1");
+    expect(r).not.toBeNull();
+    expect(r!.hyperMillQuality).toBe("Nickel-chromium alloys");
+    expect(r!.hyperMillQuality).not.toContain("Cobalt");
+  });
+
+  it("getByIsoGroup includes warnings", () => {
+    const titanium = engine.getByIsoGroup("S");
+    const ti = titanium.find((m) => m.hyperMillGroup === "Titanium");
+    expect(ti).toBeDefined();
+    expect(ti!.warnings.length).toBeGreaterThan(0);
   });
 });

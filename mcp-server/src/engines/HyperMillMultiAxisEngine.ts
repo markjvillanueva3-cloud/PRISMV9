@@ -417,20 +417,112 @@ export const HYPERMILL_DEFAULTS: HyperMillDefaults = {
   boundaryResolution: "mtol * 0.5",
 };
 
-/** Turning (grooving) defaults from hmCrt.cfg */
+/** Turning roughing defaults from hmTrnr.cfg */
 export const HYPERMILL_TURNING_DEFAULTS = {
   cuttingSpeed: 200,        // m/min
   maxSpindleSpeed: 10000,   // RPM
-  feedRate: 0.1,            // mm/rev
-  clearanceDistance: 2,     // mm
+  feedRate: 0.3,            // mm/rev (roughing)
+  finishFeedRate: 0.1,      // mm/rev
+  clearanceDistance: 5,     // mm
   retractHeightIn: 10,      // mm
   retractHeightOut: 100,    // mm
-  safetyPlane: 5,           // mm
+  safetyPlane: 15,          // mm
+  retractPlan: 20,          // mm
   rampAngle: 10,            // degrees
-  sideOffset: 0.5,          // mm
-  overlap: 0.1,             // mm
+  allowance: 0,             // mm
+  infeedLength: 1,          // mm
+  addStep: 0.25,            // mm
+  addStepMin: 0.5,          // mm
+  addStepMax: 5,            // mm
   approachAngle: 45,        // degrees
   retractAngle: 45,         // degrees
+  rapidAngle: 20,           // degrees
+  chamferLength: 0.5,       // mm
+  roundingRadius: 0.5,      // mm
+  chipBreakDist: 10,        // mm
+  holderClearance: 0.25,    // mm
+  cutTolerance: 0.05,       // mm
+  filletRadiusFormula: "T:CornerRad * 0.1",
+};
+
+/** Impeller roughing defaults from hmIrX5.cfg */
+export const HYPERMILL_IMPELLER_DEFAULTS = {
+  bladeCount: 6,
+  surfaceResolution: "mtol * 0.7",
+  hubAllowance: 0.5,         // mm
+  horizontalAllowance: 0.3,  // mm
+  horizontalInfeed: 1.5,     // mm
+  verticalInfeed: 1.5,       // mm
+  filletTolerance: 0.5,      // mm
+  openSpindle: 2000,         // RPM
+  openFeed: 200,             // mm/min
+  linkFeed: 200,             // mm/min
+  safetyPlane: 100,          // mm
+  rapidHeight: 5,            // mm
+  leadAngle: 5,              // degrees
+  leadUpAngle: 5,            // degrees
+  extensionLead: 1,          // mm
+  extensionTrail: 1,         // mm
+  holderClearance: 0.25,     // mm
+  shankClearance: 0.25,      // mm
+  extensionClearance: 0.25,  // mm
+  headClearance: 1.5,        // mm
+  precision: 0.05,           // degrees
+  checkTolerance: 0.1,       // mm
+  maxDistAngle: 91,          // degrees
+};
+
+/** Blade roughing defaults from hmBrX5.cfg */
+export const HYPERMILL_BLADE_DEFAULTS = {
+  surfaceResolution: "mtol",
+  profileResolution: "mtol",
+  allowance: 0.5,            // mm
+  horizontalInfeed: 5,       // mm
+  verticalInfeed: 1,         // mm
+  tiltAngle: 10,             // degrees
+  tiltMinAngle: 2,           // degrees
+  fanDistance: 20,            // mm
+  rapidHeight: 5,            // mm
+  safetyPlane: 100,          // mm
+  approachMacro: "circular", // 2 = circular
+  retractMacro: "circular",
+  macroRadius: 3,            // mm
+  boundaryResolution: "mtol * 10",
+  precision: 0.05,           // degrees
+  maxStepDistance: 1,         // mm
+  maxSafeDistance: 10,        // mm
+  maxAngleIncrement: 0.5,    // degrees
+  maxDistAngle: 91,          // degrees
+};
+
+/** 5X drilling defaults from hmDdaX5.cfg */
+export const HYPERMILL_5X_DRILLING_DEFAULTS = {
+  holeDepth: 3,              // mm (default)
+  holeDiameter: 5,           // mm (default)
+  guideSleeveLength: 5.2,    // mm
+  leadInDepth: 5,            // mm
+  infeedSpindleSpeed: 600,   // RPM
+  clearFeedrate: 50000,      // mm/min
+  holeClearDist: 5,          // mm
+  holeRetractDist: 5,        // mm
+  clearanceSideFormula: "10 * T:Dia",
+  clearanceRelative: 20,     // mm
+  checkTolerance: 0.1,       // mm
+  // Feedrate factors (% of nominal)
+  leadInSpeedFactor: 30,
+  leadInFeedFactor: 15,
+  fchStartSpeedFactor: 100,
+  fchStartFeedFactor: 30,
+  fchSpeedFactor: 100,
+  fchFeedFactor: 500,
+  fchEndSpeedFactor: 100,
+  fchEndFeedFactor: 30,
+  chSpeedFactor: 100,
+  chFeedFactor: 50,
+  retractSpeedFactor: 100,
+  retractFeedFactor: 500,
+  infeedSpeedFactor: 30,
+  infeedFeedFactor: 800,
 };
 
 // ============================================================================
@@ -546,8 +638,14 @@ export class HyperMillMultiAxisEngine {
   }
 
   /** Get default parameters for hyperMILL operations. */
-  getDefaults(domain: "milling" | "turning"): HyperMillDefaults | typeof HYPERMILL_TURNING_DEFAULTS {
-    return domain === "turning" ? HYPERMILL_TURNING_DEFAULTS : HYPERMILL_DEFAULTS;
+  getDefaults(domain: string): HyperMillDefaults | typeof HYPERMILL_TURNING_DEFAULTS | typeof HYPERMILL_IMPELLER_DEFAULTS | typeof HYPERMILL_BLADE_DEFAULTS | typeof HYPERMILL_5X_DRILLING_DEFAULTS {
+    switch (domain) {
+      case "turning": return HYPERMILL_TURNING_DEFAULTS;
+      case "impeller": return HYPERMILL_IMPELLER_DEFAULTS;
+      case "blade": return HYPERMILL_BLADE_DEFAULTS;
+      case "drilling_5x": return HYPERMILL_5X_DRILLING_DEFAULTS;
+      default: return HYPERMILL_DEFAULTS;
+    }
   }
 
   /** Get strategy count and usage stats. */
