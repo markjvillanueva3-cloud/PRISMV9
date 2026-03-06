@@ -2362,6 +2362,45 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── B-Spline ──
+          case "bspline_curve_evaluate": {
+            const { bSplineEngine } = await import("../../engines/BSplineEngine.js");
+            result = bSplineEngine.evaluateCurve(params.curve, params.t);
+            break;
+          }
+          case "bspline_surface_evaluate": {
+            const { bSplineEngine } = await import("../../engines/BSplineEngine.js");
+            result = bSplineEngine.evaluateSurface(params.surface, params.u, params.v);
+            break;
+          }
+          case "bspline_surface_normal": {
+            const { bSplineEngine } = await import("../../engines/BSplineEngine.js");
+            result = bSplineEngine.evaluateSurfaceNormal(params.surface, params.u, params.v);
+            break;
+          }
+
+          // ── Construction Geometry ──
+          case "construction_offset_plane": {
+            const { constructionGeometryEngine } = await import("../../engines/ConstructionGeometryEngine.js");
+            result = constructionGeometryEngine.createOffsetPlane(params.basePlane, params.distance);
+            break;
+          }
+          case "construction_plane_3pt": {
+            const { constructionGeometryEngine } = await import("../../engines/ConstructionGeometryEngine.js");
+            result = constructionGeometryEngine.createPlaneThroughThreePoints(params.p1, params.p2, params.p3);
+            break;
+          }
+          case "construction_axis_2pt": {
+            const { constructionGeometryEngine } = await import("../../engines/ConstructionGeometryEngine.js");
+            result = constructionGeometryEngine.createAxisThroughTwoPoints(params.p1, params.p2);
+            break;
+          }
+          case "construction_point_3planes": {
+            const { constructionGeometryEngine } = await import("../../engines/ConstructionGeometryEngine.js");
+            result = constructionGeometryEngine.createPointThroughThreePlanes(params.plane1, params.plane2, params.plane3);
+            break;
+          }
+
           // ── Filleting & Chamfer ──
           case "fillet_edges": {
             const { filletingEngine } = await import("../../engines/FilletingEngine.js");
