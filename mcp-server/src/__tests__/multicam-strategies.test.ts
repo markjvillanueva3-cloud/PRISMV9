@@ -15,7 +15,7 @@ import {
 
 const engine = multiCamStrategyEngine;
 const ALL_SYSTEMS: MultiCamSource[] = [
-  "fusion360", "mastercam", "esprit", "siemensnx", "gibbscam", "surfcam",
+  "fusion360", "mastercam", "esprit", "siemensnx", "gibbscam", "surfcam", "solidcam",
 ];
 
 // ============================================================================
@@ -27,9 +27,9 @@ describe("MultiCamStrategyEngine — Core", () => {
     expect(engine).toBeInstanceOf(MultiCamStrategyEngine);
   });
 
-  it("should list all 6 CAM systems", () => {
+  it("should list all 7 CAM systems", () => {
     const systems = engine.listSystems();
-    expect(systems).toHaveLength(6);
+    expect(systems).toHaveLength(7);
     for (const s of ALL_SYSTEMS) {
       expect(systems).toContain(s);
     }
@@ -37,8 +37,8 @@ describe("MultiCamStrategyEngine — Core", () => {
 
   it("should report correct stats", () => {
     const stats = engine.stats();
-    expect(stats.totalStrategies).toBeGreaterThan(90);
-    expect(Object.keys(stats.bySystem)).toHaveLength(6);
+    expect(stats.totalStrategies).toBeGreaterThan(120);
+    expect(Object.keys(stats.bySystem)).toHaveLength(7);
     for (const sys of ALL_SYSTEMS) {
       expect(stats.bySystem[sys]).toBeGreaterThan(10);
     }
@@ -306,6 +306,95 @@ describe("MultiCamStrategyEngine — SurfCAM", () => {
   });
 });
 
+describe("MultiCamStrategyEngine — SolidCAM/InventorCAM", () => {
+  it("should have 30+ strategies (from InventorCAM 2024 manuals)", () => {
+    const strats = engine.listStrategies("solidcam");
+    expect(strats.length).toBeGreaterThanOrEqual(30);
+  });
+
+  it("should recommend iMachining 3D for adaptive 3D roughing", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "freeform_3d",
+      operationGoal: "adaptive_clearing",
+    });
+    expect(result.strategyName).toBe("iMachining 3D");
+    expect(result.suggestedStepover).toBeLessThan(0.15);
+  });
+
+  it("should recommend iMachining 2D for pocket adaptive clearing", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "pocket_2d",
+      operationGoal: "adaptive_clearing",
+    });
+    expect(result.strategyName).toBe("iMachining 2D");
+    expect(result.confidence).toBeGreaterThan(0.85);
+  });
+
+  it("should recommend Hybrid Constant Z for 3D finishing (highest priority)", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "freeform_3d",
+      operationGoal: "finishing",
+    });
+    expect(result.strategyName).toBe("Hybrid Constant Z");
+  });
+
+  it("should recommend Constant Z for steep wall finishing", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "steep_wall",
+      operationGoal: "finishing",
+    });
+    // Hybrid Constant Z (14) > Constant Z (12)
+    expect(["Hybrid Constant Z", "Constant Z"]).toContain(result.strategyName);
+  });
+
+  it("should have Hybrid Rib Roughing for rib geometry", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "rib",
+      operationGoal: "roughing",
+    });
+    expect(result.strategyName).toBe("Hybrid Rib Roughing");
+  });
+
+  it("should have Pencil Milling for corner cleanup", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "corner",
+      operationGoal: "finishing",
+    });
+    expect(["Pencil Milling", "Parallel Pencil Milling"]).toContain(result.strategyName);
+  });
+
+  it("should have HSS surface strategies", () => {
+    const strats = engine.listStrategies("solidcam");
+    const hss = strats.filter((s) => s.strategyName.startsWith("HSS"));
+    expect(hss.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("should have Advanced Mill-Turn", () => {
+    const strats = engine.listStrategies("solidcam");
+    const mt = strats.find((s) => s.strategyName === "Advanced Mill-Turn");
+    expect(mt).toBeDefined();
+  });
+
+  it("should have iMachining material notes for superalloy", () => {
+    const result = engine.recommend({
+      camSystem: "solidcam",
+      geometryType: "freeform_3d",
+      operationGoal: "adaptive_clearing",
+      materialGroup: "S",
+    });
+    // High confidence due to material notes match
+    expect(result.confidence).toBeGreaterThan(0.9);
+    // Stepover should be reduced for superalloy
+    expect(result.suggestedStepover!).toBeLessThan(0.1);
+  });
+});
+
 // ============================================================================
 // Cross-System Comparison
 // ============================================================================
@@ -356,6 +445,7 @@ describe("MultiCamStrategyEngine — Flagships", () => {
     siemensnx: "Volume Based Machining",
     gibbscam: "VoluMill",
     surfcam: "TrueMill",
+    solidcam: "iMachining 3D",
   };
 
   for (const [sys, expected] of Object.entries(EXPECTED_FLAGSHIPS)) {
