@@ -269,7 +269,7 @@ export class MemoryGraphEngine {
       }
 
       // Cap total edges per node
-      const sourceEdges = this.index.edgesBySource[sourceId]?.length || 0;
+      const sourceEdges = this.index.edgesBySource[sourceId]?.length ?? 0;
       /** If.
        * @param sourceEdges - source edges
        * @returns void

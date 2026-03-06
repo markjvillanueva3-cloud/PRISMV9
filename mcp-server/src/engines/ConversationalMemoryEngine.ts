@@ -167,14 +167,11 @@ export function transitionState(
 ): ConversationContext {
   const ctx = getSession(sessionId);
   const valid = VALID_TRANSITIONS[ctx.current_state];
-  if (!valid.includes(newState) && (newState as string) !== "idle") {
-    // Allow force-reset to idle from any state
-    if (newState !== "idle") {
-      throw new Error(
-        `Invalid transition: ${ctx.current_state} → ${newState}. ` +
-        `Valid: ${valid.join(", ")}`,
-      );
-    }
+  if (!valid.includes(newState) && newState !== "idle") {
+    throw new Error(
+      `Invalid transition: ${ctx.current_state} → ${newState}. ` +
+      `Valid: ${valid.join(", ")}, idle`,
+    );
   }
 
   ctx.current_state = newState;
@@ -245,7 +242,7 @@ export function startJob(
     last_accessed: now,
   });
   // Keep only last 10
-  if (ctx.recent_jobs.length > 10) ctx.recent_jobs.pop();
+  while (ctx.recent_jobs.length > 10) ctx.recent_jobs.pop();
 
   return { ...job };
 }
@@ -295,7 +292,7 @@ export function updateJob(
   const recent = ctx.recent_jobs.find(r => r.id === job.id);
   if (recent) {
     recent.material = job.material ?? "Unknown";
-    recent.state = job.state;
+    recent.state = ctx.current_state;
     recent.last_accessed = now;
   }
 

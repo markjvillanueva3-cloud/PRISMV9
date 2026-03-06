@@ -211,7 +211,7 @@ export class SessionLifecycleEngine {
     // Safety adherence (0-100): hooks executing without blocking = good
     // High block rate means system caught issues (good) but also means risky operations attempted
     const safety_adherence = m.hook_executions > 0
-      ? Math.round(Math.max(0, 100 - (m.hook_blocks / m.hook_executions) * 200))
+      ? Math.round(Math.max(0, 100 - (m.hook_blocks / m.hook_executions) * 100))
       : 100;
 
     // Efficiency (0-100): low latency + low pressure = efficient
@@ -258,7 +258,9 @@ export class SessionLifecycleEngine {
 
   private generateRecommendation(overall: number, dims: Record<string, number>): string {
     if (overall >= 90) return "Excellent session. All systems performing well.";
-    const weakest = Object.entries(dims).sort((a, b) => a[1] - b[1])[0];
+    const entries = Object.entries(dims);
+    if (entries.length === 0) return "No metrics available for recommendation.";
+    const weakest = entries.sort((a, b) => a[1] - b[1])[0];
     const fixes: Record<string, string> = {
       task_completion: "More tasks need completion tracking via todo_update.",
       reliability: "High error rate. Check tool parameters and data quality.",

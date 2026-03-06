@@ -143,7 +143,7 @@ export class ContextBudgetEngine {
   static isOverBudget(category: string): { overBudget: boolean; tokensUsed: number; limit: number; overage: number } {
     const cat = category.toLowerCase();
     const used = this.usage.get(cat) ?? 0;
-    const pct = this.allocations[cat] ?? 0;
+    const pct = this.allocations[cat] ?? this.allocations["reserve"] ?? 0.20;
     const limit = Math.round(this.totalBudget * pct);
     return {
       overBudget: used > limit,
