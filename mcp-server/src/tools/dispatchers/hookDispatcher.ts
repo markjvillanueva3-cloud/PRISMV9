@@ -78,7 +78,7 @@ export function registerHookDispatcher(server: any): void {
             return ok({ count: events.length, events });
           }
           case "event_history": {
-            const history = eventBus.getHistory({ limit: params.limit ?? 20, category: params.event });
+            const history = eventBus.getHistory({ limit: params.limit ?? 20, type: params.event, category: params.category });
             return ok({ count: history.length, history });
           }
           // === V3/Management Tools (unified) ===
@@ -105,7 +105,9 @@ export function registerHookDispatcher(server: any): void {
             return ok({ total: hooks.length, enabled, disabled, hooks: params.show_metrics !== false ? hooks : hooks.map((h: any) => ({ id: h.id, enabled: h.enabled, event: h.event })) });
           }
           case "history": {
-            const history = (hookEngine as any).getExecutionHistory?.(params.hook_id, params.event, params.last_n ?? 50, params.success_only) ?? [];
+            let history = eventBus.getHistory({ limit: params.last_n ?? 50 });
+            if (params.event) history = history.filter((h: any) => h.event === params.event);
+            if (params.hook_id) history = history.filter((h: any) => h.data?.hook_id === params.hook_id);
             return ok({ count: history.length, history });
           }
           case "enable": {
