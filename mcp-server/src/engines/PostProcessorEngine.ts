@@ -29,6 +29,7 @@ export interface PostConfig {
   program_end: "M30" | "M02" | "%";
   max_line_length?: number;
   five_axis_mode?: "tcpm" | "none";  // C-004: 5-axis TCPM/TCP support
+  smoothing_mode?: "off" | "rough" | "finish";  // C-005: HSM smoothing control
 }
 
 /** Post Input configuration/data structure.
@@ -93,6 +94,8 @@ interface ControllerDialect {
   drillCanned: (z: number, r: number, f: number) => string;
   tcpmOn: (toolNum: number) => string;   // C-004: 5-axis TCPM activation
   tcpmOff: () => string;                 // C-004: 5-axis TCPM deactivation
+  smoothingOn: (mode: "rough" | "finish") => string;   // C-005: HSM smoothing activation
+  smoothingOff: () => string;                          // C-005: HSM smoothing deactivation
   programEnd: string;
   comment: (text: string) => string;
 }
@@ -128,6 +131,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
+    smoothingOn: (mode) => mode === "finish" ? "G5.1 Q1" : "G64",
+    smoothingOff: () => "G5.1 Q0",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -144,6 +149,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
     tcpmOn: (t) => `G234 H${t}`,
     tcpmOff: () => "G49",
+    smoothingOn: (mode) => mode === "finish" ? "G187 P3 E0.005" : "G187 P1 E0.05",
+    smoothingOff: () => "G187 P1",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -160,6 +167,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `CYCLE81(${r.toFixed(3)}, 0, 2.000, ${z.toFixed(3)}) F${f}`,
     tcpmOn: () => "TRAORI\nG43.4",
     tcpmOff: () => "TRAFOOF",
+    smoothingOn: (mode) => mode === "finish" ? "CYCLE832(0.01, 112011) ;COMPCAD" : "CYCLE832(0.05, 112001)",
+    smoothingOff: () => "CYCLE832()",
     programEnd: "M30",
     comment: (text) => `; ${text}`,
   },
@@ -176,6 +185,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `CYCL DEF 1.0 DRILLING\nCYCL DEF 1.1 SET UP ${r.toFixed(3)}\nCYCL DEF 1.2 DEPTH ${z.toFixed(3)}\nCYCL DEF 1.3 FEED ${f}`,
     tcpmOn: () => "M128",
     tcpmOff: () => "M129",
+    smoothingOn: (mode) => mode === "finish" ? "M120 L20\nFN 18: SYSREAD D970 = ID270 NR1" : "M120 L5",
+    smoothingOff: () => "M120 L0",
     programEnd: "END PGM PART MM",
     comment: (text) => `; ${text}`,
   },
@@ -192,6 +203,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(3)} R${r.toFixed(3)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
+    smoothingOn: (mode) => mode === "finish" ? "G5.1 Q1" : "G64",
+    smoothingOff: () => "G5.1 Q0",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -208,6 +221,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
     drillCanned: (z, r, f) => `G81 Z${z.toFixed(4)} R${r.toFixed(4)} F${f}`,
     tcpmOn: (t) => `G43.4 H${t}`,
     tcpmOff: () => "G49",
+    smoothingOn: (mode) => mode === "finish" ? "G08 P1" : "G08 P1",
+    smoothingOff: () => "G08 P0",
     programEnd: "M30",
     comment: (text) => `(${text})`,
   },
@@ -272,6 +287,12 @@ export class PostProcessorEngine {
 
     // Coolant
     if (input.coolant !== "none") addLine(dialect.coolantOn(input.coolant));
+
+    // Smoothing / HSM control (C-005)
+    if (config.smoothing_mode && config.smoothing_mode !== "off") {
+      addLine(dialect.comment(`SMOOTHING: ${config.smoothing_mode.toUpperCase()}`));
+      addLine(dialect.smoothingOn(config.smoothing_mode));
+    }
 
     // Process moves
     let totalFeedDist = 0;
@@ -362,6 +383,11 @@ export class PostProcessorEngine {
 
     // Cancel canned cycle modal if any were used
     if (cannedCyclesUsed.length > 0) addLine("G80");
+
+    // Smoothing off (C-005: cancel before retract)
+    if (config.smoothing_mode && config.smoothing_mode !== "off") {
+      addLine(dialect.smoothingOff());
+    }
 
     // TCPM off before coolant off (C-004: must cancel before tool change/end)
     /** If.

@@ -139,6 +139,53 @@ describe("PostProcessorEngine", () => {
   it("supports 6 controllers", () => {
     expect(postProcessorEngine.supportedControllers().length).toBe(6);
   });
+  it("outputs Fanuc smoothing codes (G5.1 Q1) in finish mode", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 100, y: 0, z: -5, feed: 500 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 500, coolant: "flood", work_offset: "G54" },
+      { controller: "fanuc", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 3, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "finish" }
+    );
+    expect(result.gcode).toContain("G5.1 Q1");
+    expect(result.gcode).toContain("G5.1 Q0");
+  });
+  it("outputs Haas smoothing codes (G187) in finish mode", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 3, tool_diameter_mm: 6, spindle_rpm: 12000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "haas", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 4, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "finish" }
+    );
+    expect(result.gcode).toContain("G187 P3 E0.005");
+  });
+  it("outputs Siemens smoothing codes (CYCLE832) in finish mode", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "siemens", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 3, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "finish" }
+    );
+    expect(result.gcode).toContain("CYCLE832(0.01, 112011)");
+    expect(result.gcode).toContain("CYCLE832()");
+  });
+  it("outputs Heidenhain smoothing codes (M120) in finish mode", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "heidenhain", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 3, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "finish" }
+    );
+    expect(result.gcode).toContain("M120 L20");
+    expect(result.gcode).toContain("M120 L0");
+  });
+  it("outputs Okuma smoothing codes (G08) in finish mode", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 50, y: 50, z: -2, feed: 800 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 800, coolant: "flood", work_offset: "G54" },
+      { controller: "okuma", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 4, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "finish" }
+    );
+    expect(result.gcode).toContain("G08 P1");
+    expect(result.gcode).toContain("G08 P0");
+  });
+  it("omits smoothing codes when smoothing_mode is off", () => {
+    const result = postProcessorEngine.process(
+      { moves: [{ type: "feed", x: 100, y: 0, z: -5, feed: 500 }], tool_number: 1, tool_diameter_mm: 10, spindle_rpm: 8000, feed_rate_mmmin: 500, coolant: "flood", work_offset: "G54" },
+      { controller: "fanuc", use_canned_cycles: true, use_tool_length_comp: true, decimal_places: 3, line_numbers: false, line_number_increment: 10, coolant_code: "M08", safe_start_block: true, program_end: "M30", smoothing_mode: "off" }
+    );
+    expect(result.gcode).not.toContain("G5.1");
+    expect(result.gcode).not.toContain("SMOOTHING");
+  });
 });
 
 // ============================================================================
