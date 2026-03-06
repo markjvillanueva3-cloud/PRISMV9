@@ -199,14 +199,6 @@ function machineLiveExtractKeyValues(action: string, result: any): Record<string
     case "maint_get":
       return { id: result.prediction_id, category: result.category, severity: result.severity, remaining: result.remaining_life_hours };
     // L3 Industry
-    case "tool_crib_status":
-      return { total: result.total_tools, available: result.available, alerts: result.low_stock_alerts };
-    case "digital_twin_state":
-      return { machine: result.machine_id, state: result.state, health: result.health_score };
-    case "predictive_maintenance_alert":
-      return { machine: result.machine_id, health: result.overall_health, alerts: result.alerts?.length };
-    case "energy_report":
-      return { kwh: result.kwh_consumed, per_part: result.kwh_per_part, cost: result.cost_usd };
     default:
       return result;
   }
