@@ -376,7 +376,9 @@ const ACTIONS = [
   "anodize_allowance",
   "clamp_simulate", "clamp_validate", "clamp_optimize",
   "damping_optimize",
-  "cost_estimate", "cost_compare_materials"
+  "cost_estimate", "cost_compare_materials",
+  "feed_optimize", "corner_dynamics", "arc_feed_correction",
+  "balance_grade", "aggressiveness_levels"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3114,6 +3116,108 @@ export function registerCalcDispatcher(server: any): void {
               params.resolution,
             );
             result = voxelStockEngine.removeAlongPath(grid, params.path, params.tool, params.step_size);
+            break;
+          }
+
+          case "sketch_apply_constraint": {
+            const { sketchConstraintEngine } = await import("../../engines/SketchConstraintEngine.js");
+            const ct = params.constraint_type;
+            if (ct === "horizontal_vertical") result = sketchConstraintEngine.applyHorizontalVertical(params.line);
+            else if (ct === "coincident") result = sketchConstraintEngine.applyCoincident(params.point, params.target);
+            else if (ct === "equal") result = sketchConstraintEngine.applyEqual(params.line1, params.line2);
+            else if (ct === "parallel") result = sketchConstraintEngine.applyParallel(params.line1, params.line2);
+            else if (ct === "perpendicular") result = sketchConstraintEngine.applyPerpendicular(params.line1, params.line2);
+            else if (ct === "midpoint") result = sketchConstraintEngine.applyMidpoint(params.point, params.line);
+            else if (ct === "concentric") result = sketchConstraintEngine.applyConcentric(params.circle1, params.circle2);
+            else if (ct === "tangent") result = sketchConstraintEngine.makeCirclesTangent(params.circle1, params.circle2);
+            else if (ct === "fix") result = sketchConstraintEngine.applyFix(params.entity);
+            else result = { error: `Unknown constraint type: ${ct}` };
+            break;
+          }
+
+          case "sketch_geometry": {
+            const { sketchConstraintEngine } = await import("../../engines/SketchConstraintEngine.js");
+            const op = params.operation;
+            if (op === "project_to_line") result = sketchConstraintEngine.projectPointToLine(params.point, params.line);
+            else if (op === "project_to_infinite_line") result = sketchConstraintEngine.projectPointToInfiniteLine(params.point, params.line);
+            else if (op === "line_intersection") result = sketchConstraintEngine.lineLineIntersection(params.line1, params.line2);
+            else if (op === "mirror") result = sketchConstraintEngine.mirrorPoint(params.point, params.mirror_line);
+            else if (op === "line_length") result = { length: sketchConstraintEngine.lineLength(params.line) };
+            else result = { error: `Unknown geometry operation: ${op}` };
+            break;
+          }
+
+          case "feature_precedence_graph": {
+            const { featureInteractionEngine } = await import("../../engines/FeatureInteractionEngine.js");
+            const graph = featureInteractionEngine.buildPrecedenceGraph(params.features);
+            const seqResult = featureInteractionEngine.generateOperationSequence(graph);
+            result = { edges: graph.edges, sequence: seqResult };
+            break;
+          }
+
+          case "feature_detect_interactions": {
+            const { featureInteractionEngine } = await import("../../engines/FeatureInteractionEngine.js");
+            result = { interactions: featureInteractionEngine.detectInteractions(params.features) };
+            break;
+          }
+
+          case "feature_minimize_setups": {
+            const { featureInteractionEngine } = await import("../../engines/FeatureInteractionEngine.js");
+            result = featureInteractionEngine.minimizeSetups(params.features);
+            break;
+          }
+
+          // --- Feed Optimization Engine (reverse-engineered from monolith) ---
+          case "feed_optimize": {
+            const { feedOptimizationEngine } = await import("../../engines/FeedOptimizationEngine.js");
+            result = feedOptimizationEngine.optimizeFeed({
+              baseFeed: params.base_feed ?? params.baseFeed ?? 1000,
+              aggressiveness: params.aggressiveness ?? params.level,
+              toolDiameter: params.tool_diameter ?? params.toolDiameter,
+              radialEngagement: params.radial_engagement ?? params.ae,
+              currentDepth: params.current_depth ?? params.currentDepth,
+              fullDepth: params.full_depth ?? params.fullDepth,
+              cornerRadius: params.corner_radius ?? params.cornerRadius,
+              maxGForce: params.max_g_force ?? params.maxG,
+              arcRadius: params.arc_radius ?? params.arcRadius,
+              isInsideArc: params.is_inside_arc ?? params.isInsideArc,
+            });
+            break;
+          }
+          case "corner_dynamics": {
+            const { feedOptimizationEngine: foe } = await import("../../engines/FeedOptimizationEngine.js");
+            result = foe.calculateCornerDynamics({
+              feedRate: params.feed_rate ?? params.feedRate ?? 5000,
+              cornerAngle: params.corner_angle ?? params.cornerAngle ?? 90,
+              maxAcceleration: params.max_acceleration ?? params.maxAcceleration,
+              maxGForce: params.max_g_force ?? params.maxG,
+              toolDiameter: params.tool_diameter ?? params.toolDiameter,
+            });
+            break;
+          }
+          case "arc_feed_correction": {
+            const { feedOptimizationEngine: foe2 } = await import("../../engines/FeedOptimizationEngine.js");
+            result = foe2.calculateArcFeedCorrection(
+              params.arc_radius ?? params.arcRadius ?? 50,
+              params.tool_radius ?? params.toolRadius ?? 5,
+              params.is_inside ?? params.isInside ?? false,
+            );
+            break;
+          }
+          case "balance_grade": {
+            const { feedOptimizationEngine: foe3 } = await import("../../engines/FeedOptimizationEngine.js");
+            result = foe3.calculateBalanceGrade({
+              rpm: params.rpm ?? 15000,
+              holderMass: params.holder_mass ?? params.holderMass ?? 1.5,
+              toolDiameter: params.tool_diameter ?? params.toolDiameter,
+              insertMass: params.insert_mass ?? params.insertMass,
+              holderType: params.holder_type ?? params.holderType,
+            });
+            break;
+          }
+          case "aggressiveness_levels": {
+            const { feedOptimizationEngine: foe4 } = await import("../../engines/FeedOptimizationEngine.js");
+            result = foe4.listAggressivenessLevels();
             break;
           }
 
