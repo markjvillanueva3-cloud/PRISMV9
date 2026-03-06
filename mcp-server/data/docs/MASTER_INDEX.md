@@ -329,8 +329,8 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (144 exported + 63 unwired = 207 total .ts files)
-## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE-ENGINES R4 (2026-03-03)
+## 4. ENGINES (282 exported + 49 unwired = 331 total .ts files)
+## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE B31-34 (2026-03-06)
 
 ### 4a. Calculation Engines (25 exported)
 - ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
@@ -527,7 +527,7 @@ Reserved for future wiring. Top 10 by size:
 - TroubleshootingEngine.ts (315L), DigitalTwinEngine.ts (311L), ToolSelectionEngine.ts (277L)
 - BatchOptimizationEngine.ts (241L), HarmonicAnalysisEngine.ts (234L), DampingOptimizationEngine.ts (234L)
 - ClampingSimEngine.ts (234L)
-Total unwired: 63 files (RegenerativeChatterPredictor wired in FORGE-ENGINES)
+Total unwired: 49 files (132 newly exported in FORGE B31-34)
 
 ### index.ts (1720L) — Barrel export file re-exporting 140 engines
 
