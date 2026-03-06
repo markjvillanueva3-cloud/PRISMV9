@@ -25,6 +25,7 @@ function ok(data: any) {
 
 /** Registers hook dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerHookDispatcher(server: any): void {
   server.tool(
@@ -77,7 +78,7 @@ export function registerHookDispatcher(server: any): void {
             return ok({ count: events.length, events });
           }
           case "event_history": {
-            const history = eventBus.getHistory({ limit: params.limit || 20, category: params.event });
+            const history = eventBus.getHistory({ limit: params.limit ?? 20, category: params.event });
             return ok({ count: history.length, history });
           }
           // === V3/Management Tools (unified) ===
@@ -104,7 +105,7 @@ export function registerHookDispatcher(server: any): void {
             return ok({ total: hooks.length, enabled, disabled, hooks: params.show_metrics !== false ? hooks : hooks.map((h: any) => ({ id: h.id, enabled: h.enabled, event: h.event })) });
           }
           case "history": {
-            const history = (hookEngine as any).getExecutionHistory?.(params.hook_id, params.event, params.last_n || 50, params.success_only) || [];
+            const history = (hookEngine as any).getExecutionHistory?.(params.hook_id, params.event, params.last_n ?? 50, params.success_only) ?? [];
             return ok({ count: history.length, history });
           }
           case "enable": {
@@ -126,11 +127,11 @@ export function registerHookDispatcher(server: any): void {
             return ok(gaps);
           }
           case "performance": {
-            const perf = hookEngine.getPerformance(params.hook_id, params.sort_by || "avg_duration", params.limit || 20);
+            const perf = hookEngine.getPerformance(params.hook_id, params.sort_by ?? "avg_duration", params.limit ?? 20);
             return ok(perf);
           }
           case "failures": {
-            const failures = hookEngine.getFailures(params.hook_id, params.last_n || 100, params.include_stack || false);
+            const failures = hookEngine.getFailures(params.hook_id, params.last_n ?? 100, params.include_stack ?? false);
             return ok(failures);
           }
           // === Pub/Sub Protocol Actions (R3-MS4.5) ===

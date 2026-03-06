@@ -651,6 +651,7 @@ function uid(unit: any): number { return unit.unit_id ?? unit.id ?? 0; }
 
 /** Registers autonomous dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerAutonomousDispatcher(server: any): void {
   server.tool(
@@ -767,9 +768,9 @@ Actions: ${ACTIONS.join(", ")}`,
 
             const manifest = readATCSManifest(taskId);
             const criteria = readATCSCriteria(taskId);
-            const chunkSize = params.chunk_size || config.chunk_size;
+            const chunkSize = params.chunk_size ?? config.chunk_size;
             const loopMode = params.loop === true; // NEW: process ALL pending chunks in one call
-            const maxChunks = params.max_chunks || 50; // Safety cap for loop mode
+            const maxChunks = params.max_chunks ?? 50; // Safety cap for loop mode
 
             // Aggregate tracking for loop mode
             let totalSuccess = 0, totalFailed = 0, totalEscalated = 0, totalDryRun = 0;
@@ -880,7 +881,7 @@ Actions: ${ACTIONS.join(", ")}`,
                 completed,
                 remaining,
                 total: finalQueue.length,
-                percent: Math.round((completed / finalQueue.length) * 100)
+                percent: finalQueue.length > 0 ? Math.round((completed / finalQueue.length) * 100) : 0
               },
               cost: {
                 total_usd: Math.round(totalCostUsd * 10000) / 10000,
@@ -952,7 +953,7 @@ Actions: ${ACTIONS.join(", ")}`,
             const taskId = params.task_id || findActiveATCSTask();
             if (!taskId) return err("No ATCS task found.");
 
-            const batchNum = params.batch_number || 1;
+            const batchNum = params.batch_number ?? 1;
             const outputFile = path.join(ATCS_ROOT, taskId, "output", `batch_${String(batchNum).padStart(3, "0")}.json`);
             if (!fs.existsSync(outputFile)) return err(`No output for batch ${batchNum}`, { path: outputFile });
 
@@ -1032,7 +1033,7 @@ Actions: ${ACTIONS.join(", ")}`,
             const manifest = readATCSManifest(taskId);
             const queue = readATCSQueue(taskId);
             const criteria = readATCSCriteria(taskId);
-            const chunkSize = params.chunk_size || config.chunk_size;
+            const chunkSize = params.chunk_size ?? config.chunk_size;
             const pendingUnits = queue.filter((u: any) => u.status === "PENDING").slice(0, chunkSize);
 
             if (pendingUnits.length === 0) {

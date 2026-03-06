@@ -57,6 +57,7 @@ function ok(data: any) {
 
 /** Registers orchestration dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
@@ -81,8 +82,8 @@ export function registerOrchestrationDispatcher(server: any): void {
             if (!agent) return ok({ error: `Agent not found: ${agentId}`, available: agentRegistry.all().slice(0, 10).map(a => a.agent_id) });
             try {
               const result = await executeAgent(agentId, params.input || { task: params.task }, {
-                priority: (params.priority || "normal") as TaskPriority,
-                timeout_ms: params.timeout_ms || 30000,
+                priority: (params.priority ?? "normal") as TaskPriority,
+                timeout_ms: params.timeout_ms ?? 30000,
                 retries: params.retries ?? 2
               });
               return ok({ agent: { id: agent.agent_id, name: agent.name, category: agent.category }, result });
@@ -92,7 +93,7 @@ export function registerOrchestrationDispatcher(server: any): void {
                 try {
                   await hookExecutor.execute("on-agent-timeout", {
                     operation: "agent_execute",
-                    target: { type: "calculation" as const, id: agentId, data: { agent_id: agentId, timeout_ms: params.timeout_ms || 30000 } },
+                    target: { type: "calculation" as const, id: agentId, data: { agent_id: agentId, timeout_ms: params.timeout_ms ?? 30000 } },
                     metadata: { dispatcher: "orchestrationDispatcher", action: "agent_execute", agent_id: agentId, error: agentErr.message }
                   });
                 } catch (e) { log.warn(`[prism_orchestrate] on-agent-timeout hook error: ${e}`); }
@@ -141,18 +142,18 @@ export function registerOrchestrationDispatcher(server: any): void {
           // === SWARM TOOLS ===
           case "swarm_execute": {
             const result = await executeSwarm({
-              name: params.name || "swarm", pattern: params.pattern as SwarmPattern,
+              name: params.name ?? "swarm", pattern: params.pattern as SwarmPattern,
               agents: params.agents || [], input: params.input || {},
-              timeout_ms: params.timeout_ms || 30000, options: params.options
+              timeout_ms: params.timeout_ms ?? 30000, options: params.options
             });
             return ok({ swarmId: result.swarmId, pattern: result.pattern, status: result.status, duration_ms: result.duration_ms, successCount: result.successCount, failCount: result.failCount, output: result.aggregatedOutput, consensus: result.consensus, competition: result.competition, collaboration: result.collaboration });
           }
           case "swarm_parallel": {
-            const result = await swarmExecutor.execute({ name: params.name || "parallel", pattern: "parallel", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms || 30000 });
+            const result = await swarmExecutor.execute({ name: params.name ?? "parallel", pattern: "parallel", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms ?? 30000 });
             return ok({ swarmId: result.swarmId, status: result.status, successCount: result.successCount, output: result.aggregatedOutput });
           }
           case "swarm_consensus": {
-            const result = await swarmExecutor.execute({ name: params.name || "consensus", pattern: "consensus", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms || 30000, options: { consensusThreshold: params.threshold || 0.5, consensusField: params.consensus_field } });
+            const result = await swarmExecutor.execute({ name: params.name ?? "consensus", pattern: "consensus", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms ?? 30000, options: { consensusThreshold: params.threshold ?? 0.5, consensusField: params.consensus_field } });
             // Fire mid-operation hook for consensus validation
             try {
               await hookExecutor.execute("on-swarm-consensus", {
@@ -164,7 +165,7 @@ export function registerOrchestrationDispatcher(server: any): void {
             return ok({ swarmId: result.swarmId, status: result.status, consensusReached: result.consensus?.reached, agreement: result.consensus?.actualAgreement });
           }
           case "swarm_pipeline": {
-            const result = await swarmExecutor.execute({ name: params.name || "pipeline", pattern: "pipeline", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms || 30000 });
+            const result = await swarmExecutor.execute({ name: params.name ?? "pipeline", pattern: "pipeline", agents: params.agents || [], input: params.input || {}, timeout_ms: params.timeout_ms ?? 30000 });
             return ok({ swarmId: result.swarmId, status: result.status, stagesCompleted: result.successCount, output: result.aggregatedOutput });
           }
           case "swarm_status": {
@@ -184,9 +185,9 @@ export function registerOrchestrationDispatcher(server: any): void {
             // One-shot swarm: auto-selects pattern + agents from task description + domain
             const task = params.task || params.description || "";
             const domain = params.domain || "general";
-            const maxAgents = Math.min(params.max_agents || 5, 8);
-            const minAgents = Math.max(params.min_agents || 2, 2);
-            const timeoutMs = params.timeout_ms || 30000;
+            const maxAgents = Math.min(params.max_agents ?? 5, 8);
+            const minAgents = Math.max(params.min_agents ?? 2, 2);
+            const timeoutMs = params.timeout_ms ?? 30000;
 
             // Use TaskAgentClassifier to pick agents and pattern
             const classification = classifyTask("prism_orchestrate", "swarm_quick", { task, domain });

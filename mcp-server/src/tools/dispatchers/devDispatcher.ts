@@ -63,6 +63,7 @@ function searchFiles(dir: string, pattern: string, maxResults: number = 20): any
 
 /** Registers dev dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerDevDispatcher(server: any): void {
   server.tool(
@@ -589,16 +590,16 @@ export function registerDevDispatcher(server: any): void {
               else dirs.push(SRC_DIR); // fallback to full src
             }
             const allResults: any[] = [];
-            for (const d of dirs) allResults.push(...searchFiles(d, searchPattern, params.max_results || 20));
-            result = { pattern: searchPattern, scope, matches: allResults.slice(0, params.max_results || 20), total: allResults.length };
+            for (const d of dirs) allResults.push(...searchFiles(d, searchPattern, params.max_results ?? 20));
+            result = { pattern: searchPattern, scope, matches: allResults.slice(0, params.max_results ?? 20), total: allResults.length };
             break;
           }
           case "file_read": {
             const fullPath = path.join(MCP_ROOT, params.path || "");
             if (!fs.existsSync(fullPath)) { result = { error: `File not found: ${params.path}` }; break; }
             const lines = fs.readFileSync(fullPath, "utf-8").split("\n");
-            const start = params.start_line || 0;
-            const slice = lines.slice(start, start + (params.max_lines || 100));
+            const start = params.start_line ?? 0;
+            const slice = lines.slice(start, start + (params.max_lines ?? 100));
             result = { path: params.path, total_lines: lines.length, showing: `${start}-${start + slice.length}`, content: slice.join("\n") };
             break;
           }

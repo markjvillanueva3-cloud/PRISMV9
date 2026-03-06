@@ -44,6 +44,7 @@ function loadAutoPilot() {
 
 /** Registers auto pilot dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerAutoPilotDispatcher(server: any): void {
   server.tool(
@@ -67,7 +68,7 @@ export function registerAutoPilotDispatcher(server: any): void {
         switch (action) {
           case "autopilot": {
             if (!AutoPilotClass) { result = { error: "AutoPilot module not loaded" }; break; }
-            const ap = new AutoPilotClass({ enableSwarms: params.enableSwarms !== false, enableRalphLoops: params.ralphLoops || 3, enableFormulaOptimization: true });
+            const ap = new AutoPilotClass({ enableSwarms: params.enableSwarms !== false, enableRalphLoops: params.ralphLoops ?? 3, enableFormulaOptimization: true });
             const r = await ap.execute(params.task || "", params.context || {});
             result = { task: params.task, duration: r.totalDuration + "ms", approach: r.brainstorm?.optimizedApproach,
               metrics: r.metrics, ralph_loops: r.ralph?.length, status: r.metrics?.status };

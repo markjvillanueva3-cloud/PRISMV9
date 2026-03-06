@@ -124,6 +124,7 @@ function readSection(section: string): string {
 
 /** Registers gsd dispatcher.
  * @param server - MCP server instance
+  * @returns void
  */
 export function registerGsdDispatcher(server: any): void {
   server.tool(
@@ -192,13 +193,13 @@ export function registerGsdDispatcher(server: any): void {
                   dispatchers: liveCounts.dispatchers,
                   engines: liveCounts.engines,
                   hooks: liveCounts.hooks,
-                  materials: ri.materials?.total || 3518,
-                  machines: ri.machines?.total || 824,
-                  alarms: ri.alarms?.total || 18942,
-                  skills: ri.skills?.total || 119,
-                  formulas: ri.formulas || 490,
-                  agents: ri.agents?.total || 56,
-                  scripts: ri.scripts?.total || 74,
+                  materials: ri.materials?.total ?? 3518,
+                  machines: ri.machines?.total ?? 824,
+                  alarms: ri.alarms?.total ?? 18942,
+                  skills: ri.skills?.total ?? 119,
+                  formulas: ri.formulas ?? 490,
+                  agents: ri.agents?.total ?? 56,
+                  scripts: ri.scripts?.total ?? 74,
                   source: "CURRENT_STATE.json + live_fs_scan"
                 };
               } else {
