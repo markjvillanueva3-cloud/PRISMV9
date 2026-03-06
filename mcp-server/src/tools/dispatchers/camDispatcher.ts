@@ -1,14 +1,15 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 24 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 28 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
  *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
  *   cam_cycle_catalog, lathe_post_process, probe_generate,
  *   subprogram_call, subprogram_pattern, cam_controller_catalog,
- *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance
+ *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance,
+ *   cam_translate, cam_compare_controllers, cam_material_recommend
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -22,7 +23,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -46,6 +47,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmCycleDefaults": return _hmCycleDefaults ??= (await import("../../engines/HyperMillCycleDefaultsEngine.js")).hyperMillCycleDefaultsEngine;
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
+    case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -64,6 +66,9 @@ const ACTIONS = [
   "cam_cycle_defaults",
   "cam_thread_lookup",
   "advanced_post_enhance",
+  "cam_translate",
+  "cam_compare_controllers",
+  "cam_material_recommend",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -409,6 +414,51 @@ Params vary by action — pass relevant fields in params object.`,
               feed_optimization: params.feed_optimization,
               multi_axis: params.multi_axis,
             });
+            break;
+          }
+          case "cam_translate": {
+            const port = await getEngine("portability");
+            if (params.list_intents) {
+              result = port.listIntents();
+            } else if (params.list_controllers) {
+              result = port.listControllers();
+            } else if (params.controller_features) {
+              result = port.controllerFeatures(params.controller_features);
+            } else if (params.stats) {
+              result = port.stats();
+            } else {
+              result = port.translate({
+                intent: params.intent ?? "rough_3d",
+                material: params.material ?? { name: params.material_name ?? "1045 Steel" },
+                tool: params.tool ?? { diameter: params.tool_diameter ?? 10 },
+                machine: params.machine ?? { controller: params.controller ?? "fanuc", axis_count: params.axis_count },
+                tolerance: params.tolerance,
+                allowance: params.allowance,
+                depth: params.depth,
+                width: params.width,
+                source_cam: params.source_cam,
+                enhance: params.enhance,
+              });
+            }
+            break;
+          }
+          case "cam_compare_controllers": {
+            const port = await getEngine("portability");
+            result = port.compareControllers({
+              intent: params.intent ?? "rough_3d",
+              material: params.material ?? { name: params.material_name ?? "1045 Steel" },
+              tool: params.tool ?? { diameter: params.tool_diameter ?? 10 },
+              tolerance: params.tolerance,
+              axis_count: params.axis_count,
+              source_cam: params.source_cam,
+            });
+            break;
+          }
+          case "cam_material_recommend": {
+            const port = await getEngine("portability");
+            result = port.materialRecommendation(
+              params.material ?? { name: params.material_name ?? "1045 Steel", iso_group: params.iso_group, hardness_hrc: params.hardness_hrc }
+            );
             break;
           }
           default:

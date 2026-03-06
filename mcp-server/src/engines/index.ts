@@ -1809,6 +1809,22 @@ export {
   type ThreadStandard,
 } from "./HyperMillThreadStandardEngine.js";
 
+// ─── CAM Knowledge Portability (cross-CAM → any controller bridge) ─────
+export {
+  CamKnowledgePortabilityEngine,
+  camKnowledgePortabilityEngine,
+  type TargetController,
+  type CamIntent,
+  type CamSource,
+  type PortabilityInput,
+  type PortabilityResult,
+  type StrategyRecommendation as PortabilityStrategyRecommendation,
+  type ResolvedParameters,
+  type MaterialContext,
+  type ToolContext,
+  type MachineContext,
+} from "./CamKnowledgePortabilityEngine.js";
+
 // ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
 
 // Cycle-to-Cycle Feedback Control (Hardt/Siu)

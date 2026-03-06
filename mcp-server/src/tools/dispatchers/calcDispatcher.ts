@@ -2401,6 +2401,35 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Adaptive Tessellation ──
+          case "tessellation_calculate_segments": {
+            const { adaptiveTessellationEngine } = await import("../../engines/AdaptiveTessellationEngine.js");
+            result = { segments: adaptiveTessellationEngine.calculateSegments(params.radius, params.arcLength, params.options) };
+            break;
+          }
+          case "tessellation_subdivide": {
+            const { adaptiveTessellationEngine } = await import("../../engines/AdaptiveTessellationEngine.js");
+            result = adaptiveTessellationEngine.subdivide(params.mesh);
+            break;
+          }
+
+          // ── Adaptive Clearing ──
+          case "adaptive_trochoidal": {
+            const { adaptiveClearingEngine } = await import("../../engines/AdaptiveClearingEngine.js");
+            result = adaptiveClearingEngine.generateTrochoidal(params.centerline, params.params);
+            break;
+          }
+          case "adaptive_optimize_trochoidal": {
+            const { adaptiveClearingEngine } = await import("../../engines/AdaptiveClearingEngine.js");
+            result = adaptiveClearingEngine.optimizeTrochoidal(params.slotWidth, params.toolDiameter, params.targetEngagement);
+            break;
+          }
+          case "adaptive_feedrate": {
+            const { adaptiveClearingEngine } = await import("../../engines/AdaptiveClearingEngine.js");
+            result = { feedrate: adaptiveClearingEngine.calculateFeedrate(params.baseFeedrate, params.actualEngagement, params.targetEngagement) };
+            break;
+          }
+
           // ── Filleting & Chamfer ──
           case "fillet_edges": {
             const { filletingEngine } = await import("../../engines/FilletingEngine.js");
