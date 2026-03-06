@@ -355,6 +355,8 @@ const ACTIONS = [
   "chatter_stability_lobes", "chatter_check_stability", "chatter_detect", "chatter_critical_speeds",
   "heat_conduction_1d", "heat_lumped_capacitance", "heat_convection_coeff", "heat_coolant_effectiveness",
   "geometry_delaunay", "geometry_convex_hull", "geometry_polygon_info", "geometry_point_in_polygon", "geometry_polygon_offset",
+  "nurbs_curve_evaluate", "nurbs_curve_tangent", "nurbs_curve_curvature", "nurbs_surface_evaluate", "nurbs_surface_closest_point",
+  "mesh_curvature_all", "mesh_curvature_classify",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2199,6 +2201,46 @@ export function registerCalcDispatcher(server: any): void {
           case "geometry_polygon_offset": {
             const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
             result = geometryAlgorithmsEngine.polygonOffset(params.vertices, params.distance);
+            break;
+          }
+
+          // ── NURBS ──
+          case "nurbs_curve_evaluate": {
+            const { nurbsEngine } = await import("../../engines/NURBSEngine.js");
+            result = nurbsEngine.curveEvaluate(params.curve, params.u);
+            break;
+          }
+          case "nurbs_curve_tangent": {
+            const { nurbsEngine } = await import("../../engines/NURBSEngine.js");
+            result = nurbsEngine.curveTangent(params.curve, params.u);
+            break;
+          }
+          case "nurbs_curve_curvature": {
+            const { nurbsEngine } = await import("../../engines/NURBSEngine.js");
+            result = { curvature: nurbsEngine.curveCurvature(params.curve, params.u) };
+            break;
+          }
+          case "nurbs_surface_evaluate": {
+            const { nurbsEngine } = await import("../../engines/NURBSEngine.js");
+            result = nurbsEngine.surfaceEvaluate(params.surface, params.u, params.v);
+            break;
+          }
+          case "nurbs_surface_closest_point": {
+            const { nurbsEngine } = await import("../../engines/NURBSEngine.js");
+            result = nurbsEngine.surfaceClosestPoint(params.surface, params.point);
+            break;
+          }
+
+          // ── Mesh Curvature Analysis ──
+          case "mesh_curvature_all": {
+            const { curvatureAnalysisEngine } = await import("../../engines/CurvatureAnalysisEngine.js");
+            result = curvatureAnalysisEngine.computeAll(params.mesh);
+            break;
+          }
+          case "mesh_curvature_classify": {
+            const { curvatureAnalysisEngine } = await import("../../engines/CurvatureAnalysisEngine.js");
+            const curv = curvatureAnalysisEngine.computeAll(params.mesh);
+            result = curvatureAnalysisEngine.classifySurface(curv);
             break;
           }
 
