@@ -29,6 +29,10 @@ export interface SurfaceFinishInput {
   coolant?: "flood" | "mist" | "air" | "none";
   tool_wear_pct?: number;           // 0-100
   depth_of_cut_mm?: number;
+  // Vibration-corrected finish (from SpindleHarmonicsQualityEngine)
+  vibration_amplitude_um?: number;  // peak vibration at tool tip [µm]
+  vibration_frequency_Hz?: number;  // dominant vibration frequency [Hz]
+  surface_penalty_factor?: number;  // from SpindleHarmonicsQualityEngine (1.0-3.0)
 }
 
 /** Surface Finish Result configuration/data structure.
@@ -156,6 +160,25 @@ export class SurfaceFinishEngine {
       correctedRa *= speedCorr;
     }
 
+    // Vibration correction: harmonic-induced surface degradation
+    // Method 1: Direct penalty from SpindleHarmonicsQualityEngine
+    // Method 2: Amplitude-based model: Ra_vib ≈ amplitude × sin(f_vib/f_tooth) contribution
+    // Ref: Schmitz & Smith "Machining Dynamics" (2009), Ch.7
+    if (input.surface_penalty_factor && input.surface_penalty_factor > 1.0) {
+      const vibCorr = input.surface_penalty_factor;
+      corrections.push({ factor: "vibration_harmonic", multiplier: Math.round(vibCorr * 100) / 100 });
+      correctedRa *= vibCorr;
+    } else if (input.vibration_amplitude_um && input.vibration_amplitude_um > 0.5) {
+      // Empirical: vibration adds to Ra proportionally to amplitude
+      // Ra_total² = Ra_kinematic² + Ra_vibration²  (RSS combination)
+      // Ra_vibration ≈ 0.5 × amplitude for random/forced vibration
+      const raVib = 0.5 * input.vibration_amplitude_um;
+      const raCombined = Math.sqrt(correctedRa * correctedRa + raVib * raVib);
+      const vibCorr = raCombined / Math.max(correctedRa, 0.001);
+      corrections.push({ factor: "vibration_amplitude", multiplier: Math.round(vibCorr * 100) / 100 });
+      correctedRa = raCombined;
+    }
+
     const ra = Math.max(0.003, correctedRa);
     const range = PROCESS_RANGES[input.process];
     const recommendations: string[] = [];
@@ -180,6 +203,12 @@ export class SurfaceFinishEngine {
      */
     if (input.process === "milling" && input.feed_per_tooth_mm && input.feed_per_tooth_mm > 0.2) {
       recommendations.push("High feed per tooth — consider finishing pass with lower feed");
+    }
+    if (input.vibration_amplitude_um && input.vibration_amplitude_um > 5) {
+      recommendations.push("High vibration amplitude — adjust spindle speed to avoid harmonic resonance, or reduce depth of cut");
+    }
+    if (input.surface_penalty_factor && input.surface_penalty_factor > 1.5) {
+      recommendations.push("Spindle speed excites structural resonance — use SpindleHarmonicsQualityEngine to find optimal RPM");
     }
 
     return {

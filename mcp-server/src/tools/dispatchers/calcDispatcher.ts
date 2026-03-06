@@ -34,6 +34,8 @@ import {
 
 import { toolWearProgressionEngine } from "../../engines/ToolWearProgressionEngine.js";
 import type { ToolGrade } from "../../engines/ToolWearProgressionEngine.js";
+import { spindleHarmonicsQualityEngine } from "../../engines/SpindleHarmonicsQualityEngine.js";
+import { wearForceCompensationEngine } from "../../engines/WearForceCompensationEngine.js";
 import { drillBreakthroughForceEngine } from "../../engines/DrillBreakthroughForceEngine.js";
 import type { ExitSupport } from "../../engines/DrillBreakthroughForceEngine.js";
 import { thermalGrowthCompensationEngine } from "../../engines/ThermalGrowthCompensationEngine.js";
@@ -246,6 +248,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, any> 
       return { Ra_um: result.surface_roughness?.ra_predicted_um, residual_stress_mpa: result.residual_stress?.surface_mpa, white_layer_risk: result.white_layer?.risk, safety: result.safety?.score };
     case "chatter_predict":
       return { stable: result.stable, critical_depth_mm: result.critical_depth_mm, margin: result.stability_margin, safety: result.safety?.score };
+    case "spindle_harmonic_analysis":
+      return { quality_score: result.quality_score, surface_penalty: result.surface_penalty_factor, worst: result.worst_excitation, recommendations: result.recommendations };
+    case "spindle_optimal_rpm":
+      return { optimal_rpm: result.optimal_rpm, quality_score: result.quality_score, top_5: result.top_5_rpms, avoid: result.avoid_rpms?.slice(0, 3) };
+    case "spindle_quality_map":
+      return { sweet_spots: result.sweet_spots, points_count: result.points?.length };
+    case "archard_wear":
+      return { rate_um_min: result.abrasive_wear_rate_um_min, vb_mm: result.abrasive_vb_mm, dominant: result.dominant_mechanism, recommendations: result.recommendations };
+    case "wear_force_correction":
+      return { corrected_N: result.corrected_force_N, increase_pct: result.force_increase_pct, ploughing_N: result.ploughing_force_N, excessive: result.is_excessive };
+    case "thermal_deflection":
+      return { cold_mm: result.cold_deflection_mm, hot_mm: result.hot_deflection_mm, increase_pct: result.deflection_increase_pct, E_eff_GPa: result.effective_youngs_GPa };
     case "thermal_compensate":
       return { z_um: result.offsets?.z_um, x_um: result.offsets?.x_um, y_um: result.offsets?.y_um, steady_state_min: result.steady_state_minutes };
     case "unified_machining_model":
@@ -334,7 +348,12 @@ const ACTIONS = [
   "merchant_analysis", "milling_forces", "cutting_temperature",
   "crater_wear", "material_cutting_data",
   "kinematics_fk", "kinematics_5axis_ik", "kinematics_singularity",
-  "kinematics_transform"
+  "kinematics_transform",
+  "vibration_sdof", "vibration_free_response", "vibration_forced_response",
+  "vibration_frf", "vibration_modal",
+  "thermal_loewen_shaw", "thermal_trigger", "thermal_fourier_1d", "thermal_expansion_calc",
+  "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
+  "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1916,7 +1935,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Cutting Mechanics ──
           case "merchant_analysis": {
             const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
-            result = cuttingMechanicsEngine.merchantAnalysis(params);
+            result = cuttingMechanicsEngine.merchantAnalysis(params as any);
             break;
           }
           case "milling_forces": {
@@ -1934,7 +1953,7 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "crater_wear": {
             const { cuttingMechanicsEngine } = await import("../../engines/CuttingMechanicsEngine.js");
-            result = cuttingMechanicsEngine.craterWear(params);
+            result = cuttingMechanicsEngine.craterWear(params as any);
             break;
           }
           case "material_cutting_data": {
@@ -1986,6 +2005,168 @@ export function registerCalcDispatcher(server: any): void {
               kinematicsEngine.rotZ(params.rz ?? 0),
             );
             result = kinematicsEngine.transformPoint(T, point);
+            break;
+          }
+
+          // ── Vibration Analysis ──
+          case "vibration_sdof": {
+            const { vibrationAnalysisEngine } = await import("../../engines/VibrationAnalysisEngine.js");
+            result = vibrationAnalysisEngine.sdofNaturalFrequency({
+              mass: params.mass, stiffness: params.stiffness, damping: params.damping,
+            });
+            break;
+          }
+          case "vibration_free_response": {
+            const { vibrationAnalysisEngine } = await import("../../engines/VibrationAnalysisEngine.js");
+            result = vibrationAnalysisEngine.sdofFreeResponse(
+              { mass: params.mass, stiffness: params.stiffness, damping: params.damping },
+              { x0: params.x0 ?? 0, v0: params.v0 ?? 0 },
+              params.time ?? params.t ?? 0,
+            );
+            break;
+          }
+          case "vibration_forced_response": {
+            const { vibrationAnalysisEngine } = await import("../../engines/VibrationAnalysisEngine.js");
+            result = vibrationAnalysisEngine.sdofForcedResponse(
+              { mass: params.mass, stiffness: params.stiffness, damping: params.damping },
+              { amplitude: params.force_amplitude ?? params.amplitude, frequency: params.frequency },
+            );
+            break;
+          }
+          case "vibration_frf": {
+            const { vibrationAnalysisEngine } = await import("../../engines/VibrationAnalysisEngine.js");
+            result = vibrationAnalysisEngine.generateFRF(
+              { mass: params.mass, stiffness: params.stiffness, damping: params.damping },
+              { start: params.freq_start ?? 1, end: params.freq_end ?? 100, points: params.points ?? 200 },
+            );
+            break;
+          }
+          case "vibration_modal": {
+            const { vibrationAnalysisEngine } = await import("../../engines/VibrationAnalysisEngine.js");
+            result = vibrationAnalysisEngine.modalAnalysis(params.M, params.K);
+            break;
+          }
+
+          // ── Thermal Modeling ──
+          case "thermal_loewen_shaw": {
+            const { thermalModelingEngine } = await import("../../engines/ThermalModelingEngine.js");
+            result = thermalModelingEngine.loewenShawTemperature({
+              cuttingSpeed: params.cutting_speed ?? params.cuttingSpeed,
+              feed: params.feed, depthOfCut: params.depth_of_cut ?? params.depthOfCut,
+              specificCuttingForce: params.specific_cutting_force ?? params.specificCuttingForce,
+              materialDensity: params.material_density ?? params.materialDensity ?? 7850,
+              specificHeat: params.specific_heat ?? params.specificHeat ?? 500,
+              thermalConductivity: params.thermal_conductivity ?? params.thermalConductivity ?? 50,
+              ambientTemp: params.ambient_temp ?? params.ambientTemp,
+            });
+            break;
+          }
+          case "thermal_trigger": {
+            const { thermalModelingEngine } = await import("../../engines/ThermalModelingEngine.js");
+            result = thermalModelingEngine.triggerTemperature({
+              specificEnergy: params.specific_energy ?? params.specificEnergy,
+              cuttingSpeed: params.cutting_speed ?? params.cuttingSpeed,
+              thermalNumber: params.thermal_number ?? params.thermalNumber ?? 0.5,
+            });
+            break;
+          }
+          case "thermal_fourier_1d": {
+            const { thermalModelingEngine } = await import("../../engines/ThermalModelingEngine.js");
+            result = thermalModelingEngine.fourierConduction1D({
+              length: params.length, nodes: params.nodes, timeSteps: params.time_steps ?? params.timeSteps,
+              dt: params.dt, thermalDiffusivity: params.thermal_diffusivity ?? params.thermalDiffusivity,
+              initialTemp: params.initial_temp ?? params.initialTemp,
+              leftBC: params.left_bc ?? params.leftBC,
+              rightBC: params.right_bc ?? params.rightBC,
+              heatSource: params.heat_source ?? params.heatSource,
+            });
+            break;
+          }
+          case "thermal_expansion_calc": {
+            const { thermalModelingEngine } = await import("../../engines/ThermalModelingEngine.js");
+            result = thermalModelingEngine.thermalExpansion({
+              length: params.length,
+              temperatureChange: params.temperature_change ?? params.temperatureChange,
+              expansionCoefficient: params.expansion_coefficient ?? params.expansionCoefficient,
+            });
+            break;
+          }
+
+          // ── Spindle Harmonics Quality ──
+          case "spindle_harmonic_analysis": {
+            result = spindleHarmonicsQualityEngine.analyze({
+              spindle_rpm: params.spindle_rpm,
+              num_flutes: params.num_flutes ?? params.number_of_teeth ?? 4,
+              machine_modes: {
+                natural_frequencies_Hz: params.natural_frequencies_Hz ?? [800, 1200, 2500],
+                damping_ratios: params.damping_ratios,
+                mode_descriptions: params.mode_descriptions,
+              },
+              max_harmonic_order: params.max_harmonic_order,
+              bandwidth_pct: params.bandwidth_pct,
+            });
+            break;
+          }
+          case "spindle_optimal_rpm": {
+            result = spindleHarmonicsQualityEngine.findOptimalRpm(
+              params.num_flutes ?? params.number_of_teeth ?? 4,
+              {
+                natural_frequencies_Hz: params.natural_frequencies_Hz ?? [800, 1200, 2500],
+                damping_ratios: params.damping_ratios,
+              },
+              params.rpm_min ?? 500,
+              params.rpm_max ?? 15000,
+              params.rpm_step,
+            );
+            break;
+          }
+          case "spindle_quality_map": {
+            result = spindleHarmonicsQualityEngine.qualityMap(
+              params.num_flutes ?? params.number_of_teeth ?? 4,
+              {
+                natural_frequencies_Hz: params.natural_frequencies_Hz ?? [800, 1200, 2500],
+                damping_ratios: params.damping_ratios,
+              },
+              params.rpm_min ?? 500,
+              params.rpm_max ?? 15000,
+              params.rpm_step,
+            );
+            break;
+          }
+
+          // ── Wear Force Compensation ──
+          case "archard_wear": {
+            result = wearForceCompensationEngine.archardWear({
+              cutting_speed_m_min: params.cutting_speed_m_min ?? params.cutting_speed ?? 150,
+              feed_mm_rev: params.feed_mm_rev ?? params.feed ?? 0.2,
+              depth_of_cut_mm: params.depth_of_cut_mm ?? params.depth ?? 2,
+              workpiece_hardness_HV: params.workpiece_hardness_HV ?? 250,
+              tool_hardness_HV: params.tool_hardness_HV ?? 1600,
+              normal_stress_MPa: params.normal_stress_MPa,
+              workpiece_type: params.workpiece_type,
+              cutting_time_min: params.cutting_time_min,
+            });
+            break;
+          }
+          case "wear_force_correction": {
+            result = wearForceCompensationEngine.wearForceCorrection({
+              fresh_force_N: params.fresh_force_N ?? params.cutting_force_N ?? 1000,
+              flank_wear_vb_mm: params.flank_wear_vb_mm ?? params.vb_mm ?? 0.2,
+              tool_material: params.tool_material,
+              rake_angle_deg: params.rake_angle_deg ?? params.rake_angle,
+            });
+            break;
+          }
+          case "thermal_deflection": {
+            result = wearForceCompensationEngine.thermalDeflection({
+              cutting_force_N: params.cutting_force_N ?? params.force ?? 500,
+              tool_diameter_mm: params.tool_diameter_mm ?? params.tool_diameter ?? 10,
+              tool_overhang_mm: params.tool_overhang_mm ?? params.overhang ?? 50,
+              tool_material: params.tool_material ?? "carbide",
+              cutting_temperature_C: params.cutting_temperature_C ?? params.temperature ?? 400,
+              ambient_temperature_C: params.ambient_temperature_C,
+              num_flutes: params.num_flutes ?? params.number_of_flutes,
+            });
             break;
           }
 

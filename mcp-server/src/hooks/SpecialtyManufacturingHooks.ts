@@ -510,6 +510,119 @@ const materialCertUnverified: HookDefinition = {
 };
 
 // ============================================================================
+// SPINDLE HARMONICS & WEAR COMPENSATION HOOKS (M97-M99)
+// ============================================================================
+
+/** M97 HARMONIC_RESONANCE_WARNING — spindle speed exciting structural mode */
+const harmonicResonanceWarning: HookDefinition = {
+  id: "harmonic-resonance-warning",
+  name: "Spindle Harmonic Resonance Warning",
+  description:
+    "WARNS when spindle RPM creates tooth-passing harmonics that "
+    + "coincide with machine structural resonances. Degrades surface quality.",
+  phase: "pre-calculation",
+  category: "manufacturing",
+  mode: "warning",
+  priority: "high",
+  enabled: true,
+  tags: ["vibration", "harmonics", "surface-quality", "spindle"],
+  handler: (ctx: HookContext): HookResult => {
+    const d = (ctx.target?.data ?? {}) as Record<string, any>;
+    const action = d.action ?? "";
+    const validActions = ["cutting_force", "surface_finish", "stability", "spindle_harmonic_analysis"];
+    if (!validActions.includes(action)) {
+      return hookSuccess(harmonicResonanceWarning, "not-applicable");
+    }
+    const rpm = d.params?.spindle_rpm ?? d.params?.spindle_speed;
+    const flutes = d.params?.num_flutes ?? d.params?.number_of_teeth;
+    if (!rpm || !flutes) return hookSuccess(harmonicResonanceWarning, "no-rpm-data");
+    const tpf = rpm * flutes / 60;
+    const typicalModes = [800, 1200, 2500];
+    for (const mode of typicalModes) {
+      for (let h = 1; h <= 3; h++) {
+        const ratio = (tpf * h) / mode;
+        if (ratio > 0.9 && ratio < 1.1) {
+          return hookWarning(harmonicResonanceWarning,
+            `HARMONIC_RESONANCE: ${h}xTPF (${Math.round(tpf * h)}Hz) near `
+            + `structural mode (~${mode}Hz). Surface quality may degrade. `
+            + `Consider adjusting RPM +/-10-15%.`
+          );
+        }
+      }
+    }
+    return hookSuccess(harmonicResonanceWarning, "harmonics-clear");
+  },
+};
+
+/** M98 EXCESSIVE_WEAR_FORCE — flank wear causing dangerous force increase */
+const excessiveWearForce: HookDefinition = {
+  id: "excessive-wear-force",
+  name: "Excessive Wear Force Increase",
+  description:
+    "WARNS when flank wear land (VB) would increase cutting force by >50%. "
+    + "Excessive force from worn tools risks breakage, chatter, and scrap.",
+  phase: "pre-calculation",
+  category: "enforcement",
+  mode: "warning",
+  priority: "critical",
+  enabled: true,
+  tags: ["safety", "wear", "force", "tool-change"],
+  handler: (ctx: HookContext): HookResult => {
+    const d = (ctx.target?.data ?? {}) as Record<string, any>;
+    const vb = d.params?.flank_wear_vb_mm ?? d.params?.vb_mm ?? d.params?.current_vb_mm;
+    if (vb == null) return hookSuccess(excessiveWearForce, "no-wear-data");
+    const increasePct = 1.5 * vb * 100;
+    if (vb > 0.3) {
+      return hookWarning(excessiveWearForce,
+        `WEAR_FORCE_EXCESSIVE: VB=${vb}mm exceeds ISO 3685 limit (0.3mm). `
+        + `Force increase ~${Math.round(increasePct)}%. Immediate tool change required.`
+      );
+    }
+    if (increasePct > 30) {
+      return hookWarning(excessiveWearForce,
+        `WEAR_FORCE_HIGH: VB=${vb}mm -> ~${Math.round(increasePct)}% force increase. `
+        + `Approaching tool change threshold.`
+      );
+    }
+    return hookSuccess(excessiveWearForce, "wear-force-ok");
+  },
+};
+
+/** M99 THERMAL_STIFFNESS_LOSS — Young's modulus drop at temperature */
+const thermalStiffnessLoss: HookDefinition = {
+  id: "thermal-stiffness-loss",
+  name: "Thermal Stiffness Loss Warning",
+  description:
+    "WARNS when cutting temperature would reduce tool stiffness >15%, "
+    + "increasing deflection beyond tolerance budget.",
+  phase: "pre-calculation",
+  category: "manufacturing",
+  mode: "warning",
+  priority: "normal",
+  enabled: true,
+  tags: ["thermal", "deflection", "stiffness", "tolerance"],
+  handler: (ctx: HookContext): HookResult => {
+    const d = (ctx.target?.data ?? {}) as Record<string, any>;
+    const temp = d.params?.cutting_temperature_C ?? d.params?.temperature;
+    const mat = d.params?.tool_material ?? "carbide";
+    if (!temp || temp < 100) return hookSuccess(thermalStiffnessLoss, "low-temp");
+    const alphaE: Record<string, number> = {
+      carbide: 3e-4, hss: 4e-4, ceramic: 2e-4, cbn: 1.5e-4,
+    };
+    const alpha = alphaE[mat] ?? 3e-4;
+    const deltaT = temp - 20;
+    const lossPct = alpha * deltaT * 100;
+    if (lossPct > 15) {
+      return hookWarning(thermalStiffnessLoss,
+        `THERMAL_STIFFNESS: ${mat} at ${temp}C loses ~${lossPct.toFixed(1)}% stiffness. `
+        + `Deflection increases proportionally. Consider coolant or shorter overhang.`
+      );
+    }
+    return hookSuccess(thermalStiffnessLoss, "stiffness-ok");
+  },
+};
+
+// ============================================================================
 // EXPORT
 // ============================================================================
 
@@ -538,4 +651,8 @@ export const specialtyManufacturingHooks: HookDefinition[] = [
   cornerRadiusTolerance,
   chipWrapRisk,
   materialCertUnverified,
+  // Spindle Harmonics & Wear Compensation (3)
+  harmonicResonanceWarning,
+  excessiveWearForce,
+  thermalStiffnessLoss,
 ];

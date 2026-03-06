@@ -1,7 +1,7 @@
 /**
  * Calc Dispatcher Action Schemas
  * ===============================
- * Per-action Zod schemas for all 56 prism_calc actions.
+ * Per-action Zod schemas for all 77 prism_calc actions.
  * Validated AFTER normalizeParams(), BEFORE engine dispatch.
  *
  * Design decisions:
@@ -501,6 +501,260 @@ const controller_optimize = z.object({
 }).passthrough();
 
 // ============================================================================
+// SPECIALIZED ENGINES (11 actions)
+// ============================================================================
+
+const toolGradeEnum = z.enum(["HSS", "COBALT_HSS", "CARBIDE", "CARBIDE_COATED", "CERMET", "CERAMIC", "CBN", "PCD"]);
+
+const wear_progression = z.object({
+  cutting_speed_m_min: posNum,
+  feed_mm_rev: posNum,
+  depth_of_cut_mm: posNum,
+  tool_grade: toolGradeEnum,
+  workpiece_hardness_hrc: z.number().min(0).max(72),
+  cutting_time_min: z.number().min(0).optional(),
+  current_vb_mm: z.number().min(0).optional(),
+  vb_limit_mm: optPosNum,
+  cutting_temperature_C: optPosNum,
+  taylor_C: optPosNum,
+  taylor_n: optPosNum,
+}).passthrough();
+
+const drill_breakthrough = z.object({
+  drill_diameter_mm: posNum,
+  point_angle_deg: z.number().min(60).max(180),
+  feed_mm_rev: posNum,
+  spindle_rpm: posNum,
+  workpiece_thickness_mm: posNum,
+  exit_support: z.enum(["SUPPORTED", "UNSUPPORTED", "PARTIAL"]).optional(),
+  material_tensile_MPa: optPosNum,
+  peck_depth_mm: optPosNum,
+}).passthrough();
+
+const thermal_growth = z.object({
+  spindle_speed_rpm: posNum,
+  cutting_time_min: posNum,
+  ambient_temp_C: optNum,
+  spindle_bearing_type: z.enum(["ANGULAR_CONTACT", "ROLLER", "HYBRID_CERAMIC", "AIR"]).optional(),
+  tool_overhang_mm: optPosNum,
+  machine_class: z.enum(["VMC", "HMC", "LATHE", "GRINDER", "SWISS"]).optional(),
+  coolant_temp_C: optNum,
+  thermal_symmetry: optBool,
+}).passthrough();
+
+const bore_finishing = z.object({
+  bore_diameter_mm: posNum,
+  bore_length_mm: posNum,
+  target_Ra_um: posNum,
+  stone_grit: z.enum(["J150", "J220", "J280", "J400", "J500", "J600", "J800", "K10", "K20", "K30"]).optional(),
+  honing_pressure_bar: optPosNum,
+  stroke_speed_m_min: optPosNum,
+  rotation_rpm: optPosNum,
+  stock_removal_mm: optPosNum,
+  coolant: z.enum(["HONING_OIL", "WATER_SOLUBLE", "MINERAL_OIL", "SYNTHETIC"]).optional(),
+}).passthrough();
+
+const finishing_pass = z.object({
+  tool_diameter_mm: posNum,
+  tool_overhang_mm: posNum,
+  tool_nose_radius_mm: posNum,
+  feed_mm_rev: posNum,
+  target_Ra_um: posNum,
+  tool_type: z.enum(["CARBIDE_INSERT", "CERMET", "CBN", "PCD", "SOLID_CARBIDE", "HSS"]).optional(),
+  cutting_speed_m_min: optPosNum,
+  depth_of_cut_mm: optPosNum,
+  workpiece_hardness_HRC: optNum,
+}).passthrough();
+
+const turning_force = z.object({
+  cutting_speed_m_min: posNum,
+  feed_mm_rev: posNum,
+  depth_of_cut_mm: posNum,
+  lead_angle_deg: optNum,
+  iso_group: optStr,
+  material_kc1_1: optPosNum,
+  material_mc: optNum,
+  nose_radius_mm: optPosNum,
+  rake_angle_deg: optNum,
+}).passthrough();
+
+const tapping_torque = z.object({
+  thread_major_diameter_mm: posNum,
+  pitch_mm: posNum,
+  tap_type: z.enum(["CUT", "FORM", "SPIRAL_FLUTE", "SPIRAL_POINT", "THREAD_MILL"]).optional(),
+  hole_type: z.enum(["THROUGH", "BLIND"]).optional(),
+  thread_depth_mm: optPosNum,
+  material_tensile_MPa: optPosNum,
+  percent_thread: z.number().min(50).max(100).optional(),
+  cutting_speed_m_min: optPosNum,
+  coolant_type: optStr,
+}).passthrough();
+
+const power_budget = z.object({
+  machine_power_kW: posNum,
+  cutting_speed_m_min: posNum,
+  depth_of_cut_mm: posNum,
+  feed_mm_rev: posNum,
+  tool_diameter_mm: optPosNum,
+  number_of_teeth: z.number().int().positive().optional(),
+  kc1_1: optPosNum,
+  mc: optNum,
+  efficiency: z.number().min(0).max(1).optional(),
+  material_id: materialRef,
+  material: materialRef,
+}).passthrough();
+
+const tool_deflection_predict = z.object({
+  tool_diameter_mm: posNum,
+  tool_overhang_mm: posNum,
+  cutting_force_N: posNum,
+  force_direction: z.enum(["RADIAL", "AXIAL", "TANGENTIAL", "COMBINED"]).optional(),
+  tool_material: z.enum(["CARBIDE", "HSS", "CARBIDE_COATED", "CERMET"]).optional(),
+  holder_stiffness_N_per_mm: optPosNum,
+  collet_type: optStr,
+}).passthrough();
+
+const chip_formation = z.object({
+  cutting_speed_m_min: posNum,
+  feed_mm_rev: posNum,
+  depth_of_cut_mm: posNum,
+  rake_angle_deg: optNum,
+  workpiece_ductility: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  nose_radius_mm: optPosNum,
+  chip_breaker: optBool,
+  material_id: materialRef,
+  material: materialRef,
+}).passthrough();
+
+const specific_cutting_energy = z.object({
+  cutting_force_N: posNum,
+  chip_width_mm: posNum,
+  chip_thickness_mm: posNum,
+  kc1_1: optPosNum,
+  mc: optNum,
+  feed_mm: optPosNum,
+  rake_angle_deg: optNum,
+  material_id: materialRef,
+  material: materialRef,
+}).passthrough();
+
+// ============================================================================
+// MONTE CARLO (4 actions)
+// ============================================================================
+
+const monte_carlo_simulate = z.object({
+  model: optStr,
+  samples: z.number().int().min(100).max(1_000_000).optional(),
+  distribution: z.enum(["normal", "uniform", "triangular", "lognormal"]).optional(),
+  mean: optNum,
+  std_dev: optPosNum,
+  min: optNum,
+  max: optNum,
+}).passthrough();
+
+const monte_carlo_tool_life = z.object({
+  cutting_speed: optPosNum,
+  feedrate: optPosNum,
+  depth_of_cut: optPosNum,
+  taylor_C: optPosNum,
+  taylor_n: optPosNum,
+  samples: z.number().int().min(100).max(1_000_000).optional(),
+  C_cv: z.number().min(0).max(1).optional(),
+  n_cv: z.number().min(0).max(1).optional(),
+  v_cv: z.number().min(0).max(1).optional(),
+  tool_quality_cv: z.number().min(0).max(1).optional(),
+}).passthrough();
+
+const monte_carlo_tolerance = z.object({
+  dimensions: z.array(z.object({
+    name: z.string().min(1),
+    nominal: z.number(),
+    tolerance: posNum,
+    distribution: z.enum(["normal", "uniform", "triangular"]).optional(),
+  })).min(1),
+  target_tolerance: optPosNum,
+  samples: z.number().int().min(100).max(1_000_000).optional(),
+}).passthrough();
+
+const monte_carlo_histogram = z.object({
+  samples: z.array(z.number()).min(2),
+  bin_count: z.number().int().min(2).max(1000).optional(),
+}).passthrough();
+
+// ============================================================================
+// SPINDLE HARMONICS + WEAR COMPENSATION (6 actions)
+// ============================================================================
+
+const spindle_harmonic_analysis = z.object({
+  spindle_rpm: posNum,
+  num_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  natural_frequencies_Hz: z.array(posNum).min(1).optional(),
+  damping_ratios: z.array(z.number().min(0).max(1)).optional(),
+  max_harmonic_order: z.number().int().min(1).max(20).optional(),
+  bandwidth_pct: z.number().min(1).max(50).optional(),
+}).passthrough();
+
+const spindle_optimal_rpm = z.object({
+  num_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  natural_frequencies_Hz: z.array(posNum).min(1).optional(),
+  damping_ratios: z.array(z.number().min(0).max(1)).optional(),
+  rpm_min: posNum.optional(),
+  rpm_max: posNum.optional(),
+  rpm_step: posNum.optional(),
+}).passthrough();
+
+const spindle_quality_map = z.object({
+  num_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  natural_frequencies_Hz: z.array(posNum).min(1).optional(),
+  rpm_min: posNum.optional(),
+  rpm_max: posNum.optional(),
+  rpm_step: posNum.optional(),
+}).passthrough();
+
+const archard_wear = z.object({
+  cutting_speed_m_min: optPosNum,
+  cutting_speed: optPosNum,
+  feed_mm_rev: optPosNum,
+  feed: optPosNum,
+  depth_of_cut_mm: optPosNum,
+  workpiece_hardness_HV: posNum,
+  tool_hardness_HV: posNum,
+  normal_stress_MPa: optPosNum,
+  workpiece_type: z.enum([
+    "cast_iron", "composite", "hardened_steel",
+    "ceramic_insert", "cbn_insert", "pcd_insert", "general",
+  ]).optional(),
+  cutting_time_min: z.number().min(0).optional(),
+}).passthrough();
+
+const wear_force_correction = z.object({
+  fresh_force_N: optPosNum,
+  cutting_force_N: optPosNum,
+  flank_wear_vb_mm: z.number().min(0).optional(),
+  vb_mm: z.number().min(0).optional(),
+  tool_material: z.enum(["carbide", "hss", "ceramic", "cbn", "pcd"]).optional(),
+  rake_angle_deg: optNum,
+  rake_angle: optNum,
+}).passthrough();
+
+const thermal_deflection_calc = z.object({
+  cutting_force_N: optPosNum,
+  force: optPosNum,
+  tool_diameter_mm: optPosNum,
+  tool_diameter: optPosNum,
+  tool_overhang_mm: optPosNum,
+  overhang: optPosNum,
+  tool_material: z.enum(["carbide", "hss", "ceramic", "cermet", "cbn", "pcd"]).optional(),
+  cutting_temperature_C: optPosNum,
+  temperature: optPosNum,
+  ambient_temperature_C: optNum,
+  num_flutes: z.number().int().positive().optional(),
+}).passthrough();
+
+// ============================================================================
 // PHYSICS PREDICTION (5 actions — delegated, minimal params)
 // ============================================================================
 
@@ -614,6 +868,33 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   process_cost_calc,
   uncertainty_chain,
   controller_optimize,
+
+  // Specialized engines
+  wear_progression,
+  drill_breakthrough,
+  thermal_growth,
+  bore_finishing,
+  finishing_pass,
+  turning_force,
+  tapping_torque,
+  power_budget,
+  tool_deflection_predict,
+  chip_formation,
+  specific_cutting_energy,
+
+  // Spindle harmonics + wear compensation
+  spindle_harmonic_analysis,
+  spindle_optimal_rpm,
+  spindle_quality_map,
+  archard_wear,
+  wear_force_correction,
+  thermal_deflection: thermal_deflection_calc,
+
+  // Monte Carlo
+  monte_carlo_simulate,
+  monte_carlo_tool_life,
+  monte_carlo_tolerance,
+  monte_carlo_histogram,
 
   // Physics prediction (delegated — passthrough)
   surface_integrity_predict: physicsPrediction,
