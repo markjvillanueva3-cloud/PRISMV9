@@ -1,11 +1,11 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 14 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 16 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
- *   cam_safety_validate
+ *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -18,7 +18,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -30,6 +30,8 @@ async function getEngine(name: string): Promise<any> {
     case "fixture": return _fixture ??= (await import("../../engines/ModularFixtureLayoutEngine.js")).modularFixtureLayoutEngine;
     case "hmStrategy": return _hmStrategy ??= (await import("../../engines/HyperMillStrategyEngine.js")).hyperMillStrategyEngine;
     case "hmSafety": return _hmSafety ??= await import("../../engines/HyperMillSafetyHooks.js");
+    case "hmMultiAxis": return _hmMultiAxis ??= (await import("../../engines/HyperMillMultiAxisEngine.js")).hyperMillMultiAxisEngine;
+    case "hmMaterialMap": return _hmMaterialMap ??= (await import("../../engines/HyperMillMaterialMapEngine.js")).hyperMillMaterialMapEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -40,6 +42,7 @@ const ACTIONS = [
   "tool_assembly", "fixture_setup", "nesting_optimize",
   "clearance_plane", "sequence_operations", "linking_move",
   "cam_strategy_recommend", "cam_safety_validate",
+  "cam_multiaxis_recommend", "cam_material_map",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -159,6 +162,38 @@ Params vary by action — pass relevant fields in params object.`,
           case "cam_strategy_recommend": {
             const engine = await getEngine("hmStrategy");
             result = engine.recommend(params) ?? { error: "HyperMillStrategyEngine.recommend returned null" };
+            break;
+          }
+          case "cam_multiaxis_recommend": {
+            const hmMA = await getEngine("hmMultiAxis");
+            if (params.list) {
+              result = hmMA.listStrategies();
+            } else if (params.defaults) {
+              result = hmMA.getDefaults(params.domain ?? "milling");
+            } else {
+              result = hmMA.calculate(params);
+            }
+            break;
+          }
+          case "cam_material_map": {
+            const hmMat = await getEngine("hmMaterialMap");
+            if (params.quality_id) {
+              result = hmMat.lookupByQualityId(params.quality_id);
+            } else if (params.search) {
+              result = hmMat.searchByName(params.search);
+            } else if (params.iso_group) {
+              result = hmMat.getByIsoGroup(params.iso_group);
+            } else if (params.list_groups) {
+              result = hmMat.listGroups();
+            } else if (params.list_cutters) {
+              result = hmMat.listCutterMaterials();
+            } else {
+              result = {
+                groups: hmMat.listGroups(),
+                totalQualities: hmMat.totalQualities(),
+                cutterMaterials: hmMat.listCutterMaterials(),
+              };
+            }
             break;
           }
           case "cam_safety_validate": {

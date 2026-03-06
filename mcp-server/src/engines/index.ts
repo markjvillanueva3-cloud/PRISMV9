@@ -1750,6 +1750,30 @@ export {
   validateRestMaterialToolChange,
 } from "./HyperMillSafetyHooks.js";
 
+// hyperMILL Multi-Axis & Material Map (from HYPERMILL v33 installation)
+export {
+  hyperMillMultiAxisEngine,
+  HyperMillMultiAxisEngine,
+  type MultiAxisGeometry,
+  type MultiAxisGoal,
+  type MultiAxisInput,
+  type MultiAxisRecommendation,
+  type HyperMillDefaults,
+  HYPERMILL_DEFAULTS,
+  HYPERMILL_TURNING_DEFAULTS,
+} from "./HyperMillMultiAxisEngine.js";
+
+export {
+  hyperMillMaterialMapEngine,
+  HyperMillMaterialMapEngine,
+  type HyperMillMaterialGroup,
+  type HyperMillSubgroup,
+  type HyperMillQuality,
+  type CutterMaterial,
+  type MaterialMapResult,
+  CUTTER_MATERIALS,
+} from "./HyperMillMaterialMapEngine.js";
+
 // ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
 
 // Cycle-to-Cycle Feedback Control (Hardt/Siu)

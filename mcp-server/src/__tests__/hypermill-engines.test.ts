@@ -331,3 +331,277 @@ describe("HyperMillSafetyHooks", () => {
     });
   });
 });
+
+// ============================================================================
+// HyperMillMultiAxisEngine
+// ============================================================================
+import { hyperMillMultiAxisEngine } from "../engines/HyperMillMultiAxisEngine.js";
+
+describe("HyperMillMultiAxisEngine", () => {
+  const engine = hyperMillMultiAxisEngine;
+
+  it("recommends Impeller Roughing for impeller roughing", () => {
+    const r = engine.calculate({ geometry: "impeller", goal: "roughing" });
+    expect(r.strategyName).toBe("5X Impeller Roughing");
+    expect(r.cycleCode).toBe("IrX5");
+    expect(r.confidence).toBeGreaterThan(0);
+  });
+
+  it("recommends Blade Swarf Cutting for blade finishing at 30-80°", () => {
+    const r = engine.calculate({
+      geometry: "blade",
+      goal: "finishing",
+      wallAngleDeg: 50,
+    });
+    expect(r.strategyName).toBe("5X Blade Swarf Cutting");
+    expect(r.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("swarf")]),
+    );
+  });
+
+  it("recommends Blade Tangent Cutting for blade finishing", () => {
+    const r = engine.calculate({ geometry: "blade", goal: "finishing" });
+    expect(r.strategyName).toBe("5X Blade Tangent Cutting");
+    expect(r.cycleCode).toBe("FBGX5");
+  });
+
+  it("prefers tangent roughing for impeller with large tool", () => {
+    const r = engine.calculate({
+      geometry: "impeller",
+      goal: "roughing",
+      toolDiameterMm: 12,
+    });
+    expect(r.strategyName).toBe("5X Impeller Tangent Roughing");
+    expect(r.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("barrel")]),
+    );
+  });
+
+  it("warns for deep impeller channels", () => {
+    const r = engine.calculate({
+      geometry: "impeller",
+      goal: "roughing",
+      hubShroudRatio: 0.2,
+    });
+    expect(r.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("Deep impeller")]),
+    );
+  });
+
+  it("warns for superalloy material", () => {
+    const r = engine.calculate({
+      geometry: "impeller",
+      goal: "finishing",
+      materialGroup: "S",
+    });
+    expect(r.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("Superalloy")]),
+    );
+  });
+
+  it("warns for splitter blades", () => {
+    const r = engine.calculate({
+      geometry: "impeller",
+      goal: "roughing",
+      hasSplitterBlades: true,
+    });
+    expect(r.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("Splitter")]),
+    );
+  });
+
+  it("recommends tube roughing for tube geometry", () => {
+    const r = engine.calculate({ geometry: "tube", goal: "roughing" });
+    expect(r.strategyName).toBe("5X Tube Roughing");
+    expect(r.group).toBe("5Axis-Tube-Cycles");
+  });
+
+  it("recommends dental crown for dental_crown", () => {
+    const r = engine.calculate({
+      geometry: "dental_crown",
+      goal: "finishing",
+    });
+    expect(r.strategyName).toBe("5X Dental Crown");
+  });
+
+  it("recommends dental abutment finishing", () => {
+    const r = engine.calculate({
+      geometry: "dental_abutment",
+      goal: "finishing",
+    });
+    expect(r.strategyName).toBe("5X Dental Abutment");
+    expect(r.suggestedStepover).toBe(0.05);
+  });
+
+  it("recommends impeller probing for probing goal", () => {
+    const r = engine.calculate({ geometry: "impeller", goal: "probing" });
+    expect(r.strategyName).toBe("5X Impeller Probing");
+    expect(r.cycleCode).toBe("IcX5");
+  });
+
+  it("recommends impeller edge machining", () => {
+    const r = engine.calculate({
+      geometry: "impeller",
+      goal: "edge_machining",
+    });
+    expect(r.strategyName).toBe("5X Impeller Edge Machining");
+  });
+
+  it("recommends blade fillet machining", () => {
+    const r = engine.calculate({
+      geometry: "blade",
+      goal: "fillet_machining",
+    });
+    expect(r.strategyName).toBe("5X Blade Fillet Machining");
+    expect(r.cycleCode).toBe("FBFX5");
+  });
+
+  it("recommends 5X cavity roughing", () => {
+    const r = engine.calculate({ geometry: "cavity_5x", goal: "roughing" });
+    expect(r.strategyName).toBe("5X Cavity Roughing");
+  });
+
+  it("returns fallback for unknown geometry+goal", () => {
+    const r = engine.calculate({
+      geometry: "dental_bridge",
+      goal: "probing",
+    });
+    expect(r.warnings.length).toBeGreaterThan(0);
+  });
+
+  it("listStrategies returns all strategies", () => {
+    const list = engine.listStrategies();
+    expect(list.length).toBeGreaterThanOrEqual(20);
+    expect(list.find((s) => s.code === "IrX5")).toBeDefined();
+    expect(list.find((s) => s.code === "FBWX5")).toBeDefined();
+  });
+
+  it("getDefaults returns milling defaults", () => {
+    const d = engine.getDefaults("milling");
+    expect(d).toHaveProperty("approachLength");
+    expect(d).toHaveProperty("holderClearance");
+  });
+
+  it("getDefaults returns turning defaults", () => {
+    const d = engine.getDefaults("turning");
+    expect(d).toHaveProperty("cuttingSpeed", 200);
+    expect(d).toHaveProperty("feedRate", 0.1);
+  });
+
+  it("stats tracks calculations", () => {
+    const before = engine.stats().calculations;
+    engine.calculate({ geometry: "impeller", goal: "roughing" });
+    expect(engine.stats().calculations).toBe(before + 1);
+    expect(engine.stats().totalStrategies).toBeGreaterThanOrEqual(20);
+  });
+});
+
+// ============================================================================
+// HyperMillMaterialMapEngine
+// ============================================================================
+import {
+  hyperMillMaterialMapEngine,
+} from "../engines/HyperMillMaterialMapEngine.js";
+
+describe("HyperMillMaterialMapEngine", () => {
+  const engine = hyperMillMaterialMapEngine;
+
+  it("looks up steel quality by ID", () => {
+    const r = engine.lookupByQualityId("1_6_4");
+    expect(r).not.toBeNull();
+    expect(r!.hyperMillGroup).toBe("Steel");
+    expect(r!.hyperMillSubgroup).toBe("Heat-treatable steel");
+    expect(r!.isoGroup).toBe("P");
+    expect(r!.suggestedCutterMaterials).toContain("SolidCarbide");
+  });
+
+  it("looks up titanium quality by ID", () => {
+    const r = engine.lookupByQualityId("7_1_4");
+    expect(r).not.toBeNull();
+    expect(r!.hyperMillGroup).toBe("Titanium");
+    expect(r!.hyperMillQuality).toBe("Alpha-Beta alloy");
+    expect(r!.isoGroup).toBe("S");
+    expect(r!.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("flood coolant")]),
+    );
+  });
+
+  it("looks up hardened steel > 60 HRC", () => {
+    const r = engine.lookupByQualityId("1_10_4");
+    expect(r).not.toBeNull();
+    expect(r!.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("PCBN")]),
+    );
+  });
+
+  it("looks up nickel alloy with work hardening warning", () => {
+    const r = engine.lookupByQualityId("3_2_1");
+    expect(r).not.toBeNull();
+    expect(r!.isoGroup).toBe("S");
+    expect(r!.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("work hardening")]),
+    );
+  });
+
+  it("looks up cast iron in ISO K", () => {
+    const r = engine.lookupByQualityId("4_4_1");
+    expect(r).not.toBeNull();
+    expect(r!.isoGroup).toBe("K");
+    expect(r!.isoGroupName).toBe("Cast Iron");
+  });
+
+  it("looks up aluminium in ISO N with PCD recommendation", () => {
+    const r = engine.lookupByQualityId("5_1_3");
+    expect(r).not.toBeNull();
+    expect(r!.isoGroup).toBe("N");
+    expect(r!.suggestedCutterMaterials).toContain("PCD");
+  });
+
+  it("looks up CFRP with delamination warning", () => {
+    const r = engine.lookupByQualityId("9_3_4");
+    expect(r).not.toBeNull();
+    expect(r!.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining("delamination")]),
+    );
+  });
+
+  it("returns null for unknown quality ID", () => {
+    expect(engine.lookupByQualityId("99_99_99")).toBeNull();
+  });
+
+  it("searches by name - titanium", () => {
+    const results = engine.searchByName("titanium");
+    expect(results.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("searches by name - brass", () => {
+    const results = engine.searchByName("brass");
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0].hyperMillSubgroup).toContain("CuZn");
+  });
+
+  it("gets all materials by ISO group K", () => {
+    const results = engine.getByIsoGroup("K");
+    expect(results.length).toBeGreaterThanOrEqual(10);
+    expect(results.every((r) => r.isoGroup === "K")).toBe(true);
+  });
+
+  it("listGroups returns 10 groups", () => {
+    const groups = engine.listGroups();
+    expect(groups.length).toBe(10);
+    expect(groups[0].name).toBe("Steel");
+    expect(groups[0].isoGroup).toBe("P");
+  });
+
+  it("listCutterMaterials returns 9 materials", () => {
+    const mats = engine.listCutterMaterials();
+    expect(mats.length).toBe(9);
+    expect(mats.find((m) => m.code === "PCD")).toBeDefined();
+  });
+
+  it("totalQualities returns 130+", () => {
+    const total = engine.totalQualities();
+    expect(total).toBeGreaterThanOrEqual(130);
+    expect(total).toBeLessThanOrEqual(200);
+  });
+});
