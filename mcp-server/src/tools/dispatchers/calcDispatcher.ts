@@ -3147,6 +3147,31 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "cutting_thermal_shear": {
+            const { cuttingThermalEngine } = await import("../../engines/CuttingThermalEngine.js");
+            result = cuttingThermalEngine.shearPlaneTemperature(params as any);
+            break;
+          }
+
+          case "cutting_thermal_interface": {
+            const { cuttingThermalEngine } = await import("../../engines/CuttingThermalEngine.js");
+            result = cuttingThermalEngine.toolChipInterfaceTemp(params as any);
+            break;
+          }
+
+          case "cutting_thermal_partition": {
+            const { cuttingThermalEngine } = await import("../../engines/CuttingThermalEngine.js");
+            result = cuttingThermalEngine.heatPartition(params as any);
+            break;
+          }
+
+          case "de_optimize": {
+            const { differentialEvolutionEngine } = await import("../../engines/DifferentialEvolutionEngine.js");
+            const fitFn = new Function("genes", params.fitness_body) as (g: number[]) => number;
+            result = differentialEvolutionEngine.optimize(fitFn, params.bounds, params.config ?? {});
+            break;
+          }
+
           case "feature_precedence_graph": {
             const { featureInteractionEngine } = await import("../../engines/FeatureInteractionEngine.js");
             const graph = featureInteractionEngine.buildPrecedenceGraph(params.features);

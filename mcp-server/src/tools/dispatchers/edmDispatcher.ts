@@ -1,10 +1,12 @@
 /**
- * prism_edm — EDM Process Dispatcher
+ * prism_edm — Non-Traditional Machining Dispatcher
  *
- * 4 actions: electrode_design, wire_settings, surface_integrity, micro_edm
+ * 12 actions: electrode_design, wire_settings, surface_integrity, micro_edm,
+ *   laser_calculate, laser_materials, laser_machines, laser_gas_recommend,
+ *   waterjet_calculate, waterjet_materials, waterjet_abrasives, waterjet_quality_levels
  *
  * Engine dependencies: ElectrodeDesignEngine, WireEDMSettingsEngine,
- *   EDMSurfaceIntegrityEngine, MicroEDMEngine
+ *   EDMSurfaceIntegrityEngine, MicroEDMEngine, LaserCuttingEngine, WaterjetCuttingEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -14,18 +16,23 @@ import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _electrode: any, _wire: any, _surface: any, _micro: any;
+let _laser: any, _waterjet: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "electrode": return _electrode ??= (await import("../../engines/ElectrodeDesignEngine.js")).electrodeDesignEngine;
     case "wire": return _wire ??= (await import("../../engines/WireEDMSettingsEngine.js")).wireEDMSettingsEngine;
     case "surface": return _surface ??= (await import("../../engines/EDMSurfaceIntegrityEngine.js")).edmSurfaceIntegrityEngine;
     case "micro": return _micro ??= (await import("../../engines/MicroEDMEngine.js")).microEDMEngine;
-    default: throw new Error(`Unknown EDM engine: ${name}`);
+    case "laser": return _laser ??= (await import("../../engines/LaserCuttingEngine.js")).laserCuttingEngine;
+    case "waterjet": return _waterjet ??= (await import("../../engines/WaterjetCuttingEngine.js")).waterjetCuttingEngine;
+    default: throw new Error(`Unknown engine: ${name}`);
   }
 }
 
 const ACTIONS = [
   "electrode_design", "wire_settings", "surface_integrity", "micro_edm",
+  "laser_calculate", "laser_materials", "laser_machines", "laser_gas_recommend",
+  "waterjet_calculate", "waterjet_materials", "waterjet_abrasives", "waterjet_quality_levels",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -35,7 +42,7 @@ const ACTIONS = [
 export function registerEdmDispatcher(server: any): void {
   server.tool(
     "prism_edm",
-    `EDM Process dispatcher — electrode design, wire EDM settings, surface integrity assessment, micro-EDM parameters.
+    `Non-traditional machining: EDM (electrode, wire, surface, micro), laser cutting (speed/kerf/cost), waterjet (abrasive/pure, Q1-Q5).
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
@@ -96,6 +103,54 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "MicroEDM method not found" };
             break;
           }
+
+          // --- Laser Cutting (reverse-engineered from monolith) ---
+          case "laser_calculate": {
+            const engine = await getEngine("laser");
+            result = engine.calculateParams(params);
+            break;
+          }
+          case "laser_materials": {
+            const engine = await getEngine("laser");
+            result = engine.listMaterials();
+            break;
+          }
+          case "laser_machines": {
+            const engine = await getEngine("laser");
+            result = engine.listMachines();
+            break;
+          }
+          case "laser_gas_recommend": {
+            const engine = await getEngine("laser");
+            result = engine.recommendGas(
+              params.material ?? "mild_steel",
+              params.priority ?? "quality"
+            );
+            break;
+          }
+
+          // --- Waterjet Cutting (reverse-engineered from monolith) ---
+          case "waterjet_calculate": {
+            const engine = await getEngine("waterjet");
+            result = engine.calculateParams(params);
+            break;
+          }
+          case "waterjet_materials": {
+            const engine = await getEngine("waterjet");
+            result = engine.listMaterials();
+            break;
+          }
+          case "waterjet_abrasives": {
+            const engine = await getEngine("waterjet");
+            result = engine.listAbrasives();
+            break;
+          }
+          case "waterjet_quality_levels": {
+            const engine = await getEngine("waterjet");
+            result = engine.listQualityLevels();
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
