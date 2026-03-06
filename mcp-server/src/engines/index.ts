@@ -1882,3 +1882,29 @@ export {
   type PeckDrillingInput,
   type PeckDrillingResult,
 } from "./PeckDrillingOptimizationEngine.js";
+
+// Advanced Chip Thickness (SolidCAM-derived empirical + analytical)
+export {
+  advancedChipThicknessEngine,
+  AdvancedChipThicknessEngine,
+  type ChipAnalysisInput,
+  type ChipAnalysisResult,
+  type BallNoseChipResult,
+  type RoundInsertChipResult,
+  type TrochoidalFeedResult,
+} from "./AdvancedChipThicknessEngine.js";
+
+// Engagement Geometry (corner spikes, curved boundary, trochoidal profiles)
+export {
+  engagementGeometryEngine,
+  EngagementGeometryEngine,
+  type CornerClassification,
+  type EngagementSpikeResult,
+  type CornerFeedResult,
+  type CurvedBoundaryResult,
+  type TrochoidalProfileResult,
+  type IslandApproachResult,
+  type MoatSpec,
+  type EngagementValidation,
+  type OptimalStepoverResult,
+} from "./EngagementGeometryEngine.js";

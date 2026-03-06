@@ -806,6 +806,130 @@ const algorithm_benchmark = z.object({
 }).passthrough();
 
 // ============================================================================
+// ADVANCED CHIP THICKNESS (5 actions)
+// ============================================================================
+
+const chip_thickness_analyze = z.object({
+  feed_per_tooth: optPosNum,
+  fz: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  axial_depth: optPosNum,
+  ap: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  number_of_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  entering_angle_deg: optPosNum,
+  lead_angle: optPosNum,
+  helix_angle_deg: optPosNum,
+  edge_radius_mm: optPosNum,
+  max_allowed_chip: optPosNum,
+}).passthrough();
+
+const ball_nose_chip = z.object({
+  feed_per_tooth: optPosNum,
+  fz: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  axial_depth: optPosNum,
+  ap: optPosNum,
+  ball_radius: optPosNum,
+  tool_diameter: optPosNum,
+}).passthrough();
+
+const round_insert_chip = z.object({
+  feed_per_tooth: optPosNum,
+  fz: optPosNum,
+  axial_depth: optPosNum,
+  ap: optPosNum,
+  insert_diameter: posNum,
+}).passthrough();
+
+const trochoidal_feed_adjust = z.object({
+  base_feed: posNum,
+  instantaneous_width: posNum,
+  max_width: posNum,
+}).passthrough();
+
+const chip_thinning_lookup = z.object({
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+}).passthrough();
+
+// ============================================================================
+// ENGAGEMENT GEOMETRY (8 actions)
+// ============================================================================
+
+const corner_engagement_analyze = z.object({
+  corner_angle_deg: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  corner_radius: optNum,
+}).passthrough();
+
+const corner_feed_adjust = z.object({
+  corner_angle_deg: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  nominal_feed: posNum,
+  corner_radius: optNum,
+}).passthrough();
+
+const curved_boundary_engagement = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  workpiece_radius: optPosNum,
+  boundary_curvature: optPosNum,
+}).passthrough();
+
+const trochoidal_engagement_profile = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  trochoidal_radius: posNum,
+  stepover: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  steps: z.number().int().positive().optional(),
+}).passthrough();
+
+const island_approach = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  island_radius: posNum,
+  distance_to_island: posNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+}).passthrough();
+
+const moat_calculate = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  island_radius: posNum,
+  target_engagement_deg: optPosNum,
+}).passthrough();
+
+const engagement_validate = z.object({
+  engagement_angle_deg: posNum,
+}).passthrough();
+
+const optimal_stepover = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  target_engagement_deg: optPosNum,
+  prioritize_mrr: optBool,
+  prioritize_tool_life: optBool,
+}).passthrough();
+
+// ============================================================================
 // EXPORT: ACTION_CALC_SCHEMAS
 // ============================================================================
 
@@ -919,4 +1043,21 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   algorithm_info,
   algorithm_batch,
   algorithm_benchmark,
+
+  // Advanced chip thickness
+  chip_thickness_analyze,
+  ball_nose_chip,
+  round_insert_chip,
+  trochoidal_feed_adjust,
+  chip_thinning_lookup,
+
+  // Engagement geometry
+  corner_engagement_analyze,
+  corner_feed_adjust,
+  curved_boundary_engagement,
+  trochoidal_engagement_profile,
+  island_approach,
+  moat_calculate,
+  engagement_validate,
+  optimal_stepover,
 };

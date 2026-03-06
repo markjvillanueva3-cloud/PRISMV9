@@ -2280,6 +2280,145 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Advanced Chip Thickness ──
+          case "chip_thickness_analyze": {
+            const { advancedChipThicknessEngine } = await import("../../engines/AdvancedChipThicknessEngine.js");
+            result = advancedChipThicknessEngine.analyze({
+              feed_per_tooth: params.feed_per_tooth ?? params.fz,
+              radial_depth: params.radial_depth ?? params.ae,
+              axial_depth: params.axial_depth ?? params.ap,
+              tool_diameter: params.tool_diameter ?? params.Dc,
+              number_of_flutes: params.number_of_flutes ?? params.number_of_teeth,
+              entering_angle_deg: params.entering_angle_deg ?? params.lead_angle,
+              helix_angle_deg: params.helix_angle_deg,
+              edge_radius_mm: params.edge_radius_mm,
+              max_allowed_chip: params.max_allowed_chip,
+            });
+            break;
+          }
+          case "ball_nose_chip": {
+            const { advancedChipThicknessEngine } = await import("../../engines/AdvancedChipThicknessEngine.js");
+            result = advancedChipThicknessEngine.ballNoseChipThickness(
+              params.feed_per_tooth ?? params.fz,
+              params.radial_depth ?? params.ae,
+              params.axial_depth ?? params.ap,
+              params.ball_radius ?? (params.tool_diameter ?? 0) / 2,
+            );
+            break;
+          }
+          case "round_insert_chip": {
+            const { advancedChipThicknessEngine } = await import("../../engines/AdvancedChipThicknessEngine.js");
+            result = advancedChipThicknessEngine.roundInsertChipThickness(
+              params.feed_per_tooth ?? params.fz,
+              params.axial_depth ?? params.ap,
+              params.insert_diameter,
+            );
+            break;
+          }
+          case "trochoidal_feed_adjust": {
+            const { advancedChipThicknessEngine } = await import("../../engines/AdvancedChipThicknessEngine.js");
+            result = advancedChipThicknessEngine.trochoidalVariableFeed(
+              params.base_feed,
+              params.instantaneous_width,
+              params.max_width,
+            );
+            break;
+          }
+          case "chip_thinning_lookup": {
+            const { advancedChipThicknessEngine } = await import("../../engines/AdvancedChipThicknessEngine.js");
+            const ae = params.radial_depth ?? params.ae;
+            const Dc = params.tool_diameter ?? params.Dc;
+            result = {
+              empirical_factor: advancedChipThicknessEngine.chipThinningFactorLookup(ae, Dc),
+              theoretical_factor: advancedChipThicknessEngine.chipThinningFactorTheoretical(ae, Dc),
+              woc_ratio: ae / Dc,
+            };
+            break;
+          }
+
+          // ── Engagement Geometry ──
+          case "corner_engagement_analyze": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            const turnRad = (params.corner_angle_deg ?? 90) * Math.PI / 180;
+            result = engagementGeometryEngine.internalCornerSpike(
+              params.radial_depth ?? params.ae,
+              params.tool_diameter ?? params.Dc,
+              turnRad,
+              params.corner_radius ?? 0,
+            );
+            break;
+          }
+          case "corner_feed_adjust": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            const cTurnRad = (params.corner_angle_deg ?? 90) * Math.PI / 180;
+            result = engagementGeometryEngine.cornerFeedAdjustment(
+              params.nominal_feed,
+              params.radial_depth ?? params.ae,
+              params.tool_diameter ?? params.Dc,
+              cTurnRad,
+              params.corner_radius ?? 0,
+            );
+            break;
+          }
+          case "curved_boundary_engagement": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            result = engagementGeometryEngine.curvedBoundaryEngagement(
+              params.radial_depth ?? params.ae,
+              params.tool_diameter ?? params.Dc,
+              params.workpiece_radius ?? params.boundary_curvature,
+            );
+            break;
+          }
+          case "trochoidal_engagement_profile": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            result = engagementGeometryEngine.trochoidalEngagementProfile(
+              params.trochoidal_radius,
+              params.stepover ?? params.radial_depth ?? params.ae,
+              (params.tool_diameter ?? params.Dc) / 2,
+              params.steps ?? 36,
+            );
+            break;
+          }
+          case "island_approach": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            result = engagementGeometryEngine.islandApproach(
+              params.radial_depth ?? params.ae,
+              params.tool_diameter ?? params.Dc,
+              params.distance_to_island,
+              params.island_radius,
+            );
+            break;
+          }
+          case "moat_calculate": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            const targetEngRad = ((params.target_engagement_deg ?? 40) * Math.PI) / 180;
+            result = engagementGeometryEngine.calculateMoat(
+              params.tool_diameter ?? params.Dc,
+              targetEngRad,
+              params.island_radius,
+            );
+            break;
+          }
+          case "engagement_validate": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            result = engagementGeometryEngine.validateEngagement(
+              params.engagement_angle_deg,
+            );
+            break;
+          }
+          case "optimal_stepover": {
+            const { engagementGeometryEngine } = await import("../../engines/EngagementGeometryEngine.js");
+            result = engagementGeometryEngine.findOptimalStepover(
+              params.tool_diameter ?? params.Dc,
+              {
+                target_engagement_deg: params.target_engagement_deg,
+                prioritize_mrr: params.prioritize_mrr,
+                prioritize_tool_life: params.prioritize_tool_life,
+              },
+            );
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
