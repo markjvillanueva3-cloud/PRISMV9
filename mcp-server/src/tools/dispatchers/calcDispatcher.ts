@@ -2935,6 +2935,40 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Topology (Homology / Betti Numbers) ──
+          case "topology_homology": {
+            const { topologyEngine } = await import("../../engines/TopologyEngine.js");
+            result = topologyEngine.computeHomology(topologyEngine.createSimplicialComplex(params.mesh));
+            break;
+          }
+          case "topology_persistence": {
+            const { topologyEngine } = await import("../../engines/TopologyEngine.js");
+            result = topologyEngine.computePersistence(params.points, { maxEpsilon: params.max_epsilon, steps: params.steps });
+            break;
+          }
+          case "topology_validate_features": {
+            const { topologyEngine } = await import("../../engines/TopologyEngine.js");
+            result = topologyEngine.validateFeatures(params.mesh, { components: params.components, holes: params.holes, voids: params.voids });
+            break;
+          }
+
+          // ── ACO Sequencer ──
+          case "aco_sequence_features": {
+            const { acoSequencerEngine } = await import("../../engines/AcoSequencerEngine.js");
+            result = acoSequencerEngine.optimizeSequence(params.features, { numAnts: params.num_ants, iterations: params.iterations, alpha: params.alpha, beta: params.beta });
+            break;
+          }
+          case "aco_sequence_holes": {
+            const { acoSequencerEngine } = await import("../../engines/AcoSequencerEngine.js");
+            result = acoSequencerEngine.optimizeHoleSequence(params.holes, { numAnts: params.num_ants, iterations: params.iterations });
+            break;
+          }
+          case "aco_sequence_with_tools": {
+            const { acoSequencerEngine } = await import("../../engines/AcoSequencerEngine.js");
+            result = acoSequencerEngine.optimizeWithToolChanges(params.features, { numAnts: params.num_ants, iterations: params.iterations, toolChangePenalty: params.tool_change_penalty });
+            break;
+          }
+
           // ── Solid Editing ──
           case "solid_press_pull": {
             const { solidEditingEngine } = await import("../../engines/SolidEditingEngine.js");
