@@ -309,7 +309,7 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
     macros: {},
   },
   {
-    code: "hmFgvp", displayName: "Profile Groove Finishing", category: "millturn_grooving", toolType: 104,
+    code: "hmFgvp", displayName: "Face Groove Plunging", category: "millturn_grooving", toolType: 104,
     params: parseParams({
       TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 10000, FEEDRATE: 0.3,
       CNTRES: "mtol", ALLOWANCE: 0, CLEARANCE_DISTANCE: 5,
@@ -320,7 +320,7 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
     macros: {},
   },
   {
-    code: "hmFgvt", displayName: "Thread Groove", category: "millturn_grooving", toolType: 104,
+    code: "hmFgvt", displayName: "Face Groove Turning", category: "millturn_grooving", toolType: 104,
     params: parseParams({
       TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 10000, FEEDRATE: 0.3,
       CNTRES: "mtol", CLEARANCE_DISTANCE: 5, SICHEBENE: 15, RETRACT_PLAN: 20,
@@ -330,7 +330,7 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
     macros: {},
   },
   {
-    code: "hmGrvf", displayName: "Face Groove Roughing", category: "millturn_grooving", toolType: 104,
+    code: "hmGrvf", displayName: "Groove Finishing", category: "millturn_grooving", toolType: 103,
     params: parseParams({
       TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 10000, FEEDRATE: 0.3,
       CNTRES: "mtol", INFEED_LENGTH: 1, ALLOWANCE: 0,
@@ -341,7 +341,7 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
     macros: {},
   },
   {
-    code: "hmGrvp", displayName: "Profile Groove Roughing", category: "millturn_grooving", toolType: 104,
+    code: "hmGrvp", displayName: "Groove Plunging", category: "millturn_grooving", toolType: 103,
     params: parseParams({
       TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 10000, FEEDRATE: 0.3,
       CNTRES: "mtol", INFEED_LENGTH: 1, ALLOWANCE: 0,
@@ -352,7 +352,7 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
     macros: {},
   },
   {
-    code: "hmGrvt", displayName: "Groove Threading", category: "millturn_grooving", toolType: 104,
+    code: "hmGrvt", displayName: "Groove Turning", category: "millturn_grooving", toolType: 103,
     params: parseParams({
       TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 10000, FEEDRATE: 0.3,
       CNTRES: "mtol", CLEARANCE_DISTANCE: 5, SICHEBENE: 15, RETRACT_PLAN: 20,
@@ -375,20 +375,79 @@ const CYCLE_DEFAULTS: CycleDefaults[] = [
 
   // ─── EDM / Electrode ─────────────────────────────────────────────────
   {
-    code: "hmEdm2", displayName: "EDM Machining", category: "edm", toolType: 1,
+    code: "hmEdm2", displayName: "EDM Curve Flow Machining", category: "edm", toolType: 1,
     params: parseParams({
-      SICHEBENE: 100, SICHDIST: 5,
+      PRFRES: "mtol*0.05", SICHEBENE: 5, SICHDIST: 5,
+      HORIZUSTEL: 10, VERTZUSTEL: 10, AUFMASS: 0,
+      SMOOTH_5AX: 1, FAN_DIST: 10, PRECISION: 0.01,
+      SICH_MAXDIST: 10, STEP_MAX: 2, CHECK_MODEL: 1, CLIMB: 1,
+      APPROXRES: "mtol*0.9|mtol*0.1|mtol*0.1", SAFESRFRES: "mtol",
     }),
-    machining: { clearancePlane: 100 },
+    machining: { clearancePlane: 5, stepdown: 10, stepover: 10, allowance: 0, precision: 0.01, tolerance: "mtol*0.05" },
     collision: {},
     macros: {},
   },
   {
     code: "hmElectrode", displayName: "Electrode", category: "electrode", toolType: 1,
     params: parseParams({
-      SICHEBENE: 100, SICHDIST: 5,
+      NCS_POSITION: 1, USE_CALC: 1, USE_COLL_CHECK: 1, USE_PP_RUN: 1,
+      G_CLPLAN: 10000,
     }),
-    machining: { clearancePlane: 100 },
+    machining: { clearancePlane: 10000 },
+    collision: {},
+    macros: {},
+  },
+
+  // ─── 3D Form / Setup / Feature ──────────────────────────────────────
+  {
+    code: "hmForm", displayName: "3D Form Pocket Milling", category: "3d_milling", toolType: 1,
+    params: parseParams({
+      SICHDIST: 5, SICHEBENE: 100, STEP_FACTOR: 0.5, VERTZUSTEL: 1,
+      AUFMASS: 0, AUFMASS_HORI: 0, PRECISION: 0.01,
+      BNDRES: "mtol*10", SAFESRFRES: "mtol", HOLDCHECK_CLEARVALUE_F: "T:Dia*0.1",
+      SHANK_CLEARANCE: 0.05, EXTENSION_CLEARANCE: 0.25,
+      HOLDER_CLEARANCE: 0.25, HEAD_CLEARANCE: 1.5,
+      SKIP_SMALL_POCKETS: 1, SKIP_FACTOR: 1,
+    }),
+    machining: { clearancePlane: 100, stepdown: 1, allowance: 0, precision: 0.01, tolerance: "mtol" },
+    collision: { holderClearance: 0.25, shankClearance: 0.05, extensionClearance: 0.25, headClearance: 1.5 },
+    macros: {},
+  },
+  {
+    code: "hmCpt", displayName: "Turning Parting/Cutoff", category: "turning", toolType: 105,
+    params: parseParams({
+      TCUTTINGSPEED: 200, TSPINDLESPEED_MAX: 0, FEEDRATE: 0.3,
+      CLEARANCE_DISTANCE: 5, SICHEBENE: 15, RETRACT_PLAN: 20,
+      RAPID_ANGLE1: 20, RAPID_ANGLE2: 20, RAPID_ANGLE3: 20,
+      RAPID_ANGLE_APPROACH: 20, RAPID_ANGLE_RETRACT: 20,
+      CHAMFER_LENGTH: 0.5, CHAMFER_ANGLE: 45, ROUNDING_RADIUS: 0.5,
+      CORNER_ANGLE: 90, APPROACH_LENGTH: 1, RETRACT_LENGTH: 1, RETRACT_ANGLE: 90,
+    }),
+    machining: { clearancePlane: 15, allowance: 0 },
+    collision: {},
+    macros: {},
+  },
+  {
+    code: "hmHcmp", displayName: "3D Workpiece Alignment (Surface)", category: "setup", toolType: 200,
+    params: parseParams({
+      PRFRES: "mtol*0.7", SRFRES: "mtol*0.7", SICHEBENE: 100,
+      APPROXRES: "mtol*0.9|mtol*0.1|mtol*0.1", SAFESRFRES: "mtol",
+      CHECK_TOL: 0.1, PRECISION: 0.05, SHANK_CLEARANCE_F: "J:MTol",
+      SHANK_CLEARANCE: 0.25, EXTENSION_CLEARANCE: 0.25,
+      HOLDER_CLEARANCE: 0.25, HEAD_CLEARANCE: 1.5, INFEED_LENGTH: 5, SICHDIST: 5,
+    }),
+    machining: { clearancePlane: 100, precision: 0.05, tolerance: "mtol*0.7" },
+    collision: { holderClearance: 0.25, shankClearance: 0.25, extensionClearance: 0.25, headClearance: 1.5 },
+    macros: {},
+  },
+  {
+    code: "hmConv", displayName: "CAD Geometry Converter", category: "setup", toolType: 1,
+    params: parseParams({
+      DELTAFLAECHE: 0.01, DELTAKURVE: 0.01,
+      DELTAFLAECHE1: 0.5, DELTAFLAECHE2: 0.1, DELTAFLAECHE3: 0.05,
+      DELTAFLAECHE4: 0.01, DELTAFLAECHE5: 0.005, DELTAFLAECHE6: 0.001,
+    }),
+    machining: { tolerance: 0.01 },
     collision: {},
     macros: {},
   },
@@ -415,6 +474,7 @@ export const FRTYP_MAP: Record<number, string> = {
   101: "turning_insert",
   103: "grooving_tool",
   104: "grooving_insert",
+  105: "parting_tool",
   200: "probe",
 };
 

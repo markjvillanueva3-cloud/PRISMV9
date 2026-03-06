@@ -887,6 +887,44 @@ describe("HyperMillCycleDefaultsEngine", () => {
     expect(results.length).toBeGreaterThanOrEqual(5);
     expect(results.some(c => c.displayName.includes("Face Groove"))).toBe(true);
   });
+
+  it("groove cycles have correct FRTYP codes", () => {
+    const grvf = cycleDefaults.getByCode("hmGrvf");
+    expect(grvf!.toolType).toBe(103); // grooving_tool
+    const fgvf = cycleDefaults.getByCode("hmFgvf");
+    expect(fgvf!.toolType).toBe(104); // grooving_insert (face groove)
+  });
+
+  it("getByCode returns 3D Form Pocket Milling", () => {
+    const c = cycleDefaults.getByCode("hmForm");
+    expect(c).toBeDefined();
+    expect(c!.category).toBe("3d_milling");
+    expect(c!.collision.holderClearance).toBe(0.25);
+    expect(c!.params.SKIP_SMALL_POCKETS.value).toBe(1);
+  });
+
+  it("getByCode returns Turning Parting/Cutoff", () => {
+    const c = cycleDefaults.getByCode("hmCpt");
+    expect(c).toBeDefined();
+    expect(c!.category).toBe("turning");
+    expect(c!.toolType).toBe(105); // parting_tool
+    expect(c!.params.RETRACT_ANGLE.value).toBe(90);
+  });
+
+  it("byCategory setup returns alignment and converter cycles", () => {
+    const results = cycleDefaults.byCategory("setup");
+    expect(results.length).toBeGreaterThanOrEqual(2);
+    expect(results.some(c => c.code === "hmHcmp")).toBe(true);
+    expect(results.some(c => c.code === "hmConv")).toBe(true);
+  });
+
+  it("EDM cycle has enriched parameters", () => {
+    const edm = cycleDefaults.getByCode("hmEdm2");
+    expect(edm).toBeDefined();
+    expect(edm!.params.PRFRES.isFormula).toBe(true);
+    expect(edm!.params.PRECISION.value).toBe(0.01);
+    expect(edm!.machining.stepdown).toBe(10);
+  });
 });
 
 // ============================================================================
