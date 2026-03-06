@@ -662,3 +662,70 @@ describe("HyperMillMaterialMapEngine", () => {
     expect(ti!.warnings.length).toBeGreaterThan(0);
   });
 });
+
+// ============================================================================
+// HyperMillCycleCatalogEngine
+// ============================================================================
+
+import { hyperMillCycleCatalogEngine as cycleCatalog } from "../engines/HyperMillCycleCatalogEngine.js";
+
+describe("HyperMillCycleCatalogEngine", () => {
+  const engine = cycleCatalog;
+
+  it("lists all cycles (120+)", () => {
+    const all = engine.listAll();
+    expect(all.length).toBeGreaterThanOrEqual(120);
+  });
+
+  it("stats returns correct category breakdown", () => {
+    const s = engine.stats();
+    expect(s.total).toBeGreaterThanOrEqual(120);
+    expect(s.drilling).toBe(3);
+    expect(s.millturn).toBeGreaterThanOrEqual(15);
+    expect(s["5axis"]).toBeGreaterThanOrEqual(40);
+    expect(s["3d"]).toBeGreaterThanOrEqual(20);
+  });
+
+  it("byCategory filters correctly", () => {
+    const drilling = engine.byCategory("drilling");
+    expect(drilling.length).toBe(3);
+    expect(drilling.every((c: any) => c.category === "drilling")).toBe(true);
+  });
+
+  it("search finds by display name", () => {
+    const r = engine.search("impeller");
+    expect(r.length).toBeGreaterThanOrEqual(8);
+    expect(r.some((c: any) => c.code.includes("Impeller"))).toBe(true);
+  });
+
+  it("search finds by alias", () => {
+    const r = engine.search("Pecking");
+    expect(r.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("lookupByCode finds exact match", () => {
+    const c = engine.lookupByCode("3D:Z-Level Roughing");
+    expect(c).not.toBeNull();
+    expect(c.displayName).toBe("Z-Level Roughing");
+  });
+
+  it("lookupByCode returns null for unknown", () => {
+    expect(engine.lookupByCode("FAKE:Nothing")).toBeNull();
+  });
+
+  it("probing category exists", () => {
+    const probing = engine.byCategory("probing");
+    expect(probing.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it("millturn includes groove and thread operations", () => {
+    const mt = engine.byCategory("millturn");
+    expect(mt.some((c: any) => c.code.includes("Groove"))).toBe(true);
+    expect(mt.some((c: any) => c.code.includes("Thread"))).toBe(true);
+  });
+
+  it("grinding category exists", () => {
+    const g = engine.byCategory("grinding");
+    expect(g.length).toBeGreaterThanOrEqual(1);
+  });
+});

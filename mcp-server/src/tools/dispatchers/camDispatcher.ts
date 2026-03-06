@@ -1,11 +1,12 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 16 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 17 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
- *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map
+ *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
+ *   cam_cycle_catalog
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -18,7 +19,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -32,6 +33,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmSafety": return _hmSafety ??= await import("../../engines/HyperMillSafetyHooks.js");
     case "hmMultiAxis": return _hmMultiAxis ??= (await import("../../engines/HyperMillMultiAxisEngine.js")).hyperMillMultiAxisEngine;
     case "hmMaterialMap": return _hmMaterialMap ??= (await import("../../engines/HyperMillMaterialMapEngine.js")).hyperMillMaterialMapEngine;
+    case "hmCycleCatalog": return _hmCycleCatalog ??= (await import("../../engines/HyperMillCycleCatalogEngine.js")).hyperMillCycleCatalogEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -43,6 +45,7 @@ const ACTIONS = [
   "clearance_plane", "sequence_operations", "linking_move",
   "cam_strategy_recommend", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
+  "cam_cycle_catalog",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -195,6 +198,22 @@ Params vary by action — pass relevant fields in params object.`,
                 totalQualities: hmMat.totalQualities(),
                 cutterMaterials: hmMat.listCutterMaterials(),
               };
+            }
+            break;
+          }
+          case "cam_cycle_catalog": {
+            const hmCC = await getEngine("hmCycleCatalog");
+            if (params.search) {
+              result = hmCC.search(params.search);
+            } else if (params.category) {
+              result = hmCC.byCategory(params.category);
+            } else if (params.code) {
+              result = hmCC.lookupByCode(params.code)
+                ?? { error: `No cycle found for code: ${params.code}` };
+            } else if (params.stats) {
+              result = hmCC.stats();
+            } else {
+              result = hmCC.stats();
             }
             break;
           }

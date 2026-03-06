@@ -1777,6 +1777,13 @@ export {
   CUTTER_MATERIALS,
 } from "./HyperMillMaterialMapEngine.js";
 
+export {
+  hyperMillCycleCatalogEngine,
+  HyperMillCycleCatalogEngine,
+  type CycleCategory,
+  type HyperMillCycle,
+} from "./HyperMillCycleCatalogEngine.js";
+
 // ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
 
 // Cycle-to-Cycle Feedback Control (Hardt/Siu)
