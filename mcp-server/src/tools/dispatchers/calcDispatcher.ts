@@ -359,6 +359,8 @@ const ACTIONS = [
   "mesh_curvature_all", "mesh_curvature_classify",
   "silhouette_extract", "silhouette_crease", "silhouette_all_edges",
   "isosurface_marching_cubes",
+  "moo_nsga2", "moo_pareto_dominates", "moo_non_dominated_sort",
+  "graph_mst_kruskal", "graph_bellman_ford", "graph_topo_sort", "graph_scc", "graph_cpm",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2267,6 +2269,50 @@ export function registerCalcDispatcher(server: any): void {
           case "isosurface_marching_cubes": {
             const { isosurfaceEngine } = await import("../../engines/IsosurfaceEngine.js");
             result = isosurfaceEngine.marchingCubes(params.grid, params.isovalue);
+            break;
+          }
+
+          // ── Multi-Objective Optimization ──
+          case "moo_nsga2": {
+            const { multiObjectiveEngine } = await import("../../engines/MultiObjectiveEngine.js");
+            result = multiObjectiveEngine.nsgaII(params as any);
+            break;
+          }
+          case "moo_pareto_dominates": {
+            const { multiObjectiveEngine } = await import("../../engines/MultiObjectiveEngine.js");
+            result = { dominates: multiObjectiveEngine.dominates(params.a, params.b) };
+            break;
+          }
+          case "moo_non_dominated_sort": {
+            const { multiObjectiveEngine } = await import("../../engines/MultiObjectiveEngine.js");
+            result = { fronts: multiObjectiveEngine.nonDominatedSort(params.population) };
+            break;
+          }
+
+          // ── Graph Algorithms ──
+          case "graph_mst_kruskal": {
+            const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
+            result = graphAlgorithmsEngine.kruskalMST(params.nodes, params.edges);
+            break;
+          }
+          case "graph_bellman_ford": {
+            const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
+            result = graphAlgorithmsEngine.bellmanFord(params.nodes, params.edges, params.source);
+            break;
+          }
+          case "graph_topo_sort": {
+            const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
+            result = graphAlgorithmsEngine.topologicalSort(params.nodes, params.edges);
+            break;
+          }
+          case "graph_scc": {
+            const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
+            result = graphAlgorithmsEngine.stronglyConnectedComponents(params.nodes, params.edges);
+            break;
+          }
+          case "graph_cpm": {
+            const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
+            result = graphAlgorithmsEngine.criticalPathMethod(params.activities);
             break;
           }
 
