@@ -286,4 +286,197 @@ class KinematicsEngineImpl {
 function r2(v: number): number { return Math.round(v * 100) / 100; }
 function r4(v: number): number { return Math.round(v * 10000) / 10000; }
 
+// =============================================================================
+// Jacobian & Singularity Analysis — Round 10 from PRISM_JACOBIAN_ENGINE
+// =============================================================================
+
+export interface JacobianSingularityResult {
+  nearSingularity: boolean;
+  conditionNumber: number;
+  manipulability: number;
+  minSingularValue: number;
+  maxSingularValue: number;
+}
+
+export interface ConfigSingularityResult {
+  hasSingularity: boolean;
+  singularities: Array<{
+    type: string;
+    axis: string;
+    value: number;
+    severity: "critical" | "warning";
+    message: string;
+  }>;
+}
+
+class JacobianEngineImpl {
+
+  /**
+   * Compute analytical 5-axis Jacobian (6×5 matrix).
+   * Maps joint velocities [X,Y,Z,rot1,rot2] to end-effector velocities.
+   */
+  compute5AxisJacobian(
+    config: "BC" | "AC",
+    jointValues: { x?: number; y?: number; z?: number; a?: number; b?: number; c?: number },
+    toolLength: number = 0
+  ): number[][] {
+    const aRad = ((jointValues.a ?? 0) * Math.PI) / 180;
+    const bRad = ((jointValues.b ?? 0) * Math.PI) / 180;
+    const cRad = ((jointValues.c ?? 0) * Math.PI) / 180;
+    const L = toolLength;
+
+    const J: number[][] = Array.from({ length: 6 }, () => new Array(5).fill(0));
+
+    // Linear axes contribute directly
+    J[0][0] = 1; // dx/dX
+    J[1][1] = 1; // dy/dY
+    J[2][2] = 1; // dz/dZ
+
+    if (config === "BC") {
+      const cb = Math.cos(bRad), sb = Math.sin(bRad);
+      const cc = Math.cos(cRad), sc = Math.sin(cRad);
+
+      J[0][3] = L * cb * cc;
+      J[1][3] = L * cb * sc;
+      J[2][3] = -L * sb;
+      J[0][4] = -L * sb * sc;
+      J[1][4] = L * sb * cc;
+      J[2][4] = 0;
+      J[3][3] = 0; J[4][3] = 1; J[5][3] = 0;
+      J[3][4] = sb; J[4][4] = 0; J[5][4] = cb;
+    } else {
+      const ca = Math.cos(aRad), sa = Math.sin(aRad);
+      const _cc = Math.cos(cRad), sc = Math.sin(cRad);
+
+      J[0][3] = 0;
+      J[1][3] = -L * ca * sc;
+      J[2][3] = -L * sa;
+      J[0][4] = -L * sa * sc;
+      J[1][4] = L * sa * _cc;
+      J[2][4] = 0;
+      J[3][3] = 1; J[4][3] = 0; J[5][3] = 0;
+      J[3][4] = 0; J[4][4] = sa; J[5][4] = ca;
+    }
+
+    return J;
+  }
+
+  /**
+   * Detect singularities using Jacobian condition number.
+   */
+  detectSingularity(jacobian: number[][], threshold: number = 0.01): JacobianSingularityResult {
+    const JtJ = this._multiplyJtJ(jacobian);
+    const eigenvalues = this._powerIterationEigenvalues(JtJ, 100);
+
+    const maxEig = Math.max(...eigenvalues);
+    const positiveEigs = eigenvalues.filter(e => e > 1e-10);
+    const minEig = positiveEigs.length > 0 ? Math.min(...positiveEigs) : 0;
+
+    const conditionNumber = minEig > 1e-10 ? maxEig / minEig : Infinity;
+    const manipulability = Math.sqrt(eigenvalues.reduce((a, b) => a * Math.max(b, 0), 1));
+
+    return {
+      nearSingularity: minEig < threshold || conditionNumber > 1000,
+      conditionNumber,
+      manipulability,
+      minSingularValue: Math.sqrt(Math.max(minEig, 0)),
+      maxSingularValue: Math.sqrt(Math.max(maxEig, 0)),
+    };
+  }
+
+  /**
+   * Check for kinematic singularities based on machine configuration.
+   */
+  checkConfigSingularities(
+    config: "BC" | "AC",
+    angles: { a?: number; b?: number; c?: number }
+  ): ConfigSingularityResult {
+    const { a = 0, b = 0 } = angles;
+    const singularities: ConfigSingularityResult["singularities"] = [];
+
+    if (config === "BC") {
+      if (Math.abs(b) < 1) {
+        singularities.push({
+          type: "gimbal_lock",
+          axis: "B",
+          value: b,
+          severity: Math.abs(b) < 0.1 ? "critical" : "warning",
+          message: "B-axis near zero causes C-axis singularity",
+        });
+      }
+    } else {
+      if (Math.abs(a) < 1) {
+        singularities.push({
+          type: "gimbal_lock",
+          axis: "A",
+          value: a,
+          severity: Math.abs(a) < 0.1 ? "critical" : "warning",
+          message: "A-axis near zero causes C-axis singularity",
+        });
+      }
+      if (Math.abs(Math.abs(a) - 90) < 1) {
+        singularities.push({
+          type: "workspace_boundary",
+          axis: "A",
+          value: a,
+          severity: "warning",
+          message: "A-axis near 90° limits workspace",
+        });
+      }
+    }
+
+    return {
+      hasSingularity: singularities.some(s => s.severity === "critical"),
+      singularities,
+    };
+  }
+
+  private _multiplyJtJ(J: number[][]): number[][] {
+    const m = J.length;
+    const n = J[0]?.length ?? 0;
+    const result: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        for (let k = 0; k < m; k++) {
+          result[i][j] += J[k][i] * J[k][j];
+        }
+      }
+    }
+    return result;
+  }
+
+  private _powerIterationEigenvalues(matrix: number[][], maxIter: number): number[] {
+    const n = matrix.length;
+    const eigenvalues: number[] = [];
+    const A = matrix.map(row => [...row]);
+
+    for (let eigIdx = 0; eigIdx < n; eigIdx++) {
+      let v = new Array(n).fill(1);
+      let eigenvalue = 0;
+
+      for (let iter = 0; iter < maxIter; iter++) {
+        const Av = new Array(n).fill(0);
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) Av[i] += A[i][j] * v[j];
+        }
+        const norm = Math.sqrt(Av.reduce((s, x) => s + x * x, 0));
+        if (norm < 1e-12) break;
+        v = Av.map(x => x / norm);
+        eigenvalue = norm;
+      }
+      eigenvalues.push(eigenvalue);
+
+      // Deflate
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          A[i][j] -= eigenvalue * v[i] * v[j];
+        }
+      }
+    }
+    return eigenvalues;
+  }
+}
+
+export const jacobianEngine = new JacobianEngineImpl();
+
 export const kinematicsEngine = new KinematicsEngineImpl();

@@ -4056,6 +4056,31 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Batch 12b: 5-Axis Jacobian & Singularity ──────────────
+          case "jacobian_5axis": {
+            const { jacobianEngine: je } = await import("../../engines/KinematicsEngine.js");
+            const jConfig = params.config === "AC" ? "AC" as const : "BC" as const;
+            const jJoints = { x: params.x ?? 0, y: params.y ?? 0, z: params.z ?? 0, a: params.a ?? 0, b: params.b ?? 0, c: params.c ?? 0 };
+            const jacobian = je.compute5AxisJacobian(jConfig, jJoints, params.tool_length ?? 0);
+            const singResult = je.detectSingularity(jacobian, params.threshold ?? 0.01);
+            result = { jacobian, ...singResult };
+            break;
+          }
+          case "singularity_detect": {
+            const { jacobianEngine: je2 } = await import("../../engines/KinematicsEngine.js");
+            const sdConfig = params.config === "AC" ? "AC" as const : "BC" as const;
+            const sdJoints = { x: params.x ?? 0, y: params.y ?? 0, z: params.z ?? 0, a: params.a ?? 0, b: params.b ?? 0, c: params.c ?? 0 };
+            const sdJ = je2.compute5AxisJacobian(sdConfig, sdJoints, params.tool_length ?? 0);
+            result = je2.detectSingularity(sdJ, params.threshold ?? 0.01);
+            break;
+          }
+          case "config_singularity_check": {
+            const { jacobianEngine: je3 } = await import("../../engines/KinematicsEngine.js");
+            const csConfig = params.config === "AC" ? "AC" as const : "BC" as const;
+            result = je3.checkConfigSingularities(csConfig, { a: params.a ?? 0, b: params.b ?? 0, c: params.c ?? 0 });
+            break;
+          }
+
           // ── Batch 13: Workholding & Fixture ────────────────────────
           case "fixture_design_recommend": {
             const { fixtureDesignEngine } = await import("../../engines/FixtureDesignEngine.js");
