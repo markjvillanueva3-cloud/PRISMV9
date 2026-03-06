@@ -238,8 +238,8 @@ const SMOOTHING_CODES: Record<TargetController, Record<string, string>> = {
   haas:       { rough: "G187 P1 E0.05", finish: "G187 P3 E0.005", off: "G187 P2" },
   siemens:    { rough: "CYCLE832(0.05,1)", finish: "CYCLE832(0.005,1)", off: "CYCLE832()" },
   heidenhain: { rough: "M120 LA5.0", finish: "M120 LA0.01", off: "M120" },
-  mazak:      { rough: "G5.1 Q1 R5.0", finish: "G5.1 Q1 R0.01", off: "G5.1 Q0" },
-  okuma:      { rough: "G08 P1", finish: "G08 P1", off: "G08 P0" },
+  mazak:      { rough: "G5.1 Q1 R5.0", finish: "G5.1 Q1 R0.01", off: "G5.1 Q0" },  // Source: Mazak Matrix EIA manual
+  okuma:      { rough: "G08 P1", finish: "G08 P1", off: "G08 P0" },               // Source: Okuma OSP-P200L manual
 };
 
 // ── Coolant Codes per Controller ────────────────────────────────────────────
@@ -260,8 +260,8 @@ const SAFE_STARTS: Record<TargetController, string> = {
   haas:       "G90 G94 G17 G40 G49 G80",
   siemens:    "G90 G94 G17 G40 G49 G80",
   heidenhain: "TOOL CALL 0 Z S0\nCYCL DEF 247 DATUM SETTING ~\n  Q339=+0",
-  mazak:      "G90 G94 G17 G40 G49 G80",
-  okuma:      "G90 G94 G17 G40 G49 G80",
+  mazak:      "G40 G80 G90 G94 G69",   // Source: Mazak EIA Programming Manual for Mazatrol Matrix (INTEGREX IV)
+  okuma:      "G40 G180 G90 G95 G97",  // Source: Okuma OSP-P200L Programming Manual (G180=cycle cancel, G95=feed/rev default)
 };
 
 // ── Engine ───────────────────────────────────────────────────────────────────
@@ -525,7 +525,12 @@ export class CamKnowledgePortabilityEngine {
         } else if (ctrl === "siemens") {
           const cycle = input.intent === "peck_drilling" ? "CYCLE83" : "CYCLE81";
           lines.push(`${cycle}(${params.clearance_plane},0,-${depth},${params.safety_distance})`);
+        } else if (ctrl === "okuma") {
+          // Okuma OSP uses G183 for peck drilling, G181 for spot drilling (Source: OSP-P200L manual)
+          const gCode = input.intent === "peck_drilling" ? "G183" : "G181";
+          lines.push(`${gCode} Z-${depth} R${params.safety_distance} F${params.feed_rate}`);
         } else {
+          // Fanuc, Haas, Mazak (Series M) use standard G83/G81
           const gCode = input.intent === "peck_drilling" ? "G83" : "G81";
           lines.push(`${gCode} Z-${depth} R${params.safety_distance} F${params.feed_rate}`);
         }
@@ -539,6 +544,9 @@ export class CamKnowledgePortabilityEngine {
           lines.push(`  Q239=${pitch} ;PITCH`);
         } else if (ctrl === "siemens") {
           lines.push(`CYCLE84(${params.clearance_plane},0,-${depth},${params.safety_distance},,3,${pitch})`);
+        } else if (ctrl === "okuma") {
+          // Okuma OSP uses G184 for tapping (Source: OSP-P200L manual)
+          lines.push(`G184 Z-${depth} R${params.safety_distance} F${params.rpm * pitch}`);
         } else {
           lines.push(`G84 Z-${depth} R${params.safety_distance} F${params.rpm * pitch}`);
         }
@@ -683,6 +691,86 @@ export class CamKnowledgePortabilityEngine {
       coolant: data.coolant,
       warnings,
     };
+  }
+
+  /**
+   * Get controller dialect details from manual extraction
+   * Source: Mazak EIA Programming Manual (INTEGREX IV), Okuma OSP-P200L Programming Manual
+   */
+  controllerDialect(controller: TargetController): {
+    controller: TargetController;
+    source_manual: string;
+    coord_system_set: string;
+    feed_per_min: string;
+    feed_per_rev: string;
+    abs_inc: string;
+    threading: string;
+    peck_drill: string;
+    tapping: string;
+    boring: string;
+    cycle_cancel: string;
+    c_axis_mode?: string;
+    notes: string[];
+  } {
+    const dialects: Record<TargetController, ReturnType<typeof this.controllerDialect>> = {
+      fanuc: {
+        controller: "fanuc", source_manual: "Fanuc 0i/30i Series",
+        coord_system_set: "G92", feed_per_min: "G94", feed_per_rev: "G95",
+        abs_inc: "G90/G91", threading: "G32/G76", peck_drill: "G83",
+        tapping: "G84", boring: "G85", cycle_cancel: "G80", notes: ["Industry standard reference dialect"],
+      },
+      haas: {
+        controller: "haas", source_manual: "Haas NGC Mill/Lathe Programming",
+        coord_system_set: "G92", feed_per_min: "G94", feed_per_rev: "G95",
+        abs_inc: "G90/G91", threading: "G32/G76", peck_drill: "G83",
+        tapping: "G84", boring: "G85", cycle_cancel: "G80", notes: ["Fanuc-compatible with Haas-specific M-codes (M88=TSC)"],
+      },
+      siemens: {
+        controller: "siemens", source_manual: "Sinumerik 840D sl Programming",
+        coord_system_set: "TRANS/ATRANS", feed_per_min: "G94", feed_per_rev: "G95",
+        abs_inc: "G90/G91", threading: "G33/CYCLE97", peck_drill: "CYCLE83",
+        tapping: "CYCLE84", boring: "CYCLE85/86", cycle_cancel: "MCALL", notes: ["Uses CYCLE macros, not G-code canned cycles"],
+      },
+      heidenhain: {
+        controller: "heidenhain", source_manual: "Heidenhain TNC 640 Programming",
+        coord_system_set: "CYCL DEF 247", feed_per_min: "F (mm/min)", feed_per_rev: "FU (mm/rev)",
+        abs_inc: "Absolute/Incremental keywords", threading: "CYCL DEF 262", peck_drill: "CYCL DEF 200/203",
+        tapping: "CYCL DEF 207", boring: "CYCL DEF 201/202", cycle_cancel: "CYCL DEF END",
+        notes: ["Conversational format, not ISO G-code"],
+      },
+      mazak: {
+        controller: "mazak", source_manual: "Mazak EIA Programming Manual for Mazatrol Matrix (INTEGREX IV)",
+        coord_system_set: "G50 (Series T) / G92 (Series M)", feed_per_min: "G98 (T) / G94 (M)",
+        feed_per_rev: "G99 (T) / G95 (M)", abs_inc: "U/W incremental (T) / G90/G91 (M)",
+        threading: "G32/G76 (T) / G33/G276 (M)", peck_drill: "G83 (T) / G283 (M)",
+        tapping: "G84 (T) / G284 (M)", boring: "G85 (T) / G285 (M)",
+        cycle_cancel: "G80", c_axis_mode: "M203/M3 spindle select (INTEGREX e-Series)",
+        notes: [
+          "Dual dialect: Series T (turning) vs Series M (milling) codes",
+          "INTEGREX e-Series uses M203 for turning spindle, M3 for milling spindle",
+          "G130 Tornado Tapping (Mazak-specific)",
+          "G234.1/G235/G236/G237.1 hole pattern cycles",
+          "Mirror function G50.1/G51.1 needed when B-axis at 180°",
+        ],
+      },
+      okuma: {
+        controller: "okuma", source_manual: "Okuma OSP-P200L Programming Manual (3rd Edition)",
+        coord_system_set: "G50 (zero shift — NOT Fanuc G50)", feed_per_min: "G94",
+        feed_per_rev: "G95", abs_inc: "G90/G91",
+        threading: "G31/G33/G71 (compound)", peck_drill: "G183 (C-axis compound)",
+        tapping: "G184/G178 (sync)", boring: "G182/G189",
+        cycle_cancel: "G180 (NOT G80)", c_axis_mode: "M109 (spindle) / M110 (C-axis) / M147 (clamp)",
+        notes: [
+          "G180 for cycle cancel (NOT G80 like Fanuc)",
+          "G50 means zero shift (Fanuc uses it for coord system set)",
+          "G183-G190 for C-axis compound drilling/milling cycles",
+          "Thread infeed patterns: M32 (straight), M33 (zigzag), M34 (straight reversed)",
+          "C-axis: M110 enter, M109 return to spindle, M146/M147 unclamp/clamp",
+          "LAP auto-programming: G80-G87 for bar/copy/finish turning cycles",
+        ],
+      },
+    };
+    return dialects[controller];
   }
 
   /** Stats */

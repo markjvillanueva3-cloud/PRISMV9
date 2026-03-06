@@ -490,4 +490,136 @@ describe("CamKnowledgePortabilityEngine", () => {
       expect(r.enhancements.length).toBe(0);
     });
   });
+
+  // ── Controller Dialect (from PDF manual extraction) ─────────────────────
+
+  describe("controllerDialect — Mazak (from EIA Programming Manual)", () => {
+    it("returns Mazak-specific dual dialect info", () => {
+      const d = engine.controllerDialect("mazak");
+      expect(d.controller).toBe("mazak");
+      expect(d.source_manual).toContain("Mazatrol Matrix");
+      expect(d.coord_system_set).toContain("G50");
+      expect(d.coord_system_set).toContain("G92");
+      expect(d.feed_per_min).toContain("G98");
+      expect(d.feed_per_rev).toContain("G99");
+      expect(d.peck_drill).toContain("G283");
+      expect(d.tapping).toContain("G284");
+      expect(d.cycle_cancel).toBe("G80");
+    });
+
+    it("includes INTEGREX e-Series spindle select note", () => {
+      const d = engine.controllerDialect("mazak");
+      expect(d.c_axis_mode).toContain("M203");
+      expect(d.notes.some(n => n.includes("INTEGREX"))).toBe(true);
+    });
+
+    it("includes Tornado Tapping note", () => {
+      const d = engine.controllerDialect("mazak");
+      expect(d.notes.some(n => n.includes("G130") || n.includes("Tornado"))).toBe(true);
+    });
+
+    it("documents mirror function for B-axis 180°", () => {
+      const d = engine.controllerDialect("mazak");
+      expect(d.notes.some(n => n.includes("G50.1") || n.includes("B-axis"))).toBe(true);
+    });
+  });
+
+  describe("controllerDialect — Okuma (from OSP-P200L Manual)", () => {
+    it("returns Okuma-specific dialect info", () => {
+      const d = engine.controllerDialect("okuma");
+      expect(d.controller).toBe("okuma");
+      expect(d.source_manual).toContain("OSP-P200L");
+      expect(d.cycle_cancel).toBe("G180 (NOT G80)");
+      expect(d.peck_drill).toContain("G183");
+      expect(d.tapping).toContain("G184");
+      expect(d.boring).toContain("G182");
+    });
+
+    it("documents G50 difference from Fanuc", () => {
+      const d = engine.controllerDialect("okuma");
+      expect(d.coord_system_set).toContain("zero shift");
+      expect(d.notes.some(n => n.includes("G50") && n.includes("Fanuc"))).toBe(true);
+    });
+
+    it("includes C-axis mode switching", () => {
+      const d = engine.controllerDialect("okuma");
+      expect(d.c_axis_mode).toContain("M109");
+      expect(d.c_axis_mode).toContain("M110");
+      expect(d.c_axis_mode).toContain("M147");
+    });
+
+    it("documents thread infeed patterns", () => {
+      const d = engine.controllerDialect("okuma");
+      expect(d.notes.some(n => n.includes("M32") && n.includes("M33"))).toBe(true);
+    });
+  });
+
+  describe("controllerDialect — all controllers", () => {
+    const controllers: TargetController[] = ["fanuc", "haas", "siemens", "heidenhain", "mazak", "okuma"];
+
+    it("returns dialect for every supported controller", () => {
+      for (const ctrl of controllers) {
+        const d = engine.controllerDialect(ctrl);
+        expect(d.controller).toBe(ctrl);
+        expect(d.source_manual).toBeTruthy();
+        expect(d.peck_drill).toBeTruthy();
+        expect(d.tapping).toBeTruthy();
+        expect(d.cycle_cancel).toBeTruthy();
+        expect(d.notes.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  // ── Okuma-specific G-code generation ────────────────────────────────────
+
+  describe("translate — Okuma G-code specifics", () => {
+    it("uses G183 for Okuma peck drilling", () => {
+      const r = engine.translate({
+        intent: "peck_drilling",
+        material: { name: "1045 Steel" },
+        tool: { diameter: 8, flute_count: 2, type: "drill" },
+        machine: { controller: "okuma" },
+        depth: 25,
+      });
+      expect(r.gcode).toContain("G183");
+      expect(r.gcode).not.toContain("G83");
+    });
+
+    it("uses G184 for Okuma tapping", () => {
+      const r = engine.translate({
+        intent: "tapping",
+        material: { name: "1045 Steel" },
+        tool: { diameter: 10, flute_count: 2, type: "tap", corner_radius: 1.5 },
+        machine: { controller: "okuma" },
+        depth: 20,
+      });
+      expect(r.gcode).toContain("G184");
+      expect(r.gcode).not.toContain("G84 ");
+    });
+
+    it("uses Okuma safe start (G180 not G80)", () => {
+      const r = engine.translate({
+        intent: "drilling",
+        material: { name: "1045 Steel" },
+        tool: { diameter: 8, flute_count: 2, type: "drill" },
+        machine: { controller: "okuma" },
+        depth: 15,
+      });
+      expect(r.gcode).toContain("G180");
+    });
+  });
+
+  describe("translate — Mazak safe start", () => {
+    it("uses Mazak-specific safe start with G69", () => {
+      const r = engine.translate({
+        intent: "drilling",
+        material: { name: "1045 Steel" },
+        tool: { diameter: 8, flute_count: 2, type: "drill" },
+        machine: { controller: "mazak" },
+        depth: 15,
+      });
+      expect(r.gcode).toContain("G69");
+      expect(r.gcode).toContain("G40");
+    });
+  });
 });
